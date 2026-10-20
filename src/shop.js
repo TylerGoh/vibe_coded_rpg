@@ -1,7 +1,7 @@
 // Docs: docs/combat/items.md
 // Merchant Pip's shop in the village (E at the stall): buy potions and gear with gold, sell loot and
-// spare gear back for SELL_RATE of the price, and (the Boutique tab) the special accessories some friends'
-// slimes wear, as cheap cosmetics. Gold drops from every mob and boss. Rules: server/rpg.js.
+// spare gear back for SELL_RATE of the price, and (the Boutique tab) the friends' signature
+// accessories, as cheap cosmetics. Gold drops from every mob and boss. Rules: server/rpg.js.
 import { drawItemIcon } from './field.js';
 import { audio } from './audio.js';
 import { Slime } from './slime.js';

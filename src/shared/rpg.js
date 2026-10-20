@@ -448,8 +448,8 @@ export const SHOP_STOCK = ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'm
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));
 export const BUY_MAX = 20; // potions bought at once
 
-// ——— the Boutique (a tab in Pip's shop): the special accessories some friends' slimes always wear,
-// sold cheaply as cosmetics. Owned ones can be worn in any mix from the bag's Style row; they're purely
+// ——— the Boutique (a tab in Pip's shop): the friends' signature accessories (once worn for
+// free by their accounts, now anyone's to buy), sold cheaply as cosmetics. Owned ones can be worn in any mix from the bag's Style row; they're purely
 // for looks (src/slime.js draws them, keyed by these ids). Hiding the helmet shows them unobstructed.
 export const COSMETICS = {
   ribbon: { name: 'Pink Ribbon', price: 150, desc: "A big pink bow, just like shireen's." },

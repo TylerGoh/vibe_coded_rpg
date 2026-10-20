@@ -3,9 +3,6 @@ import { TAU, rand, clamp, ellipse, circle } from './util.js';
 import { drawSword, drawHelmet, SWORD_LEN } from './field.js';
 import { drawEnhanceGlow } from './skillfx.js';
 
-// Some accounts come with a little accessory (by username; see Agent.md).
-const ACCESSORIES = { shireen: ['ribbon', 'glasses', 'notes'], qinxin: ['bowtie'], darrell: ['flute'], chenyirong: ['laptop'] };
-
 // yr's laptop notifications: icon colours, and how long each one floats
 const NOTIF_KINDS = ['#ff5a5f', '#4fbf86', '#5b8def', '#ffb020']; // alert, message, mail, calendar
 const NOTIF_LIFE = 1.8;
@@ -99,15 +96,15 @@ export class Slime {
 
   setName(name) {
     this.name = name;
-    this.accessories = ACCESSORIES[name.trim().toLowerCase()] ?? [];
+    this.accessories = [];
   }
 
-  // What a player has on (src/rpg.js): gear, Boutique cosmetics worn on top of their own accessories,
+  // What a player has on (src/rpg.js): gear, the Boutique cosmetics they wear,
   // and whether the helmet shows (hiding it lets cosmetics like the ribbon show)
   setLook({ gear, wear, showHelmet, plus, gearE } = {}) {
     if (gear) this.gear = showHelmet === false ? { ...gear, helmet: null } : gear;
     if (plus !== undefined || gearE) this.plus = plus ?? gearE?.sword?.s ?? 0; // scroll successes on the sword: it glows
-    this.accessories = [...new Set([...(ACCESSORIES[this.name.trim().toLowerCase()] ?? []), ...(wear ?? [])])];
+    this.accessories = [...new Set(wear ?? [])];
   }
 
   // Swing a slap toward dir (-1 left, 1 right)
