@@ -32,6 +32,12 @@ scene in `src/audio.js`, the "you are here" pin at sea in `src/worldmap.js`, Bri
   only, driven by YOUR `vt` (`crossingAt`). The deck itself never moves: the physics are plain `step()`.
 - `vt` is in snapshots (wire version 2, `src/shared/wire.js`) and survives a restart (`savePositions`).
 - Once she's in, the clock stops mattering: you can stay aboard as long as you like; the gangway is open.
+- **Boarding asks first** (owner: someone walked aboard by accident and was stuck at sea for a minute). A
+  gangway door has `ask`; E there opens a small "Set sail?" card (`sail` in `src/main.js`, `#sail`) instead
+  of stepping aboard, and its Set sail button (or E / Enter again) sends the E press itself, so the door is
+  still taken inside `step()`. Phones get the same card. Walking off the gangway closes it.
+- **Second thoughts:** for the first `CAST_OFF` ticks aboard the deck has a second door at the gangway
+  (`before`: open only while your clock is under it) back to where you boarded.
 
 ## The cold route (the Puddle Jumper)
 - Out of Greenhollow: the green coast with Slimeville's roofs and the lit lighthouse slides away astern,

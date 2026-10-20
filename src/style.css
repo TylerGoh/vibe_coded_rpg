@@ -1642,6 +1642,7 @@ body.touch #shop {
 #chat[hidden],
 #players[hidden],
 #invite[hidden],
+#sail[hidden],
 #furni[hidden],
 #deco[hidden] {
   display: none;
@@ -1758,7 +1759,8 @@ body.touch #shop {
   font: 700 calc(16px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
   cursor: pointer;
 }
-#invite {
+#invite,
+#sail {
   position: absolute;
   left: 50%;
   top: calc(96px * var(--s));
@@ -1773,15 +1775,20 @@ body.touch #shop {
   box-shadow: 0 calc(5px * var(--s)) 0 rgba(91, 74, 107, 0.18);
   animation: invite-in 0.35s ease-out;
 }
-#invite p {
+#invite p,
+#sail p {
   margin: 0 0 calc(8px * var(--s));
+}
+#sail {
+  border-color: #9fc4e8;
 }
 .invite-btns {
   display: flex;
   justify-content: center;
   gap: calc(8px * var(--s));
 }
-#invite-no {
+#invite-no,
+#sail-no {
   background: #e9e3f2 !important;
   color: #7a6a8b !important;
 }

@@ -323,6 +323,31 @@ function useSlot(bar, i) {
 }
 // Dash / Blink from the hotbar: hold their input bit for a few steps (the physics acts on the press)
 let moveBits = 0, moveSteps = 0;
+// A door with `ask` (a ship's gangway) is confirmed first: the card's Set sail sends the E press itself,
+// so the door is still taken inside step() like any other (docs/places/crossings.md)
+const sail = {
+  door: null,
+  el: document.getElementById('sail'),
+  open(d) {
+    this.door = d;
+    document.getElementById('sail-text').textContent = d.ask;
+    this.el.hidden = false;
+    held.clear();
+  },
+  close() {
+    this.door = null;
+    this.el.hidden = true;
+  },
+  go() {
+    if (this.door && doorAt(net.me) === this.door) {
+      moveBits |= USE;
+      moveSteps = 1;
+    }
+    this.close();
+  },
+};
+document.getElementById('sail-go').onclick = () => sail.go();
+document.getElementById('sail-no').onclick = () => sail.close();
 function pressMove(id) {
   if (!rankOf(rpg.me?.skills, id)) return rpg.toast(`You haven't learned ${SKILLS[id].name} yet (press K)`), audio.sfx('error');
   moveBits |= id === 'dash' ? DASH : BLINK;
@@ -708,6 +733,13 @@ addEventListener('keydown', (e) => {
     }
     return;
   }
+  // boarding a ship: E or Enter sets sail, Esc thinks better of it
+  if (sail.door) {
+    e.preventDefault();
+    if (e.code === 'Escape') sail.close();
+    else if ((e.code === 'KeyE' || e.code === 'Enter') && !e.repeat) sail.go();
+    return;
+  }
   // the bag (I), the skill tree (K) and the shop: their key or Esc closes them (the rest is clicks / taps)
   for (const [panel, code] of [[rpg, 'KeyI'], [skillTree, 'KeyK'], [shop, 'KeyE'], [players, 'KeyP'], [alchemy, 'KeyE']]) {
     if (!panel.isOpen) continue;
@@ -867,6 +899,11 @@ addEventListener('keydown', (e) => {
     scope.show();
     return;
   }
+  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && doorAt(net.me)?.ask) {
+    e.preventDefault();
+    sail.open(doorAt(net.me)); // a ship's gangway: ask first (docs/places/crossings.md)
+    return;
+  }
   if (e.code === 'Escape') {
     e.preventDefault();
     toggleMenu();
@@ -974,6 +1011,7 @@ function update(realDt) {
   }
 
   for (const c of characters.values()) c.update(dt, online() && npcIn(c.cfg, room) ? mine : null);
+  if (sail.door && !(online() && doorAt(net.me) === sail.door)) sail.close(); // walked off the gangway
   if (room === MUSEUM) museum.update(dt, online() ? net.me : null);
   if (scope.isOpen) scope.update(dt);
   tutor.update(dt, online() && room === TUTOR);
@@ -1081,7 +1119,7 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 // could walk up to (src/hints.js). E does one thing at a time, in the same order as the keydown handler.
 const BEACON_RANGE = 420;
 function drawHints() {
-  if (!online() || splatted(mine) || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || houses.editing) return;
+  if (!online() || splatted(mine) || !menu.hidden || sail.door || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || houses.editing) return;
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);

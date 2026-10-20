@@ -170,7 +170,7 @@ for (const d of DENS) {
 ROOMS[HIGHLANDS] = {
   name: 'The Frostpeak Highlands', width: HIGHLANDS_W, ground: FIELD_GROUND, platforms: HIGHLAND_PLATFORMS,
   doors: [
-    { x: HIGHLANDS_EXIT_X, w: 80, to: FERRY_S, toX: DECK_GANGWAY_X, label: 'board the ferry home to Greenhollow' },
+    { x: HIGHLANDS_EXIT_X, w: 80, to: FERRY_S, toX: DECK_GANGWAY_X, label: 'board the ferry home to Greenhollow', ask: 'Sail home to Greenhollow? About 45 seconds at sea.' },
     { x: CALDERA_DOOR_X, w: 80, to: CALDERA, toX: CALDERA_EXIT_X, label: 'descend to the Emberdeep Caldera (Lv 28+)' },
     ...denDoors(HIGHLANDS),
   ],
@@ -206,7 +206,7 @@ ROOMS[HARBOUR] = {
   name: 'Greenhollow Harbour', width: HARBOUR_W, ground: 470, platforms: HARBOUR_PLATFORMS,
   doors: [
     { x: HARBOUR_EXIT_X, w: 80, to: VILLAGE, toX: HARBOUR_GATE_X, label: 'walk back up to Slimeville' },
-    { x: GANGWAY_X, w: 80, to: FERRY_N, toX: DECK_GANGWAY_X, label: 'board the ferry to Frostpeak (Lv 13+)' },
+    { x: GANGWAY_X, w: 80, to: FERRY_N, toX: DECK_GANGWAY_X, label: 'board the ferry to Frostpeak (Lv 13+)', ask: 'Set sail for Frostpeak? She takes about a minute.' },
   ],
 };
 // room 20: Greenhollow's east cliffs, a vista with no mobs. The room ends at the cliff edge (a fence), and
@@ -232,16 +232,19 @@ export const DECK_PLATFORMS = [
   { x: 1180, y: 252, w: 150, kind: 'yard' },
   { x: 1218, y: 140, w: 74, kind: 'nest' },
 ];
-const deck = (name, crossing, ashore) => ({
+// ashore: the gangway once she's in (`after`); back: the same gangway for the first CAST_OFF ticks (`before`),
+// while she's still casting off, so boarding by mistake doesn't mean a whole voyage
+export const CAST_OFF = 6 * TICK_RATE;
+const deck = (name, crossing, ashore, back) => ({
   name, width: DECK_W, ground: DECK_GROUND, platforms: DECK_PLATFORMS, crossing,
-  doors: [{ ...ashore, x: DECK_GANGWAY_X, w: 90, after: crossing.ticks }],
+  doors: [{ ...ashore, x: DECK_GANGWAY_X, w: 90, after: crossing.ticks }, { ...back, x: DECK_GANGWAY_X, w: 90, before: CAST_OFF, label: "hop back ashore (she's still casting off)" }],
 });
 // route: the theme src/crossing.js paints · from / to: the islands (src/distant.js keys) · ticks: how long
 // she takes. The first crossing out is the slow one (story/world/geography.md); home is quicker.
 ROOMS[FERRY_N] = deck('The Puddle Jumper, bound for Frostpeak', { route: 'cold', from: 'green', to: 'frost', ticks: 60 * TICK_RATE },
-  { to: HIGHLANDS, toX: HIGHLANDS_EXIT_X, label: 'go ashore at Frostpeak' });
+  { to: HIGHLANDS, toX: HIGHLANDS_EXIT_X, label: 'go ashore at Frostpeak' }, { to: HARBOUR, toX: GANGWAY_X });
 ROOMS[FERRY_S] = deck('The Puddle Jumper, bound for Greenhollow', { route: 'cold', from: 'frost', to: 'green', ticks: 45 * TICK_RATE },
-  { to: HARBOUR, toX: GANGWAY_X, label: 'go ashore at Greenhollow Harbour' });
+  { to: HARBOUR, toX: GANGWAY_X, label: 'go ashore at Greenhollow Harbour' }, { to: HIGHLANDS, toX: HIGHLANDS_EXIT_X });
 export const VOYAGE_MAX = 65535; // state.vt stops counting here (it's a u16 on the wire)
 
 const houses = new Map(); // room id → its room definition
@@ -306,8 +309,9 @@ const HALF_W = 16; // half the slime's footprint, for platform edges and world b
 // vt: voyage ticks, how long you've been aboard a crossing (0 everywhere else)
 export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0 });
 
-// Whether door d can be used right now (your own house once you have one; a ship's gangway once she's in)
-export const doorOpen = (s, d) => (d.to !== HOME || !!s.home) && (!d.after || (s.vt | 0) >= d.after);
+// Whether door d can be used right now (your own house once you have one; a ship's gangway once she's in,
+// or back ashore while she's casting off). A door with `ask` is confirmed on the client first (src/main.js).
+export const doorOpen = (s, d) => (d.to !== HOME || !!s.home) && (!d.after || (s.vt | 0) >= d.after) && (!d.before || (s.vt | 0) < d.before);
 // The door a slime standing at s could go through, or undefined
 export const doorAt = (s) => roomDef(s.room).doors.find((d) => s.grounded && !s.onPlat && Math.abs(s.x - d.x) <= d.w / 2 && doorOpen(s, d));
 // How far along its crossing a slime is, 0..1 (0 when not aboard one)
