@@ -29,6 +29,8 @@ in `src/players.js`.
   localStorage per account (`slimeville-chat-<name>`); the server keeps no read state. Unread public
   lines are only counted for this session. The Chat button (phones) shows the total and turns pink for private ones; on desktop the box's
   tabs show them, and new lines appear in the corner feed.
+- `chat.announce(text)`: a line everyone in a room should see (a field boss turning up or beaten,
+  `docs/combat/stages.md`): a system line in the public tab and in the corner feed.
 - The server rate-limits each player (`BURST`, `PER_SEC`), cleans text with `cleanText`, and checks the
   recipient is a real account. The sender's own line comes back from the server (no local echo), so
   what you see is what was stored.

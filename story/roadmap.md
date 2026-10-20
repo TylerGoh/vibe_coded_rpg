@@ -14,7 +14,9 @@ Deep islands before new ones. Greenhollow covers Lv 1-60 and Frostpeak 40-100, w
 and easy pockets, field bosses, no quests (owner, explicit), and the levelling speed unchanged. Today's mobs and gear are
 legacy units (kept, reusable; raised to their island's new band once Greenhollow covers 1-60). New islands (atlas Phase 5 on) wait until Greenhollow, then Frostpeak,
 are fleshed out. **The plan and its phases: `world/island-depth.md`.**
-- [ ] G0: systems (field bosses and elites, door level labels, the island map)
+- [x] G0: systems (field bosses and elites, door level labels, the island map), proved with Turnipop in
+      Sprout Meadow and Elder Bramblehogs in Bramble Woods; every branch's entrance laid and blocked
+      (`docs/places/branches.md`); the frozen curves in `npm run economy`
 - [ ] G1-G5: Greenhollow's branches, bottom of the band up
 - [ ] R: the rebalance: the later islands' legacy mobs and bosses raised to their new bands; owned gear
       kept as Legacy, scaled new copies dropped instead

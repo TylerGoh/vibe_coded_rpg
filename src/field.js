@@ -9,7 +9,8 @@ import { FIELD_W, FIELD_GROUND, FIELD_EXIT_X, ZONES, FIELD_PLATFORMS, MOBS } fro
 import { CALDERA_MOB_ART } from './caldera.js';
 import { CITADEL_MOB_ART } from './citadel.js';
 import { FJORD_MOB_ART, drawBoneHarpoon, drawFurHood } from './fjord-art.js';
-const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART };
+import { FIELD_BOSS_ART, drawEliteGlow } from './fieldboss-art.js';
+const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...FIELD_BOSS_ART };
 
 const INK = '#5b4a6b';
 const FLOWER_COLORS = ['#ffb3c7', '#fff1a8', '#c9b6ff', '#ffffff', '#ffd1a1'];
@@ -1049,15 +1050,17 @@ export function drawMob(ctx, m, time) {
   ctx.translate(m.x - facing * hurt * 6, m.y);
   if (dying > 0) drawPoof(ctx, spec, dying, seed);
   ctx.globalAlpha = 1 - dying ** 1.4;
+  if (spec.elite) drawEliteGlow(ctx, w, h, t, seed);
   ctx.scale(facing, 1);
   let sil;
-  if (m.kind === 'sprout') sil = drawSprout(ctx, w, h, t, seed, m, dying);
-  else if (m.kind === 'mushling') sil = drawMushling(ctx, w, h, t, seed, m, dying);
-  else if (m.kind === 'frostling') sil = drawFrostling(ctx, w, h, t, seed, m, dying);
-  else if (m.kind === 'yeti') sil = drawYeti(ctx, w, h, t, seed, m, dying);
-  else if (m.kind === 'wisp') sil = drawWisp(ctx, w, h, t, seed, m, dying);
-  else if (m.kind === 'golem') sil = drawGolem(ctx, w, h, t, seed, m, dying);
-  else if (MOB_ART[m.kind]) sil = MOB_ART[m.kind](ctx, w, h, t, seed, m, dying); // the Caldera, the Citadel, Frostpeak's later mobs
+  const art = spec.base ?? m.kind; // an elite is drawn as its base mob (bigger, with the glow)
+  if (art === 'sprout') sil = drawSprout(ctx, w, h, t, seed, m, dying);
+  else if (art === 'mushling') sil = drawMushling(ctx, w, h, t, seed, m, dying);
+  else if (art === 'frostling') sil = drawFrostling(ctx, w, h, t, seed, m, dying);
+  else if (art === 'yeti') sil = drawYeti(ctx, w, h, t, seed, m, dying);
+  else if (art === 'wisp') sil = drawWisp(ctx, w, h, t, seed, m, dying);
+  else if (art === 'golem') sil = drawGolem(ctx, w, h, t, seed, m, dying);
+  else if (MOB_ART[art]) sil = MOB_ART[art](ctx, w, h, t, seed, m, dying); // the Caldera, the Citadel, Frostpeak's later mobs, field bosses
   else sil = drawBramble(ctx, w, h, t, seed, m, dying);
   if (slow && dying < 0.5) drawFrost(ctx, sil, w, h, t, seed);
   if (hurt > 0.01) {

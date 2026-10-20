@@ -18,5 +18,12 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
 - Aboard a crossing, `islandOf` says `'sea'` and the pin sits on the ferry's route (`PINS`).
 - Frostpeak shows Icefang Hamlet where the ferry comes in (turf huts, a fire) and the Queen's cracked ice
   bridge running out to sea (`docs/places/fjord.md`).
+- **Island maps:** tapping (or clicking) an island that has one (`ISLAND_MAPS`, so far only Greenhollow)
+  opens its own map: its places as cards joined by paths, drawn from `GREENHOLLOW` in
+  `src/shared/branches.js` (`docs/places/branches.md`). Open places are solid with their level band;
+  ones not open yet are dashed with a short reason ("bridge out"), hard pockets red with a "!". Your pin
+  sits on the place you're in (`nodeAt`: the Wildwood by zone, a den by its stage; the village's
+  buildings and houses count as Slimeville). The pink pill top-left goes back to the chart. Taps are
+  `pointerdown` on the canvas, so mouse and touch work alike; the chart says "tap / click for its map".
 - **Keep it in step with the story:** when an island, route or place ships (or a proposed one becomes
   real), add or un-fog it here. Positions follow the compass layout in `story/world/geography.md`.

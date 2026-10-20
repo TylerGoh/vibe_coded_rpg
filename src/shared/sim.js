@@ -172,7 +172,7 @@ ROOMS[HIGHLANDS] = {
   name: 'Frostpeak', width: HIGHLANDS_W, ground: FIELD_GROUND, platforms: HIGHLAND_PLATFORMS,
   doors: [
     { x: HIGHLANDS_EXIT_X, w: 80, to: FJORD, toX: FJORD_EXIT_X, label: 'walk down to Icefang Hamlet' },
-    { x: CALDERA_DOOR_X, w: 80, to: CALDERA, toX: CALDERA_EXIT_X, label: 'descend to the Emberdeep Caldera (Lv 28+)' },
+    { x: CALDERA_DOOR_X, w: 80, to: CALDERA, toX: CALDERA_EXIT_X, label: 'descend to the Emberdeep Caldera' },
     ...denDoors(HIGHLANDS),
   ],
 };
@@ -181,7 +181,7 @@ ROOMS[CALDERA] = {
   name: 'The Emberdeep Caldera', width: CALDERA_W, ground: FIELD_GROUND, platforms: CALDERA_PLATFORMS,
   doors: [
     { x: CALDERA_EXIT_X, w: 80, to: HIGHLANDS, toX: CALDERA_DOOR_X, label: 'climb back up to Frostpeak' },
-    { x: CITADEL_DOOR_X, w: 80, to: CITADEL, toX: CITADEL_EXIT_X, label: 'ride the skylift to the Aether Citadel (Lv 50+)' },
+    { x: CITADEL_DOOR_X, w: 80, to: CITADEL, toX: CITADEL_EXIT_X, label: 'ride the skylift to the Aether Citadel' },
     ...denDoors(CALDERA),
   ],
 };
@@ -273,6 +273,17 @@ export const townOf = (room) => ROOMS[room]?.town ?? -1; // -1: not a town
 export const TOWN = -2; // a door's `to` meaning "your town" (a house's front door)
 const townAt = (s) => TOWNS[s.town | 0] ?? TOWNS[0];
 
+// ——— level bands on doors (docs/world.md) ———
+// Every door into a combat room says who it's for: the stage's `band` (STAGES in rpg.js) or the den boss's
+// level. The door's prompt and a chip over the door show it (src/hints.js); a hard pocket's are red.
+for (const r of ROOMS) {
+  for (const d of r?.doors ?? []) {
+    const den = DENS.find((x) => x.room === d.to);
+    if (STAGES[d.to]) Object.assign(d, { band: `Lv ${STAGES[d.to].band}`, hard: !!STAGES[d.to].hard });
+    else if (den) d.band = `Boss Lv ${MOBS[den.boss].lvl}`;
+  }
+}
+
 const houses = new Map(); // room id → its room definition
 // The room definition for any room id, houses included (undefined for an id that isn't a room)
 export function roomDef(room) {
@@ -287,7 +298,7 @@ export function roomDef(room) {
 export const setHouseRoom = (room, { width, platforms }) => Object.assign(roomDef(room), { width, platforms });
 
 function denDoors(from) {
-  return DENS.filter((d) => d.from === from).map((d) => ({ x: d.entranceX, w: 90, to: d.room, toX: DEN_EXIT_X, label: `enter ${d.name} (boss: ${MOBS[d.boss].name}, Lv ${MOBS[d.boss].lvl})` }));
+  return DENS.filter((d) => d.from === from).map((d) => ({ x: d.entranceX, w: 90, to: d.room, toX: DEN_EXIT_X, label: `enter ${d.name} (boss: ${MOBS[d.boss].name})` }));
 }
 
 // The piano key (MIDI note) under a slime standing in the piano room, or null

@@ -8,6 +8,9 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
 - Doors, characters, the Keeper stones and the telescope nearby but out of reach get a bouncing "E"
   beacon (the nearest two). A door that's shut for now (`doorOpen`: the ferry's gangway before she's in)
   gets no beacon and no prompt.
+- Doors into combat rooms add their level band to the prompt as a chip (`band`, `docs/world.md`); a hard
+  pocket's is red. The blocked ways into branches (`docs/places/branches.md`) get an E prompt ("look at
+  the washed-out footbridge") and a beacon.
 - `drawHints()` builds the list in the same order the E key acts in. **A new interaction must add its
   line there.** (The old per-object pills were removed in favour of this.)
 - Room-wide actions stay as pills top-right on desktop (H hand, C courses, Q Clio, X/I/K in combat rooms,

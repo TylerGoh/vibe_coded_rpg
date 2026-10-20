@@ -12,7 +12,7 @@ import { drawBoss, drawBossBar, BossFx, drawUltBanner } from './dens.js';
 import { drawHazard } from './hazards.js';
 import { SkillFx, drawSkillIcon, drawBerserkAura, drawBubble, drawRallyAura, drawAegisAura } from './skillfx.js';
 import { audio } from './audio.js';
-import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName } from './shared/rpg.js';
+import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS } from './shared/rpg.js';
 import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL } from './shared/skills.js';
 import { SLAP_REACH, DASH_CD, BLINK_CD, PHANTOM_CD } from './shared/sim.js';
 
@@ -163,7 +163,7 @@ export class Rpg {
     v.localUntil = this.time + 0.8;
     this.pop(v.x, v.y - k.h - 14, String(dmg), crit ? '#ff5d8f' : '#ffffff', crit ? 26 : 20, delay);
     audio.sfx(crit ? 'crit' : 'hit', { pan: panX(v.x, myX) });
-    audio.sfx('mobHurt', { kind: v.kind, pan: panX(v.x, myX), vol: 0.8 });
+    audio.sfx('mobHurt', { kind: MOBS[v.kind].base ?? v.kind, pan: panX(v.x, myX), vol: 0.8 });
     if (v.localHp <= 0) this.mobDied(v, myX);
   }
   mobDied(v, myX) {
@@ -171,8 +171,8 @@ export class Rpg {
     this.killed.set(v.id, this.time);
     this.ghosts.push({ ...v, dying: 0 });
     const k = MOBS[v.kind], pan = panX(v.x, myX);
-    audio.sfx('mobDeath', { kind: v.kind, pan });
-    if (k.boss) {
+    audio.sfx('mobDeath', { kind: MOBS[v.kind].base ?? v.kind, pan });
+    if (k.boss || k.field) {
       audio.sfx('bossDie', { pan });
       this.bossFx.spawn('bossDie', { x: v.x, y: v.y, size: k.w, theme: denAt(this.room)?.theme });
     } else audio.sfx('mobDie', { pan, vol: 0.7 });
@@ -404,13 +404,23 @@ export class Rpg {
       const k = MOBS[v.kind];
       v.hurt = 1;
       this.pop(v.x, v.y - k.h - 14, String(dmg), crit ? '#ffb0c8' : '#e8e4f4', crit ? 22 : 17, delay);
-      audio.sfx('mobHurt', { kind: v.kind, pan: panX(v.x, myX), vol: 0.5 });
+      audio.sfx('mobHurt', { kind: MOBS[v.kind].base ?? v.kind, pan: panX(v.x, myX), vol: 0.5 });
       if (killed) this.mobDied(v, myX);
     }
   }
 
   // ——— bosses ———
+  // A field boss showed up in this room, or was beaten: everyone here hears (a toast and a chat line)
+  fieldBoss(m) {
+    const k = MOBS[m.kind];
+    if (!k) return;
+    const line = m.a === 'fieldUp' ? k.desc : `${k.name} is beaten! It'll be back in about ${Math.round(FIELD_BOSS_RESPAWN_MS / 60000)} minutes.`;
+    this.toast(line);
+    this.onAnnounce?.(line);
+    if (m.a === 'fieldUp') audio.sfx('fieldBoss');
+  }
   bossEvent(m, mine) {
+    if (m.a === 'fieldUp' || m.a === 'fieldDown') return this.fieldBoss(m);
     const theme = denAt(this.room)?.theme, myX = mine?.x ?? m.x, pan = panX(m.x, myX);
     const ground = 450, me = this.net.me, v = this.views.get(m.id), k = MOBS[v?.kind] ?? MOBS.sprout_king;
     if (this.hazardEvent(m, k, theme, pan, me)) return;
@@ -810,16 +820,24 @@ export class Rpg {
     for (const v of this.views.values()) {
       const k = MOBS[v.kind];
       if (k.boss || this.killed.has(v.id)) continue; // the boss has its bar at the top of the screen
-      ctx.font = `700 11px ${FONT}`;
-      const label = `${k.name} Lv ${k.lvl}`;
-      const w = ctx.measureText(label).width + 12;
-      ctx.fillStyle = v.angry ? 'rgba(150,40,70,0.6)' : 'rgba(45,42,62,0.5)';
+      // field bosses and elites get a bigger, golden-rimmed tag; a field boss always shows its HP
+      const big = k.field || k.elite, size = big ? 13 : 11, th = big ? 20 : 16;
+      ctx.font = `700 ${size}px ${FONT}`;
+      const label = `${k.field ? 'Field boss: ' : ''}${k.name} Lv ${k.lvl}`;
+      const w = ctx.measureText(label).width + (big ? 18 : 12);
+      ctx.fillStyle = k.field ? 'rgba(170,70,40,0.82)' : k.elite ? 'rgba(160,104,24,0.78)' : v.angry ? 'rgba(150,40,70,0.6)' : 'rgba(45,42,62,0.5)';
       ctx.beginPath();
-      ctx.roundRect(v.x - w / 2, v.y + 6, w, 16, 8);
+      ctx.roundRect(v.x - w / 2, v.y + 6, w, th, th / 2);
       ctx.fill();
-      text(ctx, label, v.x, v.y + 14.5, 11, '#ffffff');
+      if (big) {
+        ctx.strokeStyle = '#ffe08a';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+      text(ctx, label, v.x, v.y + 6 + th / 2 + 0.5, size, '#ffffff');
       const hp = this.shownHp(v);
-      if (hp < v.maxHp) bar(ctx, v.x - 24, v.y - k.h - 10, 48, 6, hp / v.maxHp, '#ff6f91');
+      if (k.field) bar(ctx, v.x - 50, v.y - k.h - 16, 100, 8, hp / v.maxHp, '#ff6f91');
+      else if (hp < v.maxHp) bar(ctx, v.x - 24, v.y - k.h - 10, 48, 6, hp / v.maxHp, '#ff6f91');
     }
     this.bossFx.draw(ctx);
   }

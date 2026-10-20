@@ -185,6 +185,13 @@ export class Chat {
     this.add({ system: true, peer: this.tab, text });
     this.render();
   }
+  // Something everyone in the room should hear about (a field boss turning up): a line in the public tab
+  // and in the feed, so it's seen with the chatbox shut too
+  announce(text) {
+    this.add({ system: true, peer: null, text });
+    addFeed({ who: '', text, color: '#ffd59a' });
+    this.render();
+  }
 
   render() {
     const me = this.me(), online = new Set(this.online());

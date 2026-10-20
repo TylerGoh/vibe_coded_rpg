@@ -12,7 +12,7 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_HP_PER_PLAYER, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName } from '../src/shared/rpg.js';
 import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spTotal, spSpent, mpRegen, cooldownOf, durOf, mobilityOf } from '../src/shared/skills.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
@@ -25,8 +25,11 @@ const SAVE_EVERY_MS = 5000;
 const HISTORY = 40; // ticks of position history kept for lag compensation
 const MAX_REWIND = 30; // ticks (0.5 s): never rewind further than this
 const FAINT_MS = 1600;
+const FIELD_BOSS_FIGHT_MS = 20000; // a field boss counts the slimes who hit it this recently as its fighters
+const FIELD_BOSS_IDLE_MS = 60000; // nobody's hit it for this long: it heals up and forgets its fighters
 const TEST_BOSS_HP = Number(process.env.TEST_BOSS_HP) || 1; // tests only: weaker bosses
 const TEST_GOD = !!process.env.TEST_GOD; // tests only: nobody gets hurt
+const FIELD_RESPAWN_MS = Number(process.env.TEST_FIELD_RESPAWN_MS) || FIELD_BOSS_RESPAWN_MS; // (tests only: sooner)
 const rand = (a, b) => a + Math.random() * (b - a);
 const randInt = (a, b) => Math.floor(rand(a, b + 1));
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -268,14 +271,15 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function kill(m) {
     const k = MOBS[m.kind];
     m.dead = true;
-    m.respawnAt = now() + (k.boss ? BOSS_RESPAWN_MS : MOB_RESPAWN_MS);
-    // everyone who hit it in the last 20 s (a boss: the whole fight) gets the full EXP: it's a co-op village
+    m.respawnAt = now() + (k.boss ? BOSS_RESPAWN_MS : k.field ? FIELD_RESPAWN_MS : MOB_RESPAWN_MS);
+    // everyone who hit it in the last 20 s (a boss or field boss: the whole fight) gets the full EXP: it's a co-op village
     for (const [qid, at] of m.hitters) {
       const q = players.get(qid);
-      if (q?.joined && q.state.room === m.room && now() - at < (k.boss ? 600_000 : 20000)) gainExp(qid, q, Math.round(k.exp * (1 + (brewOf(q.rpg)?.exp ?? 0)))); // (a brewed EXP buff)
+      if (q?.joined && q.state.room === m.room && now() - at < (k.boss || k.field ? 600_000 : 20000)) gainExp(qid, q, Math.round(k.exp * (1 + (brewOf(q.rpg)?.exp ?? 0)))); // (a brewed EXP buff)
     }
     const drops = k.drops.filter(([, chance]) => Math.random() < chance);
-    drops.forEach(([item, , lo, hi], i) => dropLoot(m.room, item, randInt(lo, hi), m.x + (i - (drops.length - 1) / 2) * (k.boss ? 34 : 22) + rand(-6, 6), ROOMS[m.room].ground > m.y ? m.y : ROOMS[m.room].ground));
+    drops.forEach(([item, , lo, hi], i) => dropLoot(m.room, item, randInt(lo, hi), m.x + (i - (drops.length - 1) / 2) * (k.boss || k.field ? 34 : 22) + rand(-6, 6), ROOMS[m.room].ground > m.y ? m.y : ROOMS[m.room].ground));
+    if (k.field) toRoom(m.room)({ t: 'boss', a: 'fieldDown', id: m.id, kind: m.kind, x: m.x, y: m.y });
     if (k.boss) {
       toRoom(m.room)({ t: 'boss', a: 'die', id: m.id, x: m.x, y: m.y });
       for (const q of mobs) if (q.minion && q.room === m.room) q.dead = q.gone = true; // the minions flee
@@ -305,17 +309,28 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       if (m.egg.hp <= 0) eggBreaks(m);
       return [m.id, dmg, crit ? 1 : 0, 0];
     }
-    m.hp -= dmg;
     m.hitters.set(id, now());
+    if (MOBS[m.kind].field) fieldFighters(m);
+    m.hp -= dmg;
     m.target = p;
     m.targetUntil = now() + 8000;
-    if (!MOBS[m.kind].boss && !MOBS[m.kind].fly && knock) {
+    if (!MOBS[m.kind].boss && !MOBS[m.kind].field && !MOBS[m.kind].fly && knock) {
       m.vx = dir * knock; // knocked back a little
       if (!MOBS[m.kind].hops || m.vy === 0) m.vy = -180;
     }
     const killed = m.hp <= 0;
     if (killed) kill(m);
     return [m.id, dmg, crit ? 1 : 0, killed ? 1 : 0];
+  }
+  // A field boss gets tougher with every extra slime fighting it (the ones who hit it lately), like a den
+  // boss with every extra slime in its den; it keeps the damage already done
+  function fieldFighters(m) {
+    const t = now(), n = [...m.hitters.values()].filter((at) => t - at < FIELD_BOSS_FIGHT_MS).length;
+    if (n <= m.fighters) return;
+    const max = Math.round(MOBS[m.kind].hp * (1 + BOSS_HP_PER_PLAYER * (n - 1)));
+    m.hp += max - m.maxHp;
+    m.maxHp = max;
+    m.fighters = n;
   }
   const alive = (room) => mobs.filter((m) => !m.dead && m.room === room);
   const SLACK = 200; // px: how far from where we think a mob is the client may hit it (lag, interpolation)
@@ -491,6 +506,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         m.y = sp.y;
         m.vy = 0;
         if (k.boss && (m.act === 'slam' || m.act === 'leap') && m.phase === 'act') slamLands(m);
+        if (m.aiPhase === 'air') stompLands(m, k);
       }
     }
     // (touching a slime hurts it: the client reports that itself, see ouch())
@@ -534,6 +550,27 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       }
       if (!tg) return null;
       return adx < ai.keep ? -Math.sign(dx) * k.speed * 1.2 : adx > ai.range * 0.75 ? Math.sign(dx) * k.speed * 1.3 : 0; // keeps its distance
+    }
+    if (ai.kind === 'stomp') {
+      // crouch (the shockwave's reach is marked), leap, and land with a shockwave: stompLands
+      if (m.aiPhase === 'warn') {
+        m.aiPhase = 'air';
+        m.aiTimer = 3; // (landing ends it: stompLands)
+        m.vy = -ai.jump;
+        return 0;
+      }
+      if (m.aiPhase === 'air') {
+        again();
+        return 0;
+      }
+      if (ready && adx < ai.range && Math.abs(tg.y - m.y) < 140) {
+        face();
+        m.aiPhase = 'warn';
+        m.aiTimer = ai.warn;
+        bossEvent(m, 'warn', { act: 'slam', dur: ai.warn, r: ai.r });
+        return 0;
+      }
+      return null;
     }
     if (ai.kind === 'trail') {
       if (m.aiCd <= 0 && Math.abs(m.vx) > 8) {
@@ -962,6 +999,11 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     bossEvent(m, 'ultHit', { ...u, x: Math.round(m.x) });
   }
   // On the floor within slamR when it lands: hit (each client checks itself: ouch). In the air or on a ledge: safe.
+  function stompLands(m, k) {
+    bossEvent(m, 'slam', { r: k.ai.r });
+    m.aiPhase = null;
+    m.aiCd = k.ai.every * rand(0.8, 1.25);
+  }
   function slamLands(m) {
     bossEvent(m, 'slam', { r: m.slamR });
     m.timer = 0;
@@ -1004,8 +1046,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         if (!rooms.has(m.room)) rooms.set(m.room, inRoom(m.room));
         const here = rooms.get(m.room);
         if (m.dead) {
-          if (!m.minion && t >= m.respawnAt) spawn(m);
+          if (!m.minion && t >= m.respawnAt) {
+            spawn(m);
+            if (MOBS[m.kind].field) toRoom(m.room)({ t: 'boss', a: 'fieldUp', id: m.id, kind: m.kind }); // the room hears it
+          }
           continue;
+        }
+        if (MOBS[m.kind].field && (m.hp < m.maxHp || m.fighters > 1) && t - Math.max(0, ...m.hitters.values()) > FIELD_BOSS_IDLE_MS) {
+          Object.assign(m, { hp: MOBS[m.kind].hp, maxHp: MOBS[m.kind].hp, fighters: 1, hitters: new Map() }); // left alone: it heals up
         }
         if (m.den) {
           m.emptyFor = here.length ? 0 : m.emptyFor + dt;

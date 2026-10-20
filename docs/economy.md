@@ -28,6 +28,23 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
   cheaper, one of every piece costing between the gold earned by `SET_FROM` and `SET_TO`; nothing in the shop sells for what it costs; no mob is a gold farm (far more
   gold per EXP than its neighbours).
 
+## The frozen legacy curves (island depth, `story/world/island-depth.md`)
+`CURVE` in the script is today's mobs and gear written down level by level on 2026-10-20 (smoothed knots
+through the legacy mobs; the sword and helmet ladder itself), carried on past the last knot as a power law
+so it reaches the later islands' bands (to Lv 200). **Never refit it**: the rebalance will move the legacy
+mobs onto it, and every new mob and item is priced against it, so the levelling speed and the house and
+shop aims stay valid. A power-law fit was tried first and rejected: it ran about twice today's EXP at
+Lv 5–20, which would have doubled early levelling.
+- The CURVES table prints it; MOBS vs THE CURVE shows each spawning mob as a % of it. Mobs listed in
+  `LEGACY_MOBS` are the curve and aren't checked; **every other mob must sit within `MOB_FIT`** (HP and
+  attack loosely, so a gimmick can trade one for the other; EXP and gold tightly).
+- **Gear with a `lvl`** (anything new) must be within `GEAR_FIT` of the sword or helmet curve: about as
+  strong as the curve there, never much stronger.
+- **Elites** (`ELITE_*` in rpg.js) are checked against their base mob: never more gold per EXP. They don't
+  count as what a player farms ("farming your own level" picks ordinary mobs).
+- **Field bosses** sit in the boss table (kind `field`) and must be worth `FIELD_BOSS_WORTH` minutes of
+  farming in gold and in EXP (dens are worth 6–20×); `FIELD_BOSS_RESPAWN_MS` must be at least 10 min.
+
 ## How to price something new
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Read "gold earned by then" for that level and price it at roughly half to three quarters of it: a real

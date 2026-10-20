@@ -1,10 +1,13 @@
 // Docs: docs/ui/world-map.md
 // The World map page of the Esc menu: a hand-drawn chart of the Glass Sea, as a teaser of where the
 // story is heading (story/world/geography.md, story/world/atlas.md). It shows the islands, the sea
-// routes and fog where the charts run out, plus a bouncing "you are here" slime. Drawing only: nothing
-// on it is clickable and it sends nothing to the server.
-import { FIELD, FJORD, HIGHLANDS, CALDERA, CITADEL, DENS } from './shared/rpg.js';
+// routes and fog where the charts run out, plus a bouncing "you are here" slime. Tapping an island that has
+// one (ISLAND_MAPS) opens its own map: its places as a graph, shipped ones solid, blocked ones dashed
+// (src/shared/branches.js). It sends nothing to the server.
+import { FJORD, HIGHLANDS, CALDERA, CITADEL, DENS } from './shared/rpg.js';
 import { roomDef } from './shared/sim.js';
+import { ISLAND_MAPS, nodeAt, shipped } from './shared/branches.js';
+import { TOUCH } from './touch.js';
 
 const MW = 720, MH = 380; // the chart's size in canvas pixels (× --s on screen, see style.css)
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
@@ -27,6 +30,9 @@ const ISLANDS = {
   citadel: { x: 545, y: 150, name: 'Aether Citadel', sub: 'in the sky' },
 };
 const PINS = { ...ISLANDS, sea: { x: 205, y: 150 } }; // (sea: out on the ferry's route)
+// Where to tap for an island's own map (on the chart), and the way back from it
+const TAP = { green: { x: 150, y: 215, rx: 85, ry: 85 } };
+const BACK = { x: 16, y: 16, w: 132, h: 30 };
 
 // Small seeded random, so the coastlines and waves are the same every time the page opens
 function seeded(seed) {
@@ -297,6 +303,7 @@ function drawChart(ctx, t, here, hue) {
     const dy = key === 'frost' ? 48 : key === 'ember' ? 50 : key === 'citadel' ? 34 + bob : 64;
     label(ctx, isl.x, isl.y + dy, isl.name, 16);
     label(ctx, isl.x, isl.y + dy + 14, isl.sub, 11, 'rgba(91, 74, 107, 0.75)', 600);
+    if (ISLAND_MAPS[key]) label(ctx, isl.x, isl.y + dy + 29, TOUCH ? 'tap for its map' : 'click for its map', 11, '#e46f95', 600);
   }
   label(ctx, 470, 236, 'the Maelstrom', 11, 'rgba(91, 74, 107, 0.6)', 600);
 
@@ -323,29 +330,102 @@ function drawChart(ctx, t, here, hue) {
 
   // you are here: a little bouncing slime in your colour
   const pin = PINS[here];
-  if (pin) {
-    const hop = Math.abs(Math.sin(t * 3)) * 8;
-    const px = pin.x, py = pin.y - 18 - hop;
-    ctx.fillStyle = 'rgba(91, 74, 107, 0.18)';
+  if (pin) drawPin(ctx, pin.x, pin.y, t, hue);
+  ctx.restore();
+}
+
+// A little bouncing slime in your colour, standing at (x, y)
+function drawPin(ctx, x, y, t, hue) {
+  const hop = Math.abs(Math.sin(t * 3)) * 8;
+  const px = x, py = y - 18 - hop;
+  ctx.fillStyle = 'rgba(91, 74, 107, 0.18)';
+  ctx.beginPath();
+  ctx.ellipse(px, y - 4, 10 - hop * 0.4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = `hsl(${hue}, 80%, 72%)`;
+  ctx.strokeStyle = `hsl(${hue}, 45%, 45%)`;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(px - 11, py + 8);
+  ctx.quadraticCurveTo(px - 12, py - 10, px, py - 10);
+  ctx.quadraticCurveTo(px + 12, py - 10, px + 11, py + 8);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = INK;
+  ctx.fillRect(px - 5, py - 2, 2.5, 4);
+  ctx.fillRect(px + 2.5, py - 2, 2.5, 4);
+  label(ctx, px, py - 16, 'you are here', 11, '#e46f95');
+}
+
+// An island's own map: its places as cards joined by paths (story/world/island-depth.md). Shipped places
+// are solid, with their levels; ones not open yet are dashed and say what's in the way, with no spoilers
+// past their names. here: the node you're in (or null).
+const CARD_W = 108, CARD_H = 40;
+function drawIslandMap(ctx, t, key, here, hue) {
+  const nodes = ISLAND_MAPS[key], byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+  ctx.fillStyle = '#fffaf3';
+  ctx.beginPath();
+  ctx.roundRect(0, 0, MW, MH, 22);
+  ctx.fill();
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(8, 8, MW - 16, MH - 16, 16);
+  ctx.clip();
+  const sea = ctx.createLinearGradient(0, 0, 0, MH);
+  sea.addColorStop(0, '#b9dcee');
+  sea.addColorStop(1, '#b4e0d4');
+  ctx.fillStyle = sea;
+  ctx.fillRect(0, 0, MW, MH);
+  // the island itself, filling the page
+  island(ctx, 370, 200, 335, 185, 11, '#c8eab3', '#a6d48f');
+  ctx.restore();
+  label(ctx, MW / 2, 36, ISLANDS[key].name, 20);
+  // the paths: a trodden track between open places, dashed into the ones that aren't
+  for (const n of nodes) {
+    const p = byId[n.from];
+    if (!p) continue;
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineWidth = shipped(n) ? 5 : 3;
+    ctx.strokeStyle = shipped(n) ? '#c99b6b' : 'rgba(143, 98, 64, 0.45)';
+    if (!shipped(n)) ctx.setLineDash([6, 7]);
     ctx.beginPath();
-    ctx.ellipse(px, pin.y - 4, 10 - hop * 0.4, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = `hsl(${hue}, 80%, 72%)`;
-    ctx.strokeStyle = `hsl(${hue}, 45%, 45%)`;
-    ctx.lineWidth = 2;
+    ctx.moveTo(p.at[0], p.at[1]);
+    ctx.lineTo(n.at[0], n.at[1]);
+    ctx.stroke();
+    ctx.restore();
+  }
+  for (const n of nodes) {
+    const open = shipped(n), [x, y] = n.at, l = x - CARD_W / 2, top = y - CARD_H / 2;
+    ctx.save();
+    ctx.fillStyle = open ? (n.town ? '#ffe3ec' : '#fffaf3') : 'rgba(255, 250, 243, 0.55)';
+    ctx.strokeStyle = !open ? 'rgba(91, 74, 107, 0.4)' : n.town ? '#ff8fb1' : '#7fbf73';
+    ctx.lineWidth = open ? 2.5 : 2;
+    if (!open) ctx.setLineDash([5, 4]);
     ctx.beginPath();
-    ctx.moveTo(px - 11, py + 8);
-    ctx.quadraticCurveTo(px - 12, py - 10, px, py - 10);
-    ctx.quadraticCurveTo(px + 12, py - 10, px + 11, py + 8);
-    ctx.closePath();
+    ctx.roundRect(l, top, CARD_W, CARD_H, 12);
     ctx.fill();
     ctx.stroke();
-    ctx.fillStyle = INK;
-    ctx.fillRect(px - 5, py - 2, 2.5, 4);
-    ctx.fillRect(px + 2.5, py - 2, 2.5, 4);
-    label(ctx, px, py - 16, 'you are here', 11, '#e46f95');
+    ctx.restore();
+    const ink = open ? INK : 'rgba(91, 74, 107, 0.6)';
+    label(ctx, x, y - (n.band || !open ? 2 : -4), n.name, 12, ink);
+    const sub = open ? (n.band ? `Lv ${n.band}` : n.town ? 'town' : '') : `${n.band ? `Lv ${n.band} · ` : ''}${n.block}`;
+    if (sub) label(ctx, x, y + 13, sub, 10, n.hard ? '#d0486a' : open ? '#5f9a52' : 'rgba(91, 74, 107, 0.6)', 600);
+    if (n.hard) label(ctx, l + CARD_W - 8, top + 12, '!', 13, '#d0486a');
   }
-  ctx.restore();
+  // a key, bottom right
+  label(ctx, MW - 92, MH - 22, 'dashed: not open yet', 11, 'rgba(91, 74, 107, 0.65)', 600);
+  // back to the chart
+  ctx.fillStyle = '#ff8fb1';
+  ctx.beginPath();
+  ctx.roundRect(BACK.x, BACK.y, BACK.w, BACK.h, 15);
+  ctx.fill();
+  ctx.font = `700 13px ${FONT}`;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('‹ the Glass Sea', BACK.x + BACK.w / 2, BACK.y + 20);
+  if (here) drawPin(ctx, here.at[0], here.at[1] - CARD_H / 2 + 4, t, hue);
 }
 
 export class WorldMap {
@@ -357,22 +437,42 @@ export class WorldMap {
     this.raf = 0;
   }
 
-  // here: the room you're in; hue: your slime's colour
-  show(room, hue) {
+  // here: the room you're in (and x in it); hue: your slime's colour. Opens on the chart.
+  show(room, hue, x = 0) {
     this.hide();
     const here = islandOf(room);
+    const node = here === 'green' ? nodeAt(room, x) ?? ISLAND_MAPS.green[1] : null; // (the village's buildings and houses: Slimeville)
+    this.view = null; // null: the chart · an ISLAND_MAPS key: that island's map
     const t0 = performance.now();
     const frame = (now) => {
       this.ctx.setTransform(2, 0, 0, 2, 0, 0);
       this.ctx.clearRect(0, 0, MW, MH);
-      drawChart(this.ctx, (now - t0) / 1000, here, hue);
+      if (this.view) drawIslandMap(this.ctx, (now - t0) / 1000, this.view, here === this.view ? node : null, hue);
+      else drawChart(this.ctx, (now - t0) / 1000, here, hue);
       this.raf = requestAnimationFrame(frame);
     };
     this.raf = requestAnimationFrame(frame);
+    // tap an island for its map, tap the back pill to return (pointer events: mouse and touch alike)
+    const at = (e) => {
+      const r = this.canvas.getBoundingClientRect();
+      return [((e.clientX - r.left) / r.width) * MW, ((e.clientY - r.top) / r.height) * MH];
+    };
+    const hit = ([x, y]) => {
+      if (this.view) return x >= BACK.x && x <= BACK.x + BACK.w && y >= BACK.y && y <= BACK.y + BACK.h ? 'back' : null;
+      return Object.keys(TAP).find((k) => ((x - TAP[k].x) / TAP[k].rx) ** 2 + ((y - TAP[k].y) / TAP[k].ry) ** 2 <= 1) ?? null;
+    };
+    this.canvas.onpointerdown = (e) => {
+      const h = hit(at(e));
+      if (!h) return;
+      e.preventDefault();
+      this.view = h === 'back' ? null : h;
+    };
+    this.canvas.onpointermove = (e) => (this.canvas.style.cursor = hit(at(e)) ? 'pointer' : '');
   }
 
   hide() {
     cancelAnimationFrame(this.raf);
     this.raf = 0;
+    this.canvas.onpointerdown = this.canvas.onpointermove = null;
   }
 }

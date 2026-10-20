@@ -29,16 +29,49 @@ function keycap(ctx, x, y, label, h = 22) {
   return w;
 }
 
-// actions: [{ key, label }], drawn bottom-up from `bottom` (world y), centred on x and kept on screen
+// A level chip ("Lv 1–12", "Boss Lv 12"): what a door into a combat room says about who it's for.
+// hard: a hard pocket, in red with a warning mark. Returns its width; (x, y) is its left middle.
+const chipW = (ctx, band, hard) => {
+  ctx.font = `700 11px ${FONT}`;
+  return ctx.measureText(band).width + (hard ? 30 : 14);
+};
+function chip(ctx, x, y, band, hard) {
+  const w = chipW(ctx, band, hard);
+  ctx.fillStyle = hard ? '#e0526e' : '#8fcf7e';
+  ctx.beginPath();
+  ctx.roundRect(x, y - 9, w, 18, 9);
+  ctx.fill();
+  ctx.strokeStyle = hard ? '#fff0c2' : 'rgba(255,255,255,0.85)';
+  ctx.lineWidth = 1.3;
+  ctx.stroke();
+  if (hard) {
+    // a little warning triangle with a "!"
+    ctx.fillStyle = '#fff0c2';
+    ctx.beginPath();
+    ctx.moveTo(x + 13, y - 6);
+    ctx.lineTo(x + 19, y + 5);
+    ctx.lineTo(x + 7, y + 5);
+    ctx.closePath();
+    ctx.fill();
+    text(ctx, '!', x + 13, y + 1.5, 8, '#e0526e');
+  }
+  text(ctx, band, x + (hard ? 23 : 7), y + 0.5, 11, hard ? '#ffffff' : '#2f5a2a', 'left');
+  return w;
+}
+
+// actions: [{ key, label, band?, hard? }], drawn bottom-up from `bottom` (world y), centred on x and kept
+// on screen. band: a door's level chip, after its label.
 export function drawPrompts(ctx, x, bottom, actions, camX, time, touch) {
   if (!actions.length) return;
   ctx.save();
   const rowH = 30, bob = Math.sin(time * 3) * 1.5;
   actions.forEach((a, i) => {
     const key = keyName(a.key, touch);
+    const bandW = a.band ? chipW(ctx, a.band, a.hard) + 8 : 0;
     ctx.font = `700 13px ${FONT}`;
     const keyW = Math.max(22, ctx.measureText(key).width + 12);
-    const w = keyW + ctx.measureText(a.label).width + 24;
+    const labelW = ctx.measureText(a.label).width;
+    const w = keyW + labelW + 24 + bandW;
     const left = clamp(x - w / 2, camX + 8, camX + W - w - 8);
     const y = bottom - (i + 1) * rowH + bob;
     ctx.fillStyle = 'rgba(45,42,62,0.62)';
@@ -47,7 +80,15 @@ export function drawPrompts(ctx, x, bottom, actions, camX, time, touch) {
     ctx.fill();
     keycap(ctx, left + 4, y, key);
     text(ctx, a.label, left + keyW + 12, y + 11.5, 13, '#ffffff', 'left');
+    if (a.band) chip(ctx, left + keyW + 12 + labelW + 8, y + 11, a.band, a.hard);
   });
+  ctx.restore();
+}
+
+// The level chip over a door into a combat room, readable from across the screen (x: the door's middle)
+export function drawDoorBand(ctx, x, y, band, hard) {
+  ctx.save();
+  chip(ctx, x - chipW(ctx, band, hard) / 2, y, band, hard);
   ctx.restore();
 }
 

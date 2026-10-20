@@ -25,7 +25,12 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 
 Look rooms up with `roomDef(room)`, not `ROOMS[room]`: houses aren't in `ROOMS`.
 
-Stages and dens: `docs/combat/stages.md`, `docs/combat/bosses.md`. No level gate on any door.
+Stages and dens: `docs/combat/stages.md`, `docs/combat/bosses.md`. No level gate on any door, but every door
+into a combat room says who it's for: a `band` ("Lv 1–12", from `STAGES[room].band`; "Boss Lv 12" into a
+den) set on the door in `src/shared/sim.js`, shown as a chip in its prompt and over the door
+(`drawDoorBand`, `src/hints.js`; den mouths have their own boss sign, so no chip there). A stage with
+`hard` (a hard pocket) gets a red chip with a warning mark. Don't write levels into door labels; set the
+band. Blocked ways into branches that haven't shipped: `docs/places/branches.md`.
 
 ## Towns
 **Owner's rule (2026-10-20): every island's landing has a town, and every town works like Slimeville.**

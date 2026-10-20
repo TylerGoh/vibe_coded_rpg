@@ -83,12 +83,13 @@ export const CITADEL_PLATFORMS = [
   { x: 3150, y: 230, w: 200, kind: 'aether' },
   { x: 3650, y: 320, w: 240, kind: 'aether' },
 ];
-// The open-air stages (each has zones); dens are separate rooms
+// The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
+// door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors)
 export const STAGES = {
-  [FIELD]: { name: 'The Wildwood', zones: ZONES },
-  [HIGHLANDS]: { name: 'Frostpeak', zones: HIGHLAND_ZONES },
-  [CALDERA]: { name: 'The Emberdeep Caldera', zones: CALDERA_ZONES },
-  [CITADEL]: { name: 'The Aether Citadel', zones: CITADEL_ZONES },
+  [FIELD]: { name: 'The Wildwood', zones: ZONES, band: '1–12' },
+  [HIGHLANDS]: { name: 'Frostpeak', zones: HIGHLAND_ZONES, band: '13–27' },
+  [CALDERA]: { name: 'The Emberdeep Caldera', zones: CALDERA_ZONES, band: '28–50' },
+  [CITADEL]: { name: 'The Aether Citadel', zones: CITADEL_ZONES, band: '50+' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -263,6 +264,36 @@ export const MOBS = {
     drops: [['coin', 1, 80, 130], ['stardust', 0.55, 1, 2], ['mana_jelly', 0.3, 1, 1], ['elixir', 0.08, 1, 1]],
   },
 };
+// ——— elites and field bosses (docs/combat/stages.md; appended after the rest: kinds go over the wire as
+// their index in MOBS) ———
+// An elite is an ordinary mob made tougher by these multipliers, drawn as its base mob with a glow and a
+// bigger name tag. Elites belong in hard pockets (story/world/island-depth.md); Bramble Woods has a couple
+// as the first. Its coins scale by ELITE_GOLD and its other drops' chances by ELITE_DROP, so it's never
+// more gold per EXP than its base mob (npm run economy checks it).
+export const ELITE_HP = 3, ELITE_ATK = 1.5, ELITE_EXP = 2.5, ELITE_GOLD = 2.5, ELITE_DROP = 2, ELITE_LVL = 2, ELITE_SIZE = 1.25;
+function elite(base, name) {
+  const b = MOBS[base], r = Math.round;
+  return {
+    ...b, name, elite: true, base, lvl: b.lvl + ELITE_LVL, hp: r(b.hp * ELITE_HP), atk: r(b.atk * ELITE_ATK), exp: r(b.exp * ELITE_EXP),
+    w: r(b.w * ELITE_SIZE), h: r(b.h * ELITE_SIZE), aggro: true,
+    drops: b.drops.map(([id, ch, lo, hi]) => (id === 'coin' ? [id, ch, r(lo * ELITE_GOLD), r(hi * ELITE_GOLD)] : [id, Math.min(1, ch * ELITE_DROP), lo, hi])),
+  };
+}
+MOBS.bramble_elite = elite('bramble', 'Elder Bramblehog');
+// A field boss (field: true) roams an ordinary strip of a wilds room and comes back only every
+// FIELD_BOSS_RESPAWN_MS; the room hears when it shows up (`desc` is the line). Small bosses: a name, a look
+// and a move or two from the mob tricks (`ai`), no den, no phases, no ultimate. Its HP grows by
+// BOSS_HP_PER_PLAYER for every extra slime fighting it, its loot is shared like a den boss's, and it's
+// worth a few minutes of farming (npm run economy checks it).
+//   stomp: crouches (warn), leaps and lands with a shockwave along the floor (jump it, or stand on a ledge)
+MOBS.turnipop = {
+  name: 'Turnipop', field: true, lvl: 5, hp: 1800, atk: 16, exp: 420, speed: 50, w: 92, h: 96, aggro: false, hops: false,
+  ai: { kind: 'stomp', every: 3.6, warn: 0.9, r: 240, range: 300, jump: 620 },
+  desc: 'Turnipop has popped up in Sprout Meadow!',
+  drops: [['coin', 1, 80, 140], ['sprout_leaf', 1, 3, 6], ['red_jelly', 1, 2, 3], ['mana_jelly', 0.8, 1, 2], ['leaf_cap', 0.3, 1, 1], ['wood_sword', 0.3, 1, 1], ['scroll_s100', 0.35, 1, 1], ['scroll_h100', 0.35, 1, 1]],
+};
+export const FIELD_BOSS_RESPAWN_MS = 20 * 60_000;
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -301,6 +332,9 @@ export const SPAWNS = [
   ...onPlat('bramble', 6, 1),
   ...onPlat('bramble', 7, 1),
   ...onPlat('bramble', 8, 1),
+  ...strip('bramble_elite', 3600, 4600, FIELD_GROUND, 1),
+  ...onPlat('bramble_elite', 7, 1),
+  { kind: 'turnipop', x0: 520, x1: 1420, y: FIELD_GROUND, room: FIELD },
   ...strip('frostling', 250, 1100, FIELD_GROUND, 5, HIGHLANDS),
   ...strip('yeti', 1000, 1950, FIELD_GROUND, 4, HIGHLANDS),
   ...onHPlat('frostling', 0, 2),

@@ -120,7 +120,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/testing.md](docs/testing.md) | running a test server, headless browser tests, test env vars, `#debug` |
 | [docs/art.md](docs/art.md) | slime art, accessories, scenery, the art style |
 | [docs/combat/core.md](docs/combat/core.md) | attacking, damage, HP/EXP, fainting, friendly fire, the bag, saving characters |
-| [docs/combat/stages.md](docs/combat/stages.md) | the four stages, zones, mobs and their AI, hazards |
+| [docs/combat/stages.md](docs/combat/stages.md) | the four stages, zones, mobs and their AI, hazards, elites, field bosses |
 | [docs/combat/bosses.md](docs/combat/bosses.md) | boss dens, boss moves, ultimates, boss art |
 | [docs/combat/skills.md](docs/combat/skills.md) | skill trees, MP, the hotbar and its two setups, Mobility, ability points (STR/DEX/INT/LUK) |
 | [docs/combat/items.md](docs/combat/items.md) | items, gear, scrolls, gold, the shop, the Boutique |
@@ -136,6 +136,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/crossings.md](docs/places/crossings.md) | crossing rooms (the ferry's deck), the voyage clock `state.vt`, boarding (the Set sail card), future sea/balloon routes |
 | [docs/places/fjord.md](docs/places/fjord.md) | Icefang Fjord and Icefang Hamlet (Frostpeak's landing town), Skaldi, Runa and her shop, Tove, the fjord folk's look, the laid-up Lodestar |
 | [docs/places/cliffs.md](docs/places/cliffs.md) | the Keeper ruins in Bramble Woods, Greenhollow's east cliffs, the telescope |
+| [docs/places/branches.md](docs/places/branches.md) | Greenhollow's branches, their blocked entrances (gates), the island map's data (`GREENHOLLOW`) |
 | [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |
 | [docs/ui/mobile.md](docs/ui/mobile.md) | touch controls, phone layout, fullscreen, home-screen mode |
 | [docs/ui/hints.md](docs/ui/hints.md) | the on-screen prompts above your slime, any new interaction |

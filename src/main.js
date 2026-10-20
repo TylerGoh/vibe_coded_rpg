@@ -14,7 +14,7 @@ import { Museum } from './museum.js';
 import { Tutor } from './tutor.js';
 import { CourseMenu } from './courses-ui.js';
 import { Rpg, bar } from './rpg.js';
-import { drawPrompts, drawBeacon } from './hints.js';
+import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
 import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE } from './shared/rpg.js';
@@ -36,6 +36,8 @@ import { drawFjord } from './fjord.js';
 import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel } from './crossing.js';
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
+import { GATES, gateAt } from './shared/branches.js';
+import { drawGates } from './branch-gates.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
 import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn } from './shared/sim.js';
@@ -295,6 +297,7 @@ const alchemy = new Alchemy({ send: (m) => net.sendNpc(m), rpg, houses, onOpenCh
 const players = new Players({ net, houses, send: (m) => net.sendNpc(m), self: () => ({ name: profile.name, hue: profile.hue, lvl: rpg.me?.lvl }), onOpenChange: () => held.clear() });
 // Text chat and private messages (src/chat.js); the Players panel's Message buttons open a private tab
 const chat = new Chat({ send: (m) => net.sendNpc(m), me: () => profile.name, online: () => [...net.roster.values()].map((r) => r.name), onOpenChange: () => held.clear() });
+rpg.onAnnounce = (line) => chat.announce(line); // a field boss turning up (or beaten) in your room
 players.onMessage = (name) => {
   players.close();
   chat.open(name);
@@ -636,7 +639,7 @@ function showMap(on) {
   menu.classList.toggle('mapview', on);
   document.getElementById('worldmap').hidden = !on;
   if (on) {
-    worldMap.show(room, cleanHue(profile.hue));
+    worldMap.show(room, cleanHue(profile.hue), online() ? net.me.x : 0);
     document.getElementById('map-back').focus();
   } else worldMap.hide();
 }
@@ -895,6 +898,11 @@ addEventListener('keydown', (e) => {
     museum.open(ruinStoneAt(net.me)); // a Keeper stone, on the museum's fact-sheet card
     return;
   }
+  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && gateAt(net.me, room)) {
+    e.preventDefault();
+    rpg.toast(gateAt(net.me, room).says); // a blocked way into a branch (docs/places/branches.md)
+    return;
+  }
   if (e.code === 'KeyE' && !e.repeat && menu.hidden && room === CLIFFS && online() && scopeNear(net.me)) {
     e.preventDefault();
     held.clear();
@@ -1120,6 +1128,7 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 // Everything you can do where you stand, above your slime, plus beacons over doors and characters you
 // could walk up to (src/hints.js). E does one thing at a time, in the same order as the keydown handler.
 const BEACON_RANGE = 420;
+const DOOR_BAND_Y = 160; // how high over the ground a door's level chip sits (under the beacon)
 function drawHints() {
   if (!online() || splatted(mine) || !menu.hidden || sail.door || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || houses.editing) return;
   const me = net.me, acts = [];
@@ -1132,7 +1141,8 @@ function drawHints() {
   else if (room === CLIFFS && scopeNear(me)) acts.push({ key: 'E', label: 'look through the telescope' });
   else if (room === STORE && store.near && !store.isOpen) acts.push({ key: 'E', label: `buy the ${FURNITURE[store.near.k].name.toLowerCase()} (${FURNITURE[store.near.k].price.toLocaleString('en-US')} gold)` });
   else if (alchemy.prompt(room, me)) acts.push({ key: 'E', label: alchemy.prompt(room, me) });
-  else if (door) acts.push({ key: 'E', label: door.label });
+  else if (gateAt(me, room)) acts.push({ key: 'E', label: gateAt(me, room).look });
+  else if (door) acts.push({ key: 'E', label: door.label, band: door.band, hard: door.hard });
   if (isCombat(room)) {
     if (rpg.nearLoot) acts.push({ key: 'Z', label: 'pick up loot' });
     if ([...rpg.views.values()].some((v) => Math.abs(v.x - me.x) < 130 && Math.abs(v.y - me.y) < 70)) acts.push({ key: 'X', label: TOUCH ? 'attack' : 'attack (or click)' });
@@ -1146,6 +1156,7 @@ function drawHints() {
   if (room === VILLAGE) far.push({ x: SHOP_X + 20, y: ROOMS[VILLAGE].ground - 120, near: nearShop() });
   if (room === FIELD) for (const st of RUIN_STONES) far.push({ x: st.x, y: ROOMS[FIELD].ground - 180, near: st === ruinStoneAt(me) });
   if (room === CLIFFS) far.push({ x: CLIFFS_SCOPE_X, y: ROOMS[CLIFFS].ground - 110, near: scopeNear(me) });
+  for (const g of GATES) if (g.room === room) far.push({ x: g.x, y: roomDef(room).ground - 130, near: g === gateAt(me, room) });
   far.filter((b) => !b.near && Math.abs(b.x - me.x) < BEACON_RANGE).sort((a, b) => Math.abs(a.x - me.x) - Math.abs(b.x - me.x)).slice(0, 2)
     .forEach((b) => drawBeacon(ctx, b.x, b.y, 'E', clamp((BEACON_RANGE - Math.abs(b.x - me.x)) / 120, 0, 1), time, TOUCH));
 }
@@ -1186,6 +1197,9 @@ function render() {
     merchant.draw(ctx);
     nameTag(merchant, false);
   }
+  drawGates(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time, online() ? gateAt(net.me, room) : null); // blocked ways into branches
+  // doors into combat rooms say who they're for (their level band), over the door (a den's mouth has its own sign)
+  for (const d of roomDef(room)?.doors ?? []) if (d.band && STAGES[d.to] && Math.abs(d.x - camX - W / 2) < W / 2 + 60) drawDoorBand(ctx, d.x, roomDef(room).ground - DOOR_BAND_Y, d.band, d.hard);
   if (isCombat(room)) rpg.drawWorld(ctx);
   for (const c of charsHere()) c.drawSlime(ctx);
   drawSplats();

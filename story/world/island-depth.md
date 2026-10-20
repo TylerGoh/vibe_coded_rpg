@@ -230,7 +230,8 @@ after, and keep `--check` green.
 ## Greenhollow phases
 Each is its own session (and a dev copy, per `Agent.md`: these are big features). The order puts the
 systems first, then fills the band from the bottom up.
-- [ ] **G0: systems.** The frozen legacy curves in the economy script, field bosses, elites, door
+- [x] **G0: systems** (shipped 2026-10-20: Turnipop is Sprout Meadow's field boss, the Elder Bramblehog the
+      first elite; `docs/places/branches.md`, `docs/combat/stages.md`, `docs/economy.md`). The frozen legacy curves in the economy script, field bosses, elites, door
       level labels, the island map. Prove them in the
       existing Wildwood (a small field boss in Sprout Meadow, an elite or two in Bramble Woods), and lay
       every branch's blocked entrance (table above) so the island shows what's coming.

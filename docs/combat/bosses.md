@@ -6,6 +6,8 @@ Data: `DENS`, `MOBS` (entries with `boss: true`), `PHASE_AT`, `COMBO_CHANCE`, `C
 the first five bosses, boss bar, `drawUltBanner`), `src/dens-caldera.js` and `src/dens-citadel.js`
 (`DEN_ART` / `ENTRANCE_ART` / `BOSS_ART` / `FX2` hooked into dens.js).
 
+Small bosses that roam the open stages (field bosses, like Turnipop) aren't den bosses: `docs/combat/stages.md`.
+
 ## The nine dens (each a room behind a cave mouth in its stage)
 Wildwood: Sprout King, Mother Mushroom, Bramble Behemoth · Highlands: Frost Queen Glacia, Astral Wyrm ·
 Caldera: Ignis the Magma Tyrant, Pyra the Ember Phoenix · Citadel: The Clockwork Colossus, Chronos.

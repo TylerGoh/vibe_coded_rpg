@@ -7,9 +7,9 @@ Update this when the game changes. Source of truth for names is the code (`src/s
 | in game now | story reading | change needed |
 |---|---|---|
 | Slimeville (village) | Greenhollow Bay village | none (the harbour gate is at the west end) |
-| Greenhollow Harbour | the west end: the lighthouse (lit again: Granny Wicks came home), the ferry | none |
+| Greenhollow Harbour | the west end: the lighthouse (lit again: Granny Wicks came home), the ferry; a rockfall over the shore path south (Saltspray Coves' blocked way in) | open the path when the Coves ship (G1) |
 | The ferry's deck (two crossing rooms, out and home) | the Puddle Jumper crossing the cold sea to Frostpeak | more routes later (Steam Straits ship, balloon) |
-| The Wildwood: Sprout Meadow, Mushroom Grove, Bramble Woods | Greenhollow's interior; Keeper ruins in Bramble Woods (4 readable stones) | none (the Highlands trail went in Phase 3) |
+| The Wildwood: Sprout Meadow, Mushroom Grove, Bramble Woods | Greenhollow's interior (Lv 1–12); Keeper ruins in Bramble Woods (4 readable stones); Turnipop, a field boss, in Sprout Meadow; Elder Bramblehogs (elites) in Bramble Woods; blocked ways into four branches (Willowmere's footbridge, the Mycelium Deep's stump, the Old Oak Canopy's ladder, the Thornheart's briar) | the branches open in G1–G5 (`world/island-depth.md`) |
 | Greenhollow's East Cliffs | the vista past the Wildwood's east end: bench, telescope, the open sea | none |
 | Icefang Hamlet (Icefang Fjord), a town | Frostpeak's landing: the ferry's quay, the hamlet, the cracked ice bridge; the Lodestar laid up | the Lodestar sails south in Phase 5 |
 | Frostpeak: Frostpine Ridge, Starfall Summit | Frostpeak, far north, up the path from the hamlet | none |

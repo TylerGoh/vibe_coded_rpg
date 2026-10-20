@@ -1393,6 +1393,12 @@ const EFFECTS = {
     e.voice(o, t, 880, { type: 'square', glide: 0.5, glideT: 0.25, vol: 0.08, a: 0.01, hold: 0.22, rel: 0.06, cutoff: 2500 });
     e.voice(o, t, 1760, { type: 'sine', glide: 0.5, glideT: 0.25, vol: 0.05, a: 0.01, hold: 0.22, rel: 0.06 });
   },
+  fieldBoss(e, o, t) { // a field boss turned up: a little two-note horn call, twice
+    [[0, 62, 0.16], [0.2, 69, 0.3], [0.62, 62, 0.16], [0.82, 69, 0.42]].forEach(([dt, m, hold]) => {
+      e.voice(o, t + dt, mtof(m), { type: 'sawtooth', vol: 0.07, a: 0.03, hold, rel: 0.12, cutoff: 1500 });
+      e.voice(o, t + dt, mtof(m - 12), { type: 'sine', vol: 0.1, a: 0.03, hold, rel: 0.12 });
+    });
+  },
   bossCharge(e, o, t) {
     e.noiseHit(o, t, { type: 'lowpass', f: 180, sweep: 700, sweepT: 0.5, vol: 0.5, a: 0.1, hold: 0.35, tau: 0.08 });
     e.voice(o, t, 55, { type: 'sawtooth', glide: 0.8, glideT: 0.4, vol: 0.14, a: 0.08, hold: 0.4, rel: 0.12, cutoff: 400, vib: 60, vibRate: 12 });

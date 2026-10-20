@@ -3,7 +3,7 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext } from '../src/shared/rpg.js';
+import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, FIELD_BOSS_RESPAWN_MS } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { HOUSE_SIZES, FURNITURE } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
@@ -16,6 +16,47 @@ const AIM_MIN = 0.25, AIM_MAX = 1.0;
 // Furniture: buying one of every piece is a long-term collection goal, between what farming has earned by
 // these two levels
 const SET_FROM = 40, SET_TO = 90;
+
+// ——— the frozen legacy curves (story/world/island-depth.md, G0) ———
+// Today's mobs and gear written down level by level, frozen on 2026-10-20. NEVER REFIT: the rebalance
+// changes the legacy numbers, and everything new is priced against these, so the levelling speed and the
+// house and shop aims stay valid.
+// - Mobs: a smoothed fit through the legacy mobs that spawn (local log-log fits around each knot level;
+//   the Sprout itself at Lv 1): HP, attack, EXP, and gold = what a kill is worth (coins plus drops sold,
+//   gear apart). Kills per level fall from ~10 at Lv 5 to ~5 by Lv 70, as they do today.
+// - Gear: the sword and helmet ladder itself (shop gear, then each den's: Briar 12, Frostbite 18,
+//   Starforged 25, Magma Maul 36, Phoenix 46, Cog Cleaver 60, Chrono 80, and the matching helmets).
+// Between knots it's straight on log-log; past the last knot it carries on as a power law with `tail`
+// (fitted on the Lv 30+ mobs; EXP's is expToNext's own 1.7, so kills per level stay flat from there; gear
+// keeps its last segment's slope). Prices: a rough a·L^b guide for the table, not checked.
+const CURVE = {
+  hp: { at: [1, 5, 10, 15, 20, 30, 40, 50, 60, 72], v: [22, 70, 222, 521, 937, 1979, 3145, 4330, 5654, 7545], tail: 1.451 },
+  atk: { at: [1, 5, 10, 15, 20, 30, 40, 50, 60, 72], v: [5, 11, 22, 36, 51, 80, 109, 141, 175, 221], tail: 1.169 },
+  exp: { at: [1, 5, 10, 15, 20, 30, 40, 50, 60, 72], v: [6, 18, 56, 131, 264, 645, 1120, 1685, 2421, 3660], tail: 1.7 },
+  gold: { at: [1, 5, 10, 15, 20, 30, 40, 50, 60, 72], v: [5, 15, 44, 87, 145, 259, 369, 486, 621, 807], tail: 1.265 },
+  sword: { at: [1, 5, 9, 12, 18, 25, 36, 46, 60, 80], v: [5, 12, 22, 32, 44, 62, 78, 92, 112, 135], tail: 0.69 },
+  helmet: { at: [1, 5, 9, 12, 18, 25, 36, 46, 60, 80], v: [2, 5, 9, 14, 20, 28, 34, 40, 50, 62], tail: 0.79 },
+  swordPrice: { pow: [38.616, 2.037] }, helmetPrice: { pow: [31.592, 2.022] },
+};
+function curve(what, L) {
+  const c = CURVE[what];
+  if (c.pow) return c.pow[0] * L ** c.pow[1];
+  const n = c.at.length;
+  if (L >= c.at[n - 1]) return c.v[n - 1] * (L / c.at[n - 1]) ** c.tail;
+  const i = Math.max(1, c.at.findIndex((k) => k >= L));
+  const b = Math.log(c.v[i] / c.v[i - 1]) / Math.log(c.at[i] / c.at[i - 1]);
+  return c.v[i - 1] * (L / c.at[i - 1]) ** b;
+}
+// Mobs that were there when the curve was frozen: they're the curve, so they aren't checked against it
+// (until the rebalance moves them onto it). Every other mob that spawns must sit within MOB_FIT of the
+// curve at its level: HP and attack loosely (a gimmick can trade one for the other), EXP and gold tightly
+// (they set the levelling speed and the gold earned by each level).
+const LEGACY_MOBS = new Set(['sprout', 'mushling', 'bramble', 'frostling', 'yeti', 'wisp', 'golem', 'floe_seal', 'snow_owl', 'shard_moth', 'ember_imp', 'magma_slug', 'obsidian_crab', 'cinder_bat', 'cogling', 'sentry', 'aether_knight', 'chrono_wraith']);
+const MOB_FIT = { hp: [0.6, 1.6], atk: [0.6, 1.6], exp: [0.75, 1.35], gold: [0.7, 1.35] };
+// Gear with a `lvl` (anything new) must be about as strong as the curve there, never much stronger
+const GEAR_FIT = [0.85, 1.1];
+// A field boss kill is worth this many minutes of farming at its level (dens are worth far more)
+const FIELD_BOSS_WORTH = [1.5, 8];
 
 const avg = ([, chance, lo, hi]) => chance * (lo + hi) / 2;
 const isGear = (id) => ['sword', 'helmet'].includes(ITEMS[id]?.kind);
@@ -30,10 +71,11 @@ function perKill(m) {
   return { gold, sell, gear, value: gold + sell };
 }
 const spawned = new Set(SPAWNS.map((s) => s.kind)); // (minions like the Cogbit only come out of other mobs)
-const mobs = Object.entries(MOBS).filter(([id]) => spawned.has(id));
-const bosses = Object.entries(MOBS).filter(([, m]) => m.boss);
-// The mob a level-L player farms: the toughest one at or below their level (the first one below that)
-const farmed = (L) => mobs.filter(([, m]) => m.lvl <= L).sort((a, b) => b[1].lvl - a[1].lvl)[0] ?? mobs.sort((a, b) => a[1].lvl - b[1].lvl)[0];
+const mobs = Object.entries(MOBS).filter(([id, m]) => spawned.has(id) && !m.field); // (elites included)
+const bosses = Object.entries(MOBS).filter(([, m]) => m.boss || m.field);
+// The mob a level-L player farms: the toughest ordinary one at or below their level (the first one below
+// that). Elites are few and far between, so nobody farms only them.
+const farmed = (L) => mobs.filter(([, m]) => m.lvl <= L && !m.elite).sort((a, b) => b[1].lvl - a[1].lvl)[0] ?? mobs.sort((a, b) => a[1].lvl - b[1].lvl)[0];
 const goldPerMin = (L) => perKill(farmed(L)[1]).value * KILLS_PER_MIN;
 // Gold earned by farming from level 1 up to reaching level L
 const earnedBy = (L) => {
@@ -61,12 +103,23 @@ table('FAUCETS: one kill of each mob (gold = coins picked up; sell = other drops
   const k = perKill(m);
   return [id, { lvl: m.lvl, hp: m.hp, exp: m.exp, gold: fmt(k.gold), sell: fmt(k.sell), gear: fmt(k.gear), 'gold/exp': (k.value / m.exp).toFixed(2), 'kills/lvl': Math.ceil(expToNext(m.lvl) / m.exp) }];
 })));
-table('FAUCETS: one boss kill (loot is shared: one set per kill, whoever picks it up; respawn BOSS_RESPAWN_MS)', Object.fromEntries(bosses.map(([id, m]) => {
+table('FAUCETS: one boss kill (loot is shared: one set per kill, whoever picks it up; respawn BOSS_RESPAWN_MS, field bosses FIELD_BOSS_RESPAWN_MS)', Object.fromEntries(bosses.map(([id, m]) => {
   const k = perKill(m);
-  return [id, { lvl: m.lvl, hp: m.hp, exp: m.exp, gold: fmt(k.gold), sell: fmt(k.sell), 'gear sold': fmt(k.gear), 'vs 1 min farming': `${(k.value / goldPerMin(m.lvl)).toFixed(1)}x` }];
+  return [id, { kind: m.field ? 'field' : 'den', lvl: m.lvl, hp: m.hp, exp: m.exp, gold: fmt(k.gold), sell: fmt(k.sell), 'gear sold': fmt(k.gear), 'vs 1 min farming': `${(k.value / goldPerMin(m.lvl)).toFixed(1)}x` }];
 })));
 table(`PROGRESS: farming your own level at ${KILLS_PER_MIN} kills/min (mobs only, no bosses)`, Object.fromEntries([5, 10, 13, 15, 20, 25, 30, 40, 50, 60, 70, 80].map((L) => [`lvl ${L}`, {
   farming: farmed(L)[0], 'gold/min': fmt(goldPerMin(L)), 'play time to reach': hrs(minutesTo(L)), 'gold earned by then': fmt(earnedBy(L)),
+}])));
+
+// The frozen curves, extended to where the later islands' bands will go (Frostpeak 40–100, Emberdeep
+// ~90–150, the Citadel ~140–200), and how each spawning mob sits on them (100% = on the curve)
+table('CURVES (frozen; gold = what a kill is worth)', Object.fromEntries([1, 5, 10, 15, 20, 30, 40, 50, 60, 80, 100, 120, 150, 200].map((L) => [`lvl ${L}`, {
+  'mob hp': fmt(curve('hp', L)), 'mob atk': fmt(curve('atk', L)), 'mob exp': fmt(curve('exp', L)), 'mob gold': fmt(curve('gold', L)), 'kills/lvl': (expToNext(L) / curve('exp', L)).toFixed(1),
+  'sword atk': fmt(curve('sword', L)), 'helmet def': fmt(curve('helmet', L)), 'sword price': fmt(curve('swordPrice', L)), 'helmet price': fmt(curve('helmetPrice', L)),
+}])));
+const pct = (v, what, L) => `${Math.round((v / curve(what, L)) * 100)}%`;
+table('MOBS vs THE CURVE (at each mob\'s level; legacy ones are the curve, so they wobble around it)', Object.fromEntries(mobs.map(([id, m]) => [id, {
+  lvl: m.lvl, legacy: LEGACY_MOBS.has(id) ? 'yes' : m.elite ? 'elite' : 'new', hp: pct(m.hp, 'hp', m.lvl), atk: pct(m.atk, 'atk', m.lvl), exp: pct(m.exp, 'exp', m.lvl), gold: pct(perKill(m).value, 'gold', m.lvl),
 }])));
 
 // Sinks: what each costs in minutes of farming at the level you'd buy it, and as a share of lifetime gold
@@ -127,6 +180,27 @@ for (const [id, r] of Object.entries(RECIPES)) {
 for (const [id, m] of mobs) {
   const v = perKill(m).value / m.exp;
   if (v > 1.2) problems.push(`${id} gives ${v.toFixed(2)} gold per EXP: more than any other mob, a gold farm`);
+  if (m.elite) {
+    const b = MOBS[m.base];
+    if (v > perKill(b).value / b.exp * 1.01) problems.push(`elite ${id} gives more gold per EXP than its base mob ${m.base}`);
+  } else if (!LEGACY_MOBS.has(id)) {
+    const have = { hp: m.hp, atk: m.atk, exp: m.exp, gold: perKill(m).value };
+    for (const [what, [lo, hi]] of Object.entries(MOB_FIT)) {
+      const f = have[what] / curve(what, m.lvl);
+      if (f < lo || f > hi) problems.push(`${id} (lvl ${m.lvl}) has ${Math.round(f * 100)}% of the frozen curve's ${what} (want ${lo * 100}–${hi * 100}%)`);
+    }
+  }
+}
+for (const [id, m] of bosses.filter(([, m]) => m.field)) {
+  const worth = perKill(m).value / goldPerMin(m.lvl), expWorth = m.exp / (KILLS_PER_MIN * farmed(m.lvl)[1].exp);
+  for (const [what, w] of [['gold', worth], ['EXP', expWorth]]) if (w < FIELD_BOSS_WORTH[0] || w > FIELD_BOSS_WORTH[1]) problems.push(`field boss ${id}'s ${what} is worth ${w.toFixed(1)} min of farming (want ${FIELD_BOSS_WORTH.join('–')})`);
+  if (!spawned.has(id)) problems.push(`field boss ${id} never spawns`);
+}
+if (!(FIELD_BOSS_RESPAWN_MS >= 10 * 60_000)) problems.push('field bosses come back too often (FIELD_BOSS_RESPAWN_MS under 10 min)');
+for (const [id, it] of Object.entries(ITEMS)) {
+  if (!it.lvl || !['sword', 'helmet'].includes(it.kind)) continue;
+  const f = (it.kind === 'sword' ? it.atk : it.def) / curve(it.kind, it.lvl);
+  if (f < GEAR_FIT[0] || f > GEAR_FIT[1]) problems.push(`${id} (lvl ${it.lvl}) has ${Math.round(f * 100)}% of the frozen ${it.kind} curve (want ${GEAR_FIT[0] * 100}–${GEAR_FIT[1] * 100}%)`);
 }
 console.log(problems.length ? `\nCHECKS FAILED:\n- ${problems.join('\n- ')}` : '\nAll checks pass.');
 if (process.argv.includes('--check') && problems.length) process.exit(1);

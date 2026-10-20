@@ -17,6 +17,8 @@
   ability-point numbers (the INT-heavy mage buff may be too strong).
 - Every boss and ultimate was only fought by bots and checked by screenshots.
 - Audio has never been listened to (only measured). iPhones' silent switch may mute Web Audio.
+- Island depth G0: Turnipop and the Elder Bramblehogs were fought by a bot only; whether Turnipop's stomp
+  is fair on new players who poke it, and whether 20 minutes between field bosses feels right.
 - Icefang Hamlet (`docs/places/fjord.md`): the three new characters' personas have only been read, not
   chatted with (no DeepSeek key on test servers); the new Frostpeak mobs' numbers and Runa's prices
   only went through the balance sheet.
