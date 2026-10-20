@@ -268,7 +268,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     // everyone who hit it in the last 20 s (a boss: the whole fight) gets the full EXP: it's a co-op village
     for (const [qid, at] of m.hitters) {
       const q = players.get(qid);
-      if (q?.joined && q.state.room === m.room && now() - at < (k.boss ? 600_000 : 20000)) gainExp(qid, q, k.exp);
+      if (q?.joined && q.state.room === m.room && now() - at < (k.boss ? 600_000 : 20000)) gainExp(qid, q, Math.round(k.exp * (1 + (brewOf(q.rpg)?.exp ?? 0)))); // (a brewed EXP buff)
     }
     const drops = k.drops.filter(([, chance]) => Math.random() < chance);
     drops.forEach(([item, , lo, hi], i) => dropLoot(m.room, item, randInt(lo, hi), m.x + (i - (drops.length - 1) / 2) * (k.boss ? 34 : 22) + rand(-6, 6), ROOMS[m.room].ground > m.y ? m.y : ROOMS[m.room].ground));
@@ -1067,7 +1067,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       });
       if (best < 0) return;
       const d = loot[best], c = p.rpg;
-      if (d.item === 'coin') c.coins += d.n;
+      if (d.item === 'coin') c.coins += Math.round(d.n * (1 + (brewOf(c)?.gold ?? 0))); // (a brewed gold buff)
       else if (!addToBag(c, d.item, d.n, d.e)) return toast(p, 'Your bag is full');
       loot.splice(best, 1);
       showLoot(d.room);

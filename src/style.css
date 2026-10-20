@@ -2054,6 +2054,9 @@ body.touch #players {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: calc(4px * var(--s));
+  max-height: calc(196px * var(--s));
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 .alch-rec {
   display: flex;
@@ -2170,6 +2173,8 @@ body.touch #players {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: calc(4px * var(--s));
+  max-height: calc(158px * var(--s));
+  overflow-y: auto;
 }
 .alch-ing {
   position: relative;

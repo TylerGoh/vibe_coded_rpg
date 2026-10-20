@@ -1,6 +1,6 @@
 // Docs: docs/places/alchemy.md
 // Farming and alchemy art: crops growing in a garden plot (drawn over the plot by src/house.js), and the
-// item icons for herbs and brewed potions (drawItemIcon in src/field.js hands them over here).
+// item icons for herbs, boss reagents and brewed potions (drawItemIcon in src/field.js hands them over here).
 import { TAU, circle, ellipse } from './util.js';
 import { CROPS } from './shared/alchemy.js';
 
@@ -25,6 +25,111 @@ function leaf(ctx, x, y, len, ang, color) {
   ctx.fill();
   ctx.restore();
 }
+
+function heart(ctx, x, y, r) {
+  ctx.beginPath();
+  ctx.moveTo(x, y + r);
+  ctx.bezierCurveTo(x - r * 1.6, y - r * 0.2, x - r * 0.6, y - r * 1.4, x, y - r * 0.4);
+  ctx.bezierCurveTo(x + r * 0.6, y - r * 1.4, x + r * 1.6, y - r * 0.2, x, y + r);
+  ctx.fill();
+}
+function hourglass(ctx, x, y, r, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x - r * 0.8, y - r);
+  ctx.lineTo(x + r * 0.8, y - r);
+  ctx.lineTo(x, y);
+  ctx.lineTo(x + r * 0.8, y + r);
+  ctx.lineTo(x - r * 0.8, y + r);
+  ctx.lineTo(x, y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// ——— boss reagents (ITEMS with reagent: true): only bosses drop them ———
+const REAGENT = {
+  royal_sap(ctx) {
+    // a golden drop of sap with a leaf
+    ctx.fillStyle = '#e8a82a';
+    ctx.beginPath();
+    ctx.moveTo(0, -15);
+    ctx.quadraticCurveTo(13, 4, 9, 11);
+    ctx.quadraticCurveTo(0, 20, -9, 11);
+    ctx.quadraticCurveTo(-13, 4, 0, -15);
+    ctx.fill();
+    ctx.fillStyle = '#ffd76a';
+    ellipse(ctx, 0, 6, 7, 8);
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ellipse(ctx, -3.5, 2, 2, 4, 0.3);
+    leaf(ctx, 3, -12, 11, -0.6, '#7cc47f');
+  },
+  frost_heart(ctx) {
+    ctx.fillStyle = '#4fa8d6';
+    heart(ctx, 0, 2, 13);
+    ctx.fillStyle = '#9fe3ff';
+    heart(ctx, -1, 0, 9);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ellipse(ctx, -5, -4, 2, 3.5, 0.5);
+    ctx.fillStyle = '#ffffff';
+    star(ctx, 10, -10, 3);
+  },
+  phoenix_feather(ctx) {
+    ctx.save();
+    ctx.rotate(0.6);
+    ctx.fillStyle = '#ff7a3a';
+    ctx.beginPath();
+    ctx.moveTo(0, 18);
+    ctx.quadraticCurveTo(-11, 0, 0, -18);
+    ctx.quadraticCurveTo(11, 0, 0, 18);
+    ctx.fill();
+    ctx.fillStyle = '#ffc84a';
+    ctx.beginPath();
+    ctx.moveTo(0, 12);
+    ctx.quadraticCurveTo(-6, -2, 0, -14);
+    ctx.quadraticCurveTo(6, -2, 0, 12);
+    ctx.fill();
+    ctx.strokeStyle = '#c94a2a';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(0, 19);
+    ctx.lineTo(0, -12);
+    ctx.stroke();
+    ctx.restore();
+  },
+  time_sand(ctx) {
+    ctx.fillStyle = '#c98a5a';
+    ctx.fillRect(-11, -16, 22, 4);
+    ctx.fillRect(-11, 12, 22, 4);
+    ctx.fillStyle = 'rgba(230,240,255,0.8)';
+    ctx.strokeStyle = '#8a7aa8';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(-9, -12);
+    ctx.lineTo(9, -12);
+    ctx.lineTo(1.5, 0);
+    ctx.lineTo(9, 12);
+    ctx.lineTo(-9, 12);
+    ctx.lineTo(-1.5, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#f2c46a';
+    ctx.beginPath();
+    ctx.moveTo(-6, -10);
+    ctx.lineTo(6, -10);
+    ctx.lineTo(0, -1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(0, 5);
+    ctx.lineTo(7, 11);
+    ctx.lineTo(-7, 11);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    star(ctx, 12, -6, 2.6);
+  },
+};
 
 // ——— herbs: each crop's harvest, in a 40 × 40 box around (0, 0) ———
 const HERB = {
@@ -147,6 +252,17 @@ const BREW = {
   frost_ward: { shape: 'wide', color: '#9fe3ff', mark: 'flake' },
   ember_fury: { shape: 'wide', color: '#ff8a5c', mark: 'flame' },
   star_elixir: { shape: 'round', color: '#ffd6ec', mark: 'star', rainbow: true },
+  sprout_salve: { shape: 'wide', color: '#b8e88a', mark: 'leaf' },
+  scholar_tea: { shape: 'tall', color: '#d9b48a', mark: 'book' },
+  jelly_blend: { shape: 'round', color: '#9fb4ff', mark: 'heart' },
+  star_tonic: { shape: 'tall', color: '#8fa0ff', mark: 'star' },
+  briar_balm: { shape: 'wide', color: '#e8a0b4', mark: 'heart' },
+  royal_draught: { shape: 'round', color: '#ffd76a', mark: 'book' },
+  obsidian_skin: { shape: 'wide', color: '#6a5a7a', mark: 'gem' },
+  glacial_elixir: { shape: 'round', color: '#bfeeff', mark: 'flake' },
+  gilded_draught: { shape: 'tall', color: '#ffcf4a', mark: 'coin' },
+  phoenix_draught: { shape: 'round', color: '#ff9a5c', mark: 'flame', rainbow: true },
+  hour_elixir: { shape: 'tall', color: '#e8d4ff', mark: 'hourglass', rainbow: true },
   sludge: { shape: 'round', color: '#8a9a5b', mark: 'blob' },
 };
 function flask(ctx, { shape, color, mark, rainbow }) {
@@ -239,6 +355,29 @@ function flask(ctx, { shape, color, mark, rainbow }) {
   } else if (mark === 'star') {
     ctx.fillStyle = '#e0a020';
     star(ctx, 0, my, 4.8);
+  } else if (mark === 'book') {
+    ctx.fillStyle = '#8a5a3a';
+    ctx.fillRect(-4, my - 3, 3.6, 6);
+    ctx.fillRect(0.4, my - 3, 3.6, 6);
+  } else if (mark === 'heart') {
+    ctx.fillStyle = '#e0607a';
+    heart(ctx, 0, my, 4.2);
+  } else if (mark === 'gem') {
+    ctx.fillStyle = '#4a3a5a';
+    ctx.beginPath();
+    ctx.moveTo(0, my - 4.5);
+    ctx.lineTo(4, my);
+    ctx.lineTo(0, my + 4.5);
+    ctx.lineTo(-4, my);
+    ctx.closePath();
+    ctx.fill();
+  } else if (mark === 'coin') {
+    ctx.fillStyle = '#e0a020';
+    circle(ctx, 0, my, 4);
+    ctx.fillStyle = '#ffe28a';
+    circle(ctx, -0.8, my - 0.8, 1.8);
+  } else if (mark === 'hourglass') {
+    hourglass(ctx, 0, my, 4.5, '#7a5fd1');
   } else if (mark === 'blob') {
     circle(ctx, -1.5, my + 1, 2.4);
     circle(ctx, 1.8, my - 1, 1.6);
@@ -256,6 +395,7 @@ function flask(ctx, { shape, color, mark, rainbow }) {
 export function drawAlchemyIcon(ctx, id) {
   if (HERB[id]) HERB[id](ctx);
   else if (BREW[id]) flask(ctx, BREW[id]);
+  else if (REAGENT[id]) REAGENT[id](ctx);
   else return false;
   return true;
 }

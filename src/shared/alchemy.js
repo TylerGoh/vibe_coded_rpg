@@ -9,12 +9,12 @@
 // harvest [min, max]. Herb sell prices (ITEMS) stay under the seed's cost, so a garden is never a gold
 // farm (npm run economy checks it): crops are for brewing.
 export const CROPS = {
-  mintleaf: { name: 'Mintleaf', seed: 20, grow: 2 * 60, yield: [2, 3], color: '#7fd9a8', dark: '#3f9a6c' },
-  sunberry: { name: 'Sunberry', seed: 45, grow: 5 * 60, yield: [2, 3], color: '#ffc84a', dark: '#d98a1f' },
-  moonbell: { name: 'Moonbell', seed: 120, grow: 12 * 60, yield: [2, 3], color: '#b9a4ff', dark: '#7a5fd1' },
-  frostbloom: { name: 'Frostbloom', seed: 400, grow: 25 * 60, yield: [2, 3], color: '#9fe3ff', dark: '#4fa8d6' },
-  emberroot: { name: 'Emberroot', seed: 1200, grow: 45 * 60, yield: [2, 3], color: '#ff8a5c', dark: '#c94a2a' },
-  starlotus: { name: 'Starlotus', seed: 3000, grow: 90 * 60, yield: [2, 3], color: '#ffe9a8', dark: '#e0a8d8' },
+  mintleaf: { name: 'Mintleaf', seed: 15, grow: 60, yield: [4, 6], color: '#7fd9a8', dark: '#3f9a6c' },
+  sunberry: { name: 'Sunberry', seed: 25, grow: 2 * 60, yield: [4, 6], color: '#ffc84a', dark: '#d98a1f' },
+  moonbell: { name: 'Moonbell', seed: 60, grow: 4 * 60, yield: [4, 6], color: '#b9a4ff', dark: '#7a5fd1' },
+  frostbloom: { name: 'Frostbloom', seed: 200, grow: 8 * 60, yield: [4, 6], color: '#9fe3ff', dark: '#4fa8d6' },
+  emberroot: { name: 'Emberroot', seed: 500, grow: 15 * 60, yield: [4, 6], color: '#ff8a5c', dark: '#c94a2a' },
+  starlotus: { name: 'Starlotus', seed: 1200, grow: 25 * 60, yield: [4, 6], color: '#ffe9a8', dark: '#e0a8d8' },
 };
 export const PLOT_REACH = 80; // how close (px, from the plot's middle) you have to stand to plant or harvest
 export const LAB_REACH = 100; // the same for an alchemy lab
@@ -28,22 +28,35 @@ export const ACTIONS = {
   cool: 'Cool',
   distill: 'Distill',
 };
-export const BREW_MAX = 10; // potions brewed at once (a batch: ingredients × n, steps done once)
+export const BREW_MAX = 20; // potions brewed at once (a batch: ingredients × n, steps done once)
 export const MAX_STEPS = 24;
 
 // Recipes, weakest first. Each makes `makes` of the potion with the same id (in ITEMS) per batch. The steps must be done
 // exactly, in order: anything else turns to sludge and the ingredients are lost (the recipe book is right
-// there). tier: shown as stars in the book.
+// there). tier: shown as stars in the book. Ingredients past the herbs are real loot: mob materials from
+// each stage, shop jellies, and for the rarest brews a boss reagent (royal_sap, frost_heart,
+// phoenix_feather, time_sand: dropped by bosses only).
 export const RECIPES = {
-  mint_tonic: { tier: 1, makes: 2, steps: ['add:mintleaf', 'add:mintleaf', 'stir'] },
-  sun_cordial: { tier: 1, makes: 2, steps: ['grind:sunberry', 'add:sunberry', 'heat', 'stir'] },
-  moon_draught: { tier: 2, makes: 2, steps: ['grind:moonbell', 'heat', 'add:mintleaf', 'add:sunberry', 'stir', 'stir'] },
-  might_brew: { tier: 2, makes: 2, steps: ['grind:thorn', 'add:sunberry', 'add:sunberry', 'heat', 'stir', 'distill'] },
-  frost_ward: { tier: 3, makes: 2, steps: ['add:frostbloom', 'grind:ice_shard', 'cool', 'stir', 'add:moonbell', 'cool', 'distill'] },
-  ember_fury: { tier: 4, makes: 2, steps: ['grind:emberroot', 'add:ember_core', 'heat', 'heat', 'stir', 'add:sunberry', 'add:sunberry', 'stir', 'distill'] },
-  star_elixir: { tier: 5, makes: 2, steps: ['grind:stardust', 'add:starlotus', 'add:starlotus', 'cool', 'stir', 'heat', 'add:moonbell', 'distill', 'grind:aether_crystal', 'stir', 'distill'] },
+  mint_tonic: { tier: 1, makes: 4, steps: ['add:mintleaf', 'add:mintleaf', 'stir'] },
+  sun_cordial: { tier: 1, makes: 4, steps: ['grind:sunberry', 'add:sunberry', 'heat', 'stir'] },
+  sprout_salve: { tier: 1, makes: 4, steps: ['grind:sprout_leaf', 'add:mintleaf', 'add:mintleaf', 'cool', 'stir'] },
+  moon_draught: { tier: 2, makes: 4, steps: ['grind:moonbell', 'heat', 'add:mintleaf', 'add:sunberry', 'stir', 'stir'] },
+  might_brew: { tier: 2, makes: 4, steps: ['grind:thorn', 'add:sunberry', 'add:sunberry', 'heat', 'stir', 'distill'] },
+  scholar_tea: { tier: 2, makes: 3, steps: ['add:mush_cap', 'add:mush_cap', 'add:moonbell', 'heat', 'stir', 'cool'] },
+  jelly_blend: { tier: 2, makes: 3, steps: ['add:blue_jelly', 'add:mana_jelly', 'grind:sunberry', 'add:mintleaf', 'stir', 'heat', 'stir'] },
+  frost_ward: { tier: 3, makes: 3, steps: ['add:frostbloom', 'grind:ice_shard', 'cool', 'stir', 'add:moonbell', 'cool', 'distill'] },
+  star_tonic: { tier: 3, makes: 3, steps: ['grind:stardust', 'add:moonbell', 'add:moonbell', 'cool', 'distill', 'stir'] },
+  briar_balm: { tier: 3, makes: 3, steps: ['grind:thorn', 'add:frostbloom', 'add:mintleaf', 'add:mintleaf', 'cool', 'stir', 'heat'] },
+  royal_draught: { tier: 3, makes: 3, steps: ['add:royal_sap', 'add:sunberry', 'add:moonbell', 'heat', 'stir', 'stir', 'distill'] },
+  ember_fury: { tier: 4, makes: 3, steps: ['grind:emberroot', 'add:ember_core', 'heat', 'heat', 'stir', 'add:sunberry', 'add:sunberry', 'stir', 'distill'] },
+  obsidian_skin: { tier: 4, makes: 3, steps: ['grind:obsidian_shard', 'add:emberroot', 'add:frostbloom', 'heat', 'cool', 'heat', 'stir', 'distill'] },
+  glacial_elixir: { tier: 4, makes: 3, steps: ['add:frost_heart', 'add:frostbloom', 'add:frostbloom', 'grind:ice_shard', 'cool', 'cool', 'stir', 'add:moonbell', 'distill'] },
+  star_elixir: { tier: 5, makes: 3, steps: ['grind:stardust', 'add:starlotus', 'add:starlotus', 'cool', 'stir', 'heat', 'add:moonbell', 'distill', 'grind:aether_crystal', 'stir', 'distill'] },
+  gilded_draught: { tier: 5, makes: 3, steps: ['grind:cog', 'add:sunberry', 'add:sunberry', 'add:starlotus', 'heat', 'stir', 'add:cog', 'distill', 'stir'] },
+  phoenix_draught: { tier: 5, makes: 2, steps: ['add:phoenix_feather', 'grind:ember_core', 'add:emberroot', 'add:emberroot', 'heat', 'heat', 'stir', 'add:starlotus', 'distill', 'stir'] },
+  hour_elixir: { tier: 6, makes: 2, steps: ['grind:time_sand', 'add:aether_crystal', 'add:starlotus', 'add:starlotus', 'cool', 'stir', 'heat', 'add:moonbell', 'distill', 'grind:stardust', 'stir', 'cool', 'distill'] },
 };
-export const BUFF_LABELS = { atk: 'ATK and MAGIC', crit: 'crit chance', ward: 'less damage taken' };
+export const BUFF_LABELS = { atk: 'ATK and MAGIC', crit: 'crit chance', ward: 'less damage taken', regen: 'HP regen', exp: 'EXP', gold: 'gold' };
 
 export const stepItem = (s) => (s.startsWith('add:') || s.startsWith('grind:') ? s.slice(s.indexOf(':') + 1) : null);
 // What a list of steps uses up: { item id: count }

@@ -95,7 +95,7 @@ console.log(`One of every piece: ${fmt(setCost)} gold (farming has earned that b
 const herbCost = (id) => (CROPS[id] ? CROPS[id].seed / ((CROPS[id].yield[0] + CROPS[id].yield[1]) / 2) : sellPrice(id)); // one herb, or a mob material at what Pip pays
 table('FARMING: one planting of each crop (sell = the harvest sold to Pip)', Object.fromEntries(Object.entries(CROPS).map(([id, c]) => {
   const sell = ((c.yield[0] + c.yield[1]) / 2) * sellPrice(id);
-  return [id, { seed: c.seed, grows: `${c.grow / 60} min`, 'harvest sells for': fmt(sell), 'sell / seed': (sell / c.seed).toFixed(2) }];
+  return [id, { seed: c.seed, grows: `${c.grow / 60} min`, 'herbs an hour (2 plots)': Math.round((2 * 3600 / c.grow) * ((c.yield[0] + c.yield[1]) / 2)), 'harvest sells for': fmt(sell), 'sell / seed': (sell / c.seed).toFixed(2) }];
 })));
 const brewCost = (r) => Object.entries(needs(r.steps)).reduce((a, [id, k]) => a + k * herbCost(id), 0);
 table('ALCHEMY: one batch of each recipe (cost = seeds for its herbs + its mob materials at sell price)', Object.fromEntries(Object.entries(RECIPES).map(([id, r]) => [id, {

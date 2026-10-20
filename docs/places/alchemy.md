@@ -21,8 +21,26 @@ prompts, the buff on the HUD), `src/alchemy-art.js` (crops, herb and potion icon
   - Garden plots only go in the backyard (`yard: true` on the piece; `cleanLayout` / `snapPlacement`
     keep them there). The lab goes anywhere.
   - Only the owner plants and harvests; **anyone in a house can brew at its lab** (with their own bag).
-  - Recipes mix herbs with mob materials (thorns, ice shards, ember cores, stardust, aether crystals), so
-    the top brews need the later stages too. More steps per tier: 3 at the bottom, 11 at the top.
+  - Recipes mix herbs with real loot, so the top brews need the later stages too. More steps per tier:
+    3 at the bottom, 13 at the top.
+
+## Owner decisions (2026-10-20, later): more recipes, real loot, worth the time
+- The owner said brewing was "wayy too hard": 12 minutes of growing for 2 potions isn't worth it when the
+  shop sells potions. So crops now grow in minutes, not hours, and yield more (`CROPS`); every recipe
+  makes 2–4 potions per batch (`makes`) and a batch goes up to `BREW_MAX`. Two free plots of Mintleaf
+  give hundreds of potions an hour (the economy table shows herbs an hour). Brewing is meant to beat the
+  shop by far: that's the reward for the steps, and it can't be turned into gold (see Balance).
+- "Include real world loot for rarer potions": the recipe list grew to 18 (`RECIPES`), and past the herbs
+  they use every stage's mob materials (sprout leaves, mushling caps, thorns, ice shards, stardust, ember
+  cores, obsidian, cogs, aether crystals) and shop jellies. The rarest take a **boss reagent**
+  (`reagent: true` in `ITEMS`): `royal_sap` (Wildwood bosses), `frost_heart` (Highlands),
+  `phoenix_feather` (Caldera), `time_sand` (Citadel). Only bosses drop them (their `drops`), so the best
+  brews come from boss runs. The recipe book says "boss drop" next to them.
+- New buff kinds (made without asking): `exp` (more EXP from kills, `gainExp` in `server/rpg.js`), `gold`
+  (more gold picked up, the coin pickup), `regen` (fight HP regen, `statsFor`). Still one brewed buff at
+  a time, so an EXP or gold buff costs you the fighting one. Buffs last 10 minutes (the Elixir of Hours 15).
+- The lab's ingredient shelf only shows what you carry plus what the open recipe needs (there are too
+  many ingredients for one grid); the book and the shelf scroll.
 
 ## How brewing works
 - A step is `stir` / `heat` / `cool` / `distill`, or `add:<item>` / `grind:<item>` (the Mortar toggle
@@ -52,7 +70,8 @@ prompts, the buff on the HUD), `src/alchemy-art.js` (crops, herb and potion icon
 
 ## Balance (see `docs/economy.md`)
 - Herbs and brews sell to Pip for less than they cost to make (`npm run economy` checks both), so a
-  garden is never a gold farm. Their value is in drinking them: brews heal far more per gold than shop
+  garden is never a gold farm. With the big yields that keeps herb and brew sell prices tiny on purpose.
+  Boss reagents sell like any loot, so they add a little to each boss kill's value. Their value is in drinking them: brews heal far more per gold than shop
   potions, which is the reward for the waiting and the steps.
 
 ## Testing

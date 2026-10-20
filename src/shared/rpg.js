@@ -110,19 +110,19 @@ export const MOBS = {
     name: 'Sprout King', boss: true, lvl: 4, hp: 5000, atk: 14, exp: 320, speed: 80, w: 120, h: 112, aggro: true, hops: false,
     phases: [['slam', 'charge'], ['slam', 'charge', 'summon', 'leap'], ['slam', 'charge', 'summon', 'leap']],
     ult: { name: 'Royal Decree', kind: 'stomp' }, minion: 'sprout',
-    drops: [['king_crown', 1, 1, 1], ['coin', 1, 50, 90], ['red_jelly', 1, 2, 4], ['mana_jelly', 1, 1, 2], ['wood_sword', 0.5, 1, 1], ['scroll_s100', 0.7, 1, 2], ['scroll_h100', 0.7, 1, 2], ['scroll_s60', 0.25, 1, 1], ['scroll_h60', 0.25, 1, 1]],
+    drops: [['royal_sap', 0.5, 1, 1], ['king_crown', 1, 1, 1], ['coin', 1, 50, 90], ['red_jelly', 1, 2, 4], ['mana_jelly', 1, 1, 2], ['wood_sword', 0.5, 1, 1], ['scroll_s100', 0.7, 1, 2], ['scroll_h100', 0.7, 1, 2], ['scroll_s60', 0.25, 1, 1], ['scroll_h60', 0.25, 1, 1]],
   },
   mother_mushroom: {
     name: 'Mother Mushroom', boss: true, lvl: 8, hp: 14000, atk: 24, exp: 950, speed: 60, w: 150, h: 140, aggro: true, hops: false,
     phases: [['slam', 'rain'], ['slam', 'rain', 'summon', 'leap'], ['slam', 'rain', 'summon', 'leap', 'barrage']],
     ult: { name: 'Spore Bloom', kind: 'spores' }, minion: 'mushling',
-    drops: [['spore_blade', 1, 1, 1], ['coin', 1, 120, 200], ['blue_jelly', 1, 1, 3], ['mana_jelly', 1, 2, 3], ['mush_helm', 0.6, 1, 1], ['scroll_s100', 1, 1, 2], ['scroll_h100', 1, 1, 2], ['scroll_s60', 0.4, 1, 1], ['scroll_h60', 0.4, 1, 1], ['scroll_s10', 0.05, 1, 1]],
+    drops: [['royal_sap', 0.8, 1, 2], ['spore_blade', 1, 1, 1], ['coin', 1, 120, 200], ['blue_jelly', 1, 1, 3], ['mana_jelly', 1, 2, 3], ['mush_helm', 0.6, 1, 1], ['scroll_s100', 1, 1, 2], ['scroll_h100', 1, 1, 2], ['scroll_s60', 0.4, 1, 1], ['scroll_h60', 0.4, 1, 1], ['scroll_s10', 0.05, 1, 1]],
   },
   bramble_behemoth: {
     name: 'Bramble Behemoth', boss: true, lvl: 12, hp: 30000, atk: 36, exp: 2500, speed: 95, w: 170, h: 130, aggro: true, hops: false,
     phases: [['charge', 'slam'], ['charge', 'slam', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
     ult: { name: 'Thorn Tsunami', kind: 'wave' }, minion: 'bramble',
-    drops: [['thorn_sword', 1, 1, 1], ['bramble_helm', 1, 1, 1], ['coin', 1, 250, 400], ['blue_jelly', 1, 2, 4], ['mana_jelly', 1, 2, 4], ['scroll_s100', 1, 1, 3], ['scroll_h100', 1, 1, 3], ['scroll_s60', 0.6, 1, 1], ['scroll_h60', 0.6, 1, 1], ['scroll_s10', 0.1, 1, 1], ['scroll_h10', 0.1, 1, 1]],
+    drops: [['royal_sap', 1, 1, 2], ['thorn_sword', 1, 1, 1], ['bramble_helm', 1, 1, 1], ['coin', 1, 250, 400], ['blue_jelly', 1, 2, 4], ['mana_jelly', 1, 2, 4], ['scroll_s100', 1, 1, 3], ['scroll_h100', 1, 1, 3], ['scroll_s60', 0.6, 1, 1], ['scroll_h60', 0.6, 1, 1], ['scroll_s10', 0.1, 1, 1], ['scroll_h10', 0.1, 1, 1]],
   },
   // ——— the Frostpeak Highlands ———
   frostling: {
@@ -145,13 +145,13 @@ export const MOBS = {
     name: 'Frost Queen Glacia', boss: true, lvl: 18, hp: 45000, atk: 52, exp: 6000, speed: 90, w: 140, h: 160, aggro: true, hops: false,
     phases: [['rain', 'charge', 'slam'], ['rain', 'charge', 'slam', 'leap', 'summon'], ['barrage', 'rain', 'leap', 'slam', 'summon', 'charge']],
     ult: { name: 'Absolute Zero', kind: 'lanes' }, minion: 'frostling',
-    drops: [['frost_blade', 1, 1, 1], ['glacier_helm', 1, 1, 1], ['coin', 1, 600, 900], ['elixir', 1, 2, 4], ['ice_shard', 1, 4, 8], ['scroll_s60', 1, 1, 1], ['scroll_h60', 1, 1, 1], ['scroll_s10', 0.2, 1, 1], ['scroll_h10', 0.2, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
+    drops: [['frost_heart', 1, 1, 2], ['frost_blade', 1, 1, 1], ['glacier_helm', 1, 1, 1], ['coin', 1, 600, 900], ['elixir', 1, 2, 4], ['ice_shard', 1, 4, 8], ['scroll_s60', 1, 1, 1], ['scroll_h60', 1, 1, 1], ['scroll_s10', 0.2, 1, 1], ['scroll_h10', 0.2, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
   },
   astral_wyrm: {
     name: 'Astral Wyrm', boss: true, lvl: 25, hp: 90000, atk: 72, exp: 15000, speed: 110, w: 190, h: 150, aggro: true, hops: false,
     phases: [['rain', 'charge', 'leap'], ['barrage', 'charge', 'leap', 'slam', 'summon'], ['barrage', 'charge', 'leap', 'slam', 'summon', 'rain']],
     ult: { name: 'Supernova', kind: 'nova' }, minion: 'wisp',
-    drops: [['star_sword', 1, 1, 1], ['star_crown', 1, 1, 1], ['coin', 1, 1500, 2500], ['elixir', 1, 4, 6], ['stardust', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
+    drops: [['frost_heart', 1, 2, 3], ['star_sword', 1, 1, 1], ['star_crown', 1, 1, 1], ['coin', 1, 1500, 2500], ['elixir', 1, 4, 6], ['stardust', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
   },
   // ——— the Emberdeep Caldera ———
   // ai: what makes a mob more than a walker (server/rpg.js mobAi, client src/rpg.js):
@@ -184,13 +184,13 @@ export const MOBS = {
     name: 'Ignis the Magma Tyrant', boss: true, lvl: 36, hp: 150000, atk: 110, exp: 30000, speed: 85, w: 180, h: 170, aggro: true, hops: false,
     phases: [['slam', 'fireballs', 'geysers'], ['slam', 'fireballs', 'geysers', 'charge', 'flamewall'], ['geysers', 'fireballs', 'flamewall', 'leap', 'summon', 'barrage']],
     ult: { name: 'Caldera Eruption', kind: 'magma' }, minion: 'ember_imp',
-    drops: [['magma_maul', 1, 1, 1], ['ember_helm', 0.6, 1, 1], ['coin', 1, 3000, 5000], ['mega_elixir', 1, 2, 4], ['ember_core', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.4, 1, 1], ['scroll_h10', 0.4, 1, 1], ['scroll_s30', 0.25, 1, 1], ['scroll_h30', 0.25, 1, 1], ['scroll_chaos', 0.25, 1, 1]],
+    drops: [['phoenix_feather', 1, 1, 2], ['magma_maul', 1, 1, 1], ['ember_helm', 0.6, 1, 1], ['coin', 1, 3000, 5000], ['mega_elixir', 1, 2, 4], ['ember_core', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.4, 1, 1], ['scroll_h10', 0.4, 1, 1], ['scroll_s30', 0.25, 1, 1], ['scroll_h30', 0.25, 1, 1], ['scroll_chaos', 0.25, 1, 1]],
   },
   pyra: {
     name: 'Pyra the Ember Phoenix', boss: true, lvl: 46, hp: 240000, atk: 140, exp: 55000, speed: 120, w: 170, h: 140, aggro: true, hops: false, fly: 40,
     phases: [['feathers', 'dive', 'rings'], ['feathers', 'dive', 'rings', 'rain', 'summon'], ['feathers', 'dive', 'rings', 'barrage', 'spiral']],
     ult: { name: 'Rebirth', kind: 'rebirth' }, minion: 'cinder_bat',
-    drops: [['phoenix_blade', 1, 1, 1], ['phoenix_crown', 0.6, 1, 1], ['coin', 1, 5000, 8000], ['mega_elixir', 1, 3, 5], ['obsidian_shard', 1, 6, 10], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.5, 1, 1], ['scroll_h10', 0.5, 1, 1], ['scroll_s30', 0.3, 1, 1], ['scroll_h30', 0.3, 1, 1], ['scroll_chaos', 0.3, 1, 1]],
+    drops: [['phoenix_feather', 1, 2, 3], ['phoenix_blade', 1, 1, 1], ['phoenix_crown', 0.6, 1, 1], ['coin', 1, 5000, 8000], ['mega_elixir', 1, 3, 5], ['obsidian_shard', 1, 6, 10], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.5, 1, 1], ['scroll_h10', 0.5, 1, 1], ['scroll_s30', 0.3, 1, 1], ['scroll_h30', 0.3, 1, 1], ['scroll_chaos', 0.3, 1, 1]],
   },
   // ——— the Aether Citadel ———
   cogling: {
@@ -221,13 +221,13 @@ export const MOBS = {
     name: 'The Clockwork Colossus', boss: true, lvl: 60, hp: 420000, atk: 200, exp: 110000, speed: 70, w: 220, h: 200, aggro: true, hops: false,
     phases: [['slam', 'gears', 'beam'], ['slam', 'gears', 'beam', 'grid', 'sweep'], ['grid', 'sweep', 'gears', 'beam', 'charge', 'summon']],
     ult: { name: 'Overclock', kind: 'overclock' }, minion: 'cogling',
-    drops: [['cog_cleaver', 1, 1, 1], ['aether_helm', 0.6, 1, 1], ['coin', 1, 9000, 14000], ['mega_elixir', 1, 4, 6], ['cog', 1, 8, 12], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+    drops: [['time_sand', 1, 1, 2], ['cog_cleaver', 1, 1, 1], ['aether_helm', 0.6, 1, 1], ['coin', 1, 9000, 14000], ['mega_elixir', 1, 4, 6], ['cog', 1, 8, 12], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
   },
   chronos: {
     name: 'Chronos, Keeper of Hours', boss: true, lvl: 80, hp: 650000, atk: 260, exp: 220000, speed: 100, w: 160, h: 190, aggro: true, hops: false, fly: 30,
     phases: [['bombs', 'sweep', 'blink', 'spiral'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid', 'summon']],
     ult: { name: 'Time Stop', kind: 'timestop' }, ults: [{ name: 'Time Stop', kind: 'timestop' }, { name: 'Collapse of Hours', kind: 'collapse' }], minion: 'chrono_wraith',
-    drops: [['chrono_blade', 1, 1, 1], ['hourglass_crown', 0.6, 1, 1], ['coin', 1, 15000, 25000], ['mega_elixir', 1, 5, 8], ['aether_crystal', 1, 8, 12], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s10', 0.8, 1, 2], ['scroll_h10', 0.8, 1, 2], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.5, 1, 2]],
+    drops: [['time_sand', 1, 2, 3], ['chrono_blade', 1, 1, 1], ['hourglass_crown', 0.6, 1, 1], ['coin', 1, 15000, 25000], ['mega_elixir', 1, 5, 8], ['aether_crystal', 1, 8, 12], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s10', 0.8, 1, 2], ['scroll_h10', 0.8, 1, 2], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.5, 1, 2]],
   },
 };
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
@@ -377,21 +377,38 @@ export const ITEMS = {
   hourglass_crown: { name: 'Hourglass Crown', price: 240000, kind: 'helmet', def: 62, slots: 10, desc: 'Sand still trickles through it, upward.' },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
-  // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward) } for `dur` s;
+  // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen
+  // ×1+regen), exp (mob EXP ×1+exp), gold (gold picked up ×1+gold) } for `dur` s;
   // one brewed buff at a time (a new one replaces it). full: fills HP and MP.
-  mintleaf: { name: 'Mintleaf', price: 12, kind: 'loot', herb: true, desc: 'A cool, fresh herb from your garden.' },
-  sunberry: { name: 'Sunberry', price: 27, kind: 'loot', herb: true, desc: 'A warm golden berry. Smells like summer.' },
-  moonbell: { name: 'Moonbell', price: 72, kind: 'loot', herb: true, desc: 'A pale flower that only rings at night.' },
-  frostbloom: { name: 'Frostbloom', price: 240, kind: 'loot', herb: true, desc: 'Icy petals that never wilt.' },
-  emberroot: { name: 'Emberroot', price: 720, kind: 'loot', herb: true, desc: 'A knobbly root, hot to the touch.' },
-  starlotus: { name: 'Starlotus', price: 1800, kind: 'loot', herb: true, desc: 'A lotus that glows like a tiny star.' },
-  mint_tonic: { name: 'Mint Tonic', price: 15, kind: 'potion', brewed: true, heal: 250, desc: 'Brewed. Restores 250 HP.' },
-  sun_cordial: { name: 'Sunberry Cordial', price: 40, kind: 'potion', brewed: true, mana: 200, desc: 'Brewed. Restores 200 MP.' },
-  moon_draught: { name: 'Moonbell Draught', price: 80, kind: 'potion', brewed: true, heal: 700, mana: 350, desc: 'Brewed. Restores 700 HP and 350 MP.' },
-  might_brew: { name: 'Brew of Might', price: 50, kind: 'potion', brewed: true, buff: { atk: 0.15 }, dur: 300, desc: 'Brewed. +15% ATK and MAGIC for 5 minutes.' },
-  frost_ward: { name: 'Frostbloom Ward', price: 250, kind: 'potion', brewed: true, buff: { ward: 0.25 }, dur: 300, desc: 'Brewed. Take 25% less damage for 5 minutes.' },
-  ember_fury: { name: 'Emberroot Fury', price: 650, kind: 'potion', brewed: true, buff: { atk: 0.25, crit: 0.1 }, dur: 300, desc: 'Brewed. +25% ATK and MAGIC and +10% crit chance for 5 minutes.' },
-  star_elixir: { name: 'Starlotus Elixir', price: 3000, kind: 'potion', brewed: true, full: true, buff: { atk: 0.2, crit: 0.05, ward: 0.15 }, dur: 300, desc: 'Brewed. Fully restores HP and MP, then +20% ATK and MAGIC, +5% crit and 15% less damage taken for 5 minutes.' },
+  mintleaf: { name: 'Mintleaf', price: 3, kind: 'loot', herb: true, desc: 'A cool, fresh herb from your garden.' },
+  sunberry: { name: 'Sunberry', price: 8, kind: 'loot', herb: true, desc: 'A warm golden berry. Smells like summer.' },
+  moonbell: { name: 'Moonbell', price: 20, kind: 'loot', herb: true, desc: 'A pale flower that only rings at night.' },
+  frostbloom: { name: 'Frostbloom', price: 70, kind: 'loot', herb: true, desc: 'Icy petals that never wilt.' },
+  emberroot: { name: 'Emberroot', price: 180, kind: 'loot', herb: true, desc: 'A knobbly root, hot to the touch.' },
+  starlotus: { name: 'Starlotus', price: 450, kind: 'loot', herb: true, desc: 'A lotus that glows like a tiny star.' },
+  // boss reagents: only bosses drop them, for the rarest brews
+  royal_sap: { name: 'Royal Sap', price: 200, kind: 'loot', reagent: true, desc: 'Golden sap from a forest boss. Alchemists prize it.' },
+  frost_heart: { name: 'Frost Heart', price: 800, kind: 'loot', reagent: true, desc: 'A beating heart of ice from a boss of the Highlands.' },
+  phoenix_feather: { name: 'Phoenix Feather', price: 2500, kind: 'loot', reagent: true, desc: 'A feather that is still on fire. From a boss of the Caldera.' },
+  time_sand: { name: 'Sand of Hours', price: 7000, kind: 'loot', reagent: true, desc: 'Sand from a great clock. It falls upward.' },
+  mint_tonic: { name: 'Mint Tonic', price: 3, kind: 'potion', brewed: true, heal: 250, desc: 'Brewed. Restores 250 HP.' },
+  sun_cordial: { name: 'Sunberry Cordial', price: 5, kind: 'potion', brewed: true, mana: 200, desc: 'Brewed. Restores 200 MP.' },
+  sprout_salve: { name: 'Sprout Salve', price: 3, kind: 'potion', brewed: true, heal: 450, mana: 100, desc: 'Brewed. Restores 450 HP and 100 MP.' },
+  moon_draught: { name: 'Moonbell Draught', price: 10, kind: 'potion', brewed: true, heal: 700, mana: 350, desc: 'Brewed. Restores 700 HP and 350 MP.' },
+  might_brew: { name: 'Brew of Might', price: 12, kind: 'potion', brewed: true, buff: { atk: 0.15 }, dur: 600, desc: 'Brewed. +15% ATK and MAGIC for 10 minutes.' },
+  scholar_tea: { name: "Scholar's Tea", price: 15, kind: 'potion', brewed: true, buff: { exp: 0.15 }, dur: 600, desc: 'Brewed. +15% EXP from mobs for 10 minutes.' },
+  jelly_blend: { name: 'Jellyberry Blend', price: 40, kind: 'potion', brewed: true, heal: 1000, mana: 500, desc: 'Brewed. Restores 1000 HP and 500 MP.' },
+  frost_ward: { name: 'Frostbloom Ward', price: 60, kind: 'potion', brewed: true, buff: { ward: 0.25 }, dur: 600, desc: 'Brewed. Take 25% less damage for 10 minutes.' },
+  star_tonic: { name: 'Stardust Tonic', price: 55, kind: 'potion', brewed: true, heal: 800, mana: 1500, desc: 'Brewed. Restores 800 HP and 1500 MP.' },
+  briar_balm: { name: 'Briar Balm', price: 45, kind: 'potion', brewed: true, buff: { regen: 2 }, dur: 600, desc: 'Brewed. Triple HP regeneration in fights for 10 minutes.' },
+  royal_draught: { name: 'Royal Draught', price: 75, kind: 'potion', brewed: true, buff: { exp: 0.3 }, dur: 600, desc: 'Brewed. +30% EXP from mobs for 10 minutes.' },
+  ember_fury: { name: 'Emberroot Fury', price: 150, kind: 'potion', brewed: true, buff: { atk: 0.25, crit: 0.1 }, dur: 600, desc: 'Brewed. +25% ATK and MAGIC and +10% crit chance for 10 minutes.' },
+  obsidian_skin: { name: 'Obsidian Skin', price: 200, kind: 'potion', brewed: true, buff: { ward: 0.35 }, dur: 600, desc: 'Brewed. Take 35% less damage for 10 minutes.' },
+  glacial_elixir: { name: 'Glacial Heart Elixir', price: 350, kind: 'potion', brewed: true, full: true, buff: { ward: 0.3, regen: 1 }, dur: 600, desc: 'Brewed. Fully restores HP and MP, then 30% less damage taken and double HP regeneration for 10 minutes.' },
+  star_elixir: { name: 'Starlotus Elixir', price: 650, kind: 'potion', brewed: true, full: true, buff: { atk: 0.2, crit: 0.05, ward: 0.15 }, dur: 600, desc: 'Brewed. Fully restores HP and MP, then +20% ATK and MAGIC, +5% crit and 15% less damage taken for 10 minutes.' },
+  gilded_draught: { name: 'Gilded Draught', price: 480, kind: 'potion', brewed: true, buff: { gold: 0.2 }, dur: 600, desc: 'Brewed. +20% gold picked up for 10 minutes.' },
+  phoenix_draught: { name: 'Phoenix Draught', price: 1800, kind: 'potion', brewed: true, full: true, buff: { atk: 0.35, crit: 0.15, regen: 1 }, dur: 600, desc: 'Brewed. Fully restores HP and MP, then +35% ATK and MAGIC, +15% crit and double HP regeneration for 10 minutes.' },
+  hour_elixir: { name: 'Elixir of Hours', price: 4400, kind: 'potion', brewed: true, full: true, buff: { atk: 0.3, crit: 0.1, ward: 0.25, exp: 0.2 }, dur: 900, desc: 'Brewed. Fully restores HP and MP, then +30% ATK and MAGIC, +10% crit, 25% less damage taken and +20% EXP for 15 minutes.' },
   sludge: { name: 'Murky Sludge', price: 1, kind: 'loot', desc: 'A brew gone wrong. It bubbles sadly.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Sword Scroll 100%', price: 300, kind: 'scroll', slot: 'sword', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a sword.' },

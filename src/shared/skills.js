@@ -206,7 +206,7 @@ export const MIN_ROLL = 0.85, MAX_ROLL = 1.15; // ±15% before DEX
 export const minRollFor = (ap) => Math.min(1.05, MIN_ROLL + 0.001 * apOf(ap, 'dex'));
 // Everything about a character's numbers in one place (c: {lvl, gear, skills}).
 // buffs: { berserk: true while it's up, rally: the Rally boost (e.g. 0.2) while it's up, brew: a brewed
-// potion's buff ({ atk, crit, ward }, ITEMS) while it's up }
+// potion's buff ({ atk, crit, ward, regen, ... }, ITEMS) while it's up }
 export function statsFor(c, buffs = {}) {
   const rage = buffs.berserk ? 1 + SKILLS.berserk.boost(rankOf(c.skills, 'berserk')) : 1;
   const rally = 1 + (buffs.rally ?? 0);
@@ -227,7 +227,7 @@ export function statsFor(c, buffs = {}) {
     crit: 0.12 + 0.03 * mastery + Math.min(0.2, 0.0004 * luk) + (brew.crit ?? 0),
     critMult: 1.6 + 0.1 * mastery + 0.0015 * luk,
     minRoll: minRollFor(c.ap),
-    hpRegen: 1 + 0.25 * rankOf(c.skills, 'vitality'),
+    hpRegen: (1 + 0.25 * rankOf(c.skills, 'vitality')) * (1 + (brew.regen ?? 0)),
     ward: brew.ward ?? 0, // share of damage taken away (server/rpg.js hurt)
   };
 }

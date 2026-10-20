@@ -275,7 +275,7 @@ export class Alchemy {
     const words = el('div');
     words.append(el('b', '', `${it.name} ×${r.makes}`), el('p', '', it.desc.replace(/^Brewed\. /, '')));
     head.append(icon(this.pick, 40), words);
-    const need = Object.entries(needs(r.steps)).map(([id, k]) => `${ITEMS[id].name} ×${k * this.n} (have ${this.have(id)})`).join(' · ');
+    const need = Object.entries(needs(r.steps)).map(([id, k]) => `${ITEMS[id].name} ×${k * this.n} (have ${this.have(id)}${ITEMS[id].reagent ? ', boss drop' : ''})`).join(' · ');
     const ol = el('ol', 'alch-rsteps');
     let ok = true;
     r.steps.forEach((s, i) => {
@@ -292,9 +292,12 @@ export class Alchemy {
     if (!done.length) this.stepsEl.append(el('p', 'alch-empty', 'Empty. Follow a recipe from the book, one step at a time.'));
     done.forEach((s, i) => this.stepsEl.append(el('span', 'alch-chip', `${i + 1}. ${stepLabel(s, ITEMS)}`)));
     this.stepsEl.scrollTop = this.stepsEl.scrollHeight;
-    // the ingredient shelf
+    // the ingredient shelf: what you're carrying, plus whatever the open recipe needs (there are too many
+    // ingredients to show them all); herbs first
     this.ings.replaceChildren();
-    for (const id of INGREDIENTS) {
+    const want = needs(r.steps);
+    const shelf = INGREDIENTS.filter((id) => this.have(id) > 0 || want[id]).sort((a, b) => !!CROPS[b] - !!CROPS[a]);
+    for (const id of shelf) {
       const left = this.spare(id);
       const b = el('button', 'alch-ing');
       b.type = 'button';

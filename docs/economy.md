@@ -19,7 +19,10 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
   size, first affordable level, and minutes of farming at two levels, plus what one of every piece costs.
 - **Farming / alchemy**: each crop's seed against what its harvest sells for, and each recipe's ingredient
   cost against what its potions sell for. Both must stay below cost (checked), so gardens aren't gold
-  farms; seeds and garden plots are small sinks (`docs/places/alchemy.md`).
+  farms; seeds and garden plots are small sinks (`docs/places/alchemy.md`). The farming table also shows
+  herbs an hour from the two free plots: brewing is meant to be well worth the time. Brewed EXP and gold
+  buffs (`exp`, `gold` on a potion's `buff`) speed up the faucets for whoever drinks one; the gold one
+  needs Citadel cogs, so it only helps late players and is kept small.
 - **Checks**: aimed sinks cost between `AIM_MIN` and `AIM_MAX` of the gold earned by their aim level;
   house sizes get dearer; furniture: every piece priced, a piece 4× the size of another (rugs aside) never
   cheaper, one of every piece costing between the gold earned by `SET_FROM` and `SET_TO`; nothing in the shop sells for what it costs; no mob is a gold farm (far more
