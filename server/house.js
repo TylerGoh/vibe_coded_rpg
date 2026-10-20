@@ -5,7 +5,7 @@
 // (docs/places/alchemy.md; saved as `farm`). House rooms are numbered from HOUSE_BASE as accounts first log
 // in after a start (room ids are only for this run of the server; layouts are saved by username).
 import { DatabaseSync } from 'node:sqlite';
-import { HOUSE_BASE, HOUSE_EXIT_X, HOME_DOOR_X, VILLAGE, isHouse, roomDef, setHouseRoom, newState, STORE } from '../src/shared/sim.js';
+import { HOUSE_BASE, HOUSE_EXIT_X, isHouse, roomDef, setHouseRoom, placeAt, STORE, TOWNS, townOf } from '../src/shared/sim.js';
 import { cleanLayout, cleanOwned, placed, houseRoom, DEFAULT_LAYOUT, HOUSE_SIZES, STARTER, FURNITURE } from '../src/shared/house.js';
 import { CROPS, PLOT_REACH, LAB_REACH, GIFT } from '../src/shared/alchemy.js';
 
@@ -44,7 +44,7 @@ export function createHouses({ dbPath, players, send, toRoom, pay, give }) {
   const plotAt = (h, p, id) => h.layout.items.find((it) => it.k === 'garden_plot' && it.id === id && Math.abs(it.x - p.state.x) < PLOT_REACH + 20);
   const byName = (name) => [...players.entries()].find(([, q]) => q.joined && q.name === name);
   // Server-side move, like waking up from a faint: the client's prediction snaps to it on the next snapshot
-  const moveTo = (p, room, x) => Object.assign(p.state, newState(x), { room, y: roomDef(room).ground, home: p.state.home, mv: p.state.mv, facing: p.state.facing });
+  const moveTo = (p, room, x) => placeAt(p.state, room, x);
 
   // A layout changed: the room's shape follows, it's saved, and everyone inside gets it
   function store(room, h) {
@@ -167,8 +167,8 @@ export function createHouses({ dbPath, players, send, toRoom, pay, give }) {
     invite(id, p, m) {
       const [qid, q] = [m.to, players.get(m.to)];
       if (!q?.joined || qid === id) return;
-      if (p.state.room !== VILLAGE && p.state.room !== p.state.home) return toast(p, 'You can only invite slimes from the village or your own house');
-      if (q.state.room !== VILLAGE) return toast(p, `${q.name} has to be in the village to get an invite`);
+      if (townOf(p.state.room) < 0 && p.state.room !== p.state.home) return toast(p, 'You can only invite slimes from a town or your own house');
+      if (townOf(q.state.room) < 0) return toast(p, `${q.name} has to be in a town to get an invite`);
       q.invites ??= new Map();
       const was = q.invites.get(p.name);
       if (was && Date.now() - was.at < INVITE_GAP_MS) return;
@@ -185,7 +185,7 @@ export function createHouses({ dbPath, players, send, toRoom, pay, give }) {
       const host = byName(m.host)?.[1];
       if (m.no) return host && toast(host, `${p.name} can't come over right now`);
       if (Date.now() - inv.at > INVITE_MS) return toast(p, 'That invite has expired');
-      if (p.state.room !== VILLAGE) return toast(p, 'Go back to the village to accept the invite');
+      if (townOf(p.state.room) < 0) return toast(p, 'Go back to a town to accept the invite');
       if (p.faintUntil) return;
       moveTo(p, inv.room, HOUSE_EXIT_X + 70 + Math.round(Math.random() * 60));
       if (host) toast(host, `${p.name} came over!`);
@@ -197,7 +197,8 @@ export function createHouses({ dbPath, players, send, toRoom, pay, give }) {
       if (owners.get(room)?.user !== p.name) return;
       for (const q of players.values()) {
         if (q === p || !q.joined || q.state.room !== room) continue;
-        moveTo(q, VILLAGE, HOME_DOOR_X + (Math.random() < 0.5 ? -1 : 1) * (60 + Math.round(Math.random() * 60)));
+        const town = TOWNS[q.state.town | 0]; // out their own town's front door
+        moveTo(q, town.room, town.homeX + (Math.random() < 0.5 ? -1 : 1) * (60 + Math.round(Math.random() * 60)));
         toast(q, `${p.name} sent everyone home`);
       }
     },

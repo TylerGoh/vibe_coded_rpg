@@ -354,8 +354,9 @@ function drawBollard(ctx, x) {
 }
 
 // The Frostpeak ferry, a stout little paddle steamer, moored with steam up (her gangway: drawBoarding)
-function drawFerry(ctx, time) {
-  const x0 = FERRY_X, x1 = FERRY_X + FERRY_LEN, bob = Math.sin(time * 0.9) * 2.5, wl = GROUND - 22 + bob;
+// Also at Icefang Hamlet's quay (src/fjord.js): x0 her stern, ground the quay, moor the two bollards
+export function drawFerry(ctx, time, x0 = FERRY_X, ground = GROUND, moor = BOLLARDS) {
+  const x1 = x0 + FERRY_LEN, bob = Math.sin(time * 0.9) * 2.5, wl = ground - 22 + bob;
   ctx.save();
   // hull
   ctx.fillStyle = '#4f6b9a';
@@ -465,23 +466,24 @@ function drawFerry(ctx, time) {
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.moveTo(x0 + 10, deck - 6);
-  ctx.quadraticCurveTo(x0 - 20, GROUND - 10, BOLLARDS[0], GROUND - 20);
+  ctx.quadraticCurveTo(x0 - 20, ground - 10, moor[0], ground - 20);
   ctx.moveTo(x1 + 10, deck - 10);
-  ctx.quadraticCurveTo(x1 + 60, GROUND - 6, BOLLARDS[1], GROUND - 20);
+  ctx.quadraticCurveTo(x1 + 60, ground - 6, moor[1], ground - 20);
   ctx.stroke();
   ctx.restore();
 }
 
 // The ferry's gangway, run down to the quay (the door aboard, GANGWAY_X), the sailing board beside it, and
 // Pickles on his post
-function drawBoarding(ctx, x, time) {
-  const deck = GROUND - 98 + Math.sin(time * 0.9) * 2.5;
+// board: the sailing board's title and two lines (Icefang Hamlet has its own, src/fjord.js)
+export function drawBoarding(ctx, x, time, ground = GROUND, board = ['FERRY TO FROSTPEAK', 'The light is lit.', 'All aboard!']) {
+  const deck = ground - 98 + Math.sin(time * 0.9) * 2.5;
   ctx.fillStyle = '#c99b6b';
   ctx.beginPath();
-  ctx.moveTo(x - 46, GROUND);
+  ctx.moveTo(x - 46, ground);
   ctx.lineTo(x + 18, deck);
   ctx.lineTo(x + 40, deck);
-  ctx.lineTo(x - 22, GROUND);
+  ctx.lineTo(x - 22, ground);
   ctx.closePath();
   ctx.fill();
   ctx.strokeStyle = '#a77b52';
@@ -489,31 +491,31 @@ function drawBoarding(ctx, x, time) {
   ctx.beginPath();
   for (let i = 1; i < 6; i++) {
     const t = i / 6;
-    ctx.moveTo(x - 46 + t * 64, GROUND + t * (deck - GROUND));
-    ctx.lineTo(x - 22 + t * 62, GROUND + t * (deck - GROUND));
+    ctx.moveTo(x - 46 + t * 64, ground + t * (deck - ground));
+    ctx.lineTo(x - 22 + t * 62, ground + t * (deck - ground));
   }
   ctx.stroke();
   ctx.strokeStyle = '#fff8f0'; // its hand rope
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(x - 40, GROUND - 30);
+  ctx.moveTo(x - 40, ground - 30);
   ctx.quadraticCurveTo(x - 6, deck - 2, x + 22, deck - 28);
   ctx.stroke();
   // Pickles on the gangway post
   const px = x - 130;
   ctx.fillStyle = '#8f6240';
   ctx.beginPath();
-  ctx.roundRect(px - 5, GROUND - 56, 10, 56, 3);
+  ctx.roundRect(px - 5, ground - 56, 10, 56, 3);
   ctx.fill();
   ctx.fillStyle = '#ffd36b';
-  circle(ctx, px, GROUND - 58, 5);
-  drawPickles(ctx, px, GROUND - 62, time);
+  circle(ctx, px, ground - 58, 5);
+  drawPickles(ctx, px, ground - 62, time);
   // the sailing board
   const bx = x - 70;
   ctx.fillStyle = '#8f6240';
-  ctx.fillRect(bx - 4, GROUND - 128, 8, 128);
+  ctx.fillRect(bx - 4, ground - 128, 8, 128);
   ctx.save();
-  ctx.translate(bx, GROUND - 128);
+  ctx.translate(bx, ground - 128);
   ctx.rotate(0.03);
   ctx.fillStyle = '#fff6ea';
   ctx.strokeStyle = '#c99b6b';
@@ -522,9 +524,9 @@ function drawBoarding(ctx, x, time) {
   ctx.roundRect(-86, -40, 172, 72, 6);
   ctx.fill();
   ctx.stroke();
-  text(ctx, 'FERRY TO FROSTPEAK', 0, -24, 13, '#4f6b9a');
-  text(ctx, 'The light is lit.', 0, -4, 13, INK);
-  text(ctx, 'All aboard!', 0, 12, 13, INK);
+  text(ctx, board[0], 0, -24, 13, '#4f6b9a');
+  text(ctx, board[1], 0, -4, 13, INK);
+  text(ctx, board[2], 0, 12, 13, INK);
   text(ctx, '- Capt. Brine', 34, 26, 10, '#8f6240');
   ctx.restore();
 }

@@ -2,6 +2,7 @@
 import { TAU, rand, clamp, ellipse, circle } from './util.js';
 import { drawSword, drawHelmet, SWORD_LEN } from './field.js';
 import { drawEnhanceGlow } from './skillfx.js';
+import { FOLK_PALETTE, drawFolk, drawFolkDress } from './fjord-art.js';
 
 // yr's laptop notifications: icon colours, and how long each one floats
 const NOTIF_KINDS = ['#ff5a5f', '#4fbf86', '#5b8def', '#ffb020']; // alert, message, mail, calendar
@@ -92,6 +93,14 @@ export class Slime {
 
   has(accessory) {
     return this.accessories.includes(accessory);
+  }
+
+  // Another island's people (story/characters/people.md): 'fjord' = Frostpeak's fjord folk, pale and
+  // frosted, half-solid in the cold, with a slow wobble (lively: a child, who still bounces)
+  setFolk(folk, lively = false) {
+    this.folk = folk;
+    this.lively = lively;
+    if (folk === 'fjord') this.palette = FOLK_PALETTE(this.hue);
   }
 
   setName(name) {
@@ -312,8 +321,9 @@ export class Slime {
     }
 
     // Jelly wobble: a spring pulling toward a target squash; a bouncier jiggle while walking
+    const stiff = this.folk === 'fjord' && !this.lively; // half-solid: a slow, small wobble
     const target = this.grounded
-      ? Math.sin(this.t * (walking ? 20 : 14)) * (walking ? 0.07 : 0.025)
+      ? Math.sin(this.t * (walking ? 20 : stiff ? 6 : 14)) * (walking ? 0.07 : stiff ? 0.012 : 0.025)
       : -clamp(Math.abs(this.vy) / 3500, 0, 0.18);
     this.dv += ((target - this.d) * 260 - this.dv * 14) * dt;
     this.d += this.dv * dt;
@@ -339,8 +349,8 @@ export class Slime {
     const helmet = this.gear?.helmet, sword = this.gear?.sword && SWORD_LEN[this.gear.sword] ? this.gear.sword : null;
     if (sword && !(this.slapT > 0)) this.drawSwordOnBack(ctx, w, h, sword);
 
-    // leaf sprout on top (tucked away under a helmet)
-    if (!helmet) {
+    // leaf sprout on top (tucked away under a helmet; a Greenhollow thing, so not on other islands' folk)
+    if (!helmet && !this.folk) {
     ctx.save();
     ctx.translate(-w * 0.05, -h + 3);
     ctx.rotate(-0.2 + Math.sin(this.t * 5) * 0.15 - this.d * 0.8);
@@ -367,6 +377,14 @@ export class Slime {
     ctx.lineWidth = 2.5;
     ctx.lineJoin = 'round';
     ctx.stroke();
+
+    if (this.folk === 'fjord') {
+      ctx.save();
+      bodyPath(ctx, w, h);
+      ctx.clip();
+      drawFolk(ctx, w, h, this.t);
+      ctx.restore();
+    }
 
     // shine
     ctx.fillStyle = 'rgba(255,255,255,0.75)';
@@ -857,6 +875,7 @@ export class Slime {
       ellipse(ctx, 3.5, -h * 0.45, 4, 2, -0.6);
       ctx.restore();
     }
+    for (const kind of ['lamplighter', 'netmender', 'mittens']) if (this.has(kind)) drawFolkDress(ctx, kind, w, h, fx, this.t); // Icefang Hamlet's people
     if (this.has('captain')) {
       // Captain Brine: a salt-white beard, a navy captain's cap with a gold anchor badge, and a brass spyglass
       const fy = -h * 0.42;

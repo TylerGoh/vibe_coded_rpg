@@ -12,9 +12,9 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_HP_PER_PLAYER, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOP_X, SHOP_STOCK, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_HP_PER_PLAYER, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName } from '../src/shared/rpg.js';
 import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spTotal, spSpent, mpRegen, cooldownOf, durOf, mobilityOf } from '../src/shared/skills.js';
-import { newState, SPAWN_X, SLAP_REACH, VILLAGE, TICK_RATE, ROOMS } from '../src/shared/sim.js';
+import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
 
@@ -105,6 +105,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     r.wear = (r.wear ?? []).filter((id) => r.cosmetics.includes(id));
     r.showHelmet = r.showHelmet !== false;
     r.brew = ITEMS[r.brew?.id]?.buff && r.brew.until > now() ? { id: r.brew.id, until: r.brew.until } : null;
+    r.town = TOWNS[r.town] ? r.town | 0 : 0;
     p.hurtAt = 0;
     p.cds = {};
     p.hist = [];
@@ -118,7 +119,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function save(p) {
     if (!p.rpg || !p.dirty) return;
     const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew } = p.rpg;
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew }), now());
+    const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -174,7 +176,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
 
   // ——— hurting slimes ———
   const hurtMsg = (id, p, dmg, by) => ({ t: 'hurt', id, dmg, hp: Math.max(0, Math.ceil(p.rpg.hp)), max: stats(p).maxHp, by });
-  // 0 HP: splat where you stand (everyone in the room sees it), then wake up in the village
+  // 0 HP: splat where you stand (everyone in the room sees it), then wake up in your town (TOWNS: the last
+  // one you were in)
   function faint(id, p, by) {
     p.rpg.hp = 0;
     p.faintUntil = now() + FAINT_MS; // inputs are ignored meanwhile (index.js)
@@ -189,9 +192,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     c.exp -= lost;
     c.hp = stats(p).maxHp;
     p.faintUntil = 0;
-    Object.assign(p.state, newState(SPAWN_X + randInt(0, 120)), { room: VILLAGE });
+    const town = TOWNS[p.state.town | 0] ?? TOWNS[0];
+    placeAt(p.state, town.room, town.x + randInt(0, 120)); // (keeps your house door working, which it didn't before)
     moves(p);
-    toast(p, `${p.faintBy ? `${p.faintBy} knocked you out!` : 'You fainted!'} You woke up in Slimeville${lost ? ` (lost ${lost} EXP)` : ''}`);
+    toast(p, `${p.faintBy ? `${p.faintBy} knocked you out!` : 'You fainted!'} You woke up in ${town.name}${lost ? ` (lost ${lost} EXP)` : ''}`);
     sendMe(p);
   }
   // Damage a slime (from a mob, a boss attack or a friend), with knockback away from fromX.
@@ -1196,13 +1200,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       sendMe(p);
     },
 
-    // The shop (Merchant Pip, in the village): {t:'buy', item, n} · {t:'sell', slot, n}
+    // The shops (SHOPS: Merchant Pip in the village, Runa at Icefang Hamlet): {t:'buy', item, n, shop} ·
+    // {t:'sell', slot, n, shop} · {t:'buycos', id} (Pip's Boutique). shop: SHOPS key, default 'pip'.
     shop(id, p, m) {
-      const c = p.rpg;
-      if (p.state.room !== VILLAGE || Math.abs(p.state.x - SHOP_X) > 260) return toast(p, 'Walk over to the shop first');
+      const c = p.rpg, keeper = SHOPS[m.shop] ?? SHOPS.pip;
+      if (p.state.room !== keeper.room || Math.abs(p.state.x - keeper.x) > SHOP_RANGE + 140) return toast(p, 'Walk over to the shop first');
       if (m.t === 'buy') {
         const it = ITEMS[m.item];
-        if (!SHOP_STOCK.includes(m.item)) return;
+        if (!keeper.stock.includes(m.item)) return;
         const n = STACKS(m.item) ? Math.max(1, Math.min(BUY_MAX, m.n >>> 0 || 1)) : 1;
         const cost = it.price * n;
         if (c.coins < cost) return toast(p, `Not enough gold (that's ${cost})`);
@@ -1210,7 +1215,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         c.coins -= cost;
         send(p.ws, { t: 'shop', ok: 'buy', item: m.item, n, gold: cost });
       } else if (m.t === 'buycos') {
-        const cos = COSMETICS[m.id];
+        const cos = keeper.boutique && COSMETICS[m.id];
         if (!cos || c.cosmetics.includes(m.id)) return;
         if (c.coins < cos.price) return toast(p, `Not enough gold (that's ${cos.price})`);
         c.coins -= cos.price;

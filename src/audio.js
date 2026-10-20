@@ -521,6 +521,35 @@ const SONGS = {
     },
   },
 
+  // Icefang Hamlet (docs/places/fjord.md): quiet and cold, the first sad place. A slow fiddle-like line
+  // over an open-fifth drone in minor, sparse bells, the lamp-fire crackling and the fjord lapping
+  fjord: {
+    bpm: 64, beats: 3, spb: 6, melSteps: 6, key: 62, scale: MINOR, gain: 0.72, send: 0.42, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [1, 3, 5], [7, 9, 11], [4, 6, 8], [1, 3, 5], [6, 8, 10], [5, 7, 9]],
+    mel: melody(
+      '5 - - 4 3 .', '3 - - . . .', '5 - 6 5 3 .', '2 - - . . .',
+      '4 - - 3 4 5', '5 - 3 . . .', '6 - 5 3 2 .', '1 - - . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 260, 0.012); // the fjord, still water lapping
+      p.eng.bed(p, 'bandpass', 1300, 0.007, 0.6); // a thin wind off the ice
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) { // the drone: an open fifth, held the whole bar
+        e.voice(p.c, t, p.f(1, -2), { type: 'triangle', vol: 0.07, a: 0.6, hold: p.stepDur * 5, rel: 1, cutoff: 600 });
+        e.voice(p.c, t, p.f(5, -2), { type: 'triangle', vol: 0.05, a: 0.6, hold: p.stepDur * 5, rel: 1, cutoff: 600 });
+        pad(p, ch, t, p.stepDur * 6, 0.011, { type: 'sine', a: 0.9, cutoff: 1000, rel: 1.2 });
+      }
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { type: 'sawtooth', vol: 0.022, a: 0.18, hold: m.len * 0.85, rel: 0.4, cutoff: 1500, vib: 7, vibRate: 5.2 });
+      if (m && part === 1 && s % 2 === 0) e.voice(chance(0.5) ? p.l : p.r, t, p.f(m.d, 1), { ...GLOCK, vol: 0.045, tau: 0.5 });
+      if (s === 3 && bar % 2 === 1) e.voice(p.r, t, p.f(ch[2], 1), { ...GLOCK, vol: 0.02, tau: 0.6 }); // a far bell
+      // the lamp-fire: soft crackles
+      if (chance(0.3)) e.noiseHit(chance(0.5) ? p.l : p.r, t + rand(0, p.stepDur), { f: rand(1800, 3200), q: 3, vol: 0.01, tau: 0.01 });
+    },
+  },
+
   // Aboard the ferry (the crossing rooms, docs/places/crossings.md): a rolling 6/8 sea shanty in dorian on
   // the squeezebox, the paddle wheel churning under it, waves slapping the hull and the ship's bell
   crossing: {
@@ -805,7 +834,7 @@ const SONGS = {
       if (pass % 4 === 3 && s % 4 === 0) e.voice(p.r, t, p.f(ch[[0, 1, 2, 1][s / 4]], 1), { ...MARIMBA, vol: 0.09 });
     },
   },
-  // ——— the Frostpeak Highlands ———
+  // ——— Frostpeak (the stage: Frostpine Ridge, Starfall Summit) ———
   // Frostpine Ridge: crisp snowy adventure in E minor, bells and sleigh shakers, a touch wistful
   ridge: {
     bpm: 112, spb: 8, key: 64, scale: MINOR, gain: 0.8, send: 0.3, loop: 8,
@@ -2002,10 +2031,10 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
-  if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // the Frostpeak Highlands
+  if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
   if (room === 12) return ZONE_KEYS[zone] ?? 'cinder'; // the Emberdeep Caldera
   if (room === 13) return ZONE_KEYS[zone] ?? 'cogwork'; // the Aether Citadel
   if (room >= 100) return 'tutor'; // personal houses (HOUSE_BASE in sim.js): the cozy music box

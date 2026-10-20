@@ -29,8 +29,9 @@ beam is `beam` from `src/crossing.js`),
 ## Captain Brine
 An AI character like Elder Mochi (`docs/social/ai-characters.md`): he sails the ferry, and you can chat
 with him at her wheel during the crossing. His persona knows only canon Tier 0 and his own trade, deflects
-lore questions ("ask old Mochi"), knows why she ties up at the ridge jetty and not the frozen fjord (and
-never promises when the ice will break), and mostly talks about his own life: forty years at sea, his
+lore questions ("ask old Mochi"), knows the fjord thawed and she sails right in to Icefang Hamlet again
+(and knows its three people a little, and why the Lodestar won't sail south), and mostly talks about his
+own life: forty years at sea, his
 ship, Pickles, superstitions, cards at the Inn. Slapping him gets `SLAP_QUIPS.brine`.
 
 ## The far-off islands in the sky

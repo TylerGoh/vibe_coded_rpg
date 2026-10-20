@@ -12,19 +12,29 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Grand Museum of History | 3 `MUSEUM` | exit · wing portals in the lobby (`wingPortalX`) · back-to-lobby door at each wing (`wingReturnX`) |
 | Tutoring Room | 4 `TUTOR` | back to the hall |
 | The Wildwood | 5 `FIELD` | village · 3 dens · the gap to the east cliffs (east end; the Highlands trail went when the ferry started) |
-| Frostpeak Highlands | 9 `HIGHLANDS` | the ferry's jetty (west end, boards `FERRY_S`) · 2 dens · Caldera pass |
+| Frostpeak (Frostpine Ridge, Starfall Summit) | 9 `HIGHLANDS` | down to Icefang Hamlet (west end) · 2 dens · Caldera pass |
+| Icefang Hamlet (Icefang Fjord) | 23 `FJORD` | the ferry's gangway (`FJORD_DOCK_X`, boards `FERRY_S`) · your house (`FJORD_HOME_X`) · up to Frostpine Ridge (east end) (`docs/places/fjord.md`) |
 | Emberdeep Caldera | 12 `CALDERA` | Highlands · 2 dens · Citadel skylift |
 | Aether Citadel | 13 `CITADEL` | Caldera · 2 dens |
 | Greenhollow's East Cliffs | 20 `CLIFFS` | back into the Wildwood (west end); a vista, no mobs (`docs/places/cliffs.md`) |
 | Greenhollow Harbour | 19 `HARBOUR` | back up to the village (east end) · the ferry's gangway (`GANGWAY_X`, boards `FERRY_N`) (`docs/places/harbour.md`) |
-| The ferry's deck, out / home | 21 `FERRY_N`, 22 `FERRY_S` | ashore at Frostpeak / Greenhollow Harbour, once she's in (`docs/places/crossings.md`) |
+| The ferry's deck, out / home | 21 `FERRY_N`, 22 `FERRY_S` | ashore at Icefang Hamlet / Greenhollow Harbour, once she's in; back ashore while she casts off (`docs/places/crossings.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17 | exit, back to the stage it's in (`DENS[].from`) |
-| Personal houses | `HOUSE_BASE` and up, one per account | out to the village (`docs/places/houses.md`) |
+| Personal houses | `HOUSE_BASE` and up, one per account | out to your town (`docs/places/houses.md`) |
 
 Look rooms up with `roomDef(room)`, not `ROOMS[room]`: houses aren't in `ROOMS`.
 
 Stages and dens: `docs/combat/stages.md`, `docs/combat/bosses.md`. No level gate on any door.
+
+## Towns
+**Owner's rule (2026-10-20): every island's landing has a town, and every town works like Slimeville.**
+A town (`TOWNS` in `src/shared/sim.js`: Slimeville and Icefang Hamlet so far) has a door into your own
+house, and being in one makes it **your town** (`state.town`, set inside `step()`, in snapshots and saved
+with the character). You wake up there after fainting, start there when your spot from before a restart
+wasn't kept, your house's front door (`to: TOWN`) lets you out there, and invites work from any town. A
+toast says so when your town changes. A new town = a `TOWNS` entry (room, wake-up x, house door x) and a
+`HOME` door in its room. Towns are safe rooms (no mobs).
 
 ## The village
 - Spawn at `SPAWN_X`. West to east: the harbour gate (`HARBOUR_GATE_X`), the furniture store (`STORE_DOOR_X`; a floating island was moved off
@@ -38,8 +48,10 @@ Stages and dens: `docs/combat/stages.md`, `docs/combat/bosses.md`. No level gate
 ## Doors and rooms run in the physics
 Doors are in `ROOMS[room].doors` and are taken inside `step()` on the USE input bit (`doorAt`), so a room
 change is predicted like any other movement. Never move a player between rooms with a side message.
-A door can be shut for now: `doorOpen` checks your own house exists (`HOME`) and a door's `after` (the
-ferry's gangway opens when your voyage clock `state.vt` reaches it, `docs/places/crossings.md`).
+A door can be shut for now: `doorOpen` checks your own house exists (`HOME`) and a door's `after` / `before`
+(the ferry's gangway opens when your voyage clock `state.vt` reaches it, and the way back ashore closes
+once she has cast off, `docs/places/crossings.md`). A door with `ask` shows a confirm card first (the
+ferry's gangways).
 
 ## Camera
 The camera stays inside the room, except that a room with `viewPad` lets it look that far past its east

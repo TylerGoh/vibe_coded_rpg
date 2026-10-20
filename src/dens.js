@@ -1080,7 +1080,7 @@ function drawExit(ctx, theme, time) {
   }
   // sign over the doorway
   const P = PAL[theme];
-  const label = high ? 'Highlands' : 'Wildwood';
+  const label = high ? 'Frostpeak' : 'Wildwood';
   ctx.save();
   ctx.translate(x, top - 18);
   ctx.rotate(Math.sin(time * 1.3) * 0.03);

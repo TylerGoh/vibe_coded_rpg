@@ -21,7 +21,12 @@ protocol is documented in the comment at the top of that file: keep it updated**
   session: `home` (your house's room) is sent once in welcome / join info instead, and `reconcile()`
   keeps it.
 - `state.vt`, the voyage clock (ticks aboard a crossing, `docs/places/crossings.md`), is a physics field:
-  `step()` counts it and a door's `after` reads it, so arriving at the far side is predicted.
+  `step()` counts it and a door's `after` / `before` read it, so arriving at the far side is predicted.
+- `state.town`, your town (`TOWNS`, `docs/world.md`), is a physics field too: `step()` sets it in a town
+  room and a house's front door (`to: TOWN`) reads it. The server's teleports (waking up, invites, tests)
+  go through `placeAt`, which keeps `home`, `mv` and `town`; don't hand-roll `Object.assign(newState…)`.
+- A door with `ask` (a ship's gangway) is confirmed on the client first; its Set sail button sends the E
+  press as an ordinary input (`sail` in `src/main.js`), so the door is still taken inside `step()`.
 
 ## Bandwidth and performance changes (the owner allows these; log each one here)
 - 2026-10-20: `state.home` stays out of the 60 Hz snapshots (sent once per player instead).
@@ -37,6 +42,7 @@ protocol is documented in the comment at the top of that file: keep it updated**
   `bin: BIN_VERSION`; tabs from before say `bin: 1` and keep getting the 32-byte records (the server
   encodes each version someone needs, once per tick). **Bump `BIN_VERSION` for the next wire change too**:
   old tabs reconnect after a deploy with their old code, so a silent format change garbles every slime.
+- 2026-10-20: wire version 3 adds `town` (35 bytes per slime; `BYTES_OF` in `wire.js` per version).
 - Ideas not done yet: send snapshots of only the slimes in your room (plus broadcasters), or at 30 Hz
   for remote slimes; delta-encode mob updates.
 

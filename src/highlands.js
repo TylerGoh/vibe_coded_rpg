@@ -1,14 +1,14 @@
 // Docs: docs/combat/stages.md
-// The Frostpeak Highlands: the second mob stage, where the ferry from Greenhollow lands (data in
-// src/shared/rpg.js). Frostpine Ridge is a snowy pine forest at soft blue dusk; Starfall Summit is a
-// crystal mountaintop under a starry violet night. This room draws its own sky (all 540 px).
+// Frostpeak: the second mob stage, up the path from Icefang Hamlet where the ferry from Greenhollow lands
+// (the hamlet: src/fjord.js; data in src/shared/rpg.js). Frostpine Ridge is a snowy pine forest at soft
+// blue dusk; Starfall Summit is a crystal mountaintop under a starry violet night. This room draws its own sky (all 540 px).
 // The two den cave mouths (x 1880 and 3820) are drawn elsewhere, so the scenery leaves room round them.
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { HIGHLANDS_W, FIELD_GROUND, HIGHLANDS_EXIT_X, HIGHLAND_ZONES, HIGHLAND_PLATFORMS, DENS, HIGHLANDS } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
+import { drawFjordPath } from './fjord.js';
 
 const GROUND = FIELD_GROUND;
-const INK = '#4a3f6b';
 const B = HIGHLAND_ZONES[1].x0; // ridge → summit
 const smooth = (a, b, x) => {
   const t = clamp((x - a) / (b - a), 0, 1);
@@ -26,25 +26,6 @@ function text(ctx, str, x, y, size, color) {
   ctx.textBaseline = 'middle';
   ctx.fillStyle = color;
   ctx.fillText(str, x, y);
-}
-
-function arrow(ctx, x, y, angle, s, color) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-  ctx.scale(s, s);
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2.6;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.beginPath();
-  ctx.moveTo(-6, 0);
-  ctx.lineTo(6, 0);
-  ctx.moveTo(1, -5);
-  ctx.lineTo(6, 0);
-  ctx.lineTo(1, 5);
-  ctx.stroke();
-  ctx.restore();
 }
 
 function star4(ctx, x, y, r) {
@@ -151,10 +132,10 @@ export function drawHighlands(ctx, camX, viewW, time) {
   if (visible(HIGHLANDS_W - 140, HIGHLANDS_W + 10, L, R)) drawEastEdge(ctx, time);
   drawGround(ctx, Math.max(0, L), Math.min(HIGHLANDS_W, R), time);
   HIGHLAND_ZONES.forEach((z, i) => {
-    const sx = i === 0 ? 360 : z.x0 + 170; // (the first one clear of the ferry's jetty)
+    const sx = i === 0 ? 360 : z.x0 + 170; // (the first one clear of the path down to the hamlet)
     if (visible(sx - 80, sx + 80, L, R)) drawZoneSign(ctx, sx, z, i, time);
   });
-  if (visible(-40, HIGHLANDS_EXIT_X + 200, L, R)) drawJetty(ctx, HIGHLANDS_EXIT_X, time);
+  if (visible(-40, HIGHLANDS_EXIT_X + 260, L, R)) drawFjordPath(ctx, HIGHLANDS_EXIT_X, GROUND, time); // down to Icefang Hamlet
   HIGHLAND_PLATFORMS.forEach((p, i) => {
     if (!visible(p.x - 40, p.x + p.w + 40, L, R)) return;
     if (p.kind === 'ice') drawIce(ctx, p, platBits[i], time);
@@ -648,140 +629,6 @@ function drawZoneSign(ctx, x, z, i, time) {
   if (i === 1) {
     ctx.fillStyle = '#fff3a8';
     star4(ctx, tw / 2 - 4, -26, 6 + Math.sin(time * 3) * 1.2);
-  }
-  ctx.restore();
-}
-
-// The way back down: a snowy wooden signpost, "← Wildwood"
-// The ferry's jetty at the west end (HIGHLANDS_EXIT_X): a strip of dark fjord water at the room's edge, the
-// Puddle Jumper's bow moored in it with her gangway down onto a plank jetty, a lit lantern post and a sign
-// home (docs/places/crossings.md)
-function drawJetty(ctx, x, time) {
-  const base = GROUND, bob = Math.sin(time * 0.9) * 2, end = x + 90;
-  // the water at the foot of the shore
-  ctx.fillStyle = '#5a7698';
-  ctx.beginPath();
-  ctx.moveTo(-10, base - 40);
-  ctx.lineTo(end + 30, base - 40);
-  ctx.quadraticCurveTo(end + 60, base - 20, end + 40, base + 2);
-  ctx.lineTo(-10, base + 2);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  for (let i = 0; i < 4; i++) ctx.fillRect(10 + i * 40 + Math.sin(time + i) * 4, base - 30 + (i % 2) * 8, 18, 2);
-  // the bow, moored behind the jetty: navy hull, cream band, rail, bowsprit and her name
-  const top = base - 128 + bob, wl = base - 34 + bob;
-  ctx.fillStyle = '#4f6b9a';
-  ctx.beginPath();
-  ctx.moveTo(-10, top + 6);
-  ctx.lineTo(end - 20, top);
-  ctx.quadraticCurveTo(end - 10, wl - 20, end - 60, wl);
-  ctx.lineTo(-10, wl);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = '#fff1dc';
-  ctx.beginPath();
-  ctx.moveTo(-10, top + 12);
-  ctx.lineTo(end - 22, top + 6);
-  ctx.lineTo(end - 24, top + 20);
-  ctx.lineTo(-10, top + 26);
-  ctx.closePath();
-  ctx.fill();
-  text(ctx, 'PUDDLE JUMPER', x - 20, top + 17, 10, '#4f6b9a');
-  ctx.fillStyle = '#ffffff';
-  for (const px of [10, 50]) circle(ctx, px, top + 50, 6);
-  ctx.strokeStyle = '#fff8f0';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(-10, top - 18);
-  ctx.lineTo(end - 22, top - 22);
-  for (let px = 0; px < end - 20; px += 30) {
-    ctx.moveTo(px, top - 18);
-    ctx.lineTo(px, top + 2);
-  }
-  ctx.stroke();
-  ctx.strokeStyle = '#8f6240';
-  ctx.lineWidth = 6;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(end - 24, top);
-  ctx.lineTo(end + 40, top - 38);
-  ctx.stroke();
-  // the jetty: planks on posts along the shore
-  ctx.fillStyle = '#8f7a6a';
-  for (let px = 6; px <= end + 20; px += 36) ctx.fillRect(px - 4, base - 12, 8, 16);
-  ctx.fillStyle = '#b89a7e';
-  ctx.beginPath();
-  ctx.roundRect(-10, base - 14, end + 40, 10, 3);
-  ctx.fill();
-  ctx.fillStyle = '#ffffff';
-  ellipse(ctx, end + 10, base - 13, 24, 3);
-  // the gangway, from her rail down to the jetty
-  ctx.fillStyle = '#c99b6b';
-  ctx.beginPath();
-  ctx.moveTo(x - 30, top - 2);
-  ctx.lineTo(x - 6, top - 2);
-  ctx.lineTo(x + 22, base - 14);
-  ctx.lineTo(x - 6, base - 14);
-  ctx.closePath();
-  ctx.fill();
-  // a post with a lantern on one arm (lit) and the sign home hanging from the other
-  const lx = end + 80;
-  ctx.fillStyle = '#6d6880';
-  ctx.fillRect(lx - 4, base - 172, 8, 172);
-  ctx.fillRect(lx - 4, base - 110, 26, 6);
-  ctx.fillRect(lx - 66, base - 172, 66, 6);
-  const g = ctx.createRadialGradient(lx + 18, base - 92, 2, lx + 18, base - 92, 46);
-  g.addColorStop(0, 'rgba(255,226,150,0.75)');
-  g.addColorStop(1, 'rgba(255,226,150,0)');
-  ctx.fillStyle = g;
-  circle(ctx, lx + 18, base - 92, 46);
-  ctx.fillStyle = '#ffe9a8';
-  ctx.beginPath();
-  ctx.roundRect(lx + 11, base - 102, 14, 18, 4);
-  ctx.fill();
-  ctx.fillStyle = '#ffffff';
-  ellipse(ctx, lx + 9, base - 110, 16, 4);
-  ctx.fillStyle = '#ffffff';
-  ellipse(ctx, lx - 30, base - 172, 34, 4);
-  hangingSign(ctx, lx - 34, base - 180, 'Greenhollow', 'ferry', -1, time);
-}
-
-function hangingSign(ctx, x, y, label, sub, dir, time) {
-  ctx.save();
-  ctx.translate(x, y + 14);
-  ctx.rotate(Math.sin(time * 1.4 + x) * 0.035);
-  ctx.strokeStyle = '#e8e4f4';
-  ctx.lineWidth = 1.6;
-  ctx.beginPath();
-  ctx.moveTo(-26, 0);
-  ctx.lineTo(-26, 18);
-  ctx.moveTo(26, 0);
-  ctx.lineTo(26, 18);
-  ctx.stroke();
-  ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
-  const tw = ctx.measureText(label).width + 44;
-  const hh = sub ? 40 : 26;
-  ctx.fillStyle = '#f6f8ff';
-  ctx.strokeStyle = '#8a9cd4';
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.roundRect(-tw / 2, 18, tw, hh, 8);
-  ctx.fill();
-  ctx.stroke();
-  ctx.fillStyle = '#ffffff';
-  ellipse(ctx, -tw / 4, 18, 12, 3.5);
-  ellipse(ctx, tw / 4, 18, 9, 3);
-  const angle = dir === 0 ? -Math.PI / 2 : dir > 0 ? 0 : Math.PI;
-  const ax = dir === 0 ? tw / 2 - 13 : dir > 0 ? tw / 2 - 14 : -tw / 2 + 14;
-  text(ctx, label, dir < 0 ? 7 : -7, 31.5, 14, INK);
-  arrow(ctx, ax, 31, angle, 0.85, '#5a8ad0');
-  if (sub) {
-    ctx.fillStyle = 'rgba(138,156,212,0.25)';
-    ctx.beginPath();
-    ctx.roundRect(-26, 42, 52, 13, 6.5);
-    ctx.fill();
-    text(ctx, sub, 0, 48.5, 10, '#5a6ca8');
   }
   ctx.restore();
 }

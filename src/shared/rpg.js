@@ -16,10 +16,27 @@ export const ZONES = [
   { name: 'Mushroom Grove', x0: 1600, x1: 3200, lvl: '4–7' },
   { name: 'Bramble Woods', x0: 3200, x1: FIELD_W, lvl: '8+' },
 ];
-// The second stage: the Frostpeak Highlands, over the sea to the north: the ferry lands at its west end (docs/places/crossings.md)
+// The second stage: Frostpeak, over the sea to the north. The ferry lands at Icefang Hamlet (FJORD, a safe
+// town room: docs/places/fjord.md), and the path from there climbs into the stage's west end.
 export const HIGHLANDS = 9; // room id
 export const HIGHLANDS_W = 4000;
-export const HIGHLANDS_EXIT_X = 70; // the ferry's jetty: aboard for home
+export const HIGHLANDS_EXIT_X = 70; // the path down to Icefang Hamlet
+// Icefang Fjord and Icefang Hamlet (room 23): west to east, the ferry's dock, the laid-up ship south, Runa's
+// net shed, the hamlet's huts round the lamp-fire, the path up to the ridge. No mobs.
+export const FJORD = 23; // room id
+export const FJORD_W = 3000;
+export const FJORD_DOCK_X = 470; // the ferry's gangway
+export const FJORD_HOME_X = 1840; // the turf hut whose door is everyone's own front door
+export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
+export const FJORD_FIRE_X = 2120;
+export const FJORD_EXIT_X = FJORD_W - 90; // up to Frostpine Ridge
+export const RUNA_X = 1560; // Netmender Runa, at her net shed (she trades: SHOPS)
+export const FJORD_PLATFORMS = [
+  { x: 690, y: 378, w: 100, kind: 'crates' },
+  { x: 1765, y: 330, w: 150, kind: 'turf' },
+  { x: 2560, y: 322, w: 170, kind: 'turf' },
+  { x: 2790, y: 362, w: 120, kind: 'rock' },
+];
 export const HIGHLAND_ZONES = [
   { name: 'Frostpine Ridge', x0: 0, x1: 2000, lvl: '13–17' },
   { name: 'Starfall Summit', x0: 2000, x1: HIGHLANDS_W, lvl: '18+' },
@@ -69,7 +86,7 @@ export const CITADEL_PLATFORMS = [
 // The open-air stages (each has zones); dens are separate rooms
 export const STAGES = {
   [FIELD]: { name: 'The Wildwood', zones: ZONES },
-  [HIGHLANDS]: { name: 'The Frostpeak Highlands', zones: HIGHLAND_ZONES },
+  [HIGHLANDS]: { name: 'Frostpeak', zones: HIGHLAND_ZONES },
   [CALDERA]: { name: 'The Emberdeep Caldera', zones: CALDERA_ZONES },
   [CITADEL]: { name: 'The Aether Citadel', zones: CITADEL_ZONES },
 };
@@ -124,7 +141,7 @@ export const MOBS = {
     ult: { name: 'Thorn Tsunami', kind: 'wave' }, minion: 'bramble',
     drops: [['royal_sap', 1, 1, 2], ['thorn_sword', 1, 1, 1], ['bramble_helm', 1, 1, 1], ['coin', 1, 250, 400], ['blue_jelly', 1, 2, 4], ['mana_jelly', 1, 2, 4], ['scroll_s100', 1, 1, 3], ['scroll_h100', 1, 1, 3], ['scroll_s60', 0.6, 1, 1], ['scroll_h60', 0.6, 1, 1], ['scroll_s10', 0.1, 1, 1], ['scroll_h10', 0.1, 1, 1]],
   },
-  // ——— the Frostpeak Highlands ———
+  // ——— Frostpeak ———
   frostling: {
     name: 'Frostling', lvl: 13, hp: 380, atk: 30, exp: 90, speed: 60, w: 34, h: 34, aggro: false, hops: true,
     drops: [['coin', 1, 25, 45], ['ice_shard', 0.55, 1, 2], ['blue_jelly', 0.15, 1, 1], ['mana_jelly', 0.2, 1, 1], ['elixir', 0.03, 1, 1]],
@@ -229,6 +246,22 @@ export const MOBS = {
     ult: { name: 'Time Stop', kind: 'timestop' }, ults: [{ name: 'Time Stop', kind: 'timestop' }, { name: 'Collapse of Hours', kind: 'collapse' }], minion: 'chrono_wraith',
     drops: [['time_sand', 1, 2, 3], ['chrono_blade', 1, 1, 1], ['hourglass_crown', 0.6, 1, 1], ['coin', 1, 15000, 25000], ['mega_elixir', 1, 5, 8], ['aether_crystal', 1, 8, 12], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s10', 0.8, 1, 2], ['scroll_h10', 0.8, 1, 2], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.5, 1, 2]],
   },
+  // ——— Frostpeak's later wildlife (atlas Phase 4; kept last: mob kinds go over the wire as their index) ———
+  // floe seal: belly-slides along the ridge, harmless · snow owl: swoops from the pines (the cinder bat's
+  // dive) · shard-moth: drifts over the summit, drawn to the wrong stars
+  floe_seal: {
+    name: 'Floe Seal', lvl: 14, hp: 460, atk: 30, exp: 110, speed: 70, w: 56, h: 30, aggro: false, hops: false,
+    drops: [['coin', 1, 30, 55], ['ice_shard', 0.6, 1, 2], ['blue_jelly', 0.2, 1, 1], ['mana_jelly', 0.15, 1, 1], ['fur_hood', 0.006, 1, 1]],
+  },
+  snow_owl: {
+    name: 'Snow Owl', lvl: 17, hp: 640, atk: 44, exp: 170, speed: 95, w: 44, h: 38, aggro: true, hops: false, fly: 95,
+    ai: { kind: 'dive', every: 3.8, warn: 0.7, time: 0.5 },
+    drops: [['coin', 1, 45, 80], ['ice_shard', 0.6, 1, 3], ['elixir', 0.05, 1, 1], ['bone_harpoon', 0.004, 1, 1]],
+  },
+  shard_moth: {
+    name: 'Shard-Moth', lvl: 21, hp: 950, atk: 54, exp: 300, speed: 75, w: 46, h: 36, aggro: false, hops: false, fly: 70,
+    drops: [['coin', 1, 80, 130], ['stardust', 0.55, 1, 2], ['mana_jelly', 0.3, 1, 1], ['elixir', 0.08, 1, 1]],
+  },
 };
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
@@ -278,6 +311,11 @@ export const SPAWNS = [
   ...onHPlat('wisp', 3, 2),
   ...onHPlat('wisp', 4, 1),
   ...onHPlat('golem', 5, 1),
+  ...strip('floe_seal', 400, 1200, FIELD_GROUND, 3, HIGHLANDS),
+  ...strip('snow_owl', 1100, 1900, FIELD_GROUND, 2, HIGHLANDS),
+  ...onHPlat('snow_owl', 1, 1),
+  ...strip('shard_moth', 2200, 3700, FIELD_GROUND, 3, HIGHLANDS),
+  ...onHPlat('shard_moth', 4, 1),
   // the Caldera
   ...strip('ember_imp', 250, 1150, FIELD_GROUND, 5, CALDERA),
   ...strip('magma_slug', 1100, 2100, FIELD_GROUND, 4, CALDERA),
@@ -335,6 +373,7 @@ export const denAt = (room) => DENS.find((d) => d.room === room);
 
 // ——— items ———
 // kind: coin · potion (heal) · loot (just collectible, for now) · helmet (def) · sword (atk, reach)
+// aim: the level a shop item is priced for (docs/economy.md; npm run economy checks it)
 export const ITEMS = {
   coin: { name: 'Gold', kind: 'coin', desc: 'Shiny slime gold. Spend it at the shop in Slimeville.' },
   red_jelly: { name: 'Strawberry Jelly', price: 25, kind: 'potion', heal: 35, desc: 'Restores 35 HP.' },
@@ -360,6 +399,9 @@ export const ITEMS = {
   ice_shard: { name: 'Ice Shard', price: 60, kind: 'loot', desc: 'A shard of ice that never melts.' },
   stardust: { name: 'Stardust', price: 120, kind: 'loot', desc: 'A pinch of glittering stardust.' },
   elixir: { name: 'Rainbow Elixir', price: 400, kind: 'potion', heal: 300, mana: 150, desc: 'Restores 300 HP and 150 MP.' },
+  // Netmender Runa's (Icefang Hamlet): the fjord folk's warm gear
+  fur_hood: { name: 'Seal-Fur Hood', price: 3000, aim: 15, kind: 'helmet', def: 11, desc: 'Seal fur over a knitted cap. The fjord folk swear by it.' },
+  bone_harpoon: { name: 'Whalebone Harpoon', price: 5000, aim: 18, kind: 'sword', atk: 27, reach: 40, desc: 'Old whalebone, filed to a point. Cold to hold.' },
   bramble_helm: { name: 'Briar Helm', price: 7000, kind: 'helmet', def: 14, desc: 'Woven from living brambles. Nothing gets through.' },
   // the Caldera and the Citadel
   ember_core: { name: 'Ember Core', price: 200, kind: 'loot', desc: 'A warm little coal that never goes out.' },
@@ -388,7 +430,7 @@ export const ITEMS = {
   starlotus: { name: 'Starlotus', price: 450, kind: 'loot', herb: true, desc: 'A lotus that glows like a tiny star.' },
   // boss reagents: only bosses drop them, for the rarest brews
   royal_sap: { name: 'Royal Sap', price: 200, kind: 'loot', reagent: true, desc: 'Golden sap from a forest boss. Alchemists prize it.' },
-  frost_heart: { name: 'Frost Heart', price: 800, kind: 'loot', reagent: true, desc: 'A beating heart of ice from a boss of the Highlands.' },
+  frost_heart: { name: 'Frost Heart', price: 800, kind: 'loot', reagent: true, desc: 'A beating heart of ice from a boss of Frostpeak.' },
   phoenix_feather: { name: 'Phoenix Feather', price: 2500, kind: 'loot', reagent: true, desc: 'A feather that is still on fire. From a boss of the Caldera.' },
   time_sand: { name: 'Sand of Hours', price: 7000, kind: 'loot', reagent: true, desc: 'Sand from a great clock. It falls upward.' },
   mint_tonic: { name: 'Mint Tonic', price: 3, kind: 'potion', brewed: true, heal: 250, desc: 'Brewed. Restores 250 HP.' },
@@ -462,6 +504,12 @@ export const SHOP_X = 2780;
 export const SHOP_RANGE = 120;
 export const SELL_RATE = 0.4;
 export const SHOP_STOCK = ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'wood_sword', 'iron_sword', 'crystal_sword', 'leaf_cap', 'mush_helm', 'iron_helm'];
+// Every shopkeeper: where they stand (room, x; you trade within SHOP_RANGE) and what they sell. Pip's has
+// the Boutique too. Runa is also an AI character: her dialog has a Trade button (src/npc.js).
+export const SHOPS = {
+  pip: { name: "Merchant Pip's Shop", room: 0 /* the village */, x: SHOP_X, stock: SHOP_STOCK, boutique: true },
+  runa: { name: "Runa's Net Shed", room: FJORD, x: RUNA_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'frostbloom', 'fur_hood', 'bone_harpoon'] },
+};
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));
 export const BUY_MAX = 20; // potions bought at once
 

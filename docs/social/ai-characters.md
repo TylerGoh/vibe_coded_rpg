@@ -6,7 +6,10 @@ Files: `NPCS` in `src/shared/sim.js` (placement), `server/characters.js` (person
 one shared corner feed).
 
 - Elder Mochi (village, by the big tree), Captain Brine (at the wheel of the ferry, on both decks: `also` on his `NPCS` entry, so always test rooms with `npcIn()`, `docs/places/crossings.md`) and Curator Clio (museum lobby; a history expert who knows the
-  exhibit list). Press E in range to talk.
+  exhibit list), and Icefang Hamlet's Old Skaldi, Netmender Runa and Tove (`docs/places/fjord.md`). Press E
+  in range to talk.
+- `hello` on an `NPCS` entry is the line their dialog opens with. `shop` (a `SHOPS` key) adds a **Trade**
+  button to their dialog (Runa). `folk` dresses them as another island's people (`docs/art.md`).
 - Clio has `anywhere: true`: she can be asked from anywhere in the museum (Q, the "Ask Clio" touch button,
   or "Ask Clio about this" on a fact sheet). The server tells her where the asker stands (`museumPlace()`).
 - Conversations are public: every line goes to all players (speech bubbles, the corner feed, the dialog

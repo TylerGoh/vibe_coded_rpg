@@ -4,9 +4,9 @@ Atlas Phase 3, "the crossing room" (`story/world/atlas.md`). Story: `story/world
 travel), `story/world/regions/frostpeak.md`.
 
 Files: the rooms in `src/shared/sim.js` (`FERRY_N`, `FERRY_S`, `DECK_W`, `DECK_GROUND`, `DECK_PLATFORMS`,
-`DECK_GANGWAY_X`, `GANGWAY_X`, each room's `crossing`, `doorOpen`, `voyage`, `VOYAGE_MAX`), the drawing in
-`src/crossing.js` (`drawCrossing`, `drawCrossingFront`, `crossingAt`), the harbour end in `src/harbour.js`, the
-Frostpeak end (`drawJetty`) in `src/highlands.js`, the voyage pill in `src/main.js`, the `crossing` music
+`DECK_GANGWAY_X`, `GANGWAY_X`, `CAST_OFF`, each room's `crossing`, `doorOpen`, `voyage`, `VOYAGE_MAX`), the
+drawing in `src/crossing.js` (`drawCrossing`, `drawCrossingFront`, `crossingAt`), the harbour end in
+`src/harbour.js`, the Frostpeak end at Icefang Hamlet's quay (`src/fjord.js`, `docs/places/fjord.md`), the voyage pill in `src/main.js`, the `crossing` music
 scene in `src/audio.js`, the "you are here" pin at sea in `src/worldmap.js`, Brine's persona in
 `server/characters.js`.
 
@@ -42,13 +42,13 @@ scene in `src/audio.js`, the "you are here" pin at sea in `src/worldmap.js`, Bri
 ## The cold route (the Puddle Jumper)
 - Out of Greenhollow: the green coast with Slimeville's roofs and the lit lighthouse slides away astern,
   gulls follow her out. Open sea: icebergs, the sky greying, then snow and the aurora growing overhead. Into
-  Frostpeak: black rock, snow and pines come up over the bow, and she ties up at the ridge jetty.
-- **The next phase shows but doesn't open** (owner's rule): up the fjord you can see Icefang Hamlet's
-  turf huts and the cracked ice bridge, but the fjord has frozen over, so she ties up at a rough jetty at the
-  foot of Frostpine Ridge instead (Brine says so). Atlas Phase 4 builds the fjord landing and the hamlet;
-  that update thaws the fjord and moves the berth there: no unlock quest.
-- The Frostpeak end is the Highlands' west end (`HIGHLANDS_EXIT_X`): the bow moored in a strip of fjord
-  water, a plank jetty, a lantern post and a sign home. The door there boards the homebound deck.
+  Frostpeak: black rock, snow and pines come up over the bow, the cracked ice bridge in the sky, and she
+  ties up at Icefang Hamlet's quay among the turf huts.
+- The Frostpeak end is Icefang Hamlet (room `FJORD`, `docs/places/fjord.md`): she's moored at the quay
+  with her gangway down (`FJORD_DOCK_X`), which boards the homebound deck.
+- History: in Phase 3 the fjord was frozen (the next phase shown but not open), so she tied up at a rough
+  jetty at the ridge's west end with the hamlet in sight up the fjord. The Phase 4 update thawed it and
+  moved the berth to the hamlet, no unlock quest (owner's rule); the jetty became the path down.
 
 ## The harbour end
 - The lighthouse is lit (the patch lit it, owner's call: Granny Wicks came home and lit it). Brine's

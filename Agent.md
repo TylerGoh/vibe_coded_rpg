@@ -93,6 +93,8 @@ start story work from `story/roadmap.md`. Owner rules for story work:
   character's refusal), never a "coming soon" sign and never a stand-in door into an existing area.
   When the phase ships, the update itself lifts the block (the light is lit, the barricade gone): no
   unlock quest or event.
+- **Every island's landing has a town**, and every town works like Slimeville: your respawn point and a
+  door into your own house (`TOWNS`, `docs/world.md`). Arriving after a crossing, you step into a town.
 - **NPCs serve a purpose AND are chattable**, like Elder Mochi: a DeepSeek persona with per-player memory
   (`docs/social/ai-characters.md`). Keep what each one knows of the lore narrow (usually canon Tier 0 plus
   their trade) so the story stays hidden, and lean into their personal lives instead.
@@ -102,7 +104,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
   wire format, piano keys, museum layout, `NPCS`), `rpg.js` (stages, mobs, items, dens, shop, formulas),
   `skills.js` (skill trees, ability points, `statsFor`), `courses.js`.
 - `server/index.js`: HTTP + WebSocket `/rpg/ws` (protocol documented at its top), 60 Hz tick, login,
-  rooms, message routing. `server/rpg.js`: characters, mobs, bosses, hits, loot, bag, shop. Others:
+  rooms, message routing. `server/rpg.js`: characters, mobs, bosses, hits, loot, bag, shops. Others:
   `accounts.js`, `turn.js`, `chat.js`, `npc.js`, `characters.js`, `lecture.js`, `tutor.js`, `vote.js`.
 - `src/main.js`: loop, input, HUD, login, Esc menu and the wiring of everything; `src/net.js`: prediction
   and routing. Each feature has its own client file(s), named in its doc.
@@ -112,7 +114,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 ## Docs index: read the ones your task touches
 | doc | read when you touch… |
 |---|---|
-| [docs/world.md](docs/world.md) | rooms, doors, map layout, platforms, the village, room ids |
+| [docs/world.md](docs/world.md) | rooms, doors, map layout, platforms, the village, room ids, towns (respawn, home doors) |
 | [docs/netcode.md](docs/netcode.md) | `step()`, prediction, snapshots, the protocol, `server/index.js`, `src/net.js`, `src/main.js` wiring |
 | [docs/accounts.md](docs/accounts.md) | login, accounts, test accounts, takeover |
 | [docs/testing.md](docs/testing.md) | running a test server, headless browser tests, test env vars, `#debug` |
@@ -125,13 +127,14 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/economy.md](docs/economy.md) | ANY gold / EXP / price / drop / scaling change: the balance sheet, `npm run economy` |
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |
 | [docs/social/chat.md](docs/social/chat.md) | the chatbox, public chat, private messages, chat speech bubbles |
-| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, DeepSeek, NPC memory, how much lore a character knows |
+| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
 | [docs/places/piano.md](docs/places/piano.md) | the Music House floor piano |
 | [docs/places/museum.md](docs/places/museum.md) | the history museum and its content |
 | [docs/places/houses.md](docs/places/houses.md) | personal houses, the furniture store, the backyard, expanding, decorating, the Players panel, invites |
 | [docs/places/harbour.md](docs/places/harbour.md) | Greenhollow Harbour, the lighthouse, Captain Brine, the far-off islands drawn in every sky |
-| [docs/places/crossings.md](docs/places/crossings.md) | crossing rooms (the ferry's deck), the voyage clock `state.vt`, the Frostpeak jetty, future sea/balloon routes |
+| [docs/places/crossings.md](docs/places/crossings.md) | crossing rooms (the ferry's deck), the voyage clock `state.vt`, boarding (the Set sail card), future sea/balloon routes |
+| [docs/places/fjord.md](docs/places/fjord.md) | Icefang Fjord and Icefang Hamlet (Frostpeak's landing town), Skaldi, Runa and her shop, Tove, the fjord folk's look, the laid-up Lodestar |
 | [docs/places/cliffs.md](docs/places/cliffs.md) | the Keeper ruins in Bramble Woods, Greenhollow's east cliffs, the telescope |
 | [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |
 | [docs/ui/mobile.md](docs/ui/mobile.md) | touch controls, phone layout, fullscreen, home-screen mode |

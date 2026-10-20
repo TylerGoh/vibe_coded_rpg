@@ -9,9 +9,12 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
 ## Owner decisions (2026-10-20)
 - Every account has its own house. The way in is the village's mushroom house (sign "Home",
   `HOME_DOOR_X`): E there takes you into **your** house; each player gets a private copy behind that door.
-- Invites: you can invite from the village **or from inside your own house**, but only slimes who are
-  **standing in the village**. They get a card (Go over / Not now); Go over only works while they're
-  still in the village and takes them straight into your house. An invite lasts `INVITE_MS`; there's no
+- **Every town has that door** (owner, 2026-10-20: "all new places should have the home access, like
+  towns"): Icefang Hamlet's turf hut (`FJORD_HOME_X`) leads into the same house. The house's front door
+  (`to: TOWN`) lets you out into **your town**, the last one you were in (`TOWNS`, `docs/world.md`).
+- Invites: you can invite from **any town** or from inside your own house, but only slimes who are
+  **standing in a town**. They get a card (Go over / Not now); Go over only works while they're
+  still in a town and takes them straight into your house. An invite lasts `INVITE_MS`; there's no
   other way into someone else's house.
 - Houses are decoratable (the owner asked for it over a fixed interior).
 
@@ -80,8 +83,9 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
   arrives a house is `HOUSE_W` wide (the smallest size); during a change there can be a tiny correction.
 - `cleanLayout` runs on both sides (server: authoritative; client: so its local copy is the same) and
   settles floating pieces: moving a table drops what was on it.
-- Being invited in and being sent home are server-side moves (`moveTo`, like waking from a faint): the
-  client's prediction just snaps to the new room on the next snapshot.
+- Being invited in and being sent home are server-side moves (`moveTo` = `placeAt`, like waking from a
+  faint): the client's prediction just snaps to the new room on the next snapshot. Sent-home guests go
+  out their own town's front door.
 - Music in houses reuses the tutoring room's music box (`sceneKey` in `src/audio.js`).
 
 ## Decorating (R, or the Decorate button, in your own house)

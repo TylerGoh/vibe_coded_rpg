@@ -1,11 +1,12 @@
 // Docs: docs/combat/items.md
-// Merchant Pip's shop in the village (E at the stall): buy potions and gear with gold, sell loot and
-// spare gear back for SELL_RATE of the price, and (the Boutique tab) the friends' signature
-// accessories, as cheap cosmetics. Gold drops from every mob and boss. Rules: server/rpg.js.
+// The shops (SHOPS): Merchant Pip's in the village (E at the stall) and Runa's net shed at Icefang Hamlet
+// (the Trade button in her dialog). Buy potions and gear with gold, sell loot and spare gear back for
+// SELL_RATE of the price, and (the Boutique tab, Pip's only) the friends' signature accessories, as cheap
+// cosmetics. Gold drops from every mob and boss. Rules: server/rpg.js.
 import { drawItemIcon } from './field.js';
 import { audio } from './audio.js';
 import { Slime } from './slime.js';
-import { ITEMS, SHOP_STOCK, STACKS, sellPrice, COSMETICS } from './shared/rpg.js';
+import { ITEMS, SHOPS, STACKS, sellPrice, COSMETICS } from './shared/rpg.js';
 
 export class Shop {
   constructor({ rpg, send, onOpenChange }) {
@@ -20,12 +21,17 @@ export class Shop {
     document.getElementById('shop-sell').onclick = () => this.show('sell');
     document.getElementById('shop-cos').onclick = () => this.show('cos');
     this.model = new Slime(320); // the Boutique's mannequin
+    this.keeper = 'pip'; // whose shop is open (a SHOPS key)
   }
 
   get isOpen() {
     return !this.el.hidden;
   }
-  open() {
+  open(keeper = 'pip') {
+    this.keeper = keeper;
+    const k = SHOPS[keeper];
+    this.el.querySelector('h2').firstChild.textContent = `${k.name} `;
+    document.getElementById('shop-cos').hidden = !k.boutique;
     this.el.hidden = false;
     this.show('buy');
     this.onOpenChange(true);
@@ -43,10 +49,10 @@ export class Shop {
   buy(id, n) {
     const m = this.rpg.me, cost = ITEMS[id].price * n;
     if (m.coins < cost) return this.rpg.toast(`Not enough gold (that's ${cost})`), audio.sfx('error');
-    this.send({ t: 'buy', item: id, n });
+    this.send({ t: 'buy', item: id, n, shop: this.keeper });
   }
   sell(slot, n) {
-    this.send({ t: 'sell', slot, n });
+    this.send({ t: 'sell', slot, n, shop: this.keeper });
   }
 
   icon(id) {
@@ -133,7 +139,7 @@ export class Shop {
         this.list.append(r);
       }
     } else if (this.tab === 'buy') {
-      for (const id of SHOP_STOCK) {
+      for (const id of SHOPS[this.keeper].stock) {
         const p = ITEMS[id].price, stack = STACKS(id);
         const buttons = [['Buy', () => this.buy(id, 1), m.coins < p]];
         if (stack) buttons.push(['×5', () => this.buy(id, 5), m.coins < p * 5]);
@@ -143,7 +149,7 @@ export class Shop {
       if (!m.bag.length) {
         const p = document.createElement('p');
         p.className = 'shop-empty';
-        p.textContent = 'Your bag is empty. Mobs in the Wildwood drop things you can sell here.';
+        p.textContent = 'Your bag is empty. Mobs out in the wilds drop things you can sell here.';
         this.list.append(p);
       }
       m.bag.forEach((b, slot) => {

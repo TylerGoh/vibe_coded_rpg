@@ -11,4 +11,7 @@
 - Each room or stage draws itself in its own file (named in its doc). Stage files paint their own sky,
   and every outdoor sky (the east cliffs too) also calls `drawDistantIslands` (`src/distant.js`, `docs/places/harbour.md`) so the
   other islands show far off in their compass direction. A new outdoor room must call it too.
-- A new AI character or friend accessory needs its drawing in `src/slime.js`.
+- A new AI character or friend accessory needs its drawing in `src/slime.js` (or a file it calls).
+- **Each island's people look their own** (`story/characters/people.md`): `Slime.setFolk(folk)`. So far
+  the fjord folk of Frostpeak (`folk: 'fjord'` on an `NPCS` entry): a pale, frosted palette, a rime crust
+  with glints, a slow half-solid wobble, no leaf (`src/fjord-art.js`; `docs/places/fjord.md`).

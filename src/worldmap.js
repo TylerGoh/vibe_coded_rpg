@@ -3,7 +3,7 @@
 // story is heading (story/world/geography.md, story/world/atlas.md). It shows the islands, the sea
 // routes and fog where the charts run out, plus a bouncing "you are here" slime. Drawing only: nothing
 // on it is clickable and it sends nothing to the server.
-import { FIELD, HIGHLANDS, CALDERA, CITADEL, DENS } from './shared/rpg.js';
+import { FIELD, FJORD, HIGHLANDS, CALDERA, CITADEL, DENS } from './shared/rpg.js';
 import { roomDef } from './shared/sim.js';
 
 const MW = 720, MH = 380; // the chart's size in canvas pixels (× --s on screen, see style.css)
@@ -12,7 +12,7 @@ const INK = '#5b4a6b';
 
 // Which island a room is on. Everything not listed (the village, its buildings, houses, the Wildwood) is home.
 // Aboard a crossing you're 'sea': on the ferry's route.
-const ISLAND_OF_STAGE = { [HIGHLANDS]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel' };
+const ISLAND_OF_STAGE = { [HIGHLANDS]: 'frost', [FJORD]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel' };
 export function islandOf(room) {
   if (roomDef(room)?.crossing) return 'sea';
   const den = DENS.find((d) => d.room === room);
@@ -22,7 +22,7 @@ export function islandOf(room) {
 // Where each island sits on the chart, and where its "you are here" pin goes
 const ISLANDS = {
   green: { x: 150, y: 205, name: 'Greenhollow', sub: 'Slimeville · the Wildwood' },
-  frost: { x: 395, y: 92, name: 'Frostpeak', sub: 'the far north' },
+  frost: { x: 395, y: 92, name: 'Frostpeak', sub: 'Icefang Hamlet · the far north' },
   ember: { x: 400, y: 296, name: 'Emberdeep', sub: 'the far south' },
   citadel: { x: 545, y: 150, name: 'Aether Citadel', sub: 'in the sky' },
 };
@@ -223,6 +223,28 @@ function drawChart(ctx, t, here, hue) {
     ctx.quadraticCurveTo(x, 96 - h * 1.6, x + 13, 96);
     ctx.fill();
   }
+
+  // Icefang Hamlet, where the ferry comes in: turf huts at the head of the fjord, its fire lit, and the
+  // Queen's ice bridge running out from the coast, cracked (docs/places/fjord.md)
+  ctx.fillStyle = '#7c9a7e';
+  for (const [x, y] of [[352, 104], [360, 108], [345, 110]]) {
+    ctx.beginPath();
+    ctx.arc(x, y, 3.6, Math.PI, 0);
+    ctx.fill();
+  }
+  ctx.fillStyle = `rgba(255, 200, 120, ${0.6 + 0.3 * Math.sin(t * 5)})`;
+  ctx.beginPath();
+  ctx.arc(354, 111, 1.8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(214, 236, 255, 0.95)';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(440, 112);
+  ctx.quadraticCurveTo(470, 116, 486, 128);
+  ctx.moveTo(492, 132);
+  ctx.quadraticCurveTo(504, 142, 510, 154);
+  ctx.stroke();
 
   // Emberdeep: dark sand, a volcano, its smoke column (drawn 22px higher than its coordinates)
   ctx.save();

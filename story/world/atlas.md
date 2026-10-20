@@ -35,7 +35,7 @@ repeat on every island, so every new island is a known amount of work:
 | room kind | what it is | combat? | examples |
 |---|---|---|---|
 | **Harbour / landing** | where the crossing arrives. Piers, a dock, the island's first view | no | Greenhollow Harbour, Icefang Fjord landing, Black Sand Shore harbour, the Skydocks mooring |
-| **Hometown** | the island's people: a lore-holder, a trader, a place to rest. Safe | no | Slimeville, Icefang Hamlet, Forgehold |
+| **Hometown** | the island's people: a lore-holder, a trader, a place to rest. Safe. A game town: respawn and a door home | no | Slimeville, Icefang Hamlet, Forgehold |
 | **Wilds** | the stage room: 2–4 zones, harder the further inland | yes | the Wildwood, Frostpine Ridge, Cinder Flats |
 | **Heart / height** | the last zone: the landmark you saw from the sea | yes | Bramble Woods' ruins, Starfall Summit, Magma Heart, Chrono Spire |
 | **Den** | a boss room off the wilds, one per boss | boss | the nine existing dens |
@@ -50,6 +50,11 @@ Rules:
   danger.
 - **Safe rooms stay safe.** No mobs in a harbour, hometown or crossing (crossings may get light, optional
   "things climbing aboard" later; never a death trap).
+- **Every landing has a town** (owner, 2026-10-20: "there should be one town each, especially if long
+  sailing is needed"). Arriving somewhere new after a crossing, you walk off the boat into a town, not
+  straight into the wilds. Every town is a game town like Slimeville (`TOWNS`, `docs/world.md`): being
+  there makes it your respawn point, and it has a door into your own house. Icefang Hamlet is the first
+  (Phase 4). The harbour and the town can be one room (Icefang) or two (Greenhollow).
 - Each island needs **one landmark** visible from every other outdoor sky (`geography.md`).
 
 ## The link graph
@@ -136,18 +141,18 @@ the Citadel's are machines and echoes.
    The Wildwood's only east exit since the Highlands trail went (Phase 3).
 
 ### Frostpeak (far north, Lv 12–27): quiet, dry humour at most
-1. **Icefang Fjord landing** `[proposed]`: ferry dock, the cracked ice bridge in the background.
-2. **Icefang Hamlet** `[proposed hometown]`: turf-roofed huts round a lamp-fire. Cast: **Old Skaldi**
-   (AI, lamplighter and songs, Tier 2), **Netmender Runa** `[proposed]` (the hamlet's trader: warm
-   gear, frost herbs), **Tove** `[proposed]` (a child who feeds the yeti cubs and isn't scared of them).
-3. **Frostpine Ridge** (exists, 13–17): frostlings, yeti cubs. Open slots: a passive **floe seal** that
-   belly-slides along the ground; a **snow owl** that dives (reuse the cinder bat dive).
-4. **Starfall Summit** (exists, 18–27): star wisps, crystal golems. Open slot: a **shard-moth** drawn to
-   the wrong stars.
+1-2. **Icefang Fjord and Icefang Hamlet** (exists, Phase 4, one room: `docs/places/fjord.md`): the
+   ferry's quay, the cracked ice bridge in the sky, turf-roofed huts round a lamp-fire. A town: respawn
+   and a home door. Cast (all AI characters): **Old Skaldi** (lamplighter and songs, Tier 2 as song
+   fragments), **Netmender Runa** (the trader: warm gear, frostbloom; her cousin Arne owns the Lodestar),
+   **Tove** (Skaldi's granddaughter, feeds the yeti cubs, the guide to the ridge's creatures). No mobs
+   (owner's call).
+3. **Frostpine Ridge** (exists, 13–17): frostlings, yeti cubs, **floe seals** (passive, belly-slide) and
+   **snow owls** (dive), the last two added in Phase 4.
+4. **Starfall Summit** (exists, 18–27): star wisps, crystal golems, **shard-moths** (Phase 4).
    - Dens: Frost Queen Glacia, Astral Wyrm (exist).
-5. Onward: the ship south leaves from the fjord dock.
-   - New zone `[proposed]`: if the fjord gets mobs, keep it to the shore beyond the hamlet (12–14):
-     **rime crabs** and **fjord gulls**.
+5. Onward: the ship south leaves from the fjord's quay: the **Lodestar**, laid up (shown, not open) until
+   Phase 5, because nobody will steer south while the stars are wrong.
 
 ### Lantern Fen (east side island, Lv 24–34) `[proposed]`: strange, gentle, sad
 A detour for players between Frostpeak and Emberdeep, and the theme from another angle: grief.
@@ -196,7 +201,11 @@ The missing desert. Reached by ship from Black Sand Shore once Emberdeep's bosse
 2. **Cogwork Bastion** (exists, 50–65): coglings, sentry drones, aether knights.
 3. **Chrono Spire** (exists, 66–80): chrono wraiths. Cast: **the Last Echo** (AI, Tier 4).
    - Dens: the Clockwork Colossus, Chronos (exist).
-4. No hometown: the Citadel has no living people. That absence is the point.
+4. No people of its own: the Citadel has no living people, and that absence is the point. **But its
+   landing still gets a town** (the owner's rule above) `[proposed]`: **the Skydocks camp**, tents and a
+   brazier lashed to the one pier that still holds, kept by travellers from the other islands who came
+   up by balloon: the balloon's pilot (the trader), a Wickmere pilgrim, a forge-slime looking for Ignis's
+   lost gear. The Citadel stays empty; the camp is visitors huddled at its edge.
 
 ### Post-game: the Maelstrom and the Sunken Reach (Lv 80+) `[proposed]`
 1. **The Maelstrom rim**: a raft-camp lashed to wreckage where the sea turns. Hometown-lite. Cast:
@@ -229,6 +238,10 @@ Every hometown has, in this order of importance:
 3. **One or two flavour NPCs** with fixed lines, to make the place feel lived in.
 4. A harbour door, a rest spot (bench, fire, springs), and a view of the landmark.
 5. Its people's own slime look (`../characters/people.md`): hue, texture, wobble.
+6. In the game: a `TOWNS` entry (where you wake up) and a door into your own house (`docs/world.md`).
+Owner's call (2026-10-20): every town character is an AI character (a purpose AND chattable), so item 3's
+fixed-line NPCs are now AI characters too, with narrow lore; the "one per town" cost note stands for
+lore-holders.
 
 ## Where each thing goes in the code
 Names here are the code's; the docs in brackets say how each part works. Check them before you build:
@@ -267,14 +280,18 @@ stand-in door into an existing area.
       leads onto the ferry, the ferry to Frostpeak, and the Highlands trail goes (shipped 2026-10-20;
       `docs/places/crossings.md`). She ties up at a jetty at the ridge's west end: the fjord is frozen
       over, with the hamlet and ice bridge in sight from the deck (Phase 4's visible-but-blocked).
-- [ ] **Phase 4: Frostpeak's front.** Icefang Fjord landing and Icefang Hamlet (Old Skaldi, Runa, Tove),
-      fjord-folk slime look, the cracked ice bridge. Fill Frostpeak's open mob slots. The update thaws
-      the fjord: the ferry's `FERRY_N` gangway then lands at the fjord dock instead of the ridge jetty,
-      and Brine's persona drops the frozen-fjord line.
-- [ ] **Phase 5: the south.** The Steam Straits crossing, Black Sand Shore with the springs, Forgehold
-      (Ash, Auntie Soot, Slag). The Caldera pass goes.
-- [ ] **Phase 6: the climb.** The thermal column vista, the balloon crossing, the Skydocks zone and the
-      Dockwarden. The skylift goes.
+- [x] **Phase 4: Frostpeak's front.** Icefang Fjord and Icefang Hamlet in one town room (Old Skaldi, Runa
+      and her shop, Tove), the fjord-folk slime look, the cracked ice bridge, floe seals, snow owls and
+      shard-moths. The update thawed the fjord: the ferry lands at the hamlet's quay, the ridge jetty
+      became the path down, Brine's persona dropped the frozen-fjord line (shipped 2026-10-20,
+      `docs/places/fjord.md`). Towns came with it: respawn in your town and a home door in every town
+      (`docs/world.md`). The stage is renamed **Frostpeak**. Phase 5's visible-but-blocked: the Lodestar,
+      laid up at the quay, no stars to steer by.
+- [ ] **Phase 5: the south.** The Steam Straits crossing (the Lodestar sails), Black Sand Shore with the
+      springs, Forgehold (Ash, Auntie Soot, Slag) as Emberdeep's town (respawn, home door). The Caldera
+      pass goes. Next phase's block: the balloon, grounded for an in-world reason.
+- [ ] **Phase 6: the climb.** The thermal column vista, the balloon crossing, the Skydocks zone, the
+      Skydocks camp as the Citadel's town, and the Dockwarden. The skylift goes.
 - [ ] **Phase 7: story progress.** Per-account lore tiers feeding every AI character; boss lines
       (`../roadmap.md` §2). Can run alongside any phase from 1 on.
 - [ ] **Phase 8: Lantern Fen** (side island, the Wickmother).

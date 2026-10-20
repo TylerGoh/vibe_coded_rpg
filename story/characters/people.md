@@ -17,8 +17,14 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
 - **Captain Brine** (Greenhollow Harbour, **exists**): the old ferry captain. Gruff-cozy and
   superstitious. He says the crossing takes longer every year, and he's right. Knows Tier 0 only; his
   life (forty years at sea, Pickles the one-legged gull, cards at the Inn) is in `server/characters.js`.
-- **Old Skaldi** (Icefang Fjord): lamplighter and keeper of songs. Speaks in short, sad, beautiful lines.
-  Holds Tier 2.
+- **Old Skaldi** (Icefang Hamlet, **exists**): lamplighter and keeper of songs. Speaks in short, sad,
+  beautiful lines. Holds Tier 2, but only as song fragments he won't explain. His life: Ylva, his late
+  wife, who taught him the songs; Tove; carving driftwood birds.
+- **Netmender Runa** (Icefang Hamlet, **exists**): the hamlet's trader (warm gear, frostbloom). Brisk, dry,
+  warm underneath. Tier 0 plus gossip. Her husband Bjarn fishes the outer fjord; her cousin Arne owns
+  the laid-up Lodestar.
+- **Tove** (Icefang Hamlet, **exists**): Skaldi's granddaughter, about eight. Feeds the yeti cubs (Lumpy,
+  Mitten, Big Grumble) and tells travellers about the ridge's creatures. Tier 0.
 - **Forgewarden Ash** (Forgehold): bitter, honest, slow to trust. Holds Tier 3.
 - **The Last Echo** (the Citadel): a Keeper echo stuck repeating, who becomes briefly lucid when players
   bring Mochi's name. Holds Tier 4.

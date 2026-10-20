@@ -8,7 +8,8 @@ import { drawAlchemyIcon } from './alchemy-art.js';
 import { FIELD_W, FIELD_GROUND, FIELD_EXIT_X, ZONES, FIELD_PLATFORMS, MOBS } from './shared/rpg.js';
 import { CALDERA_MOB_ART } from './caldera.js';
 import { CITADEL_MOB_ART } from './citadel.js';
-const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART };
+import { FJORD_MOB_ART, drawBoneHarpoon, drawFurHood } from './fjord-art.js';
+const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART };
 
 const INK = '#5b4a6b';
 const FLOWER_COLORS = ['#ffb3c7', '#fff1a8', '#c9b6ff', '#ffffff', '#ffd1a1'];
@@ -1056,7 +1057,7 @@ export function drawMob(ctx, m, time) {
   else if (m.kind === 'yeti') sil = drawYeti(ctx, w, h, t, seed, m, dying);
   else if (m.kind === 'wisp') sil = drawWisp(ctx, w, h, t, seed, m, dying);
   else if (m.kind === 'golem') sil = drawGolem(ctx, w, h, t, seed, m, dying);
-  else if (MOB_ART[m.kind]) sil = MOB_ART[m.kind](ctx, w, h, t, seed, m, dying); // the Caldera and the Citadel
+  else if (MOB_ART[m.kind]) sil = MOB_ART[m.kind](ctx, w, h, t, seed, m, dying); // the Caldera, the Citadel, Frostpeak's later mobs
   else sil = drawBramble(ctx, w, h, t, seed, m, dying);
   if (slow && dying < 0.5) drawFrost(ctx, sil, w, h, t, seed);
   if (hurt > 0.01) {
@@ -1779,9 +1780,9 @@ function drawGolem(ctx, w, h, t, seed, m, dying) {
 // ——— gear and items (shared with slime.js) ———
 
 // Blade length (from the hand) for each sword, longer for more reach
-export const SWORD_LEN = { wood_sword: 30, iron_sword: 38, spore_blade: 42, crystal_sword: 46, frost_blade: 52, thorn_sword: 54, star_sword: 58,
+export const SWORD_LEN = { wood_sword: 30, iron_sword: 38, spore_blade: 42, crystal_sword: 46, bone_harpoon: 50, frost_blade: 52, thorn_sword: 54, star_sword: 58,
   magma_maul: 60, phoenix_blade: 62, cog_cleaver: 64, chrono_blade: 66 };
-const HELMETS = ['leaf_cap', 'mush_helm', 'iron_helm', 'king_crown', 'bramble_helm', 'glacier_helm', 'star_crown',
+const HELMETS = ['leaf_cap', 'mush_helm', 'iron_helm', 'fur_hood', 'king_crown', 'bramble_helm', 'glacier_helm', 'star_crown',
   'ember_helm', 'phoenix_crown', 'aether_helm', 'hourglass_crown'];
 const HELM_ICON_FIT = { ember_helm: [0.72, 1], phoenix_crown: [0.74, 2], aether_helm: [0.8, 1], hourglass_crown: [0.78, 5] };
 
@@ -1796,6 +1797,7 @@ export function drawSword(ctx, id, glow = 0) {
   if (id === 'phoenix_blade') return drawPhoenixBlade(ctx, L, glow);
   if (id === 'cog_cleaver') return drawCogCleaver(ctx, L, glow);
   if (id === 'chrono_blade') return drawChronoBlade(ctx, L, glow);
+  if (id === 'bone_harpoon') return drawBoneHarpoon(ctx, L, glow); // (src/fjord-art.js)
   ctx.save();
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
@@ -3698,7 +3700,8 @@ export function drawHelmet(ctx, id, w, h, t = 0) {
   ctx.save();
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
-  if (id === 'leaf_cap') {
+  if (id === 'fur_hood') drawFurHood(ctx, w, h); // (src/fjord-art.js)
+  else if (id === 'leaf_cap') {
     // overlapping big leaves, tips pointing down round the brim, a curly stem on top
     ctx.strokeStyle = '#4f9d5c';
     ctx.lineWidth = 2;

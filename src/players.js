@@ -1,11 +1,11 @@
 // Docs: docs/places/houses.md
 // Who's online (P, or the Players button): everyone on the server, where they are, and an Invite button
-// to have them over to your house, and a Message button that opens a private chat with them (src/chat.js). Inviting works from the village or your own house, and only for
-// slimes standing in the village (the server checks too). Also the card that pops up when someone
+// to have them over to your house, and a Message button that opens a private chat with them (src/chat.js). Inviting works from any town (TOWNS: Slimeville,
+// Icefang Hamlet…) or your own house, and only for slimes standing in a town (the server checks too). Also the card that pops up when someone
 // invites you: Go over takes you straight into their house (server/house.js).
 import { paletteFor } from './slime.js';
 import { audio } from './audio.js';
-import { VILLAGE, roomDef, isHouse } from './shared/sim.js';
+import { VILLAGE, roomDef, isHouse, townOf } from './shared/sim.js';
 
 export class Players {
   constructor({ net, houses, send, self, onOpenChange }) {
@@ -72,10 +72,10 @@ export class Players {
 
   render() {
     const myRoom = this.net.me.room, myHome = this.net.me.home;
-    const canInvite = myRoom === VILLAGE || (isHouse(myRoom) && myRoom === myHome);
+    const canInvite = townOf(myRoom) >= 0 || (isHouse(myRoom) && myRoom === myHome);
     this.help.textContent = canInvite
-      ? 'Invite slimes who are in the village over to your house.'
-      : 'Go to the village (or your house) to invite slimes over. They need to be in the village too.';
+      ? 'Invite slimes who are in a town over to your house.'
+      : 'Go to a town (or your house) to invite slimes over. They need to be in a town too.';
     const rows = [[this.net.id, this.self()], ...[...this.net.roster].filter(([id]) => id !== this.net.id).sort((a, b) => a[1].name.localeCompare(b[1].name))];
     this.count.textContent = `· ${rows.length}`;
     this.list.replaceChildren();
@@ -106,8 +106,8 @@ export class Players {
         b.type = 'button';
         const here = isHouse(myRoom) && room === myRoom, sent = performance.now() - (this.sent.get(id) ?? -1e9) < 4000;
         b.textContent = here ? 'Visiting you' : sent ? 'Invited' : 'Invite';
-        b.disabled = here || sent || !canInvite || room !== VILLAGE;
-        if (!here && room !== VILLAGE) b.title = 'They need to be in the village';
+        b.disabled = here || sent || !canInvite || townOf(room) < 0;
+        if (!here && townOf(room) < 0) b.title = 'They need to be in a town';
         b.onclick = () => {
           this.send({ t: 'invite', to: id });
           this.sent.set(id, performance.now());
@@ -140,11 +140,11 @@ export class Players {
     const inv = this.invites.at(-1);
     this.card.hidden = !inv;
     if (!inv) return;
-    const inVillage = this.net.me.room === VILLAGE;
+    const inVillage = townOf(this.net.me.room) >= 0; // (any town)
     const text = `${inv.name} invited you over to their house!`;
     if (this.cardText.textContent !== text) this.cardText.textContent = text;
     this.goButton.disabled = !inVillage;
-    const label = inVillage ? 'Go over' : 'Go back to the village to go';
+    const label = inVillage ? 'Go over' : 'Go back to a town to go';
     if (this.goButton.textContent !== label) this.goButton.textContent = label;
   }
 }

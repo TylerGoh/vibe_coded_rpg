@@ -8,9 +8,13 @@ Data: `src/shared/rpg.js` (`ZONES`, `HIGHLAND_ZONES`, `CALDERA_ZONES`, `CITADEL_
    icon): Sprout Meadow, Mushroom Grove, Bramble Woods. Bramblehogs are aggressive (chase on sight). Bramble
    Woods holds the Keeper ruins, and a spawn-free stretch at the very end (where the Highlands trail used
    to be) leads to the east cliffs (`docs/places/cliffs.md`).
-2. **Frostpeak Highlands** (`HIGHLANDS`, `src/highlands.js`): Frostpine Ridge, Starfall Summit. Reached by
-   the ferry from Greenhollow Harbour, which ties up at its west end (`docs/places/crossings.md`); the old
-   trail from the Wildwood is gone.
+2. **Frostpeak** (`HIGHLANDS`, `src/highlands.js`; the owner renamed it from "Frostpeak Highlands": the
+   island is Frostpeak, the Highlands its interior): Frostpine Ridge, Starfall Summit. Reached by the
+   ferry from Greenhollow Harbour, which lands at Icefang Hamlet (a safe town room, `docs/places/fjord.md`);
+   its west end is the path down there. The old trail from the Wildwood is gone. Phase 4 filled its open
+   mob slots: **floe seals** (passive, belly-slide) and **snow owls** (the cinder bat's dive) on the ridge,
+   **shard-moths** (passive flyers) on the summit; art in `src/fjord-art.js`. Mob kinds go over the wire
+   as their index in `MOBS`, so new mobs are appended at the end of it.
 3. **Emberdeep Caldera** (`CALDERA`, `src/caldera.js`): Cinder Flats, Magma Heart.
 4. **Aether Citadel** (`CITADEL`, `src/citadel.js`): Cogwork Bastion, Chrono Spire.
 Stages 3 and 4 were added because players were Lv 35–88 and out of content.

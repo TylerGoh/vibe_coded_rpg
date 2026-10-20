@@ -910,7 +910,7 @@ function drawZoneSign(ctx, x, z, i, time) {
   ctx.restore();
 }
 
-// The way back up: a basalt arch with a cold blue glow and frost, "← Frostpeak Highlands"
+// The way back up: a basalt arch with a cold blue glow and frost, "← Frostpeak"
 function drawExit(ctx, x, time) {
   const base = GROUND;
   // cool mountain air spilling down through the arch
@@ -932,8 +932,8 @@ function drawExit(ctx, x, time) {
   }
   rockArch(ctx, x, base, 54, 150, time, true);
   ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
-  const half = (ctx.measureText('Frostpeak Highlands').width + 44) / 2;
-  hangingSign(ctx, Math.max(x, 10 + half), base - 150, 'Frostpeak Highlands', null, -1, time, false);
+  const half = (ctx.measureText('Frostpeak').width + 44) / 2;
+  hangingSign(ctx, Math.max(x, 10 + half), base - 150, 'Frostpeak', null, -1, time, false);
   // a few snowflakes drifting down out of it
   ctx.fillStyle = 'rgba(255,255,255,0.9)';
   for (let i = 0; i < 6; i++) {

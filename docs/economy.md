@@ -32,7 +32,8 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Read "gold earned by then" for that level and price it at roughly half to three quarters of it: a real
    goal, but not everything they have (potions keep costing). Add the `aim` to the data when the item
-   lives in a list the script reads (like `HOUSE_SIZES`); otherwise add it to the script's sinks list.
+   lives in a list the script reads (like `HOUSE_SIZES`, or an `ITEMS` entry sold in a shop: every
+   shopkeeper's stock in `SHOPS` is read); otherwise add it to the script's sinks list.
 3. Something meant only for players who farm bosses (a prestige item) gets no `aim`: price it against
    the boss rows (a few dozen late-boss kills), and say so in a comment.
 4. Re-run the script and keep the checks green. If you have to break a target, write down why here.

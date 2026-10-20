@@ -53,7 +53,7 @@
 //       minRoll, pvp, berserk}  your character
 //   → {t:'learn'|'unlearn', skill} · {t:'respec'} · {t:'hotbar', bar:'skill'|'pot', slot, id} · {t:'pvp', on}
 //   → {t:'hotswap'}  swap the hotbar for the other setup · {t:'ap', stat, n} (n < 0 takes back) · {t:'ap', reset:true}
-//   → {t:'buy', item, n} · {t:'sell', slot, n} · {t:'buycos', id} (Boutique)  at Merchant Pip's shop
+//   → {t:'buy', item, n, shop} · {t:'sell', slot, n, shop} · {t:'buycos', id} (Boutique)  at a shop (SHOPS: Pip, Runa)
 //       ← {t:'shop', ok:'buy'|'sell', item|cos, n, gold}
 //   → {t:'wear', id, on} · {t:'showhelm', on}  Boutique cosmetics (gear messages carry wear / showHelmet)
 //   ← {t:'mobs', k, m:[[id, kind, x, y, hp, flags, maxHp]], b?}  30 Hz to each combat room (kind: index into
@@ -64,7 +64,7 @@
 //   ← {t:'guard', id, what:'pop'|'block'|'secondwind'}  a Jelly Bubble / Aegis took a hit, or Second Wind saved someone
 //   ← {t:'loot', l:[[id, item, n, x, y]]}  everything on the room's ground, whenever it changes
 //   ← {t:'hurt', id, dmg, hp, max, by?}  a mob (or `by`, a slapping friend) hit a slime (to its room)
-//   ← {t:'faint', id, by?}  a slime hit 0 HP: it splats, and wakes up in the village 1.6 s later · ← {t:'got', item, n}  you picked something up
+//   ← {t:'faint', id, by?}  a slime hit 0 HP: it splats, and wakes up in its town 1.6 s later · ← {t:'got', item, n}  you picked something up
 //   ← {t:'gear', id, gear, lvl, up?}  to everyone, when someone's gear or level changes (join/welcome carry it too)
 //   ← {t:'toast', text}  a short notice just for you
 //   → {t:'pickup'} (Z) · → {t:'equip'|'use'|'drop', slot} (bag index) · → {t:'unequip', slot:'helmet'|'sword'}
@@ -78,6 +78,7 @@
 //   Inputs: k also has DASH (32) and BLINK (64); snapshots carry each slime's mobility state (sim.js pack).
 // Personal houses (server/house.js, src/shared/house.js): rooms from HOUSE_BASE up, one per account;
 //   each slime's own house room (`home`) is in welcome / join info (not in snapshots: it never changes).
+//   Every town (TOWNS) has a door into it; its front door lets you out into your town (`town`, in snapshots).
 //   ← {t:'house', room, owner, layout}  to whoever walks into a house, and to everyone in it when it changes
 //   → {t:'house-set', layout}  the owner redecorated (in their own house) · → {t:'house-kick'} send guests out
 //   → {t:'house-grow', size}  the owner pays to grow it to that size ← {t:'house-grew', room, name, by}  to all inside
@@ -85,7 +86,7 @@
 //   farming and alchemy (docs/places/alchemy.md): the house message also carries farm: {plot id: [crop, ms left]}
 //   → {t:'plant', plot, crop} · → {t:'harvest', plot} ← {t:'harvested', item, n}  (your own garden plots)
 //   → {t:'brew', steps, n}  at an alchemy lab ← {t:'brewed', id, item, n, ok}  to the room
-//   → {t:'invite', to}  (from the village or your own house, to a player in the village)
+//   → {t:'invite', to}  (from a town or your own house, to a player in a town: TOWNS in sim.js)
 //       ← {t:'invite', from, name, ms}  to them · → {t:'visit', host, no?}  yes takes them into the host's house
 // Text chat (server/chat.js): one public channel for everyone online, plus private messages by account name
 //   → {t:'chat', text, to?}   ← {t:'chat', id, at, from, to?, text}  public: to everyone · private: to both of you
@@ -100,7 +101,7 @@ import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
-import { TICK_RATE, newState, step, pack, KEY_MASK, SPAWN_X, NPCS, NPC_TEXT_MAX, cleanText, VILLAGE, HALL, TUTOR, MUSEUM, MUSEUM_WINGS, EXHIBIT_SPACING, exhibitX, ROOMS, PROF_X, SLAP_REACH, SLAP_COOLDOWN_MS, SLAP_QUIPS, PIANO, pianoKeyAt, roomDef, isHouse, HOME_DOOR_X, npcIn, VOYAGE_MAX } from '../src/shared/sim.js';
+import { TICK_RATE, newState, step, pack, KEY_MASK, SPAWN_X, NPCS, NPC_TEXT_MAX, cleanText, VILLAGE, HALL, TUTOR, MUSEUM, MUSEUM_WINGS, EXHIBIT_SPACING, exhibitX, ROOMS, PROF_X, SLAP_REACH, SLAP_COOLDOWN_MS, SLAP_QUIPS, PIANO, pianoKeyAt, roomDef, isHouse, npcIn, VOYAGE_MAX, TOWNS, placeAt } from '../src/shared/sim.js';
 import { createLecture } from './lecture.js';
 import { createTutor } from './tutor.js';
 import { createVote } from './vote.js';
@@ -238,7 +239,7 @@ function savePositions() {
     if (!p.joined) continue;
     const { room, x, vt } = p.state;
     if (!isHouse(room)) pos[p.name] = { room, x, ...(vt ? { vt } : {}) }; // (vt: mid-crossing, so the voyage goes on)
-    else pos[p.name] = room === p.state.home ? { room: 'home', x } : { room: VILLAGE, x: HOME_DOOR_X };
+    else pos[p.name] = room === p.state.home ? { room: 'home', x } : { room: TOWNS[p.state.town | 0].room, x: TOWNS[p.state.town | 0].homeX }; // (someone else's house: their town's front door)
   }
   try {
     writeFileSync(POS_FILE, JSON.stringify({ at: Date.now(), pos }));
@@ -246,18 +247,19 @@ function savePositions() {
     console.error('could not save positions', e);
   }
 }
-// Put a slime back where it stood before the restart (at most once per account)
+// Put a slime back where it stood before the restart (at most once per account). → whether it did
 function restorePos(user, state) {
   const v = savedPos.get(user);
-  if (!v) return;
+  if (!v) return false;
   savedPos.delete(user);
   const room = v.room === 'home' ? state.home : v.room;
   const r = Number.isInteger(room) && roomDef(room);
-  if (!r) return;
+  if (!r) return false;
   state.room = room;
   state.x = Math.max(20, Math.min(r.width - 20, Number(v.x) || 0));
   state.y = r.ground;
   if (r.crossing) state.vt = Math.max(0, Math.min(VOYAGE_MAX, Number(v.vt) | 0));
+  return true;
 }
 
 wss.on('connection', (ws) => {
@@ -316,7 +318,7 @@ wss.on('connection', (ws) => {
       // tests only (TEST_TP=1, never live): jump to {room?, x, vt?} instead of walking there; room -1 = your
       // house; vt: how far into a crossing (ticks)
       const room = m.room === -1 ? p.state.home : Number.isInteger(m.room) ? m.room : p.state.room;
-      if (roomDef(room)) Object.assign(p.state, newState(Math.max(0, Math.min(roomDef(room).width, Number(m.x) || 0))), { room, y: roomDef(room).ground, home: p.state.home, mv: p.state.mv, vt: roomDef(room).crossing ? Number(m.vt) | 0 : 0 });
+      if (roomDef(room)) Object.assign(placeAt(p.state, room, Math.max(0, Math.min(roomDef(room).width, Number(m.x) || 0))), { vt: roomDef(room).crossing ? Number(m.vt) | 0 : 0 });
     } else if (m.t === 'furni-buy' && p.joined && typeof m.k === 'string') {
       houses.buy(p, m);
     } else if (m.t === 'house-grow' && p.joined) {
@@ -482,9 +484,14 @@ async function login(id, p, m) {
   p.hue = acc.hue;
   p.state = state;
   state.home = houses.homeOf(acc.user);
-  if (!old && !process.env.TEST_SPAWN) restorePos(acc.user, state);
   if (old) p.invites = old.invites;
   if (!p.rpg) rpg.load(p);
+  if (!old) {
+    // your town (docs/world.md): you start there, unless your spot from before a restart was kept
+    state.town = p.rpg.town;
+    const town = TOWNS[state.town];
+    if (!process.env.TEST_SPAWN && !restorePos(acc.user, state) && town.room !== VILLAGE) placeAt(state, town.room, town.x + Math.floor(Math.random() * 120));
+  }
   send(p.ws, { t: 'welcome', id, tick, rate: TICK_RATE, ice, players: [...players].filter(([, q]) => q.joined).map(([i, q]) => info(q, i)), casts: [...players].filter(([, q]) => q.joined && q.cast).map(([i]) => i) });
   broadcast({ t: 'join', ...info(p, id) }, id);
   rpg.sendMe(p);
@@ -514,8 +521,12 @@ setInterval(() => {
 
 // One simulation step for a player, announcing piano notes when they land on a key
 function stepPlayer(id, p, keys) {
-  const was = p.state.grounded;
+  const was = p.state.grounded, town = p.state.town;
   step(p.state, keys);
+  if (p.state.town !== town && p.rpg) {
+    p.dirty = true; // (saved with the character: server/rpg.js save)
+    send(p.ws, { t: 'toast', text: `${TOWNS[p.state.town].name} is your town now: you'll wake up here, and your front door opens onto it` });
+  }
   if (!was && p.state.grounded && p.state.room === PIANO) {
     const n = pianoKeyAt(p.state);
     if (n !== null) {

@@ -17,8 +17,9 @@ lore, rich personal lives (`characters/people.md`).
 - [x] **Crossing rooms:** a ship deck over a scrolling sea, for roughly a minute, then you arrive. One room
       type, themed per route (cold sea, Steam Straits, cloud climb). Movement on deck is normal `step()`
       physics; the scroll is drawing only. (The cold sea ferry shipped: `docs/places/crossings.md`.)
-- [ ] **A landing zone at the start of each island** (Icefang Fjord, Black Sand Shore, the Skydocks): a
-      calm stretch with a hamlet and harbour, before the mobs.
+- [ ] **A landing town at the start of each island** (Icefang Fjord: done, Phase 4; Black Sand Shore and
+      Forgehold; the Skydocks camp): a calm stretch with a town and harbour, before the mobs. Owner's
+      rule: every landing is a town with respawn and a door home (`world/atlas.md`).
 - [x] **The Wildwood ends at sea cliffs** with the view across the water (room 20, the telescope; the
       Highlands trail beside it went in Phase 3).
 - [x] **Distant islands in every outdoor sky,** in compass direction (`world/geography.md`, `src/distant.js`).
@@ -34,10 +35,12 @@ lore, rich personal lives (`characters/people.md`).
 - [x] **Keeper ruins** in Bramble Woods, with readable plaques (four stones, Tier 1 text, `src/ruins.js`).
 
 ## 3. New places and people
-- [ ] Regional AI characters: Captain Brine (done), Old Skaldi, Forgewarden Ash, the Last Echo.
-- [ ] Settlements: the fjord hamlet, Forgehold.
+- [ ] Regional AI characters: Captain Brine (done), Old Skaldi, Runa and Tove (done), Forgewarden Ash, the
+      Last Echo.
+- [ ] Settlements: the fjord hamlet (done), Forgehold, the Skydocks camp.
 - [ ] The Slime Ages wing in the museum.
-- [ ] Each island's people drawn as their own slime type (`characters/people.md`).
+- [ ] Each island's people drawn as their own slime type (`characters/people.md`): the fjord folk done
+      (`Slime.setFolk`); forge-slimes next.
 
 ## 4. Endgame and beyond
 - [ ] The Wheel restart: a server-wide event, then the world flag and the changed skies.
@@ -46,6 +49,6 @@ lore, rich personal lives (`characters/people.md`).
 
 ## Renames under consideration
 Today's stage names fit the story with small changes. Propose these to the owner before renaming:
-- "Frostpeak Highlands" → **Frostpeak** (the island), with the Highlands as its interior.
+- Done (owner, Phase 4): "Frostpeak Highlands" → **Frostpeak** (the island), the Highlands its interior.
 - "Emberdeep Caldera" → **Emberdeep** (the island), with the Caldera as its heart.
 - The skylift → a **balloon** riding the thermal column.

@@ -16,5 +16,7 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
   (`story/canon.md`). The uncharted fogs hint at the proposed side islands without naming them.
 - Greenhollow's east rim is drawn white: the east cliffs (`docs/places/cliffs.md`).
 - Aboard a crossing, `islandOf` says `'sea'` and the pin sits on the ferry's route (`PINS`).
+- Frostpeak shows Icefang Hamlet where the ferry comes in (turf huts, a fire) and the Queen's cracked ice
+  bridge running out to sea (`docs/places/fjord.md`).
 - **Keep it in step with the story:** when an island, route or place ships (or a proposed one becomes
   real), add or un-fog it here. Positions follow the compass layout in `story/world/geography.md`.

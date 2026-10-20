@@ -7,7 +7,7 @@ import { Particles } from './particles.js';
 import { drawVillage, text } from './village.js';
 import { Net } from './net.js';
 import { Voice } from './voice.js';
-import { Character, drawFeed, dialogOpen, closeDialog } from './npc.js';
+import { Character, drawFeed, dialogOpen, closeDialog, onTrade } from './npc.js';
 import { Hall } from './hall.js';
 import { Piano } from './piano.js';
 import { Museum } from './museum.js';
@@ -17,7 +17,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE } from './shared/rpg.js';
+import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE } from './shared/rpg.js';
 import { drawHighlands } from './highlands.js';
 import { drawCaldera, drawCalderaPass } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
@@ -32,6 +32,7 @@ import { Players } from './players.js';
 import { Chat } from './chat.js';
 import { WorldMap } from './worldmap.js';
 import { drawHarbour } from './harbour.js';
+import { drawFjord } from './fjord.js';
 import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel } from './crossing.js';
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
@@ -281,6 +282,7 @@ rpg.onSlot = (bar, i) => useSlot(bar, i);
 rpg.onGear = (gear) => mine && mine.setLook({ ...rpg.me, gear });
 const skillTree = new SkillTree({ rpg, send: (m) => net.sendNpc(m), onOpenChange: () => held.clear() });
 const shop = new Shop({ rpg, send: (m) => net.sendNpc(m), onOpenChange: () => held.clear() });
+onTrade((keeper) => shop.open(keeper)); // a character who keeps a shop: the Trade button in their dialog (Runa)
 // Merchant Pip, behind his stall in the village (src/shop.js)
 const merchant = new Slime(48);
 merchant.accessories = ['merchant'];
@@ -1123,7 +1125,7 @@ function drawHints() {
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);
-  if (talk) acts.push({ key: 'E', label: `talk to ${talk.cfg.name}` });
+  if (talk) acts.push({ key: 'E', label: talk.cfg.shop ? `talk to ${talk.cfg.name} (or trade)` : `talk to ${talk.cfg.name}` });
   else if (nearShop()) acts.push({ key: 'E', label: 'shop with Merchant Pip' });
   else if (room === MUSEUM && museum.near) acts.push({ key: 'E', label: `read: ${museum.near.title.length > 34 ? museum.near.title.slice(0, 32) + '…' : museum.near.title}` });
   else if (room === FIELD && ruinStoneAt(me)) acts.push({ key: 'E', label: `read ${ruinStoneAt(me).name}` });
@@ -1176,6 +1178,7 @@ function render() {
   else if (isHouse(room)) houses.draw(ctx, room, time, houses.isMine(room));
   else if (room === STORE) store.draw(ctx, camX, W, time);
   else if (room === HARBOUR) drawHarbour(ctx, camX, W, time);
+  else if (room === FJORD) drawFjord(ctx, camX, W, time);
   else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
   else if (roomDef(room)?.crossing) drawCrossing(ctx, room, camX, W, time, online() ? net.me : null);
   else drawVillage(ctx, camX, W, time);
@@ -1254,6 +1257,7 @@ function render() {
     }
     else if (status === 'online' && room === STORE) drawPill(16, 14, 260, `Furniture Store · ${here} shopper${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === HARBOUR) drawPill(16, 14, 300, `Greenhollow Harbour · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === FJORD) drawPill(16, 14, 300, `Icefang Hamlet · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CLIFFS) drawPill(16, 14, 300, `The East Cliffs · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && crossingAt(room, net.me)) {
       // aboard: where she's bound, how long till she's in, and a little track of the voyage

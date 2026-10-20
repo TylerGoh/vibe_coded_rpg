@@ -14,13 +14,14 @@ export const DT = 1 / TICK_RATE;
 
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS } from './rpg.js';
+export const SPAWN_X = 220; // where you start in the village
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS } from './rpg.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
 export const CLIFFS = 20; // Greenhollow's east cliffs, past the end of the Wildwood (docs/places/cliffs.md)
 export const FERRY_N = 21, FERRY_S = 22; // the ferry's deck, out to Frostpeak and back home (docs/places/crossings.md)
-export { FIELD };
+export { FIELD, FJORD };
 
 export const PLATFORMS = [
   { x: 360, y: 335, w: 190, kind: 'island' },
@@ -160,7 +161,7 @@ export const ROOMS = [
     ],
   },
 ];
-// rooms 6–8 and 10–11: the boss dens (DENS in rpg.js); room 9: the Frostpeak Highlands
+// rooms 6–8 and 10–11: the boss dens (DENS in rpg.js); room 9: Frostpeak's wilds (Frostpine Ridge, Starfall Summit)
 for (const d of DENS) {
   ROOMS[d.room] = {
     name: d.name, width: DEN_W, ground: FIELD_GROUND, platforms: DEN_PLATFORMS,
@@ -168,9 +169,9 @@ for (const d of DENS) {
   };
 }
 ROOMS[HIGHLANDS] = {
-  name: 'The Frostpeak Highlands', width: HIGHLANDS_W, ground: FIELD_GROUND, platforms: HIGHLAND_PLATFORMS,
+  name: 'Frostpeak', width: HIGHLANDS_W, ground: FIELD_GROUND, platforms: HIGHLAND_PLATFORMS,
   doors: [
-    { x: HIGHLANDS_EXIT_X, w: 80, to: FERRY_S, toX: DECK_GANGWAY_X, label: 'board the ferry home to Greenhollow', ask: 'Sail home to Greenhollow? About 45 seconds at sea.' },
+    { x: HIGHLANDS_EXIT_X, w: 80, to: FJORD, toX: FJORD_EXIT_X, label: 'walk down to Icefang Hamlet' },
     { x: CALDERA_DOOR_X, w: 80, to: CALDERA, toX: CALDERA_EXIT_X, label: 'descend to the Emberdeep Caldera (Lv 28+)' },
     ...denDoors(HIGHLANDS),
   ],
@@ -179,7 +180,7 @@ ROOMS[HIGHLANDS] = {
 ROOMS[CALDERA] = {
   name: 'The Emberdeep Caldera', width: CALDERA_W, ground: FIELD_GROUND, platforms: CALDERA_PLATFORMS,
   doors: [
-    { x: CALDERA_EXIT_X, w: 80, to: HIGHLANDS, toX: CALDERA_DOOR_X, label: 'climb back to the Frostpeak Highlands' },
+    { x: CALDERA_EXIT_X, w: 80, to: HIGHLANDS, toX: CALDERA_DOOR_X, label: 'climb back up to Frostpeak' },
     { x: CITADEL_DOOR_X, w: 80, to: CITADEL, toX: CITADEL_EXIT_X, label: 'ride the skylift to the Aether Citadel (Lv 50+)' },
     ...denDoors(CALDERA),
   ],
@@ -242,10 +243,35 @@ const deck = (name, crossing, ashore, back) => ({
 // route: the theme src/crossing.js paints · from / to: the islands (src/distant.js keys) · ticks: how long
 // she takes. The first crossing out is the slow one (story/world/geography.md); home is quicker.
 ROOMS[FERRY_N] = deck('The Puddle Jumper, bound for Frostpeak', { route: 'cold', from: 'green', to: 'frost', ticks: 60 * TICK_RATE },
-  { to: HIGHLANDS, toX: HIGHLANDS_EXIT_X, label: 'go ashore at Frostpeak' }, { to: HARBOUR, toX: GANGWAY_X });
+  { to: FJORD, toX: FJORD_DOCK_X, label: 'go ashore at Icefang Hamlet' }, { to: HARBOUR, toX: GANGWAY_X });
 ROOMS[FERRY_S] = deck('The Puddle Jumper, bound for Greenhollow', { route: 'cold', from: 'frost', to: 'green', ticks: 45 * TICK_RATE },
-  { to: HARBOUR, toX: GANGWAY_X, label: 'go ashore at Greenhollow Harbour' }, { to: HIGHLANDS, toX: HIGHLANDS_EXIT_X });
+  { to: HARBOUR, toX: GANGWAY_X, label: 'go ashore at Greenhollow Harbour' }, { to: FJORD, toX: FJORD_DOCK_X });
 export const VOYAGE_MAX = 65535; // state.vt stops counting here (it's a u16 on the wire)
+// room 23: Icefang Fjord, Frostpeak's landing, and its town, Icefang Hamlet (docs/places/fjord.md). A safe
+// room: the ferry's dock at the west end, the hamlet round its lamp-fire, the path up to Frostpine Ridge
+// at the east end. Its platforms (FJORD_PLATFORMS, rpg.js) are crates on the quay, turf roofs and a rock.
+ROOMS[FJORD] = {
+  name: 'Icefang Hamlet', width: FJORD_W, ground: FIELD_GROUND, platforms: FJORD_PLATFORMS,
+  doors: [
+    { x: FJORD_DOCK_X, w: 80, to: FERRY_S, toX: DECK_GANGWAY_X, label: 'board the ferry home to Greenhollow', ask: 'Sail home to Greenhollow? About 45 seconds at sea.' },
+    { x: FJORD_HOME_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
+    { x: FJORD_EXIT_X, w: 80, to: HIGHLANDS, toX: HIGHLANDS_EXIT_X, label: 'climb up to Frostpine Ridge (mobs!)' },
+  ],
+};
+
+// ——— towns (docs/world.md) ———
+// Owner's rule: every island's landing has a town, and every town works like Slimeville. It has a door
+// into your own house, and being in one makes it your town (state.town, an index into TOWNS): you wake up
+// there after fainting, start there when your spot wasn't kept, and your house's front door lets you out
+// into it. x: where you wake up; homeX: its house door.
+export const TOWNS = [
+  { room: VILLAGE, name: 'Slimeville', x: SPAWN_X, homeX: HOME_DOOR_X },
+  { room: FJORD, name: 'Icefang Hamlet', x: FJORD_SPAWN_X, homeX: FJORD_HOME_X },
+];
+TOWNS.forEach((t, i) => (ROOMS[t.room].town = i)); // (step() reads room.town)
+export const townOf = (room) => ROOMS[room]?.town ?? -1; // -1: not a town
+export const TOWN = -2; // a door's `to` meaning "your town" (a house's front door)
+const townAt = (s) => TOWNS[s.town | 0] ?? TOWNS[0];
 
 const houses = new Map(); // room id → its room definition
 // The room definition for any room id, houses included (undefined for an id that isn't a room)
@@ -253,7 +279,7 @@ export function roomDef(room) {
   if (ROOMS[room] || !isHouse(room)) return ROOMS[room];
   let r = houses.get(room);
   if (!r) {
-    r = { name: 'House', width: HOUSE_W, ground: HOUSE_GROUND, platforms: [], doors: [{ x: HOUSE_EXIT_X, w: 70, to: VILLAGE, toX: HOME_DOOR_X, label: 'go back out to Slimeville' }] };
+    r = { name: 'House', width: HOUSE_W, ground: HOUSE_GROUND, platforms: [], doors: [{ x: HOUSE_EXIT_X, w: 70, to: TOWN, label: 'go back outside' }] };
     houses.set(room, r);
   }
   return r;
@@ -274,7 +300,6 @@ export function pianoKeyAt(s) {
   return whiteMidi(Math.min(WHITE_KEYS - 1, Math.max(0, Math.floor(s.x / KEY_W))));
 }
 
-export const SPAWN_X = 220;
 
 // Input bits, one byte per step
 export const LEFT = 1, RIGHT = 2, JUMP = 4, DOWN = 8, USE = 16; // USE: E, goes through doors
@@ -307,7 +332,11 @@ const HALF_W = 16; // half the slime's footprint, for platform edges and world b
 // cooldowns; ifr: untouchable ticks; fj: the Flash Jump is used up (until you land)
 // home: the room id of your own house (set by the server at login; 0 = none yet, so that door stays shut)
 // vt: voyage ticks, how long you've been aboard a crossing (0 everywhere else)
-export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0 });
+// town: your town (an index into TOWNS), the last one you were in
+export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0 });
+// Move a slime to (room, x), standing, keeping who it is (house, mobility, town). For the server's
+// teleports (waking up, invites, tests); doors do this inside step().
+export const placeAt = (s, room, x) => Object.assign(s, newState(x), { room, y: roomDef(room).ground, home: s.home, mv: s.mv, facing: s.facing, town: townOf(room) >= 0 ? townOf(room) : s.town | 0 });
 
 // Whether door d can be used right now (your own house once you have one; a ship's gangway once she's in,
 // or back ashore while she's casting off). A door with `ask` is confirmed on the client first (src/main.js).
@@ -333,8 +362,9 @@ export function step(s, keys) {
   s.use = !!(keys & USE);
   const door = pressedUse && doorAt(s);
   if (door) {
-    s.room = door.to === HOME ? s.home : door.to;
-    s.x = door.toX;
+    const town = door.to === TOWN && townAt(s);
+    s.room = door.to === HOME ? s.home : town ? town.room : door.to;
+    s.x = town ? town.homeX : door.toX;
     s.y = roomDef(s.room).ground;
     s.vx = s.vy = s.drop = s.dt = s.vt = 0;
     s.grounded = true;
@@ -343,6 +373,7 @@ export function step(s, keys) {
   }
   const room = roomDef(s.room);
   s.vt = room.crossing ? Math.min(VOYAGE_MAX, (s.vt | 0) + 1) : 0;
+  if (room.town !== undefined) s.town = room.town;
   const pressedJump = keys & JUMP && !s.jh, pressedDash = keys & DASH && !s.dh, pressedBlink = keys & BLINK && !s.bh;
   s.jh = !!(keys & JUMP);
   s.dh = !!(keys & DASH);
@@ -425,10 +456,10 @@ export function step(s, keys) {
   return s;
 }
 
-// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt]
+// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town]
 // (`home` never changes, so it isn't in snapshots: welcome / join info carry it, and src/net.js keeps ours)
 // flags: 1 grounded · 2 on a platform · 4 facing left · 8 E held · 16 Jump held · 32 Dash held · 64 Blink held · 128 Flash Jump used
-export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0];
+export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0];
 export function unpack(a, s = {}) {
   s.x = a[1];
   s.y = a[2];
@@ -450,6 +481,7 @@ export function unpack(a, s = {}) {
   s.bc = a[11] ?? 0;
   s.ifr = a[12] ?? 0;
   s.vt = a[13] ?? 0;
+  s.town = a[14] ?? 0;
   return s;
 }
 
@@ -460,10 +492,15 @@ export const cleanHue = (h) => ((Math.round(Number(h)) % 360) + 360) % 360 || 0;
 // The AI characters you can talk to (personalities: server/characters.js). Each stands on the ground of
 // its room at x; walk within `range` and press E. `accessory` is how src/slime.js dresses them. `also`: more
 // rooms they stand in, at the same x (Brine at the helm of both sailings); use npcIn() rather than .room.
+// hello: the line their dialog opens with before anyone has said anything.
 export const NPCS = [
-  { id: 'mochi', name: 'Elder Mochi', short: 'Mochi', room: VILLAGE, x: 2075, hue: 95, range: 150, size: 1.3, accessory: 'elder', faces: -1, blurb: 'the oldest slime in Slimeville' },
-  { id: 'brine', name: 'Captain Brine', short: 'Brine', room: FERRY_N, also: [FERRY_S], x: 250, hue: 205, range: 130, size: 1.25, accessory: 'captain', faces: 1, blurb: 'master of the Puddle Jumper, at her wheel' },
-  { id: 'clio', name: 'Curator Clio', short: 'Clio', room: MUSEUM, x: 300, hue: 32, range: 80, size: 1.15, accessory: 'curator', faces: 1, blurb: 'historian of the Grand Museum · ask from anywhere in the museum', anywhere: true },
+  { id: 'mochi', name: 'Elder Mochi', short: 'Mochi', room: VILLAGE, x: 2075, hue: 95, range: 150, size: 1.3, accessory: 'elder', faces: -1, blurb: 'the oldest slime in Slimeville', hello: 'Hmm? Oh — hello there, little one. Sit a while… (everyone can hear you)' },
+  { id: 'brine', name: 'Captain Brine', short: 'Brine', room: FERRY_N, also: [FERRY_S], x: 250, hue: 205, range: 130, size: 1.25, accessory: 'captain', faces: 1, blurb: 'master of the Puddle Jumper, at her wheel', hello: 'Ahoy! Mind the rigging. (Everyone can hear you.)' },
+  // Icefang Hamlet's fjord folk (folk: their people's look, src/slime.js; shop: they trade too, SHOPS in rpg.js)
+  { id: 'skaldi', name: 'Old Skaldi', short: 'Skaldi', room: FJORD, x: 2210, hue: 205, range: 130, size: 1.2, accessory: 'lamplighter', folk: 'fjord', faces: -1, blurb: 'lamplighter of Icefang Hamlet, keeper of the old songs', hello: 'Sit by the fire. Warm your jelly. (Everyone can hear you.)' },
+  { id: 'runa', name: 'Netmender Runa', short: 'Runa', room: FJORD, x: RUNA_X, hue: 178, range: 120, size: 1.1, accessory: 'netmender', folk: 'fjord', faces: 1, blurb: 'mends the nets and trades at her shed', shop: 'runa', hello: 'Buying or chatting? Trade is the button. (Everyone can hear you.)' },
+  { id: 'tove', name: 'Tove', short: 'Tove', room: FJORD, x: 2480, hue: 215, range: 110, size: 0.8, accessory: 'mittens', folk: 'fjord', lively: true, faces: -1, blurb: "Skaldi's granddaughter, who feeds the yeti cubs", hello: 'Are you going up the ridge? Ask me about the animals! (Everyone can hear you.)' },
+  { id: 'clio', name: 'Curator Clio', short: 'Clio', room: MUSEUM, x: 300, hue: 32, range: 80, size: 1.15, accessory: 'curator', faces: 1, blurb: 'historian of the Grand Museum · ask from anywhere in the museum', anywhere: true, hello: 'Welcome to the museum! Ask Clio anything about history. (Everyone can hear you.)' },
 ];
 export const NPC = NPCS[0]; // Elder Mochi
 export const npcIn = (c, room) => c.room === room || !!c.also?.includes(room);
@@ -481,6 +518,9 @@ export const SLAP_COOLDOWN_MS = 350;
 export const SLAP_QUIPS = {
   clio: ['Excuse me! This is a museum!', 'Ow! Please don\'t touch the curator.', 'History will remember that, you know.', 'Hmph! Security!'],
   mochi: ['Oof! Respect your elders, young one!', 'Hmph! My poor old jelly…', 'Ow! What was that for?', 'Goodness! Is that how they greet folks nowadays?'],
+  skaldi: ['Hm.', 'The cold has done worse.', 'Mind the fire, child.', 'That was unkind. Sit down.'],
+  runa: ['Hands off the nets!', "That'll cost you.", 'Hmph. Fjord manners, is it?', 'I have a needle and I know how to use it.'],
+  tove: ['Hey! Rude!', "I'm telling grandpa!", 'Ow! The yetis are nicer than you.', 'Do it again and I set Big Grumble on you.'],
   brine: ['Oi! Mind the captain, landlubber!', 'Arr, I\'ve been hit by bigger waves than you.', 'Blistering barnacles!', 'Is that how they greet sailors these days?'],
   prof: ["Ouch! That's not on the syllabus!", 'Detention!', 'Hey! Please backpropagate that.', 'Ow — I felt that in every layer!'],
 };

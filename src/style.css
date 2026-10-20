@@ -329,6 +329,22 @@ canvas {
   font-size: calc(12px * var(--s));
 }
 
+/* a character who also keeps a shop (Runa: SHOPS in src/shared/rpg.js) */
+#npc-trade[hidden] {
+  display: none;
+}
+#npc-trade {
+  align-self: center;
+  margin-right: calc(6px * var(--s));
+  height: calc(30px * var(--s));
+  padding: 0 calc(16px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #e8a54a;
+  color: #fff;
+  font: 700 calc(14px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
 #npc-close {
   align-self: flex-start;
   border: none;

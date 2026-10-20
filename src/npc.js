@@ -52,6 +52,15 @@ document.getElementById('npc-form').addEventListener('submit', (e) => {
   ui.input.value = '';
 });
 document.getElementById('npc-close').onclick = () => openChar?.close();
+// Characters who keep a shop (cfg.shop) have a Trade button: it closes the dialog and opens their shop
+const tradeButton = document.getElementById('npc-trade');
+let tradeWith = () => {};
+export const onTrade = (fn) => (tradeWith = fn);
+tradeButton.onclick = () => {
+  const shop = openChar?.cfg.shop;
+  openChar?.close();
+  if (shop) tradeWith(shop);
+};
 
 // a line from somewhere else (the chat, src/chat.js): { who, text, color } where `who` is the coloured lead-in
 export function addFeed(f) {
@@ -72,6 +81,7 @@ export class Character {
     this.slime = new Slime(cfg.hue);
     this.slime.name = cfg.name;
     this.slime.accessories = [cfg.accessory];
+    if (cfg.folk) this.slime.setFolk(cfg.folk, cfg.lively);
     this.slime.x = cfg.x;
     this.slime.y = this.ground;
     this.thinking = false;
@@ -91,6 +101,7 @@ export class Character {
     ui.name.textContent = this.cfg.name;
     ui.blurb.textContent = `${this.cfg.blurb} · everyone can hear`;
     ui.input.placeholder = `Say something to ${this.cfg.short}…`;
+    tradeButton.hidden = !this.cfg.shop;
     ui.el.hidden = false;
     this.renderLog();
     this.send({ t: 'npc-open', npc: this.cfg.id });
@@ -154,7 +165,7 @@ export class Character {
     if (!this.log.length) {
       const hint = document.createElement('p');
       hint.className = 'npc-system';
-      hint.textContent = this.cfg.id === 'mochi' ? 'Hmm? Oh — hello there, little one. Sit a while… (everyone can hear you)' : `Welcome to the museum! Ask ${this.cfg.short} anything about history. (Everyone can hear you.)`;
+      hint.textContent = this.cfg.hello ?? `Say hello to ${this.cfg.short}. (Everyone can hear you.)`;
       ui.logEl.append(hint);
     }
     for (const line of this.log) {

@@ -269,7 +269,7 @@ function drawBerg(ctx, x, y, s, seed, cold) {
 
 // The coast of an island, seen from the sea. edge: the screen x of its sea edge; side -1: it lies to the
 // left of the edge (the coast you left), 1: to the right (the one ahead). Greenhollow shows green hills and
-// the lighthouse, lit; Frostpeak black rock, snow and pines, and the ferry's jetty.
+// the lighthouse, lit; Frostpeak black rock, snow and pines, and Icefang Hamlet on its quay.
 function drawCoast(ctx, key, edge, hz, side, time) {
   ctx.save();
   const span = 1100; // how far inland the drawing goes
@@ -337,22 +337,22 @@ function drawCoast(ctx, key, edge, hz, side, time) {
     ctx.lineTo(at(260), hz - 114);
     ctx.closePath();
     ctx.fill();
-    // up the fjord, out of reach: the cracked ice bridge, and Icefang Hamlet's turf huts on a shore of ice
-    // (the fjord is frozen over, so she ties up at the ridge jetty instead: docs/places/crossings.md)
+    // up in the sky, the cracked ice bridge; at the water's edge, Icefang Hamlet's turf huts and its quay,
+    // where she ties up (the fjord thawed in atlas Phase 4: docs/places/crossings.md)
     ctx.strokeStyle = 'rgba(214,236,255,0.85)';
     ctx.lineWidth = 9;
     ctx.beginPath();
-    ctx.moveTo(at(200), hz - 128);
-    ctx.quadraticCurveTo(at(290), hz - 230, at(400), hz - 246);
-    ctx.moveTo(at(428), hz - 250);
-    ctx.quadraticCurveTo(at(560), hz - 268, at(700), hz - 300);
+    ctx.moveTo(at(260), hz - 128);
+    ctx.quadraticCurveTo(at(350), hz - 230, at(460), hz - 246);
+    ctx.moveTo(at(488), hz - 250);
+    ctx.quadraticCurveTo(at(620), hz - 268, at(760), hz - 300);
     ctx.stroke();
-    ctx.fillStyle = '#eef6ff'; // the iced-over fjord
+    ctx.fillStyle = '#dfe6f4'; // the snowy shore the huts stand on
     ctx.beginPath();
-    ctx.ellipse(at(400), base - 6, 170, 12, 0, 0, TAU);
+    ctx.ellipse(at(170), base - 6, 130, 10, 0, 0, TAU);
     ctx.fill();
-    for (let i = 0; i < 3; i++) {
-      const hx = at(330 + i * 60), hy = base - 14;
+    for (let i = 0; i < 4; i++) {
+      const hx = at(80 + i * 56), hy = base - 12;
       ctx.fillStyle = '#9b7d66';
       ctx.fillRect(hx - 14, hy - 16, 28, 16);
       ctx.fillStyle = '#7fae86'; // turf roof
@@ -363,13 +363,16 @@ function drawCoast(ctx, key, edge, hz, side, time) {
       ctx.fill();
       ctx.fillStyle = '#ffe9a8';
       ctx.fillRect(hx - 4, hy - 10, 7, 6);
-      const k = (time * 0.2 + i / 3) % 1;
+      const k = (time * 0.2 + i / 4) % 1;
       ctx.fillStyle = `rgba(236,240,250,${0.6 * (1 - k)})`;
       circle(ctx, hx + 6 - k * 10, hy - 34 - k * 40, 4 + k * 8);
     }
-    ctx.fillStyle = '#5f8a8a'; // dark pines along the shore
+    const fire = 0.6 + 0.2 * Math.sin(time * 6); // the lamp-fire, glowing among the huts
+    ctx.fillStyle = `rgba(255,200,120,${0.45 * fire})`;
+    circle(ctx, at(150), base - 22, 14);
+    ctx.fillStyle = '#5f8a8a'; // dark pines further along the shore
     for (let i = 0; i < 9; i++) {
-      const px = at(i < 4 ? 90 + i * 44 : 330 + i * 44), py = hz - 30 - (i % 3) * 8; // (a gap for the huts)
+      const px = at(300 + i * 44), py = hz - 30 - (i % 3) * 8;
       ctx.beginPath();
       ctx.moveTo(px - 12, py);
       ctx.lineTo(px, py - 34 - (i % 2) * 8);
@@ -377,10 +380,16 @@ function drawCoast(ctx, key, edge, hz, side, time) {
       ctx.closePath();
       ctx.fill();
     }
-    // the jetty, where she ties up
-    ctx.fillStyle = '#8f7a6a';
-    ctx.fillRect(Math.min(at(-40), at(160)), base - 8, 200, 6);
-    for (let i = 0; i < 5; i++) ctx.fillRect(at(i * 40 - 30) - 2, base - 8, 4, 16);
+    // the hamlet's quay, where she ties up, with its lamps lit
+    ctx.fillStyle = '#8a8fa8';
+    ctx.fillRect(Math.min(at(-40), at(200)), base - 8, 240, 8);
+    for (let i = 0; i < 3; i++) {
+      const lx = at(i * 90 - 20);
+      ctx.fillStyle = '#4e4a62';
+      ctx.fillRect(lx - 1.5, base - 26, 3, 18);
+      ctx.fillStyle = '#ffe9a8';
+      circle(ctx, lx, base - 28, 3);
+    }
   }
   ctx.fillStyle = 'rgba(255,255,255,0.7)'; // surf along its foot
   ctx.fillRect(Math.min(tip, inland), base - 2, span, 3);

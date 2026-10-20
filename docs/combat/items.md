@@ -21,10 +21,14 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   `gearE`, loot); `statsFor` adds it. `look.plus` makes swords glow (`drawEnhanceGlow`).
 - Bag → select a scroll → "Use on …" (dark scrolls ask twice).
 
-## Gold and Merchant Pip's shop
-- Mobs drop gold. Pip's stall is in the village at `SHOP_X` (E there). Buy potions and starter gear
-  (`price`, `SHOP_STOCK`, `BUY_MAX` at once); sell anything for `SELL_RATE` of its price (`sellPrice`).
-  The server only checks you're within `SHOP_RANGE` of the stall.
+## Gold and the shops
+- Mobs drop gold. Every shopkeeper is in `SHOPS` (room, x, stock): **Merchant Pip**'s stall in the village
+  at `SHOP_X` (E there; `SHOP_STOCK`, plus the Boutique), and **Netmender Runa**'s net shed at Icefang
+  Hamlet (the Trade button in her dialog: she's an AI character too, `docs/places/fjord.md`). Buy
+  (`price`, `BUY_MAX` at once); sell anything for `SELL_RATE` of its price (`sellPrice`) at either. Buy and
+  sell messages carry `shop` (default `pip`); the server checks you're near that keeper (`SHOP_RANGE`).
+- Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
+  `aim` level for the balance sheet); floe seals and snow owls drop them rarely.
 
 ## The Boutique (a shop tab)
 - The friends' signature accessories (ribbon, glasses, notes, bowtie, flute, laptop: ids `src/slime.js`
