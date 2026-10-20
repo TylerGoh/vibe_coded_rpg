@@ -98,13 +98,17 @@ export class Museum {
     this.onOpenChange(false);
   }
 
+  // (a stone of the Keeper ruins carries its own `set` to browse; see src/ruins.js)
   browse(step) {
     if (!this.reading) return;
-    const next = EXHIBITS[clamp(this.reading.index + step, 0, EXHIBITS.length - 1)];
+    const set = this.reading.set ?? EXHIBITS;
+    const next = set[clamp(this.reading.index + step, 0, set.length - 1)];
     if (next !== this.reading) this.open(next);
   }
 
   render(e) {
+    document.getElementById('sheet-ask').hidden = !!e.set; // Clio can only be asked inside the museum
+    if (e.set) return this.renderStone(e);
     const wing = MUSEUM_WINGS[e.wing];
     const theme = THEMES[wing.id];
     this.sheet.style.setProperty('--accent', theme.accent);
@@ -137,6 +141,33 @@ export class Museum {
     body.scrollTop = 0;
     document.getElementById('sheet-prev').disabled = e.index === 0;
     document.getElementById('sheet-next').disabled = e.index === EXHIBITS.length - 1;
+  }
+
+  // A Keeper stone out in the Wildwood: what it looks like, what you can still read, and an aside
+  renderStone(e) {
+    this.sheet.style.setProperty('--accent', '#7a8f5a');
+    this.sheet.classList.remove('dark');
+    const el = (tag, cls, txt) => {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (txt !== undefined) n.textContent = txt;
+      return n;
+    };
+    const body = this.sheetBody;
+    body.replaceChildren();
+    body.append(el('p', 'sheet-wing', `Keeper ruins · Bramble Woods · Stone ${e.index + 1} of ${e.set.length}`));
+    body.append(el('h2', 'sheet-title', e.title));
+    body.append(el('p', 'sheet-when', 'Carved long, long ago · read with a lot of squinting'));
+    body.append(el('p', 'sheet-summary', e.look));
+    body.append(el('h3', null, 'What you can still make out'));
+    const ul = el('ul');
+    for (const f of e.legible) ul.append(el('li', null, f));
+    body.append(ul);
+    body.append(el('h3', null, 'Also'));
+    body.append(el('p', 'sheet-legacy', e.note));
+    body.scrollTop = 0;
+    document.getElementById('sheet-prev').disabled = e.index === 0;
+    document.getElementById('sheet-next').disabled = e.index === e.set.length - 1;
   }
 
   // ——— drawing (camera applied) ———

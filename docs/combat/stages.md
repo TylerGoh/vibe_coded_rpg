@@ -5,7 +5,9 @@ Data: `src/shared/rpg.js` (`ZONES`, `HIGHLAND_ZONES`, `CALDERA_ZONES`, `CITADEL_
 
 ## The four stages (each zone's level range is its `lvl` in the data)
 1. **The Wildwood** (`FIELD`, art `src/field.js`, which also draws the village gate and every mob and item
-   icon): Sprout Meadow, Mushroom Grove, Bramble Woods. Bramblehogs are aggressive (chase on sight).
+   icon): Sprout Meadow, Mushroom Grove, Bramble Woods. Bramblehogs are aggressive (chase on sight). Bramble
+   Woods holds the Keeper ruins, and past the Highlands trail a spawn-free stretch leads to the east cliffs
+   (`docs/places/cliffs.md`).
 2. **Frostpeak Highlands** (`HIGHLANDS`, `src/highlands.js`): Frostpine Ridge, Starfall Summit.
 3. **Emberdeep Caldera** (`CALDERA`, `src/caldera.js`): Cinder Flats, Magma Heart.
 4. **Aether Citadel** (`CITADEL`, `src/citadel.js`): Cogwork Bastion, Chrono Spire.

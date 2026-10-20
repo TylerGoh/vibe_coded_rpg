@@ -14,5 +14,6 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
 - Same layout on phones: the chart is in canvas pixels × `--s`, like every overlay.
 - **No spoilers:** names and labels stay at canon Tier 0–1 plus the stage names players already see
   (`story/canon.md`). The uncharted fogs hint at the proposed side islands without naming them.
+- Greenhollow's east rim is drawn white: the east cliffs (`docs/places/cliffs.md`).
 - **Keep it in step with the story:** when an island, route or place ships (or a proposed one becomes
   real), add or un-fog it here. Positions follow the compass layout in `story/world/geography.md`.

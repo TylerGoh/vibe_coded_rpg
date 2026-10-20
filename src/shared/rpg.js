@@ -4,7 +4,8 @@
 // (server/rpg.js); the client only draws them (src/rpg.js, art in src/field.js).
 
 export const FIELD = 5; // room id (see ROOMS in sim.js)
-export const FIELD_W = 4800;
+export const FIELD_W = 5200; // the last stretch past the Highlands trail is mob-free: the briar thins out toward the sea cliffs
+export const CLIFFS_PATH_X = FIELD_W - 80; // the way out to Greenhollow's east cliffs (room CLIFFS in sim.js), at the very east end
 export const FIELD_GROUND = 450;
 export const FIELD_EXIT_X = 70; // the way back to the village, at the field's west end
 export const FIELD_GATE_X = 5030; // the gate out of the village, at its east end

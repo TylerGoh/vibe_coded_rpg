@@ -193,6 +193,12 @@ function drawChart(ctx, t, here, hue) {
   ctx.fill();
   ctx.fillStyle = '#ff7a8f';
   for (const [x, y] of [[137, 197], [143, 202], [141, 195]]) ctx.fillRect(x, y, 2.5, 2.5);
+  ctx.strokeStyle = '#f4ecdc'; // the white east cliffs, where the Wildwood ends
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.ellipse(150, 205, 68, 44, 0, -0.45, 0.35);
+  ctx.stroke();
 
   // Frostpeak: snowy, with peaks and the aurora overhead
   for (let i = 0; i < 3; i++) {

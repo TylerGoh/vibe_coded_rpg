@@ -491,6 +491,36 @@ const SONGS = {
     },
   },
 
+  // Greenhollow's east cliffs: wide, slow and a little wistful, the first look at how far everything is.
+  // Wind in the grass, a high flute line, seabirds, and the sea booming far below.
+  cliffs: {
+    bpm: 66, spb: 8, key: 64, scale: MAJOR, gain: 0.7, send: 0.45, loop: 8,
+    chords: [[1, 3, 5], [5, 7, 9], [6, 8, 10], [4, 6, 8], [1, 3, 5], [3, 5, 7], [4, 6, 8], [5, 7, 9]],
+    mel: melody(
+      '5 - - - 3 - 5 .', '7 - - - - - . .', '8 - - - 6 - 5 .', '4 - - - - - . .',
+      '5 - - - 8 - 9 .', '10 - - - 9 - 7 .', '8 - - - 6 - 4 .', '5 - - - - - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'bandpass', 800, 0.014, 0.4); // the wind over the clifftop
+      p.eng.bed(p, 'lowpass', 140, 0.01); // the sea, far below
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) pad(p, ch, t, p.stepDur * 8, 0.014, { cutoff: 1100, a: 1.2, rel: 1.4 });
+      if (s === 0) e.voice(p.c, t, p.f(ch[0], -2), { type: 'triangle', vol: 0.12, a: 0.2, hold: p.stepDur * 5, rel: 0.8, cutoff: 500 });
+      if (s % 2 === 0 && part === 1) e.voice(s % 4 ? p.r : p.l, t, p.f(ch[(s / 2) % 3], 1), { ...PLUCK, vol: 0.05 });
+      const m = p.mel(bar, s);
+      if (m) e.voice(p.c, t, p.f(m.d, 1), { type: 'sine', vol: 0.045, a: 0.12, hold: m.len * 0.8, rel: 0.5, vib: 5, vibRate: 4.5, partials: [[2, 0.12]] });
+      // a wave booming against the cliff foot now and then, and birds riding the wind
+      if (s === 0 && bar % 4 === 2) e.noiseHit(p.c, t, { type: 'lowpass', f: 180, sweep: 700, sweepT: 1.6, vol: 0.06, a: 1.4, hold: 0.3, tau: 0.9 });
+      if (s === 4 && chance(0.35)) e.bird(chance(0.5) ? p.l : p.r, t + rand(0, p.stepDur * 4), 0.014);
+      if (s === 6 && chance(0.1)) {
+        const o = chance(0.5) ? p.l : p.r;
+        for (let i = 0; i < 2; i++) e.voice(o, t + i * 0.2, 1500 - i * 140, { type: 'sine', glide: 1.3, glideT: 0.14, vol: 0.014, a: 0.01, tau: 0.09 });
+      }
+    },
+  },
+
   // Lecture hall: soft maj7 pads and a rare bell; the professor talks over it
   hall: {
     bpm: 56, spb: 8, key: 60, scale: MAJOR, gain: 0.6, send: 0.35,
@@ -1946,7 +1976,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour']; // (18: the furniture store, the cozy music box too; 19: the harbour)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // the Frostpeak Highlands

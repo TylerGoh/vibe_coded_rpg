@@ -19,7 +19,8 @@ lore, rich personal lives (`characters/people.md`).
       physics; the scroll is drawing only.
 - [ ] **A landing zone at the start of each island** (Icefang Fjord, Black Sand Shore, the Skydocks): a
       calm stretch with a hamlet and harbour, before the mobs.
-- [ ] **The Wildwood ends at sea cliffs** with the view across the water.
+- [x] **The Wildwood ends at sea cliffs** with the view across the water (room 20, the telescope; the
+      Highlands trail beside it goes in Phase 3).
 - [x] **Distant islands in every outdoor sky,** in compass direction (`world/geography.md`, `src/distant.js`).
 - [ ] Gating: the Steam Straits voyage needs the Astral Wyrm beaten (stars restored). Ask the owner
       before adding any hard gate. The game has none today, on purpose (`docs/world.md`).
@@ -30,7 +31,7 @@ lore, rich personal lives (`characters/people.md`).
 - [ ] **Mochi and Clio fed canon by tier** (`canon.md`, `delivery.md`).
 - [ ] **Boss lines:** on entering, at each phase, and when freed (`characters/bosses.md`).
 - [ ] **Rewrite flavor text** in the region's register: items, mobs, zone names, door labels.
-- [ ] **Keeper ruins** in Bramble Woods, with readable plaques.
+- [x] **Keeper ruins** in Bramble Woods, with readable plaques (four stones, Tier 1 text, `src/ruins.js`).
 
 ## 3. New places and people
 - [ ] Regional AI characters: Captain Brine (done), Old Skaldi, Forgewarden Ash, the Last Echo.

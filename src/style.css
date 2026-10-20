@@ -1114,6 +1114,10 @@ body.touch #inv {
 #hotbar[hidden] {
   display: none;
 }
+/* a Keeper stone's card, read out in the Wildwood, sits over the hotbar's spot (docs/places/cliffs.md) */
+#sheet:not([hidden]) ~ #hotbar {
+  display: none;
+}
 #skills,
 #shop {
   position: absolute;

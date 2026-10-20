@@ -35,6 +35,14 @@ export function drawDistantIslands(ctx, o) {
   }
 }
 
+// One island's landmark on its own, at (x, y = its sea line), for close-ups (the telescope on the east
+// cliffs, src/cliffs.js). o: { time, haze, fade, night, sky } as above.
+export function drawLandmark(ctx, key, x, y, s, o) {
+  const fade = o.fade ?? 0.5, haze = o.haze ?? '#f0faff';
+  const tint = (c, more = 0) => mix(c, haze, Math.max(0, Math.min(1, fade + more)));
+  ({ frost: drawFrostpeak, ember: drawEmberdeep, citadel: drawCitadel, green: drawGreenhollow })[key](ctx, x, y, s, o, tint);
+}
+
 // Frostpeak: a cluster of snowy peaks under the aurora (its landmark), faint by day
 function drawFrostpeak(ctx, x, y, s, o, tint) {
   const t = o.time, night = o.night ?? 0;

@@ -128,11 +128,12 @@ the Citadel's are machines and echoes.
      dandelion).
    - *Mushroom Grove* (4–7): mushlings. Open slot: something on the glowing threads (a firefly that
      lights up when hit).
-   - *Bramble Woods* (8–12): bramblehogs. **Keeper ruins** `[proposed]` with readable plaques. Open slot:
+   - *Bramble Woods* (8–12): bramblehogs. **Keeper ruins** (exist: four readable stones, Tier 1). Open slot:
      a stone moss-turtle near the ruins (shell AI, the first "block from the front" lesson).
    - Dens: Sprout King, Mother Mushroom, Bramble Behemoth (all exist).
-4. **The east cliffs** `[proposed vista]`: replaces the Highlands trail. No mobs. A bench, a telescope
-   (E to look: zooms on Frostpeak's aurora or Emberdeep's smoke).
+4. **The east cliffs** (exists, room 20, a vista): through a gap in the briar at the Wildwood's east end.
+   No mobs. A bench, a telescope (E to look: swings between Frostpeak, the Citadel and Emberdeep).
+   Replaces the Highlands trail once the ferry runs.
 
 ### Frostpeak (far north, Lv 12–27): quiet, dry humour at most
 1. **Icefang Fjord landing** `[proposed]`: ferry dock, the cracked ice bridge in the background.
@@ -258,8 +259,9 @@ stand-in door into an existing area.
 - [x] **Phase 1: the west end.** Greenhollow Harbour room, the lighthouse, Captain Brine as an AI
       character (shipped 2026-10-20). The ferry Puddle Jumper is moored but laid up: Brine won't sail
       while the lighthouse is dark. No door to the Highlands, by the rule above.
-- [ ] **Phase 2: the Wildwood's story.** Keeper ruins with plaques in Bramble Woods; the east cliffs vista
-      with the telescope. The Highlands trail stays until Phase 3's ferry works.
+- [x] **Phase 2: the Wildwood's story.** Keeper ruins with plaques in Bramble Woods; the east cliffs vista
+      with the telescope (shipped 2026-10-20; `docs/places/cliffs.md`). The Highlands trail stays until
+      Phase 3's ferry works.
 - [ ] **Phase 3: the crossing room.** One moving-deck room type, themed per route. First theme: the cold
       sea ferry. The patch itself lights the lighthouse (no quest, owner's call); the harbour then
       leads onto the ferry, the ferry to Frostpeak, and the Highlands trail goes.

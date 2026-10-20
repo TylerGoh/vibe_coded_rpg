@@ -131,6 +131,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/museum.md](docs/places/museum.md) | the history museum and its content |
 | [docs/places/houses.md](docs/places/houses.md) | personal houses, the furniture store, the backyard, expanding, decorating, the Players panel, invites |
 | [docs/places/harbour.md](docs/places/harbour.md) | Greenhollow Harbour, the lighthouse, the laid-up ferry, Captain Brine, the far-off islands drawn in every sky |
+| [docs/places/cliffs.md](docs/places/cliffs.md) | the Keeper ruins in Bramble Woods, Greenhollow's east cliffs, the telescope |
 | [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |
 | [docs/ui/mobile.md](docs/ui/mobile.md) | touch controls, phone layout, fullscreen, home-screen mode |
 | [docs/ui/hints.md](docs/ui/hints.md) | the on-screen prompts above your slime, any new interaction |

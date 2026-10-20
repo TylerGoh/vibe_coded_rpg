@@ -23,6 +23,7 @@ Files: `src/harbour.js` (the room, its sky and sea, and the harbour gate drawn i
   quest (owner's call). Update Brine's persona to match.
 - The Frostpeak Highlands trail in the Wildwood stays until the ferry works (never remove a back door
   before its crossing exists).
+- The telescope on the east cliffs (`docs/places/cliffs.md`) shows the same islands up close.
 
 ## Captain Brine
 An AI character like Elder Mochi (`docs/social/ai-characters.md`): he runs (well, keeps) the ferry, and you

@@ -8,7 +8,8 @@ Update this when the game changes. Source of truth for names is the code (`src/s
 |---|---|---|
 | Slimeville (village) | Greenhollow Bay village | none (the harbour gate is at the west end) |
 | Greenhollow Harbour | the west end: lighthouse, the laid-up ferry | light the lighthouse and open the ferry (atlas Phase 3) |
-| The Wildwood: Sprout Meadow, Mushroom Grove, Bramble Woods | Greenhollow's interior | Keeper ruins; sea cliffs at the east end instead of the trail |
+| The Wildwood: Sprout Meadow, Mushroom Grove, Bramble Woods | Greenhollow's interior; Keeper ruins in Bramble Woods (4 readable stones) | the Highlands trail goes once the ferry runs (Phase 3) |
+| Greenhollow's East Cliffs | the vista past the Wildwood's east end: bench, telescope, the open sea | none |
 | Frostpeak Highlands: Frostpine Ridge, Starfall Summit | Frostpeak, far north | add the Icefang Fjord landing; the ferry instead of the trail |
 | Emberdeep Caldera: Cinder Flats, Magma Heart | Emberdeep, far south | add the Black Sand Shore landing and Forgehold; a ship instead of the pass |
 | Aether Citadel: Cogwork Bastion, Chrono Spire | the Keepers' sky city | add the Skydocks; a balloon instead of the skylift |

@@ -14,10 +14,11 @@ export const DT = 1 / TICK_RATE;
 
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLANDS_DOOR_X, HIGHLAND_PLATFORMS, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLANDS_DOOR_X, HIGHLAND_PLATFORMS, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS } from './rpg.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
+export const CLIFFS = 20; // Greenhollow's east cliffs, past the end of the Wildwood (docs/places/cliffs.md)
 export { FIELD };
 
 export const PLATFORMS = [
@@ -44,6 +45,9 @@ export const STORE_EXIT_X = 90;
 export const HARBOUR_GATE_X = 60; // the way down to the harbour, at the village's west end
 export const HARBOUR_W = 2400;
 export const HARBOUR_EXIT_X = HARBOUR_W - 90; // back up to the village, at the harbour's east end
+export const CLIFFS_W = 1700;
+export const CLIFFS_EXIT_X = 80; // back into the Wildwood, at the cliffs' west end
+export const CLIFFS_SCOPE_X = 1440; // the telescope, near the edge
 export const STORE_W = 7400; // the showroom: every piece of FURNITURE on display (src/shared/house.js DISPLAY)
 
 // ——— personal houses (docs/places/houses.md) ———
@@ -148,6 +152,7 @@ export const ROOMS = [
     doors: [
       { x: FIELD_EXIT_X, w: 80, to: VILLAGE, toX: FIELD_GATE_X, label: 'back to Slimeville' },
       { x: HIGHLANDS_DOOR_X, w: 80, to: HIGHLANDS, toX: HIGHLANDS_EXIT_X, label: 'climb to the Frostpeak Highlands (Lv 13+)' },
+      { x: CLIFFS_PATH_X, w: 80, to: CLIFFS, toX: CLIFFS_EXIT_X, label: 'push through to the sea cliffs' },
       ...denDoors(FIELD),
     ],
   },
@@ -197,6 +202,16 @@ export const HARBOUR_PLATFORMS = [
 ROOMS[HARBOUR] = {
   name: 'Greenhollow Harbour', width: HARBOUR_W, ground: 470, platforms: HARBOUR_PLATFORMS,
   doors: [{ x: HARBOUR_EXIT_X, w: 80, to: VILLAGE, toX: HARBOUR_GATE_X, label: 'walk back up to Slimeville' }],
+};
+// room 20: Greenhollow's east cliffs, a vista with no mobs. The room ends at the cliff edge (a fence), and
+// `viewPad` lets the camera look that far past the east wall, out over the drop and the open sea.
+export const CLIFFS_PLATFORMS = [
+  { x: 1010, y: 418, w: 120, kind: 'bench' },
+  { x: 560, y: 360, w: 150, kind: 'rock' },
+];
+ROOMS[CLIFFS] = {
+  name: "Greenhollow's East Cliffs", width: CLIFFS_W, ground: 450, platforms: CLIFFS_PLATFORMS, viewPad: 380,
+  doors: [{ x: CLIFFS_EXIT_X, w: 80, to: FIELD, toX: CLIFFS_PATH_X, label: 'back into the Wildwood (mobs!)' }],
 };
 const houses = new Map(); // room id → its room definition
 // The room definition for any room id, houses included (undefined for an id that isn't a room)

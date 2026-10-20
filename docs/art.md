@@ -9,6 +9,6 @@
 - `src/village.js`: village scenery and the `text()` helper used across the HUD. `background.js`,
   `environment.js`, `particles.js` and `util.js` came from Slime Hop.
 - Each room or stage draws itself in its own file (named in its doc). Stage files paint their own sky,
-  and every outdoor sky also calls `drawDistantIslands` (`src/distant.js`, `docs/places/harbour.md`) so the
+  and every outdoor sky (the east cliffs too) also calls `drawDistantIslands` (`src/distant.js`, `docs/places/harbour.md`) so the
   other islands show far off in their compass direction. A new outdoor room must call it too.
 - A new AI character or friend accessory needs its drawing in `src/slime.js`.

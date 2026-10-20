@@ -13,10 +13,12 @@
    - *Sprout Meadow*: open grassland, the Sprout King's little "kingdom" of hopping sprouts.
    - *Mushroom Grove*: damp lowland where the mycelium net surfaces. Faint glowing threads run into
      the ground and, in the story, under the sea.
-   - *Bramble Woods*: thorn thicket climbing to the ridge. Inside it are **Keeper ruins**: mossy standing
-     stones with gear-shaped carvings, the first clue that someone else lived here once.
-4. **Greenhollow's east cliffs** `[proposed]`: the Wildwood ends at sea cliffs instead of a trail to the
-   Highlands. From the top you see open water in every direction, with Frostpeak far north and smoke far
+   - *Bramble Woods*: thorn thicket climbing to the ridge. Inside it are **Keeper ruins** (exist): mossy
+     standing stones with gear-shaped carvings, the first clue that someone else lived here once. Four
+     can be read: the Waystone, the Fallen Gate, the Roll of Keepers (one row, an hourglass, scratched
+     out on purpose) and the Root Stone (a carved tree whose roots run off the stone).
+4. **Greenhollow's east cliffs** (exist): the Wildwood ends at sea cliffs; the trail to the
+   Highlands beside them goes when the ferry runs. From the top you see open water in every direction, with Frostpeak far north and smoke far
    south. *This is the moment the player realises how far everything is.*
 
 ## People

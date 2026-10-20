@@ -17,7 +17,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, HIGHLANDS, HIGHLANDS_DOOR_X, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE } from './shared/rpg.js';
+import { FIELD, CLIFFS_PATH_X, HIGHLANDS, HIGHLANDS_DOOR_X, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE } from './shared/rpg.js';
 import { drawHighlands, drawHighlandsTrail } from './highlands.js';
 import { drawCaldera, drawCalderaPass } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
@@ -32,9 +32,11 @@ import { Players } from './players.js';
 import { Chat } from './chat.js';
 import { WorldMap } from './worldmap.js';
 import { drawHarbour } from './harbour.js';
+import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
+import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
-import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR } from './shared/sim.js';
+import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X } from './shared/sim.js';
 
 const canvas = document.getElementById('game');
 const stage = document.getElementById('stage');
@@ -261,6 +263,7 @@ const characters = new Map(NPCS.map((cfg) => [cfg.id, new Character(cfg, {
 })]));
 const charsHere = () => [...characters.values()].filter((c) => c.cfg.room === room);
 const museum = new Museum({ onOpenChange: () => held.clear() });
+const scope = new Telescope(); // the telescope on the east cliffs (src/cliffs.js)
 // Clio can be asked from anywhere in the museum (Q, the Ask button, or a fact sheet's "Ask Clio")
 const askClio = (prefill = '') => {
   museum.close();
@@ -669,6 +672,7 @@ canvas.addEventListener('pointerdown', (e) => {
   audio.unlock();
   if (!online() || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || e.button > 0) return;
   const r = canvas.getBoundingClientRect();
+  if (scope.isOpen) return scope.tap((e.clientX - r.left) / r.width); // looking through the telescope
   const worldX = camX + ((e.clientX - r.left) / r.width) * W;
   if (houses.editing) return houses.pointer('down', worldX, ((e.clientY - r.top) / r.height) * H); // decorating: put down / pick up
   slapToward(Math.sign(worldX - mine.x) || mine.facing);
@@ -807,6 +811,14 @@ addEventListener('keydown', (e) => {
     else if (e.code === 'ArrowRight' || e.code === 'KeyD') museum.browse(1);
     return;
   }
+  if (scope.isOpen) {
+    // looking through the telescope: ← → swing it, Esc or E steps back
+    e.preventDefault();
+    if (e.code === 'Escape' || (e.code === 'KeyE' && !e.repeat)) scope.close();
+    else if (!e.repeat && (e.code === 'ArrowLeft' || e.code === 'KeyA')) scope.turn(-1);
+    else if (!e.repeat && (e.code === 'ArrowRight' || e.code === 'KeyD')) scope.turn(1);
+    return;
+  }
   if (e.code === 'KeyH' && !e.repeat && menu.hidden && room === HALL && online()) {
     e.preventDefault();
     hall.toggleHand(profile.name);
@@ -843,6 +855,17 @@ addEventListener('keydown', (e) => {
     museum.open();
     return;
   }
+  if (e.code === 'KeyE' && !e.repeat && menu.hidden && room === FIELD && online() && ruinStoneAt(net.me)) {
+    e.preventDefault();
+    museum.open(ruinStoneAt(net.me)); // a Keeper stone, on the museum's fact-sheet card
+    return;
+  }
+  if (e.code === 'KeyE' && !e.repeat && menu.hidden && room === CLIFFS && online() && scopeNear(net.me)) {
+    e.preventDefault();
+    held.clear();
+    scope.show();
+    return;
+  }
   if (e.code === 'Escape') {
     e.preventDefault();
     toggleMenu();
@@ -874,6 +897,7 @@ addEventListener('keyup', (e) => held.delete(e.code));
 addEventListener('blur', () => held.clear());
 const keys = () => {
   if (mine && splatted(mine)) return 0; // the server ignores us until we wake up anyway
+  if (scope.isOpen) return 0; // standing still at the telescope
   let k = 0;
   for (const c of held) k |= KEYMAP[c];
   if (moveSteps > 0) {
@@ -911,10 +935,11 @@ function update(realDt) {
   const newRoom = online() ? net.me.room : VILLAGE;
   if (newRoom !== room) {
     room = newRoom;
-    camX = clamp((online() ? net.me.x : 0) - W / 2, 0, roomDef(room).width - W); // no panning across rooms
+    camX = clamp((online() ? net.me.x : 0) - W / 2, 0, roomDef(room).width + (roomDef(room).viewPad ?? 0) - W); // no panning across rooms
     particles.list = [];
     hall.closeAsk();
     museum.close();
+    scope.close();
     courseMenu.close();
     courseMenu.myVote = null;
     shop.close();
@@ -949,6 +974,7 @@ function update(realDt) {
 
   for (const c of characters.values()) c.update(dt, online() && room === c.cfg.room ? mine : null);
   if (room === MUSEUM) museum.update(dt, online() ? net.me : null);
+  if (scope.isOpen) scope.update(dt);
   tutor.update(dt, online() && room === TUTOR);
   players.showCard();
   chat.update(dt);
@@ -982,7 +1008,7 @@ function update(realDt) {
     focusX = WORLD_W / 2 + Math.sin(time * 0.08) * (WORLD_W / 2 - W / 2); // slow pan behind the title
     preview.animate(dt, { x: 0, y: 0, vx: 0, vy: 0, grounded: true, facing: 1 });
   }
-  const target = clamp(focusX - W / 2, 0, roomDef(room).width - W);
+  const target = clamp(focusX - W / 2, 0, roomDef(room).width + (roomDef(room).viewPad ?? 0) - W); // viewPad: the cliffs look out past their edge
   camX += (target - camX) * (joined ? Math.min(1, dt * 8) : 1);
   particles.update(dt);
 }
@@ -1054,13 +1080,15 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 // could walk up to (src/hints.js). E does one thing at a time, in the same order as the keydown handler.
 const BEACON_RANGE = 420;
 function drawHints() {
-  if (!online() || splatted(mine) || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || houses.editing) return;
+  if (!online() || splatted(mine) || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || houses.editing) return;
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);
   if (talk) acts.push({ key: 'E', label: `talk to ${talk.cfg.name}` });
   else if (nearShop()) acts.push({ key: 'E', label: 'shop with Merchant Pip' });
   else if (room === MUSEUM && museum.near) acts.push({ key: 'E', label: `read: ${museum.near.title.length > 34 ? museum.near.title.slice(0, 32) + '…' : museum.near.title}` });
+  else if (room === FIELD && ruinStoneAt(me)) acts.push({ key: 'E', label: `read ${ruinStoneAt(me).name}` });
+  else if (room === CLIFFS && scopeNear(me)) acts.push({ key: 'E', label: 'look through the telescope' });
   else if (room === STORE && store.near && !store.isOpen) acts.push({ key: 'E', label: `buy the ${FURNITURE[store.near.k].name.toLowerCase()} (${FURNITURE[store.near.k].price.toLocaleString('en-US')} gold)` });
   else if (alchemy.prompt(room, me)) acts.push({ key: 'E', label: alchemy.prompt(room, me) });
   else if (door) acts.push({ key: 'E', label: door.label });
@@ -1075,6 +1103,8 @@ function drawHints() {
   for (const d of roomDef(room).doors) far.push({ x: d.x, y: roomDef(room).ground - (isHouse(room) ? 186 : 190), near: d === door }); // above door signs
   for (const c of charsHere()) far.push({ x: c.slime.x, y: c.slime.y - c.slime.h * c.cfg.size - 52, near: c.near });
   if (room === VILLAGE) far.push({ x: SHOP_X + 20, y: ROOMS[VILLAGE].ground - 120, near: nearShop() });
+  if (room === FIELD) for (const st of RUIN_STONES) far.push({ x: st.x, y: ROOMS[FIELD].ground - 180, near: st === ruinStoneAt(me) });
+  if (room === CLIFFS) far.push({ x: CLIFFS_SCOPE_X, y: ROOMS[CLIFFS].ground - 110, near: scopeNear(me) });
   far.filter((b) => !b.near && Math.abs(b.x - me.x) < BEACON_RANGE).sort((a, b) => Math.abs(a.x - me.x) - Math.abs(b.x - me.x)).slice(0, 2)
     .forEach((b) => drawBeacon(ctx, b.x, b.y, 'E', clamp((BEACON_RANGE - Math.abs(b.x - me.x)) / 120, 0, 1), time, TOUCH));
 }
@@ -1093,6 +1123,8 @@ function render() {
     const near = (x) => Math.abs(x - camX - W / 2) < W / 2 + 160;
     if (room === FIELD) {
       drawField(ctx, camX, W, time);
+      drawRuins(ctx, camX - 80, camX + W + 80, time, online() ? ruinStoneAt(net.me) : null);
+      if (near(CLIFFS_PATH_X)) drawCliffsPath(ctx, CLIFFS_PATH_X, ROOMS[FIELD].ground, time);
       if (near(HIGHLANDS_DOOR_X)) drawHighlandsTrail(ctx, HIGHLANDS_DOOR_X, ROOMS[FIELD].ground, time);
     } else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
@@ -1106,6 +1138,7 @@ function render() {
   else if (isHouse(room)) houses.draw(ctx, room, time, houses.isMine(room));
   else if (room === STORE) store.draw(ctx, camX, W, time);
   else if (room === HARBOUR) drawHarbour(ctx, camX, W, time);
+  else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
   else drawVillage(ctx, camX, W, time);
   if (room === VILLAGE && Math.abs(SHOP_X - camX - W / 2) < W / 2 + 80) {
     merchant.draw(ctx);
@@ -1156,6 +1189,7 @@ function render() {
     ctx.restore();
   }
   ctx.restore();
+  if (scope.isOpen) scope.draw(ctx, time, TOUCH);
 
   if (joined) {
     const n = slimes.size + (net.id !== null ? 1 : 0);
@@ -1180,6 +1214,7 @@ function render() {
     }
     else if (status === 'online' && room === STORE) drawPill(16, 14, 260, `Furniture Store · ${here} shopper${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === HARBOUR) drawPill(16, 14, 300, `Greenhollow Harbour · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === CLIFFS) drawPill(16, 14, 300, `The East Cliffs · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && isHouse(room)) {
       drawPill(16, 14, 260, `${houses.title(room, houses.isMine(room))} · ${here} slime${here === 1 ? '' : 's'}`);
     }
@@ -1196,7 +1231,7 @@ function render() {
     if (status === 'online') alchemy.drawBuff(ctx, 128);
     const a = clamp(1 - (hintTime - 8) / 1.5, 0, 1);
     if (!museum.isOpen && !chat.isOpen) drawFeed(ctx, TOUCH ? H - 112 : a > 0 ? H - 56 : isCombat(room) ? H - 72 : H - 14, TOUCH ? 520 : isCombat(room) ? 300 : 620); // on touch, above the controls; above the hotbar
-    if (a > 0) {
+    if (a > 0 && !scope.isOpen) {
       ctx.globalAlpha = a;
       drawPill(W / 2 - 380, TOUCH ? 140 : H - 48, 760, TOUCH ? '◀ ▶  walk  ·  Jump  ·  E  doors, talk, read  ·  tap the game  slap  ·  Menu' : '← → / A D  walk  ·  ↑ / W / Space  jump  ·  E  use  ·  click  slap  ·  I  bag  ·  K  skills  ·  P  players  ·  M  mic  ·  Esc  menu');
       ctx.globalAlpha = 1;
@@ -1228,7 +1263,7 @@ function render() {
 }
 
 // For tests and troubleshooting: open the game with #debug to reach its internals from the console.
-if (location.hash === '#debug') window.slimeville = { chat, net, voice, characters, museum, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, players, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
+if (location.hash === '#debug') window.slimeville = { chat, net, voice, characters, museum, scope, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, players, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
 
 let last = performance.now();
 function frame(now) {
