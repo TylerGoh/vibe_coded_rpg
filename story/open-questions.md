@@ -18,6 +18,3 @@ For the owner to decide, or for later sessions to explore. Move an answer into `
 - Is the floor piano Keeper-made? (A musical instrument that "sings across water" would fit.)
 - Should real players (the `VILLAGERS`) appear in songs and legends? Fun, but ask each friend.
 - Names to confirm: Pangelea, the Glass Sea, Greenhollow, the Tidewheel, Pell.
-- How does the lighthouse get lit (atlas Phase 3, which opens the ferry)? Ideas: a group event where
-  players bring oil from the Wildwood and polish the lens; Granny Wicks comes back; Mother Mushroom's
-  glowing threads light it after she's freed. Ask the owner.

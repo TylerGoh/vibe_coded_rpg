@@ -19,7 +19,8 @@ Files: `src/harbour.js` (the room, its sky and sea, and the harbour gate drawn i
 - **The ferry is shown but can't be boarded** (owner's rule: the next phase shows but doesn't open, see
   `Agent.md`). The in-world reason: Brine won't sail while the lighthouse is dark, and nobody has lit it
   since its keeper moved inland. The gangway is hauled up and the notice says so. There's no door. When the
-  crossing room ships (atlas Phase 3), lighting the lamp is the natural way to open it.
+  crossing room ships (atlas Phase 3), that update simply lights the lamp and the ferry runs: no unlock
+  quest (owner's call). Update Brine's persona to match.
 - The Frostpeak Highlands trail in the Wildwood stays until the ferry works (never remove a back door
   before its crossing exists).
 

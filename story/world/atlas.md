@@ -261,8 +261,8 @@ stand-in door into an existing area.
 - [ ] **Phase 2: the Wildwood's story.** Keeper ruins with plaques in Bramble Woods; the east cliffs vista
       with the telescope. The Highlands trail stays until Phase 3's ferry works.
 - [ ] **Phase 3: the crossing room.** One moving-deck room type, themed per route. First theme: the cold
-      sea ferry. Lighting the lighthouse opens it (how: `../open-questions.md`); the harbour then leads
-      onto the ferry, the ferry to Frostpeak, and the Highlands trail goes.
+      sea ferry. The patch itself lights the lighthouse (no quest, owner's call); the harbour then
+      leads onto the ferry, the ferry to Frostpeak, and the Highlands trail goes.
 - [ ] **Phase 4: Frostpeak's front.** Icefang Fjord landing and Icefang Hamlet (Old Skaldi, Runa, Tove),
       fjord-folk slime look, the cracked ice bridge. Fill Frostpeak's open mob slots.
 - [ ] **Phase 5: the south.** The Steam Straits crossing, Black Sand Shore with the springs, Forgehold

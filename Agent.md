@@ -91,6 +91,8 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 - **Built in phases; the next one shows but doesn't open.** A place the next phase delivers (the ferry, a
   crossing, an island) is visible but blocked by an in-world reason (a barricade, a laid-up ship, a
   character's refusal), never a "coming soon" sign and never a stand-in door into an existing area.
+  When the phase ships, the update itself lifts the block (the light is lit, the barricade gone): no
+  unlock quest or event.
 - **NPCs serve a purpose AND are chattable**, like Elder Mochi: a DeepSeek persona with per-player memory
   (`docs/social/ai-characters.md`). Keep what each one knows of the lore narrow (usually canon Tier 0 plus
   their trade) so the story stays hidden, and lean into their personal lives instead.
