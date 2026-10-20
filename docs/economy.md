@@ -1,0 +1,57 @@
+# Economy and scaling: the balance sheet
+
+**Read this before adding or changing anything that gives or costs gold, EXP or power**: a mob, a boss, a
+drop table, a shop price, a cosmetic, a house size, a skill number, the EXP curve. Then run
+`npm run economy` (`scripts/economy.mjs`) and paste what changed in its tables into your reply.
+
+The script works everything out from the live constants (`MOBS`, `SPAWNS`, `ITEMS`, `SHOP_STOCK`,
+`SELL_RATE`, `COSMETICS`, `HOUSE_SIZES`, `expToNext`), so this doc holds the method, the targets and the
+owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1 when a check fails.
+
+## What the script prints
+- **Faucets, mobs**: per kill: EXP, gold picked up, what the other drops sell for, rare gear sold, gold
+  per EXP, and kills per level at the mob's own level.
+- **Faucets, bosses**: the same per kill, and how many minutes of ordinary farming one kill is worth.
+- **Progress**: for a player farming mobs at their own level (`KILLS_PER_MIN`, mobs only, no bosses):
+  gold a minute, play time to reach a level, and **gold earned by then** (the key number for pricing).
+- **Sinks**: every price, the level whose lifetime farming gold first reaches it, and for sinks with an
+  `aim` level: what share of the gold earned by that level it costs. Furniture has its own table: price,
+  size, first affordable level, and minutes of farming at two levels, plus what one of every piece costs.
+- **Checks**: aimed sinks cost between `AIM_MIN` and `AIM_MAX` of the gold earned by their aim level;
+  house sizes get dearer; furniture: every piece priced, a piece 4× the size of another (rugs aside) never
+  cheaper, one of every piece costing between the gold earned by `SET_FROM` and `SET_TO`; nothing in the shop sells for what it costs; no mob is a gold farm (far more
+  gold per EXP than its neighbours).
+
+## How to price something new
+1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
+2. Read "gold earned by then" for that level and price it at roughly half to three quarters of it: a real
+   goal, but not everything they have (potions keep costing). Add the `aim` to the data when the item
+   lives in a list the script reads (like `HOUSE_SIZES`); otherwise add it to the script's sinks list.
+3. Something meant only for players who farm bosses (a prestige item) gets no `aim`: price it against
+   the boss rows (a few dozen late-boss kills), and say so in a comment.
+4. Re-run the script and keep the checks green. If you have to break a target, write down why here.
+
+## How to scale a new mob, boss or stage
+- Gold per EXP falls smoothly from the first stage to the last; a new mob should land between its
+  neighbours by level. Kills per level stay roughly flat (a handful), so levels come at a steady pace.
+- Drops are mostly gold and materials (sold at `SELL_RATE`); gear drops are rare. Bosses drop a lot more
+  (see their "vs 1 min farming" column) because the fight is hard and the loot is shared, one set per kill.
+- A stage's shop prices and the next house size should be reachable around the levels that stage is for
+  (its `ZONES` level ranges).
+
+## What the numbers say (snapshot 2026-10-20, re-run for the current state)
+- **Mob farming is balanced and smooth.** Gold per EXP falls steadily from the Wildwood to the Citadel
+  and kills per level stay flat. The Progress table's play times assume `KILLS_PER_MIN` at every level,
+  which is optimistic late on (late mobs have far more HP), so they're a lower bound; "gold earned by
+  then" doesn't depend on the kill rate.
+- **Bosses are the real faucet, and their gear is the biggest part of it.** A late boss's unique gear
+  sells to Pip for many minutes of farming (gear prices climb steeply and `SELL_RATE` applies to them
+  too), and bosses respawn every `BOSS_RESPAWN_MS`. Real saves show it: most players hold a few thousand
+  gold, but one who farmed bosses far past the last stage's levels holds millions.
+- **Until houses, there was almost nothing to spend gold on** once you had stage-one gear: shop gear tops
+  out early, potions are cheap next to late income, and the Boutique is pocket change. House sizes
+  (`HOUSE_SIZES`) and furniture (bought one piece at a time at the furniture store, big pieces dear)
+  are the first sinks that scale with the whole game, ending in a prestige house size for boss farmers.
+- **Ideas if gold keeps piling up** (not done, ask the owner first): sell boss gear for less than other
+  items (its own sell rate), more prestige sinks (furniture colours, garden extras, cosmetics with a
+  late-game price), or a gold cost on scroll re-tries.

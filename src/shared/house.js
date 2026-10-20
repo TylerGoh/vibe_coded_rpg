@@ -1,0 +1,193 @@
+// Docs: docs/places/houses.md
+// Personal houses, shared by the browser and the server: house sizes (bought bigger with gold), the
+// furniture catalogue, wallpapers and floors, the layout format, and the platforms furniture makes (so you
+// can hop onto a bed or a bookshelf). A layout is { size, wall, floor, items: [{ k, x, y, f }] }: size an
+// index into HOUSE_SIZES (only the server changes it, when you pay), k a FURNITURE id, x its centre, y its
+// bottom (world px), f flipped. Items are drawn in their layer order (rugs, wall things, then the rest)
+// and, within a layer, in array order. Drawings: src/house.js.
+import { HOUSE_GROUND } from './sim.js';
+
+// Every house is an open-plan inside (x 0 → inside, big picture windows onto the sky) with a backyard
+// right behind it (inside → inside + yard). Bigger sizes cost gold, paid once to expand for good; prices
+// are set against the economy balance sheet (docs/economy.md, npm run economy): `aim` is the level whose
+// lifetime farming gold the price is checked against. No aim: a prestige size for big boss farmers.
+export const HOUSE_SIZES = [
+  { name: 'Cottage', inside: 960, yard: 720, pieces: 60, price: 0 },
+  { name: 'Cozy Home', inside: 1280, yard: 960, pieces: 80, price: 2000, aim: 12 },
+  { name: 'Family House', inside: 1600, yard: 1200, pieces: 100, price: 8000, aim: 22 },
+  { name: 'Manor', inside: 1920, yard: 1440, pieces: 120, price: 30000, aim: 40 },
+  { name: 'Estate', inside: 2400, yard: 1680, pieces: 150, price: 80000, aim: 65 },
+  { name: 'Grand Estate', inside: 2880, yard: 2080, pieces: 180, price: 400000 },
+];
+export const sizeOf = (layout) => HOUSE_SIZES[layout?.size] ?? HOUSE_SIZES[0];
+export const houseWidth = (layout) => sizeOf(layout).inside + sizeOf(layout).yard;
+export const WALL_TOP = 64; // below the ceiling beams: wall things hang between here and the floor
+
+// Furniture is bought at the furniture store in the village (src/store.js), one piece at a time, and
+// stays yours: putting a piece away in the decorate panel keeps it for later. `price` scales with how big
+// and grand a piece is (little things are pocket money, the piano and the garden tree are long-term goals;
+// see docs/economy.md); `sec` is its section in the store's showroom.
+// layer: 'rug' lies on the floor, behind everything · 'wall' hangs anywhere on the wall (inside only: the
+// yard has no wall) · 'floor' stands on the floor (or the grass) or on top of other furniture. top: the
+// height of its flat top, which becomes a one-way platform you can stand (and put things) on.
+export const FURNITURE = {
+  bed: { name: 'Bed', price: 8000, sec: 'Bedroom', w: 150, h: 70, layer: 'floor', top: 44 },
+  sofa: { name: 'Sofa', price: 6000, sec: 'Living room', w: 140, h: 66, layer: 'floor', top: 34 },
+  armchair: { name: 'Armchair', price: 1200, sec: 'Living room', w: 76, h: 70, layer: 'floor', top: 34 },
+  beanbag: { name: 'Beanbag', price: 450, sec: 'Living room', w: 70, h: 40, layer: 'floor', top: 30 },
+  table: { name: 'Table', price: 900, sec: 'Living room', w: 120, h: 60, layer: 'floor', top: 60 },
+  chair: { name: 'Chair', price: 300, sec: 'Living room', w: 44, h: 74, layer: 'floor', top: 34 },
+  dresser: { name: 'Dresser', price: 2500, sec: 'Bedroom', w: 100, h: 80, layer: 'floor', top: 80 },
+  bookshelf: { name: 'Bookshelf', price: 7000, sec: 'Bedroom', w: 92, h: 160, layer: 'floor', top: 160 },
+  fireplace: { name: 'Fireplace', price: 18000, sec: 'Living room', w: 140, h: 130, layer: 'floor', top: 112 },
+  piano: { name: 'Piano', price: 25000, sec: 'Living room', w: 120, h: 96, layer: 'floor', top: 96 },
+  lamp: { name: 'Floor lamp', price: 500, sec: 'Living room', w: 40, h: 124, layer: 'floor' },
+  plant: { name: 'Plant', price: 150, sec: 'Little things', w: 44, h: 64, layer: 'floor' },
+  tree: { name: 'Potted tree', price: 1500, sec: 'Bedroom', w: 70, h: 136, layer: 'floor' },
+  tablelamp: { name: 'Table lamp', price: 200, sec: 'Little things', w: 30, h: 44, layer: 'floor' },
+  teapot: { name: 'Teapot', price: 120, sec: 'Little things', w: 40, h: 30, layer: 'floor' },
+  cake: { name: 'Cake', price: 150, sec: 'Little things', w: 40, h: 34, layer: 'floor' },
+  fishbowl: { name: 'Fishbowl', price: 300, sec: 'Little things', w: 40, h: 38, layer: 'floor' },
+  plushie: { name: 'Slime plush', price: 250, sec: 'Little things', w: 38, h: 36, layer: 'floor' },
+  books: { name: 'Books', price: 100, sec: 'Little things', w: 42, h: 30, layer: 'floor' },
+  rug: { name: 'Rug', price: 1000, sec: 'Living room', w: 220, h: 10, layer: 'rug' },
+  painting: { name: 'Painting', price: 600, sec: 'On the wall', w: 80, h: 60, layer: 'wall' },
+  window: { name: 'Window', price: 800, sec: 'On the wall', w: 96, h: 96, layer: 'wall' },
+  clock: { name: 'Clock', price: 400, sec: 'On the wall', w: 46, h: 58, layer: 'wall' },
+  mirror: { name: 'Mirror', price: 500, sec: 'On the wall', w: 56, h: 80, layer: 'wall' },
+  shelf: { name: 'Wall shelf', price: 450, sec: 'On the wall', w: 110, h: 18, layer: 'wall', top: 18 },
+  bunting: { name: 'Bunting', price: 300, sec: 'On the wall', w: 170, h: 40, layer: 'wall' },
+  // for the garden (they work inside too)
+  bench: { name: 'Garden bench', price: 2000, sec: 'Garden', w: 120, h: 56, layer: 'floor', top: 30 },
+  flowerbed: { name: 'Flower bed', price: 600, sec: 'Garden', w: 110, h: 40, layer: 'floor' },
+  hedge: { name: 'Hedge', price: 800, sec: 'Garden', w: 100, h: 62, layer: 'floor', top: 58 },
+  birdbath: { name: 'Birdbath', price: 900, sec: 'Garden', w: 50, h: 62, layer: 'floor' },
+  lamppost: { name: 'Lamp post', price: 1200, sec: 'Garden', w: 34, h: 150, layer: 'floor' },
+  oak: { name: 'Garden tree', price: 30000, sec: 'Garden', w: 170, h: 240, layer: 'floor', top: 170 },
+  swing: { name: 'Swing', price: 12000, sec: 'Garden', w: 110, h: 170, layer: 'floor' },
+  pond: { name: 'Pond', price: 10000, sec: 'Garden', w: 160, h: 12, layer: 'rug' },
+};
+export const LAYERS = ['rug', 'wall', 'floor'];
+
+export const WALLPAPERS = [
+  { name: 'Peach', base: '#ffe9dc', pattern: '#ffd9c7', kind: 'stripes' },
+  { name: 'Mint', base: '#e3f6ea', pattern: '#cfeedb', kind: 'dots' },
+  { name: 'Lilac', base: '#efe6ff', pattern: '#e0d2fb', kind: 'diamonds' },
+  { name: 'Sky', base: '#e2f1ff', pattern: '#cfe6fb', kind: 'stripes' },
+  { name: 'Lemon', base: '#fff6d6', pattern: '#fbeab3', kind: 'dots' },
+  { name: 'Rose', base: '#ffe3ec', pattern: '#fbd0de', kind: 'hearts' },
+  { name: 'Night', base: '#3d3a5c', pattern: '#4a4670', kind: 'stars' },
+];
+export const FLOORS = [
+  { name: 'Honey wood', a: '#d9a46c', b: '#c99360' },
+  { name: 'Pale wood', a: '#ead2ae', b: '#dcc196' },
+  { name: 'Dark wood', a: '#9c6b4e', b: '#8a5d43' },
+  { name: 'Mint tiles', a: '#cdebd9', b: '#b8dfc8' },
+  { name: 'Pink tiles', a: '#f6d3df', b: '#ecbfd0' },
+];
+
+// What a brand-new house looks like, so it feels like home before you decorate
+export const DEFAULT_LAYOUT = {
+  size: 0, wall: 0, floor: 0,
+  items: [
+    { k: 'clock', x: 160, y: 250, f: false },
+    { k: 'rug', x: 470, y: HOUSE_GROUND, f: false },
+    { k: 'bed', x: 800, y: HOUSE_GROUND, f: true },
+    { k: 'plushie', x: 830, y: HOUSE_GROUND - 44, f: true },
+    { k: 'table', x: 470, y: HOUSE_GROUND, f: false },
+    { k: 'teapot', x: 450, y: HOUSE_GROUND - 60, f: false },
+    { k: 'chair', x: 380, y: HOUSE_GROUND, f: false },
+    { k: 'plant', x: 200, y: HOUSE_GROUND, f: false },
+    { k: 'lamp', x: 640, y: HOUSE_GROUND, f: false },
+    { k: 'birdbath', x: 1300, y: HOUSE_GROUND, f: false },
+    { k: 'flowerbed', x: 1100, y: HOUSE_GROUND, f: false },
+  ],
+};
+
+// What a brand-new house owns: exactly the pieces it starts with
+export const STARTER = (() => {
+  const own = {};
+  for (const it of DEFAULT_LAYOUT.items) own[it.k] = (own[it.k] ?? 0) + 1;
+  return own;
+})();
+// How many of each piece a layout uses
+export function placed(layout) {
+  const n = {};
+  for (const it of layout?.items ?? []) n[it.k] = (n[it.k] ?? 0) + 1;
+  return n;
+}
+// Owned counts from the wire (or the DB), made safe: known pieces, whole numbers
+export function cleanOwned(o) {
+  const out = {};
+  for (const [k, v] of Object.entries(o ?? {})) if (FURNITURE[k] && v > 0) out[k] = Math.min(999, Math.floor(v));
+  return out;
+}
+
+const clampN = (v, lo, hi) => Math.min(hi, Math.max(lo, Math.round(Number(v) || 0)));
+const index = (v, n) => clampN(v, 0, n - 1);
+
+// A layout from the wire (or the DB), made safe: known pieces only, inside the house (wall things on the
+// wall), at most its size's `pieces`, and (given `owned`) no more of a piece than its owner has bought
+export function cleanLayout(l, owned) {
+  const size = index(l?.size, HOUSE_SIZES.length), { inside, pieces } = HOUSE_SIZES[size], width = houseWidth({ size });
+  const items = [], used = {};
+  for (const it of Array.isArray(l?.items) ? l.items : []) {
+    const def = FURNITURE[it?.k];
+    if (!def || items.length >= pieces) continue;
+    if (owned && (used[it.k] = (used[it.k] ?? 0) + 1) > (owned[it.k] ?? 0)) continue;
+    items.push({
+      k: it.k,
+      x: clampN(it.x, def.w / 2, (def.layer === 'wall' ? inside : width) - def.w / 2),
+      y: def.layer === 'floor' ? clampN(it.y, WALL_TOP + def.h, HOUSE_GROUND) : def.layer === 'rug' ? HOUSE_GROUND : clampN(it.y, WALL_TOP + def.h, HOUSE_GROUND - 20),
+      f: !!it.f,
+    });
+  }
+  return { size, wall: index(l?.wall, WALLPAPERS.length), floor: index(l?.floor, FLOORS.length), items: settle(items) };
+}
+
+// Nothing floats: a piece whose support was moved away drops onto whatever is below it (or the floor).
+// Lowest pieces first, so a stack falls together.
+function settle(items) {
+  const order = items.filter((it) => FURNITURE[it.k].layer === 'floor').sort((a, b) => b.y - a.y);
+  for (const it of order) {
+    if (it.y >= HOUSE_GROUND) continue;
+    let y = HOUSE_GROUND;
+    for (const o of items) {
+      const d = FURNITURE[o.k];
+      if (o === it || !d.top || Math.abs(o.x - it.x) > d.w / 2 - 6) continue;
+      const top = o.y - d.top;
+      if (top >= it.y && top < y && o.y > it.y) y = top;
+    }
+    it.y = y;
+  }
+  return items;
+}
+
+// What a layout makes of its room (for sim.js setHouseRoom): its width, and the one-way platforms on top
+// of its furniture
+export function houseRoom(layout) {
+  const platforms = [];
+  for (const it of layout.items) {
+    const def = FURNITURE[it.k];
+    if (def.top) platforms.push({ x: it.x - def.w / 2 + 6, y: it.y - def.top, w: def.w - 12, kind: 'furniture' });
+  }
+  return { width: houseWidth(layout), platforms };
+}
+
+// Where a piece being carried would land with the pointer at (px, py): wall things hang where you point,
+// rugs lie on the floor, and the rest stand on the highest furniture top (or the floor) at or below the
+// pointer. layout: the house (its items: the other pieces).
+export function snapPlacement(k, px, py, { size, items }) {
+  const def = FURNITURE[k];
+  const x = clampN(px, def.w / 2, (def.layer === 'wall' ? HOUSE_SIZES[size].inside : houseWidth({ size })) - def.w / 2);
+  if (def.layer === 'rug') return { x, y: HOUSE_GROUND };
+  if (def.layer === 'wall') return { x, y: clampN(py + def.h / 2, WALL_TOP + def.h, HOUSE_GROUND - 20) };
+  let y = HOUSE_GROUND;
+  for (const it of items) {
+    const o = FURNITURE[it.k];
+    if (!o.top || Math.abs(it.x - x) > o.w / 2 - 6) continue;
+    const top = it.y - o.top;
+    if (top >= py - 24 && top < y && top - def.h >= WALL_TOP) y = top;
+  }
+  return { x, y };
+}

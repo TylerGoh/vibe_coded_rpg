@@ -1,0 +1,19 @@
+[Unit]
+Description=Slimeville multiplayer village (node server + WebSocket on 127.0.0.1:3002)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/tylergoh/rpg
+# Cloudflare TURN key for voice chat relay (optional; see server/turn.js). Not in the repo: secrets.
+EnvironmentFile=-%h/.config/rpg/turn.env
+# DeepSeek API key for Elder Mochi (optional; see server/npc.js).
+EnvironmentFile=-%h/.config/rpg/deepseek.env
+ExecStartPre=/usr/bin/npm run build
+ExecStart=/usr/bin/node server/index.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

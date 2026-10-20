@@ -1,0 +1,1922 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: #2b2340;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+canvas {
+  display: block;
+  max-width: 100vw;
+  max-height: 100dvh;
+  touch-action: none;
+}
+
+/* Everything below is positioned in canvas pixels (960×540) scaled by --s, over the panel main.js draws. */
+#stage {
+  position: relative;
+  --s: 1;
+  font-family: Fredoka, 'Trebuchet MS', sans-serif;
+}
+
+#join[hidden] {
+  display: none;
+}
+
+#join > * {
+  position: absolute;
+  left: calc(480px * var(--s));
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  font: 700 calc(19px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+}
+
+#name,
+#pass {
+  width: calc(260px * var(--s));
+  height: calc(44px * var(--s));
+  border: calc(3px * var(--s)) solid #ffc6d9;
+  border-radius: 999px;
+  background: #fff;
+  color: #5b4a6b;
+  text-align: center;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+#name {
+  top: calc(256px * var(--s));
+}
+
+#pass {
+  top: calc(304px * var(--s));
+}
+
+#name:focus,
+#pass:focus {
+  border-color: #ff8fb1;
+}
+
+#name::placeholder,
+#pass::placeholder {
+  color: #c9b8d6;
+}
+
+#swatches {
+  top: calc(350px * var(--s));
+  display: flex;
+  gap: calc(9px * var(--s));
+}
+
+.swatch {
+  width: calc(28px * var(--s));
+  height: calc(28px * var(--s));
+  padding: 0;
+  border: calc(2.5px * var(--s)) solid;
+  border-radius: 50% 50% 46% 46% / 60% 60% 40% 40%; /* slime-shaped */
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+
+.swatch:hover {
+  transform: translateY(calc(-2px * var(--s)));
+}
+
+.swatch.on {
+  outline: calc(3px * var(--s)) solid #ff8fb1;
+  outline-offset: calc(2px * var(--s));
+}
+
+#error {
+  top: calc(390px * var(--s));
+  margin: 0;
+  width: calc(340px * var(--s));
+  color: #e0567a;
+  font-size: calc(15px * var(--s));
+  text-align: center;
+}
+
+#go {
+  top: calc(446px * var(--s));
+  padding: calc(10px * var(--s)) calc(28px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #ff8fb1;
+  color: #fff;
+  box-shadow: 0 calc(4px * var(--s)) 0 #e46f95;
+  cursor: pointer;
+}
+
+#go:active {
+  transform: translate(-50%, calc(-50% + 3px * var(--s)));
+  box-shadow: 0 calc(1px * var(--s)) 0 #e46f95;
+}
+
+/* Esc menu */
+#menu[hidden] {
+  display: none;
+}
+
+#menu {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(14px * var(--s));
+  background: rgba(43, 35, 64, 0.35);
+}
+
+#menu p {
+  margin: 0 0 calc(4px * var(--s));
+  color: #fff;
+  font-size: calc(34px * var(--s));
+  text-shadow: 0 calc(3px * var(--s)) 0 #ff8fb1;
+}
+
+#menu button {
+  width: calc(260px * var(--s));
+  padding: calc(11px * var(--s)) 0;
+  border: none;
+  border-radius: 999px;
+  font: 700 calc(19px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+  background: #fffaf3;
+  color: #5b4a6b;
+  box-shadow: 0 calc(4px * var(--s)) 0 #d9c3a8;
+  outline: none;
+}
+
+#menu button:focus-visible,
+#menu button:hover {
+  background: #fff;
+  box-shadow: 0 calc(4px * var(--s)) 0 #ffc6d9, 0 0 0 calc(3px * var(--s)) #ff8fb1;
+}
+
+#menu #logout {
+  background: #ff8fb1;
+  color: #fff;
+  box-shadow: 0 calc(4px * var(--s)) 0 #e46f95;
+}
+
+#menu #logout:focus-visible,
+#menu #logout:hover {
+  background: #ff9fbd;
+  box-shadow: 0 calc(4px * var(--s)) 0 #e46f95, 0 0 0 calc(3px * var(--s)) #fff;
+}
+
+#menu button:active {
+  transform: translateY(calc(3px * var(--s)));
+}
+
+/* Mic toggle, top right of the game */
+/* top right: Broadcast + Mic */
+#voicebar {
+  position: absolute;
+  top: calc(14px * var(--s));
+  right: calc(16px * var(--s));
+  display: flex;
+  gap: calc(8px * var(--s));
+}
+
+#mic[hidden],
+#cast[hidden] {
+  display: none;
+}
+
+#mic,
+#cast {
+  position: relative;
+  height: calc(34px * var(--s));
+  padding: 0 calc(16px * var(--s)) 0 calc(30px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #5b4a6b;
+  font: 700 calc(16px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+  outline: none;
+}
+
+#mic::before,
+#cast::before {
+  /* status dot: grey when off, green and pulsing when on */
+  content: '';
+  position: absolute;
+  left: calc(13px * var(--s));
+  top: 50%;
+  width: calc(10px * var(--s));
+  height: calc(10px * var(--s));
+  margin-top: calc(-5px * var(--s));
+  border-radius: 50%;
+  background: #c9b8d6;
+}
+
+#mic.on {
+  color: #2f8f5f;
+}
+
+#mic.on::before {
+  background: #4fbf86;
+  animation: mic-pulse 1.4s ease-in-out infinite;
+}
+
+#cast.on {
+  background: #d9465f;
+  color: #ffffff;
+}
+
+#cast.on::before {
+  background: #ffffff;
+  animation: cast-pulse 1s ease-in-out infinite;
+}
+
+@keyframes cast-pulse {
+  50% {
+    box-shadow: 0 0 0 calc(4px * var(--s)) rgba(255, 255, 255, 0.45);
+  }
+}
+
+@keyframes mic-pulse {
+  50% {
+    box-shadow: 0 0 0 calc(4px * var(--s)) rgba(79, 191, 134, 0.3);
+  }
+}
+
+/* Voice call status, inside the Esc menu */
+#voice-status {
+  margin-top: calc(10px * var(--s));
+  min-width: calc(320px * var(--s));
+  padding: calc(10px * var(--s)) calc(16px * var(--s));
+  border-radius: calc(16px * var(--s));
+  background: rgba(255, 250, 243, 0.92);
+  color: #5b4a6b;
+  font: 700 calc(14px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  line-height: 1.6;
+}
+
+#voice-status .vs-head {
+  color: #a08bb3;
+}
+
+#voice-status .vs-connected {
+  color: #2f8f5f;
+}
+
+#voice-status .vs-failed {
+  color: #e0567a;
+}
+
+/* Elder Mochi's dialog box, along the bottom of the game (MapleStory-style) */
+#npc[hidden] {
+  display: none;
+}
+
+#npc {
+  position: absolute;
+  left: 50%;
+  bottom: calc(12px * var(--s));
+  transform: translateX(-50%);
+  width: calc(600px * var(--s));
+  box-sizing: border-box;
+  padding: calc(12px * var(--s)) calc(16px * var(--s)) calc(14px * var(--s));
+  border: calc(3px * var(--s)) solid #e8d2a8;
+  border-radius: calc(20px * var(--s));
+  background: rgba(255, 250, 240, 0.96);
+  box-shadow: 0 calc(6px * var(--s)) 0 rgba(91, 74, 107, 0.18);
+  color: #4a3b5c;
+  font: 700 calc(15px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.npc-head {
+  display: flex;
+  align-items: center;
+  gap: calc(10px * var(--s));
+}
+
+#npc-face {
+  width: calc(56px * var(--s));
+  height: calc(56px * var(--s));
+  border-radius: 50%;
+  background: radial-gradient(#fff6dc, #f1dfb8);
+}
+
+.npc-title {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.npc-title b {
+  color: #8a6420;
+  font-size: calc(19px * var(--s));
+}
+
+.npc-title span {
+  color: #a08bb3;
+  font-size: calc(12px * var(--s));
+}
+
+#npc-close {
+  align-self: flex-start;
+  border: none;
+  background: none;
+  color: #a08bb3;
+  font: inherit;
+  font-size: calc(18px * var(--s));
+  cursor: pointer;
+}
+
+#npc-log {
+  height: calc(118px * var(--s));
+  margin: calc(8px * var(--s)) 0;
+  overflow-y: auto;
+  line-height: 1.4;
+}
+
+#npc-log p {
+  margin: 0 0 calc(5px * var(--s));
+}
+
+#npc-log .npc-mochi b {
+  color: #8a6420;
+}
+
+#npc-log .npc-player b {
+  color: #5aa9a1;
+}
+
+#npc-log .npc-system {
+  color: #a08bb3;
+  font-style: italic;
+}
+
+#npc-form {
+  display: flex;
+  gap: calc(8px * var(--s));
+}
+
+#npc-input {
+  flex: 1;
+  height: calc(38px * var(--s));
+  box-sizing: border-box;
+  padding: 0 calc(14px * var(--s));
+  border: calc(2.5px * var(--s)) solid #e8d2a8;
+  border-radius: 999px;
+  background: #fff;
+  color: #4a3b5c;
+  font: inherit;
+  outline: none;
+}
+
+#npc-input:focus {
+  border-color: #d9b36a;
+}
+
+#npc-form button {
+  padding: 0 calc(20px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #d9b36a;
+  color: #fff;
+  font: inherit;
+  box-shadow: 0 calc(3px * var(--s)) 0 #b08a4a;
+  cursor: pointer;
+}
+
+/* Raise-your-hand question box, in the lecture hall */
+#ask[hidden] {
+  display: none;
+}
+
+#ask {
+  position: absolute;
+  left: 50%;
+  bottom: calc(14px * var(--s));
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(8px * var(--s));
+  width: calc(620px * var(--s));
+  box-sizing: border-box;
+  padding: calc(12px * var(--s)) calc(16px * var(--s));
+  border: calc(3px * var(--s)) solid #c9b6ff;
+  border-radius: calc(20px * var(--s));
+  background: rgba(255, 253, 246, 0.97);
+  color: #8a6fc4;
+  font: 700 calc(15px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+}
+
+#ask-input {
+  flex: 1;
+  height: calc(38px * var(--s));
+  box-sizing: border-box;
+  padding: 0 calc(14px * var(--s));
+  border: calc(2.5px * var(--s)) solid #c9b6ff;
+  border-radius: 999px;
+  color: #3a3550;
+  font: inherit;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+#ask button {
+  height: calc(38px * var(--s));
+  padding: 0 calc(18px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #a593e6;
+  color: #fff;
+  font: inherit;
+  box-shadow: 0 calc(3px * var(--s)) 0 #8a6fc4;
+  cursor: pointer;
+}
+
+#ask-note {
+  flex-basis: 100%;
+  margin: 0;
+  color: #e0567a;
+  font-size: calc(13px * var(--s));
+}
+
+#ask-note:empty {
+  display: none;
+}
+
+/* Museum fact sheets: a parchment placard over the game */
+#sheet[hidden] {
+  display: none;
+}
+
+#sheet {
+  --accent: #b8894a;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(720px * var(--s));
+  height: calc(480px * var(--s));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: calc(18px * var(--s)) calc(24px * var(--s)) calc(12px * var(--s));
+  border: calc(4px * var(--s)) solid var(--accent);
+  border-radius: calc(18px * var(--s));
+  background: #fffaf0;
+  box-shadow: 0 calc(10px * var(--s)) calc(30px * var(--s)) rgba(30, 20, 40, 0.35);
+  color: #3a3550;
+  font: 400 calc(14px * var(--s)) / 1.5 Fredoka, 'Trebuchet MS', sans-serif;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+#sheet.dark {
+  background: #2a2630;
+  color: #ece6f4;
+}
+
+#sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: calc(8px * var(--s));
+}
+
+#sheet .sheet-wing {
+  margin: 0;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: calc(12px * var(--s));
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#sheet h2 {
+  margin: calc(2px * var(--s)) 0 0;
+  font-size: calc(26px * var(--s));
+  line-height: 1.15;
+}
+
+#sheet .sheet-when {
+  margin: calc(2px * var(--s)) 0 calc(10px * var(--s));
+  color: #8a7a6a;
+  font-weight: 700;
+}
+
+#sheet.dark .sheet-when {
+  color: #b8acc8;
+}
+
+#sheet .sheet-stats {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: calc(3px * var(--s)) calc(14px * var(--s));
+  margin: 0 0 calc(10px * var(--s));
+  padding: calc(10px * var(--s)) calc(14px * var(--s));
+  border-left: calc(4px * var(--s)) solid #b03a3a;
+  border-radius: calc(6px * var(--s));
+  background: rgba(176, 58, 58, 0.12);
+}
+
+#sheet dt {
+  font-weight: 700;
+}
+
+#sheet dd {
+  margin: 0;
+}
+
+#sheet .sheet-summary {
+  margin: 0 0 calc(8px * var(--s));
+  font-size: calc(15px * var(--s));
+}
+
+#sheet h3 {
+  margin: calc(10px * var(--s)) 0 calc(4px * var(--s));
+  color: var(--accent);
+  font-size: calc(15px * var(--s));
+}
+
+#sheet ul {
+  margin: 0;
+  padding-left: calc(20px * var(--s));
+}
+
+#sheet li {
+  margin-bottom: calc(4px * var(--s));
+}
+
+#sheet .sheet-legacy {
+  margin: 0;
+  font-style: italic;
+}
+
+.sheet-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: calc(10px * var(--s));
+  color: #a08bb3;
+  font-size: calc(12px * var(--s));
+}
+
+.sheet-nav button {
+  padding: calc(6px * var(--s)) calc(14px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+
+.sheet-nav button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+#sheet-close {
+  position: absolute;
+  top: calc(10px * var(--s));
+  right: calc(14px * var(--s));
+  border: none;
+  background: none;
+  color: #a08bb3;
+  font: 700 calc(18px * var(--s)) Fredoka, sans-serif;
+  cursor: pointer;
+}
+
+/* Course menu (lecture hall + tutoring room) */
+#courses[hidden] {
+  display: none;
+}
+
+#courses {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(760px * var(--s));
+  max-height: calc(500px * var(--s));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: calc(16px * var(--s)) calc(20px * var(--s));
+  border: calc(4px * var(--s)) solid #c9b6ff;
+  border-radius: calc(18px * var(--s));
+  background: #fffdf6;
+  color: #3a3550;
+  font: 700 calc(14px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+}
+
+#courses h2 {
+  margin: 0;
+  color: #8a6fc4;
+  font-size: calc(22px * var(--s));
+}
+
+.courses-help {
+  margin: calc(2px * var(--s)) 0 calc(10px * var(--s));
+  color: #a08bb3;
+  font-size: calc(12px * var(--s));
+}
+
+#courses-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(8px * var(--s));
+  overflow-y: auto;
+}
+
+.course {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: 'code name tag' 'blurb blurb blurb';
+  gap: calc(2px * var(--s)) calc(8px * var(--s));
+  align-items: baseline;
+  padding: calc(8px * var(--s)) calc(12px * var(--s));
+  border: calc(2px * var(--s)) solid #e8e2f2;
+  border-radius: calc(12px * var(--s));
+  background: #ffffff;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.course:hover {
+  border-color: #c9b6ff;
+}
+
+.course.now {
+  border-color: #7fb89f;
+  background: #eef8f2;
+}
+
+.course.mine {
+  border-color: #8a6fc4;
+  box-shadow: 0 0 0 calc(2px * var(--s)) #c9b6ff;
+}
+
+.course .code {
+  grid-area: code;
+  color: #8a6fc4;
+  font-size: calc(12px * var(--s));
+}
+
+.course .name {
+  grid-area: name;
+}
+
+.course .tag {
+  grid-area: tag;
+  color: #2f8f5f;
+  font-size: calc(11px * var(--s));
+}
+
+.course .blurb {
+  grid-area: blurb;
+  color: #8a7a6a;
+  font-weight: 400;
+  font-size: calc(12px * var(--s));
+}
+
+#courses-close {
+  position: absolute;
+  top: calc(10px * var(--s));
+  right: calc(14px * var(--s));
+  border: none;
+  background: none;
+  color: #a08bb3;
+  font: 700 calc(18px * var(--s)) Fredoka, sans-serif;
+  cursor: pointer;
+}
+
+/* The tutoring room's answer box, on your turn */
+#answer[hidden] {
+  display: none;
+}
+
+#answer {
+  position: absolute;
+  left: 50%;
+  bottom: calc(14px * var(--s));
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(8px * var(--s));
+  width: calc(640px * var(--s));
+  box-sizing: border-box;
+  padding: calc(12px * var(--s)) calc(16px * var(--s));
+  border: calc(3px * var(--s)) solid #7fb89f;
+  border-radius: calc(20px * var(--s));
+  background: rgba(255, 253, 246, 0.97);
+  color: #3f6f5a;
+  font: 700 calc(15px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+}
+
+#answer label {
+  flex-basis: 100%;
+}
+
+#answer-input {
+  flex: 1;
+  height: calc(38px * var(--s));
+  box-sizing: border-box;
+  padding: 0 calc(14px * var(--s));
+  border: calc(2.5px * var(--s)) solid #7fb89f;
+  border-radius: 999px;
+  color: #3a3550;
+  font: inherit;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+#answer button {
+  height: calc(38px * var(--s));
+  padding: 0 calc(18px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #5f8f7a;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+#answer-note {
+  flex-basis: 100%;
+  margin: 0;
+  color: #e0567a;
+  font-size: calc(13px * var(--s));
+}
+
+#answer-note:empty {
+  display: none;
+}
+
+/* Portrait phones: a gentle hint (the game still works, just smaller) */
+#rotate {
+  display: none;
+  margin: 0 16px 12px;
+  color: #ffc6d9;
+  font: 700 15px Fredoka, 'Trebuchet MS', sans-serif;
+  text-align: center;
+}
+
+@media (orientation: portrait) and (pointer: coarse) {
+  body {
+    flex-direction: column;
+  }
+
+  #rotate {
+    display: block;
+  }
+}
+
+/* On-screen controls (touch devices only; see src/touch.js) */
+#touch[hidden] {
+  display: none;
+}
+
+#touch button {
+  position: absolute;
+  border: calc(3px * var(--s)) solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  background: rgba(91, 74, 107, 0.35);
+  color: #ffffff;
+  font: 700 calc(22px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+#touch button[hidden] {
+  display: none;
+}
+
+#touch button.down {
+  background: rgba(255, 143, 177, 0.6);
+}
+
+#t-left,
+#t-right {
+  bottom: calc(18px * var(--s));
+  width: calc(84px * var(--s));
+  height: calc(84px * var(--s));
+}
+
+#t-left {
+  left: calc(18px * var(--s));
+}
+
+#t-right {
+  left: calc(116px * var(--s));
+}
+
+#t-jump {
+  right: calc(18px * var(--s));
+  bottom: calc(18px * var(--s));
+  width: calc(100px * var(--s));
+  height: calc(100px * var(--s));
+}
+
+#t-down {
+  right: calc(130px * var(--s));
+  bottom: calc(14px * var(--s));
+  width: calc(58px * var(--s));
+  height: calc(58px * var(--s));
+}
+
+#t-use {
+  right: calc(132px * var(--s));
+  bottom: calc(84px * var(--s));
+  width: calc(64px * var(--s));
+  height: calc(64px * var(--s));
+  background: rgba(79, 191, 134, 0.45);
+}
+
+#t-menu,
+#t-courses,
+#t-hand {
+  height: calc(34px * var(--s));
+  padding: 0 calc(14px * var(--s));
+  border-radius: 999px !important;
+  font-size: calc(15px * var(--s)) !important;
+}
+
+#t-menu {
+  top: calc(14px * var(--s));
+  right: calc(270px * var(--s)); /* left of Broadcast + Mic */
+}
+
+#t-courses {
+  top: calc(56px * var(--s));
+  right: calc(16px * var(--s));
+}
+
+#t-hand {
+  top: calc(56px * var(--s));
+  right: calc(130px * var(--s));
+}
+
+/* The bottom-of-screen panels sit above the on-screen controls on touch devices */
+body.touch #npc,
+body.touch #ask,
+body.touch #answer {
+  bottom: auto;
+  top: calc(60px * var(--s));
+}
+
+#ios-tip {
+  top: calc(486px * var(--s));
+  margin: 0;
+  width: calc(340px * var(--s));
+  color: #a08bb3;
+  font-size: calc(12px * var(--s)) !important;
+  text-align: center;
+}
+
+#ios-tip[hidden] {
+  display: none;
+}
+
+#t-full {
+  top: calc(14px * var(--s));
+  right: calc(360px * var(--s));
+  height: calc(34px * var(--s));
+  padding: 0 calc(14px * var(--s));
+  border-radius: 999px !important;
+  font-size: calc(15px * var(--s)) !important;
+}
+
+#t-ask {
+  top: calc(56px * var(--s));
+  right: calc(16px * var(--s));
+  height: calc(34px * var(--s));
+  padding: 0 calc(14px * var(--s));
+  border-radius: 999px !important;
+  font-size: calc(15px * var(--s)) !important;
+  background: rgba(201, 138, 74, 0.55) !important;
+}
+
+#sheet-ask {
+  background: #c9a14a !important;
+}
+
+/* ——— inventory (I) ——— */
+#inv[hidden] {
+  display: none;
+}
+#inv {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(560px * var(--s));
+  box-sizing: border-box;
+  padding: calc(14px * var(--s)) calc(18px * var(--s));
+  border: calc(4px * var(--s)) solid #e8c48a;
+  border-radius: calc(18px * var(--s));
+  background: #fffdf6;
+  color: #3a3550;
+  font: 700 calc(14px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  box-shadow: 0 calc(6px * var(--s)) 0 rgba(91, 74, 107, 0.2);
+}
+#inv h2 {
+  margin: 0;
+  font-size: calc(22px * var(--s));
+  color: #b0763a;
+}
+#inv-coins {
+  margin-left: calc(10px * var(--s));
+  font-size: calc(14px * var(--s));
+  color: #c99a2e;
+}
+#inv-stats {
+  margin: calc(2px * var(--s)) 0 calc(10px * var(--s));
+  color: #8a7a9b;
+  font-size: calc(13px * var(--s));
+}
+.inv-body {
+  display: flex;
+  gap: calc(14px * var(--s));
+}
+.inv-gear {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--s));
+}
+.inv-gear > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(3px * var(--s));
+  color: #a08bb3;
+  font-size: calc(11px * var(--s));
+}
+.inv-gear .inv-slot {
+  width: calc(64px * var(--s));
+  height: calc(64px * var(--s));
+  border-color: #c9b6ff;
+}
+#inv-grid {
+  display: grid;
+  grid-template-columns: repeat(8, calc(48px * var(--s)));
+  gap: calc(6px * var(--s));
+}
+.inv-slot {
+  position: relative;
+  width: calc(48px * var(--s));
+  height: calc(48px * var(--s));
+  padding: 0;
+  border: calc(2.5px * var(--s)) solid #ecdcbf;
+  border-radius: calc(10px * var(--s));
+  background: #fff6e6;
+  cursor: pointer;
+}
+.inv-slot.empty {
+  background: #faf3e6;
+  cursor: default;
+}
+.inv-slot.on {
+  border-color: #ff8fb1;
+  box-shadow: 0 0 0 calc(2px * var(--s)) #ffc6d9;
+}
+.inv-slot canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.inv-n {
+  position: absolute;
+  right: calc(3px * var(--s));
+  bottom: calc(1px * var(--s));
+  font-size: calc(12px * var(--s));
+  color: #5b4a6b;
+  text-shadow: 0 0 calc(3px * var(--s)) #fff;
+}
+#inv-info {
+  min-height: calc(74px * var(--s));
+  margin-top: calc(10px * var(--s));
+  padding: calc(8px * var(--s)) calc(12px * var(--s));
+  border-radius: calc(12px * var(--s));
+  background: #f6efff;
+}
+#inv-info p {
+  margin: calc(3px * var(--s)) 0 calc(6px * var(--s));
+  color: #6b5a7b;
+  font-size: calc(13px * var(--s));
+}
+#inv-info .inv-hint {
+  color: #a08bb3;
+}
+.inv-actions {
+  display: flex;
+  gap: calc(8px * var(--s));
+}
+.inv-actions button {
+  height: calc(32px * var(--s));
+  padding: 0 calc(18px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #8a6fc4;
+  color: #fff;
+  font: 700 calc(14px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+.inv-actions button:last-child:not(:first-child) {
+  background: #d9a0b5;
+}
+#inv-close {
+  position: absolute;
+  top: calc(10px * var(--s));
+  right: calc(12px * var(--s));
+  width: calc(32px * var(--s));
+  height: calc(32px * var(--s));
+  border: none;
+  border-radius: 50%;
+  background: #f1e6d6;
+  color: #7a6a8b;
+  font-size: calc(16px * var(--s));
+  cursor: pointer;
+}
+
+/* Wildwood touch buttons */
+#t-attack {
+  right: calc(30px * var(--s));
+  bottom: calc(132px * var(--s));
+  width: calc(78px * var(--s));
+  height: calc(78px * var(--s));
+  background: rgba(255, 111, 145, 0.5) !important;
+  font-size: calc(18px * var(--s)) !important;
+}
+#t-loot {
+  right: calc(206px * var(--s));
+  bottom: calc(22px * var(--s));
+  width: calc(62px * var(--s));
+  height: calc(62px * var(--s));
+  background: rgba(232, 176, 74, 0.55) !important;
+  font-size: calc(15px * var(--s)) !important;
+}
+#t-bag {
+  top: calc(14px * var(--s));
+  right: calc(450px * var(--s));
+  height: calc(34px * var(--s));
+  padding: 0 calc(14px * var(--s));
+  border-radius: 999px !important;
+  font-size: calc(15px * var(--s)) !important;
+}
+body.touch #inv {
+  top: calc(56px * var(--s));
+  transform: translateX(-50%);
+}
+
+/* ——— friendly fire switch in the bag ——— */
+#inv-pvp {
+  position: absolute;
+  top: calc(12px * var(--s));
+  right: calc(56px * var(--s));
+  height: calc(30px * var(--s));
+  padding: 0 calc(14px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #e9e3f2;
+  color: #7a6a8b;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+#inv-pvp.on {
+  background: #ff8f9f;
+  color: #fff;
+}
+
+/* ——— skill tree (K) ——— */
+#skills[hidden],
+#shop[hidden],
+#hotbar[hidden] {
+  display: none;
+}
+#skills,
+#shop {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(900px * var(--s));
+  max-height: calc(500px * var(--s));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: calc(14px * var(--s)) calc(18px * var(--s));
+  border: calc(4px * var(--s)) solid #c9b6ff;
+  border-radius: calc(18px * var(--s));
+  background: #fffdf6;
+  color: #3a3550;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  box-shadow: 0 calc(6px * var(--s)) 0 rgba(91, 74, 107, 0.2);
+}
+#skills h2,
+#shop h2 {
+  margin: 0;
+  font-size: calc(22px * var(--s));
+  color: #7a5fc0;
+}
+#skills h2 span,
+#shop h2 span {
+  margin-left: calc(10px * var(--s));
+  font-size: calc(14px * var(--s));
+  color: #ff7f9f;
+}
+.skills-help {
+  margin: calc(2px * var(--s)) 0 calc(8px * var(--s));
+  color: #8a7a9b;
+  font-size: calc(12px * var(--s));
+}
+#skills-reset {
+  position: absolute;
+  top: calc(12px * var(--s));
+  right: calc(56px * var(--s));
+  height: calc(30px * var(--s));
+  padding: 0 calc(14px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #f1e6d6;
+  color: #7a6a8b;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+#skills-cols {
+  display: flex;
+  gap: calc(12px * var(--s));
+  overflow-y: auto;
+  min-height: 0;
+}
+.sk-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--s));
+}
+.sk-head {
+  padding: calc(6px * var(--s)) calc(10px * var(--s));
+  border-radius: calc(12px * var(--s));
+  background: var(--tree);
+  color: #fff;
+}
+.sk-head b {
+  display: block;
+  font-size: calc(16px * var(--s));
+}
+.sk-head span {
+  font-size: calc(11px * var(--s));
+  opacity: 0.9;
+}
+.sk-card {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--s));
+  padding: calc(6px * var(--s)) calc(8px * var(--s));
+  border: calc(2px * var(--s)) solid #eee4f6;
+  border-radius: calc(12px * var(--s));
+  background: #fff;
+}
+.sk-card.learned {
+  border-color: var(--tree);
+}
+.sk-card.locked {
+  opacity: 0.5;
+}
+.sk-card canvas {
+  flex: none;
+  width: calc(44px * var(--s));
+  height: calc(44px * var(--s));
+}
+.sk-body {
+  flex: 1;
+  min-width: 0;
+}
+.sk-body b {
+  font-size: calc(14px * var(--s));
+}
+.sk-tag {
+  margin-left: calc(6px * var(--s));
+  color: #a08bb3;
+  font-size: calc(11px * var(--s));
+}
+.sk-body p {
+  margin: calc(2px * var(--s)) 0 0;
+  color: #6b5a7b;
+  font-size: calc(11.5px * var(--s));
+  line-height: 1.25;
+}
+.sk-btns {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--s));
+}
+.sk-btns button,
+.shop-btns button,
+.shop-tabs button {
+  min-width: calc(34px * var(--s));
+  height: calc(26px * var(--s));
+  padding: 0 calc(8px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #8a6fc4;
+  color: #fff;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+.sk-btns .sk-minus {
+  background: #d9a0b5;
+}
+.sk-btns .sk-bar {
+  background: #6fb894;
+  font-size: calc(11px * var(--s));
+}
+.sk-btns button:disabled,
+.shop-btns button:disabled {
+  background: #ddd5e6;
+  cursor: default;
+}
+#skills-close,
+#shop-close {
+  position: absolute;
+  top: calc(10px * var(--s));
+  right: calc(12px * var(--s));
+  width: calc(32px * var(--s));
+  height: calc(32px * var(--s));
+  border: none;
+  border-radius: 50%;
+  background: #f1e6d6;
+  color: #7a6a8b;
+  font-size: calc(16px * var(--s));
+  cursor: pointer;
+}
+
+/* ——— the shop ——— */
+#shop {
+  width: calc(620px * var(--s));
+  border-color: #e8c48a;
+}
+#shop h2 {
+  color: #b0763a;
+}
+#shop h2 span {
+  color: #c99a2e;
+}
+.shop-tabs {
+  display: flex;
+  gap: calc(6px * var(--s));
+  margin: calc(8px * var(--s)) 0;
+}
+.shop-tabs button {
+  background: #efe4d2;
+  color: #8a6a4a;
+  padding: 0 calc(18px * var(--s));
+}
+.shop-tabs button.on {
+  background: #e8a54a;
+  color: #fff;
+}
+#shop-list {
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(5px * var(--s));
+}
+.shop-row {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--s));
+  padding: calc(4px * var(--s)) calc(8px * var(--s));
+  border-radius: calc(10px * var(--s));
+  background: #fff6e6;
+}
+.shop-row canvas {
+  flex: none;
+  width: calc(40px * var(--s));
+  height: calc(40px * var(--s));
+}
+.shop-body {
+  flex: 1;
+  min-width: 0;
+}
+.shop-body p {
+  margin: 0;
+  color: #8a7a6b;
+  font-size: calc(11px * var(--s));
+}
+.shop-price {
+  flex: none;
+  color: #c99a2e;
+}
+.shop-btns {
+  display: flex;
+  gap: calc(4px * var(--s));
+}
+.shop-empty {
+  color: #a08bb3;
+}
+
+/* ——— the hotbar: skills 1–6, potions 7–9 ——— */
+#hotbar {
+  position: absolute;
+  left: 50%;
+  bottom: calc(10px * var(--s));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: calc(4px * var(--s));
+  padding: calc(5px * var(--s));
+  border-radius: calc(14px * var(--s));
+  background: rgba(45, 42, 62, 0.45);
+}
+.hb-gap {
+  width: calc(8px * var(--s));
+}
+.hb-slot {
+  position: relative;
+  width: calc(44px * var(--s));
+  height: calc(44px * var(--s));
+  padding: 0;
+  overflow: hidden;
+  border: calc(2px * var(--s)) solid rgba(255, 255, 255, 0.75);
+  border-radius: calc(10px * var(--s));
+  background: rgba(255, 253, 246, 0.9);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.hb-pot {
+  border-color: rgba(255, 196, 140, 0.9);
+}
+.hb-slot canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.hb-slot.dim canvas {
+  opacity: 0.4;
+}
+.hb-cd {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0;
+  background: rgba(45, 42, 62, 0.55);
+}
+.hb-key {
+  position: absolute;
+  left: calc(3px * var(--s));
+  top: calc(1px * var(--s));
+  color: #5b4a6b;
+  font: 700 calc(11px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  text-shadow: 0 0 calc(3px * var(--s)) #fff;
+}
+.hb-n {
+  position: absolute;
+  right: calc(3px * var(--s));
+  bottom: calc(1px * var(--s));
+  color: #5b4a6b;
+  font: 700 calc(12px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  text-shadow: 0 0 calc(3px * var(--s)) #fff;
+}
+#hotbar.assigning .hb-slot.target {
+  border-color: #ff8fb1;
+  animation: hb-pulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes hb-pulse {
+  to {
+    box-shadow: 0 0 0 calc(4px * var(--s)) rgba(255, 143, 177, 0.6);
+  }
+}
+body.touch #hotbar {
+  bottom: calc(6px * var(--s));
+}
+body.touch .hb-slot {
+  width: calc(40px * var(--s));
+  height: calc(40px * var(--s));
+}
+body.touch #skills,
+body.touch #shop {
+  top: calc(56px * var(--s));
+  transform: translateX(-50%);
+  max-height: calc(470px * var(--s));
+}
+/* Dash and Blink sit above Hit (the right thumb) */
+#t-dash,
+#t-blink {
+  width: calc(62px * var(--s));
+  height: calc(62px * var(--s));
+  font-size: calc(15px * var(--s)) !important;
+  background: rgba(95, 196, 216, 0.45) !important;
+}
+#t-dash {
+  right: calc(24px * var(--s));
+  bottom: calc(222px * var(--s));
+}
+#t-blink {
+  right: calc(98px * var(--s));
+  bottom: calc(232px * var(--s));
+}
+#t-skills {
+  top: calc(14px * var(--s));
+  right: calc(530px * var(--s));
+  height: calc(34px * var(--s));
+  padding: 0 calc(14px * var(--s));
+  border-radius: 999px !important;
+  font-size: calc(15px * var(--s)) !important;
+}
+
+/* ——— the bag's Style row (Boutique cosmetics) ——— */
+#inv-style {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(5px * var(--s));
+  margin-top: calc(8px * var(--s));
+  color: #8a7a9b;
+  font-size: calc(12px * var(--s));
+}
+.style-chip {
+  height: calc(24px * var(--s));
+  padding: 0 calc(10px * var(--s));
+  border: calc(2px * var(--s)) solid #e3d6ef;
+  border-radius: 999px;
+  background: #fff;
+  color: #7a6a8b;
+  font: 700 calc(12px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+.style-chip.on {
+  border-color: #ff8fb1;
+  background: #ffe3ee;
+  color: #c2496f;
+}
+.style-none {
+  color: #b3a5c2;
+}
+#shop-cos.on {
+  background: #ff8fb1 !important;
+  color: #fff !important;
+}
+.shop-row canvas.cos-preview {
+  width: calc(48px * var(--s));
+  height: calc(48px * var(--s));
+}
+
+/* ——— the bag's stat column: ability points and damage ranges ——— */
+#inv {
+  width: calc(800px * var(--s));
+}
+.inv-cols {
+  display: flex;
+  gap: calc(14px * var(--s));
+  margin-top: calc(6px * var(--s));
+}
+.inv-main {
+  flex: 1;
+  min-width: 0;
+}
+#inv-ap {
+  display: flex;
+  flex-direction: column;
+  gap: calc(5px * var(--s));
+  width: calc(226px * var(--s));
+  flex-shrink: 0;
+  padding: calc(8px * var(--s)) calc(10px * var(--s));
+  box-sizing: border-box;
+  border-radius: calc(12px * var(--s));
+  background: #fbf3e4;
+}
+.ap-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  color: #b0763a;
+  font-size: calc(15px * var(--s));
+}
+.ap-left {
+  color: #a08bb3;
+  font-size: calc(12px * var(--s));
+}
+.ap-left.on {
+  padding: 0 calc(8px * var(--s));
+  border-radius: 999px;
+  background: #e0a04a;
+  color: #fff;
+}
+.ap-row {
+  display: flex;
+  align-items: center;
+  gap: calc(5px * var(--s));
+}
+.ap-name {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.1;
+}
+.ap-name b {
+  color: #5b4a6b;
+  font-size: calc(14px * var(--s));
+}
+.ap-name small {
+  overflow: hidden;
+  color: #a08bb3;
+  font-size: calc(9.5px * var(--s));
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ap-val {
+  min-width: calc(30px * var(--s));
+  color: #3a3550;
+  text-align: right;
+  font-size: calc(14px * var(--s));
+}
+.ap-btn {
+  width: calc(26px * var(--s));
+  height: calc(26px * var(--s));
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #8a6fc4;
+  color: #fff;
+  font: 700 calc(16px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+.ap-btn.minus {
+  background: #d9a0b5;
+}
+.ap-btn:disabled,
+#inv-ap .style-chip:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.ap-steps {
+  display: flex;
+  align-items: center;
+  gap: calc(4px * var(--s));
+  color: #8a7a9b;
+  font-size: calc(11px * var(--s));
+}
+.ap-steps .style-chip {
+  padding: 0 calc(8px * var(--s));
+}
+.ap-reset {
+  margin-left: auto;
+}
+.ap-dmg {
+  margin-top: calc(2px * var(--s));
+}
+.ap-dmg-top {
+  display: flex;
+  justify-content: space-between;
+  color: #5b4a6b;
+  font-size: calc(13px * var(--s));
+}
+.ap-dmg small,
+.ap-foot {
+  margin: 0;
+  color: #a08bb3;
+  font-size: calc(10px * var(--s));
+}
+.ap-bar {
+  position: relative;
+  height: calc(9px * var(--s));
+  margin: calc(2px * var(--s)) 0 calc(1px * var(--s));
+  border-radius: 999px;
+  background: rgba(60, 45, 80, 0.12);
+  overflow: hidden;
+}
+.ap-bar i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+}
+.ap-bar i.crit {
+  opacity: 0.4;
+}
+
+
+/* ——— Players (who's online, invites) and house decorating: docs/places/houses.md ——— */
+#hudbtns {
+  position: absolute;
+  top: calc(56px * var(--s));
+  left: calc(16px * var(--s));
+  display: flex;
+  gap: calc(8px * var(--s));
+}
+#who[hidden],
+#decorate[hidden],
+#players[hidden],
+#invite[hidden],
+#furni[hidden],
+#deco[hidden] {
+  display: none;
+}
+#who,
+#decorate {
+  height: calc(30px * var(--s));
+  padding: 0 calc(14px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #5b4a6b;
+  font: 700 calc(14px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+  outline: none;
+}
+#decorate {
+  background: #ffe28a;
+}
+#players {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(520px * var(--s));
+  max-height: calc(440px * var(--s));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: calc(14px * var(--s)) calc(18px * var(--s));
+  border: calc(4px * var(--s)) solid #c9b6ff;
+  border-radius: calc(18px * var(--s));
+  background: #fffdf6;
+  color: #3a3550;
+  font: 700 calc(14px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  box-shadow: 0 calc(6px * var(--s)) 0 rgba(91, 74, 107, 0.2);
+}
+#players h2 {
+  margin: 0;
+  font-size: calc(22px * var(--s));
+  color: #7a5fc0;
+}
+#players h2 span {
+  color: #a08bb3;
+  font-size: calc(16px * var(--s));
+}
+#players-help {
+  margin: calc(4px * var(--s)) 0 calc(8px * var(--s));
+  color: #8a7a9b;
+  font-size: calc(13px * var(--s));
+}
+#players-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: calc(6px * var(--s));
+}
+.pl-row {
+  display: flex;
+  align-items: center;
+  gap: calc(10px * var(--s));
+  padding: calc(6px * var(--s)) calc(10px * var(--s));
+  border-radius: calc(12px * var(--s));
+  background: #f4effb;
+}
+.pl-row.me {
+  background: #fff4cf;
+}
+.pl-dot {
+  flex: none;
+  width: calc(18px * var(--s));
+  height: calc(16px * var(--s));
+  border: calc(2px * var(--s)) solid;
+  border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
+}
+.pl-row b {
+  min-width: calc(110px * var(--s));
+}
+.pl-where {
+  flex: 1;
+  color: #8a7a9b;
+  font-size: calc(13px * var(--s));
+}
+.pl-row button,
+.invite-btns button,
+.deco-top button {
+  height: calc(28px * var(--s));
+  padding: 0 calc(12px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #ff8fb1;
+  color: #fff;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+.pl-row button:disabled,
+.invite-btns button:disabled,
+.deco-top button:disabled {
+  background: #e9e3f2;
+  color: #a99bb8;
+  cursor: default;
+}
+#players-close {
+  position: absolute;
+  top: calc(10px * var(--s));
+  right: calc(12px * var(--s));
+  width: calc(32px * var(--s));
+  height: calc(32px * var(--s));
+  border: none;
+  border-radius: 50%;
+  background: #f1ecf8;
+  color: #7a6a8b;
+  font: 700 calc(16px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+#invite {
+  position: absolute;
+  left: 50%;
+  top: calc(96px * var(--s));
+  transform: translateX(-50%);
+  padding: calc(10px * var(--s)) calc(18px * var(--s));
+  border: calc(3px * var(--s)) solid #ffc6d9;
+  border-radius: calc(16px * var(--s));
+  background: #fffaf3;
+  color: #5b4a6b;
+  font: 700 calc(15px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  text-align: center;
+  box-shadow: 0 calc(5px * var(--s)) 0 rgba(91, 74, 107, 0.18);
+  animation: invite-in 0.35s ease-out;
+}
+#invite p {
+  margin: 0 0 calc(8px * var(--s));
+}
+.invite-btns {
+  display: flex;
+  justify-content: center;
+  gap: calc(8px * var(--s));
+}
+#invite-no {
+  background: #e9e3f2 !important;
+  color: #7a6a8b !important;
+}
+#furni {
+  position: absolute;
+  left: 50%;
+  top: calc(96px * var(--s));
+  transform: translateX(-50%);
+  padding: calc(10px * var(--s)) calc(18px * var(--s));
+  border: calc(3px * var(--s)) solid #7fc8c0;
+  border-radius: calc(16px * var(--s));
+  background: #fffaf3;
+  color: #5b4a6b;
+  font: 700 calc(15px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  box-shadow: 0 calc(5px * var(--s)) 0 rgba(91, 74, 107, 0.18);
+  animation: invite-in 0.35s ease-out;
+}
+.furni-row {
+  display: flex;
+  align-items: center;
+  gap: calc(12px * var(--s));
+  margin-bottom: calc(8px * var(--s));
+}
+#furni-icon canvas {
+  width: calc(64px * var(--s));
+  height: calc(64px * var(--s));
+  display: block;
+}
+#furni p {
+  margin: 0;
+}
+#furni-name {
+  font-size: calc(18px * var(--s));
+}
+#furni-info {
+  font-size: calc(13px * var(--s));
+  color: #7a6a8b;
+}
+#furni-buy {
+  background: #4fbf86 !important;
+}
+#furni-buy:disabled {
+  background: #e9e3f2 !important;
+}
+#furni-no {
+  background: #e9e3f2 !important;
+  color: #7a6a8b !important;
+}
+@keyframes invite-in {
+  from {
+    transform: translate(-50%, calc(-16px * var(--s)));
+    opacity: 0;
+  }
+}
+#deco {
+  position: absolute;
+  left: calc(6px * var(--s));
+  right: calc(6px * var(--s));
+  top: calc(6px * var(--s));
+  padding: calc(6px * var(--s)) calc(10px * var(--s));
+  border: calc(3px * var(--s)) solid #ffe28a;
+  border-radius: calc(14px * var(--s));
+  background: #fffdf6;
+  color: #5b4a6b;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+}
+.deco-top {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--s));
+}
+#deco-note {
+  flex: 1;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.deco-top button {
+  background: #c9b6ff;
+}
+#deco-kick {
+  background: #ffb38a;
+}
+#deco-grow {
+  background: #ffe28a;
+}
+#deco-grow.sure {
+  background: #ff8fb1;
+  color: #fff;
+}
+#deco-done {
+  background: #4fbf86;
+}
+#deco-grid {
+  display: flex;
+  gap: calc(4px * var(--s));
+  margin-top: calc(6px * var(--s));
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.deco-item {
+  flex: none;
+  width: calc(50px * var(--s));
+  height: calc(50px * var(--s));
+  padding: 0;
+  border: calc(2px * var(--s)) solid #eee4d2;
+  border-radius: calc(10px * var(--s));
+  background: #fff;
+  cursor: pointer;
+}
+.deco-item.on {
+  border-color: #ff8fb1;
+  background: #fff0f5;
+}
+.deco-item {
+  position: relative;
+}
+.deco-item[hidden] {
+  display: none;
+}
+.deco-item:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.deco-item b {
+  position: absolute;
+  right: calc(2px * var(--s));
+  bottom: calc(1px * var(--s));
+  padding: 0 calc(4px * var(--s));
+  border-radius: 999px;
+  background: #ffe28a;
+  color: #5b4a6b;
+  font: 700 calc(10px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+}
+.deco-item canvas {
+  width: calc(44px * var(--s));
+  height: calc(44px * var(--s));
+  display: block;
+  margin: auto;
+}
+body.touch #players {
+  top: calc(56px * var(--s));
+  transform: translateX(-50%);
+}

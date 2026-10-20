@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="theme-color" content="#2b2340" />
+    <title>Slimeville</title>
+    <!-- Installable: "Add to Home Screen" launches without browser bars (the iPhone's only way to go fullscreen) -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Slimeville" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <p id="rotate">Turn your phone sideways for a bigger view ↻</p>
+    <div id="stage">
+      <canvas id="game"></canvas>
+      <form id="join">
+        <input id="name" name="username" placeholder="username" spellcheck="false" autocapitalize="none" autocomplete="username" aria-label="Username" autofocus />
+        <input id="pass" name="password" type="password" placeholder="password" autocomplete="current-password" aria-label="Password" />
+        <div id="swatches" role="group" aria-label="Slime colour"></div>
+        <p id="error" role="alert"></p>
+        <button id="go" type="submit">Log in</button>
+        <p id="ios-tip" hidden>Tip: tap Share → Add to Home Screen to play fullscreen</p>
+      </form>
+      <div id="voicebar">
+        <button id="cast" type="button" hidden title="Everyone, in every room, hears you at full volume">Broadcast · B</button>
+        <button id="mic" type="button" hidden>Mic off · M</button>
+      </div>
+      <div id="touch" hidden></div>
+      <form id="ask" autocomplete="off" hidden>
+        <label for="ask-input">✋ Ask Prof. Synapse</label>
+        <input id="ask-input" maxlength="150" placeholder="A question, or “skip ahead” / “go back”…" />
+        <button type="submit">Raise hand</button>
+        <p id="ask-note" role="alert"></p>
+      </form>
+      <div id="courses" role="dialog" aria-label="Course menu" hidden>
+        <h2 id="courses-title">Vote for the next course</h2>
+        <p class="courses-help">The course changes when more than half the students in the room vote for it.</p>
+        <div id="courses-list"></div>
+        <button id="courses-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <form id="answer" autocomplete="off" hidden>
+        <label id="answer-prompt" for="answer-input">Your turn! Type your answer:</label>
+        <input id="answer-input" maxlength="400" placeholder="Your answer…" />
+        <button type="submit">Answer</button>
+        <p id="answer-note" role="alert"></p>
+      </form>
+      <div id="sheet" role="dialog" aria-label="Exhibit fact sheet" tabindex="-1" hidden>
+        <div id="sheet-body"></div>
+        <div class="sheet-nav">
+          <button id="sheet-prev" type="button">← Previous</button>
+          <button id="sheet-ask" type="button">Ask Clio about this</button>
+          <button id="sheet-next" type="button">Next →</button>
+        </div>
+        <button id="sheet-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <div id="npc" role="dialog" aria-label="Talk to a villager" hidden>
+        <div class="npc-head">
+          <canvas id="npc-face" width="128" height="128" aria-hidden="true"></canvas>
+          <div class="npc-title"><b id="npc-name">Elder Mochi</b><span id="npc-blurb">the oldest slime in Slimeville</span></div>
+          <button id="npc-close" type="button" aria-label="Close">✕</button>
+        </div>
+        <div id="npc-log" aria-live="polite"></div>
+        <form id="npc-form" autocomplete="off">
+          <input id="npc-input" placeholder="Say something to Mochi…" spellcheck="true" aria-label="Message to Elder Mochi" />
+          <button type="submit">Say</button>
+        </form>
+      </div>
+      <div id="inv" role="dialog" aria-label="Inventory" hidden>
+        <h2>Bag <span id="inv-coins"></span></h2>
+        <button id="inv-pvp" type="button">Friendly fire: on</button>
+        <div class="inv-cols">
+          <div id="inv-ap"></div>
+          <div class="inv-main">
+            <p id="inv-stats"></p>
+            <div class="inv-body">
+              <div class="inv-gear">
+                <div id="inv-helmet"><span>Helmet</span></div>
+                <div id="inv-sword"><span>Sword</span></div>
+              </div>
+              <div id="inv-grid"></div>
+            </div>
+            <div id="inv-style"></div>
+            <div id="inv-info"></div>
+          </div>
+        </div>
+        <button id="inv-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <div id="skills" role="dialog" aria-label="Skill tree" hidden>
+        <h2>Skills <span id="skills-sp"></span></h2>
+        <p class="skills-help"><span id="skills-mp"></span> · + learn · − take a point back · put active skills on the hotbar (keys 1–6)</p>
+        <button id="skills-reset" type="button">Reset all</button>
+        <div id="skills-cols"></div>
+        <button id="skills-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <div id="shop" role="dialog" aria-label="Shop" hidden>
+        <h2>Merchant Pip's Shop <span id="shop-gold"></span></h2>
+        <div class="shop-tabs"><button id="shop-buy" type="button">Buy</button><button id="shop-sell" type="button">Sell</button><button id="shop-cos" type="button">Boutique</button></div>
+        <div id="shop-list"></div>
+        <button id="shop-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <div id="hotbar" hidden></div>
+      <div id="hudbtns">
+        <button id="who" type="button" hidden>Players</button>
+        <button id="decorate" type="button" hidden>Decorate</button>
+      </div>
+      <div id="players" role="dialog" aria-label="Who's online" hidden>
+        <h2>Who's online <span id="players-n"></span></h2>
+        <p id="players-help"></p>
+        <div id="players-list"></div>
+        <button id="players-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <div id="invite" role="alertdialog" aria-label="Invite" hidden>
+        <p id="invite-text"></p>
+        <div class="invite-btns"><button id="invite-go" type="button">Go over</button><button id="invite-no" type="button">Not now</button></div>
+      </div>
+      <div id="furni" role="dialog" aria-label="Buy furniture" hidden>
+        <div class="furni-row"><span id="furni-icon"></span><div><p id="furni-name"></p><p id="furni-info"></p></div></div>
+        <div class="invite-btns"><button id="furni-buy" type="button">Buy</button><button id="furni-no" type="button">Close</button></div>
+      </div>
+      <div id="deco" role="dialog" aria-label="Decorate your house" hidden>
+        <div class="deco-top">
+          <p id="deco-note"></p>
+          <button id="deco-wall" type="button">Wallpaper</button>
+          <button id="deco-floor" type="button">Floor</button>
+          <button id="deco-flip" type="button">Flip</button>
+          <button id="deco-remove" type="button">Put away</button>
+          <button id="deco-grow" type="button">Expand</button>
+          <button id="deco-kick" type="button">Send guests home</button>
+          <button id="deco-done" type="button">Done</button>
+        </div>
+        <div id="deco-grid"></div>
+      </div>
+      <div id="menu" role="dialog" aria-label="Menu" hidden>
+        <p>Menu</p>
+        <button id="resume" type="button">Back to the village</button>
+        <button id="fullscreen" type="button" hidden>Fullscreen · F</button>
+        <button id="music" type="button">Music: on</button>
+        <button id="pvp" type="button">Friendly fire: on</button>
+        <button id="hbswap" type="button">Hotbar: swap setup</button>
+        <button id="logout" type="button">Log out</button>
+        <div id="voice-status" aria-live="polite"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

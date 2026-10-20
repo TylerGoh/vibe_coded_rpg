@@ -1,0 +1,29 @@
+# Stages, zones, mobs and hazards
+
+Data: `src/shared/rpg.js` (`ZONES`, `HIGHLAND_ZONES`, `CALDERA_ZONES`, `CITADEL_ZONES`, `STAGES`, `MOBS`,
+`SPAWNS`). `zoneAt(x, room)` names the zone. Mob brains: `server/rpg.js` (`mobAi` for the special ones).
+
+## The four stages (each zone's level range is its `lvl` in the data)
+1. **The Wildwood** (`FIELD`, art `src/field.js`, which also draws the village gate and every mob and item
+   icon): Sprout Meadow, Mushroom Grove, Bramble Woods. Bramblehogs are aggressive (chase on sight).
+2. **Frostpeak Highlands** (`HIGHLANDS`, `src/highlands.js`): Frostpine Ridge, Starfall Summit.
+3. **Emberdeep Caldera** (`CALDERA`, `src/caldera.js`): Cinder Flats, Magma Heart.
+4. **Aether Citadel** (`CITADEL`, `src/citadel.js`): Cogwork Bastion, Chrono Spire.
+Stages 3 and 4 were added because players were Lv 35–88 and out of content.
+
+Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
+
+## Special mobs (`ai` in `MOBS`, run by `mobAi`)
+ember imp lobs fireballs · magma slug leaves burning puddles · obsidian crab's front shell blocks most of
+a hit from the front, and it lunges · cinder bat dives · cogling splits into two cogbits · sentry drone
+fires a low laser (jump it) · aether knight blinks behind you, then slashes · chrono wraith phases out
+(immune), then pulses. Mobs with `fly` hover with no gravity.
+
+## Hazards pipeline (mob and boss attacks)
+The server sends one event per attack (`newMove` / `mobAi`); `hazardEvent` in `src/rpg.js` turns it into
+`this.hz` entries; `hazardHits` judges them on each fresh step (client-decided, see
+`docs/combat/core.md`); `src/hazards.js` draws them. Dash / Blink i-frames (`ifr`) skip hazard hits.
+
+## Adding a stage
+Room in `ROOMS` (sim.js), zones + platforms + `STAGES` + spawns + `COMBAT_ROOMS` in rpg.js, a door pair,
+an art file that paints its own sky, music scene in `src/audio.js`, and its dens (`docs/combat/bosses.md`).
