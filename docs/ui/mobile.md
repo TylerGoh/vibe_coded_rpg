@@ -12,7 +12,7 @@ Files: `src/touch.js` (buttons, fullscreen), touch layout rules in `src/style.cs
   and showing it in the right room in `update()`.
 - Tap-style buttons hold their key ~120 ms so the 60 Hz sim sees it. Tapping the canvas slaps.
 - HTML strips that are tappable on their own: the hotbar, `#voicebar` (Mic, Broadcast), `#hudbtns`
-  (Players, Decorate; below the location pill, top left); Menu and Full sit left of the voicebar. Panels (bag, skills, shop) move to the top on touch; the movement pad hides while a panel
+  (Players, Decorate, Chat; below the location pill, top left); Menu and Full sit left of the voicebar. Panels (bag, skills, shop) move to the top on touch; the movement pad hides while a panel
   or text box is up; the feed sits above the controls.
 - Fullscreen (F / Full / Esc menu) must run from a `click`: on touch `pointerdown` isn't a user activation.
   iPhones can't fullscreen a page, so they get an "Add to Home Screen" tip; the manifest (display:

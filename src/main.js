@@ -29,6 +29,7 @@ import { Store } from './store.js';
 import { Alchemy } from './alchemy.js';
 import { FURNITURE } from './shared/house.js';
 import { Players } from './players.js';
+import { Chat } from './chat.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
 import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE } from './shared/sim.js';
@@ -206,6 +207,9 @@ const net = new Net(wsUrl, {
     else if (m.t === 'harvested' || m.t === 'brewed') alchemy.receive(m, { myId: net.id, slimeOf: (id) => (id === net.id ? mine : slimes.get(id)?.visible ? slimes.get(id) : null) });
     else players.receive(m);
   },
+  onChat(m) {
+    chat.receive(m);
+  },
   onSlap(m) {
     const slapper = m.id === net.id ? mine : slimes.get(m.id);
     if (slapper && slapper !== mine) {
@@ -281,6 +285,12 @@ const store = new Store({ send: (m) => net.sendNpc(m), gold: () => rpg.me?.coins
 // Garden plots and the alchemy lab in houses (src/alchemy.js)
 const alchemy = new Alchemy({ send: (m) => net.sendNpc(m), rpg, houses, onOpenChange: () => held.clear() });
 const players = new Players({ net, houses, send: (m) => net.sendNpc(m), self: () => ({ name: profile.name, hue: profile.hue, lvl: rpg.me?.lvl }), onOpenChange: () => held.clear() });
+// Text chat and private messages (src/chat.js); the Players panel's Message buttons open a private tab
+const chat = new Chat({ send: (m) => net.sendNpc(m), me: () => profile.name, online: () => [...net.roster.values()].map((r) => r.name), onOpenChange: () => held.clear(), hint: TOUCH ? '' : ' · Enter' });
+players.onMessage = (name) => {
+  players.close();
+  chat.open(name);
+};
 const whoButton = document.getElementById('who');
 const decoButton = document.getElementById('decorate');
 whoButton.textContent = TOUCH ? 'Players' : 'Players · P';
@@ -477,6 +487,8 @@ function showLogin(message = '') {
   shop.close();
   players.close();
   players.invites = [];
+  chat.close();
+  chat.lines = [];
   houses.stopEditing();
   showMic();
   joinPanel.hidden = false;
@@ -638,6 +650,7 @@ addEventListener('keydown', (e) => {
     // typing to a character, a question or an answer: keys go to the text box, Esc closes it / lets go
     if (e.code === 'Escape') {
       e.preventDefault();
+      if (chat.typing) chat.close();
       closeDialog();
       hall.closeAsk();
       document.activeElement?.blur();
@@ -664,6 +677,11 @@ addEventListener('keydown', (e) => {
       e.preventDefault();
       return;
     }
+  }
+  if (e.code === 'Escape' && chat.isOpen) {
+    e.preventDefault();
+    chat.close();
+    return;
   }
   if (e.code === 'KeyP' && !e.repeat && menu.hidden && online()) {
     e.preventDefault();
@@ -727,6 +745,12 @@ addEventListener('keydown', (e) => {
   if (e.code === 'Enter' && room === TUTOR && tutor.myTurn) {
     e.preventDefault();
     tutor.input.focus(); // back to the answer box
+    return;
+  }
+  if ((e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Slash') && !e.repeat && menu.hidden && online()) {
+    e.preventDefault();
+    chat.focus(); // the chatbox (/ starts a command)
+    if (e.code === 'Slash' && !chat.input.value) chat.input.value = '/';
     return;
   }
   if (museum.isOpen) {
@@ -881,6 +905,8 @@ function update(realDt) {
   if (room === MUSEUM) museum.update(dt, online() ? net.me : null);
   tutor.update(dt, online() && room === TUTOR);
   players.showCard();
+  chat.update(dt);
+  chat.button.hidden = !online();
   whoButton.hidden = !online();
   decoButton.hidden = !online() || !houses.isMine(room) || houses.editing;
   touch.update({
@@ -1053,6 +1079,7 @@ function render() {
   for (const s of all) drawTalk(s);
   if (mine && net.id !== null) drawTalk(mine);
   for (const c of charsHere()) c.drawBubbles(ctx, mine && net.id !== null ? [...all, mine] : all);
+  chat.drawBubbles(ctx, mine && net.id !== null ? [...all, mine] : all);
   if (room === PIANO) piano.drawNotes(ctx);
   if (isHouse(room)) houses.drawEditing(ctx, time);
   if (room === HALL) {
@@ -1121,7 +1148,7 @@ function render() {
     if (status === 'online') alchemy.drawBuff(ctx, 128);
     if (status === 'online' && isCombat(room) && !TOUCH && !rpg.isOpen && !denAt(room)) drawPill(W - 296, 54, 280, 'X / click  attack  ·  I  bag  ·  K  skills');
     const a = clamp(1 - (hintTime - 8) / 1.5, 0, 1);
-    if (!museum.isOpen) drawFeed(ctx, TOUCH ? H - 112 : a > 0 ? H - 56 : isCombat(room) ? H - 72 : H - 14, TOUCH ? 520 : isCombat(room) ? 300 : 620); // on touch, above the controls; above the hotbar
+    if (!museum.isOpen && !chat.isOpen) drawFeed(ctx, TOUCH ? H - 112 : a > 0 ? H - 56 : isCombat(room) ? H - 72 : H - 14, TOUCH ? 520 : isCombat(room) ? 300 : 620); // on touch, above the controls; above the hotbar
     if (a > 0) {
       ctx.globalAlpha = a;
       drawPill(W / 2 - 380, TOUCH ? 140 : H - 48, 760, TOUCH ? '◀ ▶  walk  ·  Jump  ·  E  doors, talk, read  ·  tap the game  slap  ·  Menu' : '← → / A D  walk  ·  ↑ / W / Space  jump  ·  E  use  ·  click  slap  ·  I  bag  ·  K  skills  ·  P  players  ·  M  mic  ·  Esc  menu');
@@ -1154,7 +1181,7 @@ function render() {
 }
 
 // For tests and troubleshooting: open the game with #debug to reach its internals from the console.
-if (location.hash === '#debug') window.slimeville = { net, voice, characters, museum, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, players, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
+if (location.hash === '#debug') window.slimeville = { chat, net, voice, characters, museum, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, players, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
 
 let last = performance.now();
 function frame(now) {

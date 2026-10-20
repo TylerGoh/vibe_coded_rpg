@@ -86,6 +86,10 @@
 //   → {t:'brew', steps, n}  at an alchemy lab ← {t:'brewed', id, item, n, ok}  to the room
 //   → {t:'invite', to}  (from the village or your own house, to a player in the village)
 //       ← {t:'invite', from, name, ms}  to them · → {t:'visit', host, no?}  yes takes them into the host's house
+// Text chat (server/chat.js): one public channel for everyone online, plus private messages by account name
+//   → {t:'chat', text, to?}   ← {t:'chat', id, at, from, to?, text}  public: to everyone · private: to both of you
+//   ← {t:'chat-log', lines:[…same shape]}  at login: recent public lines and your private ones (incl. while offline)
+//   ← {t:'chat-error', text}  just to the sender (no such slime, too fast…)
 // One login per account: logging in again elsewhere takes over, and the old connection is
 // closed with code 4001 (the client then stops reconnecting and says why). Clients predict their own slime and reconcile
 // against `a`; everyone else is interpolated a few ticks in the past.
@@ -102,6 +106,7 @@ import { WINGS } from '../src/history.js';
 import { createNpc, npcConfigured } from './npc.js';
 import { createRpg } from './rpg.js';
 import { createHouses } from './house.js';
+import { createChat } from './chat.js';
 import { decode, encodeSlimes, encodeSnap } from '../src/shared/wire.js';
 import { isCombat } from '../src/shared/rpg.js';
 import { CHARACTERS } from './characters.js';
@@ -204,6 +209,7 @@ function broadcast(msg, except) {
   for (const [id, p] of players) if (id !== except && p.joined) send(p.ws, data);
 }
 const rpg = createRpg({ dbPath: accounts.path, players, send, toRoom, broadcast });
+const chat = createChat({ dbPath: accounts.path, players, send, users: () => accounts.list().map((a) => a.user) });
 const houses = createHouses({ dbPath: accounts.path, players, send, toRoom, pay: rpg.pay, give: rpg.give });
 
 wss.on('connection', (ws) => {
@@ -278,6 +284,8 @@ wss.on('connection', (ws) => {
       houses.invite(id, p, m);
     } else if (m.t === 'visit' && p.joined && typeof m.host === 'string') {
       houses.visit(id, p, m);
+    } else if (m.t === 'chat' && p.joined) {
+      chat.say(p, m);
     } else if (m.t === 'cast' && p.joined) {
       if (!!m.on !== !!p.cast) {
         p.cast = !!m.on;
@@ -431,6 +439,7 @@ async function login(id, p, m) {
   broadcast({ t: 'join', ...info(p, id) }, id);
   rpg.sendMe(p);
   houses.sendOwned(p);
+  chat.sendLog(p);
   rpg.entered(p);
 }
 

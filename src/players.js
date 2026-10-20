@@ -1,6 +1,6 @@
 // Docs: docs/places/houses.md
 // Who's online (P, or the Players button): everyone on the server, where they are, and an Invite button
-// to have them over to your house. Inviting works from the village or your own house, and only for
+// to have them over to your house, and a Message button that opens a private chat with them (src/chat.js). Inviting works from the village or your own house, and only for
 // slimes standing in the village (the server checks too). Also the card that pops up when someone
 // invites you: Go over takes you straight into their house (server/house.js).
 import { paletteFor } from './slime.js';
@@ -28,6 +28,7 @@ export class Players {
     this.invites = []; // [{ name, until }] newest last
     this.timer = null;
     this.sent = new Map(); // player id → when we invited them (the button says Invited for a bit)
+    this.onMessage = null; // (name) → open a private chat with them (main.js)
   }
 
   get isOpen() {
@@ -95,6 +96,12 @@ export class Players {
       info.textContent = `${lvl ? `Lv ${lvl} · ` : ''}${this.place(id, room)}`;
       row.append(dot, name, info);
       if (!isMe) {
+        const msg = document.createElement('button');
+        msg.type = 'button';
+        msg.className = 'pl-msg';
+        msg.textContent = 'Message';
+        msg.onclick = () => this.onMessage?.(r.name);
+        row.append(msg);
         const b = document.createElement('button');
         b.type = 'button';
         const here = isHouse(myRoom) && room === myRoom, sent = performance.now() - (this.sent.get(id) ?? -1e9) < 4000;

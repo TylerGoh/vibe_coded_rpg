@@ -389,6 +389,7 @@ export const NPCS = [
 export const NPC = NPCS[0]; // Elder Mochi
 export const NPC_RANGE = 150;
 export const NPC_TEXT_MAX = 200; // characters per thing you say
+export const CHAT_MAX = 200; // characters per chat line (server/chat.js)
 export const cleanText = (t, max) => String(t ?? '').replace(/[\u0000-\u001f\u007f\u2028\u2029]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
 
 // Prof. Synapse stands on the lecture hall's stage at this x

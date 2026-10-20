@@ -1,7 +1,7 @@
 # Slimeville — notes for agents
 
 A small multiplayer 2D village (MapleStory-style side view) for a group of friends. Slimes walk and jump
-around, talk by proximity voice, chat with AI characters, sit in on AI lectures and quizzes, slap each
+around, talk by proximity voice, text chat (public and private messages), chat with AI characters, sit in on AI lectures and quizzes, slap each
 other, play a giant floor piano, tour a huge history museum, invite friends over to their own houses
 with gardens (furnished from a store, bought bigger with gold; farm herbs there and brew potions at an
 alchemy lab), and fight mobs and bosses across four
@@ -88,7 +88,7 @@ touches (see the index at the bottom) before changing code. Every source file na
   `skills.js` (skill trees, ability points, `statsFor`), `courses.js`.
 - `server/index.js`: HTTP + WebSocket `/rpg/ws` (protocol documented at its top), 60 Hz tick, login,
   rooms, message routing. `server/rpg.js`: characters, mobs, bosses, hits, loot, bag, shop. Others:
-  `accounts.js`, `turn.js`, `npc.js`, `characters.js`, `lecture.js`, `tutor.js`, `vote.js`.
+  `accounts.js`, `turn.js`, `chat.js`, `npc.js`, `characters.js`, `lecture.js`, `tutor.js`, `vote.js`.
 - `src/main.js`: loop, input, HUD, login, Esc menu and the wiring of everything; `src/net.js`: prediction
   and routing. Each feature has its own client file(s), named in its doc.
 - HTML overlays live in `index.html`, positioned in canvas pixels × `--s` in `src/style.css`; the canvas
@@ -109,6 +109,7 @@ touches (see the index at the bottom) before changing code. Every source file na
 | [docs/combat/items.md](docs/combat/items.md) | items, gear, scrolls, gold, the shop, the Boutique |
 | [docs/economy.md](docs/economy.md) | ANY gold / EXP / price / drop / scaling change: the balance sheet, `npm run economy` |
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |
+| [docs/social/chat.md](docs/social/chat.md) | the chatbox, public chat, private messages, chat speech bubbles |
 | [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Curator Clio, DeepSeek, NPC memory |
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
 | [docs/places/piano.md](docs/places/piano.md) | the Music House floor piano |

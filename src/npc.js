@@ -9,7 +9,7 @@ import { text } from './village.js';
 import { ROOMS, NPC_TEXT_MAX } from './shared/sim.js';
 
 const TYPE_SPEED = 45; // characters per second for their replies
-const FEED_LINES = 4;
+const FEED_LINES = 6;
 const FEED_LIFE = 20; // seconds a line stays in the corner feed
 const LOG_LINES = 12;
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
@@ -17,7 +17,7 @@ const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const bubbleLife = (s) => Math.min(12, 4 + s.length * 0.06);
 
 // Split text into lines no wider than maxW (in the current font)
-function wrap(ctx, str, maxW) {
+export function wrap(ctx, str, maxW) {
   const lines = [];
   let line = '';
   for (const word of str.split(' ')) {
@@ -31,7 +31,7 @@ function wrap(ctx, str, maxW) {
   return lines;
 }
 
-// The one dialog box, the one corner feed, and which character the dialog is talking to
+// The one dialog box, the one corner feed (the chat adds its lines too: addFeed), and which character the dialog is talking to
 const ui = {
   el: document.getElementById('npc'),
   logEl: document.getElementById('npc-log'),
@@ -52,6 +52,12 @@ document.getElementById('npc-form').addEventListener('submit', (e) => {
   ui.input.value = '';
 });
 document.getElementById('npc-close').onclick = () => openChar?.close();
+
+// a line from somewhere else (the chat, src/chat.js): { who, text, color } where `who` is the coloured lead-in
+export function addFeed(f) {
+  feed.push({ ...f, at: now() });
+  if (feed.length > FEED_LINES) feed.shift();
+}
 
 export const dialogOpen = () => openChar !== null;
 export const closeDialog = () => openChar?.close();
@@ -318,7 +324,7 @@ export function drawFeed(ctx, bottom, maxWidth = 620) {
     const f = feed[i];
     const a = clamp((FEED_LIFE + Math.min(20, f.text.length / 15) - (now() - f.at)) / 2, 0, 1); // longer answers stay longer
     if (a <= 0) continue;
-    const who = f.from ? `${f.from} → ${f.char}: ` : `${f.char} → ${f.to}: `;
+    const who = f.who ?? (f.from ? `${f.from} → ${f.char}: ` : `${f.char} → ${f.to}: `);
     const whoW = ctx.measureText(who).width;
     const rows = wrap(ctx, `${'\u2003'.repeat(Math.ceil(whoW / ctx.measureText('\u2003').width))}${f.text}`, maxWidth - 20);
     if (rows.length > 3) {
@@ -333,7 +339,7 @@ export function drawFeed(ctx, bottom, maxWidth = 620) {
     ctx.beginPath();
     ctx.roundRect(16, y - h, w, h, 12);
     ctx.fill();
-    ctx.fillStyle = f.from ? '#ffffff' : '#ffe28a';
+    ctx.fillStyle = f.color ?? (f.from ? '#ffffff' : '#ffe28a');
     ctx.fillText(who, 26, y - h + 12);
     ctx.fillStyle = '#ffffff';
     rows.forEach((r, k) => ctx.fillText(k === 0 ? r.trimStart() : r, k === 0 ? 26 + whoW : 26, y - h + 12 + k * 17));

@@ -111,6 +111,14 @@
       <div id="hudbtns">
         <button id="who" type="button" hidden>Players</button>
         <button id="decorate" type="button" hidden>Decorate</button>
+        <button id="chatbtn" type="button" hidden>Chat</button>
+      </div>
+      <div id="chat" role="dialog" aria-label="Chat" hidden>
+        <div id="chat-tabs"></div>
+        <div id="chat-log"></div>
+        <p id="chat-note"></p>
+        <form id="chat-form"><input id="chat-input" autocomplete="off" spellcheck="true" aria-label="Chat message" /><button type="submit">Send</button></form>
+        <button id="chat-close" type="button" aria-label="Close">✕</button>
       </div>
       <div id="players" role="dialog" aria-label="Who's online" hidden>
         <h2>Who's online <span id="players-n"></span></h2>

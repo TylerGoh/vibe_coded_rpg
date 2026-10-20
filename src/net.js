@@ -24,9 +24,9 @@ export function applyKick(s, kick) {
 }
 
 export class Net {
-  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onHouse }) {
+  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onHouse, onChat }) {
     this.url = url;
-    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onHouse };
+    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onHouse, onChat };
     this.id = null;
     this.me = newState(); // predicted state
     this.pending = []; // [seq, keys] not yet acknowledged
@@ -111,6 +111,8 @@ export class Net {
       this.cb.onRpg(m); // the Wildwood: stats, mobs, loot (src/rpg.js)
     } else if (m.t === 'house' || m.t === 'house-grew' || m.t === 'furni' || m.t === 'invite' || m.t === 'harvested' || m.t === 'brewed') {
       this.cb.onHouse(m); // personal houses (src/house.js, src/players.js), farming and alchemy (src/alchemy.js)
+    } else if (m.t === 'chat' || m.t === 'chat-log' || m.t === 'chat-error') {
+      this.cb.onChat(m); // text chat and private messages (src/chat.js)
     } else if (m.t === 'slap') {
       this.cb.onSlap(m);
     } else if (m.t === 'lecture' || m.t === 'hands' || m.t === 'ask-error') {

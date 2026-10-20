@@ -42,6 +42,7 @@ and hits happen exactly where the client saw them. Client-predicted knockback is
 
 ## Protocol cheat sheet
 `hello`/`welcome`/`denied` login · `in` inputs · `s` snapshots · `join`/`leave` · `rtc` voice signalling ·
+`chat`/`chat-log`/`chat-error` text chat ·
 `cast` broadcast · `npc-*` AI characters · `lecture`/`hands`/`ask*` lecture hall · `vote`/`courses` ·
 `tutor*` quiz · `note` piano · `slap` · the combat set (`me`, `mobs`, `loot`, `hurt`, `faint`, `got`,
 `gear`, `toast`, `skill`, `boss`, `nomana`, `shop`, `scrolled`) · bag / skills / stats actions (`equip`,
