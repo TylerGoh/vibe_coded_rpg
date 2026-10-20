@@ -17,8 +17,8 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, CLIFFS_PATH_X, HIGHLANDS, HIGHLANDS_DOOR_X, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE } from './shared/rpg.js';
-import { drawHighlands, drawHighlandsTrail } from './highlands.js';
+import { FIELD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE } from './shared/rpg.js';
+import { drawHighlands } from './highlands.js';
 import { drawCaldera, drawCalderaPass } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
 import { drawDen, drawDenEntrance } from './dens.js';
@@ -32,11 +32,12 @@ import { Players } from './players.js';
 import { Chat } from './chat.js';
 import { WorldMap } from './worldmap.js';
 import { drawHarbour } from './harbour.js';
+import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel } from './crossing.js';
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
-import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X } from './shared/sim.js';
+import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn } from './shared/sim.js';
 
 const canvas = document.getElementById('game');
 const stage = document.getElementById('stage');
@@ -230,7 +231,7 @@ const net = new Net(wsUrl, {
       }
     }
     const c = characters.get(m.npc);
-    if (c && c.cfg.room === room) {
+    if (c && npcIn(c.cfg, room)) {
       c.slapped(SLAP_QUIPS[c.cfg.id][m.quip]);
       struck.push([c.cfg.x, c.ground - 35]);
     } else if (m.npc === 'prof' && room === HALL) {
@@ -261,7 +262,7 @@ const characters = new Map(NPCS.map((cfg) => [cfg.id, new Character(cfg, {
   send: (m) => net.sendNpc(m),
   onOpenChange: () => held.clear(), // no walking off while typing to them
 })]));
-const charsHere = () => [...characters.values()].filter((c) => c.cfg.room === room);
+const charsHere = () => [...characters.values()].filter((c) => npcIn(c.cfg, room));
 const museum = new Museum({ onOpenChange: () => held.clear() });
 const scope = new Telescope(); // the telescope on the east cliffs (src/cliffs.js)
 // Clio can be asked from anywhere in the museum (Q, the Ask button, or a fact sheet's "Ask Clio")
@@ -972,7 +973,7 @@ function update(realDt) {
     mine.talk = ease(mine.talk, voice.micLevel, dt);
   }
 
-  for (const c of characters.values()) c.update(dt, online() && room === c.cfg.room ? mine : null);
+  for (const c of characters.values()) c.update(dt, online() && npcIn(c.cfg, room) ? mine : null);
   if (room === MUSEUM) museum.update(dt, online() ? net.me : null);
   if (scope.isOpen) scope.update(dt);
   tutor.update(dt, online() && room === TUTOR);
@@ -1100,7 +1101,7 @@ function drawHints() {
   drawPrompts(ctx, mine.x, mine.y - mine.h - 30, acts, camX, time, TOUCH);
   // beacons: the nearest couple of things you can't reach yet
   const far = [];
-  for (const d of roomDef(room).doors) far.push({ x: d.x, y: roomDef(room).ground - (isHouse(room) ? 186 : 190), near: d === door }); // above door signs
+  for (const d of roomDef(room).doors) if (doorOpen(me, d)) far.push({ x: d.x, y: roomDef(room).ground - (isHouse(room) ? 186 : 190), near: d === door }); // above door signs
   for (const c of charsHere()) far.push({ x: c.slime.x, y: c.slime.y - c.slime.h * c.cfg.size - 52, near: c.near });
   if (room === VILLAGE) far.push({ x: SHOP_X + 20, y: ROOMS[VILLAGE].ground - 120, near: nearShop() });
   if (room === FIELD) for (const st of RUIN_STONES) far.push({ x: st.x, y: ROOMS[FIELD].ground - 180, near: st === ruinStoneAt(me) });
@@ -1125,7 +1126,6 @@ function render() {
       drawField(ctx, camX, W, time);
       drawRuins(ctx, camX - 80, camX + W + 80, time, online() ? ruinStoneAt(net.me) : null);
       if (near(CLIFFS_PATH_X)) drawCliffsPath(ctx, CLIFFS_PATH_X, ROOMS[FIELD].ground, time);
-      if (near(HIGHLANDS_DOOR_X)) drawHighlandsTrail(ctx, HIGHLANDS_DOOR_X, ROOMS[FIELD].ground, time);
     } else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
       if (near(CALDERA_DOOR_X)) drawCalderaPass(ctx, CALDERA_DOOR_X, ROOMS[HIGHLANDS].ground, time);
@@ -1139,6 +1139,7 @@ function render() {
   else if (room === STORE) store.draw(ctx, camX, W, time);
   else if (room === HARBOUR) drawHarbour(ctx, camX, W, time);
   else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
+  else if (roomDef(room)?.crossing) drawCrossing(ctx, room, camX, W, time, online() ? net.me : null);
   else drawVillage(ctx, camX, W, time);
   if (room === VILLAGE && Math.abs(SHOP_X - camX - W / 2) < W / 2 + 80) {
     merchant.draw(ctx);
@@ -1155,6 +1156,7 @@ function render() {
   if (isCombat(room)) for (const s of meShown ? [...all, mine] : all) rpg.drawShields(ctx, s); // Bubble, Aegis
   for (const s of all) nameTag(s, false);
   if (meShown) nameTag(mine, true);
+  if (roomDef(room)?.crossing) drawCrossingFront(ctx, room, camX, W, time, online() ? net.me : null); // the near water, over the hull's foot
   rpg.drawFx(ctx); // skill effects (and Dash / Blink anywhere)
   if (isCombat(room)) for (const s of all) if (s.hpAt !== undefined && time - s.hpAt < 5) bar(ctx, s.x - 22, s.y - s.h - 14, 44, 6, s.hp / s.maxHp, '#ff6f91');
   for (const s of all) drawTalk(s);
@@ -1215,6 +1217,20 @@ function render() {
     else if (status === 'online' && room === STORE) drawPill(16, 14, 260, `Furniture Store · ${here} shopper${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === HARBOUR) drawPill(16, 14, 300, `Greenhollow Harbour · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CLIFFS) drawPill(16, 14, 300, `The East Cliffs · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && crossingAt(room, net.me)) {
+      // aboard: where she's bound, how long till she's in, and a little track of the voyage
+      const cr = crossingAt(room, net.me);
+      const pw = TOUCH ? 300 : 360; // (on phones the top buttons start just past 330)
+      drawPill(16, 14, pw, `${TOUCH ? 'Ferry' : 'Puddle Jumper'} · ${crossingLabel(cr)} · ${here} aboard`);
+      ctx.fillStyle = 'rgba(91,74,107,0.18)';
+      ctx.beginPath();
+      ctx.roundRect(46, 42, pw - 60, 4, 2);
+      ctx.fill();
+      ctx.fillStyle = cr.docked ? '#5aa9a1' : '#4f6b9a';
+      ctx.beginPath();
+      ctx.roundRect(46, 42, (pw - 60) * cr.k, 4, 2);
+      ctx.fill();
+    }
     else if (status === 'online' && isHouse(room)) {
       drawPill(16, 14, 260, `${houses.title(room, houses.isMine(room))} · ${here} slime${here === 1 ? '' : 's'}`);
     }

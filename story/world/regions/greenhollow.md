@@ -3,9 +3,9 @@
 **Tone:** cozy and storybook. Puns welcome. Danger is light, and fainting is a bump on the head.
 
 ## Landscape, west to east
-1. **Greenhollow Harbour** (exists): piers, a stubby lighthouse with its lamp unlit for
-   ages (its keeper, Granny Wicks, moved inland), fishing boats, and the ferry Puddle Jumper, laid up
-   because Captain Brine won't sail with a dark light behind him. It's at the village's west end, past the furniture store. You can
+1. **Greenhollow Harbour** (exists): piers, a stubby lighthouse, fishing boats, and the ferry Puddle
+   Jumper. The lamp was dark for years (its keeper, Granny Wicks, moved inland) and Captain Brine wouldn't
+   sail with a dark light behind him; then Granny Wicks came home and lit it, and the ferry runs again. It's at the village's west end, past the furniture store. You can
    see Frostpeak's aurora faintly to the north at dusk.
 2. **Slimeville** (exists): the bay village round the old apple tree. Bakery, Inn, Merchant Pip, the
    Lecture Hall, the Music House, the Museum.

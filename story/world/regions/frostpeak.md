@@ -4,7 +4,10 @@
 The first real sadness in the game.
 
 ## Getting there
-The ferry from Greenhollow Harbour, through a grey sea with icebergs, and the aurora growing overhead.
+The ferry from Greenhollow Harbour, through a grey sea with icebergs, and the aurora growing overhead
+(exists: `docs/places/crossings.md`). For now she ties up at a rough jetty at the foot of Frostpine Ridge:
+the fjord has frozen over this year, so you can see Icefang Hamlet's turf huts and the cracked ice bridge
+from the deck but can't land there. The fjord thaws when the landing and hamlet are built (atlas Phase 4).
 
 ## Landscape, shore to summit
 1. **Icefang Fjord** `[proposed, the stage's new first zone]`: the landing. A narrow fjord of black rock
@@ -26,5 +29,5 @@ Chronos's mistake: she held on so hard that it froze her people. Beating the Ast
 back, so ships can steer again, which opens the voyage south.
 
 ## Change from today
-Today Frostpeak is reached by a trail from the Wildwood and left by a "Caldera pass". Both go. Its
-entrance is the fjord landing, and its way onward is a ship.
+The trail from the Wildwood is gone: Frostpeak is reached by the ferry. It's still left by a "Caldera
+pass", which goes when the Steam Straits ship runs. Its entrance becomes the fjord landing (Phase 4).

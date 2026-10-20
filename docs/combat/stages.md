@@ -6,9 +6,11 @@ Data: `src/shared/rpg.js` (`ZONES`, `HIGHLAND_ZONES`, `CALDERA_ZONES`, `CITADEL_
 ## The four stages (each zone's level range is its `lvl` in the data)
 1. **The Wildwood** (`FIELD`, art `src/field.js`, which also draws the village gate and every mob and item
    icon): Sprout Meadow, Mushroom Grove, Bramble Woods. Bramblehogs are aggressive (chase on sight). Bramble
-   Woods holds the Keeper ruins, and past the Highlands trail a spawn-free stretch leads to the east cliffs
-   (`docs/places/cliffs.md`).
-2. **Frostpeak Highlands** (`HIGHLANDS`, `src/highlands.js`): Frostpine Ridge, Starfall Summit.
+   Woods holds the Keeper ruins, and a spawn-free stretch at the very end (where the Highlands trail used
+   to be) leads to the east cliffs (`docs/places/cliffs.md`).
+2. **Frostpeak Highlands** (`HIGHLANDS`, `src/highlands.js`): Frostpine Ridge, Starfall Summit. Reached by
+   the ferry from Greenhollow Harbour, which ties up at its west end (`docs/places/crossings.md`); the old
+   trail from the Wildwood is gone.
 3. **Emberdeep Caldera** (`CALDERA`, `src/caldera.js`): Cinder Flats, Magma Heart.
 4. **Aether Citadel** (`CITADEL`, `src/citadel.js`): Cogwork Bastion, Chrono Spire.
 Stages 3 and 4 were added because players were Lv 35–88 and out of content.

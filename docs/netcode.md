@@ -20,6 +20,8 @@ protocol is documented in the comment at the top of that file: keep it updated**
 - New fields in the physics state must go through `pack` / `unpack` and `src/shared/wire.js`, unless they never change during a
   session: `home` (your house's room) is sent once in welcome / join info instead, and `reconcile()`
   keeps it.
+- `state.vt`, the voyage clock (ticks aboard a crossing, `docs/places/crossings.md`), is a physics field:
+  `step()` counts it and a door's `after` reads it, so arriving at the far side is predicted.
 
 ## Bandwidth and performance changes (the owner allows these; log each one here)
 - 2026-10-20: `state.home` stays out of the 60 Hz snapshots (sent once per player instead).
@@ -31,6 +33,10 @@ protocol is documented in the comment at the top of that file: keep it updated**
   open from before a deploy keep getting JSON (that path can go once nobody runs old tabs). The server
   encodes the shared slime block once per tick and only the 9-byte header per recipient.
   **Adding a physics field now means adding it to `wire.js` too** (and widening `SLIME_BYTES`).
+- 2026-10-20: snapshot wire version 2 adds `vt` (34 bytes per slime). The client's hello says
+  `bin: BIN_VERSION`; tabs from before say `bin: 1` and keep getting the 32-byte records (the server
+  encodes each version someone needs, once per tick). **Bump `BIN_VERSION` for the next wire change too**:
+  old tabs reconnect after a deploy with their old code, so a silent format change garbles every slime.
 - Ideas not done yet: send snapshots of only the slimes in your room (plus broadcasters), or at 30 Hz
   for remote slimes; delta-encode mob updates.
 

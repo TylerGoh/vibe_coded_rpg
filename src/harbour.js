@@ -1,13 +1,15 @@
 // Docs: docs/places/harbour.md
 // Greenhollow Harbour (room HARBOUR in src/shared/sim.js), west of the village: a sea-haze sky with the
-// other islands on the horizon (src/distant.js), the unlit lighthouse on the rocky point at the west end,
-// the keeper's hut and crates you can climb to its gallery, the Frostpeak ferry laid up at the quay
-// (gangway raised, a rope and a notice across it: no sailings till the light is lit), fishing boats and
-// the path back up to Slimeville. Captain Brine (NPCS) stands by the ferry. This room paints its own sky.
+// other islands on the horizon (src/distant.js), the lighthouse on the rocky point at the west end (lit
+// again: Granny Wicks is back in the keeper's hut), the hut and crates you can climb to its gallery, the
+// Frostpeak ferry at the quay with steam up and her gangway down (a door, GANGWAY_X: her deck is a crossing
+// room, src/crossing.js), fishing boats and the path back up to Slimeville. Captain Brine is aboard, at
+// her wheel. This room paints its own sky.
 // Also here: the harbour gate drawn at the village's west end (drawHarbourGate).
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
-import { HARBOUR_W, HARBOUR_EXIT_X, HARBOUR_PLATFORMS } from './shared/sim.js';
+import { HARBOUR_W, HARBOUR_EXIT_X, HARBOUR_PLATFORMS, GANGWAY_X } from './shared/sim.js';
 import { drawDistantIslands } from './distant.js';
+import { beam } from './crossing.js';
 
 const GROUND = 470;
 const HORIZON = 300; // the sea line, in screen space
@@ -56,7 +58,8 @@ export function drawHarbour(ctx, camX, viewW, time) {
   if (visible(1980, 2200, L, R)) drawNetRack(ctx, 2090, time);
   for (const x of BOLLARDS) if (visible(x - 20, x + 20, L, R)) drawBollard(ctx, x);
   for (const p of HARBOUR_PLATFORMS) if (p.kind === 'crates' && visible(p.x - 10, p.x + p.w + 10, L, R)) drawCrates(ctx, p);
-  if (visible(FERRY_X + 60, FERRY_X + 260, L, R)) drawBarrier(ctx, FERRY_X + 160, time);
+  if (visible(GANGWAY_X - 200, GANGWAY_X + 120, L, R)) drawBoarding(ctx, GANGWAY_X, time);
+  if (visible(0, 900, L, R)) beam(ctx, LIGHTHOUSE_X, HARBOUR_PLATFORMS.find((p) => p.kind === 'gallery').y - 28, 1, time); // over everything behind
   if (visible(HARBOUR_EXIT_X - 120, HARBOUR_W, L, R)) drawPath(ctx, HARBOUR_EXIT_X, time);
 }
 
@@ -197,23 +200,16 @@ function drawPoint(ctx, time) {
     ctx.lineWidth = 2;
     ctx.stroke();
   }
-  // the lamp room: dark, dusty glass and a cold lens
+  // the lamp room, lit again: warm glass, the lens bright, flickering a little (the beam is drawn later)
+  const fl = 0.9 + 0.1 * Math.sin(time * 7) * Math.sin(time * 2.3);
   ctx.fillStyle = '#8f8ca8';
   ctx.beginPath();
   ctx.roundRect(x - 26, gal - 58, 52, 58, 4);
   ctx.fill();
-  ctx.fillStyle = '#b8bccb';
+  ctx.fillStyle = `rgba(255,233,160,${fl})`;
   for (const dx of [-17, 0, 17]) ctx.fillRect(x + dx - 6, gal - 52, 12, 46);
-  ctx.fillStyle = '#9ea2b4';
+  ctx.fillStyle = '#fff8d8';
   ellipse(ctx, x, gal - 28, 9, 13);
-  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath(); // a cobweb in the corner
-  ctx.moveTo(x - 23, gal - 50);
-  ctx.quadraticCurveTo(x - 16, gal - 44, x - 9, gal - 54);
-  ctx.moveTo(x - 23, gal - 50);
-  ctx.lineTo(x - 13, gal - 45);
-  ctx.stroke();
   ctx.fillStyle = '#e86f86'; // the cap
   ctx.beginPath();
   ctx.moveTo(x - 36, gal - 56);
@@ -273,24 +269,41 @@ function drawHut(ctx, time) {
   ctx.fillRect(x0, top, x1 - x0, GROUND - top);
   ctx.fillStyle = 'rgba(91,74,107,0.07)';
   for (let y = top + 16; y < GROUND; y += 16) ctx.fillRect(x0, y, x1 - x0, 2);
-  ctx.fillStyle = '#7fa8c8'; // shutters closed over the window
+  // the window, shutters open and a lamp inside: Granny Wicks is home
+  ctx.fillStyle = '#ffe9a8';
   ctx.beginPath();
   ctx.roundRect(x0 + 18, top + 40, 40, 44, 4);
   ctx.fill();
-  ctx.strokeStyle = '#5f88a8';
+  ctx.fillStyle = '#7fa8c8';
+  ctx.beginPath();
+  ctx.roundRect(x0 + 4, top + 40, 12, 44, 3);
+  ctx.roundRect(x0 + 60, top + 40, 12, 44, 3);
+  ctx.fill();
+  ctx.strokeStyle = '#d9b38a';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(x0 + 38, top + 40);
   ctx.lineTo(x0 + 38, top + 84);
+  ctx.moveTo(x0 + 18, top + 62);
+  ctx.lineTo(x0 + 58, top + 62);
   ctx.stroke();
+  ctx.fillStyle = '#ff9fb8'; // a pot of geraniums on the sill
+  ctx.fillRect(x0 + 26, top + 84, 24, 6);
+  circle(ctx, x0 + 31, top + 80, 5);
+  circle(ctx, x0 + 44, top + 79, 5);
   ctx.fillStyle = '#c98a5a'; // the door
   ctx.beginPath();
   ctx.roundRect(x1 - 46, GROUND - 70, 32, 70, [8, 8, 0, 0]);
   ctx.fill();
   ctx.fillStyle = '#ffd36b';
   circle(ctx, x1 - 21, GROUND - 34, 2.4);
-  ctx.fillStyle = '#b8a090'; // chimney, cold
+  ctx.fillStyle = '#b8a090'; // the chimney, smoking again
   ctx.fillRect(x1 - 34, p.y - 30, 16, 32);
+  for (let i = 0; i < 5; i++) {
+    const k = (time * 0.25 + i / 5) % 1;
+    ctx.fillStyle = `rgba(240,236,246,${0.6 * (1 - k)})`;
+    circle(ctx, x1 - 26 + Math.sin(k * 4 + i) * 6 - k * 20, p.y - 36 - k * 80, 6 + k * 12);
+  }
   ctx.fillStyle = '#7fc8c0'; // the roof planks
   ctx.beginPath();
   ctx.roundRect(p.x, p.y, p.w, 12, 4);
@@ -307,7 +320,6 @@ function drawHut(ctx, time) {
   ctx.setLineDash([6, 8]);
   ctx.stroke();
   ctx.setLineDash([]);
-  void time;
 }
 
 function drawCrates(ctx, p) {
@@ -341,7 +353,7 @@ function drawBollard(ctx, x) {
   ellipse(ctx, x, GROUND - 25, 11, 4);
 }
 
-// The Frostpeak ferry, a stout little paddle steamer, moored and laid up: funnel cold, gangway raised
+// The Frostpeak ferry, a stout little paddle steamer, moored with steam up (her gangway: drawBoarding)
 function drawFerry(ctx, time) {
   const x0 = FERRY_X, x1 = FERRY_X + FERRY_LEN, bob = Math.sin(time * 0.9) * 2.5, wl = GROUND - 22 + bob;
   ctx.save();
@@ -442,17 +454,12 @@ function drawFerry(ctx, time) {
   ctx.moveTo(x0 + 6, deck - 16);
   ctx.lineTo(x1 + 24, deck - 22);
   ctx.stroke();
-  // the gangway, hauled up and tied off against the rail
-  ctx.save();
-  ctx.translate(x0 + 560, deck - 4);
-  ctx.rotate(-1.3);
-  ctx.fillStyle = '#c99b6b';
-  ctx.beginPath();
-  ctx.roundRect(0, -6, 92, 12, 3);
-  ctx.fill();
-  ctx.fillStyle = '#a77b52';
-  for (let x = 10; x < 90; x += 14) ctx.fillRect(x, -6, 3, 12);
-  ctx.restore();
+  // steam up: smoke from the funnel
+  for (let i = 0; i < 6; i++) {
+    const k = (time * 0.3 + i / 6) % 1;
+    ctx.fillStyle = `rgba(240,236,246,${0.65 * (1 - k)})`;
+    circle(ctx, x0 + 447 - k * 60 + Math.sin(k * 5 + i) * 6, deck - 150 - k * 110, 9 + k * 20);
+  }
   // mooring lines to the bollards
   ctx.strokeStyle = '#c9b8aa';
   ctx.lineWidth = 2.5;
@@ -465,30 +472,48 @@ function drawFerry(ctx, time) {
   ctx.restore();
 }
 
-// Across the ferry's berth: two posts, a sagging rope and the captain's notice
-function drawBarrier(ctx, x, time) {
-  const sway = Math.sin(time * 1.2) * 1.5;
-  ctx.fillStyle = '#8f6240';
-  for (const px of [x - 70, x + 70]) {
-    ctx.beginPath();
-    ctx.roundRect(px - 5, GROUND - 56, 10, 56, 3);
-    ctx.fill();
-    ctx.fillStyle = '#ffd36b';
-    circle(ctx, px, GROUND - 58, 5);
-    ctx.fillStyle = '#8f6240';
-  }
-  drawPickles(ctx, x - 70, GROUND - 62, time);
-  ctx.strokeStyle = '#d9607a';
-  ctx.lineWidth = 3.5;
+// The ferry's gangway, run down to the quay (the door aboard, GANGWAY_X), the sailing board beside it, and
+// Pickles on his post
+function drawBoarding(ctx, x, time) {
+  const deck = GROUND - 98 + Math.sin(time * 0.9) * 2.5;
+  ctx.fillStyle = '#c99b6b';
   ctx.beginPath();
-  ctx.moveTo(x - 70, GROUND - 50);
-  ctx.quadraticCurveTo(x, GROUND - 32 + sway, x + 70, GROUND - 50);
+  ctx.moveTo(x - 46, GROUND);
+  ctx.lineTo(x + 18, deck);
+  ctx.lineTo(x + 40, deck);
+  ctx.lineTo(x - 22, GROUND);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#a77b52';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 1; i < 6; i++) {
+    const t = i / 6;
+    ctx.moveTo(x - 46 + t * 64, GROUND + t * (deck - GROUND));
+    ctx.lineTo(x - 22 + t * 62, GROUND + t * (deck - GROUND));
+  }
   ctx.stroke();
-  // the notice board on its own post
+  ctx.strokeStyle = '#fff8f0'; // its hand rope
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x - 40, GROUND - 30);
+  ctx.quadraticCurveTo(x - 6, deck - 2, x + 22, deck - 28);
+  ctx.stroke();
+  // Pickles on the gangway post
+  const px = x - 130;
   ctx.fillStyle = '#8f6240';
-  ctx.fillRect(x - 4, GROUND - 128, 8, 92);
+  ctx.beginPath();
+  ctx.roundRect(px - 5, GROUND - 56, 10, 56, 3);
+  ctx.fill();
+  ctx.fillStyle = '#ffd36b';
+  circle(ctx, px, GROUND - 58, 5);
+  drawPickles(ctx, px, GROUND - 62, time);
+  // the sailing board
+  const bx = x - 70;
+  ctx.fillStyle = '#8f6240';
+  ctx.fillRect(bx - 4, GROUND - 128, 8, 128);
   ctx.save();
-  ctx.translate(x, GROUND - 128);
+  ctx.translate(bx, GROUND - 128);
   ctx.rotate(0.03);
   ctx.fillStyle = '#fff6ea';
   ctx.strokeStyle = '#c99b6b';
@@ -498,8 +523,8 @@ function drawBarrier(ctx, x, time) {
   ctx.fill();
   ctx.stroke();
   text(ctx, 'FERRY TO FROSTPEAK', 0, -24, 13, '#4f6b9a');
-  text(ctx, 'No sailings while', 0, -4, 13, INK);
-  text(ctx, 'the light is dark.', 0, 12, 13, INK);
+  text(ctx, 'The light is lit.', 0, -4, 13, INK);
+  text(ctx, 'All aboard!', 0, 12, 13, INK);
   text(ctx, '- Capt. Brine', 34, 26, 10, '#8f6240');
   ctx.restore();
 }

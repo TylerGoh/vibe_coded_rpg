@@ -521,6 +521,32 @@ const SONGS = {
     },
   },
 
+  // Aboard the ferry (the crossing rooms, docs/places/crossings.md): a rolling 6/8 sea shanty in dorian on
+  // the squeezebox, the paddle wheel churning under it, waves slapping the hull and the ship's bell
+  crossing: {
+    bpm: 96, beats: 2, spb: 6, melSteps: 6, key: 62, scale: DORIAN, gain: 0.75, send: 0.3, loop: 8,
+    chords: [[1, 3, 5], [7, 9, 11], [1, 3, 5], [4, 6, 8], [1, 3, 5], [7, 9, 11], [3, 5, 7], [5, 7, 9]],
+    mel: melody(
+      '5 . 5 8 . 7', '6 . 5 4 . .', '5 . 5 8 . 9', '10 . . 8 . .',
+      '8 . 7 6 . 5', '4 . 5 7 . .', '5 . 3 2 . 1', '1 . . . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 380, 0.014); // the open sea
+      p.eng.bed(p, 'bandpass', 900, 0.008, 0.5); // wind in the rigging
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0 || s === 3) e.voice(p.c, t, p.f(ch[s ? 2 : 0], -2), { type: 'triangle', vol: 0.15, tau: 0.25, cutoff: 700 });
+      if (s === 1 || s === 4) for (const d of ch) e.voice(s === 1 ? p.l : p.r, t, p.f(d), { type: 'square', vol: 0.011, a: 0.03, hold: p.stepDur * 1.2, rel: 0.12, cutoff: 1300 });
+      e.noiseHit(p.c, t, { type: 'lowpass', f: 260, vol: s % 3 ? 0.012 : 0.022, a: 0.02, tau: 0.08 }); // the paddle wheel
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { type: 'square', vol: 0.03, a: 0.04, hold: m.len * 0.85, rel: 0.15, cutoff: 1700, unison: 3, vib: 6, vibRate: 5 });
+      if (m && part === 1) e.voice(p.r, t, p.f(m.d, 1), { ...GLOCK, vol: 0.05 });
+      if (s === 0 && bar % 2 === 1) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'lowpass', f: 300, sweep: 1200, sweepT: 0.9, vol: 0.05, a: 0.8, hold: 0.15, tau: 0.5 }); // a wave on the hull
+      if (s === 0 && bar === 0 && pass % 2 === 0) for (let i = 0; i < 2; i++) e.voice(p.l, t + i * 0.45, 880, { type: 'sine', vol: 0.03, a: 0.002, tau: 0.9, partials: [[2.4, 0.3], [4.1, 0.1]] }); // two bells
+    },
+  },
+
   // Lecture hall: soft maj7 pads and a rare bell; the professor talks over it
   hall: {
     bpm: 56, spb: 8, key: 60, scale: MAJOR, gain: 0.6, send: 0.35,
@@ -1976,7 +2002,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // the Frostpeak Highlands

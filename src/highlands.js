@@ -1,10 +1,10 @@
 // Docs: docs/combat/stages.md
-// The Frostpeak Highlands: the second mob stage, up the trail from the Wildwood's east end (data in
+// The Frostpeak Highlands: the second mob stage, where the ferry from Greenhollow lands (data in
 // src/shared/rpg.js). Frostpine Ridge is a snowy pine forest at soft blue dusk; Starfall Summit is a
 // crystal mountaintop under a starry violet night. This room draws its own sky (all 540 px).
 // The two den cave mouths (x 1880 and 3820) are drawn elsewhere, so the scenery leaves room round them.
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
-import { HIGHLANDS_W, FIELD_W, FIELD_GROUND, HIGHLANDS_EXIT_X, HIGHLAND_ZONES, HIGHLAND_PLATFORMS, DENS, HIGHLANDS } from './shared/rpg.js';
+import { HIGHLANDS_W, FIELD_GROUND, HIGHLANDS_EXIT_X, HIGHLAND_ZONES, HIGHLAND_PLATFORMS, DENS, HIGHLANDS } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
 
 const GROUND = FIELD_GROUND;
@@ -151,10 +151,10 @@ export function drawHighlands(ctx, camX, viewW, time) {
   if (visible(HIGHLANDS_W - 140, HIGHLANDS_W + 10, L, R)) drawEastEdge(ctx, time);
   drawGround(ctx, Math.max(0, L), Math.min(HIGHLANDS_W, R), time);
   HIGHLAND_ZONES.forEach((z, i) => {
-    const sx = i === 0 ? 210 : z.x0 + 170;
+    const sx = i === 0 ? 360 : z.x0 + 170; // (the first one clear of the ferry's jetty)
     if (visible(sx - 80, sx + 80, L, R)) drawZoneSign(ctx, sx, z, i, time);
   });
-  if (visible(HIGHLANDS_EXIT_X - 90, HIGHLANDS_EXIT_X + 90, L, R)) drawExit(ctx, HIGHLANDS_EXIT_X, time);
+  if (visible(-40, HIGHLANDS_EXIT_X + 200, L, R)) drawJetty(ctx, HIGHLANDS_EXIT_X, time);
   HIGHLAND_PLATFORMS.forEach((p, i) => {
     if (!visible(p.x - 40, p.x + p.w + 40, L, R)) return;
     if (p.kind === 'ice') drawIce(ctx, p, platBits[i], time);
@@ -653,52 +653,98 @@ function drawZoneSign(ctx, x, z, i, time) {
 }
 
 // The way back down: a snowy wooden signpost, "← Wildwood"
-function drawExit(ctx, x, time) {
-  const base = GROUND;
-  drawStoneArch(ctx, x, base, time);
-  hangingSign(ctx, x, base - 150, 'Wildwood', null, -1, time);
-}
-
-// A rough stone arch capped with snow
-function drawStoneArch(ctx, x, base, time) {
-  const half = 54, top = base - 150;
-  for (const px of [x - half, x + half]) {
-    ctx.fillStyle = '#8a90b8';
-    ctx.beginPath();
-    ctx.roundRect(px - 11, top + 14, 22, base - top - 12, 8);
-    ctx.fill();
-    ctx.fillStyle = '#9ea4c8';
-    for (let sy = top + 30; sy < base - 6; sy += 26) ellipse(ctx, px - 2, sy, 8, 5);
+// The ferry's jetty at the west end (HIGHLANDS_EXIT_X): a strip of dark fjord water at the room's edge, the
+// Puddle Jumper's bow moored in it with her gangway down onto a plank jetty, a lit lantern post and a sign
+// home (docs/places/crossings.md)
+function drawJetty(ctx, x, time) {
+  const base = GROUND, bob = Math.sin(time * 0.9) * 2, end = x + 90;
+  // the water at the foot of the shore
+  ctx.fillStyle = '#5a7698';
+  ctx.beginPath();
+  ctx.moveTo(-10, base - 40);
+  ctx.lineTo(end + 30, base - 40);
+  ctx.quadraticCurveTo(end + 60, base - 20, end + 40, base + 2);
+  ctx.lineTo(-10, base + 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  for (let i = 0; i < 4; i++) ctx.fillRect(10 + i * 40 + Math.sin(time + i) * 4, base - 30 + (i % 2) * 8, 18, 2);
+  // the bow, moored behind the jetty: navy hull, cream band, rail, bowsprit and her name
+  const top = base - 128 + bob, wl = base - 34 + bob;
+  ctx.fillStyle = '#4f6b9a';
+  ctx.beginPath();
+  ctx.moveTo(-10, top + 6);
+  ctx.lineTo(end - 20, top);
+  ctx.quadraticCurveTo(end - 10, wl - 20, end - 60, wl);
+  ctx.lineTo(-10, wl);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#fff1dc';
+  ctx.beginPath();
+  ctx.moveTo(-10, top + 12);
+  ctx.lineTo(end - 22, top + 6);
+  ctx.lineTo(end - 24, top + 20);
+  ctx.lineTo(-10, top + 26);
+  ctx.closePath();
+  ctx.fill();
+  text(ctx, 'PUDDLE JUMPER', x - 20, top + 17, 10, '#4f6b9a');
+  ctx.fillStyle = '#ffffff';
+  for (const px of [10, 50]) circle(ctx, px, top + 50, 6);
+  ctx.strokeStyle = '#fff8f0';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-10, top - 18);
+  ctx.lineTo(end - 22, top - 22);
+  for (let px = 0; px < end - 20; px += 30) {
+    ctx.moveTo(px, top - 18);
+    ctx.lineTo(px, top + 2);
   }
-  ctx.strokeStyle = '#7a80a8';
-  ctx.lineWidth = 20;
+  ctx.stroke();
+  ctx.strokeStyle = '#8f6240';
+  ctx.lineWidth = 6;
   ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.moveTo(x - half - 6, top + 22);
-  ctx.quadraticCurveTo(x, top - 30, x + half + 6, top + 22);
+  ctx.moveTo(end - 24, top);
+  ctx.lineTo(end + 40, top - 38);
   ctx.stroke();
-  ctx.strokeStyle = '#9ea4c8';
-  ctx.lineWidth = 11;
-  ctx.stroke();
-  // snow on top
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 9;
+  // the jetty: planks on posts along the shore
+  ctx.fillStyle = '#8f7a6a';
+  for (let px = 6; px <= end + 20; px += 36) ctx.fillRect(px - 4, base - 12, 8, 16);
+  ctx.fillStyle = '#b89a7e';
   ctx.beginPath();
-  ctx.moveTo(x - half - 8, top + 12);
-  ctx.quadraticCurveTo(x, top - 40, x + half + 8, top + 12);
-  ctx.stroke();
+  ctx.roundRect(-10, base - 14, end + 40, 10, 3);
+  ctx.fill();
   ctx.fillStyle = '#ffffff';
-  for (const px of [x - half, x + half]) ellipse(ctx, px, base - 2, 16, 5);
-  // icicles under the arch
-  ctx.fillStyle = '#d4ecff';
-  for (let i = -3; i <= 3; i++) {
-    const ix = x + i * 14, iy = top + 6 + Math.abs(i) * 5 + (i * i) * 1.2;
-    ctx.beginPath();
-    ctx.moveTo(ix - 3, iy);
-    ctx.lineTo(ix, iy + 9 + (i % 2 ? 4 : 0) + Math.sin(time + i) * 0.5);
-    ctx.lineTo(ix + 3, iy);
-    ctx.fill();
-  }
+  ellipse(ctx, end + 10, base - 13, 24, 3);
+  // the gangway, from her rail down to the jetty
+  ctx.fillStyle = '#c99b6b';
+  ctx.beginPath();
+  ctx.moveTo(x - 30, top - 2);
+  ctx.lineTo(x - 6, top - 2);
+  ctx.lineTo(x + 22, base - 14);
+  ctx.lineTo(x - 6, base - 14);
+  ctx.closePath();
+  ctx.fill();
+  // a post with a lantern on one arm (lit) and the sign home hanging from the other
+  const lx = end + 80;
+  ctx.fillStyle = '#6d6880';
+  ctx.fillRect(lx - 4, base - 172, 8, 172);
+  ctx.fillRect(lx - 4, base - 110, 26, 6);
+  ctx.fillRect(lx - 66, base - 172, 66, 6);
+  const g = ctx.createRadialGradient(lx + 18, base - 92, 2, lx + 18, base - 92, 46);
+  g.addColorStop(0, 'rgba(255,226,150,0.75)');
+  g.addColorStop(1, 'rgba(255,226,150,0)');
+  ctx.fillStyle = g;
+  circle(ctx, lx + 18, base - 92, 46);
+  ctx.fillStyle = '#ffe9a8';
+  ctx.beginPath();
+  ctx.roundRect(lx + 11, base - 102, 14, 18, 4);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ellipse(ctx, lx + 9, base - 110, 16, 4);
+  ctx.fillStyle = '#ffffff';
+  ellipse(ctx, lx - 30, base - 172, 34, 4);
+  hangingSign(ctx, lx - 34, base - 180, 'Greenhollow', 'ferry', -1, time);
 }
 
 function hangingSign(ctx, x, y, label, sub, dir, time) {
@@ -736,46 +782,6 @@ function hangingSign(ctx, x, y, label, sub, dir, time) {
     ctx.roundRect(-26, 42, 52, 13, 6.5);
     ctx.fill();
     text(ctx, sub, 0, 48.5, 10, '#5a6ca8');
-  }
-  ctx.restore();
-}
-
-// The trail up to the Highlands, drawn in the Wildwood at HIGHLANDS_DOOR_X: a snowy stone arch over
-// a path, with a sign "Frostpeak Highlands ↑ Lv 13+" and a few snowflakes drifting out of it.
-export function drawHighlandsTrail(ctx, x, groundY, time) {
-  ctx.save();
-  // a cold glow and a little snowy path leading in
-  const g = ctx.createRadialGradient(x, groundY - 70, 10, x, groundY - 70, 110);
-  g.addColorStop(0, 'rgba(210,230,255,0.55)');
-  g.addColorStop(1, 'rgba(210,230,255,0)');
-  ctx.fillStyle = g;
-  circle(ctx, x, groundY - 70, 110);
-  ctx.fillStyle = '#eef4ff';
-  ctx.beginPath();
-  ctx.ellipse(x, groundY + 2, 62, 7, 0, 0, TAU);
-  ctx.fill();
-  // stone steps going up behind the arch
-  ctx.fillStyle = '#b8c0dc';
-  for (let i = 0; i < 4; i++) {
-    ctx.beginPath();
-    ctx.roundRect(x - 34 + i * 4, groundY - 14 - i * 16, 68 - i * 8, 10, 4);
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.roundRect(x - 30 + i * 4, groundY - 16 - i * 16, 60 - i * 8, 4, 2);
-    ctx.fill();
-    ctx.fillStyle = '#b8c0dc';
-  }
-  drawStoneArch(ctx, x, groundY, time);
-  // keep the sign inside the Wildwood's east edge (the camera stops there)
-  ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
-  const half = (ctx.measureText('Frostpeak Highlands').width + 44) / 2;
-  hangingSign(ctx, Math.min(x, FIELD_W - 10 - half), groundY - 150, 'Frostpeak Highlands', 'Lv 13+', 0, time);
-  // snowflakes drifting out
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  for (let i = 0; i < 8; i++) {
-    const k = (time * 0.25 + i / 8) % 1;
-    circle(ctx, x - 40 + ((i * 37) % 80) + Math.sin(k * 6 + i) * 6, groundY - 140 + k * 140, 1.6 + (i % 3) * 0.6);
   }
   ctx.restore();
 }

@@ -492,7 +492,7 @@ function briarArcAt(ctx, x, base, w, h, seed, time) {
 // Swing left and right between the three landmarks you can see from here. Captions stay at canon Tier 0
 // (story/canon.md): names and what a sailor would tell you, nothing of the history.
 const VIEWS = [
-  { key: 'frost', name: 'Frostpeak, far to the north', s: 1.45, line: 'Snow on every peak, and coloured lights rippling over them even by day. Captain Brine sails there, when the lighthouse is lit.' },
+  { key: 'frost', name: 'Frostpeak, far to the north', s: 1.45, line: 'Snow on every peak, and coloured lights rippling over them even by day. Captain Brine\'s ferry sails there from the harbour.' },
   { key: 'citadel', name: 'Something in the sky', s: 2.4, sky: 34, line: 'A pale island hanging over the middle of the sea, towers and all. Clouds drift. This does not.' },
   { key: 'ember', name: 'Emberdeep, far to the south', s: 1.6, line: 'A volcano with a smoke column you could set a clock by. The sea round it steams.' },
 ];

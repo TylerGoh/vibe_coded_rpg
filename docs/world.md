@@ -11,12 +11,13 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Music House (piano) | 2 `PIANO` | exit |
 | Grand Museum of History | 3 `MUSEUM` | exit · wing portals in the lobby (`wingPortalX`) · back-to-lobby door at each wing (`wingReturnX`) |
 | Tutoring Room | 4 `TUTOR` | back to the hall |
-| The Wildwood | 5 `FIELD` | village · 3 dens · Highlands trail · the gap to the east cliffs (east end) |
-| Frostpeak Highlands | 9 `HIGHLANDS` | Wildwood · 2 dens · Caldera pass |
+| The Wildwood | 5 `FIELD` | village · 3 dens · the gap to the east cliffs (east end; the Highlands trail went when the ferry started) |
+| Frostpeak Highlands | 9 `HIGHLANDS` | the ferry's jetty (west end, boards `FERRY_S`) · 2 dens · Caldera pass |
 | Emberdeep Caldera | 12 `CALDERA` | Highlands · 2 dens · Citadel skylift |
 | Aether Citadel | 13 `CITADEL` | Caldera · 2 dens |
 | Greenhollow's East Cliffs | 20 `CLIFFS` | back into the Wildwood (west end); a vista, no mobs (`docs/places/cliffs.md`) |
-| Greenhollow Harbour | 19 `HARBOUR` | back up to the village (east end); the ferry has no door yet (`docs/places/harbour.md`) |
+| Greenhollow Harbour | 19 `HARBOUR` | back up to the village (east end) · the ferry's gangway (`GANGWAY_X`, boards `FERRY_N`) (`docs/places/harbour.md`) |
+| The ferry's deck, out / home | 21 `FERRY_N`, 22 `FERRY_S` | ashore at Frostpeak / Greenhollow Harbour, once she's in (`docs/places/crossings.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17 | exit, back to the stage it's in (`DENS[].from`) |
 | Personal houses | `HOUSE_BASE` and up, one per account | out to the village (`docs/places/houses.md`) |
@@ -37,6 +38,8 @@ Stages and dens: `docs/combat/stages.md`, `docs/combat/bosses.md`. No level gate
 ## Doors and rooms run in the physics
 Doors are in `ROOMS[room].doors` and are taken inside `step()` on the USE input bit (`doorAt`), so a room
 change is predicted like any other movement. Never move a player between rooms with a side message.
+A door can be shut for now: `doorOpen` checks your own house exists (`HOME`) and a door's `after` (the
+ferry's gangway opens when your voyage clock `state.vt` reaches it, `docs/places/crossings.md`).
 
 ## Camera
 The camera stays inside the room, except that a room with `viewPad` lets it look that far past its east

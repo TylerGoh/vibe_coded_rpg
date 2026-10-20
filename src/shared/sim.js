@@ -14,11 +14,12 @@ export const DT = 1 / TICK_RATE;
 
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLANDS_DOOR_X, HIGHLAND_PLATFORMS, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS } from './rpg.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
 export const CLIFFS = 20; // Greenhollow's east cliffs, past the end of the Wildwood (docs/places/cliffs.md)
+export const FERRY_N = 21, FERRY_S = 22; // the ferry's deck, out to Frostpeak and back home (docs/places/crossings.md)
 export { FIELD };
 
 export const PLATFORMS = [
@@ -48,6 +49,9 @@ export const HARBOUR_EXIT_X = HARBOUR_W - 90; // back up to the village, at the 
 export const CLIFFS_W = 1700;
 export const CLIFFS_EXIT_X = 80; // back into the Wildwood, at the cliffs' west end
 export const CLIFFS_SCOPE_X = 1440; // the telescope, near the edge
+export const GANGWAY_X = 1000; // the ferry's gangway, at the quay in the harbour
+export const DECK_W = 1500; // a crossing room: the deck, stern (west) to bow (east)
+export const DECK_GANGWAY_X = 560; // where you come aboard, and go ashore once she's in
 export const STORE_W = 7400; // the showroom: every piece of FURNITURE on display (src/shared/house.js DISPLAY)
 
 // ——— personal houses (docs/places/houses.md) ———
@@ -151,7 +155,6 @@ export const ROOMS = [
     name: 'The Wildwood', width: FIELD_W, ground: FIELD_GROUND, platforms: FIELD_PLATFORMS,
     doors: [
       { x: FIELD_EXIT_X, w: 80, to: VILLAGE, toX: FIELD_GATE_X, label: 'back to Slimeville' },
-      { x: HIGHLANDS_DOOR_X, w: 80, to: HIGHLANDS, toX: HIGHLANDS_EXIT_X, label: 'climb to the Frostpeak Highlands (Lv 13+)' },
       { x: CLIFFS_PATH_X, w: 80, to: CLIFFS, toX: CLIFFS_EXIT_X, label: 'push through to the sea cliffs' },
       ...denDoors(FIELD),
     ],
@@ -167,7 +170,7 @@ for (const d of DENS) {
 ROOMS[HIGHLANDS] = {
   name: 'The Frostpeak Highlands', width: HIGHLANDS_W, ground: FIELD_GROUND, platforms: HIGHLAND_PLATFORMS,
   doors: [
-    { x: HIGHLANDS_EXIT_X, w: 80, to: FIELD, toX: HIGHLANDS_DOOR_X, label: 'back down to the Wildwood' },
+    { x: HIGHLANDS_EXIT_X, w: 80, to: FERRY_S, toX: DECK_GANGWAY_X, label: 'board the ferry home to Greenhollow' },
     { x: CALDERA_DOOR_X, w: 80, to: CALDERA, toX: CALDERA_EXIT_X, label: 'descend to the Emberdeep Caldera (Lv 28+)' },
     ...denDoors(HIGHLANDS),
   ],
@@ -192,7 +195,7 @@ ROOMS[CITADEL] = {
   doors: [{ x: CITADEL_EXIT_X, w: 80, to: CALDERA, toX: CITADEL_DOOR_X, label: 'ride the skylift down to the Caldera' }, ...denDoors(CITADEL)],
 };
 // room 19: Greenhollow Harbour. Its platforms are crates, the old keeper's hut and the lighthouse gallery
-// (drawn by src/harbour.js, which reads them from here). The ferry is moored but laid up: no door to it.
+// (drawn by src/harbour.js, which reads them from here). The ferry's gangway is a door onto her deck.
 export const HARBOUR_PLATFORMS = [
   { x: 640, y: 372, w: 110, kind: 'crates' },
   { x: 470, y: 288, w: 130, kind: 'hut' },
@@ -201,7 +204,10 @@ export const HARBOUR_PLATFORMS = [
 ];
 ROOMS[HARBOUR] = {
   name: 'Greenhollow Harbour', width: HARBOUR_W, ground: 470, platforms: HARBOUR_PLATFORMS,
-  doors: [{ x: HARBOUR_EXIT_X, w: 80, to: VILLAGE, toX: HARBOUR_GATE_X, label: 'walk back up to Slimeville' }],
+  doors: [
+    { x: HARBOUR_EXIT_X, w: 80, to: VILLAGE, toX: HARBOUR_GATE_X, label: 'walk back up to Slimeville' },
+    { x: GANGWAY_X, w: 80, to: FERRY_N, toX: DECK_GANGWAY_X, label: 'board the ferry to Frostpeak (Lv 13+)' },
+  ],
 };
 // room 20: Greenhollow's east cliffs, a vista with no mobs. The room ends at the cliff edge (a fence), and
 // `viewPad` lets the camera look that far past the east wall, out over the drop and the open sea.
@@ -213,6 +219,31 @@ ROOMS[CLIFFS] = {
   name: "Greenhollow's East Cliffs", width: CLIFFS_W, ground: 450, platforms: CLIFFS_PLATFORMS, viewPad: 380,
   doors: [{ x: CLIFFS_EXIT_X, w: 80, to: FIELD, toX: CLIFFS_PATH_X, label: 'back into the Wildwood (mobs!)' }],
 };
+// rooms 21 and 22: crossings (docs/places/crossings.md). A crossing is the deck of a ship under way: ordinary
+// step() physics on the deck, while the sea and sky scroll past (drawing only, src/crossing.js). Your own
+// voyage clock (state.vt, ticks since you came aboard) runs in step(), and the way ashore is a door that
+// only opens once it reaches `crossing.ticks` (`after`), so arriving is predicted like any door. One room
+// type, themed per route; each direction is its own room so the two sailings don't share a deck.
+// Platforms: crates by the helm, the cabin roof, the yard on the mast, the crow's nest.
+export const DECK_GROUND = 440;
+export const DECK_PLATFORMS = [
+  { x: 330, y: 392, w: 96, kind: 'crates' },
+  { x: 860, y: 322, w: 250, kind: 'cabin' },
+  { x: 1180, y: 252, w: 150, kind: 'yard' },
+  { x: 1218, y: 140, w: 74, kind: 'nest' },
+];
+const deck = (name, crossing, ashore) => ({
+  name, width: DECK_W, ground: DECK_GROUND, platforms: DECK_PLATFORMS, crossing,
+  doors: [{ ...ashore, x: DECK_GANGWAY_X, w: 90, after: crossing.ticks }],
+});
+// route: the theme src/crossing.js paints · from / to: the islands (src/distant.js keys) · ticks: how long
+// she takes. The first crossing out is the slow one (story/world/geography.md); home is quicker.
+ROOMS[FERRY_N] = deck('The Puddle Jumper, bound for Frostpeak', { route: 'cold', from: 'green', to: 'frost', ticks: 60 * TICK_RATE },
+  { to: HIGHLANDS, toX: HIGHLANDS_EXIT_X, label: 'go ashore at Frostpeak' });
+ROOMS[FERRY_S] = deck('The Puddle Jumper, bound for Greenhollow', { route: 'cold', from: 'frost', to: 'green', ticks: 45 * TICK_RATE },
+  { to: HARBOUR, toX: GANGWAY_X, label: 'go ashore at Greenhollow Harbour' });
+export const VOYAGE_MAX = 65535; // state.vt stops counting here (it's a u16 on the wire)
+
 const houses = new Map(); // room id → its room definition
 // The room definition for any room id, houses included (undefined for an id that isn't a room)
 export function roomDef(room) {
@@ -272,10 +303,18 @@ const HALF_W = 16; // half the slime's footprint, for platform edges and world b
 // jh / dh / bh: Jump / Dash / Blink held last step. mv: mobility ranks. dt: dash ticks left; dc / bc: dash / blink
 // cooldowns; ifr: untouchable ticks; fj: the Flash Jump is used up (until you land)
 // home: the room id of your own house (set by the server at login; 0 = none yet, so that door stays shut)
-export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0 });
+// vt: voyage ticks, how long you've been aboard a crossing (0 everywhere else)
+export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0 });
 
+// Whether door d can be used right now (your own house once you have one; a ship's gangway once she's in)
+export const doorOpen = (s, d) => (d.to !== HOME || !!s.home) && (!d.after || (s.vt | 0) >= d.after);
 // The door a slime standing at s could go through, or undefined
-export const doorAt = (s) => roomDef(s.room).doors.find((d) => s.grounded && !s.onPlat && Math.abs(s.x - d.x) <= d.w / 2 && (d.to !== HOME || s.home));
+export const doorAt = (s) => roomDef(s.room).doors.find((d) => s.grounded && !s.onPlat && Math.abs(s.x - d.x) <= d.w / 2 && doorOpen(s, d));
+// How far along its crossing a slime is, 0..1 (0 when not aboard one)
+export const voyage = (s) => {
+  const c = roomDef(s.room)?.crossing;
+  return c ? Math.min(1, (s.vt | 0) / c.ticks) : 0;
+};
 
 // Quantised to 1/100 px so the state sent over the wire is exactly the state simulated.
 const q = (v) => Math.round(v * 100) / 100;
@@ -293,12 +332,13 @@ export function step(s, keys) {
     s.room = door.to === HOME ? s.home : door.to;
     s.x = door.toX;
     s.y = roomDef(s.room).ground;
-    s.vx = s.vy = s.drop = s.dt = 0;
+    s.vx = s.vy = s.drop = s.dt = s.vt = 0;
     s.grounded = true;
     s.onPlat = false;
     return s;
   }
   const room = roomDef(s.room);
+  s.vt = room.crossing ? Math.min(VOYAGE_MAX, (s.vt | 0) + 1) : 0;
   const pressedJump = keys & JUMP && !s.jh, pressedDash = keys & DASH && !s.dh, pressedBlink = keys & BLINK && !s.bh;
   s.jh = !!(keys & JUMP);
   s.dh = !!(keys & DASH);
@@ -381,10 +421,10 @@ export function step(s, keys) {
   return s;
 }
 
-// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr]
+// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt]
 // (`home` never changes, so it isn't in snapshots: welcome / join info carry it, and src/net.js keeps ours)
 // flags: 1 grounded · 2 on a platform · 4 facing left · 8 E held · 16 Jump held · 32 Dash held · 64 Blink held · 128 Flash Jump used
-export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0];
+export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0];
 export function unpack(a, s = {}) {
   s.x = a[1];
   s.y = a[2];
@@ -405,6 +445,7 @@ export function unpack(a, s = {}) {
   s.dc = a[10] ?? 0;
   s.bc = a[11] ?? 0;
   s.ifr = a[12] ?? 0;
+  s.vt = a[13] ?? 0;
   return s;
 }
 
@@ -413,13 +454,15 @@ export const cleanName = (n) => String(n ?? '').replace(/[\u0000-\u001f\u007f]/g
 export const cleanHue = (h) => ((Math.round(Number(h)) % 360) + 360) % 360 || 0;
 
 // The AI characters you can talk to (personalities: server/characters.js). Each stands on the ground of
-// its room at x; walk within `range` and press E. `accessory` is how src/slime.js dresses them.
+// its room at x; walk within `range` and press E. `accessory` is how src/slime.js dresses them. `also`: more
+// rooms they stand in, at the same x (Brine at the helm of both sailings); use npcIn() rather than .room.
 export const NPCS = [
   { id: 'mochi', name: 'Elder Mochi', short: 'Mochi', room: VILLAGE, x: 2075, hue: 95, range: 150, size: 1.3, accessory: 'elder', faces: -1, blurb: 'the oldest slime in Slimeville' },
-  { id: 'brine', name: 'Captain Brine', short: 'Brine', room: HARBOUR, x: 1180, hue: 205, range: 130, size: 1.25, accessory: 'captain', faces: 1, blurb: 'master of the Frostpeak ferry, laid up in harbour' },
+  { id: 'brine', name: 'Captain Brine', short: 'Brine', room: FERRY_N, also: [FERRY_S], x: 250, hue: 205, range: 130, size: 1.25, accessory: 'captain', faces: 1, blurb: 'master of the Puddle Jumper, at her wheel' },
   { id: 'clio', name: 'Curator Clio', short: 'Clio', room: MUSEUM, x: 300, hue: 32, range: 80, size: 1.15, accessory: 'curator', faces: 1, blurb: 'historian of the Grand Museum · ask from anywhere in the museum', anywhere: true },
 ];
 export const NPC = NPCS[0]; // Elder Mochi
+export const npcIn = (c, room) => c.room === room || !!c.also?.includes(room);
 export const NPC_RANGE = 150;
 export const NPC_TEXT_MAX = 200; // characters per thing you say
 export const CHAT_MAX = 200; // characters per chat line (server/chat.js)

@@ -9,7 +9,7 @@
 // Everyone else: drawn INTERP ticks in the past, interpolated between the two snapshots around that
 // moment, so they glide smoothly even though packets arrive unevenly.
 import { TICK_RATE, newState, step, unpack } from './shared/sim.js';
-import { decode, encodeInput } from './shared/wire.js';
+import { decode, encodeInput, BIN_VERSION } from './shared/wire.js';
 
 const INTERP = 6; // ticks (100 ms) behind the newest snapshot for remote slimes
 const MAX_SNAPS = 60;
@@ -49,7 +49,7 @@ export class Net {
     ws.binaryType = 'arraybuffer';
     ws.onopen = () => {
       this.retry = 0;
-      ws.send(JSON.stringify({ t: 'hello', ...profile, bin: 1 })); // bin: we read binary snapshots
+      ws.send(JSON.stringify({ t: 'hello', ...profile, bin: BIN_VERSION })); // bin: we read binary snapshots (of this version)
     };
     // snapshots and mob updates are binary (src/shared/wire.js), everything else JSON
     ws.onmessage = (e) => {

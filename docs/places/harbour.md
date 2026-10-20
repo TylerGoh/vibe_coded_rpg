@@ -1,34 +1,36 @@
 # Greenhollow Harbour and the far-off islands
 
-Files: `src/harbour.js` (the room, its sky and sea, and the harbour gate drawn in the village),
+Files: `src/harbour.js` (the room, its sky and sea, and the harbour gate drawn in the village; the lighthouse
+beam is `beam` from `src/crossing.js`),
 `src/distant.js` (the other islands in every outdoor sky), the room in `src/shared/sim.js` (`HARBOUR`,
-`HARBOUR_W`, `HARBOUR_GATE_X`, `HARBOUR_EXIT_X`, `HARBOUR_PLATFORMS`), Captain Brine's persona in
-`server/characters.js`, the `harbour` music scene in `src/audio.js`. Story: `story/world/regions/greenhollow.md`,
-`story/world/atlas.md` (Phases 0 and 1 of the build order).
+`HARBOUR_W`, `HARBOUR_GATE_X`, `HARBOUR_EXIT_X`, `HARBOUR_PLATFORMS`, `GANGWAY_X`), Captain Brine's persona in
+`server/characters.js`, the `harbour` music scene in `src/audio.js`. The ferry's deck: `docs/places/crossings.md`. Story: `story/world/regions/greenhollow.md`,
+`story/world/atlas.md` (Phases 0, 1 and 3 of the build order).
 
 ## The harbour (room 19)
 - Reached through the harbour gate at the village's west end (`HARBOUR_GATE_X`, left of the spawn); the
   path back to Slimeville is at the harbour's east end. The village's "Slimeville" signpost moved east to
   make room, and the west-end fence went.
-- West to east: the rocky point and the **lighthouse** (lamp dark for ages: grey glass, a cobweb), the old
-  keeper's hut, crates, the **ferry Puddle Jumper** moored at the quay, **Captain Brine** with the notice
-  and rope across the berth, two fishing boats, a net rack, the path up. Pickles, Brine's one-legged gull,
-  sits on the barrier post.
+- West to east: the rocky point and the **lighthouse** (lit: a warm lamp and a soft beam sweeping round),
+  the old keeper's hut (Granny Wicks is home: shutters open, a lamp in the window, geraniums, the chimney
+  smoking), crates, the **ferry Puddle Jumper** at the quay with steam up and her gangway down, the sailing
+  board, two fishing boats, a net rack, the path up. Pickles, Brine's one-legged gull, sits on the gangway
+  post.
 - Climbable for fun: crates → the hut roof → the lighthouse gallery (`HARBOUR_PLATFORMS`). No mobs: harbours
   are safe rooms (`story/world/atlas.md`).
-- **The ferry is shown but can't be boarded** (owner's rule: the next phase shows but doesn't open, see
-  `Agent.md`). The in-world reason: Brine won't sail while the lighthouse is dark, and nobody has lit it
-  since its keeper moved inland. The gangway is hauled up and the notice says so. There's no door. When the
-  crossing room ships (atlas Phase 3), that update simply lights the lamp and the ferry runs: no unlock
-  quest (owner's call). Update Brine's persona to match.
-- The Frostpeak Highlands trail in the Wildwood stays until the ferry works (never remove a back door
-  before its crossing exists).
+- **The ferry runs** (atlas Phase 3, `docs/places/crossings.md`). E at the gangway (`GANGWAY_X`) takes you
+  aboard her deck (`FERRY_N`); coming home you land back here at the gangway. History: in Phase 1 she was
+  laid up, shown but not boardable (owner's rule: the next phase shows but doesn't open), because Brine
+  wouldn't sail while the lighthouse was dark. The Phase 3 update itself lit the lamp, no unlock quest
+  (owner's call): in-world, Granny Wicks came home from inland and lit it.
+- Captain Brine is aboard now, at the wheel on both decks, not on the quay.
 - The telescope on the east cliffs (`docs/places/cliffs.md`) shows the same islands up close.
 
 ## Captain Brine
-An AI character like Elder Mochi (`docs/social/ai-characters.md`): he runs (well, keeps) the ferry, and you
-can chat with him. His persona knows only canon Tier 0 and his own trade, deflects lore questions ("ask
-old Mochi"), never promises a sailing date, and mostly talks about his own life: forty years at sea, his
+An AI character like Elder Mochi (`docs/social/ai-characters.md`): he sails the ferry, and you can chat
+with him at her wheel during the crossing. His persona knows only canon Tier 0 and his own trade, deflects
+lore questions ("ask old Mochi"), knows why she ties up at the ridge jetty and not the frozen fjord (and
+never promises when the ice will break), and mostly talks about his own life: forty years at sea, his
 ship, Pickles, superstitions, cards at the Inn. Slapping him gets `SLAP_QUIPS.brine`.
 
 ## The far-off islands in the sky

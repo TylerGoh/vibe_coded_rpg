@@ -4,7 +4,7 @@
 // (server/rpg.js); the client only draws them (src/rpg.js, art in src/field.js).
 
 export const FIELD = 5; // room id (see ROOMS in sim.js)
-export const FIELD_W = 5200; // the last stretch past the Highlands trail is mob-free: the briar thins out toward the sea cliffs
+export const FIELD_W = 5200; // the last stretch (where the Highlands trail used to be) is mob-free: the briar thins out toward the sea cliffs
 export const CLIFFS_PATH_X = FIELD_W - 80; // the way out to Greenhollow's east cliffs (room CLIFFS in sim.js), at the very east end
 export const FIELD_GROUND = 450;
 export const FIELD_EXIT_X = 70; // the way back to the village, at the field's west end
@@ -16,11 +16,10 @@ export const ZONES = [
   { name: 'Mushroom Grove', x0: 1600, x1: 3200, lvl: '4–7' },
   { name: 'Bramble Woods', x0: 3200, x1: FIELD_W, lvl: '8+' },
 ];
-// The second stage: the Frostpeak Highlands, up a trail from the Wildwood's east end
+// The second stage: the Frostpeak Highlands, over the sea to the north: the ferry lands at its west end (docs/places/crossings.md)
 export const HIGHLANDS = 9; // room id
 export const HIGHLANDS_W = 4000;
-export const HIGHLANDS_EXIT_X = 70; // back down to the Wildwood
-export const HIGHLANDS_DOOR_X = 4740; // the trail up, at the Wildwood's east end
+export const HIGHLANDS_EXIT_X = 70; // the ferry's jetty: aboard for home
 export const HIGHLAND_ZONES = [
   { name: 'Frostpine Ridge', x0: 0, x1: 2000, lvl: '13–17' },
   { name: 'Starfall Summit', x0: 2000, x1: HIGHLANDS_W, lvl: '18+' },

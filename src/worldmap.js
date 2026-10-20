@@ -4,14 +4,17 @@
 // routes and fog where the charts run out, plus a bouncing "you are here" slime. Drawing only: nothing
 // on it is clickable and it sends nothing to the server.
 import { FIELD, HIGHLANDS, CALDERA, CITADEL, DENS } from './shared/rpg.js';
+import { roomDef } from './shared/sim.js';
 
 const MW = 720, MH = 380; // the chart's size in canvas pixels (× --s on screen, see style.css)
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const INK = '#5b4a6b';
 
 // Which island a room is on. Everything not listed (the village, its buildings, houses, the Wildwood) is home.
+// Aboard a crossing you're 'sea': on the ferry's route.
 const ISLAND_OF_STAGE = { [HIGHLANDS]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel' };
 export function islandOf(room) {
+  if (roomDef(room)?.crossing) return 'sea';
   const den = DENS.find((d) => d.room === room);
   return ISLAND_OF_STAGE[den ? den.from : room] ?? 'green';
 }
@@ -23,6 +26,7 @@ const ISLANDS = {
   ember: { x: 400, y: 296, name: 'Emberdeep', sub: 'the far south' },
   citadel: { x: 545, y: 150, name: 'Aether Citadel', sub: 'in the sky' },
 };
+const PINS = { ...ISLANDS, sea: { x: 205, y: 150 } }; // (sea: out on the ferry's route)
 
 // Small seeded random, so the coastlines and waves are the same every time the page opens
 function seeded(seed) {
@@ -296,7 +300,7 @@ function drawChart(ctx, t, here, hue) {
   label(ctx, 46, 26, 'N', 13);
 
   // you are here: a little bouncing slime in your colour
-  const pin = ISLANDS[here];
+  const pin = PINS[here];
   if (pin) {
     const hop = Math.abs(Math.sin(t * 3)) * 8;
     const px = pin.x, py = pin.y - 18 - hop;

@@ -9,13 +9,14 @@
 //   ← {t:'s', k:tick, a:lastSeqApplied, p:[[id,x,y,vx,vy,flags,drop], ...]}
 // Binary: `in`, `s` and `mobs` are binary frames (src/shared/wire.js) for clients that said `bin` in
 // their hello; JSON for older tabs still open from before (they can't read binary). Everything else is JSON.
+// `bin` is the snapshot version the tab reads (BIN_VERSION; 1 = before the voyage clock `vt`).
 // plus ← welcome / join / leave events, or ← {t:'denied', reason} for a bad login.
 // Proximity voice chat is peer-to-peer WebRTC (src/voice.js); the server only relays the call setup:
 //   → {t:'rtc', to, d}  is forwarded as  ← {t:'rtc', from, d}  (offers, answers, ICE candidates, byes).
 // Broadcasting: → {t:'cast', on}  ← {t:'cast', id, on}  to everyone. A broadcaster is heard by every slime in
 //   every room at full volume (one way: they still only hear others by proximity). The welcome's `casts`
 //   lists who's broadcasting already; a broadcast ends when they leave.
-// AI characters (NPCS in src/shared/sim.js, server/npc.js): Elder Mochi, Curator Clio. Talking is public;
+// AI characters (NPCS in src/shared/sim.js, server/npc.js): Elder Mochi, Captain Brine, Curator Clio. Talking is public;
 // every message carries `npc`, the character's id:
 //   → {t:'npc-open', npc}           ← {t:'npc-log', npc, lines}   the recent conversation, to anyone
 //   → {t:'npc', npc, text}  (standing within the character's range, in its room)
@@ -99,7 +100,7 @@ import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
-import { TICK_RATE, newState, step, pack, KEY_MASK, SPAWN_X, NPCS, NPC_TEXT_MAX, cleanText, VILLAGE, HALL, TUTOR, MUSEUM, MUSEUM_WINGS, EXHIBIT_SPACING, exhibitX, ROOMS, PROF_X, SLAP_REACH, SLAP_COOLDOWN_MS, SLAP_QUIPS, PIANO, pianoKeyAt, roomDef, isHouse, HOME_DOOR_X } from '../src/shared/sim.js';
+import { TICK_RATE, newState, step, pack, KEY_MASK, SPAWN_X, NPCS, NPC_TEXT_MAX, cleanText, VILLAGE, HALL, TUTOR, MUSEUM, MUSEUM_WINGS, EXHIBIT_SPACING, exhibitX, ROOMS, PROF_X, SLAP_REACH, SLAP_COOLDOWN_MS, SLAP_QUIPS, PIANO, pianoKeyAt, roomDef, isHouse, HOME_DOOR_X, npcIn, VOYAGE_MAX } from '../src/shared/sim.js';
 import { createLecture } from './lecture.js';
 import { createTutor } from './tutor.js';
 import { createVote } from './vote.js';
@@ -108,7 +109,7 @@ import { createNpc, npcConfigured } from './npc.js';
 import { createRpg } from './rpg.js';
 import { createHouses } from './house.js';
 import { createChat } from './chat.js';
-import { decode, encodeSlimes, encodeSnap } from '../src/shared/wire.js';
+import { decode, encodeSlimes, encodeSnap, BIN_VERSION } from '../src/shared/wire.js';
 import { isCombat } from '../src/shared/rpg.js';
 import { CHARACTERS } from './characters.js';
 import { openAccounts } from './accounts.js';
@@ -235,8 +236,8 @@ function savePositions() {
   const pos = {};
   for (const p of players.values()) {
     if (!p.joined) continue;
-    const { room, x } = p.state;
-    if (!isHouse(room)) pos[p.name] = { room, x };
+    const { room, x, vt } = p.state;
+    if (!isHouse(room)) pos[p.name] = { room, x, ...(vt ? { vt } : {}) }; // (vt: mid-crossing, so the voyage goes on)
     else pos[p.name] = room === p.state.home ? { room: 'home', x } : { room: VILLAGE, x: HOME_DOOR_X };
   }
   try {
@@ -256,6 +257,7 @@ function restorePos(user, state) {
   state.room = room;
   state.x = Math.max(20, Math.min(r.width - 20, Number(v.x) || 0));
   state.y = r.ground;
+  if (r.crossing) state.vt = Math.max(0, Math.min(VOYAGE_MAX, Number(v.vt) | 0));
 }
 
 wss.on('connection', (ws) => {
@@ -311,9 +313,10 @@ wss.on('connection', (ws) => {
     } else if (m.t === 'house-set' && p.joined) {
       houses.set(p, m);
     } else if (m.t === 'tp' && p.joined && process.env.TEST_TP) {
-      // tests only (TEST_TP=1, never live): jump to {room?, x} instead of walking there; room -1 = your house
+      // tests only (TEST_TP=1, never live): jump to {room?, x, vt?} instead of walking there; room -1 = your
+      // house; vt: how far into a crossing (ticks)
       const room = m.room === -1 ? p.state.home : Number.isInteger(m.room) ? m.room : p.state.room;
-      if (roomDef(room)) Object.assign(p.state, newState(Math.max(0, Math.min(roomDef(room).width, Number(m.x) || 0))), { room, y: roomDef(room).ground, home: p.state.home, mv: p.state.mv });
+      if (roomDef(room)) Object.assign(p.state, newState(Math.max(0, Math.min(roomDef(room).width, Number(m.x) || 0))), { room, y: roomDef(room).ground, home: p.state.home, mv: p.state.mv, vt: roomDef(room).crossing ? Number(m.vt) | 0 : 0 });
     } else if (m.t === 'furni-buy' && p.joined && typeof m.k === 'string') {
       houses.buy(p, m);
     } else if (m.t === 'house-grow' && p.joined) {
@@ -394,7 +397,7 @@ function slap(id, p, m) {
     if (inReach(p.state, dir, at.x, at.y, 8)) hits.push(qid);
   }
   let npc;
-  for (const c of NPCS) if (c.room === room && inReach(p.state, dir, c.x, ROOMS[room].ground, 12)) npc = c.id; // they're big slimes
+  for (const c of NPCS) if (npcIn(c, room) && inReach(p.state, dir, c.x, ROOMS[room].ground, 12)) npc = c.id; // they're big slimes
   if (room === HALL && inReach(p.state, dir, PROF_X, ROOMS[HALL].platforms[0].y, 10)) npc = 'prof';
   const quip = npc && Math.floor(Math.random() * SLAP_QUIPS[npc].length);
   const mobs = isCombat(room) ? rpg.attack(id, p, dir, m.hits) : [];
@@ -414,7 +417,7 @@ function museumPlace(x) {
 }
 
 // Characters marked `anywhere` (Clio) can be asked from anywhere in their room
-const nearNpc = (p, c) => p.state.room === c.room && (c.anywhere || Math.hypot(p.state.x - c.x, p.state.y - ROOMS[c.room].ground) <= c.range + 40); // slack for lag
+const nearNpc = (p, c) => npcIn(c, p.state.room) && (c.anywhere || Math.hypot(p.state.x - c.x, p.state.y - ROOMS[p.state.room].ground) <= c.range + 40); // slack for lag
 
 async function talkToNpc(p, m) {
   const c = npcs.get(m.npc ?? 'mochi');
@@ -474,7 +477,7 @@ async function login(id, p, m) {
   }
   online.set(acc.user, id);
   p.joined = true;
-  p.bin = !!m.bin; // reads binary snapshots / mob updates (src/shared/wire.js)
+  p.bin = m.bin === true ? 1 : Math.max(0, Math.min(BIN_VERSION, m.bin | 0)); // reads binary snapshots / mob updates of this version (src/shared/wire.js)
   p.name = acc.user;
   p.hue = acc.hue;
   p.state = state;
@@ -580,11 +583,11 @@ function update() {
 
   const snap = [];
   for (const [id, p] of players) if (p.joined) snap.push(pack(id, p.state));
-  let slimes, json; // made once, only in the formats someone needs
+  const slimes = [], json = []; // made once per version, only in the formats someone needs
   for (const p of players.values()) {
     if (!p.joined) continue;
-    if (p.bin) send(p.ws, encodeSnap(tick, p.ack, (slimes ??= encodeSlimes(snap))));
-    else send(p.ws, `{"t":"s","k":${tick},"a":${p.ack},"p":${(json ??= JSON.stringify(snap))}}`);
+    if (p.bin) send(p.ws, encodeSnap(tick, p.ack, (slimes[p.bin] ??= encodeSlimes(snap, p.bin))));
+    else send(p.ws, `{"t":"s","k":${tick},"a":${p.ack},"p":${(json[0] ??= JSON.stringify(snap))}}`);
   }
 }
 

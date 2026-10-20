@@ -10,17 +10,17 @@ new mobs, bosses, towns and characters, are in `world/atlas.md`. Every change st
 lore, rich personal lives (`characters/people.md`).
 
 ## 1. Geography (the owner's top complaint: the islands are too close)
-- [ ] **Remove the back-door chain.** The Wildwood → Highlands trail, the Highlands → Caldera pass and the
+- [ ] **Remove the back-door chain.** The Wildwood → Highlands trail (gone, Phase 3), the Highlands → Caldera pass and the
       Caldera → Citadel skylift go. Each island is reached by its crossing. (`world/geography.md`)
 - [x] **Greenhollow Harbour**, a new room west of the village: piers, an unlit lighthouse, Captain Brine,
       the ferry. (`world/regions/greenhollow.md`)
-- [ ] **Crossing rooms:** a ship deck over a scrolling sea, for roughly a minute, then you arrive. One room
+- [x] **Crossing rooms:** a ship deck over a scrolling sea, for roughly a minute, then you arrive. One room
       type, themed per route (cold sea, Steam Straits, cloud climb). Movement on deck is normal `step()`
-      physics; the scroll is drawing only.
+      physics; the scroll is drawing only. (The cold sea ferry shipped: `docs/places/crossings.md`.)
 - [ ] **A landing zone at the start of each island** (Icefang Fjord, Black Sand Shore, the Skydocks): a
       calm stretch with a hamlet and harbour, before the mobs.
 - [x] **The Wildwood ends at sea cliffs** with the view across the water (room 20, the telescope; the
-      Highlands trail beside it goes in Phase 3).
+      Highlands trail beside it went in Phase 3).
 - [x] **Distant islands in every outdoor sky,** in compass direction (`world/geography.md`, `src/distant.js`).
 - [ ] Gating: the Steam Straits voyage needs the Astral Wyrm beaten (stars restored). Ask the owner
       before adding any hard gate. The game has none today, on purpose (`docs/world.md`).

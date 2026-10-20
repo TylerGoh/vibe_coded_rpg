@@ -23,8 +23,8 @@ music scene in `src/audio.js`, wiring in `src/main.js`.
 
 ## The east cliffs (room 20)
 - Reached through a gap in the briar at the Wildwood's very east end (`CLIFFS_PATH_X`). The Wildwood was
-  lengthened (`FIELD_W`) for it: the last stretch past the Highlands trail has no spawns, so the briar
-  thins out toward the sea. The Highlands trail stays until the ferry works (atlas Phase 3).
+  lengthened (`FIELD_W`) for it: the last stretch (where the Highlands trail used to be) has no spawns,
+  so the briar thins out toward the sea. The trail went in atlas Phase 3, when the ferry started.
 - A safe vista (no mobs, not a combat room): a windy clifftop with two windswept trees, a boulder and a
   bench you can stand on (`CLIFFS_PLATFORMS`), the telescope, and a fence at the sheer edge.
 - **The camera looks past the east wall.** The room has `viewPad` (read by the camera clamps in
@@ -38,9 +38,10 @@ music scene in `src/audio.js`, wiring in `src/main.js`.
   steps back. While it's up your slime stands still (`keys()` returns 0).
 - Phones: the movement pad stays visible and does the same thing; a tap on the canvas's sides swings, a
   tap in the middle steps back. The usage line sits inside the lens there (the top edge has buttons).
-- Captions are canon Tier 0 plus what a sailor would say. Frostpeak's mentions Brine's ferry and the dark
-  lighthouse, which ties into the next phase.
+- Captions are canon Tier 0 plus what a sailor would say. Frostpeak's mentions Brine's ferry from the
+  harbour (`docs/places/crossings.md`).
 
 ## Next phase hooks
-- Phase 3 removes the Highlands trail; the cliffs path then is the Wildwood's only east exit.
+- Since Phase 3 the cliffs path is the Wildwood's only east exit; Frostpeak is reached by the ferry
+  (`docs/places/crossings.md`).
 - `[proposed]` Clio could ask players for rubbings of the stones (the Slime Ages wing, `story/roadmap.md`).

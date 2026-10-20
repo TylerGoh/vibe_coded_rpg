@@ -118,8 +118,8 @@ near home and get older and plainer further out (`../README.md`). Mobs are the i
 the Citadel's are machines and echoes.
 
 ### Greenhollow (home, Lv 1–12): cozy, puns welcome
-1. **Greenhollow Harbour** (exists, room 19 west of the village): piers, the unlit lighthouse,
-   fishing boats, the ferry Puddle Jumper (laid up). Cast: **Captain Brine** (AI, the ferry), Pickles his
+1. **Greenhollow Harbour** (exists, room 19 west of the village): piers, the lighthouse (lit since
+   Phase 3: Granny Wicks came home), fishing boats, the ferry Puddle Jumper (running). Cast: **Captain Brine** (AI, the ferry), Pickles his
    gull. Later: sailors from other islands.
 2. **Slimeville** (exists): hometown. Cast: Elder Mochi, Curator Clio, Merchant Pip, the baker, the
    innkeeper. Over the acts it changes a little (lit lighthouse, foreign goods at Pip's).
@@ -133,7 +133,7 @@ the Citadel's are machines and echoes.
    - Dens: Sprout King, Mother Mushroom, Bramble Behemoth (all exist).
 4. **The east cliffs** (exists, room 20, a vista): through a gap in the briar at the Wildwood's east end.
    No mobs. A bench, a telescope (E to look: swings between Frostpeak, the Citadel and Emberdeep).
-   Replaces the Highlands trail once the ferry runs.
+   The Wildwood's only east exit since the Highlands trail went (Phase 3).
 
 ### Frostpeak (far north, Lv 12–27): quiet, dry humour at most
 1. **Icefang Fjord landing** `[proposed]`: ferry dock, the cracked ice bridge in the background.
@@ -262,11 +262,15 @@ stand-in door into an existing area.
 - [x] **Phase 2: the Wildwood's story.** Keeper ruins with plaques in Bramble Woods; the east cliffs vista
       with the telescope (shipped 2026-10-20; `docs/places/cliffs.md`). The Highlands trail stays until
       Phase 3's ferry works.
-- [ ] **Phase 3: the crossing room.** One moving-deck room type, themed per route. First theme: the cold
+- [x] **Phase 3: the crossing room.** One moving-deck room type, themed per route. First theme: the cold
       sea ferry. The patch itself lights the lighthouse (no quest, owner's call); the harbour then
-      leads onto the ferry, the ferry to Frostpeak, and the Highlands trail goes.
+      leads onto the ferry, the ferry to Frostpeak, and the Highlands trail goes (shipped 2026-10-20;
+      `docs/places/crossings.md`). She ties up at a jetty at the ridge's west end: the fjord is frozen
+      over, with the hamlet and ice bridge in sight from the deck (Phase 4's visible-but-blocked).
 - [ ] **Phase 4: Frostpeak's front.** Icefang Fjord landing and Icefang Hamlet (Old Skaldi, Runa, Tove),
-      fjord-folk slime look, the cracked ice bridge. Fill Frostpeak's open mob slots.
+      fjord-folk slime look, the cracked ice bridge. Fill Frostpeak's open mob slots. The update thaws
+      the fjord: the ferry's `FERRY_N` gangway then lands at the fjord dock instead of the ridge jetty,
+      and Brine's persona drops the frozen-fjord line.
 - [ ] **Phase 5: the south.** The Steam Straits crossing, Black Sand Shore with the springs, Forgehold
       (Ash, Auntie Soot, Slag). The Caldera pass goes.
 - [ ] **Phase 6: the climb.** The thermal column vista, the balloon crossing, the Skydocks zone and the

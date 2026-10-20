@@ -5,7 +5,7 @@ Files: `NPCS` in `src/shared/sim.js` (placement), `server/characters.js` (person
 `{ json, temperature }` and is reused by the lecture and tutor), `src/npc.js` (one shared dialog box and
 one shared corner feed).
 
-- Elder Mochi (village, by the big tree), Captain Brine (Greenhollow Harbour, `docs/places/harbour.md`) and Curator Clio (museum lobby; a history expert who knows the
+- Elder Mochi (village, by the big tree), Captain Brine (at the wheel of the ferry, on both decks: `also` on his `NPCS` entry, so always test rooms with `npcIn()`, `docs/places/crossings.md`) and Curator Clio (museum lobby; a history expert who knows the
   exhibit list). Press E in range to talk.
 - Clio has `anywhere: true`: she can be asked from anywhere in the museum (Q, the "Ask Clio" touch button,
   or "Ask Clio about this" on a fact sheet). The server tells her where the asker stands (`museumPlace()`).
