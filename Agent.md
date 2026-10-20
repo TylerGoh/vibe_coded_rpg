@@ -48,8 +48,9 @@ touches (see the index at the bottom) before changing code. Every source file na
   `journalctl --user -u rpg` (the startup log says whether TURN and DeepSeek are on). Restarting drops
   everyone for a few seconds; clients reconnect. Unit changes: `install -m 644 deploy/rpg.service
   ~/.config/systemd/user/` + `daemon-reload`.
-- Git: `~/rpg` is a repo, remote `origin` = github.com:TylerGoh/vibe_coded_rpg (branch `main`). Commit and
-  push only when the user asks; `.gitignore` keeps out `data/` (accounts DB), `dist/` and `node_modules/`.
+- Git: `~/rpg` is a repo, remote `origin` = github.com:TylerGoh/vibe_coded_rpg (branch `main`). **Always
+  commit and push after every deploy** without asking (owner's standing instruction: it's a low-stakes
+  project). `.gitignore` keeps out `data/` (accounts DB), `dist/` and `node_modules/`; never commit secrets.
 - Secrets (mode 600, loaded via EnvironmentFile; never print or commit): `~/.config/rpg/turn.env`
   (Cloudflare TURN) and `~/.config/rpg/deepseek.env` (DEEPSEEK_API_KEY).
 - **Big features: work in a copy of the repo** (tar `~/rpg` minus node_modules/data/dist into the

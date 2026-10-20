@@ -15,7 +15,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Frostpeak Highlands | 9 `HIGHLANDS` | Wildwood · 2 dens · Caldera pass |
 | Emberdeep Caldera | 12 `CALDERA` | Highlands · 2 dens · Citadel skylift |
 | Aether Citadel | 13 `CITADEL` | Caldera · 2 dens |
-| Furniture store | 18 `STORE` | exit (`docs/places/houses.md`) |
+| Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17 | exit, back to the stage it's in (`DENS[].from`) |
 | Personal houses | `HOUSE_BASE` and up, one per account | out to the village (`docs/places/houses.md`) |
 

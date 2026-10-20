@@ -5,7 +5,7 @@
 // index into HOUSE_SIZES (only the server changes it, when you pay), k a FURNITURE id, x its centre, y its
 // bottom (world px), f flipped. Items are drawn in their layer order (rugs, wall things, then the rest)
 // and, within a layer, in array order. Drawings: src/house.js.
-import { HOUSE_GROUND } from './sim.js';
+import { HOUSE_GROUND, ROOMS, STORE, STORE_W } from './sim.js';
 
 // Every house is an open-plan inside (x 0 → inside, big picture windows onto the sky) with a backyard
 // right behind it (inside → inside + yard). Bigger sizes cost gold, paid once to expand for good; prices
@@ -190,4 +190,44 @@ export function snapPlacement(k, px, py, { size, items }) {
     if (top >= py - 24 && top < y && top - def.h >= WALL_TOP) y = top;
   }
   return { x, y };
+}
+
+// ——— the furniture store's showroom (drawn by src/store.js) ———
+// One of every piece on display, section by section after an entrance lobby. The lobby has a numbered
+// door to each section and each section has one back (museum style): they're doors in ROOMS[STORE], added
+// here because the layout depends on FURNITURE, so both the server's and the client's physics take them.
+export const STORE_SECTIONS = [
+  { name: 'Living room', color: '#9fd8ff' },
+  { name: 'Bedroom', color: '#ffb3c7' },
+  { name: 'Little things', color: '#ffe28a' },
+  { name: 'On the wall', color: '#c9b6ff' },
+  { name: 'Garden', color: '#8fd18a' },
+];
+export const STORE_GROUND = 470;
+export const STORE_PEDESTAL = 46; // little things stand on a pedestal so they're easy to see
+const SHOW_FIRST = 820, SHOW_GAP = 52, SECTION_GAP = 220;
+export const storePortalX = (i) => 250 + i * 100; // in the lobby
+// Every piece on display { k, x, y (its bottom), small } and every section { name, color, x (its sign),
+// x0, x1 (its wall band), back (its door back to the lobby; none for the first) }
+export const DISPLAY = [], SHOW_SECTIONS = [];
+{
+  let x = SHOW_FIRST;
+  for (const sec of STORE_SECTIONS) {
+    const ks = Object.keys(FURNITURE).filter((k) => FURNITURE[k].sec === sec.name);
+    if (!ks.length) continue;
+    const x0 = x, small = sec.name === 'Little things';
+    for (const k of ks) {
+      const def = FURNITURE[k];
+      DISPLAY.push({ k, x: x + def.w / 2, y: def.layer === 'wall' ? STORE_GROUND - 170 : small ? STORE_GROUND - STORE_PEDESTAL : STORE_GROUND, small });
+      x += def.w + SHOW_GAP;
+    }
+    SHOW_SECTIONS.push({ ...sec, x: (x0 + x - SHOW_GAP) / 2, x0: x0 - 40, x1: x - SHOW_GAP + 40, back: x0 - 100 });
+    x += SECTION_GAP;
+  }
+  if (x > STORE_W) console.warn(`the showroom needs ${x} px: raise STORE_W in sim.js`);
+  SHOW_SECTIONS.forEach((s, i) => {
+    ROOMS[STORE].doors.push({ x: storePortalX(i), w: 56, to: STORE, toX: s.back + 60, label: `go to section ${i + 1}: ${s.name}` });
+    // (the first section starts right after the lobby: no way back needed)
+    if (i) ROOMS[STORE].doors.push({ x: s.back, w: 56, to: STORE, toX: storePortalX(i), label: 'back to the entrance' });
+  });
 }

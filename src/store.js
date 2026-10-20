@@ -1,42 +1,19 @@
 // Docs: docs/places/houses.md
 // The furniture store (room STORE): a long showroom with one of every FURNITURE piece on display, in
-// sections, each with its price tag. Walk up to a piece and press E (or tap E) for a card that buys it
+// sections, each with its price tag (the layout and the lobby's doors to each section: src/shared/house.js). Walk up to a piece and press E (or tap E) for a card that buys it
 // ({t:'furni-buy'}); the server takes the gold and adds it to what you own ({t:'furni'}), and it shows up
 // in your decorate panel at home. Also draws the store's outside in the village (src/village.js).
-import { H, circle } from './util.js';
+import { H, circle, mix } from './util.js';
 import { text } from './village.js';
 import { audio } from './audio.js';
-import { STORE_W, STORE_EXIT_X } from './shared/sim.js';
-import { FURNITURE } from './shared/house.js';
+import { STORE_EXIT_X } from './shared/sim.js';
+import { FURNITURE, DISPLAY, SHOW_SECTIONS, STORE_GROUND, STORE_PEDESTAL, storePortalX } from './shared/house.js';
 import { drawFurniture, furnitureIcon, drawWallpaper, drawFloor } from './furniture.js';
 
-const GROUND = 470;
+const GROUND = STORE_GROUND, PEDESTAL = STORE_PEDESTAL, GAP = 52;
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
-const SECTIONS = ['Living room', 'Bedroom', 'Little things', 'On the wall', 'Garden'];
-const PEDESTAL = 46; // little things stand on a pedestal so they're easy to see
-const WALL_Y = GROUND - 170; // where wall things hang (their bottom)
-const GAP = 52, SECTION_GAP = 150;
 const gold = (n) => n.toLocaleString('en-US');
-
-// Where every piece is on display: { k, x, y, sec } (y its bottom), and each section's sign { name, x }
-export const DISPLAY = [], SIGNS = [];
-{
-  let x = 320;
-  for (const sec of SECTIONS) {
-    const ks = Object.keys(FURNITURE).filter((k) => FURNITURE[k].sec === sec);
-    if (!ks.length) continue;
-    const x0 = x;
-    for (const k of ks) {
-      const def = FURNITURE[k];
-      const small = sec === 'Little things';
-      DISPLAY.push({ k, x: x + def.w / 2, y: def.layer === 'wall' ? WALL_Y : small ? GROUND - PEDESTAL : GROUND, small });
-      x += def.w + GAP;
-    }
-    SIGNS.push({ name: sec, x: (x0 + x - GAP) / 2, x0: x0 - 40, x1: x - GAP + 40 });
-    x += SECTION_GAP;
-  }
-  if (x > STORE_W) console.warn(`the showroom needs ${x} px: raise STORE_W in sim.js`);
-}
+const snap = (x, n) => Math.floor(x / n) * n; // patterns start on a fixed grid, so they don't slide with the camera
 
 export class Store {
   constructor({ send, gold: myGold, owned, toast }) {
@@ -110,9 +87,10 @@ export class Store {
   // ——— drawing ———
   draw(ctx, camX, viewW, time) {
     const L = camX - 40, R = camX + viewW + 40;
-    drawWallpaper(ctx, 0, L, R, 0, GROUND);
+    const L0 = snap(L, 240);
+    drawWallpaper(ctx, 0, L0, R, 0, GROUND);
     // each section gets its own wall colour band and a sign
-    for (const s of SIGNS) {
+    for (const s of SHOW_SECTIONS) {
       if (s.x1 < L || s.x0 > R) continue;
       if (s.name === 'Garden') {
         // a painted sky and a patch of lawn: the garden corner
@@ -134,8 +112,8 @@ export class Store {
     ctx.fillRect(L, GROUND - 90, R - L, 90);
     ctx.fillStyle = '#e3bf91';
     ctx.fillRect(L, GROUND - 92, R - L, 5);
-    drawFloor(ctx, 1, L, R, GROUND, H);
-    for (const s of SIGNS) {
+    drawFloor(ctx, 1, L0, R, GROUND, H);
+    for (const s of SHOW_SECTIONS) {
       if (s.name !== 'Garden' || s.x1 < L || s.x0 > R) continue;
       ctx.fillStyle = '#8fd18a';
       ctx.beginPath();
@@ -149,6 +127,10 @@ export class Store {
     ctx.fillRect(L, 40, R - L, 12);
     for (let x = Math.floor(L / 240) * 240 + 120; x < R; x += 240) this.drawLight(ctx, x, time);
     this.drawDoor(ctx);
+    SHOW_SECTIONS.forEach((s, i) => {
+      this.drawArchDoor(ctx, storePortalX(i), s.color, String(i + 1), s.name);
+      if (i) this.drawArchDoor(ctx, s.back, s.color, '<', 'Entrance');
+    });
     // the pieces, their pedestals and price tags
     for (const d of DISPLAY) {
       const def = FURNITURE[d.k];
@@ -249,7 +231,23 @@ export class Store {
     ctx.roundRect(x - 40, base - 4, 80, 6, 3);
     ctx.fill();
     // a "Welcome" board just inside
-    this.drawSign(ctx, 'Welcome! Press E at a piece to buy it', 540, 200);
+    this.drawSign(ctx, 'Welcome! Pick a section, or walk on through', 470, 190);
+  }
+  // a door to another part of the showroom: a coloured arch with a number (or an arrow) and its name
+  drawArchDoor(ctx, x, color, mark, name) {
+    const base = GROUND;
+    ctx.fillStyle = mix(color, '#000000', 0.25);
+    ctx.beginPath();
+    ctx.roundRect(x - 30, base - 96, 60, 96, [30, 30, 0, 0]);
+    ctx.fill();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect(x - 25, base - 91, 50, 91, [25, 25, 0, 0]);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    circle(ctx, x, base - 62, 14);
+    text(ctx, mark, x, base - 61, 16, '#5b4a6b');
+    text(ctx, name, x, base - 112, 12, '#5b4a6b');
   }
 }
 

@@ -20,8 +20,15 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
   is a long showroom: one of every piece on display in sections (living room, bedroom, little things on
   pedestals, wall things, a garden corner), each with its price tag. Walk up to one, press E (or tap E):
   a card shows the price and how many you own; Buy spends the gold (`furni-buy`, server-checked, only in
-  the store). New pieces in `FURNITURE` show up in the showroom by themselves (`DISPLAY` lays them out by
-  `sec`); if they don't fit, raise `STORE_W` (the client warns in the console).
+  the store). New pieces in `FURNITURE` show up in the showroom by themselves (`DISPLAY` in
+  `src/shared/house.js` lays them out by `sec`); if they don't fit, raise `STORE_W` (both sides warn in the
+  console; a too-small room once left the whole garden corner out of reach).
+- The showroom is long, so it teleports like the museum (owner's request): the entrance lobby has a
+  numbered door to each section (`storePortalX`) and every section after the first has an "Entrance" door
+  back. They're ordinary doors in `ROOMS[STORE]`, added by `src/shared/house.js` (it knows the layout), so
+  the physics on both sides has them.
+- Wall and floor patterns are drawn from a fixed grid (`snap` in `src/store.js`), not from the screen's
+  edge: drawn from the edge, the stripes slid along with the camera.
 - **Big pieces are expensive** (owner's words). Prices (`price` on each `FURNITURE` entry) scale with how
   big and grand a piece is: little things cost pocket money, big furniture is a mid-game goal, and the
   piano, fireplace and garden tree are long-term ones. `npm run economy` lists them all and checks that a
