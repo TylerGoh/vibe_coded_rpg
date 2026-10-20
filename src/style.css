@@ -1659,6 +1659,7 @@ body.touch #shop {
 #players[hidden],
 #invite[hidden],
 #sail[hidden],
+#ways[hidden],
 #furni[hidden],
 #deco[hidden] {
   display: none;
@@ -1776,7 +1777,8 @@ body.touch #shop {
   cursor: pointer;
 }
 #invite,
-#sail {
+#sail,
+#ways {
   position: absolute;
   left: 50%;
   top: calc(96px * var(--s));
@@ -1792,7 +1794,8 @@ body.touch #shop {
   animation: invite-in 0.35s ease-out;
 }
 #invite p,
-#sail p {
+#sail p,
+#ways p {
   margin: 0 0 calc(8px * var(--s));
 }
 #sail {
@@ -1803,8 +1806,20 @@ body.touch #shop {
   justify-content: center;
   gap: calc(8px * var(--s));
 }
+#ways {
+  border-color: #a8d8f0;
+  max-width: calc(520px * var(--s));
+}
+#ways-list {
+  flex-wrap: wrap;
+  margin-bottom: calc(8px * var(--s));
+}
+#ways-list button {
+  background: #6fb6dc;
+}
 #invite-no,
-#sail-no {
+#sail-no,
+#ways-no {
   background: #e9e3f2 !important;
   color: #7a6a8b !important;
 }

@@ -2,7 +2,7 @@
 // Music, ambience and sound effects, all synthesised with Web Audio (no audio files).
 //
 //   audio.unlock()            from a user gesture: creates / resumes the AudioContext (safe to repeat)
-//   audio.setScene(room, zone) room id 0..17 or a house (100+), zone = a zone name in a stage room (5, 9, 12, 13) (else null); only acts on change
+//   audio.setScene(room, zone) room id 0..26 or a house (100+), zone = a zone name in a stage room (else null); only acts on change
 //   audio.sfx(name, {pan, vol}) one-shot effects (unknown names are ignored)
 //   audio.setMusic(on) / audio.musicOn   music + ambience on/off (sfx stay on), remembered in localStorage
 //   audio.setMuted(on)        everything off (e.g. while logged out)
@@ -834,6 +834,96 @@ const SONGS = {
       if (pass % 4 === 3 && s % 4 === 0) e.voice(p.r, t, p.f(ch[[0, 1, 2, 1][s / 4]], 1), { ...MARIMBA, vol: 0.09 });
     },
   },
+  // ——— Greenhollow's branches (island depth G1) ———
+  // Willowmere (docs/places/willowmere.md): a lazy riverside tune in G, plucked strings over a soft pad, a
+  // breathy flute line, the brook babbling, the mill wheel's slow creak and frogs croaking in the reeds
+  willowmere: {
+    bpm: 92, spb: 8, swing: 0.1, key: 67, scale: MAJOR, gain: 0.78, send: 0.3, loop: 8,
+    chords: [[1, 3, 5], [4, 6, 8], [1, 3, 5], [5, 7, 9], [6, 8, 10], [4, 6, 8], [2, 4, 6], [5, 7, 9]],
+    mel: melody(
+      '3 - 5 . 6 5 3 .', '4 - 6 . 8 - 6 .', '5 . 3 . 2 3 1 .', '2 - - . 5 - . .',
+      '6 - 8 . 10 - 8 .', '6 . 4 . 6 8 6 .', '4 . 6 . 5 4 2 .', '5 - - - . . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'bandpass', 1500, 0.006, 0.8); // the brook babbling
+      p.eng.bed(p, 'lowpass', 300, 0.008); // the millpond's hush
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) pad(p, ch, t, p.stepDur * 8, 0.016, { a: 0.6, cutoff: 1000 });
+      const bass = { 0: [ch[0], -2], 4: [ch[2], -2] }[s];
+      if (bass) e.voice(p.c, t, p.f(bass[0], bass[1]), { type: 'triangle', vol: 0.15, tau: 0.25, cutoff: 700 });
+      if (s % 2 === 0) e.voice(s % 4 ? p.r : p.l, t, p.f(ch[(s / 2) % 3], 1), { ...PLUCK, vol: 0.05 });
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { type: 'sine', vol: 0.05, a: 0.06, hold: m.len * 0.8, rel: 0.25, vib: 5, vibRate: 5, partials: [[2, 0.1]] });
+      if (m && part === 1) e.voice(p.r, t, p.f(m.d), { ...MARIMBA, vol: 0.12 });
+      // the wheel creaks round once every two bars; frogs and birds now and then
+      if (s === 0 && bar % 2 === 0) e.voice(p.l, t, 180, { type: 'sawtooth', glide: 1.15, glideT: 0.3, vol: 0.012, a: 0.1, hold: 0.2, rel: 0.2, cutoff: 600 });
+      if (s === 5 && chance(0.25)) {
+        const o = chance(0.5) ? p.l : p.r;
+        for (let i = 0; i < 2; i++) e.voice(o, t + i * 0.12, 220 - i * 20, { type: 'square', glide: 0.8, glideT: 0.06, vol: 0.014, a: 0.005, tau: 0.05, cutoff: 900 });
+      }
+      if (s === 2 && chance(0.3)) e.bird(chance(0.5) ? p.l : p.r, t + rand(0, p.stepDur * 4), 0.016);
+    },
+  },
+
+  // Saltspray Coves (docs/places/coves.md): a bright, breezy shore tune in A, a ukulele-ish strum, a tin
+  // whistle on top, surf rolling in and gulls crying over the stacks
+  coves: {
+    bpm: 112, spb: 8, swing: 0.14, key: 69, scale: MAJOR, gain: 0.78, send: 0.25, loop: 8,
+    chords: [[1, 3, 5], [5, 7, 9], [6, 8, 10], [4, 6, 8], [1, 3, 5], [2, 4, 6], [4, 6, 8], [5, 7, 9]],
+    mel: melody(
+      '5 . 5 6 5 . 3 .', '5 . 4 . 2 . . .', '3 . 3 5 6 . 8 .', '6 - 4 . . . . .',
+      '5 . 8 . 7 6 5 .', '4 . 6 . 4 2 . .', '6 . 5 4 3 . 2 .', '1 - - - . . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 500, 0.013); // the sea
+      p.eng.bed(p, 'bandpass', 2600, 0.005, 0.5); // spray and breeze
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) pad(p, ch, t, p.stepDur * 8, 0.012, { cutoff: 1400 });
+      if (s === 0 || s === 4) e.voice(p.c, t, p.f(ch[0], -2), { type: 'triangle', vol: 0.16, tau: 0.16, cutoff: 800 });
+      if (s === 2 || s === 6 || s === 7) for (const d of ch) e.voice(s === 6 ? p.l : p.r, t, p.f(d, 1), { ...PLUCK, vol: 0.026, tau: 0.09 }); // strum
+      if (s % 2) shaker(p, t, 0.016);
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { type: 'sine', vol: 0.05, a: 0.02, hold: m.len * 0.7, rel: 0.1, vib: 6, vibRate: 6, partials: [[2, 0.2], [3, 0.06]] });
+      if (m && part === 1) e.voice(p.r, t, p.f(m.d, 1), { ...GLOCK, vol: 0.05 });
+      if (s === 0 && bar % 2 === 0) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'lowpass', f: 300, sweep: 1500, sweepT: 1.1, vol: 0.05, a: 1, hold: 0.2, tau: 0.6 });
+      if (s === 3 && chance(0.18)) {
+        const o = chance(0.5) ? p.l : p.r;
+        for (let i = 0; i < 3; i++) e.voice(o, t + i * 0.15, 1800 - i * 130, { type: 'sine', glide: 1.25, glideT: 0.11, vol: 0.017, a: 0.01, tau: 0.08 });
+      }
+    },
+  },
+
+  // The Tidemother's Hoard: a heaving 6/8 in D dorian, low strings rolling like a swell, a clattering
+  // percussion of shells and bottles, and the surge of the tide every few bars
+  tidemother: {
+    bpm: 138, beats: 2, spb: 12, melSteps: 6, key: 62, scale: DORIAN, gain: 0.8, send: 0.22, loop: 8,
+    chords: [[1, 3, 5], [7, 9, 11], [4, 6, 8], [1, 3, 5], [3, 5, 7], [7, 9, 11], [4, 6, 8], [5, 7, 9]],
+    mel: melody(
+      '5 . 6 8 . 6', '7 . 5 4 . .', '6 . 8 10 . 8', '9 - - 8 . .',
+      '8 . 7 6 . 5', '4 . 5 7 . .', '6 . 5 4 . 2', '1 - - . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 160, 0.018); // the swell in the cave
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), hot = e.intensity > 0.5;
+      if (s === 0) pad(p, ch, t, p.stepDur * 12, 0.012, { type: 'sawtooth', a: 0.3, cutoff: 700, unison: 8 });
+      if (s % 3 === 0) e.voice(p.c, t, p.f(s % 6 ? ch[2] : ch[0], -2), { type: 'square', vol: s % 6 ? 0.05 : 0.08, tau: 0.06, cutoff: 520 });
+      if (s === 0 || s === 6 || (hot && s % 3 === 0)) e.kick(p.c, t, 0.22, 120, 45, 0.08);
+      if (s === 3 || s === 9) snare(p, t, 0.06);
+      if (s % 2 === 1) block(p, t, 1200 + (s % 4) * 200, 0.025, s % 4 === 1 ? p.l : p.r); // shells clattering
+      const m = p.mel(bar, s);
+      if (m) {
+        e.voice(p.c, t, p.f(m.d), { ...PLUCK, vol: 0.11, tau: 0.13, cutoff: 2000, partials: [[2, 0.12]] });
+        if (hot || pass % 2) e.voice(p.r, t, p.f(m.d, 1), { type: 'square', vol: 0.03, a: 0.005, hold: Math.max(0.04, m.len * 0.6), rel: 0.05, cutoff: 2400 });
+      }
+      if (s === 0 && bar % 4 === 3) e.noiseHit(p.c, t, { type: 'lowpass', f: 200, sweep: 1200, sweepT: 1.4, vol: 0.08, a: 1.2, hold: 0.2, tau: 0.8 }); // the tide surging
+    },
+  },
   // ——— Frostpeak (the stage: Frostpine Ridge, Starfall Summit) ———
   // Frostpine Ridge: crisp snowy adventure in E minor, bells and sleigh shakers, a touch wistful
   ridge: {
@@ -1604,6 +1694,14 @@ const EFFECTS = {
     e.voice(o, t + 0.05, mtof(50), { type: 'sawtooth', glide: 1.2, glideT: 0.5, vol: 0.05, a: 0.02, hold: 0.25, rel: 0.4, cutoff: 900, unison: 10 });
   },
   // ——— Caldera hazards ———
+  squirt(e, o, t) { // a snapshrimp's snap and a squirt of water
+    e.noiseHit(o, t, { type: 'highpass', f: 2500, vol: 0.3, tau: 0.01 });
+    e.noiseHit(o, t + 0.02, { f: 1200, sweep: 3000, sweepT: 0.12, q: 1, vol: 0.18, a: 0.01, tau: 0.08 });
+  },
+  warp(e, o, t) { // a waystone's hum swelling and a shimmer of bells
+    e.voice(o, t, 220, { type: 'sine', glide: 2, glideT: 0.5, vol: 0.12, a: 0.15, hold: 0.25, rel: 0.3, vib: 6, vibRate: 5 });
+    [1319, 1568, 1976, 2637].forEach((f, i) => e.voice(o, t + 0.2 + i * 0.07, f, { ...GLOCK, vol: 0.05, tau: 0.3 }));
+  },
   fireball(e, o, t) { // a fwoom
     e.noiseHit(o, t, { type: 'lowpass', f: 300, sweep: 2200, sweepT: 0.18, vol: 0.45, a: 0.04, hold: 0.06, tau: 0.1 });
     e.voice(o, t, 140, { type: 'sine', glide: 0.6, glideT: 0.12, vol: 0.15, a: 0.02, tau: 0.08 });
@@ -1770,6 +1868,12 @@ const crackle = (e, o, t, n = 3, vol = 0.07) => {
 const MOB_HURT = {
   generic(e, o, t) {
     e.voice(o, t, 520, { type: 'triangle', glide: 1.4, glideT: 0.06, vol: 0.2, tau: 0.06, cutoff: 2500 });
+  },
+  pond_frog(e, o, t) { // a startled "ribbit"
+    for (let i = 0; i < 2; i++) e.voice(o, t + i * 0.07, 300 - i * 40, { type: 'square', glide: 0.75, glideT: 0.05, vol: 0.08, a: 0.004, tau: 0.04, cutoff: 1400 });
+  },
+  tide_jelly(e, o, t) { // a wobbly "bloop"
+    e.voice(o, t, 600, { type: 'sine', glide: 0.6, glideT: 0.08, vol: 0.2, a: 0.01, tau: 0.08, vib: 20, vibRate: 18 });
   },
   sprout(e, o, t) { // a tiny squeaky "eep" with a leafy rustle
     e.voice(o, t, 1900, { type: 'sine', glide: 0.7, glideT: 0.04, vol: 0.2, tau: 0.05, partials: [[2, 0.1]] });
@@ -2033,11 +2137,12 @@ EFFECTS.victory = EFFECTS.bossDie;
 // ——— the live controller ———
 const ZONE_KEYS = {
   'Sprout Meadow': 'meadow', 'Mushroom Grove': 'grove', 'Bramble Woods': 'bramble',
+  'The Mill': 'willowmere', 'Reedy Banks': 'willowmere', 'The Millpond': 'willowmere',
   'Frostpine Ridge': 'ridge', 'Starfall Summit': 'summit',
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -2139,3 +2244,7 @@ export const audio = {
     refresh();
   },
 };
+
+// Greenhollow's branches' mobs borrow the voices of the legacy mobs they're built on (src/shared/rpg.js)
+Object.assign(MOB_HURT, { dragonfly: MOB_HURT.cinder_bat, gloop_snail: MOB_HURT.magma_slug, snapjaw: MOB_HURT.golem, rock_crab: MOB_HURT.obsidian_crab, storm_gull: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, snapshrimp: MOB_HURT.obsidian_crab, tidemother: MOB_HURT.obsidian_crab });
+Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEATH.magma_slug, rock_crab: MOB_DEATH.obsidian_crab, snapshrimp: MOB_DEATH.obsidian_crab });

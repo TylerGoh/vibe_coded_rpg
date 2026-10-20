@@ -6,7 +6,8 @@ Files: `NPCS` in `src/shared/sim.js` (placement), `server/characters.js` (person
 one shared corner feed).
 
 - Elder Mochi (village, by the big tree), Captain Brine (at the wheel of the ferry, on both decks: `also` on his `NPCS` entry, so always test rooms with `npcIn()`, `docs/places/crossings.md`) and Curator Clio (museum lobby; a history expert who knows the
-  exhibit list), and Icefang Hamlet's Old Skaldi, Netmender Runa and Tove (`docs/places/fjord.md`). Press E
+  exhibit list), and Icefang Hamlet's Old Skaldi, Netmender Runa and Tove (`docs/places/fjord.md`), Willowmere's Miller Bun and
+  Saltspray Coves' Beachcomber Moss (both trade; `docs/places/willowmere.md`, `docs/places/coves.md`). Press E
   in range to talk.
 - `hello` on an `NPCS` entry is the line their dialog opens with. `shop` (a `SHOPS` key) adds a **Trade**
   button to their dialog (Runa). `folk` dresses them as another island's people (`docs/art.md`).

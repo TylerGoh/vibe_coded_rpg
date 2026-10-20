@@ -1,10 +1,12 @@
 // Docs: docs/places/branches.md
 // The blocked ways into Greenhollow's unshipped branches (GATES in src/shared/branches.js), drawn behind the
-// slimes: a washed-out footbridge, a rockfall, a root-choked stump, a rotten rope ladder, a wall of
-// thorns. Each has a little wooden sign naming the place it leads to (red-trimmed for a hard pocket).
+// slimes: a root-choked stump, a rotten rope ladder, a wall of thorns, Wreck Cave's flooded mouth (in
+// Saltspray Coves). Each has a little wooden sign naming the place it leads to (red-trimmed for a hard
+// pocket). Shipped branches keep their spot as an open way in (ENTRIES: drawEntries): Willowmere's
+// footbridge, mended with new planks, and the shore path to the Coves, its rockfall rolled aside.
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, ellipse, clamp } from './util.js';
-import { GATES } from './shared/branches.js';
+import { GATES, ENTRIES } from './shared/branches.js';
 
 const INK = '#5b4a6b';
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
@@ -23,8 +25,23 @@ export function drawGates(ctx, room, ground, L, R, time, near) {
   }
 }
 
+// A shipped branch's way in, where its gate used to be (its door is in ROOMS: sim.js)
+export function drawEntries(ctx, room, ground, L, R, time) {
+  for (const g of ENTRIES) {
+    if (g.room !== room || g.x + 160 < L || g.x - 160 > R) continue;
+    ctx.save();
+    ctx.translate(g.x, ground);
+    ctx.save();
+    ctx.scale(SCALE[g.kind] ?? 1, SCALE[g.kind] ?? 1);
+    OPEN[g.kind](ctx, time, g);
+    ctx.restore();
+    sign(ctx, SIGN_AT[g.kind], g.name, false, false);
+    ctx.restore();
+  }
+}
+
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { bridge: -130, rockfall: 92, stump: -100, ladder: 78, thorns: -128 };
+const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110 };
 const SCALE = { bridge: 1.5, thorns: 1.15 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -55,8 +72,9 @@ function sign(ctx, x, name, hard, lit) {
   ctx.restore();
 }
 
-// Willowmere: a little brook runs off north under a wooden footbridge whose middle has washed away
-function drawBridge(ctx, time) {
+// Willowmere: a little brook runs off north under a wooden footbridge. Washed out, its middle is gone;
+// mended (the branch is open), new pale planks fill the gap.
+function drawBridge(ctx, time, g, mended = false) {
   // the brook, cut into the turf and running off into the trees
   const water = ctx.createLinearGradient(0, -26, 0, 8);
   water.addColorStop(0, '#bfe6f5');
@@ -116,15 +134,43 @@ function drawBridge(ctx, time) {
       ctx.lineTo(x, -42 + (x - 18) * 0.24);
       ctx.stroke();
     }
-    // a hand-rope, sagging into the gap
+    // a hand-rope, sagging into the gap (mended: tied across)
     ctx.strokeStyle = '#b89a6e';
     ctx.lineWidth = 1.4;
     ctx.beginPath();
     ctx.moveTo(52, -62);
     ctx.quadraticCurveTo(34, -66, 18, -62);
-    ctx.quadraticCurveTo(8, -48, 4, -40);
+    if (mended) ctx.quadraticCurveTo(8, -60, 0, -61);
+    else ctx.quadraticCurveTo(8, -48, 4, -40);
     ctx.stroke();
     ctx.restore();
+  }
+  if (mended) {
+    // the new middle span: fresh pale planks, lashed on
+    ctx.fillStyle = '#f0d6a8';
+    ctx.strokeStyle = '#b8935e';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-20, -50);
+    ctx.quadraticCurveTo(0, -53, 20, -50);
+    ctx.lineTo(20, -43);
+    ctx.quadraticCurveTo(0, -46, -20, -43);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    for (let x = -14; x <= 14; x += 7) {
+      ctx.beginPath();
+      ctx.moveTo(x, -52);
+      ctx.lineTo(x, -45);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = '#7fb06a'; // a green ribbon tied on the rope: somebody's proud of it
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-2, -61);
+    ctx.quadraticCurveTo(-6, -54 + Math.sin(time * 3) * 2, -3, -50);
+    ctx.stroke();
+    return;
   }
   // dangling planks, swaying
   for (const [x, len, ph] of [[-16, 20, 0], [14, 16, 1.7]]) {
@@ -142,39 +188,13 @@ function drawBridge(ctx, time) {
   }
 }
 
-// Saltspray Coves: boulders piled across the shore path, the way south buried
+// Saltspray Coves' old rockfall (G0 blocked the shore path with it; drawShore has it rolled aside)
 const ROCKS = (() => {
   const r = mulberry32(611);
   const out = [];
   for (const [x, y, s] of [[-50, 0, 30], [-14, 0, 38], [26, 0, 32], [58, 0, 24], [-34, -38, 26], [6, -50, 30], [40, -36, 24], [-8, -86, 22], [24, -78, 18]]) out.push({ x, y, s, tilt: r() * 0.6 - 0.3, shade: r() });
   return out;
 })();
-function drawRockfall(ctx) {
-  ctx.fillStyle = 'rgba(60,50,70,0.16)';
-  ellipse(ctx, 4, 2, 92, 9);
-  for (const k of ROCKS) {
-    ctx.fillStyle = k.shade > 0.5 ? '#c9bfb2' : '#b8ad9f';
-    ctx.strokeStyle = '#8c8072';
-    ctx.lineWidth = 2;
-    ellipse(ctx, k.x, k.y - k.s * 0.75, k.s, k.s * 0.8, k.tilt);
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
-    ellipse(ctx, k.x - k.s * 0.35, k.y - k.s * 1.1, k.s * 0.3, k.s * 0.18, -0.4);
-  }
-  // pebbles, and a tuft of sea-grass growing over it already
-  ctx.fillStyle = '#a99d8f';
-  for (const [x, s] of [[-84, 6], [-74, 4], [80, 7], [92, 4], [70, 3]]) ellipse(ctx, x, -s * 0.6, s, s * 0.7);
-  ctx.strokeStyle = '#8fbf6e';
-  ctx.lineWidth = 1.8;
-  ctx.lineCap = 'round';
-  for (let i = 0; i < 5; i++) {
-    ctx.beginPath();
-    ctx.moveTo(-6 + i * 3, -104);
-    ctx.quadraticCurveTo(-8 + i * 4, -114, -12 + i * 6, -120 + (i % 2) * 4);
-    ctx.stroke();
-  }
-}
-
 // The Mycelium Deep: a huge hollow stump, the hole in its side choked with roots; the warm threads glow
 // faintly through the tangle
 function drawStump(ctx, time) {
@@ -388,4 +408,103 @@ function drawThorns(ctx, time) {
   }
 }
 
-const DRAW = { bridge: drawBridge, rockfall: drawRockfall, stump: drawStump, ladder: drawLadder, thorns: drawThorns };
+// Saltspray Coves, open: the rockfall's boulders rolled to either side of the shore path, the path swept,
+// and a row of shells someone laid along it
+function drawShore(ctx) {
+  ctx.fillStyle = 'rgba(60,50,70,0.12)';
+  ellipse(ctx, 0, 2, 110, 8);
+  ctx.fillStyle = '#e8dcc4'; // the swept sandy path
+  ellipse(ctx, 0, 1, 70, 6);
+  for (const k of ROCKS.slice(0, 6)) {
+    const x = k.x < 4 ? k.x - 70 : k.x + 64, s = k.s * 0.8, y = k.y * 0.4;
+    ctx.fillStyle = k.shade > 0.5 ? '#c9bfb2' : '#b8ad9f';
+    ctx.strokeStyle = '#8c8072';
+    ctx.lineWidth = 2;
+    ellipse(ctx, x, y - s * 0.75, s, s * 0.8, k.tilt);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ellipse(ctx, x - s * 0.35, y - s * 1.1, s * 0.3, s * 0.18, -0.4);
+  }
+  for (let i = 0; i < 7; i++) {
+    const x = -42 + i * 14;
+    ctx.fillStyle = i % 2 ? '#ffd6c9' : '#fff1e0';
+    ctx.strokeStyle = '#d8a898';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x - 4, 0);
+    ctx.quadraticCurveTo(x, -8, x + 4, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+}
+
+// Wreck Cave: a sea-cave mouth in the cliff at the Coves' far end, flooded to the roof: dark water fills
+// the arch, a broken timber pokes out, and the swell heaves in and out
+function drawFlooded(ctx, time) {
+  ctx.fillStyle = '#8f8a96'; // the cliff around the mouth
+  ctx.beginPath();
+  ctx.moveTo(-120, 4);
+  ctx.quadraticCurveTo(-128, -150, -60, -200);
+  ctx.quadraticCurveTo(10, -230, 80, -190);
+  ctx.quadraticCurveTo(130, -140, 118, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#a6a0ab';
+  ellipse(ctx, -70, -150, 26, 50, 0.2);
+  ellipse(ctx, 74, -120, 18, 44, -0.2);
+  // the arch, full of water to the top
+  const swell = Math.sin(time * 1.1) * 4;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(-66, 4);
+  ctx.lineTo(-66, -70);
+  ctx.quadraticCurveTo(-60, -132, 0, -136);
+  ctx.quadraticCurveTo(60, -132, 66, -70);
+  ctx.lineTo(66, 4);
+  ctx.closePath();
+  ctx.clip();
+  const w = ctx.createLinearGradient(0, -140, 0, 4);
+  w.addColorStop(0, '#2e5a78');
+  w.addColorStop(1, '#16314a');
+  ctx.fillStyle = w;
+  ctx.fillRect(-70, -140, 140, 150);
+  ctx.strokeStyle = 'rgba(190,230,255,0.4)';
+  ctx.lineWidth = 1.6;
+  for (let i = 0; i < 6; i++) {
+    const y = -122 + i * 22 + swell;
+    ctx.beginPath();
+    ctx.moveTo(-60, y);
+    ctx.quadraticCurveTo(-30, y - 4 + Math.sin(time * 2 + i) * 2, 0, y);
+    ctx.quadraticCurveTo(30, y + 4, 60, y);
+    ctx.stroke();
+  }
+  ctx.restore();
+  // the rim of the swell slopping at the roof
+  ctx.fillStyle = 'rgba(220,240,255,0.7)';
+  for (let i = 0; i < 5; i++) ellipse(ctx, -40 + i * 20, -128 + swell + Math.sin(time * 3 + i) * 2, 7, 2.5);
+  // a ship's timber poking out of the water, and a lost lantern bobbing
+  ctx.save();
+  ctx.translate(34, -40 + swell * 0.6);
+  ctx.rotate(-0.5);
+  ctx.fillStyle = '#6a4a38';
+  ctx.strokeStyle = '#3e2a20';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(-6, -40, 12, 60, 3);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = 'rgba(255,220,140,0.25)';
+  ellipse(ctx, -24, -60 + swell, 14, 14);
+  ctx.fillStyle = '#c99a4a';
+  ctx.beginPath();
+  ctx.roundRect(-30, -68 + swell, 12, 14, 3);
+  ctx.fill();
+  // rocks at the foot
+  ctx.fillStyle = '#7a7480';
+  for (const [x, s] of [[-80, 16], [-62, 10], [76, 14], [94, 9]]) ellipse(ctx, x, -s * 0.5, s, s * 0.7);
+}
+
+const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded };
+const OPEN = { bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore };

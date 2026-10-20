@@ -15,13 +15,13 @@ export const DT = 1 / TICK_RATE;
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X } from './rpg.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
 export const CLIFFS = 20; // Greenhollow's east cliffs, past the end of the Wildwood (docs/places/cliffs.md)
 export const FERRY_N = 21, FERRY_S = 22; // the ferry's deck, out to Frostpeak and back home (docs/places/crossings.md)
-export { FIELD, FJORD };
+export { FIELD, FJORD, WILLOWMERE, COVES };
 
 export const PLATFORMS = [
   { x: 360, y: 335, w: 190, kind: 'island' },
@@ -157,11 +157,12 @@ export const ROOMS = [
     doors: [
       { x: FIELD_EXIT_X, w: 80, to: VILLAGE, toX: FIELD_GATE_X, label: 'back to Slimeville' },
       { x: CLIFFS_PATH_X, w: 80, to: CLIFFS, toX: CLIFFS_EXIT_X, label: 'push through to the sea cliffs' },
+      { x: WILLOWMERE_GATE_X, w: 80, to: WILLOWMERE, toX: WILLOWMERE_EXIT_X, label: 'cross the footbridge to Willowmere' },
       ...denDoors(FIELD),
     ],
   },
 ];
-// rooms 6–8 and 10–11: the boss dens (DENS in rpg.js); room 9: Frostpeak's wilds (Frostpine Ridge, Starfall Summit)
+// rooms 6–8, 10–11, 14–17 and 26: the boss dens (DENS in rpg.js); room 9: Frostpeak's wilds (Frostpine Ridge, Starfall Summit)
 for (const d of DENS) {
   ROOMS[d.room] = {
     name: d.name, width: DEN_W, ground: FIELD_GROUND, platforms: DEN_PLATFORMS,
@@ -208,6 +209,7 @@ ROOMS[HARBOUR] = {
   doors: [
     { x: HARBOUR_EXIT_X, w: 80, to: VILLAGE, toX: HARBOUR_GATE_X, label: 'walk back up to Slimeville' },
     { x: GANGWAY_X, w: 80, to: FERRY_N, toX: DECK_GANGWAY_X, label: 'board the ferry to Frostpeak (Lv 13+)', ask: 'Set sail for Frostpeak? She takes about a minute.' },
+    { x: COVES_GATE_X, w: 80, to: COVES, toX: COVES_EXIT_X, label: 'take the shore path to Saltspray Coves' },
   ],
 };
 // room 20: Greenhollow's east cliffs, a vista with no mobs. The room ends at the cliff edge (a fence), and
@@ -257,6 +259,18 @@ ROOMS[FJORD] = {
     { x: FJORD_HOME_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
     { x: FJORD_EXIT_X, w: 80, to: HIGHLANDS, toX: HIGHLANDS_EXIT_X, label: 'climb up to Frostpine Ridge (mobs!)' },
   ],
+};
+
+// rooms 24 and 25: Greenhollow's first branches (island depth G1): Willowmere, up the brook from Sprout
+// Meadow (docs/places/willowmere.md), and Saltspray Coves, along the shore from the harbour, entered at its
+// east end (docs/places/coves.md). Room 26 is the Tidemother's den in the Coves (DENS in rpg.js).
+ROOMS[WILLOWMERE] = {
+  name: 'Willowmere', width: WILLOWMERE_W, ground: FIELD_GROUND, platforms: WILLOWMERE_PLATFORMS,
+  doors: [{ x: WILLOWMERE_EXIT_X, w: 80, to: FIELD, toX: WILLOWMERE_GATE_X, label: 'back down the brook to Sprout Meadow (mobs!)' }],
+};
+ROOMS[COVES] = {
+  name: 'Saltspray Coves', width: COVES_W, ground: FIELD_GROUND, platforms: COVES_PLATFORMS,
+  doors: [{ x: COVES_EXIT_X, w: 80, to: HARBOUR, toX: COVES_GATE_X, label: 'back along the shore to the harbour' }, ...denDoors(COVES)],
 };
 
 // ——— towns (docs/world.md) ———
@@ -511,6 +525,9 @@ export const NPCS = [
   { id: 'skaldi', name: 'Old Skaldi', short: 'Skaldi', room: FJORD, x: 2210, hue: 205, range: 130, size: 1.2, accessory: 'lamplighter', folk: 'fjord', faces: -1, blurb: 'lamplighter of Icefang Hamlet, keeper of the old songs', hello: 'Sit by the fire. Warm your jelly. (Everyone can hear you.)' },
   { id: 'runa', name: 'Netmender Runa', short: 'Runa', room: FJORD, x: RUNA_X, hue: 178, range: 120, size: 1.1, accessory: 'netmender', folk: 'fjord', faces: 1, blurb: 'mends the nets and trades at her shed', shop: 'runa', hello: 'Buying or chatting? Trade is the button. (Everyone can hear you.)' },
   { id: 'tove', name: 'Tove', short: 'Tove', room: FJORD, x: 2480, hue: 215, range: 110, size: 0.8, accessory: 'mittens', folk: 'fjord', lively: true, faces: -1, blurb: "Skaldi's granddaughter, who feeds the yeti cubs", hello: 'Are you going up the ridge? Ask me about the animals! (Everyone can hear you.)' },
+  // Greenhollow's branches (island depth G1): each has a character who trades and is worth a chat
+  { id: 'bun', name: 'Miller Bun', short: 'Bun', room: WILLOWMERE, x: BUN_X, hue: 34, range: 120, size: 1.2, accessory: 'miller', faces: 1, blurb: 'runs the Willowmere mill and trades at its door', shop: 'bun', hello: 'Mind the flour! Buying or chatting? Trade is the button. (Everyone can hear you.)' },
+  { id: 'moss', name: 'Beachcomber Moss', short: 'Moss', room: COVES, x: MOSS_X, hue: 150, range: 120, size: 1.05, accessory: 'beachcomber', faces: -1, blurb: 'keeps what the sea washes in, and trades it', shop: 'moss', hello: 'Oh! A visitor. Mind the shells. Trade is the button. (Everyone can hear you.)' },
   { id: 'clio', name: 'Curator Clio', short: 'Clio', room: MUSEUM, x: 300, hue: 32, range: 80, size: 1.15, accessory: 'curator', faces: 1, blurb: 'historian of the Grand Museum · ask from anywhere in the museum', anywhere: true, hello: 'Welcome to the museum! Ask Clio anything about history. (Everyone can hear you.)' },
 ];
 export const NPC = NPCS[0]; // Elder Mochi
@@ -532,6 +549,8 @@ export const SLAP_QUIPS = {
   skaldi: ['Hm.', 'The cold has done worse.', 'Mind the fire, child.', 'That was unkind. Sit down.'],
   runa: ['Hands off the nets!', "That'll cost you.", 'Hmph. Fjord manners, is it?', 'I have a needle and I know how to use it.'],
   tove: ['Hey! Rude!', "I'm telling grandpa!", 'Ow! The yetis are nicer than you.', 'Do it again and I set Big Grumble on you.'],
+  bun: ['Oof! Flour everywhere now!', 'Hey! I knead dough, not slaps.', 'That was rude. Rye rude.', 'Do that again and no buns for you.'],
+  moss: ['Ow! Careful, I bruise like a peach.', "That's going in the collection. As a bad memory.", 'Rude! Even crabs say hello first.', 'Hmph. The tide is gentler than you.'],
   brine: ['Oi! Mind the captain, landlubber!', 'Arr, I\'ve been hit by bigger waves than you.', 'Blistering barnacles!', 'Is that how they greet sailors these days?'],
   prof: ["Ouch! That's not on the syllabus!", 'Detention!', 'Hey! Please backpropagate that.', 'Ow — I felt that in every layer!'],
 };

@@ -12,6 +12,9 @@ Small bosses that roam the open stages (field bosses, like Turnipop) aren't den 
 Wildwood: Sprout King, Mother Mushroom, Bramble Behemoth · Highlands: Frost Queen Glacia, Astral Wyrm ·
 Caldera: Ignis the Magma Tyrant, Pyra the Ember Phoenix · Citadel: The Clockwork Colossus, Chronos.
 
+Tenth den: **The Tidemother's Hoard** (room 26, Saltspray Coves, art `src/dens-coves.js`). Big bosses can
+have `lines` (enter / phase / freed) that they say in a bubble and the chat: only she has them so far.
+
 ## How a fight works
 - Three stages by HP (`PHASE_AT`), each with its own move list (`MOBS[boss].phases`) and longer combos.
   Stage 3 is enraged (music intensifies via `audio.setIntensity`).

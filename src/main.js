@@ -17,7 +17,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE } from './shared/rpg.js';
+import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE } from './shared/rpg.js';
 import { drawHighlands } from './highlands.js';
 import { drawCaldera, drawCalderaPass } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
@@ -37,7 +37,11 @@ import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel } from './cr
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
 import { GATES, gateAt } from './shared/branches.js';
-import { drawGates } from './branch-gates.js';
+import { drawGates, drawEntries } from './branch-gates.js';
+import { drawWillowmere } from './willowmere.js';
+import { drawCoves } from './coves.js';
+import { wayAt } from './shared/waystones.js';
+import { drawWaystones, wayPrompt, wayBeacons, WayCard, shimmer } from './waystones.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
 import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn } from './shared/sim.js';
@@ -171,6 +175,13 @@ const net = new Net(wsUrl, {
   },
   // the Wildwood (src/rpg.js): stats, mobs, loot, gear and level changes
   onRpg(m) {
+    if (m.t === 'warp') {
+      // someone vanished from (or appeared at) a waystone in our room
+      if (m.id === net.id && m.in) warpedIn = time;
+      else if (m.id !== net.id && online()) shimmer(particles, m.x, roomDef(room).ground);
+      if (m.id !== net.id || !m.in) audio.sfx('warp', { vol: m.id === net.id ? 1 : 0.5 });
+      return;
+    }
     if (m.t === 'gear') {
       const s = m.id === net.id ? mine : slimes.get(m.id);
       if (s) {
@@ -352,6 +363,17 @@ const sail = {
   },
 };
 document.getElementById('sail-go').onclick = () => sail.go();
+// Waystones (docs/places/waystones.md): E at one you haven't touched attunes to it; at one you have, a card
+// lists the other stones you know and the server takes you there
+const ways = new WayCard((to) => net.sendNpc({ t: 'way', to }));
+function useWaystone() {
+  const at = wayAt(net.me), have = rpg.me?.ways ?? [];
+  if (!have.includes(at.id)) return net.sendNpc({ t: 'way' });
+  if (!have.some((id) => id !== at.id)) return rpg.toast('The waystone hums. Touch another one somewhere on the island and you can travel between them.');
+  held.clear();
+  ways.open(at, have);
+}
+let warpedIn = -9; // when the server last moved us by waystone (the shimmer waits for the new room)
 document.getElementById('sail-no').onclick = () => sail.close();
 function pressMove(id) {
   if (!rankOf(rpg.me?.skills, id)) return rpg.toast(`You haven't learned ${SKILLS[id].name} yet (press K)`), audio.sfx('error');
@@ -607,11 +629,11 @@ musicButton.onclick = () => {
 };
 // Controls: every key (or touch button), in the Esc menu instead of as labels on the HUD (owner's request)
 const CONTROLS = TOUCH
-  ? [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use'],
+  ? [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
      ['Tap the game', 'slap · Hit attacks'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree'],
      ['Players', "who's online, invite, message"], ['Chat', 'chat · /w name to whisper · /r to reply'], ['Decorate', 'in your own house'],
      ['Mic · Broadcast', 'talk to slimes nearby · to everyone'], ['Menu', 'this menu']]
-  : [['← → / A D', 'walk'], ['↑ / W / Space', 'jump (twice with Flash Jump)'], ['↓ / S', 'drop through a platform'], ['E', 'doors, talk, read, use'],
+  : [['← → / A D', 'walk'], ['↑ / W / Space', 'jump (twice with Flash Jump)'], ['↓ / S', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
      ['Click', 'slap · attack'], ['X', 'attack'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
      ['I · K', 'bag · skill tree'], ['P', "who's online, invite, message"], ['Enter', 'chat · /w name to whisper · /r to reply'],
      ['R', 'decorate your house'], ['C · H · Q', 'course menu · raise your hand · ask Clio'], ['M · B', 'mic · broadcast to everyone'],
@@ -736,6 +758,13 @@ addEventListener('keydown', (e) => {
       hall.closeAsk();
       document.activeElement?.blur();
     }
+    return;
+  }
+  // the waystone card: Esc or E closes it, number keys pick a stone
+  if (ways.isOpen) {
+    e.preventDefault();
+    if (e.code === 'Escape' || (e.code === 'KeyE' && !e.repeat)) ways.close();
+    else if (/^Digit[1-9]$/.test(e.code)) ways.list.children[Number(e.code.slice(5)) - 1]?.click();
     return;
   }
   // boarding a ship: E or Enter sets sail, Esc thinks better of it
@@ -893,7 +922,12 @@ addEventListener('keydown', (e) => {
     museum.open();
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && room === FIELD && online() && ruinStoneAt(net.me)) {
+  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && wayAt(net.me)) {
+    e.preventDefault();
+    useWaystone(); // a waystone: attune, or pick where to go (docs/places/waystones.md)
+    return;
+  }
+  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && ruinStoneAt(net.me)) {
     e.preventDefault();
     museum.open(ruinStoneAt(net.me)); // a Keeper stone, on the museum's fact-sheet card
     return;
@@ -985,6 +1019,8 @@ function update(realDt) {
     room = newRoom;
     camX = clamp((online() ? net.me.x : 0) - W / 2, 0, roomDef(room).width + (roomDef(room).viewPad ?? 0) - W); // no panning across rooms
     particles.list = [];
+    ways.close();
+    if (time - warpedIn < 1.5 && mine) shimmer(particles, net.me.x, net.me.y);
     hall.closeAsk();
     museum.close();
     scope.close();
@@ -1130,14 +1166,15 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 const BEACON_RANGE = 420;
 const DOOR_BAND_Y = 160; // how high over the ground a door's level chip sits (under the beacon)
 function drawHints() {
-  if (!online() || splatted(mine) || !menu.hidden || sail.door || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || houses.editing) return;
+  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || houses.editing) return;
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);
   if (talk) acts.push({ key: 'E', label: talk.cfg.shop ? `talk to ${talk.cfg.name} (or trade)` : `talk to ${talk.cfg.name}` });
   else if (nearShop()) acts.push({ key: 'E', label: 'shop with Merchant Pip' });
   else if (room === MUSEUM && museum.near) acts.push({ key: 'E', label: `read: ${museum.near.title.length > 34 ? museum.near.title.slice(0, 32) + '…' : museum.near.title}` });
-  else if (room === FIELD && ruinStoneAt(me)) acts.push({ key: 'E', label: `read ${ruinStoneAt(me).name}` });
+  else if (wayAt(me)) acts.push({ key: 'E', label: wayPrompt(me, rpg.me?.ways) });
+  else if (ruinStoneAt(me)) acts.push({ key: 'E', label: `read ${ruinStoneAt(me).name}` });
   else if (room === CLIFFS && scopeNear(me)) acts.push({ key: 'E', label: 'look through the telescope' });
   else if (room === STORE && store.near && !store.isOpen) acts.push({ key: 'E', label: `buy the ${FURNITURE[store.near.k].name.toLowerCase()} (${FURNITURE[store.near.k].price.toLocaleString('en-US')} gold)` });
   else if (alchemy.prompt(room, me)) acts.push({ key: 'E', label: alchemy.prompt(room, me) });
@@ -1154,7 +1191,8 @@ function drawHints() {
   for (const d of roomDef(room).doors) if (doorOpen(me, d)) far.push({ x: d.x, y: roomDef(room).ground - (isHouse(room) ? 186 : 190), near: d === door }); // above door signs
   for (const c of charsHere()) far.push({ x: c.slime.x, y: c.slime.y - c.slime.h * c.cfg.size - 52, near: c.near });
   if (room === VILLAGE) far.push({ x: SHOP_X + 20, y: ROOMS[VILLAGE].ground - 120, near: nearShop() });
-  if (room === FIELD) for (const st of RUIN_STONES) far.push({ x: st.x, y: ROOMS[FIELD].ground - 180, near: st === ruinStoneAt(me) });
+  for (const st of RUIN_STONES) if (st.room === room) far.push({ x: st.x, y: ROOMS[room].ground - 180, near: st === ruinStoneAt(me) });
+  far.push(...wayBeacons(room, roomDef(room).ground, me));
   if (room === CLIFFS) far.push({ x: CLIFFS_SCOPE_X, y: ROOMS[CLIFFS].ground - 110, near: scopeNear(me) });
   for (const g of GATES) if (g.room === room) far.push({ x: g.x, y: roomDef(room).ground - 130, near: g === gateAt(me, room) });
   far.filter((b) => !b.near && Math.abs(b.x - me.x) < BEACON_RANGE).sort((a, b) => Math.abs(a.x - me.x) - Math.abs(b.x - me.x)).slice(0, 2)
@@ -1175,9 +1213,10 @@ function render() {
     const near = (x) => Math.abs(x - camX - W / 2) < W / 2 + 160;
     if (room === FIELD) {
       drawField(ctx, camX, W, time);
-      drawRuins(ctx, camX - 80, camX + W + 80, time, online() ? ruinStoneAt(net.me) : null);
       if (near(CLIFFS_PATH_X)) drawCliffsPath(ctx, CLIFFS_PATH_X, ROOMS[FIELD].ground, time);
-    } else if (room === HIGHLANDS) {
+    } else if (room === WILLOWMERE) drawWillowmere(ctx, camX, W, time);
+    else if (room === COVES) drawCoves(ctx, camX, W, time);
+    else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
       if (near(CALDERA_DOOR_X)) drawCalderaPass(ctx, CALDERA_DOOR_X, ROOMS[HIGHLANDS].ground, time);
     } else if (room === CALDERA) {
@@ -1197,7 +1236,10 @@ function render() {
     merchant.draw(ctx);
     nameTag(merchant, false);
   }
+  drawRuins(ctx, room, camX - 80, camX + W + 80, time, online() ? ruinStoneAt(net.me) : null); // Keeper stones (Bramble Woods, the branches)
+  drawWaystones(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time, online() ? wayAt(net.me) : null, rpg.me?.ways);
   drawGates(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time, online() ? gateAt(net.me, room) : null); // blocked ways into branches
+  drawEntries(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time); // and the open ways into shipped ones
   // doors into combat rooms say who they're for (their level band), over the door (a den's mouth has its own sign)
   for (const d of roomDef(room)?.doors ?? []) if (d.band && STAGES[d.to] && Math.abs(d.x - camX - W / 2) < W / 2 + 60) drawDoorBand(ctx, d.x, roomDef(room).ground - DOOR_BAND_Y, d.band, d.hard);
   if (isCombat(room)) rpg.drawWorld(ctx);
@@ -1257,7 +1299,7 @@ function render() {
       if (!TOUCH && !dialogOpen()) drawPill(W - 196, 54, 180, 'Q  ask Clio');
       drawPill(16, 14, 330, `Museum · ${museum.placeName(net.me.x)} · ${here} visitor${here === 1 ? '' : 's'}`);
     }
-    else if (status === 'online' && STAGES[room]) drawPill(16, 14, 330, `${{ [FIELD]: 'The Wildwood', [HIGHLANDS]: 'Frostpeak', [CALDERA]: 'Emberdeep', [CITADEL]: 'Aether Citadel' }[room]} · ${zoneAt(net.me.x, room).name} · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && STAGES[room]) drawPill(16, 14, 330, `${STAGES[room].pill ?? STAGES[room].name} · ${zoneAt(net.me.x, room).name} · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && denAt(room)) drawPill(16, 14, 330, `${denAt(room).name} · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === PIANO) {
       drawPill(16, 14, 230, `Music House · ${here} slime${here === 1 ? '' : 's'}`);

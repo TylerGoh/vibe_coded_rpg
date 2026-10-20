@@ -2,7 +2,7 @@
 
 Atlas Phase 2, "the Wildwood's story" (`story/world/atlas.md`). Story: `story/world/regions/greenhollow.md`.
 
-Files: `src/ruins.js` (the stones, their text and drawing), `src/cliffs.js` (the cliffs room, the gap in
+Files: `src/ruins.js` (the stones, their text and drawing; it also holds the branches' Keeper stones, each with a `room`), `src/cliffs.js` (the cliffs room, the gap in
 the briar at the Wildwood's east end, the telescope view), `drawLandmark` in `src/distant.js` (one island
 on its own, for the telescope), the room in `src/shared/sim.js` (`CLIFFS`, `CLIFFS_W`, `CLIFFS_EXIT_X`,
 `CLIFFS_SCOPE_X`, `CLIFFS_PLATFORMS`), the path in `src/shared/rpg.js` (`CLIFFS_PATH_X`), the `cliffs`

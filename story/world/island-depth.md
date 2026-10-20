@@ -235,8 +235,10 @@ systems first, then fills the band from the bottom up.
       level labels, the island map. Prove them in the
       existing Wildwood (a small field boss in Sprout Meadow, an elite or two in Bramble Woods), and lay
       every branch's blocked entrance (table above) so the island shows what's coming.
-- [ ] **G1: Willowmere and Saltspray Coves** (5–25), Old Snapjaw, the Tidemother, Miller Bun and
-      Beachcomber Moss, the first gear tiers, and waystones.
+- [x] **G1: Willowmere and Saltspray Coves** (5–25), Old Snapjaw, the Tidemother, Miller Bun and
+      Beachcomber Moss, the first gear tiers, and waystones (shipped 2026-10-20; `docs/places/willowmere.md`,
+      `docs/places/coves.md`, `docs/places/waystones.md`). Not done: fishing and riverside herbs, the
+      Tidemother's world change when freed (see `docs/ideas.md`).
 - [ ] **G2: the Mycelium Deep and Glowroot Hollow** (15–50), the Knotmole.
 - [ ] **G3: Old Oak Canopy** (25–40), the Hornet Queen, Ranger Acorn.
 - [ ] **G4: the hard pockets**: Wreck Cave (30–40) and the Thornheart (50–60), elites, the Drowned

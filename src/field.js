@@ -10,7 +10,13 @@ import { CALDERA_MOB_ART } from './caldera.js';
 import { CITADEL_MOB_ART } from './citadel.js';
 import { FJORD_MOB_ART, drawBoneHarpoon, drawFurHood } from './fjord-art.js';
 import { FIELD_BOSS_ART, drawEliteGlow } from './fieldboss-art.js';
-const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...FIELD_BOSS_ART };
+import { WILLOW_MOB_ART, WILLOW_ICONS, drawReedRapier, drawLilyHat, drawMillerCap, drawSnailHelm, drawSnapjawShell } from './willowmere-art.js';
+import { COVES_MOB_ART, COVES_ICONS, drawDriftCutlass, drawCoralSaber, drawTideClaw, drawConchHelm, drawHoardCrown } from './coves-art.js';
+const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...FIELD_BOSS_ART, ...WILLOW_MOB_ART, ...COVES_MOB_ART };
+// Greenhollow's branches' gear and materials (src/willowmere-art.js, src/coves-art.js)
+const BRANCH_SWORDS = { reed_rapier: drawReedRapier, drift_cutlass: drawDriftCutlass, coral_saber: drawCoralSaber, tide_claw: drawTideClaw };
+const BRANCH_HELMETS = { lily_hat: drawLilyHat, miller_cap: drawMillerCap, snail_helm: drawSnailHelm, snapjaw_shell: drawSnapjawShell, conch_helm: drawConchHelm, hoard_crown: drawHoardCrown };
+const BRANCH_ICONS = { ...WILLOW_ICONS, ...COVES_ICONS };
 
 const INK = '#5b4a6b';
 const FLOWER_COLORS = ['#ffb3c7', '#fff1a8', '#c9b6ff', '#ffffff', '#ffd1a1'];
@@ -1060,7 +1066,7 @@ export function drawMob(ctx, m, time) {
   else if (art === 'yeti') sil = drawYeti(ctx, w, h, t, seed, m, dying);
   else if (art === 'wisp') sil = drawWisp(ctx, w, h, t, seed, m, dying);
   else if (art === 'golem') sil = drawGolem(ctx, w, h, t, seed, m, dying);
-  else if (MOB_ART[art]) sil = MOB_ART[art](ctx, w, h, t, seed, m, dying); // the Caldera, the Citadel, Frostpeak's later mobs, field bosses
+  else if (MOB_ART[art]) sil = MOB_ART[art](ctx, w, h, t, seed, m, dying); // the Caldera, the Citadel, Frostpeak's later mobs, field bosses, the branches
   else sil = drawBramble(ctx, w, h, t, seed, m, dying);
   if (slow && dying < 0.5) drawFrost(ctx, sil, w, h, t, seed);
   if (hurt > 0.01) {
@@ -1784,9 +1790,9 @@ function drawGolem(ctx, w, h, t, seed, m, dying) {
 
 // Blade length (from the hand) for each sword, longer for more reach
 export const SWORD_LEN = { wood_sword: 30, iron_sword: 38, spore_blade: 42, crystal_sword: 46, bone_harpoon: 50, frost_blade: 52, thorn_sword: 54, star_sword: 58,
-  magma_maul: 60, phoenix_blade: 62, cog_cleaver: 64, chrono_blade: 66 };
+  magma_maul: 60, phoenix_blade: 62, cog_cleaver: 64, chrono_blade: 66, reed_rapier: 44, drift_cutlass: 50, coral_saber: 54, tide_claw: 58 };
 const HELMETS = ['leaf_cap', 'mush_helm', 'iron_helm', 'fur_hood', 'king_crown', 'bramble_helm', 'glacier_helm', 'star_crown',
-  'ember_helm', 'phoenix_crown', 'aether_helm', 'hourglass_crown'];
+  'ember_helm', 'phoenix_crown', 'aether_helm', 'hourglass_crown', ...Object.keys(BRANCH_HELMETS)];
 const HELM_ICON_FIT = { ember_helm: [0.72, 1], phoenix_crown: [0.74, 2], aether_helm: [0.8, 1], hourglass_crown: [0.78, 5] };
 
 // One sword, its grip at the origin and its blade pointing up (-y). glow: 0..1 extra crystal shine.
@@ -1801,6 +1807,7 @@ export function drawSword(ctx, id, glow = 0) {
   if (id === 'cog_cleaver') return drawCogCleaver(ctx, L, glow);
   if (id === 'chrono_blade') return drawChronoBlade(ctx, L, glow);
   if (id === 'bone_harpoon') return drawBoneHarpoon(ctx, L, glow); // (src/fjord-art.js)
+  if (BRANCH_SWORDS[id]) return BRANCH_SWORDS[id](ctx, L, glow);
   ctx.save();
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
@@ -3704,6 +3711,7 @@ export function drawHelmet(ctx, id, w, h, t = 0) {
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   if (id === 'fur_hood') drawFurHood(ctx, w, h); // (src/fjord-art.js)
+  else if (BRANCH_HELMETS[id]) BRANCH_HELMETS[id](ctx, w, h, t);
   else if (id === 'leaf_cap') {
     // overlapping big leaves, tips pointing down round the brim, a curly stem on top
     ctx.strokeStyle = '#4f9d5c';
@@ -3979,6 +3987,7 @@ export function drawItemIcon(ctx, id, x, y, size) {
   else if (id === 'cog') iconCog(ctx);
   else if (id === 'aether_crystal') iconAetherCrystal(ctx);
   else if (id.startsWith('scroll_')) iconScroll(ctx, id);
+  else if (BRANCH_ICONS[id]) BRANCH_ICONS[id](ctx);
   else if (SWORD_LEN[id]) {
     const L = SWORD_LEN[id] + 11; // blade + grip
     const k = Math.min(1, 48 / L);

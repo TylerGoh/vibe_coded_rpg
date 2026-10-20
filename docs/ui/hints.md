@@ -11,6 +11,8 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
 - Doors into combat rooms add their level band to the prompt as a chip (`band`, `docs/world.md`); a hard
   pocket's is red. The blocked ways into branches (`docs/places/branches.md`) get an E prompt ("look at
   the washed-out footbridge") and a beacon.
+- Waystones (`wayPrompt`) and every room's Keeper stones (`ruinStoneAt` is room-aware now) have prompts
+  and beacons.
 - `drawHints()` builds the list in the same order the E key acts in. **A new interaction must add its
   line there.** (The old per-object pills were removed in favour of this.)
 - Room-wide actions stay as pills top-right on desktop (H hand, C courses, Q Clio, X/I/K in combat rooms,

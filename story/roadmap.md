@@ -17,7 +17,9 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
 - [x] G0: systems (field bosses and elites, door level labels, the island map), proved with Turnipop in
       Sprout Meadow and Elder Bramblehogs in Bramble Woods; every branch's entrance laid and blocked
       (`docs/places/branches.md`); the frozen curves in `npm run economy`
-- [ ] G1-G5: Greenhollow's branches, bottom of the band up
+- [x] G1 (mostly, 2026-10-20): Willowmere and Saltspray Coves, Old Snapjaw, the Tidemother (with lines),
+      Miller Bun and Beachcomber Moss, gear tiers, waystones. Left over: `docs/ideas.md` ("G1 left for later")
+- [ ] G2-G5: Greenhollow's remaining branches, bottom of the band up
 - [ ] R: the rebalance: the later islands' legacy mobs and bosses raised to their new bands; owned gear
       kept as Legacy, scaled new copies dropped instead
 - [ ] Frostpeak's depth pass (40-100)

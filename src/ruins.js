@@ -1,10 +1,12 @@
-// Docs: docs/places/cliffs.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
-// can read (E), the first clue that someone else lived on Greenhollow long ago. The text opens on the
-// museum's fact-sheet card (src/museum.js, `set` on each stone). Story: story/world/regions/greenhollow.md;
-// keep what they say to canon Tier 1 (story/canon.md): the Keepers, gears, an hourglass scratched out.
+// can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
+// each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves). The text opens
+// on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
+// story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
+// gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD_GROUND } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -33,20 +35,38 @@ export const RUIN_STONES = [
     legible: ['...THE ROOT RUNS UNDER ALL...', '...WHILE IT HOLDS...'],
     note: 'The tree in the carving looks a lot like the old apple tree in Slimeville. Funny, that.',
   },
+  {
+    room: WILLOWMERE, place: 'Willowmere', x: 742, shape: 'weir', // (right under the mill wheel's axle: WHEEL_X in src/willowmere.js)
+    name: 'the weir stone', title: 'The Weir Stone',
+    look: "A broad flat stone set into the bank where the millrace leaves the brook, polished by water for longer than anyone can say. The mill wheel's axle rests in a notch cut into its top, a notch far too neat to be an accident. A ring of gear teeth is carved round the notch.",
+    legible: ['...KEEP THE WATER MOVING...', 'Under that, smaller, a row of little waves, each one carved a little further along than the last.'],
+    note: "Somebody has chalked BUN'S on it in big floury letters. Somebody else has chalked an eel underneath, sticking its tongue out.",
+  },
+  {
+    room: COVES, place: 'Saltspray Coves', x: 3460, shape: 'tidepost', name: 'the tide post', title: 'The Tide Post',
+    look: 'A square stone post standing in the tide pools, crusted with barnacles to the height of a slime. Notches are cut up one face at even steps, each with a little carved wave beside it. The highest notches are far above anywhere the sea reaches now, on dry, sun-bleached stone.',
+    legible: ['HIGH WATER', 'The notch marked HIGH WATER is the lowest one on the post. Above it, the notches go on climbing, and none of them is marked at all.'],
+    note: "Fresh scratches by the waterline mark this year's tides, in a small careful hand. Beachcomber Moss's, probably. They creep upward.",
+  },
 ];
-RUIN_STONES.forEach((s, i) => Object.assign(s, { set: RUIN_STONES, index: i }));
+for (const s of RUIN_STONES) {
+  s.room ??= FIELD;
+  s.place ??= 'Bramble Woods';
+  s.set = RUIN_STONES.filter((o) => (o.room ?? FIELD) === s.room);
+  s.index = s.set.indexOf(s);
+}
 
 // The stone you could read from where you stand (on the ground, not up on a branch)
-export const ruinStoneAt = (me) => (me && me.grounded && !me.onPlat ? RUIN_STONES.find((s) => Math.abs(me.x - s.x) < READ_RANGE) : null) ?? null;
+export const ruinStoneAt = (me) => (me && me.grounded && !me.onPlat ? RUIN_STONES.find((s) => s.room === me.room && Math.abs(me.x - s.x) < READ_RANGE) : null) ?? null;
 
 const STONE = '#a99cb3', STONE_DARK = '#887a94', STONE_LIGHT = '#c4b8cc', CARVE = '#6d6078', MOSS = '#7aa05e', MOSS_DARK = '#5f8448';
 const visible = (x0, x1, L, R) => x1 > L && x0 < R;
 
 // Behind the slimes, in front of the woods' trunks. near: the stone you could read now (it glows)
-export function drawRuins(ctx, L, R, time, near) {
+export function drawRuins(ctx, room, L, R, time, near) {
   const base = FIELD_GROUND + 2;
   for (const s of RUIN_STONES) {
-    if (!visible(s.x - 140, s.x + 140, L, R)) continue;
+    if (s.room !== room || !visible(s.x - 140, s.x + 140, L, R)) continue;
     ctx.save();
     ctx.translate(s.x, base);
     if (s === near) {
@@ -57,7 +77,7 @@ export function drawRuins(ctx, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -325,4 +345,109 @@ function drawRoot(ctx, time, glow) {
   ellipse(ctx, -10, -112, 20, 6, 0.1);
   moss(ctx, -50, -2, 140, 19);
   void time;
+}
+
+// The weir stone: a broad, water-polished slab in the bank with a notch on top for the mill wheel's axle
+// (the wheel itself is drawn by src/willowmere.js, just west of it)
+function drawWeir(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(40,25,60,0.18)';
+  ellipse(ctx, 0, 0, 70, 7);
+  ctx.fillStyle = STONE;
+  ctx.beginPath();
+  ctx.moveTo(-58, 0);
+  ctx.quadraticCurveTo(-62, -40, -40, -52);
+  ctx.lineTo(-12, -54);
+  ctx.lineTo(-8, -40); // the axle notch
+  ctx.quadraticCurveTo(0, -34, 8, -40);
+  ctx.lineTo(12, -54);
+  ctx.lineTo(42, -50);
+  ctx.quadraticCurveTo(62, -36, 58, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = STONE_LIGHT;
+  ctx.beginPath();
+  ctx.roundRect(-50, -46, 22, 40, 8);
+  ctx.fill();
+  ctx.fillStyle = STONE_DARK;
+  ctx.beginPath();
+  ctx.roundRect(36, -44, 14, 40, 6);
+  ctx.fill();
+  // wet, darker band along the bottom where the water runs
+  ctx.fillStyle = 'rgba(70,90,120,0.35)';
+  ctx.beginPath();
+  ctx.roundRect(-58, -14, 116, 14, 6);
+  ctx.fill();
+  carvedGear(ctx, 0, -36, 16, 9, glow);
+  // the row of little waves, each a step further along
+  ctx.strokeStyle = glow ? '#c9a24a' : CARVE;
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  for (let i = 0; i < 5; i++) {
+    const x = -44 + i * 18, y = -18 - i * 1.5;
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x + 3, y - 3, x + 6, y);
+    ctx.quadraticCurveTo(x + 9, y + 3, x + 12, y);
+  }
+  ctx.stroke();
+  // chalk: BUN'S, and a rude eel
+  ctx.strokeStyle = 'rgba(255,255,255,0.75)';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(24, -30);
+  ctx.quadraticCurveTo(32, -36, 40, -30);
+  ctx.quadraticCurveTo(46, -26, 50, -30);
+  ctx.stroke();
+  ctx.fillStyle = MOSS;
+  ellipse(ctx, -36, -51, 14, 4, -0.2);
+  moss(ctx, -64, -2, 128, 23);
+  // drips sparkling off the lip
+  for (let i = 0; i < 3; i++) {
+    const k = (time * 0.9 + i / 3) % 1;
+    ctx.fillStyle = `rgba(200,230,255,${0.8 * (1 - k)})`;
+    circle(ctx, 48 + i * 4, -10 + k * 12, 1.8);
+  }
+}
+
+// The tide post: a square stone post in the pools, barnacled to slime height, notched up one face
+function drawTidePost(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(40,25,60,0.18)';
+  ellipse(ctx, 0, 0, 40, 6);
+  slab(ctx, -20, -170, 40, 170, 6);
+  // the wet, barnacled foot
+  ctx.fillStyle = 'rgba(70,100,120,0.4)';
+  ctx.beginPath();
+  ctx.roundRect(-20, -46, 40, 46, [0, 0, 6, 6]);
+  ctx.fill();
+  ctx.fillStyle = '#e8e0d4';
+  for (const [bx, by] of [[-12, -10], [-4, -22], [8, -14], [12, -32], [-14, -36], [2, -40], [-6, -6], [14, -4]]) {
+    circle(ctx, bx, by, 3);
+    ctx.fillStyle = '#b8aca0';
+    circle(ctx, bx, by, 1.2);
+    ctx.fillStyle = '#e8e0d4';
+  }
+  // the notches, each with its little wave; the lowest one is the only one marked (HIGH WATER)
+  ctx.strokeStyle = glow ? '#c9a24a' : CARVE;
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (let i = 0; i < 7; i++) {
+    const y = -52 - i * 16;
+    ctx.moveTo(-18, y);
+    ctx.lineTo(-6, y);
+    ctx.moveTo(0, y - 2);
+    ctx.quadraticCurveTo(3, y - 5, 6, y - 2);
+    ctx.quadraticCurveTo(9, y + 1, 12, y - 2);
+  }
+  ctx.stroke();
+  scratches(ctx, -16, -62, 30, 1, 77, glow);
+  // this year's tides, scratched fresh by the waterline
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i < 4; i++) {
+    ctx.moveTo(10, -30 - i * 3);
+    ctx.lineTo(18, -30 - i * 3);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(90,140,90,0.7)'; // a little seaweed
+  ellipse(ctx, -18, -8, 4, 9, 0.3 + Math.sin(time * 1.4) * 0.15);
 }

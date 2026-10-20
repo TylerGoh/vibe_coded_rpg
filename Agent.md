@@ -137,6 +137,9 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/fjord.md](docs/places/fjord.md) | Icefang Fjord and Icefang Hamlet (Frostpeak's landing town), Skaldi, Runa and her shop, Tove, the fjord folk's look, the laid-up Lodestar |
 | [docs/places/cliffs.md](docs/places/cliffs.md) | the Keeper ruins in Bramble Woods, Greenhollow's east cliffs, the telescope |
 | [docs/places/branches.md](docs/places/branches.md) | Greenhollow's branches, their blocked entrances (gates), the island map's data (`GREENHOLLOW`) |
+| [docs/places/willowmere.md](docs/places/willowmere.md) | Willowmere (room 24), Miller Bun, Old Snapjaw, the weir stone |
+| [docs/places/coves.md](docs/places/coves.md) | Saltspray Coves (room 25), Beachcomber Moss, the Tidemother's den (26), boss `lines` |
+| [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel), attuning, the travel card |
 | [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |
 | [docs/ui/mobile.md](docs/ui/mobile.md) | touch controls, phone layout, fullscreen, home-screen mode |
 | [docs/ui/hints.md](docs/ui/hints.md) | the on-screen prompts above your slime, any new interaction |

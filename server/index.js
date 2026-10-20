@@ -40,7 +40,7 @@
 //   The lander's own client already played it from prediction and ignores its echo.
 // Slapping: → {t:'slap', dir}  ← {t:'slap', id, dir, hits:[ids], npc?, quip?, mob?}  to everyone in that room.
 //   Hits are judged here from the server's positions; npc is 'mochi' / 'prof' if one got slapped.
-// The Wildwood (room 5) and the boss dens (6–8): server/rpg.js, src/shared/rpg.js, src/shared/skills.js.
+// The combat rooms (the stages and their dens, COMBAT_ROOMS): server/rpg.js, src/shared/rpg.js, src/shared/skills.js.
 // Combat is client-decided (responsiveness first; server/rpg.js explains). These carry `s`, the client's
 // latest input seq, and run once that input has been applied (ORDERED / runActions):
 //   → {t:'slap', dir, s, vt, hits:[[mobId, dmg, crit]]}  ← slap gets `mobs:[[id, dmg, crit, killed]]`
@@ -76,6 +76,11 @@
 //       simulates and judges (src/rpg.js), reported back as ouch kinds shot/burn/geyser/sweep/beam/zap/bomb/
 //       slash/pulse. Mobs flags 128 = special; [7], [8] = Pyra's egg hp / max.
 //   Inputs: k also has DASH (32) and BLINK (64); snapshots carry each slime's mobility state (sim.js pack).
+//   Big bosses talk (MOBS[kind].lines): ← {t:'boss', a:'say', id, kind, text}  on walking in (just to you), at a
+//   new phase and when freed (to the den).
+// Waystones (src/shared/waystones.js, docs/places/waystones.md): → {t:'way'} at one: attune to it (`me.ways`
+//   lists yours) · → {t:'way', to} at an attuned one: the server moves you to stone `to`
+//   ← {t:'warp', id, x, in?}  to the room you left and the one you arrived in (a shimmer where you were / are)
 // Personal houses (server/house.js, src/shared/house.js): rooms from HOUSE_BASE up, one per account;
 //   each slime's own house room (`home`) is in welcome / join info (not in snapshots: it never changes).
 //   Every town (TOWNS) has a door into it; its front door lets you out into your town (`town`, in snapshots).
@@ -312,6 +317,8 @@ wss.on('connection', (ws) => {
       rpg.skills(id, p, m);
     } else if ((m.t === 'buy' || m.t === 'sell' || m.t === 'buycos') && p.joined) {
       rpg.shop(id, p, m);
+    } else if (m.t === 'way' && p.joined) {
+      rpg.way(id, p, m);
     } else if (m.t === 'house-set' && p.joined) {
       houses.set(p, m);
     } else if (m.t === 'tp' && p.joined && process.env.TEST_TP) {

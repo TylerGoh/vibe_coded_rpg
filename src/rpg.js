@@ -419,8 +419,17 @@ export class Rpg {
     this.onAnnounce?.(line);
     if (m.a === 'fieldUp') audio.sfx('fieldBoss');
   }
+  // A big boss's line (MOBS[kind].lines: on walking in, at a new phase, when freed): a bubble over it for
+  // a few seconds and a line in the chat
+  bossSays(m) {
+    const k = MOBS[m.kind];
+    if (!k || !m.text) return;
+    this.says = { id: m.id, text: m.text, at: this.time, x: this.views.get(m.id)?.x ?? m.x };
+    this.onAnnounce?.(`${k.name}: "${m.text}"`);
+  }
   bossEvent(m, mine) {
     if (m.a === 'fieldUp' || m.a === 'fieldDown') return this.fieldBoss(m);
+    if (m.a === 'say') return this.bossSays(m);
     const theme = denAt(this.room)?.theme, myX = mine?.x ?? m.x, pan = panX(m.x, myX);
     const ground = 450, me = this.net.me, v = this.views.get(m.id), k = MOBS[v?.kind] ?? MOBS.sprout_king;
     if (this.hazardEvent(m, k, theme, pan, me)) return;
@@ -500,9 +509,9 @@ export class Rpg {
     const add = (h) => this.hz.push({ mob, warnAt: now, ...h });
     if (m.a === 'shots') {
       for (const [x, y, vx, vy, g, r, delay] of m.shots) add({ type: 'shot', style: m.style, x, y, vx, vy, g, r, at: now + delay, end: now + delay + 4, pos: null });
-      audio.sfx('fireball', { pan, vol: m.style === 'ember' ? 0.8 : 0.5 });
+      audio.sfx(m.style === 'water' ? 'squirt' : 'fireball', { pan, vol: m.style === 'ember' ? 0.8 : 0.5 });
     } else if (m.a === 'puddle') {
-      add({ type: 'puddle', x: m.x - m.dir * MOBS.magma_slug.w * 0.35, y: m.y, w: m.w, at: now + 0.15, end: now + m.life });
+      add({ type: 'puddle', style: m.style, x: m.x - m.dir * k.w * 0.35, y: m.y, w: m.w, at: now + 0.15, end: now + m.life });
     } else if (m.a === 'geysers') {
       for (const [x, d] of m.list) {
         const at = now + d + m.warn;
@@ -792,6 +801,7 @@ export class Rpg {
     this.killed.clear();
     this.ghosts = [];
     this.loot = [];
+    this.says = null;
     this.bossBack = 0;
     this.ouchNext = null;
     this.ult = null;
@@ -840,6 +850,45 @@ export class Rpg {
       else if (hp < v.maxHp) bar(ctx, v.x - 24, v.y - k.h - 10, 48, 6, hp / v.maxHp, '#ff6f91');
     }
     this.bossFx.draw(ctx);
+    this.drawSays(ctx);
+  }
+  drawSays(ctx) {
+    const sy = this.says;
+    if (!sy) return;
+    const life = 4 + sy.text.length / 22, age = this.time - sy.at;
+    if (age > life) return (this.says = null);
+    const v = this.views.get(sy.id), k = MOBS[v?.kind];
+    if (v) sy.x = v.x;
+    const x = sy.x, bottom = (v ? v.y - (k?.h ?? 120) : 300) - 26;
+    ctx.save();
+    ctx.globalAlpha = clamp(Math.min(age * 5, life - age), 0, 1);
+    ctx.font = `700 13px ${FONT}`;
+    const lines = [];
+    let line = '';
+    for (const word of sy.text.split(' ')) {
+      if (line && ctx.measureText(`${line} ${word}`).width > 260) lines.push(line), (line = word);
+      else line = line ? `${line} ${word}` : word;
+    }
+    lines.push(line);
+    const w = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 22, h = lines.length * 16 + 12, y = bottom - h;
+    const bx = clamp(x - w / 2, 8, DEN_W - w - 8);
+    ctx.fillStyle = '#fffaf3';
+    ctx.strokeStyle = 'rgba(40,40,60,0.45)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(bx, y, w, h, 10);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x - 7, bottom - 1);
+    ctx.lineTo(x, bottom + 9);
+    ctx.lineTo(x + 7, bottom - 1);
+    ctx.fill();
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#4a3b5c';
+    lines.forEach((l, i) => ctx.fillText(l, bx + 11, y + 14 + i * 16));
+    ctx.restore();
   }
   drawAura(ctx, s) {
     if ((s.berserkUntil ?? 0) > this.time) drawBerserkAura(ctx, s.x, s.y, this.time);

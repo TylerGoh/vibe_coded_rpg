@@ -3,6 +3,8 @@ import { TAU, rand, clamp, ellipse, circle } from './util.js';
 import { drawSword, drawHelmet, SWORD_LEN } from './field.js';
 import { drawEnhanceGlow } from './skillfx.js';
 import { FOLK_PALETTE, drawFolk, drawFolkDress } from './fjord-art.js';
+import { drawMillerDress } from './willowmere-art.js';
+import { drawBeachcomberDress } from './coves-art.js';
 
 // yr's laptop notifications: icon colours, and how long each one floats
 const NOTIF_KINDS = ['#ff5a5f', '#4fbf86', '#5b8def', '#ffb020']; // alert, message, mail, calendar
@@ -876,6 +878,8 @@ export class Slime {
       ctx.restore();
     }
     for (const kind of ['lamplighter', 'netmender', 'mittens']) if (this.has(kind)) drawFolkDress(ctx, kind, w, h, fx, this.t); // Icefang Hamlet's people
+    if (this.has('miller')) drawMillerDress(ctx, w, h, fx, this.t, bodyPath); // Willowmere's Miller Bun
+    if (this.has('beachcomber')) drawBeachcomberDress(ctx, w, h, fx, this.t); // Saltspray Coves' Beachcomber Moss
     if (this.has('captain')) {
       // Captain Brine: a salt-white beard, a navy captain's cap with a gold anchor badge, and a brass spyglass
       const fy = -h * 0.42;

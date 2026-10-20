@@ -17,6 +17,7 @@ import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, ap
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
+import { wayAt, wayById, ARRIVE_DX } from '../src/shared/waystones.js';
 
 export const MOB_KINDS = Object.keys(MOBS); // mob kinds go over the wire as an index into this
 const GRAVITY = 1400;
@@ -41,6 +42,7 @@ const newChar = () => ({
   alt: { hotbar: Array(HOTBAR).fill(null), potbar: Array(POTBAR).fill(null) }, set: 0, // the other hotbar setup (swapped from the Esc menu)
   ap: { str: 0, dex: 0, int: 0, luk: 0 }, // ability points (AP_STATS)
   cosmetics: [], wear: [], showHelmet: true, // the Boutique
+  ways: [], // the waystones you've attuned to (src/shared/waystones.js)
 });
 
 // players: the server's id → player map. send(ws, msg). toRoom(room)(msg). broadcast(msg).
@@ -109,6 +111,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     r.showHelmet = r.showHelmet !== false;
     r.brew = ITEMS[r.brew?.id]?.buff && r.brew.until > now() ? { id: r.brew.id, until: r.brew.until } : null;
     r.town = TOWNS[r.town] ? r.town | 0 : 0;
+    r.ways = [...new Set((Array.isArray(r.ways) ? r.ways : []).filter(wayById))];
     p.hurtAt = 0;
     p.cds = {};
     p.hist = [];
@@ -121,9 +124,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   }
   function save(p) {
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -142,6 +145,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       cosmetics: c.cosmetics, wear: c.wear, showHelmet: c.showHelmet,
       berserk: left(p.berserkUntil), rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), secondWind: left(p.swReadyAt),
       brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
+      ways: c.ways,
     });
   }
   // What everyone else sees of you: gear, level and friendly fire (also part of join / welcome)
@@ -282,6 +286,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (k.field) toRoom(m.room)({ t: 'boss', a: 'fieldDown', id: m.id, kind: m.kind, x: m.x, y: m.y });
     if (k.boss) {
       toRoom(m.room)({ t: 'boss', a: 'die', id: m.id, x: m.x, y: m.y });
+      bossSays(m, k.lines?.freed);
       for (const q of mobs) if (q.minion && q.room === m.room) q.dead = q.gone = true; // the minions flee
     }
     if (m.minion) m.gone = true;
@@ -537,7 +542,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
           face();
           const x0 = m.x + m.dir * 8, y0 = m.y - k.h - 6, tx = tg.x + rand(-20, 20), ty = tg.y - 18;
           const T = Math.max(0.6, Math.min(1.3, Math.abs(tx - x0) / 380)), g = 900;
-          bossEvent(m, 'shots', { style: 'ember', shots: [[Math.round(x0), Math.round(y0), Math.round((tx - x0) / T), Math.round((ty - y0 - 0.5 * g * T * T) / T), g, 14, 0]] });
+          bossEvent(m, 'shots', { style: ai.style ?? 'ember', shots: [[Math.round(x0), Math.round(y0), Math.round((tx - x0) / T), Math.round((ty - y0 - 0.5 * g * T * T) / T), g, 14, 0]] });
         }
         again();
         return 0;
@@ -575,7 +580,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (ai.kind === 'trail') {
       if (m.aiCd <= 0 && Math.abs(m.vx) > 8) {
         m.aiCd = ai.every;
-        bossEvent(m, 'puddle', { w: ai.w, life: ai.life });
+        bossEvent(m, 'puddle', { w: ai.w, life: ai.life, style: ai.style });
       }
       return null;
     }
@@ -684,6 +689,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   }
 
   const bossEvent = (m, a, extra = {}) => toRoom(m.room)({ t: 'boss', a, id: m.id, x: Math.round(m.x), y: m.y, dir: m.dir, ...extra });
+  // A big boss's lines (MOBS[kind].lines: on entering, at each new phase, when freed): a bubble over it and a
+  // line in the chat, for the whole den (or just `p`, who walked in)
+  const bossSays = (m, text, p) => text && (p ? (msg) => send(p.ws, msg) : toRoom(m.room))({ t: 'boss', a: 'say', id: m.id, kind: m.kind, text });
   const WARN = {
     slam: 0.9, charge: 0.75, rain: 0.4, summon: 0.6, leap: 0.8, barrage: 0.5,
     // the newer bosses (their attacks carry their own telegraphs, so the boss's own wind-up is short)
@@ -707,6 +715,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (stage > m.stage) {
       m.stage = stage;
       bossEvent(m, 'phase', { n: stage + 1 });
+      bossSays(m, k.lines?.phase?.[stage]);
       if (stage === 2) {
         m.enraged = true;
         bossEvent(m, 'rage');
@@ -1104,6 +1113,29 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
 
     entered(p) {
       if (isCombat(p.state.room)) send(p.ws, lootMsg(p.state.room));
+      const boss = mobs.find((m) => m.den && m.room === p.state.room && !m.dead), enter = boss && MOBS[boss.kind].lines?.enter;
+      if (enter) bossSays(boss, pick(enter), p);
+    },
+
+    // → {t:'way'} at a waystone: attune to it · → {t:'way', to} at one you're attuned to: go to stone `to`
+    // (src/shared/waystones.js). Checked like a door: you're standing at the stone, and you know both.
+    way(id, p, m) {
+      const at = wayAt(p.state), c = p.rpg;
+      if (!at || p.faintUntil) return;
+      if (!m.to) {
+        if (c.ways.includes(at.id)) return;
+        c.ways.push(at.id);
+        toast(p, `The waystone hums. You're attuned to the ${at.name} waystone.`);
+        sendMe(p);
+        return;
+      }
+      const to = wayById(m.to);
+      if (!to || to === at || !c.ways.includes(at.id) || !c.ways.includes(to.id)) return;
+      toRoom(p.state.room)({ t: 'warp', id, x: Math.round(p.state.x) });
+      placeAt(p.state, to.room, to.x + ARRIVE_DX);
+      moves(p);
+      toRoom(to.room)({ t: 'warp', id, x: Math.round(p.state.x), in: true });
+      toast(p, `The stones hum, and you're at the ${to.name} waystone.`);
     },
 
     // Z: pick up the nearest thing on the ground

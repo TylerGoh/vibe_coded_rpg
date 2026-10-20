@@ -7,10 +7,11 @@ import { H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { DEN_W, DEN_PLATFORMS, DEN_EXIT_X, DENS, MOBS, FIELD_GROUND, SAFE_R, denAt } from './shared/rpg.js';
 import { DEN_ART as CALDERA_DENS, ENTRANCE_ART as CALDERA_ENTRANCES, BOSS_ART as CALDERA_BOSSES, FX2 as CALDERA_FX } from './dens-caldera.js';
 import { DEN_ART as CITADEL_DENS, ENTRANCE_ART as CITADEL_ENTRANCES, BOSS_ART as CITADEL_BOSSES, FX2 as CITADEL_FX } from './dens-citadel.js';
+import { DEN_ART as COVES_DENS, ENTRANCE_ART as COVES_ENTRANCES, BOSS_ART as COVES_BOSSES } from './dens-coves.js';
 // the third and fourth stages' dens, bosses and boss effects live in their own files (same contracts as here)
-const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS };
-const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES };
-const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES };
+const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS };
+const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES };
+const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES };
 const FX2 = { ...CALDERA_FX, ...CITADEL_FX };
 
 const GROUND = FIELD_GROUND; // den floors sit at the same height as the field
@@ -2354,8 +2355,9 @@ const FXPAL = {
   phoenix: { debris: ['#ffb347', '#ff6f5a', '#ffe28a', '#ffd0a0'], dust: '255,200,150', crack: '#a8452a', warn: '255,80,90', jelly: ['#ff9f5a', '#ffd06a', '#ff6f7a', '#fff1c0'] },
   clock: { debris: ['#c99a4a', '#e8c070', '#8a6a3a', '#bfe3ff'], dust: '210,190,150', crack: '#5a4020', warn: '255,90,90', jelly: ['#e8c070', '#bfe3ff', '#ffd98a', '#c9b6ff'] },
   chrono: { debris: ['#c9b6ff', '#ffd66a', '#8ae0e8', '#ffffff'], dust: '170,160,230', crack: '#2a1a50', warn: '255,100,120', jelly: ['#a88cf0', '#ffd66a', '#8ae0e8', '#e0d4ff'] },
+  tide: { debris: ['#fff1e0', '#ffd6c9', '#9fe0d8', '#8fd0ff'], dust: '210,235,240', crack: '#2a5e66', warn: '255,96,110', jelly: ['#9fe0d8', '#ffd6c9', '#8fd0ff', '#fff1e0'] },
 };
-const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255' };
+const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235' };
 const DUR = {
   slamWarn: 1, shockwave: 0.55, chargeWarn: 0.8, rainWarn: 1, rainHit: 0.45, summon: 0.9, roar: 0.8, bossDie: 1.6,
   leap: 1.1, phase: 1.5,
@@ -2488,6 +2490,21 @@ function drawBit(ctx, theme, x, y, rot, s, c) {
     glow(ctx, 0, 0, 9, 9, '220,200,255', 0.5);
     ctx.fillStyle = c;
     circle(ctx, 0, 0, 3);
+  } else if (theme === 'tide') {
+    // a little shell, or a drop of water
+    if (c === '#8fd0ff' || c === '#9fe0d8') {
+      ctx.beginPath();
+      ctx.moveTo(0, -6);
+      ctx.quadraticCurveTo(4, 0, 0, 4);
+      ctx.quadraticCurveTo(-4, 0, 0, -6);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(-5, 2);
+      ctx.quadraticCurveTo(0, -7, 5, 2);
+      ctx.closePath();
+      ctx.fill();
+    }
   } else {
     ctx.beginPath();
     ctx.moveTo(-3, 2);
@@ -2721,6 +2738,42 @@ function drawFallObj(ctx, theme, x, y, s, rot, time) {
       circle(ctx, cx - r * 0.3, cy - r * 0.35, r * 0.28);
     }
     void time;
+  } else if (theme === 'tide') {
+    // something from the hoard: a big scallop shell, a bottle, or a button, tumbling down
+    const k = Math.floor(Math.abs(x * 0.13 + y * 0.02)) % 3;
+    if (k === 0) {
+      ctx.fillStyle = '#ffd6c9';
+      ctx.strokeStyle = '#d8a898';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-13, 6);
+      ctx.quadraticCurveTo(0, -18, 13, 6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      for (let i = -2; i <= 2; i++) {
+        ctx.moveTo(0, 6);
+        ctx.lineTo(i * 5, -8);
+      }
+      ctx.stroke();
+    } else if (k === 1) {
+      ctx.fillStyle = 'rgba(143,224,200,0.9)';
+      ctx.strokeStyle = '#3e8c96';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.roundRect(-7, -6, 14, 22, 5);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillRect(-3, -14, 6, 9);
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.fillRect(-4, -2, 2, 12);
+    } else {
+      ctx.fillStyle = '#ff8f8f';
+      circle(ctx, 0, 0, 11);
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      for (const [bx, by] of [[-3, -3], [3, -3], [-3, 3], [3, 3]]) circle(ctx, bx, by, 1.6);
+    }
   } else {
     // a bundle of thorns tied with a vine
     ctx.fillStyle = '#4a2c48';
@@ -2828,7 +2881,7 @@ function fxSummon(ctx, e, k) {
   const open = Math.sin(Math.PI * Math.min(1, k * 1.15));
   const rx = 40 * open, ry = 12 * open;
   glow(ctx, x, y - 20, 60 * open + 1, 50 * open + 1, rgb, 0.6);
-  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30' }[theme];
+  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30', tide: '#1e4a58' }[theme] ?? '#1c1020';
   ellipse(ctx, x, y + 2, rx + 0.1, ry + 0.1);
   ctx.strokeStyle = `rgba(${rgb},0.9)`;
   ctx.lineWidth = 3;
@@ -2855,7 +2908,7 @@ function fxSummon(ctx, e, k) {
 
 function fxRoar(ctx, e, k) {
   const { x, y, theme } = e;
-  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255' }[theme] ?? '255,140,80';
+  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255', tide: '140,220,240' }[theme] ?? '255,140,80';
   for (let i = 0; i < 3; i++) {
     const j = clamp(k * 1.4 - i * 0.18, 0, 1);
     if (j <= 0 || j >= 1) continue;
@@ -4394,7 +4447,8 @@ function fxWaveWarn(ctx, e, k) {
     ctx.beginPath();
     ctx.rect(-40, y - hh - 30, DEN_W + 80, hh + 34);
     ctx.clip();
-    thornMass(ctx, x0 + dir * 20, dir, hh, e.t, e.spikes);
+    if (theme === 'tide') waterMass(ctx, x0 + dir * 20, dir, hh, e.t);
+    else thornMass(ctx, x0 + dir * 20, dir, hh, e.t, e.spikes);
     ctx.restore();
   }
   glow(ctx, x0, y - 40, 120, 80, '255,70,60', 0.3 + 0.3 * pulse);
@@ -4403,7 +4457,41 @@ function fxWaveWarn(ctx, e, k) {
 function fxWaveGo(ctx, e, k) {
   const fx = e.x0 + e.dir * e.speed * e.t;
   void k;
-  thornMass(ctx, fx, e.dir, 66, e.t, e.spikes);
+  if (e.theme === 'tide') waterMass(ctx, fx, e.dir, 66, e.t);
+  else thornMass(ctx, fx, e.dir, 66, e.t, e.spikes);
+}
+
+// The Tidemother's Riptide: a rolling wall of green water with a curling white crest, shells tumbling in it
+function waterMass(ctx, fx, dir, hh, time) {
+  const back = fx - dir * 240, y = GROUND + 2;
+  const g = ctx.createLinearGradient(0, y - hh - 20, 0, y);
+  g.addColorStop(0, 'rgba(160,230,235,0.95)');
+  g.addColorStop(1, 'rgba(46,120,150,0.95)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(back, y);
+  ctx.lineTo(back, y - hh * 0.5);
+  ctx.quadraticCurveTo((back + fx) / 2, y - hh * 0.9 + Math.sin(time * 6) * 4, fx - dir * 30, y - hh - 6);
+  ctx.quadraticCurveTo(fx + dir * 20, y - hh - 14, fx + dir * 18, y - hh * 0.4);
+  ctx.quadraticCurveTo(fx + dir * 30, y - 10, fx + dir * 10, y);
+  ctx.closePath();
+  ctx.fill();
+  // the curling crest
+  ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(fx - dir * 60, y - hh * 0.9);
+  ctx.quadraticCurveTo(fx, y - hh - 18, fx + dir * 20, y - hh * 0.55);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  for (let i = 0; i < 7; i++) circle(ctx, fx + dir * (10 - i * 12) + Math.sin(time * 9 + i) * 3, y - hh * (0.6 + (i % 3) * 0.12) - 8, 4 + (i % 3) * 2);
+  // shells and bubbles tumbling inside
+  for (let i = 0; i < 6; i++) {
+    const px = fx - dir * (30 + ((i * 37 + time * 120) % 200)), py = y - 12 - ((i * 23) % (hh * 0.7));
+    ctx.fillStyle = i % 2 ? 'rgba(255,214,201,0.9)' : 'rgba(255,255,255,0.6)';
+    circle(ctx, px, py, i % 2 ? 4 : 2.5);
+  }
 }
 
 function fxLanesWarn(ctx, e, k) {

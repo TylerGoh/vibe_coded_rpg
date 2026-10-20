@@ -10,6 +10,7 @@ import { W, TAU, circle, mix } from './util.js';
 // 0 = north, clockwise) and distance (1 = far, bigger = nearer) of every other island's landmark.
 const VIEWS = {
   green: { face: 90, sees: { frost: [40, 1], citadel: [92, 1], ember: [140, 1] } },
+  greenSouth: { face: 180, sees: { frost: [40, 1], citadel: [92, 1], ember: [140, 1] } }, // Greenhollow's south shore (Saltspray Coves): Emberdeep's smoke ahead
   frost: { face: 180, sees: { citadel: [165, 1], ember: [190, 0.8], green: [240, 0.9] } },
   ember: { face: 0, sees: { frost: [335, 0.8], citadel: [345, 1.1], green: [300, 0.9] } },
   citadel: { face: 270, sees: { green: [270, 0.9], frost: [0, 0.9], ember: [180, 0.9] } },

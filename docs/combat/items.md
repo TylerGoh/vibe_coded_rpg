@@ -27,6 +27,9 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   Hamlet (the Trade button in her dialog: she's an AI character too, `docs/places/fjord.md`). Buy
   (`price`, `BUY_MAX` at once); sell anything for `SELL_RATE` of its price (`sellPrice`) at either. Buy and
   sell messages carry `shop` (default `pip`); the server checks you're near that keeper (`SHOP_RANGE`).
+- The branches' traders (G1): **Miller Bun** (`SHOPS.bun`, Willowmere) and **Beachcomber Moss**
+  (`SHOPS.moss`, the Coves). New gear has a `lvl` (checked on the frozen gear curve) and art in
+  `src/willowmere-art.js` / `src/coves-art.js` (`BRANCH_SWORDS`, `BRANCH_HELMETS`, `BRANCH_ICONS` in field.js).
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely.
 

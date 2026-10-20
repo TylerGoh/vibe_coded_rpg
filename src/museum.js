@@ -155,7 +155,7 @@ export class Museum {
     };
     const body = this.sheetBody;
     body.replaceChildren();
-    body.append(el('p', 'sheet-wing', `Keeper ruins · Bramble Woods · Stone ${e.index + 1} of ${e.set.length}`));
+    body.append(el('p', 'sheet-wing', e.set.length > 1 ? `Keeper ruins · ${e.place} · Stone ${e.index + 1} of ${e.set.length}` : `Keeper stone · ${e.place}`));
     body.append(el('h2', 'sheet-title', e.title));
     body.append(el('p', 'sheet-when', 'Carved long, long ago · read with a lot of squinting'));
     body.append(el('p', 'sheet-summary', e.look));

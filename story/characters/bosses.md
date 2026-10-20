@@ -18,6 +18,11 @@ Order is by level. Names are the game's current ones.
   ruins and to keep Greenhollow from drifting. Protective to the point of smothering. Beaten, it opens the
   ruins: the first carvings of the Wheel, and the end of Act I.
 
+- **The Tidemother** (The Tidemother's Hoard, Saltspray Coves; shipped G1). A great hermit crab with a shard
+  in her shell who keeps everything the sea washes in and won't let the tide take anything back out; the
+  pools have gone stale. Her lines (MOBS.tidemother.lines) are a hoarder's panic. Freed, she lets the
+  tide have it, and the water runs clean.
+
 ## Frostpeak (melancholy)
 - **Frost Queen Glacia** (The Frozen Throne). She froze the strait into an ice bridge to hold her island
   close to its neighbour, and she's frozen her own people half-solid doing it. The clearest small mirror

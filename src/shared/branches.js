@@ -4,14 +4,16 @@
 // node's `gate`: drawn by src/branch-gates.js, E shows what's wrong), never a "coming soon" sign. The
 // island map (src/worldmap.js) draws this list as a graph: shipped places solid, the rest blocked.
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
-// it: the update itself lifts the block), and make its children's gates the next ones.
-import { FIELD, ZONES, DENS, zoneAt } from './rpg.js';
+// it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
+// and make its children's gates the next ones.
+import { FIELD, ZONES, DENS, zoneAt, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
 // on the map) · band: its levels · hard: a hard pocket · rooms: the rooms that are it (shipped) · zone: a
 // Wildwood zone · gate: the blocked way in: { room, x, kind (the art), look (the prompt), says (on E) }
 // · past: an unshipped place behind another one, with no gate of its own yet (`block` names why on the map)
+// · entry: a shipped branch's way in, drawn by src/branch-gates.js: { room, x (its door), kind (the art) }
 export const GREENHOLLOW = [
   { id: 'harbour', name: 'Harbour', at: [75, 205], rooms: [HARBOUR], town: true },
   { id: 'slimeville', name: 'Slimeville', at: [190, 205], from: 'harbour', town: true },
@@ -19,15 +21,12 @@ export const GREENHOLLOW = [
   { id: 'grove', name: 'Mushroom Grove', band: '4–7', at: [420, 205], from: 'meadow', zone: 1 },
   { id: 'woods', name: 'Bramble Woods', band: '8–12', at: [535, 205], from: 'grove', zone: 2 },
   { id: 'cliffs', name: 'East Cliffs', at: [650, 205], from: 'woods', rooms: [CLIFFS] },
+  { id: 'willowmere', name: 'Willowmere', band: '5–15', at: [305, 285], from: 'meadow', rooms: [WILLOWMERE], entry: { room: FIELD, x: WILLOWMERE_GATE_X, kind: 'bridge' } },
+  { id: 'coves', name: 'Saltspray Coves', band: '10–25', at: [75, 285], from: 'harbour', rooms: [COVES], entry: { room: HARBOUR, x: COVES_GATE_X, kind: 'shore' } },
   {
-    id: 'willowmere', name: 'Willowmere', band: '5–15', at: [305, 285], from: 'meadow', block: 'bridge out',
-    gate: { room: FIELD, x: 880, kind: 'bridge', look: 'look at the washed-out footbridge', says: 'A path runs north along the brook to Willowmere, but the footbridge over the brook has washed out.' },
+    id: 'wreck', name: 'Wreck Cave', band: '30–40', hard: true, at: [75, 350], from: 'coves', block: 'flooded',
+    gate: { room: COVES, x: 130, kind: 'flooded', look: 'peer into the flooded cave', says: 'The mouth of Wreck Cave is flooded to the roof. Somewhere inside, old timbers creak.' },
   },
-  {
-    id: 'coves', name: 'Saltspray Coves', band: '10–25', at: [75, 285], from: 'harbour', block: 'rockfall',
-    gate: { room: HARBOUR, x: 110, kind: 'rockfall', look: 'look at the rockfall', says: 'The shore path south to Saltspray Coves is buried under a rockfall.' },
-  },
-  { id: 'wreck', name: 'Wreck Cave', band: '30–40', hard: true, at: [75, 350], from: 'coves', past: true, block: 'flooded' },
   {
     id: 'deep', name: 'Mycelium Deep', band: '15–35', at: [420, 285], from: 'grove', block: 'roots',
     gate: { room: FIELD, x: 2430, kind: 'stump', look: 'peer into the hollow stump', says: 'The hollow stump goes down to the Mycelium Deep, but its hole is choked with roots.' },
@@ -45,6 +44,7 @@ export const GREENHOLLOW = [
 ];
 export const ISLAND_MAPS = { green: GREENHOLLOW }; // (Frostpeak's comes with its depth pass)
 export const shipped = (n) => !n.gate && !n.past;
+export const ENTRIES = GREENHOLLOW.filter((n) => n.entry).map((n) => ({ ...n.entry, branch: n.id, name: n.name, band: n.band }));
 
 // Blocked ways in, and the one you're standing at (on the ground, close enough to look)
 export const GATES = GREENHOLLOW.filter((n) => n.gate).map((n) => ({ ...n.gate, branch: n.id, name: n.name, hard: !!n.hard }));

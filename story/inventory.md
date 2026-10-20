@@ -7,9 +7,9 @@ Update this when the game changes. Source of truth for names is the code (`src/s
 | in game now | story reading | change needed |
 |---|---|---|
 | Slimeville (village) | Greenhollow Bay village | none (the harbour gate is at the west end) |
-| Greenhollow Harbour | the west end: the lighthouse (lit again: Granny Wicks came home), the ferry; a rockfall over the shore path south (Saltspray Coves' blocked way in) | open the path when the Coves ship (G1) |
+| Greenhollow Harbour | the west end: the lighthouse (lit again: Granny Wicks came home), the ferry; the shore path south to Saltspray Coves (the rockfall rolled aside, G1) | |
 | The ferry's deck (two crossing rooms, out and home) | the Puddle Jumper crossing the cold sea to Frostpeak | more routes later (Steam Straits ship, balloon) |
-| The Wildwood: Sprout Meadow, Mushroom Grove, Bramble Woods | Greenhollow's interior (Lv 1–12); Keeper ruins in Bramble Woods (4 readable stones); Turnipop, a field boss, in Sprout Meadow; Elder Bramblehogs (elites) in Bramble Woods; blocked ways into four branches (Willowmere's footbridge, the Mycelium Deep's stump, the Old Oak Canopy's ladder, the Thornheart's briar) | the branches open in G1–G5 (`world/island-depth.md`) |
+| The Wildwood: Sprout Meadow, Mushroom Grove, Bramble Woods | Greenhollow's interior (Lv 1–12); Keeper ruins in Bramble Woods (4 readable stones); Turnipop, a field boss, in Sprout Meadow; Elder Bramblehogs (elites) in Bramble Woods; the mended footbridge into Willowmere (G1); blocked ways into three branches (the Mycelium Deep's stump, the Old Oak Canopy's ladder, the Thornheart's briar) | the branches open in G1–G5 (`world/island-depth.md`) |
 | Greenhollow's East Cliffs | the vista past the Wildwood's east end: bench, telescope, the open sea | none |
 | Icefang Hamlet (Icefang Fjord), a town | Frostpeak's landing: the ferry's quay, the hamlet, the cracked ice bridge; the Lodestar laid up | the Lodestar sails south in Phase 5 |
 | Frostpeak: Frostpine Ridge, Starfall Summit | Frostpeak, far north, up the path from the hamlet | none |
@@ -39,3 +39,6 @@ Update this when the game changes. Source of truth for names is the code (`src/s
 - **Fainting:** slimes are jelly; they wobble back together.
 - **Broadcast voice** (`docs/social/voice.md`): `[proposed]` "the Bell", old Keeper tech for carrying a
   voice across the sea. It fits the theme exactly.
+| Willowmere (G1) | Lv 5–15 branch off Sprout Meadow: the mill, Miller Bun (AI, trades), the weir stone (Keeper), pond frogs, dragonflies, gloop snails, Old Snapjaw (field boss), a waystone | fishing, riverside herbs |
+| Saltspray Coves (G1) | Lv 10–25 branch off the harbour: Beachcomber Moss (AI, trades), the tide post (Keeper), rock crabs, tide jellies, storm gulls, snapshrimp, the Tidemother's den, Wreck Cave's flooded mouth, a waystone | Wreck Cave (G4) |
+| Waystones (G1) | Keeper stones that still work: Slimeville, Willowmere, the Coves | Keeper's Spine (G5) |

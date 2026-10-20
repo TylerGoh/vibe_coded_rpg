@@ -22,3 +22,13 @@
 - Icefang Hamlet (`docs/places/fjord.md`): the three new characters' personas have only been read, not
   chatted with (no DeepSeek key on test servers); the new Frostpeak mobs' numbers and Runa's prices
   only went through the balance sheet.
+- Island depth G1 (Willowmere, Saltspray Coves, the Tidemother, waystones): checked by a bot (rooms render,
+  no errors, waystones attune and travel, the Tidemother speaks) but nobody has fought Old Snapjaw or the
+  Tidemother, chatted to Bun or Moss, or tried the waystone card on a real phone.
+
+## G1 left for later (owner, 2026-10-20: "wrap up and add the rest to future plans")
+- Fishing and riverside herbs in Willowmere (the plan's easy-pocket extras); no system exists yet.
+- A phone screenshot pass over the two new rooms and the `#ways` card (layout only checked on desktop).
+- The Tidemother "freed" world change (the pools running clear after a kill): only her line says so.
+- More boss `lines`: the older den bosses have none (roadmap §2 "Boss lines").
+- Then G2 (the Mycelium Deep, Glowroot Hollow, the Knotmole) per `story/world/island-depth.md`.

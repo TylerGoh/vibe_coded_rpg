@@ -132,6 +132,7 @@ const SHOT = {
   feather: { glow: '255,120,70', core: '#fff1c4', mid: '#ffa04a', rim: '#ff5a4a' },
   clock: { glow: '255,214,120', core: '#fff8dc', mid: '#ffd36b', rim: '#b98cff' },
   spark: { glow: '130,225,255', core: '#ffffff', mid: '#aef0ff', rim: '#5fc8ff' },
+  water: { glow: '150,220,255', core: '#ffffff', mid: '#bfeaff', rim: '#5fb0e0' }, // the snapshrimp's
 };
 function drawShot(ctx, h, now) {
   const p = h.pos;
@@ -207,6 +208,18 @@ function drawShot(ctx, h, now) {
     disc(ctx, -r * 0.8, 0, r * 0.32);
     ctx.fillStyle = st.core;
     disc(ctx, 0, 0, r * 0.22);
+  } else if (h.style === 'water') {
+    // a wobbling bubble of sea water with a shine on it
+    const wob = Math.sin(now * 24) * 0.12;
+    ctx.fillStyle = 'rgba(191,234,255,0.75)';
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, r * (1 + wob), r * (1 - wob), Math.atan2(uy, ux), 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = st.rim;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = st.core;
+    disc(ctx, p.x - r * 0.35, p.y - r * 0.35, r * 0.28);
   } else if (h.style === 'spark') {
     ctx.strokeStyle = st.rim;
     ctx.lineWidth = 2.5;
@@ -238,7 +251,9 @@ function drawShot(ctx, h, now) {
 }
 
 // ---- puddle -----------------------------------------------------------------------------------------
+// style: none = burning lava (the magma slug) · 'goo' = a sticky lilac puddle of snail gloop
 function drawPuddle(ctx, h, now) {
+  if (h.style === 'goo') return drawGoo(ctx, h, now);
   const start = h.warnAt ?? h.at;
   const life = (h.end ?? h.at + 5) - start;
   const age = now - start;
@@ -271,6 +286,35 @@ function drawPuddle(ctx, h, now) {
     tongue(ctx, bx, y, 4, fh, Math.sin(now * 6 + i) * 2);
     ctx.fillStyle = 'rgba(255,230,140,0.9)';
     disc(ctx, bx + 6, y - 2 - ph * 6, 2.2 * (1 - ph) + 0.5);
+  }
+  ctx.restore();
+}
+
+function drawGoo(ctx, h, now) {
+  const start = h.warnAt ?? h.at, end = h.end ?? h.at + 5, age = now - start;
+  const a = clamp01(age / 0.25) * clamp01((end - now) / Math.min(1.2, (end - start) * 0.4));
+  if (a <= 0) return;
+  const x = h.x, y = h.y ?? GROUND, rx = (h.w || 60) / 2, grow = 0.6 + 0.4 * easeOut(clamp01(age / 0.4));
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.fillStyle = '#9a7ac8';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, rx * grow, 7, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#c8b0e8';
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx * grow * 0.86, 5, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.beginPath();
+  ctx.ellipse(x - rx * 0.25, y - 1, rx * grow * 0.3, 1.8, 0, 0, TAU);
+  ctx.fill();
+  // slow sticky bubbles
+  const seed = x * 0.37;
+  for (let i = 0; i < 3; i++) {
+    const ph = (now * (0.5 + hash(seed + i) * 0.4) + hash(seed + i * 3)) % 1;
+    ctx.fillStyle = `rgba(230,215,250,${0.9 * Math.sin(ph * Math.PI)})`;
+    disc(ctx, x + (hash(seed + i * 5) - 0.5) * rx * 1.3 * grow, y - 2 - ph * 5, 2.4 + ph * 1.6);
   }
   ctx.restore();
 }

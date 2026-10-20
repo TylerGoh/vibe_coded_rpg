@@ -22,5 +22,8 @@ island shows what's coming.
   stand-in door. When a branch ships, the update itself lifts the block: give it its rooms (`rooms` on
   its node), remove its `gate`, and the art and prompt go with it. Then its children (e.g. Wreck Cave
   after Saltspray Coves) get gates in the new room.
+- **Shipped (G1):** Willowmere and Saltspray Coves have `rooms` and an `entry` (`ENTRIES`, drawn by
+  `drawEntries`: the mended footbridge, the rockfall rolled aside). Wreck Cave's gate is now in the Coves
+  (`flooded`, a hard pocket).
 - The island map (`docs/ui/world-map.md`) reads the same list: shipped places solid with their levels,
   the rest dashed with a short `block` reason. Keep both in step: a node's `block` should match its gate.

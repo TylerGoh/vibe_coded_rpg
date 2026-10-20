@@ -83,13 +83,66 @@ export const CITADEL_PLATFORMS = [
   { x: 3150, y: 230, w: 200, kind: 'aether' },
   { x: 3650, y: 320, w: 240, kind: 'aether' },
 ];
+// ——— Greenhollow's branches (island depth G1: story/world/island-depth.md, docs/places/willowmere.md and
+// docs/places/coves.md) ———
+// Willowmere (room 24): north of Sprout Meadow up the brook path. West to east: the mill (no mobs; Miller
+// Bun, a waystone, the weir stone under the wheel), the Reedy Banks, and the Millpond (Old Snapjaw, a field
+// boss), with a high bough in the old willow at the far end.
+export const WILLOWMERE = 24; // room id
+export const WILLOWMERE_W = 4200;
+export const WILLOWMERE_EXIT_X = 70; // the brook path back down to Sprout Meadow
+export const WILLOWMERE_GATE_X = 880; // the footbridge over the brook, in Sprout Meadow (the way in)
+export const BUN_X = 520; // Miller Bun, at the mill door (he trades: SHOPS)
+export const WILLOWMERE_ZONES = [
+  { name: 'The Mill', x0: 0, x1: 900, lvl: null }, // (no mobs)
+  { name: 'Reedy Banks', x0: 900, x1: 2500, lvl: '5–10' },
+  { name: 'The Millpond', x0: 2500, x1: WILLOWMERE_W, lvl: '10–15' },
+];
+export const WILLOWMERE_PLATFORMS = [
+  { x: 560, y: 300, w: 140, kind: 'loft' }, // the mill's loft door
+  { x: 150, y: 392, w: 90, kind: 'sacks' },
+  { x: 1150, y: 345, w: 200, kind: 'bough' },
+  { x: 1600, y: 265, w: 180, kind: 'bough' },
+  { x: 2050, y: 340, w: 220, kind: 'log' },
+  { x: 2750, y: 335, w: 220, kind: 'bough' },
+  { x: 3200, y: 250, w: 200, kind: 'bough' },
+  { x: 3650, y: 330, w: 220, kind: 'bough' },
+  { x: 3950, y: 202, w: 130, kind: 'bough' }, // high in the old willow: easy to miss
+];
+// Saltspray Coves (room 25): south of the harbour along the shore. You come in at the EAST end (the
+// harbour lies east of it) and go west, deeper and harder: Beachcomber Moss's driftwood cove (no mobs; a
+// waystone), the Tide Pools, the Sea Stacks, the Tidemother's cave and the flooded mouth of Wreck Cave.
+export const COVES = 25; // room id
+export const COVES_W = 4400;
+export const COVES_EXIT_X = COVES_W - 90; // back along the shore to the harbour
+export const COVES_GATE_X = 110; // the shore path's end, at the harbour's west end (the way in)
+export const MOSS_X = 3800; // Beachcomber Moss, by her driftwood shack (she trades: SHOPS)
+export const TIDE_DEN_X = 340; // the Tidemother's sea cave, near the Coves' far (west) end
+export const COVES_ZONES = [
+  { name: 'The Sea Stacks', x0: 0, x1: 1900, lvl: '18–25' },
+  { name: 'The Tide Pools', x0: 1900, x1: 3600, lvl: '10–17' },
+  { name: 'Driftwood Cove', x0: 3600, x1: COVES_W, lvl: null }, // (no mobs)
+];
+export const COVES_PLATFORMS = [
+  { x: 450, y: 330, w: 200, kind: 'stack' },
+  { x: 900, y: 240, w: 180, kind: 'stack' },
+  { x: 1400, y: 330, w: 220, kind: 'stack' },
+  { x: 2150, y: 340, w: 200, kind: 'rock' },
+  { x: 2650, y: 260, w: 180, kind: 'rock' },
+  { x: 3150, y: 345, w: 210, kind: 'rock' },
+  { x: 3640, y: 390, w: 100, kind: 'crates' },
+  { x: 3920, y: 330, w: 150, kind: 'shack' }, // Moss's roof
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
-// door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors)
+// door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
+// location pill's (src/main.js)
 export const STAGES = {
   [FIELD]: { name: 'The Wildwood', zones: ZONES, band: '1–12' },
   [HIGHLANDS]: { name: 'Frostpeak', zones: HIGHLAND_ZONES, band: '13–27' },
-  [CALDERA]: { name: 'The Emberdeep Caldera', zones: CALDERA_ZONES, band: '28–50' },
-  [CITADEL]: { name: 'The Aether Citadel', zones: CITADEL_ZONES, band: '50+' },
+  [CALDERA]: { name: 'The Emberdeep Caldera', zones: CALDERA_ZONES, band: '28–50', pill: 'Emberdeep' },
+  [CITADEL]: { name: 'The Aether Citadel', zones: CITADEL_ZONES, band: '50+', pill: 'Aether Citadel' },
+  [WILLOWMERE]: { name: 'Willowmere', zones: WILLOWMERE_ZONES, band: '5–15' },
+  [COVES]: { name: 'Saltspray Coves', zones: COVES_ZONES, band: '10–25' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -293,6 +346,68 @@ MOBS.turnipop = {
   drops: [['coin', 1, 80, 140], ['sprout_leaf', 1, 3, 6], ['red_jelly', 1, 2, 3], ['mana_jelly', 0.8, 1, 2], ['leaf_cap', 0.3, 1, 1], ['wood_sword', 0.3, 1, 1], ['scroll_s100', 0.35, 1, 1], ['scroll_h100', 0.35, 1, 1]],
 };
 export const FIELD_BOSS_RESPAWN_MS = 20 * 60_000;
+// ——— Greenhollow's branches, G1 (art: src/willowmere-art.js, src/coves-art.js; story/world/island-depth.md).
+// New mobs sit on the frozen curve (npm run economy checks it). style on lob / trail: how the shot or puddle
+// looks (src/hazards.js) ———
+// Willowmere: pond frogs hop the banks (harmless), dragonflies dive at you from the reeds, gloop snails
+// leave sticky puddles; Old Snapjaw, a huge old pond turtle, surfaces in the Millpond now and then
+MOBS.pond_frog = {
+  name: 'Pond Frog', lvl: 6, hp: 95, atk: 13, exp: 24, speed: 50, w: 34, h: 28, aggro: false, hops: true,
+  drops: [['coin', 0.9, 10, 18], ['lily_pad', 0.5, 1, 1], ['red_jelly', 0.15, 1, 1], ['mana_jelly', 0.1, 1, 1], ['lily_hat', 0.02, 1, 1]],
+};
+MOBS.dragonfly = {
+  name: 'Dragonfly', lvl: 9, hp: 160, atk: 20, exp: 47, speed: 90, w: 46, h: 30, aggro: true, hops: false, fly: 85,
+  ai: { kind: 'dive', every: 3.6, warn: 0.7, time: 0.45 },
+  drops: [['coin', 1, 14, 26], ['dragon_wing', 0.55, 1, 1], ['mana_jelly', 0.2, 1, 1], ['blue_jelly', 0.08, 1, 1]],
+};
+MOBS.gloop_snail = {
+  name: 'Gloop Snail', lvl: 13, hp: 520, atk: 30, exp: 97, speed: 30, w: 58, h: 38, aggro: false, hops: false,
+  ai: { kind: 'trail', every: 0.9, life: 4, w: 50, style: 'goo' },
+  drops: [['coin', 1, 30, 50], ['gloop', 0.6, 1, 2], ['blue_jelly', 0.15, 1, 1], ['elixir', 0.03, 1, 1], ['snail_helm', 0.004, 1, 1]],
+};
+MOBS.snapjaw = {
+  name: 'Old Snapjaw', field: true, lvl: 15, hp: 12000, atk: 40, exp: 2400, speed: 40, w: 124, h: 82, aggro: false, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3, warn: 0.7, lunge: 560, time: 0.4 },
+  desc: 'Old Snapjaw has surfaced in the Millpond!',
+  drops: [['coin', 1, 600, 1000], ['gloop', 1, 4, 6], ['blue_jelly', 1, 2, 3], ['snapjaw_shell', 0.4, 1, 1], ['reed_rapier', 0.25, 1, 1], ['scroll_s100', 0.5, 1, 1], ['scroll_h100', 0.5, 1, 1], ['scroll_s60', 0.15, 1, 1], ['scroll_h60', 0.15, 1, 1]],
+};
+// Saltspray Coves: rock crabs (front shell) and tide jellies (they go glassy, then sting) in the pools,
+// storm gulls diving off the stacks, snapshrimp that snap water shots at you from range; the Tidemother's
+// den is at the far end
+MOBS.rock_crab = {
+  name: 'Rock Crab', lvl: 11, hp: 300, atk: 25, exp: 68, speed: 55, w: 52, h: 36, aggro: false, hops: false,
+  ai: { kind: 'shell', cut: 0.7, every: 3.4, warn: 0.55, lunge: 420, time: 0.3 },
+  drops: [['coin', 1, 22, 38], ['crab_shell', 0.55, 1, 2], ['red_jelly', 0.15, 1, 1], ['blue_jelly', 0.1, 1, 1], ['mana_jelly', 0.15, 1, 1]],
+};
+MOBS.tide_jelly = {
+  name: 'Tide Jelly', lvl: 15, hp: 480, atk: 36, exp: 131, speed: 40, w: 40, h: 44, aggro: false, hops: false, fly: 45,
+  ai: { kind: 'phase', every: 6, dur: 1.8, r: 140 },
+  drops: [['coin', 1, 40, 70], ['sea_glass', 0.6, 1, 2], ['mana_jelly', 0.25, 1, 1], ['elixir', 0.04, 1, 1]],
+};
+MOBS.storm_gull = {
+  name: 'Storm Gull', lvl: 19, hp: 760, atk: 48, exp: 233, speed: 100, w: 50, h: 34, aggro: true, hops: false, fly: 100,
+  ai: { kind: 'dive', every: 3.4, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 65, 105], ['gull_feather', 0.55, 1, 2], ['elixir', 0.07, 1, 1], ['blue_jelly', 0.15, 1, 1]],
+};
+MOBS.snapshrimp = {
+  name: 'Snapshrimp', lvl: 23, hp: 1150, atk: 60, exp: 359, speed: 75, w: 46, h: 34, aggro: true, hops: false,
+  ai: { kind: 'lob', range: 460, every: 2.6, keep: 160, warn: 0.5, style: 'water' },
+  drops: [['coin', 1, 85, 145], ['coral', 0.55, 1, 2], ['elixir', 0.1, 1, 1], ['mega_elixir', 0.01, 1, 1], ['coral_saber', 0.004, 1, 1]],
+};
+// The Tidemother (her den is behind the sea cave at the Coves' far end). A big boss, so she has a story
+// (story/characters/bosses.md) and `lines`: what she says to whoever walks in, at each new phase, and when
+// she's freed (server/rpg.js bossSays, a bubble over her and a line in the chat)
+MOBS.tidemother = {
+  name: 'The Tidemother', boss: true, lvl: 25, hp: 80000, atk: 66, exp: 13000, speed: 90, w: 184, h: 150, aggro: true, hops: false,
+  phases: [['slam', 'charge'], ['slam', 'charge', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
+  ult: { name: 'Riptide', kind: 'wave' }, minion: 'rock_crab',
+  lines: {
+    enter: ['Mine. All of it is mine. The sea brought it and the sea shan\'t have it back.', 'Shoo! Don\'t touch the pretty things. Don\'t touch ANY of the things.'],
+    phase: [null, 'You want my shells? My bottles? My lovely lost buttons? No!', 'If the tide goes out, it takes everything! I won\'t let it! I WON\'T!'],
+    freed: 'Oh... it is heavy, isn\'t it. All of it. Let the tide have it, then. Let the water run clean.',
+  },
+  drops: [['royal_sap', 1, 1, 2], ['tide_claw', 1, 1, 1], ['hoard_crown', 0.6, 1, 1], ['coin', 1, 1200, 2000], ['elixir', 1, 2, 4], ['crab_shell', 1, 4, 8], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.25, 1, 1], ['scroll_h10', 0.25, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
+};
 
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
@@ -319,6 +434,8 @@ const onHPlat = (kind, i, n) => strip(kind, hplat(i).x + 15, hplat(i).x + hplat(
 const onRoomPlat = (plats, room) => (kind, i, n) => strip(kind, plats[i].x + 15, plats[i].x + plats[i].w - 15, plats[i].y, n, room);
 const onCPlat = onRoomPlat(CALDERA_PLATFORMS, CALDERA);
 const onTPlat = onRoomPlat(CITADEL_PLATFORMS, CITADEL);
+const onWPlat = onRoomPlat(WILLOWMERE_PLATFORMS, WILLOWMERE);
+const onSPlat = onRoomPlat(COVES_PLATFORMS, COVES);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -372,6 +489,29 @@ export const SPAWNS = [
   ...onTPlat('aether_knight', 3, 1),
   ...onTPlat('chrono_wraith', 4, 1),
   ...onTPlat('aether_knight', 5, 1),
+  // Willowmere (the mill's end, x < 900, has none)
+  ...strip('pond_frog', 950, 2450, FIELD_GROUND, 6, WILLOWMERE),
+  ...onWPlat('pond_frog', 2, 2),
+  ...onWPlat('pond_frog', 4, 1),
+  ...strip('dragonfly', 1700, 2450, FIELD_GROUND, 3, WILLOWMERE),
+  ...onWPlat('dragonfly', 3, 1),
+  ...strip('gloop_snail', 2600, 4100, FIELD_GROUND, 5, WILLOWMERE),
+  ...onWPlat('gloop_snail', 5, 1),
+  ...onWPlat('gloop_snail', 7, 1),
+  ...strip('dragonfly', 2700, 3600, FIELD_GROUND, 2, WILLOWMERE),
+  ...onWPlat('dragonfly', 6, 1),
+  { kind: 'snapjaw', x0: 2800, x1: 4000, y: FIELD_GROUND, room: WILLOWMERE },
+  // Saltspray Coves (Driftwood Cove, x > 3600, has none; the Tidemother's cave mouth is at TIDE_DEN_X)
+  ...strip('rock_crab', 2700, 3500, FIELD_GROUND, 5, COVES),
+  ...onSPlat('rock_crab', 5, 1),
+  ...strip('tide_jelly', 1950, 2800, FIELD_GROUND, 4, COVES),
+  ...onSPlat('tide_jelly', 3, 1),
+  ...onSPlat('tide_jelly', 4, 1),
+  ...strip('storm_gull', 950, 1850, FIELD_GROUND, 4, COVES),
+  ...onSPlat('storm_gull', 2, 1),
+  ...strip('snapshrimp', 520, 1300, FIELD_GROUND, 4, COVES),
+  ...onSPlat('snapshrimp', 0, 1),
+  ...onSPlat('storm_gull', 1, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -391,6 +531,7 @@ export const DENS = [
   { room: 15, boss: 'pyra', name: 'Phoenix Roost', from: CALDERA, entranceX: 4060, theme: 'phoenix' },
   { room: 16, boss: 'colossus', name: 'The Grand Foundry', from: CITADEL, entranceX: 2280, theme: 'clock' },
   { room: 17, boss: 'chronos', name: 'The Hour Sanctum', from: CITADEL, entranceX: 4620, theme: 'chrono' },
+  { room: 26, boss: 'tidemother', name: "The Tidemother's Hoard", from: COVES, entranceX: TIDE_DEN_X, theme: 'tide' }, // (art: src/dens-coves.js)
 ];
 export const DEN_EXIT_X = 80;
 export const DEN_PLATFORMS = [
@@ -401,7 +542,7 @@ export const DEN_PLATFORMS = [
 export const BOSS_RESPAWN_MS = 60_000;
 // A boss's HP grows by this much for every extra slime in its den (and keeps the damage already done)
 export const BOSS_HP_PER_PLAYER = 0.6;
-export const COMBAT_ROOMS = new Set([FIELD, HIGHLANDS, CALDERA, CITADEL, ...DENS.map((d) => d.room)]);
+export const COMBAT_ROOMS = new Set([...Object.keys(STAGES).map(Number), ...DENS.map((d) => d.room)]);
 export const isCombat = (room) => COMBAT_ROOMS.has(room);
 export const denAt = (room) => DENS.find((d) => d.room === room);
 
@@ -451,6 +592,26 @@ export const ITEMS = {
   aether_helm: { name: 'Aether Helm', price: 120000, kind: 'helmet', def: 50, slots: 10, desc: 'Brass and sky-crystal. Light as a cloud.' },
   chrono_blade: { name: 'Chrono Blade', price: 300000, kind: 'sword', atk: 135, reach: 56, slots: 10, desc: "The hand of Chronos's great clock, sharpened. Time slows where it cuts." },
   hourglass_crown: { name: 'Hourglass Crown', price: 240000, kind: 'helmet', def: 62, slots: 10, desc: 'Sand still trickles through it, upward.' },
+  // ——— Greenhollow's branches (G1). lvl: the level a piece of gear is as strong as (it must sit on the
+  // frozen gear curve: npm run economy); traders' gear also has an `aim`. Mob drops sit a little under
+  // their trader's tier, den gear a step above. Art: src/willowmere-art.js, src/coves-art.js ———
+  lily_pad: { name: 'Lily Pad', price: 12, kind: 'loot', desc: 'A round green lily pad. A frog was sitting on it a moment ago.' },
+  dragon_wing: { name: 'Dragonfly Wing', price: 30, kind: 'loot', desc: 'A wing like a stained-glass window, light as a breath.' },
+  gloop: { name: 'Snail Gloop', price: 45, kind: 'loot', desc: 'Sticky, shiny and faintly minty. Somebody must want it.' },
+  crab_shell: { name: 'Crab Shell', price: 40, kind: 'loot', desc: 'A rock crab outgrew this. It is surprisingly heavy.' },
+  sea_glass: { name: 'Sea Glass', price: 60, kind: 'loot', desc: 'A pebble of glass, worn smooth and frosted by the tide.' },
+  gull_feather: { name: 'Storm Feather', price: 90, kind: 'loot', desc: 'A long grey gull feather that smells of rain.' },
+  coral: { name: 'Pink Coral', price: 120, kind: 'loot', desc: 'A knobbly twig of pink coral from the deep pools.' },
+  lily_hat: { name: 'Lilypad Hat', price: 300, lvl: 6, kind: 'helmet', def: 6, desc: 'A lily pad worn as a hat. Frogs find it very reassuring.' },
+  miller_cap: { name: "Miller's Cap", price: 700, lvl: 8, aim: 9, kind: 'helmet', def: 8, desc: 'A soft flour-dusted cap from the mill. It smells of bread.' },
+  reed_rapier: { name: 'Reed Rapier', price: 900, lvl: 8, aim: 9, kind: 'sword', atk: 19, reach: 30, desc: 'A long thin blade with a grip of plaited river reeds.' },
+  snail_helm: { name: 'Snailshell Helm', price: 4000, lvl: 12, kind: 'helmet', def: 14, desc: 'A spiral shell, still a little sticky inside. Very snug.' },
+  snapjaw_shell: { name: 'Snapjaw Shell', price: 6500, lvl: 15, kind: 'helmet', def: 17, desc: "A scute from Old Snapjaw's back, mossy and older than the mill." },
+  drift_cutlass: { name: 'Driftwood Cutlass', price: 5000, lvl: 16, aim: 18, kind: 'sword', atk: 40, reach: 36, desc: 'Sea-bleached driftwood with an edge of bright sea glass.' },
+  conch_helm: { name: 'Conch Helm', price: 4000, lvl: 16, aim: 18, kind: 'helmet', def: 18, desc: 'A big pink conch. Hold it to your ear and you hear the sea.' },
+  coral_saber: { name: 'Coral Saber', price: 16000, lvl: 21, kind: 'sword', atk: 52, reach: 42, desc: 'A curved blade of pink coral, grown, not forged.' },
+  tide_claw: { name: "Tidemother's Claw", price: 36000, lvl: 26, kind: 'sword', atk: 64, reach: 46, slots: 8, desc: "The Tidemother's great claw, still gripping. It never lets go of anything." },
+  hoard_crown: { name: 'Hoardshell Crown', price: 27000, lvl: 26, kind: 'helmet', def: 29, slots: 8, desc: 'A crown crusted with buttons, bottle caps and shells the sea gave back.' },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
   // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen
@@ -543,6 +704,10 @@ export const SHOP_STOCK = ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'm
 export const SHOPS = {
   pip: { name: "Merchant Pip's Shop", room: 0 /* the village */, x: SHOP_X, stock: SHOP_STOCK, boutique: true },
   runa: { name: "Runa's Net Shed", room: FJORD, x: RUNA_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'frostbloom', 'fur_hood', 'bone_harpoon'] },
+  // the branches' traders (island depth: each branch sells the basic potions, so a deep branch isn't a walk
+  // back to Pip, and a tier of gear for its middle levels)
+  bun: { name: 'Willowmere Mill', room: WILLOWMERE, x: BUN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'reed_rapier', 'miller_cap'] },
+  moss: { name: "Moss's Driftwood Shack", room: COVES, x: MOSS_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'drift_cutlass', 'conch_helm'] },
 };
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));
 export const BUY_MAX = 20; // potions bought at once
