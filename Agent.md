@@ -82,6 +82,11 @@ touches (see the index at the bottom) before changing code. Every source file na
 - Emoji in canvas text render as boxes on machines without emoji fonts.
 - Subagents that run `npm run build` rewrite the live `dist/`: tell them to build into the scratchpad.
 
+## Story
+`story/` is the narrative bible (world, geography, characters, arcs). The game is being reshaped to fit
+it: read `story/README.md` before changing places, travel, NPC personas, boss names or flavor text, and
+start story work from `story/roadmap.md`.
+
 ## Code map (one line per area; the docs go deeper)
 - `src/shared/`: code shared by client and server. `sim.js` (rooms, platforms, doors, physics `step()`,
   wire format, piano keys, museum layout, `NPCS`), `rpg.js` (stages, mobs, items, dens, shop, formulas),

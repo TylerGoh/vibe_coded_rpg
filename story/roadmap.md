@@ -1,0 +1,45 @@
+# Roadmap: game changes the story asks for
+
+**Future sessions start here.** Pick an item, read the story files it names and the `docs/` it touches,
+build it, then tick it here and update `inventory.md`. Every change still follows `Agent.md` (mobile,
+docs, economy, dev copy for big features).
+
+## 1. Geography (the owner's top complaint: the islands are too close)
+- [ ] **Remove the back-door chain.** The Wildwood → Highlands trail, the Highlands → Caldera pass and the
+      Caldera → Citadel skylift go. Each island is reached by its crossing. (`world/geography.md`)
+- [ ] **Greenhollow Harbour**, a new room west of the village: piers, an unlit lighthouse, Captain Brine,
+      the ferry. (`world/regions/greenhollow.md`)
+- [ ] **Crossing rooms:** a ship deck over a scrolling sea, for roughly a minute, then you arrive. One room
+      type, themed per route (cold sea, Steam Straits, cloud climb). Movement on deck is normal `step()`
+      physics; the scroll is drawing only.
+- [ ] **A landing zone at the start of each island** (Icefang Fjord, Black Sand Shore, the Skydocks): a
+      calm stretch with a hamlet and harbour, before the mobs.
+- [ ] **The Wildwood ends at sea cliffs** with the view across the water.
+- [ ] **Distant islands in every outdoor sky,** in compass direction (`world/geography.md`).
+- [ ] Gating: the Steam Straits voyage needs the Astral Wyrm beaten (stars restored). Ask the owner
+      before adding any hard gate. The game has none today, on purpose (`docs/world.md`).
+
+## 2. Story delivery
+- [ ] **Per-account story progress:** bosses beaten at least once, saved with the character. Gives the
+      lore tier.
+- [ ] **Mochi and Clio fed canon by tier** (`canon.md`, `delivery.md`).
+- [ ] **Boss lines:** on entering, at each phase, and when freed (`characters/bosses.md`).
+- [ ] **Rewrite flavor text** in the region's register: items, mobs, zone names, door labels.
+- [ ] **Keeper ruins** in Bramble Woods, with readable plaques.
+
+## 3. New places and people
+- [ ] Regional AI characters: Captain Brine, Old Skaldi, Forgewarden Ash, the Last Echo.
+- [ ] Settlements: the fjord hamlet, Forgehold.
+- [ ] The Slime Ages wing in the museum.
+- [ ] Each island's people drawn as their own slime type (`characters/people.md`).
+
+## 4. Endgame and beyond
+- [ ] The Wheel restart: a server-wide event, then the world flag and the changed skies.
+- [ ] Pell as a post-game character by the apple tree.
+- [ ] Uncharted islands as new stages (`world/regions/uncharted.md`, `expansion.md`).
+
+## Renames under consideration
+Today's stage names fit the story with small changes. Propose these to the owner before renaming:
+- "Frostpeak Highlands" → **Frostpeak** (the island), with the Highlands as its interior.
+- "Emberdeep Caldera" → **Emberdeep** (the island), with the Caldera as its heart.
+- The skylift → a **balloon** riding the thermal column.
