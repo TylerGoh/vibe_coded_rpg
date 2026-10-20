@@ -1,0 +1,245 @@
+# Atlas: landscapes, links and the build order
+
+The working plan for **what to draw and build next, starting from Slimeville**, and the reference sheet for
+anyone adding a mob, boss, town or character. `geography.md` says *why* the map is shaped this way; this
+file says *what each place is made of* and *in what order to make it*. Region files (`regions/`) hold the
+mood and story for each island. Anything not already in the game is `[proposed]` until the owner signs off.
+
+## How to use this file
+- **Adding a mob:** find its zone's sheet below, fill an open mob slot (or add one that fits the slot
+  rules), and match the zone's level band and landscape. Then `docs/combat/stages.md` and `docs/economy.md`.
+- **Adding a boss:** it goes in a boss slot below, with its holding-on / letting-go story
+  (`../characters/bosses.md`). Then `docs/combat/bosses.md` and `docs/economy.md`.
+- **Adding a character:** put them in a hometown's cast below. Then `../characters/people.md` and
+  `docs/social/ai-characters.md`.
+- **Building a place:** take the next unticked phase in **The build order** at the bottom.
+- Tick things here *and* in `../roadmap.md` when they ship, and update `../inventory.md`.
+
+## The shape of every island
+Each island is a walk **from where you land, inland, then up or down to its heart**. The same room kinds
+repeat on every island, so every new island is a known amount of work:
+
+| room kind | what it is | combat? | examples |
+|---|---|---|---|
+| **Harbour / landing** | where the crossing arrives. Piers, a dock, the island's first view | no | Greenhollow Harbour, Icefang Fjord landing, Black Sand Shore harbour, the Skydocks mooring |
+| **Hometown** | the island's people: a lore-holder, a trader, a place to rest. Safe | no | Slimeville, Icefang Hamlet, Forgehold |
+| **Wilds** | the stage room: 2–4 zones, harder the further inland | yes | the Wildwood, Frostpine Ridge, Cinder Flats |
+| **Heart / height** | the last zone: the landmark you saw from the sea | yes | Bramble Woods' ruins, Starfall Summit, Magma Heart, Chrono Spire |
+| **Den** | a boss room off the wilds, one per boss | boss | the nine existing dens |
+| **Vista** | a short dead end that shows the world: the "how far everything is" moment | no | Greenhollow's east cliffs, the thermal column launch |
+| **Crossing** | a moving deck between islands (one room type, themed per route) | light | the ferry, the Steam Straits ship, the balloon |
+
+Rules:
+- **Islands link only by crossings**, harbour to harbour. Inside an island, rooms link by doors as now.
+  No back door ever joins two islands' wilds again (`geography.md`).
+- **Order inside an island:** harbour → hometown → wilds (easy zone to hard) → heart, with dens off the
+  wilds and the onward crossing at the heart or the harbour. A player always meets the people before the
+  danger.
+- **Safe rooms stay safe.** No mobs in a harbour, hometown or crossing (crossings may get light, optional
+  "things climbing aboard" later; never a death trap).
+- Each island needs **one landmark** visible from every other outdoor sky (`geography.md`).
+
+## The link graph
+```
+                       [Frostpeak]  Lv 12-27
+                Icefang Fjord landing + Icefang Hamlet
+                → Frostpine Ridge → Starfall Summit
+                        ^            |
+                 the ferry           | ship through the Steam Straits
+                 (cold sea)          | (needs the stars back?  see open-questions)
+                        |            v
+ [Greenhollow] Lv 1-12  |       [Emberdeep]  Lv 27-50
+ Harbour - Slimeville --+       Black Sand Shore + Forgehold
+ - the Wildwood - east cliffs   → Cinder Flats → Magma Heart → thermal column
+                                     |
+                                     | the balloon (cloud climb)
+                                     v
+                          [Aether Citadel]  Lv 48-80
+                          the Skydocks → Cogwork Bastion → Chrono Spire
+
+ Side islands [proposed], reached by boat once their route opens:
+   Lantern Fen (east, Lv 24-34)      opens after Frostpeak   (a quiet detour before the south)
+   Amberdune (south-west, Lv 40-55)  opens after Emberdeep   (the missing desert)
+ Post-game [proposed]:
+   the Maelstrom rim (Lv 80+) → the Sunken Reach (under the sea, needs swim physics)
+```
+Level bands overlap by a level or two on purpose, so a player arriving somewhere new isn't instantly
+over- or under-matched. The bands are the zones' `lvl` in `src/shared/rpg.js`; the code is the truth.
+
+## Landscape catalogue (the art brief)
+Every landscape keeps the house style (`docs/art.md`): soft, rounded, pastel, procedural, no images. The
+further from home, the *deeper and less sugary* the palette gets, never harsh or gritty.
+
+| landscape | island | ground and platforms | sky and light | things that move | hazard idea |
+|---|---|---|---|---|---|
+| bay village | Greenhollow | grass, cobbles, wooden decks | warm day cycle | leaves, chimney smoke | none |
+| harbour | Greenhollow | plank piers over water, stacked crates | sea haze, gulls | boats bobbing, waves | none |
+| meadow | Greenhollow | rolling grass, stumps | bright, open | flowers, butterflies | none |
+| damp lowland | Greenhollow | moss, big caps as platforms | dim green, glowing threads | spores drifting | spore clouds (boss only) |
+| thorn thicket + ruins | Greenhollow | briar arches, mossy standing stones | green-gold dusk | falling petals | thorn walls |
+| sea cliffs (vista) | Greenhollow | grass to a sheer edge | huge sky, the other islands | wind in grass, birds | none |
+| fjord | Frostpeak | black rock, blue ice shelves, turf huts | grey sea, early aurora | ice floes, the cracked ice bridge | slippery ice `[proposed, step()]` |
+| snow forest | Frostpeak | snowdrifts, pine boughs | pale blue | snowfall | none |
+| star crater | Frostpeak | glassy ground, crystal spires | wrong stars, smeared and clumped | star-dust | falling stars (boss) |
+| black sand beach + hot springs | Emberdeep | obsidian sand, rusted iron piers, steaming pools | orange haze, smoke column | steam, geysers | geyser jets |
+| ash plains | Emberdeep | ash dunes, half-buried giant gear teeth | dim red | ash fall | burning puddles |
+| forge town | Emberdeep | stone ledges cut into the caldera wall, chains | forge glow, heat haze | bellows, sparks | none (safe) |
+| magma core | Emberdeep | basalt over lava | lava-lit from below | lava bubbles | lava |
+| sky docks | Citadel | broken piers over a cloud sea, mooring rings | cold bright sky, the archipelago far below | wind streaks, loose banners | wind gusts `[proposed, step()]` |
+| cog city | Citadel | brass walkways, turning gears | pale gold | automatons, ticking | lasers |
+| time spire | Citadel | floating stone, frozen rain | wrong-coloured, still | echoes replaying | time slows (boss) |
+| ghost marsh | Lantern Fen | reeds, boardwalks, lily pads | violet night, drifting lights | lanterns, fireflies | sticky bog `[proposed, step()]` |
+| desert | Amberdune | dunes, sandstone shelves, a buried observatory | bleached gold, heat shimmer | sand blowing | sandstorm visibility |
+| seabed | the Sunken Reach | coral over clockwork, drowned Keeper roads | blue-green gloom, light shafts | bubbles, fish | currents `[needs swim physics]` |
+
+**Anything that changes how players move (ice, wind, bog, swimming) is a `step()` change**, driven by
+the room and position, never by messages (`docs/netcode.md`). Budget for that work, or make it drawing
+only.
+
+## Island sheets
+
+Each sheet lists rooms in walking order. **Mob slots:** each wilds zone wants 3–4 kinds: one *passive*
+(free EXP, shows the landscape), one *aggressive* (chases), and one or two with a *gimmick* that comes
+from the landscape (reuse an existing `ai` in `server/rpg.js` before writing a new one). Names soften
+near home and get older and plainer further out (`../README.md`). Mobs are the island's wildlife; only
+the Citadel's are machines and echoes.
+
+### Greenhollow (home, Lv 1–12): cozy, puns welcome
+1. **Greenhollow Harbour** `[proposed, new room west of the village]`: piers, the unlit lighthouse,
+   fishing boats, the ferry. Cast: **Captain Brine** (AI, the ferry). Later: sailors from other islands.
+2. **Slimeville** (exists): hometown. Cast: Elder Mochi, Curator Clio, Merchant Pip, the baker, the
+   innkeeper. Over the acts it changes a little (lit lighthouse, foreign goods at Pip's).
+3. **The Wildwood** (exists):
+   - *Sprout Meadow* (1–3): sprouts. Open slot: a passive meadow critter (a bumblebee, a hopping
+     dandelion).
+   - *Mushroom Grove* (4–7): mushlings. Open slot: something on the glowing threads (a firefly that
+     lights up when hit).
+   - *Bramble Woods* (8–12): bramblehogs. **Keeper ruins** `[proposed]` with readable plaques. Open slot:
+     a stone moss-turtle near the ruins (shell AI, the first "block from the front" lesson).
+   - Dens: Sprout King, Mother Mushroom, Bramble Behemoth (all exist).
+4. **The east cliffs** `[proposed vista]`: replaces the Highlands trail. No mobs. A bench, a telescope
+   (E to look: zooms on Frostpeak's aurora or Emberdeep's smoke).
+
+### Frostpeak (far north, Lv 12–27): quiet, dry humour at most
+1. **Icefang Fjord landing** `[proposed]`: ferry dock, the cracked ice bridge in the background.
+2. **Icefang Hamlet** `[proposed hometown]`: turf-roofed huts round a lamp-fire. Cast: **Old Skaldi**
+   (AI, lamplighter and songs, Tier 2), **Netmender Runa** `[proposed]` (the hamlet's trader: warm
+   gear, frost herbs), **Tove** `[proposed]` (a child who feeds the yeti cubs and isn't scared of them).
+3. **Frostpine Ridge** (exists, 13–17): frostlings, yeti cubs. Open slots: a passive **floe seal** that
+   belly-slides along the ground; a **snow owl** that dives (reuse the cinder bat dive).
+4. **Starfall Summit** (exists, 18–27): star wisps, crystal golems. Open slot: a **shard-moth** drawn to
+   the wrong stars.
+   - Dens: Frost Queen Glacia, Astral Wyrm (exist).
+5. Onward: the ship south leaves from the fjord dock.
+   - New zone `[proposed]`: if the fjord gets mobs, keep it to the shore beyond the hamlet (12–14):
+     **rime crabs** and **fjord gulls**.
+
+### Lantern Fen (east side island, Lv 24–34) `[proposed]`: strange, gentle, sad
+A detour for players between Frostpeak and Emberdeep, and the theme from another angle: grief.
+1. **Reedwater landing**: a single jetty in fog.
+2. **Wickmere** (hometown): stilt houses joined by boardwalks; every window has a lantern for someone
+   gone. Cast: **Wren the Lamplady** (AI: tends the lanterns, speaks softly, knows the old funeral songs
+   that mention the Keepers), **Ferryman Hob** (poles the punt between islets).
+3. Wilds: *the Shallows* (24–28): **lantern moths** (passive, glow), **bog slimes** (sticky, slow you:
+   needs `step()`, or make it a hit that applies a slow); *the Drowned Grove* (29–34): **will-o'-wisps**
+   (phase out, reuse the chrono wraith), **reed stalkers** (ambush from the reeds).
+4. Boss slot: **The Wickmother**, a great moth who swallowed a shard and now can't let any lantern go out,
+   so the fen is choked with the lights of the dead and nobody can grieve. Beaten, the lights dim one by
+   one, gently. Den: *The Hall of Lamps*.
+
+### Emberdeep (far south, Lv 27–50): blunt, heavy, almost no humour
+1. **Black Sand Shore** `[proposed]`: the ship lands at a rusted iron harbour. Hot springs where slimes
+   soak, the last soft spot. Mobs only past the springs (27–30): **steam toads** (hop, leave steam puffs:
+   reuse the magma slug puddle), **scald eels** (pop up from the pools).
+2. **Forgehold** `[proposed hometown]`: cut into the caldera wall; the memorial wall of smiths' names.
+   Cast: **Forgewarden Ash** (AI, Tier 3, trusts you only after Ignis), **Auntie Soot** `[proposed]` (runs
+   the springs at the shore; the one kind voice here), **Slag** `[proposed]` (a young smith who still
+   believes the gears can be finished; sells heavy gear).
+3. **Cinder Flats** (exists, 28–38): ember imps, magma slugs, obsidian crabs. Giant gear teeth in the ash
+   `[proposed scenery]`.
+4. **Magma Heart** (exists, 38–50): cinder bats. Open slot: a **slag golem** half-made from a dropped gear.
+   - Dens: Ignis, Pyra (exist).
+5. **The thermal column** `[proposed vista]`: the balloon launch, replacing the skylift.
+
+### Amberdune (south-west desert island, Lv 40–55) `[proposed]`: dry, ancient, quietly grand
+The missing desert. Reached by ship from Black Sand Shore once Emberdeep's bosses are beaten.
+1. **Saltmouth**: a dry harbour; the sea has pulled back from the old piers (the Drift, made visible).
+2. **Caravanserai** (hometown): tents and a well, people always packing to move on. Cast: **Mother
+   Dune** (AI: caravan leader, reads the old Keeper star-dials), **Tally** (a trader who counts
+   everything).
+3. Wilds: *the Glass Dunes* (40–47): **sand skippers**, **dune beetles** (burrow, then burst up);
+   *the Buried Observatory* (48–55): Keeper star-dials half-swallowed by sand, **dust wraiths**.
+4. Boss slot: **Old Carapace**, a giant tortoise carrying the empty caravan town of its people on its
+   back, still walking toward where Pangelea's heart used to be. It won't stop, and the town is dying of
+   thirst on top of it. Beaten, it lies down, and the town can finally settle. Den: *The Long Road*.
+
+### The Aether Citadel (sky, Lv 48–80): solemn, no whimsy
+1. **The Skydocks** `[proposed first zone]` (48–52): broken piers, empty mooring rings, wind. Mobs:
+   **loose bolts** (swarm, like cogbits), **rigging moths** (fly). Cast: **the Dockwarden** `[proposed]`,
+   a still-working porter automaton that keeps logging arrivals that never come; not an AI character,
+   just a few fixed lines.
+2. **Cogwork Bastion** (exists, 50–65): coglings, sentry drones, aether knights.
+3. **Chrono Spire** (exists, 66–80): chrono wraiths. Cast: **the Last Echo** (AI, Tier 4).
+   - Dens: the Clockwork Colossus, Chronos (exist).
+4. No hometown: the Citadel has no living people. That absence is the point.
+
+### Post-game: the Maelstrom and the Sunken Reach (Lv 80+) `[proposed]`
+1. **The Maelstrom rim**: a raft-camp lashed to wreckage where the sea turns. Hometown-lite. Cast:
+   **Captain Brine**, who came this far for the first time; **Pell** (after the finale, maybe here before
+   he goes home to the apple tree).
+2. **The Sunken Reach**: drowned Keeper roads. Needs a swim mode in `step()` (slimes float). Mobs:
+   **lantern-fish**, **coral automatons**, **drowned echoes**. Boss slots: the guardians of the other
+   Keepers' parts of the Wheel, one per future arc (`../expansion.md`). Don't name the other Keepers in
+   canon yet; it's deliberately open (`../canon.md`).
+
+## Boss slots at a glance
+| island | bosses | open slots |
+|---|---|---|
+| Greenhollow | Sprout King, Mother Mushroom, Bramble Behemoth | none needed |
+| Frostpeak | Frost Queen Glacia, Astral Wyrm | optional fjord boss (a sea creature under the ice bridge) |
+| Lantern Fen | | The Wickmother `[proposed]` |
+| Emberdeep | Ignis, Pyra | none needed |
+| Amberdune | | Old Carapace `[proposed]` |
+| Citadel | Clockwork Colossus, Chronos | none: Chronos is the end |
+| Sunken Reach | | the other Keepers' guardians `[proposed]` |
+Every new boss: a creature twisted by an Anchor shard, a small holding-on or letting-go story, an
+ultimate that comes from its landscape, a line on entering / phase change / freed, and loot that names
+its island (`../delivery.md` for the register).
+
+## Hometown checklist
+Every hometown has, in this order of importance:
+1. **One lore-holder AI character** fed the canon tiers (`../delivery.md`). Only one per town: AI
+   characters are the expensive part.
+2. **A trader** with the island's goods (fixed lines are fine; can share Pip's shop UI).
+3. **One or two flavour NPCs** with fixed lines, to make the place feel lived in.
+4. A harbour door, a rest spot (bench, fire, springs), and a view of the landmark.
+5. Its people's own slime look (`../characters/people.md`): hue, texture, wobble.
+
+## The build order (start at the village and walk outward)
+Each phase leaves the game fully playable. **Never remove a back door before its crossing works**, or an
+island becomes unreachable. Each phase is its own session; read the docs it names first.
+
+- [ ] **Phase 0: skies.** Distant islands drawn in every outdoor sky in their compass direction. Cheap,
+      and it makes everything after feel connected. (`geography.md`, the stage art files)
+- [ ] **Phase 1: the west end.** Greenhollow Harbour room, the lighthouse, Captain Brine as an AI
+      character. The ferry is a door that, for now, goes to the existing Highlands.
+- [ ] **Phase 2: the Wildwood's story.** Keeper ruins with plaques in Bramble Woods; the east cliffs vista
+      with the telescope. The Highlands trail goes once Phase 1's ferry door works.
+- [ ] **Phase 3: the crossing room.** One moving-deck room type, themed per route. First theme: the cold
+      sea ferry. The harbour door now leads to the ferry, the ferry to Frostpeak.
+- [ ] **Phase 4: Frostpeak's front.** Icefang Fjord landing and Icefang Hamlet (Old Skaldi, Runa, Tove),
+      fjord-folk slime look, the cracked ice bridge. Fill Frostpeak's open mob slots.
+- [ ] **Phase 5: the south.** The Steam Straits crossing, Black Sand Shore with the springs, Forgehold
+      (Ash, Auntie Soot, Slag). The Caldera pass goes.
+- [ ] **Phase 6: the climb.** The thermal column vista, the balloon crossing, the Skydocks zone and the
+      Dockwarden. The skylift goes.
+- [ ] **Phase 7: story progress.** Per-account lore tiers feeding every AI character; boss lines
+      (`../roadmap.md` §2). Can run alongside any phase from 1 on.
+- [ ] **Phase 8: Lantern Fen** (side island, the Wickmother).
+- [ ] **Phase 9: Amberdune** (side island, Old Carapace).
+- [ ] **Phase 10: the finale and the post-game**: the Wheel event, the Maelstrom rim, swim physics, the
+      Sunken Reach.
+
+Every phase: mobile layout and touch (`docs/ui/mobile.md`), economy check for any new mob or loot
+(`docs/economy.md`), a `// Docs:` line and doc updates for new code, a music/ambience scene
+(`docs/ui/audio.md`), and new rooms in `docs/world.md`.

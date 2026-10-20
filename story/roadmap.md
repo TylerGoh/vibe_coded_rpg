@@ -1,8 +1,9 @@
 # Roadmap: game changes the story asks for
 
 **Future sessions start here.** Pick an item, read the story files it names and the `docs/` it touches,
-build it, then tick it here and update `inventory.md`. Every change still follows `Agent.md` (mobile,
-docs, economy, dev copy for big features).
+build it, then tick it here and update `inventory.md`. The build order for places, and the slots for
+new mobs, bosses, towns and characters, are in `world/atlas.md`. Every change still follows `Agent.md`
+(mobile, docs, economy, dev copy for big features).
 
 ## 1. Geography (the owner's top complaint: the islands are too close)
 - [ ] **Remove the back-door chain.** The Wildwood → Highlands trail, the Highlands → Caldera pass and the

@@ -1,7 +1,8 @@
 # Uncharted: islands and places for later
 
 None of these are canon. Each one is a ready-made slot for a future stage, side area or event. Add more
-freely, following `../../expansion.md`.
+freely, following `../../expansion.md`. Lantern Fen, Amberdune (the desert) and the post-game are
+sketched room by room in `../atlas.md`.
 
 ## The Maelstrom (centre of the sea)
 Where Pangelea's heart sank. A vast slow whirlpool with the Citadel circling above it. After the main
