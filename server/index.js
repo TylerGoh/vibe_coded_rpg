@@ -81,6 +81,9 @@
 //   → {t:'house-set', layout}  the owner redecorated (in their own house) · → {t:'house-kick'} send guests out
 //   → {t:'house-grow', size}  the owner pays to grow it to that size ← {t:'house-grew', room, name, by}  to all inside
 //   ← {t:'furni', owned, bought?}  the furniture you own (at login, and after → {t:'furni-buy', k} in the store)
+//   farming and alchemy (docs/places/alchemy.md): the house message also carries farm: {plot id: [crop, ms left]}
+//   → {t:'plant', plot, crop} · → {t:'harvest', plot} ← {t:'harvested', item, n}  (your own garden plots)
+//   → {t:'brew', steps, n}  at an alchemy lab ← {t:'brewed', id, item, n, ok}  to the room
 //   → {t:'invite', to}  (from the village or your own house, to a player in the village)
 //       ← {t:'invite', from, name, ms}  to them · → {t:'visit', host, no?}  yes takes them into the host's house
 // One login per account: logging in again elsewhere takes over, and the old connection is
@@ -201,7 +204,7 @@ function broadcast(msg, except) {
   for (const [id, p] of players) if (id !== except && p.joined) send(p.ws, data);
 }
 const rpg = createRpg({ dbPath: accounts.path, players, send, toRoom, broadcast });
-const houses = createHouses({ dbPath: accounts.path, players, send, toRoom, pay: rpg.pay });
+const houses = createHouses({ dbPath: accounts.path, players, send, toRoom, pay: rpg.pay, give: rpg.give });
 
 wss.on('connection', (ws) => {
   if (players.size >= MAX_PLAYERS) {
@@ -265,6 +268,12 @@ wss.on('connection', (ws) => {
       houses.grow(p, m);
     } else if (m.t === 'house-kick' && p.joined) {
       houses.kick(id, p);
+    } else if (m.t === 'plant' && p.joined && typeof m.crop === 'string') {
+      houses.plant(p, m);
+    } else if (m.t === 'harvest' && p.joined) {
+      houses.harvest(p, m);
+    } else if (m.t === 'brew' && p.joined) {
+      if (houses.atLab(p)) rpg.brew(id, p, m);
     } else if (m.t === 'invite' && p.joined) {
       houses.invite(id, p, m);
     } else if (m.t === 'visit' && p.joined && typeof m.host === 'string') {

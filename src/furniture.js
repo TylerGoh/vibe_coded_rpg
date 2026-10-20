@@ -611,6 +611,91 @@ const DRAW = {
     ctx.fillStyle = '#ffb3c7';
     circle(ctx, 36, -6, 2.5);
   },
+  // farming and alchemy (docs/places/alchemy.md): what grows in a plot is drawn over it by src/house.js
+  garden_plot(ctx) {
+    rr(ctx, -55, -20, 110, 20, 6, '#a8794f'); // the wooden frame
+    rr(ctx, -55, -20, 110, 6, 3, '#c99b6b');
+    rr(ctx, -49, -17, 98, 12, 5, '#7a5236'); // tilled soil
+    ctx.strokeStyle = '#664430';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (const x of [-33, 0, 33]) {
+      ctx.moveTo(x - 12, -11);
+      ctx.quadraticCurveTo(x, -16, x + 12, -11);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#8f6240';
+    for (const x of [-52, 48]) rr(ctx, x, -24, 6, 10, 2, '#8f6240'); // corner posts
+  },
+  alchemy_lab(ctx, t) {
+    // a workbench with a shelf of bottles behind, a cauldron on a burner, a glass still and a mortar
+    rr(ctx, -66, -120, 8, 66, 3, WOOD_DARK); // shelf posts
+    rr(ctx, 58, -120, 8, 66, 3, WOOD_DARK);
+    rr(ctx, -70, -104, 140, 7, 3, WOOD);
+    const bottles = ['#ff8fa6', '#8fc8ff', '#c4a0ff', '#8fe0a0', '#ffd36b', '#ff9f6a'];
+    bottles.forEach((c, i) => {
+      const x = -56 + i * 21, h = 10 + (i % 3) * 3;
+      rr(ctx, x - 5, -104 - h, 10, h, [3, 3, 2, 2], c);
+      rr(ctx, x - 2, -108 - h, 4, 5, 1, '#c98a5a');
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fillRect(x - 3, -102 - h, 2, h - 4);
+    });
+    rr(ctx, -70, -58, 140, 10, 4, WOOD); // bench top
+    rr(ctx, -64, -48, 128, 34, 4, mix(WOOD, '#ffffff', 0.15));
+    ctx.fillStyle = WOOD_LIGHT;
+    for (const x of [-34, 30]) circle(ctx, x, -31, 3); // drawer knobs
+    rr(ctx, -64, -14, 10, 14, 3, WOOD_DARK);
+    rr(ctx, 54, -14, 10, 14, 3, WOOD_DARK);
+    // the burner and the cauldron
+    const flick = Math.sin(t * 12) * 1.5;
+    rr(ctx, -36, -66, 32, 8, 3, '#6f6880'); // the burner
+    ctx.fillStyle = '#ffb347';
+    ellipse(ctx, -20, -68, 8, 4 + flick * 0.5);
+    ctx.fillStyle = '#ffe28a';
+    ellipse(ctx, -20, -67, 4, 2.5);
+    ctx.fillStyle = '#5b5568';
+    ctx.beginPath();
+    ctx.ellipse(-20, -92, 26, 22, 0, 0, Math.PI);
+    ctx.fill();
+    rr(ctx, -48, -96, 56, 8, 4, '#6f6880');
+    ctx.fillStyle = '#9fe3a8'; // bubbling brew
+    ellipse(ctx, -20, -95, 22, 4);
+    ctx.fillStyle = '#c8f5cf';
+    for (let i = 0; i < 3; i++) {
+      const k = (t * 0.8 + i / 3) % 1;
+      ctx.globalAlpha = 1 - k;
+      circle(ctx, -28 + i * 8, -98 - k * 20, 3 + k * 3);
+    }
+    ctx.globalAlpha = 1;
+    // the still: a round flask, a neck, a pipe into a little bottle
+    ctx.fillStyle = 'rgba(207,236,255,0.75)';
+    circle(ctx, 30, -74, 13);
+    ctx.fillStyle = '#c4a0ff';
+    ctx.beginPath();
+    ctx.arc(30, -74, 11, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = '#9fb8d0';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(30, -86);
+    ctx.lineTo(30, -96);
+    ctx.quadraticCurveTo(46, -100, 54, -80);
+    ctx.stroke();
+    rr(ctx, 49, -76, 10, 16, 3, 'rgba(207,236,255,0.85)');
+    rr(ctx, 50, -68, 8, 7, 2, '#c4a0ff');
+    shine(ctx, 25, -79, 3, 5, 0.7);
+    // mortar and pestle
+    ctx.save();
+    ctx.translate(8, -72);
+    ctx.rotate(0.35);
+    rr(ctx, -2, -10, 4, 16, 2, '#b8ae9f');
+    ctx.restore();
+    ctx.fillStyle = '#d8d0c4';
+    ctx.beginPath();
+    ctx.ellipse(4, -67, 9, 9, 0, 0, Math.PI);
+    ctx.fill();
+    rr(ctx, -6, -69, 20, 4, 2, '#e8e0d4');
+  },
 };
 
 export function drawFurniture(ctx, k, x, y, f, time = 0) {

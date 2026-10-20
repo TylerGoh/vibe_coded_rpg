@@ -54,6 +54,8 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
   press (`house-grow` with the size being bought, so a double click can't buy two). Sizes only grow. Prices
   are set against the balance sheet (`docs/economy.md`): keep `npm run economy -- --check` green when you
   touch them.
+- Garden plots and the alchemy lab ("Farm & lab" in the store) are furniture too, with their own rules:
+  `docs/places/alchemy.md`. Plots only go in the backyard and carry an `id` (their crop is kept under it).
 - Garden furniture (bench, flower bed, hedge, birdbath, lamp post, garden tree you can climb into, swing,
   pond, all sold in the store's garden corner) works inside too. Wall things only hang inside (`cleanLayout` and `snapPlacement` keep them there).
 - A picture window that a wall thing would cover isn't drawn (the wall stays solid behind a painting),

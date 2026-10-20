@@ -40,7 +40,7 @@ export const MUSEUM_EXIT_X = 120;
 export const HOME_DOOR_X = 1515; // the mushroom house's door, in the village: everyone's own front door
 export const STORE_DOOR_X = 621; // the furniture store's door, in the village (docs/places/houses.md)
 export const STORE_EXIT_X = 90;
-export const STORE_W = 6800; // the showroom: every piece of FURNITURE on display (src/shared/house.js DISPLAY)
+export const STORE_W = 7400; // the showroom: every piece of FURNITURE on display (src/shared/house.js DISPLAY)
 
 // ——— personal houses (docs/places/houses.md) ———
 // Every account has a house of its own behind the same door. House rooms aren't in ROOMS: their ids

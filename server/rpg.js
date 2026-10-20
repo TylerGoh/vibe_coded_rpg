@@ -1,4 +1,4 @@
-// Docs: docs/combat/core.md, docs/combat/bosses.md, docs/combat/stages.md, docs/combat/skills.md, docs/combat/items.md
+// Docs: docs/combat/core.md, docs/combat/bosses.md, docs/combat/stages.md, docs/combat/skills.md, docs/combat/items.md, docs/places/alchemy.md
 // The Wildwood's RPG side (data in src/shared/rpg.js and src/shared/skills.js): each account's level,
 // EXP, HP, MP, coins, bag, gear, skills and hotbar (saved in table `rpg_chars`); the mobs and bosses
 // (run here at 60 Hz in every combat room someone is in); hits, skills, drops and pickups. Everything is
@@ -16,6 +16,7 @@ import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_R
 import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spTotal, spSpent, mpRegen, cooldownOf, durOf, mobilityOf } from '../src/shared/skills.js';
 import { newState, SPAWN_X, SLAP_REACH, VILLAGE, TICK_RATE, ROOMS } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
+import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
 
 export const MOB_KINDS = Object.keys(MOBS); // mob kinds go over the wire as an index into this
 const GRAVITY = 1400;
@@ -69,7 +70,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   }
 
   // ——— characters ———
-  const buffsOf = (p) => ({ berserk: (p.berserkUntil ?? 0) > now(), rally: (p.rallyUntil ?? 0) > now() ? p.rallyBoost : 0 });
+  const brewOf = (c) => ((c.brew?.until ?? 0) > now() ? ITEMS[c.brew.id].buff : null); // a brewed potion's buff
+  const buffsOf = (p) => ({ berserk: (p.berserkUntil ?? 0) > now(), rally: (p.rallyUntil ?? 0) > now() ? p.rallyBoost : 0, brew: brewOf(p.rpg) });
   const stats = (p) => statsFor(p.rpg, buffsOf(p));
   const left = (until) => Math.max(0, (until ?? 0) - now());
   const zones = []; // Sanctuaries: { room, x, r, until, cut }
@@ -102,6 +104,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     r.cosmetics = (r.cosmetics ?? []).filter((id) => COSMETICS[id]);
     r.wear = (r.wear ?? []).filter((id) => r.cosmetics.includes(id));
     r.showHelmet = r.showHelmet !== false;
+    r.brew = ITEMS[r.brew?.id]?.buff && r.brew.until > now() ? { id: r.brew.id, until: r.brew.until } : null;
     p.hurtAt = 0;
     p.cds = {};
     p.hist = [];
@@ -114,8 +117,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   }
   function save(p) {
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet } = p.rpg;
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet }), now());
+    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew } = p.rpg;
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -133,6 +136,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       ap: c.ap, apLeft: apTotal(c.lvl) - apSpent(c.ap),
       cosmetics: c.cosmetics, wear: c.wear, showHelmet: c.showHelmet,
       berserk: left(p.berserkUntil), rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), secondWind: left(p.swReadyAt),
+      brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
     });
   }
   // What everyone else sees of you: gear, level and friendly fire (also part of join / welcome)
@@ -206,6 +210,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const zone = zones.find((z) => z.room === q.state.room && z.until > t && Math.abs(q.state.x - z.x) < z.r);
     let dmg = ult ? (zone ? Math.round(st.maxHp * 0.6) : Math.ceil(q.rpg.hp) + 1) : Math.max(1, Math.round(raw * rand(0.85, 1.15) - st.def));
     if (zone && !ult) dmg = Math.max(1, Math.round(dmg * (1 - zone.cut)));
+    if (st.ward && !ult) dmg = Math.max(1, Math.round(dmg * (1 - st.ward))); // a brewed ward
     q.hurtAt = t;
     q.rpg.hp -= dmg;
     const sw = rankOf(q.rpg.skills, 'second_wind');
@@ -1102,6 +1107,17 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         if (it.mana && c.mp >= st.maxMp && !it.heal) return toast(p, "You're already at full MP");
         if (it.heal) c.hp = Math.min(st.maxHp, c.hp + it.heal);
         if (it.mana) c.mp = Math.min(st.maxMp, c.mp + it.mana);
+        if (it.buff) {
+          // a brewed buff replaces whichever one was up
+          const was = brewOf(c) && c.brew.id !== b.id ? ITEMS[c.brew.id].name : null;
+          c.brew = { id: b.id, until: now() + it.dur * 1000 };
+          toast(p, `${it.name}: ${it.dur / 60} minutes${was ? ` (instead of ${was})` : ''}`);
+        }
+        if (it.full) {
+          const full = stats(p); // (with the new buff)
+          c.hp = full.maxHp;
+          c.mp = full.maxMp;
+        }
         if (--b.n <= 0) c.bag.splice(slot, 1);
       } else if (m.t === 'drop') {
         if (!isCombat(p.state.room)) return toast(p, 'You can only drop things in the Wildwood');
@@ -1139,6 +1155,44 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       if (r.boom || (r.ok && r.e.s >= 7)) broadcast({ t: 'toast', text: r.boom ? `${p.name}'s ${ITEMS[item.id].name} was destroyed by a dark scroll!` : `${p.name} scrolled their ${name}!` });
       const st = stats(p);
       c.hp = Math.min(c.hp, st.maxHp);
+      sendMe(p);
+    },
+
+    // Put n of an item in p's bag (a harvest): → false if the bag is full
+    give(p, id, n) {
+      if (!addToBag(p.rpg, id, n)) return false;
+      sendMe(p);
+      return true;
+    },
+
+    // Brewing at an alchemy lab (server/index.js has checked p is at one): {t:'brew', steps, n}. The steps
+    // are everything done at the lab, in order; a batch of n uses n × the ingredients and makes n × the
+    // recipe's `makes`. Wrong steps make sludge, and the ingredients are gone either way.
+    brew(id, p, m) {
+      const c = p.rpg, steps = cleanSteps(m.steps), n = Math.max(1, Math.min(BREW_MAX, m.n >>> 0 || 1));
+      if (!steps || p.faintUntil) return;
+      const need = needs(steps);
+      if (!Object.keys(need).length) return toast(p, 'Put some ingredients in first');
+      for (const [item, k] of Object.entries(need)) {
+        const have = c.bag.filter((b) => b.id === item).reduce((a, b) => a + b.n, 0);
+        if (have < k * n) return toast(p, `Not enough ${ITEMS[item].name}: that takes ${k * n}, you have ${have}`);
+      }
+      const r = recipeFor(steps), result = RECIPES[r] ? r : 'sludge', made = r ? RECIPES[r].makes * n : 1;
+      // room in the bag for what comes out (counting slots the ingredients free up)
+      const after = c.bag.map((b) => ({ ...b }));
+      for (const [item, k] of Object.entries(need)) {
+        let left = k * n;
+        for (const b of after) if (b.id === item && left > 0) {
+          const take = Math.min(left, b.n);
+          b.n -= take;
+          left -= take;
+        }
+      }
+      const kept = after.filter((b) => b.n > 0);
+      if (!kept.some((b) => b.id === result) && kept.length >= BAG_SLOTS) return toast(p, 'Your bag is full: make room for the potions first');
+      c.bag = kept;
+      addToBag(c, result, made);
+      toRoom(p.state.room)({ t: 'brewed', id, item: result, n: made, ok: !!r });
       sendMe(p);
     },
 

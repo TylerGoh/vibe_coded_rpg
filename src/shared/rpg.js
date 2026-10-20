@@ -1,4 +1,4 @@
-// Docs: docs/combat/core.md, docs/combat/stages.md, docs/combat/bosses.md, docs/combat/items.md
+// Docs: docs/combat/core.md, docs/combat/stages.md, docs/combat/bosses.md, docs/combat/items.md, docs/places/alchemy.md
 // Shared by client and server: the mob stage (the Wildwood, east of the village), its mobs, items,
 // levels and combat numbers. The server runs the mobs and decides every hit, drop and pickup
 // (server/rpg.js); the client only draws them (src/rpg.js, art in src/field.js).
@@ -375,6 +375,24 @@ export const ITEMS = {
   aether_helm: { name: 'Aether Helm', price: 120000, kind: 'helmet', def: 50, slots: 10, desc: 'Brass and sky-crystal. Light as a cloud.' },
   chrono_blade: { name: 'Chrono Blade', price: 300000, kind: 'sword', atk: 135, reach: 56, slots: 10, desc: "The hand of Chronos's great clock, sharpened. Time slows where it cuts." },
   hourglass_crown: { name: 'Hourglass Crown', price: 240000, kind: 'helmet', def: 62, slots: 10, desc: 'Sand still trickles through it, upward.' },
+  // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
+  // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
+  // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward) } for `dur` s;
+  // one brewed buff at a time (a new one replaces it). full: fills HP and MP.
+  mintleaf: { name: 'Mintleaf', price: 12, kind: 'loot', herb: true, desc: 'A cool, fresh herb from your garden.' },
+  sunberry: { name: 'Sunberry', price: 27, kind: 'loot', herb: true, desc: 'A warm golden berry. Smells like summer.' },
+  moonbell: { name: 'Moonbell', price: 72, kind: 'loot', herb: true, desc: 'A pale flower that only rings at night.' },
+  frostbloom: { name: 'Frostbloom', price: 240, kind: 'loot', herb: true, desc: 'Icy petals that never wilt.' },
+  emberroot: { name: 'Emberroot', price: 720, kind: 'loot', herb: true, desc: 'A knobbly root, hot to the touch.' },
+  starlotus: { name: 'Starlotus', price: 1800, kind: 'loot', herb: true, desc: 'A lotus that glows like a tiny star.' },
+  mint_tonic: { name: 'Mint Tonic', price: 15, kind: 'potion', brewed: true, heal: 250, desc: 'Brewed. Restores 250 HP.' },
+  sun_cordial: { name: 'Sunberry Cordial', price: 40, kind: 'potion', brewed: true, mana: 200, desc: 'Brewed. Restores 200 MP.' },
+  moon_draught: { name: 'Moonbell Draught', price: 80, kind: 'potion', brewed: true, heal: 700, mana: 350, desc: 'Brewed. Restores 700 HP and 350 MP.' },
+  might_brew: { name: 'Brew of Might', price: 50, kind: 'potion', brewed: true, buff: { atk: 0.15 }, dur: 300, desc: 'Brewed. +15% ATK and MAGIC for 5 minutes.' },
+  frost_ward: { name: 'Frostbloom Ward', price: 250, kind: 'potion', brewed: true, buff: { ward: 0.25 }, dur: 300, desc: 'Brewed. Take 25% less damage for 5 minutes.' },
+  ember_fury: { name: 'Emberroot Fury', price: 650, kind: 'potion', brewed: true, buff: { atk: 0.25, crit: 0.1 }, dur: 300, desc: 'Brewed. +25% ATK and MAGIC and +10% crit chance for 5 minutes.' },
+  star_elixir: { name: 'Starlotus Elixir', price: 3000, kind: 'potion', brewed: true, full: true, buff: { atk: 0.2, crit: 0.05, ward: 0.15 }, dur: 300, desc: 'Brewed. Fully restores HP and MP, then +20% ATK and MAGIC, +5% crit and 15% less damage taken for 5 minutes.' },
+  sludge: { name: 'Murky Sludge', price: 1, kind: 'loot', desc: 'A brew gone wrong. It bubbles sadly.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Sword Scroll 100%', price: 300, kind: 'scroll', slot: 'sword', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a sword.' },
   scroll_s60: { name: 'Sword Scroll 60%', price: 1500, kind: 'scroll', slot: 'sword', rate: 0.6, atk: 3, magic: 2, desc: '60% chance: +3 ATK and +2 MAGIC on a sword.' },

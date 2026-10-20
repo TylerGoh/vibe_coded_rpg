@@ -3,7 +3,7 @@
 Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what's listed).
 
 - Players said they couldn't tell what they could do where. Everything possible at your spot is listed
-  above your own slime as key caps (E door/talk/read/buy furniture, Z loot, X attack, ↓ drop down); on touch the caps
+  above your own slime as key caps (E door/talk/read/buy furniture/plant/harvest/brew, Z loot, X attack, ↓ drop down); on touch the caps
   name the on-screen buttons instead (`keyName`).
 - Doors and characters nearby but out of reach get a bouncing "E" beacon (the nearest two).
 - `drawHints()` builds the list in the same order the E key acts in. **A new interaction must add its

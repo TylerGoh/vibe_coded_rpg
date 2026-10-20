@@ -12,6 +12,7 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
   the `data` column: lvl, gear, skills, hotbar…) before logging in.
 - Stop it by PID after checking `readlink /proc/<pid>/cwd`. Never `pkill -f "node server/index.js"`.
 - Test-only server env vars (never set them live): `TEST_SPAWN=room:x`, `TEST_BOSS_HP=0.05`, `TEST_GOD=1`,
+  `TEST_GROW=60` (crops grow 60× faster),
   `TEST_TP=1` (accepts `{t:'tp', room?, x}`: room -1 is your own house; send it from the page with
   `slimeville.net.sendNpc(…)` and wait ~200 ms for the next snapshot).
 - **Keep browser tests short.** Walking with real key presses runs in real time (the sim is a fixed 60 Hz

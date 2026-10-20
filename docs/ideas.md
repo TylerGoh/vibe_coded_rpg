@@ -9,6 +9,8 @@
 - Real-device checks on an iPhone (home-screen mode) and of typing with the phone keyboard open.
 
 ## Untested with real players
+- Farming and alchemy: whether brews are too strong next to shop potions (they're far cheaper per HP),
+  and whether bags (`BAG_SLOTS`) fill up with herbs and brews: a herb pouch or a bigger bag may be next.
 - Houses: decorating on a real phone (tapping to place under a thumb), and many guests at once. Whether
   the house prices feel right to real players (the balance sheet only models solo mob farming).
 - All balance: mob and boss HP and damage, drop rates, prices, the EXP curve, skill numbers, and the

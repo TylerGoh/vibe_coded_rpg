@@ -126,6 +126,35 @@
         <div class="furni-row"><span id="furni-icon"></span><div><p id="furni-name"></p><p id="furni-info"></p></div></div>
         <div class="invite-btns"><button id="furni-buy" type="button">Buy</button><button id="furni-no" type="button">Close</button></div>
       </div>
+      <div id="seeds" role="dialog" aria-label="Plant a seed" hidden>
+        <h2>Plant a seed <span id="seeds-gold"></span></h2>
+        <div id="seeds-list"></div>
+        <button id="seeds-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <div id="alch" role="dialog" aria-label="Alchemy lab" hidden>
+        <h2>Alchemy lab <span id="alch-buff"></span></h2>
+        <div class="alch-cols">
+          <div class="alch-left">
+            <p class="alch-label">Recipe book</p>
+            <div id="alch-book"></div>
+            <div id="alch-recipe"></div>
+          </div>
+          <div class="alch-right">
+            <p class="alch-label">Cauldron <span id="alch-status"></span></p>
+            <div id="alch-steps"></div>
+            <p class="alch-label">Ingredients <button id="alch-grind" type="button">Mortar: off</button></p>
+            <div id="alch-ings"></div>
+            <div id="alch-acts"></div>
+            <div class="alch-foot">
+              <button id="alch-undo" type="button">Undo</button>
+              <button id="alch-empty" type="button">Empty</button>
+              <span class="alch-batch"><button id="alch-less" type="button">−</button><b id="alch-n">Batch ×1</b><button id="alch-more" type="button">+</button></span>
+              <button id="alch-bottle" type="button">Bottle it!</button>
+            </div>
+          </div>
+        </div>
+        <button id="alch-close" type="button" aria-label="Close">✕</button>
+      </div>
       <div id="deco" role="dialog" aria-label="Decorate your house" hidden>
         <div class="deco-top">
           <p id="deco-note"></p>

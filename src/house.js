@@ -1,17 +1,20 @@
-// Docs: docs/places/houses.md
+// Docs: docs/places/houses.md, docs/places/alchemy.md
 // Personal houses, client side: draws the house you're in (its layout comes from the server in
 // {t:'house'}), feeds the furniture's platforms to the physics, and runs decorating (R in your own
 // house): pick a piece from the panel (or click one in the room) to carry it, click / tap to put it down.
 // Every change sends the whole layout ({t:'house-set'}); the server checks it, saves it and sends it back.
 // Expand (in the panel) pays for the next size up ({t:'house-grow'}). The panel only offers furniture you
 // own ({t:'furni'}: bought at the furniture store, src/store.js), each with how many are still put away. The house is drawn open plan: picture
-// windows show the village sky (drawn behind by main.js), and the backyard is open air.
+// windows show the village sky (drawn behind by main.js), and the backyard is open air. Crops growing in
+// garden plots come with the layout (`farm`) and are drawn here; planting and the lab: src/alchemy.js.
 import { H, TAU, circle } from './util.js';
 import { text } from './village.js';
 import { audio } from './audio.js';
 import { HOUSE_GROUND, HOUSE_EXIT_X, isHouse, setHouseRoom } from './shared/sim.js';
 import { FURNITURE, LAYERS, WALLPAPERS, FLOORS, HOUSE_SIZES, WALL_TOP, sizeOf, houseWidth, houseRoom, snapPlacement, cleanLayout, placed } from './shared/house.js';
 import { drawFurniture, furnitureIcon, drawWallpaper, drawFloor } from './furniture.js';
+import { drawCrop } from './alchemy-art.js';
+import { grown } from './shared/alchemy.js';
 
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const byLayer = (items) => LAYERS.flatMap((l) => items.filter((it) => FURNITURE[it.k].layer === l));
@@ -27,7 +30,7 @@ export class Houses {
     this.view = view; // () → the world x in the middle of the screen
     this.toast = toast;
     this.onOpenChange = onOpenChange;
-    this.houses = new Map(); // room → { owner, layout }
+    this.houses = new Map(); // room → { owner, layout, farm: Map(plot id → { c: crop, readyAt: performance.now() s }) }
     this.owned = {}; // furniture id → how many you own
     this.editing = false;
     this.carry = null; // { k, f, from? } the piece being moved (from: where it was, to put it back)
@@ -67,7 +70,10 @@ export class Houses {
   }
 
   receive(m) {
-    this.houses.set(m.room, { owner: m.owner, layout: m.layout });
+    const t = performance.now() / 1000, was = this.houses.get(m.room)?.farm;
+    // (a local decorating change has no farm: the crops stay as they were)
+    const farm = m.farm ? new Map(Object.entries(m.farm).map(([id, [c, left]]) => [Number(id), { c, readyAt: t + left / 1000 }])) : was ?? new Map();
+    this.houses.set(m.room, { owner: m.owner, layout: m.layout, farm });
     setHouseRoom(m.room, houseRoom(m.layout));
     this.showNote();
   }
@@ -215,7 +221,8 @@ export class Houses {
     if (type !== 'down') return;
     if (this.carry) {
       const { x: px, y: py } = this.where(x, y);
-      const items = [...this.layout.items, { k: this.carry.k, x: px, y: py, f: this.carry.f }];
+      const id = this.carry.from?.it.id; // (a garden plot keeps its number, and so its crop)
+      const items = [...this.layout.items, { k: this.carry.k, x: px, y: py, f: this.carry.f, ...(id ? { id } : {}) }];
       this.carry = null;
       this.commit({ ...this.layout, items });
       audio.sfx('equip', { vol: 0.6 });
@@ -297,6 +304,11 @@ export class Houses {
     ctx.stroke();
     text(ctx, label, px, HOUSE_GROUND - 136.5, 14, '#5b4a6b');
     for (const it of byLayer(layout.items)) drawFurniture(ctx, it.k, it.x, it.y, it.f, time);
+    const t = performance.now() / 1000;
+    for (const it of layout.items) {
+      const f = it.id && h?.farm.get(it.id);
+      if (f) drawCrop(ctx, f.c, it.x, it.y, grown(f.c, (f.readyAt - t) * 1000), time);
+    }
   }
 
   // The backyard, x0 → x1: open sky (already drawn), a far hedge and a picket fence, grass, a path

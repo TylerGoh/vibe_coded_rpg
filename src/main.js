@@ -26,6 +26,7 @@ import { SkillTree } from './skilltree.js';
 import { Shop } from './shop.js';
 import { Houses } from './house.js';
 import { Store } from './store.js';
+import { Alchemy } from './alchemy.js';
 import { FURNITURE } from './shared/house.js';
 import { Players } from './players.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
@@ -186,6 +187,7 @@ const net = new Net(wsUrl, {
           // our buffs and shields, as the server sees them (in rpg.time)
           for (const b of ['berserk', 'rally', 'bubble', 'aegis']) mine[`${b}Until`] = rpg.time + (m[b] ?? 0) / 1000;
         }
+        alchemy.gotMe(m);
         skillTree.render();
         shop.render();
         showPvp();
@@ -201,6 +203,7 @@ const net = new Net(wsUrl, {
     if (m.t === 'house') houses.receive(m);
     else if (m.t === 'house-grew') houses.grew(m);
     else if (m.t === 'furni') houses.receiveOwned(m), store.bought(m);
+    else if (m.t === 'harvested' || m.t === 'brewed') alchemy.receive(m, { myId: net.id, slimeOf: (id) => (id === net.id ? mine : slimes.get(id)?.visible ? slimes.get(id) : null) });
     else players.receive(m);
   },
   onSlap(m) {
@@ -275,6 +278,8 @@ merchant.name = 'Merchant Pip';
 // Personal houses (src/house.js) and who's online, with invites (src/players.js)
 const houses = new Houses({ send: (m) => net.sendNpc(m), me: () => profile.name, gold: () => rpg.me?.coins ?? 0, view: () => camX + W / 2, toast: (t) => rpg.toast(t), onOpenChange: () => held.clear() });
 const store = new Store({ send: (m) => net.sendNpc(m), gold: () => rpg.me?.coins ?? 0, owned: () => houses.owned, toast: (t) => rpg.toast(t) });
+// Garden plots and the alchemy lab in houses (src/alchemy.js)
+const alchemy = new Alchemy({ send: (m) => net.sendNpc(m), rpg, houses, onOpenChange: () => held.clear() });
 const players = new Players({ net, houses, send: (m) => net.sendNpc(m), self: () => ({ name: profile.name, hue: profile.hue, lvl: rpg.me?.lvl }), onOpenChange: () => held.clear() });
 const whoButton = document.getElementById('who');
 const decoButton = document.getElementById('decorate');
@@ -604,7 +609,7 @@ function slapToward(dir) {
 canvas.addEventListener('pointerdown', (e) => {
   piano.unlock();
   audio.unlock();
-  if (!online() || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || e.button > 0) return;
+  if (!online() || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || e.button > 0) return;
   const r = canvas.getBoundingClientRect();
   const worldX = camX + ((e.clientX - r.left) / r.width) * W;
   if (houses.editing) return houses.pointer('down', worldX, ((e.clientY - r.top) / r.height) * H); // decorating: put down / pick up
@@ -640,7 +645,7 @@ addEventListener('keydown', (e) => {
     return;
   }
   // the bag (I), the skill tree (K) and the shop: their key or Esc closes them (the rest is clicks / taps)
-  for (const [panel, code] of [[rpg, 'KeyI'], [skillTree, 'KeyK'], [shop, 'KeyE'], [players, 'KeyP']]) {
+  for (const [panel, code] of [[rpg, 'KeyI'], [skillTree, 'KeyK'], [shop, 'KeyE'], [players, 'KeyP'], [alchemy, 'KeyE']]) {
     if (!panel.isOpen) continue;
     if (e.code === 'Escape' || (e.code === code && !e.repeat)) {
       e.preventDefault();
@@ -748,6 +753,10 @@ addEventListener('keydown', (e) => {
     askClio();
     return;
   }
+  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && !houses.editing && alchemy.use(room, net.me)) {
+    e.preventDefault(); // a garden plot or an alchemy lab
+    return;
+  }
   if (e.code === 'KeyE' && !e.repeat && menu.hidden && room === STORE && (store.isOpen || store.near)) {
     e.preventDefault();
     if (store.isOpen) store.close();
@@ -840,12 +849,14 @@ function update(realDt) {
     courseMenu.myVote = null;
     shop.close();
     store.leave();
+    alchemy.close();
     houses.stopEditing();
     if (online()) audio.sfx('door');
   }
   if (online()) audio.setScene(room, STAGES[room] ? zoneAt(net.me.x, room).name : null);
   rpg.update(dt, online() ? net.me : null, room);
   if (room === STORE && online()) store.update(net.me);
+  if (online()) alchemy.update(room, net.me);
   if (room === VILLAGE) merchant.animate(dt, { x: SHOP_X + 20, y: ROOMS[VILLAGE].ground, vx: 0, vy: 0, grounded: true, facing: mine && mine.x < SHOP_X + 20 ? -1 : 1 });
 
   const remote = net.remotes();
@@ -880,7 +891,7 @@ function update(realDt) {
     field: isCombat(room),
     dash: !!rankOf(rpg.me?.skills, 'dash'),
     blink: !!rankOf(rpg.me?.skills, 'blink'),
-    overlay: dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
+    overlay: dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
   });
   if (room === PIANO) piano.update(dt);
   if (room === HALL) hall.update(dt, [...slimes.values()].filter((s) => s.visible).length + 1);
@@ -970,7 +981,7 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 // could walk up to (src/hints.js). E does one thing at a time, in the same order as the keydown handler.
 const BEACON_RANGE = 420;
 function drawHints() {
-  if (!online() || splatted(mine) || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || houses.editing) return;
+  if (!online() || splatted(mine) || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || houses.editing) return;
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);
@@ -978,6 +989,7 @@ function drawHints() {
   else if (nearShop()) acts.push({ key: 'E', label: 'shop with Merchant Pip' });
   else if (room === MUSEUM && museum.near) acts.push({ key: 'E', label: `read: ${museum.near.title.length > 34 ? museum.near.title.slice(0, 32) + '…' : museum.near.title}` });
   else if (room === STORE && store.near && !store.isOpen) acts.push({ key: 'E', label: `buy the ${FURNITURE[store.near.k].name.toLowerCase()} (${FURNITURE[store.near.k].price.toLocaleString('en-US')} gold)` });
+  else if (alchemy.prompt(room, me)) acts.push({ key: 'E', label: alchemy.prompt(room, me) });
   else if (door) acts.push({ key: 'E', label: door.label });
   if (isCombat(room)) {
     if (rpg.nearLoot) acts.push({ key: 'Z', label: 'pick up loot' });
@@ -1106,6 +1118,7 @@ function render() {
       drawPill(W / 2 - w / 2, 54, w, label, '#d9465f');
     }
     if (status === 'online') rpg.drawHud(ctx, isCombat(room), H);
+    if (status === 'online') alchemy.drawBuff(ctx, 128);
     if (status === 'online' && isCombat(room) && !TOUCH && !rpg.isOpen && !denAt(room)) drawPill(W - 296, 54, 280, 'X / click  attack  ·  I  bag  ·  K  skills');
     const a = clamp(1 - (hintTime - 8) / 1.5, 0, 1);
     if (!museum.isOpen) drawFeed(ctx, TOUCH ? H - 112 : a > 0 ? H - 56 : isCombat(room) ? H - 72 : H - 14, TOUCH ? 520 : isCombat(room) ? 300 : 620); // on touch, above the controls; above the hotbar
@@ -1141,7 +1154,7 @@ function render() {
 }
 
 // For tests and troubleshooting: open the game with #debug to reach its internals from the console.
-if (location.hash === '#debug') window.slimeville = { net, voice, characters, museum, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, players, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
+if (location.hash === '#debug') window.slimeville = { net, voice, characters, museum, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, players, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
 
 let last = performance.now();
 function frame(now) {

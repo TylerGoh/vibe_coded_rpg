@@ -3,7 +3,8 @@
 A small multiplayer 2D village (MapleStory-style side view) for a group of friends. Slimes walk and jump
 around, talk by proximity voice, chat with AI characters, sit in on AI lectures and quizzes, slap each
 other, play a giant floor piano, tour a huge history museum, invite friends over to their own houses
-with gardens (furnished from a store, bought bigger with gold), and fight mobs and bosses across four
+with gardens (furnished from a store, bought bigger with gold; farm herbs there and brew potions at an
+alchemy lab), and fight mobs and bosses across four
 stages (levels, skills, stats, loot, gear, scrolls, a shop). Canvas + Vite client, a Node server with WebSockets,
 SQLite. The art is procedural canvas code that started as a copy of the sibling project `~/game`
 (Slime Hop): soft, rounded, pastel; no image assets and no emoji in canvas text.
@@ -113,6 +114,7 @@ touches (see the index at the bottom) before changing code. Every source file na
 | [docs/places/piano.md](docs/places/piano.md) | the Music House floor piano |
 | [docs/places/museum.md](docs/places/museum.md) | the history museum and its content |
 | [docs/places/houses.md](docs/places/houses.md) | personal houses, the furniture store, the backyard, expanding, decorating, the Players panel, invites |
+| [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |
 | [docs/ui/mobile.md](docs/ui/mobile.md) | touch controls, phone layout, fullscreen, home-screen mode |
 | [docs/ui/hints.md](docs/ui/hints.md) | the on-screen prompts above your slime, any new interaction |
 | [docs/ui/audio.md](docs/ui/audio.md) | music, ambience, sound effects |

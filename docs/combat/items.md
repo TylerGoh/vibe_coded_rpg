@@ -8,7 +8,9 @@ actions, `scroll()` and `shop()` in `server/rpg.js`. Client: bag UI in `src/rpg.
 
 ## Items
 Kinds: coin · potion (HP and/or MP) · loot (materials, mostly for selling) · sword (ATK, reach) · helmet
-(DEF) · scroll. Bosses drop unique swords and helmets; their later ones have more upgrade slots.
+(DEF) · scroll. Herbs (`herb: true`, loot) and brewed potions (`brewed: true`: also full restores and
+timed buffs) come from farming and the alchemy lab: `docs/places/alchemy.md`. Recipes use some mob
+materials, so those aren't only for selling any more. Bosses drop unique swords and helmets; their later ones have more upgrade slots.
 
 ## Scrolls (enhancement, MapleStory style; boss drops only)
 - 100% / 60% / 10% sword and helmet scrolls, dark 30% ones (a failure may DESTROY the item), and a chaos

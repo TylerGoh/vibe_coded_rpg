@@ -1177,9 +1177,10 @@ export class Rpg {
       return audio.sfx('error');
     }
     this.send({ t: 'use', item: id });
-    audio.sfx(it.mana ? 'mpPotion' : 'potion');
+    audio.sfx(it.buff ? 'buff' : it.mana ? 'mpPotion' : 'potion');
     if (it.heal) m.hp = Math.min(m.maxHp, m.hp + it.heal); // shown at once; the server's 'me' follows
     if (it.mana) m.mp = Math.min(m.maxMp, m.mp + it.mana);
+    if (it.full) [m.hp, m.mp] = [m.maxHp, m.maxMp]; // (a brewed Starlotus Elixir)
     b.n--;
   }
 

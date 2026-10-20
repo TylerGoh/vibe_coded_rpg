@@ -205,26 +205,30 @@ export const apSpent = (ap) => AP_STATS.reduce((n, s) => n + apOf(ap, s.id), 0);
 export const MIN_ROLL = 0.85, MAX_ROLL = 1.15; // ±15% before DEX
 export const minRollFor = (ap) => Math.min(1.05, MIN_ROLL + 0.001 * apOf(ap, 'dex'));
 // Everything about a character's numbers in one place (c: {lvl, gear, skills}).
-// buffs: { berserk: true while it's up, rally: the Rally boost (e.g. 0.2) while it's up }
+// buffs: { berserk: true while it's up, rally: the Rally boost (e.g. 0.2) while it's up, brew: a brewed
+// potion's buff ({ atk, crit, ward }, ITEMS) while it's up }
 export function statsFor(c, buffs = {}) {
   const rage = buffs.berserk ? 1 + SKILLS.berserk.boost(rankOf(c.skills, 'berserk')) : 1;
   const rally = 1 + (buffs.rally ?? 0);
+  const brew = buffs.brew ?? {}; // a brewed potion's buff (src/shared/alchemy.js)
+  const might = 1 + (brew.atk ?? 0);
   const arcane = 1 + 0.12 * rankOf(c.skills, 'arcane_mind');
   const mastery = rankOf(c.skills, 'sword_mastery');
   // scroll enhancements on the worn gear (rpg.js rollScroll)
   const ge = c.gearE ?? {}, enh = (k) => (ge.sword?.[k] ?? 0) + (ge.helmet?.[k] ?? 0);
   const str = apOf(c.ap, 'str'), dex = apOf(c.ap, 'dex'), int = apOf(c.ap, 'int'), luk = apOf(c.ap, 'luk');
   return {
-    atk: Math.round((attackFor(c.lvl, c.gear?.sword) + enh('atk') + 0.6 * str + 0.2 * dex) * rage * rally),
-    magic: Math.round((magicFor(c.lvl) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane),
+    atk: Math.round((attackFor(c.lvl, c.gear?.sword) + enh('atk') + 0.6 * str + 0.2 * dex) * rage * rally * might),
+    magic: Math.round((magicFor(c.lvl) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might),
     def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 3 * rankOf(c.skills, 'iron_jelly')) * rally),
     maxHp: Math.round((maxHpFor(c.lvl) + enh('hp') + 10 * rankOf(c.skills, 'iron_jelly') + 3 * str) * (1 + 0.08 * rankOf(c.skills, 'vitality'))),
     maxMp: maxMpFor(c.lvl, c.skills) + 2 * int,
     reach: reachFor(c.gear?.sword),
-    crit: 0.12 + 0.03 * mastery + Math.min(0.2, 0.0004 * luk),
+    crit: 0.12 + 0.03 * mastery + Math.min(0.2, 0.0004 * luk) + (brew.crit ?? 0),
     critMult: 1.6 + 0.1 * mastery + 0.0015 * luk,
     minRoll: minRollFor(c.ap),
     hpRegen: 1 + 0.25 * rankOf(c.skills, 'vitality'),
+    ward: brew.ward ?? 0, // share of damage taken away (server/rpg.js hurt)
   };
 }
 export const mpRegen = (skills) => 1 + 0.5 * rankOf(skills, 'mana_flow'); // multiplier

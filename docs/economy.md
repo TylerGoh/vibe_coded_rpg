@@ -17,6 +17,9 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
 - **Sinks**: every price, the level whose lifetime farming gold first reaches it, and for sinks with an
   `aim` level: what share of the gold earned by that level it costs. Furniture has its own table: price,
   size, first affordable level, and minutes of farming at two levels, plus what one of every piece costs.
+- **Farming / alchemy**: each crop's seed against what its harvest sells for, and each recipe's ingredient
+  cost against what its potions sell for. Both must stay below cost (checked), so gardens aren't gold
+  farms; seeds and garden plots are small sinks (`docs/places/alchemy.md`).
 - **Checks**: aimed sinks cost between `AIM_MIN` and `AIM_MAX` of the gold earned by their aim level;
   house sizes get dearer; furniture: every piece priced, a piece 4× the size of another (rugs aside) never
   cheaper, one of every piece costing between the gold earned by `SET_FROM` and `SET_TO`; nothing in the shop sells for what it costs; no mob is a gold farm (far more

@@ -1,9 +1,10 @@
 // Docs: docs/places/houses.md
 // Personal houses, shared by the browser and the server: house sizes (bought bigger with gold), the
 // furniture catalogue, wallpapers and floors, the layout format, and the platforms furniture makes (so you
-// can hop onto a bed or a bookshelf). A layout is { size, wall, floor, items: [{ k, x, y, f }] }: size an
-// index into HOUSE_SIZES (only the server changes it, when you pay), k a FURNITURE id, x its centre, y its
-// bottom (world px), f flipped. Items are drawn in their layer order (rugs, wall things, then the rest)
+// can hop onto a bed or a bookshelf). A layout is { size, wall, floor, items: [{ k, x, y, f, id? }] }: size
+// an index into HOUSE_SIZES (only the server changes it, when you pay), k a FURNITURE id, x its centre, y its
+// bottom (world px), f flipped, id (garden plots only) the number the server gave it, which its crop is
+// kept under (docs/places/alchemy.md). Items are drawn in their layer order (rugs, wall things, then the rest)
 // and, within a layer, in array order. Drawings: src/house.js.
 import { HOUSE_GROUND, ROOMS, STORE, STORE_W } from './sim.js';
 
@@ -29,7 +30,8 @@ export const WALL_TOP = 64; // below the ceiling beams: wall things hang between
 // see docs/economy.md); `sec` is its section in the store's showroom.
 // layer: 'rug' lies on the floor, behind everything · 'wall' hangs anywhere on the wall (inside only: the
 // yard has no wall) · 'floor' stands on the floor (or the grass) or on top of other furniture. top: the
-// height of its flat top, which becomes a one-way platform you can stand (and put things) on.
+// height of its flat top, which becomes a one-way platform you can stand (and put things) on. yard: only
+// goes in the backyard, on the grass.
 export const FURNITURE = {
   bed: { name: 'Bed', price: 8000, sec: 'Bedroom', w: 150, h: 70, layer: 'floor', top: 44 },
   sofa: { name: 'Sofa', price: 6000, sec: 'Living room', w: 140, h: 66, layer: 'floor', top: 34 },
@@ -66,6 +68,9 @@ export const FURNITURE = {
   oak: { name: 'Garden tree', price: 30000, sec: 'Garden', w: 170, h: 240, layer: 'floor', top: 170 },
   swing: { name: 'Swing', price: 12000, sec: 'Garden', w: 110, h: 170, layer: 'floor' },
   pond: { name: 'Pond', price: 10000, sec: 'Garden', w: 160, h: 12, layer: 'rug' },
+  // farming and alchemy (docs/places/alchemy.md): every house gets a couple free (GIFT in shared/alchemy.js)
+  garden_plot: { name: 'Garden plot', price: 600, sec: 'Farm & lab', w: 110, h: 30, layer: 'floor', yard: true },
+  alchemy_lab: { name: 'Alchemy lab', price: 3500, sec: 'Farm & lab', w: 140, h: 120, layer: 'floor' },
 };
 export const LAYERS = ['rug', 'wall', 'floor'];
 
@@ -99,8 +104,11 @@ export const DEFAULT_LAYOUT = {
     { k: 'chair', x: 380, y: HOUSE_GROUND, f: false },
     { k: 'plant', x: 200, y: HOUSE_GROUND, f: false },
     { k: 'lamp', x: 640, y: HOUSE_GROUND, f: false },
-    { k: 'birdbath', x: 1300, y: HOUSE_GROUND, f: false },
-    { k: 'flowerbed', x: 1100, y: HOUSE_GROUND, f: false },
+    { k: 'alchemy_lab', x: 1040, y: HOUSE_GROUND, f: false },
+    { k: 'flowerbed', x: 1230, y: HOUSE_GROUND, f: false },
+    { k: 'birdbath', x: 1330, y: HOUSE_GROUND, f: false },
+    { k: 'garden_plot', x: 1460, y: HOUSE_GROUND, f: false },
+    { k: 'garden_plot', x: 1600, y: HOUSE_GROUND, f: false },
   ],
 };
 
@@ -126,21 +134,31 @@ export function cleanOwned(o) {
 const clampN = (v, lo, hi) => Math.min(hi, Math.max(lo, Math.round(Number(v) || 0)));
 const index = (v, n) => clampN(v, 0, n - 1);
 
+// Where a piece's middle can go: wall things inside, yard things in the backyard, the rest anywhere
+const xRange = (def, size) => {
+  const { inside } = HOUSE_SIZES[size];
+  return [(def.yard ? inside : 0) + def.w / 2, (def.layer === 'wall' ? inside : houseWidth({ size })) - def.w / 2];
+};
+
 // A layout from the wire (or the DB), made safe: known pieces only, inside the house (wall things on the
-// wall), at most its size's `pieces`, and (given `owned`) no more of a piece than its owner has bought
+// wall), at most its size's `pieces`, and (given `owned`) no more of a piece than its owner has bought.
+// Plot ids are kept (one plot per id: a repeat loses it, and the server gives it a new one).
 export function cleanLayout(l, owned) {
-  const size = index(l?.size, HOUSE_SIZES.length), { inside, pieces } = HOUSE_SIZES[size], width = houseWidth({ size });
-  const items = [], used = {};
+  const size = index(l?.size, HOUSE_SIZES.length), { pieces } = HOUSE_SIZES[size];
+  const items = [], used = {}, ids = new Set();
   for (const it of Array.isArray(l?.items) ? l.items : []) {
     const def = FURNITURE[it?.k];
     if (!def || items.length >= pieces) continue;
     if (owned && (used[it.k] = (used[it.k] ?? 0) + 1) > (owned[it.k] ?? 0)) continue;
-    items.push({
+    const [x0, x1] = xRange(def, size);
+    const out = {
       k: it.k,
-      x: clampN(it.x, def.w / 2, (def.layer === 'wall' ? inside : width) - def.w / 2),
+      x: clampN(it.x, x0, x1),
       y: def.layer === 'floor' ? clampN(it.y, WALL_TOP + def.h, HOUSE_GROUND) : def.layer === 'rug' ? HOUSE_GROUND : clampN(it.y, WALL_TOP + def.h, HOUSE_GROUND - 20),
       f: !!it.f,
-    });
+    };
+    if (it.k === 'garden_plot' && Number.isInteger(it.id) && it.id > 0 && !ids.has(it.id)) ids.add((out.id = it.id));
+    items.push(out);
   }
   return { size, wall: index(l?.wall, WALLPAPERS.length), floor: index(l?.floor, FLOORS.length), items: settle(items) };
 }
@@ -178,8 +196,8 @@ export function houseRoom(layout) {
 // rugs lie on the floor, and the rest stand on the highest furniture top (or the floor) at or below the
 // pointer. layout: the house (its items: the other pieces).
 export function snapPlacement(k, px, py, { size, items }) {
-  const def = FURNITURE[k];
-  const x = clampN(px, def.w / 2, (def.layer === 'wall' ? HOUSE_SIZES[size].inside : houseWidth({ size })) - def.w / 2);
+  const def = FURNITURE[k], [x0, x1] = xRange(def, size);
+  const x = clampN(px, x0, x1);
   if (def.layer === 'rug') return { x, y: HOUSE_GROUND };
   if (def.layer === 'wall') return { x, y: clampN(py + def.h / 2, WALL_TOP + def.h, HOUSE_GROUND - 20) };
   let y = HOUSE_GROUND;
@@ -202,6 +220,7 @@ export const STORE_SECTIONS = [
   { name: 'Little things', color: '#ffe28a' },
   { name: 'On the wall', color: '#c9b6ff' },
   { name: 'Garden', color: '#8fd18a' },
+  { name: 'Farm & lab', color: '#c7e89a' },
 ];
 export const STORE_GROUND = 470;
 export const STORE_PEDESTAL = 46; // little things stand on a pedestal so they're easy to see

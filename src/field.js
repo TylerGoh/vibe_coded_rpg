@@ -4,6 +4,7 @@
 // the item icons. The sword and helmet shapes are shared with slime.js (equipped gear), so this file
 // must never import slime.js.
 import { H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
+import { drawAlchemyIcon } from './alchemy-art.js';
 import { FIELD_W, FIELD_GROUND, FIELD_EXIT_X, ZONES, FIELD_PLATFORMS, MOBS } from './shared/rpg.js';
 import { CALDERA_MOB_ART } from './caldera.js';
 import { CITADEL_MOB_ART } from './citadel.js';
@@ -3957,7 +3958,9 @@ export function drawItemIcon(ctx, id, x, y, size) {
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   if (id === 'coin') iconCoins(ctx);
-  else if (id === 'red_jelly' || id === 'blue_jelly' || id === 'mana_jelly') iconJelly(ctx, id);
+  else if (drawAlchemyIcon(ctx, id)) {
+    // (herbs and brews: src/alchemy-art.js drew it)
+  } else if (id === 'red_jelly' || id === 'blue_jelly' || id === 'mana_jelly') iconJelly(ctx, id);
   else if (id === 'sprout_leaf') iconLeaf(ctx);
   else if (id === 'mush_cap') iconCap(ctx);
   else if (id === 'thorn') iconThorn(ctx);

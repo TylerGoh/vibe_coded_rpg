@@ -1920,3 +1920,335 @@ body.touch #players {
   top: calc(56px * var(--s));
   transform: translateX(-50%);
 }
+
+/* ——— farming (the seed card) and the alchemy lab: docs/places/alchemy.md ——— */
+#seeds[hidden],
+#alch[hidden] {
+  display: none;
+}
+#seeds,
+#alch {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: calc(12px * var(--s)) calc(16px * var(--s));
+  border: calc(4px * var(--s)) solid #9fd18a;
+  border-radius: calc(18px * var(--s));
+  background: #fffdf6;
+  color: #3a3550;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  box-shadow: 0 calc(6px * var(--s)) 0 rgba(91, 74, 107, 0.2);
+}
+#seeds h2,
+#alch h2 {
+  margin: 0 0 calc(6px * var(--s));
+  font-size: calc(20px * var(--s));
+  color: #4f9a5a;
+}
+#seeds h2 span,
+#alch h2 span {
+  margin-left: calc(10px * var(--s));
+  font-size: calc(13px * var(--s));
+  color: #c99a2e;
+}
+#seeds-close,
+#alch-close {
+  position: absolute;
+  top: calc(10px * var(--s));
+  right: calc(12px * var(--s));
+  width: calc(30px * var(--s));
+  height: calc(30px * var(--s));
+  border: none;
+  border-radius: 50%;
+  background: #f1e6d6;
+  color: #7a6a8b;
+  font-size: calc(15px * var(--s));
+  cursor: pointer;
+}
+#seeds button,
+#alch button {
+  font: inherit;
+  cursor: pointer;
+}
+#seeds button:disabled,
+#alch button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+#seeds {
+  width: calc(420px * var(--s));
+  max-height: calc(470px * var(--s));
+}
+#seeds-list {
+  overflow-y: auto;
+}
+.seed-row {
+  display: flex;
+  align-items: center;
+  gap: calc(10px * var(--s));
+  padding: calc(5px * var(--s)) 0;
+  border-bottom: calc(1px * var(--s)) solid #efe6d8;
+}
+.seed-row canvas {
+  width: calc(36px * var(--s));
+  height: calc(36px * var(--s));
+}
+.seed-body {
+  flex: 1;
+}
+.seed-body p {
+  margin: 0;
+  color: #8a7a9b;
+  font-size: calc(11.5px * var(--s));
+}
+.seed-row button {
+  padding: calc(6px * var(--s)) calc(10px * var(--s));
+  border: none;
+  border-radius: calc(10px * var(--s));
+  background: #4fbf86;
+  color: #fff;
+  font-size: calc(12px * var(--s));
+}
+#alch {
+  width: calc(900px * var(--s));
+  height: calc(490px * var(--s));
+}
+.alch-cols {
+  display: flex;
+  gap: calc(14px * var(--s));
+  min-height: 0;
+  flex: 1;
+}
+.alch-left {
+  width: calc(400px * var(--s));
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.alch-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.alch-label {
+  margin: calc(2px * var(--s)) 0 calc(4px * var(--s));
+  color: #8a7a9b;
+  font-size: calc(12px * var(--s));
+}
+#alch-status {
+  margin-left: calc(6px * var(--s));
+  color: #c97a3a;
+}
+#alch-status.ok {
+  color: #3f9a6c;
+}
+#alch-book {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(4px * var(--s));
+}
+.alch-rec {
+  display: flex;
+  align-items: center;
+  gap: calc(4px * var(--s));
+  padding: calc(2px * var(--s)) calc(6px * var(--s));
+  border: calc(2px * var(--s)) solid transparent;
+  border-radius: calc(10px * var(--s));
+  background: #f6efe2;
+  color: #5b4a6b;
+  font-size: calc(11.5px * var(--s)) !important;
+  text-align: left;
+}
+.alch-rec.on {
+  border-color: #9fd18a;
+  background: #eaf7e4;
+}
+.alch-rec canvas {
+  width: calc(26px * var(--s));
+  height: calc(26px * var(--s));
+}
+.alch-rec span {
+  flex: 1;
+}
+.alch-rec i {
+  font-style: normal;
+  color: #e0a020;
+  font-size: calc(9px * var(--s));
+}
+#alch-recipe {
+  margin-top: calc(8px * var(--s));
+  padding: calc(8px * var(--s)) calc(10px * var(--s));
+  border-radius: calc(12px * var(--s));
+  background: #fbf3e4;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+.alch-rhead {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--s));
+}
+.alch-rhead canvas {
+  width: calc(40px * var(--s));
+  height: calc(40px * var(--s));
+}
+.alch-rhead p,
+.alch-need {
+  margin: 0;
+  color: #8a7a9b;
+  font-size: calc(11.5px * var(--s));
+}
+.alch-need {
+  margin-top: calc(4px * var(--s));
+}
+.alch-rsteps {
+  margin: calc(4px * var(--s)) 0 0;
+  padding-left: calc(22px * var(--s));
+  columns: 2;
+  font-size: calc(12px * var(--s));
+  color: #5b4a6b;
+}
+.alch-rsteps li.did {
+  color: #3f9a6c;
+  text-decoration: line-through;
+}
+.alch-rsteps li.bad {
+  color: #e04a5a;
+}
+.alch-rsteps li.next {
+  color: #b0763a;
+  background: #fff1c4;
+  border-radius: calc(6px * var(--s));
+}
+#alch-steps {
+  min-height: calc(62px * var(--s));
+  max-height: calc(86px * var(--s));
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: calc(4px * var(--s));
+  padding: calc(6px * var(--s));
+  border-radius: calc(12px * var(--s));
+  background: #e6f4ea;
+}
+.alch-empty {
+  margin: 0;
+  color: #8a9a8b;
+  font-size: calc(12px * var(--s));
+}
+.alch-chip {
+  padding: calc(2px * var(--s)) calc(8px * var(--s));
+  border-radius: calc(9px * var(--s));
+  background: #fffdf6;
+  color: #3f7a5a;
+  font-size: calc(11.5px * var(--s));
+}
+#alch-grind {
+  margin-left: calc(6px * var(--s));
+  padding: calc(2px * var(--s)) calc(10px * var(--s));
+  border: none;
+  border-radius: calc(9px * var(--s));
+  background: #efe4d2;
+  color: #8a6a4a;
+  font-size: calc(11.5px * var(--s)) !important;
+}
+#alch-grind.on {
+  background: #c99b6b;
+  color: #fff;
+}
+#alch-ings {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: calc(4px * var(--s));
+}
+.alch-ing {
+  position: relative;
+  height: calc(50px * var(--s));
+  padding: 0;
+  border: none;
+  border-radius: calc(10px * var(--s));
+  background: #f6efe2;
+}
+.alch-ing canvas {
+  display: block;
+  margin: 0 auto;
+  width: calc(26px * var(--s));
+  height: calc(26px * var(--s));
+}
+.alch-ing span {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 0 calc(2px * var(--s));
+  color: #8a7a9b;
+  font-size: calc(9px * var(--s));
+}
+.alch-ing b {
+  position: absolute;
+  right: calc(4px * var(--s));
+  top: calc(2px * var(--s));
+  color: #5b4a6b;
+  font-size: calc(11px * var(--s));
+}
+#alch-acts {
+  display: flex;
+  gap: calc(6px * var(--s));
+  margin: calc(8px * var(--s)) 0;
+}
+.alch-act {
+  flex: 1;
+  height: calc(34px * var(--s));
+  border: none;
+  border-radius: calc(10px * var(--s));
+  background: #9fd8ff;
+  color: #2f4f7a;
+  font-size: calc(13px * var(--s)) !important;
+}
+.alch-foot {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--s));
+  margin-top: auto;
+}
+.alch-foot button {
+  height: calc(34px * var(--s));
+  padding: 0 calc(12px * var(--s));
+  border: none;
+  border-radius: calc(10px * var(--s));
+  background: #e9e3f2;
+  color: #7a6a8b;
+}
+.alch-batch {
+  display: flex;
+  align-items: center;
+  gap: calc(4px * var(--s));
+  margin-left: auto;
+}
+.alch-batch button {
+  width: calc(30px * var(--s));
+  padding: 0;
+}
+.alch-batch b {
+  min-width: calc(66px * var(--s));
+  text-align: center;
+}
+#alch-bottle {
+  background: #4fbf86;
+  color: #fff;
+}
+body.touch #seeds,
+body.touch #alch {
+  top: calc(6px * var(--s));
+  transform: translateX(-50%);
+}
+body.touch #alch {
+  height: calc(400px * var(--s));
+}

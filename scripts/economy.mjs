@@ -1,10 +1,11 @@
 // Docs: docs/economy.md
 // The economy balance sheet (npm run economy): every faucet (what mobs and bosses drop) and every sink
-// (the shop, the Boutique, furniture, house expansions), worked out from the live constants, plus the checks that
+// (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
 import { MOBS, SPAWNS, ITEMS, SHOP_STOCK, COSMETICS, sellPrice, expToNext } from '../src/shared/rpg.js';
 import { HOUSE_SIZES, FURNITURE } from '../src/shared/house.js';
+import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about this many
 // a minute counting walking, pickups and potion breaks. Bosses aren't counted in "earned by level".
@@ -89,6 +90,18 @@ table('SINKS: furniture (the furniture store), cheapest first', Object.fromEntri
 const setCost = furniture.reduce((a, [, f]) => a + f.price, 0);
 console.log(`One of every piece: ${fmt(setCost)} gold (farming has earned that by lvl ${levelFor(setCost)}; target lvl ${SET_FROM}–${SET_TO})`);
 
+// Farming and alchemy (docs/places/alchemy.md): seeds are a small sink; herbs and brews must sell for less
+// than they cost to make, so a garden is never a gold farm (they're for drinking)
+const herbCost = (id) => (CROPS[id] ? CROPS[id].seed / ((CROPS[id].yield[0] + CROPS[id].yield[1]) / 2) : sellPrice(id)); // one herb, or a mob material at what Pip pays
+table('FARMING: one planting of each crop (sell = the harvest sold to Pip)', Object.fromEntries(Object.entries(CROPS).map(([id, c]) => {
+  const sell = ((c.yield[0] + c.yield[1]) / 2) * sellPrice(id);
+  return [id, { seed: c.seed, grows: `${c.grow / 60} min`, 'harvest sells for': fmt(sell), 'sell / seed': (sell / c.seed).toFixed(2) }];
+})));
+const brewCost = (r) => Object.entries(needs(r.steps)).reduce((a, [id, k]) => a + k * herbCost(id), 0);
+table('ALCHEMY: one batch of each recipe (cost = seeds for its herbs + its mob materials at sell price)', Object.fromEntries(Object.entries(RECIPES).map(([id, r]) => [id, {
+  steps: r.steps.length, makes: r.makes, cost: fmt(brewCost(r)), 'output sells for': fmt(r.makes * sellPrice(id)), does: ITEMS[id].desc.replace(/^Brewed\. /, ''),
+}])));
+
 // ——— checks ———
 const problems = [];
 for (const s of sinks.filter((s) => s.aim)) {
@@ -105,6 +118,11 @@ for (const [a, fa] of upright) for (const [b, fb] of upright) {
 }
 if (setCost < earnedBy(SET_FROM) || setCost > earnedBy(SET_TO)) problems.push(`one of every piece of furniture costs ${fmt(setCost)}: want it between the gold earned by lvl ${SET_FROM} and lvl ${SET_TO}`);
 for (const id of SHOP_STOCK) if (sellPrice(id) >= ITEMS[id].price) problems.push(`${id} sells for as much as it costs`);
+for (const [id, c] of Object.entries(CROPS)) if (c.yield[1] * sellPrice(id) >= c.seed) problems.push(`a ${id} harvest can sell for more than its seed costs: a gold farm`);
+for (const [id, r] of Object.entries(RECIPES)) {
+  if (r.makes * sellPrice(id) >= brewCost(r)) problems.push(`a batch of ${id} sells for more than its ingredients cost: a gold farm`);
+  if (ITEMS[id]?.kind !== 'potion') problems.push(`recipe ${id} doesn't make a potion of the same id`);
+}
 for (const [id, m] of mobs) {
   const v = perKill(m).value / m.exp;
   if (v > 1.2) problems.push(`${id} gives ${v.toFixed(2)} gold per EXP: more than any other mob, a gold farm`);

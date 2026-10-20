@@ -1,0 +1,59 @@
+# Farming and alchemy (crafting potions)
+
+Files: `src/shared/alchemy.js` (`CROPS`, `RECIPES`, `ACTIONS`, `GIFT`, `recipeFor`, `needs`), herbs and
+brews in `ITEMS` (`src/shared/rpg.js`), the two pieces of furniture in `FURNITURE`
+(`src/shared/house.js`), `server/house.js` (crops: `plant`, `harvest`, `atLab`), `server/rpg.js`
+(`brew`, brewed buffs in `buffsOf` / `statsFor`, drinking), `src/alchemy.js` (seed card, the lab panel,
+prompts, the buff on the HUD), `src/alchemy-art.js` (crops, herb and potion icons), `src/house.js`
+(draws crops over plots).
+
+## Owner decisions (2026-10-20)
+- Crafting starts with potions only. You farm in your own backyard and take what you grow to an
+  alchemy lab, which brews potions from recipes shown on the side. Stronger potions need more complex
+  steps. The plots and the lab **reuse the decoration system** (owner's words): they're furniture,
+  bought at the furniture store (its "Farm & lab" section) and placed with Decorate.
+- Made without asking (the owner said to make liberal decisions; revisit if they say otherwise):
+  - **Every house gets 2 garden plots and a lab free** (`GIFT`). New houses have them out already
+    (`DEFAULT_LAYOUT`); houses from before get them put away once, with a toast at login (the row's
+    `gift` flag). More plots are the gold sink (`price` on `garden_plot`).
+  - **Seeds are bought at the plot** (E on an empty plot → the seed card), so they never take bag space.
+    Crops grow in real time, also while you're offline.
+  - Garden plots only go in the backyard (`yard: true` on the piece; `cleanLayout` / `snapPlacement`
+    keep them there). The lab goes anywhere.
+  - Only the owner plants and harvests; **anyone in a house can brew at its lab** (with their own bag).
+  - Recipes mix herbs with mob materials (thorns, ice shards, ember cores, stardust, aether crystals), so
+    the top brews need the later stages too. More steps per tier: 3 at the bottom, 11 at the top.
+
+## How brewing works
+- A step is `stir` / `heat` / `cool` / `distill`, or `add:<item>` / `grind:<item>` (the Mortar toggle
+  grinds the next ingredient). The lab panel collects your steps; Bottle sends them all at once
+  (`{t:'brew', steps, n}`). The server checks you're at a lab, that the steps are exactly some recipe
+  (`recipeFor`), and that your bag holds the ingredients × the batch size `n` (up to `BREW_MAX`).
+- Wrong steps make one Murky Sludge (`sludge`) and **the ingredients are lost**. The panel warns first
+  (a second Bottle press within a few seconds goes ahead), the book ticks off steps as you follow them
+  and marks the first wrong one red.
+- Ingredients are only taken when you bottle, so the panel can be closed or emptied freely.
+- A recipe's id is the id of the potion it makes (`RECIPES[id].makes` of them per batch).
+
+## Brewed potions
+- Kind `potion` with `brewed: true`, so they work in the bag and the potion hotbar like any other.
+  `heal` / `mana` restore, `full` fills HP and MP, `buff` gives `{ atk, crit, ward }` for `dur` seconds:
+  `atk` multiplies ATK and MAGIC, `crit` adds crit chance, `ward` cuts damage taken (not ultimates).
+- **One brewed buff at a time**: drinking another replaces it. It's saved with the character (`brew`),
+  so it survives a relog, and `me` sends it (`brew: {id, left}`) for the HUD pill under the HP panel.
+
+## Plots and their crops
+- Each plot in a layout carries an `id` the server gives it (`tag` in `server/house.js`); crops are kept
+  in the house row's `farm` under that id, out of the client's reach. Moving a plot while decorating
+  keeps its id (the carried piece remembers it), so the crop moves with it. Crops whose plot is gone are
+  dropped at the next login.
+- The house message carries `farm: {id: [crop, ms left]}` (time left, not a timestamp: the clocks don't
+  have to agree). It's re-sent on every plant / harvest / layout change.
+
+## Balance (see `docs/economy.md`)
+- Herbs and brews sell to Pip for less than they cost to make (`npm run economy` checks both), so a
+  garden is never a gold farm. Their value is in drinking them: brews heal far more per gold than shop
+  potions, which is the reward for the waiting and the steps.
+
+## Testing
+- `TEST_GROW=60` (test servers only) makes crops grow 60× faster.
