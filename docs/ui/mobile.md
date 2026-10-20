@@ -11,6 +11,9 @@ Files: `src/touch.js` (buttons, fullscreen), touch layout rules in `src/style.cs
   Skills = K · Dash · Blink). So **a new keyboard action works on touch by adding a button to `BUTTONS`**
   and showing it in the right room in `update()`.
 - Tap-style buttons hold their key ~120 ms so the 60 Hz sim sees it. Tapping the canvas slaps.
+- The HUD buttons and pills don't carry key labels (owner, 2026-10-20: they crowded the combat HUD); every
+  key and touch button is listed on the Esc menu's **Controls** page (`CONTROLS` in `src/main.js`, one list
+  for touch, one for keyboards). A new key or button goes there.
 - HTML strips that are tappable on their own: the hotbar, `#voicebar` (Mic, Broadcast), `#hudbtns`
   (Players, Decorate, Chat; below the location pill, top left); Menu and Full sit left of the voicebar. Panels (bag, skills, shop) move to the top on touch; the movement pad hides while a panel
   or text box is up; the feed sits above the controls.

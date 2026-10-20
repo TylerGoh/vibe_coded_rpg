@@ -286,15 +286,14 @@ const store = new Store({ send: (m) => net.sendNpc(m), gold: () => rpg.me?.coins
 const alchemy = new Alchemy({ send: (m) => net.sendNpc(m), rpg, houses, onOpenChange: () => held.clear() });
 const players = new Players({ net, houses, send: (m) => net.sendNpc(m), self: () => ({ name: profile.name, hue: profile.hue, lvl: rpg.me?.lvl }), onOpenChange: () => held.clear() });
 // Text chat and private messages (src/chat.js); the Players panel's Message buttons open a private tab
-const chat = new Chat({ send: (m) => net.sendNpc(m), me: () => profile.name, online: () => [...net.roster.values()].map((r) => r.name), onOpenChange: () => held.clear(), hint: TOUCH ? '' : ' · Enter' });
+const chat = new Chat({ send: (m) => net.sendNpc(m), me: () => profile.name, online: () => [...net.roster.values()].map((r) => r.name), onOpenChange: () => held.clear() });
 players.onMessage = (name) => {
   players.close();
   chat.open(name);
 };
+const hudButtons = document.getElementById('hudbtns');
 const whoButton = document.getElementById('who');
 const decoButton = document.getElementById('decorate');
-whoButton.textContent = TOUCH ? 'Players' : 'Players · P';
-decoButton.textContent = TOUCH ? 'Decorate' : 'Decorate · R';
 whoButton.onclick = () => {
   if (online()) players.toggle();
   whoButton.blur();
@@ -500,6 +499,7 @@ function showLogin(message = '') {
 // ——— Esc menu ———
 function toggleMenu(open = menu.hidden) {
   menu.hidden = !open;
+  showControls(false);
   held.clear(); // no walking while the menu is up
   if (open) {
     document.getElementById('resume').focus();
@@ -567,6 +567,34 @@ showMusic();
 musicButton.onclick = () => {
   audio.setMusic(!audio.musicOn);
   showMusic();
+};
+// Controls: every key (or touch button), in the Esc menu instead of as labels on the HUD (owner's request)
+const CONTROLS = TOUCH
+  ? [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use'],
+     ['Tap the game', 'slap · Hit attacks'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree'],
+     ['Players', "who's online, invite, message"], ['Chat', 'chat · /w name to whisper · /r to reply'], ['Decorate', 'in your own house'],
+     ['Mic · Broadcast', 'talk to slimes nearby · to everyone'], ['Menu', 'this menu']]
+  : [['← → / A D', 'walk'], ['↑ / W / Space', 'jump (twice with Flash Jump)'], ['↓ / S', 'drop through a platform'], ['E', 'doors, talk, read, use'],
+     ['Click', 'slap · attack'], ['X', 'attack'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
+     ['I · K', 'bag · skill tree'], ['P', "who's online, invite, message"], ['Enter', 'chat · /w name to whisper · /r to reply'],
+     ['R', 'decorate your house'], ['C · H · Q', 'course menu · raise your hand · ask Clio'], ['M · B', 'mic · broadcast to everyone'],
+     ['F', 'fullscreen'], ['Esc', 'this menu']];
+const controlsList = document.getElementById('controls-list');
+for (const [k, what] of CONTROLS) {
+  const dt = document.createElement('dt'), dd = document.createElement('dd');
+  dt.textContent = k;
+  dd.textContent = what;
+  controlsList.append(dt, dd);
+}
+function showControls(on) {
+  menu.classList.toggle('help', on);
+  document.getElementById('controls').hidden = !on;
+  if (on) document.getElementById('controls-back').focus();
+}
+document.getElementById('controls-open').onclick = () => showControls(true);
+document.getElementById('controls-back').onclick = () => {
+  showControls(false);
+  document.getElementById('controls-open').focus();
 };
 document.getElementById('logout').onclick = () => {
   net.logout();
@@ -908,6 +936,7 @@ function update(realDt) {
   chat.update(dt);
   chat.button.hidden = !online();
   whoButton.hidden = !online();
+  hudButtons.classList.toggle('combat', isCombat(room)); // below the HP / MP panel there
   decoButton.hidden = !online() || !houses.isMine(room) || houses.editing;
   touch.update({
     playing: !!online(),
@@ -1133,7 +1162,6 @@ function render() {
     else if (status === 'online' && room === STORE) drawPill(16, 14, 260, `Furniture Store · ${here} shopper${here === 1 ? '' : 's'}`);
     else if (status === 'online' && isHouse(room)) {
       drawPill(16, 14, 260, `${houses.title(room, houses.isMine(room))} · ${here} slime${here === 1 ? '' : 's'}`);
-      if (houses.isMine(room) && !houses.editing && !TOUCH) drawPill(W - 296, 54, 280, 'R  decorate  ·  P  invite friends');
     }
     else if (status === 'online') drawPill(16, 14, 210, `Slimeville · ${n} slime${n === 1 ? '' : 's'} online`);
     else drawPill(16, 14, 220, status === 'connecting' ? 'Connecting…' : `Reconnecting… (${status})`, '#d9607a');
@@ -1146,7 +1174,6 @@ function render() {
     }
     if (status === 'online') rpg.drawHud(ctx, isCombat(room), H);
     if (status === 'online') alchemy.drawBuff(ctx, 128);
-    if (status === 'online' && isCombat(room) && !TOUCH && !rpg.isOpen && !denAt(room)) drawPill(W - 296, 54, 280, 'X / click  attack  ·  I  bag  ·  K  skills');
     const a = clamp(1 - (hintTime - 8) / 1.5, 0, 1);
     if (!museum.isOpen && !chat.isOpen) drawFeed(ctx, TOUCH ? H - 112 : a > 0 ? H - 56 : isCombat(room) ? H - 72 : H - 14, TOUCH ? 520 : isCombat(room) ? 300 : 620); // on touch, above the controls; above the hotbar
     if (a > 0) {

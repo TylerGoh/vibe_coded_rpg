@@ -52,5 +52,5 @@ a new message needs a branch there and a line in the protocol comment.
 
 ## `src/main.js`
 Owns the keyboard handler (panels first, then room-specific keys, then the Esc menu), the Esc menu
-buttons, the HUD and splats, and wires every feature module together. `#debug` in the URL exposes
+buttons (and its Controls page, `CONTROLS`: keep it in step with new keys), the HUD and splats, and wires every feature module together. `#debug` in the URL exposes
 `window.slimeville` (see `docs/testing.md`).

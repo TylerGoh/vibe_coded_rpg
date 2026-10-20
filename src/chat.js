@@ -16,9 +16,7 @@ const WHISPER = /^\/(w|whisper|msg|dm|t|tell)\s+(\S+)\s*(.*)$/i;
 
 export class Chat {
   // me() → your account name · online() → names of everyone online · onOpenChange(open)
-  // hint: the key shown on the Chat button (' · Enter', or '' on touch)
-  constructor({ send, me, online, onOpenChange, hint = '' }) {
-    this.hint = hint;
+  constructor({ send, me, online, onOpenChange }) {
     this.send = send;
     this.me = me;
     this.online = online;
@@ -192,7 +190,7 @@ export class Chat {
     const me = this.me(), online = new Set(this.online());
     // the Chat button: how many lines you haven't seen
     const n = this.unreadAll + this.peers.reduce((s, p) => s + this.unread(p), 0);
-    const label = `Chat${n ? ` (${n})` : ''}${this.hint}`;
+    const label = `Chat${n ? ` (${n})` : ''}`;
     if (this.button.textContent !== label) this.button.textContent = label;
     this.button.classList.toggle('unread', this.peers.some((p) => this.unread(p)));
     if (!this.isOpen) return;

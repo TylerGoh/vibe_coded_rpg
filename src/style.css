@@ -2402,3 +2402,55 @@ body.touch #chat {
   width: calc(440px * var(--s));
   height: calc(190px * var(--s));
 }
+
+/* in combat rooms the HP / MP panel is where the HUD buttons usually sit: they go below it */
+#hudbtns.combat {
+  top: calc(126px * var(--s));
+}
+body.touch #hudbtns.combat ~ #chat {
+  top: calc(164px * var(--s));
+  height: calc(170px * var(--s));
+}
+
+/* ——— the Controls page of the Esc menu ——— */
+#menu.help > :not(#controls, p) {
+  display: none;
+}
+#controls[hidden] {
+  display: none;
+}
+#controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(12px * var(--s));
+}
+#controls-list {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: calc(5px * var(--s)) calc(16px * var(--s));
+  margin: 0;
+  padding: calc(14px * var(--s)) calc(22px * var(--s));
+  border-radius: calc(16px * var(--s));
+  background: #fffaf3;
+  color: #5b4a6b;
+  font: 600 calc(14px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+}
+#controls-list dt {
+  font-weight: 700;
+  color: #e46f95;
+  text-align: right;
+}
+#controls-list dd {
+  margin: 0;
+}
+body.touch #controls-list {
+  grid-template-columns: auto auto auto auto;
+  font-size: calc(13px * var(--s));
+}
+body.touch #menu {
+  gap: calc(9px * var(--s));
+}
+body.touch #menu button {
+  padding: calc(9px * var(--s)) 0;
+}

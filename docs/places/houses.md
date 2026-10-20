@@ -99,5 +99,6 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
   `docs/social/chat.md`) ("at home", "at tyler's house", "in the Wildwood"…),
   read from the newest snapshot. Invite buttons are only enabled when the rules above allow it; the
   server re-checks everything.
-- The Players / Decorate buttons are HTML (`#hudbtns`, below the location pill), so they work on touch
+- The Players / Decorate buttons are HTML (`#hudbtns`, below the location pill; below the HP / MP panel in
+  combat rooms), so they work on touch
   without a touch-pad button.
