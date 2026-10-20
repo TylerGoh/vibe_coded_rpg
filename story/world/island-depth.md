@@ -13,8 +13,11 @@ owner's direction (next section) is settled.
   each island simply holds far more levels of mobs, so you spend longer on it.
 - **Islands branch.** Not one strip of zones but a map with forks: a main trail, side branches, much
   harder pockets, easier pockets, and sometimes bigger bosses out in the open.
-- **More to discover on each island:** side quests, and each island's theme explored properly (every
-  corner of "green temperate island", not three zones of it).
+- **More to discover on each island:** each island's theme explored properly (every corner of "green
+  temperate island", not three zones of it), with things found by wandering.
+- **No quests** (owner, explicit). No quest system, quest givers, quest log or tracker. Discovery comes
+  from the places themselves: hidden spots, rare spawns, readable ruins, field bosses, and characters
+  worth chatting with. Don't add quests back in another form.
 - **Don't move on to the next island until this one is fleshed out.** It doesn't all ship at once.
 - **Existing characters keep their levels and gear.** Today's mobs, bosses and gear are **legacy units**:
   their numbers stay as they are, and their stat blocks and brains (`ai` in `MOBS`) can be reused, re-themed,
@@ -33,8 +36,9 @@ owner's direction (next section) is settled.
 3. **Bosses at three sizes:** the dens (as now), **field bosses** (a big mob that roams a wilds room
    on a long timer, announced to the room), and **one capstone boss** at the top of the island's band,
    with a proper den and a story beat.
-4. **Side quests**: a handful per branch, given by that branch's people. Most are small and local (hunt,
-   gather, deliver, find); a few chain into the island's lore.
+4. **Things to find, no quests:** each branch has something off the beaten path: a hidden ledge or
+   back room, a rare mob, readable Keeper stones or wreckage that add to the lore, a view. Its people
+   are chattable AI characters with lives of their own (and a trade where it fits), not quest givers.
 5. **Getting around:** a big island needs fast travel and a map that shows its branches (below).
 6. The usual: towns per `atlas.md`, mobile, music scenes, the economy sheet green.
 
@@ -70,8 +74,8 @@ The existing Wildwood (1–12) stays as the main trail's start, untouched.
 
 - **Willowmere** (easy pocket and branch, 5–15): a pond and slow river north of the meadow, willows,
   reeds and a mill. Gloop snails, dragonflies, frogs; fishing; riverside herbs. **Field boss: Old
-  Snapjaw**, a huge pond turtle who surfaces now and then. People: **Miller Bun** (AI, a quest giver:
-  the wheel's stuck, the eels ate the bread).
+  Snapjaw**, a huge pond turtle who surfaces now and then. People: **Miller Bun** (AI: runs the mill,
+  grumbles that the eels eat the bread, sells flour-based snacks).
 - **Saltspray Coves** (branch, 10–25): south from the harbour along the shore. Tide pools, sea stacks,
   gull rookeries. Rock crabs, storm gulls, tide jellies. People: **Beachcomber Moss** (AI: collects things
   the sea brings in, some of them Keeper-made, a light Tier 1 thread). Den: **the Tidemother** `[slot]`.
@@ -82,7 +86,7 @@ The existing Wildwood (1–12) stays as the main trail's start, untouched.
   - **Glowroot Hollow** (hard pocket, 40–50): the deepest cave, where the threads knot. Glowworms.
 - **Old Oak Canopy** (branch, 25–40): climb up from Bramble Woods into the treetops. A vertical room:
   branches, rope bridges, hollow-trunk ladders. Squirrels, owls, wasp nests. A treehouse camp with
-  **Ranger Acorn** `[name proposed]` (AI, quest giver). Field boss: **the Hornet Queen**.
+  **Ranger Acorn** `[name proposed]` (AI: watches the woods, knows every nest). Field boss: **the Hornet Queen**.
 - **Keeper's Spine** (the heart, 45–60): the island's ridge above the canopy, bare stone and wind, the
   biggest Keeper ruins on the island (the Waystone network starts here). Moss turtles, stone sentinels.
   - **The Thornheart** (hard pocket, 50–60): the briar's root, thorn stalkers.
@@ -95,12 +99,6 @@ but blocked in-world (the mill bridge washed out, the stump's hole choked with r
 the cove path), and the update itself lifts it.
 
 ## Systems the depth needs (built once, used on every island)
-- **Quests v1:** quest data in shared code (hunt N, gather N drops, deliver, find a place or thing,
-  beat a boss), tracked by the server per character and saved with it. NPCs who give quests get a
-  **Quests** button beside Trade; a quest log page in the Esc menu and a small tracker on the HUD; on
-  mobile too. Rewards (EXP, gold, an item) are priced on the economy sheet: quest EXP as a share of a
-  level's EXP, so quests add to the levelling speed without replacing farming. AI characters are told
-  their open quests so they can talk about them.
 - **Field bosses and elites:** a big mob that spawns in a wilds room on a long timer and roams; elite
   versions of normal mobs (more HP and damage, a glow, better drops) for the hard pockets.
 - **Level labels on doors** (some exist already: "(Lv 28+)"), and a danger look for hard-pocket doors.
@@ -108,13 +106,12 @@ the cove path), and the update itself lifts it.
   already in the ruins (the Waystone plaque).
 - **An island map:** the World map page zooms into an island and shows its branches, their level bands
   and where you are (`docs/ui/world-map.md`).
-- **The economy sheet** learns the new bands and quest rewards (`docs/economy.md`).
+- **The economy sheet** learns the new bands, field bosses and elites (`docs/economy.md`).
 
 ## Greenhollow phases
 Each is its own session. The order puts the systems first, then fills the band from the bottom up.
-- [ ] **G0: systems.** Quests v1, field bosses and elites, door level labels, the island map. First
-      quests use the existing Wildwood and Slimeville's people (Mochi, Pip, Clio, the baker).
-- [ ] **G1: Willowmere and Saltspray Coves** (5–25), Old Snapjaw, the first branch quests.
+- [ ] **G0: systems.** Field bosses and elites, door level labels, the island map.
+- [ ] **G1: Willowmere and Saltspray Coves** (5–25), Old Snapjaw, Miller Bun and Beachcomber Moss.
 - [ ] **G2: the Mycelium Deep and Glowroot Hollow** (15–50), the Sporelord.
 - [ ] **G3: Old Oak Canopy** (25–40), the Hornet Queen, waystones.
 - [ ] **G4: Keeper's Spine, the Thornheart and Wreck Cave** (30–60), the Root Warden. Check the
