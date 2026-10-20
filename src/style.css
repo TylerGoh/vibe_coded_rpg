@@ -2444,6 +2444,30 @@ body.touch #hudbtns.combat ~ #chat {
 #controls-list dd {
   margin: 0;
 }
+/* ——— the World map page of the Esc menu (src/worldmap.js) ——— */
+#menu.mapview > :not(#worldmap) {
+  display: none;
+}
+#worldmap[hidden] {
+  display: none;
+}
+#worldmap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(10px * var(--s));
+}
+#worldmap-canvas {
+  width: calc(720px * var(--s));
+  height: calc(380px * var(--s));
+  border-radius: calc(22px * var(--s));
+  box-shadow: 0 calc(4px * var(--s)) 0 #d9c3a8;
+}
+#worldmap-note {
+  color: #fff;
+  font: 600 calc(15px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  text-shadow: 0 calc(2px * var(--s)) 0 rgba(43, 35, 64, 0.5);
+}
 body.touch #controls-list {
   grid-template-columns: auto auto auto auto;
   font-size: calc(13px * var(--s));

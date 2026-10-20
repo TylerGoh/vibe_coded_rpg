@@ -184,11 +184,17 @@
         <button id="pvp" type="button">Friendly fire: on</button>
         <button id="hbswap" type="button">Hotbar: swap setup</button>
         <button id="controls-open" type="button">Controls</button>
+        <button id="map-open" type="button">World map</button>
         <button id="logout" type="button">Log out</button>
         <div id="voice-status" aria-live="polite"></div>
         <div id="controls" hidden>
           <dl id="controls-list"></dl>
           <button id="controls-back" type="button">Back</button>
+        </div>
+        <div id="worldmap" hidden>
+          <canvas id="worldmap-canvas" aria-label="A chart of the Glass Sea"></canvas>
+          <div id="worldmap-note">The sea gets a little wider every year, and the charts run out at the edges.</div>
+          <button id="map-back" type="button">Back</button>
         </div>
       </div>
     </div>

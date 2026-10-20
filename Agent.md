@@ -123,5 +123,6 @@ start story work from `story/roadmap.md`.
 | [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |
 | [docs/ui/mobile.md](docs/ui/mobile.md) | touch controls, phone layout, fullscreen, home-screen mode |
 | [docs/ui/hints.md](docs/ui/hints.md) | the on-screen prompts above your slime, any new interaction |
+| [docs/ui/world-map.md](docs/ui/world-map.md) | the World map page in the Esc menu |
 | [docs/ui/audio.md](docs/ui/audio.md) | music, ambience, sound effects |
 | [docs/ideas.md](docs/ideas.md) | what's untested and what's been asked for but not done |

@@ -5,6 +5,17 @@ anyone adding a mob, boss, town or character. `geography.md` says *why* the map 
 file says *what each place is made of* and *in what order to make it*. Region files (`regions/`) hold the
 mood and story for each island. Anything not already in the game is `[proposed]` until the owner signs off.
 
+## Contents
+1. How to use this file
+2. The shape of every island (the room kinds, and the rules for linking them)
+3. The link graph (which island connects to which, and the level bands)
+4. Landscape catalogue (the art brief for every landscape type)
+5. Island sheets: Greenhollow, Frostpeak, Lantern Fen, Emberdeep, Amberdune, the Citadel, the post-game
+6. Boss slots at a glance
+7. Hometown checklist
+8. Where each thing goes in the code
+9. The build order (start at the village and walk outward)
+
 ## How to use this file
 - **Adding a mob:** find its zone's sheet below, fill an open mob slot (or add one that fits the slot
   rules), and match the zone's level band and landscape. Then `docs/combat/stages.md` and `docs/economy.md`.
@@ -14,6 +25,8 @@ mood and story for each island. Anything not already in the game is `[proposed]`
   `docs/social/ai-characters.md`.
 - **Building a place:** take the next unticked phase in **The build order** at the bottom.
 - Tick things here *and* in `../roadmap.md` when they ship, and update `../inventory.md`.
+- **The World map** in the Esc menu (`docs/ui/world-map.md`) draws this geography for players. When a
+  place ships, add it there too (un-fog an uncharted island once it's real).
 
 ## The shape of every island
 Each island is a walk **from where you land, inland, then up or down to its heart**. The same room kinds
@@ -214,6 +227,22 @@ Every hometown has, in this order of importance:
 3. **One or two flavour NPCs** with fixed lines, to make the place feel lived in.
 4. A harbour door, a rest spot (bench, fire, springs), and a view of the landmark.
 5. Its people's own slime look (`../characters/people.md`): hue, texture, wobble.
+
+## Where each thing goes in the code
+Names here are the code's; the docs in brackets say how each part works. Check them before you build:
+the code is the truth, and this list only points at it.
+
+| to add… | touch | read |
+|---|---|---|
+| a mob | `MOBS` and `SPAWNS` in `src/shared/rpg.js`; its brain in `mobAi` (`server/rpg.js`) only if it has an `ai`; its look in the stage's art file | `docs/combat/stages.md`, `docs/economy.md` |
+| a loot item or gear | `ITEMS` in `src/shared/rpg.js`, the mob's drops | `docs/combat/items.md`, `docs/economy.md` |
+| a boss and its den | `MOBS` (with `boss: true`, `ult`, `minion`), a den in `DENS`, its moves in `server/rpg.js`, art in `src/dens.js` | `docs/combat/bosses.md`, `docs/economy.md` |
+| a zone in a stage | the stage's zone list (`ZONES`, `HIGHLAND_ZONES`, `CALDERA_ZONES`, `CITADEL_ZONES`), its platforms, spawns | `docs/combat/stages.md` |
+| a new room (harbour, town, crossing, stage) | `ROOMS` and the doors in `src/shared/sim.js`; for a combat stage also `STAGES` and `COMBAT_ROOMS` in `src/shared/rpg.js`; an art file that paints its own sky; a music scene in `src/audio.js` | `docs/world.md`, `docs/combat/stages.md`, `docs/ui/audio.md` |
+| an AI character | a persona in `server/characters.js`, placed in `NPCS` (`src/shared/sim.js`) | `docs/social/ai-characters.md`, `../delivery.md` |
+| movement that's new (ice, wind, bog, swim) | `step()` in `src/shared/sim.js` only | `docs/netcode.md` |
+| the World map | `src/worldmap.js` | `docs/ui/world-map.md` |
+Then the `// Docs:` line, the doc update, the index row in `Agent.md` for a new area, and mobile.
 
 ## The build order (start at the village and walk outward)
 Each phase leaves the game fully playable. **Never remove a back door before its crossing works**, or an

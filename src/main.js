@@ -30,6 +30,7 @@ import { Alchemy } from './alchemy.js';
 import { FURNITURE } from './shared/house.js';
 import { Players } from './players.js';
 import { Chat } from './chat.js';
+import { WorldMap } from './worldmap.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
 import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE } from './shared/sim.js';
@@ -500,6 +501,7 @@ function showLogin(message = '') {
 function toggleMenu(open = menu.hidden) {
   menu.hidden = !open;
   showControls(false);
+  showMap(false);
   held.clear(); // no walking while the menu is up
   if (open) {
     document.getElementById('resume').focus();
@@ -595,6 +597,21 @@ document.getElementById('controls-open').onclick = () => showControls(true);
 document.getElementById('controls-back').onclick = () => {
   showControls(false);
   document.getElementById('controls-open').focus();
+};
+// World map: a teaser chart of the Glass Sea (src/worldmap.js), drawn only while its page is open
+const worldMap = new WorldMap(document.getElementById('worldmap-canvas'));
+function showMap(on) {
+  menu.classList.toggle('mapview', on);
+  document.getElementById('worldmap').hidden = !on;
+  if (on) {
+    worldMap.show(room, cleanHue(profile.hue));
+    document.getElementById('map-back').focus();
+  } else worldMap.hide();
+}
+document.getElementById('map-open').onclick = () => showMap(true);
+document.getElementById('map-back').onclick = () => {
+  showMap(false);
+  document.getElementById('map-open').focus();
 };
 document.getElementById('logout').onclick = () => {
   net.logout();
