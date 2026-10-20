@@ -13,15 +13,17 @@ the world *is*. Once a story beat ships into code, the feature's doc in `docs/` 
 3. `world/geography.md`: the map, distances, travel and landscape rules. Read before touching any place.
 4. `world/atlas.md`: every landscape, how the islands link, the hometowns and casts, the mob and boss
    slots, and the build order outward from the village. **Read before adding a mob, boss, town or NPC.**
-5. `world/regions/`: one file per region (landscape, people, mood, what's there now and what should be).
-6. `world/history.md`: the timeline of the world.
-7. `characters/`: Elder Mochi, Chronos, the nine bosses, the people of each island.
-8. `arcs/main-arc.md`: the main story, act by act.
-9. `delivery.md`: how the story reaches players (NPCs, bosses, places, items) and the tone gradient.
-10. `roadmap.md`: the game changes the story asks for, in priority order. **Future sessions start here.**
-11. `inventory.md`: what exists in the game today and how the story reinterprets it.
-12. `expansion.md`: the built-in slots for growing the story, and the rules for adding to it.
-13. `open-questions.md`: undecided ideas. Nothing in here is canon.
+5. `world/island-depth.md`: the current plan. Islands get deep (wide level bands, branching maps,
+   side quests) before new ones are added.
+6. `world/regions/`: one file per region (landscape, people, mood, what's there now and what should be).
+7. `world/history.md`: the timeline of the world.
+8. `characters/`: Elder Mochi, Chronos, the nine bosses, the people of each island.
+9. `arcs/main-arc.md`: the main story, act by act.
+10. `delivery.md`: how the story reaches players (NPCs, bosses, places, items) and the tone gradient.
+11. `roadmap.md`: the game changes the story asks for, in priority order. **Future sessions start here.**
+12. `inventory.md`: what exists in the game today and how the story reinterprets it.
+13. `expansion.md`: the built-in slots for growing the story, and the rules for adding to it.
+14. `open-questions.md`: undecided ideas. Nothing in here is canon.
 
 ## Rules for editing
 - **Canon vs proposed.** `canon.md` holds only decisions the owner has accepted. Elsewhere, mark undecided

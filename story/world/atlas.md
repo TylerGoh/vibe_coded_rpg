@@ -81,6 +81,9 @@ Rules:
  Post-game [proposed]:
    the Maelstrom rim (Lv 80+) → the Sunken Reach (under the sea, needs swim physics)
 ```
+**These bands are being widened** (owner, 2026-10-20): Greenhollow 1-60, Frostpeak 40-100, the later
+islands above them in turn. The numbers in the graph are today's (legacy) ones; `island-depth.md` has
+the plan, and each island's band changes when its depth pass ships.
 Level bands overlap by a level or two on purpose, so a player arriving somewhere new isn't instantly
 over- or under-matched. The bands are the zones' `lvl` in `src/shared/rpg.js`; the code is the truth.
 
@@ -260,6 +263,9 @@ the code is the truth, and this list only points at it.
 Then the `// Docs:` line, the doc update, the index row in `Agent.md` for a new area, and mobile.
 
 ## The build order (start at the village and walk outward)
+**Paused after Phase 4** (owner, 2026-10-20): islands get deep before new ones are added. Work
+Greenhollow's depth phases, then Frostpeak's, in `island-depth.md`; Phase 5 resumes after that.
+
 Each phase leaves the game fully playable. **Never remove a back door before its crossing works**, or an
 island becomes unreachable. Each phase is its own session; read the docs it names first.
 
