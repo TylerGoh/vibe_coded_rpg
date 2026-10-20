@@ -40,6 +40,13 @@ on the server and run after that same input (`ORDERED` / `runActions` in `server
 and hits happen exactly where the client saw them. Client-predicted knockback is `applyKick` in
 `src/net.js`, re-applied on replays.
 
+## Restarts keep positions
+Deploys restart the server. On SIGTERM it writes where every slime stands (`savePositions`, next to the
+accounts DB); at startup it reads that once, and each account's first login within `POS_KEEP_MS` goes back
+there (`restorePos`). House room ids change every restart, so your own house is saved as "home" and anyone
+else's as its front door. Owner's ask: small deploys mustn't send everyone back to spawn. A `reset-positions`
+file next to the DB skips it for a game-breaking deploy.
+
 ## Protocol cheat sheet
 `hello`/`welcome`/`denied` login · `in` inputs · `s` snapshots · `join`/`leave` · `rtc` voice signalling ·
 `chat`/`chat-log`/`chat-error` text chat ·

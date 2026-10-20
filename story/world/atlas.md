@@ -118,8 +118,9 @@ near home and get older and plainer further out (`../README.md`). Mobs are the i
 the Citadel's are machines and echoes.
 
 ### Greenhollow (home, Lv 1–12): cozy, puns welcome
-1. **Greenhollow Harbour** `[proposed, new room west of the village]`: piers, the unlit lighthouse,
-   fishing boats, the ferry. Cast: **Captain Brine** (AI, the ferry). Later: sailors from other islands.
+1. **Greenhollow Harbour** (exists, room 19 west of the village): piers, the unlit lighthouse,
+   fishing boats, the ferry Puddle Jumper (laid up). Cast: **Captain Brine** (AI, the ferry), Pickles his
+   gull. Later: sailors from other islands.
 2. **Slimeville** (exists): hometown. Cast: Elder Mochi, Curator Clio, Merchant Pip, the baker, the
    innkeeper. Over the acts it changes a little (lit lighthouse, foreign goods at Pip's).
 3. **The Wildwood** (exists):
@@ -248,14 +249,20 @@ Then the `// Docs:` line, the doc update, the index row in `Agent.md` for a new 
 Each phase leaves the game fully playable. **Never remove a back door before its crossing works**, or an
 island becomes unreachable. Each phase is its own session; read the docs it names first.
 
-- [ ] **Phase 0: skies.** Distant islands drawn in every outdoor sky in their compass direction. Cheap,
-      and it makes everything after feel connected. (`geography.md`, the stage art files)
-- [ ] **Phase 1: the west end.** Greenhollow Harbour room, the lighthouse, Captain Brine as an AI
-      character. The ferry is a door that, for now, goes to the existing Highlands.
+**Owner's rule between phases:** what the next phase delivers is visible but blocked by an in-world
+reason (a barricade, a laid-up ship, a character's refusal), never a "coming soon" sign and never a
+stand-in door into an existing area.
+
+- [x] **Phase 0: skies.** Distant islands drawn in every outdoor sky in their compass direction
+      (`src/distant.js`, shipped 2026-10-20; `docs/places/harbour.md`).
+- [x] **Phase 1: the west end.** Greenhollow Harbour room, the lighthouse, Captain Brine as an AI
+      character (shipped 2026-10-20). The ferry Puddle Jumper is moored but laid up: Brine won't sail
+      while the lighthouse is dark. No door to the Highlands, by the rule above.
 - [ ] **Phase 2: the Wildwood's story.** Keeper ruins with plaques in Bramble Woods; the east cliffs vista
-      with the telescope. The Highlands trail goes once Phase 1's ferry door works.
+      with the telescope. The Highlands trail stays until Phase 3's ferry works.
 - [ ] **Phase 3: the crossing room.** One moving-deck room type, themed per route. First theme: the cold
-      sea ferry. The harbour door now leads to the ferry, the ferry to Frostpeak.
+      sea ferry. Lighting the lighthouse opens it (how: `../open-questions.md`); the harbour then leads
+      onto the ferry, the ferry to Frostpeak, and the Highlands trail goes.
 - [ ] **Phase 4: Frostpeak's front.** Icefang Fjord landing and Icefang Hamlet (Old Skaldi, Runa, Tove),
       fjord-folk slime look, the cracked ice bridge. Fill Frostpeak's open mob slots.
 - [ ] **Phase 5: the south.** The Steam Straits crossing, Black Sand Shore with the springs, Forgehold

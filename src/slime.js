@@ -857,6 +857,56 @@ export class Slime {
       ellipse(ctx, 3.5, -h * 0.45, 4, 2, -0.6);
       ctx.restore();
     }
+    if (this.has('captain')) {
+      // Captain Brine: a salt-white beard, a navy captain's cap with a gold anchor badge, and a brass spyglass
+      const fy = -h * 0.42;
+      ctx.save();
+      ctx.fillStyle = '#f6f4ee';
+      ctx.strokeStyle = 'rgba(120,120,140,0.35)';
+      ctx.lineWidth = 0.8;
+      for (const [dx, dy, r] of [[-18, 13, 5], [-11, 18, 6], [-3, 21, 6.5], [6, 21, 6.5], [14, 18, 6], [21, 13, 5]]) {
+        ctx.beginPath();
+        ctx.arc(fx + dx, fy + dy, r, 0, TAU);
+        ctx.fill();
+        ctx.stroke();
+      }
+      for (const [dx, dy, r] of [[-20, 6, 3.4], [23, 6, 3.4]]) ellipse(ctx, fx + dx, fy + dy, r, r * 1.4); // sideburns
+      ctx.fillStyle = '#3e4f78'; // the cap: crown, band and a stiff peak over the face
+      ctx.beginPath();
+      ctx.ellipse(-w * 0.02, -h * 0.98, w * 0.36, 9, 0, Math.PI, 0);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.roundRect(-w * 0.34, -h * 0.98, w * 0.66, 8, 2);
+      ctx.fill();
+      ctx.fillStyle = '#2d3a5c';
+      ctx.beginPath();
+      ctx.ellipse(fx + 4, -h * 0.9, w * 0.26, 4, 0.08, 0, Math.PI);
+      ctx.fill();
+      ctx.fillStyle = '#f6f4ee';
+      ctx.fillRect(-w * 0.34, -h * 0.98 + 1.5, w * 0.66, 2);
+      ctx.fillStyle = '#ffd36b';
+      circle(ctx, fx - 2, -h * 1.03, 3.2);
+      ctx.strokeStyle = '#ffd36b';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(fx - 2, -h * 1.03);
+      ctx.lineTo(fx - 2, -h * 0.99);
+      ctx.stroke();
+      // spyglass, tucked against his side, glinting now and then
+      ctx.translate(-w * 0.5 - 2, -h * 0.28);
+      ctx.rotate(-0.5 + Math.sin(this.t * 0.9) * 0.03);
+      ctx.fillStyle = '#c9963e';
+      ctx.beginPath();
+      ctx.roundRect(-4, -4, 26, 8, 3);
+      ctx.fill();
+      ctx.fillStyle = '#e8b85a';
+      ctx.beginPath();
+      ctx.roundRect(18, -5, 12, 10, 3);
+      ctx.fill();
+      ctx.fillStyle = `rgba(255,255,255,${0.4 + 0.4 * Math.max(0, Math.sin(this.t * 1.7))})`;
+      circle(ctx, 30, 0, 2.6);
+      ctx.restore();
+    }
     if (this.has('merchant')) {
       // Merchant Pip: a striped apron, a flat cap, a coin pouch on his belt and a coin he flips now and then
       ctx.save();

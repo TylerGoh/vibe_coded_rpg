@@ -7,6 +7,7 @@
 // in the Caldera (drawSkylift) and the Citadel's mobs (CITADEL_MOB_ART, called by drawMob in field.js).
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { CITADEL_W, CITADEL_EXIT_X, CITADEL_ZONES, CITADEL_PLATFORMS, CITADEL, CALDERA_W, FIELD_GROUND, DENS } from './shared/rpg.js';
+import { drawDistantIslands } from './distant.js';
 
 const GROUND = FIELD_GROUND;
 const INK = '#4a3f6b';
@@ -393,6 +394,8 @@ function drawSky(ctx, camX, time, k) {
     ctx.globalAlpha = 1;
   });
   // a far cloud sea along the horizon
+  // the archipelago far below, half sunk in the cloud sea
+  drawDistantIslands(ctx, { from: 'citadel', scroll: camX, roomW: CITADEL_W, time, horizon: 398, haze: mix('#e6f6ff', '#5fb8c8', k), fade: 0.5, scale: 0.5, night: k });
   drawCloudSea(ctx, camX, time, 0.05, 392, mix('#f4faff', '#9a8ad8', k), mix('#dde9f8', '#7a6cc0', k), 0.8);
   // mid layer: brass towers rising out of the clouds / crystal clock towers floating in the aether
   eachTile(camX, 0.25, midTowers, 120, (px, o) => {

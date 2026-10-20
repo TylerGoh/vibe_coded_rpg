@@ -29,6 +29,13 @@ Item, mob, zone and boss text should be rewritten to match its region (`roadmap.
 6. **Crossings:** the ferry, ship and balloon rooms. Ambient lines from the captain, songs, the view.
 7. **The finale event**, once, for everyone.
 
+## Characters: a purpose, a life, and only some of the story
+Owner's rule: every character does a job in the world (runs the ferry, trades, keeps the museum) AND can
+be chatted to through DeepSeek with memory, like Elder Mochi. Their persona caps what they know of the
+lore (usually Tier 0 plus their trade, or the tier of their island) and tells them to deflect deeper
+questions in character, so the story stays hidden and is found in order. What they talk about freely is
+their own life: family, habits, worries, hobbies. Captain Brine (`server/characters.js`) is the model.
+
 ## Progress model
 - Per account: which bosses have been beaten at least once gives the **lore tier** (Tier 1 after any
   Wildwood boss, Tier 2 after Bramble Behemoth, and so on, matching `canon.md`). No quest log needed.

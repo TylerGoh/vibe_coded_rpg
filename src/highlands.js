@@ -5,6 +5,7 @@
 // The two den cave mouths (x 1880 and 3820) are drawn elsewhere, so the scenery leaves room round them.
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { HIGHLANDS_W, FIELD_W, FIELD_GROUND, HIGHLANDS_EXIT_X, HIGHLAND_ZONES, HIGHLAND_PLATFORMS, DENS, HIGHLANDS } from './shared/rpg.js';
+import { drawDistantIslands } from './distant.js';
 
 const GROUND = FIELD_GROUND;
 const INK = '#4a3f6b';
@@ -217,6 +218,8 @@ function drawSky(ctx, camX, viewW, time, k) {
     }
     ctx.globalAlpha = 1;
   }
+  // the other islands, far south over the sea, above the ranges' shoulders
+  drawDistantIslands(ctx, { from: 'frost', scroll: camX, roomW: HIGHLANDS_W, time, horizon: 330, haze: mix('#f6d8e6', '#8a62b4', k), fade: 0.55, scale: 0.68, night: k, sky: 240 });
   // mountain ranges, far to near, with snowy (or starlit) caps
   for (const Rg of RANGES) {
     const off = (camX * Rg.f) % TILE;

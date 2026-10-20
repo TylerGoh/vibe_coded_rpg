@@ -6,7 +6,8 @@ Update this when the game changes. Source of truth for names is the code (`src/s
 ## Places
 | in game now | story reading | change needed |
 |---|---|---|
-| Slimeville (village) | Greenhollow Bay village | add the harbour at the west end |
+| Slimeville (village) | Greenhollow Bay village | none (the harbour gate is at the west end) |
+| Greenhollow Harbour | the west end: lighthouse, the laid-up ferry | light the lighthouse and open the ferry (atlas Phase 3) |
 | The Wildwood: Sprout Meadow, Mushroom Grove, Bramble Woods | Greenhollow's interior | Keeper ruins; sea cliffs at the east end instead of the trail |
 | Frostpeak Highlands: Frostpine Ridge, Starfall Summit | Frostpeak, far north | add the Icefang Fjord landing; the ferry instead of the trail |
 | Emberdeep Caldera: Cinder Flats, Magma Heart | Emberdeep, far south | add the Black Sand Shore landing and Forgehold; a ship instead of the pass |
@@ -21,6 +22,7 @@ Update this when the game changes. Source of truth for names is the code (`src/s
 |---|---|
 | Elder Mochi | Pell's apprentice, keeper of the Heartroot cutting (the apple tree) |
 | Curator Clio | historian; becomes a field historian of the Slime Ages |
+| Captain Brine | the ferry captain at the harbour; knows Tier 0 only, won't sail while the lighthouse is dark |
 | Merchant Pip | cozy trader; later stocks goods from other islands |
 | The nine bosses | creatures twisted by Anchor shards (`characters/bosses.md`) |
 | Mobs | wildlife of each island; the late Citadel mobs are Keeper machines and echoes |

@@ -31,9 +31,10 @@ import { FURNITURE } from './shared/house.js';
 import { Players } from './players.js';
 import { Chat } from './chat.js';
 import { WorldMap } from './worldmap.js';
+import { drawHarbour } from './harbour.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
-import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE } from './shared/sim.js';
+import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR } from './shared/sim.js';
 
 const canvas = document.getElementById('game');
 const stage = document.getElementById('stage');
@@ -1080,7 +1081,7 @@ function drawHints() {
 
 function render() {
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
-  if (room === VILLAGE || room === FIELD || isHouse(room)) drawBackground(ctx, camX, time, ENV); // (the Highlands and the dens paint their own sky; houses show it through their windows)
+  if (room === VILLAGE || room === FIELD || isHouse(room)) drawBackground(ctx, camX, time, ENV, roomDef(room).width); // (the Highlands and the dens paint their own sky; houses show it through their windows)
 
   ctx.save();
   ctx.translate(-Math.round(camX * scale) / scale, 0);
@@ -1104,6 +1105,7 @@ function render() {
   } else if (denAt(room)) drawDen(ctx, room, camX, W, time);
   else if (isHouse(room)) houses.draw(ctx, room, time, houses.isMine(room));
   else if (room === STORE) store.draw(ctx, camX, W, time);
+  else if (room === HARBOUR) drawHarbour(ctx, camX, W, time);
   else drawVillage(ctx, camX, W, time);
   if (room === VILLAGE && Math.abs(SHOP_X - camX - W / 2) < W / 2 + 80) {
     merchant.draw(ctx);
@@ -1177,6 +1179,7 @@ function render() {
       if (up && TOUCH) drawPill(W - 236, 54, 220, 'Hand up', '#8a6fc4');
     }
     else if (status === 'online' && room === STORE) drawPill(16, 14, 260, `Furniture Store · ${here} shopper${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === HARBOUR) drawPill(16, 14, 300, `Greenhollow Harbour · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && isHouse(room)) {
       drawPill(16, 14, 260, `${houses.title(room, houses.isMine(room))} · ${here} slime${here === 1 ? '' : 's'}`);
     }

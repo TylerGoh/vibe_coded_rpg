@@ -10,10 +10,13 @@ and it's cheap to draw (hue, texture, how they wobble).
 | forge-slimes | Emberdeep | dark and dense, ember flecks, stiff | blunt, proud, guilty |
 | Keepers (echoes) | the Citadel | translucent, faint clockwork inside | gone; only echoes remain |
 
-## Proposed AI characters (one per region keeps the lore delivery local)
+## AI characters (one per region keeps the lore delivery local)
+**Owner's rule:** every character serves a purpose AND can be chatted to with memory, like Mochi. Keep
+what each knows of the lore narrow (their tier, or less), and give them a personal life to talk about.
 All `[proposed]`. Each needs a persona in `server/characters.js` that's fed canon tiers (`../delivery.md`).
-- **Captain Brine** (Greenhollow Harbour): the old ferry captain. Gruff-cozy and superstitious. He says
-  the crossing takes longer every year, and he's right.
+- **Captain Brine** (Greenhollow Harbour, **exists**): the old ferry captain. Gruff-cozy and
+  superstitious. He says the crossing takes longer every year, and he's right. Knows Tier 0 only; his
+  life (forty years at sea, Pickles the one-legged gull, cards at the Inn) is in `server/characters.js`.
 - **Old Skaldi** (Icefang Fjord): lamplighter and keeper of songs. Speaks in short, sad, beautiful lines.
   Holds Tier 2.
 - **Forgewarden Ash** (Forgehold): bitter, honest, slow to trust. Holds Tier 3.

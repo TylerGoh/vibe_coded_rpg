@@ -5,10 +5,14 @@ build it, then tick it here and update `inventory.md`. The build order for place
 new mobs, bosses, towns and characters, are in `world/atlas.md`. Every change still follows `Agent.md`
 (mobile, docs, economy, dev copy for big features).
 
+**Between phases** (owner): what isn't built yet is shown but blocked by an in-world reason, never a
+"coming soon" sign or a stand-in door. **Characters** (owner): a purpose AND chattable with memory, narrow
+lore, rich personal lives (`characters/people.md`).
+
 ## 1. Geography (the owner's top complaint: the islands are too close)
 - [ ] **Remove the back-door chain.** The Wildwood → Highlands trail, the Highlands → Caldera pass and the
       Caldera → Citadel skylift go. Each island is reached by its crossing. (`world/geography.md`)
-- [ ] **Greenhollow Harbour**, a new room west of the village: piers, an unlit lighthouse, Captain Brine,
+- [x] **Greenhollow Harbour**, a new room west of the village: piers, an unlit lighthouse, Captain Brine,
       the ferry. (`world/regions/greenhollow.md`)
 - [ ] **Crossing rooms:** a ship deck over a scrolling sea, for roughly a minute, then you arrive. One room
       type, themed per route (cold sea, Steam Straits, cloud climb). Movement on deck is normal `step()`
@@ -16,7 +20,7 @@ new mobs, bosses, towns and characters, are in `world/atlas.md`. Every change st
 - [ ] **A landing zone at the start of each island** (Icefang Fjord, Black Sand Shore, the Skydocks): a
       calm stretch with a hamlet and harbour, before the mobs.
 - [ ] **The Wildwood ends at sea cliffs** with the view across the water.
-- [ ] **Distant islands in every outdoor sky,** in compass direction (`world/geography.md`).
+- [x] **Distant islands in every outdoor sky,** in compass direction (`world/geography.md`, `src/distant.js`).
 - [ ] Gating: the Steam Straits voyage needs the Astral Wyrm beaten (stars restored). Ask the owner
       before adding any hard gate. The game has none today, on purpose (`docs/world.md`).
 
@@ -29,7 +33,7 @@ new mobs, bosses, towns and characters, are in `world/atlas.md`. Every change st
 - [ ] **Keeper ruins** in Bramble Woods, with readable plaques.
 
 ## 3. New places and people
-- [ ] Regional AI characters: Captain Brine, Old Skaldi, Forgewarden Ash, the Last Echo.
+- [ ] Regional AI characters: Captain Brine (done), Old Skaldi, Forgewarden Ash, the Last Echo.
 - [ ] Settlements: the fjord hamlet, Forgehold.
 - [ ] The Slime Ages wing in the museum.
 - [ ] Each island's people drawn as their own slime type (`characters/people.md`).

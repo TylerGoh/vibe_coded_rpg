@@ -2,13 +2,14 @@
 // Slimeville: everything in the village that isn't a slime. Drawn in world coordinates, in the same
 // soft, rounded style as Slime Hop (ground and flowers follow src/world.js in the game folder).
 import { H, TAU, mulberry32, circle, ellipse, mix } from './util.js';
-import { WORLD_W, GROUND_Y, PLATFORMS, HALL_DOOR_X, PIANO_DOOR_X, MUSEUM_DOOR_X } from './shared/sim.js';
+import { WORLD_W, GROUND_Y, PLATFORMS, HALL_DOOR_X, PIANO_DOOR_X, MUSEUM_DOOR_X, HARBOUR_GATE_X } from './shared/sim.js';
 import { drawHallOutside } from './hall.js';
 import { drawMusicHouse } from './piano.js';
 import { drawMuseumOutside } from './museum.js';
 import { drawFieldGate, drawItemIcon, drawSword } from './field.js';
 import { FIELD_GATE_X, SHOP_X } from './shared/rpg.js';
 import { drawStoreWindow } from './store.js';
+import { drawHarbourGate } from './harbour.js';
 
 const FLOWER_COLORS = ['#ffb3c7', '#fff1a8', '#c9b6ff', '#ffffff', '#ffd1a1'];
 const INK = '#5b4a6b';
@@ -23,7 +24,7 @@ const TREE = { x: 1960 };
 const LAMPS = [300, 1130, 1700, 2520, 3060];
 const BUNTING = [[1130, 1700], [2520, 3060]];
 const WELL = { x: 1790 };
-const SIGNPOST = { x: 120 };
+const SIGNPOST = { x: 175 }; // (moved east to make room for the harbour gate)
 
 // Ground decoration, seeded so every visitor sees the same village.
 const deco = (() => {
@@ -622,28 +623,6 @@ function drawSignpost(ctx) {
   ctx.restore();
 }
 
-// Fences at both ends of the village, so the edges feel like edges
-function drawFence(ctx, x0, x1) {
-  const base = GROUND_Y;
-  ctx.fillStyle = '#fff6ea';
-  ctx.strokeStyle = '#d9c3a8';
-  ctx.lineWidth = 2;
-  for (let x = x0; x <= x1; x += 26) {
-    ctx.beginPath();
-    ctx.moveTo(x - 6, base);
-    ctx.lineTo(x - 6, base - 34);
-    ctx.lineTo(x, base - 42);
-    ctx.lineTo(x + 6, base - 34);
-    ctx.lineTo(x + 6, base);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  }
-  ctx.fillStyle = '#fff6ea';
-  ctx.fillRect(x0 - 6, base - 30, x1 - x0 + 12, 6);
-  ctx.fillRect(x0 - 6, base - 15, x1 - x0 + 12, 6);
-}
-
 export function text(ctx, str, x, y, size, color, align = 'center') {
   ctx.font = `700 ${size}px Fredoka, 'Trebuchet MS', sans-serif`;
   ctx.textAlign = align;
@@ -661,8 +640,8 @@ export function drawVillage(ctx, camX, viewW, time) {
   for (const [a, b] of BUNTING) if (visible(a, b, L, R)) drawBunting(ctx, a, b, time);
   HOUSES.forEach((hs, i) => visible(hs.x - 60, hs.x + hs.w + 80, L, R) && drawHouse(ctx, hs, time, i));
   if (visible(WELL.x - 50, WELL.x + 50, L, R)) drawWell(ctx, time);
-  if (visible(0, 200, L, R)) drawSignpost(ctx);
-  if (visible(0, 60, L, R)) drawFence(ctx, 10, 40);
+  if (visible(0, 260, L, R)) drawSignpost(ctx);
+  if (visible(0, 140, L, R)) drawHarbourGate(ctx, HARBOUR_GATE_X, GROUND_Y, time); // the way down to the harbour
   if (visible(FIELD_GATE_X - 120, WORLD_W, L, R)) drawFieldGate(ctx, FIELD_GATE_X, GROUND_Y, time); // the way to the Wildwood
   for (const x of LAMPS) if (visible(x - 60, x + 60, L, R)) drawLamp(ctx, x, time);
   if (visible(HALL_DOOR_X - 220, HALL_DOOR_X + 220, L, R)) drawHallOutside(ctx, HALL_DOOR_X, GROUND_Y, time);

@@ -3,8 +3,9 @@
 **Tone:** cozy and storybook. Puns welcome. Danger is light, and fainting is a bump on the head.
 
 ## Landscape, west to east
-1. **Greenhollow Harbour** `[proposed, new room]`: piers, a stubby lighthouse with its lamp unlit for
-   ages, fishing boats, and the ferry. It's at the village's west end, past the furniture store. You can
+1. **Greenhollow Harbour** (exists): piers, a stubby lighthouse with its lamp unlit for
+   ages (its keeper, Granny Wicks, moved inland), fishing boats, and the ferry Puddle Jumper, laid up
+   because Captain Brine won't sail with a dark light behind him. It's at the village's west end, past the furniture store. You can
    see Frostpeak's aurora faintly to the north at dusk.
 2. **Slimeville** (exists): the bay village round the old apple tree. Bakery, Inn, Merchant Pip, the
    Lecture Hall, the Music House, the Museum.
@@ -20,7 +21,7 @@
 
 ## People
 Slimeville's villagers (the real players), Elder Mochi, Curator Clio, Merchant Pip, the baker, the
-innkeeper. Proposed: **Captain Brine**, an old ferry captain who mutters about the sea "stretching"
+innkeeper. **Captain Brine** (exists, AI), the old ferry captain who mutters about the sea "stretching"
 (see `../../characters/people.md`).
 
 ## Story role

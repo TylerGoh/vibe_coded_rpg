@@ -17,6 +17,7 @@ export const GROUND_Y = 450;
 import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLANDS_DOOR_X, HIGHLAND_PLATFORMS, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS } from './rpg.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
+export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
 export { FIELD };
 
 export const PLATFORMS = [
@@ -40,6 +41,9 @@ export const MUSEUM_EXIT_X = 120;
 export const HOME_DOOR_X = 1515; // the mushroom house's door, in the village: everyone's own front door
 export const STORE_DOOR_X = 621; // the furniture store's door, in the village (docs/places/houses.md)
 export const STORE_EXIT_X = 90;
+export const HARBOUR_GATE_X = 60; // the way down to the harbour, at the village's west end
+export const HARBOUR_W = 2400;
+export const HARBOUR_EXIT_X = HARBOUR_W - 90; // back up to the village, at the harbour's east end
 export const STORE_W = 7400; // the showroom: every piece of FURNITURE on display (src/shared/house.js DISPLAY)
 
 // ——— personal houses (docs/places/houses.md) ———
@@ -105,6 +109,7 @@ export const ROOMS = [
       { x: HOME_DOOR_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
       { x: STORE_DOOR_X, w: 60, to: STORE, toX: STORE_EXIT_X, label: 'enter the furniture store' },
       { x: FIELD_GATE_X, w: 80, to: FIELD, toX: FIELD_EXIT_X, label: 'head out to the Wildwood (mobs!)' },
+      { x: HARBOUR_GATE_X, w: 70, to: HARBOUR, toX: HARBOUR_EXIT_X, label: 'walk down to Greenhollow Harbour' },
     ],
   },
   {
@@ -180,6 +185,18 @@ ROOMS[STORE] = {
 ROOMS[CITADEL] = {
   name: 'The Aether Citadel', width: CITADEL_W, ground: FIELD_GROUND, platforms: CITADEL_PLATFORMS,
   doors: [{ x: CITADEL_EXIT_X, w: 80, to: CALDERA, toX: CITADEL_DOOR_X, label: 'ride the skylift down to the Caldera' }, ...denDoors(CITADEL)],
+};
+// room 19: Greenhollow Harbour. Its platforms are crates, the old keeper's hut and the lighthouse gallery
+// (drawn by src/harbour.js, which reads them from here). The ferry is moored but laid up: no door to it.
+export const HARBOUR_PLATFORMS = [
+  { x: 640, y: 372, w: 110, kind: 'crates' },
+  { x: 470, y: 288, w: 130, kind: 'hut' },
+  { x: 230, y: 198, w: 170, kind: 'gallery' },
+  { x: 1920, y: 380, w: 96, kind: 'crates' },
+];
+ROOMS[HARBOUR] = {
+  name: 'Greenhollow Harbour', width: HARBOUR_W, ground: 470, platforms: HARBOUR_PLATFORMS,
+  doors: [{ x: HARBOUR_EXIT_X, w: 80, to: VILLAGE, toX: HARBOUR_GATE_X, label: 'walk back up to Slimeville' }],
 };
 const houses = new Map(); // room id → its room definition
 // The room definition for any room id, houses included (undefined for an id that isn't a room)
@@ -384,6 +401,7 @@ export const cleanHue = (h) => ((Math.round(Number(h)) % 360) + 360) % 360 || 0;
 // its room at x; walk within `range` and press E. `accessory` is how src/slime.js dresses them.
 export const NPCS = [
   { id: 'mochi', name: 'Elder Mochi', short: 'Mochi', room: VILLAGE, x: 2075, hue: 95, range: 150, size: 1.3, accessory: 'elder', faces: -1, blurb: 'the oldest slime in Slimeville' },
+  { id: 'brine', name: 'Captain Brine', short: 'Brine', room: HARBOUR, x: 1180, hue: 205, range: 130, size: 1.25, accessory: 'captain', faces: 1, blurb: 'master of the Frostpeak ferry, laid up in harbour' },
   { id: 'clio', name: 'Curator Clio', short: 'Clio', room: MUSEUM, x: 300, hue: 32, range: 80, size: 1.15, accessory: 'curator', faces: 1, blurb: 'historian of the Grand Museum · ask from anywhere in the museum', anywhere: true },
 ];
 export const NPC = NPCS[0]; // Elder Mochi
@@ -401,5 +419,6 @@ export const SLAP_COOLDOWN_MS = 350;
 export const SLAP_QUIPS = {
   clio: ['Excuse me! This is a museum!', 'Ow! Please don\'t touch the curator.', 'History will remember that, you know.', 'Hmph! Security!'],
   mochi: ['Oof! Respect your elders, young one!', 'Hmph! My poor old jelly…', 'Ow! What was that for?', 'Goodness! Is that how they greet folks nowadays?'],
+  brine: ['Oi! Mind the captain, landlubber!', 'Arr, I\'ve been hit by bigger waves than you.', 'Blistering barnacles!', 'Is that how they greet sailors these days?'],
   prof: ["Ouch! That's not on the syllabus!", 'Detention!', 'Hey! Please backpropagate that.', 'Ow — I felt that in every layer!'],
 };

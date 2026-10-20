@@ -47,7 +47,9 @@ touches (see the index at the bottom) before changing code. Every source file na
 - User systemd unit `rpg.service` (source `deploy/rpg.service`) runs `npm run build` then
   `node server/index.js`. **Deploy = `systemctl --user restart rpg`** (rebuilds). Logs:
   `journalctl --user -u rpg` (the startup log says whether TURN and DeepSeek are on). Restarting drops
-  everyone for a few seconds; clients reconnect. Unit changes: `install -m 644 deploy/rpg.service
+  everyone for a few seconds; clients reconnect where they stood (owner: small deploys mustn't reset
+  positions; `savePositions` in `server/index.js`). For a game-breaking change, create an empty
+  `reset-positions` file next to the accounts DB before restarting and everyone starts at spawn. Unit changes: `install -m 644 deploy/rpg.service
   ~/.config/systemd/user/` + `daemon-reload`.
 - Git: `~/rpg` is a repo, remote `origin` = github.com:TylerGoh/vibe_coded_rpg (branch `main`). **Always
   commit and push after every deploy** without asking (owner's standing instruction: it's a low-stakes
@@ -85,7 +87,13 @@ touches (see the index at the bottom) before changing code. Every source file na
 ## Story
 `story/` is the narrative bible (world, geography, characters, arcs). The game is being reshaped to fit
 it: read `story/README.md` before changing places, travel, NPC personas, boss names or flavor text, and
-start story work from `story/roadmap.md`.
+start story work from `story/roadmap.md`. Owner rules for story work:
+- **Built in phases; the next one shows but doesn't open.** A place the next phase delivers (the ferry, a
+  crossing, an island) is visible but blocked by an in-world reason (a barricade, a laid-up ship, a
+  character's refusal), never a "coming soon" sign and never a stand-in door into an existing area.
+- **NPCs serve a purpose AND are chattable**, like Elder Mochi: a DeepSeek persona with per-player memory
+  (`docs/social/ai-characters.md`). Keep what each one knows of the lore narrow (usually canon Tier 0 plus
+  their trade) so the story stays hidden, and lean into their personal lives instead.
 
 ## Code map (one line per area; the docs go deeper)
 - `src/shared/`: code shared by client and server. `sim.js` (rooms, platforms, doors, physics `step()`,
@@ -115,11 +123,12 @@ start story work from `story/roadmap.md`.
 | [docs/economy.md](docs/economy.md) | ANY gold / EXP / price / drop / scaling change: the balance sheet, `npm run economy` |
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |
 | [docs/social/chat.md](docs/social/chat.md) | the chatbox, public chat, private messages, chat speech bubbles |
-| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Curator Clio, DeepSeek, NPC memory |
+| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, DeepSeek, NPC memory, how much lore a character knows |
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
 | [docs/places/piano.md](docs/places/piano.md) | the Music House floor piano |
 | [docs/places/museum.md](docs/places/museum.md) | the history museum and its content |
 | [docs/places/houses.md](docs/places/houses.md) | personal houses, the furniture store, the backyard, expanding, decorating, the Players panel, invites |
+| [docs/places/harbour.md](docs/places/harbour.md) | Greenhollow Harbour, the lighthouse, the laid-up ferry, Captain Brine, the far-off islands drawn in every sky |
 | [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |
 | [docs/ui/mobile.md](docs/ui/mobile.md) | touch controls, phone layout, fullscreen, home-screen mode |
 | [docs/ui/hints.md](docs/ui/hints.md) | the on-screen prompts above your slime, any new interaction |

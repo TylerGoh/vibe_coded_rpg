@@ -1,6 +1,7 @@
 // Docs: docs/art.md
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { rgba } from './environment.js';
+import { drawDistantIslands } from './distant.js';
 
 const TILE = 1600; // every layer repeats seamlessly every TILE px
 const TOP = 150; // nothing in the scenery layers reaches above this
@@ -498,7 +499,8 @@ export function drawVignette(ctx, env) {
   ctx.fillRect(0, 0, W, H);
 }
 
-export function drawBackground(ctx, scroll, time, env) {
+// roomW: the room's width, for panning the far-off islands (src/distant.js) as you walk
+export function drawBackground(ctx, scroll, time, env, roomW = 5100) {
   const sky = ctx.createLinearGradient(0, 0, 0, H);
   sky.addColorStop(0, hazed(env.skyTop, env.skyHaze));
   sky.addColorStop(0.55, hazed(env.skyMid, env.skyHaze));
@@ -519,6 +521,9 @@ export function drawBackground(ctx, scroll, time, env) {
   ctx.fillStyle = hazed(env.sunColor, 2);
   circle(ctx, sx, sy, 40);
   drawSunFace(ctx, sx, sy, env.sad, env.fury, time);
+
+  // the other islands, far out over the sea, peeking over the hills
+  drawDistantIslands(ctx, { from: 'green', scroll, roomW, time, horizon: 330, haze: hazed(env.skyBottom, env.skyHaze + 1), fade: 0.55, scale: 0.72, sky: 230 });
 
   const cloudOff = (scroll * 0.05 + time * 6) % TILE;
   const cloudColor = hazed(env.cloudColor, 2);

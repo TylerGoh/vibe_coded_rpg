@@ -6,7 +6,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 ## Rooms
 | room | id | doors (press E) |
 |---|---|---|
-| Slimeville (village) | 0 `VILLAGE` | Furniture store · your house · Lecture Hall · Music House · Museum · Wildwood gate (east end) |
+| Slimeville (village) | 0 `VILLAGE` | Harbour gate (west end) · Furniture store · your house · Lecture Hall · Music House · Museum · Wildwood gate (east end) |
 | Lecture Hall | 1 `HALL` | exit · Tutoring Room (side door) |
 | Music House (piano) | 2 `PIANO` | exit |
 | Grand Museum of History | 3 `MUSEUM` | exit · wing portals in the lobby (`wingPortalX`) · back-to-lobby door at each wing (`wingReturnX`) |
@@ -15,6 +15,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Frostpeak Highlands | 9 `HIGHLANDS` | Wildwood · 2 dens · Caldera pass |
 | Emberdeep Caldera | 12 `CALDERA` | Highlands · 2 dens · Citadel skylift |
 | Aether Citadel | 13 `CITADEL` | Caldera · 2 dens |
+| Greenhollow Harbour | 19 `HARBOUR` | back up to the village (east end); the ferry has no door yet (`docs/places/harbour.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17 | exit, back to the stage it's in (`DENS[].from`) |
 | Personal houses | `HOUSE_BASE` and up, one per account | out to the village (`docs/places/houses.md`) |
@@ -24,7 +25,7 @@ Look rooms up with `roomDef(room)`, not `ROOMS[room]`: houses aren't in `ROOMS`.
 Stages and dens: `docs/combat/stages.md`, `docs/combat/bosses.md`. No level gate on any door.
 
 ## The village
-- Spawn at `SPAWN_X`. West to east: the furniture store (`STORE_DOOR_X`; a floating island was moved off
+- Spawn at `SPAWN_X`. West to east: the harbour gate (`HARBOUR_GATE_X`), the furniture store (`STORE_DOOR_X`; a floating island was moved off
   its roof), Bakery, mushroom house (sign "Home": its door, `HOME_DOOR_X`, leads
   into your own house), the big tree with decks and Elder Mochi, the
   Inn, Merchant Pip's stall (`SHOP_X`), then the Lecture Hall, Music House and Museum doors and the gate

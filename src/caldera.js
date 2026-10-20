@@ -7,6 +7,7 @@
 // Also here: the pass down from the Highlands (drawCalderaPass) and the Caldera's four mobs.
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { CALDERA_W, CALDERA_EXIT_X, CALDERA_ZONES, CALDERA_PLATFORMS, CALDERA, DENS, FIELD_GROUND, HIGHLANDS_W, CITADEL_DOOR_X } from './shared/rpg.js';
+import { drawDistantIslands } from './distant.js';
 
 const GROUND = FIELD_GROUND;
 const INK = '#5a3448';
@@ -291,6 +292,8 @@ function drawSky(ctx, camX, time, k) {
     }
   }
   ctx.globalAlpha = 1;
+  // the other islands, far north over the sea (behind the volcano and the hills)
+  drawDistantIslands(ctx, { from: 'ember', scroll: camX, roomW: CALDERA_W, time, horizon: 345, haze: mix('#ffdcaa', '#c24c6a', k), fade: 0.55, scale: 0.68, night: k, sky: 250 });
   drawVolcano(ctx, 690 - camX * 0.06, time, k);
   // rolling hills / mesas, far to near
   for (const Rg of RANGES) {

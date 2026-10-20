@@ -95,10 +95,11 @@
 // against `a`; everyone else is interpolated a few ticks in the past.
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join, normalize, resolve } from 'node:path';
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { dirname, extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
-import { TICK_RATE, newState, step, pack, KEY_MASK, SPAWN_X, NPCS, NPC_TEXT_MAX, cleanText, VILLAGE, HALL, TUTOR, MUSEUM, MUSEUM_WINGS, EXHIBIT_SPACING, exhibitX, ROOMS, PROF_X, SLAP_REACH, SLAP_COOLDOWN_MS, SLAP_QUIPS, PIANO, pianoKeyAt, roomDef } from '../src/shared/sim.js';
+import { TICK_RATE, newState, step, pack, KEY_MASK, SPAWN_X, NPCS, NPC_TEXT_MAX, cleanText, VILLAGE, HALL, TUTOR, MUSEUM, MUSEUM_WINGS, EXHIBIT_SPACING, exhibitX, ROOMS, PROF_X, SLAP_REACH, SLAP_COOLDOWN_MS, SLAP_QUIPS, PIANO, pianoKeyAt, roomDef, isHouse, HOME_DOOR_X } from '../src/shared/sim.js';
 import { createLecture } from './lecture.js';
 import { createTutor } from './tutor.js';
 import { createVote } from './vote.js';
@@ -211,6 +212,51 @@ function broadcast(msg, except) {
 const rpg = createRpg({ dbPath: accounts.path, players, send, toRoom, broadcast });
 const chat = createChat({ dbPath: accounts.path, players, send, users: () => accounts.list().map((a) => a.user) });
 const houses = createHouses({ dbPath: accounts.path, players, send, toRoom, pay: rpg.pay, give: rpg.give });
+
+// Where everyone stood when the server stopped, so a deploy doesn't send them all back to spawn
+// (owner's ask). Written on shutdown, read once at startup; an account's first login within POS_KEEP_MS
+// puts its slime back. House room ids change every restart, so a house is saved as "home" (your own)
+// or as its front door. A game-breaking deploy: `touch data/reset-positions` first and nobody is moved.
+const POS_FILE = join(dirname(accounts.path), 'positions.json');
+const POS_RESET = join(dirname(accounts.path), 'reset-positions');
+const POS_KEEP_MS = 15 * 60_000;
+const savedPos = new Map();
+try {
+  if (existsSync(POS_RESET)) unlinkSync(POS_RESET);
+  else if (existsSync(POS_FILE)) {
+    const { at, pos } = JSON.parse(readFileSync(POS_FILE, 'utf8'));
+    if (Date.now() - at < POS_KEEP_MS) for (const [user, v] of Object.entries(pos)) savedPos.set(user, v);
+  }
+  if (existsSync(POS_FILE)) unlinkSync(POS_FILE);
+} catch (e) {
+  console.error('could not read saved positions', e);
+}
+function savePositions() {
+  const pos = {};
+  for (const p of players.values()) {
+    if (!p.joined) continue;
+    const { room, x } = p.state;
+    if (!isHouse(room)) pos[p.name] = { room, x };
+    else pos[p.name] = room === p.state.home ? { room: 'home', x } : { room: VILLAGE, x: HOME_DOOR_X };
+  }
+  try {
+    writeFileSync(POS_FILE, JSON.stringify({ at: Date.now(), pos }));
+  } catch (e) {
+    console.error('could not save positions', e);
+  }
+}
+// Put a slime back where it stood before the restart (at most once per account)
+function restorePos(user, state) {
+  const v = savedPos.get(user);
+  if (!v) return;
+  savedPos.delete(user);
+  const room = v.room === 'home' ? state.home : v.room;
+  const r = Number.isInteger(room) && roomDef(room);
+  if (!r) return;
+  state.room = room;
+  state.x = Math.max(20, Math.min(r.width - 20, Number(v.x) || 0));
+  state.y = r.ground;
+}
 
 wss.on('connection', (ws) => {
   if (players.size >= MAX_PLAYERS) {
@@ -433,6 +479,7 @@ async function login(id, p, m) {
   p.hue = acc.hue;
   p.state = state;
   state.home = houses.homeOf(acc.user);
+  if (!old && !process.env.TEST_SPAWN) restorePos(acc.user, state);
   if (old) p.invites = old.invites;
   if (!p.rpg) rpg.load(p);
   send(p.ws, { t: 'welcome', id, tick, rate: TICK_RATE, ice, players: [...players].filter(([, q]) => q.joined).map(([i, q]) => info(q, i)), casts: [...players].filter(([, q]) => q.joined && q.cast).map(([i]) => i) });
@@ -441,12 +488,14 @@ async function login(id, p, m) {
   houses.sendOwned(p);
   chat.sendLog(p);
   rpg.entered(p);
+  houses.entered(p);
 }
 
 // Save everyone's character before a restart (deploys restart the service)
 for (const sig of ['SIGTERM', 'SIGINT']) {
   process.on(sig, () => {
     for (const p of players.values()) if (p.joined) rpg.save(p);
+    savePositions();
     process.exit(0);
   });
 }
