@@ -20,9 +20,13 @@ owner's direction (next section) is settled.
   worth chatting with. Don't add quests back in another form.
 - **Don't move on to the next island until this one is fleshed out.** It doesn't all ship at once.
 - **Existing characters keep their levels and gear.** Today's mobs, bosses and gear are **legacy units**:
-  their numbers stay as they are, and their stat blocks and brains (`ai` in `MOBS`) can be reused, re-themed,
-  to fill the new bands. The legacy Emberdeep and Citadel stages stay open as they are for high-level
-  players until those islands get their own depth pass, which brings harder bosses that fit their themes.
+  their stat blocks and brains (`ai` in `MOBS`) can be reused, re-themed, to fill the new bands. The
+  later islands' stages are already in the game and tied into content, so they stay open.
+- **Once Greenhollow's new mobs cover the old levels, the later islands move up** (owner, 2026-10-20):
+  their mobs and bosses are raised to their island's new band (**the rebalance**, below). Loot follows:
+  the gear players already own stays exactly as it is and is marked **Legacy**; the raised mobs and bosses
+  drop a **new copy** of each item with stats scaled to the new level. Then each island's own depth pass
+  adds harder bosses that fit its theme on top.
 
 ## What "deep" means: the checklist for calling an island done
 1. **Every 5-level slice of its band has at least two places to farm**, in different branches, so a
@@ -55,8 +59,48 @@ Greenhollow wildlife (new name and art, same `ai`, a stat block near the legacy 
 | sentry drone (low laser) | **glowworm** throwing a beam along the floor (Glowroot Hollow) |
 | aether knight (blinks behind you) | **thorn stalker** (the Thornheart) |
 | chrono wraith (phases out) | **will-o'-wisp**, **drowned lamp** (Wreck Cave) |
-The legacy mobs themselves stay where they are. New mobs are appended to `MOBS` (kinds go over the wire as
-their index).
+The legacy mobs themselves stay where they are (until the rebalance raises them). New mobs are appended to
+`MOBS` (kinds go over the wire as their index).
+
+**Freeze the legacy curve first (in G0).** The rebalance changes the legacy mobs' and gear's numbers,
+and new mobs and gear are priced against today's. So G0 writes today's numbers down as reference curves
+in `scripts/economy.mjs`: mob HP, attack, EXP and gold by level, and sword ATK and helmet DEF by level,
+fitted to today's `MOBS` and gear and extended past Lv 80 along the same shape. Every new or rebalanced
+mob and item is then checked against those curves (a new check in `--check`), not against whatever
+the other mobs happen to be.
+
+## The rebalance: raising the later islands `[default design]`
+**When:** after G5, when Greenhollow covers Lv 1–60 and nothing is lost by raising the old stages. (It
+can't come earlier: until then Frostpeak's 13–27 mobs are the only content at those levels besides the
+Wildwood.) It's one session, before Frostpeak's depth pass.
+
+**New bands** (Frostpeak's is the owner's; the rest follow the same overlap, `[proposed]`): Frostpeak
+40–100, Emberdeep about 90–150, the Citadel about 140–200. Each island's **legacy mobs and bosses go to
+the bottom of its new band**, keeping their order and spacing (Frostpeak's ridge and summit become
+roughly 40–60, Emberdeep's stage roughly 90–115, the Citadel's roughly 140–170). The top of each band is
+left for that island's depth pass.
+
+**Mobs:** the same `MOBS` entries and kind ids, only the numbers change (`lvl`, `hp`, `atk`, `exp`,
+drops' coin ranges), read off the frozen curve at the new level. Zone `lvl` labels and door labels
+change with them (the ferry's "Lv 13+", the summit's "Lv 28+", the skylift's "Lv 50+"). Bosses likewise,
+den by den.
+
+**Loot: legacy copies, no save migration.** Saved bags and gear hold item ids, so:
+- the **existing id stays the legacy item**: same stats, same enhancements and scrolls on it, its name
+  gets " (Legacy)" (or a Legacy tag in the item card), and it's no longer dropped or sold anywhere;
+- a **new id** (e.g. `magma_maul` → `magma_maul_n` or a fresh name in the island's register) is the copy
+  with stats scaled to the new level along the frozen gear curve, and price/sell value scaled to match;
+  the raised mob's or boss's drop table (and any shop stock, like Runa's hood and harpoon, with new
+  `aim`s) switches to the new id.
+- Only gear needs copies. Potions, scrolls, herbs and materials keep their ids; check whether any
+  material's sell price should scale with its mob (the economy sheet's gold-per-EXP check will say).
+- Legacy items keep working forever and can still be scrolled; they just stop being the best thing at
+  their old level as Greenhollow's own gear fills in.
+
+**Checks:** `npm run economy` before and after (paste the moves), every raised mob and new copy on its
+curve, houses' and shops' `aim`s still green, `docs/combat/items.md` gains a "Legacy items" note, and
+`docs/combat/stages.md` the new bands. High-level players (Lv 80–369 today) simply find the old stages
+worth farming again.
 
 ## Greenhollow's map `[proposed]`
 ```
@@ -133,9 +177,9 @@ story into `../characters/bosses.md`.
 ## Numbers: how a builder sets them (sensible defaults)
 The code holds the values; these are the rules for choosing them. Always `npm run economy` before and
 after, and keep `--check` green.
-- **New mobs follow the legacy curve.** A new mob at level L takes HP, attack, EXP and gold from the
-  legacy mobs on either side of L (the FAUCETS table), interpolated, then nudged for its gimmick. Kills
-  per level and gold per EXP should land between its legacy neighbours'. Because the curve doesn't
+- **New mobs follow the frozen legacy curve** (made in G0, above). A new mob at level L takes HP,
+  attack, EXP and gold from the curve at L, then is nudged for its gimmick. Kills per level and gold per
+  EXP should land where today's mobs around L have them. Because the curve doesn't
   move, the levelling speed stays the same and **today's house aims** (`HOUSE_SIZES`) and shop aims stay
   valid. Check the PROGRESS table: "farming your own level" will pick the new mobs, and its numbers
   should hardly change.
@@ -150,9 +194,10 @@ after, and keep `--check` green.
     economy script checks it;
   - **mob-drop gear** a little under the trader tier, at low rates;
   - **den gear** a step above, like today's boss gear.
-  Legacy gear is the anchor for power at a level: Briar Greatsword around Lv 12, Frostbite Blade 18,
-  Starforged 25, Magma Maul 36, Phoenix Blade 46, Cog Cleaver 60 (the same for helmets). A Greenhollow
-  item at level L should be about as strong as the legacy item at L, not stronger, so legacy players
+  The frozen gear curve is the anchor for power at a level (it was fitted to today's gear: Briar
+  Greatsword around Lv 12, Frostbite Blade 18, Starforged 25, Magma Maul 36, Phoenix Blade 46, Cog
+  Cleaver 60, the same for helmets). A Greenhollow item at level L should be about as strong as the curve
+  at L, not stronger, so legacy players
   aren't made obsolete and new players aren't stuck. New gear names fit Greenhollow (driftwood,
   shell, oak, root, Keeper stone), never fire or brass.
 - **Potions on the road:** each branch's trader sells the basic potions, so a deep branch isn't a walk
@@ -179,12 +224,14 @@ after, and keep `--check` green.
   the branch graph (drawn from a small data list next to the rooms), each branch with its level band,
   shipped branches drawn and unshipped ones shown blocked, and your pin in the branch you're in. The
   same no-spoilers rule as the World map (`docs/ui/world-map.md`).
-- **The economy sheet** learns elites and field bosses (`docs/economy.md`, `scripts/economy.mjs`).
+- **The economy sheet** learns elites and field bosses, and gets the frozen reference curves for mobs
+  and gear with a check against them (`docs/economy.md`, `scripts/economy.mjs`).
 
 ## Greenhollow phases
 Each is its own session (and a dev copy, per `Agent.md`: these are big features). The order puts the
 systems first, then fills the band from the bottom up.
-- [ ] **G0: systems.** Field bosses, elites, door level labels, the island map. Prove them in the
+- [ ] **G0: systems.** The frozen legacy curves in the economy script, field bosses, elites, door
+      level labels, the island map. Prove them in the
       existing Wildwood (a small field boss in Sprout Meadow, an elite or two in Bramble Woods), and lay
       every branch's blocked entrance (table above) so the island shows what's coming.
 - [ ] **G1: Willowmere and Saltspray Coves** (5–25), Old Snapjaw, the Tidemother, Miller Bun and
@@ -194,19 +241,22 @@ systems first, then fills the band from the bottom up.
 - [ ] **G4: the hard pockets**: Wreck Cave (30–40) and the Thornheart (50–60), elites, the Drowned
       Bosun.
 - [ ] **G5: Keeper's Spine** (45–60) and the Root Warden. Then go through the "deep" checklist above;
-      when it holds, Greenhollow is done and Frostpeak's pass starts.
+      when it holds, Greenhollow is done.
+- [ ] **R: the rebalance** (section above): the later islands' legacy mobs and bosses go up to their
+      new bands, their gear gets scaled new copies, and what players own is marked Legacy. Then
+      Frostpeak's pass starts.
 
-## Legacy loose ends (default: leave them alone until Frostpeak's pass)
-- The ferry's door still says "Lv 13+" and Frostpeak still runs 13–27. Both change in Frostpeak's pass
-  (the ferry's label becomes the new band's start), not during Greenhollow's phases.
-- The pass from Frostpeak's summit down to the legacy Emberdeep stage (Lv 28+) and the skylift to the
-  Citadel stay as they are: they're how high-level players reach legacy content. They go when the
-  atlas's Phase 5 and 6 replace them with the ship and the balloon.
+## Legacy loose ends (default: leave them alone until the rebalance)
+- The ferry's door still says "Lv 13+" and Frostpeak still runs 13–27. Both change in the rebalance
+  (after G5), not during Greenhollow's phases.
+- The pass from Frostpeak's summit down to the legacy Emberdeep stage and the skylift to the Citadel
+  stay (their level labels change in the rebalance): they're how high-level players reach that content.
+  They go when the atlas's Phase 5 and 6 replace them with the ship and the balloon.
 
 ## After Greenhollow
-**Frostpeak's depth pass (40–100)**, the same way: the existing ridge and summit (Lv 13–27, legacy)
-become its easy end, and new branches explore the cold north properly (the fjord coast and its sea
+**Frostpeak's depth pass (40–100)**, the same way: the existing ridge and summit (raised to about
+40–60 by the rebalance) become its easy end, and new branches explore the cold north properly (the fjord coast and its sea
 caves, the glacier, the ice bridge, ice caves, the aurora heights), with harder versions of Glacia's and
 the Wyrm's stories at the top. Before starting it, write its branch map and phases here the way
-Greenhollow's are. Only after that does the atlas's Phase 5 (the south) resume, with Emberdeep re-banded
-above Frostpeak.
+Greenhollow's are. Only after that does the atlas's Phase 5 (the south) resume, with Emberdeep
+already re-banded above Frostpeak by the rebalance.
