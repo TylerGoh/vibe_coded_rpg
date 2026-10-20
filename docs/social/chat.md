@@ -15,7 +15,8 @@ in `src/players.js`.
   style, and in the corner feed while the box is closed.
 
 ## How it works
-- Opening: Enter (or `/`, which starts a command), or the Chat button in `#hudbtns` (no key label on it: keys are on the Esc menu's Controls page). The box stays
+- Opening: Enter (or `/`, which starts a command), or the Chat button in `#hudbtns`, which is **touch only** (owner, 2026-10-20: no chat pill on
+  desktop; keys are on the Esc menu's Controls page). The box stays
   up while you walk: an empty Enter hands the keys back to the game, Enter again types, Esc closes it. It
   isn't an "overlay", so the touch pad stays unless you're typing (any focused INPUT hides it).
 - Tabs: Everyone, then one per conversation (most recent first). Clicking a name in the log or Message in
@@ -26,7 +27,8 @@ in `src/players.js`.
   Old lines are pruned (`KEEP_PUBLIC`, `KEEP_PRIVATE_DAYS`).
 - Unread private lines are counted against the last line id you saw per conversation, kept in
   localStorage per account (`slimeville-chat-<name>`); the server keeps no read state. Unread public
-  lines are only counted for this session. The Chat button shows the total and turns pink for private ones.
+  lines are only counted for this session. The Chat button (phones) shows the total and turns pink for private ones; on desktop the box's
+  tabs show them, and new lines appear in the corner feed.
 - The server rate-limits each player (`BURST`, `PER_SEC`), cleans text with `cleanText`, and checks the
   recipient is a real account. The sender's own line comes back from the server (no local echo), so
   what you see is what was stored.

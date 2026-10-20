@@ -934,7 +934,7 @@ function update(realDt) {
   tutor.update(dt, online() && room === TUTOR);
   players.showCard();
   chat.update(dt);
-  chat.button.hidden = !online();
+  chat.button.hidden = !online() || !TOUCH; // phones only: keyboards open the chat with Enter (owner's call)
   whoButton.hidden = !online();
   hudButtons.classList.toggle('combat', isCombat(room)); // below the HP / MP panel there
   decoButton.hidden = !online() || !houses.isMine(room) || houses.editing;
