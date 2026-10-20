@@ -15,7 +15,7 @@ and easy pockets, field bosses, no quests (owner, explicit), and the levelling s
 legacy units (kept, reusable). New islands (atlas Phase 5 on) wait until Greenhollow, then Frostpeak,
 are fleshed out. **The plan and its phases: `world/island-depth.md`.**
 - [ ] G0: systems (field bosses and elites, door level labels, the island map)
-- [ ] G1-G4: Greenhollow's branches, bottom of the band up
+- [ ] G1-G5: Greenhollow's branches, bottom of the band up
 - [ ] Frostpeak's depth pass (40-100)
 
 ## 1. Geography (the owner's top complaint: the islands are too close)

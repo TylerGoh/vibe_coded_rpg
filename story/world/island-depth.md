@@ -60,7 +60,7 @@ their index).
 
 ## Greenhollow's map `[proposed]`
 ```
-                              [Keeper's Spine 45-60] -- the Root Warden (capstone)
+                              [Keeper's Spine 45-60] -- the Root Warden (capstone den)
                                         |
                               [Old Oak Canopy 25-40]
                                         |  climb up from Bramble Woods
@@ -70,57 +70,143 @@ their index).
     |                                           |
  [Wreck Cave 30-40] hard                     [Glowroot Hollow 40-50] hard
 ```
-The existing Wildwood (1–12) stays as the main trail's start, untouched.
+The existing Wildwood (1–12) stays as the main trail's start, untouched. Every bracket is its own combat
+room (`ROOMS`, `STAGES`, `COMBAT_ROOMS`, its own zone list, art file and music scene), with room ids
+taken from the next free numbers below `HOUSE_BASE`.
+
+| branch | band | way in (rough spot: check dens, plaques and doors already there) | blocked until it ships by |
+|---|---|---|---|
+| Willowmere | 5–15 | a brook path north off Sprout Meadow, around x 900 in the Wildwood | the footbridge over the brook, washed out |
+| Saltspray Coves | 10–25 | the shore path off the harbour's west end, past the lighthouse | a rockfall across the shore path |
+| the Mycelium Deep | 15–35 | a hollow stump in Mushroom Grove, around x 2400 | the stump's hole, choked with roots |
+| Glowroot Hollow | 40–50 | the Deep's far end | ships with the Deep (no block needed) |
+| Old Oak Canopy | 25–40 | a giant oak's rope ladder in Bramble Woods, before the ruins (around x 3400) | the ladder's rungs rotted through |
+| Wreck Cave | 30–40 | the Coves' far end | the cave mouth, flooded to the roof |
+| Keeper's Spine | 45–60 | the Canopy's top end | a fallen trunk across the high path |
+| the Thornheart | 50–60 | a gap in the briar in the mob-free stretch near the Wildwood's east end (around x 4900, past the bramblehogs' strip) | a solid wall of thorns |
 
 - **Willowmere** (easy pocket and branch, 5–15): a pond and slow river north of the meadow, willows,
   reeds and a mill. Gloop snails, dragonflies, frogs; fishing; riverside herbs. **Field boss: Old
-  Snapjaw**, a huge pond turtle who surfaces now and then. People: **Miller Bun** (AI: runs the mill,
-  grumbles that the eels eat the bread, sells flour-based snacks).
+  Snapjaw** (~Lv 15), a huge pond turtle who surfaces now and then. People: **Miller Bun** (AI: runs the
+  mill, grumbles that the eels eat the bread, sells potions and simple gear).
 - **Saltspray Coves** (branch, 10–25): south from the harbour along the shore. Tide pools, sea stacks,
   gull rookeries. Rock crabs, storm gulls, tide jellies. People: **Beachcomber Moss** (AI: collects things
-  the sea brings in, some of them Keeper-made, a light Tier 1 thread). Den: **the Tidemother** `[slot]`.
-  - **Wreck Cave** (hard pocket, 30–40): a sea cave at the cove's end, a wreck in it, drowned lamps.
+  the sea brings in, some of them Keeper-made, a light Tier 1 thread; trades). Den: **the Tidemother**
+  (~Lv 25).
+  - **Wreck Cave** (hard pocket, 30–40): a sea cave at the cove's end, a wreck in it, drowned lamps,
+    elites. Optional field boss: **the Drowned Bosun**.
 - **The Mycelium Deep** (branch, 15–35): down through a hollow stump in Mushroom Grove. The glowing
   threads seen above are thick roots down here, and they run *off toward the sea* (canon: the mycelium
-  net runs under the sea). Puffcaps, puffballs, cave bats. Den: **the Sporelord** `[slot]`.
-  - **Glowroot Hollow** (hard pocket, 40–50): the deepest cave, where the threads knot. Glowworms.
-- **Old Oak Canopy** (branch, 25–40): climb up from Bramble Woods into the treetops. A vertical room:
-  branches, rope bridges, hollow-trunk ladders. Squirrels, owls, wasp nests. A treehouse camp with
-  **Ranger Acorn** `[name proposed]` (AI: watches the woods, knows every nest). Field boss: **the Hornet Queen**.
+  net runs under the sea). Puffcaps, puffballs, cave bats. Den: **the Knotmole** (~Lv 35).
+  - **Glowroot Hollow** (hard pocket, 40–50): the deepest cave, where the threads knot. Glowworms, elites.
+- **Old Oak Canopy** (branch, 25–40): up from Bramble Woods into the treetops. Squirrels, owls, wasp
+  nests. A treehouse camp with **Ranger Acorn** `[name proposed]` (AI: watches the woods, knows every
+  nest; trades). Field boss: **the Hornet Queen** (~Lv 38). **Built as a wide room, not a tall one:**
+  rooms have a width and a fixed ground and the camera doesn't scroll up, so the "height" is layered
+  platforms (branches, rope bridges) filling the screen above a forest floor, and the art (trunks running
+  off the top, sky through leaves) sells it. A vertical camera is its own `step()`/camera project; don't
+  start it inside G3.
 - **Keeper's Spine** (the heart, 45–60): the island's ridge above the canopy, bare stone and wind, the
-  biggest Keeper ruins on the island (the Waystone network starts here). Moss turtles, stone sentinels.
-  - **The Thornheart** (hard pocket, 50–60): the briar's root, thorn stalkers.
-  - **Capstone: the Root Warden** `[proposed]`: a Keeper guardian the roots grew through, still
-    guarding a sealed gate beside the Root Stone. It holds on to its post (the theme); beaten, it lets
-    the roots have it. Ties to the Heartroot and the apple tree (`../characters/mochi-and-chronos.md`).
+  biggest Keeper ruins on the island. Moss turtles, stone sentinels.
+  - **The Thornheart** (hard pocket, 50–60): the briar's root, thorn stalkers, elites.
+  - **Capstone den: the Root Warden** (~Lv 60).
 
-Each branch's entrance follows the owner's rule between phases: until it ships, its way in is visible
-but blocked in-world (the mill bridge washed out, the stump's hole choked with roots, the tide in over
-the cove path), and the update itself lifts it.
+## Bosses: which ones get a story
+**Big bosses get a story; small ones don't** (owner, 2026-10-20). Dens and capstones are big: each has a
+holding-on / letting-go story, lines on entering, at its phase and when freed, and loot that names its
+place (`atlas.md`'s boss rule, `../characters/bosses.md`). **Field bosses and elites are small:** a name,
+a look, a one-line description and a short announcement are enough. When a big boss ships, move its
+story into `../characters/bosses.md`.
+- **The Tidemother** (den, the Coves): a great hermit crab with a shard in her shell who keeps everything
+  the sea washes in and won't let the tide take anything back out. The coves are choked with her hoard
+  and the pools have gone stale. Freed, she lets the tide go out, and the water runs clear again.
+- **The Knotmole** (den, the Deep): an old blind mole who dug down to the warm threads and, with a shard
+  in her paw, tied them into knots to keep the warmth for herself, so the threads stopped carrying anything
+  out to sea. Freed, she untangles them, and the glow runs off under the sea again (a quiet hint that
+  the net links the islands).
+- **The Root Warden** (capstone, the Spine): a Keeper guardian the roots grew through, still guarding a
+  sealed gate beside the Spine's ruins. It holds on to its post long after anyone could give it new
+  orders. Freed, it lets the roots have it and the gate stays shut, but the way past is open. Ties to the
+  Heartroot and the apple tree (`../characters/mochi-and-chronos.md`); keep what it reveals at Tier 1.
+- Small: **Old Snapjaw**, **the Hornet Queen**, **the Drowned Bosun**, and any field boss added later.
+
+## Numbers: how a builder sets them (sensible defaults)
+The code holds the values; these are the rules for choosing them. Always `npm run economy` before and
+after, and keep `--check` green.
+- **New mobs follow the legacy curve.** A new mob at level L takes HP, attack, EXP and gold from the
+  legacy mobs on either side of L (the FAUCETS table), interpolated, then nudged for its gimmick. Kills
+  per level and gold per EXP should land between its legacy neighbours'. Because the curve doesn't
+  move, the levelling speed stays the same and **today's house aims** (`HOUSE_SIZES`) and shop aims stay
+  valid. Check the PROGRESS table: "farming your own level" will pick the new mobs, and its numbers
+  should hardly change.
+- **Elites** reuse a normal mob with multipliers named as constants in the code (more HP, more attack,
+  more EXP and better drops; something like 3× HP, 1.5× attack, 2.5× EXP is a starting point), drawn
+  with a glow. Elites only live in hard pockets.
+- **Field bosses** sit between a branch's mobs and its den: worth a few minutes of farming per kill on
+  the boss table (dens are worth 6–20×). HP scales with players in the room like dens do
+  (`BOSS_HP_PER_PLAYER`).
+- **Gear across 12–60** (today the shop stops at the Crystal Sword, about Lv 12). Each branch adds:
+  - a **trader tier** (sword and helmet) aimed at the branch's middle level, with an `aim` so the
+    economy script checks it;
+  - **mob-drop gear** a little under the trader tier, at low rates;
+  - **den gear** a step above, like today's boss gear.
+  Legacy gear is the anchor for power at a level: Briar Greatsword around Lv 12, Frostbite Blade 18,
+  Starforged 25, Magma Maul 36, Phoenix Blade 46, Cog Cleaver 60 (the same for helmets). A Greenhollow
+  item at level L should be about as strong as the legacy item at L, not stronger, so legacy players
+  aren't made obsolete and new players aren't stuck. New gear names fit Greenhollow (driftwood,
+  shell, oak, root, Keeper stone), never fire or brass.
+- **Potions on the road:** each branch's trader sells the basic potions, so a deep branch isn't a walk
+  back to Pip.
 
 ## Systems the depth needs (built once, used on every island)
-- **Field bosses and elites:** a big mob that spawns in a wilds room on a long timer and roams; elite
-  versions of normal mobs (more HP and damage, a glow, better drops) for the hard pockets.
-- **Level labels on doors** (some exist already: "(Lv 28+)"), and a danger look for hard-pocket doors.
-- **Waystones:** fast travel between the Keeper waystones you've touched (per character). The lore is
-  already in the ruins (the Waystone plaque).
-- **An island map:** the World map page zooms into an island and shows its branches, their level bands
-  and where you are (`docs/ui/world-map.md`).
-- **The economy sheet** learns the new bands, field bosses and elites (`docs/economy.md`).
+- **Field bosses** `[default design]`: an entry in a wilds room's spawns with a long respawn (its own
+  constant, tens of minutes), roaming its strip like other mobs; when it appears, everyone in the room
+  gets a short announcement (chat system line, the hint style in `docs/ui/hints.md`). Loot is shared
+  like a den boss's (one set per kill). No den, no ultimate; one or two moves from the existing boss
+  move set at most.
+- **Elites** `[default design]`: **separate entries appended to `MOBS`** (e.g. a rock-crab elite with
+  `elite: true` and its base mob's art), so nothing changes on the wire (mob kinds already go over it as
+  their index in `MOBS`). The client draws an elite as its base mob plus a glow and a bigger name tag.
+- **Level labels on doors:** every door into a combat room says its band ("Lv 30–40"), as some
+  already do ("(Lv 28+)"); hard-pocket doors also get a danger look (red-tinted sign art, a warning in
+  the label). Mobile shows the same label in its hint.
+- **Waystones** (in G1, not later: fainting deep in a branch walks you back from Slimeville):
+  standing stones in the Keeper style, one in Slimeville, one at each branch's entrance hub and in the
+  Spine. Walk up and press E (a tap on mobile) to attune; it's saved with the character. At any attuned
+  stone, E opens a list of the others and the server moves you there (validated like a door). Respawn
+  stays at towns (`TOWNS`). The lore is already in the ruins (the Waystone plaque).
+- **An island map** `[default design]`: on the World map page, tapping an island opens its own view:
+  the branch graph (drawn from a small data list next to the rooms), each branch with its level band,
+  shipped branches drawn and unshipped ones shown blocked, and your pin in the branch you're in. The
+  same no-spoilers rule as the World map (`docs/ui/world-map.md`).
+- **The economy sheet** learns elites and field bosses (`docs/economy.md`, `scripts/economy.mjs`).
 
 ## Greenhollow phases
-Each is its own session. The order puts the systems first, then fills the band from the bottom up.
-- [ ] **G0: systems.** Field bosses and elites, door level labels, the island map.
-- [ ] **G1: Willowmere and Saltspray Coves** (5–25), Old Snapjaw, Miller Bun and Beachcomber Moss.
-- [ ] **G2: the Mycelium Deep and Glowroot Hollow** (15–50), the Sporelord.
-- [ ] **G3: Old Oak Canopy** (25–40), the Hornet Queen, waystones.
-- [ ] **G4: Keeper's Spine, the Thornheart and Wreck Cave** (30–60), the Root Warden. Check the
-      checklist above; when it holds, Greenhollow is done.
+Each is its own session (and a dev copy, per `Agent.md`: these are big features). The order puts the
+systems first, then fills the band from the bottom up.
+- [ ] **G0: systems.** Field bosses, elites, door level labels, the island map. Prove them in the
+      existing Wildwood (a small field boss in Sprout Meadow, an elite or two in Bramble Woods), and lay
+      every branch's blocked entrance (table above) so the island shows what's coming.
+- [ ] **G1: Willowmere and Saltspray Coves** (5–25), Old Snapjaw, the Tidemother, Miller Bun and
+      Beachcomber Moss, the first gear tiers, and waystones.
+- [ ] **G2: the Mycelium Deep and Glowroot Hollow** (15–50), the Knotmole.
+- [ ] **G3: Old Oak Canopy** (25–40), the Hornet Queen, Ranger Acorn.
+- [ ] **G4: the hard pockets**: Wreck Cave (30–40) and the Thornheart (50–60), elites, the Drowned
+      Bosun.
+- [ ] **G5: Keeper's Spine** (45–60) and the Root Warden. Then go through the "deep" checklist above;
+      when it holds, Greenhollow is done and Frostpeak's pass starts.
+
+## Legacy loose ends (default: leave them alone until Frostpeak's pass)
+- The ferry's door still says "Lv 13+" and Frostpeak still runs 13–27. Both change in Frostpeak's pass
+  (the ferry's label becomes the new band's start), not during Greenhollow's phases.
+- The pass from Frostpeak's summit down to the legacy Emberdeep stage (Lv 28+) and the skylift to the
+  Citadel stay as they are: they're how high-level players reach legacy content. They go when the
+  atlas's Phase 5 and 6 replace them with the ship and the balloon.
 
 ## After Greenhollow
 **Frostpeak's depth pass (40–100)**, the same way: the existing ridge and summit (Lv 13–27, legacy)
 become its easy end, and new branches explore the cold north properly (the fjord coast and its sea
 caves, the glacier, the ice bridge, ice caves, the aurora heights), with harder versions of Glacia's and
-the Wyrm's stories at the top. Until then Frostpeak stays as it is, a little easy for its place in the
-order. Only after that does the atlas's Phase 5 (the south) resume, with Emberdeep re-banded above
-Frostpeak.
+the Wyrm's stories at the top. Before starting it, write its branch map and phases here the way
+Greenhollow's are. Only after that does the atlas's Phase 5 (the south) resume, with Emberdeep re-banded
+above Frostpeak.
