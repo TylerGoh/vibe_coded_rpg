@@ -9,20 +9,21 @@ notice, the canvas "Not a bot!" button, the caught pill), the Accuse button in t
   from the Players panel (Accuse, then Sure? within a few seconds, so it isn't tapped by accident). One
   accusation per accuser per `ACCUSE_COOLDOWN_MS`; a slime with an accusation (or penalty) already on
   them can't be accused again until it's over.
-- The accused has `ACCUSE_WINDOW_MS` to deny it. **Nothing is blocked while it's open** (owner: a bot
-  has to keep botting): no overlay, no card, the touch pad stays.
+- The accused has `ACCUSE_WINDOW_MS` of grace to deny it. **Nothing is blocked while it's open** (owner: a
+  bot has to keep botting): no overlay, no card, the touch pad stays.
 - The deny button **is drawn on the canvas, never HTML** (owner: "should not be element selectable"),
   at a random spot that jumps every `MOVE_MS`, so a script can't find it in the page or click a fixed
   spot. It has no hotkey on purpose. The canvas `pointerdown` checks it (`accuse.tap`) before anything
   else, so tapping it doesn't also slap. On phones it stays in the upper part of the screen, clear of the
   touch controls.
-- Not denied in time: caught. For `BOT_PENALTY_MS` (a liberal pick; the owner gave no length) the
-  caught slime gains no EXP at all, and `BOT_CUT` of what they'd have gained goes to the accuser if
-  they're online (otherwise it's lost). A caught accuser's own skimmed share isn't passed on again, and
+- Not denied in time: caught, **with no end until they deny it** (owner, 2026-10-21: a fixed-length
+  penalty was the first version and was wrong, since it also punished people who were just AFK). The
+  button stays on screen; meanwhile the caught slime gains no EXP at all, and `BOT_CUT` of what they'd
+  have gained goes to the accuser if they're online (otherwise it's lost). Someone back from AFK just
+  hits the button; a bot never does. A caught accuser's own skimmed share isn't passed on again, and
   a caught slime receiving a share gets nothing.
 - Everything is saved on the character (`bot`, `accusedAt`), so logging out doesn't escape it: an
-  accusation that runs out while you're offline catches you when you're back (the penalty is counted
-  from the deadline, so time offline counts too).
+  accusation whose grace runs out while you're offline has you caught when you're back (deny it then).
 
 ## Notes
 - Economy: it only removes EXP (the skim is a fraction of what's lost), so `npm run economy` doesn't

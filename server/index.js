@@ -96,8 +96,8 @@
 //   → {t:'invite', to}  (from a town or your own house, to a player in a town: TOWNS in sim.js)
 //       ← {t:'invite', from, name, ms}  to them · → {t:'visit', host, no?}  yes takes them into the host's house
 // Botting accusations, for fun (server/accuse.js, docs/social/accuse.md): → {t:'accuse', to}  (ACCUSE_COOLDOWN_MS
-//   per accuser) · → {t:'deny'}  ← {t:'accused', by?, ms?, caught?}  your state: open (deny within ms), caught
-//   (ms of penalty left: your EXP goes nowhere but BOT_CUT of it to `by`), or nothing (no `by`)
+//   per accuser) · → {t:'deny'}  ← {t:'accused', by?, ms?, caught?}  your state: open (ms of grace left), caught
+//   (until you deny it, your EXP goes nowhere but BOT_CUT of it to `by`), or nothing (no `by`)
 // Text chat (server/chat.js): one public channel for everyone online, plus private messages by account name
 //   → {t:'chat', text, to?}   ← {t:'chat', id, at, from, to?, text}  public: to everyone · private: to both of you
 //   ← {t:'chat-log', lines:[…same shape]}  at login: recent public lines and your private ones (incl. while offline)

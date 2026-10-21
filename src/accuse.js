@@ -1,7 +1,8 @@
 // Docs: docs/social/accuse.md
 // Being accused of botting (server/accuse.js): a notice at the top and a "Not a bot!" button drawn on the
 // canvas (never HTML, so a bot can't find it in the page) at a random spot that jumps every MOVE_MS. Tapping
-// it denies the accusation. Nothing else is blocked while it's open. Caught, a pill counts the penalty down.
+// it denies the accusation. Nothing else is blocked while it's open. Once the grace time is up you're caught
+// (your EXP is skimmed), and the button stays until you deny it.
 // The Accuse button itself is in the Players panel (src/players.js).
 import { text } from './village.js';
 import { audio } from './audio.js';
@@ -35,7 +36,7 @@ export class Accuse {
     this.movedAt = 0;
   }
   get open() {
-    return !!this.state && !this.state.caught && this.state.until > performance.now();
+    return !!this.state; // (caught too: denying stops the skimming)
   }
 
   // somewhere random, clear of the top-left HUD and (on phones) the touch controls along the bottom
@@ -59,18 +60,16 @@ export class Accuse {
     const s = this.state, t = performance.now();
     if (!s) return;
     const left = s.until - t, cx = this.W / 2;
-    if (left <= 0 && !s.caught) return; // (the server says what happened next)
     const label = s.caught
-      ? `Caught botting: ${s.by} skims your EXP · ${fmt(left)}`
+      ? `Caught botting: ${s.by} skims your EXP until you hit the button`
       : `${s.by} says you're a bot! Find the button to deny it · ${fmt(left)}`;
     ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
     const w = ctx.measureText(label).width + 36;
-    ctx.fillStyle = s.caught ? 'rgba(255,255,255,0.86)' : 'rgba(255,235,240,0.94)';
+    ctx.fillStyle = 'rgba(255,235,240,0.94)';
     ctx.beginPath();
     ctx.roundRect(cx - w / 2, 96, w, 30, 15);
     ctx.fill();
-    text(ctx, label, cx, 111.5, 14, s.caught ? '#8a7aa8' : '#d9465f');
-    if (s.caught) return;
+    text(ctx, label, cx, 111.5, 14, '#d9465f');
     if (!this.btn || t - this.movedAt > MOVE_MS) this.move();
     const b = this.btn, pulse = 1 + Math.sin(t / 160) * 0.03;
     ctx.save();

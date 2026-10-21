@@ -1,17 +1,17 @@
 // Docs: docs/social/accuse.md
 // Accusing someone of botting, for fun: anyone can accuse one slime every ACCUSE_COOLDOWN_MS. The accused
 // gets ACCUSE_WINDOW_MS to deny it (a button the client draws on the canvas, somewhere random, so a bot
-// can't find it in the page). If they don't, they're caught: for BOT_PENALTY_MS they gain no EXP, and
-// BOT_CUT of what they'd have gained goes to the accuser (server/rpg.js gainExp). Nothing is blocked while
-// it's open, so a bot keeps botting. State lives on the character (`bot`, `accusedAt`) and is saved with it.
+// can't find it in the page). If they don't, they're caught: from then on, until they deny it (the button
+// stays), they gain no EXP and BOT_CUT of what they'd have gained goes to the accuser (server/rpg.js gainExp).
+// Nothing is blocked meanwhile, so a bot keeps botting, and someone who was only AFK denies it when back. State lives on the character (`bot`, `accusedAt`) and is saved with it.
 const FAST = Number(process.env.TEST_ACCUSE_FAST) || 1; // tests only: everything this many times faster
 export const ACCUSE_COOLDOWN_MS = (30 * 60_000) / FAST; // per accuser
-export const ACCUSE_WINDOW_MS = (5 * 60_000) / FAST; // time to deny it
-export const BOT_PENALTY_MS = (30 * 60_000) / FAST; // how long a caught slime's EXP goes elsewhere
+export const ACCUSE_WINDOW_MS = (5 * 60_000) / FAST; // grace time to deny it before the skimming starts
 export const BOT_CUT = 0.2; // the accuser's share of it (the rest is lost)
 
-// c.bot: { by, until, caught? }: an open accusation (until = deny deadline) or, caught, the penalty's end
-export const caughtBy = (c, t = Date.now()) => (c?.bot?.caught && c.bot.until > t ? c.bot.by : null);
+// c.bot: { by, until, caught? }: an accusation (until = the grace deadline); caught once that passed, which
+// lasts until it's denied
+export const caughtBy = (c) => (c?.bot?.caught ? c.bot.by : null);
 
 // A saved character's fields, cleaned on load
 export function cleanBot(c) {
@@ -23,25 +23,20 @@ export function cleanBot(c) {
 export function createAccuse({ players, send }) {
   const toast = (p, text) => send(p.ws, { t: 'toast', text });
   const byName = (name) => [...players.values()].find((q) => q.joined && q.rpg && q.name === name);
-  // ← {t:'accused', by?, ms?, caught?}: your state (nothing open when `by` is missing)
+  // ← {t:'accused', by?, ms?, caught?}: your state (nothing open when `by` is missing; ms: grace left)
   const tell = (p) => {
-    const b = p.rpg.bot, ms = b ? Math.max(0, b.until - Date.now()) : 0;
+    const b = p.rpg.bot, ms = b && !b.caught ? Math.max(0, b.until - Date.now()) : 0;
     send(p.ws, b ? { t: 'accused', by: b.by, ms, caught: b.caught } : { t: 'accused' });
   };
 
-  // a deadline passed: an open accusation becomes a penalty, a penalty ends
+  // the grace time ran out without a denial: caught, until they deny it
   function check(p, t = Date.now()) {
     const b = p.rpg?.bot;
-    if (!b || b.until > t) return;
+    if (!b || b.caught || b.until > t) return;
+    p.rpg.bot = { ...b, caught: true };
+    toast(p, `You didn't deny it in time: ${b.by} skims your EXP until you hit "Not a bot!"`);
     const by = byName(b.by);
-    if (!b.caught) {
-      p.rpg.bot = { by: b.by, until: b.until + BOT_PENALTY_MS, caught: true };
-      toast(p, `You didn't deny it: ${b.by} says you're a bot! For ${BOT_PENALTY_MS / 60_000} min your EXP is theirs to skim`);
-      if (by) toast(by, `${p.name} never denied it: you get ${Math.round(BOT_CUT * 100)}% of their EXP for ${BOT_PENALTY_MS / 60_000} min`);
-    } else {
-      p.rpg.bot = null;
-      toast(p, 'Your botting penalty is over: your EXP is your own again');
-    }
+    if (by) toast(by, `${p.name} never denied it: you get ${Math.round(BOT_CUT * 100)}% of their EXP until they do`);
     p.dirty = true;
     tell(p);
   }
@@ -58,18 +53,18 @@ export function createAccuse({ players, send }) {
       p.rpg.accusedAt = Date.now();
       p.dirty = q.dirty = true;
       tell(q);
-      toast(p, `You accused ${q.name} of botting! If they don't deny it in ${ACCUSE_WINDOW_MS / 60_000} min, you get ${Math.round(BOT_CUT * 100)}% of their EXP`);
+      toast(p, `You accused ${q.name} of botting! If they don't deny it in ${ACCUSE_WINDOW_MS / 60_000} min, you get ${Math.round(BOT_CUT * 100)}% of their EXP until they do`);
     },
-    // → {t:'deny'}: not a bot
+    // → {t:'deny'}: not a bot (any time: before the grace runs out, or after, to stop the skimming)
     deny(p) {
       const b = p.rpg?.bot;
-      if (!b || b.caught || b.until <= Date.now()) return;
+      if (!b) return;
       p.rpg.bot = null;
       p.dirty = true;
       tell(p);
-      toast(p, 'Denied! Nobody gets your EXP');
+      toast(p, b.caught ? 'Denied! Your EXP is your own again' : 'Denied! Nobody gets your EXP');
       const by = byName(b.by);
-      if (by) toast(by, `${p.name} denied it: not a bot after all`);
+      if (by) toast(by, b.caught ? `${p.name} is back and denies it: no more skimming` : `${p.name} denied it: not a bot after all`);
     },
     // at login (and after a takeover)
     entered: tell,
