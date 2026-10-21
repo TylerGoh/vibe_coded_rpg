@@ -655,7 +655,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         face();
         m.aiPhase = 'warn';
         m.aiTimer = ai.warn;
-        bossEvent(m, 'beam', { style: 'sentry', bx: Math.round(m.x + m.dir * 20), y0: ai.y0, y1: ai.y1, len: ai.range, warn: ai.warn, dur: ai.dur });
+        bossEvent(m, 'beam', { style: ai.style ?? 'sentry', bx: Math.round(m.x + m.dir * 20), y0: ai.y0, y1: ai.y1, len: ai.range, warn: ai.warn, dur: ai.dur });
         return 0;
       }
       return null;

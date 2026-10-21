@@ -133,6 +133,7 @@ const SHOT = {
   clock: { glow: '255,214,120', core: '#fff8dc', mid: '#ffd36b', rim: '#b98cff' },
   spark: { glow: '130,225,255', core: '#ffffff', mid: '#aef0ff', rim: '#5fc8ff' },
   water: { glow: '150,220,255', core: '#ffffff', mid: '#bfeaff', rim: '#5fb0e0' }, // the snapshrimp's
+  spore: { glow: '210,180,255', core: '#fff6ff', mid: '#e0ccff', rim: '#a888d8' }, // the puffcap's
 };
 function drawShot(ctx, h, now) {
   const p = h.pos;
@@ -208,6 +209,17 @@ function drawShot(ctx, h, now) {
     disc(ctx, -r * 0.8, 0, r * 0.32);
     ctx.fillStyle = st.core;
     disc(ctx, 0, 0, r * 0.22);
+  } else if (h.style === 'spore') {
+    // a soft lumpy ball of lilac spores, shedding specks
+    ctx.fillStyle = st.mid;
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * TAU + now * 3;
+      disc(ctx, p.x + Math.cos(a) * r * 0.45, p.y + Math.sin(a) * r * 0.45, r * 0.62);
+    }
+    ctx.fillStyle = st.core;
+    disc(ctx, p.x - r * 0.25, p.y - r * 0.25, r * 0.35);
+    ctx.fillStyle = 'rgba(230,210,255,0.8)';
+    for (let i = 0; i < 4; i++) disc(ctx, p.x - ux * r * (1.4 + i * 0.5) + Math.sin(now * 13 + i * 2) * 4, p.y - uy * r * (1.4 + i * 0.5) + Math.cos(now * 11 + i) * 4, 1.8);
   } else if (h.style === 'water') {
     // a wobbling bubble of sea water with a shine on it
     const wob = Math.sin(now * 24) * 0.12;
@@ -251,9 +263,11 @@ function drawShot(ctx, h, now) {
 }
 
 // ---- puddle -----------------------------------------------------------------------------------------
-// style: none = burning lava (the magma slug) · 'goo' = a sticky lilac puddle of snail gloop
+// style: none = burning lava (the magma slug) · 'goo' = a sticky lilac puddle of snail gloop · 'glow' = a
+// tangle of sticky glowing thread (the threadweaver's)
 function drawPuddle(ctx, h, now) {
   if (h.style === 'goo') return drawGoo(ctx, h, now);
+  if (h.style === 'glow') return drawGlowThread(ctx, h, now);
   const start = h.warnAt ?? h.at;
   const life = (h.end ?? h.at + 5) - start;
   const age = now - start;
@@ -316,6 +330,29 @@ function drawGoo(ctx, h, now) {
     ctx.fillStyle = `rgba(230,215,250,${0.9 * Math.sin(ph * Math.PI)})`;
     disc(ctx, x + (hash(seed + i * 5) - 0.5) * rx * 1.3 * grow, y - 2 - ph * 5, 2.4 + ph * 1.6);
   }
+  ctx.restore();
+}
+
+function drawGlowThread(ctx, h, now) {
+  const start = h.warnAt ?? h.at, end = h.end ?? h.at + 5, age = now - start;
+  const a = clamp01(age / 0.25) * clamp01((end - now) / Math.min(1.2, (end - start) * 0.4));
+  if (a <= 0) return;
+  const x = h.x, y = h.y ?? GROUND, rx = (h.w || 60) / 2, seed = x * 0.37;
+  ctx.save();
+  ctx.globalAlpha = a;
+  glow(ctx, x, y - 2, rx * 1.2, 14, '170,255,225', 0.5);
+  ctx.strokeStyle = 'rgba(190,255,235,0.9)';
+  ctx.lineWidth = 1.6;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const x0 = x - rx + hash(seed + i) * rx * 2, x1 = x - rx + hash(seed + i * 7) * rx * 2;
+    ctx.moveTo(x0, y);
+    ctx.quadraticCurveTo((x0 + x1) / 2, y - 6 - hash(seed + i * 3) * 8 + Math.sin(now * 3 + i) * 1.5, x1, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(240,255,250,0.9)';
+  for (let i = 0; i < 4; i++) disc(ctx, x - rx * 0.8 + hash(seed + i * 5) * rx * 1.6, y - 1, 1.8);
   ctx.restore();
 }
 
@@ -683,6 +720,7 @@ function drawSweep(ctx, h, now) {
 const BEAM = {
   sentry: { glow: '120,220,255', outer: 'rgba(120,220,255,0.85)', mid: '#c8f4ff', aim: '255,90,120' },
   colossus: { glow: '255,110,70', outer: 'rgba(255,110,70,0.9)', mid: '#ffd7a8', aim: '255,80,90' },
+  glow: { glow: '200,255,190', outer: 'rgba(200,255,190,0.85)', mid: '#f4ffe0', aim: '255,110,130' }, // the glowworm's
 };
 function drawBeam(ctx, h, now) {
   const B = BEAM[h.style] || BEAM.sentry;

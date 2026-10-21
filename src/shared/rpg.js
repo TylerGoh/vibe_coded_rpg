@@ -139,6 +139,57 @@ export const COVES_PLATFORMS = [
   { x: 3640, y: 390, w: 100, kind: 'crates' },
   { x: 3920, y: 330, w: 150, kind: 'shack' }, // Moss's roof
 ];
+// ——— island depth G2 (docs/places/deep.md) ———
+// The Mycelium Deep (room 28): down through the hollow stump in Mushroom Grove, under the Wildwood, where the
+// glowing threads seen above are roots as thick as trunks. West to east: the Root Stair (no mobs: Forager
+// Truffle's camp, a waystone, the Listening Stone), Puffcap Hollow, the Thread Caverns and the Knotted Halls,
+// with the Knotmole's burrow and the crack down into Glowroot Hollow at the far end. A high mushroom cap
+// over the Thread Caverns (the Glow Shelf) is the off-the-path spot.
+export const MYCELIUM = 28; // room id
+export const MYCELIUM_W = 5200;
+export const MYCELIUM_EXIT_X = 70; // up the roots to Mushroom Grove
+export const MYCELIUM_GATE_X = 2430; // the hollow stump in Mushroom Grove (the way in)
+export const TRUFFLE_X = 560; // Forager Truffle, at her camp (she trades: SHOPS)
+export const KNOT_DEN_X = 4600; // the Knotmole's burrow, in the Knotted Halls
+export const GLOWROOT_GATE_X = MYCELIUM_W - 90; // the crack down into Glowroot Hollow, at the far east end
+export const MYCELIUM_ZONES = [
+  { name: 'The Root Stair', x0: 0, x1: 1000, lvl: null }, // (no mobs; puffcaps lob, so they keep well away from the camp)
+  { name: 'Puffcap Hollow', x0: 1000, x1: 2400, lvl: '15–22' },
+  { name: 'The Thread Caverns', x0: 2400, x1: 3800, lvl: '22–28' },
+  { name: 'The Knotted Halls', x0: 3800, x1: MYCELIUM_W, lvl: '28–35' },
+];
+export const MYCELIUM_PLATFORMS = [
+  { x: 620, y: 330, w: 150, kind: 'tent' }, // Truffle's mushroom-cap tent
+  { x: 1150, y: 340, w: 200, kind: 'cap' },
+  { x: 1550, y: 250, w: 180, kind: 'cap' },
+  { x: 2000, y: 335, w: 220, kind: 'root' },
+  { x: 2650, y: 340, w: 200, kind: 'shelf' },
+  { x: 3050, y: 255, w: 190, kind: 'root' },
+  { x: 3450, y: 335, w: 220, kind: 'shelf' },
+  { x: 3950, y: 335, w: 220, kind: 'root' },
+  { x: 4250, y: 250, w: 180, kind: 'shelf' },
+  { x: 4800, y: 340, w: 180, kind: 'cap' },
+  { x: 3170, y: 160, w: 110, kind: 'cap' }, // the Glow Shelf, high over the Thread Caverns: easy to miss
+];
+// Glowroot Hollow (room 29): a hard pocket at the bottom of the Deep, where the threads knot together and
+// the whole cave glows. West to east: the Glowfall (no mobs: where you climb down), the Lit Galleries and the
+// Heart Knot. Elites live here.
+export const GLOWROOT = 29; // room id
+export const GLOWROOT_W = 3600;
+export const GLOWROOT_EXIT_X = 70; // back up the crack into the Deep
+export const GLOWROOT_ZONES = [
+  { name: 'The Glowfall', x0: 0, x1: 500, lvl: null }, // (no mobs)
+  { name: 'The Lit Galleries', x0: 500, x1: 2000, lvl: '40–45' },
+  { name: 'The Heart Knot', x0: 2000, x1: GLOWROOT_W, lvl: '45–50' },
+];
+export const GLOWROOT_PLATFORMS = [
+  { x: 700, y: 335, w: 200, kind: 'glowcap' },
+  { x: 1150, y: 250, w: 180, kind: 'glowcap' },
+  { x: 1600, y: 335, w: 220, kind: 'root' },
+  { x: 2250, y: 335, w: 220, kind: 'root' },
+  { x: 2700, y: 250, w: 200, kind: 'glowcap' },
+  { x: 3150, y: 335, w: 220, kind: 'root' },
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -149,6 +200,8 @@ export const STAGES = {
   [CITADEL]: { name: 'The Aether Citadel', zones: CITADEL_ZONES, band: '50+', pill: 'Aether Citadel' },
   [WILLOWMERE]: { name: 'Willowmere', zones: WILLOWMERE_ZONES, band: '5–15' },
   [COVES]: { name: 'Saltspray Coves', zones: COVES_ZONES, band: '10–25' },
+  [MYCELIUM]: { name: 'The Mycelium Deep', zones: MYCELIUM_ZONES, band: '15–35', pill: 'Mycelium Deep' },
+  [GLOWROOT]: { name: 'Glowroot Hollow', zones: GLOWROOT_ZONES, band: '40–50', hard: true },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -414,6 +467,72 @@ MOBS.tidemother = {
   },
   drops: [['royal_sap', 1, 1, 2], ['tide_claw', 1, 1, 1], ['hoard_crown', 0.6, 1, 1], ['coin', 1, 1200, 2000], ['elixir', 1, 2, 4], ['crab_shell', 1, 4, 8], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.25, 1, 1], ['scroll_h10', 0.25, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
 };
+// ——— Greenhollow's branches, G2: the Mycelium Deep and Glowroot Hollow (art: src/deep-art.js;
+// docs/places/deep.md). On the frozen curve like G1's ———
+// The Deep: puffcaps lob spore balls, cave bats dive from the roof, puffballs burst into two pufflings,
+// root beetles have a horned front (hit them from behind), knot spiders drop in behind you and lash out
+MOBS.puffcap = {
+  name: 'Puffcap', lvl: 16, hp: 560, atk: 39, exp: 153, speed: 40, w: 42, h: 44, aggro: true, hops: false,
+  ai: { kind: 'lob', range: 440, every: 2.8, keep: 150, warn: 0.55, style: 'spore' },
+  drops: [['coin', 1, 40, 66], ['spore_puff', 0.55, 1, 2], ['blue_jelly', 0.15, 1, 1], ['mana_jelly', 0.2, 1, 1], ['elixir', 0.05, 1, 1]],
+};
+MOBS.cave_bat = {
+  name: 'Cave Bat', lvl: 20, hp: 860, atk: 52, exp: 264, speed: 105, w: 46, h: 32, aggro: true, hops: false, fly: 90,
+  ai: { kind: 'dive', every: 3.4, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 60, 100], ['cave_wing', 0.55, 1, 2], ['elixir', 0.08, 1, 1], ['blue_jelly', 0.15, 1, 1]],
+};
+MOBS.puffball = {
+  name: 'Puffball', lvl: 25, hp: 1300, atk: 63, exp: 400, speed: 60, w: 50, h: 46, aggro: false, hops: true,
+  ai: { kind: 'split', into: 'puffling', n: 2 },
+  drops: [['coin', 1, 85, 140], ['puff_fluff', 0.55, 1, 2], ['elixir', 0.1, 1, 1], ['mega_elixir', 0.01, 1, 1]],
+};
+MOBS.puffling = {
+  name: 'Puffling', lvl: 22, hp: 320, atk: 50, exp: 60, speed: 150, w: 24, h: 24, aggro: true, hops: true,
+  drops: [['coin', 1, 15, 30]],
+};
+MOBS.root_beetle = {
+  name: 'Root Beetle', lvl: 28, hp: 2000, atk: 74, exp: 554, speed: 55, w: 60, h: 40, aggro: false, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.55, lunge: 480, time: 0.32 },
+  drops: [['coin', 1, 110, 180], ['beetle_shell', 0.55, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.03, 1, 1], ['beetle_helm', 0.004, 1, 1]],
+};
+MOBS.knot_spider = {
+  name: 'Knot Spider', lvl: 32, hp: 2200, atk: 86, exp: 730, speed: 75, w: 48, h: 40, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 5, warn: 0.45, slashWarn: 0.55, r: 110 },
+  drops: [['coin', 1, 130, 210], ['knot_silk', 0.5, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.04, 1, 1], ['silk_blade', 0.003, 1, 1]],
+};
+// Glowroot Hollow (a hard pocket): glowworms throw a beam of light along the floor (jump it), glow moths
+// fade out and pulse, threadweavers leave glowing sticky threads behind them; elites of both ends
+MOBS.glowworm = {
+  name: 'Glowworm', lvl: 42, hp: 3300, atk: 115, exp: 1225, speed: 35, w: 64, h: 34, aggro: true, hops: false,
+  ai: { kind: 'beam', range: 560, every: 4.2, warn: 1, dur: 0.45, y0: 420, y1: 450, style: 'glow' },
+  drops: [['coin', 1, 180, 290], ['glow_bead', 0.5, 1, 2], ['mega_elixir', 0.08, 1, 1], ['glowcap_helm', 0.003, 1, 1]],
+};
+MOBS.glow_moth = {
+  name: 'Glow Moth', lvl: 46, hp: 3600, atk: 128, exp: 1446, speed: 70, w: 50, h: 40, aggro: true, hops: false, fly: 60,
+  ai: { kind: 'phase', every: 6.5, dur: 2, r: 170 },
+  drops: [['coin', 1, 200, 320], ['moth_dust', 0.5, 1, 2], ['mega_elixir', 0.08, 1, 1]],
+};
+MOBS.thread_weaver = {
+  name: 'Threadweaver', lvl: 48, hp: 4400, atk: 135, exp: 1564, speed: 45, w: 60, h: 42, aggro: true, hops: false,
+  ai: { kind: 'trail', every: 0.8, life: 4.5, w: 56, style: 'glow' },
+  drops: [['coin', 1, 210, 340], ['glowthread', 0.5, 1, 2], ['mega_elixir', 0.08, 1, 1], ['glowroot_blade', 0.002, 1, 1]],
+};
+MOBS.glowworm_elite = elite('glowworm', 'Old Glowworm');
+MOBS.weaver_elite = elite('thread_weaver', 'Elder Threadweaver');
+// The Knotmole (her burrow is in the Knotted Halls). A big boss with a story (story/characters/bosses.md):
+// an old blind mole who tied the warm threads in knots to keep the warmth for herself. Her Root Quake is
+// the `stomp` ult (be off the floor when it lands)
+MOBS.knotmole = {
+  name: 'The Knotmole', boss: true, lvl: 35, hp: 135000, atk: 96, exp: 26000, speed: 80, w: 190, h: 150, aggro: true, hops: false,
+  phases: [['slam', 'charge'], ['slam', 'charge', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
+  ult: { name: 'Root Quake', kind: 'stomp' }, minion: 'puffcap',
+  lines: {
+    enter: ["Who's that? Out! The warm is MINE. Every last thread of it.", "Can't see you. Can smell you, though. You smell cold. Go away and stay cold."],
+    phase: [null, 'Tied it tight, I did. Every knot. You shan\'t undo a single one!', 'If I let go it all runs off into the dark, off under the sea, and I\'ll be cold again! COLD!'],
+    freed: 'Oh, my old paws... There it goes, running off under the sea. I\'d forgotten how it hums when it moves.',
+  },
+  drops: [['royal_sap', 1, 1, 2], ['burrow_claw', 1, 1, 1], ['knot_crown', 0.6, 1, 1], ['coin', 1, 3600, 5400], ['elixir', 1, 2, 4], ['mega_elixir', 1, 1, 3], ['knot_silk', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_h30', 0.1, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
+};
 
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
@@ -442,6 +561,8 @@ const onCPlat = onRoomPlat(CALDERA_PLATFORMS, CALDERA);
 const onTPlat = onRoomPlat(CITADEL_PLATFORMS, CITADEL);
 const onWPlat = onRoomPlat(WILLOWMERE_PLATFORMS, WILLOWMERE);
 const onSPlat = onRoomPlat(COVES_PLATFORMS, COVES);
+const onDPlat = onRoomPlat(MYCELIUM_PLATFORMS, MYCELIUM);
+const onGPlat = onRoomPlat(GLOWROOT_PLATFORMS, GLOWROOT);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -518,6 +639,35 @@ export const SPAWNS = [
   ...strip('snapshrimp', 520, 1300, FIELD_GROUND, 4, COVES),
   ...onSPlat('snapshrimp', 0, 1),
   ...onSPlat('storm_gull', 1, 1),
+  // the Mycelium Deep (the Root Stair, x < 1000, has none; the Knotmole's burrow is at KNOT_DEN_X)
+  ...strip('puffcap', 1150, 1800, FIELD_GROUND, 5, MYCELIUM),
+  ...onDPlat('puffcap', 1, 2),
+  ...strip('cave_bat', 1700, 2350, FIELD_GROUND, 3, MYCELIUM),
+  ...onDPlat('cave_bat', 2, 1),
+  ...onDPlat('cave_bat', 3, 1),
+  ...strip('puffball', 2450, 3150, FIELD_GROUND, 4, MYCELIUM),
+  ...onDPlat('puffball', 4, 1),
+  ...strip('root_beetle', 3100, 3750, FIELD_GROUND, 4, MYCELIUM),
+  ...onDPlat('root_beetle', 5, 1),
+  ...onDPlat('root_beetle', 6, 1),
+  ...strip('knot_spider', 3850, 4480, FIELD_GROUND, 3, MYCELIUM),
+  ...strip('root_beetle', 3850, 4450, FIELD_GROUND, 2, MYCELIUM),
+  ...strip('knot_spider', 4720, 5000, FIELD_GROUND, 2, MYCELIUM),
+  ...onDPlat('knot_spider', 7, 1),
+  ...onDPlat('knot_spider', 9, 1),
+  // Glowroot Hollow (the Glowfall, x < 500, has none; glowworms stay on the floor: their beam runs along it)
+  ...strip('glowworm', 560, 1500, FIELD_GROUND, 4, GLOWROOT),
+  ...strip('glow_moth', 1300, 1950, FIELD_GROUND, 3, GLOWROOT),
+  ...onGPlat('glow_moth', 0, 1),
+  ...onGPlat('glow_moth', 1, 1),
+  ...onGPlat('glow_moth', 2, 1),
+  ...strip('thread_weaver', 2100, 3500, FIELD_GROUND, 4, GLOWROOT),
+  ...strip('glowworm', 2100, 3000, FIELD_GROUND, 2, GLOWROOT),
+  ...onGPlat('thread_weaver', 3, 1),
+  ...onGPlat('thread_weaver', 5, 1),
+  ...onGPlat('glow_moth', 4, 1),
+  ...strip('glowworm_elite', 2200, 3300, FIELD_GROUND, 1, GLOWROOT),
+  ...strip('weaver_elite', 2400, 3500, FIELD_GROUND, 1, GLOWROOT),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -538,6 +688,7 @@ export const DENS = [
   { room: 16, boss: 'colossus', name: 'The Grand Foundry', from: CITADEL, entranceX: 2280, theme: 'clock' },
   { room: 17, boss: 'chronos', name: 'The Hour Sanctum', from: CITADEL, entranceX: 4620, theme: 'chrono' },
   { room: 26, boss: 'tidemother', name: "The Tidemother's Hoard", from: COVES, entranceX: TIDE_DEN_X, theme: 'tide' }, // (art: src/dens-coves.js)
+  { room: 30, boss: 'knotmole', name: 'The Knotted Burrow', from: MYCELIUM, entranceX: KNOT_DEN_X, theme: 'knot' }, // (art: src/dens-deep.js)
 ];
 export const DEN_EXIT_X = 80;
 export const DEN_PLATFORMS = [
@@ -618,6 +769,23 @@ export const ITEMS = {
   coral_saber: { name: 'Coral Saber', price: 16000, lvl: 21, kind: 'sword', atk: 52, reach: 42, desc: 'A curved blade of pink coral, grown, not forged.' },
   tide_claw: { name: "Tidemother's Claw", price: 36000, lvl: 26, kind: 'sword', atk: 64, reach: 46, slots: 8, desc: "The Tidemother's great claw, still gripping. It never lets go of anything." },
   hoard_crown: { name: 'Hoardshell Crown', price: 27000, lvl: 26, kind: 'helmet', def: 29, slots: 8, desc: 'A crown crusted with buttons, bottle caps and shells the sea gave back.' },
+  // ——— G2: the Mycelium Deep and Glowroot Hollow (art: src/deep-art.js) ———
+  spore_puff: { name: 'Puffcap Spores', price: 80, kind: 'loot', desc: 'A pouch of fine lilac spores. Do not sneeze.' },
+  cave_wing: { name: 'Cave Bat Wing', price: 110, kind: 'loot', desc: 'A soft leathery wing, folded up like an umbrella.' },
+  puff_fluff: { name: 'Puffball Fluff', price: 140, kind: 'loot', desc: 'A handful of fluff from a burst puffball. It floats if you let go.' },
+  beetle_shell: { name: 'Root Beetle Shell', price: 200, kind: 'loot', desc: 'A shiny brown wing case, hard as a nut and knobbly as a root.' },
+  knot_silk: { name: 'Knot Silk', price: 260, kind: 'loot', desc: 'A skein of spider silk tied in tiny knots. It glows a little in the dark.' },
+  glow_bead: { name: 'Glowworm Bead', price: 380, kind: 'loot', desc: "A warm bead of light from a glowworm's tail. It never quite goes out." },
+  moth_dust: { name: 'Glowmoth Dust', price: 420, kind: 'loot', desc: 'Shimmering wing dust. It leaves your fingers glowing for an hour.' },
+  glowthread: { name: 'Glowthread', price: 460, kind: 'loot', desc: 'A strand of the glowing threads that run under the island. It hums faintly.' },
+  rootwood_saber: { name: 'Rootwood Saber', price: 11000, lvl: 24, aim: 26, kind: 'sword', atk: 58, reach: 42, desc: 'Carved from a root of the Deep, dark and hard as iron. It glows along the grain.' },
+  lantern_cap: { name: 'Lantern Cap', price: 8500, lvl: 24, aim: 26, kind: 'helmet', def: 26, desc: "A forager's leather cap with a glowing mushroom for a lamp. Never be lost underground." },
+  beetle_helm: { name: 'Beetleshell Helm', price: 22000, lvl: 27, kind: 'helmet', def: 29, desc: "A root beetle's horned wing case. Charge with it at your peril." },
+  silk_blade: { name: 'Silkthread Blade', price: 36000, lvl: 31, kind: 'sword', atk: 70, reach: 46, desc: 'A pale blade wound tight with knot silk. It whispers when it cuts.' },
+  burrow_claw: { name: "Knotmole's Claw", price: 52000, lvl: 37, kind: 'sword', atk: 79, reach: 48, slots: 8, desc: "The Knotmole's great digging claw. It has tied a thousand knots and untied one." },
+  knot_crown: { name: 'Knotroot Crown', price: 40000, lvl: 37, kind: 'helmet', def: 35, slots: 8, desc: 'Warm roots knotted into a crown. It still holds on, but gently now.' },
+  glowcap_helm: { name: 'Glowcap Helm', price: 62000, lvl: 44, kind: 'helmet', def: 38, desc: 'A great glowing mushroom cap, hollowed out. Everyone can see you coming.' },
+  glowroot_blade: { name: 'Glowroot Blade', price: 90000, lvl: 47, kind: 'sword', atk: 93, reach: 50, desc: 'A sword grown from the heart of Glowroot Hollow. The light runs down it like sap.' },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
   // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen
@@ -718,6 +886,7 @@ export const SHOPS = {
   // back to Pip, and a tier of gear for its middle levels)
   bun: { name: 'Willowmere Mill', room: WILLOWMERE, x: BUN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'reed_rapier', 'miller_cap'] },
   moss: { name: "Moss's Driftwood Shack", room: COVES, x: MOSS_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'drift_cutlass', 'conch_helm'] },
+  truffle: { name: "Truffle's Camp", room: MYCELIUM, x: TRUFFLE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'rootwood_saber', 'lantern_cap'] },
   // the Pet Shop: pet food only (the pets themselves are on plinths: furni-buy, src/petshop.js)
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };

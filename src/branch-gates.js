@@ -3,7 +3,8 @@
 // slimes: a root-choked stump, a rotten rope ladder, a wall of thorns, Wreck Cave's flooded mouth (in
 // Saltspray Coves). Each has a little wooden sign naming the place it leads to (red-trimmed for a hard
 // pocket). Shipped branches keep their spot as an open way in (ENTRIES: drawEntries): Willowmere's
-// footbridge, mended with new planks, and the shore path to the Coves, its rockfall rolled aside.
+// footbridge, mended with new planks, the shore path to the Coves, its rockfall rolled aside, the hollow
+// stump into the Mycelium Deep, its roots cut back, and the glowing crack down into Glowroot Hollow.
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';
@@ -35,13 +36,13 @@ export function drawEntries(ctx, room, ground, L, R, time) {
     ctx.scale(SCALE[g.kind] ?? 1, SCALE[g.kind] ?? 1);
     OPEN[g.kind](ctx, time, g);
     ctx.restore();
-    sign(ctx, SIGN_AT[g.kind], g.name, false, false);
+    sign(ctx, SIGN_AT[g.kind], g.name, g.hard, false);
     ctx.restore();
   }
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110 };
+const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120 };
 const SCALE = { bridge: 1.5, thorns: 1.15 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -197,7 +198,7 @@ const ROCKS = (() => {
 })();
 // The Mycelium Deep: a huge hollow stump, the hole in its side choked with roots; the warm threads glow
 // faintly through the tangle
-function drawStump(ctx, time) {
+function drawStump(ctx, time, gate, open = false) {
   ctx.fillStyle = 'rgba(60,40,60,0.18)';
   ellipse(ctx, 0, 2, 86, 9);
   // roots spreading into the ground
@@ -251,6 +252,7 @@ function drawStump(ctx, time) {
   g.addColorStop(1, 'rgba(160,240,220,0)');
   ctx.fillStyle = g;
   ellipse(ctx, 0, -34, 26, 32);
+  if (open) return drawStumpOpen(ctx, time);
   // roots knotted across it
   ctx.strokeStyle = '#7a5537';
   ctx.lineWidth = 4;
@@ -276,6 +278,107 @@ function drawStump(ctx, time) {
     ctx.fillStyle = i % 2 ? '#bff5e4' : '#ffd1ec';
     ctx.beginPath();
     ctx.arc(-10 + i * 7 + Math.sin(time + i) * 4, -20 - k * 50, 1.8, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+// The Mycelium Deep, open: the roots in the hole cut back (their stubs still show), a rope knotted to a
+// stake running down into the glow, and the light coming up stronger now nothing's in the way
+function drawStumpOpen(ctx, time) {
+  const glow = 0.65 + Math.sin(time * 1.8) * 0.2;
+  const g = ctx.createRadialGradient(0, -14, 2, 0, -24, 34);
+  g.addColorStop(0, `rgba(170,250,225,${glow})`);
+  g.addColorStop(1, 'rgba(170,250,225,0)');
+  ctx.fillStyle = g;
+  ellipse(ctx, 0, -34, 26, 32);
+  ctx.strokeStyle = '#7a5537'; // cut stubs round the rim of the hole
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  for (const [a, b, c, d] of [[-26, -52, -16, -46], [24, -18, 15, -22], [-22, -14, -13, -20], [24, -50, 16, -46]]) {
+    ctx.beginPath();
+    ctx.moveTo(a, b);
+    ctx.lineTo(c, d);
+    ctx.stroke();
+  }
+  // the rope, tied to a stake by the trunk, over the lip and down
+  ctx.fillStyle = '#8f6240';
+  ctx.fillRect(58, -26, 6, 28);
+  ctx.strokeStyle = '#d8c08a';
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.moveTo(61, -22);
+  ctx.quadraticCurveTo(40, -70, 8, -62);
+  ctx.quadraticCurveTo(2, -40, 4, -6 + Math.sin(time * 1.4) * 1.5);
+  ctx.stroke();
+  for (let i = 0; i < 4; i++) {
+    const y = -50 + i * 12;
+    ctx.beginPath();
+    ctx.arc(4 + Math.sin(time * 1.4 + i) * 0.6, y, 2.2, 0, TAU);
+    ctx.stroke();
+  }
+  for (let i = 0; i < 6; i++) {
+    const k = (time * 0.3 + i / 6) % 1;
+    ctx.globalAlpha = Math.sin(k * Math.PI) * 0.95;
+    ctx.fillStyle = i % 2 ? '#bff5e4' : '#ffd1ec';
+    ctx.beginPath();
+    ctx.arc(-14 + i * 6 + Math.sin(time + i) * 4, -16 - k * 70, 2, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+// Glowroot Hollow's way in, at the Mycelium Deep's far end: a jagged crack in the cave floor and wall,
+// light welling up out of it in slow pulses, threads running down over the edge
+function drawCrack(ctx, time) {
+  const pulse = 0.6 + 0.4 * Math.sin(time * 1.4) ** 2;
+  const g = ctx.createRadialGradient(0, -10, 4, 0, -40, 130);
+  g.addColorStop(0, `rgba(190,255,230,${0.7 * pulse})`);
+  g.addColorStop(1, 'rgba(190,255,230,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(-130, -170, 260, 180);
+  ctx.fillStyle = '#2a2038'; // the split rock
+  ctx.beginPath();
+  ctx.moveTo(-60, 4);
+  ctx.lineTo(-38, -60);
+  ctx.lineTo(-48, -110);
+  ctx.lineTo(-20, -160);
+  ctx.lineTo(18, -150);
+  ctx.lineTo(30, -96);
+  ctx.lineTo(50, -50);
+  ctx.lineTo(64, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = `rgba(200,255,235,${0.75 * pulse})`; // the glow inside it
+  ctx.beginPath();
+  ctx.moveTo(-26, 4);
+  ctx.lineTo(-14, -56);
+  ctx.lineTo(-22, -100);
+  ctx.lineTo(-6, -138);
+  ctx.lineTo(6, -100);
+  ctx.lineTo(16, -54);
+  ctx.lineTo(30, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#24464f'; // threads running down over the edge
+  ctx.lineCap = 'round';
+  for (const [x0, c] of [[-90, '170,255,225'], [-70, '255,190,235'], [80, '255,226,160']]) {
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#24464f';
+    ctx.beginPath();
+    ctx.moveTo(x0, -120);
+    ctx.quadraticCurveTo(x0 * 0.6, -40, x0 * 0.2, 4);
+    ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = `rgba(${c},0.75)`;
+    ctx.stroke();
+  }
+  for (let i = 0; i < 5; i++) {
+    const k = (time * 0.35 + i / 5) % 1;
+    ctx.globalAlpha = Math.sin(k * Math.PI);
+    ctx.fillStyle = ['#bff5e4', '#ffd1ec', '#ffe6b0'][i % 3];
+    ctx.beginPath();
+    ctx.arc(-10 + i * 5 + Math.sin(time * 1.3 + i) * 6, -k * 150, 2.2, 0, TAU);
     ctx.fill();
   }
   ctx.globalAlpha = 1;
@@ -507,4 +610,4 @@ function drawFlooded(ctx, time) {
 }
 
 const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded };
-const OPEN = { bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore };
+const OPEN = { bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack };

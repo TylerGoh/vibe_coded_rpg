@@ -1,12 +1,13 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
-// each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves). The text opens
+// each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
+// Stone by Truffle's camp in the Mycelium Deep). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -48,6 +49,12 @@ export const RUIN_STONES = [
     legible: ['HIGH WATER', 'The notch marked HIGH WATER is the lowest one on the post. Above it, the notches go on climbing, and none of them is marked at all.'],
     note: "Fresh scratches by the waterline mark this year's tides, in a small careful hand. Beachcomber Moss's, probably. They creep upward.",
   },
+  {
+    room: MYCELIUM, place: 'the Mycelium Deep', x: 900, shape: 'listening', name: 'the Listening Stone', title: 'The Listening Stone',
+    look: 'A round-shouldered stone half swallowed by the glowing threads. Three of them grow straight through holes bored in it, as if it had been strung like a bead. A ring of gear teeth is carved round the holes. Put your ear to it and it hums, low and steady, the way a shell hums of the sea.',
+    legible: ['WHAT ONE SHORE HEARS...', '...EVERY SHORE HEARS.', 'Under the words, a row of little islands, each joined to the next by one carved line. The line runs on off the edge of the stone.'],
+    note: "A small card hangs off it on a string: PLEASE DO NOT LICK THE STONE. It's in Truffle's handwriting, and it looks like it was needed.",
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -77,7 +84,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -450,4 +457,75 @@ function drawTidePost(ctx, time, glow) {
   ctx.stroke();
   ctx.fillStyle = 'rgba(90,140,90,0.7)'; // a little seaweed
   ellipse(ctx, -18, -8, 4, 9, 0.3 + Math.sin(time * 1.4) * 0.15);
+}
+
+// The Listening Stone: a squat round stone with three of the Deep's glowing threads grown through it
+function drawListening(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(20,10,30,0.25)';
+  ellipse(ctx, 0, 0, 52, 7);
+  ctx.fillStyle = STONE;
+  ctx.beginPath();
+  ctx.moveTo(-44, 0);
+  ctx.quadraticCurveTo(-52, -90, 0, -104);
+  ctx.quadraticCurveTo(52, -90, 44, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = STONE_LIGHT;
+  ctx.beginPath();
+  ctx.moveTo(-36, -4);
+  ctx.quadraticCurveTo(-42, -76, -10, -94);
+  ctx.quadraticCurveTo(-26, -60, -24, -4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = STONE_DARK;
+  ctx.beginPath();
+  ctx.moveTo(44, 0);
+  ctx.quadraticCurveTo(50, -70, 22, -96);
+  ctx.quadraticCurveTo(36, -60, 32, 0);
+  ctx.closePath();
+  ctx.fill();
+  carvedGear(ctx, 0, -56, 26, 12, glow);
+  scratches(ctx, -24, -18, 48, 1, 91, glow);
+  // the threads, in one side and out the other
+  const p = 0.7 + 0.3 * Math.sin(time * 1.8);
+  ctx.lineCap = 'round';
+  for (const [y, dy] of [[-70, -16], [-56, 4], [-42, 18]]) {
+    ctx.strokeStyle = '#35585e';
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(-110, y + dy);
+    ctx.quadraticCurveTo(-60, y + dy * 0.4, -20, y);
+    ctx.moveTo(20, y);
+    ctx.quadraticCurveTo(60, y - dy * 0.4, 110, y - dy);
+    ctx.stroke();
+    ctx.strokeStyle = `rgba(170,250,225,${0.6 * p})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#4a3c5c'; // the bored holes
+    circle(ctx, -18, y, 5);
+    circle(ctx, 18, y, 5);
+    ctx.fillStyle = `rgba(200,255,235,${0.8 * p})`;
+    circle(ctx, -18, y, 2.6);
+    circle(ctx, 18, y, 2.6);
+  }
+  // Truffle's card on its string
+  ctx.strokeStyle = 'rgba(230,210,180,0.9)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(30, -84);
+  ctx.lineTo(36, -66);
+  ctx.stroke();
+  ctx.save();
+  ctx.translate(36, -60);
+  ctx.rotate(0.12 + Math.sin(time * 1.1) * 0.05);
+  ctx.fillStyle = '#f6eedc';
+  ctx.fillRect(-9, -6, 18, 12);
+  ctx.strokeStyle = 'rgba(91,74,107,0.6)';
+  ctx.beginPath();
+  for (let i = 0; i < 3; i++) {
+    ctx.moveTo(-6, -2 + i * 3);
+    ctx.lineTo(6, -2 + i * 3);
+  }
+  ctx.stroke();
+  ctx.restore();
 }

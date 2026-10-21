@@ -2,7 +2,7 @@
 // Music, ambience and sound effects, all synthesised with Web Audio (no audio files).
 //
 //   audio.unlock()            from a user gesture: creates / resumes the AudioContext (safe to repeat)
-//   audio.setScene(room, zone) room id 0..26 or a house (100+), zone = a zone name in a stage room (else null); only acts on change
+//   audio.setScene(room, zone) room id 0..30 or a house (100+), zone = a zone name in a stage room (else null); only acts on change
 //   audio.sfx(name, {pan, vol}) one-shot effects (unknown names are ignored)
 //   audio.setMusic(on) / audio.musicOn   music + ambience on/off (sfx stay on), remembered in localStorage
 //   audio.setMuted(on)        everything off (e.g. while logged out)
@@ -922,6 +922,89 @@ const SONGS = {
         if (hot || pass % 2) e.voice(p.r, t, p.f(m.d, 1), { type: 'square', vol: 0.03, a: 0.005, hold: Math.max(0.04, m.len * 0.6), rel: 0.05, cutoff: 2400 });
       }
       if (s === 0 && bar % 4 === 3) e.noiseHit(p.c, t, { type: 'lowpass', f: 200, sweep: 1200, sweepT: 1.4, vol: 0.08, a: 1.2, hold: 0.2, tau: 0.8 }); // the tide surging
+    },
+  },
+  // ——— island depth G2 (docs/places/deep.md) ———
+  // The Mycelium Deep: a hushed, curious cave tune in D dorian with a raised 4th, a music-box line over a
+  // low hum (the threads), soft marimba, water dripping in the dark and now and then a glassy chime
+  deep: {
+    bpm: 84, spb: 8, swing: 0.08, key: 62, scale: DORIAN_4, gain: 0.8, send: 0.38, loop: 8,
+    chords: [[1, 3, 5], [7, 9, 11], [4, 6, 8], [1, 3, 5], [6, 8, 10], [4, 6, 8], [2, 4, 6], [5, 7, 9]],
+    mel: melody(
+      '5 . 4 . 3 . 5 .', '6 - 5 . . . . .', '4 . 6 . 8 . 6 .', '5 - - . . . . .',
+      '3 . 5 . 6 . 8 .', '9 - 8 . 6 . . .', '7 . 6 . 4 . 2 .', '1 - - - . . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 140, 0.016); // the threads' low hum
+      p.eng.bed(p, 'bandpass', 900, 0.004, 0.6); // cave air
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) pad(p, ch, t, p.stepDur * 8, 0.014, { a: 0.8, cutoff: 800 });
+      if (s === 0 || s === 4) e.voice(p.c, t, p.f(ch[0], -2), { type: 'sine', vol: 0.15, a: 0.02, tau: 0.4 });
+      if (s % 2 === 1) e.voice(s % 4 === 1 ? p.l : p.r, t, p.f(ch[(s >> 1) % 3], 1), { ...MARIMBA, vol: 0.045 });
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { ...GLOCK, vol: 0.06 });
+      if (m && part === 1) e.voice(p.r, t, p.f(m.d), { type: 'sine', vol: 0.05, a: 0.05, hold: m.len * 0.7, rel: 0.3, vib: 4, vibRate: 5 });
+      // drips, and a glassy chime from somewhere down a tunnel
+      if (chance(0.22)) {
+        const o = chance(0.5) ? p.l : p.r, tt = t + rand(0, p.stepDur);
+        e.voice(o, tt, rand(1600, 2600), { type: 'sine', glide: 1.4, glideT: 0.04, vol: 0.016, a: 0.002, tau: 0.05 });
+      }
+      if (s === 6 && bar % 4 === 1) e.voice(p.l, t, p.f(ch[2], 2), { ...GLOCK, vol: 0.025, tau: 0.8 });
+    },
+  },
+
+  // Glowroot Hollow (a hard pocket): brighter and tenser, B minor arpeggios on glockenspiel racing over a
+  // pulsing bass, the heart knot's slow beat underneath everything
+  glowroot: {
+    bpm: 108, spb: 8, key: 59, scale: MINOR, gain: 0.78, send: 0.34, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [3, 5, 7], [7, 9, 11], [1, 3, 5], [4, 6, 8], [6, 8, 10], [5, 7, 9]],
+    mel: melody(
+      '8 . 7 . 5 . 3 .', '6 - 5 . 3 . . .', '5 . 7 . 8 . 10 .', '9 - - . 7 . . .',
+      '8 . 10 . 12 . 10 .', '8 - 6 . 4 . . .', '6 . 5 . 3 . 2 .', '5 - - - 4 - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 120, 0.014);
+      p.eng.bed(p, 'bandpass', 4200, 0.003, 1.5); // a high shimmer
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar);
+      if (s === 0) pad(p, ch, t, p.stepDur * 8, 0.012, { type: 'sawtooth', a: 0.4, cutoff: 900, unison: 7 });
+      e.voice(p.c, t, p.f(s % 4 === 2 ? ch[2] : ch[0], -2), { type: 'triangle', vol: s % 2 ? 0.06 : 0.1, tau: 0.08, cutoff: 600 });
+      if (s === 0) e.kick(p.c, t, 0.2, 90, 40, 0.12); // the heart knot's beat
+      if (s === 1) e.kick(p.c, t, 0.12, 80, 40, 0.1);
+      e.voice(s % 2 ? p.l : p.r, t, p.f(ch[s % 3], 2), { ...GLOCK, vol: 0.022, tau: 0.12 });
+      const m = p.mel(bar, s);
+      if (m && pass % 4 !== 3) e.voice(p.c, t, p.f(m.d, 1), { type: 'sine', vol: 0.05, a: 0.02, hold: m.len * 0.6, rel: 0.15, vib: 5, vibRate: 6, partials: [[2, 0.15]] });
+      if (s % 2 === 1) hat(p, t, 0.012);
+    },
+  },
+
+  // The Knotted Burrow: a stubborn 6/8 in C minor, low plucked strings, the thump of digging paws, and a
+  // tangle of a melody that keeps looping back on itself
+  knotmole: {
+    bpm: 132, beats: 2, spb: 12, melSteps: 6, key: 60, scale: HARM_MINOR, gain: 0.8, send: 0.2, loop: 8,
+    chords: [[1, 3, 5], [4, 6, 8], [5, 7, 9], [1, 3, 5], [6, 8, 10], [4, 6, 8], [2, 4, 6], [5, 7, 9]],
+    mel: melody(
+      '5 . 4 3 . 4', '5 . 6 5 . .', '7 . 6 5 . 4', '5 - - . . .',
+      '8 . 7 6 . 7', '8 . 6 4 . .', '6 . 5 4 . 2', '3 - - 2 - .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 150, 0.016);
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), hot = e.intensity > 0.5;
+      if (s === 0) pad(p, ch, t, p.stepDur * 12, 0.012, { type: 'sawtooth', a: 0.3, cutoff: 650, unison: 8 });
+      if (s % 3 === 0) e.voice(p.c, t, p.f(s % 6 ? ch[2] : ch[0], -2), { type: 'square', vol: s % 6 ? 0.05 : 0.08, tau: 0.07, cutoff: 480 });
+      if (s === 0 || s === 6 || (hot && s % 3 === 0)) dum(p, t, 0.18); // digging paws
+      if (s === 3 || s === 9) tek(p, t, 0.04);
+      if (s % 2 === 1) block(p, t, 700 + (s % 4) * 120, 0.02, s % 4 === 1 ? p.l : p.r);
+      const m = p.mel(bar, s);
+      if (m) {
+        e.voice(p.c, t, p.f(m.d), { ...PLUCK, vol: 0.11, tau: 0.13, cutoff: 1800, partials: [[2, 0.12]] });
+        if (hot || pass % 2) e.voice(p.r, t, p.f(m.d, 1), { type: 'square', vol: 0.028, a: 0.005, hold: Math.max(0.04, m.len * 0.6), rel: 0.05, cutoff: 2200 });
+      }
     },
   },
   // ——— Frostpeak (the stage: Frostpine Ridge, Starfall Summit) ———
@@ -2142,7 +2225,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -2246,5 +2329,8 @@ export const audio = {
 };
 
 // Greenhollow's branches' mobs borrow the voices of the legacy mobs they're built on (src/shared/rpg.js)
-Object.assign(MOB_HURT, { dragonfly: MOB_HURT.cinder_bat, gloop_snail: MOB_HURT.magma_slug, snapjaw: MOB_HURT.golem, rock_crab: MOB_HURT.obsidian_crab, storm_gull: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, snapshrimp: MOB_HURT.obsidian_crab, tidemother: MOB_HURT.obsidian_crab });
-Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEATH.magma_slug, rock_crab: MOB_DEATH.obsidian_crab, snapshrimp: MOB_DEATH.obsidian_crab });
+Object.assign(MOB_HURT, { dragonfly: MOB_HURT.cinder_bat, gloop_snail: MOB_HURT.magma_slug, snapjaw: MOB_HURT.golem, rock_crab: MOB_HURT.obsidian_crab, storm_gull: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, snapshrimp: MOB_HURT.obsidian_crab, tidemother: MOB_HURT.obsidian_crab,
+  puffcap: MOB_HURT.mushling, cave_bat: MOB_HURT.cinder_bat, puffball: MOB_HURT.mushling, puffling: MOB_HURT.cogbit, root_beetle: MOB_HURT.obsidian_crab, knot_spider: MOB_HURT.aether_knight,
+  glowworm: MOB_HURT.magma_slug, glow_moth: MOB_HURT.wisp, thread_weaver: MOB_HURT.sentry, knotmole: MOB_HURT.ignis });
+Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEATH.magma_slug, rock_crab: MOB_DEATH.obsidian_crab, snapshrimp: MOB_DEATH.obsidian_crab,
+  puffcap: MOB_DEATH.mushling, cave_bat: MOB_DEATH.cinder_bat, puffball: MOB_DEATH.mushling, root_beetle: MOB_DEATH.obsidian_crab, glowworm: MOB_DEATH.magma_slug, glow_moth: MOB_DEATH.wisp });

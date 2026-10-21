@@ -15,13 +15,13 @@ export const DT = 1 / TICK_RATE;
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS } from './rpg.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
 export const CLIFFS = 20; // Greenhollow's east cliffs, past the end of the Wildwood (docs/places/cliffs.md)
 export const FERRY_N = 21, FERRY_S = 22; // the ferry's deck, out to Frostpeak and back home (docs/places/crossings.md)
-export { FIELD, FJORD, WILLOWMERE, COVES };
+export { FIELD, FJORD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT };
 
 export const PLATFORMS = [
   { x: 360, y: 335, w: 190, kind: 'island' },
@@ -160,11 +160,12 @@ export const ROOMS = [
       { x: FIELD_EXIT_X, w: 80, to: VILLAGE, toX: FIELD_GATE_X, label: 'back to Slimeville' },
       { x: CLIFFS_PATH_X, w: 80, to: CLIFFS, toX: CLIFFS_EXIT_X, label: 'push through to the sea cliffs' },
       { x: WILLOWMERE_GATE_X, w: 80, to: WILLOWMERE, toX: WILLOWMERE_EXIT_X, label: 'cross the footbridge to Willowmere' },
+      { x: MYCELIUM_GATE_X, w: 80, to: MYCELIUM, toX: MYCELIUM_EXIT_X, label: 'climb down the hollow stump into the Mycelium Deep' },
       ...denDoors(FIELD),
     ],
   },
 ];
-// rooms 6–8, 10–11, 14–17 and 26: the boss dens (DENS in rpg.js); room 9: Frostpeak's wilds (Frostpine Ridge, Starfall Summit)
+// rooms 6–8, 10–11, 14–17, 26 and 30: the boss dens (DENS in rpg.js); room 9: Frostpeak's wilds (Frostpine Ridge, Starfall Summit)
 for (const d of DENS) {
   ROOMS[d.room] = {
     name: d.name, width: DEN_W, ground: FIELD_GROUND, platforms: DEN_PLATFORMS,
@@ -278,6 +279,21 @@ ROOMS[WILLOWMERE] = {
 ROOMS[COVES] = {
   name: 'Saltspray Coves', width: COVES_W, ground: FIELD_GROUND, platforms: COVES_PLATFORMS,
   doors: [{ x: COVES_EXIT_X, w: 80, to: HARBOUR, toX: COVES_GATE_X, label: 'back along the shore to the harbour' }, ...denDoors(COVES)],
+};
+// rooms 28 and 29 (island depth G2, docs/places/deep.md): the Mycelium Deep, down the hollow stump in
+// Mushroom Grove, and Glowroot Hollow, a hard pocket down a crack at the Deep's far end. Room 30 is the
+// Knotmole's burrow in the Deep (DENS in rpg.js).
+ROOMS[MYCELIUM] = {
+  name: 'The Mycelium Deep', width: MYCELIUM_W, ground: FIELD_GROUND, platforms: MYCELIUM_PLATFORMS,
+  doors: [
+    { x: MYCELIUM_EXIT_X, w: 80, to: FIELD, toX: MYCELIUM_GATE_X, label: 'climb back up the roots to Mushroom Grove (mobs!)' },
+    { x: GLOWROOT_GATE_X, w: 80, to: GLOWROOT, toX: GLOWROOT_EXIT_X, label: 'climb down the crack into Glowroot Hollow (hard!)' },
+    ...denDoors(MYCELIUM),
+  ],
+};
+ROOMS[GLOWROOT] = {
+  name: 'Glowroot Hollow', width: GLOWROOT_W, ground: FIELD_GROUND, platforms: GLOWROOT_PLATFORMS,
+  doors: [{ x: GLOWROOT_EXIT_X, w: 80, to: MYCELIUM, toX: GLOWROOT_GATE_X, label: 'climb back up into the Mycelium Deep (mobs!)' }],
 };
 
 // ——— towns (docs/world.md) ———
@@ -534,6 +550,7 @@ export const NPCS = [
   { id: 'tove', name: 'Tove', short: 'Tove', room: FJORD, x: 2480, hue: 215, range: 110, size: 0.8, accessory: 'mittens', folk: 'fjord', lively: true, faces: -1, blurb: "Skaldi's granddaughter, who feeds the yeti cubs", hello: 'Are you going up the ridge? Ask me about the animals! (Everyone can hear you.)' },
   // Greenhollow's branches (island depth G1): each has a character who trades and is worth a chat
   { id: 'bun', name: 'Miller Bun', short: 'Bun', room: WILLOWMERE, x: BUN_X, hue: 34, range: 120, size: 1.2, accessory: 'miller', faces: 1, blurb: 'runs the Willowmere mill and trades at its door', shop: 'bun', hello: 'Mind the flour! Buying or chatting? Trade is the button. (Everyone can hear you.)' },
+  { id: 'truffle', name: 'Forager Truffle', short: 'Truffle', room: MYCELIUM, x: TRUFFLE_X, hue: 330, range: 120, size: 1.05, accessory: 'forager', faces: 1, blurb: 'forages the Deep and trades at her camp', shop: 'truffle', hello: 'Shh, the puffcaps are napping. Buying or chatting? Trade is the button. (Everyone can hear you.)' },
   { id: 'moss', name: 'Beachcomber Moss', short: 'Moss', room: COVES, x: MOSS_X, hue: 150, range: 120, size: 1.05, accessory: 'beachcomber', faces: -1, blurb: 'keeps what the sea washes in, and trades it', shop: 'moss', hello: 'Oh! A visitor. Mind the shells. Trade is the button. (Everyone can hear you.)' },
   // the Pet Shop's keeper: sells pet food (the pets are on plinths), and knows everything about keeping them
   { id: 'clover', name: 'Auntie Clover', short: 'Clover', room: PETSHOP, x: CLOVER_X, hue: 330, range: 130, size: 1.15, accessory: 'petkeeper', faces: 1, blurb: 'runs the Pet Shop and raises the little ones', shop: 'clover', hello: 'Oh, hello, dear! Mind the little ones. Food is the Trade button. (Everyone can hear you.)' },
@@ -560,6 +577,7 @@ export const SLAP_QUIPS = {
   runa: ['Hands off the nets!', "That'll cost you.", 'Hmph. Fjord manners, is it?', 'I have a needle and I know how to use it.'],
   tove: ['Hey! Rude!', "I'm telling grandpa!", 'Ow! The yetis are nicer than you.', 'Do it again and I set Big Grumble on you.'],
   bun: ['Oof! Flour everywhere now!', 'Hey! I knead dough, not slaps.', 'That was rude. Rye rude.', 'Do that again and no buns for you.'],
+  truffle: ['Oof! Mind my mushrooms!', "Hey! That's no way to treat a forager.", 'Rude! Even the cave bats knock first.', 'Do that again and you can find your own way out.'],
   moss: ['Ow! Careful, I bruise like a peach.', "That's going in the collection. As a bad memory.", 'Rude! Even crabs say hello first.', 'Hmph. The tide is gentler than you.'],
   brine: ['Oi! Mind the captain, landlubber!', 'Arr, I\'ve been hit by bigger waves than you.', 'Blistering barnacles!', 'Is that how they greet sailors these days?'],
   prof: ["Ouch! That's not on the syllabus!", 'Detention!', 'Hey! Please backpropagate that.', 'Ow — I felt that in every layer!'],

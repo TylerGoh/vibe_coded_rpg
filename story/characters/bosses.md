@@ -22,6 +22,11 @@ Order is by level. Names are the game's current ones.
   in her shell who keeps everything the sea washes in and won't let the tide take anything back out; the
   pools have gone stale. Her lines (MOBS.tidemother.lines) are a hoarder's panic. Freed, she lets the
   tide have it, and the water runs clean.
+- **The Knotmole** (The Knotted Burrow, the Mycelium Deep; shipped G2). An old blind mole who dug down to
+  the warm threads and, with a shard in her paw, tied them into knots to keep the warmth for herself, so
+  the threads stopped carrying anything out to sea. Her lines (MOBS.knotmole.lines) are a cold, lonely
+  creature's grip. Freed, she lets go, and the glow runs off under the sea again: a quiet hint that the
+  net links the islands.
 
 ## Frostpeak (melancholy)
 - **Frost Queen Glacia** (The Frozen Throne). She froze the strait into an ice bridge to hold her island

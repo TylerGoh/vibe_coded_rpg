@@ -20,7 +20,9 @@ Data: `src/shared/rpg.js` (`ZONES`, `HIGHLAND_ZONES`, `CALDERA_ZONES`, `CITADEL_
 Stages 3 and 4 were added because players were Lv 35–88 and out of content.
 5. **Willowmere** and 6. **Saltspray Coves**: Greenhollow's first branches (`docs/places/willowmere.md`,
    `docs/places/coves.md`). `COMBAT_ROOMS` is every `STAGES` room plus the dens; `STAGES[room].pill` names
-   it in the location pill. `lob` and `trail` take a `style` for their shot / puddle look.
+   it in the location pill. `lob` and `trail` take a `style` for their shot / puddle look, `beam` too.
+7. **The Mycelium Deep** and 8. **Glowroot Hollow** (a hard pocket, the first with its own elites: Old
+   Glowworm, Elder Threadweaver): G2, under Mushroom Grove (`docs/places/deep.md`).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 
@@ -28,7 +30,8 @@ Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_
 stomp (field bosses) leaps and lands with a shockwave · ember imp lobs fireballs · magma slug leaves burning puddles · obsidian crab's front shell blocks most of
 a hit from the front, and it lunges · cinder bat dives · cogling splits into two cogbits · sentry drone
 fires a low laser (jump it) · aether knight blinks behind you, then slashes · chrono wraith phases out
-(immune), then pulses. Mobs with `fly` hover with no gravity.
+(immune), then pulses. Mobs with `fly` hover with no gravity. The branches' mobs reuse these brains under
+new names and art (each branch's doc lists which is which).
 
 ## Elites and field bosses (island depth G0, `story/world/island-depth.md`)
 - **Elites** are separate `MOBS` entries made by `elite(base, name)` from an ordinary mob: the `ELITE_*`

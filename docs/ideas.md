@@ -25,10 +25,20 @@
 - Island depth G1 (Willowmere, Saltspray Coves, the Tidemother, waystones): checked by a bot (rooms render,
   no errors, waystones attune and travel, the Tidemother speaks) but nobody has fought Old Snapjaw or the
   Tidemother, chatted to Bun or Moss, or tried the waystone card on a real phone.
+- Island depth G2 (the Mycelium Deep, Glowroot Hollow, the Knotmole): a bot walked every zone, attuned the
+  Deep's waystone, opened Truffle's Trade button and bought from her, popped a puffball into pufflings, saw
+  spore shots, glowworm beams and threadweaver threads, and beat the Knotmole at 5% HP (all her lines, Root
+  Quake, the drops). Nobody has fought her at full HP, tried Glowroot Hollow's elites at their level, or
+  chatted to Truffle (no DeepSeek key on test servers). Phone checked by screenshot only.
 
 ## G1 left for later (owner, 2026-10-20: "wrap up and add the rest to future plans")
 - Fishing and riverside herbs in Willowmere (the plan's easy-pocket extras); no system exists yet.
 - A phone screenshot pass over the two new rooms and the `#ways` card (layout only checked on desktop).
 - The Tidemother "freed" world change (the pools running clear after a kill): only her line says so.
 - More boss `lines`: the older den bosses have none (roadmap §2 "Boss lines").
-- Then G2 (the Mycelium Deep, Glowroot Hollow, the Knotmole) per `story/world/island-depth.md`.
+
+## G2 left for later
+- The Knotmole "freed" world change (the threads glowing all the way west again after a kill): like the
+  Tidemother, only her line says so.
+- A field boss for the Deep (the plan names none; Glowroot Hollow's elites stand in as its danger).
+- Then G3 (the Old Oak Canopy, the Hornet Queen, Ranger Acorn) per `story/world/island-depth.md`.

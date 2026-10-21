@@ -12,8 +12,12 @@ Small bosses that roam the open stages (field bosses, like Turnipop) aren't den 
 Wildwood: Sprout King, Mother Mushroom, Bramble Behemoth · Highlands: Frost Queen Glacia, Astral Wyrm ·
 Caldera: Ignis the Magma Tyrant, Pyra the Ember Phoenix · Citadel: The Clockwork Colossus, Chronos.
 
-Tenth den: **The Tidemother's Hoard** (room 26, Saltspray Coves, art `src/dens-coves.js`). Big bosses can
-have `lines` (enter / phase / freed) that they say in a bubble and the chat: only she has them so far.
+Tenth den: **The Tidemother's Hoard** (room 26, Saltspray Coves, art `src/dens-coves.js`). Eleventh:
+**The Knotted Burrow** (room 30, the Mycelium Deep, art `src/dens-deep.js`; `docs/places/deep.md`). Big
+bosses can have `lines` (enter / phase / freed) that they say in a bubble and the chat: only those two
+have them so far. A new den's art lives in its own file with `DEN_ART` / `ENTRANCE_ART` / `BOSS_ART`
+(merged in `dens.js`), plus its theme's row in the shared effect tables (`FXPAL`, `THEME_RGB`, the theme
+branches of `drawBit` and `drawFallObj`).
 
 ## How a fight works
 - Three stages by HP (`PHASE_AT`), each with its own move list (`MOBS[boss].phases`) and longer combos.

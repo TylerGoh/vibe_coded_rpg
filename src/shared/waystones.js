@@ -4,13 +4,14 @@
 // have attuned, E lists the others you have and the server moves you there. Respawn stays at towns
 // (TOWNS in sim.js): a waystone is for getting back out, not for waking up. One in Slimeville, one at each
 // branch's entrance hub (story/world/island-depth.md); Keeper's Spine gets one when it ships.
-import { VILLAGE, WILLOWMERE, COVES } from './sim.js';
+import { VILLAGE, WILLOWMERE, COVES, MYCELIUM } from './sim.js';
 
 // x: the stone, on its room's ground (where you arrive is a little beside it, ARRIVE_DX)
 export const WAYSTONES = [
   { id: 'slimeville', name: 'Slimeville', room: VILLAGE, x: 1265 },
   { id: 'willowmere', name: 'Willowmere', room: WILLOWMERE, x: 320 },
   { id: 'coves', name: 'Saltspray Coves', room: COVES, x: 4140 },
+  { id: 'deep', name: 'Mycelium Deep', room: MYCELIUM, x: 300 },
 ];
 export const WAY_RANGE = 56;
 export const ARRIVE_DX = 46;

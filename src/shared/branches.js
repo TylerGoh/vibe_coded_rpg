@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, ZONES, DENS, zoneAt, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X } from './rpg.js';
+import { FIELD, ZONES, DENS, zoneAt, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -27,11 +27,8 @@ export const GREENHOLLOW = [
     id: 'wreck', name: 'Wreck Cave', band: '30–40', hard: true, at: [75, 350], from: 'coves', block: 'flooded',
     gate: { room: COVES, x: 130, kind: 'flooded', look: 'peer into the flooded cave', says: 'The mouth of Wreck Cave is flooded to the roof. Somewhere inside, old timbers creak.' },
   },
-  {
-    id: 'deep', name: 'Mycelium Deep', band: '15–35', at: [420, 285], from: 'grove', block: 'roots',
-    gate: { room: FIELD, x: 2430, kind: 'stump', look: 'peer into the hollow stump', says: 'The hollow stump goes down to the Mycelium Deep, but its hole is choked with roots.' },
-  },
-  { id: 'glowroot', name: 'Glowroot Hollow', band: '40–50', hard: true, at: [420, 350], from: 'deep', past: true, block: 'deeper in' },
+  { id: 'deep', name: 'Mycelium Deep', band: '15–35', at: [420, 285], from: 'grove', rooms: [MYCELIUM], entry: { room: FIELD, x: MYCELIUM_GATE_X, kind: 'stump' } },
+  { id: 'glowroot', name: 'Glowroot Hollow', band: '40–50', hard: true, at: [420, 350], from: 'deep', rooms: [GLOWROOT], entry: { room: MYCELIUM, x: GLOWROOT_GATE_X, kind: 'crack' } },
   {
     id: 'canopy', name: 'Old Oak Canopy', band: '25–40', at: [535, 125], from: 'woods', block: 'rotten ladder',
     gate: { room: FIELD, x: 3390, kind: 'ladder', look: 'look up the rope ladder', says: "A rope ladder climbs into the Old Oak Canopy, but its rungs have rotted through. It won't take a slime's weight." },
@@ -44,7 +41,7 @@ export const GREENHOLLOW = [
 ];
 export const ISLAND_MAPS = { green: GREENHOLLOW }; // (Frostpeak's comes with its depth pass)
 export const shipped = (n) => !n.gate && !n.past;
-export const ENTRIES = GREENHOLLOW.filter((n) => n.entry).map((n) => ({ ...n.entry, branch: n.id, name: n.name, band: n.band }));
+export const ENTRIES = GREENHOLLOW.filter((n) => n.entry).map((n) => ({ ...n.entry, branch: n.id, name: n.name, band: n.band, hard: !!n.hard }));
 
 // Blocked ways in, and the one you're standing at (on the ground, close enough to look)
 export const GATES = GREENHOLLOW.filter((n) => n.gate).map((n) => ({ ...n.gate, branch: n.id, name: n.name, hard: !!n.hard }));

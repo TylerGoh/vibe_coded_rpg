@@ -8,10 +8,11 @@ import { DEN_W, DEN_PLATFORMS, DEN_EXIT_X, DENS, MOBS, FIELD_GROUND, SAFE_R, den
 import { DEN_ART as CALDERA_DENS, ENTRANCE_ART as CALDERA_ENTRANCES, BOSS_ART as CALDERA_BOSSES, FX2 as CALDERA_FX } from './dens-caldera.js';
 import { DEN_ART as CITADEL_DENS, ENTRANCE_ART as CITADEL_ENTRANCES, BOSS_ART as CITADEL_BOSSES, FX2 as CITADEL_FX } from './dens-citadel.js';
 import { DEN_ART as COVES_DENS, ENTRANCE_ART as COVES_ENTRANCES, BOSS_ART as COVES_BOSSES } from './dens-coves.js';
+import { DEN_ART as DEEP_DENS, ENTRANCE_ART as DEEP_ENTRANCES, BOSS_ART as DEEP_BOSSES } from './dens-deep.js';
 // the third and fourth stages' dens, bosses and boss effects live in their own files (same contracts as here)
-const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS };
-const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES };
-const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES };
+const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS };
+const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES };
+const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES };
 const FX2 = { ...CALDERA_FX, ...CITADEL_FX };
 
 const GROUND = FIELD_GROUND; // den floors sit at the same height as the field
@@ -2356,8 +2357,9 @@ const FXPAL = {
   clock: { debris: ['#c99a4a', '#e8c070', '#8a6a3a', '#bfe3ff'], dust: '210,190,150', crack: '#5a4020', warn: '255,90,90', jelly: ['#e8c070', '#bfe3ff', '#ffd98a', '#c9b6ff'] },
   chrono: { debris: ['#c9b6ff', '#ffd66a', '#8ae0e8', '#ffffff'], dust: '170,160,230', crack: '#2a1a50', warn: '255,100,120', jelly: ['#a88cf0', '#ffd66a', '#8ae0e8', '#e0d4ff'] },
   tide: { debris: ['#fff1e0', '#ffd6c9', '#9fe0d8', '#8fd0ff'], dust: '210,235,240', crack: '#2a5e66', warn: '255,96,110', jelly: ['#9fe0d8', '#ffd6c9', '#8fd0ff', '#fff1e0'] },
+  knot: { debris: ['#6a5048', '#8a6a5a', '#aaf0d8', '#5a4440'], dust: '160,130,130', crack: '#2a1e2c', warn: '255,96,110', jelly: ['#aaf0d8', '#c9a6e6', '#ffb0c0', '#efe4d0'] },
 };
-const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235' };
+const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225' };
 const DUR = {
   slamWarn: 1, shockwave: 0.55, chargeWarn: 0.8, rainWarn: 1, rainHit: 0.45, summon: 0.9, roar: 0.8, bossDie: 1.6,
   leap: 1.1, phase: 1.5,
@@ -2504,6 +2506,16 @@ function drawBit(ctx, theme, x, y, rot, s, c) {
       ctx.quadraticCurveTo(0, -7, 5, 2);
       ctx.closePath();
       ctx.fill();
+    }
+  } else if (theme === 'knot') {
+    // a crumb of earth, or a glowing bead of thread
+    if (c === '#aaf0d8') {
+      glow(ctx, 0, 0, 9, 9, '170,250,225', 0.6);
+      ctx.fillStyle = c;
+      circle(ctx, 0, 0, 3);
+    } else {
+      ctx.fillStyle = c;
+      ellipse(ctx, 0, 0, 5, 3.6);
     }
   } else {
     ctx.beginPath();
@@ -2774,6 +2786,34 @@ function drawFallObj(ctx, theme, x, y, s, rot, time) {
       ctx.fillStyle = 'rgba(0,0,0,0.25)';
       for (const [bx, by] of [[-3, -3], [3, -3], [-3, 3], [3, 3]]) circle(ctx, bx, by, 1.6);
     }
+  } else if (theme === 'knot') {
+    // a clod of earth shaken loose from the roof, a root and a glowing thread trailing from it
+    ctx.fillStyle = '#6a5048';
+    ctx.strokeStyle = '#3a2830';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-14, 4);
+    ctx.quadraticCurveTo(-16, -10, -4, -13);
+    ctx.quadraticCurveTo(10, -16, 14, -2);
+    ctx.quadraticCurveTo(12, 10, 0, 11);
+    ctx.quadraticCurveTo(-12, 12, -14, 4);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#8a6a5a';
+    ellipse(ctx, -4, -6, 5, 3);
+    ctx.strokeStyle = '#5a4434';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(6, -12);
+    ctx.quadraticCurveTo(10, -22, 4, -28);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(170,250,225,0.85)';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(-8, -10);
+    ctx.quadraticCurveTo(-12, -20, -6, -26 + Math.sin(time * 6) * 2);
+    ctx.stroke();
   } else {
     // a bundle of thorns tied with a vine
     ctx.fillStyle = '#4a2c48';
@@ -2881,7 +2921,7 @@ function fxSummon(ctx, e, k) {
   const open = Math.sin(Math.PI * Math.min(1, k * 1.15));
   const rx = 40 * open, ry = 12 * open;
   glow(ctx, x, y - 20, 60 * open + 1, 50 * open + 1, rgb, 0.6);
-  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30', tide: '#1e4a58' }[theme] ?? '#1c1020';
+  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30', tide: '#1e4a58', knot: '#2a1e2c' }[theme] ?? '#1c1020';
   ellipse(ctx, x, y + 2, rx + 0.1, ry + 0.1);
   ctx.strokeStyle = `rgba(${rgb},0.9)`;
   ctx.lineWidth = 3;
@@ -2908,7 +2948,7 @@ function fxSummon(ctx, e, k) {
 
 function fxRoar(ctx, e, k) {
   const { x, y, theme } = e;
-  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255', tide: '140,220,240' }[theme] ?? '255,140,80';
+  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255', tide: '140,220,240', knot: '170,250,225' }[theme] ?? '255,140,80';
   for (let i = 0; i < 3; i++) {
     const j = clamp(k * 1.4 - i * 0.18, 0, 1);
     if (j <= 0 || j >= 1) continue;

@@ -30,6 +30,8 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
 - The branches' traders (G1): **Miller Bun** (`SHOPS.bun`, Willowmere) and **Beachcomber Moss**
   (`SHOPS.moss`, the Coves). New gear has a `lvl` (checked on the frozen gear curve) and art in
   `src/willowmere-art.js` / `src/coves-art.js` (`BRANCH_SWORDS`, `BRANCH_HELMETS`, `BRANCH_ICONS` in field.js).
+  G2 adds **Forager Truffle** (`SHOPS.truffle`, the Mycelium Deep: also mega elixirs), with the Deep's and
+  Glowroot Hollow's gear in `src/deep-art.js` (`DEEP_SWORDS`, `DEEP_SWORD_LEN`, `DEEP_HELMETS`, `DEEP_ICONS`).
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely.
 

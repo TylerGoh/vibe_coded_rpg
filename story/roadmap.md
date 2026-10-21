@@ -19,7 +19,9 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
       (`docs/places/branches.md`); the frozen curves in `npm run economy`
 - [x] G1 (mostly, 2026-10-20): Willowmere and Saltspray Coves, Old Snapjaw, the Tidemother (with lines),
       Miller Bun and Beachcomber Moss, gear tiers, waystones. Left over: `docs/ideas.md` ("G1 left for later")
-- [ ] G2-G5: Greenhollow's remaining branches, bottom of the band up
+- [x] G2 (2026-10-21): the Mycelium Deep and Glowroot Hollow (Lv 15–50), the Knotmole (with lines), Forager
+      Truffle, the Listening Stone, Glowroot's elites, a waystone. Left over: `docs/ideas.md` ("G2 left for later")
+- [ ] G3-G5: Greenhollow's remaining branches (next: G3, the Old Oak Canopy)
 - [ ] R: the rebalance: the later islands' legacy mobs and bosses raised to their new bands; owned gear
       kept as Legacy, scaled new copies dropped instead
 - [ ] Frostpeak's depth pass (40-100)
@@ -50,8 +52,8 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
 - [x] **Keeper ruins** in Bramble Woods, with readable plaques (four stones, Tier 1 text, `src/ruins.js`).
 
 ## 3. New places and people
-- [ ] Regional AI characters: Captain Brine (done), Old Skaldi, Runa and Tove (done), Forgewarden Ash, the
-      Last Echo.
+- [ ] Regional AI characters: Captain Brine (done), Old Skaldi, Runa and Tove (done), the branches' Bun, Moss
+      and Truffle (done), Forgewarden Ash, the Last Echo.
 - [ ] Settlements: the fjord hamlet (done), Forgehold, the Skydocks camp.
 - [ ] The Slime Ages wing in the museum.
 - [ ] Each island's people drawn as their own slime type (`characters/people.md`): the fjord folk done

@@ -143,6 +143,9 @@ taken from the next free numbers below `HOUSE_BASE`.
   threads seen above are thick roots down here, and they run *off toward the sea* (canon: the mycelium
   net runs under the sea). Puffcaps, puffballs, cave bats. Den: **the Knotmole** (~Lv 35).
   - **Glowroot Hollow** (hard pocket, 40–50): the deepest cave, where the threads knot. Glowworms, elites.
+  - Shipped as planned, plus: **Forager Truffle** keeps a camp at the Deep's root stair (AI, trades), the
+    Listening Stone (Keeper: "what one shore hears, every shore hears") and glow moths and threadweavers
+    in the Hollow.
 - **Old Oak Canopy** (branch, 25–40): up from Bramble Woods into the treetops. Squirrels, owls, wasp
   nests. A treehouse camp with **Ranger Acorn** `[name proposed]` (AI: watches the woods, knows every
   nest; trades). Field boss: **the Hornet Queen** (~Lv 38). **Built as a wide room, not a tall one:**
@@ -239,7 +242,10 @@ systems first, then fills the band from the bottom up.
       Beachcomber Moss, the first gear tiers, and waystones (shipped 2026-10-20; `docs/places/willowmere.md`,
       `docs/places/coves.md`, `docs/places/waystones.md`). Not done: fishing and riverside herbs, the
       Tidemother's world change when freed (see `docs/ideas.md`).
-- [ ] **G2: the Mycelium Deep and Glowroot Hollow** (15–50), the Knotmole.
+- [x] **G2: the Mycelium Deep and Glowroot Hollow** (15–50), the Knotmole (shipped 2026-10-21;
+      `docs/places/deep.md`). The Deep's character is **Forager Truffle** (trades; the plan named none),
+      its find the Listening Stone and the Glow Shelf; Glowroot Hollow has the first hard-pocket elites.
+      Not done: the Knotmole's world change when freed, a field boss for the Deep (`docs/ideas.md`).
 - [ ] **G3: Old Oak Canopy** (25–40), the Hornet Queen, Ranger Acorn.
 - [ ] **G4: the hard pockets**: Wreck Cave (30–40) and the Thornheart (50–60), elites, the Drowned
       Bosun.

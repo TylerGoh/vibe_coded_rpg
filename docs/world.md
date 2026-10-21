@@ -11,7 +11,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Music House (piano) | 2 `PIANO` | exit |
 | Grand Museum of History | 3 `MUSEUM` | exit · wing portals in the lobby (`wingPortalX`) · back-to-lobby door at each wing (`wingReturnX`) |
 | Tutoring Room | 4 `TUTOR` | back to the hall |
-| The Wildwood | 5 `FIELD` | village · 3 dens · the gap to the east cliffs (east end; the Highlands trail went when the ferry started) |
+| The Wildwood | 5 `FIELD` | village · 3 dens · Willowmere's footbridge · the Mycelium Deep's stump · the gap to the east cliffs (east end; the Highlands trail went when the ferry started) |
 | Frostpeak (Frostpine Ridge, Starfall Summit) | 9 `HIGHLANDS` | down to Icefang Hamlet (west end) · 2 dens · Caldera pass |
 | Icefang Hamlet (Icefang Fjord) | 23 `FJORD` | the ferry's gangway (`FJORD_DOCK_X`, boards `FERRY_S`) · your house (`FJORD_HOME_X`) · up to Frostpine Ridge (east end) (`docs/places/fjord.md`) |
 | Emberdeep Caldera | 12 `CALDERA` | Highlands · 2 dens · Citadel skylift |
@@ -19,9 +19,13 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Greenhollow's East Cliffs | 20 `CLIFFS` | back into the Wildwood (west end); a vista, no mobs (`docs/places/cliffs.md`) |
 | Greenhollow Harbour | 19 `HARBOUR` | back up to the village (east end) · the ferry's gangway (`GANGWAY_X`, boards `FERRY_N`) (`docs/places/harbour.md`) |
 | The ferry's deck, out / home | 21 `FERRY_N`, 22 `FERRY_S` | ashore at Icefang Hamlet / Greenhollow Harbour, once she's in; back ashore while she casts off (`docs/places/crossings.md`) |
+| Willowmere | 24 `WILLOWMERE` | back to Sprout Meadow (west end) (`docs/places/willowmere.md`) |
+| Saltspray Coves | 25 `COVES` | back to the harbour (east end) · the Tidemother's den (`docs/places/coves.md`) |
+| The Mycelium Deep | 28 `MYCELIUM` | up to Mushroom Grove (west end) · the Knotmole's den · down to Glowroot Hollow (east end) (`docs/places/deep.md`) |
+| Glowroot Hollow | 29 `GLOWROOT` | back up into the Deep (west end); a hard pocket |
 | Pet Shop | 27 `PETSHOP` | exit (`docs/places/pets.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
-| Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17 | exit, back to the stage it's in (`DENS[].from`) |
+| Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17, 26, 30 | exit, back to the stage it's in (`DENS[].from`) |
 | Personal houses | `HOUSE_BASE` and up, one per account | out to your town (`docs/places/houses.md`) |
 
 Look rooms up with `roomDef(room)`, not `ROOMS[room]`: houses aren't in `ROOMS`.
