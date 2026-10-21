@@ -16,6 +16,7 @@ const AIM_MIN = 0.25, AIM_MAX = 1.0;
 // Furniture: buying one of every piece is a long-term collection goal, between what farming has earned by
 // these two levels
 const SET_FROM = 40, SET_TO = 90;
+const PET_MIN = 50000; // owner: "around 50k per pet or more for more premium ones"
 
 // ——— the frozen legacy curves (story/world/island-depth.md, G0) ———
 // Today's mobs and gear written down level by level, frozen on 2026-10-20. NEVER REFIT: the rebalance
@@ -132,7 +133,10 @@ const sinks = [
   ...Object.values(COSMETICS).map((c) => ({ what: `boutique: ${c.name}`, price: c.price })),
   ...HOUSE_SIZES.slice(1).map((s) => ({ what: `house: ${s.name}`, price: s.price, aim: s.aim })),
 ];
-const furniture = Object.entries(FURNITURE).sort((a, b) => a[1].price - b[1].price);
+const furniture = Object.entries(FURNITURE).filter(([, f]) => !f.pet).sort((a, b) => a[1].price - b[1].price);
+// pets (mini bosses, sold in the store's pet corner) are prestige buys priced against boss kills, not furniture
+const pets = Object.entries(FURNITURE).filter(([, f]) => f.pet).sort((a, b) => a[1].price - b[1].price);
+const bossWorth = (kind) => { const k = perKill(MOBS[kind]); return k.value + k.gear; }; // one kill's gold, drops sold and gear sold
 table('SINKS: what gold buys ("first affordable" = the level where lifetime farming gold reaches the price)', Object.fromEntries(sinks.map((s) => [s.what, {
   price: fmt(s.price), 'first affordable': `lvl ${levelFor(s.price)}`,
   ...(s.aim ? { aim: `lvl ${s.aim}`, 'share of gold by aim': `${Math.round((s.price / earnedBy(s.aim)) * 100)}%`, 'farming min at aim': Math.round(s.price / goldPerMin(s.aim)) } : {}),
@@ -140,6 +144,9 @@ table('SINKS: what gold buys ("first affordable" = the level where lifetime farm
 
 table('SINKS: furniture (the furniture store), cheapest first', Object.fromEntries(furniture.map(([k, f]) => [k, {
   price: fmt(f.price), size: `${f.w}×${f.h}`, 'first affordable': `lvl ${levelFor(f.price)}`, 'farming min at lvl 30': (f.price / goldPerMin(30)).toFixed(1), 'at lvl 70': (f.price / goldPerMin(70)).toFixed(1),
+}])));
+table('SINKS: pets (prestige: price vs kills of the boss itself, and vs lifetime farming gold)', Object.fromEntries(pets.map(([k, f]) => [k, {
+  price: fmt(f.price), boss: `${f.pet} (lvl ${MOBS[f.pet].lvl})`, 'kills of it (all loot sold)': (f.price / bossWorth(f.pet)).toFixed(1), 'first affordable': `lvl ${levelFor(f.price)}`, 'farming min at lvl 70': Math.round(f.price / goldPerMin(70)),
 }])));
 const setCost = furniture.reduce((a, [, f]) => a + f.price, 0);
 console.log(`One of every piece: ${fmt(setCost)} gold (farming has earned that by lvl ${levelFor(setCost)}; target lvl ${SET_FROM}–${SET_TO})`);
@@ -169,6 +176,10 @@ for (const [k, f] of furniture) if (!(f.price > 0)) problems.push(`furniture ${k
 const upright = furniture.filter(([, f]) => f.layer !== 'rug');
 for (const [a, fa] of upright) for (const [b, fb] of upright) {
   if (fa.w * fa.h >= 4 * fb.w * fb.h && fa.price < fb.price) problems.push(`furniture ${a} is far bigger than ${b} but cheaper`);
+}
+for (const [k, f] of pets) {
+  if (f.price < PET_MIN) problems.push(`pet ${k} costs ${fmt(f.price)}: pets are prestige buys, at least ${fmt(PET_MIN)} (owner)`);
+  for (const [k2, f2] of pets) if (MOBS[f2.pet].lvl < MOBS[f.pet].lvl && f2.price > f.price) problems.push(`pet ${k} (a later boss) is cheaper than ${k2}`);
 }
 if (setCost < earnedBy(SET_FROM) || setCost > earnedBy(SET_TO)) problems.push(`one of every piece of furniture costs ${fmt(setCost)}: want it between the gold earned by lvl ${SET_FROM} and lvl ${SET_TO}`);
 for (const id of SHOP_STOCK) if (sellPrice(id) >= ITEMS[id].price) problems.push(`${id} sells for as much as it costs`);

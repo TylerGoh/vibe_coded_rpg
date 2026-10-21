@@ -14,7 +14,7 @@ import { decode, encodeInput, BIN_VERSION } from './shared/wire.js';
 const INTERP = 6; // ticks (100 ms) behind the newest snapshot for remote slimes
 const MAX_SNAPS = 60;
 const KICKED = 4001; // server close code: this account logged in somewhere else
-const RPG = new Set(['me', 'mobs', 'loot', 'hurt', 'faint', 'gear', 'toast', 'got', 'skill', 'boss', 'nomana', 'shop', 'guard', 'scrolled', 'warp']);
+const RPG = new Set(['me', 'mobs', 'loot', 'hurt', 'faint', 'gear', 'toast', 'got', 'skill', 'boss', 'bossdmg', 'nomana', 'shop', 'guard', 'scrolled', 'warp']);
 
 // A knockback: same numbers as server/rpg.js hurt(), so prediction and server agree exactly
 export function applyKick(s, kick) {

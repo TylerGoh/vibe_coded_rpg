@@ -71,6 +71,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       // the newer mobs' tricks (mobAi) and bosses: special = phased / mid-teleport / Pyra's egg
       aiCd: rand(1, k.ai?.every ?? 3), aiPhase: null, aiTimer: 0, special: false, egg: null, ultN: 0,
       hover: k.fly ?? 0, hoverCur: k.fly ?? 0, dive: null, later: [],
+      // bosses and field bosses: damage dealt by each slime (name → HP) since its HP was last full
+      dmg: new Map(), dmgDirty: true,
     });
   }
 
@@ -316,6 +318,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     m.hitters.set(id, now());
     if (MOBS[m.kind].field) fieldFighters(m);
+    if (MOBS[m.kind].boss || MOBS[m.kind].field) {
+      m.dmg.set(p.name, (m.dmg.get(p.name) ?? 0) + Math.min(dmg, Math.max(0, m.hp))); // (overkill doesn't count)
+      m.dmgDirty = true;
+    }
     m.hp -= dmg;
     m.target = p;
     m.targetUntil = now() + 8000;
@@ -1062,7 +1068,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
           continue;
         }
         if (MOBS[m.kind].field && (m.hp < m.maxHp || m.fighters > 1) && t - Math.max(0, ...m.hitters.values()) > FIELD_BOSS_IDLE_MS) {
-          Object.assign(m, { hp: MOBS[m.kind].hp, maxHp: MOBS[m.kind].hp, fighters: 1, hitters: new Map() }); // left alone: it heals up
+          Object.assign(m, { hp: MOBS[m.kind].hp, maxHp: MOBS[m.kind].hp, fighters: 1, hitters: new Map(), dmg: new Map(), dmgDirty: true }); // left alone: it heals up (and the damage meter starts over)
         }
         if (m.den) {
           m.emptyFor = here.length ? 0 : m.emptyFor + dt;
@@ -1085,6 +1091,16 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
           if (boss?.dead) msg.b = Math.ceil((boss.respawnAt - t) / 1000); // seconds until the boss is back
           let data, bin; // binary for current clients (src/shared/wire.js), JSON for old tabs
           for (const [, q] of here) send(q.ws, q.bin ? (bin ??= encodeMobs(tick, list, msg.b)) : (data ??= JSON.stringify(msg)));
+        }
+      }
+      // the damage meter of each boss and field boss: {t:'bossdmg', id, kind, d: [[name, damage], …] (most first)}
+      // when it changed (at most every quarter second), and every few seconds for anyone who just came in.
+      // An empty d: its HP was reset (it respawned, or healed up when left alone)
+      if (tick % 15 === 0) {
+        for (const m of mobs) {
+          if (m.gone || !(m.dmgDirty || (tick % 180 === 0 && m.dmg.size)) || !rooms.get(m.room)?.length) continue;
+          m.dmgDirty = false;
+          toRoom(m.room)({ t: 'bossdmg', id: m.id, kind: m.kind, d: [...m.dmg].sort((a, b) => b[1] - a[1]).map(([n, v]) => [n, Math.round(v)]) });
         }
       }
       for (const p of players.values()) if (p.faintUntil && t >= p.faintUntil) wakeUp(p);

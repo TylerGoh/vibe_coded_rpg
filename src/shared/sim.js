@@ -53,7 +53,7 @@ export const CLIFFS_SCOPE_X = 1440; // the telescope, near the edge
 export const GANGWAY_X = 1000; // the ferry's gangway, at the quay in the harbour
 export const DECK_W = 1500; // a crossing room: the deck, stern (west) to bow (east)
 export const DECK_GANGWAY_X = 560; // where you come aboard, and go ashore once she's in
-export const STORE_W = 7400; // the showroom: every piece of FURNITURE on display (src/shared/house.js DISPLAY)
+export const STORE_W = 9200; // the showroom: every piece of FURNITURE on display (src/shared/house.js DISPLAY)
 
 // ——— personal houses (docs/places/houses.md) ———
 // Every account has a house of its own behind the same door. House rooms aren't in ROOMS: their ids

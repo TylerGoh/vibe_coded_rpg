@@ -2,7 +2,10 @@
 // Drawings of every piece of house furniture (FURNITURE in src/shared/house.js), wallpapers and floors.
 // Each piece is drawn from its bottom centre (x, y), facing right; f flips it. Soft pastel shapes, no images.
 import { TAU, circle, ellipse, mix } from './util.js';
-import { FURNITURE, WALLPAPERS, FLOORS } from './shared/house.js';
+import { FURNITURE, WALLPAPERS, FLOORS, PET_SCALE } from './shared/house.js';
+import { MOBS } from './shared/rpg.js';
+import { drawBoss } from './dens.js';
+import { drawMob } from './field.js';
 
 const INK = '#5b4a6b';
 const WOOD = '#c99b6b', WOOD_DARK = '#a8794f', WOOD_LIGHT = '#e3bf91';
@@ -572,7 +575,8 @@ const DRAW = {
     ctx.fillStyle = '#ff8f8f'; // apples
     for (const [x, y] of [[-46, -188], [8, -200], [44, -182], [-12, -226]]) circle(ctx, x + sway, y, 5);
   },
-  swing(ctx, t) {
+  // a: the seat's angle (src/house.js swings it harder while someone sits on it)
+  swing(ctx, t, a = Math.sin(t * 1.4) * 0.18) {
     rr(ctx, -55, -170, 110, 10, 5, WOOD_DARK); // frame
     for (const sx of [-1, 1]) {
       ctx.strokeStyle = WOOD_DARK;
@@ -583,7 +587,6 @@ const DRAW = {
       ctx.lineTo(sx * 58, 0);
       ctx.stroke();
     }
-    const a = Math.sin(t * 1.4) * 0.18;
     ctx.save();
     ctx.translate(0, -160);
     ctx.rotate(a);
@@ -698,13 +701,26 @@ const DRAW = {
   },
 };
 
-export function drawFurniture(ctx, k, x, y, f, time = 0) {
+// Pets (FURNITURE entries with `pet`): the boss's own art, shrunk. Standing still unless src/house.js walks it.
+export function drawPet(ctx, kind, x, y, facing, walking, time, seed = 0) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(PET_SCALE, PET_SCALE);
+  const m = { kind, x: 0, y: 0, facing, walking, vy: 0, seed };
+  if (MOBS[kind].boss) drawBoss(ctx, m, time);
+  else drawMob(ctx, m, time);
+  ctx.restore();
+}
+for (const [k, def] of Object.entries(FURNITURE)) if (def.pet) DRAW[k] = (ctx, t) => drawPet(ctx, def.pet, 0, 0, 1, false, t);
+
+// arg: something a piece's drawing can take (the swing's seat angle)
+export function drawFurniture(ctx, k, x, y, f, time = 0, arg) {
   const draw = DRAW[k];
   if (!draw) return;
   ctx.save();
   ctx.translate(x, y);
   if (f) ctx.scale(-1, 1);
-  draw(ctx, time);
+  draw(ctx, time, arg);
   ctx.restore();
 }
 

@@ -7,12 +7,13 @@
 // own ({t:'furni'}: bought at the furniture store, src/store.js), each with how many are still put away. The house is drawn open plan: picture
 // windows show the village sky (drawn behind by main.js), and the backyard is open air. Crops growing in
 // garden plots come with the layout (`farm`) and are drawn here; planting and the lab: src/alchemy.js.
-import { H, TAU, circle } from './util.js';
+// Pets wander around where they were put (petAt); a slime on the swing's seat swings with it (swingFor).
+import { H, TAU, circle, clamp } from './util.js';
 import { text } from './village.js';
 import { audio } from './audio.js';
 import { HOUSE_GROUND, HOUSE_EXIT_X, isHouse, setHouseRoom } from './shared/sim.js';
 import { FURNITURE, LAYERS, WALLPAPERS, FLOORS, HOUSE_SIZES, WALL_TOP, sizeOf, houseWidth, houseRoom, snapPlacement, cleanLayout, placed } from './shared/house.js';
-import { drawFurniture, furnitureIcon, drawWallpaper, drawFloor } from './furniture.js';
+import { drawFurniture, furnitureIcon, drawWallpaper, drawFloor, drawPet } from './furniture.js';
 import { drawCrop } from './alchemy-art.js';
 import { grown } from './shared/alchemy.js';
 
@@ -21,6 +22,24 @@ const byLayer = (items) => LAYERS.flatMap((l) => items.filter((it) => FURNITURE[
 const gold = (n) => n.toLocaleString('en-US');
 const PANE = 150, PANE_GAP = 330; // the inside's picture windows: width, and the distance between them
 const PANE_TOP = WALL_TOP + 40, PANE_BOTTOM = HOUSE_GROUND - 120;
+
+// A pet wanders up to PET_ROAM px either side of where it was put: every PET_STEP s it picks a new spot
+// (from the time, so everyone in the house sees about the same walk), walks there, and idles.
+const PET_ROAM = 280, PET_STEP = 5;
+function petAt(it, i, time, width) {
+  const seed = (i + 1) * 7.31 + it.x * 0.013;
+  const spot = (n) => {
+    const r = Math.sin(n * 12.9898 + seed * 78.233) * 43758.5453;
+    return clamp(it.x + ((r - Math.floor(r)) * 2 - 1) * PET_ROAM, 40, width - 40);
+  };
+  const u = time / PET_STEP + seed, n = Math.floor(u), walk = clamp((u - n) / 0.6, 0, 1);
+  const a = spot(n - 1), b = spot(n), e = walk * walk * (3 - 2 * walk);
+  return { x: a + (b - a) * e, facing: b >= a ? 1 : -1, walking: walk < 1 && Math.abs(b - a) > 4, seed };
+}
+// The swing's seat: its pivot (the top bar) and its angle on screen; harder while someone's on it
+const SWING_PIVOT = 160;
+const seatOn = (it, s) => s && Math.abs(s.x - it.x) <= FURNITURE.swing.seat.w / 2 + 4 && Math.abs(s.y - (it.y - FURNITURE.swing.seat.top)) < 3;
+const swingAngle = (it, time, busy) => (busy ? Math.sin(time * 2.2) * 0.38 : Math.sin(time * 1.4) * 0.18) * (it.f ? -1 : 1);
 
 export class Houses {
   constructor({ send, me, gold, view, toast, onOpenChange }) {
@@ -251,6 +270,12 @@ export class Houses {
     return true;
   }
 
+  // A slime sitting on a swing's seat in this house: where to swing it from ({ x, y, a }), or null
+  swingFor(room, s, time) {
+    for (const it of this.houses.get(room)?.layout.items ?? []) if (it.k === 'swing' && seatOn(it, s)) return { x: it.x, y: it.y - SWING_PIVOT, a: swingAngle(it, time, true) };
+    return null;
+  }
+
   // ——— drawing ———
   draw(ctx, room, time, mine) {
     const h = this.houses.get(room), layout = h?.layout ?? { size: 0, wall: 0, floor: 0, items: [] };
@@ -303,7 +328,20 @@ export class Houses {
     ctx.fill();
     ctx.stroke();
     text(ctx, label, px, HOUSE_GROUND - 136.5, 14, '#5b4a6b');
-    for (const it of byLayer(layout.items)) drawFurniture(ctx, it.k, it.x, it.y, it.f, time);
+    const who = this.who?.() ?? [];
+    for (const it of byLayer(layout.items)) {
+      const def = FURNITURE[it.k];
+      if (def.pet) continue; // (drawn last: they walk in front of the furniture)
+      if (it.k === 'swing') drawFurniture(ctx, it.k, it.x, it.y, it.f, time, swingAngle(it, time, who.some((s) => seatOn(it, s))) * (it.f ? -1 : 1));
+      else drawFurniture(ctx, it.k, it.x, it.y, it.f, time);
+    }
+    layout.items.forEach((it, i) => {
+      const def = FURNITURE[it.k];
+      if (!def.pet) return;
+      if (this.editing && mine) return drawFurniture(ctx, it.k, it.x, it.y, it.f, time); // (holds still to be picked up)
+      const p = petAt(it, i, time, width);
+      drawPet(ctx, def.pet, p.x, it.y, p.facing, p.walking, time, p.seed);
+    });
     const t = performance.now() / 1000;
     for (const it of layout.items) {
       const f = it.id && h?.farm.get(it.id);

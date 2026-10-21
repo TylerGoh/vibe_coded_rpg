@@ -64,6 +64,18 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
 - A picture window that a wall thing would cover isn't drawn (the wall stays solid behind a painting),
   so old layouts with paintings where the windows now are still look right.
 
+## Owner decisions (2026-10-21): the swing is sittable, and pets
+- The swing's seat is a narrow perch (`seat` on its `FURNITURE` entry: a platform only slimes use, nothing
+  can be put on it). Hop on and you swing with the seat, harder than its idle sway (`swingFor` in
+  `src/house.js`; main.js rotates the slime's drawing around the swing's top bar, the physics doesn't move).
+- **Pets** are mini bosses (`PETS` in `src/shared/house.js`, their art the boss's own at `PET_SCALE`),
+  sold in the store's "Pets" corner on cushioned plinths and placed like furniture (always on the floor).
+  They're `FURNITURE` entries (`pet_<boss>`), so owning, the decorate panel and `cleanLayout` work as for
+  any piece. In the house each one wanders around where it was put (`petAt`: from the time, so everyone sees
+  about the same walk); while you decorate, yours stand still on their spot so you can pick them up.
+- Prices: owner asked "around 50k per pet or more for more premium ones". They're prestige sinks: the later
+  the boss, the dearer (`npm run economy` has a pets table and checks it, `docs/economy.md`).
+
 ## How it works
 - Saved rows hold the layout plus `owned`; `{t:'furni', owned}` tells the owner what they own at login
   and after each purchase (the store and the decorate panel both read it).

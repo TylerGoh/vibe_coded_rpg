@@ -121,7 +121,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/art.md](docs/art.md) | slime art, accessories, scenery, the art style |
 | [docs/combat/core.md](docs/combat/core.md) | attacking, damage, HP/EXP, fainting, friendly fire, the bag, saving characters |
 | [docs/combat/stages.md](docs/combat/stages.md) | the four stages, zones, mobs and their AI, hazards, elites, field bosses |
-| [docs/combat/bosses.md](docs/combat/bosses.md) | boss dens, boss moves, ultimates, boss art |
+| [docs/combat/bosses.md](docs/combat/bosses.md) | boss dens, boss moves, ultimates, boss art, the damage meter |
 | [docs/combat/skills.md](docs/combat/skills.md) | skill trees, MP, the hotbar and its two setups, Mobility, ability points (STR/DEX/INT/LUK) |
 | [docs/combat/items.md](docs/combat/items.md) | items, gear, scrolls, gold, the shop, the Boutique |
 | [docs/economy.md](docs/economy.md) | ANY gold / EXP / price / drop / scaling change: the balance sheet, `npm run economy` |
@@ -131,7 +131,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
 | [docs/places/piano.md](docs/places/piano.md) | the Music House floor piano |
 | [docs/places/museum.md](docs/places/museum.md) | the history museum and its content |
-| [docs/places/houses.md](docs/places/houses.md) | personal houses, the furniture store, the backyard, expanding, decorating, the Players panel, invites |
+| [docs/places/houses.md](docs/places/houses.md) | personal houses, the furniture store, the backyard, expanding, decorating, pets, the swing, the Players panel, invites |
 | [docs/places/harbour.md](docs/places/harbour.md) | Greenhollow Harbour, the lighthouse, Captain Brine, the far-off islands drawn in every sky |
 | [docs/places/crossings.md](docs/places/crossings.md) | crossing rooms (the ferry's deck), the voyage clock `state.vt`, boarding (the Set sail card), future sea/balloon routes |
 | [docs/places/fjord.md](docs/places/fjord.md) | Icefang Fjord and Icefang Hamlet (Frostpeak's landing town), Skaldi, Runa and her shop, Tove, the fjord folk's look, the laid-up Lodestar |

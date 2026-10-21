@@ -7,6 +7,7 @@
 // kept under (docs/places/alchemy.md). Items are drawn in their layer order (rugs, wall things, then the rest)
 // and, within a layer, in array order. Drawings: src/house.js.
 import { HOUSE_GROUND, ROOMS, STORE, STORE_W } from './sim.js';
+import { MOBS } from './rpg.js';
 
 // Every house is an open-plan inside (x 0 → inside, big picture windows onto the sky) with a backyard
 // right behind it (inside → inside + yard). Bigger sizes cost gold, paid once to expand for good; prices
@@ -31,7 +32,8 @@ export const WALL_TOP = 64; // below the ceiling beams: wall things hang between
 // layer: 'rug' lies on the floor, behind everything · 'wall' hangs anywhere on the wall (inside only: the
 // yard has no wall) · 'floor' stands on the floor (or the grass) or on top of other furniture. top: the
 // height of its flat top, which becomes a one-way platform you can stand (and put things) on. yard: only
-// goes in the backyard, on the grass.
+// goes in the backyard, on the grass. seat: { top, w } a narrow perch only slimes use (the swing's seat:
+// nothing can be put on it). pet: a mini boss that roams the house (PETS, below).
 export const FURNITURE = {
   bed: { name: 'Bed', price: 8000, sec: 'Bedroom', w: 150, h: 70, layer: 'floor', top: 44 },
   sofa: { name: 'Sofa', price: 6000, sec: 'Living room', w: 140, h: 66, layer: 'floor', top: 34 },
@@ -66,12 +68,26 @@ export const FURNITURE = {
   birdbath: { name: 'Birdbath', price: 900, sec: 'Garden', w: 50, h: 62, layer: 'floor' },
   lamppost: { name: 'Lamp post', price: 1200, sec: 'Garden', w: 34, h: 150, layer: 'floor' },
   oak: { name: 'Garden tree', price: 30000, sec: 'Garden', w: 170, h: 240, layer: 'floor', top: 170 },
-  swing: { name: 'Swing', price: 12000, sec: 'Garden', w: 110, h: 170, layer: 'floor' },
+  swing: { name: 'Swing', price: 12000, sec: 'Garden', w: 110, h: 170, layer: 'floor', seat: { top: 44, w: 52 } },
   pond: { name: 'Pond', price: 10000, sec: 'Garden', w: 160, h: 12, layer: 'rug' },
   // farming and alchemy (docs/places/alchemy.md): every house gets a couple free (GIFT in shared/alchemy.js)
   garden_plot: { name: 'Garden plot', price: 600, sec: 'Farm & lab', w: 110, h: 30, layer: 'floor', yard: true },
   alchemy_lab: { name: 'Alchemy lab', price: 3500, sec: 'Farm & lab', w: 140, h: 120, layer: 'floor' },
 };
+
+// Pets: mini versions of the bosses, sold in the store's pet corner and placed like furniture (they stand
+// on the floor, where they're put, then wander off around the house: src/house.js). Prestige prices, set
+// against the boss rows of the balance sheet, not an aim level (owner: "around 50k per pet or more for
+// more premium ones"); the later the boss, the dearer its pet. `npm run economy` lists them.
+export const PET_SCALE = 0.4; // of the boss's own size
+export const PETS = {
+  turnipop: 50000, sprout_king: 50000, mother_mushroom: 60000, snapjaw: 80000, bramble_behemoth: 75000, frost_queen: 100000,
+  tidemother: 120000, astral_wyrm: 150000, ignis: 200000, pyra: 250000, colossus: 350000, chronos: 500000,
+};
+for (const [kind, price] of Object.entries(PETS)) {
+  const m = MOBS[kind];
+  FURNITURE[`pet_${kind}`] = { name: `Mini ${m.name.replace(/^The /, '').split(/,| the /)[0]}`, price, sec: 'Pets', w: Math.round(m.w * PET_SCALE), h: Math.round(m.h * PET_SCALE), layer: 'floor', pet: kind };
+}
 export const LAYERS = ['rug', 'wall', 'floor'];
 
 export const WALLPAPERS = [
@@ -154,7 +170,7 @@ export function cleanLayout(l, owned) {
     const out = {
       k: it.k,
       x: clampN(it.x, x0, x1),
-      y: def.layer === 'floor' ? clampN(it.y, WALL_TOP + def.h, HOUSE_GROUND) : def.layer === 'rug' ? HOUSE_GROUND : clampN(it.y, WALL_TOP + def.h, HOUSE_GROUND - 20),
+      y: def.pet ? HOUSE_GROUND : def.layer === 'floor' ? clampN(it.y, WALL_TOP + def.h, HOUSE_GROUND) : def.layer === 'rug' ? HOUSE_GROUND : clampN(it.y, WALL_TOP + def.h, HOUSE_GROUND - 20),
       f: !!it.f,
     };
     if (it.k === 'garden_plot' && Number.isInteger(it.id) && it.id > 0 && !ids.has(it.id)) ids.add((out.id = it.id));
@@ -168,7 +184,7 @@ export function cleanLayout(l, owned) {
 function settle(items) {
   const order = items.filter((it) => FURNITURE[it.k].layer === 'floor').sort((a, b) => b.y - a.y);
   for (const it of order) {
-    if (it.y >= HOUSE_GROUND) continue;
+    if (it.y >= HOUSE_GROUND || FURNITURE[it.k].pet) continue;
     let y = HOUSE_GROUND;
     for (const o of items) {
       const d = FURNITURE[o.k];
@@ -188,6 +204,7 @@ export function houseRoom(layout) {
   for (const it of layout.items) {
     const def = FURNITURE[it.k];
     if (def.top) platforms.push({ x: it.x - def.w / 2 + 6, y: it.y - def.top, w: def.w - 12, kind: 'furniture' });
+    if (def.seat) platforms.push({ x: it.x - def.seat.w / 2, y: it.y - def.seat.top, w: def.seat.w, kind: 'furniture' });
   }
   return { width: houseWidth(layout), platforms };
 }
@@ -198,7 +215,7 @@ export function houseRoom(layout) {
 export function snapPlacement(k, px, py, { size, items }) {
   const def = FURNITURE[k], [x0, x1] = xRange(def, size);
   const x = clampN(px, x0, x1);
-  if (def.layer === 'rug') return { x, y: HOUSE_GROUND };
+  if (def.layer === 'rug' || def.pet) return { x, y: HOUSE_GROUND }; // (pets walk the floor)
   if (def.layer === 'wall') return { x, y: clampN(py + def.h / 2, WALL_TOP + def.h, HOUSE_GROUND - 20) };
   let y = HOUSE_GROUND;
   for (const it of items) {
@@ -221,10 +238,11 @@ export const STORE_SECTIONS = [
   { name: 'On the wall', color: '#c9b6ff' },
   { name: 'Garden', color: '#8fd18a' },
   { name: 'Farm & lab', color: '#c7e89a' },
+  { name: 'Pets', color: '#ffc59a' },
 ];
 export const STORE_GROUND = 470;
 export const STORE_PEDESTAL = 46; // little things stand on a pedestal so they're easy to see
-const SHOW_FIRST = 820, SHOW_GAP = 52, SECTION_GAP = 220;
+const SHOW_FIRST = 920, SHOW_GAP = 52, SECTION_GAP = 220;
 export const storePortalX = (i) => 250 + i * 100; // in the lobby
 // Every piece on display { k, x, y (its bottom), small } and every section { name, color, x (its sign),
 // x0, x1 (its wall band), back (its door back to the lobby; none for the first) }
@@ -234,7 +252,7 @@ export const DISPLAY = [], SHOW_SECTIONS = [];
   for (const sec of STORE_SECTIONS) {
     const ks = Object.keys(FURNITURE).filter((k) => FURNITURE[k].sec === sec.name);
     if (!ks.length) continue;
-    const x0 = x, small = sec.name === 'Little things';
+    const x0 = x, small = sec.name === 'Little things' || sec.name === 'Pets'; // (pets sit on cushioned plinths)
     for (const k of ks) {
       const def = FURNITURE[k];
       DISPLAY.push({ k, x: x + def.w / 2, y: def.layer === 'wall' ? STORE_GROUND - 170 : small ? STORE_GROUND - STORE_PEDESTAL : STORE_GROUND, small });

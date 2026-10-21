@@ -52,6 +52,7 @@ export class Rpg {
     this.ouchNext = null; // a boss slam / thorn hit to report at the next step
     this.room = null;
     this.bossBack = 0; // seconds until this den's boss returns (0: it's here)
+    this.dmg = new Map(); // boss / field boss id → { kind, d: [[name, damage], …], at }: the damage meter
     this.fx = new SkillFx();
     this.bossFx = new BossFx();
     this.hz = []; // the newer mobs' and bosses' attacks: simulated here, judged in step(), drawn by hazards.js
@@ -123,6 +124,9 @@ export class Rpg {
       this.skillEcho(m, slimeOf, myId, mine);
     } else if (m.t === 'boss') {
       this.bossEvent(m, mine);
+    } else if (m.t === 'bossdmg') {
+      if (m.d.length) this.dmg.set(m.id, { kind: m.kind, d: m.d, at: this.time });
+      else this.dmg.delete(m.id); // its HP was reset: the meter starts over
     } else if (m.t === 'scrolled') {
       this.scrolled(m, slimeOf(m.id), m.id === myId);
     }
@@ -803,6 +807,7 @@ export class Rpg {
     this.loot = [];
     this.says = null;
     this.bossBack = 0;
+    this.dmg.clear();
     this.ouchNext = null;
     this.ult = null;
     this.wave = null;
@@ -1009,6 +1014,7 @@ export class Rpg {
       text(ctx, "TIME STOP: DON'T MOVE", W / 2, H * 0.42, 34, '#dfe8ff');
       text(ctx, left.toFixed(1), W / 2, H * 0.42 + 40, 22, '#ffe28a');
     }
+    this.drawMeter(ctx, den);
     let row = 0;
     const top = den ? (this.boss()?.shield !== undefined ? 210 : 172) : 128; // under the boss bar (and the egg's) in a den
     for (const t of this.toasts) {
@@ -1025,6 +1031,37 @@ export class Rpg {
       ctx.globalAlpha = 1;
       row++;
     }
+  }
+
+  // The damage meter: who's done how much to this den's boss (kept up after the kill, until it's back), or
+  // to the field boss fought last in this room. Right side, under the top-right buttons (and the boss bar).
+  drawMeter(ctx, den) {
+    let e = null;
+    for (const v of this.dmg.values()) if (den ? v.kind === den.boss : this.time - v.at < 30 && (!e || v.at > e.at)) e = v;
+    if (!e) return;
+    const me = this.slimeOf(this.myId)?.name, total = e.d.reduce((a, [, v]) => a + v, 0) || 1;
+    const ROWS = 5, mine = e.d.findIndex(([n]) => n === me);
+    const rows = e.d.slice(0, ROWS).map((r, i) => [i, ...r]);
+    if (mine >= ROWS) rows.push([mine, ...e.d[mine]]); // (you're always on it)
+    const w = 196, x = W - 16 - w, y = 182, rh = 19, h = 30 + rows.length * rh; // (under the boss bar, and the controls line on phones)
+    ctx.fillStyle = 'rgba(45,32,60,0.78)';
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 12);
+    ctx.fill();
+    text(ctx, `Damage · ${MOBS[e.kind].name}`.slice(0, 30), x + 10, y + 14, 11, 'rgba(255,255,255,0.8)', 'left');
+    rows.forEach(([i, name, v], j) => {
+      const ry = y + 26 + j * rh, share = v / total, you = name === me;
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.beginPath();
+      ctx.roundRect(x + 8, ry, w - 16, rh - 4, 5);
+      ctx.fill();
+      ctx.fillStyle = you ? 'rgba(255,211,77,0.75)' : 'rgba(255,143,177,0.6)';
+      ctx.beginPath();
+      ctx.roundRect(x + 8, ry, Math.max(6, (w - 16) * share), rh - 4, 5);
+      ctx.fill();
+      text(ctx, `${i + 1}. ${name}`.slice(0, 16), x + 13, ry + 8, 11, '#fffaf0', 'left');
+      text(ctx, `${v >= 10000 ? `${(v / 1000).toFixed(v >= 100000 ? 0 : 1)}k` : v.toLocaleString()} · ${Math.round(share * 100)}%`, x + w - 13, ry + 8, 11, '#fffaf0', 'right');
+    });
   }
 
   // Someone in the room got hurt

@@ -71,7 +71,7 @@ export class Store {
   }
   fill() {
     const def = FURNITURE[this.k], have = this.owned()[this.k] ?? 0, cash = this.gold();
-    const name = def.name, info = `${gold(def.price)} gold · you own ${have} · you have ${gold(cash)} gold`;
+    const name = def.name, info = `${def.pet ? 'A pet: it roams your house · ' : ''}${gold(def.price)} gold · you own ${have} · you have ${gold(cash)} gold`;
     if (this.name.textContent !== name) this.name.textContent = name;
     if (this.info.textContent !== info) this.info.textContent = info;
     this.buyBtn.disabled = cash < def.price;
@@ -144,12 +144,15 @@ export class Store {
         ctx.fillRect(d.x - def.w / 2 - 60, d.y - def.h - 60, def.w + 120, def.h + 120);
       }
       if (d.small) {
+        const pw = Math.max(60, def.w + 16);
         ctx.fillStyle = '#fffaf0';
         ctx.beginPath();
-        ctx.roundRect(d.x - 30, GROUND - PEDESTAL, 60, PEDESTAL, [8, 8, 0, 0]);
+        ctx.roundRect(d.x - pw / 2, GROUND - PEDESTAL, pw, PEDESTAL, [8, 8, 0, 0]);
         ctx.fill();
-        ctx.fillStyle = '#e3bf91';
-        ctx.fillRect(d.x - 34, GROUND - PEDESTAL - 4, 68, 7);
+        ctx.fillStyle = def.pet ? '#d96a8a' : '#e3bf91'; // (a pet's plinth has a velvet cushion)
+        ctx.beginPath();
+        ctx.roundRect(d.x - pw / 2 - 4, GROUND - PEDESTAL - (def.pet ? 7 : 4), pw + 8, def.pet ? 10 : 7, def.pet ? 5 : 0);
+        ctx.fill();
       }
       drawFurniture(ctx, d.k, d.x, d.y - (on ? 3 + Math.sin(time * 4) * 2 : 0), false, time);
       this.drawTag(ctx, d, on);

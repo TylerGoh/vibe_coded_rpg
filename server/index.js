@@ -78,6 +78,8 @@
 //   Inputs: k also has DASH (32) and BLINK (64); snapshots carry each slime's mobility state (sim.js pack).
 //   Big bosses talk (MOBS[kind].lines): ← {t:'boss', a:'say', id, kind, text}  on walking in (just to you), at a
 //   new phase and when freed (to the den).
+//   Damage meter (bosses and field bosses): ← {t:'bossdmg', id, kind, d: [[name, damage], …]} most first; empty
+//   when its HP was reset (respawned, or healed when left alone).
 // Waystones (src/shared/waystones.js, docs/places/waystones.md): → {t:'way'} at one: attune to it (`me.ways`
 //   lists yours) · → {t:'way', to} at an attuned one: the server moves you to stone `to`
 //   ← {t:'warp', id, x, in?}  to the room you left and the one you arrived in (a shimmer where you were / are)

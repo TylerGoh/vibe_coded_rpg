@@ -302,6 +302,7 @@ merchant.accessories = ['merchant'];
 merchant.name = 'Merchant Pip';
 // Personal houses (src/house.js) and who's online, with invites (src/players.js)
 const houses = new Houses({ send: (m) => net.sendNpc(m), me: () => profile.name, gold: () => rpg.me?.coins ?? 0, view: () => camX + W / 2, toast: (t) => rpg.toast(t), onOpenChange: () => held.clear() });
+houses.who = () => [...slimes.values(), ...(mine && net.id !== null ? [mine] : [])].filter((s) => s.visible !== false); // (who's on a swing)
 const store = new Store({ send: (m) => net.sendNpc(m), gold: () => rpg.me?.coins ?? 0, owned: () => houses.owned, toast: (t) => rpg.toast(t) });
 // Garden plots and the alchemy lab in houses (src/alchemy.js)
 const alchemy = new Alchemy({ send: (m) => net.sendNpc(m), rpg, houses, onOpenChange: () => held.clear() });
@@ -1246,10 +1247,21 @@ function render() {
   for (const c of charsHere()) c.drawSlime(ctx);
   drawSplats();
   const all = [...slimes.values()].filter((s) => s.visible && !splatted(s));
-  for (const s of all) s.draw(ctx);
+  // a slime on a house's swing swings with its seat
+  const drawSlime = (s) => {
+    const sw = isHouse(room) && houses.swingFor(room, s, time);
+    if (!sw) return s.draw(ctx);
+    ctx.save();
+    ctx.translate(sw.x, sw.y);
+    ctx.rotate(sw.a);
+    ctx.translate(-sw.x, -sw.y);
+    s.draw(ctx);
+    ctx.restore();
+  };
+  for (const s of all) drawSlime(s);
   const meShown = mine && net.id !== null && !splatted(mine);
   if (isCombat(room)) for (const s of meShown ? [...all, mine] : all) rpg.drawAura(ctx, s); // Berserk
-  if (meShown) mine.draw(ctx); // our own slime on top
+  if (meShown) drawSlime(mine); // our own slime on top
   if (isCombat(room)) for (const s of meShown ? [...all, mine] : all) rpg.drawShields(ctx, s); // Bubble, Aegis
   for (const s of all) nameTag(s, false);
   if (meShown) nameTag(mine, true);

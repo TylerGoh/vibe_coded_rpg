@@ -17,6 +17,9 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
 - **Sinks**: every price, the level whose lifetime farming gold first reaches it, and for sinks with an
   `aim` level: what share of the gold earned by that level it costs. Furniture has its own table: price,
   size, first affordable level, and minutes of farming at two levels, plus what one of every piece costs.
+- **Pets** (mini bosses for houses, `PETS`): prestige sinks priced against the boss rows, not an aim; the
+  table shows each one in kills of its own boss and in farming minutes. Checked: at least `PET_MIN` (the
+  owner's floor) and never cheaper than an earlier boss's pet. Kept out of the furniture checks.
 - **Farming / alchemy**: each crop's seed against what its harvest sells for, and each recipe's ingredient
   cost against what its potions sell for. Both must stay below cost (checked), so gardens aren't gold
   farms; seeds and garden plots are small sinks (`docs/places/alchemy.md`). The farming table also shows

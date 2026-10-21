@@ -25,6 +25,16 @@ have `lines` (enter / phase / freed) that they say in a bubble and the chat: onl
   Everyone leaving for a few seconds resets it; a kill respawns after `BOSS_RESPAWN_MS` (`b` in `mobs`
   is the countdown). Bosses drop their unique gear, scrolls, gold and potions. Events: `{t:'boss', a: …}`.
 
+## The damage meter (owner, 2026-10-21)
+- Every den boss and field boss counts the damage each slime has done to it (`dmg` on the mob in
+  `server/rpg.js`, by name; overkill doesn't count) and sends it to the room as `{t:'bossdmg'}` while it
+  changes. The client draws it on the right, under the boss bar (`drawMeter` in `src/rpg.js`): the top
+  five with their share, and you always.
+- **It starts over whenever the boss's HP does**: a respawn after a kill, a den boss healing when
+  everyone left, a field boss healing when left alone. HP growing for more fighters
+  (`BOSS_HP_PER_PLAYER`) and Pyra's Rebirth heal aren't resets. After a kill the den keeps showing the
+  final standings until the boss is back.
+
 ## Ultimates: one-hit KOs, on purpose (the owner wanted real stakes)
 First below `ULT_FIRST`, then every `ULT_EVERY` s, after a `ULT_WARN` warning banner with the safe spots
 drawn. The **client** decides whether you were safe and sends an `ult` ouch; the server KOs unless Aegis,
