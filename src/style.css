@@ -1685,7 +1685,7 @@ body.touch #shop {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: calc(520px * var(--s));
+  width: calc(600px * var(--s));
   max-height: calc(440px * var(--s));
   box-sizing: border-box;
   display: flex;
@@ -2441,6 +2441,10 @@ body.touch #alch {
 .pl-row button.pl-msg {
   background: #b9e8ff;
   color: #3f5a6b;
+}
+.pl-row button.pl-accuse {
+  background: #ffe0a8;
+  color: #7a5a2b;
 }
 /* on phones the keyboard covers the bottom half: the box sits at the top, under the HUD buttons */
 body.touch #chat {

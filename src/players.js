@@ -2,7 +2,8 @@
 // Who's online (P, or the Players button): everyone on the server, where they are, and an Invite button
 // to have them over to your house, and a Message button that opens a private chat with them (src/chat.js). Inviting works from any town (TOWNS: Slimeville,
 // Icefang Hamlet…) or your own house, and only for slimes standing in a town (the server checks too). Also the card that pops up when someone
-// invites you: Go over takes you straight into their house (server/house.js).
+// invites you: Go over takes you straight into their house (server/house.js). And an Accuse button: accuse them of
+// botting, for fun (tap twice: it asks first; docs/social/accuse.md, server/accuse.js).
 import { paletteFor } from './slime.js';
 import { audio } from './audio.js';
 import { VILLAGE, roomDef, isHouse, townOf } from './shared/sim.js';
@@ -28,6 +29,7 @@ export class Players {
     this.invites = []; // [{ name, until }] newest last
     this.timer = null;
     this.sent = new Map(); // player id → when we invited them (the button says Invited for a bit)
+    this.sure = new Map(); // player id → when Accuse was first tapped (it says Sure? for a bit)
     this.onMessage = null; // (name) → open a private chat with them (main.js)
   }
 
@@ -115,6 +117,22 @@ export class Players {
           audio.sfx('coin', { vol: 0.5 });
         };
         row.append(b);
+        const acc = document.createElement('button');
+        acc.type = 'button';
+        acc.className = 'pl-accuse';
+        const asking = performance.now() - (this.sure.get(id) ?? -1e9) < 3000;
+        acc.textContent = asking ? 'Sure?' : 'Accuse';
+        acc.title = 'Accuse them of botting: if they don\'t deny it in 5 min, you get 20% of their EXP for a while';
+        acc.onclick = () => {
+          if (!asking) this.sure.set(id, performance.now());
+          else {
+            this.sure.delete(id);
+            this.send({ t: 'accuse', to: id });
+            audio.sfx('bossWarn', { vol: 0.4 });
+          }
+          this.render();
+        };
+        row.append(acc);
       }
       this.list.append(row);
     }

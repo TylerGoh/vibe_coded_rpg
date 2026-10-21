@@ -111,7 +111,8 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
   for everyone inside).
 
 ## Players panel (P, or the Players button, anywhere)
-- Everyone online, with level and where they are, and a Message button (opens a private chat tab,
+- Everyone online, with level and where they are, an Accuse button (botting, for fun:
+  `docs/social/accuse.md`), and a Message button (opens a private chat tab,
   `docs/social/chat.md`) ("at home", "at tyler's house", "in the Wildwood"…),
   read from the newest snapshot. Invite buttons are only enabled when the rules above allow it; the
   server re-checks everything.

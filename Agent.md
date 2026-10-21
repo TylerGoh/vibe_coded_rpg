@@ -128,6 +128,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |
 | [docs/social/chat.md](docs/social/chat.md) | the chatbox, public chat, private messages, chat speech bubbles |
 | [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
+| [docs/social/accuse.md](docs/social/accuse.md) | accusing someone of botting, the canvas deny button, the EXP skim |
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
 | [docs/places/piano.md](docs/places/piano.md) | the Music House floor piano |
 | [docs/places/museum.md](docs/places/museum.md) | the history museum and its content |

@@ -95,6 +95,9 @@
 //   → {t:'brew', steps, n}  at an alchemy lab ← {t:'brewed', id, item, n, ok}  to the room
 //   → {t:'invite', to}  (from a town or your own house, to a player in a town: TOWNS in sim.js)
 //       ← {t:'invite', from, name, ms}  to them · → {t:'visit', host, no?}  yes takes them into the host's house
+// Botting accusations, for fun (server/accuse.js, docs/social/accuse.md): → {t:'accuse', to}  (ACCUSE_COOLDOWN_MS
+//   per accuser) · → {t:'deny'}  ← {t:'accused', by?, ms?, caught?}  your state: open (deny within ms), caught
+//   (ms of penalty left: your EXP goes nowhere but BOT_CUT of it to `by`), or nothing (no `by`)
 // Text chat (server/chat.js): one public channel for everyone online, plus private messages by account name
 //   → {t:'chat', text, to?}   ← {t:'chat', id, at, from, to?, text}  public: to everyone · private: to both of you
 //   ← {t:'chat-log', lines:[…same shape]}  at login: recent public lines and your private ones (incl. while offline)
@@ -117,6 +120,7 @@ import { createNpc, npcConfigured } from './npc.js';
 import { createRpg } from './rpg.js';
 import { createHouses } from './house.js';
 import { createChat } from './chat.js';
+import { createAccuse } from './accuse.js';
 import { decode, encodeSlimes, encodeSnap, BIN_VERSION } from '../src/shared/wire.js';
 import { isCombat } from '../src/shared/rpg.js';
 import { CHARACTERS } from './characters.js';
@@ -220,6 +224,8 @@ function broadcast(msg, except) {
 }
 const rpg = createRpg({ dbPath: accounts.path, players, send, toRoom, broadcast });
 const chat = createChat({ dbPath: accounts.path, players, send, users: () => accounts.list().map((a) => a.user) });
+const accuse = createAccuse({ players, send });
+setInterval(() => accuse.tick(), 1000).unref(); // accusations run out (deny deadlines, penalties)
 const houses = createHouses({ dbPath: accounts.path, players, send, toRoom, pay: rpg.pay, give: rpg.give });
 
 // Where everyone stood when the server stopped, so a deploy doesn't send them all back to spawn
@@ -344,6 +350,10 @@ wss.on('connection', (ws) => {
       houses.invite(id, p, m);
     } else if (m.t === 'visit' && p.joined && typeof m.host === 'string') {
       houses.visit(id, p, m);
+    } else if (m.t === 'accuse' && p.joined) {
+      accuse.accuse(id, p, m);
+    } else if (m.t === 'deny' && p.joined) {
+      accuse.deny(p);
     } else if (m.t === 'chat' && p.joined) {
       chat.say(p, m);
     } else if (m.t === 'cast' && p.joined) {
@@ -508,6 +518,7 @@ async function login(id, p, m) {
   chat.sendLog(p);
   rpg.entered(p);
   houses.entered(p);
+  accuse.entered(p);
 }
 
 // Save everyone's character before a restart (deploys restart the service)

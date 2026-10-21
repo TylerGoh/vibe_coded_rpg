@@ -29,6 +29,7 @@ import { Store } from './store.js';
 import { Alchemy } from './alchemy.js';
 import { FURNITURE } from './shared/house.js';
 import { Players } from './players.js';
+import { Accuse } from './accuse.js';
 import { Chat } from './chat.js';
 import { WorldMap } from './worldmap.js';
 import { drawHarbour } from './harbour.js';
@@ -224,6 +225,7 @@ const net = new Net(wsUrl, {
     else if (m.t === 'house-grew') houses.grew(m);
     else if (m.t === 'furni') houses.receiveOwned(m), store.bought(m);
     else if (m.t === 'harvested' || m.t === 'brewed') alchemy.receive(m, { myId: net.id, slimeOf: (id) => (id === net.id ? mine : slimes.get(id)?.visible ? slimes.get(id) : null) });
+    else if (m.t === 'accused') accuse.receive(m);
     else players.receive(m);
   },
   onChat(m) {
@@ -307,6 +309,8 @@ const store = new Store({ send: (m) => net.sendNpc(m), gold: () => rpg.me?.coins
 // Garden plots and the alchemy lab in houses (src/alchemy.js)
 const alchemy = new Alchemy({ send: (m) => net.sendNpc(m), rpg, houses, onOpenChange: () => held.clear() });
 const players = new Players({ net, houses, send: (m) => net.sendNpc(m), self: () => ({ name: profile.name, hue: profile.hue, lvl: rpg.me?.lvl }), onOpenChange: () => held.clear() });
+// Being accused of botting (src/accuse.js): the deny button is drawn on the canvas, somewhere random
+const accuse = new Accuse({ send: (m) => net.sendNpc(m), W, H });
 // Text chat and private messages (src/chat.js); the Players panel's Message buttons open a private tab
 const chat = new Chat({ send: (m) => net.sendNpc(m), me: () => profile.name, online: () => [...net.roster.values()].map((r) => r.name), onOpenChange: () => held.clear() });
 rpg.onAnnounce = (line) => chat.announce(line); // a field boss turning up (or beaten) in your room
@@ -545,6 +549,7 @@ function showLogin(message = '') {
   shop.close();
   players.close();
   players.invites = [];
+  accuse.reset();
   chat.close();
   chat.lines = [];
   houses.stopEditing();
@@ -724,6 +729,10 @@ function slapToward(dir) {
 canvas.addEventListener('pointerdown', (e) => {
   piano.unlock();
   audio.unlock();
+  if (online()) {
+    const r = canvas.getBoundingClientRect();
+    if (accuse.tap(((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H)) return; // "Not a bot!"
+  }
   if (!online() || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || e.button > 0) return;
   const r = canvas.getBoundingClientRect();
   if (scope.isOpen) return scope.tap((e.clientX - r.left) / r.width); // looking through the telescope
@@ -1355,6 +1364,7 @@ function render() {
     }
     if (status === 'online') rpg.drawHud(ctx, isCombat(room), H);
     if (status === 'online') alchemy.drawBuff(ctx, 128);
+    if (status === 'online') accuse.draw(ctx);
     const a = clamp(1 - (hintTime - 8) / 1.5, 0, 1);
     if (!museum.isOpen && !chat.isOpen) drawFeed(ctx, TOUCH ? H - 112 : a > 0 ? H - 56 : isCombat(room) ? H - 72 : H - 14, TOUCH ? 520 : isCombat(room) ? 300 : 620); // on touch, above the controls; above the hotbar
     if (a > 0 && !scope.isOpen) {
@@ -1389,7 +1399,7 @@ function render() {
 }
 
 // For tests and troubleshooting: open the game with #debug to reach its internals from the console.
-if (location.hash === '#debug') window.slimeville = { chat, net, voice, characters, museum, scope, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, players, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
+if (location.hash === '#debug') window.slimeville = { chat, net, voice, characters, museum, scope, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
 
 let last = performance.now();
 function frame(now) {

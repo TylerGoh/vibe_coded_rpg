@@ -18,6 +18,7 @@ import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt } from '../src/shared/sim.
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
 import { wayAt, wayById, ARRIVE_DX } from '../src/shared/waystones.js';
+import { caughtBy, cleanBot, BOT_CUT } from './accuse.js';
 
 export const MOB_KINDS = Object.keys(MOBS); // mob kinds go over the wire as an index into this
 const GRAVITY = 1400;
@@ -114,6 +115,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     r.brew = ITEMS[r.brew?.id]?.buff && r.brew.until > now() ? { id: r.brew.id, until: r.brew.until } : null;
     r.town = TOWNS[r.town] ? r.town | 0 : 0;
     r.ways = [...new Set((Array.isArray(r.ways) ? r.ways : []).filter(wayById))];
+    cleanBot(r); // accused of botting (server/accuse.js)
     p.hurtAt = 0;
     p.cds = {};
     p.hist = [];
@@ -126,9 +128,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   }
   function save(p) {
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bot, accusedAt } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bot, accusedAt }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -164,8 +166,15 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     return true;
   }
 
-  function gainExp(qid, q, exp) {
+  // share: this is a caught botter's cut going to their accuser (it isn't skimmed again)
+  function gainExp(qid, q, exp, share = false) {
     const c = q.rpg;
+    const by = caughtBy(c); // caught botting (server/accuse.js): no EXP, and the accuser skims BOT_CUT of it
+    if (by) {
+      const t = !share && [...players].find(([, x]) => x.joined && x.rpg && x.name === by);
+      if (t) gainExp(t[0], t[1], Math.round(exp * BOT_CUT), true);
+      return;
+    }
     c.exp += exp;
     let up = false;
     while (c.exp >= expToNext(c.lvl)) {
