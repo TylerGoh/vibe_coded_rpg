@@ -19,7 +19,10 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
   size, first affordable level, and minutes of farming at two levels, plus what one of every piece costs.
 - **Pets** (mini bosses for houses, `PETS`): prestige sinks priced against the boss rows, not an aim; the
   table shows each one in kills of its own boss and in farming minutes. Checked: at least `PET_MIN` (the
-  owner's floor) and never cheaper than an earlier boss's pet. Kept out of the furniture checks.
+  owner's floor) and never cheaper than an earlier boss's pet. Kept out of the furniture checks. Pets
+  eat (`docs/places/pets.md`): the pet food table and a "food a month vs price" column; checked that a day
+  of feeding stays under `PET_UPKEEP_MAX_MIN` minutes of farming where pets first become affordable, and
+  that a bigger portion is never dearer per belly.
 - **Farming / alchemy**: each crop's seed against what its harvest sells for, and each recipe's ingredient
   cost against what its potions sell for. Both must stay below cost (checked), so gardens aren't gold
   farms; seeds and garden plots are small sinks (`docs/places/alchemy.md`). The farming table also shows

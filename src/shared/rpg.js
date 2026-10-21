@@ -28,6 +28,12 @@ export const FJORD_W = 3000;
 export const FJORD_DOCK_X = 470; // the ferry's gangway
 export const FJORD_HOME_X = 1840; // the turf hut whose door is everyone's own front door
 export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
+// The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
+// (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
+export const PETSHOP = 27; // room id
+export const PETSHOP_W = 2700;
+export const PETSHOP_EXIT_X = 90;
+export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
 export const FJORD_EXIT_X = FJORD_W - 90; // up to Frostpine Ridge
 export const RUNA_X = 1560; // Netmender Runa, at her net shed (she trades: SHOPS)
@@ -647,6 +653,10 @@ export const ITEMS = {
   phoenix_draught: { name: 'Phoenix Draught', price: 1800, kind: 'potion', brewed: true, full: true, buff: { atk: 0.35, crit: 0.15, regen: 1 }, dur: 600, desc: 'Brewed. Fully restores HP and MP, then +35% ATK and MAGIC, +15% crit and double HP regeneration for 10 minutes.' },
   hour_elixir: { name: 'Elixir of Hours', price: 4400, kind: 'potion', brewed: true, full: true, buff: { atk: 0.3, crit: 0.1, ward: 0.25, exp: 0.2 }, dur: 900, desc: 'Brewed. Fully restores HP and MP, then +30% ATK and MAGIC, +10% crit, 25% less damage taken and +20% EXP for 15 minutes.' },
   sludge: { name: 'Murky Sludge', price: 1, kind: 'loot', desc: 'A brew gone wrong. It bubbles sadly.' },
+  // ——— pet food (Auntie Clover's, the Pet Shop: docs/places/pets.md). food: how much of a pet's belly one
+  // fills (1 = full, which lasts PET_STARVE_MS). Fed at home: E at the pet.
+  pet_kibble: { name: 'Pet Kibble', price: 400, kind: 'loot', food: 0.25, desc: 'Crunchy little biscuits. Fills a quarter of a pet\'s belly. Feed it at home: E at the pet.' },
+  pet_stew: { name: 'Hearty Pet Stew', price: 1200, kind: 'loot', food: 1, desc: 'A whole bowl of stew. Fills a pet right up for two days. Feed it at home: E at the pet.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Sword Scroll 100%', price: 300, kind: 'scroll', slot: 'sword', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a sword.' },
   scroll_s60: { name: 'Sword Scroll 60%', price: 1500, kind: 'scroll', slot: 'sword', rate: 0.6, atk: 3, magic: 2, desc: '60% chance: +3 ATK and +2 MAGIC on a sword.' },
@@ -708,6 +718,8 @@ export const SHOPS = {
   // back to Pip, and a tier of gear for its middle levels)
   bun: { name: 'Willowmere Mill', room: WILLOWMERE, x: BUN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'reed_rapier', 'miller_cap'] },
   moss: { name: "Moss's Driftwood Shack", room: COVES, x: MOSS_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'drift_cutlass', 'conch_helm'] },
+  // the Pet Shop: pet food only (the pets themselves are on plinths: furni-buy, src/petshop.js)
+  clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));
 export const BUY_MAX = 20; // potions bought at once

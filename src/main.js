@@ -17,7 +17,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE } from './shared/rpg.js';
+import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP } from './shared/rpg.js';
 import { drawHighlands } from './highlands.js';
 import { drawCaldera, drawCalderaPass } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
@@ -27,6 +27,8 @@ import { Shop } from './shop.js';
 import { Houses } from './house.js';
 import { Store } from './store.js';
 import { Alchemy } from './alchemy.js';
+import { Pets } from './pets.js';
+import { drawPetShop } from './petshop.js';
 import { FURNITURE } from './shared/house.js';
 import { Players } from './players.js';
 import { Accuse } from './accuse.js';
@@ -224,6 +226,7 @@ const net = new Net(wsUrl, {
     if (m.t === 'house') houses.receive(m);
     else if (m.t === 'house-grew') houses.grew(m);
     else if (m.t === 'furni') houses.receiveOwned(m), store.bought(m);
+    else if (m.t === 'pet-fed') pets.fed(m, profile.name);
     else if (m.t === 'harvested' || m.t === 'brewed') alchemy.receive(m, { myId: net.id, slimeOf: (id) => (id === net.id ? mine : slimes.get(id)?.visible ? slimes.get(id) : null) });
     else if (m.t === 'accused') accuse.receive(m);
     else players.receive(m);
@@ -308,6 +311,8 @@ houses.who = () => [...slimes.values(), ...(mine && net.id !== null ? [mine] : [
 const store = new Store({ send: (m) => net.sendNpc(m), gold: () => rpg.me?.coins ?? 0, owned: () => houses.owned, toast: (t) => rpg.toast(t) });
 // Garden plots and the alchemy lab in houses (src/alchemy.js)
 const alchemy = new Alchemy({ send: (m) => net.sendNpc(m), rpg, houses, onOpenChange: () => held.clear() });
+// Feeding pets in houses (src/pets.js; the Pet Shop sells them through the store's card, src/petshop.js)
+const pets = new Pets({ send: (m) => net.sendNpc(m), rpg, houses, onOpenChange: () => held.clear() });
 const players = new Players({ net, houses, send: (m) => net.sendNpc(m), self: () => ({ name: profile.name, hue: profile.hue, lvl: rpg.me?.lvl }), onOpenChange: () => held.clear() });
 // Being accused of botting (src/accuse.js): the deny button is drawn on the canvas, somewhere random
 const accuse = new Accuse({ send: (m) => net.sendNpc(m), W, H });
@@ -733,7 +738,7 @@ canvas.addEventListener('pointerdown', (e) => {
     const r = canvas.getBoundingClientRect();
     if (accuse.tap(((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H)) return; // "Not a bot!"
   }
-  if (!online() || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || e.button > 0) return;
+  if (!online() || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || pets.isOpen || e.button > 0) return;
   const r = canvas.getBoundingClientRect();
   if (scope.isOpen) return scope.tap((e.clientX - r.left) / r.width); // looking through the telescope
   const worldX = camX + ((e.clientX - r.left) / r.width) * W;
@@ -785,7 +790,7 @@ addEventListener('keydown', (e) => {
     return;
   }
   // the bag (I), the skill tree (K) and the shop: their key or Esc closes them (the rest is clicks / taps)
-  for (const [panel, code] of [[rpg, 'KeyI'], [skillTree, 'KeyK'], [shop, 'KeyE'], [players, 'KeyP'], [alchemy, 'KeyE']]) {
+  for (const [panel, code] of [[rpg, 'KeyI'], [skillTree, 'KeyK'], [shop, 'KeyE'], [players, 'KeyP'], [alchemy, 'KeyE'], [pets, 'KeyE']]) {
     if (!panel.isOpen) continue;
     if (e.code === 'Escape' || (e.code === code && !e.repeat)) {
       e.preventDefault();
@@ -916,7 +921,11 @@ addEventListener('keydown', (e) => {
     e.preventDefault(); // a garden plot or an alchemy lab
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && room === STORE && (store.isOpen || store.near)) {
+  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && !houses.editing && pets.use(room, net.me)) {
+    e.preventDefault(); // a pet: its card, to feed it
+    return;
+  }
+  if (e.code === 'KeyE' && !e.repeat && menu.hidden && (room === STORE || room === PETSHOP) && (store.isOpen || store.near)) {
     e.preventDefault();
     if (store.isOpen) store.close();
     else store.open();
@@ -1039,13 +1048,15 @@ function update(realDt) {
     shop.close();
     store.leave();
     alchemy.close();
+    pets.close();
     houses.stopEditing();
     if (online()) audio.sfx('door');
   }
   if (online()) audio.setScene(room, STAGES[room] ? zoneAt(net.me.x, room).name : null);
   rpg.update(dt, online() ? net.me : null, room);
-  if (room === STORE && online()) store.update(net.me);
+  if ((room === STORE || room === PETSHOP) && online()) store.update(net.me, room);
   if (online()) alchemy.update(room, net.me);
+  if (online()) pets.update(room, net.me);
   if (room === VILLAGE) merchant.animate(dt, { x: SHOP_X + 20, y: ROOMS[VILLAGE].ground, vx: 0, vy: 0, grounded: true, facing: mine && mine.x < SHOP_X + 20 ? -1 : 1 });
 
   const remote = net.remotes();
@@ -1085,7 +1096,7 @@ function update(realDt) {
     field: isCombat(room),
     dash: !!rankOf(rpg.me?.skills, 'dash'),
     blink: !!rankOf(rpg.me?.skills, 'blink'),
-    overlay: dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
+    overlay: dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || pets.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
   });
   if (room === PIANO) piano.update(dt);
   if (room === HALL) hall.update(dt, [...slimes.values()].filter((s) => s.visible).length + 1);
@@ -1176,7 +1187,7 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 const BEACON_RANGE = 420;
 const DOOR_BAND_Y = 160; // how high over the ground a door's level chip sits (under the beacon)
 function drawHints() {
-  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || houses.editing) return;
+  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || pets.isOpen || houses.editing) return;
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);
@@ -1186,8 +1197,9 @@ function drawHints() {
   else if (wayAt(me)) acts.push({ key: 'E', label: wayPrompt(me, rpg.me?.ways) });
   else if (ruinStoneAt(me)) acts.push({ key: 'E', label: `read ${ruinStoneAt(me).name}` });
   else if (room === CLIFFS && scopeNear(me)) acts.push({ key: 'E', label: 'look through the telescope' });
-  else if (room === STORE && store.near && !store.isOpen) acts.push({ key: 'E', label: `buy the ${FURNITURE[store.near.k].name.toLowerCase()} (${FURNITURE[store.near.k].price.toLocaleString('en-US')} gold)` });
+  else if ((room === STORE || room === PETSHOP) && store.near && !store.isOpen) acts.push({ key: 'E', label: `${room === PETSHOP ? 'adopt' : 'buy'} the ${FURNITURE[store.near.k].name.toLowerCase()} (${FURNITURE[store.near.k].price.toLocaleString('en-US')} gold)` });
   else if (alchemy.prompt(room, me)) acts.push({ key: 'E', label: alchemy.prompt(room, me) });
+  else if (pets.prompt(room, me)) acts.push({ key: 'E', label: pets.prompt(room, me) });
   else if (gateAt(me, room)) acts.push({ key: 'E', label: gateAt(me, room).look });
   else if (door) acts.push({ key: 'E', label: door.label, band: door.band, hard: door.hard });
   if (isCombat(room)) {
@@ -1237,6 +1249,7 @@ function render() {
   } else if (denAt(room)) drawDen(ctx, room, camX, W, time);
   else if (isHouse(room)) houses.draw(ctx, room, time, houses.isMine(room));
   else if (room === STORE) store.draw(ctx, camX, W, time);
+  else if (room === PETSHOP) drawPetShop(ctx, store, camX, W, time);
   else if (room === HARBOUR) drawHarbour(ctx, camX, W, time);
   else if (room === FJORD) drawFjord(ctx, camX, W, time);
   else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
@@ -1333,6 +1346,7 @@ function render() {
       if (up && TOUCH) drawPill(W - 236, 54, 220, 'Hand up', '#8a6fc4');
     }
     else if (status === 'online' && room === STORE) drawPill(16, 14, 260, `Furniture Store · ${here} shopper${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === PETSHOP) drawPill(16, 14, 260, `Pet Shop · ${here} shopper${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === HARBOUR) drawPill(16, 14, 300, `Greenhollow Harbour · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === FJORD) drawPill(16, 14, 300, `Icefang Hamlet · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CLIFFS) drawPill(16, 14, 300, `The East Cliffs · ${here} slime${here === 1 ? '' : 's'}`);
@@ -1399,7 +1413,7 @@ function render() {
 }
 
 // For tests and troubleshooting: open the game with #debug to reach its internals from the console.
-if (location.hash === '#debug') window.slimeville = { chat, net, voice, characters, museum, scope, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
+if (location.hash === '#debug') window.slimeville = { chat, net, voice, characters, museum, scope, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, pets, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
 
 let last = performance.now();
 function frame(now) {

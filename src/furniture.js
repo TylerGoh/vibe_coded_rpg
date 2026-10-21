@@ -4,6 +4,7 @@
 import { TAU, circle, ellipse, mix } from './util.js';
 import { FURNITURE, WALLPAPERS, FLOORS, PET_SCALE } from './shared/house.js';
 import { MOBS } from './shared/rpg.js';
+import { petLook } from './pet-art.js';
 import { drawBoss } from './dens.js';
 import { drawMob } from './field.js';
 
@@ -702,10 +703,13 @@ const DRAW = {
 };
 
 // Pets (FURNITURE entries with `pet`): the boss's own art, shrunk. Standing still unless src/house.js walks it.
-export function drawPet(ctx, kind, x, y, facing, walking, time, seed = 0) {
+// mood (PET_MOODS, docs/places/pets.md): the hungrier, the droopier and greyer (src/pet-art.js petLook).
+export function drawPet(ctx, kind, x, y, facing, walking, time, seed = 0, mood = 0) {
   ctx.save();
   ctx.translate(x, y);
-  ctx.scale(PET_SCALE, PET_SCALE);
+  const look = petLook(mood);
+  if (look.sat < 1) ctx.filter = `saturate(${look.sat})`; // (browsers without canvas filters just skip it)
+  ctx.scale(PET_SCALE * (1 + look.squash * 0.5), PET_SCALE * (1 - look.squash));
   const m = { kind, x: 0, y: 0, facing, walking, vy: 0, seed };
   if (MOBS[kind].boss) drawBoss(ctx, m, time);
   else drawMob(ctx, m, time);

@@ -16,7 +16,8 @@ const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...F
 // Greenhollow's branches' gear and materials (src/willowmere-art.js, src/coves-art.js)
 const BRANCH_SWORDS = { reed_rapier: drawReedRapier, drift_cutlass: drawDriftCutlass, coral_saber: drawCoralSaber, tide_claw: drawTideClaw };
 const BRANCH_HELMETS = { lily_hat: drawLilyHat, miller_cap: drawMillerCap, snail_helm: drawSnailHelm, snapjaw_shell: drawSnapjawShell, conch_helm: drawConchHelm, hoard_crown: drawHoardCrown };
-const BRANCH_ICONS = { ...WILLOW_ICONS, ...COVES_ICONS };
+import { PET_ICONS } from './pet-art.js';
+const BRANCH_ICONS = { ...WILLOW_ICONS, ...COVES_ICONS, ...PET_ICONS }; // (and pet food)
 
 const INK = '#5b4a6b';
 const FLOWER_COLORS = ['#ffb3c7', '#fff1a8', '#c9b6ff', '#ffffff', '#ffd1a1'];

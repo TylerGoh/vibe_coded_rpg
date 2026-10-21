@@ -1968,10 +1968,12 @@ body.touch #players {
 
 /* ——— farming (the seed card) and the alchemy lab: docs/places/alchemy.md ——— */
 #seeds[hidden],
+#petcard[hidden],
 #alch[hidden] {
   display: none;
 }
 #seeds,
+#petcard,
 #alch {
   position: absolute;
   left: 50%;
@@ -1989,18 +1991,21 @@ body.touch #players {
   box-shadow: 0 calc(6px * var(--s)) 0 rgba(91, 74, 107, 0.2);
 }
 #seeds h2,
+#petcard h2,
 #alch h2 {
   margin: 0 0 calc(6px * var(--s));
   font-size: calc(20px * var(--s));
   color: #4f9a5a;
 }
 #seeds h2 span,
+#petcard h2 span,
 #alch h2 span {
   margin-left: calc(10px * var(--s));
   font-size: calc(13px * var(--s));
   color: #c99a2e;
 }
 #seeds-close,
+#petcard-close,
 #alch-close {
   position: absolute;
   top: calc(10px * var(--s));
@@ -2015,11 +2020,13 @@ body.touch #players {
   cursor: pointer;
 }
 #seeds button,
+#petcard button,
 #alch button {
   font: inherit;
   cursor: pointer;
 }
 #seeds button:disabled,
+#petcard button:disabled,
 #alch button:disabled {
   opacity: 0.45;
   cursor: default;
@@ -2057,6 +2064,38 @@ body.touch #players {
   background: #4fbf86;
   color: #fff;
   font-size: calc(12px * var(--s));
+}
+/* a pet's card (feeding it): docs/places/pets.md */
+#petcard {
+  width: calc(400px * var(--s));
+  max-height: calc(470px * var(--s));
+  border-color: #ffb3c7;
+}
+#petcard h2 {
+  color: #d96a8a;
+}
+#pet-mood {
+  margin: 0;
+  color: #8a7a9b;
+}
+#pet-belly {
+  height: calc(12px * var(--s));
+  margin: calc(6px * var(--s)) 0 calc(8px * var(--s));
+  border-radius: calc(6px * var(--s));
+  background: #efe6d8;
+  overflow: hidden;
+}
+#pet-belly b {
+  display: block;
+  height: 100%;
+  border-radius: calc(6px * var(--s));
+}
+#pet-foods {
+  overflow-y: auto;
+}
+#pet-foods > p {
+  margin: calc(4px * var(--s)) 0;
+  color: #8a7a9b;
 }
 #alch {
   width: calc(900px * var(--s));
@@ -2295,6 +2334,7 @@ body.touch #players {
   color: #fff;
 }
 body.touch #seeds,
+body.touch #petcard,
 body.touch #alch {
   top: calc(6px * var(--s));
   transform: translateX(-50%);

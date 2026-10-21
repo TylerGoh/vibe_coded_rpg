@@ -6,7 +6,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 ## Rooms
 | room | id | doors (press E) |
 |---|---|---|
-| Slimeville (village) | 0 `VILLAGE` | Harbour gate (west end) · Furniture store · your house · Lecture Hall · Music House · Museum · Wildwood gate (east end) |
+| Slimeville (village) | 0 `VILLAGE` | Harbour gate (west end) · Furniture store · your house · Pet Shop · Lecture Hall · Music House · Museum · Wildwood gate (east end) |
 | Lecture Hall | 1 `HALL` | exit · Tutoring Room (side door) |
 | Music House (piano) | 2 `PIANO` | exit |
 | Grand Museum of History | 3 `MUSEUM` | exit · wing portals in the lobby (`wingPortalX`) · back-to-lobby door at each wing (`wingReturnX`) |
@@ -19,6 +19,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Greenhollow's East Cliffs | 20 `CLIFFS` | back into the Wildwood (west end); a vista, no mobs (`docs/places/cliffs.md`) |
 | Greenhollow Harbour | 19 `HARBOUR` | back up to the village (east end) · the ferry's gangway (`GANGWAY_X`, boards `FERRY_N`) (`docs/places/harbour.md`) |
 | The ferry's deck, out / home | 21 `FERRY_N`, 22 `FERRY_S` | ashore at Icefang Hamlet / Greenhollow Harbour, once she's in; back ashore while she casts off (`docs/places/crossings.md`) |
+| Pet Shop | 27 `PETSHOP` | exit (`docs/places/pets.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17 | exit, back to the stage it's in (`DENS[].from`) |
 | Personal houses | `HOUSE_BASE` and up, one per account | out to your town (`docs/places/houses.md`) |
@@ -45,7 +46,7 @@ toast says so when your town changes. A new town = a `TOWNS` entry (room, wake-u
 - Spawn at `SPAWN_X`. West to east: the harbour gate (`HARBOUR_GATE_X`), the furniture store (`STORE_DOOR_X`; a floating island was moved off
   its roof), Bakery, mushroom house (sign "Home": its door, `HOME_DOOR_X`, leads
   into your own house), the big tree with decks and Elder Mochi, the
-  Inn, Merchant Pip's stall (`SHOP_X`), then the Lecture Hall, Music House and Museum doors and the gate
+  Inn, Merchant Pip's stall (`SHOP_X`), the Pet Shop (`PETSHOP_DOOR_X`; the lamp east of Pip's moved west of it), then the Lecture Hall, Music House and Museum doors and the gate
   to the Wildwood. Floating islands above are one-way platforms.
 - Scenery is drawn by `src/village.js`; each building's outside is drawn by its feature's file
   (`src/hall.js`, `src/piano.js`, `src/museum.js`, `src/field.js` for the gate).

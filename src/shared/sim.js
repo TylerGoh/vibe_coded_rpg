@@ -15,7 +15,7 @@ export const DT = 1 / TICK_RATE;
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X } from './rpg.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
@@ -44,6 +44,7 @@ export const MUSEUM_EXIT_X = 120;
 export const HOME_DOOR_X = 1515; // the mushroom house's door, in the village: everyone's own front door
 export const STORE_DOOR_X = 621; // the furniture store's door, in the village (docs/places/houses.md)
 export const STORE_EXIT_X = 90;
+export const PETSHOP_DOOR_X = 2989; // the Pet Shop's door, in the village, between Pip's stall and the hall (docs/places/pets.md)
 export const HARBOUR_GATE_X = 60; // the way down to the harbour, at the village's west end
 export const HARBOUR_W = 2400;
 export const HARBOUR_EXIT_X = HARBOUR_W - 90; // back up to the village, at the harbour's east end
@@ -117,6 +118,7 @@ export const ROOMS = [
       { x: MUSEUM_DOOR_X, w: 90, to: MUSEUM, toX: MUSEUM_EXIT_X, label: 'enter the Grand Museum of History' },
       { x: HOME_DOOR_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
       { x: STORE_DOOR_X, w: 60, to: STORE, toX: STORE_EXIT_X, label: 'enter the furniture store' },
+      { x: PETSHOP_DOOR_X, w: 60, to: PETSHOP, toX: PETSHOP_EXIT_X, label: 'enter the Pet Shop' },
       { x: FIELD_GATE_X, w: 80, to: FIELD, toX: FIELD_EXIT_X, label: 'head out to the Wildwood (mobs!)' },
       { x: HARBOUR_GATE_X, w: 70, to: HARBOUR, toX: HARBOUR_EXIT_X, label: 'walk down to Greenhollow Harbour' },
     ],
@@ -191,6 +193,11 @@ ROOMS[CALDERA] = {
 ROOMS[STORE] = {
   name: 'Furniture Store', width: STORE_W, ground: 470, platforms: [],
   doors: [{ x: STORE_EXIT_X, w: 70, to: VILLAGE, toX: STORE_DOOR_X, label: 'leave the store' }],
+};
+// room 27: the Pet Shop (pets on plinths, Auntie Clover's food counter: src/petshop.js; no platforms)
+ROOMS[PETSHOP] = {
+  name: 'Pet Shop', width: PETSHOP_W, ground: 470, platforms: [],
+  doors: [{ x: PETSHOP_EXIT_X, w: 70, to: VILLAGE, toX: PETSHOP_DOOR_X, label: 'leave the Pet Shop' }],
 };
 ROOMS[CITADEL] = {
   name: 'The Aether Citadel', width: CITADEL_W, ground: FIELD_GROUND, platforms: CITADEL_PLATFORMS,
@@ -528,6 +535,8 @@ export const NPCS = [
   // Greenhollow's branches (island depth G1): each has a character who trades and is worth a chat
   { id: 'bun', name: 'Miller Bun', short: 'Bun', room: WILLOWMERE, x: BUN_X, hue: 34, range: 120, size: 1.2, accessory: 'miller', faces: 1, blurb: 'runs the Willowmere mill and trades at its door', shop: 'bun', hello: 'Mind the flour! Buying or chatting? Trade is the button. (Everyone can hear you.)' },
   { id: 'moss', name: 'Beachcomber Moss', short: 'Moss', room: COVES, x: MOSS_X, hue: 150, range: 120, size: 1.05, accessory: 'beachcomber', faces: -1, blurb: 'keeps what the sea washes in, and trades it', shop: 'moss', hello: 'Oh! A visitor. Mind the shells. Trade is the button. (Everyone can hear you.)' },
+  // the Pet Shop's keeper: sells pet food (the pets are on plinths), and knows everything about keeping them
+  { id: 'clover', name: 'Auntie Clover', short: 'Clover', room: PETSHOP, x: CLOVER_X, hue: 330, range: 130, size: 1.15, accessory: 'petkeeper', faces: 1, blurb: 'runs the Pet Shop and raises the little ones', shop: 'clover', hello: 'Oh, hello, dear! Mind the little ones. Food is the Trade button. (Everyone can hear you.)' },
   { id: 'clio', name: 'Curator Clio', short: 'Clio', room: MUSEUM, x: 300, hue: 32, range: 80, size: 1.15, accessory: 'curator', faces: 1, blurb: 'historian of the Grand Museum · ask from anywhere in the museum', anywhere: true, hello: 'Welcome to the museum! Ask Clio anything about history. (Everyone can hear you.)' },
 ];
 export const NPC = NPCS[0]; // Elder Mochi
@@ -544,6 +553,7 @@ export const PROF_X = 215;
 export const SLAP_REACH = 72; // px in front of the slapper's centre
 export const SLAP_COOLDOWN_MS = 350;
 export const SLAP_QUIPS = {
+  clover: ['Not in front of the little ones!', 'Ow! Now you\'ve upset the kibble.', 'Shoo! Even Turnipop has better manners.', 'Gentle hands, dear. GENTLE.'],
   clio: ['Excuse me! This is a museum!', 'Ow! Please don\'t touch the curator.', 'History will remember that, you know.', 'Hmph! Security!'],
   mochi: ['Oof! Respect your elders, young one!', 'Hmph! My poor old jelly…', 'Ow! What was that for?', 'Goodness! Is that how they greet folks nowadays?'],
   skaldi: ['Hm.', 'The cold has done worse.', 'Mind the fire, child.', 'That was unkind. Sit down.'],

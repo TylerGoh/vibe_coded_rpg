@@ -5,7 +5,7 @@
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
 import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, FIELD_BOSS_RESPAWN_MS } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
-import { HOUSE_SIZES, FURNITURE } from '../src/shared/house.js';
+import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about this many
@@ -17,6 +17,9 @@ const AIM_MIN = 0.25, AIM_MAX = 1.0;
 // these two levels
 const SET_FROM = 40, SET_TO = 90;
 const PET_MIN = 50000; // owner: "around 50k per pet or more for more premium ones"
+// Pet food (docs/places/pets.md): a day of feeding the cheapest way costs at most this many minutes of
+// farming at the level where the cheapest pet is first affordable (care, not a second price tag)
+const PET_UPKEEP_MAX_MIN = 5;
 
 // ——— the frozen legacy curves (story/world/island-depth.md, G0) ———
 // Today's mobs and gear written down level by level, frozen on 2026-10-20. NEVER REFIT: the rebalance
@@ -134,8 +137,12 @@ const sinks = [
   ...HOUSE_SIZES.slice(1).map((s) => ({ what: `house: ${s.name}`, price: s.price, aim: s.aim })),
 ];
 const furniture = Object.entries(FURNITURE).filter(([, f]) => !f.pet).sort((a, b) => a[1].price - b[1].price);
-// pets (mini bosses, sold in the store's pet corner) are prestige buys priced against boss kills, not furniture
+// pets (mini bosses, sold at the Pet Shop) are prestige buys priced against boss kills, not furniture
 const pets = Object.entries(FURNITURE).filter(([, f]) => f.pet).sort((a, b) => a[1].price - b[1].price);
+// and they eat: a full belly (food 1) lasts PET_STARVE_MS. Upkeep a day, fed the cheapest way:
+const foods = Object.entries(ITEMS).filter(([, it]) => it.food);
+const perBelly = (it) => it.price / it.food;
+const upkeepDay = Math.min(...foods.map(([, it]) => perBelly(it))) * (86400_000 / PET_STARVE_MS);
 const bossWorth = (kind) => { const k = perKill(MOBS[kind]); return k.value + k.gear; }; // one kill's gold, drops sold and gear sold
 table('SINKS: what gold buys ("first affordable" = the level where lifetime farming gold reaches the price)', Object.fromEntries(sinks.map((s) => [s.what, {
   price: fmt(s.price), 'first affordable': `lvl ${levelFor(s.price)}`,
@@ -147,7 +154,13 @@ table('SINKS: furniture (the furniture store), cheapest first', Object.fromEntri
 }])));
 table('SINKS: pets (prestige: price vs kills of the boss itself, and vs lifetime farming gold)', Object.fromEntries(pets.map(([k, f]) => [k, {
   price: fmt(f.price), boss: `${f.pet} (lvl ${MOBS[f.pet].lvl})`, 'kills of it (all loot sold)': (f.price / bossWorth(f.pet)).toFixed(1), 'first affordable': `lvl ${levelFor(f.price)}`, 'farming min at lvl 70': Math.round(f.price / goldPerMin(70)),
+  'food a month vs price': `${Math.round(((upkeepDay * 30) / f.price) * 100)}%`,
 }])));
+table('SINKS: pet food (a full belly lasts PET_STARVE_MS; upkeep = a day fed the cheapest way, per pet)', Object.fromEntries(foods.map(([id, it]) => [id, {
+  price: fmt(it.price), fills: `${it.food * 100}%`, 'gold per full belly': fmt(perBelly(it)), 'a day, fed only this': fmt(perBelly(it) * (86400_000 / PET_STARVE_MS)),
+}])));
+const petLvl = levelFor(pets[0][1].price);
+console.log(`Pet upkeep: ${fmt(upkeepDay)} gold a day per pet = ${(upkeepDay / goldPerMin(petLvl)).toFixed(1)} min of farming at lvl ${petLvl} (first pet affordable; max ${PET_UPKEEP_MAX_MIN})`);
 const setCost = furniture.reduce((a, [, f]) => a + f.price, 0);
 console.log(`One of every piece: ${fmt(setCost)} gold (farming has earned that by lvl ${levelFor(setCost)}; target lvl ${SET_FROM}–${SET_TO})`);
 
@@ -181,6 +194,8 @@ for (const [k, f] of pets) {
   if (f.price < PET_MIN) problems.push(`pet ${k} costs ${fmt(f.price)}: pets are prestige buys, at least ${fmt(PET_MIN)} (owner)`);
   for (const [k2, f2] of pets) if (MOBS[f2.pet].lvl < MOBS[f.pet].lvl && f2.price > f.price) problems.push(`pet ${k} (a later boss) is cheaper than ${k2}`);
 }
+if (upkeepDay / goldPerMin(petLvl) > PET_UPKEEP_MAX_MIN) problems.push(`a day of pet food costs ${(upkeepDay / goldPerMin(petLvl)).toFixed(1)} min of farming at lvl ${petLvl}: more than ${PET_UPKEEP_MAX_MIN}`);
+for (const [a, fa] of foods) for (const [b, fb] of foods) if (fa.food > fb.food && perBelly(fa) > perBelly(fb)) problems.push(`pet food ${a} is a bigger portion than ${b} but dearer per belly`);
 if (setCost < earnedBy(SET_FROM) || setCost > earnedBy(SET_TO)) problems.push(`one of every piece of furniture costs ${fmt(setCost)}: want it between the gold earned by lvl ${SET_FROM} and lvl ${SET_TO}`);
 for (const id of SHOP_STOCK) if (sellPrice(id) >= ITEMS[id].price) problems.push(`${id} sells for as much as it costs`);
 for (const [id, c] of Object.entries(CROPS)) if (c.yield[1] * sellPrice(id) >= c.seed) problems.push(`a ${id} harvest can sell for more than its seed costs: a gold farm`);

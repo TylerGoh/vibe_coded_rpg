@@ -69,7 +69,9 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
   can be put on it). Hop on and you swing with the seat, harder than its idle sway (`swingFor` in
   `src/house.js`; main.js rotates the slime's drawing around the swing's top bar, the physics doesn't move).
 - **Pets** are mini bosses (`PETS` in `src/shared/house.js`, their art the boss's own at `PET_SCALE`),
-  sold in the store's "Pets" corner on cushioned plinths and placed like furniture (always on the floor).
+  sold at the Pet Shop on cushioned plinths (since 2026-10-21; it was the store's "Pets" corner before)
+  and placed like furniture (always on the floor). They get hungry, sad, and die if not fed:
+  `docs/places/pets.md`.
   They're `FURNITURE` entries (`pet_<boss>`), so owning, the decorate panel and `cleanLayout` work as for
   any piece. In the house each one wanders around where it was put (`petAt`: from the time, so everyone sees
   about the same walk); while you decorate, yours stand still on their spot so you can pick them up.

@@ -9,6 +9,7 @@ import { drawMuseumOutside } from './museum.js';
 import { drawFieldGate, drawItemIcon, drawSword } from './field.js';
 import { FIELD_GATE_X, SHOP_X } from './shared/rpg.js';
 import { drawStoreWindow } from './store.js';
+import { drawPetShopWindow } from './petshop.js';
 import { drawHarbourGate } from './harbour.js';
 
 const FLOWER_COLORS = ['#ffb3c7', '#fff1a8', '#c9b6ff', '#ffffff', '#ffd1a1'];
@@ -19,10 +20,11 @@ const HOUSES = [
   { x: 840, w: 210, h: 150, wall: '#fff3e2', roof: '#ff9fb8', roofDark: '#e87c9b', style: 'gable', door: '#c98a5a', sign: 'Bakery' },
   { x: 1420, w: 190, h: 135, wall: '#f6ecff', roof: '#ff7a7a', roofDark: '#e05c66', style: 'mushroom', door: '#9c7bd1', sign: 'Home' }, // everyone's own house is behind this door (HOME_DOOR_X)
   { x: 2180, w: 250, h: 165, wall: '#eefaf3', roof: '#7fc8c0', roofDark: '#5aa9a1', style: 'gable', door: '#d98f6a', sign: 'Inn' },
+  { x: 2935, w: 170, h: 140, wall: '#fff1f4', roof: '#ffb3c7', roofDark: '#e88fa8', style: 'gable', door: '#9c7bd1', sign: 'Pets', petshop: true }, // the Pet Shop (PETSHOP_DOOR_X, src/petshop.js)
 ];
 const TREE = { x: 1960 };
-const LAMPS = [300, 1130, 1700, 2520, 3060];
-const BUNTING = [[1130, 1700], [2520, 3060]];
+const LAMPS = [300, 1130, 1700, 2520, 2915];
+const BUNTING = [[1130, 1700], [2520, 2915]]; // (the east lamp moved west of the Pet Shop)
 const WELL = { x: 1790 };
 const SIGNPOST = { x: 175 }; // (moved east to make room for the harbour gate)
 
@@ -393,6 +395,7 @@ function drawHouse(ctx, hs, time, i) {
 
   // windows
   if (hs.store) drawStoreWindow(ctx, x, w, base, time);
+  else if (hs.petshop) drawPetShopWindow(ctx, x, w, base, time);
   else if (hs.style === 'gable') {
     drawWindow(ctx, x + w * 0.62, top + 30, 40, 36, time, i * 3);
   } else {

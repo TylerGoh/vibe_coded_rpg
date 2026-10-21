@@ -1273,6 +1273,16 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       sendMe(p);
       return true;
     },
+    // Use up n of a stacking item from p's bag (pet food): → false if p hasn't that many
+    take(p, id, n) {
+      const c = p.rpg, slot = c?.bag.find((b) => b.id === id);
+      if (!slot || slot.n < n) return false;
+      slot.n -= n;
+      if (!slot.n) c.bag.splice(c.bag.indexOf(slot), 1);
+      p.dirty = true;
+      sendMe(p);
+      return true;
+    },
 
     // Brewing at an alchemy lab (server/index.js has checked p is at one): {t:'brew', steps, n}. The steps
     // are everything done at the lab, in order; a batch of n uses n × the ingredients and makes n × the

@@ -2,12 +2,14 @@
 // The furniture store (room STORE): a long showroom with one of every FURNITURE piece on display, in
 // sections, each with its price tag (the layout and the lobby's doors to each section: src/shared/house.js). Walk up to a piece and press E (or tap E) for a card that buys it
 // ({t:'furni-buy'}); the server takes the gold and adds it to what you own ({t:'furni'}), and it shows up
-// in your decorate panel at home. Also draws the store's outside in the village (src/village.js).
+// in your decorate panel at home. Also draws the store's outside in the village (src/village.js). The Pet
+// Shop (src/petshop.js) sells its pets with the same card: update() picks the room's display.
 import { H, circle, mix } from './util.js';
 import { text } from './village.js';
 import { audio } from './audio.js';
 import { STORE_EXIT_X } from './shared/sim.js';
-import { FURNITURE, DISPLAY, SHOW_SECTIONS, STORE_GROUND, STORE_PEDESTAL, storePortalX } from './shared/house.js';
+import { PETSHOP } from './shared/rpg.js';
+import { FURNITURE, DISPLAY, PET_DISPLAY, SHOW_SECTIONS, STORE_GROUND, STORE_PEDESTAL, storePortalX } from './shared/house.js';
 import { drawFurniture, furnitureIcon, drawWallpaper, drawFloor } from './furniture.js';
 
 const GROUND = STORE_GROUND, PEDESTAL = STORE_PEDESTAL, GAP = 52;
@@ -22,6 +24,7 @@ export class Store {
     this.owned = owned; // () → { furniture id: how many you own }
     this.toast = toast;
     this.near = null; // the piece on display you're standing at
+    this.display = DISPLAY; // the room's pieces on display (the Pet Shop's are its pets)
     this.card = document.getElementById('furni');
     this.icon = document.getElementById('furni-icon');
     this.name = document.getElementById('furni-name');
@@ -39,17 +42,20 @@ export class Store {
   get isOpen() {
     return !this.card.hidden;
   }
-  // Every frame in the store: which piece you're at (and the card goes away when you walk off)
-  update(me) {
+  // Every frame in the store (or the Pet Shop): which piece you're at (and the card goes away when you walk off)
+  update(me, room) {
+    const display = room === PETSHOP ? PET_DISPLAY : DISPLAY;
+    if (display !== this.display) this.close();
+    this.display = display;
     let best = null, bd = Infinity;
-    for (const d of DISPLAY) {
+    for (const d of display) {
       const dx = Math.abs(d.x - me.x);
       // (reaching halfway across the gaps: no dead spots between pieces)
       if (dx < Math.max(FURNITURE[d.k].w / 2, 26) + GAP / 2 + 2 && dx < bd) (best = d), (bd = dx);
     }
     this.near = best;
     // the card stays while you're still by its piece (sliding onto the next one doesn't close it)
-    const shown = this.isOpen && DISPLAY.find((d) => d.k === this.k);
+    const shown = this.isOpen && display.find((d) => d.k === this.k);
     if (shown && Math.abs(shown.x - me.x) > FURNITURE[shown.k].w / 2 + GAP + 40) this.close();
     if (this.isOpen) this.fill();
   }
@@ -71,7 +77,7 @@ export class Store {
   }
   fill() {
     const def = FURNITURE[this.k], have = this.owned()[this.k] ?? 0, cash = this.gold();
-    const name = def.name, info = `${def.pet ? 'A pet: it roams your house · ' : ''}${gold(def.price)} gold · you own ${have} · you have ${gold(cash)} gold`;
+    const name = def.name, info = `${def.pet ? 'A pet: it roams your house. Feed it, or it dies: a full belly lasts 2 days · ' : ''}${gold(def.price)} gold · you own ${have} · you have ${gold(cash)} gold`;
     if (this.name.textContent !== name) this.name.textContent = name;
     if (this.info.textContent !== info) this.info.textContent = info;
     this.buyBtn.disabled = cash < def.price;
@@ -80,7 +86,8 @@ export class Store {
   // {t:'furni'} after buying something
   bought(m) {
     if (!m.bought) return;
-    this.toast(`Bought: ${FURNITURE[m.bought].name}! It's in your decorate panel at home`);
+    const def = FURNITURE[m.bought];
+    this.toast(def.pet ? `Adopted: ${def.name}! Put it out at home (Decorate), and keep it fed: Auntie Clover sells the food` : `Bought: ${def.name}! It's in your decorate panel at home`);
     audio.sfx('coinBuy');
   }
 
@@ -131,8 +138,12 @@ export class Store {
       this.drawArchDoor(ctx, storePortalX(i), s.color, String(i + 1), s.name);
       if (i) this.drawArchDoor(ctx, s.back, s.color, '<', 'Entrance');
     });
-    // the pieces, their pedestals and price tags
-    for (const d of DISPLAY) {
+    this.drawDisplay(ctx, DISPLAY, L, R, time);
+  }
+
+  // The pieces on display, their pedestals and price tags (the Pet Shop's too)
+  drawDisplay(ctx, display, L, R, time) {
+    for (const d of display) {
       const def = FURNITURE[d.k];
       if (d.x + def.w / 2 < L || d.x - def.w / 2 > R) continue;
       const on = this.near === d;

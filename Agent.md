@@ -4,7 +4,7 @@ A small multiplayer 2D village (MapleStory-style side view) for a group of frien
 around, talk by proximity voice, text chat (public and private messages), chat with AI characters, sit in on AI lectures and quizzes, slap each
 other, play a giant floor piano, tour a huge history museum, sail the ferry to Frostpeak, invite friends over to their own houses
 with gardens (furnished from a store, bought bigger with gold; farm herbs there and brew potions at an
-alchemy lab), and fight mobs and bosses across four
+alchemy lab; keep pets from the Pet Shop fed or they die), and fight mobs and bosses across four
 stages (levels, skills, stats, loot, gear, scrolls, a shop). Canvas + Vite client, a Node server with WebSockets,
 SQLite. The art is procedural canvas code that started as a copy of the sibling project `~/game`
 (Slime Hop): soft, rounded, pastel; no image assets and no emoji in canvas text.
@@ -127,7 +127,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/economy.md](docs/economy.md) | ANY gold / EXP / price / drop / scaling change: the balance sheet, `npm run economy` |
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |
 | [docs/social/chat.md](docs/social/chat.md) | the chatbox, public chat, private messages, chat speech bubbles |
-| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
+| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, Auntie Clover, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
 | [docs/social/accuse.md](docs/social/accuse.md) | accusing someone of botting, the canvas deny button, the EXP skim |
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
 | [docs/places/piano.md](docs/places/piano.md) | the Music House floor piano |
@@ -141,6 +141,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/willowmere.md](docs/places/willowmere.md) | Willowmere (room 24), Miller Bun, Old Snapjaw, the weir stone |
 | [docs/places/coves.md](docs/places/coves.md) | Saltspray Coves (room 25), Beachcomber Moss, the Tidemother's den (26), boss `lines` |
 | [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel), attuning, the travel card |
+| [docs/places/pets.md](docs/places/pets.md) | pets' hunger, moods and dying, feeding, the Pet Shop, Auntie Clover, pet food |
 | [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |
 | [docs/ui/mobile.md](docs/ui/mobile.md) | touch controls, phone layout, fullscreen, home-screen mode |
 | [docs/ui/hints.md](docs/ui/hints.md) | the on-screen prompts above your slime, any new interaction |

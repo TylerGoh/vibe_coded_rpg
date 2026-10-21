@@ -93,6 +93,9 @@
 //   farming and alchemy (docs/places/alchemy.md): the house message also carries farm: {plot id: [crop, ms left]}
 //   → {t:'plant', plot, crop} · → {t:'harvest', plot} ← {t:'harvested', item, n}  (your own garden plots)
 //   → {t:'brew', steps, n}  at an alchemy lab ← {t:'brewed', id, item, n, ok}  to the room
+//   pets (docs/places/pets.md): the house message also carries pets: {pet id: [ms until its belly is empty, ms a
+//   full belly lasts]}; pets are bought with furni-buy in the Pet Shop · → {t:'pet-feed', id, item}  one portion
+//   of food from your bag, at a pet in the house you're in ← {t:'pet-fed', room, id, by, item}  to the room
 //   → {t:'invite', to}  (from a town or your own house, to a player in a town: TOWNS in sim.js)
 //       ← {t:'invite', from, name, ms}  to them · → {t:'visit', host, no?}  yes takes them into the host's house
 // Botting accusations, for fun (server/accuse.js, docs/social/accuse.md): → {t:'accuse', to}  (ACCUSE_COOLDOWN_MS
@@ -226,7 +229,7 @@ const rpg = createRpg({ dbPath: accounts.path, players, send, toRoom, broadcast 
 const chat = createChat({ dbPath: accounts.path, players, send, users: () => accounts.list().map((a) => a.user) });
 const accuse = createAccuse({ players, send });
 setInterval(() => accuse.tick(), 1000).unref(); // accusations run out (deny deadlines, penalties)
-const houses = createHouses({ dbPath: accounts.path, players, send, toRoom, pay: rpg.pay, give: rpg.give });
+const houses = createHouses({ dbPath: accounts.path, players, send, toRoom, pay: rpg.pay, give: rpg.give, take: rpg.take });
 
 // Where everyone stood when the server stopped, so a deploy doesn't send them all back to spawn
 // (owner's ask). Written on shutdown, read once at startup; an account's first login within POS_KEEP_MS
@@ -344,6 +347,8 @@ wss.on('connection', (ws) => {
       houses.plant(p, m);
     } else if (m.t === 'harvest' && p.joined) {
       houses.harvest(p, m);
+    } else if (m.t === 'pet-feed' && p.joined && Number.isInteger(m.id) && typeof m.item === 'string') {
+      houses.feed(p, m);
     } else if (m.t === 'brew' && p.joined) {
       if (houses.atLab(p)) rpg.brew(id, p, m);
     } else if (m.t === 'invite' && p.joined) {

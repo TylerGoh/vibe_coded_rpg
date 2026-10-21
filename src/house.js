@@ -7,13 +7,16 @@
 // own ({t:'furni'}: bought at the furniture store, src/store.js), each with how many are still put away. The house is drawn open plan: picture
 // windows show the village sky (drawn behind by main.js), and the backyard is open air. Crops growing in
 // garden plots come with the layout (`farm`) and are drawn here; planting and the lab: src/alchemy.js.
-// Pets wander around where they were put (petAt); a slime on the swing's seat swings with it (swingFor).
+// Pets wander around where they were put (petAt), less the hungrier they are, and show their mood (their
+// bellies come with the layout, `pets`; feeding them: src/pets.js). A slime on the swing's seat swings with
+// it (swingFor).
 import { H, TAU, circle, clamp } from './util.js';
 import { text } from './village.js';
 import { audio } from './audio.js';
 import { HOUSE_GROUND, HOUSE_EXIT_X, isHouse, setHouseRoom } from './shared/sim.js';
-import { FURNITURE, LAYERS, WALLPAPERS, FLOORS, HOUSE_SIZES, WALL_TOP, sizeOf, houseWidth, houseRoom, snapPlacement, cleanLayout, placed } from './shared/house.js';
+import { FURNITURE, LAYERS, WALLPAPERS, FLOORS, HOUSE_SIZES, WALL_TOP, sizeOf, houseWidth, houseRoom, snapPlacement, cleanLayout, placed, PET_ROAM, petMood } from './shared/house.js';
 import { drawFurniture, furnitureIcon, drawWallpaper, drawFloor, drawPet } from './furniture.js';
+import { petLook, drawPetMood, drawBelly } from './pet-art.js';
 import { drawCrop } from './alchemy-art.js';
 import { grown } from './shared/alchemy.js';
 
@@ -23,14 +26,15 @@ const gold = (n) => n.toLocaleString('en-US');
 const PANE = 150, PANE_GAP = 330; // the inside's picture windows: width, and the distance between them
 const PANE_TOP = WALL_TOP + 40, PANE_BOTTOM = HOUSE_GROUND - 120;
 
-// A pet wanders up to PET_ROAM px either side of where it was put: every PET_STEP s it picks a new spot
-// (from the time, so everyone in the house sees about the same walk), walks there, and idles.
-const PET_ROAM = 280, PET_STEP = 5;
-function petAt(it, i, time, width) {
+// A pet wanders up to PET_ROAM px (times how far its mood still lets it: petLook) either side of where it
+// was put: every PET_STEP s it picks a new spot (from the time, so everyone in the house sees about the same
+// walk), walks there, and idles.
+const PET_STEP = 5;
+function petAt(it, i, time, width, roam = 1) {
   const seed = (i + 1) * 7.31 + it.x * 0.013;
   const spot = (n) => {
     const r = Math.sin(n * 12.9898 + seed * 78.233) * 43758.5453;
-    return clamp(it.x + ((r - Math.floor(r)) * 2 - 1) * PET_ROAM, 40, width - 40);
+    return clamp(it.x + ((r - Math.floor(r)) * 2 - 1) * PET_ROAM * roam, 40, width - 40);
   };
   const u = time / PET_STEP + seed, n = Math.floor(u), walk = clamp((u - n) / 0.6, 0, 1);
   const a = spot(n - 1), b = spot(n), e = walk * walk * (3 - 2 * walk);
@@ -49,7 +53,11 @@ export class Houses {
     this.view = view; // () → the world x in the middle of the screen
     this.toast = toast;
     this.onOpenChange = onOpenChange;
-    this.houses = new Map(); // room → { owner, layout, farm: Map(plot id → { c: crop, readyAt: performance.now() s }) }
+    // room → { owner, layout, farm: Map(plot id → { c: crop, readyAt: performance.now() s }), pets: Map(pet id →
+    // { emptyAt: performance.now() s, full: s a full belly lasts }), spots: [{ it, x, top }] where its pets were
+    // last drawn }
+    this.houses = new Map();
+    this.belly = null; // the pet id whose belly bar to show (the one you're at: src/pets.js)
     this.owned = {}; // furniture id → how many you own
     this.editing = false;
     this.carry = null; // { k, f, from? } the piece being moved (from: where it was, to put it back)
@@ -89,10 +97,11 @@ export class Houses {
   }
 
   receive(m) {
-    const t = performance.now() / 1000, was = this.houses.get(m.room)?.farm;
-    // (a local decorating change has no farm: the crops stay as they were)
-    const farm = m.farm ? new Map(Object.entries(m.farm).map(([id, [c, left]]) => [Number(id), { c, readyAt: t + left / 1000 }])) : was ?? new Map();
-    this.houses.set(m.room, { owner: m.owner, layout: m.layout, farm });
+    const t = performance.now() / 1000, was = this.houses.get(m.room);
+    // (a local decorating change has no farm or pets: they stay as they were)
+    const farm = m.farm ? new Map(Object.entries(m.farm).map(([id, [c, left]]) => [Number(id), { c, readyAt: t + left / 1000 }])) : was?.farm ?? new Map();
+    const pets = m.pets ? new Map(Object.entries(m.pets).map(([id, [left, full]]) => [Number(id), { emptyAt: t + left / 1000, full: full / 1000 }])) : was?.pets ?? new Map();
+    this.houses.set(m.room, { owner: m.owner, layout: m.layout, farm, pets, spots: was?.spots ?? [] });
     setHouseRoom(m.room, houseRoom(m.layout));
     this.showNote();
   }
@@ -112,6 +121,11 @@ export class Houses {
   }
   ownerOf(room) {
     return this.houses.get(room)?.owner;
+  }
+  // How full one of the pets in this house is (0–1), or null (not one we know: just bought)
+  fullness(room, id) {
+    const pet = this.houses.get(room)?.pets.get(id);
+    return pet ? clamp((pet.emptyAt - performance.now() / 1000) / pet.full, 0, 1) : null;
   }
   isMine(room) {
     return isHouse(room) && this.ownerOf(room) === this.me();
@@ -175,7 +189,7 @@ export class Houses {
     this.putBack();
     const { pieces } = sizeOf(this.layout);
     if (this.spare(k) <= 0) {
-      this.note.textContent = `All your ${FURNITURE[k].name.toLowerCase()}s are out: buy another at the furniture store`;
+      this.note.textContent = `All your ${FURNITURE[k].name.toLowerCase()}s are out: buy another at the ${FURNITURE[k].pet ? 'Pet Shop' : 'furniture store'}`;
       return audio.sfx('error');
     }
     if (this.layout.items.length >= pieces) {
@@ -335,13 +349,20 @@ export class Houses {
       if (it.k === 'swing') drawFurniture(ctx, it.k, it.x, it.y, it.f, time, swingAngle(it, time, who.some((s) => seatOn(it, s))) * (it.f ? -1 : 1));
       else drawFurniture(ctx, it.k, it.x, it.y, it.f, time);
     }
+    const spots = [];
     layout.items.forEach((it, i) => {
       const def = FURNITURE[it.k];
       if (!def.pet) return;
       if (this.editing && mine) return drawFurniture(ctx, it.k, it.x, it.y, it.f, time); // (holds still to be picked up)
-      const p = petAt(it, i, time, width);
-      drawPet(ctx, def.pet, p.x, it.y, p.facing, p.walking, time, p.seed);
+      const full = this.fullness(room, it.id), mood = full === null ? 0 : petMood(full);
+      const p = petAt(it, i, time, width, petLook(mood).roam);
+      drawPet(ctx, def.pet, p.x, it.y, p.facing, p.walking, time, p.seed, mood);
+      const top = it.y - def.h * (1 - petLook(mood).squash);
+      if (full !== null) drawPetMood(ctx, mood, p.x, top, def.w, time, p.seed);
+      if (full !== null && it.id === this.belly) drawBelly(ctx, p.x, top - 6, full); // (low: the prompts above your slime would cover it)
+      spots.push({ it, x: p.x, top });
     });
+    if (h) h.spots = spots;
     const t = performance.now() / 1000;
     for (const it of layout.items) {
       const f = it.id && h?.farm.get(it.id);

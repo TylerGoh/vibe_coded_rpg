@@ -3,11 +3,11 @@
 // furniture catalogue, wallpapers and floors, the layout format, and the platforms furniture makes (so you
 // can hop onto a bed or a bookshelf). A layout is { size, wall, floor, items: [{ k, x, y, f, id? }] }: size
 // an index into HOUSE_SIZES (only the server changes it, when you pay), k a FURNITURE id, x its centre, y its
-// bottom (world px), f flipped, id (garden plots only) the number the server gave it, which its crop is
-// kept under (docs/places/alchemy.md). Items are drawn in their layer order (rugs, wall things, then the rest)
+// bottom (world px), f flipped, id (garden plots and pets) the number the server gave it: a plot's crop is
+// kept under it (docs/places/alchemy.md), and a pet's belly (docs/places/pets.md). Items are drawn in their layer order (rugs, wall things, then the rest)
 // and, within a layer, in array order. Drawings: src/house.js.
 import { HOUSE_GROUND, ROOMS, STORE, STORE_W } from './sim.js';
-import { MOBS } from './rpg.js';
+import { MOBS, PETSHOP_W } from './rpg.js';
 
 // Every house is an open-plan inside (x 0 → inside, big picture windows onto the sky) with a backyard
 // right behind it (inside → inside + yard). Bigger sizes cost gold, paid once to expand for good; prices
@@ -75,10 +75,11 @@ export const FURNITURE = {
   alchemy_lab: { name: 'Alchemy lab', price: 3500, sec: 'Farm & lab', w: 140, h: 120, layer: 'floor' },
 };
 
-// Pets: mini versions of the bosses, sold in the store's pet corner and placed like furniture (they stand
-// on the floor, where they're put, then wander off around the house: src/house.js). Prestige prices, set
-// against the boss rows of the balance sheet, not an aim level (owner: "around 50k per pet or more for
-// more premium ones"); the later the boss, the dearer its pet. `npm run economy` lists them.
+// Pets: mini versions of the bosses, sold at the Pet Shop (PET_DISPLAY, below) and placed like furniture
+// (they stand on the floor, where they're put, then wander off around the house: src/house.js). Prestige
+// prices, set against the boss rows of the balance sheet, not an aim level (owner: "around 50k per pet or
+// more for more premium ones"); the later the boss, the dearer its pet. `npm run economy` lists them.
+// Each pet you own is one animal with its own belly (docs/places/pets.md): it must be fed, or it dies.
 export const PET_SCALE = 0.4; // of the boss's own size
 export const PETS = {
   turnipop: 50000, sprout_king: 50000, mother_mushroom: 60000, snapjaw: 80000, bramble_behemoth: 75000, frost_queen: 100000,
@@ -89,6 +90,22 @@ for (const [kind, price] of Object.entries(PETS)) {
   FURNITURE[`pet_${kind}`] = { name: `Mini ${m.name.replace(/^The /, '').split(/,| the /)[0]}`, price, sec: 'Pets', w: Math.round(m.w * PET_SCALE), h: Math.round(m.h * PET_SCALE), layer: 'floor', pet: kind };
 }
 export const LAYERS = ['rug', 'wall', 'floor'];
+
+// ——— pets' bellies (docs/places/pets.md; the server keeps them: server/house.js) ———
+// Owner (2026-10-21): a pet must be fully fed every 2 days or it dies, and it gets sadder the hungrier it
+// is. A full belly lasts PET_STARVE_MS; food (ITEMS with `food`, sold at the Pet Shop) fills part of it.
+// It goes down while you're offline and while the pet is put away too.
+export const PET_STARVE_MS = 2 * 24 * 3600 * 1000;
+export const PET_ROAM = 280; // a pet wanders up to this far either side of where it was put (less when sad)
+export const PET_REACH = 90; // how near a pet you must be to feed it
+// How it feels, from how full it is (0–1): the first whose `min` it reaches. src/pet-art.js draws each one.
+export const PET_MOODS = [
+  { min: 0.75, name: 'Happy' },
+  { min: 0.5, name: 'Peckish' },
+  { min: 0.25, name: 'Hungry and sad' },
+  { min: 0, name: 'Starving and miserable' },
+];
+export const petMood = (full) => Math.max(0, PET_MOODS.findIndex((m) => full >= m.min));
 
 export const WALLPAPERS = [
   { name: 'Peach', base: '#ffe9dc', pattern: '#ffd9c7', kind: 'stripes' },
@@ -158,7 +175,7 @@ const xRange = (def, size) => {
 
 // A layout from the wire (or the DB), made safe: known pieces only, inside the house (wall things on the
 // wall), at most its size's `pieces`, and (given `owned`) no more of a piece than its owner has bought.
-// Plot ids are kept (one plot per id: a repeat loses it, and the server gives it a new one).
+// Plot and pet ids are kept (one piece per id: a repeat loses it, and the server sorts it out).
 export function cleanLayout(l, owned) {
   const size = index(l?.size, HOUSE_SIZES.length), { pieces } = HOUSE_SIZES[size];
   const items = [], used = {}, ids = new Set();
@@ -173,7 +190,7 @@ export function cleanLayout(l, owned) {
       y: def.pet ? HOUSE_GROUND : def.layer === 'floor' ? clampN(it.y, WALL_TOP + def.h, HOUSE_GROUND) : def.layer === 'rug' ? HOUSE_GROUND : clampN(it.y, WALL_TOP + def.h, HOUSE_GROUND - 20),
       f: !!it.f,
     };
-    if (it.k === 'garden_plot' && Number.isInteger(it.id) && it.id > 0 && !ids.has(it.id)) ids.add((out.id = it.id));
+    if ((it.k === 'garden_plot' || def.pet) && Number.isInteger(it.id) && it.id > 0 && !ids.has(it.id)) ids.add((out.id = it.id));
     items.push(out);
   }
   return { size, wall: index(l?.wall, WALLPAPERS.length), floor: index(l?.floor, FLOORS.length), items: settle(items) };
@@ -238,8 +255,8 @@ export const STORE_SECTIONS = [
   { name: 'On the wall', color: '#c9b6ff' },
   { name: 'Garden', color: '#8fd18a' },
   { name: 'Farm & lab', color: '#c7e89a' },
-  { name: 'Pets', color: '#ffc59a' },
 ];
+// (pets have their own shop: PET_DISPLAY)
 export const STORE_GROUND = 470;
 export const STORE_PEDESTAL = 46; // little things stand on a pedestal so they're easy to see
 const SHOW_FIRST = 920, SHOW_GAP = 52, SECTION_GAP = 220;
@@ -252,7 +269,7 @@ export const DISPLAY = [], SHOW_SECTIONS = [];
   for (const sec of STORE_SECTIONS) {
     const ks = Object.keys(FURNITURE).filter((k) => FURNITURE[k].sec === sec.name);
     if (!ks.length) continue;
-    const x0 = x, small = sec.name === 'Little things' || sec.name === 'Pets'; // (pets sit on cushioned plinths)
+    const x0 = x, small = sec.name === 'Little things';
     for (const k of ks) {
       const def = FURNITURE[k];
       DISPLAY.push({ k, x: x + def.w / 2, y: def.layer === 'wall' ? STORE_GROUND - 170 : small ? STORE_GROUND - STORE_PEDESTAL : STORE_GROUND, small });
@@ -267,4 +284,19 @@ export const DISPLAY = [], SHOW_SECTIONS = [];
     // (the first section starts right after the lobby: no way back needed)
     if (i) ROOMS[STORE].doors.push({ x: s.back, w: 56, to: STORE, toX: storePortalX(i), label: 'back to the entrance' });
   });
+}
+
+// ——— the Pet Shop's plinths (drawn by src/petshop.js) ———
+// Every pet on a cushioned plinth, cheapest first, after Auntie Clover's counter. { k, x, y (its bottom) }
+export const PET_PLINTH = 46;
+export const PET_DISPLAY = [];
+{
+  let x = 820;
+  const pets = Object.keys(FURNITURE).filter((k) => FURNITURE[k].pet).sort((a, b) => FURNITURE[a].price - FURNITURE[b].price);
+  for (const k of pets) {
+    const def = FURNITURE[k];
+    PET_DISPLAY.push({ k, x: x + def.w / 2, y: STORE_GROUND - PET_PLINTH, small: true });
+    x += def.w + 70;
+  }
+  if (x > PETSHOP_W) console.warn(`the Pet Shop needs ${x} px: raise PETSHOP_W in rpg.js`);
 }
