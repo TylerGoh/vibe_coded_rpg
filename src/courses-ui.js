@@ -52,7 +52,7 @@ export class CourseMenu {
   render() {
     const { current, pending, votes } = this.state;
     this.list.replaceChildren();
-    const options = [...COURSES.map((c) => ({ id: c.id, code: c.code, name: c.name, blurb: c.blurb }))];
+    const options = [...COURSES.filter((c) => this.withBreak || !c.tutorOnly).map((c) => ({ id: c.id, code: c.code, name: c.name, blurb: c.blurb }))];
     if (this.withBreak) options.push({ id: BREAK, code: 'BREAK', name: 'Take a break', blurb: 'Pause the quiz for a bit.' });
     for (const o of options) {
       const b = document.createElement('button');

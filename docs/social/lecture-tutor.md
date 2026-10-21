@@ -20,3 +20,7 @@ their syllabi), `src/hall.js` (hall + building), `src/tutor.js`, `src/courses-ui
 - Quizzes students one at a time in arrival order. DeepSeek (JSON mode) writes a short-answer question;
   the student on turn has a time limit; DeepSeek rates the answer 0–5 with right / missed / model answer.
   Session scoreboard, wiped when the room empties. "Take a break" is a vote.
+- Besides the CS courses, the tutor runs quizzes marked `tutorOnly` in `COURSES` (General Trivia, World
+  Geography, Biomedical Science; owner request). Their `quiz` field tells the question writer what kind
+  of question fits (trivia and geography want one checkable fact, biomed is short-answer like CS). The
+  hall's course menu hides them and `lecture.setCourse` refuses them: Prof. Synapse lectures CS only.

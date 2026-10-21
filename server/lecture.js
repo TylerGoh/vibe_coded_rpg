@@ -167,6 +167,7 @@ export function createLecture(broadcast) {
     // Students voted for another course: switch once the current line has had its time
     setCourse(id) {
       const c = courseById(id);
+      if (c?.tutorOnly) return; // a tutoring-room quiz, not a lecture course
       if (c && c !== course) pending = c;
       else if (c === course) pending = null;
     },

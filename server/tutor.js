@@ -16,7 +16,7 @@ const REVIEW_MS = 14000; // how long the verdict stays up before the next turn
 const RECENT_QUESTIONS = 20; // questions remembered this session, so they aren't repeated
 
 const PERSONA = `You are Tutor Byte, a friendly, encouraging slime tutor in Slimeville's tutoring room, running a
-quiz for slime students taking university computer-science courses. You are accurate and fair.`;
+quiz for slime students on university courses and trivia. You are accurate and fair.`;
 
 const parseJson = (out) => {
   try {
@@ -72,8 +72,8 @@ export function createTutor(broadcast) {
         const out = await deepseek([
           { role: 'system', content: PERSONA },
           { role: 'user', content: `Write one quiz question for the student "${who}" on ${c.code} ${c.name}, topic: "${topic}".
-It must be a short-answer question (not multiple choice) that can be answered well in 1–3 sentences: a definition,
-a "why" or "how", a tiny worked example, or a comparison. Introductory university level, accurate and unambiguous,
+${c.quiz ? `It must be ${c.quiz}. Not multiple choice` : `It must be a short-answer question (not multiple choice) that can be answered well in 1–3 sentences: a definition,
+a "why" or "how", a tiny worked example, or a comparison. Introductory university level`}, accurate and unambiguous,
 under 35 words. Do not repeat or closely resemble these earlier questions: ${asked.length ? asked.map((q) => `"${q}"`).join('; ') : '(none yet)'}.
 Reply as JSON: {"question": "..."}` },
         ], 150, { json: true, temperature: 1.0 });
@@ -106,7 +106,7 @@ Reply as JSON: {"question": "..."}` },
           { role: 'user', content: `Course: ${c.code} ${c.name}. Question for ${user}: "${question.text}"
 ${given ? `${user}'s answer: "${given}"` : `${user} didn't answer in time.`}
 Rate how correct and complete the answer is from 0 to 5 (0 = wrong or blank, 3 = partly right, 5 = fully correct).
-Be fair: credit correct ideas even if worded informally or briefly; don't reward confident nonsense.
+Be fair: credit correct ideas even if worded informally or briefly (a one-word answer can be fully correct; accept close spellings); don't reward confident nonsense.
 Reply as JSON: {"score": <0-5 integer>, "right": "what they got right, or empty", "missed": "what was wrong or missing, or empty",
 "model": "a concise correct answer, 1–2 sentences", "comment": "one short encouraging remark to ${user}"}.
 Keep each field under 30 words, plain text.` },
