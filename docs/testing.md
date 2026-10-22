@@ -11,7 +11,7 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
 - To test with a real-looking character, write a row straight into `rpg_chars` in the test DB (JSON in
   the `data` column: lvl, gear, skills, hotbar…) before logging in.
 - Stop it by PID after checking `readlink /proc/<pid>/cwd`. Never `pkill -f "node server/index.js"`.
-- Test-only server env vars (never set them live): `TEST_SPAWN=room:x`, `TEST_BOSS_HP=0.05`, `TEST_GOD=1`,
+- Test-only server env vars (never set them live): `TEST_SPAWN=room:x`, `TEST_BOSS_HP=0.05` (den and field bosses), `TEST_GOD=1`,
   `TEST_GROW=60` (crops grow 60× faster), `TEST_PET_FAST=1440` (a pet's full belly lasts 2 min), `TEST_FIELD_RESPAWN_MS=15000` (field bosses come back sooner),
   `TEST_ACCUSE_FAST=20` (botting accusations' timers 20× shorter), `TEST_TP=1` (accepts `{t:'tp', room?, x, vt?}`: room -1 is your own house, `vt` how far into a crossing; send it from the page with
   `slimeville.net.sendNpc(…)` and wait ~200 ms for the next snapshot).

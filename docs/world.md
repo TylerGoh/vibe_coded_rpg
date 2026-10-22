@@ -27,6 +27,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Wreck Cave | 32 `WRECK` | back out to the Coves (east end); a hard pocket (`docs/places/wreck.md`) |
 | The Thornheart | 33 `THORNHEART` | back out to Bramble Woods (west end); a hard pocket (`docs/places/thornheart.md`) |
 | Keeper's Spine | 34 `SPINE` | back down through the trunk to the Canopy (west end) · the Root Warden's den (east end) (`docs/places/spine.md`) |
+| The Rimeglass Glacier | 36 `GLACIER` | back down the snout to Starfall Summit (west end); Frostpeak's first branch (`docs/places/glacier.md`) |
 | Pet Shop | 27 `PETSHOP` | exit (`docs/places/pets.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17, 26, 30, 35 | exit, back to the stage it's in (`DENS[].from`) |

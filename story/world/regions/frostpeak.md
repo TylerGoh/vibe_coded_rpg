@@ -17,13 +17,19 @@ was frozen and she used a rough jetty under the ridge; the ice went out with tha
 3. **Starfall Summit** (exists): a crater where the **Astral Wyrm** fell. Glassy ground and crystal golems
    grown from star-dust. The sky up here is full of stars that are visibly *in the wrong places*: some
    are smeared and some are clumped.
+4. **The Rimeglass Glacier** (exists, F1: `docs/places/glacier.md`): a great river of blue ice above the
+   summit, where the hamlet's ice-cutters work. Ice-Cutter Eyvind's camp, a Keeper stone frozen in the ice
+   (the stars on it are in the right places), Ylva's Cairn, and Old Rimehorn the mammoth. Above it, the
+   Aurora Heights; under it, the Blue Halls (both still shut). The rest of the island's depth pass:
+   `../island-depth.md`.
 
 ## People
 **The fjord folk:** pale, frosted slimes who go half-solid in the cold and move slowly. They remember the
 Queen as good. AI characters (exist): **Old Skaldi**, a lamplighter who keeps the hamlet's fire and the
 old songs (which hold Tier 2 lore); **Netmender Runa**, the trader; **Tove**, his granddaughter, who
-feeds the yeti cubs. Mentioned only: Ylva (Skaldi's late wife), Bjarn (Runa's husband, a fisher), Arne
-(Runa's cousin, the Lodestar's skipper).
+feeds the yeti cubs; and up on the glacier **Ice-Cutter Eyvind** (F1). Mentioned only: Ylva (Skaldi's late
+wife, remembered by a cairn on the glacier), Bjarn (Runa's husband, a fisher), Arne (Runa's cousin, the
+Lodestar's skipper), Liv (Eyvind's daughter, stuck in the south since the Lodestar's last voyage).
 
 ## Story role
 Act II. The world is bigger and sadder than you knew. Glacia's frozen bridge is a small version of

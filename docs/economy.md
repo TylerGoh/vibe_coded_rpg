@@ -87,6 +87,15 @@ the script doesn't change, but every sink is priced against ONE player's income:
 farmers can fund friends, so pooled gold meets those prices (the Rebirth's 500k, house sizes, pets).
 Treat aims as "earliest a funded player gets there", and keep prestige sinks for the farmers themselves.
 
+## Frostpeak's depth pass, F1 (2026-10-23)
+The Rimeglass Glacier (`docs/places/glacier.md`) put six mobs on the curve at Lv 61–73, so "farming your own
+level" between 60 and 90 now picks a glacier mob instead of the Lv 58 thorn stalker. That undoes the
+rebalance's bump: "gold earned by" Lv 70 ~137k → ~134k, Lv 80 ~187k → ~176k (where it was before R), Lv 90
+~249k → ~228k, and everything after drops by the same ~23k; play time to Lv 90 2.0 h → 1.7 h. Nothing was
+re-aimed: the Estate (aim 65) stays at 69%, the Grand Estate is first affordable at Lv 120 (was 116), one of
+every piece of furniture by Lv 72 (was 71). Eyvind's tier is aimed at Lv 66 (52–67%). Old Rimehorn is worth
+~2.6 min of farming; his pet is 350k, between the Root Warden's and Ignis's (`PETSHOP_W` went up to fit it).
+
 ## How to price something new
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Read "gold earned by then" for that level and price it at roughly half to three quarters of it: a real

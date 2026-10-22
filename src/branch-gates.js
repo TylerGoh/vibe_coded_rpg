@@ -7,6 +7,10 @@
 // stump into the Mycelium Deep, its roots cut back, the glowing crack down into Glowroot Hollow, and the
 // Old Oak Canopy's rope ladder, restrung, Wreck Cave's mouth with the water gone down, and the Thornheart's
 // wall of thorns, cut back into a tunnel, and the fallen trunk in the Canopy, sawn through to Keeper's Spine.
+// Frostpeak's (its depth pass, F0): a snow slide over the hamlet's shore path (the Whale Skerries), the ice
+// stair onto the Queen's Bridge broken off on Frostpine Ridge, and in the Rimeglass Glacier the crevasse with
+// the cutters' ladder smashed at the bottom (the Blue Halls) and the icefall with its steps sheared away (the
+// Aurora Heights); the glacier's own way in, its snout on Starfall Summit with steps cut up it, is open.
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';
@@ -44,7 +48,7 @@ export function drawEntries(ctx, room, ground, L, R, time) {
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170 };
+const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130 };
 const SCALE = { bridge: 1.5, thorns: 1.15 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -873,6 +877,330 @@ function drawFloodedOpen(ctx, time) {
   for (const [x, s] of [[-80, 16], [-62, 10], [76, 14], [94, 9]]) ellipse(ctx, x, -s * 0.5, s, s * 0.7);
 }
 
-const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk };
-const OPEN = { bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
+// ——— Frostpeak ———
+const SNOW = '#f7fbff', SNOW_S = '#d6e6f4', ICE = '#a9d4ee', ICE_D = '#6fa8d0', ICE_L = '#d8eefa', ICE_LINE = '#3e6e94';
+function iceBlock(ctx, x, y, w, h) {
+  ctx.fillStyle = ICE;
+  ctx.strokeStyle = ICE_LINE;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x + 3, y + 5);
+  ctx.lineTo(x + w * 0.5, y);
+  ctx.lineTo(x + w - 2, y + 6);
+  ctx.lineTo(x + w, y + h);
+  ctx.lineTo(x, y + h);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = ICE_L;
+  ctx.fillRect(x + 5, y + 8, w * 0.22, h - 12);
+  ctx.fillStyle = ICE_D;
+  ctx.fillRect(x + w * 0.74, y + 8, w * 0.2, h - 11);
+}
+function snowCap(ctx, x, y, w) {
+  ctx.fillStyle = SNOW;
+  ctx.beginPath();
+  ctx.ellipse(x + w / 2, y + 1, w * 0.56, 6, 0, Math.PI, 0);
+  ctx.fill();
+}
+// The Whale Skerries, at Icefang Hamlet's west end: the shore path runs off north under the fjord wall, and
+// a snow slide has come down across it, a great heap of snow and broken rock with the path's marker posts
+// sticking out of it, and the sea showing past its end
+function drawSnowslide(ctx, time) {
+  const r = mulberry32(3711);
+  ctx.fillStyle = '#4a4a5a'; // the fjord wall behind
+  ctx.beginPath();
+  ctx.moveTo(-150, 2);
+  ctx.lineTo(-140, -190);
+  ctx.lineTo(-60, -230);
+  ctx.lineTo(20, -200);
+  ctx.lineTo(90, 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.75)'; // the scar the slide left down it
+  ctx.beginPath();
+  ctx.moveTo(-90, -210);
+  ctx.quadraticCurveTo(-70, -120, -100, -40);
+  ctx.lineTo(-20, -40);
+  ctx.quadraticCurveTo(-30, -130, -50, -214);
+  ctx.closePath();
+  ctx.fill();
+  // the heap
+  ctx.fillStyle = SNOW_S;
+  ctx.beginPath();
+  ctx.moveTo(-150, 4);
+  ctx.quadraticCurveTo(-130, -110, -50, -120);
+  ctx.quadraticCurveTo(30, -110, 80, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = SNOW;
+  ctx.beginPath();
+  ctx.moveTo(-140, 4);
+  ctx.quadraticCurveTo(-120, -96, -50, -110);
+  ctx.quadraticCurveTo(20, -96, 70, 4);
+  ctx.closePath();
+  ctx.fill();
+  // broken rock in it
+  ctx.fillStyle = '#6a6a7a';
+  ctx.strokeStyle = '#3e3e4e';
+  ctx.lineWidth = 1.6;
+  for (let i = 0; i < 9; i++) {
+    const x = -130 + r() * 190, y = -10 - r() * 80, s = 6 + r() * 12;
+    ctx.beginPath();
+    ctx.moveTo(x - s, y + s * 0.4);
+    ctx.lineTo(x - s * 0.3, y - s * 0.7);
+    ctx.lineTo(x + s, y - s * 0.2);
+    ctx.lineTo(x + s * 0.6, y + s * 0.6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+  // the path's marker posts, buried to the top, one snapped
+  ctx.fillStyle = '#7a5a40';
+  ctx.fillRect(-100, -86, 5, 20);
+  ctx.fillStyle = '#d0485a';
+  ctx.fillRect(-100, -86, 5, 5);
+  ctx.save();
+  ctx.translate(-6, -64);
+  ctx.rotate(0.9);
+  ctx.fillStyle = '#7a5a40';
+  ctx.fillRect(0, 0, 5, 26);
+  ctx.fillStyle = '#d0485a';
+  ctx.fillRect(0, 0, 5, 5);
+  ctx.restore();
+  // a few flakes still sliding down
+  for (let i = 0; i < 4; i++) {
+    const k = (time * 0.3 + i / 4) % 1;
+    ctx.fillStyle = `rgba(255,255,255,${Math.sin(k * Math.PI)})`;
+    ctx.beginPath();
+    ctx.arc(-70 + i * 14 + k * 30, -200 + k * 150, 2, 0, TAU);
+    ctx.fill();
+  }
+}
+// The Queen's Bridge, on Frostpine Ridge by the Frozen Throne: a stair of blue ice blocks climbing up toward
+// the bridge that arches over the strait, broken off halfway where the bridge cracked: a gap of empty air,
+// then the stair's top hanging from the bridge's underside, dripping
+function drawIcestair(ctx, time) {
+  // the bridge itself, coming down out of the sky from the upper left and ending in a jagged break
+  const deck = () => {
+    ctx.beginPath();
+    ctx.moveTo(-330, -520);
+    ctx.quadraticCurveTo(-180, -330, -40, -236);
+    ctx.lineTo(-30, -210);
+    ctx.lineTo(-48, -200);
+    ctx.lineTo(-58, -186);
+    ctx.quadraticCurveTo(-200, -280, -380, -500);
+    ctx.closePath();
+  };
+  ctx.fillStyle = 'rgba(200,228,248,0.95)';
+  ctx.strokeStyle = 'rgba(80,140,190,0.9)';
+  ctx.lineWidth = 2.5;
+  deck();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.beginPath();
+  ctx.moveTo(-330, -520);
+  ctx.quadraticCurveTo(-180, -330, -40, -236);
+  ctx.lineTo(-46, -228);
+  ctx.quadraticCurveTo(-190, -322, -342, -512);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = 'rgba(200,232,250,0.9)'; // icicles under it
+  for (let i = 0; i < 7; i++) {
+    const x = -250 + i * 30, y = -360 + i * 22 + (i > 3 ? (i - 3) * 6 : 0), len = 10 + (i % 3) * 8;
+    ctx.beginPath();
+    ctx.moveTo(x - 3, y);
+    ctx.lineTo(x + 3, y);
+    ctx.lineTo(x, y + len);
+    ctx.closePath();
+    ctx.fill();
+  }
+  // the lower steps, standing
+  for (let i = 0; i < 4; i++) iceBlock(ctx, 40 - i * 26, -26 - i * 26, 30, 26 + i * 26);
+  for (let i = 0; i < 4; i++) snowCap(ctx, 40 - i * 26, -26 - i * 26, 30);
+  // the broken end: jagged
+  ctx.fillStyle = ICE_L;
+  ctx.beginPath();
+  ctx.moveTo(-38, -104);
+  ctx.lineTo(-30, -112);
+  ctx.lineTo(-26, -102);
+  ctx.lineTo(-20, -110);
+  ctx.lineTo(-12, -104);
+  ctx.closePath();
+  ctx.fill();
+  // the top of the stair, hanging from the bridge, and the gap between
+  for (let i = 0; i < 2; i++) iceBlock(ctx, -64 - i * 26, -196 + i * 14, 26, 22);
+  // a drip falling from the broken end
+  const k = (time * 0.7) % 1;
+  ctx.fillStyle = `rgba(200,232,250,${1 - k})`;
+  ctx.beginPath();
+  ctx.arc(-50, -186 + k * 180, 2, 0, TAU);
+  ctx.fill();
+  // ropes the fjord folk tied across the foot: red rag knots
+  ctx.strokeStyle = '#8a6a48';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(30, -36);
+  ctx.quadraticCurveTo(54, -28, 76, -36);
+  ctx.stroke();
+  ctx.fillStyle = '#7a5a40';
+  ctx.fillRect(74, -44, 4, 46);
+  ctx.fillStyle = '#d0485a';
+  ctx.fillRect(50, -34, 6, 8);
+}
+// The Blue Halls, in the Glacier's Crevasse Field: a crevasse mouth in the ice wall, blue going down into dark
+// with a cold light far below; the cutters' ladder lies smashed at the bottom, only its top rail still pegged
+// to the lip, and a broken rung or two
+function drawCrevasse(ctx, time) {
+  ctx.fillStyle = ICE;
+  ctx.strokeStyle = ICE_LINE;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-90, 2);
+  ctx.lineTo(-80, -150);
+  ctx.lineTo(80, -160);
+  ctx.lineTo(90, 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  // the slot
+  const g = ctx.createLinearGradient(0, -150, 0, 0);
+  g.addColorStop(0, '#3a6a96');
+  g.addColorStop(1, '#0e2036');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(-34, 2);
+  ctx.lineTo(-24, -140);
+  ctx.lineTo(26, -146);
+  ctx.lineTo(36, 2);
+  ctx.closePath();
+  ctx.fill();
+  // the cold light, far down
+  ctx.fillStyle = `rgba(120,200,255,${0.35 + 0.15 * Math.sin(time * 1.5)})`;
+  ctx.beginPath();
+  ctx.ellipse(2, -18, 22, 10, 0, 0, TAU);
+  ctx.fill();
+  // the ladder's top rail, pegged to the lip, dangling
+  ctx.strokeStyle = '#7a5a40';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-14, -146);
+  ctx.lineTo(-10, -110 + Math.sin(time * 1.2) * 2);
+  ctx.stroke();
+  ctx.fillStyle = '#5a5a66';
+  ctx.fillRect(-18, -150, 8, 6);
+  // broken rungs scattered in front
+  ctx.save();
+  ctx.translate(-60, -6);
+  ctx.rotate(0.3);
+  ctx.fillStyle = '#7a5a40';
+  ctx.fillRect(0, 0, 26, 5);
+  ctx.restore();
+  ctx.save();
+  ctx.translate(46, -4);
+  ctx.rotate(-0.5);
+  ctx.fillStyle = '#7a5a40';
+  ctx.fillRect(0, 0, 20, 5);
+  ctx.restore();
+  // snow over the lip
+  ctx.fillStyle = SNOW;
+  ctx.beginPath();
+  ctx.ellipse(0, -152, 92, 10, -0.03, Math.PI, 0);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(200,232,250,0.9)';
+  for (let i = 0; i < 5; i++) {
+    const x = -20 + i * 11;
+    ctx.beginPath();
+    ctx.moveTo(x - 2, -146);
+    ctx.lineTo(x + 2, -146);
+    ctx.lineTo(x, -132 + (i % 2) * 6);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+// The Aurora Heights, at the top of the Glacier's Icefall: a wall of great jumbled ice blocks climbing up and
+// away, where the cutters' steps used to run; the bottom few steps are still there, and then sheared ice.
+// The aurora shimmers low over the top.
+function drawIcefall(ctx, time) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 12; i++) {
+    const x = -140 + i * 22, y = -290 + Math.sin(i * 0.7 + time * 0.8) * 10;
+    ctx.fillStyle = `rgba(120,240,200,${0.08 + 0.05 * Math.sin(time + i)})`;
+    ctx.fillRect(x, y, 22, 80);
+  }
+  ctx.restore();
+  for (const [x, y, w, h] of [[-120, -150, 70, 150], [-60, -210, 80, 210], [10, -260, 90, 260], [60, -190, 80, 190], [-20, -110, 60, 110]]) iceBlock(ctx, x, y, w, h);
+  for (const [x, y, w] of [[-120, -150, 70], [-60, -210, 80], [10, -260, 90], [60, -190, 80]]) snowCap(ctx, x, y, w);
+  // the surviving bottom steps, and the sheared face above them
+  ctx.fillStyle = ICE_L;
+  for (let i = 0; i < 3; i++) ctx.fillRect(-14 + i * 14, -20 - i * 22, 30, 5);
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-10, -84);
+  ctx.lineTo(4, -96);
+  ctx.lineTo(16, -88);
+  ctx.lineTo(30, -104);
+  ctx.stroke();
+  // a fixed rope's end, hanging loose from a peg high up
+  ctx.strokeStyle = '#8a6a48';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(40, -230);
+  ctx.quadraticCurveTo(46 + Math.sin(time * 1.4) * 4, -180, 38, -150);
+  ctx.stroke();
+  ctx.fillStyle = '#5a5a66';
+  ctx.fillRect(36, -236, 8, 6);
+}
+// The glacier's snout on Starfall Summit (open: the Rimeglass Glacier has shipped): a wall of blue ice
+// coming down off the mountain, with steps cut in it zig-zagging up, a rope on iron pegs beside them, and a
+// cutters' red flag at the top
+function drawSnout(ctx, time) {
+  ctx.fillStyle = '#c4def0';
+  ctx.beginPath();
+  ctx.moveTo(-170, 2);
+  ctx.quadraticCurveTo(-160, -150, -60, -200);
+  ctx.quadraticCurveTo(60, -230, 170, -180);
+  ctx.lineTo(160, 2);
+  ctx.closePath();
+  ctx.fill();
+  iceBlock(ctx, -120, -150, 90, 152);
+  iceBlock(ctx, -40, -190, 100, 192);
+  iceBlock(ctx, 50, -160, 90, 162);
+  for (const [x, y, w] of [[-120, -150, 90], [-40, -190, 100], [50, -160, 90]]) snowCap(ctx, x, y, w);
+  // the cut steps, zig-zagging up the middle block
+  ctx.fillStyle = ICE_L;
+  ctx.strokeStyle = ICE_LINE;
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < 7; i++) {
+    const x = -24 + (i % 2 ? 30 : 0) + (i > 3 ? 10 : 0), y = -16 - i * 25;
+    ctx.fillRect(x, y, 34, 6);
+    ctx.strokeRect(x, y, 34, 6);
+  }
+  // the rope on pegs
+  ctx.strokeStyle = '#8a6a48';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-36, -10);
+  ctx.quadraticCurveTo(-30, -100, -32, -186);
+  ctx.stroke();
+  ctx.fillStyle = '#5a5a66';
+  for (const y of [-14, -100, -186]) ctx.fillRect(-38, y - 4, 6, 8);
+  // the flag
+  ctx.fillStyle = '#7a5a40';
+  ctx.fillRect(20, -240, 3, 52);
+  ctx.fillStyle = '#d0485a';
+  ctx.beginPath();
+  ctx.moveTo(23, -240);
+  ctx.quadraticCurveTo(36, -236 + Math.sin(time * 4) * 3, 44, -232 + Math.sin(time * 4 + 1) * 4);
+  ctx.lineTo(23, -224);
+  ctx.closePath();
+  ctx.fill();
+}
+
+const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall };
+const OPEN = { snout: drawSnout, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
   flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true) };

@@ -1,13 +1,14 @@
-# Greenhollow's branches: blocked ways in and the island map
+# Each island's branches: blocked ways in and the island maps
 
 The island depth plan (`story/world/island-depth.md`) grows Greenhollow to Lv 1–60 with side areas
 ("branches") off the main trail. Phase G0 laid every branch's entrance before any of them exists, so the
 island shows what's coming.
 
-- Data: `GREENHOLLOW` in `src/shared/branches.js`. It holds every place on the island map: the towns, the
-  three Wildwood zones, the cliffs and the eight branches, each with its band, `hard` for hard pockets,
-  the node it hangs off (`from`) and where it sits on the map (`at`). `ISLAND_MAPS` says which islands
-  have a map (Greenhollow only; Frostpeak's comes with its depth pass).
+- Data: `GREENHOLLOW` and `FROSTPEAK` in `src/shared/branches.js`. Each holds every place on its island's
+  map: the towns, the stage's zones (`zone`, with `zr` the stage room when it isn't the Wildwood), the
+  branches, each with its band, `hard` for hard pockets, the node it hangs off (`from`) and where it sits on
+  the map (`at`). `ISLAND_MAPS` says which islands have a map (Greenhollow and Frostpeak); `GATES`,
+  `ENTRIES` and `nodeAt` read all of them.
 - **A branch that hasn't shipped has a `gate`**: the blocked way in, in a real room (the room and x, the
   kind of art, the prompt, and what E says). Gates are drawn by `src/branch-gates.js` (`DRAW`); each has a
   small sign with the place's name (red-trimmed for a hard pocket). G0 laid one for every branch; since G5
@@ -33,14 +34,21 @@ island shows what's coming.
   `thorns` drawn open).
 - **Shipped (G5):** Keeper's Spine (`docs/places/spine.md`: the trunk sawn through, `trunk` drawn open) and
   the Root Warden's den. Greenhollow has no gates left.
+- **Frostpeak (F0, F1, 2026-10-23):** its map and gates, the same way. Open: the Rimeglass Glacier
+  (`docs/places/glacier.md`, its snout on Starfall Summit, `snout`). Blocked: the Whale Skerries (a snow
+  slide over the shore path at Icefang Hamlet's west end, `snowslide`, `SKERRIES_GATE_X`), the Narwhal
+  Grotto (`past`, behind the Skerries), the Queen's Bridge (its ice stair broken off on Frostpine Ridge by
+  the Frozen Throne, `icestair`, `BRIDGE_GATE_X`), and in the Glacier the Blue Halls (the cutters' ladder
+  smashed at the bottom of a crevasse, `crevasse`, `BLUEHALLS_GATE_X`) and the Aurora Heights (the steps
+  sheared off the Icefall, `icefall`, `HEIGHTS_GATE_X`). Plan and phases: `story/world/island-depth.md`.
 - The island map (`docs/ui/world-map.md`) reads the same list: shipped places solid with their levels,
   the rest dashed with a short `block` reason. Keep both in step: a node's `block` should match its gate.
 
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 36 after G5; ids 27,
-  31–35 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine and the Warden's den), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 37 after F1; ids 27,
+  31–36 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den and the Glacier), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last), a `STAGES` row (`band`, `pill` if the name is long, `hard` for
   a hard pocket), mobs **appended** to `MOBS` (kinds go over the wire as their index), spawns (an
@@ -49,7 +57,7 @@ fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (
 - **`src/shared/sim.js`:** import and re-export the room id, the door in the parent room (its level chip
   comes from `STAGES` by itself), `ROOMS[id]`, the `NPCS` entry, `SLAP_QUIPS`. **`branches.js`:** the node
   gets `rooms` and an `entry`, loses its `gate`; children's gates move into the new room. **`waystones.js`:**
-  a stone in the hub (not in hard pockets). **`house.js`:** `PETS` for any boss or field boss.
+  a stone in the hub (not in hard pockets), with its `isle`. **`house.js`:** `PETS` for any boss or field boss.
 - **Server:** a persona in `server/characters.js`. The mob brains are generic, so usually nothing else; a new
   mob flag needs its line (G3's `anchored` in `damage()`).
 - **Client:** a room art file (`draw<Room>(ctx, camX, viewW, time)`, painting its own sky) and a
@@ -83,8 +91,11 @@ Gotchas already hit:
   key presses.
 
 ## The next phases' loose ends (where things already are)
-- **Greenhollow is done** (G0–G5). Next on the G track is R, the rebalance, then Frostpeak's depth pass
-  (`story/world/island-depth.md`): `ISLAND_MAPS` gets a Frostpeak list, and its unshipped branches get gates
-  here the same way (`past: true` for a place behind another unshipped one).
+- **Greenhollow is done** (G0–G5). Frostpeak's pass is under way (F0, F1 shipped): the next phases' gates
+  are already laid (above). F2 (the Skerries) lifts the snow slide and gives the Narwhal Grotto a gate in
+  the new room; F3 (the Aurora Heights, the Blue Halls) lifts the two in the Glacier; F4 the ice stair.
+  Each lifted gate becomes an `entry` with open art (`OPEN`), and its block reason comes off the map.
+- A gate in a town room (the snow slide in Icefang Hamlet) works like any other; mind the town's own props
+  (the hamlet's waystone moved to the lamp-fire to keep its west end clear).
 - A new den: a new theme needs its row in `dens.js`'s shared effect tables (`FXPAL`, `THEME_RGB`, `drawBit`,
   `drawFallObj`, the summon and roar colours); a boss can reuse the shared moves with its own look (`looks`).

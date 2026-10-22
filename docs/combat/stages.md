@@ -24,7 +24,8 @@ Stages 3 and 4 were added because players were Lv 35–88 and out of content.
 kinds, only `lvl`, `hp`, `atk`, `exp` and coins changed, read off the frozen curve at the new level
 (`docs/economy.md`); zone labels, `band`s, the ferry's label and the Caldera and Citadel signs moved with
 them, and Tove's and Brine's personas name the new levels. Their gear became Legacy (`docs/combat/items.md`).
-Lv 60–90 has no fresh content until Frostpeak's depth pass fills the top of its band.
+Lv 60–90 had no fresh content until Frostpeak's depth pass started filling the top of its band (F1: the
+Rimeglass Glacier, 60–75).
 5. **Willowmere** and 6. **Saltspray Coves**: Greenhollow's first branches (`docs/places/willowmere.md`,
    `docs/places/coves.md`). `COMBAT_ROOMS` is every `STAGES` room plus the dens; `STAGES[room].pill` names
    it in the location pill. `lob` and `trail` take a `style` for their shot / puddle look, `beam` too.
@@ -37,6 +38,9 @@ Lv 60–90 has no fresh content until Frostpeak's depth pass fills the top of it
    `docs/places/thornheart.md`). A rooted shooter is `speed: 0`, `anchored` and `keep: 0` (the pitcher plant).
 12. **Keeper's Spine**: G5, the ridge above the Canopy (Lv 45–60), Greenhollow's last branch, with the Root
    Warden's den at its end (`docs/places/spine.md`). No elites and no field boss: the capstone is the danger.
+13. **The Rimeglass Glacier**: Frostpeak's depth pass F1, up the glacier's snout from Starfall Summit (Lv
+   60–75), with Old Rimehorn (a field boss) and Ice-Cutter Eyvind (`docs/places/glacier.md`). It fills
+   60–75, which had nothing of its own after the rebalance; Frostpeak's later phases fill 75–100.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 

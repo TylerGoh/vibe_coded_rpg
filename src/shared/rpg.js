@@ -31,7 +31,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 3200;
+export const PETSHOP_W = 3400;
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -303,6 +303,46 @@ export const SPINE_PLATFORMS = [
   { x: 4460, y: 255, w: 210, kind: 'wall' },
   { x: 3000, y: 160, w: 110, kind: 'seat' }, // the Watch Seat, on the tallest trilithon's capstone: easy to miss
 ];
+// ——— Frostpeak's depth pass, F1 (docs/places/glacier.md) ———
+// The Rimeglass Glacier (room 36): a great river of blue ice above Starfall Summit, up its snout from the
+// Summit's east end. You come in at the WEST end (GLACIER_EXIT_X) and climb east, higher and harder: the
+// Cutters' Camp (no mobs: Ice-Cutter Eyvind, a waystone, the Rime Stone), the Snout, the Crevasse Field (a
+// crevasse down into the Blue Halls, blocked: BLUEHALLS_GATE_X) and the Icefall, where Old Rimehorn walks,
+// and at its top the way up to the Aurora Heights (blocked: HEIGHTS_GATE_X). Ylva's Cairn, on a high serac
+// over the Snout (last in GLACIER_PLATFORMS), is the hidden spot.
+export const GLACIER = 36; // room id
+export const GLACIER_W = 5400;
+export const GLACIER_EXIT_X = 70; // back down the snout to Starfall Summit
+export const GLACIER_GATE_X = 3540; // the glacier's snout at Starfall Summit's east end (the way in)
+export const EYVIND_X = 610; // Ice-Cutter Eyvind, at his hut (he trades: SHOPS)
+export const BLUEHALLS_GATE_X = 3245; // the crevasse down into the Blue Halls (F3)
+export const HEIGHTS_GATE_X = GLACIER_W - 110; // the climb up to the Aurora Heights, at the Icefall's top (F3)
+// Frostpeak's other blocked ways in (src/shared/branches.js FROSTPEAK): the shore path to the Whale Skerries
+// at the hamlet's west end, and the ice stair onto the Queen's Bridge on Frostpine Ridge
+export const SKERRIES_GATE_X = 160;
+export const BRIDGE_GATE_X = 1620;
+export const GLACIER_ZONES = [
+  { name: "The Cutters' Camp", x0: 0, x1: 950, lvl: null }, // (no mobs)
+  { name: 'The Snout', x0: 950, x1: 2400, lvl: '60–65' },
+  { name: 'The Crevasse Field', x0: 2400, x1: 3900, lvl: '65–70' },
+  { name: 'The Icefall', x0: 3900, x1: GLACIER_W, lvl: '70–75' },
+];
+export const GLACIER_PLATFORMS = [
+  { x: 690, y: 330, w: 160, kind: 'hut' }, // Eyvind's hut roof
+  { x: 1100, y: 340, w: 210, kind: 'serac' },
+  { x: 1460, y: 255, w: 220, kind: 'serac' },
+  { x: 1880, y: 340, w: 220, kind: 'serac' },
+  { x: 2180, y: 250, w: 180, kind: 'serac' },
+  { x: 2560, y: 340, w: 220, kind: 'serac' },
+  { x: 2900, y: 255, w: 240, kind: 'snowbridge' }, // a snow bridge over a crevasse
+  { x: 3350, y: 340, w: 210, kind: 'serac' },
+  { x: 3650, y: 255, w: 200, kind: 'serac' },
+  { x: 4050, y: 340, w: 220, kind: 'serac' },
+  { x: 4400, y: 250, w: 230, kind: 'serac' },
+  { x: 4780, y: 340, w: 220, kind: 'serac' },
+  { x: 5000, y: 255, w: 180, kind: 'serac' },
+  { x: 2215, y: 160, w: 100, kind: 'cairn' }, // Ylva's Cairn, high on a serac over the Snout: easy to miss
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -319,6 +359,7 @@ export const STAGES = {
   [WRECK]: { name: 'Wreck Cave', zones: WRECK_ZONES, band: '30–40', hard: true },
   [THORNHEART]: { name: 'The Thornheart', zones: THORN_ZONES, band: '50–60', hard: true, pill: 'Thornheart' },
   [SPINE]: { name: "Keeper's Spine", zones: SPINE_ZONES, band: '45–60' },
+  [GLACIER]: { name: 'The Rimeglass Glacier', zones: GLACIER_ZONES, band: '60–75', pill: 'Rimeglass Glacier' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -823,6 +864,50 @@ MOBS.root_warden = {
   drops: [['royal_sap', 1, 2, 3], ['warden_blade', 1, 1, 1], ['warden_helm', 0.6, 1, 1], ['coin', 1, 9500, 14500], ['mega_elixir', 1, 4, 6], ['rune_chip', 1, 8, 12], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
+// ——— Frostpeak's depth pass, F1: the Rimeglass Glacier (art: src/glacier-art.js; docs/places/glacier.md). On
+// the frozen curve like Greenhollow's branches ———
+// Snow hares hop the Snout (harmless), snow petrels dive off the seracs, glacier rams lower their great curled
+// horns (hit them from behind), rime wolves circle round behind you, frost wraiths fade into the blowing snow
+// and pulse out of it, grown yetis (Tove's cubs, all grown up) throw snowballs; Old Rimehorn, a mammoth older
+// than the hamlet, walks the Icefall
+MOBS.snow_hare = {
+  name: 'Snow Hare', lvl: 61, hp: 5600, atk: 175, exp: 2513, speed: 85, w: 40, h: 38, aggro: false, hops: true,
+  drops: [['coin', 1, 360, 548], ['hare_tuft', 0.55, 1, 2], ['mega_elixir', 0.08, 1, 1]],
+};
+MOBS.snow_petrel = {
+  name: 'Snow Petrel', lvl: 63, hp: 5800, atk: 186, exp: 2704, speed: 110, w: 52, h: 34, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.4, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 390, 590], ['petrel_down', 0.5, 1, 2], ['mega_elixir', 0.09, 1, 1]],
+};
+MOBS.glacier_ram = {
+  name: 'Glacier Ram', lvl: 65, hp: 7400, atk: 194, exp: 2903, speed: 55, w: 66, h: 50, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.55, lunge: 540, time: 0.32 },
+  drops: [['coin', 1, 410, 620], ['ram_horn', 0.5, 1, 2], ['mega_elixir', 0.09, 1, 1], ['ramhorn_helm', 0.004, 1, 1]],
+};
+MOBS.rime_wolf = {
+  name: 'Rime Wolf', lvl: 67, hp: 6700, atk: 202, exp: 3109, speed: 90, w: 60, h: 42, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.4, warn: 0.4, slashWarn: 0.5, r: 115 },
+  drops: [['coin', 1, 430, 640], ['wolf_pelt', 0.5, 1, 2], ['mega_elixir', 0.1, 1, 1], ['rimefang', 0.003, 1, 1]],
+};
+MOBS.frost_wraith = {
+  name: 'Frost Wraith', lvl: 70, hp: 7000, atk: 213, exp: 3434, speed: 75, w: 46, h: 56, aggro: true, hops: false, fly: 44,
+  ai: { kind: 'phase', every: 6.5, dur: 2, r: 180 },
+  drops: [['coin', 1, 460, 700], ['frozen_breath', 0.5, 1, 2], ['mega_elixir', 0.1, 1, 1]],
+};
+MOBS.great_yeti = {
+  name: 'Great Yeti', lvl: 73, hp: 8100, atk: 225, exp: 3747, speed: 60, w: 70, h: 74, aggro: true, hops: false,
+  ai: { kind: 'lob', range: 460, every: 2.8, keep: 160, warn: 0.55, style: 'snow' },
+  drops: [['coin', 1, 490, 740], ['yeti_fur', 0.5, 1, 2], ['mega_elixir', 0.11, 1, 1]],
+};
+// Old Rimehorn: a field boss (small: no story), a mammoth older than the hamlet, shaggy with icicles, who walks
+// the Icefall and the fjord folk leave alone. Passive until hit; then he rears and stamps
+MOBS.rimehorn = {
+  name: 'Old Rimehorn', field: true, lvl: 75, hp: 170000, atk: 220, exp: 68000, speed: 45, w: 170, h: 150, aggro: false, hops: false,
+  ai: { kind: 'stomp', every: 3.6, warn: 1, r: 300, range: 330, jump: 600 },
+  desc: 'Old Rimehorn is walking the Icefall!',
+  drops: [['coin', 1, 6400, 9200], ['mammoth_wool', 1, 4, 8], ['yeti_fur', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['tusk_blade', 0.25, 1, 1], ['mammoth_hood', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -856,6 +941,7 @@ const onOPlat = onRoomPlat(CANOPY_PLATFORMS, CANOPY);
 const onKPlat = onRoomPlat(WRECK_PLATFORMS, WRECK);
 const onBPlat = onRoomPlat(THORN_PLATFORMS, THORNHEART);
 const onPPlat = onRoomPlat(SPINE_PLATFORMS, SPINE);
+const onIPlat = onRoomPlat(GLACIER_PLATFORMS, GLACIER);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -1029,6 +1115,28 @@ export const SPAWNS = [
   ...strip('stone_sentinel', 4000, 4700, FIELD_GROUND, 1, SPINE),
   ...onPPlat('rootling', 6, 1),
   ...onPPlat('rootling', 7, 1),
+  // the Rimeglass Glacier (the Cutters' Camp, x < 950, has none; nothing at the crevasse or the climb at the top)
+  ...strip('snow_hare', 1000, 2350, FIELD_GROUND, 5, GLACIER),
+  ...onIPlat('snow_hare', 1, 1),
+  ...strip('snow_petrel', 1300, 2350, FIELD_GROUND, 3, GLACIER),
+  ...onIPlat('snow_petrel', 2, 1),
+  ...strip('glacier_ram', 1950, 2380, FIELD_GROUND, 2, GLACIER),
+  ...onIPlat('glacier_ram', 3, 1),
+  ...onIPlat('snow_petrel', 4, 1),
+  ...strip('glacier_ram', 2450, 3100, FIELD_GROUND, 3, GLACIER),
+  ...onIPlat('glacier_ram', 5, 1),
+  ...strip('rime_wolf', 2950, 3880, FIELD_GROUND, 4, GLACIER),
+  ...onIPlat('rime_wolf', 6, 1),
+  ...strip('frost_wraith', 3350, 3880, FIELD_GROUND, 1, GLACIER),
+  ...onIPlat('frost_wraith', 7, 1),
+  ...onIPlat('rime_wolf', 8, 1),
+  ...strip('frost_wraith', 3950, 4700, FIELD_GROUND, 2, GLACIER),
+  ...strip('great_yeti', 4300, 5180, FIELD_GROUND, 4, GLACIER),
+  ...onIPlat('frost_wraith', 9, 1),
+  ...onIPlat('great_yeti', 10, 1),
+  ...onIPlat('great_yeti', 11, 1),
+  ...onIPlat('frost_wraith', 12, 1),
+  { kind: 'rimehorn', x0: 4000, x1: 5150, y: FIELD_GROUND, room: GLACIER },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -1217,6 +1325,20 @@ export const ITEMS = {
   mossback_helm: { name: 'Mossback Helm', price: 76000, lvl: 47, kind: 'helmet', def: 41, desc: "An old turtle shell gone green with moss, worn as a helmet. Very calm. Very slow to take off." },
   sentinel_blade: { name: 'Sentinel Blade', price: 126000, lvl: 53, kind: 'sword', atk: 102, reach: 52, desc: 'A long grey blade of Keeper stone, a gear carved at the hilt. It was made to stand guard, and it still does.' },
   warden_blade: { name: "Warden's Greatblade", price: 175000, lvl: 62, slots: 9, kind: 'sword', atk: 114, reach: 58, desc: "The Root Warden's stone blade, roots grown all the way through it. It held a gate for longer than anyone remembers." },
+  // the Rimeglass Glacier (F1)
+  hare_tuft: { name: 'Snow Hare Tuft', price: 480, kind: 'loot', desc: 'A puff of white winter fur, softer than it has any right to be. The fjord folk line mittens with it.' },
+  petrel_down: { name: 'Petrel Down', price: 500, kind: 'loot', desc: 'A handful of grey-white down from a snow petrel. It smells of the sea, even up here.' },
+  ram_horn: { name: 'Ram Horn Ring', price: 520, kind: 'loot', desc: "A ring of horn knocked off a glacier ram's curl. You can count the winters in it." },
+  wolf_pelt: { name: 'Rime Wolf Pelt', price: 540, kind: 'loot', desc: 'A strip of frost-grey pelt, the tips of every hair iced white.' },
+  frozen_breath: { name: 'Frozen Breath', price: 560, kind: 'loot', desc: "A wisp of a frost wraith caught in a stoppered vial. The glass is too cold to hold for long." },
+  yeti_fur: { name: 'Great Yeti Fur', price: 580, kind: 'loot', desc: 'A hank of long white fur, coarse outside and warm as a blanket underneath.' },
+  mammoth_wool: { name: 'Mammoth Wool', price: 700, kind: 'loot', desc: "A great hank of Old Rimehorn's winter coat, red-brown and tangled with ice. Runa would knit a whole jumper from it." },
+  cutter_cleaver: { name: "Ice-Cutter's Cleaver", price: 80000, lvl: 64, aim: 66, kind: 'sword', atk: 117, reach: 52, desc: 'A heavy square blade for cutting blocks of glacier ice. Eyvind grinds them on the same stone his father did.' },
+  cutter_cap: { name: "Ice-Cutter's Cap", price: 62000, lvl: 64, aim: 66, kind: 'helmet', def: 52, desc: 'A thick fur cap with flaps tied up on top and snow goggles of carved horn.' },
+  ramhorn_helm: { name: 'Ramhorn Helm', price: 151000, lvl: 66, kind: 'helmet', def: 54, desc: "A frosted iron cap with a glacier ram's great curled horns. Lower your head and things move out of your way." },
+  rimefang: { name: 'Rimefang', price: 209000, lvl: 68, kind: 'sword', atk: 121, reach: 54, desc: 'A pale curved blade like a wolf\'s fang, rimed white along the edge. It is always colder than the air.' },
+  tusk_blade: { name: 'Rimehorn Tusk', price: 262000, lvl: 76, kind: 'sword', atk: 130, reach: 60, desc: "A greatsword carved from a shed mammoth tusk, yellowed and cracked and older than the hamlet. Old Rimehorn grows a new one." },
+  mammoth_hood: { name: 'Woolly Hood', price: 201000, lvl: 76, kind: 'helmet', def: 59, desc: "A great shaggy hood of Old Rimehorn's red-brown wool with two little tusks at the brow. Nothing has ever been this warm." },
   warden_helm: { name: 'Wardenstone Helm', price: 134000, lvl: 62, slots: 9, kind: 'helmet', def: 51, desc: "A Keeper guardian's stone helm with a crown of living roots. Wear it and you stand up very straight." },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
@@ -1286,6 +1408,9 @@ export const ITEMS = {
   bosun_staff: { name: 'Bosun\'s Lantern Pole', price: 74000, lvl: 41, kind: 'staff', magic: 85, mp: 51, reach: 52, twin: 'bosun_hook', desc: 'The Bosun\'s ship lantern on an oak pole, still lit with a cold green flame after all these years.' },
   sentinel_staff: { name: 'Sentinel Staff', price: 126000, lvl: 53, kind: 'staff', magic: 102, mp: 61, reach: 54, twin: 'sentinel_blade', desc: "A Keeper sentinel's grey stone rod, its amber eye-stone set in the head. It looks where you're looking." },
   warden_staff: { name: "Warden's Rootstaff", price: 175000, lvl: 62, slots: 9, kind: 'staff', magic: 114, mp: 68, reach: 58, twin: 'warden_blade', desc: 'A Keeper staff of grey stone wound with roots, the Warden\'s amber light in its crook. It has been waiting a long time.' },
+  glacier_staff: { name: 'Glacier Staff', price: 80000, lvl: 64, aim: 66, kind: 'staff', magic: 117, mp: 70, reach: 52, twin: 'cutter_cleaver', desc: 'A blackened driftwood staff with a lump of blue glacier ice in its head that never melts. Eyvind cut the ice; Skaldi carved the wood.' },
+  howl_staff: { name: 'Howling Staff', price: 209000, lvl: 68, kind: 'staff', magic: 121, mp: 72, reach: 54, twin: 'rimefang', desc: 'A grey staff bound in rime wolf pelt, a white fang at its tip. Its bolts howl on the way out.' },
+  tusk_staff: { name: 'Rimehorn Staff', price: 262000, lvl: 76, kind: 'staff', magic: 130, mp: 78, reach: 60, twin: 'tusk_blade', desc: "A curved staff of old mammoth ivory wound with red-brown wool, frost flowers growing up it as you cast." },
   hart_staff: { name: 'Hart\'s Antler Staff', price: 156000, lvl: 59, kind: 'staff', magic: 110, mp: 66, reach: 56, twin: 'briarheart_blade', desc: 'A shed antler of the Thorn Hart on a briar shaft. A white rose buds between the tines and never opens.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Weapon Scroll 100%', price: 300, kind: 'scroll', slot: 'weapon', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a weapon (a staff gets them the other way round).' },
@@ -1374,6 +1499,7 @@ export const SHOPS = {
   truffle: { name: "Truffle's Camp", room: MYCELIUM, x: TRUFFLE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'rootwood_saber', 'glowcap_staff', 'lantern_cap'] },
   acorn: { name: "Acorn's Treehouse", room: CANOPY, x: ACORN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'ranger_billhook', 'oak_staff', 'ranger_hood'] },
   // the Pet Shop: pet food only (the pets themselves are on plinths: furni-buy, src/petshop.js)
+  eyvind: { name: "The Cutters' Hut", room: GLACIER, x: EYVIND_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'cutter_cleaver', 'glacier_staff', 'cutter_cap'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));

@@ -24,13 +24,19 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
   warm underneath. Tier 0 plus gossip. Her husband Bjarn fishes the outer fjord; her cousin Arne owns
   the laid-up Lodestar.
 - **Tove** (Icefang Hamlet, **exists**): Skaldi's granddaughter, about eight. Feeds the yeti cubs (Lumpy,
-  Mitten, Big Grumble) and tells travellers about the ridge's creatures. Tier 0.
+  Mitten, Big Grumble) and tells travellers about the ridge's creatures (and the glacier's, since F1). Tier 0.
 - **The branches' traders** (Greenhollow, island depth, **exist**): Miller Bun (Willowmere), Beachcomber
   Moss (Saltspray Coves), Forager Truffle (the Mycelium Deep) and Ranger Acorn (the Old Oak Canopy). Tier 0 plus their own corner; Truffle
   also knows the threads run off under the sea. Truffle's life: moved underground for the quiet (too much
   sky makes her dizzy), a lamp mushroom called Wick, Chirp the cave cricket, an eleven-year mushroom guide. Acorn's life: hasn't touched the ground in six years (the ground is where the
   bramblehogs are), Zip the hat-stealing flying squirrel, knitted hats for the squirrels, Professor Hoot the
   owl who judges her knitting, a nest logbook on volume nine; she restrung the Canopy's ladder herself.
+- **Ice-Cutter Eyvind** (the Rimeglass Glacier, Frostpeak's depth pass F1, **exists**): fjord folk; cuts blue
+  ice for the hamlet and trades at the Cutters' Camp. Plain and quiet, a dry joke now and then. Tier 0 plus
+  the glacier (the Rime Stone's stars bother him; the Blue Halls and the Heights are shut). His life: his
+  daughter Liv sailed south on the Lodestar's last voyage and is stuck there while the stars are wrong; he
+  writes her a letter a month for when ships sail again; he carries Skaldi's driftwood bird up to Ylva's
+  Cairn each year; he names the crevasses.
 - **Forgewarden Ash** (Forgehold): bitter, honest, slow to trust. Holds Tier 3.
 - **The Last Echo** (the Citadel): a Keeper echo stuck repeating, who becomes briefly lucid when players
   bring Mochi's name. Holds Tier 4.

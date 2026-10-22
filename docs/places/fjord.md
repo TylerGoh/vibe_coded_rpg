@@ -18,6 +18,10 @@ look, dress, the later Frostpeak mobs and Runa's gear in `src/fjord-art.js`, the
   is **everyone's own front door** (`FJORD_HOME_X`), the **lamp-fire** where Old Skaldi stands and where you
   wake up, Tove with her bucket, the smokehouse, and the **path up to Frostpine Ridge** (`FJORD_EXIT_X`,
   into the stage's west end at `HIGHLANDS_EXIT_X`).
+- **Frostpeak's depth pass** (F0/F1): a waystone by the lamp-fire, next to where you wake up (Frostpeak's
+  stones only reach Frostpeak's, `docs/places/waystones.md`), and at the quay's west end the blocked shore path
+  to the Whale Skerries under a snow slide (`docs/places/branches.md`). The three personas know the Rimeglass
+  Glacier and Eyvind the ice-cutter (`docs/places/glacier.md`); Skaldi knows Ylva's Cairn up there.
 - Climbable: crates on the quay, the home hut's roof, the smokehouse roof, a rock by the path
   (`FJORD_PLATFORMS`; the drawings read them).
 - The sky: a pale dusk with the aurora, snow, the other islands far down the fjord (`drawDistantIslands`),

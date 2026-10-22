@@ -117,6 +117,7 @@ const SHOT = {
   sting: { glow: '255,200,90', core: '#fff2b0', mid: '#f0a038', rim: '#3a2418' }, // the hornet's
   ink: { glow: '120,90,150', core: '#d8c8f0', mid: '#3a2a4e', rim: '#1e1428' }, // the Drowned Bosun's
   thorn: { glow: '200,150,190', core: '#f4e0ea', mid: '#7a4c62', rim: '#3e2232' }, // the pitcher plant's
+  snow: { glow: '210,235,255', core: '#ffffff', mid: '#eef6fc', rim: '#9ab8d4' }, // the great yeti's
 };
 function drawShot(ctx, h, now) {
   const p = h.pos;
@@ -264,6 +265,23 @@ function drawShot(ctx, h, now) {
     disc(ctx, 0, 0, r * 0.75);
     ctx.fillStyle = st.core;
     disc(ctx, -r * 0.25, -r * 0.25, r * 0.22);
+  } else if (h.style === 'snow') {
+    // a big packed snowball, turning, shedding a few flakes
+    ctx.translate(p.x, p.y);
+    ctx.rotate(now * 8);
+    ctx.fillStyle = st.mid;
+    ctx.strokeStyle = st.rim;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 1.05, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(154,184,212,0.45)';
+    disc(ctx, r * 0.3, r * 0.2, r * 0.35);
+    disc(ctx, -r * 0.4, -r * 0.1, r * 0.22);
+    ctx.fillStyle = st.core;
+    disc(ctx, -r * 0.3, -r * 0.35, r * 0.3);
+    for (let i = 0; i < 3; i++) disc(ctx, Math.cos(i * 2.1 + now * 3) * r * 1.5, Math.sin(i * 2.1 + now * 3) * r * 1.5, 1.6);
   } else if (h.style === 'water') {
     // a wobbling bubble of sea water with a shine on it
     const wob = Math.sin(now * 24) * 0.12;

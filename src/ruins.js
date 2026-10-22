@@ -1,15 +1,16 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
 // Stone by Truffle's camp in the Mycelium Deep, the Lifted Stone by Acorn's treehouse in the Old Oak
-// Canopy, the Hedge Stone in the Thornheart, the Road Stone on Keeper's Spine). Wreck Cave has the one reading here that isn't a stone: the
+// Canopy, the Hedge Stone in the Thornheart, the Road Stone on Keeper's Spine; on Frostpeak, the Rime Stone
+// in the Rimeglass Glacier's Cutters' Camp, which may say a little more: Frostpeak's tier is canon Tier 2). Wreck Cave has the one reading here that isn't a stone: the
 // wrecked ship's logbook (`wing` and `when` change the card's header lines). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -87,6 +88,12 @@ export const RUIN_STONES = [
     legible: ['THE HIGH ROAD. KEEP IT.', '...THE WARDEN HOLDS THE GATE UNTIL WE COME AGAIN...', 'The root under the carved road runs off the stone\'s west edge, toward the trees, and on toward the village.'],
     note: 'Little pebbles have been balanced along the top of the stone, one by one, by everyone who ever made it up here. Some of them have been there long enough to grow lichen.',
   },
+  {
+    room: GLACIER, place: 'the Rimeglass Glacier', x: 450, shape: 'rime', name: 'the Rime Stone', title: 'The Rime Stone',
+    look: "A grey Keeper stone frozen inside a block of ice as clear as glass. The cutters found it deep in the glacier, cut the whole block out and stood it up by the camp, so you see the stone through the ice like a pebble at the bottom of a pool. Its face is carved with stars joined by lines, and under them two islands, so close together that the Keepers' road runs straight from one to the other across a strip of water no wider than a brook.",
+    legible: ['...STEER BY THESE...', '...THE ROAD RUNS ON OVER THE WATER...', 'The stars carved on the stone are not where the stars are now. You look up, and back, and up again.'],
+    note: "Axe marks go all the way round the block, careful and wide of the stone. Someone has chipped a little window in the ice over the stars, and keeps it polished.",
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -116,7 +123,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -811,4 +818,75 @@ function drawRoadStone(ctx, time, glow) {
     circle(ctx, x, -150 - r + 2, r);
     ctx.stroke();
   }
+}
+
+// The Rime Stone (the Rimeglass Glacier): a Keeper slab inside a tall block of clear ice, stars carved on it
+// joined into a chart, two islands under them with the road running between, and a polished window in the ice
+function drawRimeStone(ctx, time, glow) {
+  // the stone, seen through the ice
+  ctx.save();
+  ctx.globalAlpha = 0.85;
+  slab(ctx, -26, -132, 52, 122, 12);
+  ctx.restore();
+  const ink = glow ? '#c9a24a' : CARVE;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
+  ctx.lineWidth = 1.4;
+  const stars = [[-14, -116], [-4, -108], [8, -118], [14, -104], [-10, -96], [4, -92]];
+  ctx.beginPath();
+  stars.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+  ctx.stroke();
+  for (const [x, y] of stars) circle(ctx, x, y, 1.8);
+  // two islands and the road across the narrow strait
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(-12, -64, 10, 5, 0, Math.PI, 0);
+  ctx.moveTo(22, -64);
+  ctx.ellipse(12, -64, 10, 5, 0, Math.PI, 0);
+  ctx.stroke();
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(-16, -68);
+  ctx.lineTo(16, -68);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  carvedGear(ctx, 0, -40, 8, 10, glow);
+  // the block of ice round it: pale blue, a lit edge, bubbles, the polished window over the stars
+  ctx.fillStyle = 'rgba(200,232,250,0.42)';
+  ctx.strokeStyle = 'rgba(80,140,190,0.8)';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(-42, -2);
+  ctx.lineTo(-44, -150);
+  ctx.lineTo(-10, -160);
+  ctx.lineTo(40, -152);
+  ctx.lineTo(42, -2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.beginPath();
+  ctx.moveTo(-38, -6);
+  ctx.lineTo(-40, -146);
+  ctx.lineTo(-30, -149);
+  ctx.lineTo(-30, -6);
+  ctx.closePath();
+  ctx.fill();
+  for (const [x, y, r] of [[-20, -30, 2], [24, -50, 1.6], [30, -130, 2.4], [-28, -80, 1.4], [18, -20, 1.8]]) circle(ctx, x, y, r);
+  ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.ellipse(0, -106, 20, 15, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  const k = (time * 0.4) % 1; // a glint sliding across the window
+  ctx.fillStyle = `rgba(255,255,255,${0.7 * Math.sin(k * Math.PI)})`;
+  ctx.fillRect(-16 + k * 32, -118, 2, 22);
+  // snow along the top and a drift at the foot
+  ctx.fillStyle = '#f7fbff';
+  ctx.beginPath();
+  ctx.moveTo(-46, -150);
+  ctx.quadraticCurveTo(-10, -170, 42, -154);
+  ctx.quadraticCurveTo(0, -148, -46, -150);
+  ctx.fill();
+  ellipse(ctx, 0, 0, 52, 7);
 }

@@ -1,17 +1,17 @@
 // Docs: docs/places/branches.md
-// Greenhollow's branches (story/world/island-depth.md): the side areas off the main trail, each its own
+// Each island's branches (story/world/island-depth.md; Greenhollow's, then Frostpeak's): the side areas off the main trail, each its own
 // combat room once it ships. Until then the way in is there but blocked by something in the world (a
 // node's `gate`: drawn by src/branch-gates.js, E shows what's wrong), never a "coming soon" sign. The
 // island map (src/worldmap.js) draws this list as a graph: shipped places solid, the rest blocked.
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, ZONES, DENS, zoneAt, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
 // on the map) · band: its levels · hard: a hard pocket · rooms: the rooms that are it (shipped) · zone: a
-// Wildwood zone · gate: the blocked way in: { room, x, kind (the art), look (the prompt), says (on E) }
+// zone of a stage room (zr, FIELD when left out: the Wildwood) · gate: the blocked way in: { room, x, kind (the art), look (the prompt), says (on E) }
 // · past: an unshipped place behind another one, with no gate of its own yet (`block` names why on the map)
 // · entry: a shipped branch's way in, drawn by src/branch-gates.js: { room, x (its door), kind (the art) }
 export const GREENHOLLOW = [
@@ -30,20 +30,38 @@ export const GREENHOLLOW = [
   { id: 'spine', name: "Keeper's Spine", band: '45–60', at: [535, 55], from: 'canopy', rooms: [SPINE], entry: { room: CANOPY, x: SPINE_GATE_X, kind: 'trunk' } },
   { id: 'thornheart', name: 'Thornheart', band: '50–60', hard: true, at: [650, 285], from: 'woods', rooms: [THORNHEART], entry: { room: FIELD, x: THORN_GATE_X, kind: 'thorns' } },
 ];
-export const ISLAND_MAPS = { green: GREENHOLLOW }; // (Frostpeak's comes with its depth pass)
+// Frostpeak (its depth pass, F0 on): the hamlet, the ridge and summit (the stage's two zones), and the
+// branches. Says are under ~90 characters (the toast doesn't wrap)
+export const FROSTPEAK = [
+  { id: 'hamlet', name: 'Icefang Hamlet', at: [100, 215], rooms: [FJORD], town: true },
+  { id: 'ridge', name: 'Frostpine Ridge', band: '40–46', at: [230, 215], from: 'hamlet', zone: 0, zr: HIGHLANDS },
+  { id: 'summit', name: 'Starfall Summit', band: '47–60', at: [360, 215], from: 'ridge', zone: 1, zr: HIGHLANDS },
+  { id: 'glacier', name: 'Rimeglass Glacier', band: '60–75', at: [490, 140], from: 'summit', rooms: [GLACIER], entry: { room: HIGHLANDS, x: GLACIER_GATE_X, kind: 'snout' } },
+  { id: 'heights', name: 'Aurora Heights', band: '75–90', at: [490, 60], from: 'glacier', block: 'the steps are gone',
+    gate: { room: GLACIER, x: HEIGHTS_GATE_X, kind: 'icefall', look: 'look up the icefall', says: "An icefall sheared off the cutters' steps to the Heights. The aurora hangs just above." } },
+  { id: 'bluehalls', name: 'Blue Halls', band: '80–90', hard: true, at: [625, 140], from: 'glacier', block: 'the ladder is smashed',
+    gate: { room: GLACIER, x: BLUEHALLS_GATE_X, kind: 'crevasse', look: 'peer down the crevasse', says: "The cutters' ladder into the Blue Halls lies smashed at the bottom. Blue light, far down." } },
+  { id: 'skerries', name: 'Whale Skerries', band: '55–70', at: [100, 290], from: 'hamlet', block: 'a snow slide',
+    gate: { room: FJORD, x: SKERRIES_GATE_X, kind: 'snowslide', look: 'look at the snow slide', says: 'A snow slide has buried the shore path out to the Skerries. Nobody has dug it out.' } },
+  { id: 'grotto', name: 'Narwhal Grotto', band: '70–80', hard: true, at: [100, 350], from: 'skerries', past: true, block: 'past the Skerries' },
+  { id: 'bridge', name: "The Queen's Bridge", band: '85–100', at: [360, 300], from: 'ridge', block: 'the stair broke off',
+    gate: { room: HIGHLANDS, x: BRIDGE_GATE_X, kind: 'icestair', look: 'look up the ice stair', says: "The stair up onto the Queen's bridge broke off where the bridge cracked. It creaks." } },
+];
+export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK };
+const ALL = Object.values(ISLAND_MAPS).flat();
 export const shipped = (n) => !n.gate && !n.past;
-export const ENTRIES = GREENHOLLOW.filter((n) => n.entry).map((n) => ({ ...n.entry, branch: n.id, name: n.name, band: n.band, hard: !!n.hard }));
+export const ENTRIES = ALL.filter((n) => n.entry).map((n) => ({ ...n.entry, branch: n.id, name: n.name, band: n.band, hard: !!n.hard }));
 
 // Blocked ways in, and the one you're standing at (on the ground, close enough to look)
-export const GATES = GREENHOLLOW.filter((n) => n.gate).map((n) => ({ ...n.gate, branch: n.id, name: n.name, hard: !!n.hard }));
+export const GATES = ALL.filter((n) => n.gate).map((n) => ({ ...n.gate, branch: n.id, name: n.name, hard: !!n.hard }));
 export const GATE_RANGE = 60;
 export const gateAt = (me, room) => (me && me.grounded && !me.onPlat ? GATES.find((g) => g.room === room && Math.abs(me.x - g.x) < GATE_RANGE) : null) ?? null;
 
-// The island-map node a room (and x in it) is, or null when it isn't one of them (the village's buildings
-// and houses: the map pins those on Slimeville)
+// The island-map node a room (and x in it) is, on whichever island's map, or null when it isn't one of them
+// (the village's buildings and houses: the map pins those on Slimeville)
 export function nodeAt(room, x) {
   const den = DENS.find((d) => d.room === room);
   if (den) [room, x] = [den.from, den.entranceX];
-  if (room === FIELD) return GREENHOLLOW.find((n) => n.zone === ZONES.indexOf(zoneAt(x, FIELD))) ?? null;
-  return GREENHOLLOW.find((n) => n.rooms?.includes(room)) ?? (room === VILLAGE ? GREENHOLLOW[1] : null);
+  const zones = STAGES[room]?.zones, zi = zones ? zones.indexOf(zoneAt(x, room)) : -1;
+  return ALL.find((n) => n.zone !== undefined && (n.zr ?? FIELD) === room && n.zone === zi) ?? ALL.find((n) => n.rooms?.includes(room)) ?? (room === VILLAGE ? GREENHOLLOW[1] : null);
 }

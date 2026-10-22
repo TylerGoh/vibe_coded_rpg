@@ -55,7 +55,15 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
 - [x] R (2026-10-23): the rebalance: Frostpeak 40–60, Emberdeep 90–115, the Citadel 140–170; owned gear
       kept as Legacy, scaled copies (`<id>_n`) dropped and sold instead (`docs/combat/items.md`,
       `docs/combat/stages.md`). Left over: `docs/ideas.md` ("R left for later")
-- [ ] Frostpeak's depth pass (40-100)
+- [ ] Frostpeak's depth pass (40-100): its map and phases are in `world/island-depth.md`
+  - [x] F0 (2026-10-23): Frostpeak's island map (`FROSTPEAK`), every unshipped branch's gate, waystones kept
+        to their own island
+  - [x] F1 (2026-10-23): the Rimeglass Glacier (Lv 60–75), Old Rimehorn (field boss), Ice-Cutter Eyvind, the
+        Rime Stone, Ylva's Cairn, waystones in the hamlet and the glacier (`docs/places/glacier.md`). Left
+        over: `docs/ideas.md` ("F1 left for later")
+  - [ ] F2: the Whale Skerries and the Narwhal Grotto (55–80), the Old Narwhal's den
+  - [ ] F3: the Aurora Heights and the Blue Halls (75–90)
+  - [ ] F4: the Queen's Bridge (85–100) and Sigrun, Frostpeak's capstone
 
 ## 0b. Classes and progression: the S track (owner, 2026-10-23)
 Mages neglected (no magic weapons), an archer and a cleric, bosses that need a mixed party, a real skill tree instead of a list, and rewards spaced

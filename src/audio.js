@@ -1089,6 +1089,35 @@ const SONGS = {
     },
   },
 
+  // The Rimeglass Glacier: cold, bright and slow, B minor, a bowed pad over a low drone, a crystalline
+  // glockenspiel climbing like light through ice, the ice groaning deep down now and then, wind off the
+  // snowfield and a thin rising shimmer for the aurora
+  glacier: {
+    bpm: 70, spb: 8, key: 59, scale: MINOR, gain: 0.74, send: 0.5, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5], [3, 5, 7], [6, 8, 10], [5, 7, 9]],
+    mel: melody(
+      '5 - - - 4 - 3 -', '3 - - - . . . .', '6 - 5 - 4 - 3 -', '2 - - - . . . .',
+      '5 - 6 - 8 - 7 -', '6 - - - 5 - . .', '4 - 3 - 2 - 3 -', '1 - - - - - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'bandpass', 1500, 0.008, 0.6); // wind off the snowfield
+      p.eng.bed(p, 'lowpass', 180, 0.01);
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) {
+        pad(p, ch, t, p.stepDur * 8, 0.012, { type: 'sawtooth', a: 1.2, cutoff: 900, unison: 6, rel: 1.4 });
+        e.voice(p.c, t, p.f(ch[0], -2), { type: 'triangle', vol: 0.08, a: 0.5, hold: p.stepDur * 7, rel: 1, cutoff: 500 });
+      }
+      if (s % 2 === 1) e.voice(s % 4 === 1 ? p.l : p.r, t, p.f(ch[(s >> 1) % 3], 2), { ...GLOCK, vol: 0.022, tau: 0.5 }); // light through the ice
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { type: 'sine', vol: 0.05, a: 0.12, hold: m.len * 0.85, rel: 0.5, vib: 5, vibRate: 4, partials: [[2, 0.25], [3, 0.08]] });
+      if (m && part === 1) e.voice(p.r, t, p.f(m.d, 2), { ...GLOCK, vol: 0.035, tau: 0.7 });
+      if (s === 2 && bar % 4 === 3 && chance(0.6)) e.voice(p.c, t, p.f(1, -3), { type: 'sawtooth', vol: 0.02, a: 0.3, hold: 0.6, rel: 0.8, cutoff: 220, glide: 0.85, glideT: 1 }); // the ice groaning far down
+      if (s === 4 && bar % 8 === 6 && chance(0.5)) e.voice(p.l, t, p.f(5, 2), { type: 'sine', vol: 0.012, a: 0.6, hold: 0.8, rel: 1, glide: 1.5, glideT: 1.6 }); // the aurora
+    },
+  },
+
   // The Warden's Court: heavy and stubborn, D harmonic minor, stone drums like footfalls, low brass, a bell
   // tolling at every bar (the gate), and an ostinato that refuses to move on
   warden: {
@@ -2366,7 +2395,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -2476,9 +2505,11 @@ Object.assign(MOB_HURT, { dragonfly: MOB_HURT.cinder_bat, gloop_snail: MOB_HURT.
   oak_squirrel: MOB_HURT.mushling, tent_caterpillar: MOB_HURT.magma_slug, flying_squirrel: MOB_HURT.aether_knight, tawny_owl: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, wasp_nest: MOB_HURT.mushling, wasp: MOB_HURT.cogbit, hornet: MOB_HURT.cinder_bat, hornet_queen: MOB_HURT.cinder_bat,
   barnacle_crab: MOB_HURT.obsidian_crab, drowned_lamp: MOB_HURT.wisp, moray_eel: MOB_HURT.magma_slug, bilge_rat: MOB_HURT.aether_knight, drowned_bosun: MOB_HURT.golem,
   thornback: MOB_HURT.bramble ?? MOB_HURT.obsidian_crab, thistle_puff: MOB_HURT.mushling, thistledown: MOB_HURT.cogbit, pitcher_plant: MOB_HURT.mushling, thorn_stalker: MOB_HURT.aether_knight, thorn_hart: MOB_HURT.golem,
-  moss_turtle: MOB_HURT.obsidian_crab, crag_kite: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, stone_sentinel: MOB_HURT.golem, gale_sprite: MOB_HURT.wisp, rootling: MOB_HURT.aether_knight, root_warden: MOB_HURT.colossus ?? MOB_HURT.golem });
+  moss_turtle: MOB_HURT.obsidian_crab, crag_kite: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, stone_sentinel: MOB_HURT.golem, gale_sprite: MOB_HURT.wisp, rootling: MOB_HURT.aether_knight, root_warden: MOB_HURT.colossus ?? MOB_HURT.golem,
+  snow_hare: MOB_HURT.frostling, snow_petrel: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, glacier_ram: MOB_HURT.obsidian_crab, rime_wolf: MOB_HURT.aether_knight, frost_wraith: MOB_HURT.wisp, great_yeti: MOB_HURT.yeti, rimehorn: MOB_HURT.golem });
 Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEATH.magma_slug, rock_crab: MOB_DEATH.obsidian_crab, snapshrimp: MOB_DEATH.obsidian_crab,
   puffcap: MOB_DEATH.mushling, cave_bat: MOB_DEATH.cinder_bat, puffball: MOB_DEATH.mushling, root_beetle: MOB_DEATH.obsidian_crab, glowworm: MOB_DEATH.magma_slug, glow_moth: MOB_DEATH.wisp,
   oak_squirrel: MOB_DEATH.mushling, tent_caterpillar: MOB_DEATH.magma_slug, tawny_owl: MOB_DEATH.cinder_bat, wasp_nest: MOB_DEATH.mushling, hornet: MOB_DEATH.cinder_bat,
   barnacle_crab: MOB_DEATH.obsidian_crab, drowned_lamp: MOB_DEATH.wisp, moray_eel: MOB_DEATH.magma_slug, thornback: MOB_DEATH.bramble ?? MOB_DEATH.obsidian_crab, thistle_puff: MOB_DEATH.mushling, pitcher_plant: MOB_DEATH.mushling,
-  moss_turtle: MOB_DEATH.obsidian_crab, crag_kite: MOB_DEATH.cinder_bat, stone_sentinel: MOB_DEATH.golem, gale_sprite: MOB_DEATH.wisp, root_warden: MOB_DEATH.colossus });
+  moss_turtle: MOB_DEATH.obsidian_crab, crag_kite: MOB_DEATH.cinder_bat, stone_sentinel: MOB_DEATH.golem, gale_sprite: MOB_DEATH.wisp, root_warden: MOB_DEATH.colossus,
+  snow_hare: MOB_DEATH.frostling, snow_petrel: MOB_DEATH.cinder_bat, glacier_ram: MOB_DEATH.obsidian_crab, frost_wraith: MOB_DEATH.wisp, great_yeti: MOB_DEATH.yeti, rimehorn: MOB_DEATH.yeti });

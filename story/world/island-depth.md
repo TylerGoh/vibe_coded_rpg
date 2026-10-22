@@ -281,10 +281,62 @@ systems first, then fills the band from the bottom up.
   stay (their signs say "Lv 90+" and "Lv 140+" since the rebalance): they're how high-level players reach that content.
   They go when the atlas's Phase 5 and 6 replace them with the ship and the balloon.
 
-## After Greenhollow
-**Frostpeak's depth pass (40–100)**, the same way: the existing ridge and summit (raised to about
-40–60 by the rebalance) become its easy end, and new branches explore the cold north properly (the fjord coast and its sea
-caves, the glacier, the ice bridge, ice caves, the aurora heights), with harder versions of Glacia's and
-the Wyrm's stories at the top. Before starting it, write its branch map and phases here the way
-Greenhollow's are. Only after that does the atlas's Phase 5 (the south) resume, with Emberdeep
-already re-banded above Frostpeak by the rebalance.
+## Frostpeak's depth pass (40–100)
+The same method as Greenhollow's: the existing ridge and summit (40–60 since the rebalance) are the easy end,
+and new branches explore the cold north properly. Specific places, mobs and bosses are `[proposed]` until
+they ship; the tone is Frostpeak's (`regions/frostpeak.md`): quiet, cold, melancholy, few jokes.
+
+### Frostpeak's map `[proposed]`
+```
+                                 [the Aurora Heights 75-90]
+                                            |
+                                 [the Rimeglass Glacier 60-75] -- [the Blue Halls 80-90] hard
+                                            |  up the glacier's snout
+ Icefang Hamlet -- Frostpine Ridge -- Starfall Summit -- (the Caldera pass, legacy)
+       |                  |
+ [the Whale Skerries 55-70]   [the Queen's Bridge 85-100] -- Sigrun (capstone den)
+       |
+ [the Narwhal Grotto 70-80] hard
+```
+Every 5-level slice from 60 to 90 has two places on the island; 90–100 has the Bridge and Emberdeep's
+legacy stage (90–115), so the island's top overlaps the next one's bottom, as planned.
+
+| branch | band | way in | blocked until it ships by |
+|---|---|---|---|
+| the Rimeglass Glacier | 60–75 | the glacier's snout at Starfall Summit's east end, before the Sanctum | ships first (F1) |
+| the Whale Skerries | 55–70 | the shore path off the hamlet's quay, west end | a snow slide across the shore path |
+| the Narwhal Grotto | 70–80 | the Skerries' far end | behind the Skerries (`past`) |
+| the Aurora Heights | 75–90 | the top of the Glacier's Icefall | an icefall: the cutters' steps up are gone |
+| the Blue Halls | 80–90 | a crevasse in the Glacier's Crevasse Field | the cutters' ladder down lies smashed at the bottom |
+| the Queen's Bridge | 85–100 | an ice stair on Frostpine Ridge, by the Frozen Throne | the stair broke off where the bridge cracked |
+
+- **The Rimeglass Glacier** (branch, 60–75): a great river of blue ice above the summit. The **Cutters'
+  Camp** at its foot (no mobs: a waystone, **Ice-Cutter Eyvind**, the Rime Stone), then the Snout, the
+  Crevasse Field and the Icefall. Snow hares, snow petrels, glacier rams, rime wolves, frost wraiths and
+  grown yetis (Tove's cubs grow up into these). **Field boss: Old Rimehorn**, a mammoth older than the
+  hamlet. Find: the Rime Stone (a Keeper stone frozen in clear ice) and Ylva's Cairn on a high serac,
+  where Skaldi's driftwood birds are left. Eyvind: AI, cuts blue ice for the hamlet and trades; his
+  daughter Liv sailed south on the Lodestar's last voyage and hasn't come home.
+- **The Whale Skerries** (branch, 55–70): low black islets and a whale's bones along the fjord's outer
+  shore. Ice seals, skuas, sea urchins, whalebone crabs. A trader in an old whaling hut. Den: **the Old
+  Narwhal** `[proposed]` (the atlas's "sea creature under the ice bridge"), holding the floes in so the
+  fjord's fish can't get out. Story to write when it ships.
+  - **The Narwhal Grotto** (hard pocket, 70–80): a sea cave of green ice, elites.
+- **The Aurora Heights** (branch, 75–90): the high snowfield above the glacier, where the aurora hangs low
+  enough to touch and the wrong stars are closest. Field boss: something of the Wyrm's kind that fell
+  with it (the harder Wyrm story: one that would rather stay fallen).
+  - **The Blue Halls** (hard pocket, 80–90): ice caves inside the glacier, deep blue, elites.
+- **The Queen's Bridge** (the heart, 85–100): out onto Glacia's cracked bridge across the strait. Capstone
+  den at the crack: **Sigrun, the Queen's Shield** `[proposed]`, Glacia's sworn guard, who still freezes the
+  crack shut every night though her queen has let go. The harder Glacia story: holding on to someone
+  else's holding on. Freed, she stops mending it.
+
+### Frostpeak phases
+Each its own session and dev copy, like Greenhollow's.
+- [x] **F0: systems for a second island** (2026-10-23): Frostpeak's island map (`FROSTPEAK` in
+      `src/shared/branches.js`), its unshipped branches' gates, waystones kept to their own island.
+- [x] **F1: the Rimeglass Glacier** (60–75), Old Rimehorn, Ice-Cutter Eyvind (2026-10-23,
+      `docs/places/glacier.md`).
+- [ ] **F2: the Whale Skerries and the Narwhal Grotto** (55–80), the Old Narwhal's den.
+- [ ] **F3: the Aurora Heights and the Blue Halls** (75–90), their field bosses.
+- [ ] **F4: the Queen's Bridge** (85–100) and Sigrun, Frostpeak's capstone. Then atlas Phase 5 resumes.

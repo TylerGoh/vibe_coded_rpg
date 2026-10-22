@@ -17,7 +17,7 @@ import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, ap
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
-import { wayAt, wayById, ARRIVE_DX } from '../src/shared/waystones.js';
+import { wayAt, wayById, sameIsle, ARRIVE_DX } from '../src/shared/waystones.js';
 import { caughtBy, cleanBot, BOT_CUT } from './accuse.js';
 
 export const MOB_KINDS = Object.keys(MOBS); // mob kinds go over the wire as an index into this
@@ -29,7 +29,7 @@ const MAX_REWIND = 30; // ticks (0.5 s): never rewind further than this
 const FAINT_MS = 1600;
 const FIELD_BOSS_FIGHT_MS = 20000; // a field boss counts the slimes who hit it this recently as its fighters
 const FIELD_BOSS_IDLE_MS = 60000; // nobody's hit it for this long: it heals up and forgets its fighters
-const TEST_BOSS_HP = Number(process.env.TEST_BOSS_HP) || 1; // tests only: weaker bosses
+const TEST_BOSS_HP = Number(process.env.TEST_BOSS_HP) || 1; // tests only: weaker bosses (dens and field bosses)
 const TEST_GOD = !!process.env.TEST_GOD; // tests only: nobody gets hurt
 const FIELD_RESPAWN_MS = Number(process.env.TEST_FIELD_RESPAWN_MS) || FIELD_BOSS_RESPAWN_MS; // (tests only: sooner)
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -63,7 +63,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   const now = () => Date.now();
 
   function spawn(m) {
-    const k = MOBS[m.sp.kind], hp = Math.round(k.hp * (k.boss ? TEST_BOSS_HP : 1));
+    const k = MOBS[m.sp.kind], hp = Math.round(k.hp * (k.boss || k.field ? TEST_BOSS_HP : 1));
     return Object.assign(m, {
       kind: m.sp.kind, room: m.sp.room, x: m.den ? DEN_W * 0.7 : rand(m.sp.x0, m.sp.x1), y: m.sp.y, vx: 0, vy: 0, dir: -1, walk: 0, hp, maxHp: hp, fighters: 1,
       wander: rand(0.5, 2), target: null, targetUntil: 0, dead: false, respawnAt: 0, hitters: new Map(), hist: [], slowUntil: 0,
@@ -1191,7 +1191,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         return;
       }
       const to = wayById(m.to);
-      if (!to || to === at || !c.ways.includes(at.id) || !c.ways.includes(to.id)) return;
+      if (!to || to === at || !sameIsle(to, at) || !c.ways.includes(at.id) || !c.ways.includes(to.id)) return;
       toRoom(p.state.room)({ t: 'warp', id, x: Math.round(p.state.x) });
       placeAt(p.state, to.room, to.x + ARRIVE_DX);
       moves(p);

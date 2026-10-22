@@ -4,7 +4,7 @@
 // routes and fog where the charts run out, plus a bouncing "you are here" slime. Tapping an island that has
 // one (ISLAND_MAPS) opens its own map: its places as a graph, shipped ones solid, blocked ones dashed
 // (src/shared/branches.js). It sends nothing to the server.
-import { FJORD, HIGHLANDS, CALDERA, CITADEL, DENS } from './shared/rpg.js';
+import { FJORD, HIGHLANDS, GLACIER, CALDERA, CITADEL, DENS } from './shared/rpg.js';
 import { roomDef } from './shared/sim.js';
 import { ISLAND_MAPS, nodeAt, shipped } from './shared/branches.js';
 import { TOUCH } from './touch.js';
@@ -15,7 +15,7 @@ const INK = '#5b4a6b';
 
 // Which island a room is on. Everything not listed (the village, its buildings, houses, the Wildwood) is home.
 // Aboard a crossing you're 'sea': on the ferry's route.
-const ISLAND_OF_STAGE = { [HIGHLANDS]: 'frost', [FJORD]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel' };
+const ISLAND_OF_STAGE = { [HIGHLANDS]: 'frost', [FJORD]: 'frost', [GLACIER]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel' };
 export function islandOf(room) {
   if (roomDef(room)?.crossing) return 'sea';
   const den = DENS.find((d) => d.room === room);
@@ -31,7 +31,7 @@ const ISLANDS = {
 };
 const PINS = { ...ISLANDS, sea: { x: 205, y: 150 } }; // (sea: out on the ferry's route)
 // Where to tap for an island's own map (on the chart), and the way back from it
-const TAP = { green: { x: 150, y: 215, rx: 85, ry: 85 } };
+const TAP = { green: { x: 150, y: 215, rx: 85, ry: 85 }, frost: { x: 395, y: 112, rx: 72, ry: 64 } };
 const BACK = { x: 16, y: 16, w: 132, h: 30 };
 
 // Small seeded random, so the coastlines and waves are the same every time the page opens
@@ -365,8 +365,13 @@ function drawPin(ctx, x, y, t, hue, side = false) {
 // are solid, with their levels; ones not open yet are dashed and say what's in the way, with no spoilers
 // past their names. here: the node you're in (or null).
 const CARD_W = 108, CARD_H = 40;
+// each island's own map: its sea, land, rim and how an open place's card is edged
+const LOOK = {
+  green: { sea: ['#b9dcee', '#b4e0d4'], land: '#c8eab3', rim: '#a6d48f', edge: '#7fbf73', ok: '#5f9a52', path: '#c99b6b' },
+  frost: { sea: ['#aec8de', '#a4c2d6'], land: '#eef6fb', rim: '#c6dbea', edge: '#7fa8d4', ok: '#4e7ea8', path: '#a8b8c8' },
+};
 function drawIslandMap(ctx, t, key, here, hue) {
-  const nodes = ISLAND_MAPS[key], byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+  const nodes = ISLAND_MAPS[key], byId = Object.fromEntries(nodes.map((n) => [n.id, n])), lk = LOOK[key] ?? LOOK.green;
   ctx.fillStyle = '#fffaf3';
   ctx.beginPath();
   ctx.roundRect(0, 0, MW, MH, 22);
@@ -376,12 +381,12 @@ function drawIslandMap(ctx, t, key, here, hue) {
   ctx.roundRect(8, 8, MW - 16, MH - 16, 16);
   ctx.clip();
   const sea = ctx.createLinearGradient(0, 0, 0, MH);
-  sea.addColorStop(0, '#b9dcee');
-  sea.addColorStop(1, '#b4e0d4');
+  sea.addColorStop(0, lk.sea[0]);
+  sea.addColorStop(1, lk.sea[1]);
   ctx.fillStyle = sea;
   ctx.fillRect(0, 0, MW, MH);
   // the island itself, filling the page
-  island(ctx, 370, 200, 335, 185, 11, '#c8eab3', '#a6d48f');
+  island(ctx, 370, 200, 335, 185, 11, lk.land, lk.rim);
   ctx.restore();
   label(ctx, MW / 2, 36, ISLANDS[key].name, 20);
   // the paths: a trodden track between open places, dashed into the ones that aren't
@@ -391,7 +396,7 @@ function drawIslandMap(ctx, t, key, here, hue) {
     ctx.save();
     ctx.lineCap = 'round';
     ctx.lineWidth = shipped(n) ? 5 : 3;
-    ctx.strokeStyle = shipped(n) ? '#c99b6b' : 'rgba(143, 98, 64, 0.45)';
+    ctx.strokeStyle = shipped(n) ? lk.path : 'rgba(143, 98, 64, 0.45)';
     if (!shipped(n)) ctx.setLineDash([6, 7]);
     ctx.beginPath();
     ctx.moveTo(p.at[0], p.at[1]);
@@ -403,7 +408,7 @@ function drawIslandMap(ctx, t, key, here, hue) {
     const open = shipped(n), [x, y] = n.at, l = x - CARD_W / 2, top = y - CARD_H / 2;
     ctx.save();
     ctx.fillStyle = open ? (n.town ? '#ffe3ec' : '#fffaf3') : 'rgba(255, 250, 243, 0.55)';
-    ctx.strokeStyle = !open ? 'rgba(91, 74, 107, 0.4)' : n.town ? '#ff8fb1' : '#7fbf73';
+    ctx.strokeStyle = !open ? 'rgba(91, 74, 107, 0.4)' : n.town ? '#ff8fb1' : lk.edge;
     ctx.lineWidth = open ? 2.5 : 2;
     if (!open) ctx.setLineDash([5, 4]);
     ctx.beginPath();
@@ -414,7 +419,7 @@ function drawIslandMap(ctx, t, key, here, hue) {
     const ink = open ? INK : 'rgba(91, 74, 107, 0.6)';
     label(ctx, x, y - (n.band || !open ? 2 : -4), n.name, 12, ink);
     const sub = open ? (n.band ? `Lv ${n.band}` : n.town ? 'town' : '') : `${n.band ? `Lv ${n.band} · ` : ''}${n.block}`;
-    if (sub) label(ctx, x, y + 13, sub, 10, n.hard ? '#d0486a' : open ? '#5f9a52' : 'rgba(91, 74, 107, 0.6)', 600);
+    if (sub) label(ctx, x, y + 13, sub, 10, n.hard ? '#d0486a' : open ? lk.ok : 'rgba(91, 74, 107, 0.6)', 600);
     if (n.hard) label(ctx, l + CARD_W - 8, top + 12, '!', 13, '#d0486a');
   }
   // a key, bottom right
@@ -447,7 +452,7 @@ export class WorldMap {
   show(room, hue, x = 0) {
     this.hide();
     const here = islandOf(room);
-    const node = here === 'green' ? nodeAt(room, x) ?? ISLAND_MAPS.green[1] : null; // (the village's buildings and houses: Slimeville)
+    const node = !ISLAND_MAPS[here] ? null : nodeAt(room, x) ?? (here === 'green' ? ISLAND_MAPS.green[1] : null); // (the village's buildings and houses: Slimeville)
     this.view = null; // null: the chart · an ISLAND_MAPS key: that island's map
     const t0 = performance.now();
     const frame = (now) => {

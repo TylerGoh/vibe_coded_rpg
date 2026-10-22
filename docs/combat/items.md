@@ -71,6 +71,10 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   G4's hard pockets have no trader: their gear only drops (mobs rarely, the field bosses often), art in
   `src/wreck-art.js` (`WRECK_*`) and `src/thornheart-art.js` (`THORN_*`). G5's Keeper's Spine has none
   either (`src/spine-art.js`, `SPINE_*`): mob drops and the Root Warden's set (`docs/places/spine.md`).
+  Frostpeak's F1 adds **Ice-Cutter Eyvind** (`SHOPS.eyvind`, the Rimeglass Glacier: the Ice-Cutter's Cleaver,
+  the Glacier Staff and the Ice-Cutter's Cap, aimed at Lv 66, mega elixirs), with the glacier's gear in
+  `src/glacier-art.js` (`GLACIER_*`): the Ramhorn Helm, Rimefang / Howling Staff and Old Rimehorn's Tusk /
+  Rimehorn Staff and Woolly Hood (`docs/places/glacier.md`).
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
   are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.

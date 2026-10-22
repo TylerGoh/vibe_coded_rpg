@@ -138,15 +138,16 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/crossings.md](docs/places/crossings.md) | crossing rooms (the ferry's deck), the voyage clock `state.vt`, boarding (the Set sail card), future sea/balloon routes |
 | [docs/places/fjord.md](docs/places/fjord.md) | Icefang Fjord and Icefang Hamlet (Frostpeak's landing town), Skaldi, Runa and her shop, Tove, the fjord folk's look, the laid-up Lodestar |
 | [docs/places/cliffs.md](docs/places/cliffs.md) | the Keeper ruins in Bramble Woods, Greenhollow's east cliffs, the telescope |
-| [docs/places/branches.md](docs/places/branches.md) | Greenhollow's branches, their blocked entrances (gates), the island map's data (`GREENHOLLOW`); **how to ship a branch (checklist, gotchas) and where the next phases' gates are** |
+| [docs/places/branches.md](docs/places/branches.md) | each island's branches, their blocked entrances (gates), the island maps' data (`GREENHOLLOW`, `FROSTPEAK`); **how to ship a branch (checklist, gotchas) and where the next phases' gates are** |
 | [docs/places/willowmere.md](docs/places/willowmere.md) | Willowmere (room 24), Miller Bun, Old Snapjaw, the weir stone |
 | [docs/places/coves.md](docs/places/coves.md) | Saltspray Coves (room 25), Beachcomber Moss, the Tidemother's den (26), boss `lines` |
 | [docs/places/canopy.md](docs/places/canopy.md) | the Old Oak Canopy (room 31), Ranger Acorn, the Hornet Queen, wasp nests, the Lifted Stone, the cut trunk to Keeper's Spine |
 | [docs/places/wreck.md](docs/places/wreck.md) | Wreck Cave (room 32, a hard pocket off the Coves), the Brave Pippin and its log, the Drowned Bosun |
 | [docs/places/thornheart.md](docs/places/thornheart.md) | the Thornheart (room 33, a hard pocket off Bramble Woods), the Hedge Stone, the Thorn Hart |
 | [docs/places/spine.md](docs/places/spine.md) | Keeper's Spine (room 34, the ridge above the Canopy), the Road Stone, the Watch Seat, the Root Warden and its court (den 35), Greenhollow's capstone |
+| [docs/places/glacier.md](docs/places/glacier.md) | the Rimeglass Glacier (room 36, Frostpeak's first branch, Lv 60–75), Ice-Cutter Eyvind, Old Rimehorn, the Rime Stone, Ylva's Cairn |
 | [docs/places/deep.md](docs/places/deep.md) | the Mycelium Deep (room 28), Glowroot Hollow (29, a hard pocket), Forager Truffle, the Knotmole's burrow (30), the Listening Stone |
-| [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel), attuning, the travel card |
+| [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel, within one island), attuning, the travel card |
 | [docs/places/pets.md](docs/places/pets.md) | pets' hunger, moods and dying, feeding, the Pet Shop, Auntie Clover, pet food |
 | [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |
 | [docs/ui/mobile.md](docs/ui/mobile.md) | touch controls, phone layout, fullscreen, home-screen mode |

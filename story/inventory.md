@@ -12,7 +12,9 @@ Update this when the game changes. Source of truth for names is the code (`src/s
 | The Wildwood: Sprout Meadow, Mushroom Grove, Bramble Woods | Greenhollow's interior (Lv 1–12); Keeper ruins in Bramble Woods (4 readable stones); Turnipop, a field boss, in Sprout Meadow; Elder Bramblehogs (elites) in Bramble Woods; the mended footbridge into Willowmere (G1); the open stump into the Mycelium Deep (G2); the restrung ladder up to the Old Oak Canopy (G3); the tunnel cut through the thorns into the Thornheart (G4) | the branches open in G1–G5 (`world/island-depth.md`) |
 | Greenhollow's East Cliffs | the vista past the Wildwood's east end: bench, telescope, the open sea | none |
 | Icefang Hamlet (Icefang Fjord), a town | Frostpeak's landing: the ferry's quay, the hamlet, the cracked ice bridge; the Lodestar laid up | the Lodestar sails south in Phase 5 |
-| Frostpeak: Frostpine Ridge, Starfall Summit | Frostpeak, far north, up the path from the hamlet | none |
+| Frostpeak: Frostpine Ridge, Starfall Summit | Frostpeak, far north, up the path from the hamlet; the easy end of its 40–100 band | none |
+| The Rimeglass Glacier (F1) | Lv 60–75 branch above Starfall Summit, up its snout: Ice-Cutter Eyvind (AI, trades), the Rime Stone (Keeper, Tier 2 by showing), Ylva's Cairn, snow hares, snow petrels, glacier rams, rime wolves, frost wraiths, great yetis, Old Rimehorn (field boss), a waystone; the Aurora Heights seen above | the Blue Halls and the Aurora Heights (F3) |
+| Frostpeak's blocked ways (F0) | the Whale Skerries (snow slide, the hamlet), the Narwhal Grotto (behind it), the Queen's Bridge (broken ice stair, the ridge) | F2, F4 |
 | Emberdeep Caldera: Cinder Flats, Magma Heart | Emberdeep, far south | add the Black Sand Shore landing and Forgehold; a ship instead of the pass |
 | Aether Citadel: Cogwork Bastion, Chrono Spire | the Keepers' sky city | add the Skydocks; a balloon instead of the skylift |
 | Floating islands over the village | small chips of Pangelea that never landed | none; a nice detail for Mochi |
@@ -27,7 +29,7 @@ Update this when the game changes. Source of truth for names is the code (`src/s
 | The Thornheart (G4) | Lv 50–60 hard pocket through the thorns at Bramble Woods' east end: the root knot and the Hedge Stone (Keeper), the White Rose, thornbacks, thistle puffs, pitcher plants, thorn stalkers, elites (Old Thornback, Elder Thorn Stalker), the Thorn Hart (field boss) | none |
 | Glowroot Hollow (G2) | Lv 40–50 hard pocket at the Deep's bottom: the Heart Knot, glowworms, glow moths, threadweavers, elites (Old Glowworm, Elder Threadweaver) | none |
 | Keeper's Spine (G5) | Lv 45–60 ridge above the Canopy, through the cut trunk: the Road Stone (Keeper), the Watch Seat, moss turtles, crag kites, stone sentinels, gale sprites, rootlings, the Root Warden's court (Greenhollow's capstone), a waystone | the Warden's party mechanics (S5), its freed change |
-| Waystones (G1) | Keeper stones that still work: Slimeville, Willowmere, the Coves, the Deep (G2), the Canopy (G3), Keeper's Spine (G5) | none on Greenhollow |
+| Waystones (G1) | Keeper stones that still work: Slimeville, Willowmere, the Coves, the Deep (G2), the Canopy (G3), Keeper's Spine (G5); on Frostpeak, Icefang Hamlet and the Glacier (F1). Each island's only reach each other | one per new Frostpeak branch hub |
 
 ## Characters
 | in game now | story role |
@@ -37,7 +39,8 @@ Update this when the game changes. Source of truth for names is the code (`src/s
 | Captain Brine | the ferry captain, at her wheel on the crossing; knows Tier 0 only; sails into Icefang Hamlet since the fjord thawed |
 | Old Skaldi | Icefang Hamlet's lamplighter; the old songs (Tier 2 in fragments) |
 | Netmender Runa | Icefang Hamlet's trader (Trade button: warm gear, frostbloom) |
-| Tove | Skaldi's granddaughter; the guide to the ridge's creatures |
+| Tove | Skaldi's granddaughter; the guide to the ridge's (and the glacier's) creatures |
+| Ice-Cutter Eyvind | the Rimeglass Glacier's ice-cutter and trader (fjord folk); Tier 0 plus the glacier |
 | Miller Bun, Beachcomber Moss, Forager Truffle, Ranger Acorn | the branches' traders (Willowmere, the Coves, the Deep, the Canopy); Tier 0 plus their own corner (Moss: a light Tier 1 thread, Keeper marks; Truffle: the threads run under the sea) |
 | Merchant Pip | cozy trader; later stocks goods from other islands |
 | The nine bosses, the Tidemother and the Knotmole | creatures twisted by Anchor shards (`characters/bosses.md`) |

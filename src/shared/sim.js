@@ -15,13 +15,13 @@ export const DT = 1 / TICK_RATE;
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X } from './rpg.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
 export const CLIFFS = 20; // Greenhollow's east cliffs, past the end of the Wildwood (docs/places/cliffs.md)
 export const FERRY_N = 21, FERRY_S = 22; // the ferry's deck, out to Frostpeak and back home (docs/places/crossings.md)
-export { FIELD, FJORD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE };
+export { FIELD, FJORD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER };
 
 export const PLATFORMS = [
   { x: 360, y: 335, w: 190, kind: 'island' },
@@ -179,8 +179,15 @@ ROOMS[HIGHLANDS] = {
   doors: [
     { x: HIGHLANDS_EXIT_X, w: 80, to: FJORD, toX: FJORD_EXIT_X, label: 'walk down to Icefang Hamlet' },
     { x: CALDERA_DOOR_X, w: 80, to: CALDERA, toX: CALDERA_EXIT_X, label: 'descend to the Emberdeep Caldera' },
+    { x: GLACIER_GATE_X, w: 80, to: GLACIER, toX: GLACIER_EXIT_X, label: 'climb the cut steps up onto the Rimeglass Glacier' },
     ...denDoors(HIGHLANDS),
   ],
+};
+// room 36 (Frostpeak's depth pass F1, docs/places/glacier.md): the Rimeglass Glacier, up its snout from
+// Starfall Summit's east end
+ROOMS[GLACIER] = {
+  name: 'The Rimeglass Glacier', width: GLACIER_W, ground: FIELD_GROUND, platforms: GLACIER_PLATFORMS,
+  doors: [{ x: GLACIER_EXIT_X, w: 80, to: HIGHLANDS, toX: GLACIER_GATE_X, label: 'climb back down the snout to Starfall Summit (mobs!)' }],
 };
 // room 12: the Emberdeep Caldera · room 13: the Aether Citadel · rooms 14–17: their dens
 ROOMS[CALDERA] = {
@@ -580,6 +587,7 @@ export const NPCS = [
   { id: 'skaldi', name: 'Old Skaldi', short: 'Skaldi', room: FJORD, x: 2210, hue: 205, range: 130, size: 1.2, accessory: 'lamplighter', folk: 'fjord', faces: -1, blurb: 'lamplighter of Icefang Hamlet, keeper of the old songs', hello: 'Sit by the fire. Warm your jelly. (Everyone can hear you.)' },
   { id: 'runa', name: 'Netmender Runa', short: 'Runa', room: FJORD, x: RUNA_X, hue: 178, range: 120, size: 1.1, accessory: 'netmender', folk: 'fjord', faces: 1, blurb: 'mends the nets and trades at her shed', shop: 'runa', hello: 'Buying or chatting? Trade is the button. (Everyone can hear you.)' },
   { id: 'tove', name: 'Tove', short: 'Tove', room: FJORD, x: 2480, hue: 215, range: 110, size: 0.8, accessory: 'mittens', folk: 'fjord', lively: true, faces: -1, blurb: "Skaldi's granddaughter, who feeds the yeti cubs", hello: 'Are you going up the ridge? Ask me about the animals! (Everyone can hear you.)' },
+  { id: 'eyvind', name: 'Ice-Cutter Eyvind', short: 'Eyvind', room: GLACIER, x: EYVIND_X, hue: 196, range: 100, size: 1.15, accessory: 'icecutter', folk: 'fjord', faces: 1, blurb: 'cuts blue ice on the Rimeglass Glacier and trades at his hut', shop: 'eyvind', hello: 'Mind the crevasses. Buying or talking? Trade is the button. (Everyone can hear you.)' },
   // Greenhollow's branches (island depth G1): each has a character who trades and is worth a chat
   { id: 'bun', name: 'Miller Bun', short: 'Bun', room: WILLOWMERE, x: BUN_X, hue: 34, range: 120, size: 1.2, accessory: 'miller', faces: 1, blurb: 'runs the Willowmere mill and trades at its door', shop: 'bun', hello: 'Mind the flour! Buying or chatting? Trade is the button. (Everyone can hear you.)' },
   { id: 'truffle', name: 'Forager Truffle', short: 'Truffle', room: MYCELIUM, x: TRUFFLE_X, hue: 330, range: 120, size: 1.05, accessory: 'forager', faces: 1, blurb: 'forages the Deep and trades at her camp', shop: 'truffle', hello: 'Shh, the puffcaps are napping. Buying or chatting? Trade is the button. (Everyone can hear you.)' },
@@ -608,6 +616,7 @@ export const SLAP_QUIPS = {
   mochi: ['Oof! Respect your elders, young one!', 'Hmph! My poor old jelly…', 'Ow! What was that for?', 'Goodness! Is that how they greet folks nowadays?'],
   skaldi: ['Hm.', 'The cold has done worse.', 'Mind the fire, child.', 'That was unkind. Sit down.'],
   runa: ['Hands off the nets!', "That'll cost you.", 'Hmph. Fjord manners, is it?', 'I have a needle and I know how to use it.'],
+  eyvind: ['Hm. The glacier hits harder.', 'Careful. I have an axe.', 'That was foolish. The ice saw it.', "Do it again and you can cut your own steps down."],
   tove: ['Hey! Rude!', "I'm telling grandpa!", 'Ow! The yetis are nicer than you.', 'Do it again and I set Big Grumble on you.'],
   bun: ['Oof! Flour everywhere now!', 'Hey! I knead dough, not slaps.', 'That was rude. Rye rude.', 'Do that again and no buns for you.'],
   truffle: ['Oof! Mind my mushrooms!', "Hey! That's no way to treat a forager.", 'Rude! Even the cave bats knock first.', 'Do that again and you can find your own way out.'],

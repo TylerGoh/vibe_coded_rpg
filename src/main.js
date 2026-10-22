@@ -17,7 +17,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
+import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
 import { drawHighlands } from './highlands.js';
 import { drawCaldera, drawCalderaPass } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
@@ -50,7 +50,8 @@ import { drawCanopy } from './canopy.js';
 import { drawWreck } from './wreck.js';
 import { drawThornheart } from './thornheart.js';
 import { drawSpine } from './spine.js';
-import { wayAt } from './shared/waystones.js';
+import { drawGlacier } from './glacier.js';
+import { wayAt, wayById, sameIsle } from './shared/waystones.js';
 import { drawWaystones, wayPrompt, wayBeacons, WayCard, shimmer } from './waystones.js';
 import { fastGradients } from './fastcanvas.js';
 import { gfx } from './gfx.js';
@@ -399,7 +400,7 @@ const ways = new WayCard((to) => net.sendNpc({ t: 'way', to }));
 function useWaystone() {
   const at = wayAt(net.me), have = rpg.me?.ways ?? [];
   if (!have.includes(at.id)) return net.sendNpc({ t: 'way' });
-  if (!have.some((id) => id !== at.id)) return rpg.toast('The waystone hums. Touch another one somewhere on the island and you can travel between them.');
+  if (!have.some((id) => id !== at.id && wayById(id) && sameIsle(wayById(id), at))) return rpg.toast('The waystone hums. Touch another one somewhere on this island and you can travel between them.');
   held.clear();
   ways.open(at, have);
 }
@@ -1286,6 +1287,7 @@ function render() {
     else if (room === WRECK) drawWreck(ctx, camX, W, time);
     else if (room === THORNHEART) drawThornheart(ctx, camX, W, time);
     else if (room === SPINE) drawSpine(ctx, camX, W, time);
+    else if (room === GLACIER) drawGlacier(ctx, camX, W, time);
     else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
       if (near(CALDERA_DOOR_X)) drawCalderaPass(ctx, CALDERA_DOOR_X, ROOMS[HIGHLANDS].ground, time);

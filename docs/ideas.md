@@ -61,12 +61,23 @@
   fought the pockets at their own level, so how hard they really are is a guess.
 
 ## R (the rebalance) left for later
-- Lv 60–90 has no content at its own level until Frostpeak's depth pass (the top of 40–100); players there
-  farm the Lv 50s mobs with the over-level falloff.
+- Lv 75–90 has no content at its own level until Frostpeak's F3 (F1's Rimeglass Glacier filled 60–75);
+  players there farm the glacier's top with the over-level falloff.
 - Raised dens' coins and materials are worth less, in minutes of farming, than the docs' old 6–20× (gear
   carries more of their worth now): raise their coins if boss loot feels thin (`docs/economy.md`).
 - The atlas's island sheets still carry their old bands (a note at the top says how to read them).
 - Untested with real players: the raised mobs' and bosses' difficulty at their new levels (bots only).
+
+## F1 (Frostpeak's depth pass: F0 and the Rimeglass Glacier) left for later
+- F2–F4 (`story/world/island-depth.md`): the Whale Skerries and the Narwhal Grotto with the Old Narwhal's
+  den, the Aurora Heights and the Blue Halls, the Queen's Bridge and Sigrun. Their gates are laid.
+- Old Rimehorn's "back in about 20 minutes" line ignores `TEST_FIELD_RESPAWN_MS` (tests only).
+- Tested with a Lv 70 test character, TEST_GOD and a weakened Rimehorn: the snout both ways, every glacier
+  mob spawning, all four new gates' E messages, the Rime Stone card, attuning both Frostpeak stones and
+  travelling between them (Slimeville correctly left off the card), Eyvind's dialog and shop, the Frostpeak
+  island map with the pin on the Glacier, Rimehorn's stomp telegraph and a kill (EXP and loot), phone
+  screenshots. Nobody has fought the glacier at its level, and the AI personas weren't talked to (no
+  DeepSeek key on the test server).
 
 ## G5 left for later
 - The Root Warden's party mechanics (focus, pulse, barrier, weak point: `party` on its entry) wait for S5;
