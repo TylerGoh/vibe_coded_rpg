@@ -109,7 +109,7 @@ export class Net {
     } else if (RPG.has(m.t)) {
       if (m.t === 'gear' && this.roster.has(m.id)) Object.assign(this.roster.get(m.id), { gear: m.gear, lvl: m.lvl });
       this.cb.onRpg(m); // the Wildwood: stats, mobs, loot (src/rpg.js)
-    } else if (m.t === 'house' || m.t === 'house-grew' || m.t === 'furni' || m.t === 'invite' || m.t === 'accused' || m.t === 'harvested' || m.t === 'brewed') {
+    } else if (m.t === 'house' || m.t === 'house-grew' || m.t === 'furni' || m.t === 'invite' || m.t === 'accused' || m.t === 'trade' || m.t === 'trade-ask' || m.t === 'trade-end' || m.t === 'harvested' || m.t === 'brewed') {
       this.cb.onHouse(m); // personal houses (src/house.js, src/players.js), farming and alchemy (src/alchemy.js)
     } else if (m.t === 'chat' || m.t === 'chat-log' || m.t === 'chat-error') {
       this.cb.onChat(m); // text chat and private messages (src/chat.js)

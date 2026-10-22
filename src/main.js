@@ -31,6 +31,7 @@ import { Pets } from './pets.js';
 import { drawPetShop } from './petshop.js';
 import { FURNITURE } from './shared/house.js';
 import { Players } from './players.js';
+import { Trade } from './trade.js';
 import { Accuse } from './accuse.js';
 import { Chat } from './chat.js';
 import { WorldMap } from './worldmap.js';
@@ -186,6 +187,7 @@ const net = new Net(wsUrl, {
   },
   // the Wildwood (src/rpg.js): stats, mobs, loot, gear and level changes
   onRpg(m) {
+    if (m.t === 'me') queueMicrotask(() => trade.refresh()); // the bag changed while trading
     if (m.t === 'warp') {
       // someone vanished from (or appeared at) a waystone in our room
       if (m.id === net.id && m.in) warpedIn = time;
@@ -237,6 +239,7 @@ const net = new Net(wsUrl, {
     else if (m.t === 'pet-fed') pets.fed(m, profile.name);
     else if (m.t === 'harvested' || m.t === 'brewed') alchemy.receive(m, { myId: net.id, slimeOf: (id) => (id === net.id ? mine : slimes.get(id)?.visible ? slimes.get(id) : null) });
     else if (m.t === 'accused') accuse.receive(m);
+    else if (m.t.startsWith('trade')) trade.receive(m);
     else players.receive(m);
   },
   onChat(m) {
@@ -327,6 +330,12 @@ const accuse = new Accuse({ send: (m) => net.sendNpc(m), W, H });
 // Text chat and private messages (src/chat.js); the Players panel's Message buttons open a private tab
 const chat = new Chat({ send: (m) => net.sendNpc(m), me: () => profile.name, online: () => [...net.roster.values()].map((r) => r.name), onOpenChange: () => held.clear() });
 rpg.onAnnounce = (line) => chat.announce(line); // a field boss turning up (or beaten) in your room
+// Trading coins and items with someone standing near you (src/trade.js, server/trade.js)
+const trade = new Trade({ send: (m) => net.sendNpc(m), rpg, onOpenChange: () => held.clear() });
+players.onTrade = (id) => {
+  players.close();
+  trade.ask(id);
+};
 players.onMessage = (name) => {
   players.close();
   chat.open(name);
@@ -562,6 +571,7 @@ function showLogin(message = '') {
   shop.close();
   players.close();
   players.invites = [];
+  trade.reset();
   accuse.reset();
   chat.close();
   chat.lines = [];
@@ -755,7 +765,7 @@ canvas.addEventListener('pointerdown', (e) => {
     const r = canvas.getBoundingClientRect();
     if (accuse.tap(((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H)) return; // "Not a bot!"
   }
-  if (!online() || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || pets.isOpen || e.button > 0) return;
+  if (!online() || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || e.button > 0) return;
   const r = canvas.getBoundingClientRect();
   if (scope.isOpen) return scope.tap((e.clientX - r.left) / r.width); // looking through the telescope
   const worldX = camX + ((e.clientX - r.left) / r.width) * W;
@@ -804,6 +814,14 @@ addEventListener('keydown', (e) => {
     e.preventDefault();
     if (e.code === 'Escape') sail.close();
     else if ((e.code === 'KeyE' || e.code === 'Enter') && !e.repeat) sail.go();
+    return;
+  }
+  // the trade window: Esc calls the trade off
+  if (trade.isOpen) {
+    if (e.code === 'Escape') {
+      e.preventDefault();
+      trade.cancel();
+    }
     return;
   }
   // the bag (I), the skill tree (K) and the shop: their key or Esc closes them (the rest is clicks / taps)
@@ -1101,6 +1119,7 @@ function update(realDt) {
   if (scope.isOpen) scope.update(dt);
   tutor.update(dt, online() && room === TUTOR);
   players.showCard();
+  trade.showCard();
   chat.update(dt);
   chat.button.hidden = !online() || !TOUCH; // phones only: keyboards open the chat with Enter (owner's call)
   whoButton.hidden = !online();
@@ -1114,7 +1133,7 @@ function update(realDt) {
     field: isCombat(room),
     dash: !!rankOf(rpg.me?.skills, 'dash'),
     blink: !!rankOf(rpg.me?.skills, 'blink'),
-    overlay: dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || pets.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
+    overlay: dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
   });
   if (room === PIANO) piano.update(dt);
   if (room === HALL) hall.update(dt, [...slimes.values()].filter((s) => s.visible).length + 1);
@@ -1205,7 +1224,7 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 const BEACON_RANGE = 420;
 const DOOR_BAND_Y = 160; // how high over the ground a door's level chip sits (under the beacon)
 function drawHints() {
-  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || alchemy.isOpen || pets.isOpen || houses.editing) return;
+  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || houses.editing) return;
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);

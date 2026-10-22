@@ -9,23 +9,24 @@ new mobs, bosses, towns and characters, are in `world/atlas.md`. Every change st
 "coming soon" sign or a stand-in door. **Characters** (owner): a purpose AND chattable with memory, narrow
 lore, rich personal lives (`characters/people.md`).
 
-## Next up: trading coins and items (owner, 2026-10-23)
-**The very next thing to build, before anything below.** Players can give or swap coins and items with
+## Trading coins and items (owner, 2026-10-23; shipped 2026-10-23, `docs/social/trading.md`)
+Left over: starting a trade by tapping a slime on the canvas; cosmetics stay untradeable until the owner decides.
+Players can give or swap coins and items with
 each other. It also makes the S track's 500k Rebirth reachable as a gift between friends.
-- [ ] A trade between two slimes standing near each other, outside combat rooms: one asks (from the
+- [x] A trade between two slimes standing near each other, outside combat rooms: one asks (from the
       Players panel or by tapping a slime), the other accepts. A trade window with both sides' offers
       (items from the bag, and coins).
-- [ ] **The server decides everything** and swaps both sides at once: it rechecks both bags and purses at
+- [x] **The server decides everything** and swaps both sides at once: it rechecks both bags and purses at
       the moment of the swap, so nothing is duplicated or lost if someone disconnects or moves an item.
-- [ ] Anti-scam: any change to an offer un-ticks both "Ready" boxes; both must confirm again. The window
+- [x] Anti-scam: any change to an offer un-ticks both "Ready" boxes; both must confirm again. The window
       shows every item's full card (scroll enhancements, Legacy tags) so nobody is fooled by a name.
-- [ ] Items keep their enhancement (`e`) when traded. Worn gear must be taken off first. Brewed potions,
+- [x] Items keep their enhancement (`e`) when traded. Worn gear must be taken off first. Brewed potions,
       herbs and scrolls trade like anything else. Not tradeable: houses, furniture placed in a house,
       pets (they live in a house), cosmetics already bought (decide with the owner).
-- [ ] A trade log on the server (who, what, when), so a lost item can be traced, and a check against the
+- [x] A trade log on the server (who, what, when), so a lost item can be traced, and a check against the
       bot/accuse rules (`docs/social/accuse.md`: trading must not become a way around the EXP skim or
       to launder a bot's gold).
-- [ ] Mobile: the window works on a phone (`docs/ui/mobile.md`). Docs: a new `docs/social/trading.md`
+- [x] Mobile: the window works on a phone (`docs/ui/mobile.md`). Docs: a new `docs/social/trading.md`
       and an index row. Economy: trading moves gold rather than making it, but say in `docs/economy.md`
       that boss farmers can now fund friends (sinks priced for one player's income meet pooled gold).
 

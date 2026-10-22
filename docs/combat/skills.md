@@ -25,7 +25,8 @@ Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch butt
 carries their cooldowns and i-frames (`ifr`) and goes through `pack`. Some late ultimates need them.
 
 ## The hotbar
-- HTML `#hotbar` (combat rooms only, or while choosing a slot): `HOTBAR` skill slots (keys 1–6) and
+- HTML `#hotbar` (combat rooms only, or while choosing a slot; hidden while a Keeper stone's card or a
+  conversation with a character (`#npc`) is open, since both sit in its spot): `HOTBAR` skill slots (keys 1–6) and
   `POTBAR` potion slots (7–9), tappable, with cooldown sweeps and potion counts. "Hotbar" in the skill tree
   or "Put on hotbar" in the bag, then press a slot (`startAssign` / `finishAssign`).
 - **Two setups.** The active one is `c.hotbar` / `c.potbar`, the other `c.alt`, and `c.set` says which

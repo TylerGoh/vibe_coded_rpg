@@ -101,6 +101,9 @@
 // Botting accusations, for fun (server/accuse.js, docs/social/accuse.md): → {t:'accuse', to}  (ACCUSE_COOLDOWN_MS
 //   per accuser) · → {t:'deny'}  ← {t:'accused', by?, ms?, caught?}  your state: open (ms of grace left), caught
 //   (until you deny it, your EXP goes nowhere but BOT_CUT of it to `by`), or nothing (no `by`)
+// Trading (server/trade.js, docs/social/trading.md): → {t:'trade-ask', to}  ← {t:'trade-ask', from, name, ms}
+//   → {t:'trade-answer', from, yes} · → {t:'trade-offer', items:[{slot, n}], coins} (your whole offer)
+//   → {t:'trade-ready', on, v} · → {t:'trade-cancel'}  ← {t:'trade', with, withId, v, mine, theirs}  ← {t:'trade-end', text, done}
 // Text chat (server/chat.js): one public channel for everyone online, plus private messages by account name
 //   → {t:'chat', text, to?}   ← {t:'chat', id, at, from, to?, text}  public: to everyone · private: to both of you
 //   ← {t:'chat-log', lines:[…same shape]}  at login: recent public lines and your private ones (incl. while offline)
@@ -124,6 +127,7 @@ import { createRpg } from './rpg.js';
 import { createHouses } from './house.js';
 import { createChat } from './chat.js';
 import { createAccuse } from './accuse.js';
+import { createTrade } from './trade.js';
 import { decode, encodeSlimes, encodeSnap, BIN_VERSION } from '../src/shared/wire.js';
 import { isCombat } from '../src/shared/rpg.js';
 import { CHARACTERS } from './characters.js';
@@ -229,6 +233,8 @@ const rpg = createRpg({ dbPath: accounts.path, players, send, toRoom, broadcast 
 const chat = createChat({ dbPath: accounts.path, players, send, users: () => accounts.list().map((a) => a.user) });
 const accuse = createAccuse({ players, send });
 setInterval(() => accuse.tick(), 1000).unref(); // accusations run out (deny deadlines, penalties)
+const trade = createTrade({ dbPath: accounts.path, players, send, rpg });
+setInterval(() => trade.tick(), 1000).unref(); // trades end when someone walks off or leaves
 const houses = createHouses({ dbPath: accounts.path, players, send, toRoom, pay: rpg.pay, give: rpg.give, take: rpg.take });
 
 // Where everyone stood when the server stopped, so a deploy doesn't send them all back to spawn
@@ -357,6 +363,16 @@ wss.on('connection', (ws) => {
       houses.visit(id, p, m);
     } else if (m.t === 'accuse' && p.joined) {
       accuse.accuse(id, p, m);
+    } else if (m.t === 'trade-ask' && p.joined) {
+      trade.ask(id, p, m);
+    } else if (m.t === 'trade-answer' && p.joined) {
+      trade.answer(id, p, m);
+    } else if (m.t === 'trade-offer' && p.joined) {
+      trade.offer(id, p, m);
+    } else if (m.t === 'trade-ready' && p.joined) {
+      trade.ready(id, p, m);
+    } else if (m.t === 'trade-cancel' && p.joined) {
+      trade.cancel(id, p);
     } else if (m.t === 'deny' && p.joined) {
       accuse.deny(p);
     } else if (m.t === 'chat' && p.joined) {

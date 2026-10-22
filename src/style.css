@@ -1130,8 +1130,10 @@ body.touch #inv {
 #hotbar[hidden] {
   display: none;
 }
-/* a Keeper stone's card, read out in the Wildwood, sits over the hotbar's spot (docs/places/cliffs.md) */
-#sheet:not([hidden]) ~ #hotbar {
+/* a Keeper stone's card, read out in the Wildwood, sits over the hotbar's spot (docs/places/cliffs.md);
+   so does a conversation with a character (the branches' traders stand in combat rooms) */
+#sheet:not([hidden]) ~ #hotbar,
+#npc:not([hidden]) ~ #hotbar {
   display: none;
 }
 #skills,
@@ -2568,4 +2570,211 @@ body.touch #menu {
 }
 body.touch #menu button {
   padding: calc(7px * var(--s)) 0;
+}
+
+/* ——— trading: docs/social/trading.md ——— */
+#trade[hidden],
+#tradeask[hidden] {
+  display: none;
+}
+#trade {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(680px * var(--s));
+  max-height: calc(500px * var(--s));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--s));
+  padding: calc(12px * var(--s)) calc(16px * var(--s));
+  border: calc(4px * var(--s)) solid #ffd27a;
+  border-radius: calc(18px * var(--s));
+  background: #fffdf6;
+  color: #3a3550;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  box-shadow: 0 calc(6px * var(--s)) 0 rgba(91, 74, 107, 0.2);
+  z-index: 5;
+}
+#trade h2 {
+  margin: 0;
+  font-size: calc(20px * var(--s));
+  color: #c98a1a;
+}
+.tr-cols {
+  display: flex;
+  gap: calc(10px * var(--s));
+  min-height: 0;
+  flex: 1 1 auto;
+}
+.tr-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--s));
+  padding: calc(6px * var(--s)) calc(8px * var(--s));
+  border-radius: calc(12px * var(--s));
+  background: #f4effb;
+}
+.tr-side h3 {
+  margin: 0 0 calc(4px * var(--s));
+  font-size: calc(15px * var(--s));
+  color: #7a5fc0;
+}
+.tr-items {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--s));
+  max-height: calc(170px * var(--s));
+  overflow-y: auto;
+}
+.tr-item {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--s));
+  padding: calc(3px * var(--s)) calc(6px * var(--s));
+  border-radius: calc(8px * var(--s));
+  background: #fff;
+}
+.tr-item > div {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tr-item span {
+  color: #8a7a9b;
+  font-size: calc(11px * var(--s));
+}
+.tr-icon {
+  flex: none;
+  width: calc(28px * var(--s));
+  height: calc(28px * var(--s));
+}
+.tr-item button {
+  flex: none;
+  width: calc(24px * var(--s));
+  height: calc(24px * var(--s));
+  border: none;
+  border-radius: 50%;
+  background: #f1ecf8;
+  color: #7a6a8b;
+  font: 700 calc(12px * var(--s)) Fredoka, sans-serif;
+  cursor: pointer;
+}
+.tr-n,
+.tr-gold input {
+  width: calc(64px * var(--s));
+  height: calc(24px * var(--s));
+  box-sizing: border-box;
+  border: calc(2px * var(--s)) solid #d9cdea;
+  border-radius: calc(8px * var(--s));
+  font: 700 calc(13px * var(--s)) Fredoka, sans-serif;
+  color: #3a3550;
+}
+.tr-gold input {
+  width: calc(110px * var(--s));
+  margin-left: calc(6px * var(--s));
+}
+.tr-empty,
+.tr-foot,
+.tr-state,
+.tr-help {
+  margin: 0;
+  color: #8a7a9b;
+}
+.tr-foot {
+  color: #c98a1a;
+}
+.tr-state.on {
+  color: #2f9e6a;
+}
+.tr-help {
+  font-size: calc(12px * var(--s));
+  text-align: center;
+}
+#trade-bag {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(4px * var(--s));
+  max-height: calc(92px * var(--s));
+  overflow-y: auto;
+  color: #8a7a9b;
+}
+.tr-slot {
+  position: relative;
+  width: calc(42px * var(--s));
+  height: calc(42px * var(--s));
+  padding: 0;
+  border: calc(2px * var(--s)) solid #e3d9f0;
+  border-radius: calc(10px * var(--s));
+  background: #fff;
+  cursor: pointer;
+}
+.tr-slot.on {
+  border-color: #ffb43c;
+  background: #fff1cf;
+}
+.tr-slot .tr-icon {
+  width: calc(32px * var(--s));
+  height: calc(32px * var(--s));
+}
+.tr-slot span {
+  position: absolute;
+  right: calc(3px * var(--s));
+  bottom: calc(1px * var(--s));
+  font: 700 calc(11px * var(--s)) Fredoka, sans-serif;
+  color: #5b4a6b;
+}
+#trade-ready.on {
+  background: #2f9e6a;
+}
+#trade-no {
+  background: #e9e3f2 !important;
+  color: #7a6a8b !important;
+}
+#tradeask {
+  position: absolute;
+  left: 50%;
+  top: calc(150px * var(--s));
+  transform: translateX(-50%);
+  padding: calc(10px * var(--s)) calc(18px * var(--s));
+  border: calc(3px * var(--s)) solid #ffd27a;
+  border-radius: calc(16px * var(--s));
+  background: #fffaf3;
+  color: #5b4a6b;
+  font: 700 calc(15px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  text-align: center;
+  box-shadow: 0 calc(5px * var(--s)) 0 rgba(91, 74, 107, 0.18);
+  animation: invite-in 0.35s ease-out;
+}
+#tradeask p {
+  margin: 0 0 calc(8px * var(--s));
+}
+#tradeask-no {
+  background: #e9e3f2 !important;
+  color: #7a6a8b !important;
+}
+.pl-row button.pl-trade {
+  background: #f0a830;
+}
+/* phones: the whole canvas height, bigger touch targets */
+body.touch #trade {
+  top: calc(8px * var(--s));
+  transform: translateX(-50%);
+  width: calc(760px * var(--s));
+  max-height: calc(524px * var(--s));
+}
+body.touch .tr-slot {
+  width: calc(52px * var(--s));
+  height: calc(52px * var(--s));
+}
+body.touch .tr-slot .tr-icon {
+  width: calc(40px * var(--s));
+  height: calc(40px * var(--s));
+}
+body.touch #trade .invite-btns button {
+  height: calc(36px * var(--s));
 }

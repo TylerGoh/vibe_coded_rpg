@@ -1,12 +1,13 @@
 // Docs: docs/places/houses.md
 // Who's online (P, or the Players button): everyone on the server, where they are, and an Invite button
-// to have them over to your house, and a Message button that opens a private chat with them (src/chat.js). Inviting works from any town (TOWNS: Slimeville,
+// to have them over to your house, a Trade button (when they stand near you, outside combat rooms: src/trade.js), and a Message button that opens a private chat with them (src/chat.js). Inviting works from any town (TOWNS: Slimeville,
 // Icefang Hamlet…) or your own house, and only for slimes standing in a town (the server checks too). Also the card that pops up when someone
 // invites you: Go over takes you straight into their house (server/house.js). And an Accuse button: accuse them of
 // botting, for fun (tap twice: it asks first; docs/social/accuse.md, server/accuse.js).
 import { paletteFor } from './slime.js';
 import { audio } from './audio.js';
 import { VILLAGE, roomDef, isHouse, townOf } from './shared/sim.js';
+import { tradeBlock } from './shared/trade.js';
 
 export class Players {
   constructor({ net, houses, send, self, onOpenChange }) {
@@ -31,6 +32,7 @@ export class Players {
     this.sent = new Map(); // player id → when we invited them (the button says Invited for a bit)
     this.sure = new Map(); // player id → when Accuse was first tapped (it says Sure? for a bit)
     this.onMessage = null; // (name) → open a private chat with them (main.js)
+    this.onTrade = null; // (player id) → ask them to trade (src/trade.js)
   }
 
   get isOpen() {
@@ -104,6 +106,15 @@ export class Players {
         msg.textContent = 'Message';
         msg.onclick = () => this.onMessage?.(r.name);
         row.append(msg);
+        const tr = document.createElement('button');
+        tr.type = 'button';
+        tr.className = 'pl-trade';
+        tr.textContent = 'Trade';
+        const them = this.net.snaps.at(-1)?.players.get(id), no = tradeBlock(this.net.me, them);
+        tr.disabled = !!no;
+        tr.title = no ?? 'Ask them to trade coins and items';
+        tr.onclick = () => this.onTrade?.(id);
+        row.append(tr);
         const b = document.createElement('button');
         b.type = 'button';
         const here = isHouse(myRoom) && room === myRoom, sent = performance.now() - (this.sent.get(id) ?? -1e9) < 4000;

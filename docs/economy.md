@@ -51,6 +51,12 @@ Lv 5–20, which would have doubled early levelling.
 - **Field bosses** sit in the boss table (kind `field`) and must be worth `FIELD_BOSS_WORTH` minutes of
   farming in gold and in EXP (dens are worth 6–20×); `FIELD_BOSS_RESPAWN_MS` must be at least 10 min.
 
+## Trading (2026-10-23)
+Players can trade coins and items (`docs/social/trading.md`). That moves gold rather than making it, so
+the script doesn't change, but every sink is priced against ONE player's income: with trading, boss
+farmers can fund friends, so pooled gold meets those prices (the Rebirth's 500k, house sizes, pets).
+Treat aims as "earliest a funded player gets there", and keep prestige sinks for the farmers themselves.
+
 ## How to price something new
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Read "gold earned by then" for that level and price it at roughly half to three quarters of it: a real

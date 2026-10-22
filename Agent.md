@@ -1,7 +1,7 @@
 # Slimeville — notes for agents
 
 A small multiplayer 2D village (MapleStory-style side view) for a group of friends. Slimes walk and jump
-around, talk by proximity voice, text chat (public and private messages), chat with AI characters, sit in on AI lectures and quizzes, slap each
+around, talk by proximity voice, text chat (public and private messages), trade coins and items, chat with AI characters, sit in on AI lectures and quizzes, slap each
 other, play a giant floor piano, tour a huge history museum, sail the ferry to Frostpeak, invite friends over to their own houses
 with gardens (furnished from a store, bought bigger with gold; farm herbs there and brew potions at an
 alchemy lab; keep pets from the Pet Shop fed or they die), and fight mobs and bosses across four
@@ -128,6 +128,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |
 | [docs/social/chat.md](docs/social/chat.md) | the chatbox, public chat, private messages, chat speech bubbles |
 | [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, the branches' traders (Bun, Moss, Truffle, Acorn), Auntie Clover, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
+| [docs/social/trading.md](docs/social/trading.md) | trading coins and items between players, the trade log |
 | [docs/social/accuse.md](docs/social/accuse.md) | accusing someone of botting, the canvas deny button, the EXP skim |
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
 | [docs/places/piano.md](docs/places/piano.md) | the Music House floor piano |

@@ -131,6 +131,20 @@
         <p id="invite-text"></p>
         <div class="invite-btns"><button id="invite-go" type="button">Go over</button><button id="invite-no" type="button">Not now</button></div>
       </div>
+      <div id="trade" role="dialog" aria-label="Trade" hidden>
+        <h2>Trading with <span id="trade-who"></span></h2>
+        <div class="tr-cols">
+          <div class="tr-col"><div id="trade-mine" class="tr-side"></div><label class="tr-gold">Gold <input id="trade-coins" type="number" min="0" inputmode="numeric" placeholder="0" /></label></div>
+          <div class="tr-col"><div id="trade-theirs" class="tr-side"></div></div>
+        </div>
+        <div id="trade-bag"></div>
+        <p class="tr-help">Any change un-readies both of you. The trade happens when you're both Ready.</p>
+        <div class="invite-btns"><button id="trade-ready" type="button">Ready</button><button id="trade-no" type="button">Cancel</button></div>
+      </div>
+      <div id="tradeask" role="alertdialog" aria-label="Trade request" hidden>
+        <p id="tradeask-text"></p>
+        <div class="invite-btns"><button id="tradeask-go" type="button">Trade</button><button id="tradeask-no" type="button">Not now</button></div>
+      </div>
       <div id="sail" role="alertdialog" aria-label="Set sail?" hidden>
         <p id="sail-text"></p>
         <div class="invite-btns"><button id="sail-go" type="button">Set sail</button><button id="sail-no" type="button">Not now</button></div>
