@@ -26,9 +26,11 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
 - **Tove** (Icefang Hamlet, **exists**): Skaldi's granddaughter, about eight. Feeds the yeti cubs (Lumpy,
   Mitten, Big Grumble) and tells travellers about the ridge's creatures. Tier 0.
 - **The branches' traders** (Greenhollow, island depth, **exist**): Miller Bun (Willowmere), Beachcomber
-  Moss (Saltspray Coves) and Forager Truffle (the Mycelium Deep). Tier 0 plus their own corner; Truffle
+  Moss (Saltspray Coves), Forager Truffle (the Mycelium Deep) and Ranger Acorn (the Old Oak Canopy). Tier 0 plus their own corner; Truffle
   also knows the threads run off under the sea. Truffle's life: moved underground for the quiet (too much
-  sky makes her dizzy), a lamp mushroom called Wick, Chirp the cave cricket, an eleven-year mushroom guide.
+  sky makes her dizzy), a lamp mushroom called Wick, Chirp the cave cricket, an eleven-year mushroom guide. Acorn's life: hasn't touched the ground in six years (the ground is where the
+  bramblehogs are), Zip the hat-stealing flying squirrel, knitted hats for the squirrels, Professor Hoot the
+  owl who judges her knitting, a nest logbook on volume nine; she restrung the Canopy's ladder herself.
 - **Forgewarden Ash** (Forgehold): bitter, honest, slow to trust. Holds Tier 3.
 - **The Last Echo** (the Citadel): a Keeper echo stuck repeating, who becomes briefly lucid when players
   bring Mochi's name. Holds Tier 4.

@@ -190,6 +190,41 @@ export const GLOWROOT_PLATFORMS = [
   { x: 2700, y: 250, w: 200, kind: 'glowcap' },
   { x: 3150, y: 335, w: 220, kind: 'root' },
 ];
+// ——— island depth G3 (docs/places/canopy.md) ———
+// The Old Oak Canopy (room 31): up the rope ladder from Bramble Woods into the treetops. A wide room, not a
+// tall one: the floor is the Great Bough (an oak limb as broad as a road), and the "height" is boughs and
+// rope bridges stacked above it. West to east: the Treehouse Camp (no mobs: Ranger Acorn, a waystone, the
+// Lifted Stone), the Squirrel Boughs, the Owl Hollows and the Wasp Crowns, where the Hornet Queen roams, and
+// a fallen trunk across the high path to Keeper's Spine at the far end. The Crow's Nest, a lookout high over
+// the Owl Hollows (last in CANOPY_PLATFORMS), is the off-the-path spot.
+export const CANOPY = 31; // room id
+export const CANOPY_W = 5600;
+export const CANOPY_EXIT_X = 70; // down the rope ladder to Bramble Woods
+export const CANOPY_GATE_X = 3390; // the rope ladder in Bramble Woods (the way in)
+export const ACORN_X = 560; // Ranger Acorn, at her treehouse (she trades: SHOPS)
+export const SPINE_GATE_X = CANOPY_W - 110; // the fallen trunk across the high path to Keeper's Spine
+export const CANOPY_ZONES = [
+  { name: 'The Treehouse Camp', x0: 0, x1: 1000, lvl: null }, // (no mobs)
+  { name: 'The Squirrel Boughs', x0: 1000, x1: 2400, lvl: '25–30' },
+  { name: 'The Owl Hollows', x0: 2400, x1: 3900, lvl: '30–35' },
+  { name: 'The Wasp Crowns', x0: 3900, x1: CANOPY_W, lvl: '35–40' },
+];
+export const CANOPY_PLATFORMS = [
+  { x: 610, y: 320, w: 170, kind: 'treehouse' }, // Acorn's treehouse roof
+  { x: 1120, y: 340, w: 210, kind: 'bough' },
+  { x: 1460, y: 255, w: 280, kind: 'bridge' },
+  { x: 1860, y: 340, w: 210, kind: 'bough' },
+  { x: 2160, y: 250, w: 190, kind: 'bough' },
+  { x: 2520, y: 340, w: 220, kind: 'bough' },
+  { x: 2860, y: 250, w: 300, kind: 'bridge' },
+  { x: 3260, y: 340, w: 210, kind: 'bough' },
+  { x: 3560, y: 255, w: 230, kind: 'bough' },
+  { x: 4020, y: 340, w: 210, kind: 'bough' },
+  { x: 4360, y: 250, w: 290, kind: 'bridge' },
+  { x: 4760, y: 340, w: 210, kind: 'bough' },
+  { x: 5060, y: 250, w: 200, kind: 'bough' },
+  { x: 2950, y: 158, w: 110, kind: 'nest' }, // the Crow's Nest, high over the Owl Hollows: easy to miss
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -202,6 +237,7 @@ export const STAGES = {
   [COVES]: { name: 'Saltspray Coves', zones: COVES_ZONES, band: '10–25' },
   [MYCELIUM]: { name: 'The Mycelium Deep', zones: MYCELIUM_ZONES, band: '15–35', pill: 'Mycelium Deep' },
   [GLOWROOT]: { name: 'Glowroot Hollow', zones: GLOWROOT_ZONES, band: '40–50', hard: true },
+  [CANOPY]: { name: 'The Old Oak Canopy', zones: CANOPY_ZONES, band: '25–40', pill: 'Old Oak Canopy' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -222,6 +258,7 @@ export const FIELD_PLATFORMS = [
 
 // ——— mobs ———
 // hp, atk (contact damage), exp, speed (px/s), aggro: chases anyone close without being hit first.
+// anchored: hits don't knock it back (a wasp nest sits where it is).
 // w/h: body size in px (for hit boxes and drawing). drops: [item, chance, min, max].
 export const MOBS = {
   sprout: {
@@ -534,6 +571,54 @@ MOBS.knotmole = {
   drops: [['royal_sap', 1, 1, 2], ['burrow_claw', 1, 1, 1], ['knot_crown', 0.6, 1, 1], ['coin', 1, 3600, 5400], ['elixir', 1, 2, 4], ['mega_elixir', 1, 1, 3], ['knot_silk', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_h30', 0.1, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
 };
 
+// ——— Greenhollow's branches, G3: the Old Oak Canopy (art: src/canopy-art.js; docs/places/canopy.md). On the
+// frozen curve like G1's and G2's ———
+// Oak squirrels throw acorns from range, tent caterpillars leave sticky silk on the bough, flying squirrels
+// glide in behind you and scratch, tawny owls dive from the branches, wasp nests burst into wasps when you
+// knock them down, hornets flick stingers at you
+MOBS.oak_squirrel = {
+  name: 'Oak Squirrel', lvl: 26, hp: 1450, atk: 64, exp: 470, speed: 70, w: 40, h: 40, aggro: true, hops: true,
+  ai: { kind: 'lob', range: 420, every: 2.6, keep: 140, warn: 0.5, style: 'acorn' },
+  drops: [['coin', 1, 110, 180], ['oak_acorn', 0.55, 1, 2], ['elixir', 0.1, 1, 1], ['blue_jelly', 0.12, 1, 1], ['mega_elixir', 0.02, 1, 1]],
+};
+MOBS.tent_caterpillar = {
+  name: 'Tent Caterpillar', lvl: 28, hp: 2000, atk: 72, exp: 554, speed: 32, w: 66, h: 30, aggro: false, hops: false,
+  ai: { kind: 'trail', every: 0.85, life: 4.5, w: 54, style: 'silk' },
+  drops: [['coin', 1, 120, 200], ['silk_tuft', 0.55, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.03, 1, 1]],
+};
+MOBS.flying_squirrel = {
+  name: 'Flying Squirrel', lvl: 31, hp: 2050, atk: 84, exp: 687, speed: 80, w: 46, h: 36, aggro: true, hops: true,
+  ai: { kind: 'blink', every: 4.6, warn: 0.45, slashWarn: 0.55, r: 105 },
+  drops: [['coin', 1, 135, 215], ['glider_fur', 0.5, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.04, 1, 1]],
+};
+MOBS.tawny_owl = {
+  name: 'Tawny Owl', lvl: 33, hp: 2250, atk: 90, exp: 774, speed: 90, w: 52, h: 46, aggro: true, hops: false, fly: 66,
+  ai: { kind: 'dive', every: 3.3, warn: 0.65, time: 0.42 },
+  drops: [['coin', 1, 145, 235], ['owl_feather', 0.5, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.05, 1, 1], ['owl_cap', 0.004, 1, 1]],
+};
+MOBS.wasp_nest = {
+  name: 'Wasp Nest', lvl: 36, hp: 3200, atk: 82, exp: 915, speed: 0, w: 50, h: 62, aggro: false, hops: false, anchored: true, // (anchored: hits don't knock it back)
+  ai: { kind: 'split', into: 'wasp', n: 3 },
+  drops: [['coin', 1, 160, 260], ['wasp_paper', 0.55, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.06, 1, 1]],
+};
+MOBS.wasp = {
+  name: 'Wasp', lvl: 34, hp: 520, atk: 92, exp: 110, speed: 150, w: 26, h: 22, aggro: true, hops: false, fly: 40,
+  drops: [['coin', 1, 20, 40]],
+};
+MOBS.hornet = {
+  name: 'Hornet', lvl: 38, hp: 2800, atk: 104, exp: 1015, speed: 85, w: 50, h: 40, aggro: true, hops: false, fly: 60,
+  ai: { kind: 'lob', range: 380, every: 2.4, keep: 120, warn: 0.45, style: 'sting' },
+  drops: [['coin', 1, 175, 285], ['hornet_sting', 0.5, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.07, 1, 1], ['stingblade', 0.003, 1, 1]],
+};
+// The Hornet Queen: a field boss (small: no story), a great hornet who leaves her nest in the Wasp Crowns now
+// and then and roams the boughs. Passive until hit; then she dives at you
+MOBS.hornet_queen = {
+  name: 'The Hornet Queen', field: true, lvl: 38, hp: 62000, atk: 100, exp: 18000, speed: 70, w: 118, h: 96, aggro: false, hops: false, fly: 115,
+  ai: { kind: 'dive', every: 2.8, warn: 0.8, time: 0.5 },
+  desc: 'The Hornet Queen has left her nest in the Wasp Crowns!',
+  drops: [['coin', 1, 2200, 3400], ['honeycomb', 1, 4, 8], ['hornet_sting', 1, 3, 5], ['elixir', 1, 2, 3], ['mega_elixir', 1, 1, 2], ['queen_stinger', 0.25, 1, 1], ['honey_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.12, 1, 1], ['scroll_h10', 0.12, 1, 1]],
+};
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -563,6 +648,7 @@ const onWPlat = onRoomPlat(WILLOWMERE_PLATFORMS, WILLOWMERE);
 const onSPlat = onRoomPlat(COVES_PLATFORMS, COVES);
 const onDPlat = onRoomPlat(MYCELIUM_PLATFORMS, MYCELIUM);
 const onGPlat = onRoomPlat(GLOWROOT_PLATFORMS, GLOWROOT);
+const onOPlat = onRoomPlat(CANOPY_PLATFORMS, CANOPY);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -668,6 +754,26 @@ export const SPAWNS = [
   ...onGPlat('glow_moth', 4, 1),
   ...strip('glowworm_elite', 2200, 3300, FIELD_GROUND, 1, GLOWROOT),
   ...strip('weaver_elite', 2400, 3500, FIELD_GROUND, 1, GLOWROOT),
+  // the Old Oak Canopy (the Treehouse Camp, x < 1000, has none; squirrels throw, so they keep well away from it)
+  ...strip('oak_squirrel', 1150, 1750, FIELD_GROUND, 4, CANOPY),
+  ...onOPlat('oak_squirrel', 1, 1),
+  ...onOPlat('oak_squirrel', 2, 1),
+  ...strip('tent_caterpillar', 1700, 2350, FIELD_GROUND, 4, CANOPY),
+  ...onOPlat('tent_caterpillar', 3, 1),
+  ...onOPlat('tent_caterpillar', 4, 1),
+  ...strip('flying_squirrel', 2450, 3150, FIELD_GROUND, 3, CANOPY),
+  ...onOPlat('flying_squirrel', 5, 1),
+  ...onOPlat('flying_squirrel', 6, 1),
+  ...strip('tawny_owl', 3050, 3850, FIELD_GROUND, 3, CANOPY),
+  ...onOPlat('tawny_owl', 7, 1),
+  ...onOPlat('tawny_owl', 8, 1),
+  ...strip('wasp_nest', 3950, 4650, FIELD_GROUND, 3, CANOPY),
+  ...onOPlat('wasp_nest', 9, 1),
+  ...onOPlat('wasp_nest', 10, 1),
+  ...strip('hornet', 4550, 5380, FIELD_GROUND, 4, CANOPY),
+  ...onOPlat('hornet', 11, 1),
+  ...onOPlat('hornet', 12, 1),
+  { kind: 'hornet_queen', x0: 4300, x1: 5320, y: FIELD_GROUND, room: CANOPY },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -786,6 +892,20 @@ export const ITEMS = {
   knot_crown: { name: 'Knotroot Crown', price: 40000, lvl: 37, kind: 'helmet', def: 35, slots: 8, desc: 'Warm roots knotted into a crown. It still holds on, but gently now.' },
   glowcap_helm: { name: 'Glowcap Helm', price: 62000, lvl: 44, kind: 'helmet', def: 38, desc: 'A great glowing mushroom cap, hollowed out. Everyone can see you coming.' },
   glowroot_blade: { name: 'Glowroot Blade', price: 90000, lvl: 47, kind: 'sword', atk: 93, reach: 50, desc: 'A sword grown from the heart of Glowroot Hollow. The light runs down it like sap.' },
+  // ——— G3: the Old Oak Canopy (art: src/canopy-art.js) ———
+  oak_acorn: { name: 'Oak Acorn', price: 170, kind: 'loot', desc: 'A fat glossy acorn with its cap on. A squirrel was saving it for winter.' },
+  silk_tuft: { name: 'Silk Tuft', price: 200, kind: 'loot', desc: 'A soft white tuft of caterpillar silk, still a bit sticky.' },
+  glider_fur: { name: 'Glider Fur', price: 240, kind: 'loot', desc: "A wisp of silver fur from a flying squirrel's wing flap. Lighter than air, nearly." },
+  owl_feather: { name: 'Owl Feather', price: 270, kind: 'loot', desc: 'A barred brown feather, so soft it makes no sound when it falls.' },
+  wasp_paper: { name: 'Wasp Paper', price: 300, kind: 'loot', desc: 'A curl of grey paper from a wasp nest, chewed from old wood. You could write on it, carefully.' },
+  hornet_sting: { name: 'Hornet Stinger', price: 330, kind: 'loot', desc: 'A hornet stinger as long as a finger. Hold it by the blunt end.' },
+  honeycomb: { name: 'Wild Honeycomb', price: 420, kind: 'loot', desc: "A slab of golden comb from the Hornet Queen's nest, dripping. Hornets don't make honey. These ones stole it." },
+  ranger_billhook: { name: "Ranger's Billhook", price: 16000, lvl: 30, aim: 32, kind: 'sword', atk: 70, reach: 44, desc: 'A hooked oak-handled blade for clearing paths through the branches. Ranger Acorn keeps hers very sharp.' },
+  ranger_hood: { name: "Ranger's Hat", price: 12000, lvl: 30, aim: 32, kind: 'helmet', def: 31, desc: 'A broad green felt hat with an acorn badge and a jay feather in the band.' },
+  owl_cap: { name: 'Owlfeather Cap', price: 30000, lvl: 33, kind: 'helmet', def: 32, desc: 'A cap of soft owl feathers with two little ear tufts. You hear everything in it.' },
+  stingblade: { name: 'Stingblade', price: 50000, lvl: 37, kind: 'sword', atk: 79, reach: 48, desc: "A long straight blade ground from a hornet's stinger, banded amber and black." },
+  queen_stinger: { name: "Queen's Stinger", price: 56000, lvl: 39, kind: 'sword', atk: 82, reach: 50, desc: "The Hornet Queen's own stinger, gold at the tip. It hums when it's swung." },
+  honey_crown: { name: 'Honeycomb Crown', price: 42000, lvl: 39, kind: 'helmet', def: 36, desc: 'A crown of golden wax cells, warm and faintly sticky. Bees follow you around.' },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
   // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen
@@ -887,6 +1007,7 @@ export const SHOPS = {
   bun: { name: 'Willowmere Mill', room: WILLOWMERE, x: BUN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'reed_rapier', 'miller_cap'] },
   moss: { name: "Moss's Driftwood Shack", room: COVES, x: MOSS_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'drift_cutlass', 'conch_helm'] },
   truffle: { name: "Truffle's Camp", room: MYCELIUM, x: TRUFFLE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'rootwood_saber', 'lantern_cap'] },
+  acorn: { name: "Acorn's Treehouse", room: CANOPY, x: ACORN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'ranger_billhook', 'ranger_hood'] },
   // the Pet Shop: pet food only (the pets themselves are on plinths: furni-buy, src/petshop.js)
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };

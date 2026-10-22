@@ -335,7 +335,8 @@ function drawChart(ctx, t, here, hue) {
 }
 
 // A little bouncing slime in your colour, standing at (x, y)
-function drawPin(ctx, x, y, t, hue) {
+// side: put the label beside the slime, not over it (when another card sits just above: island maps)
+function drawPin(ctx, x, y, t, hue, side = false) {
   const hop = Math.abs(Math.sin(t * 3)) * 8;
   const px = x, py = y - 18 - hop;
   ctx.fillStyle = 'rgba(91, 74, 107, 0.18)';
@@ -355,7 +356,9 @@ function drawPin(ctx, x, y, t, hue) {
   ctx.fillStyle = INK;
   ctx.fillRect(px - 5, py - 2, 2.5, 4);
   ctx.fillRect(px + 2.5, py - 2, 2.5, 4);
-  label(ctx, px, py - 16, 'you are here', 11, '#e46f95');
+  if (!side) return label(ctx, px, py - 16, 'you are here', 11, '#e46f95');
+  ctx.font = `700 11px ${FONT}`;
+  label(ctx, px + 18 + ctx.measureText('you are here').width / 2, py + 2, 'you are here', 11, '#e46f95');
 }
 
 // An island's own map: its places as cards joined by paths (story/world/island-depth.md). Shipped places
@@ -425,7 +428,10 @@ function drawIslandMap(ctx, t, key, here, hue) {
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ffffff';
   ctx.fillText('‹ the Glass Sea', BACK.x + BACK.w / 2, BACK.y + 20);
-  if (here) drawPin(ctx, here.at[0], here.at[1] - CARD_H / 2 + 4, t, hue);
+  if (here) {
+    const crowded = nodes.some((n) => n !== here && Math.abs(n.at[0] - here.at[0]) < CARD_W && here.at[1] - n.at[1] > 0 && here.at[1] - n.at[1] < CARD_H + 50);
+    drawPin(ctx, here.at[0], here.at[1] - CARD_H / 2 + 4, t, hue, crowded);
+  }
 }
 
 export class WorldMap {

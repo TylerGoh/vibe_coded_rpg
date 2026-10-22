@@ -153,6 +153,9 @@ taken from the next free numbers below `HOUSE_BASE`.
   platforms (branches, rope bridges) filling the screen above a forest floor, and the art (trunks running
   off the top, sky through leaves) sells it. A vertical camera is its own `step()`/camera project; don't
   start it inside G3.
+  - Shipped as planned (2026-10-22): the name Ranger Acorn kept; oak squirrels (acorns), tent caterpillars
+    (sticky silk), flying squirrels (glide behind you), tawny owls (dive), wasp nests that burst into wasps,
+    hornets (stingers); the Treehouse Camp, the Squirrel Boughs, the Owl Hollows, the Wasp Crowns.
 - **Keeper's Spine** (the heart, 45–60): the island's ridge above the canopy, bare stone and wind, the
   biggest Keeper ruins on the island. Moss turtles, stone sentinels.
   - **The Thornheart** (hard pocket, 50–60): the briar's root, thorn stalkers, elites.
@@ -246,7 +249,11 @@ systems first, then fills the band from the bottom up.
       `docs/places/deep.md`). The Deep's character is **Forager Truffle** (trades; the plan named none),
       its find the Listening Stone and the Glow Shelf; Glowroot Hollow has the first hard-pocket elites.
       Not done: the Knotmole's world change when freed, a field boss for the Deep (`docs/ideas.md`).
-- [ ] **G3: Old Oak Canopy** (25–40), the Hornet Queen, Ranger Acorn.
+- [x] **G3: Old Oak Canopy** (25–40), the Hornet Queen, Ranger Acorn (shipped 2026-10-22;
+      `docs/places/canopy.md`). Its find is the Crow's Nest (a lookout with a spyglass on the Spine) and the
+      Lifted Stone (a Keeper stone the oak grew round and lifted); the Spine's ridge shows over the leaves and
+      its gate is a fallen trunk at the Canopy's far end. Not done: `docs/ideas.md` ("G3 left for later").
+      **Building G4/G5: start from the checklist in `docs/places/branches.md`.**
 - [ ] **G4: the hard pockets**: Wreck Cave (30–40) and the Thornheart (50–60), elites, the Drowned
       Bosun.
 - [ ] **G5: Keeper's Spine** (45–60) and the Root Warden. Then go through the "deep" checklist above;

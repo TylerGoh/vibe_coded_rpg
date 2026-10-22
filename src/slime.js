@@ -6,6 +6,7 @@ import { FOLK_PALETTE, drawFolk, drawFolkDress } from './fjord-art.js';
 import { drawMillerDress } from './willowmere-art.js';
 import { drawBeachcomberDress } from './coves-art.js';
 import { drawForagerDress } from './deep-art.js';
+import { drawRangerDress } from './canopy-art.js';
 import { drawPetkeeperDress } from './pet-art.js';
 
 // yr's laptop notifications: icon colours, and how long each one floats
@@ -883,6 +884,7 @@ export class Slime {
     if (this.has('miller')) drawMillerDress(ctx, w, h, fx, this.t, bodyPath); // Willowmere's Miller Bun
     if (this.has('beachcomber')) drawBeachcomberDress(ctx, w, h, fx, this.t); // Saltspray Coves' Beachcomber Moss
     if (this.has('forager')) drawForagerDress(ctx, w, h, fx, this.t); // the Mycelium Deep's Forager Truffle
+    if (this.has('ranger')) drawRangerDress(ctx, w, h, fx, this.t); // the Old Oak Canopy's Ranger Acorn
     if (this.has('petkeeper')) drawPetkeeperDress(ctx, w, h, fx, this.t, bodyPath); // the Pet Shop's Auntie Clover
     if (this.has('captain')) {
       // Captain Brine: a salt-white beard, a navy captain's cap with a gold anchor badge, and a brass spyglass

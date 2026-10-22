@@ -41,4 +41,10 @@
 - The Knotmole "freed" world change (the threads glowing all the way west again after a kill): like the
   Tidemother, only her line says so.
 - A field boss for the Deep (the plan names none; Glowroot Hollow's elites stand in as its danger).
-- Then G3 (the Old Oak Canopy, the Hornet Queen, Ranger Acorn) per `story/world/island-depth.md`.
+
+## G3 left for later
+- The Hornet Queen only dives (one field-boss brain). Calling wasps out of her nest would need a summon for
+  field bosses, which they don't have (small bosses get a move or two, owner).
+- A vertical camera for the Canopy (climbing up, not along): its own `step()`/camera project, never started.
+- Then G4 (Wreck Cave, the Thornheart, the Drowned Bosun) per `story/world/island-depth.md`; where its gates
+  already are: `docs/places/branches.md`.

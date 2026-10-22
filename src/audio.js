@@ -955,6 +955,34 @@ const SONGS = {
     },
   },
 
+  // The Old Oak Canopy (docs/places/canopy.md): a sunny, swaying 3/4 in F up in the treetops, a recorder-ish
+  // tune over a plucked lute and a soft woodblock, birdsong all round, leaves rustling and a woodpecker now
+  // and then
+  canopy: {
+    bpm: 132, beats: 3, spb: 6, melSteps: 6, swing: 0.06, key: 65, scale: MAJOR, gain: 0.78, send: 0.32, loop: 8,
+    chords: [[1, 3, 5], [4, 6, 8], [6, 8, 10], [5, 7, 9], [1, 3, 5], [2, 4, 6], [4, 6, 8], [5, 7, 9]],
+    mel: melody(
+      '5 - 6 5 3 .', '4 - - 6 - .', '8 - 7 6 5 .', '5 - - . . .',
+      '3 - 5 8 - 6', '5 - 4 2 - .', '4 - 6 5 4 2', '1 - - . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'bandpass', 3200, 0.006, 0.6); // leaves rustling
+      p.eng.bed(p, 'lowpass', 400, 0.006); // the wind in the boughs
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) pad(p, ch, t, p.stepDur * 6, 0.013, { a: 0.5, cutoff: 1200 });
+      if (s === 0) e.voice(p.c, t, p.f(ch[0], -2), { type: 'triangle', vol: 0.15, tau: 0.3, cutoff: 700 });
+      if (s === 2 || s === 4) for (const d of [ch[1], ch[2]]) e.voice(s === 2 ? p.l : p.r, t, p.f(d, 0), { ...PLUCK, vol: 0.03, tau: 0.12 });
+      if (s === 3 && chance(0.6)) e.voice(p.r, t, 1400, { type: 'sine', vol: 0.02, a: 0.001, tau: 0.03 }); // woodblock
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { type: 'sine', vol: 0.05, a: 0.04, hold: m.len * 0.75, rel: 0.15, vib: 5, vibRate: 5.5, partials: [[2, 0.16], [3, 0.05]] });
+      if (m && part === 1) e.voice(p.l, t, p.f(m.d, 1), { ...MARIMBA, vol: 0.1 });
+      if (s === 1 && chance(0.35)) e.bird(chance(0.5) ? p.l : p.r, t + rand(0, p.stepDur * 3), 0.018);
+      if (s === 5 && bar % 4 === 3 && chance(0.4)) for (let i = 0; i < 6; i++) e.voice(p.l, t + i * 0.05, 900, { type: 'square', vol: 0.008, a: 0.001, tau: 0.015, cutoff: 1800 }); // a woodpecker, far off
+    },
+  },
+
   // Glowroot Hollow (a hard pocket): brighter and tenser, B minor arpeggios on glockenspiel racing over a
   // pulsing bass, the heart knot's slow beat underneath everything
   glowroot: {
@@ -2225,7 +2253,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -2331,6 +2359,8 @@ export const audio = {
 // Greenhollow's branches' mobs borrow the voices of the legacy mobs they're built on (src/shared/rpg.js)
 Object.assign(MOB_HURT, { dragonfly: MOB_HURT.cinder_bat, gloop_snail: MOB_HURT.magma_slug, snapjaw: MOB_HURT.golem, rock_crab: MOB_HURT.obsidian_crab, storm_gull: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, snapshrimp: MOB_HURT.obsidian_crab, tidemother: MOB_HURT.obsidian_crab,
   puffcap: MOB_HURT.mushling, cave_bat: MOB_HURT.cinder_bat, puffball: MOB_HURT.mushling, puffling: MOB_HURT.cogbit, root_beetle: MOB_HURT.obsidian_crab, knot_spider: MOB_HURT.aether_knight,
-  glowworm: MOB_HURT.magma_slug, glow_moth: MOB_HURT.wisp, thread_weaver: MOB_HURT.sentry, knotmole: MOB_HURT.ignis });
+  glowworm: MOB_HURT.magma_slug, glow_moth: MOB_HURT.wisp, thread_weaver: MOB_HURT.sentry, knotmole: MOB_HURT.ignis,
+  oak_squirrel: MOB_HURT.mushling, tent_caterpillar: MOB_HURT.magma_slug, flying_squirrel: MOB_HURT.aether_knight, tawny_owl: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, wasp_nest: MOB_HURT.mushling, wasp: MOB_HURT.cogbit, hornet: MOB_HURT.cinder_bat, hornet_queen: MOB_HURT.cinder_bat });
 Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEATH.magma_slug, rock_crab: MOB_DEATH.obsidian_crab, snapshrimp: MOB_DEATH.obsidian_crab,
-  puffcap: MOB_DEATH.mushling, cave_bat: MOB_DEATH.cinder_bat, puffball: MOB_DEATH.mushling, root_beetle: MOB_DEATH.obsidian_crab, glowworm: MOB_DEATH.magma_slug, glow_moth: MOB_DEATH.wisp });
+  puffcap: MOB_DEATH.mushling, cave_bat: MOB_DEATH.cinder_bat, puffball: MOB_DEATH.mushling, root_beetle: MOB_DEATH.obsidian_crab, glowworm: MOB_DEATH.magma_slug, glow_moth: MOB_DEATH.wisp,
+  oak_squirrel: MOB_DEATH.mushling, tent_caterpillar: MOB_DEATH.magma_slug, tawny_owl: MOB_DEATH.cinder_bat, wasp_nest: MOB_DEATH.mushling, hornet: MOB_DEATH.cinder_bat });

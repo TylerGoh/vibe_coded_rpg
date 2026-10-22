@@ -21,7 +21,7 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
 - **Island maps:** tapping (or clicking) an island that has one (`ISLAND_MAPS`, so far only Greenhollow)
   opens its own map: its places as cards joined by paths, drawn from `GREENHOLLOW` in
   `src/shared/branches.js` (`docs/places/branches.md`). Open places are solid with their level band;
-  ones not open yet are dashed with a short reason ("bridge out"), hard pockets red with a "!". Your pin
+  ones not open yet are dashed with a short reason ("bridge out"), hard pockets red with a "!". Your pin (its "you are here" moves beside it when a card sits right above)
   sits on the place you're in (`nodeAt`: the Wildwood by zone, a den by its stage; the village's
   buildings and houses count as Slimeville). The pink pill top-left goes back to the chart. Taps are
   `pointerdown` on the canvas, so mouse and touch work alike; the chart says "tap / click for its map".

@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, ZONES, DENS, zoneAt, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X } from './rpg.js';
+import { FIELD, ZONES, DENS, zoneAt, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -29,11 +29,11 @@ export const GREENHOLLOW = [
   },
   { id: 'deep', name: 'Mycelium Deep', band: '15–35', at: [420, 285], from: 'grove', rooms: [MYCELIUM], entry: { room: FIELD, x: MYCELIUM_GATE_X, kind: 'stump' } },
   { id: 'glowroot', name: 'Glowroot Hollow', band: '40–50', hard: true, at: [420, 350], from: 'deep', rooms: [GLOWROOT], entry: { room: MYCELIUM, x: GLOWROOT_GATE_X, kind: 'crack' } },
+  { id: 'canopy', name: 'Old Oak Canopy', band: '25–40', at: [535, 125], from: 'woods', rooms: [CANOPY], entry: { room: FIELD, x: CANOPY_GATE_X, kind: 'ladder' } },
   {
-    id: 'canopy', name: 'Old Oak Canopy', band: '25–40', at: [535, 125], from: 'woods', block: 'rotten ladder',
-    gate: { room: FIELD, x: 3390, kind: 'ladder', look: 'look up the rope ladder', says: "A rope ladder climbs into the Old Oak Canopy, but its rungs have rotted through. It won't take a slime's weight." },
+    id: 'spine', name: "Keeper's Spine", band: '45–60', at: [535, 55], from: 'canopy', block: 'fallen trunk',
+    gate: { room: CANOPY, x: SPINE_GATE_X, kind: 'trunk', look: 'look over the fallen trunk', says: "A great trunk has fallen across the high path to Keeper's Spine. It's far too big to climb." },
   },
-  { id: 'spine', name: "Keeper's Spine", band: '45–60', at: [535, 55], from: 'canopy', past: true, block: 'fallen trunk' },
   {
     id: 'thornheart', name: 'Thornheart', band: '50–60', hard: true, at: [650, 285], from: 'woods', block: 'thorns',
     gate: { room: FIELD, x: 4920, kind: 'thorns', look: 'look into the briar', says: 'Somewhere past this wall of thorns lies the Thornheart. Nothing gets through.' },

@@ -1,13 +1,14 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
-// Stone by Truffle's camp in the Mycelium Deep). The text opens
+// Stone by Truffle's camp in the Mycelium Deep, the Lifted Stone by Acorn's treehouse in the Old Oak
+// Canopy). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -55,6 +56,12 @@ export const RUIN_STONES = [
     legible: ['WHAT ONE SHORE HEARS...', '...EVERY SHORE HEARS.', 'Under the words, a row of little islands, each joined to the next by one carved line. The line runs on off the edge of the stone.'],
     note: "A small card hangs off it on a string: PLEASE DO NOT LICK THE STONE. It's in Truffle's handwriting, and it looks like it was needed.",
   },
+  {
+    room: CANOPY, place: 'the Old Oak Canopy', x: 880, shape: 'lifted', name: 'the Lifted Stone', title: 'The Lifted Stone',
+    look: 'A flat standing stone held up off the bough in a fist of bark. The oak grew round it long ago and has been lifting it ever since, a little every year, so now it sits where no stone has any business being. One face is carved with a ring of gear teeth, and under it an arrow, pointing up and east.',
+    legible: ['...THE ROAD CLIMBS...', '...KEEP TO THE HIGH WAY...', 'The arrow points along the bough toward the far end of the canopy, and up.'],
+    note: "Neat notches run down one edge, one a year: Ranger Acorn's, keeping count of how far the oak has lifted it. There are six. Below them, much older and almost grown over, there are a great many more.",
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -84,7 +91,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -528,4 +535,66 @@ function drawListening(ctx, time, glow) {
   }
   ctx.stroke();
   ctx.restore();
+}
+
+// The Lifted Stone (the Old Oak Canopy): a flat slab gripped in a fist of oak bark that rises out of the
+// bough and holds it up off the ground, a carved gear and an arrow pointing up and east, Acorn's notches
+function drawLifted(ctx, time, glow) {
+  // the bark fist: thick ridges rising out of the bough and curling over the stone's foot
+  const bark = ctx.createLinearGradient(-40, 0, 40, 0);
+  bark.addColorStop(0, '#6e5040');
+  bark.addColorStop(0.5, '#9a765e');
+  bark.addColorStop(1, '#6a4c3c');
+  ctx.fillStyle = bark;
+  ctx.beginPath();
+  ctx.moveTo(-58, 2);
+  ctx.quadraticCurveTo(-40, -20, -44, -52);
+  ctx.quadraticCurveTo(-20, -40, 0, -46);
+  ctx.quadraticCurveTo(20, -40, 44, -54);
+  ctx.quadraticCurveTo(40, -20, 58, 2);
+  ctx.closePath();
+  ctx.fill();
+  // the stone, held up
+  ctx.save();
+  ctx.translate(0, -44);
+  ctx.rotate(-0.04);
+  slab(ctx, -32, -96, 64, 100, 12);
+  carvedGear(ctx, 0, -64, 18, 10, glow);
+  ctx.strokeStyle = glow ? '#c9a24a' : CARVE;
+  ctx.lineWidth = 2.4;
+  ctx.lineCap = 'round';
+  ctx.beginPath(); // the arrow, up and east
+  ctx.moveTo(-12, -14);
+  ctx.lineTo(12, -38);
+  ctx.moveTo(12, -38);
+  ctx.lineTo(1, -37);
+  ctx.moveTo(12, -38);
+  ctx.lineTo(11, -27);
+  ctx.stroke();
+  scratches(ctx, -22, -90, 44, 1, 131, glow);
+  // Acorn's notches down the edge
+  ctx.strokeStyle = 'rgba(80,60,50,0.7)';
+  ctx.lineWidth = 1.4;
+  for (let i = 0; i < 6; i++) {
+    ctx.beginPath();
+    ctx.moveTo(32, -80 + i * 7);
+    ctx.lineTo(26, -80 + i * 7);
+    ctx.stroke();
+  }
+  moss(ctx, -30, -98, 50, 141);
+  ctx.restore();
+  // the bark curling over the stone's foot, in front of it
+  ctx.fillStyle = '#86664e';
+  ctx.strokeStyle = 'rgba(60,40,30,0.5)';
+  ctx.lineWidth = 2;
+  for (const s of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(s * 50, -6);
+    ctx.quadraticCurveTo(s * 44, -48, s * 22, -60);
+    ctx.quadraticCurveTo(s * 30, -40, s * 26, -6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+  void time;
 }

@@ -11,7 +11,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Music House (piano) | 2 `PIANO` | exit |
 | Grand Museum of History | 3 `MUSEUM` | exit · wing portals in the lobby (`wingPortalX`) · back-to-lobby door at each wing (`wingReturnX`) |
 | Tutoring Room | 4 `TUTOR` | back to the hall |
-| The Wildwood | 5 `FIELD` | village · 3 dens · Willowmere's footbridge · the Mycelium Deep's stump · the gap to the east cliffs (east end; the Highlands trail went when the ferry started) |
+| The Wildwood | 5 `FIELD` | village · 3 dens · Willowmere's footbridge · the Mycelium Deep's stump · the Old Oak Canopy's rope ladder · the gap to the east cliffs (east end; the Highlands trail went when the ferry started) |
 | Frostpeak (Frostpine Ridge, Starfall Summit) | 9 `HIGHLANDS` | down to Icefang Hamlet (west end) · 2 dens · Caldera pass |
 | Icefang Hamlet (Icefang Fjord) | 23 `FJORD` | the ferry's gangway (`FJORD_DOCK_X`, boards `FERRY_S`) · your house (`FJORD_HOME_X`) · up to Frostpine Ridge (east end) (`docs/places/fjord.md`) |
 | Emberdeep Caldera | 12 `CALDERA` | Highlands · 2 dens · Citadel skylift |
@@ -23,6 +23,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Saltspray Coves | 25 `COVES` | back to the harbour (east end) · the Tidemother's den (`docs/places/coves.md`) |
 | The Mycelium Deep | 28 `MYCELIUM` | up to Mushroom Grove (west end) · the Knotmole's den · down to Glowroot Hollow (east end) (`docs/places/deep.md`) |
 | Glowroot Hollow | 29 `GLOWROOT` | back up into the Deep (west end); a hard pocket |
+| The Old Oak Canopy | 31 `CANOPY` | down the rope ladder to Bramble Woods (west end); Keeper's Spine's fallen trunk (a gate) at the east end (`docs/places/canopy.md`) |
 | Pet Shop | 27 `PETSHOP` | exit (`docs/places/pets.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17, 26, 30 | exit, back to the stage it's in (`DENS[].from`) |

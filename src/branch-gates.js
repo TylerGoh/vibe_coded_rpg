@@ -4,7 +4,8 @@
 // Saltspray Coves). Each has a little wooden sign naming the place it leads to (red-trimmed for a hard
 // pocket). Shipped branches keep their spot as an open way in (ENTRIES: drawEntries): Willowmere's
 // footbridge, mended with new planks, the shore path to the Coves, its rockfall rolled aside, the hollow
-// stump into the Mycelium Deep, its roots cut back, and the glowing crack down into Glowroot Hollow.
+// stump into the Mycelium Deep, its roots cut back, the glowing crack down into Glowroot Hollow, and the
+// Old Oak Canopy's rope ladder, restrung. The Canopy has Keeper's Spine's gate: a fallen trunk.
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';
@@ -42,7 +43,7 @@ export function drawEntries(ctx, room, ground, L, R, time) {
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120 };
+const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170 };
 const SCALE = { bridge: 1.5, thorns: 1.15 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -384,9 +385,10 @@ function drawCrack(ctx, time) {
   ctx.globalAlpha = 1;
 }
 
-// Old Oak Canopy: a rope ladder hanging out of the treetops beside a giant oak, rungs rotted and
-// snapped, the bottom of it lying in a heap
-function drawLadder(ctx, time) {
+// Old Oak Canopy: a rope ladder hanging out of the treetops beside a giant oak. Rotten (the old gate): rungs
+// rotted and snapped, the bottom of it lying in a heap. Mended (the branch is open): new rope and pale new
+// rungs all the way down, pegged to the ground, the old rotten bits coiled up beside it.
+function drawLadder(ctx, time, g, mended = false) {
   // the oak, running up off the top of the screen
   const bark = ctx.createLinearGradient(-110, 0, -20, 0);
   bark.addColorStop(0, '#6e5040');
@@ -410,6 +412,7 @@ function drawLadder(ctx, time) {
     ctx.quadraticCurveTo(x - 4, -220, x + 2, -20);
     ctx.stroke();
   }
+  if (mended) return drawLadderMended(ctx, time);
   // the ladder: two ropes down from above, swaying a little, rungs every so often (some gone, some
   // hanging by one end), and it ends well above a slime's reach
   const sway = Math.sin(time * 0.9) * 4;
@@ -462,6 +465,120 @@ function drawLadder(ctx, time) {
     ctx.lineTo(x + Math.cos(a) * 14, y + Math.sin(a) * 14);
     ctx.stroke();
   }
+}
+
+function drawLadderMended(ctx, time) {
+  const sway = Math.sin(time * 0.9) * 2;
+  const ropeX = (side, y) => side * 13 + sway * ((-y) / 460);
+  ctx.strokeStyle = '#e2c890';
+  ctx.lineWidth = 2.4;
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(ropeX(side, -460), -460);
+    ctx.lineTo(ropeX(side, -4), -4);
+    ctx.stroke();
+  }
+  ctx.lineCap = 'round';
+  for (let y = -440, i = 0; y < -8; y += 30, i++) {
+    ctx.strokeStyle = i % 5 === 3 ? '#c99b6b' : '#ecd2a4'; // (one old rung that was still good)
+    ctx.lineWidth = 3.6;
+    ctx.beginPath();
+    ctx.moveTo(ropeX(-1, y), y);
+    ctx.lineTo(ropeX(1, y), y);
+    ctx.stroke();
+  }
+  // pegged down at the foot
+  ctx.fillStyle = '#8f6240';
+  for (const side of [-1, 1]) ctx.fillRect(side * 18 - 2.5, -8, 5, 10);
+  // the old rotten ladder, coiled up out of the way
+  ctx.strokeStyle = '#9b7a56';
+  ctx.lineWidth = 2;
+  for (const [rx, ry] of [[22, 6], [16, 5], [10, 4]]) {
+    ctx.beginPath();
+    ctx.ellipse(46, -ry, rx, ry, 0, 0, TAU);
+    ctx.stroke();
+  }
+  // and a little basket on a pulley rope, for Ranger Acorn's bread
+  const by = -60 - Math.sin(time * 0.4) * 30;
+  ctx.strokeStyle = '#d8c08a';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(-36, -460);
+  ctx.lineTo(-36, by - 12);
+  ctx.stroke();
+  ctx.fillStyle = '#d8b07a';
+  ctx.strokeStyle = '#a07a48';
+  ctx.beginPath();
+  ctx.roundRect(-46, by - 12, 20, 14, [2, 2, 6, 6]);
+  ctx.fill();
+  ctx.stroke();
+}
+
+// Keeper's Spine, at the Old Oak Canopy's far end: a great trunk come down across the high path, rotten and
+// split, mushrooms and moss all along it, too big to climb. Past it, the bare grey ridge shows over the
+// leaves (src/canopy.js draws the ridge in the sky)
+function drawTrunk(ctx, time) {
+  const bark = ctx.createLinearGradient(0, -150, 0, 0);
+  bark.addColorStop(0, '#8a6a52');
+  bark.addColorStop(1, '#5e4636');
+  ctx.fillStyle = bark;
+  ctx.strokeStyle = '#3e2c22';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath(); // lying on a slant, the far end up in the leaves
+  ctx.moveTo(-120, 2);
+  ctx.quadraticCurveTo(-130, -70, -60, -96);
+  ctx.lineTo(150, -190);
+  ctx.lineTo(170, -110);
+  ctx.lineTo(10, 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  // the broken end facing you: rings, gone soft and dark in the middle
+  ctx.fillStyle = '#c8a07a';
+  ctx.beginPath();
+  ctx.ellipse(-60, -48, 52, 50, 0.2, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(110,80,55,0.6)';
+  ctx.lineWidth = 1.4;
+  for (const r of [40, 30, 20]) {
+    ctx.beginPath();
+    ctx.ellipse(-60, -48, r, r * 0.96, 0.2, 0, TAU);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#4a3428'; // rotten heart
+  ctx.beginPath();
+  ctx.ellipse(-58, -46, 13, 15, 0.3, 0, TAU);
+  ctx.fill();
+  // cracks along the trunk, moss and shelf fungus
+  ctx.strokeStyle = 'rgba(40,28,20,0.6)';
+  ctx.lineWidth = 2;
+  for (const [x0, y0, x1, y1] of [[-10, -80, 90, -150], [20, -40, 120, -120]]) {
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo((x0 + x1) / 2, (y0 + y1) / 2 + 6);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#86b46a';
+  for (const [x, y, s] of [[-20, -98, 14], [40, -128, 12], [100, -160, 13], [70, -110, 9]]) ellipse(ctx, x, y, s, s * 0.45, -0.4);
+  for (const [x, y] of [[0, -50], [50, -80], [110, -122]]) {
+    ctx.fillStyle = '#e8c890';
+    ctx.strokeStyle = '#a07a48';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 11, 4.5, -0.4, Math.PI, 0);
+    ctx.fill();
+    ctx.stroke();
+  }
+  // a few leaves still drifting down off it
+  for (let i = 0; i < 3; i++) {
+    const k = (time * 0.15 + i / 3) % 1;
+    ctx.globalAlpha = Math.sin(k * Math.PI);
+    ctx.fillStyle = i % 2 ? '#9cc87a' : '#d8b860';
+    ellipse(ctx, 60 + i * 30 + Math.sin(time + i * 2) * 12, -180 + k * 175, 4, 2.2, time * 2 + i);
+  }
+  ctx.globalAlpha = 1;
 }
 
 // The Thornheart: the briar closes into a solid wall, dark and thick with thorns; something stirs deep in it
@@ -609,5 +726,5 @@ function drawFlooded(ctx, time) {
   for (const [x, s] of [[-80, 16], [-62, 10], [76, 14], [94, 9]]) ellipse(ctx, x, -s * 0.5, s, s * 0.7);
 }
 
-const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded };
-const OPEN = { bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack };
+const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk };
+const OPEN = { bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true) };

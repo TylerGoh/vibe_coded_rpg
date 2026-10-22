@@ -23,6 +23,8 @@ Stages 3 and 4 were added because players were Lv 35–88 and out of content.
    it in the location pill. `lob` and `trail` take a `style` for their shot / puddle look, `beam` too.
 7. **The Mycelium Deep** and 8. **Glowroot Hollow** (a hard pocket, the first with its own elites: Old
    Glowworm, Elder Threadweaver): G2, under Mushroom Grove (`docs/places/deep.md`).
+9. **The Old Oak Canopy**: G3, the treetops over Bramble Woods, with the Hornet Queen (a field boss) and
+   wasp nests that burst into wasps (`docs/places/canopy.md`).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 
@@ -30,7 +32,8 @@ Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_
 stomp (field bosses) leaps and lands with a shockwave · ember imp lobs fireballs · magma slug leaves burning puddles · obsidian crab's front shell blocks most of
 a hit from the front, and it lunges · cinder bat dives · cogling splits into two cogbits · sentry drone
 fires a low laser (jump it) · aether knight blinks behind you, then slashes · chrono wraith phases out
-(immune), then pulses. Mobs with `fly` hover with no gravity. The branches' mobs reuse these brains under
+(immune), then pulses. Mobs with `fly` hover with no gravity (and only notice slimes within 70 px of their own height, so keep
+`fly` low on mobs meant to aggro). `anchored` mobs take no knockback (wasp nests). The branches' mobs reuse these brains under
 new names and art (each branch's doc lists which is which).
 
 ## Elites and field bosses (island depth G0, `story/world/island-depth.md`)

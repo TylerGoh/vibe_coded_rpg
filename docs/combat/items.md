@@ -32,6 +32,8 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   `src/willowmere-art.js` / `src/coves-art.js` (`BRANCH_SWORDS`, `BRANCH_HELMETS`, `BRANCH_ICONS` in field.js).
   G2 adds **Forager Truffle** (`SHOPS.truffle`, the Mycelium Deep: also mega elixirs), with the Deep's and
   Glowroot Hollow's gear in `src/deep-art.js` (`DEEP_SWORDS`, `DEEP_SWORD_LEN`, `DEEP_HELMETS`, `DEEP_ICONS`).
+  G3 adds **Ranger Acorn** (`SHOPS.acorn`, the Old Oak Canopy: the Ranger's Billhook and Hat, mega elixirs),
+  with the Canopy's gear in `src/canopy-art.js` (`CANOPY_SWORDS`, `CANOPY_SWORD_LEN`, `CANOPY_HELMETS`, `CANOPY_ICONS`).
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely.
 

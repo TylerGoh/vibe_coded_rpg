@@ -334,7 +334,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     m.hp -= dmg;
     m.target = p;
     m.targetUntil = now() + 8000;
-    if (!MOBS[m.kind].boss && !MOBS[m.kind].field && !MOBS[m.kind].fly && knock) {
+    if (!MOBS[m.kind].boss && !MOBS[m.kind].field && !MOBS[m.kind].fly && !MOBS[m.kind].anchored && knock) { // (anchored: a wasp nest doesn't slide)
       m.vx = dir * knock; // knocked back a little
       if (!MOBS[m.kind].hops || m.vy === 0) m.vy = -180;
     }
