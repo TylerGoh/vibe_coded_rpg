@@ -1,12 +1,12 @@
 // Docs: docs/places/branches.md
 // The blocked ways into Greenhollow's unshipped branches (GATES in src/shared/branches.js), drawn behind the
 // slimes (DRAW: a washed-out bridge, a root-choked stump, a rotten rope ladder, a wall of thorns, Wreck
-// Cave's flooded mouth, a fallen trunk; after G4 only the trunk is still a gate). Each has a little wooden sign naming the place it leads to (red-trimmed for a hard
+// Cave's flooded mouth, a fallen trunk; after G5 none is left on Greenhollow). Each has a little wooden sign naming the place it leads to (red-trimmed for a hard
 // pocket). Shipped branches keep their spot as an open way in (ENTRIES: drawEntries): Willowmere's
 // footbridge, mended with new planks, the shore path to the Coves, its rockfall rolled aside, the hollow
 // stump into the Mycelium Deep, its roots cut back, the glowing crack down into Glowroot Hollow, and the
 // Old Oak Canopy's rope ladder, restrung, Wreck Cave's mouth with the water gone down, and the Thornheart's
-// wall of thorns, cut back into a tunnel. The Canopy has Keeper's Spine's gate: a fallen trunk.
+// wall of thorns, cut back into a tunnel, and the fallen trunk in the Canopy, sawn through to Keeper's Spine.
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';
@@ -517,8 +517,9 @@ function drawLadderMended(ctx, time) {
 
 // Keeper's Spine, at the Old Oak Canopy's far end: a great trunk come down across the high path, rotten and
 // split, mushrooms and moss all along it, too big to climb. Past it, the bare grey ridge shows over the
-// leaves (src/canopy.js draws the ridge in the sky)
-function drawTrunk(ctx, time) {
+// leaves (src/canopy.js draws the ridge in the sky). Open (G5 shipped): a passage sawn clean through it, the
+// cut block rolled aside, steps notched in the far side, and the Spine's light showing through the gap
+function drawTrunk(ctx, time, g, open = false) {
   const bark = ctx.createLinearGradient(0, -150, 0, 0);
   bark.addColorStop(0, '#8a6a52');
   bark.addColorStop(1, '#5e4636');
@@ -571,6 +572,46 @@ function drawTrunk(ctx, time) {
     ctx.ellipse(x, y, 11, 4.5, -0.4, Math.PI, 0);
     ctx.fill();
     ctx.stroke();
+  }
+  if (open) {
+    // the passage sawn through it: pale cut faces, the ridge's bright sky through the gap, sawdust, and the
+    // cut block rolled aside
+    ctx.fillStyle = '#d6e2f0';
+    ctx.strokeStyle = '#3e2c22';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(-10, 2);
+    ctx.lineTo(-30, -96);
+    ctx.lineTo(30, -126);
+    ctx.lineTo(60, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#e0c49a';
+    ctx.fillRect(-12, -92, 8, 92);
+    ctx.fillRect(48, -116, 8, 118);
+    ctx.stroke();
+    ctx.fillStyle = '#a8a4b4'; // a glimpse of grey stone and heather on the far side
+    ctx.beginPath();
+    ctx.moveTo(-4, 2);
+    ctx.quadraticCurveTo(20, -40, 54, -30);
+    ctx.lineTo(54, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#c48ad0';
+    for (let i = 0; i < 5; i++) ellipse(ctx, 2 + i * 11, -6 - (i % 2) * 4, 3, 2.4);
+    ctx.fillStyle = '#4e3a2c'; // steps up
+    for (let i = 0; i < 3; i++) ctx.fillRect(-2 + i * 16, -14 - i * 20, 14, 4);
+    ctx.fillStyle = '#7a5e48';
+    ctx.strokeStyle = '#3e2c22';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(110, -20, 36, 20, 0.15, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#e0c49a';
+    ellipse(ctx, 142, -14, 7, 18, 0.15);
+    ctx.fillStyle = 'rgba(224,196,154,0.8)';
+    for (let i = 0; i < 7; i++) ellipse(ctx, -6 + i * 10, 0, 3, 1.4);
   }
   // a few leaves still drifting down off it
   for (let i = 0; i < 3; i++) {
@@ -834,4 +875,4 @@ function drawFloodedOpen(ctx, time) {
 
 const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk };
 const OPEN = { bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
-  flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true) };
+  flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true) };

@@ -23,12 +23,13 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Saltspray Coves | 25 `COVES` | back to the harbour (east end) · the Tidemother's den · into Wreck Cave (west end) (`docs/places/coves.md`) |
 | The Mycelium Deep | 28 `MYCELIUM` | up to Mushroom Grove (west end) · the Knotmole's den · down to Glowroot Hollow (east end) (`docs/places/deep.md`) |
 | Glowroot Hollow | 29 `GLOWROOT` | back up into the Deep (west end); a hard pocket |
-| The Old Oak Canopy | 31 `CANOPY` | down the rope ladder to Bramble Woods (west end); Keeper's Spine's fallen trunk (a gate) at the east end (`docs/places/canopy.md`) |
+| The Old Oak Canopy | 31 `CANOPY` | down the rope ladder to Bramble Woods (west end); through the cut trunk up to Keeper's Spine (east end) (`docs/places/canopy.md`) |
 | Wreck Cave | 32 `WRECK` | back out to the Coves (east end); a hard pocket (`docs/places/wreck.md`) |
 | The Thornheart | 33 `THORNHEART` | back out to Bramble Woods (west end); a hard pocket (`docs/places/thornheart.md`) |
+| Keeper's Spine | 34 `SPINE` | back down through the trunk to the Canopy (west end) · the Root Warden's den (east end) (`docs/places/spine.md`) |
 | Pet Shop | 27 `PETSHOP` | exit (`docs/places/pets.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
-| Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17, 26, 30 | exit, back to the stage it's in (`DENS[].from`) |
+| Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17, 26, 30, 35 | exit, back to the stage it's in (`DENS[].from`) |
 | Personal houses | `HOUSE_BASE` and up, one per account | out to your town (`docs/places/houses.md`) |
 
 Look rooms up with `roomDef(room)`, not `ROOMS[room]`: houses aren't in `ROOMS`.

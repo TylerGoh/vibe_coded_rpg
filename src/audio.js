@@ -1063,6 +1063,59 @@ const SONGS = {
     },
   },
 
+  // Keeper's Spine: wide open and windswept, A dorian, a slow 4/4 with a long horn-like melody over open
+  // fifths, a wind bed that rises and falls, a far-off bell now and then and a kite's cry
+  spine: {
+    bpm: 88, spb: 8, key: 57, scale: DORIAN, gain: 0.8, send: 0.42, loop: 8,
+    chords: [[1, 5, 8], [7, 11, 14], [4, 8, 11], [1, 5, 8], [6, 10, 13], [4, 8, 11], [7, 11, 14], [1, 5, 8]],
+    mel: melody(
+      '5 - - 6 5 - 3 -', '4 - - - 2 - . .', '3 - 5 - 6 - 8 -', '7 - - - 5 - . .',
+      '8 - - 7 6 - 5 -', '6 - 5 - 4 - . .', '2 - 3 - 4 - 6 -', '5 - - - - - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'bandpass', 700, 0.012, 0.4); // the wind over the ridge
+      p.eng.bed(p, 'lowpass', 250, 0.006);
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) pad(p, ch, t, p.stepDur * 8, 0.012, { a: 0.9, cutoff: 1000, unison: 6 });
+      if (s === 0 || s === 4) e.voice(p.c, t, p.f(ch[s ? 1 : 0], -2), { type: 'triangle', vol: 0.12, tau: 0.5, cutoff: 600 });
+      if (s === 6) e.voice(s % 4 ? p.l : p.r, t, p.f(ch[2], 0), { ...PLUCK, vol: 0.03, tau: 0.3 });
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { type: 'sine', vol: 0.055, a: 0.09, hold: m.len * 0.8, rel: 0.3, vib: 4, vibRate: 4.5, partials: [[2, 0.3], [3, 0.12], [4, 0.05]] }); // the horn
+      if (m && part === 1) e.voice(p.r, t, p.f(m.d, 2), { ...GLOCK, vol: 0.035 });
+      if (s === 0 && bar % 4 === 2 && chance(0.5)) e.voice(p.l, t, p.f(1, 1), { ...GLOCK, vol: 0.02, tau: 1.2 }); // a bell, far off along the road
+      if (s === 3 && bar % 8 === 5 && chance(0.4)) e.voice(p.r, t, 2200, { type: 'sine', vol: 0.012, a: 0.01, hold: 0.25, rel: 0.2, glide: 0.7, glideT: 0.3 }); // a kite's cry
+    },
+  },
+
+  // The Warden's Court: heavy and stubborn, D harmonic minor, stone drums like footfalls, low brass, a bell
+  // tolling at every bar (the gate), and an ostinato that refuses to move on
+  warden: {
+    bpm: 100, spb: 16, key: 50, scale: HARM_MINOR, gain: 0.8, send: 0.26, loop: 8,
+    chords: [[1, 3, 5], [1, 3, 5], [6, 8, 10], [5, 7, 9], [1, 3, 5], [4, 6, 8], [2, 4, 6], [5, 7, 9]],
+    mel: melody(
+      '8 - - - 7 - 8 -', '5 - - - - - . .', '6 - 5 - 6 - 8 -', '7 - - - 5 - . .',
+      '8 - - - 10 - 8 -', '7 - 6 - 5 - 4 -', '3 - 4 - 5 - 6 -', '7 - - - - - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 140, 0.016);
+      p.eng.bed(p, 'bandpass', 900, 0.004, 0.5); // wind across the court
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), hot = e.intensity > 0.5;
+      if (s === 0) pad(p, ch, t, p.stepDur * 16, 0.01, { type: 'sawtooth', a: 0.4, cutoff: 700, unison: 8 });
+      if (s === 0) e.voice(p.c, t, p.f(1, 0), { ...GLOCK, vol: 0.05, tau: 1.6, partials: [[2.76, 0.3], [5.4, 0.12], [0.5, 0.2]] }); // the bell
+      if (s % 4 === 0) e.voice(p.c, t, p.f(s % 8 ? ch[2] : ch[0], -2), { type: 'square', vol: 0.06, tau: 0.08, cutoff: 420 }); // the ostinato
+      if (s === 0 || s === 6 || (hot && (s === 8 || s === 12))) e.kick(p.c, t, 0.24, 90, 36, 0.14); // stone footfalls
+      if (s === 4 || s === 12) clank(p, t, 0.04, s === 4 ? p.l : p.r);
+      if (hot && s % 2 === 1) hat(p, t, 0.01);
+      if (s === 8 || (hot && s === 0)) for (const d of ch) e.voice(p.c, t, p.f(d, -1), { type: 'sawtooth', vol: 0.018, a: 0.03, hold: 0.3, rel: 0.25, cutoff: 1100, unison: 6 }); // low brass
+      const m = p.mel(bar, s);
+      if (m && pass % 4 !== 3) e.voice(p.c, t, p.f(m.d), { type: 'sawtooth', vol: 0.035, a: 0.04, hold: Math.max(0.05, m.len * 0.8), rel: 0.15, cutoff: 1500, unison: 5 });
+    },
+  },
+
   // The Knotted Burrow: a stubborn 6/8 in C minor, low plucked strings, the thump of digging paws, and a
   // tangle of a melody that keeps looping back on itself
   knotmole: {
@@ -2313,7 +2366,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -2422,8 +2475,10 @@ Object.assign(MOB_HURT, { dragonfly: MOB_HURT.cinder_bat, gloop_snail: MOB_HURT.
   glowworm: MOB_HURT.magma_slug, glow_moth: MOB_HURT.wisp, thread_weaver: MOB_HURT.sentry, knotmole: MOB_HURT.ignis,
   oak_squirrel: MOB_HURT.mushling, tent_caterpillar: MOB_HURT.magma_slug, flying_squirrel: MOB_HURT.aether_knight, tawny_owl: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, wasp_nest: MOB_HURT.mushling, wasp: MOB_HURT.cogbit, hornet: MOB_HURT.cinder_bat, hornet_queen: MOB_HURT.cinder_bat,
   barnacle_crab: MOB_HURT.obsidian_crab, drowned_lamp: MOB_HURT.wisp, moray_eel: MOB_HURT.magma_slug, bilge_rat: MOB_HURT.aether_knight, drowned_bosun: MOB_HURT.golem,
-  thornback: MOB_HURT.bramble ?? MOB_HURT.obsidian_crab, thistle_puff: MOB_HURT.mushling, thistledown: MOB_HURT.cogbit, pitcher_plant: MOB_HURT.mushling, thorn_stalker: MOB_HURT.aether_knight, thorn_hart: MOB_HURT.golem });
+  thornback: MOB_HURT.bramble ?? MOB_HURT.obsidian_crab, thistle_puff: MOB_HURT.mushling, thistledown: MOB_HURT.cogbit, pitcher_plant: MOB_HURT.mushling, thorn_stalker: MOB_HURT.aether_knight, thorn_hart: MOB_HURT.golem,
+  moss_turtle: MOB_HURT.obsidian_crab, crag_kite: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, stone_sentinel: MOB_HURT.golem, gale_sprite: MOB_HURT.wisp, rootling: MOB_HURT.aether_knight, root_warden: MOB_HURT.colossus ?? MOB_HURT.golem });
 Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEATH.magma_slug, rock_crab: MOB_DEATH.obsidian_crab, snapshrimp: MOB_DEATH.obsidian_crab,
   puffcap: MOB_DEATH.mushling, cave_bat: MOB_DEATH.cinder_bat, puffball: MOB_DEATH.mushling, root_beetle: MOB_DEATH.obsidian_crab, glowworm: MOB_DEATH.magma_slug, glow_moth: MOB_DEATH.wisp,
   oak_squirrel: MOB_DEATH.mushling, tent_caterpillar: MOB_DEATH.magma_slug, tawny_owl: MOB_DEATH.cinder_bat, wasp_nest: MOB_DEATH.mushling, hornet: MOB_DEATH.cinder_bat,
-  barnacle_crab: MOB_DEATH.obsidian_crab, drowned_lamp: MOB_DEATH.wisp, moray_eel: MOB_DEATH.magma_slug, thornback: MOB_DEATH.bramble ?? MOB_DEATH.obsidian_crab, thistle_puff: MOB_DEATH.mushling, pitcher_plant: MOB_DEATH.mushling });
+  barnacle_crab: MOB_DEATH.obsidian_crab, drowned_lamp: MOB_DEATH.wisp, moray_eel: MOB_DEATH.magma_slug, thornback: MOB_DEATH.bramble ?? MOB_DEATH.obsidian_crab, thistle_puff: MOB_DEATH.mushling, pitcher_plant: MOB_DEATH.mushling,
+  moss_turtle: MOB_DEATH.obsidian_crab, crag_kite: MOB_DEATH.cinder_bat, stone_sentinel: MOB_DEATH.golem, gale_sprite: MOB_DEATH.wisp, root_warden: MOB_DEATH.colossus });

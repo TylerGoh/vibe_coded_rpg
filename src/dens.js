@@ -9,11 +9,12 @@ import { DEN_ART as CALDERA_DENS, ENTRANCE_ART as CALDERA_ENTRANCES, BOSS_ART as
 import { DEN_ART as CITADEL_DENS, ENTRANCE_ART as CITADEL_ENTRANCES, BOSS_ART as CITADEL_BOSSES, FX2 as CITADEL_FX } from './dens-citadel.js';
 import { DEN_ART as COVES_DENS, ENTRANCE_ART as COVES_ENTRANCES, BOSS_ART as COVES_BOSSES } from './dens-coves.js';
 import { DEN_ART as DEEP_DENS, ENTRANCE_ART as DEEP_ENTRANCES, BOSS_ART as DEEP_BOSSES } from './dens-deep.js';
+import { DEN_ART as SPINE_DENS, ENTRANCE_ART as SPINE_ENTRANCES, BOSS_ART as SPINE_BOSSES, wardenRoot } from './dens-spine.js';
 import { glow as radialGlow } from './glow.js';
 // the third and fourth stages' dens, bosses and boss effects live in their own files (same contracts as here)
-const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS };
-const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES };
-const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES };
+const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS };
+const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES, ...SPINE_ENTRANCES };
+const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES };
 const FX2 = { ...CALDERA_FX, ...CITADEL_FX };
 
 const GROUND = FIELD_GROUND; // den floors sit at the same height as the field
@@ -2339,8 +2340,9 @@ const FXPAL = {
   chrono: { debris: ['#c9b6ff', '#ffd66a', '#8ae0e8', '#ffffff'], dust: '170,160,230', crack: '#2a1a50', warn: '255,100,120', jelly: ['#a88cf0', '#ffd66a', '#8ae0e8', '#e0d4ff'] },
   tide: { debris: ['#fff1e0', '#ffd6c9', '#9fe0d8', '#8fd0ff'], dust: '210,235,240', crack: '#2a5e66', warn: '255,96,110', jelly: ['#9fe0d8', '#ffd6c9', '#8fd0ff', '#fff1e0'] },
   knot: { debris: ['#6a5048', '#8a6a5a', '#aaf0d8', '#5a4440'], dust: '160,130,130', crack: '#2a1e2c', warn: '255,96,110', jelly: ['#aaf0d8', '#c9a6e6', '#ffb0c0', '#efe4d0'] },
+  warden: { debris: ['#a8a4b4', '#8a8698', '#ffcf7a', '#7aa05e'], dust: '200,196,210', crack: '#4e4a5e', warn: '255,96,110', jelly: ['#ffcf7a', '#a8a4b4', '#9ac478', '#f4ecdc'] },
 };
-const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225' };
+const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120' };
 const DUR = {
   slamWarn: 1, shockwave: 0.55, chargeWarn: 0.8, rainWarn: 1, rainHit: 0.45, summon: 0.9, roar: 0.8, bossDie: 1.6,
   leap: 1.1, phase: 1.5,
@@ -2485,6 +2487,22 @@ function drawBit(ctx, theme, x, y, rot, s, c) {
       ctx.beginPath();
       ctx.moveTo(-5, 2);
       ctx.quadraticCurveTo(0, -7, 5, 2);
+      ctx.closePath();
+      ctx.fill();
+    }
+  } else if (theme === 'warden') {
+    // a chip of grey Keeper stone, or a spark of the Warden's amber light
+    if (c === '#ffcf7a') {
+      glow(ctx, 0, 0, 9, 9, '255,205,120', 0.6);
+      ctx.fillStyle = c;
+      circle(ctx, 0, 0, 2.6);
+    } else {
+      ctx.fillStyle = c;
+      ctx.beginPath();
+      ctx.moveTo(-5, 2);
+      ctx.lineTo(-2, -4);
+      ctx.lineTo(4, -3);
+      ctx.lineTo(5, 3);
       ctx.closePath();
       ctx.fill();
     }
@@ -2767,6 +2785,29 @@ function drawFallObj(ctx, theme, x, y, s, rot, time) {
       ctx.fillStyle = 'rgba(0,0,0,0.25)';
       for (const [bx, by] of [[-3, -3], [3, -3], [-3, 3], [3, 3]]) circle(ctx, bx, by, 1.6);
     }
+  } else if (theme === 'warden') {
+    // a block of carved Keeper stone shaken off the ruined walls, moss on top, a gear cut in its face
+    ctx.fillStyle = '#a8a4b4';
+    ctx.strokeStyle = '#4e4a5e';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(-14, -11, 28, 22, 4);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#c4c0d0';
+    ctx.fillRect(-11, -8, 7, 16);
+    ctx.fillStyle = '#7aa05e';
+    ellipse(ctx, 2, -11, 11, 4);
+    ctx.strokeStyle = 'rgba(78,74,94,0.8)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.arc(4, 2, 5, 0, TAU);
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * TAU;
+      ctx.moveTo(4 + Math.cos(a) * 5, 2 + Math.sin(a) * 5);
+      ctx.lineTo(4 + Math.cos(a) * 7, 2 + Math.sin(a) * 7);
+    }
+    ctx.stroke();
   } else if (theme === 'knot') {
     // a clod of earth shaken loose from the roof, a root and a glowing thread trailing from it
     ctx.fillStyle = '#6a5048';
@@ -2902,7 +2943,7 @@ function fxSummon(ctx, e, k) {
   const open = Math.sin(Math.PI * Math.min(1, k * 1.15));
   const rx = 40 * open, ry = 12 * open;
   glow(ctx, x, y - 20, 60 * open + 1, 50 * open + 1, rgb, 0.6);
-  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30', tide: '#1e4a58', knot: '#2a1e2c' }[theme] ?? '#1c1020';
+  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30', tide: '#1e4a58', knot: '#2a1e2c', warden: '#4e4a5e' }[theme] ?? '#1c1020';
   ellipse(ctx, x, y + 2, rx + 0.1, ry + 0.1);
   ctx.strokeStyle = `rgba(${rgb},0.9)`;
   ctx.lineWidth = 3;
@@ -2929,7 +2970,7 @@ function fxSummon(ctx, e, k) {
 
 function fxRoar(ctx, e, k) {
   const { x, y, theme } = e;
-  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255', tide: '140,220,240', knot: '170,250,225' }[theme] ?? '255,140,80';
+  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255', tide: '140,220,240', knot: '170,250,225', warden: '255,200,110' }[theme] ?? '255,140,80';
   for (let i = 0; i < 3; i++) {
     const j = clamp(k * 1.4 - i * 0.18, 0, 1);
     if (j <= 0 || j >= 1) continue;
@@ -4101,7 +4142,7 @@ function initUltFx(e, r) {
   } else if (k === 'waveGo' || k === 'waveWarn') {
     e.spikes = Array.from({ length: 14 }, () => ({ o: r(), h: 0.6 + r() * 0.4, lean: (r() - 0.5) * 0.6 }));
   } else if (k === 'lanesHit') {
-    e.parts = debris(r, 'frost', 40, 40, 260, 120, 360).map((p) => ({ ...p, lane: Math.floor(r() * 5), ox: r() }));
+    e.parts = debris(r, e.theme === 'warden' ? 'warden' : 'frost', 40, 40, 260, 120, 360).map((p) => ({ ...p, lane: Math.floor(r() * 5), ox: r() }));
   } else if (k === 'novaWarn' || k === 'novaHit') {
     e.motes = Array.from({ length: 40 }, () => ({ a: r() * TAU, d: 0.5 + r() * 0.5, p: r() }));
   }
@@ -4535,9 +4576,11 @@ function fxLanesWarn(ctx, e, k) {
     g.addColorStop(1, `rgba(255,70,100,${(0.25 + 0.3 * k) * (0.7 + 0.3 * pulse)})`);
     ctx.fillStyle = g;
     ctx.fillRect(a, 30, w, y - 30);
-    // giant icicles forming overhead
+    // giant icicles forming overhead (the Root Warden's Hold Fast: roots pushing up out of the floor)
     const n = 3, len = 30 + 120 * ease(k);
-    for (let j = 0; j < n; j++) {
+    if (e.theme === 'warden') {
+      for (let j = 0; j < n; j++) wardenRoot(ctx, a + w * ((j + 0.5) / n), y, 12 + 26 * ease(k), j + i * 3, e.t);
+    } else for (let j = 0; j < n; j++) {
       const ix = a + w * ((j + 0.5) / n), iw = Math.min(46, w / n - 8), L2 = len * (j === 1 ? 1 : 0.8);
       ctx.fillStyle = 'rgba(228,246,255,0.95)';
       ctx.strokeStyle = '#6aa0d0';
@@ -4583,6 +4626,12 @@ function fxLanesHit(ctx, e, k) {
     const w = b - a;
     for (let j = 0; j < 3; j++) {
       const ix = a + w * ((j + 0.5) / 3), iw = Math.min(46, w / 3 - 8), L2 = 150 * (j === 1 ? 1 : 0.8);
+      if (e.theme === 'warden') {
+        // roots burst up the whole height of the lane, then sink back
+        const up = k < fall ? ease(k / fall) : 1 - (k - fall) / (1 - fall);
+        wardenRoot(ctx, ix, y, (L2 + 120) * up, j + i * 3, e.t);
+        continue;
+      }
       if (k < fall) {
         const f = k / fall, tip = 24 + L2 + (y - 24 - L2) * f * f;
         ctx.fillStyle = 'rgba(228,246,255,0.95)';
@@ -4611,7 +4660,7 @@ function fxLanesHit(ctx, e, k) {
     }
     if (k >= fall) {
       const j2 = (k - fall) / (1 - fall);
-      ctx.fillStyle = `rgba(200,235,255,${0.55 * (1 - j2)})`;
+      ctx.fillStyle = e.theme === 'warden' ? `rgba(255,220,150,${0.4 * (1 - j2)})` : `rgba(200,235,255,${0.55 * (1 - j2)})`;
       ctx.fillRect(a, 20, w, y - 20);
     }
   });
@@ -4621,7 +4670,7 @@ function fxLanesHit(ctx, e, k) {
       if (p.lane === e.safe || !e.lanes[p.lane]) continue;
       const [a, b] = e.lanes[p.lane];
       ctx.globalAlpha = 1 - (k - fall) / (1 - fall);
-      drawBit(ctx, 'frost', a + p.ox * (b - a) + p.vx * tt, Math.min(y, y - 6 + p.vy * tt + 0.5 * GRAV * tt * tt), p.rot + p.vr * tt, p.s * 1.4, p.c);
+      drawBit(ctx, e.theme === 'warden' ? 'warden' : 'frost', a + p.ox * (b - a) + p.vx * tt, Math.min(y, y - 6 + p.vy * tt + 0.5 * GRAV * tt * tt), p.rot + p.vr * tt, p.s * 1.4, p.c);
     }
     ctx.globalAlpha = 1;
   }

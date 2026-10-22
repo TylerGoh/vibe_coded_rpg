@@ -31,7 +31,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 3000;
+export const PETSHOP_W = 3200;
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -275,6 +275,34 @@ export const THORN_PLATFORMS = [
   { x: 3640, y: 255, w: 180, kind: 'briar' },
   { x: 1895, y: 160, w: 100, kind: 'rose' }, // the White Rose, a briar arch high over the Maze: easy to miss
 ];
+// ——— island depth G5 (docs/places/spine.md) ———
+// Keeper's Spine (room 34): the bare stone ridge along the top of Greenhollow, above the Old Oak Canopy, over
+// the fallen trunk (cut through now). Wind, heather and the biggest Keeper ruins on the island. You come in
+// at the WEST end (SPINE_EXIT_X, the cut trunk) and go east along the Keepers' road, higher and harder: the
+// Windgap (no mobs: a waystone, the Road Stone), the Heather Slopes, the Standing Stones and the Warden's
+// Crest, where the road ends at a sealed gate and the Root Warden's court (WARDEN_DEN_X). The Watch Seat, a
+// capstone on the tallest trilithon over the Standing Stones (last in SPINE_PLATFORMS), is the hidden spot.
+export const SPINE = 34; // room id
+export const SPINE_W = 5400;
+export const SPINE_EXIT_X = 70; // back through the cut trunk to the Old Oak Canopy
+export const WARDEN_DEN_X = 5000; // the Root Warden's court, through the ruined gatehouse at the road's end
+export const SPINE_ZONES = [
+  { name: 'The Windgap', x0: 0, x1: 900, lvl: null }, // (no mobs)
+  { name: 'The Heather Slopes', x0: 900, x1: 2400, lvl: '45–50' },
+  { name: 'The Standing Stones', x0: 2400, x1: 3900, lvl: '50–55' },
+  { name: "The Warden's Crest", x0: 3900, x1: SPINE_W, lvl: '55–60' },
+];
+export const SPINE_PLATFORMS = [
+  { x: 1100, y: 340, w: 210, kind: 'ledge' },
+  { x: 1480, y: 255, w: 200, kind: 'ledge' },
+  { x: 1880, y: 340, w: 220, kind: 'ledge' },
+  { x: 2560, y: 340, w: 230, kind: 'lintel' },
+  { x: 2940, y: 255, w: 230, kind: 'lintel' },
+  { x: 3360, y: 340, w: 230, kind: 'lintel' },
+  { x: 4100, y: 340, w: 220, kind: 'wall' },
+  { x: 4460, y: 255, w: 210, kind: 'wall' },
+  { x: 3000, y: 160, w: 110, kind: 'seat' }, // the Watch Seat, on the tallest trilithon's capstone: easy to miss
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -290,6 +318,7 @@ export const STAGES = {
   [CANOPY]: { name: 'The Old Oak Canopy', zones: CANOPY_ZONES, band: '25–40', pill: 'Old Oak Canopy' },
   [WRECK]: { name: 'Wreck Cave', zones: WRECK_ZONES, band: '30–40', hard: true },
   [THORNHEART]: { name: 'The Thornheart', zones: THORN_ZONES, band: '50–60', hard: true, pill: 'Thornheart' },
+  [SPINE]: { name: "Keeper's Spine", zones: SPINE_ZONES, band: '45–60' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -744,6 +773,55 @@ MOBS.thorn_hart = {
   desc: 'The Thorn Hart is walking the Thornheart!',
   drops: [['coin', 1, 4400, 6400], ['antler_velvet', 1, 4, 8], ['stalker_barb', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['briarheart_blade', 0.25, 1, 1], ['antler_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
+// ——— Greenhollow's branches, G5: Keeper's Spine (art: src/spine-art.js, src/dens-spine.js; docs/places/spine.md).
+// On the frozen curve like the others ———
+// Moss turtles have a mossy shell in front (hit them from behind), crag kites dive out of the wind, stone
+// sentinels (Keeper-made, still on watch) throw a beam of amber light along the road, gale sprites fade into
+// the wind and gust out again, rootlings burst out of the ground behind you
+MOBS.moss_turtle = {
+  name: 'Moss Turtle', lvl: 46, hp: 4500, atk: 128, exp: 1446, speed: 30, w: 70, h: 44, aggro: false, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.4, warn: 0.6, lunge: 460, time: 0.32 },
+  drops: [['coin', 1, 200, 320], ['turtle_moss', 0.5, 1, 2], ['mega_elixir', 0.08, 1, 1], ['mossback_helm', 0.004, 1, 1]],
+};
+MOBS.crag_kite = {
+  name: 'Crag Kite', lvl: 48, hp: 4200, atk: 135, exp: 1564, speed: 110, w: 54, h: 34, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.4, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 210, 340], ['kite_feather', 0.5, 1, 2], ['mega_elixir', 0.08, 1, 1]],
+};
+MOBS.stone_sentinel = {
+  name: 'Stone Sentinel', lvl: 52, hp: 4900, atk: 148, exp: 1822, speed: 28, w: 56, h: 72, aggro: true, hops: false,
+  ai: { kind: 'beam', range: 560, every: 4.2, warn: 1, dur: 0.45, y0: 420, y1: 450, style: 'warden' },
+  drops: [['coin', 1, 282, 447], ['rune_chip', 0.5, 1, 2], ['mega_elixir', 0.08, 1, 1], ['sentinel_blade', 0.003, 1, 1]],
+};
+MOBS.gale_sprite = {
+  name: 'Gale Sprite', lvl: 55, hp: 4900, atk: 158, exp: 2036, speed: 80, w: 46, h: 46, aggro: true, hops: false, fly: 46,
+  ai: { kind: 'phase', every: 6.5, dur: 2, r: 175 },
+  drops: [['coin', 1, 300, 480], ['bottled_gale', 0.5, 1, 2], ['mega_elixir', 0.09, 1, 1]],
+};
+MOBS.rootling = {
+  name: 'Rootling', lvl: 58, hp: 5400, atk: 168, exp: 2263, speed: 70, w: 44, h: 52, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.6, warn: 0.4, slashWarn: 0.5, r: 115 },
+  drops: [['coin', 1, 320, 500], ['rootling_twig', 0.5, 1, 2], ['mega_elixir', 0.1, 1, 1]],
+};
+// The Root Warden (its court is at the Spine's east end): Greenhollow's capstone boss, with a story
+// (story/characters/bosses.md). A Keeper guardian of stone the roots grew through, still holding the gate
+// at the end of the Keepers' road long after anyone could relieve it. Its ultimate, Hold Fast, is the
+// `lanes` ult as roots: they burst up through every stretch of floor but one.
+// party: the party mechanics it's built for (story/progression.md, S5), named here so S5 can switch them
+// on; nothing reads it yet. focus: its slams lock onto one slime · pulse: the shard's light every few
+// seconds · barrier: a rune shield that turns blades · weakpoint: the shard, high on its back · adds: rootlings
+MOBS.root_warden = {
+  name: 'The Root Warden', boss: true, lvl: 60, hp: 440000, atk: 200, exp: 115000, speed: 65, w: 200, h: 230, aggro: true, hops: false,
+  phases: [['slam', 'beam', 'charge'], ['slam', 'beam', 'grid', 'summon', 'echo'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap']],
+  ult: { name: 'Hold Fast', kind: 'lanes' }, minion: 'rootling', looks: { beam: 'warden', grid: 'root' }, // (how its beam and grid are drawn: src/hazards.js)
+  party: ['focus', 'pulse', 'barrier', 'weakpoint', 'adds'],
+  lines: {
+    enter: ['HALT. The road is shut. No one passes until the Keepers come back.', 'Another one. They all come up the road sooner or later. None of them are Keepers.'],
+    phase: [null, 'The roots have me by every joint. Good. Roots do not let go. Neither do I.', 'Hold. Hold the gate. Hold. I have forgotten every word but that one.'],
+    freed: "...They are not coming back, are they. Then I am relieved. Let the roots have me. The gate stays shut, little ones. But the road is yours.",
+  },
+  drops: [['royal_sap', 1, 2, 3], ['warden_blade', 1, 1, 1], ['warden_helm', 0.6, 1, 1], ['coin', 1, 9500, 14500], ['mega_elixir', 1, 4, 6], ['rune_chip', 1, 8, 12], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
 
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
@@ -777,6 +855,7 @@ const onGPlat = onRoomPlat(GLOWROOT_PLATFORMS, GLOWROOT);
 const onOPlat = onRoomPlat(CANOPY_PLATFORMS, CANOPY);
 const onKPlat = onRoomPlat(WRECK_PLATFORMS, WRECK);
 const onBPlat = onRoomPlat(THORN_PLATFORMS, THORNHEART);
+const onPPlat = onRoomPlat(SPINE_PLATFORMS, SPINE);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -934,6 +1013,22 @@ export const SPAWNS = [
   ...strip('thornback_elite', 900, 2100, FIELD_GROUND, 1, THORNHEART),
   ...strip('stalker_elite', 3000, 3900, FIELD_GROUND, 1, THORNHEART),
   { kind: 'thorn_hart', x0: 2450, x1: 3850, y: FIELD_GROUND, room: THORNHEART },
+  // Keeper's Spine (the Windgap, x < 900, has none; sentinels stay on the road: their beam runs along it;
+  // nothing near the Root Warden's gatehouse at WARDEN_DEN_X)
+  ...strip('moss_turtle', 1000, 1750, FIELD_GROUND, 4, SPINE),
+  ...onPPlat('moss_turtle', 0, 1),
+  ...strip('crag_kite', 1650, 2350, FIELD_GROUND, 3, SPINE),
+  ...onPPlat('crag_kite', 1, 1),
+  ...onPPlat('crag_kite', 2, 1),
+  ...strip('stone_sentinel', 2500, 3250, FIELD_GROUND, 3, SPINE),
+  ...strip('gale_sprite', 3100, 3850, FIELD_GROUND, 3, SPINE),
+  ...onPPlat('gale_sprite', 3, 1),
+  ...onPPlat('gale_sprite', 4, 1),
+  ...onPPlat('stone_sentinel', 5, 1),
+  ...strip('rootling', 4000, 4800, FIELD_GROUND, 4, SPINE),
+  ...strip('stone_sentinel', 4000, 4700, FIELD_GROUND, 1, SPINE),
+  ...onPPlat('rootling', 6, 1),
+  ...onPPlat('rootling', 7, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -955,6 +1050,7 @@ export const DENS = [
   { room: 17, boss: 'chronos', name: 'The Hour Sanctum', from: CITADEL, entranceX: 4620, theme: 'chrono' },
   { room: 26, boss: 'tidemother', name: "The Tidemother's Hoard", from: COVES, entranceX: TIDE_DEN_X, theme: 'tide' }, // (art: src/dens-coves.js)
   { room: 30, boss: 'knotmole', name: 'The Knotted Burrow', from: MYCELIUM, entranceX: KNOT_DEN_X, theme: 'knot' }, // (art: src/dens-deep.js)
+  { room: 35, boss: 'root_warden', name: "The Warden's Court", from: SPINE, entranceX: WARDEN_DEN_X, theme: 'warden' }, // (art: src/dens-spine.js)
 ];
 export const DEN_EXIT_X = 80;
 export const DEN_PLATFORMS = [
@@ -1098,6 +1194,16 @@ export const ITEMS = {
   stalker_claw: { name: "Stalker's Claw", price: 145000, lvl: 57, kind: 'sword', atk: 107, reach: 52, desc: 'A curved black blade like a great thorn. It strikes from where you aren\'t looking.' },
   briarheart_blade: { name: 'Briarheart Blade', price: 156000, lvl: 59, kind: 'sword', atk: 110, reach: 56, desc: 'A sword of living briar wood, grown, not forged. A white rose buds on the guard and never opens.' },
   antler_crown: { name: 'Hart\'s Antler Crown', price: 120000, lvl: 59, kind: 'helmet', def: 49, desc: 'A crown of shed briar antlers, soft with green velvet, white roses at the tips.' },
+  // ——— G5: Keeper's Spine (art: src/spine-art.js). No trader: drops only ———
+  turtle_moss: { name: 'Turtle Moss', price: 400, kind: 'loot', desc: "A springy green tuft off a moss turtle's shell. There's a tiny snail living in it." },
+  kite_feather: { name: 'Kite Feather', price: 420, kind: 'loot', desc: 'A long barred flight feather. Hold it up and it tugs toward the wind.' },
+  rune_chip: { name: 'Rune Chip', price: 450, kind: 'loot', desc: 'A chip of grey Keeper stone with half a gear tooth carved on it. Still faintly warm.' },
+  bottled_gale: { name: 'Bottled Gale', price: 470, kind: 'loot', desc: 'A corked bottle with a gust of the ridge wind inside. It hums when you shake it.' },
+  rootling_twig: { name: 'Rootling Twig', price: 490, kind: 'loot', desc: "A knobbly root-finger that wriggles for a while after a rootling's gone. Then it doesn't." },
+  mossback_helm: { name: 'Mossback Helm', price: 76000, lvl: 47, kind: 'helmet', def: 41, desc: "An old turtle shell gone green with moss, worn as a helmet. Very calm. Very slow to take off." },
+  sentinel_blade: { name: 'Sentinel Blade', price: 126000, lvl: 53, kind: 'sword', atk: 102, reach: 52, desc: 'A long grey blade of Keeper stone, a gear carved at the hilt. It was made to stand guard, and it still does.' },
+  warden_blade: { name: "Warden's Greatblade", price: 175000, lvl: 62, slots: 9, kind: 'sword', atk: 114, reach: 58, desc: "The Root Warden's stone blade, roots grown all the way through it. It held a gate for longer than anyone remembers." },
+  warden_helm: { name: 'Wardenstone Helm', price: 134000, lvl: 62, slots: 9, kind: 'helmet', def: 51, desc: "A Keeper guardian's stone helm with a crown of living roots. Wear it and you stand up very straight." },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
   // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen
@@ -1158,6 +1264,8 @@ export const ITEMS = {
   oak_staff: { name: 'Oakbranch Staff', price: 16000, lvl: 30, aim: 32, kind: 'staff', magic: 70, mp: 42, reach: 44, twin: 'ranger_billhook', desc: 'A living oak branch, still in leaf, with an acorn at the tip. Ranger Acorn cut it herself.' },
   honey_staff: { name: 'Honeycomb Sceptre', price: 56000, lvl: 39, kind: 'staff', magic: 82, mp: 49, reach: 50, twin: 'queen_stinger', desc: 'The Hornet Queen\'s sceptre: a ball of golden comb on a black and amber rod. It drips.' },
   bosun_staff: { name: 'Bosun\'s Lantern Pole', price: 74000, lvl: 41, kind: 'staff', magic: 85, mp: 51, reach: 52, twin: 'bosun_hook', desc: 'The Bosun\'s ship lantern on an oak pole, still lit with a cold green flame after all these years.' },
+  sentinel_staff: { name: 'Sentinel Staff', price: 126000, lvl: 53, kind: 'staff', magic: 102, mp: 61, reach: 54, twin: 'sentinel_blade', desc: "A Keeper sentinel's grey stone rod, its amber eye-stone set in the head. It looks where you're looking." },
+  warden_staff: { name: "Warden's Rootstaff", price: 175000, lvl: 62, slots: 9, kind: 'staff', magic: 114, mp: 68, reach: 58, twin: 'warden_blade', desc: 'A Keeper staff of grey stone wound with roots, the Warden\'s amber light in its crook. It has been waiting a long time.' },
   hart_staff: { name: 'Hart\'s Antler Staff', price: 156000, lvl: 59, kind: 'staff', magic: 110, mp: 66, reach: 56, twin: 'briarheart_blade', desc: 'A shed antler of the Thorn Hart on a briar shaft. A white rose buds between the tines and never opens.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Weapon Scroll 100%', price: 300, kind: 'scroll', slot: 'weapon', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a weapon (a staff gets them the other way round).' },

@@ -951,13 +951,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       const band = (lo) => (lo ? [410, 450] : [290, 398]);
       const beams = [{ y: band(low), delay: 0 }];
       if (stage >= 1) beams.push({ y: band(!low), delay: 1.4 });
-      for (const b of beams) bossEvent(m, 'beam', { style: 'colossus', bx: Math.round(m.x), dir, y0: b.y[0], y1: b.y[1], len: DEN_W, warn: 1 + b.delay, dur: 0.5 });
+      for (const b of beams) bossEvent(m, 'beam', { style: k.looks?.beam ?? 'colossus', bx: Math.round(m.x), dir, y0: b.y[0], y1: b.y[1], len: DEN_W, warn: 1 + b.delay, dur: 0.5 });
       m.timer = 1.6 + (stage >= 1 ? 1.4 : 0);
     } else if (a === 'grid') {
       // electrified floor tiles: one checkerboard, then the other (jump, or stand on a ledge)
       const odd = Math.random() < 0.5;
-      bossEvent(m, 'grid', { style: m.kind === 'chronos' ? 'chrono' : 'volt', tiles: tiles((i) => i % 2 === (odd ? 1 : 0)), warn: 1.1, dur: 0.45, tall: false });
-      bossEvent(m, 'grid', { style: m.kind === 'chronos' ? 'chrono' : 'volt', tiles: tiles((i) => i % 2 === (odd ? 0 : 1)), warn: 2.1, dur: 0.45, tall: false });
+      const style = k.looks?.grid ?? (m.kind === 'chronos' ? 'chrono' : 'volt');
+      bossEvent(m, 'grid', { style, tiles: tiles((i) => i % 2 === (odd ? 1 : 0)), warn: 1.1, dur: 0.45, tall: false });
+      bossEvent(m, 'grid', { style, tiles: tiles((i) => i % 2 === (odd ? 0 : 1)), warn: 2.1, dur: 0.45, tall: false });
       m.timer = 2.4;
     } else if (a === 'sweep') {
       // a TALL beam / void wall across the whole den: too tall to jump. Dash through it (i-frames) or Blink past.

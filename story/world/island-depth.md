@@ -266,8 +266,10 @@ systems first, then fills the band from the bottom up.
       Bosun (shipped 2026-10-22; `docs/places/wreck.md`, `docs/places/thornheart.md`). Added: the Thorn Hart
       (a second field boss), the Brave Pippin's log and the Hedge Stone. Not done: a room hazard for the
       pockets (`docs/ideas.md`, "G4 left for later").
-- [ ] **G5: Keeper's Spine** (45–60) and the Root Warden. Then go through the "deep" checklist above;
-      when it holds, Greenhollow is done.
+- [x] **G5: Keeper's Spine** (45–60) and the Root Warden (shipped 2026-10-23; `docs/places/spine.md`). Its
+      find is the Road Stone (the high road, the Warden holding the gate, a root running west toward the
+      village) and the Watch Seat; no character lives there. Greenhollow is done: every branch on the map is
+      open, from Lv 1 to 60. Not done: `docs/ideas.md` ("G5 left for later").
 - [ ] **R: the rebalance** (section above): the later islands' legacy mobs and bosses go up to their
       new bands, their gear gets scaled new copies, and what players own is marked Legacy. Then
       Frostpeak's pass starts.

@@ -13,9 +13,12 @@ Wildwood: Sprout King, Mother Mushroom, Bramble Behemoth · Highlands: Frost Que
 Caldera: Ignis the Magma Tyrant, Pyra the Ember Phoenix · Citadel: The Clockwork Colossus, Chronos.
 
 Tenth den: **The Tidemother's Hoard** (room 26, Saltspray Coves, art `src/dens-coves.js`). Eleventh:
-**The Knotted Burrow** (room 30, the Mycelium Deep, art `src/dens-deep.js`; `docs/places/deep.md`). Big
-bosses can have `lines` (enter / phase / freed) that they say in a bubble and the chat: only those two
-have them so far. A new den's art lives in its own file with `DEN_ART` / `ENTRANCE_ART` / `BOSS_ART`
+**The Knotted Burrow** (room 30, the Mycelium Deep, art `src/dens-deep.js`; `docs/places/deep.md`).
+Twelfth: **The Warden's Court** (room 35, Keeper's Spine, art `src/dens-spine.js`; `docs/places/spine.md`),
+the Root Warden, Greenhollow's capstone. Big bosses can have `lines` (enter / phase / freed) that they say
+in a bubble and the chat: only those three have them so far. `looks` on a boss picks how the shared beam
+and grid moves are drawn (the Warden's Keeper amber and roots), and `party` names the party mechanics a
+boss is built for, for S5 to switch on (only the Warden has it; nothing reads it yet). A new den's art lives in its own file with `DEN_ART` / `ENTRANCE_ART` / `BOSS_ART`
 (merged in `dens.js`), plus its theme's row in the shared effect tables (`FXPAL`, `THEME_RGB`, the theme
 branches of `drawBit` and `drawFallObj`).
 

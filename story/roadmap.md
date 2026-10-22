@@ -48,8 +48,10 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
 - [x] G4 (2026-10-22): the hard pockets, Wreck Cave (Lv 30–40, the Drowned Bosun, the Brave Pippin's log)
       and the Thornheart (Lv 50–60, the Thorn Hart, the Hedge Stone), with elites in both. Left over:
       `docs/ideas.md` ("G4 left for later")
-- [ ] G5: Keeper's Spine (45–60) and the Root Warden, the last of Greenhollow's branches. Start from the
-      checklist in `docs/places/branches.md`
+- [x] G5 (2026-10-23): Keeper's Spine (45–60), the last of Greenhollow's branches, through the cut trunk:
+      the Road Stone, the Watch Seat, a waystone, moss turtles, crag kites, stone sentinels, gale sprites,
+      rootlings, and the Root Warden, the capstone (with lines, built for S5's party mechanics). Greenhollow
+      is done. Left over: `docs/ideas.md` ("G5 left for later")
 - [ ] R: the rebalance: the later islands' legacy mobs and bosses raised to their new bands; owned gear
       kept as Legacy, scaled new copies dropped instead
 - [ ] Frostpeak's depth pass (40-100)

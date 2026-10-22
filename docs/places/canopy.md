@@ -16,10 +16,9 @@ the Canopy's WEST end (`CANOPY_EXIT_X`, the ladder back down) and go east, highe
   Lifted Stone, a Keeper stone the oak grew round and lifted, in `src/ruins.js`), the Squirrel Boughs, the
   Owl Hollows (shadier, eyes blinking in the knotholes) and the Wasp Crowns (golden light, paper nests in the
   far leaves). Through gaps in the far leaves you see the sea and the far islands (`drawDistantIslands`).
-- **Keeper's Spine shows but doesn't open** (owner's phase rule): from the Owl Hollows on, its bare grey
-  ridge with standing stones rises over the leaves (`drawSpine`), and at the far end a fallen trunk lies
-  across the high path (the `trunk` gate in `GREENHOLLOW`, `src/shared/branches.js`; E says what's wrong).
-  G5 lifts it: replace the gate with an `entry` (and draw the trunk cut or rolled aside).
+- **Keeper's Spine**: from the Owl Hollows on, its bare grey ridge with standing stones rises over the
+  leaves (`drawSpine`), and at the far end the fallen trunk across the high path has a passage sawn through
+  it (G5: the `trunk` entry in `GREENHOLLOW`, `src/shared/branches.js`; `docs/places/spine.md`).
 - The **Crow's Nest**, a wicker lookout high over the Owl Hollows (last in `CANOPY_PLATFORMS`), is the
   off-the-path spot: a flag, a spyglass pointed at the Spine and a golden acorn.
 - Mobs reuse legacy brains: oak squirrel = `lob` (`style: 'acorn'`), tent caterpillar = `trail` (`style:
@@ -33,6 +32,7 @@ the Canopy's WEST end (`CANOPY_EXIT_X`, the ladder back down) and go east, highe
   (`fly` ≤ 66) to notice slimes on the bough; the queen hovers higher and is passive anyway.
 - **Ranger Acorn** (`server/characters.js`): trades basic potions, mega elixirs, the Ranger's Billhook and
   the Ranger's Hat (`SHOPS.acorn`); knows Tier 0, the Canopy's creatures and nests, the trunk across the
-  path to the Spine (not why it's called that), and that the oak lifted the old stone; nothing else of the
+  path to the Spine, cut through now (not why it's called that; she's been up as far as the first standing
+  stones), and that the oak lifted the old stone; nothing else of the
   lore. Her life: hasn't touched the ground in six years, Zip the hat-stealing flying squirrel, knitted
   hats for the squirrels, Professor Hoot the owl, her logbook (volume nine). Music scene `canopy`.

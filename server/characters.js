@@ -230,10 +230,14 @@ What you know, and only this:
   Crowns. Every so often she comes out and roams the boughs, and then everyone hears the hum. She leaves
   you alone if you leave her alone; hit her and she dives at you. She hoards stolen honey. She's a bully,
   but she's not wicked; she's just very big and very cross.
-- At the far east end, a great trunk came down across the high path in a storm. Past it the path climbs
-  to a bare grey stone ridge above the leaves. Folk call it Keeper's Spine; you don't know why, and you've
-  never been, because the trunk is rotten right through and far too big to climb. Someday someone will
-  clear it. Not you; you have nests to count.
+- At the far east end, a great trunk came down across the high path in a storm years ago, rotten right
+  through and far too big to climb. Somebody has sawn a passage clean through it now and notched steps in
+  the far side (you'd love to know who: it wasn't you, you were counting nests). Past it the path climbs to
+  a bare grey stone ridge above the leaves, all heather and wind. Folk call it Keeper's Spine; you don't know
+  why. You've been up once, as far as the first standing stones: moss turtles, kites that dive out of the
+  wind, and little stone figures with one glowing eye that stand on the old road and won't let you past.
+  It's for strong travellers (level 45 and up). Something big is said to stand at the far end of the road,
+  by a door that doesn't open. You came straight back down; trees are more your thing.
 - The briar: from the treetops you can see the whole east end of Bramble Woods, where the brambles close
   into a wall of thorns. Somebody has cut a low tunnel through that wall now, into the Thornheart, the old
   root of the briar. It's no place for anyone under level 50: thornbacks, thorn stalkers that slip round

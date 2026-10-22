@@ -15,13 +15,13 @@ export const DT = 1 / TICK_RATE;
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS } from './rpg.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
 export const CLIFFS = 20; // Greenhollow's east cliffs, past the end of the Wildwood (docs/places/cliffs.md)
 export const FERRY_N = 21, FERRY_S = 22; // the ferry's deck, out to Frostpeak and back home (docs/places/crossings.md)
-export { FIELD, FJORD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART };
+export { FIELD, FJORD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE };
 
 export const PLATFORMS = [
   { x: 360, y: 335, w: 190, kind: 'island' },
@@ -167,7 +167,7 @@ export const ROOMS = [
     ],
   },
 ];
-// rooms 6–8, 10–11, 14–17, 26 and 30: the boss dens (DENS in rpg.js); room 9: Frostpeak's wilds (Frostpine Ridge, Starfall Summit)
+// rooms 6–8, 10–11, 14–17, 26, 30 and 35: the boss dens (DENS in rpg.js); room 9: Frostpeak's wilds (Frostpine Ridge, Starfall Summit)
 for (const d of DENS) {
   ROOMS[d.room] = {
     name: d.name, width: DEN_W, ground: FIELD_GROUND, platforms: DEN_PLATFORMS,
@@ -305,7 +305,16 @@ ROOMS[GLOWROOT] = {
 // Its far end (the fallen trunk to Keeper's Spine) is a gate, not a door: GREENHOLLOW in branches.js.
 ROOMS[CANOPY] = {
   name: 'The Old Oak Canopy', width: CANOPY_W, ground: FIELD_GROUND, platforms: CANOPY_PLATFORMS,
-  doors: [{ x: CANOPY_EXIT_X, w: 80, to: FIELD, toX: CANOPY_GATE_X, label: 'climb down the rope ladder to Bramble Woods (mobs!)' }],
+  doors: [
+    { x: CANOPY_EXIT_X, w: 80, to: FIELD, toX: CANOPY_GATE_X, label: 'climb down the rope ladder to Bramble Woods (mobs!)' },
+    { x: SPINE_GATE_X, w: 80, to: SPINE, toX: SPINE_EXIT_X, label: "climb through the cut trunk up to Keeper's Spine" },
+  ],
+};
+// room 34 (island depth G5, docs/places/spine.md): Keeper's Spine, the ridge above the Canopy, through the
+// fallen trunk (cut through now) at the Canopy's far end. Room 35 is the Root Warden's court (DENS in rpg.js).
+ROOMS[SPINE] = {
+  name: "Keeper's Spine", width: SPINE_W, ground: FIELD_GROUND, platforms: SPINE_PLATFORMS,
+  doors: [{ x: SPINE_EXIT_X, w: 80, to: CANOPY, toX: SPINE_GATE_X, label: 'climb back down through the trunk to the Old Oak Canopy (mobs!)' }, ...denDoors(SPINE)],
 };
 
 // rooms 32 and 33 (island depth G4, the hard pockets): Wreck Cave, through the cave mouth at the Coves' far

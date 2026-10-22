@@ -794,6 +794,7 @@ const BEAM = {
   colossus: { glow: '255,110,70', outer: 'rgba(255,110,70,0.9)', mid: '#ffd7a8', aim: '255,80,90' },
   glow: { glow: '200,255,190', outer: 'rgba(200,255,190,0.85)', mid: '#f4ffe0', aim: '255,110,130' }, // the glowworm's
   jet: { glow: '150,220,255', outer: 'rgba(110,190,235,0.85)', mid: '#d8f4ff', aim: '255,110,130' }, // the moray eel's water jet
+  warden: { glow: '255,205,120', outer: 'rgba(255,190,90,0.88)', mid: '#fff0c8', aim: '255,96,110' }, // Keeper amber: stone sentinels and the Root Warden
 };
 function drawBeam(ctx, h, now) {
   const B = BEAM[h.style] || BEAM.sentry;
@@ -870,6 +871,7 @@ function drawBeam(ctx, h, now) {
 const GRID = {
   volt: { rgb: '255,210,60', bolt: '#fffbe0', rim: '#3fb6ff', fill: '255,196,40', edge: '#ffb020' },
   chrono: { rgb: '190,140,255', bolt: '#fff4d6', rim: '#ffc94a', fill: '150,100,240', edge: '#c9a4ff' },
+  root: { rgb: '255,205,120', bolt: '#fff0c8', rim: '#6a4c36', fill: '140,110,70', edge: '#7aa05e' }, // the Root Warden: roots heaving the floor, amber light in the cracks
 };
 const STRIP = 30; // the floor strip of a low grid zap
 function drawGrid(ctx, h, now) {

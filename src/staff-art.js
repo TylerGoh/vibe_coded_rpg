@@ -38,6 +38,8 @@ export const STAFFS = {
   honey_staff: { len: 62, shaft: ['#4a3e3a', '#2a2220'], w: 2.6, head: 'comb', gem: '#ffc44a', gem2: '#ffe59a', glow: '255,200,90', band: '#e6a83a' },
   bosun_staff: { len: 64, shaft: ['#9a7a5a', '#5e4630'], w: 2.8, head: 'lantern', gem: '#8affc0', gem2: '#d6b25a', glow: '140,255,190' },
   hart_staff: { len: 66, shaft: ['#7a6a54', '#4a3e30'], w: 2.8, head: 'antler', gem: '#fff4f6', gem2: '#e8d6b4', glow: '255,240,245' },
+  sentinel_staff: { len: 64, shaft: ['#c4c0d0', '#8a8698'], w: 2.8, head: 'eyestone', gem: '#ffcf7a', gem2: '#a8a4b4', glow: '255,205,120' },
+  warden_staff: { len: 68, shaft: ['#b0acc0', '#76728a'], w: 3.2, head: 'rootcrook', gem: '#ffcf7a', gem2: '#7aa05e', glow: '255,200,110' },
 };
 export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));
 export const staffGlow = (id) => STAFFS[id]?.glow ?? '190,200,255';
@@ -472,6 +474,49 @@ const HEADS = {
     ctx.strokeStyle = 'rgba(58,51,80,0.6)';
     ctx.lineWidth = 1;
     ctx.stroke();
+  },
+  // a Keeper sentinel's eye-stone: an amber stone in a ring of grey stone cut with gear teeth
+  eyestone(ctx, s, y, t, glow) {
+    ctx.fillStyle = s.gem2;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.4;
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * TAU;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * 9, y - 8 + Math.sin(a) * 9, 2.4, 0, TAU);
+      ctx.fill();
+      ctx.stroke();
+    }
+    circle(ctx, 0, y - 8, 9);
+    ctx.fill();
+    ctx.stroke();
+    gem(ctx, 0, y - 8, 5 + glow, s.gem);
+  },
+  // the Warden's: a grey stone crook wound round with roots, a sprig of leaves, the amber light in its curl
+  rootcrook(ctx, s, y) {
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 6.4;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 4);
+    ctx.lineTo(0, y - 10);
+    ctx.arc(6, y - 10, 6, Math.PI, Math.PI * 2.1);
+    ctx.stroke();
+    ctx.strokeStyle = s.shaft[0];
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    gem(ctx, 6, y - 9, 3.6, s.gem);
+    ctx.strokeStyle = '#5a4030';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(-3, y + 6);
+    ctx.lineTo(3, y);
+    ctx.lineTo(-3, y - 6);
+    ctx.lineTo(2, y - 13);
+    ctx.quadraticCurveTo(8, y - 19, 12, y - 13);
+    ctx.stroke();
+    ctx.fillStyle = s.gem2;
+    ellipse(ctx, 14, y - 16, 3.4, 2, 0.5);
+    ctx.fill();
   },
 };
 

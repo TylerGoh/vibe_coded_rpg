@@ -27,6 +27,15 @@ Order is by level. Names are the game's current ones.
   the threads stopped carrying anything out to sea. Her lines (MOBS.knotmole.lines) are a cold, lonely
   creature's grip. Freed, she lets go, and the glow runs off under the sea again: a quiet hint that the
   net links the islands.
+- **The Root Warden** (The Warden's Court, Keeper's Spine; shipped G5; Greenhollow's capstone). A Keeper
+  guardian of grey stone, set at the end of the high road to hold a sealed gate "until we come again". The
+  Keepers never came. The roots (the ones that run under all the land, west toward the village and the
+  apple tree, though it never says so) grew up through every joint, and the shard lodged in its back keeps
+  it standing. It isn't cruel; it's a sentry who has forgotten every order but "hold". Its lines
+  (MOBS.root_warden.lines) wear down to that one word. Freed, it understands they aren't coming back and
+  lets the roots have it: the gate stays shut (what's behind it is not for Greenhollow to know), but the
+  road is the players'. Its ultimate, Hold Fast, is roots bursting up everywhere but one lane. Tier 1 only:
+  the Keepers, a gate, a guardian; nothing of the Wheel or the Heartroot by name.
 
 ## Frostpeak (melancholy)
 - **Frost Queen Glacia** (The Frozen Throne). She froze the strait into an ice bridge to hold her island

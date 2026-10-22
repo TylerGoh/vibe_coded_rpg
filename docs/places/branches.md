@@ -10,8 +10,8 @@ island shows what's coming.
   have a map (Greenhollow only; Frostpeak's comes with its depth pass).
 - **A branch that hasn't shipped has a `gate`**: the blocked way in, in a real room (the room and x, the
   kind of art, the prompt, and what E says). Gates are drawn by `src/branch-gates.js` (`DRAW`); each has a
-  small sign with the place's name (red-trimmed for a hard pocket). G0 laid one for every branch; after G4
-  only Keeper's Spine's fallen trunk (in the Canopy) is left. The others are drawn open now (`OPEN`).
+  small sign with the place's name (red-trimmed for a hard pocket). G0 laid one for every branch; since G5
+  none is left on Greenhollow, and all are drawn open (`OPEN`). Frostpeak's pass will lay its own.
 - A place behind another unshipped one gets `past: true` and no gate (its way in would be in a room that
   doesn't exist yet). None is left on Greenhollow; Frostpeak's pass may need it again.
 - Walking up to a gate shows an E prompt and a beacon (`gateAt`, `drawHints` in `src/main.js`); E shows a
@@ -30,15 +30,17 @@ island shows what's coming.
   open). Keeper's Spine lost `past` and got its gate in the Canopy (`trunk`, at `SPINE_GATE_X`).
 - **Shipped (G4):** the hard pockets, Wreck Cave (`docs/places/wreck.md`: the water down, a plank across,
   `flooded` drawn open) and the Thornheart (`docs/places/thornheart.md`: the thorns cut into a tunnel,
-  `thorns` drawn open). Only Keeper's Spine still has a gate.
+  `thorns` drawn open).
+- **Shipped (G5):** Keeper's Spine (`docs/places/spine.md`: the trunk sawn through, `trunk` drawn open) and
+  the Root Warden's den. Greenhollow has no gates left.
 - The island map (`docs/ui/world-map.md`) reads the same list: shipped places solid with their levels,
   the rest dashed with a short `block` reason. Keep both in step: a node's `block` should match its gate.
 
-## Shipping a branch: the checklist (from G1–G4, for G5 and Frostpeak's pass)
+## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
-fullest example, the Canopy (G3) the last with a trader, G4's two pockets the most recent.
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 34 after G4; ids 27,
-  31, 32 and 33 are the Pet Shop, the Canopy, Wreck Cave and the Thornheart), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
+fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 36 after G5; ids 27,
+  31–35 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine and the Warden's den), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last), a `STAGES` row (`band`, `pill` if the name is long, `hard` for
   a hard pocket), mobs **appended** to `MOBS` (kinds go over the wire as their index), spawns (an
@@ -81,10 +83,8 @@ Gotchas already hit:
   key presses.
 
 ## The next phases' loose ends (where things already are)
-- **G5:** Keeper's Spine's gate is the fallen trunk at the Canopy's far end (`SPINE_GATE_X`). Its door goes
-  there, with an `OPEN.trunk` (the trunk cut through or rolled aside). The Canopy already draws the Spine
-  over the leaves (`drawSpine` in `src/canopy.js`: a bare grey ridge, standing stones on the crest): keep
-  the Spine's own art in step. It gets a waystone (`docs/places/waystones.md`) and the capstone den, the
-  Root Warden (a big boss: `lines` and a story in `story/characters/bosses.md`). The Thornheart's Hedge
-  Stone points north to the ridge and says the Keepers planted the briar "to keep the road"
-  (`docs/places/thornheart.md`): the Spine's stones and the Warden's gate should agree with it.
+- **Greenhollow is done** (G0–G5). Next on the G track is R, the rebalance, then Frostpeak's depth pass
+  (`story/world/island-depth.md`): `ISLAND_MAPS` gets a Frostpeak list, and its unshipped branches get gates
+  here the same way (`past: true` for a place behind another unshipped one).
+- A new den: a new theme needs its row in `dens.js`'s shared effect tables (`FXPAL`, `THEME_RGB`, `drawBit`,
+  `drawFallObj`, the summon and roar colours); a boss can reuse the shared moves with its own look (`looks`).

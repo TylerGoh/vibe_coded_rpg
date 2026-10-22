@@ -5,9 +5,9 @@
 // running up off the top of the screen. West to east: the rope ladder down, Ranger Acorn's treehouse (its
 // roof is a platform), the Lifted Stone (src/ruins.js), then the Squirrel Boughs, the Owl Hollows (shadier,
 // eyes in the knotholes) and the Wasp Crowns (golden late light, paper nests hanging in the leaves), with
-// the fallen trunk to Keeper's Spine at the far end (src/branch-gates.js). Through gaps in the leaves you see
-// the sea and the far islands; from the Owl Hollows on, the Spine's bare grey ridge rises over the leaves
-// (shown, not open: story/world/island-depth.md). The Crow's Nest, a lookout high over the Owl Hollows, is
+// the fallen trunk to Keeper's Spine at the far end, sawn through (src/branch-gates.js). Through gaps in the
+// leaves you see the sea and the far islands; from the Owl Hollows on, the Spine's bare grey ridge rises over
+// the leaves. The Crow's Nest, a lookout high over the Owl Hollows, is
 // the off-the-path spot.
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
 import { CANOPY_W, CANOPY_EXIT_X, CANOPY_ZONES, CANOPY_PLATFORMS, FIELD_GROUND } from './shared/rpg.js';
@@ -185,7 +185,8 @@ function drawFarLeaves(ctx, camX, time, shade, gold) {
 }
 
 // Keeper's Spine: from the Owl Hollows on, a bare grey ridge rises over the treetops in the east, standing
-// stones along its crest. It's where the high path goes, past the fallen trunk (not open yet: G5).
+// stones along its crest. It's where the high path goes, through the fallen trunk (src/spine.js: keep the
+// two looking alike, grey-lilac stone and trilithons).
 function drawSpine(ctx, camX, time) {
   const x = 2120 - camX * 0.3; // its middle, in screen px (it slides slowly, like the far leaves)
   if (x < -500 || x > W + 500) return;

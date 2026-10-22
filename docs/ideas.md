@@ -59,5 +59,14 @@
 - Tested on a test server with a Lv 81 character and TEST_GOD: both ways in and out, every mob spawning,
   both readables, both field bosses' moves (ink, the stamp), the island map, a phone screenshot. Nobody has
   fought the pockets at their own level, so how hard they really are is a guess.
-- Then G5 (Keeper's Spine, the Root Warden) per `story/world/island-depth.md`; its gate is already in the
-  Canopy: `docs/places/branches.md`.
+
+## G5 left for later
+- The Root Warden's party mechanics (focus, pulse, barrier, weak point: `party` on its entry) wait for S5;
+  today it fights with the shared moves only, so it's a hard solo boss, not yet a party check.
+- The Warden "freed" world change (the roots letting go of the gate after a kill): only its line says so,
+  like the Tidemother and the Knotmole.
+- Tested with a Lv 81 test character, TEST_GOD and a weakened boss: the trunk both ways, every Spine mob
+  spawning (sentinel beams seen), the Road Stone card, attuning the waystone, the Watch Seat, the island
+  map, the den and a full Warden kill (enter / phase / freed lines, its beam, Hold Fast, summoned rootlings,
+  the loot), the Pet Shop, phone screenshots. The root grid didn't come up in the test fight (it's random
+  in phase 2), so its look has only been read, not seen. Nobody has fought the Spine at its level.

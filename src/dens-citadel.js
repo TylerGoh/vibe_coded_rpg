@@ -2802,7 +2802,7 @@ export const FX2 = {
     draw(ctx, e, k) {
       const fade = 1 - k, y = GROUND;
       const { x0, x1 } = e;
-      const mid = (x0 + x1) / 2, rgb = e.theme === 'chrono' ? '190,160,255' : '255,210,110';
+      const mid = (x0 + x1) / 2, rgb = e.theme === 'chrono' ? '190,160,255' : e.theme === 'warden' ? '255,205,120' : '255,210,110';
       glow(ctx, mid, y, (x1 - x0) * 0.7, 30, rgb, fade);
       ctx.fillStyle = `rgba(255,250,220,${0.5 * fade})`;
       ctx.beginPath();

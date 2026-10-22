@@ -278,8 +278,8 @@ job advancements), at levels spaced further apart each time:
 ## The phases (each one shippable alone)
 - [x] **S0: close the boss faucet** (shipped 2026-10-23): over-level EXP falloff, the per-player boss reward
       window (15 min). `docs/combat/bosses.md`, `docs/economy.md`.
-- [ ] G5 (Keeper's Spine) as planned; the Root Warden is the first boss designed with the role mechanics
-      in mind (built so they can be switched on in S5).
+- [x] G5 (Keeper's Spine, shipped 2026-10-23); the Root Warden is the first boss designed with the role mechanics
+      in mind (`party` on its entry names them, for S5 to switch on; `docs/places/spine.md`).
 - [x] **S1: staves and the Mage** (shipped 2026-10-23; `docs/combat/items.md`). Before classes, the weapon in
       your hand decides the normal attack; spell power never went down (staves only add). Was (medium): the `staff` kind, the staff bolt, MAGIC from staves, a staff
       on every boss's drops, starter and trader staves, weapon scrolls, the economy script learning

@@ -17,7 +17,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
+import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
 import { drawHighlands } from './highlands.js';
 import { drawCaldera, drawCalderaPass } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
@@ -49,6 +49,7 @@ import { drawGlowroot } from './glowroot.js';
 import { drawCanopy } from './canopy.js';
 import { drawWreck } from './wreck.js';
 import { drawThornheart } from './thornheart.js';
+import { drawSpine } from './spine.js';
 import { wayAt } from './shared/waystones.js';
 import { drawWaystones, wayPrompt, wayBeacons, WayCard, shimmer } from './waystones.js';
 import { fastGradients } from './fastcanvas.js';
@@ -1284,6 +1285,7 @@ function render() {
     else if (room === CANOPY) drawCanopy(ctx, camX, W, time);
     else if (room === WRECK) drawWreck(ctx, camX, W, time);
     else if (room === THORNHEART) drawThornheart(ctx, camX, W, time);
+    else if (room === SPINE) drawSpine(ctx, camX, W, time);
     else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
       if (near(CALDERA_DOOR_X)) drawCalderaPass(ctx, CALDERA_DOOR_X, ROOMS[HIGHLANDS].ground, time);

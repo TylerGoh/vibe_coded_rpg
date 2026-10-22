@@ -13,7 +13,8 @@ east, deeper and harder.
   Thornheart itself, where every cane grows out of one great root knot at the east end.
 - **The Hedge Stone** (`RUIN_STONES`, shape `hedge`, in front of the knot): a Keeper stone the briar grows up
   through. Tier 1 only: the Keepers planted the briar "to keep the road", and a carved hand points north to
-  the high ridge (Keeper's Spine, G5; the Root Warden's gate is up there). Keep G5's story in step with it.
+  the high ridge (Keeper's Spine, where the Root Warden holds the road's sealed gate: `docs/places/spine.md`,
+  whose Road Stone agrees with it).
 - **The White Rose**, a briar arch high over the Maze (last in `THORN_PLATFORMS`), is the off-the-path spot.
 - A hard pocket: no trader, no waystone, a red "Lv 50–60" chip on the door, red-trimmed signs, elites. Mobs
   reuse legacy brains: thornback = `shell` (a mask of thorns in front: hit it from behind), thistle puff =

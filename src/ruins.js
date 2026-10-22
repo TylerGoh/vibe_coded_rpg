@@ -1,15 +1,15 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
 // Stone by Truffle's camp in the Mycelium Deep, the Lifted Stone by Acorn's treehouse in the Old Oak
-// Canopy, the Hedge Stone in the Thornheart). Wreck Cave has the one reading here that isn't a stone: the
+// Canopy, the Hedge Stone in the Thornheart, the Road Stone on Keeper's Spine). Wreck Cave has the one reading here that isn't a stone: the
 // wrecked ship's logbook (`wing` and `when` change the card's header lines). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -81,6 +81,12 @@ export const RUIN_STONES = [
     legible: ['...PLANTED TO KEEP THE ROAD...', '...LET IT GROW WHILE WE ARE AWAY...', 'Under the words, a hand carved pointing north, up toward the high ridge. The rest is under thorns.'],
     note: "White hairs are caught on the thorns all round it, and only here does the briar flower: little white roses, wherever the Thorn Hart has rubbed his antlers.",
   },
+  {
+    room: SPINE, place: "Keeper's Spine", x: 700, shape: 'road', name: 'the Road Stone', title: 'The Road Stone',
+    look: 'A tall milestone at the edge of the old flagstones, where the road comes up onto the ridge. The wind has polished its west face smooth. The east face is cut with a road running away along a ridge, and at its end a round door with a ring of little pictures, the same as the Roll of Keepers. A carved root runs along under the road the whole way, from the stone\'s west edge to the door.',
+    legible: ['THE HIGH ROAD. KEEP IT.', '...THE WARDEN HOLDS THE GATE UNTIL WE COME AGAIN...', 'The root under the carved road runs off the stone\'s west edge, toward the trees, and on toward the village.'],
+    note: 'Little pebbles have been balanced along the top of the stone, one by one, by everyone who ever made it up here. Some of them have been there long enough to grow lichen.',
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -110,7 +116,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -756,5 +762,53 @@ function drawHedge(ctx, time, glow) {
     }
     ctx.fillStyle = '#f4d060';
     circle(ctx, x + n, y, r * 0.3);
+  }
+}
+
+// The Road Stone (Keeper's Spine): a tall milestone at the road's edge, its face cut with a road running
+// along a ridge to a round door, and a root carved under the road the whole way, off the stone's west edge
+function drawRoadStone(ctx, time, glow) {
+  slab(ctx, -30, -150, 60, 148, 14);
+  const ink = glow ? '#c9a24a' : CARVE;
+  // the ridge and the road along it
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-24, -70);
+  ctx.quadraticCurveTo(-4, -96, 22, -92);
+  ctx.stroke();
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(-22, -76);
+  ctx.quadraticCurveTo(-4, -100, 12, -98);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // the round door at its end, a ring of tiny marks round it
+  ctx.beginPath();
+  ctx.arc(16, -108, 8, 0, Math.PI * 2);
+  ctx.stroke();
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(16 + Math.cos(a) * 11, -108 + Math.sin(a) * 11, 0.9, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  // the root, carved under the road and running off the west edge
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.moveTo(-31, -56);
+  ctx.quadraticCurveTo(-6, -62, 10, -74);
+  ctx.quadraticCurveTo(18, -82, 16, -98);
+  ctx.stroke();
+  carvedGear(ctx, 0, -128, 10, 10, glow);
+  scratches(ctx, -22, -40, 44, 2, 191, glow);
+  moss(ctx, -30, -150, 44, 193);
+  // the pebbles balanced along its top
+  ctx.fillStyle = STONE_LIGHT;
+  ctx.strokeStyle = STONE_DARK;
+  ctx.lineWidth = 1;
+  for (const [x, r] of [[-16, 4], [-6, 3.4], [4, 4.4], [14, 3]]) {
+    circle(ctx, x, -150 - r + 2, r);
+    ctx.stroke();
   }
 }

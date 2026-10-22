@@ -18,9 +18,10 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   MAGIC equal to the sword's ATK (the economy script checks the match). Wherever the twin sword drops (boss
   sets, rare mob drops), `twinPick` in `server/rpg.js` drops one or the other: the kind a random fighter is
   holding, flipped `STAFF_OFFKIND` of the time so everyone sees both. Drops stay worth the same gold.
-- 20 staves: Pip's three starters, one at each branch trader (Bun, Moss, Truffle, Acorn), and one per den
-  and field boss. Swords that only drop from mobs (Coral Saber, Silkthread, Glowroot, Stingblade, Moray Fang,
-  Stalker's Claw, Whalebone Harpoon) have no twin yet.
+- 22 staves: Pip's three starters, one at each branch trader (Bun, Moss, Truffle, Acorn), one per den
+  and field boss, and the Sentinel Staff (G5: the first twin of a sword that only drops from mobs). The
+  other mob-only swords (Coral Saber, Silkthread, Glowroot, Stingblade, Moray Fang, Stalker's Claw,
+  Whalebone Harpoon) have no twin yet. Each staff's look is a row in `STAFFS` (`src/staff-art.js`).
 - A staff adds its MAGIC to spells and its `mp` to max MP (`statsFor`), and changes the normal attack to the
   **staff bolt** (`docs/combat/core.md`). Swords still don't help spells, and the level's `magicFor` is
   unchanged, so nobody lost spell power when staves came in.
@@ -52,7 +53,8 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   G3 adds **Ranger Acorn** (`SHOPS.acorn`, the Old Oak Canopy: the Ranger's Billhook and Hat, mega elixirs),
   with the Canopy's gear in `src/canopy-art.js` (`CANOPY_SWORDS`, `CANOPY_SWORD_LEN`, `CANOPY_HELMETS`, `CANOPY_ICONS`).
   G4's hard pockets have no trader: their gear only drops (mobs rarely, the field bosses often), art in
-  `src/wreck-art.js` (`WRECK_*`) and `src/thornheart-art.js` (`THORN_*`).
+  `src/wreck-art.js` (`WRECK_*`) and `src/thornheart-art.js` (`THORN_*`). G5's Keeper's Spine has none
+  either (`src/spine-art.js`, `SPINE_*`): mob drops and the Root Warden's set (`docs/places/spine.md`).
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely.
 
