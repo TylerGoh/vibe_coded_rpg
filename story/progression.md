@@ -44,6 +44,10 @@ really hard without a mix of classes. They share one root, so this is one plan.
 - **Roles need a job only they do best, not a job only they can do.** Bosses ask questions each class
   answers best; another class can still answer slowly (potions, kiting, a longer fight). A hard lock
   ("no Cleric, no kill") breaks a small friend group on a night when the Cleric isn't online.
+- **Equal power, different shape** (owner, 2026-10-23: "no class should be weaker and yet they all have
+  something they're bad at"). Every class gets the same total budget, spent differently: strong in one
+  place means weak in another. And **every class, even the Cleric, can clear bosses at its own level
+  alone** (owner): a party makes it faster and safer, never possible-at-all, except the capstones.
 - **Never take away what people earned.** Levels stay. Points get refunded and re-spent, never deleted.
 
 ## The design
@@ -66,6 +70,32 @@ LUK stays the shared crit stat. DEX finally gets a job (today it only raises the
 - The normal attack follows the weapon: sword swing (as now), **wand tap** (a short magic bolt on MAGIC),
   **bow shot** (an arrow to the first mob ahead in range), **staff bonk** (weak, close; a Cleric's damage
   isn't the point, but a hit lands a small heal on the nearest hurt friend so attacking is never wasted).
+
+### 1b. Balance: equal power, different shape
+Each class is strong at two things, fine at one, bad at one:
+| class | strong at | bad at | how it solos a boss |
+|---|---|---|---|
+| Warrior | toughness, damage up close | range: weak points up high, bosses that keep away | stands in and trades hits; heals itself a little from hitting (a lifesteal passive) |
+| Mage | area damage and burst, control | toughness (least HP and DEF), runs out of MP | freezes and interrupts, Blinks out, kills fast before it gets hit much |
+| Archer | steady single-target damage, range, moving | swarms of adds, toughness up close | keeps its distance, kites, Net Trap to stop chasers |
+| Cleric | staying alive, helping others | burst damage: kills slowest | can't really die: heals and shields itself through everything while **Smite** chips away |
+
+- **The Cleric solos on sustain.** Its own damage is real but lower (holy spells, **Smite**: hits that
+  also heal it, so attacking keeps it alive), and it almost never needs a potion. It takes longer; it
+  never loses. In a group, its heals matter far more than its damage, which is the trade.
+- **Both branches of every class can solo** (Priest and Warden, Knight and Berserker, ...). A fork changes
+  how you win, never whether you can.
+- **Every class carries an answer to every boss mechanic**, even if it's a poor one (section 6's "without
+  that class" column): Mobility i-frames for ultimates, kiting for curses, jumping for weak points. And
+  **brewed potions** give everyone a backup answer (a Cleansing Tonic for curses, a Barrier Draught for
+  pulses: new recipes at the alchemy lab, `docs/places/alchemy.md`).
+- **Measured, not guessed.** `npm run economy` gains a CLASSES table: for each class and branch, with gear
+  on the frozen curve and a sensible build at each level, its damage a second (single target and in a
+  crowd), its toughness (HP × DEF × healing), and the **time to solo each den at the den's level**. Checks:
+  every class's solo time within a set band of the others (a `CLASS_FIT` constant), and each class's
+  "bad at" really lower than the others'. Any skill number change re-runs it, like gold today.
+- **Real fights will disagree with the sheet.** After each class ships, watch which class people pick and
+  the damage meter (damage, healing, damage taken), and nudge numbers. Expect a few rounds.
 
 ### 2. Wands and the Mage
 - New item kind `wand`: gives MAGIC (on the same frozen curve as sword ATK, so the economy sheet's
@@ -140,8 +170,8 @@ it badly (potions, running, a much longer fight).
 | **Adds**: a swarm of small mobs | Mage (area damage), Trapper | the swarm chews through the healer |
 | **Armour phase**: only heavy single hits crack the shell | Berserker | a long, slow phase |
 
-- **How hard:** den bosses stay doable alone or with any mix, just slower and riskier without the right
-  classes. The **capstone bosses** (one per island, `world/island-depth.md`) are built for a full mixed
+- **How hard:** den and field bosses stay doable **alone, by any class** (owner), at the boss's level,
+  just slower and riskier without the right classes. The **capstone bosses** (one per island, `world/island-depth.md`) are built for a full mixed
   party: in practice not doable without most roles. That's the endgame for groups.
 - **Scaling:** `BOSS_HP_PER_PLAYER` stays; on top, a mechanic only appears once enough slimes are there
   (no Taunt check when you're alone), so a solo player isn't punished for being alone.
@@ -196,7 +226,7 @@ job advancements), at levels spaced further apart each time:
 - [ ] **S1: wands and the Mage** (medium): the `wand` kind, Wand Tap, MAGIC from wands, wands on every
       boss's drops, starter and trader wands, weapon scrolls, the economy script learning wands. Before R,
       so R's "new copy of every boss item" pass copies the wands too.
-- [ ] **S2: the tree** (large): class trees from weapons, forks, advancements, the `spTotal` schedule, the
+- [ ] **S2: the tree** (large), with the CLASSES table in `npm run economy`: class trees from weapons, forks, advancements, the `spTotal` schedule, the
       node UI (desktop and phone), per-class hotbars, the one-time refund. Warrior and Mage, with the mage
       combos (chill/freeze/shatter, burn/spread, Arcane Charge).
 - [ ] **S3: the Cleric** (medium): the `staff` kind, the Cleric tree (mostly today's heal and Guardian
@@ -211,8 +241,8 @@ job advancements), at levels spaced further apart each time:
 ## Open decisions for the owner (recommended answer first)
 1. **Class = the weapon you hold** (recommended), or a class picked at a trainer?
 2. **Can classes mix?** Recommended: no class's active skills with another's weapon; only Mobility shared.
-3. **How hard is "needs a party"?** Recommended: dens soft (solo is slow and risky), capstone bosses built
-   for a full mixed party. Alternative: every den needs a party, which locks out solo nights.
+3. **The capstone bosses:** settled that every class can solo dens and field bosses at their level. Should the
+   one capstone per island be the exception, built for a full mixed party (recommended), or soloable too?
 4. **Stat taper past the content** (S6): for everyone, which lowers today's Lv 300+ characters somewhat
    (recommended), or only for levels gained after it ships?
 5. **Boss reward window** (S0): 10-15 minutes recommended.
