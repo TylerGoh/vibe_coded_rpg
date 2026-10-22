@@ -4,7 +4,7 @@ Files: `src/shared/skills.js` (all rules and `statsFor`), `src/skilltree.js` (th
 `src/skillfx.js` (icons and effects), the hotbar and stats UI in `src/rpg.js`, server actions in the
 `skills()` handler of `server/rpg.js`.
 
-**A revamp is planned** (four classes from weapons: Warrior, Mage, Archer, Cleric; wands; forks and advancements; party bosses; levelling
+**A revamp is planned** (four classes from weapons: Warrior, Mage, Archer, Cleric; staves; forks and advancements; party bosses; levelling
 rewards): `story/progression.md`. Read it before changing skills, AP or `spTotal`.
 
 ## Skill trees

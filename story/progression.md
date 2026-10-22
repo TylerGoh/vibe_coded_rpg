@@ -4,7 +4,7 @@
 (`world/island-depth.md`). Everything below is `[proposed]` until the owner settles the open decisions at
 the bottom; the recommended answer is written in each time, so a session can start from it.
 
-The owner asked for: mages feel neglected, no boss drops a wand, an archer class, a Cleric class, the
+The owner asked for: mages feel neglected, no boss drops a magic weapon, an archer class, a Cleric class, the
 skills as a real tree instead of a list, high-level rewards spaced further apart, and bosses that are
 really hard without a mix of classes. They share one root, so this is one plan.
 
@@ -47,29 +47,35 @@ really hard without a mix of classes. They share one root, so this is one plan.
 - **Equal power, different shape** (owner, 2026-10-23: "no class should be weaker and yet they all have
   something they're bad at"). Every class gets the same total budget, spent differently: strong in one
   place means weak in another. And **every class, even the Cleric, can clear bosses at its own level
-  alone** (owner): a party makes it faster and safer, never possible-at-all, except the capstones.
+  alone** (owner): a party makes it faster and safer, never possible-at-all. The capstones are
+  extremely hard alone, but still not impossible.
 - **Never take away what people earned.** Levels stay. Points get refunded and re-spent, never deleted.
 
 ## The design
 
-### 1. Four classes, each from a weapon
+### 1. Four classes, from three weapons
 | weapon | class | main stat | role in a group |
 |---|---|---|---|
 | sword | **Warrior** | STR | catches anything and stays on it: holds the boss (Knight) or hits hardest up close (Berserker) |
-| wand | **Mage** | INT | area damage, freezing and stunning, breaking magic shields |
-| bow | **Archer** | DEX | steady damage from range, hitting what's high up or far away |
+| staff | **Mage** | INT | area damage, freezing and stunning, breaking magic shields |
 | staff | **Cleric** | INT (and some LUK) | heals, shields, cleansing curses, reviving, summons |
+| bow | **Archer** | DEX | steady damage from range, hitting what's high up or far away |
 LUK stays the shared crit stat. DEX finally gets a job (today it only raises the minimum roll).
 
-- Each class has its own tree. **Its active skills only work with that weapon in hand.** One small shared
+- **Mage and Cleric share the staff** (owner, 2026-10-23). With a staff in hand you pick Mage or Cleric in
+  the skill tree (free, outside combat rooms, like swapping weapons). So there are only three weapon kinds
+  to drop, price and draw. Friends still tell the two apart at a glance: a Cleric gets a soft halo over
+  its slime, a Mage a faint sparkle around its staff.
+- Each class has its own tree. **Its active skills only work with its weapon in hand** (and, for the two
+  staff classes, only for the one picked). One small shared
   tree, **Mobility** (Dash, Flash Jump, Blink, Phantom Step), works with anything; the old Guardian tree is
   split between the Knight and the Cleric.
-- Changing class = equipping another weapon. Allowed anywhere outside combat rooms, free, instant. Each
+- Changing class = equipping another weapon (or, with a staff, picking the other staff class). Allowed anywhere outside combat rooms, free, instant. Each
   class remembers its own points and hotbar, so a friend can keep a Cleric build and a Warrior build and
   swap in town before a boss, depending on who else turned up.
-- The normal attack follows the weapon: sword swing (as now), **wand tap** (a short magic bolt on MAGIC),
-  **bow shot** (an arrow to the first mob ahead in range), **staff bonk** (weak, close; a Cleric's damage
-  isn't the point, but a hit lands a small heal on the nearest hurt friend so attacking is never wasted).
+- The normal attack follows the class: sword swing (as now), **staff bolt** for a Mage (a short magic
+  bolt on MAGIC), **staff bonk** for a Cleric (weak, close; a hit lands a small heal on the nearest hurt
+  friend so attacking is never wasted), **bow shot** (an arrow to the first mob ahead in range).
 
 ### 1b. Balance: equal power, different shape
 Each class is strong at two things, fine at one, bad at one:
@@ -116,14 +122,15 @@ The Archer moves too, but differently: a few long moves *away*. The Warrior make
 - **Phones:** the chains are built from buttons the touch layout already has (direction + Jump, Attack,
   Dash), never a new tiny button, and the timing windows are a bit forgiving for touch.
 
-### 2. Wands and the Mage
-- New item kind `wand`: gives MAGIC (on the same frozen curve as sword ATK, so the economy sheet's
-  `GEAR_FIT` check covers it) and a small MP bonus. Spell power becomes level + INT + **wand**.
-- **Every den boss and field boss drops a wand**, themed like its sword (the Tidemother's coral wand, the
-  Knotmole's root wand, Chronos's hourglass sceptre...). Pip sells a starter wand; branch traders sell one
-  at their `aim` level.
+### 2. Staves and the Mage
+- New item kind `staff` (shared with the Cleric): gives MAGIC (on the same frozen curve as sword ATK, so
+  the economy sheet's `GEAR_FIT` check covers it) and a small MP bonus. Spell power and healing both
+  become level + INT + **staff**.
+- **Every den boss and field boss drops a staff**, themed like its sword (the Tidemother's coral staff,
+  the Knotmole's root staff, Chronos's hourglass sceptre...). Pip sells a starter staff; branch traders
+  sell one at their `aim` level.
 - Scrolls: the sword scrolls become **weapon scrolls** (any weapon); the stat they add follows the weapon.
-  Existing sword scrolls in bags just start working on wands, bows and staves.
+  Existing sword scrolls in bags just start working on staves and bows.
 - Forks: **Elementalist** (fire: big area damage, burn) or **Frostbinder** (ice and storm: freezing,
   stunning, interrupting).
 
@@ -139,7 +146,7 @@ at "the first mob ahead"):
   **spreads** the fire. The order you cast in decides your damage, and other players can see the ice and
   the flames. Mobs and bosses show the state on their body (art), so a good mage is readable to friends.
 - **MP is a real budget.** Spells cost enough that spamming your best one runs you dry; a passive
-  rewards rhythm (e.g. **Arcane Charge**: each Wand Tap stores a charge, the next big spell spends them for
+  rewards rhythm (e.g. **Arcane Charge**: each staff bolt stores a charge, the next big spell spends them for
   extra damage), so a good mage weaves cheap hits between expensive ones instead of mashing.
 - **Delayed spells you lead.** Meteor already lands 0.8 s later: a good mage casts it where the boss will
   be, not where it is. More spells like that (a falling icicle, a lightning rune on the floor that strikes
@@ -162,9 +169,9 @@ at "the first mob ahead"):
   Skill: the Archer is the class that hits **weak points** (below) and keeps moving (Retreat Shot fires
   while dashing away, reusing the `DASH` physics).
 
-### 5. Staves and the Cleric
-- New item kind `staff`: gives MAGIC (healing scales with it) on the same curve as a wand, a bit less
-  damage. Clerics heal with MAGIC so a good staff matters.
+### 5. The Cleric (the other staff class)
+- Uses the same staves as the Mage (section 2): MAGIC drives its heals, shields and summons, so a good
+  staff matters to both, and a staff drop is good news for either.
 - Takes over from today's Magic and Guardian trees: Jelly Heal, Rally, Sanctuary, Aegis, Jelly Bubble
   (cast on a friend), Second Wind (on a friend). New: **Cleanse** (removes a boss's curse), **Revive**
   (gets a fainted friend up where they fell, with a long cooldown), **Mend Over Time** (a heal that ticks).
@@ -201,13 +208,14 @@ it badly (potions, running, a much longer fight).
 
 - **How hard:** den and field bosses stay doable **alone, by any class** (owner), at the boss's level,
   just slower and riskier without the right classes. The **capstone bosses** (one per island, `world/island-depth.md`) are built for a full mixed
-  party: in practice not doable without most roles. That's the endgame for groups.
+  party and are **extremely hard without one** (owner, 2026-10-23): every mechanic switched on, little
+  room for mistakes. A very strong player could still grind one down alone; it's never locked.
 - **Scaling:** `BOSS_HP_PER_PLAYER` stays; on top, a mechanic only appears once enough slimes are there
   (no Taunt check when you're alone), so a solo player isn't punished for being alone.
 - **Loot by class:** a boss's loot set includes one weapon, with the kind picked from the classes of the
   slimes who fought it, so every role sees drops for itself.
 - **Retrofit:** today's nine dens and four field bosses each get one or two of the mechanics above, a boss
-  at a time, in the same pass that gives them their wand/bow/staff drop. New bosses (G5's Root Warden on)
+  at a time, in the same pass that gives them their staff and bow drops. New bosses (G5's Root Warden on)
   are designed around them from the start.
 
 ### 7. A real tree: advancements at widening gaps
@@ -238,7 +246,8 @@ job advancements), at levels spaced further apart each time:
 2. **Boss rewards once per window.** Bosses still respawn every minute, but each player gets full EXP and
    a loot roll from a given boss once per reward window (10-15 min); kills inside it give a small share.
 3. **Stat growth tapers past the content** (above Lv 200 after the rebalance): gear and the tree decide
-   power there. **This lowers the current Lv 300+ players a bit**: owner decision below.
+   power there. **Applies to everyone** (owner, 2026-10-23), so today's Lv 300+ characters lose some
+   power when it ships; the banner that announces the refund should say so too.
 4. **Past the last advancement: mastery stars.** Every N levels past the cap gives a star by your name
    and a cosmetic or comfort reward (an aura colour, a title, a bag row), not raw power.
 
@@ -252,27 +261,28 @@ job advancements), at levels spaced further apart each time:
       Before the rebalance (R), because R raises boss EXP.
 - [ ] G5 (Keeper's Spine) as planned; the Root Warden is the first boss designed with the role mechanics
       in mind (built so they can be switched on in S5).
-- [ ] **S1: wands and the Mage** (medium): the `wand` kind, Wand Tap, MAGIC from wands, wands on every
-      boss's drops, starter and trader wands, weapon scrolls, the economy script learning wands. Before R,
-      so R's "new copy of every boss item" pass copies the wands too.
+- [ ] **S1: staves and the Mage** (medium): the `staff` kind, the staff bolt, MAGIC from staves, a staff
+      on every boss's drops, starter and trader staves, weapon scrolls, the economy script learning
+      staves. Before R, so R's "new copy of every boss item" pass copies the staves too.
 - [ ] **S2: the tree** (large), with the CLASSES table in `npm run economy`: class trees from weapons, forks, advancements, the `spTotal` schedule, the
       node UI (desktop and phone), per-class hotbars, the one-time refund. Warrior (with the chase moves in `step()`) and Mage, with the mage
       combos (chill/freeze/shatter, burn/spread, Arcane Charge).
-- [ ] **S3: the Cleric** (large: summons are new server entities): the `staff` kind, the summons, the Cleric tree (mostly today's heal and Guardian
+- [ ] **S3: the Cleric** (large: summons are new server entities): picking Mage or Cleric with a staff, the halo, the summons, the Cleric tree (mostly today's heal and Guardian
       skills moved and extended: Cleanse, Revive), healing and damage-taken on the damage meter.
-- [ ] R, the rebalance, as planned (copies swords, wands and staves).
+- [ ] R, the rebalance, as planned (copies swords and staves).
 - [ ] **S4: the Archer** (large): `bow` kind, arrows, the Archer tree, DEX's new job, Acorn's bows.
 - [ ] **S5: bosses that need a party**: the mechanics in the table above (Taunt, pulses, curses, barriers,
       weak points, armour), retrofitted a boss at a time, loot by class.
 - [ ] **S6: past the cap**: stat taper, mastery stars, the advancement at Lv 150.
 - [ ] Frostpeak's depth pass, as planned (its bosses designed for mixed parties from the start).
 
-## Open decisions for the owner (recommended answer first)
+## Decisions
+Settled by the owner (2026-10-23):
+- Capstone bosses: extremely hard without a mixed party, not locked. Dens and field bosses: any class solos.
+- Stat taper past the content: for everyone.
+- Mage and Cleric share the staff; you pick which with a staff in hand.
+
+Still open (recommended answer first; a session can start from it):
 1. **Class = the weapon you hold** (recommended), or a class picked at a trainer?
 2. **Can classes mix?** Recommended: no class's active skills with another's weapon; only Mobility shared.
-3. **The capstone bosses:** settled that every class can solo dens and field bosses at their level. Should the
-   one capstone per island be the exception, built for a full mixed party (recommended), or soloable too?
-4. **Stat taper past the content** (S6): for everyone, which lowers today's Lv 300+ characters somewhat
-   (recommended), or only for levels gained after it ships?
-5. **Boss reward window** (S0): 10-15 minutes recommended.
-6. **Cleric's weapon:** a staff (recommended: clear at a glance), or something softer like a bell?
+3. **Boss reward window** (S0): 10-15 minutes recommended.
