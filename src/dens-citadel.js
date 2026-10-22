@@ -5,6 +5,7 @@
 // imports this file, so nothing is imported back from it: the few helpers needed are copied here).
 import { H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { DEN_W, DEN_PLATFORMS, DEN_EXIT_X, DENS, MOBS, FIELD_GROUND } from './shared/rpg.js';
+import { glow as radialGlow } from './glow.js';
 
 const GROUND = FIELD_GROUND;
 const TILE = 150; // the grid attacks electrify the floor in 10 tiles of 150 px
@@ -55,28 +56,8 @@ function star(ctx, x, y, r) {
   ctx.fill();
 }
 
-const glowCache = new WeakMap();
 function glow(ctx, x, y, rx, ry, rgb, a = 1) {
-  if (a <= 0.01 || rx <= 0 || ry <= 0) return;
-  let c = glowCache.get(ctx);
-  if (!c) glowCache.set(ctx, (c = {}));
-  let g = c[rgb];
-  if (!g) {
-    g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
-    g.addColorStop(0, `rgba(${rgb},0.9)`);
-    g.addColorStop(0.35, `rgba(${rgb},0.35)`);
-    g.addColorStop(1, `rgba(${rgb},0)`);
-    c[rgb] = g;
-  }
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(rx, ry);
-  ctx.globalAlpha *= Math.min(1, a);
-  ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.arc(0, 0, 1, 0, TAU);
-  ctx.fill();
-  ctx.restore();
+  radialGlow(ctx, x, y, rx, ry, rgb, a, 0.9, 0.35, 0.35); // src/glow.js
 }
 
 const gradCache = new WeakMap();

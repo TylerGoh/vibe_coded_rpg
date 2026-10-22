@@ -17,6 +17,8 @@ Files: `src/touch.js` (buttons, fullscreen), touch layout rules in `src/style.cs
 - HTML strips that are tappable on their own: the hotbar, `#voicebar` (Mic, Broadcast), `#hudbtns`
   (Players, Decorate, Chat; below the location pill, top left); Menu and Full sit left of the voicebar. Panels (bag, skills, shop) move to the top on touch; the movement pad hides while a panel
   or text box is up; the feed sits above the controls.
+- Phones render at up to 2× like desktops; the Esc menu's **Graphics** setting (Auto by default) drops to
+  1× on a slow device (`docs/performance.md`). The Esc menu is tight: ten buttons fill the screen.
 - Fullscreen (F / Full / Esc menu) must run from a `click`: on touch `pointerdown` isn't a user activation.
   iPhones can't fullscreen a page, so they get an "Add to Home Screen" tip; the manifest (display:
   fullscreen) and apple-* meta tags make the home-screen icon launch without browser bars.

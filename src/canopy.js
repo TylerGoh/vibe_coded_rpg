@@ -12,6 +12,7 @@
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
 import { CANOPY_W, CANOPY_EXIT_X, CANOPY_ZONES, CANOPY_PLATFORMS, FIELD_GROUND } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
+import { glow as radialGlow } from './glow.js';
 
 const GROUND = FIELD_GROUND;
 const INK = '#5b4a6b';
@@ -31,27 +32,9 @@ function text(ctx, str, x, y, size, color, align = 'center') {
   ctx.fillText(str, x, y);
 }
 
-// A soft round glow (cached radial gradient, scaled into place)
-const glowCache = new WeakMap();
+// A soft round glow (this area's falloff; drawn by src/glow.js)
 function glow(ctx, x, y, rx, ry, rgb, a = 1) {
-  if (a <= 0.01 || rx <= 0 || ry <= 0) return;
-  let c = glowCache.get(ctx);
-  if (!c) glowCache.set(ctx, (c = {}));
-  let g = c[rgb];
-  if (!g) {
-    g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
-    g.addColorStop(0, `rgba(${rgb},0.85)`);
-    g.addColorStop(0.4, `rgba(${rgb},0.3)`);
-    g.addColorStop(1, `rgba(${rgb},0)`);
-    c[rgb] = g;
-  }
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(rx, ry);
-  ctx.globalAlpha *= a;
-  ctx.fillStyle = g;
-  ctx.fillRect(-1, -1, 2, 2);
-  ctx.restore();
+  radialGlow(ctx, x, y, rx, ry, rgb, a, 0.85, 0.4, 0.3); // src/glow.js
 }
 
 // ——— seeded scenery ———

@@ -9,6 +9,7 @@ import { DEN_ART as CALDERA_DENS, ENTRANCE_ART as CALDERA_ENTRANCES, BOSS_ART as
 import { DEN_ART as CITADEL_DENS, ENTRANCE_ART as CITADEL_ENTRANCES, BOSS_ART as CITADEL_BOSSES, FX2 as CITADEL_FX } from './dens-citadel.js';
 import { DEN_ART as COVES_DENS, ENTRANCE_ART as COVES_ENTRANCES, BOSS_ART as COVES_BOSSES } from './dens-coves.js';
 import { DEN_ART as DEEP_DENS, ENTRANCE_ART as DEEP_ENTRANCES, BOSS_ART as DEEP_BOSSES } from './dens-deep.js';
+import { glow as radialGlow } from './glow.js';
 // the third and fourth stages' dens, bosses and boss effects live in their own files (same contracts as here)
 const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS };
 const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES };
@@ -58,29 +59,9 @@ function star(ctx, x, y, r) {
   ctx.fill();
 }
 
-// A soft round glow. The gradient is made once per colour (unit radius) and scaled into place.
-const glowCache = new WeakMap();
+// A soft round glow (drawn by src/glow.js)
 function glow(ctx, x, y, rx, ry, rgb, a = 1) {
-  let c = glowCache.get(ctx);
-  if (!c) glowCache.set(ctx, (c = {}));
-  let g = c[rgb];
-  if (!g) {
-    g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
-    g.addColorStop(0, `rgba(${rgb},0.9)`);
-    g.addColorStop(0.35, `rgba(${rgb},0.35)`);
-    g.addColorStop(1, `rgba(${rgb},0)`);
-    c[rgb] = g;
-  }
-  if (a <= 0.01) return;
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(rx, ry);
-  ctx.globalAlpha *= a;
-  ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.arc(0, 0, 1, 0, TAU);
-  ctx.fill();
-  ctx.restore();
+  radialGlow(ctx, x, y, rx, ry, rgb, a, 0.9, 0.35, 0.35); // src/glow.js
 }
 
 // Vertical gradients (they only depend on y, so one per theme works at any camera position)

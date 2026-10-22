@@ -4,6 +4,7 @@
 // Visual language (matches dens.js): a pulsing pink-red outline/fill = "danger is coming here", then
 // the bright, opaque thing = "it hurts now". Tall sweeps fill the whole height so nobody tries to jump them.
 import { TAU } from './util.js';
+import { glow as radialGlow } from './glow.js';
 
 const GROUND = 450;
 const TOP = -40; // tall things start above the screen top
@@ -17,41 +18,19 @@ const hash = (n) => {
 };
 
 // ---- cached gradients -----------------------------------------------------------------------------
-// Radial glows are made once per colour at unit radius and drawn scaled; vertical gradients only depend
+// Radial glows come from src/glow.js; vertical gradients only depend
 // on y, so they're cached by key (their x span doesn't matter for a vertical gradient).
-const glowCache = new Map();
 let gctx = null;
-function glowGrad(ctx, rgb) {
-  let g = glowCache.get(rgb);
-  if (!g || gctx !== ctx) {
-    if (gctx !== ctx) glowCache.clear();
-    gctx = ctx;
-    g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
-    g.addColorStop(0, `rgba(${rgb},1)`);
-    g.addColorStop(0.45, `rgba(${rgb},0.45)`);
-    g.addColorStop(1, `rgba(${rgb},0)`);
-    glowCache.set(rgb, g);
-  }
-  return g;
-}
 function glow(ctx, x, y, rx, ry, rgb, a) {
-  if (a <= 0.01 || rx < 1 || ry < 1) return;
-  ctx.save();
-  ctx.globalAlpha *= Math.min(1, a);
-  ctx.translate(x, y);
-  ctx.scale(rx, ry);
-  ctx.fillStyle = glowGrad(ctx, rgb);
-  ctx.beginPath();
-  ctx.arc(0, 0, 1, 0, TAU);
-  ctx.fill();
-  ctx.restore();
+  if (rx < 1 || ry < 1) return;
+  radialGlow(ctx, x, y, rx, ry, rgb, a, 1, 0.45, 0.45); // src/glow.js
 }
 const vCache = new Map();
 function vGrad(ctx, key, y0, y1, stops) {
   const k = key + '|' + y0 + '|' + y1;
   let g = vCache.get(k);
   if (!g || gctx !== ctx) {
-    if (gctx !== ctx) { glowCache.clear(); vCache.clear(); gctx = ctx; }
+    if (gctx !== ctx) { vCache.clear(); gctx = ctx; }
     g = ctx.createLinearGradient(0, y0, 0, y1);
     for (const [o, c] of stops) g.addColorStop(o, c);
     if (vCache.size > 200) vCache.clear();

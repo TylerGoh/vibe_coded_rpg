@@ -8,6 +8,7 @@
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { CALDERA_W, CALDERA_EXIT_X, CALDERA_ZONES, CALDERA_PLATFORMS, CALDERA, DENS, FIELD_GROUND, HIGHLANDS_W, CITADEL_DOOR_X } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
+import { glow as radialGlow } from './glow.js';
 
 const GROUND = FIELD_GROUND;
 const INK = '#5a3448';
@@ -81,28 +82,9 @@ function flame(ctx, x, y, s, t, ph, cols = ['#ff7a3a', '#ffbe48', '#fff2b4']) {
   flamePath(ctx, x, y - s * 0.08, s * 0.36, t, ph + 2.1);
   ctx.fill();
 }
-// a soft round glow: one cached unit radial gradient per colour, scaled into place
-const glowCache = new WeakMap();
+// a soft round glow (this room's falloff; drawn by src/glow.js)
 function softGlow(ctx, x, y, r, rgb, a) {
-  let c = glowCache.get(ctx);
-  if (!c) glowCache.set(ctx, (c = {}));
-  let g = c[rgb];
-  if (!g) {
-    g = c[rgb] = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
-    g.addColorStop(0, `rgba(${rgb},1)`);
-    g.addColorStop(0.35, `rgba(${rgb},0.55)`);
-    g.addColorStop(1, `rgba(${rgb},0)`);
-  }
-  if (a <= 0.005) return;
-  ctx.save();
-  ctx.globalAlpha *= Math.min(1, a);
-  ctx.translate(x, y);
-  ctx.scale(r, r);
-  ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.arc(0, 0, 1, 0, TAU);
-  ctx.fill();
-  ctx.restore();
+  radialGlow(ctx, x, y, r, r, rgb, a, 1, 0.35, 0.55); // src/glow.js
 }
 
 // ——— seeded scenery ———

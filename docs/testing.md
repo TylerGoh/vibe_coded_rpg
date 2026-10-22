@@ -29,6 +29,8 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
   `Input.dispatchTouchEvent`. Always check a phone screenshot for any UI change.
 - Voice: `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream`.
 - Programmatic clicks aren't user gestures, so audio contexts stay suspended in tests.
+- Frame rate: `#debug` shows fps in the corner and keeps `slimeville.perf`; for an old laptop use
+  the DevTools CPU throttling command (Emulation.setCPUThrottlingRate) (`docs/performance.md`).
 - Open the game with `#debug` to get `window.slimeville` (`net`, `voice`, `characters`, `museum`, `hall`,
   `piano`, `tutor`, `courseMenu`, `rpg`, `skillTree`, `shop`, `audio`, `slimes`, `mine`, `camX`).
 - Past sessions left reusable scripts in their scratchpads (e.g. boutique.mjs, ap.mjs); copying one

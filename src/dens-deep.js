@@ -7,6 +7,7 @@
 // Quake is the shared `stomp` ultimate.
 import { H, TAU, mulberry32, circle, ellipse, mix } from './util.js';
 import { DEN_W, DEN_PLATFORMS, DEN_EXIT_X, DENS, MOBS, FIELD_GROUND } from './shared/rpg.js';
+import { glow as radialGlow } from './glow.js';
 
 const GROUND = FIELD_GROUND;
 const NEST_X = DEN_W - 120;
@@ -21,26 +22,8 @@ function text(ctx, str, x, y, size, color, align = 'center') {
   ctx.fillStyle = color;
   ctx.fillText(str, x, y);
 }
-const glowCache = new WeakMap();
 function glow(ctx, x, y, rx, ry, rgb, a = 1) {
-  if (a <= 0.01 || rx <= 0 || ry <= 0) return;
-  let c = glowCache.get(ctx);
-  if (!c) glowCache.set(ctx, (c = {}));
-  let g = c[rgb];
-  if (!g) {
-    g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
-    g.addColorStop(0, `rgba(${rgb},0.9)`);
-    g.addColorStop(0.35, `rgba(${rgb},0.35)`);
-    g.addColorStop(1, `rgba(${rgb},0)`);
-    c[rgb] = g;
-  }
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(rx, ry);
-  ctx.globalAlpha *= a;
-  ctx.fillStyle = g;
-  ctx.fillRect(-1, -1, 2, 2);
-  ctx.restore();
+  radialGlow(ctx, x, y, rx, ry, rgb, a, 0.9, 0.35, 0.35); // src/glow.js
 }
 const gradCache = new WeakMap();
 function vgrad(ctx, key, y0, y1, stops) {

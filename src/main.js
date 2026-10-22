@@ -48,6 +48,8 @@ import { drawGlowroot } from './glowroot.js';
 import { drawCanopy } from './canopy.js';
 import { wayAt } from './shared/waystones.js';
 import { drawWaystones, wayPrompt, wayBeacons, WayCard, shimmer } from './waystones.js';
+import { fastGradients } from './fastcanvas.js';
+import { gfx } from './gfx.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
 import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn } from './shared/sim.js';
@@ -62,7 +64,7 @@ const menu = document.getElementById('menu');
 const micButton = document.getElementById('mic');
 const castButton = document.getElementById('cast');
 const swatches = document.getElementById('swatches');
-const ctx = canvas.getContext('2d');
+const ctx = fastGradients(canvas.getContext('2d')); // big gradient fills drawn as cached strips (docs/performance.md)
 const ENV = envAt(0); // a sunny day in the village
 const HUES = [148, 200, 265, 320, 350, 28, 48, 175];
 
@@ -74,7 +76,8 @@ function resize() {
   const dpr = devicePixelRatio || 1;
   canvas.style.width = `${W * s}px`;
   canvas.style.height = `${H * s}px`;
-  scale = Math.min(s * dpr, 2);
+  scale = Math.min(s * dpr, gfx.cap); // the Graphics setting (src/gfx.js): High up to 2, Low 1
+  gfx.settle();
   canvas.width = Math.round(W * scale);
   canvas.height = Math.round(H * scale);
   stage.style.setProperty('--s', s);
@@ -636,6 +639,15 @@ hbSwapButton.onclick = () => {
   rpg.swapHotbar();
   toggleMenu(false);
 };
+// Graphics: auto / high / low (src/gfx.js; Auto drops to low on a slow machine)
+const gfxButton = document.getElementById('gfx');
+const showGfx = () => (gfxButton.textContent = gfx.label());
+gfx.onChange(() => {
+  resize();
+  showGfx();
+});
+showGfx();
+gfxButton.onclick = () => gfx.cycle();
 showMusic();
 musicButton.onclick = () => {
   audio.setMusic(!audio.musicOn);
@@ -1039,6 +1051,7 @@ function update(realDt) {
   const newRoom = online() ? net.me.room : VILLAGE;
   if (newRoom !== room) {
     room = newRoom;
+    gfx.settle();
     camX = clamp((online() ? net.me.x : 0) - W / 2, 0, roomDef(room).width + (roomDef(room).viewPad ?? 0) - W); // no panning across rooms
     particles.list = [];
     ways.close();
@@ -1421,12 +1434,33 @@ function render() {
 // For tests and troubleshooting: open the game with #debug to reach its internals from the console.
 if (location.hash === '#debug') window.slimeville = { chat, net, voice, characters, museum, scope, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, pets, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
 
+// #debug also keeps frame timings (window.slimeville.perf: JS time in update() and render(), and the gap
+// between frames, which includes the browser's own drawing) and shows the frame rate in the corner.
+// See docs/performance.md.
+const perf = { n: 0, upd: 0, ren: 0, gap: 0, worst: 0, ema: 16.7, reset() { this.n = this.upd = this.ren = this.gap = this.worst = 0; } };
+if (window.slimeville) window.slimeville.perf = perf;
 let last = performance.now();
 function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(Math.max(0, (now - last) / 1000), 0.25);
+  const gap = now - last;
   last = now;
+  gfx.sample(gap / 1000);
+  const t0 = performance.now();
   update(dt);
+  const t1 = performance.now();
   render();
+  const t2 = performance.now();
+  perf.n++;
+  perf.upd += t1 - t0;
+  perf.ren += t2 - t1;
+  perf.gap += gap;
+  perf.worst = Math.max(perf.worst, gap);
+  if (window.slimeville && gap < 250) {
+    // a small frame-rate readout in the corner (#debug only)
+    perf.ema += (gap - perf.ema) * 0.05;
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    text(ctx, `${Math.round(1000 / perf.ema)} fps · ${scale.toFixed(2)}× · ${gfx.low ? 'low' : 'high'}`, W - 80, H - 8, 11, '#5b4a6b');
+  }
 }
 requestAnimationFrame(frame);
