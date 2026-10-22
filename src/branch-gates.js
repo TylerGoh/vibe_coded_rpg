@@ -7,10 +7,12 @@
 // stump into the Mycelium Deep, its roots cut back, the glowing crack down into Glowroot Hollow, and the
 // Old Oak Canopy's rope ladder, restrung, Wreck Cave's mouth with the water gone down, and the Thornheart's
 // wall of thorns, cut back into a tunnel, and the fallen trunk in the Canopy, sawn through to Keeper's Spine.
-// Frostpeak's (its depth pass, F0): a snow slide over the hamlet's shore path (the Whale Skerries), the ice
+// Frostpeak's (its depth pass, F0): the ice
 // stair onto the Queen's Bridge broken off on Frostpine Ridge, and in the Rimeglass Glacier the crevasse with
 // the cutters' ladder smashed at the bottom (the Blue Halls) and the icefall with its steps sheared away (the
-// Aurora Heights); the glacier's own way in, its snout on Starfall Summit with steps cut up it, is open.
+// Aurora Heights); open: the glacier's own way in, its snout on Starfall Summit with steps cut up it (F1), the
+// snow slide over the hamlet's shore path dug through to the Whale Skerries and the Narwhal Grotto's mouth in
+// the Skerries' sea cliff (F2).
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';
@@ -48,7 +50,7 @@ export function drawEntries(ctx, room, ground, L, R, time) {
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130 };
+const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118 };
 const SCALE = { bridge: 1.5, thorns: 1.15 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -977,6 +979,129 @@ function drawSnowslide(ctx, time) {
     ctx.fill();
   }
 }
+// The snow slide dug through (open: the Whale Skerries have shipped): the heap cut in two, the halves banked
+// up either side of a cleared path, the marker posts stood back up, two shovels left stuck in the snow
+function drawSnowslideOpen(ctx, time) {
+  ctx.fillStyle = '#4a4a5a'; // the fjord wall behind
+  ctx.beginPath();
+  ctx.moveTo(-150, 2);
+  ctx.lineTo(-140, -190);
+  ctx.lineTo(-60, -230);
+  ctx.lineTo(20, -200);
+  ctx.lineTo(90, 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; // the old scar, weathering
+  ctx.beginPath();
+  ctx.moveTo(-90, -210);
+  ctx.quadraticCurveTo(-70, -120, -100, -40);
+  ctx.lineTo(-20, -40);
+  ctx.quadraticCurveTo(-30, -130, -50, -214);
+  ctx.closePath();
+  ctx.fill();
+  // the two banks of snow either side of the cut
+  for (const [a, b, top] of [[-150, -70, -80], [-10, 80, -70]]) {
+    ctx.fillStyle = SNOW_S;
+    ctx.beginPath();
+    ctx.moveTo(a, 4);
+    ctx.quadraticCurveTo(a + 6, top, (a + b) / 2, top - 6);
+    ctx.quadraticCurveTo(b - 6, top, b, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = SNOW;
+    ctx.beginPath();
+    ctx.moveTo(a + 8, 4);
+    ctx.quadraticCurveTo(a + 12, top + 8, (a + b) / 2, top + 2);
+    ctx.quadraticCurveTo(b - 12, top + 8, b - 8, 4);
+    ctx.closePath();
+    ctx.fill();
+  }
+  // shovel marks on the cut faces
+  ctx.strokeStyle = 'rgba(150,180,210,0.6)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.moveTo(-74 + i * 2, -10 - i * 16);
+    ctx.lineTo(-68 + i * 2, -18 - i * 16);
+    ctx.moveTo(-6 - i * 2, -8 - i * 14);
+    ctx.lineTo(-12 - i * 2, -16 - i * 14);
+    ctx.stroke();
+  }
+  // the cleared path between, trodden
+  ctx.fillStyle = 'rgba(180,170,160,0.6)';
+  ctx.fillRect(-70, -2, 60, 5);
+  // the marker posts, stood back up, and two shovels stuck in the bank
+  for (const x of [-80, 4]) {
+    ctx.fillStyle = '#7a5a40';
+    ctx.fillRect(x, -60, 5, 60);
+    ctx.fillStyle = '#d0485a';
+    ctx.fillRect(x, -60, 5, 6);
+  }
+  for (const [x, a] of [[-120, -0.3], [50, 0.25]]) {
+    ctx.save();
+    ctx.translate(x, -50);
+    ctx.rotate(a);
+    ctx.fillStyle = '#8a6a48';
+    ctx.fillRect(-1.5, -40, 3, 40);
+    ctx.fillRect(-6, -42, 12, 3);
+    ctx.fillStyle = '#7a7a86';
+    ctx.beginPath();
+    ctx.roundRect(-7, 0, 14, 16, 3);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+// The Narwhal Grotto's mouth, in the sea cliff at the Skerries' far end (open): a tall arch into the cliff,
+// green ice inside glowing faintly, icicles fringing it, a skerry stone at its foot to climb in by
+function drawGrottoMouth(ctx, time) {
+  ctx.fillStyle = '#0e2a2c';
+  ctx.beginPath();
+  ctx.moveTo(-58, 2);
+  ctx.lineTo(-58, -110);
+  ctx.quadraticCurveTo(-50, -170, 0, -176);
+  ctx.quadraticCurveTo(52, -170, 58, -110);
+  ctx.lineTo(58, 2);
+  ctx.closePath();
+  ctx.fill();
+  const pulse = 0.5 + 0.5 * Math.sin(time * 1.3);
+  const g = ctx.createRadialGradient(0, -60, 4, 0, -60, 90);
+  g.addColorStop(0, `rgba(150,255,210,${0.35 + 0.15 * pulse})`);
+  g.addColorStop(1, 'rgba(150,255,210,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(-60, -170, 120, 172);
+  // green ice walls inside, receding
+  ctx.fillStyle = 'rgba(90,184,160,0.6)';
+  ctx.beginPath();
+  ctx.moveTo(-50, 2);
+  ctx.lineTo(-20, -100);
+  ctx.lineTo(-30, 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(50, 2);
+  ctx.lineTo(18, -110);
+  ctx.lineTo(28, 2);
+  ctx.closePath();
+  ctx.fill();
+  // icicles round the arch
+  ctx.fillStyle = 'rgba(200,245,230,0.9)';
+  for (let i = 0; i < 9; i++) {
+    const a = Math.PI + (i / 8) * Math.PI, x = Math.cos(a) * 56, y = -112 + Math.sin(a) * 62, len = 12 + (i % 3) * 8;
+    ctx.beginPath();
+    ctx.moveTo(x - 3, y);
+    ctx.lineTo(x + 3, y);
+    ctx.lineTo(x, y + len);
+    ctx.closePath();
+    ctx.fill();
+  }
+  // a stepping stone at its foot
+  ctx.fillStyle = '#3a3e4c';
+  ctx.beginPath();
+  ctx.ellipse(10, 0, 40, 12, 0, Math.PI, 0);
+  ctx.fill();
+  ctx.fillStyle = SNOW;
+  ellipse(ctx, 10, -10, 22, 3);
+}
 // The Queen's Bridge, on Frostpine Ridge by the Frozen Throne: a stair of blue ice blocks climbing up toward
 // the bridge that arches over the strait, broken off halfway where the bridge cracked: a gap of empty air,
 // then the stair's top hanging from the bridge's underside, dripping
@@ -1202,5 +1327,5 @@ function drawSnout(ctx, time) {
 }
 
 const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall };
-const OPEN = { snout: drawSnout, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
+const OPEN = { snout: drawSnout, snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
   flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true) };

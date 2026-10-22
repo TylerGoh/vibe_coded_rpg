@@ -74,7 +74,11 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   Frostpeak's F1 adds **Ice-Cutter Eyvind** (`SHOPS.eyvind`, the Rimeglass Glacier: the Ice-Cutter's Cleaver,
   the Glacier Staff and the Ice-Cutter's Cap, aimed at Lv 66, mega elixirs), with the glacier's gear in
   `src/glacier-art.js` (`GLACIER_*`): the Ramhorn Helm, Rimefang / Howling Staff and Old Rimehorn's Tusk /
-  Rimehorn Staff and Woolly Hood (`docs/places/glacier.md`).
+  Rimehorn Staff and Woolly Hood (`docs/places/glacier.md`). F2 adds **Hakon the Bone-Carver** (`SHOPS.hakon`, the
+  Whale Skerries: the Bone-Carver's Saber, the Driftbone Staff and the Sealskin Hood, aimed at Lv 60), with the
+  Skerries' and the Narwhal Grotto's gear in `src/skerries-art.js` (`SKERRIES_*`): the Whalebone Helm, the Ivory
+  Cutlass / Walrus Ivory Staff, the Angler's Lamp, the Skate Wing Blade / Skate Staff, and the Old Narwhal's
+  Narwhal Tusk / Narwhal Song Staff and Floe Crown (9 slots; `docs/places/skerries.md`).
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
   are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.

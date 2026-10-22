@@ -37,6 +37,12 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
   daughter Liv sailed south on the Lodestar's last voyage and is stuck there while the stars are wrong; he
   writes her a letter a month for when ships sail again; he carries Skaldi's driftwood bird up to Ylva's
   Cairn each year; he names the crevasses.
+- **Hakon the Bone-Carver** (the Whale Skerries, Frostpeak's depth pass F2, **exists**): fjord folk; carves
+  whalebone (only what the sea gives: his grandfather was Frostpeak's last whaler) in the old whaling hut and
+  trades. Shy, plain, a dry joke now and then. Tier 0 plus the Skerries: Grandmother the whale skeleton (he
+  talks to her), the Old Narwhal singing under the ice, the Grotto he went into once. His life: sweet on
+  Captain Brine, who has never noticed him waving from the point (a comb carved for her, never given); plays
+  a bone flute badly; Runa sends him darned socks. Not "Bjarni": Runa's husband is Bjarn.
 - **Forgewarden Ash** (Forgehold): bitter, honest, slow to trust. Holds Tier 3.
 - **The Last Echo** (the Citadel): a Keeper echo stuck repeating, who becomes briefly lucid when players
   bring Mochi's name. Holds Tier 4.

@@ -319,8 +319,8 @@ legacy stage (90–115), so the island's top overlaps the next one's bottom, as 
   daughter Liv sailed south on the Lodestar's last voyage and hasn't come home.
 - **The Whale Skerries** (branch, 55–70): low black islets and a whale's bones along the fjord's outer
   shore. Ice seals, skuas, sea urchins, whalebone crabs. A trader in an old whaling hut. Den: **the Old
-  Narwhal** `[proposed]` (the atlas's "sea creature under the ice bridge"), holding the floes in so the
-  fjord's fish can't get out. Story to write when it ships.
+  Narwhal** (shipped F2; the atlas's "sea creature under the ice bridge"), holding the floes in so the
+  fjord's fish can't get out. Her story: `characters/bosses.md`. The trader is Hakon the Bone-Carver.
   - **The Narwhal Grotto** (hard pocket, 70–80): a sea cave of green ice, elites.
 - **The Aurora Heights** (branch, 75–90): the high snowfield above the glacier, where the aurora hangs low
   enough to touch and the wrong stars are closest. Field boss: something of the Wyrm's kind that fell
@@ -337,6 +337,8 @@ Each its own session and dev copy, like Greenhollow's.
       `src/shared/branches.js`), its unshipped branches' gates, waystones kept to their own island.
 - [x] **F1: the Rimeglass Glacier** (60–75), Old Rimehorn, Ice-Cutter Eyvind (2026-10-23,
       `docs/places/glacier.md`).
-- [ ] **F2: the Whale Skerries and the Narwhal Grotto** (55–80), the Old Narwhal's den.
+- [x] **F2: the Whale Skerries and the Narwhal Grotto** (55–80), the Old Narwhal's den (2026-10-23,
+      `docs/places/skerries.md`, `docs/places/grotto.md`). Hakon the Bone-Carver, Grandmother, the Sounding
+      Stone; the den is the Breathing Hole at the Floe Edge, next to the Grotto's mouth.
 - [ ] **F3: the Aurora Heights and the Blue Halls** (75–90), their field bosses.
 - [ ] **F4: the Queen's Bridge** (85–100) and Sigrun, Frostpeak's capstone. Then atlas Phase 5 resumes.

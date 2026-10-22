@@ -1118,6 +1118,81 @@ const SONGS = {
     },
   },
 
+  // ——— Frostpeak's depth pass F2 (docs/places/skerries.md, docs/places/grotto.md) ———
+  // The Whale Skerries: grey and quiet, A dorian, a slow lilting 3/4 like a fjord song, a low drone, a
+  // plucked line (Hakon's bone flute on the second pass, a bit wobbly), waves dragging the shingle and
+  // now and then a far whale call gliding down
+  skerries: {
+    bpm: 76, beats: 3, spb: 6, melSteps: 6, key: 57, scale: DORIAN, gain: 0.76, send: 0.45, loop: 8,
+    chords: [[1, 3, 5], [7, 9, 11], [4, 6, 8], [1, 3, 5], [3, 5, 7], [4, 6, 8], [7, 9, 11], [5, 7, 9]],
+    mel: melody(
+      '5 - 4 3 - 2', '1 - - . . .', '4 - 5 6 - 5', '3 - - . . .',
+      '5 - 6 8 - 7', '6 - 5 4 - .', '3 - 2 1 - 2', '1 - - . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 300, 0.012); // the sea
+      p.eng.bed(p, 'bandpass', 1200, 0.004, 0.5); // wind over the rocks
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) {
+        pad(p, ch, t, p.stepDur * 6, 0.01, { type: 'sawtooth', a: 0.8, cutoff: 700, unison: 4, rel: 1.2 });
+        e.voice(p.c, t, p.f(ch[0], -2), { type: 'triangle', vol: 0.08, a: 0.3, hold: p.stepDur * 5, rel: 0.8, cutoff: 400 });
+      }
+      if (s === 2 || s === 4) e.voice(s === 2 ? p.l : p.r, t, p.f(ch[s === 2 ? 1 : 2], 0), { ...PLUCK, vol: 0.04, tau: 0.2, cutoff: 1400 });
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { ...PLUCK, vol: 0.09, tau: 0.28, cutoff: 1800, partials: [[2, 0.15]] });
+      if (m && part === 1) e.voice(p.r, t, p.f(m.d, 1), { type: 'sine', vol: 0.05, a: 0.05, hold: m.len * 0.8, rel: 0.2, vib: 7, vibRate: 5.5, partials: [[2, 0.3], [3, 0.1]] }); // the bone flute
+      if (s === 0 && bar % 2 === 1) e.noiseHit(p.c, t, { type: 'lowpass', f: 300, sweep: 900, sweepT: 1.6, vol: 0.06, a: 0.9, hold: 0.3, tau: 1 }); // a wave up the shingle
+      if (s === 3 && bar % 8 === 5 && chance(0.6)) e.voice(p.l, t, p.f(5, -1), { type: 'sine', vol: 0.025, a: 0.4, hold: 0.9, rel: 1, glide: 0.6, glideT: 1.5 }); // a whale, far out
+    },
+  },
+  // The Narwhal Grotto: hushed and glassy, E minor, slow, high crystalline notes ringing in the ice over a
+  // hollow drone, drips, and the pod's old call echoing back from deep in the cliff
+  grotto: {
+    bpm: 66, spb: 8, key: 52, scale: MINOR, gain: 0.74, send: 0.6, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5], [7, 9, 11], [6, 8, 10], [5, 7, 9]],
+    mel: melody(
+      '8 - - - 7 - 5 -', '. . . . . . . .', '6 - - - 5 - 3 -', '. . . . . . . .',
+      '8 - 10 - 9 - 8 -', '7 - - - . . . .', '6 - 5 - 4 - 2 -', '1 - - - - - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 140, 0.014);
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar);
+      if (s === 0) pad(p, ch, t, p.stepDur * 8, 0.01, { type: 'triangle', a: 1.4, cutoff: 900, unison: 4, rel: 1.6 });
+      if (s % 4 === 2) e.voice(s % 8 === 2 ? p.l : p.r, t, p.f(ch[(bar + s) % 3], 2), { ...GLOCK, vol: 0.02, tau: 0.9 }); // the ice ringing
+      const m = p.mel(bar, s);
+      if (m) e.voice(p.c, t, p.f(m.d, 1), { ...GLOCK, vol: 0.04, tau: 1.1 });
+      if (s === 5 && chance(0.4)) e.voice(p.r, t, p.f(8, 2), { type: 'sine', vol: 0.02, tau: 0.08 }); // a drip
+      if (s === 1 && bar % 8 === 3 && chance(0.7)) e.voice(p.l, t, p.f(3, -1), { type: 'sine', vol: 0.022, a: 0.5, hold: 1.2, rel: 1.2, glide: 1.25, glideT: 1.4, vib: 3, vibRate: 2 }); // the pod's call
+    },
+  },
+  // The Breathing Hole: the Old Narwhal's den. D minor, heavy and sad rather than angry: a slow pounding pulse
+  // under the ice, low strings, and her song (a long gliding call) over the top at every phrase
+  narwhal: {
+    bpm: 112, spb: 8, key: 50, scale: MINOR, gain: 0.8, send: 0.35, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [7, 9, 11], [5, 7, 9], [1, 3, 5], [4, 6, 8], [6, 8, 10], [5, 7, 9]],
+    mel: melody(
+      '5 - - 6 5 - 3 -', '4 - - - 3 - 2 -', '5 - - 6 8 - 7 -', '6 - - - 5 - . .',
+      '8 - - 7 6 - 5 -', '4 - - 5 6 - 5 -', '3 - 2 - 1 - 2 -', '1 - - - . . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 120, 0.02); // the water under the ice
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), hot = e.intensity > 0.5;
+      if (s === 0) pad(p, ch, t, p.stepDur * 8, 0.014, { type: 'sawtooth', a: 0.4, cutoff: 800, unison: 8, rel: 0.6 });
+      if (s % 2 === 0) e.voice(p.c, t, p.f(ch[0], -2), { type: 'sawtooth', vol: s % 4 ? 0.05 : 0.08, tau: 0.12, cutoff: 420 });
+      if (s === 0 || s === 4 || (hot && s % 2 === 0)) e.kick(p.c, t, 0.24, 110, 40, 0.1);
+      if (s === 4) snare(p, t, 0.05);
+      const m = p.mel(bar, s);
+      if (m) e.voice(p.r, t, p.f(m.d, 1), { type: 'triangle', vol: 0.07, a: 0.03, hold: m.len * 0.8, rel: 0.2, cutoff: 1800 });
+      if (s === 0 && bar % 4 === 0) e.voice(p.l, t, p.f(5, 0), { type: 'sine', vol: 0.04, a: 0.4, hold: 1, rel: 1, glide: 0.75, glideT: 1.4, vib: 4, vibRate: 3, partials: [[2, 0.2]] }); // her song
+    },
+  },
+
   // The Warden's Court: heavy and stubborn, D harmonic minor, stone drums like footfalls, low brass, a bell
   // tolling at every bar (the gate), and an ostinato that refuses to move on
   warden: {
@@ -2395,7 +2470,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -2506,10 +2581,14 @@ Object.assign(MOB_HURT, { dragonfly: MOB_HURT.cinder_bat, gloop_snail: MOB_HURT.
   barnacle_crab: MOB_HURT.obsidian_crab, drowned_lamp: MOB_HURT.wisp, moray_eel: MOB_HURT.magma_slug, bilge_rat: MOB_HURT.aether_knight, drowned_bosun: MOB_HURT.golem,
   thornback: MOB_HURT.bramble ?? MOB_HURT.obsidian_crab, thistle_puff: MOB_HURT.mushling, thistledown: MOB_HURT.cogbit, pitcher_plant: MOB_HURT.mushling, thorn_stalker: MOB_HURT.aether_knight, thorn_hart: MOB_HURT.golem,
   moss_turtle: MOB_HURT.obsidian_crab, crag_kite: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, stone_sentinel: MOB_HURT.golem, gale_sprite: MOB_HURT.wisp, rootling: MOB_HURT.aether_knight, root_warden: MOB_HURT.colossus ?? MOB_HURT.golem,
-  snow_hare: MOB_HURT.frostling, snow_petrel: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, glacier_ram: MOB_HURT.obsidian_crab, rime_wolf: MOB_HURT.aether_knight, frost_wraith: MOB_HURT.wisp, great_yeti: MOB_HURT.yeti, rimehorn: MOB_HURT.golem });
+  snow_hare: MOB_HURT.frostling, snow_petrel: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, glacier_ram: MOB_HURT.obsidian_crab, rime_wolf: MOB_HURT.aether_knight, frost_wraith: MOB_HURT.wisp, great_yeti: MOB_HURT.yeti, rimehorn: MOB_HURT.golem,
+  ice_seal: MOB_HURT.frostling, skua: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, sea_urchin: MOB_HURT.mushling, whalebone_crab: MOB_HURT.obsidian_crab, sea_smoke: MOB_HURT.wisp, bull_walrus: MOB_HURT.yeti, old_narwhal: MOB_HURT.colossus ?? MOB_HURT.golem,
+  lanternfish: MOB_HURT.wisp, ice_eel: MOB_HURT.magma_slug, brine_slug: MOB_HURT.magma_slug, ice_skate: MOB_HURT.aether_knight });
 Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEATH.magma_slug, rock_crab: MOB_DEATH.obsidian_crab, snapshrimp: MOB_DEATH.obsidian_crab,
   puffcap: MOB_DEATH.mushling, cave_bat: MOB_DEATH.cinder_bat, puffball: MOB_DEATH.mushling, root_beetle: MOB_DEATH.obsidian_crab, glowworm: MOB_DEATH.magma_slug, glow_moth: MOB_DEATH.wisp,
   oak_squirrel: MOB_DEATH.mushling, tent_caterpillar: MOB_DEATH.magma_slug, tawny_owl: MOB_DEATH.cinder_bat, wasp_nest: MOB_DEATH.mushling, hornet: MOB_DEATH.cinder_bat,
   barnacle_crab: MOB_DEATH.obsidian_crab, drowned_lamp: MOB_DEATH.wisp, moray_eel: MOB_DEATH.magma_slug, thornback: MOB_DEATH.bramble ?? MOB_DEATH.obsidian_crab, thistle_puff: MOB_DEATH.mushling, pitcher_plant: MOB_DEATH.mushling,
   moss_turtle: MOB_DEATH.obsidian_crab, crag_kite: MOB_DEATH.cinder_bat, stone_sentinel: MOB_DEATH.golem, gale_sprite: MOB_DEATH.wisp, root_warden: MOB_DEATH.colossus,
-  snow_hare: MOB_DEATH.frostling, snow_petrel: MOB_DEATH.cinder_bat, glacier_ram: MOB_DEATH.obsidian_crab, frost_wraith: MOB_DEATH.wisp, great_yeti: MOB_DEATH.yeti, rimehorn: MOB_DEATH.yeti });
+  snow_hare: MOB_DEATH.frostling, snow_petrel: MOB_DEATH.cinder_bat, glacier_ram: MOB_DEATH.obsidian_crab, frost_wraith: MOB_DEATH.wisp, great_yeti: MOB_DEATH.yeti, rimehorn: MOB_DEATH.yeti,
+  ice_seal: MOB_DEATH.frostling, skua: MOB_DEATH.cinder_bat, sea_urchin: MOB_DEATH.mushling, whalebone_crab: MOB_DEATH.obsidian_crab, sea_smoke: MOB_DEATH.wisp, bull_walrus: MOB_DEATH.yeti, old_narwhal: MOB_DEATH.colossus,
+  lanternfish: MOB_DEATH.wisp, ice_eel: MOB_DEATH.magma_slug, brine_slug: MOB_DEATH.magma_slug });

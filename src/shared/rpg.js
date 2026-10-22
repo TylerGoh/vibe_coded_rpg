@@ -343,6 +343,62 @@ export const GLACIER_PLATFORMS = [
   { x: 5000, y: 255, w: 180, kind: 'serac' },
   { x: 2215, y: 160, w: 100, kind: 'cairn' }, // Ylva's Cairn, high on a serac over the Snout: easy to miss
 ];
+// ——— Frostpeak's depth pass, F2 (docs/places/skerries.md, docs/places/grotto.md) ———
+// The Whale Skerries (room 37): low black islets and a whale's bones along the fjord's outer shore, out of
+// Icefang Hamlet's west end along the shore path (the snow slide dug through: SKERRIES_GATE_X). You come in
+// at the EAST end (the hamlet lies east) and walk west, deeper and harder, so its zones run hard -> easy by x:
+// the Whaling Hut (no mobs: Hakon, a waystone, the Sounding Stone), the Black Skerries, the Whalebones
+// (Grandmother, a great whale's skeleton; her skull's crown, last in SKERRIES_PLATFORMS, is the hidden spot)
+// and the Floe Edge, where the pack ice starts: the Old Narwhal's breathing hole (her den, NARWHAL_DEN_X) and,
+// at the very end, the mouth of the Narwhal Grotto in the sea cliff (GROTTO_GATE_X).
+export const SKERRIES = 37; // room id
+export const SKERRIES_W = 5000;
+export const SKERRIES_EXIT_X = SKERRIES_W - 70; // the shore path back to Icefang Hamlet
+export const HAKON_X = 4420; // Hakon the bone-carver, at the whaling hut's door (he trades: SHOPS)
+export const NARWHAL_DEN_X = 560; // the Old Narwhal's breathing hole in the pack ice
+export const GROTTO_GATE_X = 170; // the Narwhal Grotto's mouth, in the sea cliff at the Skerries' far end
+export const SKERRIES_ZONES = [
+  { name: 'The Floe Edge', x0: 0, x1: 1700, lvl: '65–70' },
+  { name: 'The Whalebones', x0: 1700, x1: 3300, lvl: '60–65' },
+  { name: 'The Black Skerries', x0: 3300, x1: 4200, lvl: '55–60' },
+  { name: 'The Whaling Hut', x0: 4200, x1: SKERRIES_W, lvl: null }, // (no mobs)
+];
+export const SKERRIES_PLATFORMS = [
+  { x: 4480, y: 330, w: 170, kind: 'hut' }, // the whaling hut's roof
+  { x: 3820, y: 262, w: 200, kind: 'skerry' },
+  { x: 3440, y: 340, w: 220, kind: 'skerry' },
+  { x: 3000, y: 340, w: 210, kind: 'skerry' },
+  { x: 2620, y: 340, w: 200, kind: 'rib' }, // a fallen rib wedged between two rocks
+  { x: 2240, y: 250, w: 320, kind: 'spine' }, // Grandmother's backbone
+  { x: 1960, y: 338, w: 200, kind: 'jaw' }, // her jawbone, lying in the shingle
+  { x: 1340, y: 340, w: 220, kind: 'floe' },
+  { x: 1000, y: 258, w: 200, kind: 'floe' },
+  { x: 700, y: 340, w: 200, kind: 'floe' },
+  { x: 2100, y: 160, w: 110, kind: 'skull' }, // Grandmother's Crown, on top of the whale's skull: easy to miss
+];
+// The Narwhal Grotto (room 39, a hard pocket): a sea cave of green ice in the cliff at the Skerries' far end.
+// You come in at the WEST end (GROTTO_EXIT_X) and go east into the cliff: the Grotto Mouth (no mobs), the
+// Green Halls and the Tusk Hall, where the old pod's shed tusks hang in the ice; a nook up among them (last in
+// GROTTO_PLATFORMS) is the hidden spot.
+export const GROTTO = 39; // room id
+export const GROTTO_W = 4000;
+export const GROTTO_EXIT_X = 70; // back out to the Skerries
+export const GROTTO_ZONES = [
+  { name: 'The Grotto Mouth', x0: 0, x1: 600, lvl: null }, // (no mobs)
+  { name: 'The Green Halls', x0: 600, x1: 2300, lvl: '70–75' },
+  { name: 'The Tusk Hall', x0: 2300, x1: GROTTO_W, lvl: '75–80' },
+];
+export const GROTTO_PLATFORMS = [
+  { x: 800, y: 340, w: 200, kind: 'shelf' },
+  { x: 1150, y: 255, w: 200, kind: 'shelf' },
+  { x: 1550, y: 340, w: 220, kind: 'shelf' },
+  { x: 1950, y: 255, w: 200, kind: 'shelf' },
+  { x: 2450, y: 340, w: 220, kind: 'shelf' },
+  { x: 2850, y: 255, w: 200, kind: 'shelf' },
+  { x: 3250, y: 340, w: 220, kind: 'shelf' },
+  { x: 3600, y: 255, w: 200, kind: 'shelf' },
+  { x: 3430, y: 165, w: 100, kind: 'nook' }, // up among the hung tusks: easy to miss
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -360,6 +416,8 @@ export const STAGES = {
   [THORNHEART]: { name: 'The Thornheart', zones: THORN_ZONES, band: '50–60', hard: true, pill: 'Thornheart' },
   [SPINE]: { name: "Keeper's Spine", zones: SPINE_ZONES, band: '45–60' },
   [GLACIER]: { name: 'The Rimeglass Glacier', zones: GLACIER_ZONES, band: '60–75', pill: 'Rimeglass Glacier' },
+  [SKERRIES]: { name: 'The Whale Skerries', zones: SKERRIES_ZONES, band: '55–70', pill: 'Whale Skerries' },
+  [GROTTO]: { name: 'The Narwhal Grotto', zones: GROTTO_ZONES, band: '70–80', hard: true, pill: 'Narwhal Grotto' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -908,6 +966,82 @@ MOBS.rimehorn = {
   drops: [['coin', 1, 6400, 9200], ['mammoth_wool', 1, 4, 8], ['yeti_fur', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['tusk_blade', 0.25, 1, 1], ['mammoth_hood', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 
+// ——— Frostpeak's depth pass, F2: the Whale Skerries and the Narwhal Grotto (art: src/skerries-art.js,
+// src/dens-skerries.js; docs/places/skerries.md, docs/places/grotto.md). On the frozen curve ———
+// The Skerries: ice seals loll on the rocks (harmless), skuas dive at you, sea urchins sit tight on the rocks
+// and flick spines, whalebone crabs wear a bit of whale skull in front (hit them from behind), sea smoke (the
+// cold mist off open water) fades and gusts, bull walruses rear up and slam the ice
+MOBS.ice_seal = {
+  name: 'Ice Seal', lvl: 56, hp: 5100, atk: 161, exp: 2110, speed: 50, w: 64, h: 40, aggro: false, hops: false,
+  drops: [['coin', 1, 305, 480], ['seal_whisker', 0.55, 1, 2], ['mega_elixir', 0.08, 1, 1]],
+};
+MOBS.skua = {
+  name: 'Skua', lvl: 58, hp: 5000, atk: 168, exp: 2263, speed: 115, w: 54, h: 36, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.2, warn: 0.55, time: 0.4 },
+  drops: [['coin', 1, 320, 500], ['skua_feather', 0.5, 1, 2], ['mega_elixir', 0.09, 1, 1]],
+};
+MOBS.sea_urchin = {
+  name: 'Sea Urchin', lvl: 61, hp: 5400, atk: 175, exp: 2513, speed: 0, w: 48, h: 40, aggro: true, hops: false, anchored: true,
+  ai: { kind: 'lob', range: 440, every: 2.6, keep: 0, warn: 0.55, style: 'spine' },
+  drops: [['coin', 1, 360, 548], ['urchin_spine', 0.5, 1, 2], ['mega_elixir', 0.09, 1, 1]],
+};
+MOBS.whalebone_crab = {
+  name: 'Whalebone Crab', lvl: 64, hp: 7300, atk: 190, exp: 2803, speed: 55, w: 64, h: 46, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.5, lunge: 500, time: 0.32 },
+  drops: [['coin', 1, 400, 605], ['whalebone_chip', 0.5, 1, 2], ['mega_elixir', 0.09, 1, 1], ['bonecrab_helm', 0.004, 1, 1]],
+};
+MOBS.sea_smoke = {
+  name: 'Sea Smoke', lvl: 67, hp: 6600, atk: 202, exp: 3109, speed: 75, w: 50, h: 54, aggro: true, hops: false, fly: 44,
+  ai: { kind: 'phase', every: 6.5, dur: 2, r: 175 },
+  drops: [['coin', 1, 430, 640], ['bottled_mist', 0.5, 1, 2], ['mega_elixir', 0.1, 1, 1]],
+};
+MOBS.bull_walrus = {
+  name: 'Bull Walrus', lvl: 69, hp: 8000, atk: 209, exp: 3325, speed: 40, w: 84, h: 62, aggro: true, hops: false,
+  ai: { kind: 'stomp', every: 4.2, warn: 0.85, r: 170, range: 220, jump: 420 },
+  drops: [['coin', 1, 450, 680], ['walrus_whisker', 0.5, 1, 2], ['mega_elixir', 0.11, 1, 1], ['ivory_cutlass', 0.003, 1, 1]],
+};
+// The Narwhal Grotto (a hard pocket): lanternfish swim the air of the cave and wink out, ice eels throw a jet
+// of freezing water along the floor (jump it), brine slugs leave freezing brine behind them, ice skates glide
+// round behind you; elites of the eels and the skates
+MOBS.lanternfish = {
+  name: 'Lanternfish', lvl: 71, hp: 7200, atk: 216, exp: 3540, speed: 70, w: 48, h: 40, aggro: true, hops: false, fly: 50,
+  ai: { kind: 'phase', every: 6.2, dur: 1.9, r: 170 },
+  drops: [['coin', 1, 470, 715], ['lantern_lure', 0.5, 1, 2], ['mega_elixir', 0.11, 1, 1], ['angler_lamp', 0.003, 1, 1]],
+};
+MOBS.ice_eel = {
+  name: 'Ice Eel', lvl: 73, hp: 7600, atk: 225, exp: 3747, speed: 45, w: 76, h: 38, aggro: true, hops: false,
+  ai: { kind: 'beam', range: 540, every: 4.2, warn: 0.9, dur: 0.45, y0: 420, y1: 450, style: 'jet' },
+  drops: [['coin', 1, 490, 740], ['eel_skin', 0.5, 1, 2], ['mega_elixir', 0.11, 1, 1]],
+};
+MOBS.brine_slug = {
+  name: 'Brine Slug', lvl: 75, hp: 8800, atk: 232, exp: 3960, speed: 40, w: 64, h: 40, aggro: true, hops: false,
+  ai: { kind: 'trail', every: 0.8, life: 4.5, w: 56, style: 'brine' },
+  drops: [['coin', 1, 510, 770], ['brine_crystal', 0.5, 1, 2], ['mega_elixir', 0.12, 1, 1]],
+};
+MOBS.ice_skate = {
+  name: 'Ice Skate', lvl: 78, hp: 8300, atk: 243, exp: 4290, speed: 90, w: 70, h: 34, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.4, warn: 0.4, slashWarn: 0.5, r: 115 },
+  drops: [['coin', 1, 540, 810], ['skate_wing', 0.5, 1, 2], ['mega_elixir', 0.12, 1, 1], ['skate_blade', 0.003, 1, 1]],
+};
+MOBS.ice_eel_elite = elite('ice_eel', 'Great Ice Eel');
+MOBS.skate_elite = elite('ice_skate', 'Elder Skate');
+// The Old Narwhal (her den is the breathing hole at the Floe Edge). A big boss with a story
+// (story/characters/bosses.md): the last of her pod, who stayed when the rest swam south, and with a shard in
+// her tusk holds the floes shut across the fjord's mouth so that nothing else can ever leave: not the fish,
+// not the seals. Her ultimate, Close the Floes, is the `lanes` ult as ice coming down everywhere but one lane;
+// her beam is a jet of freezing sea (`looks`)
+MOBS.old_narwhal = {
+  name: 'The Old Narwhal', boss: true, lvl: 70, hp: 520000, atk: 222, exp: 150000, speed: 75, w: 230, h: 150, aggro: true, hops: false,
+  phases: [['charge', 'slam', 'rain'], ['charge', 'slam', 'beam', 'rain', 'summon'], ['charge', 'beam', 'echo', 'rain', 'summon', 'leap', 'barrage']],
+  ult: { name: 'Close the Floes', kind: 'lanes' }, minion: 'whalebone_crab', looks: { beam: 'jet' },
+  lines: {
+    enter: ['Shut. The floes are shut. Nothing leaves my water. Nothing.', 'Another little warm thing come to open the ice? Go home. Go home and STAY.'],
+    phase: [null, 'They all swam south. Every one. I sang and sang and they did not turn round.', 'If the ice opens, the fish go, the seals go, YOU go. Then I am the only thing left in the sea!'],
+    freed: '...Go on, then. Swim. All of you. I will sing you out past the skerries, the way I should have sung them.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['narwhal_tusk', 1, 1, 1], ['floe_crown', 0.6, 1, 1], ['coin', 1, 11000, 16500], ['mega_elixir', 1, 4, 6], ['narwhal_ivory', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -942,6 +1076,8 @@ const onKPlat = onRoomPlat(WRECK_PLATFORMS, WRECK);
 const onBPlat = onRoomPlat(THORN_PLATFORMS, THORNHEART);
 const onPPlat = onRoomPlat(SPINE_PLATFORMS, SPINE);
 const onIPlat = onRoomPlat(GLACIER_PLATFORMS, GLACIER);
+const onSkPlat = onRoomPlat(SKERRIES_PLATFORMS, SKERRIES);
+const onGrPlat = onRoomPlat(GROTTO_PLATFORMS, GROTTO);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -1137,6 +1273,36 @@ export const SPAWNS = [
   ...onIPlat('great_yeti', 11, 1),
   ...onIPlat('frost_wraith', 12, 1),
   { kind: 'rimehorn', x0: 4000, x1: 5150, y: FIELD_GROUND, room: GLACIER },
+  // the Whale Skerries (the Whaling Hut, x > 4200, has none; nothing near the den or the Grotto's mouth)
+  ...strip('ice_seal', 3350, 4150, FIELD_GROUND, 4, SKERRIES),
+  ...onSkPlat('ice_seal', 2, 1),
+  ...strip('skua', 3350, 4150, FIELD_GROUND, 2, SKERRIES),
+  ...onSkPlat('skua', 1, 1),
+  ...onSkPlat('skua', 3, 1),
+  ...strip('sea_urchin', 1750, 3250, FIELD_GROUND, 3, SKERRIES),
+  ...onSkPlat('sea_urchin', 6, 1),
+  ...strip('whalebone_crab', 1750, 3250, FIELD_GROUND, 3, SKERRIES),
+  ...onSkPlat('whalebone_crab', 4, 1),
+  ...onSkPlat('whalebone_crab', 5, 1),
+  ...strip('sea_smoke', 800, 1650, FIELD_GROUND, 2, SKERRIES),
+  ...onSkPlat('sea_smoke', 8, 1),
+  ...strip('bull_walrus', 800, 1650, FIELD_GROUND, 3, SKERRIES),
+  ...onSkPlat('bull_walrus', 7, 1),
+  ...onSkPlat('sea_smoke', 9, 1),
+  // the Narwhal Grotto (the mouth, x < 600, has none)
+  ...strip('lanternfish', 700, 2250, FIELD_GROUND, 3, GROTTO),
+  ...onGrPlat('lanternfish', 1, 1),
+  ...strip('ice_eel', 900, 2250, FIELD_GROUND, 3, GROTTO),
+  ...onGrPlat('ice_eel', 2, 1),
+  ...onGrPlat('lanternfish', 3, 1),
+  { kind: 'ice_eel_elite', x0: 1700, x1: 2200, y: FIELD_GROUND, room: GROTTO },
+  ...strip('brine_slug', 2400, 3900, FIELD_GROUND, 3, GROTTO),
+  ...onGrPlat('brine_slug', 4, 1),
+  ...strip('ice_skate', 2400, 3900, FIELD_GROUND, 3, GROTTO),
+  ...onGrPlat('ice_skate', 5, 1),
+  ...onGrPlat('brine_slug', 6, 1),
+  ...onGrPlat('ice_skate', 7, 1),
+  { kind: 'skate_elite', x0: 3200, x1: 3850, y: FIELD_GROUND, room: GROTTO },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -1159,6 +1325,7 @@ export const DENS = [
   { room: 26, boss: 'tidemother', name: "The Tidemother's Hoard", from: COVES, entranceX: TIDE_DEN_X, theme: 'tide' }, // (art: src/dens-coves.js)
   { room: 30, boss: 'knotmole', name: 'The Knotted Burrow', from: MYCELIUM, entranceX: KNOT_DEN_X, theme: 'knot' }, // (art: src/dens-deep.js)
   { room: 35, boss: 'root_warden', name: "The Warden's Court", from: SPINE, entranceX: WARDEN_DEN_X, theme: 'warden' }, // (art: src/dens-spine.js)
+  { room: 38, boss: 'old_narwhal', name: 'The Breathing Hole', from: SKERRIES, entranceX: NARWHAL_DEN_X, theme: 'floe' }, // (art: src/dens-skerries.js)
 ];
 export const DEN_EXIT_X = 80;
 export const DEN_PLATFORMS = [
@@ -1339,6 +1506,26 @@ export const ITEMS = {
   rimefang: { name: 'Rimefang', price: 209000, lvl: 68, kind: 'sword', atk: 121, reach: 54, desc: 'A pale curved blade like a wolf\'s fang, rimed white along the edge. It is always colder than the air.' },
   tusk_blade: { name: 'Rimehorn Tusk', price: 262000, lvl: 76, kind: 'sword', atk: 130, reach: 60, desc: "A greatsword carved from a shed mammoth tusk, yellowed and cracked and older than the hamlet. Old Rimehorn grows a new one." },
   mammoth_hood: { name: 'Woolly Hood', price: 201000, lvl: 76, kind: 'helmet', def: 59, desc: "A great shaggy hood of Old Rimehorn's red-brown wool with two little tusks at the brow. Nothing has ever been this warm." },
+  // the Whale Skerries and the Narwhal Grotto (F2)
+  seal_whisker: { name: 'Seal Whisker', price: 470, kind: 'loot', desc: "A long pale whisker from an ice seal. The fjord folk say it bends toward fish." },
+  skua_feather: { name: 'Skua Feather', price: 480, kind: 'loot', desc: 'A dark brown feather with a white flash. Skuas steal everything, including other birds\' dinners.' },
+  urchin_spine: { name: 'Urchin Spine', price: 500, kind: 'loot', desc: 'A long purple spine, needle-sharp at one end. Carry it point down.' },
+  whalebone_chip: { name: 'Whalebone Chip', price: 520, kind: 'loot', desc: 'A chip of old grey whalebone a crab was wearing. Hakon carves these into combs.' },
+  bottled_mist: { name: 'Bottled Sea Smoke', price: 540, kind: 'loot', desc: 'A wisp of the mist that smokes off open water in the cold, in a corked bottle. It swirls when you tilt it.' },
+  walrus_whisker: { name: 'Walrus Whisker', price: 560, kind: 'loot', desc: 'A bristle off a bull walrus, thick as a nail. Its owner has hundreds more.' },
+  lantern_lure: { name: 'Lantern Lure', price: 590, kind: 'loot', desc: "A lanternfish's little light on its stalk. It goes on glowing a while, pale green." },
+  eel_skin: { name: 'Ice Eel Skin', price: 610, kind: 'loot', desc: 'A strip of eel skin, glass-smooth and colder than the hand that holds it.' },
+  brine_crystal: { name: 'Brine Crystal', price: 630, kind: 'loot', desc: 'A lump of salt-white crystal from a brine slug\'s trail. It tastes of the sea, if you lick it. Don\'t.' },
+  skate_wing: { name: 'Skate Wing', price: 650, kind: 'loot', desc: 'The tip of an ice skate\'s wing, thin and grey-green, rippling at the edge.' },
+  narwhal_ivory: { name: 'Narwhal Ivory', price: 760, kind: 'loot', desc: "A spiral sliver of the Old Narwhal's tusk, worn smooth. Hold it to your ear and it hums, very low." },
+  bonecarver_knife: { name: "Bone-Carver's Saber", price: 64000, lvl: 58, aim: 60, kind: 'sword', atk: 109, reach: 52, desc: "A curved saber with a whalebone hilt Hakon carved himself: a seal on one side, a whale on the other." },
+  sealskin_hood: { name: 'Sealskin Hood', price: 50000, lvl: 58, aim: 60, kind: 'helmet', def: 48, desc: 'A snug grey hood of sealskin, oiled against the spray, with a fringe of white fur round the face.' },
+  bonecrab_helm: { name: 'Whalebone Helm', price: 140000, lvl: 63, kind: 'helmet', def: 52, desc: "A whalebone crab's borrowed bit of skull, cleaned and lined. It was a whale's, then a crab's, now yours." },
+  ivory_cutlass: { name: 'Ivory Cutlass', price: 200000, lvl: 67, kind: 'sword', atk: 120, reach: 54, desc: "A heavy cutlass with a blade of polished walrus ivory. The walrus had more." },
+  angler_lamp: { name: "Angler's Lamp", price: 168000, lvl: 71, kind: 'helmet', def: 56, desc: 'A hood with a lanternfish\'s green light on a stalk over your brow. Things in the dark come to look at it.' },
+  narwhal_tusk: { name: 'Narwhal Tusk', price: 238000, lvl: 72, slots: 9, kind: 'sword', atk: 125, reach: 62, desc: "A long spiral lance of the Old Narwhal's ivory, the tip still frosted. She grows it back; she has done it before." },
+  floe_crown: { name: 'Floe Crown', price: 176000, lvl: 72, slots: 9, kind: 'helmet', def: 57, desc: 'A ring of sea ice that never melts, points standing up like the floes she held shut. It hums a long, low note.' },
+  skate_blade: { name: 'Skate Wing Blade', price: 268000, lvl: 77, kind: 'sword', atk: 131, reach: 58, desc: "A wide, thin blade like a skate's wing, grey-green and rippling at the edge. It slips round things." },
   warden_helm: { name: 'Wardenstone Helm', price: 134000, lvl: 62, slots: 9, kind: 'helmet', def: 51, desc: "A Keeper guardian's stone helm with a crown of living roots. Wear it and you stand up very straight." },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
@@ -1411,6 +1598,10 @@ export const ITEMS = {
   glacier_staff: { name: 'Glacier Staff', price: 80000, lvl: 64, aim: 66, kind: 'staff', magic: 117, mp: 70, reach: 52, twin: 'cutter_cleaver', desc: 'A blackened driftwood staff with a lump of blue glacier ice in its head that never melts. Eyvind cut the ice; Skaldi carved the wood.' },
   howl_staff: { name: 'Howling Staff', price: 209000, lvl: 68, kind: 'staff', magic: 121, mp: 72, reach: 54, twin: 'rimefang', desc: 'A grey staff bound in rime wolf pelt, a white fang at its tip. Its bolts howl on the way out.' },
   tusk_staff: { name: 'Rimehorn Staff', price: 262000, lvl: 76, kind: 'staff', magic: 130, mp: 78, reach: 60, twin: 'tusk_blade', desc: "A curved staff of old mammoth ivory wound with red-brown wool, frost flowers growing up it as you cast." },
+  driftbone_staff: { name: 'Driftbone Staff', price: 64000, lvl: 58, aim: 60, kind: 'staff', magic: 109, mp: 65, reach: 52, twin: 'bonecarver_knife', desc: 'A staff of sea-bleached whalebone, a ring of seals carved round its head chasing each other forever.' },
+  ivory_staff: { name: 'Walrus Ivory Staff', price: 200000, lvl: 67, kind: 'staff', magic: 120, mp: 72, reach: 54, twin: 'ivory_cutlass', desc: "A walrus tusk on a driftwood shaft, whiskers bound round the grip. It barks, a bit, when you cast." },
+  narwhal_staff: { name: 'Narwhal Song Staff', price: 238000, lvl: 72, slots: 9, kind: 'staff', magic: 125, mp: 75, reach: 62, twin: 'narwhal_tusk', desc: "A twist of the Old Narwhal's ivory with sea ice at its head. Its bolts sing, low and long, like something calling a pod home." },
+  skate_staff: { name: 'Skate Staff', price: 268000, lvl: 77, kind: 'staff', magic: 131, mp: 79, reach: 58, twin: 'skate_blade', desc: "A pale staff with an ice skate's wing for a head, rippling as if it were still swimming." },
   hart_staff: { name: 'Hart\'s Antler Staff', price: 156000, lvl: 59, kind: 'staff', magic: 110, mp: 66, reach: 56, twin: 'briarheart_blade', desc: 'A shed antler of the Thorn Hart on a briar shaft. A white rose buds between the tines and never opens.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Weapon Scroll 100%', price: 300, kind: 'scroll', slot: 'weapon', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a weapon (a staff gets them the other way round).' },
@@ -1500,6 +1691,7 @@ export const SHOPS = {
   acorn: { name: "Acorn's Treehouse", room: CANOPY, x: ACORN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'ranger_billhook', 'oak_staff', 'ranger_hood'] },
   // the Pet Shop: pet food only (the pets themselves are on plinths: furni-buy, src/petshop.js)
   eyvind: { name: "The Cutters' Hut", room: GLACIER, x: EYVIND_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'cutter_cleaver', 'glacier_staff', 'cutter_cap'] },
+  hakon: { name: 'The Whaling Hut', room: SKERRIES, x: HAKON_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'bonecarver_knife', 'driftbone_staff', 'sealskin_hood'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));

@@ -61,16 +61,27 @@
   fought the pockets at their own level, so how hard they really are is a guess.
 
 ## R (the rebalance) left for later
-- Lv 75–90 has no content at its own level until Frostpeak's F3 (F1's Rimeglass Glacier filled 60–75);
-  players there farm the glacier's top with the over-level falloff.
+- Lv 80–90 has no content at its own level until Frostpeak's F3 (F1's Rimeglass Glacier filled 60–75, F2's
+  Narwhal Grotto 70–80); players there farm the Grotto's top with the over-level falloff.
 - Raised dens' coins and materials are worth less, in minutes of farming, than the docs' old 6–20× (gear
   carries more of their worth now): raise their coins if boss loot feels thin (`docs/economy.md`).
 - The atlas's island sheets still carry their old bands (a note at the top says how to read them).
 - Untested with real players: the raised mobs' and bosses' difficulty at their new levels (bots only).
 
+## F2 (the Whale Skerries and the Narwhal Grotto) left for later
+- F3–F4 (`story/world/island-depth.md`): the Aurora Heights and the Blue Halls, the Queen's Bridge and
+  Sigrun. Their gates are laid.
+- The Old Narwhal's freed change (the floes drifting out, fat fish in Runa's nets) isn't shown: like the
+  other bosses', it waits for per-account story progress (`story/roadmap.md`, Story delivery).
+- Hakon's comb for Captain Brine: a natural little thread for Brine's persona one day (she doesn't know him).
+- Tested with a Lv 70 test character (TEST_GOD for the den): the slide door both ways, every Skerries and
+  Grotto mob spawning (both elites), the den's lines, charge and leap, the Sounding Stone card, attuning the
+  Skerries stone and travelling to it from the hamlet, Hakon's dialog and shop, the Frostpeak map with the
+  pin on the Skerries, phone screenshots. Not tested: a full kill of the Old Narwhal, her ultimate's look
+  (the default icicle lanes), the urchin's spine and the brine slug's slick up close. The personas weren't
+  talked to (no DeepSeek key on the test server). Nobody has fought either room at its level.
+
 ## F1 (Frostpeak's depth pass: F0 and the Rimeglass Glacier) left for later
-- F2–F4 (`story/world/island-depth.md`): the Whale Skerries and the Narwhal Grotto with the Old Narwhal's
-  den, the Aurora Heights and the Blue Halls, the Queen's Bridge and Sigrun. Their gates are laid.
 - Old Rimehorn's "back in about 20 minutes" line ignores `TEST_FIELD_RESPAWN_MS` (tests only).
 - Tested with a Lv 70 test character, TEST_GOD and a weakened Rimehorn: the snout both ways, every glacier
   mob spawning, all four new gates' E messages, the Rime Stone card, attuning both Frostpeak stones and

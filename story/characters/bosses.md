@@ -44,6 +44,15 @@ Order is by level. Names are the game's current ones.
 - **Astral Wyrm** (Starfall Sanctum). The star-serpent sailors once steered by. It was knocked out of the
   sky in the Stopped Hour and crashed into the summit, and the stars went wrong with it. Beaten, it rises
   back to the sky, the stars return, and ships can navigate the long voyage south.
+- **The Old Narwhal** (The Breathing Hole, the Whale Skerries; shipped F2; the atlas's "sea creature under the
+  ice bridge"). The last of her pod. When the islands drifted and the sea grew wide, the pod swam south along
+  the old whale road and she stayed; with a shard lodged at the root of her tusk she holds the floes shut
+  across the outer sound so nothing else can ever leave the fjord: not the fish, not the seals. Things may
+  come in (the ferry does); nothing goes out. The fish are penned in and thin. A small mirror of Glacia's
+  holding on, from below. Her lines (MOBS.old_narwhal.lines) are loneliness turned to a grip. Freed, she sings
+  them out past the skerries, the way she should have sung the pod. The Narwhal Grotto, beside her den, is
+  where the pod shed their tusks; one very small one lies apart (her calf's, though nothing says so).
+  Tier 2 only by showing.
 
 ## Emberdeep (harsh)
 - **Ignis the Magma Tyrant** (The Molten Forge). The master smith who forged the Tidewheel's gears. He

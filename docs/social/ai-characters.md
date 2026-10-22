@@ -10,7 +10,8 @@ one shared corner feed).
   Saltspray Coves' Beachcomber Moss (both trade; `docs/places/willowmere.md`, `docs/places/coves.md`), the
   Mycelium Deep's Forager Truffle (trades; `docs/places/deep.md`), the Old Oak Canopy's Ranger Acorn
   (trades; `docs/places/canopy.md`), the Rimeglass Glacier's Ice-Cutter Eyvind (fjord folk, trades;
-  `docs/places/glacier.md`), and
+  `docs/places/glacier.md`), the Whale Skerries' Hakon the Bone-Carver (fjord folk, trades;
+  `docs/places/skerries.md`), and
   the Pet Shop's Auntie Clover (sells pet food, preaches feeding; `docs/places/pets.md`). Press E
   in range to talk.
 - When a place opens, update the personas that can see it, or they keep describing the block: Moss knows
@@ -18,6 +19,9 @@ one shared corner feed).
   the tunnel through the thorns and the Thorn Hart (G4), and that the trunk to Keeper's Spine is cut through (G5).
   F1: Skaldi, Runa and Tove know the Rimeglass Glacier and Eyvind (Tove lists its creatures and levels;
   Skaldi knows Ylva's Cairn), and Eyvind knows the two blocked ways on (the Blue Halls, the Aurora Heights).
+  F2: Skaldi, Runa and Tove know the Skerries (the slide dug through), Hakon and the Old Narwhal; Runa's
+  husband Bjarn says the floes stay shut (so the new trader is Hakon, not a second Bjarn). Hakon knows the
+  Skerries, the den and the Grotto, and hints at Grandmother's Crown.
 - `hello` on an `NPCS` entry is the line their dialog opens with. `shop` (a `SHOPS` key) adds a **Trade**
   button to their dialog (Runa). `folk` dresses them as another island's people (`docs/art.md`).
 - Clio has `anywhere: true`: she can be asked from anywhere in the museum (Q, the "Ask Clio" touch button,

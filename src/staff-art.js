@@ -44,6 +44,10 @@ export const STAFFS = {
   glacier_staff: { len: 62, shaft: ['#7a6a5c', '#4a3e34'], w: 2.8, head: 'crystal', gem: '#bfe6ff', gem2: '#7fbfe8', glow: '170,225,255' },
   howl_staff: { len: 64, shaft: ['#c8d0dc', '#7a8494'], w: 2.8, head: 'flake', gem: '#e8f4ff', gem2: '#ffffff', glow: '200,235,255' },
   tusk_staff: { len: 68, shaft: ['#f2e6c8', '#c8b48a'], w: 3, head: 'crook', gem: '#ffd8a8', glow: '255,230,200' },
+  driftbone_staff: { len: 62, shaft: ['#efe8d6', '#b8ae96'], w: 2.8, head: 'ring', gem: '#bfe6ff', gem2: '#efe8d6', glow: '200,235,255' },
+  ivory_staff: { len: 64, shaft: ['#8a6a50', '#5a4434'], w: 2.8, head: 'crook', gem: '#f4ecd8', glow: '255,245,225' },
+  narwhal_staff: { len: 68, shaft: ['#fbf6e8', '#d8cbb0'], w: 3, head: 'crystal', gem: '#d8f0ff', gem2: '#8ac4e8', glow: '200,235,255' },
+  skate_staff: { len: 66, shaft: ['#c8d8d0', '#7a948a'], w: 2.8, head: 'leaf', gem: '#8ab8a8', gem2: '#4e7a6e', glow: '200,255,235' },
   warden_staff: { len: 68, shaft: ['#b0acc0', '#76728a'], w: 3.2, head: 'rootcrook', gem: '#ffcf7a', gem2: '#7aa05e', glow: '255,200,110' },
 };
 export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));

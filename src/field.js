@@ -18,14 +18,15 @@ import { WRECK_MOB_ART, WRECK_ICONS, WRECK_SWORDS, WRECK_SWORD_LEN, WRECK_HELMET
 import { THORN_MOB_ART, THORN_ICONS, THORN_SWORDS, THORN_SWORD_LEN, THORN_HELMETS } from './thornheart-art.js';
 import { SPINE_MOB_ART, SPINE_ICONS, SPINE_SWORDS, SPINE_SWORD_LEN, SPINE_HELMETS } from './spine-art.js';
 import { GLACIER_MOB_ART, GLACIER_ICONS, GLACIER_SWORDS, GLACIER_SWORD_LEN, GLACIER_HELMETS } from './glacier-art.js';
+import { SKERRIES_MOB_ART, SKERRIES_ICONS, SKERRIES_SWORDS, SKERRIES_SWORD_LEN, SKERRIES_HELMETS } from './skerries-art.js';
 import { drawStaff, STAFF_LEN } from './staff-art.js';
-const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...FIELD_BOSS_ART, ...WILLOW_MOB_ART, ...COVES_MOB_ART, ...DEEP_MOB_ART, ...CANOPY_MOB_ART, ...WRECK_MOB_ART, ...THORN_MOB_ART, ...SPINE_MOB_ART, ...GLACIER_MOB_ART };
+const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...FIELD_BOSS_ART, ...WILLOW_MOB_ART, ...COVES_MOB_ART, ...DEEP_MOB_ART, ...CANOPY_MOB_ART, ...WRECK_MOB_ART, ...THORN_MOB_ART, ...SPINE_MOB_ART, ...GLACIER_MOB_ART, ...SKERRIES_MOB_ART };
 // Greenhollow's branches' gear and materials (src/willowmere-art.js, src/coves-art.js, src/deep-art.js, src/canopy-art.js,
-// src/wreck-art.js, src/thornheart-art.js, src/spine-art.js, src/glacier-art.js)
-const BRANCH_SWORDS = { reed_rapier: drawReedRapier, drift_cutlass: drawDriftCutlass, coral_saber: drawCoralSaber, tide_claw: drawTideClaw, ...DEEP_SWORDS, ...CANOPY_SWORDS, ...WRECK_SWORDS, ...THORN_SWORDS, ...SPINE_SWORDS, ...GLACIER_SWORDS };
-const BRANCH_HELMETS = { lily_hat: drawLilyHat, miller_cap: drawMillerCap, snail_helm: drawSnailHelm, snapjaw_shell: drawSnapjawShell, conch_helm: drawConchHelm, hoard_crown: drawHoardCrown, ...DEEP_HELMETS, ...CANOPY_HELMETS, ...WRECK_HELMETS, ...THORN_HELMETS, ...SPINE_HELMETS, ...GLACIER_HELMETS };
+// src/wreck-art.js, src/thornheart-art.js, src/spine-art.js, src/glacier-art.js, src/skerries-art.js)
+const BRANCH_SWORDS = { reed_rapier: drawReedRapier, drift_cutlass: drawDriftCutlass, coral_saber: drawCoralSaber, tide_claw: drawTideClaw, ...DEEP_SWORDS, ...CANOPY_SWORDS, ...WRECK_SWORDS, ...THORN_SWORDS, ...SPINE_SWORDS, ...GLACIER_SWORDS, ...SKERRIES_SWORDS };
+const BRANCH_HELMETS = { lily_hat: drawLilyHat, miller_cap: drawMillerCap, snail_helm: drawSnailHelm, snapjaw_shell: drawSnapjawShell, conch_helm: drawConchHelm, hoard_crown: drawHoardCrown, ...DEEP_HELMETS, ...CANOPY_HELMETS, ...WRECK_HELMETS, ...THORN_HELMETS, ...SPINE_HELMETS, ...GLACIER_HELMETS, ...SKERRIES_HELMETS };
 import { PET_ICONS } from './pet-art.js';
-const BRANCH_ICONS = { ...WILLOW_ICONS, ...COVES_ICONS, ...DEEP_ICONS, ...CANOPY_ICONS, ...WRECK_ICONS, ...THORN_ICONS, ...SPINE_ICONS, ...GLACIER_ICONS, ...PET_ICONS }; // (and pet food)
+const BRANCH_ICONS = { ...WILLOW_ICONS, ...COVES_ICONS, ...DEEP_ICONS, ...CANOPY_ICONS, ...WRECK_ICONS, ...THORN_ICONS, ...SPINE_ICONS, ...GLACIER_ICONS, ...SKERRIES_ICONS, ...PET_ICONS }; // (and pet food)
 
 const INK = '#5b4a6b';
 const FLOWER_COLORS = ['#ffb3c7', '#fff1a8', '#c9b6ff', '#ffffff', '#ffd1a1'];
@@ -1799,7 +1800,7 @@ function drawGolem(ctx, w, h, t, seed, m, dying) {
 
 // Blade length (from the hand) for each sword, longer for more reach
 export const SWORD_LEN = { wood_sword: 30, iron_sword: 38, spore_blade: 42, crystal_sword: 46, bone_harpoon: 50, frost_blade: 52, thorn_sword: 54, star_sword: 58,
-  magma_maul: 60, phoenix_blade: 62, cog_cleaver: 64, chrono_blade: 66, reed_rapier: 44, drift_cutlass: 50, coral_saber: 54, tide_claw: 58, ...DEEP_SWORD_LEN, ...CANOPY_SWORD_LEN, ...WRECK_SWORD_LEN, ...THORN_SWORD_LEN, ...SPINE_SWORD_LEN, ...GLACIER_SWORD_LEN };
+  magma_maul: 60, phoenix_blade: 62, cog_cleaver: 64, chrono_blade: 66, reed_rapier: 44, drift_cutlass: 50, coral_saber: 54, tide_claw: 58, ...DEEP_SWORD_LEN, ...CANOPY_SWORD_LEN, ...WRECK_SWORD_LEN, ...THORN_SWORD_LEN, ...SPINE_SWORD_LEN, ...GLACIER_SWORD_LEN, ...SKERRIES_SWORD_LEN };
 const HELMETS = ['leaf_cap', 'mush_helm', 'iron_helm', 'fur_hood', 'king_crown', 'bramble_helm', 'glacier_helm', 'star_crown',
   'ember_helm', 'phoenix_crown', 'aether_helm', 'hourglass_crown', ...Object.keys(BRANCH_HELMETS)];
 const HELM_ICON_FIT = { ember_helm: [0.72, 1], phoenix_crown: [0.74, 2], aether_helm: [0.8, 1], hourglass_crown: [0.78, 5] };

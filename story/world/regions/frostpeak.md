@@ -22,12 +22,17 @@ was frozen and she used a rough jetty under the ridge; the ice went out with tha
    (the stars on it are in the right places), Ylva's Cairn, and Old Rimehorn the mammoth. Above it, the
    Aurora Heights; under it, the Blue Halls (both still shut). The rest of the island's depth pass:
    `../island-depth.md`.
+5. **The Whale Skerries** (exists, F2: `docs/places/skerries.md`): black islets and shingle along the fjord's
+   outer shore, out of the hamlet's west end. Hakon's whaling hut, Grandmother (a great whale's skeleton), the
+   Sounding Stone (a Keeper stone: the whale road between two islands drawn close), and at the Floe Edge the
+   Old Narwhal's breathing hole in the pack ice she holds shut. In the sea cliff beyond, **the Narwhal
+   Grotto** (F2, a hard pocket): green ice, the pod's shed tusks frozen into the walls.
 
 ## People
 **The fjord folk:** pale, frosted slimes who go half-solid in the cold and move slowly. They remember the
 Queen as good. AI characters (exist): **Old Skaldi**, a lamplighter who keeps the hamlet's fire and the
 old songs (which hold Tier 2 lore); **Netmender Runa**, the trader; **Tove**, his granddaughter, who
-feeds the yeti cubs; and up on the glacier **Ice-Cutter Eyvind** (F1). Mentioned only: Ylva (Skaldi's late
+feeds the yeti cubs; up on the glacier **Ice-Cutter Eyvind** (F1); and out on the Skerries **Hakon the Bone-Carver** (F2). Mentioned only: Ylva (Skaldi's late
 wife, remembered by a cairn on the glacier), Bjarn (Runa's husband, a fisher), Arne (Runa's cousin, the
 Lodestar's skipper), Liv (Eyvind's daughter, stuck in the south since the Lodestar's last voyage).
 

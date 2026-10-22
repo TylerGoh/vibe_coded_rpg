@@ -25,7 +25,7 @@ kinds, only `lvl`, `hp`, `atk`, `exp` and coins changed, read off the frozen cur
 (`docs/economy.md`); zone labels, `band`s, the ferry's label and the Caldera and Citadel signs moved with
 them, and Tove's and Brine's personas name the new levels. Their gear became Legacy (`docs/combat/items.md`).
 Lv 60–90 had no fresh content until Frostpeak's depth pass started filling the top of its band (F1: the
-Rimeglass Glacier, 60–75).
+Rimeglass Glacier, 60–75; F2: the Whale Skerries, 55–70, and the Narwhal Grotto, 70–80).
 5. **Willowmere** and 6. **Saltspray Coves**: Greenhollow's first branches (`docs/places/willowmere.md`,
    `docs/places/coves.md`). `COMBAT_ROOMS` is every `STAGES` room plus the dens; `STAGES[room].pill` names
    it in the location pill. `lob` and `trail` take a `style` for their shot / puddle look, `beam` too.
@@ -41,6 +41,10 @@ Rimeglass Glacier, 60–75).
 13. **The Rimeglass Glacier**: Frostpeak's depth pass F1, up the glacier's snout from Starfall Summit (Lv
    60–75), with Old Rimehorn (a field boss) and Ice-Cutter Eyvind (`docs/places/glacier.md`). It fills
    60–75, which had nothing of its own after the rebalance; Frostpeak's later phases fill 75–100.
+14. **The Whale Skerries** and 15. **the Narwhal Grotto**: F2, out of Icefang Hamlet's west end (Lv 55–70,
+   entered at its east end like the Coves) with the Old Narwhal's den at its far end, and a hard pocket in
+   the sea cliff beside it (Lv 70–80, elites) (`docs/places/skerries.md`, `docs/places/grotto.md`). A small
+   mob can use `stomp` too (the bull walrus, with a small `r`).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 

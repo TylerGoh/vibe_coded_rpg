@@ -61,7 +61,9 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
   - [x] F1 (2026-10-23): the Rimeglass Glacier (Lv 60–75), Old Rimehorn (field boss), Ice-Cutter Eyvind, the
         Rime Stone, Ylva's Cairn, waystones in the hamlet and the glacier (`docs/places/glacier.md`). Left
         over: `docs/ideas.md` ("F1 left for later")
-  - [ ] F2: the Whale Skerries and the Narwhal Grotto (55–80), the Old Narwhal's den
+  - [x] F2 (2026-10-23): the Whale Skerries (Lv 55–70) and the Narwhal Grotto (70–80, hard), the Old Narwhal
+        (den, Lv 70, with lines), Hakon the Bone-Carver, Grandmother, the Sounding Stone, a waystone
+        (`docs/places/skerries.md`, `docs/places/grotto.md`). Left over: `docs/ideas.md` ("F2 left for later")
   - [ ] F3: the Aurora Heights and the Blue Halls (75–90)
   - [ ] F4: the Queen's Bridge (85–100) and Sigrun, Frostpeak's capstone
 

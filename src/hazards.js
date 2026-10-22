@@ -118,6 +118,7 @@ const SHOT = {
   ink: { glow: '120,90,150', core: '#d8c8f0', mid: '#3a2a4e', rim: '#1e1428' }, // the Drowned Bosun's
   thorn: { glow: '200,150,190', core: '#f4e0ea', mid: '#7a4c62', rim: '#3e2232' }, // the pitcher plant's
   snow: { glow: '210,235,255', core: '#ffffff', mid: '#eef6fc', rim: '#9ab8d4' }, // the great yeti's
+  spine: { glow: '220,160,255', core: '#ffd0f0', mid: '#7a3e90', rim: '#3e1a4e' }, // the sea urchin's
 };
 function drawShot(ctx, h, now) {
   const p = h.pos;
@@ -265,6 +266,22 @@ function drawShot(ctx, h, now) {
     disc(ctx, 0, 0, r * 0.75);
     ctx.fillStyle = st.core;
     disc(ctx, -r * 0.25, -r * 0.25, r * 0.22);
+  } else if (h.style === 'spine') {
+    // a long purple urchin spine, flying point first, its tip lit pink
+    ctx.translate(p.x, p.y);
+    ctx.rotate(Math.atan2(uy, ux));
+    ctx.fillStyle = st.mid;
+    ctx.strokeStyle = st.rim;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(r * 1.6, 0);
+    ctx.lineTo(-r * 1.4, -r * 0.35);
+    ctx.lineTo(-r * 1.4, r * 0.35);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = st.core;
+    disc(ctx, r * 1.4, 0, r * 0.25);
   } else if (h.style === 'snow') {
     // a big packed snowball, turning, shedding a few flakes
     ctx.translate(p.x, p.y);
@@ -326,8 +343,10 @@ function drawShot(ctx, h, now) {
 
 // ---- puddle -----------------------------------------------------------------------------------------
 // style: none = burning lava (the magma slug) · 'goo' = a sticky lilac puddle of snail gloop · 'glow' = a
-// tangle of sticky glowing thread (the threadweaver's) · 'silk' = a sticky white web of caterpillar silk
+// tangle of sticky glowing thread (the threadweaver's) · 'silk' = a sticky white web of caterpillar silk ·
+// 'brine' = a slick of freezing brine, salt crystals growing in it (the brine slug's)
 function drawPuddle(ctx, h, now) {
+  if (h.style === 'brine') return drawBrine(ctx, h, now);
   if (h.style === 'goo') return drawGoo(ctx, h, now);
   if (h.style === 'silk') return drawSilk(ctx, h, now);
   if (h.style === 'glow') return drawGlowThread(ctx, h, now);
@@ -363,6 +382,39 @@ function drawPuddle(ctx, h, now) {
     tongue(ctx, bx, y, 4, fh, Math.sin(now * 6 + i) * 2);
     ctx.fillStyle = 'rgba(255,230,140,0.9)';
     disc(ctx, bx + 6, y - 2 - ph * 6, 2.2 * (1 - ph) + 0.5);
+  }
+  ctx.restore();
+}
+
+function drawBrine(ctx, h, now) {
+  const start = h.warnAt ?? h.at, end = h.end ?? h.at + 5, age = now - start;
+  const a = clamp01(age / 0.25) * clamp01((end - now) / Math.min(1.2, (end - start) * 0.4));
+  if (a <= 0) return;
+  const x = h.x, y = h.y ?? GROUND, rx = (h.w || 60) / 2, grow = 0.6 + 0.4 * easeOut(clamp01(age / 0.4)), seed = x * 0.37;
+  ctx.save();
+  ctx.globalAlpha = a;
+  glow(ctx, x, y - 2, rx * 1.2, 14, '190,255,230', 0.4);
+  ctx.fillStyle = '#8ad0b8';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, rx * grow, 6, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#d8fff0';
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx * grow * 0.84, 4, 0, 0, TAU);
+  ctx.fill();
+  // salt crystals growing up out of it
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#4e8a7a';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    const cx = x + (hash(seed + i * 5) - 0.5) * rx * 1.4 * grow, s = (3 + hash(seed + i) * 4) * clamp01(age / 1.2);
+    ctx.beginPath();
+    ctx.moveTo(cx, y - s * 1.6);
+    ctx.lineTo(cx + s * 0.5, y - 1);
+    ctx.lineTo(cx - s * 0.5, y - 1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
   }
   ctx.restore();
 }

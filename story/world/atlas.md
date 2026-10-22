@@ -158,9 +158,10 @@ the Citadel's are machines and echoes.
 4. **Starfall Summit** (exists, 47–60 since the rebalance; was 18–27): star wisps, crystal golems, **shard-moths** (Phase 4).
    - Dens: Frost Queen Glacia, Astral Wyrm (exist).
    - **The Rimeglass Glacier** (exists, 60–75, Frostpeak's depth pass F1): snow hares, snow petrels, glacier
-     rams, rime wolves, frost wraiths, great yetis; Old Rimehorn (field boss); Ice-Cutter Eyvind. Frostpeak's
-     other branches (the Skerries, the Narwhal Grotto, the Aurora Heights, the Blue Halls, the Queen's
-     Bridge) are planned in `island-depth.md`.
+     rams, rime wolves, frost wraiths, great yetis; Old Rimehorn (field boss); Ice-Cutter Eyvind.
+   - **The Whale Skerries** (exists, 55–70, F2, off the hamlet) with the Old Narwhal's den, and **the Narwhal
+     Grotto** (exists, 70–80, hard). Frostpeak's other branches (the Aurora Heights, the Blue Halls, the
+     Queen's Bridge) are planned in `island-depth.md`.
 5. Onward: the ship south leaves from the fjord's quay: the **Lodestar**, laid up (shown, not open) until
    Phase 5, because nobody will steer south while the stars are wrong.
 

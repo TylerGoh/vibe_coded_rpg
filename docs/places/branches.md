@@ -41,16 +41,21 @@ island shows what's coming.
   the Frozen Throne, `icestair`, `BRIDGE_GATE_X`), and in the Glacier the Blue Halls (the cutters' ladder
   smashed at the bottom of a crevasse, `crevasse`, `BLUEHALLS_GATE_X`) and the Aurora Heights (the steps
   sheared off the Icefall, `icefall`, `HEIGHTS_GATE_X`). Plan and phases: `story/world/island-depth.md`.
+- **Shipped (F2, 2026-10-23):** the Whale Skerries (`docs/places/skerries.md`: the snow slide dug through,
+  `snowslide` drawn open) and the Narwhal Grotto (`docs/places/grotto.md`), which lost `past` and opened in
+  the same phase: its `entry` is in the Skerries (`grotto`, the cave mouth in the sea cliff).
 - The island map (`docs/ui/world-map.md`) reads the same list: shipped places solid with their levels,
   the rest dashed with a short `block` reason. Keep both in step: a node's `block` should match its gate.
 
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 37 after F1; ids 27,
-  31–36 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den and the Glacier), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 40 after F2; ids 27,
+  31–39 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier,
+  the Skerries, the Narwhal's den and the Grotto), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
-  `*_PLATFORMS` (put the hidden spot last), a `STAGES` row (`band`, `pill` if the name is long, `hard` for
+  `*_PLATFORMS` (put the hidden spot last; `onRoomPlat` helper names must be new: F2 first clashed with
+  Willowmere's `onWPlat`), a `STAGES` row (`band`, `pill` if the name is long, `hard` for
   a hard pocket), mobs **appended** to `MOBS` (kinds go over the wire as their index), spawns (an
   `onRoomPlat` helper), a `DENS` row for a den, `ITEMS` (materials; gear with `lvl`; trader gear with
   `aim`), a `SHOPS` row.
@@ -91,11 +96,13 @@ Gotchas already hit:
   key presses.
 
 ## The next phases' loose ends (where things already are)
-- **Greenhollow is done** (G0–G5). Frostpeak's pass is under way (F0, F1 shipped): the next phases' gates
-  are already laid (above). F2 (the Skerries) lifts the snow slide and gives the Narwhal Grotto a gate in
-  the new room; F3 (the Aurora Heights, the Blue Halls) lifts the two in the Glacier; F4 the ice stair.
+- **Greenhollow is done** (G0–G5). Frostpeak's pass is under way (F0–F2 shipped): the next phases' gates
+  are already laid (above). F3 (the Aurora Heights, the Blue Halls) lifts the two in the Glacier; F4 the
+  ice stair on Frostpine Ridge.
   Each lifted gate becomes an `entry` with open art (`OPEN`), and its block reason comes off the map.
 - A gate in a town room (the snow slide in Icefang Hamlet) works like any other; mind the town's own props
   (the hamlet's waystone moved to the lamp-fire to keep its west end clear).
+- A room off Greenhollow needs its row in `ISLAND_OF_STAGE` (`src/worldmap.js`), or the map's pin lands on
+  Greenhollow.
 - A new den: a new theme needs its row in `dens.js`'s shared effect tables (`FXPAL`, `THEME_RGB`, `drawBit`,
   `drawFallObj`, the summon and roar colours); a boss can reuse the shared moves with its own look (`looks`).

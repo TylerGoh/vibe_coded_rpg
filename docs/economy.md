@@ -96,6 +96,14 @@ re-aimed: the Estate (aim 65) stays at 69%, the Grand Estate is first affordable
 every piece of furniture by Lv 72 (was 71). Eyvind's tier is aimed at Lv 66 (52–67%). Old Rimehorn is worth
 ~2.6 min of farming; his pet is 350k, between the Root Warden's and Ignis's (`PETSHOP_W` went up to fit it).
 
+## Frostpeak's depth pass, F2 (2026-10-23)
+The Whale Skerries and the Narwhal Grotto (`docs/places/skerries.md`, `docs/places/grotto.md`) put ten mobs on
+the curve at Lv 56–78 (and two Grotto elites). "Farming your own level" from 78 on now picks the ice skate, so
+"gold earned by" barely moved: Lv 80 ~176.1k → ~175.6k, Lv 90 ~227.8k → ~225.3k, later levels ~3k lower; play
+time to Lv 100 1.9 h → 1.8 h. Hakon's tier is aimed at Lv 60 (saber and staff 66%, hood 51%). The Old Narwhal
+(Lv 70) sits between the Root Warden and the raised Ignis: ~5.9 min of farming a kill in coins and materials,
+camped 0.7× EXP / 3.2× gold. Her pet is 345k, between the Root Warden's (340k) and Old Rimehorn's (350k).
+
 ## How to price something new
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Read "gold earned by then" for that level and price it at roughly half to three quarters of it: a real

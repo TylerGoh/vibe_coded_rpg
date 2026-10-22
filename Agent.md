@@ -127,7 +127,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/economy.md](docs/economy.md) | ANY gold / EXP / price / drop / scaling change: the balance sheet, `npm run economy` |
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |
 | [docs/social/chat.md](docs/social/chat.md) | the chatbox, public chat, private messages, chat speech bubbles |
-| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, the branches' traders (Bun, Moss, Truffle, Acorn), Auntie Clover, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
+| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, the branches' traders (Bun, Moss, Truffle, Acorn, Eyvind, Hakon), Auntie Clover, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
 | [docs/social/trading.md](docs/social/trading.md) | trading coins and items between players, the trade log |
 | [docs/social/accuse.md](docs/social/accuse.md) | accusing someone of botting, the canvas deny button, the EXP skim |
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
@@ -146,6 +146,8 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/thornheart.md](docs/places/thornheart.md) | the Thornheart (room 33, a hard pocket off Bramble Woods), the Hedge Stone, the Thorn Hart |
 | [docs/places/spine.md](docs/places/spine.md) | Keeper's Spine (room 34, the ridge above the Canopy), the Road Stone, the Watch Seat, the Root Warden and its court (den 35), Greenhollow's capstone |
 | [docs/places/glacier.md](docs/places/glacier.md) | the Rimeglass Glacier (room 36, Frostpeak's first branch, Lv 60–75), Ice-Cutter Eyvind, Old Rimehorn, the Rime Stone, Ylva's Cairn |
+| [docs/places/skerries.md](docs/places/skerries.md) | the Whale Skerries (room 37, Lv 55–70, off Icefang Hamlet), Hakon the Bone-Carver, Grandmother (the whale skeleton), the Sounding Stone, the Old Narwhal and her den (38) |
+| [docs/places/grotto.md](docs/places/grotto.md) | the Narwhal Grotto (room 39, a hard pocket off the Skerries, Lv 70–80), its elites, the Tusk Hall |
 | [docs/places/deep.md](docs/places/deep.md) | the Mycelium Deep (room 28), Glowroot Hollow (29, a hard pocket), Forager Truffle, the Knotmole's burrow (30), the Listening Stone |
 | [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel, within one island), attuning, the travel card |
 | [docs/places/pets.md](docs/places/pets.md) | pets' hunger, moods and dying, feeding, the Pet Shop, Auntie Clover, pet food |

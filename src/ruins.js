@@ -4,13 +4,14 @@
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
 // Stone by Truffle's camp in the Mycelium Deep, the Lifted Stone by Acorn's treehouse in the Old Oak
 // Canopy, the Hedge Stone in the Thornheart, the Road Stone on Keeper's Spine; on Frostpeak, the Rime Stone
-// in the Rimeglass Glacier's Cutters' Camp, which may say a little more: Frostpeak's tier is canon Tier 2). Wreck Cave has the one reading here that isn't a stone: the
+// in the Rimeglass Glacier's Cutters' Camp and the Sounding Stone by the Whale Skerries' whaling hut, which may
+// say a little more: Frostpeak's tier is canon Tier 2). Wreck Cave has the one reading here that isn't a stone: the
 // wrecked ship's logbook (`wing` and `when` change the card's header lines). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -94,6 +95,12 @@ export const RUIN_STONES = [
     legible: ['...STEER BY THESE...', '...THE ROAD RUNS ON OVER THE WATER...', 'The stars carved on the stone are not where the stars are now. You look up, and back, and up again.'],
     note: "Axe marks go all the way round the block, careful and wide of the stone. Someone has chipped a little window in the ice over the stars, and keeps it polished.",
   },
+  {
+    room: SKERRIES, place: 'the Whale Skerries', x: 4260, shape: 'sounding', name: 'the Sounding Stone', title: 'The Sounding Stone',
+    look: "A Keeper stone on a black rock above the tide line, crusted with barnacles at its foot where the sea reaches it in storms. Its seaward face is carved with a line of whales swimming nose to tail from one island to another, under a long arch, and the two islands are drawn so close the whales hardly have to swim at all. A gear is cut at the top.",
+    legible: ['THE WHALE ROAD', '...THEY KNOW THE WAY BETWEEN...', 'The line of whales runs off the stone\'s south edge, toward open sea. The sea that way is very wide now.'],
+    note: 'Someone has scratched a little narwhal at the end of the line, much newer than the rest, facing the other way.',
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -123,7 +130,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -889,4 +896,60 @@ function drawRimeStone(ctx, time, glow) {
   ctx.quadraticCurveTo(0, -148, -46, -150);
   ctx.fill();
   ellipse(ctx, 0, 0, 52, 7);
+}
+
+// The Sounding Stone (the Whale Skerries): a slab on a black rock above the tide line, barnacles at its foot;
+// carved with two islands very close together, a long arch over the water between them, and a line of whales
+// swimming nose to tail under it; a gear at the top, and a newer little narwhal scratched at the end, facing back
+function drawSoundingStone(ctx, time, glow) {
+  // the rock it stands on
+  ctx.fillStyle = '#2e2e3a';
+  ctx.beginPath();
+  ctx.moveTo(-50, 2);
+  ctx.quadraticCurveTo(-44, -26, 0, -28);
+  ctx.quadraticCurveTo(44, -26, 50, 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#c8ccd4';
+  for (const [x, y] of [[-36, -6], [-28, -12], [30, -8], [38, -4], [22, -14]]) circle(ctx, x, y, 2.4);
+  slab(ctx, -28, -150, 56, 124, 12);
+  const ink = glow ? '#c9a24a' : CARVE;
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = 2;
+  // two islands, close
+  ctx.beginPath();
+  ctx.moveTo(-24, -70);
+  ctx.quadraticCurveTo(-18, -86, -8, -72);
+  ctx.moveTo(8, -72);
+  ctx.quadraticCurveTo(18, -88, 24, -70);
+  ctx.stroke();
+  // the arch between them
+  ctx.beginPath();
+  ctx.moveTo(-12, -78);
+  ctx.quadraticCurveTo(0, -100, 12, -78);
+  ctx.stroke();
+  // the whales, nose to tail under it, and off the bottom edge
+  for (const [x, y] of [[-16, -60], [-4, -56], [8, -52], [18, -46]]) {
+    ctx.beginPath();
+    ctx.ellipse(x, y, 5, 2.2, 0.15, 0, TAU);
+    ctx.moveTo(x - 5, y);
+    ctx.lineTo(x - 8, y - 2.5);
+    ctx.moveTo(x - 5, y);
+    ctx.lineTo(x - 8, y + 2.5);
+    ctx.stroke();
+  }
+  // the newer narwhal, scratched in thin, facing back the other way
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(18, -36, 4, 1.8, 0, 0, TAU);
+  ctx.moveTo(14, -36);
+  ctx.lineTo(7, -37);
+  ctx.stroke();
+  carvedGear(ctx, 0, -126, 10, 10, glow);
+  scratches(ctx, -20, -44, 40, 2, 211, glow);
+  // weed and rime
+  ctx.fillStyle = 'rgba(90,110,80,0.7)';
+  for (const x of [-22, -6, 14]) ellipse(ctx, x, -28, 4, 6, 0.2);
+  ctx.fillStyle = 'rgba(244,248,252,0.9)';
+  ellipse(ctx, 0, -150, 24, 4);
 }
