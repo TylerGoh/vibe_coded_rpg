@@ -4,7 +4,7 @@
 - Houses: selling furniture back, colour options per piece, visiting a friend's house without an
   invite (e.g. an "open house" switch), a doorbell, a second storey, seasons / weather in the garden.
 - Economy: more late-game gold sinks; boss gear selling for less (see `docs/economy.md`).
-- Parties; trading between players; level gates on the harder doors if people complain.
+- Parties; trading between players (next on `story/roadmap.md`); level gates on the harder doors if people complain.
 - Fill wide phone screens (no side bars): let the camera show a wider slice; needs a variable view width.
 - Real-device checks on an iPhone (home-screen mode) and of typing with the phone keyboard open.
 

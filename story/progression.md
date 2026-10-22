@@ -83,8 +83,12 @@ LUK stays the shared crit stat. DEX finally gets a job (today it only raises the
   each is good and bad at (section 1b). Choosing one: **your level, EXP, gold, bag, gear and house all
   stay; every skill point and AP is refunded; your hotbars empty**; you come out of the pool as the new
   class, with a splash and a sound everyone nearby sees.
-- **Free** (casual game). If people start hopping class before every boss and it feels cheap, a small
-  gold cost or a short cooldown can be added later; ask the owner first.
+- **Costs 500,000 coins for now** (owner, 2026-10-23; a constant like `REBIRTH_COST`, named in the
+  economy sheet's sinks with no `aim`: it's a prestige sink, priced by the owner, not by the aim method).
+  On 2026-10-23 only the three top characters (Lv 167+) held that much; mob farming alone earns about
+  175k by Lv 80, so for most players it's a long goal, or a gift from a richer friend once trading
+  exists (roadmap: trading comes first).
+- The card shows the price and asks twice before taking the coins, since nothing is refunded.
 - Only in Slimeville (owner). Other towns don't get one, which gives the home village a reason to visit.
 - **New characters** start as Warriors with the Wooden Sword (as today) and are pointed at the pool by
   Elder Mochi; nothing is locked before they choose.
@@ -296,9 +300,13 @@ Settled by the owner (2026-10-23):
 - Capstone bosses: extremely hard without a mixed party, not locked. Dens and field bosses: any class solos.
 - Stat taper past the content: for everyone.
 - Mage and Cleric share the staff.
-- Class is chosen at the Rebirth spot in Slimeville: free, keeps your level, resets all AP and skill
-  points. A class's skills only work with its own weapon; only Mobility is shared.
+- Class is chosen at the Rebirth spot in Slimeville: 500k coins for now, keeps your level, resets all AP
+  and skill points. A class's skills only work with its own weapon; only Mobility is shared.
 
 Still open (recommended answer first; a session can start from it):
 1. **Boss reward window** (S0): 10-15 minutes recommended.
 2. **The Rebirth spot's name and keeper:** a Rebirth Pool tended by Elder Mochi (recommended).
+3. **A free first choice?** Everyone becomes a Warrior when S2 ships, and new players start as one. At
+   500k, a Lv 30 who wants to be a Mage can't afford it for a very long time. Recommended: each
+   character's **first** rebirth is free (the migration and new players pick once at no cost), and every
+   change after that costs the 500k.
