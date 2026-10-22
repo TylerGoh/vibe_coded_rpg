@@ -24,8 +24,11 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
 - [x] G3 (2026-10-22): the Old Oak Canopy (Lv 25–40), the Hornet Queen (field boss), Ranger Acorn, the Lifted
       Stone, the Crow's Nest, a waystone; Keeper's Spine shown over the leaves, blocked by a fallen trunk.
       Left over: `docs/ideas.md` ("G3 left for later")
-- [ ] G4-G5: Greenhollow's remaining branches (next: G4, the hard pockets). Start from the checklist in
-      `docs/places/branches.md`
+- [x] G4 (2026-10-22): the hard pockets, Wreck Cave (Lv 30–40, the Drowned Bosun, the Brave Pippin's log)
+      and the Thornheart (Lv 50–60, the Thorn Hart, the Hedge Stone), with elites in both. Left over:
+      `docs/ideas.md` ("G4 left for later")
+- [ ] G5: Keeper's Spine (45–60) and the Root Warden, the last of Greenhollow's branches. Start from the
+      checklist in `docs/places/branches.md`
 - [ ] R: the rebalance: the later islands' legacy mobs and bosses raised to their new bands; owned gear
       kept as Legacy, scaled new copies dropped instead
 - [ ] Frostpeak's depth pass (40-100)

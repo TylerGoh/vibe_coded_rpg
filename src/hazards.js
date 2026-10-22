@@ -115,6 +115,8 @@ const SHOT = {
   spore: { glow: '210,180,255', core: '#fff6ff', mid: '#e0ccff', rim: '#a888d8' }, // the puffcap's
   acorn: { glow: '230,190,120', core: '#fbe6c8', mid: '#d8a050', rim: '#8a6040' }, // the oak squirrel's
   sting: { glow: '255,200,90', core: '#fff2b0', mid: '#f0a038', rim: '#3a2418' }, // the hornet's
+  ink: { glow: '120,90,150', core: '#d8c8f0', mid: '#3a2a4e', rim: '#1e1428' }, // the Drowned Bosun's
+  thorn: { glow: '200,150,190', core: '#f4e0ea', mid: '#7a4c62', rim: '#3e2232' }, // the pitcher plant's
 };
 function drawShot(ctx, h, now) {
   const p = h.pos;
@@ -234,6 +236,34 @@ function drawShot(ctx, h, now) {
     disc(ctx, -r * 0.7, 0, r * 0.5);
     ctx.fillStyle = st.core;
     disc(ctx, -r * 0.8, -r * 0.15, r * 0.18);
+  } else if (h.style === 'ink') {
+    // a wobbling blob of octopus ink, shedding drips, with a pale shine
+    const wob = Math.sin(now * 20) * 0.15;
+    ctx.fillStyle = st.mid;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, r * (1.1 + wob), r * (1 - wob), Math.atan2(uy, ux), 0, TAU);
+    ctx.fill();
+    for (let i = 0; i < 3; i++) disc(ctx, p.x - ux * r * (1.3 + i * 0.6) + Math.sin(now * 9 + i) * 3, p.y - uy * r * (1.3 + i * 0.6) + i * 2, r * (0.4 - i * 0.1));
+    ctx.fillStyle = st.core;
+    disc(ctx, p.x - r * 0.35, p.y - r * 0.4, r * 0.24);
+  } else if (h.style === 'thorn') {
+    // a spiky seed pod, spinning, thorns all round
+    ctx.translate(p.x, p.y);
+    ctx.rotate(now * 10);
+    ctx.fillStyle = st.rim;
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * TAU;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a - 0.3) * r * 0.6, Math.sin(a - 0.3) * r * 0.6);
+      ctx.lineTo(Math.cos(a) * r * 1.4, Math.sin(a) * r * 1.4);
+      ctx.lineTo(Math.cos(a + 0.3) * r * 0.6, Math.sin(a + 0.3) * r * 0.6);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.fillStyle = st.mid;
+    disc(ctx, 0, 0, r * 0.75);
+    ctx.fillStyle = st.core;
+    disc(ctx, -r * 0.25, -r * 0.25, r * 0.22);
   } else if (h.style === 'water') {
     // a wobbling bubble of sea water with a shine on it
     const wob = Math.sin(now * 24) * 0.12;
@@ -763,6 +793,7 @@ const BEAM = {
   sentry: { glow: '120,220,255', outer: 'rgba(120,220,255,0.85)', mid: '#c8f4ff', aim: '255,90,120' },
   colossus: { glow: '255,110,70', outer: 'rgba(255,110,70,0.9)', mid: '#ffd7a8', aim: '255,80,90' },
   glow: { glow: '200,255,190', outer: 'rgba(200,255,190,0.85)', mid: '#f4ffe0', aim: '255,110,130' }, // the glowworm's
+  jet: { glow: '150,220,255', outer: 'rgba(110,190,235,0.85)', mid: '#d8f4ff', aim: '255,110,130' }, // the moray eel's water jet
 };
 function drawBeam(ctx, h, now) {
   const B = BEAM[h.style] || BEAM.sentry;

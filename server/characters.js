@@ -234,6 +234,12 @@ What you know, and only this:
   to a bare grey stone ridge above the leaves. Folk call it Keeper's Spine; you don't know why, and you've
   never been, because the trunk is rotten right through and far too big to climb. Someday someone will
   clear it. Not you; you have nests to count.
+- The briar: from the treetops you can see the whole east end of Bramble Woods, where the brambles close
+  into a wall of thorns. Somebody has cut a low tunnel through that wall now, into the Thornheart, the old
+  root of the briar. It's no place for anyone under level 50: thornbacks, thorn stalkers that slip round
+  behind you, pitcher plants that spit thorns. On still evenings you've seen a great white stag down there
+  with antlers made of briar, and white roses on them. You call him the Thorn Hart. He's never bothered
+  anyone who left him alone, and you've got a whole page of your logbook just for him.
 - The Lifted Stone, by your camp: an old carved stone that the oak grew round and lifted up off the ground,
   long ago. It has gear teeth carved on it and an arrow pointing up. You don't know who carved it. You've
   notched its edge, one notch a year, as the oak lifts it a little higher.
@@ -280,8 +286,12 @@ What you know, and only this:
   hard enough to knock you over. Further on, in the bigger sea cave, lives a great hermit crab you call
   the Tidemother. She keeps everything the sea washes in and won't let the tide carry any of it back out,
   so the pools down that end have gone stale. You're a little sad about her, not angry: you collect
-  things too, and you know how it starts. The smaller cave, Wreck Cave, is flooded to the roof and there
-  are old timbers creaking inside it. You don't go in.
+  things too, and you know how it starts. The smaller cave, Wreck Cave, was flooded to the roof for as
+  long as you can remember; now the water has gone down and you can wade in over a plank. Inside lies an old
+  wrecked ship, the Brave Pippin, an apple boat from long ago, and a huge old octopus in a sailor's coat and
+  cap lives in it (folk call him the Drowned Bosun; he blows a whistle). Bilge rats, moray eels that spit
+  water along the floor, barnacle crabs, and old ship's lamps that float about by themselves. It's only for
+  strong travellers (level 30 and up). You went as far as the mouth once and came straight back out.
 - Some of what washes up is very old: stones and bits of metal with little carved gears on them, like the
   mossy old stones in the Wildwood. Elder Mochi once called them "Keeper marks". You don't know who the
   Keepers were and you'd love to; you keep those finds on a special shelf and won't sell them.

@@ -139,6 +139,10 @@ taken from the next free numbers below `HOUSE_BASE`.
   (~Lv 25).
   - **Wreck Cave** (hard pocket, 30–40): a sea cave at the cove's end, a wreck in it, drowned lamps,
     elites. Optional field boss: **the Drowned Bosun**.
+    - Shipped (2026-10-22): the wreck is the **Brave Pippin**, an apple boat from Greenhollow Bay; her
+      logbook shows the run to Icefang growing from a morning to past dark (Tier 0: the sea widens). The
+      Drowned Bosun is a great old octopus who moved into her and wears the bosun's coat. Barnacle crabs,
+      drowned lamps, moray eels, bilge rats; the crow's nest is the hidden spot.
 - **The Mycelium Deep** (branch, 15–35): down through a hollow stump in Mushroom Grove. The glowing
   threads seen above are thick roots down here, and they run *off toward the sea* (canon: the mycelium
   net runs under the sea). Puffcaps, puffballs, cave bats. Den: **the Knotmole** (~Lv 35).
@@ -159,6 +163,10 @@ taken from the next free numbers below `HOUSE_BASE`.
 - **Keeper's Spine** (the heart, 45–60): the island's ridge above the canopy, bare stone and wind, the
   biggest Keeper ruins on the island. Moss turtles, stone sentinels.
   - **The Thornheart** (hard pocket, 50–60): the briar's root, thorn stalkers, elites.
+    - Shipped (2026-10-22): every briar grows from one root knot round **the Hedge Stone** (Keeper: the
+      briar was planted "to keep the road", a hand points north to the ridge), plus thornbacks, thistle
+      puffs, pitcher plants and a field boss the plan didn't name, **the Thorn Hart** (a white stag with briar
+      antlers). The White Rose arch is the hidden spot.
   - **Capstone den: the Root Warden** (~Lv 60).
 
 ## Bosses: which ones get a story
@@ -178,7 +186,7 @@ story into `../characters/bosses.md`.
   sealed gate beside the Spine's ruins. It holds on to its post long after anyone could give it new
   orders. Freed, it lets the roots have it and the gate stays shut, but the way past is open. Ties to the
   Heartroot and the apple tree (`../characters/mochi-and-chronos.md`); keep what it reveals at Tier 1.
-- Small: **Old Snapjaw**, **the Hornet Queen**, **the Drowned Bosun**, and any field boss added later.
+- Small: **Old Snapjaw**, **the Hornet Queen**, **the Drowned Bosun**, **the Thorn Hart**, and any field boss added later.
 
 ## Numbers: how a builder sets them (sensible defaults)
 The code holds the values; these are the rules for choosing them. Always `npm run economy` before and
@@ -254,8 +262,10 @@ systems first, then fills the band from the bottom up.
       Lifted Stone (a Keeper stone the oak grew round and lifted); the Spine's ridge shows over the leaves and
       its gate is a fallen trunk at the Canopy's far end. Not done: `docs/ideas.md` ("G3 left for later").
       **Building G4/G5: start from the checklist in `docs/places/branches.md`.**
-- [ ] **G4: the hard pockets**: Wreck Cave (30–40) and the Thornheart (50–60), elites, the Drowned
-      Bosun.
+- [x] **G4: the hard pockets**: Wreck Cave (30–40) and the Thornheart (50–60), elites, the Drowned
+      Bosun (shipped 2026-10-22; `docs/places/wreck.md`, `docs/places/thornheart.md`). Added: the Thorn Hart
+      (a second field boss), the Brave Pippin's log and the Hedge Stone. Not done: a room hazard for the
+      pockets (`docs/ideas.md`, "G4 left for later").
 - [ ] **G5: Keeper's Spine** (45–60) and the Root Warden. Then go through the "deep" checklist above;
       when it holds, Greenhollow is done.
 - [ ] **R: the rebalance** (section above): the later islands' legacy mobs and bosses go up to their

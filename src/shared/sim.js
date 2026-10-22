@@ -15,13 +15,13 @@ export const DT = 1 / TICK_RATE;
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS } from './rpg.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
 export const CLIFFS = 20; // Greenhollow's east cliffs, past the end of the Wildwood (docs/places/cliffs.md)
 export const FERRY_N = 21, FERRY_S = 22; // the ferry's deck, out to Frostpeak and back home (docs/places/crossings.md)
-export { FIELD, FJORD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY };
+export { FIELD, FJORD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART };
 
 export const PLATFORMS = [
   { x: 360, y: 335, w: 190, kind: 'island' },
@@ -162,6 +162,7 @@ export const ROOMS = [
       { x: WILLOWMERE_GATE_X, w: 80, to: WILLOWMERE, toX: WILLOWMERE_EXIT_X, label: 'cross the footbridge to Willowmere' },
       { x: MYCELIUM_GATE_X, w: 80, to: MYCELIUM, toX: MYCELIUM_EXIT_X, label: 'climb down the hollow stump into the Mycelium Deep' },
       { x: CANOPY_GATE_X, w: 80, to: CANOPY, toX: CANOPY_EXIT_X, label: 'climb the rope ladder into the Old Oak Canopy' },
+      { x: THORN_GATE_X, w: 80, to: THORNHEART, toX: THORN_EXIT_X, label: 'crawl through the cut in the thorns to the Thornheart (hard!)' },
       ...denDoors(FIELD),
     ],
   },
@@ -279,7 +280,11 @@ ROOMS[WILLOWMERE] = {
 };
 ROOMS[COVES] = {
   name: 'Saltspray Coves', width: COVES_W, ground: FIELD_GROUND, platforms: COVES_PLATFORMS,
-  doors: [{ x: COVES_EXIT_X, w: 80, to: HARBOUR, toX: COVES_GATE_X, label: 'back along the shore to the harbour' }, ...denDoors(COVES)],
+  doors: [
+    { x: COVES_EXIT_X, w: 80, to: HARBOUR, toX: COVES_GATE_X, label: 'back along the shore to the harbour' },
+    { x: WRECK_GATE_X, w: 80, to: WRECK, toX: WRECK_EXIT_X, label: 'wade into Wreck Cave (hard!)' },
+    ...denDoors(COVES),
+  ],
 };
 // rooms 28 and 29 (island depth G2, docs/places/deep.md): the Mycelium Deep, down the hollow stump in
 // Mushroom Grove, and Glowroot Hollow, a hard pocket down a crack at the Deep's far end. Room 30 is the
@@ -303,6 +308,17 @@ ROOMS[CANOPY] = {
   doors: [{ x: CANOPY_EXIT_X, w: 80, to: FIELD, toX: CANOPY_GATE_X, label: 'climb down the rope ladder to Bramble Woods (mobs!)' }],
 };
 
+// rooms 32 and 33 (island depth G4, the hard pockets): Wreck Cave, through the cave mouth at the Coves' far
+// west end (docs/places/wreck.md), and the Thornheart, through the cut in the thorns at Bramble Woods' east end
+// (docs/places/thornheart.md)
+ROOMS[WRECK] = {
+  name: 'Wreck Cave', width: WRECK_W, ground: FIELD_GROUND, platforms: WRECK_PLATFORMS,
+  doors: [{ x: WRECK_EXIT_X, w: 80, to: COVES, toX: WRECK_GATE_X, label: 'wade back out to Saltspray Coves (mobs!)' }],
+};
+ROOMS[THORNHEART] = {
+  name: 'The Thornheart', width: THORN_W, ground: FIELD_GROUND, platforms: THORN_PLATFORMS,
+  doors: [{ x: THORN_EXIT_X, w: 80, to: FIELD, toX: THORN_GATE_X, label: 'crawl back out to Bramble Woods (mobs!)' }],
+};
 // ——— towns (docs/world.md) ———
 // Owner's rule: every island's landing has a town, and every town works like Slimeville. It has a door
 // into your own house, and being in one makes it your town (state.town, an index into TOWNS): you wake up

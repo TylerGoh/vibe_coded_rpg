@@ -1,11 +1,12 @@
 // Docs: docs/places/branches.md
 // The blocked ways into Greenhollow's unshipped branches (GATES in src/shared/branches.js), drawn behind the
-// slimes: a root-choked stump, a rotten rope ladder, a wall of thorns, Wreck Cave's flooded mouth (in
-// Saltspray Coves). Each has a little wooden sign naming the place it leads to (red-trimmed for a hard
+// slimes (DRAW: a washed-out bridge, a root-choked stump, a rotten rope ladder, a wall of thorns, Wreck
+// Cave's flooded mouth, a fallen trunk; after G4 only the trunk is still a gate). Each has a little wooden sign naming the place it leads to (red-trimmed for a hard
 // pocket). Shipped branches keep their spot as an open way in (ENTRIES: drawEntries): Willowmere's
 // footbridge, mended with new planks, the shore path to the Coves, its rockfall rolled aside, the hollow
 // stump into the Mycelium Deep, its roots cut back, the glowing crack down into Glowroot Hollow, and the
-// Old Oak Canopy's rope ladder, restrung. The Canopy has Keeper's Spine's gate: a fallen trunk.
+// Old Oak Canopy's rope ladder, restrung, Wreck Cave's mouth with the water gone down, and the Thornheart's
+// wall of thorns, cut back into a tunnel. The Canopy has Keeper's Spine's gate: a fallen trunk.
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';
@@ -581,24 +582,45 @@ function drawTrunk(ctx, time) {
   ctx.globalAlpha = 1;
 }
 
-// The Thornheart: the briar closes into a solid wall, dark and thick with thorns; something stirs deep in it
-function drawThorns(ctx, time) {
+// The Thornheart: the briar closes into a solid wall, dark and thick with thorns; something stirs deep in it.
+// Open (the branch has shipped): the canes are cut back and bent aside into an arch over a low dark tunnel,
+// the cut stems lying in a heap, and the eyes still blink, far down the tunnel.
+function drawThorns(ctx, time, g, open = false) {
   const r = mulberry32(4920);
   ctx.fillStyle = 'rgba(40,20,40,0.22)';
   ellipse(ctx, 0, 2, 100, 10);
   // dark depth behind the canes
-  const g = ctx.createRadialGradient(0, -90, 10, 0, -90, 110);
-  g.addColorStop(0, '#3a1f36');
-  g.addColorStop(1, 'rgba(58,31,54,0)');
-  ctx.fillStyle = g;
+  const dg = ctx.createRadialGradient(0, -90, 10, 0, -90, 110);
+  dg.addColorStop(0, '#3a1f36');
+  dg.addColorStop(1, 'rgba(58,31,54,0)');
+  ctx.fillStyle = dg;
   ellipse(ctx, 0, -90, 100, 100);
-  // canes, arching over each other
   ctx.lineCap = 'round';
   ctx.fillStyle = '#4a2c42'; // the thicket's dark mass at the foot of the canes
   ellipse(ctx, 0, -26, 100, 34);
+  if (open) {
+    // the tunnel: a low dark arch going back into the briar
+    const tg = ctx.createRadialGradient(0, -40, 4, 0, -40, 60);
+    tg.addColorStop(0, '#150a14');
+    tg.addColorStop(1, '#2e1828');
+    ctx.fillStyle = tg;
+    ctx.beginPath();
+    ctx.moveTo(-40, 2);
+    ctx.quadraticCurveTo(-44, -92, 0, -96);
+    ctx.quadraticCurveTo(44, -92, 40, 2);
+    ctx.closePath();
+    ctx.fill();
+  }
+  // canes, arching over each other (open: pushed out to the sides and bent over the tunnel)
   for (let i = 0; i < 26; i++) {
-    const x0 = -96 + r() * 192, h = 90 + r() * 120, lean = (r() - 0.5) * 120, w = 5 + r() * 4;
-    const dark = r() > 0.5;
+    let x0 = -96 + r() * 192, h = 90 + r() * 120, lean = (r() - 0.5) * 120;
+    const w = 5 + r() * 4, dark = r() > 0.5;
+    if (open) {
+      const side = x0 < 0 ? -1 : 1;
+      x0 = side * (44 + Math.abs(x0) * 0.55);
+      lean = -side * (40 + Math.abs(lean) * 0.6); // bent over the top of the arch
+      h = Math.max(h, 120);
+    }
     ctx.strokeStyle = dark ? '#5e3a50' : '#7a4c62';
     ctx.lineWidth = w;
     ctx.beginPath();
@@ -619,12 +641,27 @@ function drawThorns(ctx, time) {
       ctx.fill();
     }
   }
+  if (open) {
+    // the cut stems, heaped to one side, pale where they were cut
+    for (let i = 0; i < 6; i++) {
+      const x = -86 + i * 7, y = -4 - (i % 3) * 4;
+      ctx.strokeStyle = '#6a4258';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(x - 22, y + 2);
+      ctx.lineTo(x + 22, y - 3);
+      ctx.stroke();
+      ctx.fillStyle = '#d8c0a0';
+      ellipse(ctx, x + 22, y - 3, 2.4, 2.4);
+    }
+  }
   // two eyes blinking deep in the briar, now and then
-  const open = clamp(Math.sin(time * 0.7) * 6 - 4.5, 0, 1);
-  if (open > 0) {
-    ctx.fillStyle = `rgba(255,170,190,${0.8 * open})`;
-    ellipse(ctx, -10, -96, 3.4, 2.2 * open);
-    ellipse(ctx, 10, -96, 3.4, 2.2 * open);
+  const eo = clamp(Math.sin(time * 0.7) * 6 - 4.5, 0, 1);
+  if (eo > 0) {
+    const ey = open ? -48 : -96, eg = open ? 7 : 10;
+    ctx.fillStyle = `rgba(255,170,190,${0.8 * eo})`;
+    ellipse(ctx, -eg, ey, 3.4 * (open ? 0.8 : 1), 2.2 * eo);
+    ellipse(ctx, eg, ey, 3.4 * (open ? 0.8 : 1), 2.2 * eo);
   }
 }
 
@@ -660,8 +697,11 @@ function drawShore(ctx) {
 }
 
 // Wreck Cave: a sea-cave mouth in the cliff at the Coves' far end, flooded to the roof: dark water fills
-// the arch, a broken timber pokes out, and the swell heaves in and out
-function drawFlooded(ctx, time) {
+// the arch, a broken timber pokes out, and the swell heaves in and out. Open (the branch has shipped): the
+// water has gone down to a shallow pool, the timber laid across it as a plank, a dark tide line high on the
+// arch where the water stood, and a lantern glowing far inside.
+function drawFlooded(ctx, time, g, open = false) {
+  if (open) return drawFloodedOpen(ctx, time);
   ctx.fillStyle = '#8f8a96'; // the cliff around the mouth
   ctx.beginPath();
   ctx.moveTo(-120, 4);
@@ -726,5 +766,72 @@ function drawFlooded(ctx, time) {
   for (const [x, s] of [[-80, 16], [-62, 10], [76, 14], [94, 9]]) ellipse(ctx, x, -s * 0.5, s, s * 0.7);
 }
 
+function drawFloodedOpen(ctx, time) {
+  ctx.fillStyle = '#8f8a96'; // the cliff around the mouth (as when it was flooded)
+  ctx.beginPath();
+  ctx.moveTo(-120, 4);
+  ctx.quadraticCurveTo(-128, -150, -60, -200);
+  ctx.quadraticCurveTo(10, -230, 80, -190);
+  ctx.quadraticCurveTo(130, -140, 118, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#a6a0ab';
+  ellipse(ctx, -70, -150, 26, 50, 0.2);
+  ellipse(ctx, 74, -120, 18, 44, -0.2);
+  const arch = () => {
+    ctx.beginPath();
+    ctx.moveTo(-66, 4);
+    ctx.lineTo(-66, -70);
+    ctx.quadraticCurveTo(-60, -132, 0, -136);
+    ctx.quadraticCurveTo(60, -132, 66, -70);
+    ctx.lineTo(66, 4);
+    ctx.closePath();
+  };
+  ctx.save();
+  arch();
+  ctx.clip();
+  const d = ctx.createLinearGradient(0, -140, 0, 4);
+  d.addColorStop(0, '#1a2430');
+  d.addColorStop(1, '#0e161f');
+  ctx.fillStyle = d;
+  ctx.fillRect(-70, -140, 140, 150);
+  // a lantern glowing far inside, swaying a little
+  const sw = Math.sin(time * 1.3) * 3;
+  ctx.fillStyle = 'rgba(255,214,140,0.22)';
+  ellipse(ctx, 14 + sw, -66, 22, 22);
+  ctx.fillStyle = '#ffd88a';
+  ellipse(ctx, 14 + sw, -66, 3, 4);
+  // the shallow pool left at the bottom
+  const pg = ctx.createLinearGradient(0, -20, 0, 4);
+  pg.addColorStop(0, '#3a6e8e');
+  pg.addColorStop(1, '#22465e');
+  ctx.fillStyle = pg;
+  ctx.fillRect(-70, -16 + Math.sin(time * 1.1) * 1.5, 140, 24);
+  ctx.restore();
+  // the tide line: a dark wet band and weed high up the arch, where the water stood
+  ctx.strokeStyle = 'rgba(60,70,80,0.45)';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(-68, -110);
+  ctx.quadraticCurveTo(0, -118, 68, -110);
+  ctx.stroke();
+  ctx.fillStyle = '#5f8a5a';
+  for (let i = 0; i < 7; i++) ellipse(ctx, -60 + i * 20, -106 + (i % 2) * 3, 4, 7);
+  // the old timber, laid across the pool as a plank
+  ctx.fillStyle = '#6a4a38';
+  ctx.strokeStyle = '#3e2a20';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(-58, -12, 116, 9, 3);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#c9b49a';
+  for (const x of [-46, 40]) ellipse(ctx, x, -7.5, 1.8, 1.8);
+  // rocks at the foot
+  ctx.fillStyle = '#7a7480';
+  for (const [x, s] of [[-80, 16], [-62, 10], [76, 14], [94, 9]]) ellipse(ctx, x, -s * 0.5, s, s * 0.7);
+}
+
 const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk };
-const OPEN = { bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true) };
+const OPEN = { bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
+  flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true) };

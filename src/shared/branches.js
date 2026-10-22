@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, ZONES, DENS, zoneAt, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE_GATE_X } from './rpg.js';
+import { FIELD, ZONES, DENS, zoneAt, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -23,10 +23,7 @@ export const GREENHOLLOW = [
   { id: 'cliffs', name: 'East Cliffs', at: [650, 205], from: 'woods', rooms: [CLIFFS] },
   { id: 'willowmere', name: 'Willowmere', band: '5–15', at: [305, 285], from: 'meadow', rooms: [WILLOWMERE], entry: { room: FIELD, x: WILLOWMERE_GATE_X, kind: 'bridge' } },
   { id: 'coves', name: 'Saltspray Coves', band: '10–25', at: [75, 285], from: 'harbour', rooms: [COVES], entry: { room: HARBOUR, x: COVES_GATE_X, kind: 'shore' } },
-  {
-    id: 'wreck', name: 'Wreck Cave', band: '30–40', hard: true, at: [75, 350], from: 'coves', block: 'flooded',
-    gate: { room: COVES, x: 130, kind: 'flooded', look: 'peer into the flooded cave', says: 'The mouth of Wreck Cave is flooded to the roof. Somewhere inside, old timbers creak.' },
-  },
+  { id: 'wreck', name: 'Wreck Cave', band: '30–40', hard: true, at: [75, 350], from: 'coves', rooms: [WRECK], entry: { room: COVES, x: WRECK_GATE_X, kind: 'flooded' } },
   { id: 'deep', name: 'Mycelium Deep', band: '15–35', at: [420, 285], from: 'grove', rooms: [MYCELIUM], entry: { room: FIELD, x: MYCELIUM_GATE_X, kind: 'stump' } },
   { id: 'glowroot', name: 'Glowroot Hollow', band: '40–50', hard: true, at: [420, 350], from: 'deep', rooms: [GLOWROOT], entry: { room: MYCELIUM, x: GLOWROOT_GATE_X, kind: 'crack' } },
   { id: 'canopy', name: 'Old Oak Canopy', band: '25–40', at: [535, 125], from: 'woods', rooms: [CANOPY], entry: { room: FIELD, x: CANOPY_GATE_X, kind: 'ladder' } },
@@ -34,10 +31,7 @@ export const GREENHOLLOW = [
     id: 'spine', name: "Keeper's Spine", band: '45–60', at: [535, 55], from: 'canopy', block: 'fallen trunk',
     gate: { room: CANOPY, x: SPINE_GATE_X, kind: 'trunk', look: 'look over the fallen trunk', says: "A great trunk has fallen across the high path to Keeper's Spine. It's far too big to climb." },
   },
-  {
-    id: 'thornheart', name: 'Thornheart', band: '50–60', hard: true, at: [650, 285], from: 'woods', block: 'thorns',
-    gate: { room: FIELD, x: 4920, kind: 'thorns', look: 'look into the briar', says: 'Somewhere past this wall of thorns lies the Thornheart. Nothing gets through.' },
-  },
+  { id: 'thornheart', name: 'Thornheart', band: '50–60', hard: true, at: [650, 285], from: 'woods', rooms: [THORNHEART], entry: { room: FIELD, x: THORN_GATE_X, kind: 'thorns' } },
 ];
 export const ISLAND_MAPS = { green: GREENHOLLOW }; // (Frostpeak's comes with its depth pass)
 export const shipped = (n) => !n.gate && !n.past;

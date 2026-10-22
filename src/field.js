@@ -14,12 +14,15 @@ import { WILLOW_MOB_ART, WILLOW_ICONS, drawReedRapier, drawLilyHat, drawMillerCa
 import { COVES_MOB_ART, COVES_ICONS, drawDriftCutlass, drawCoralSaber, drawTideClaw, drawConchHelm, drawHoardCrown } from './coves-art.js';
 import { DEEP_MOB_ART, DEEP_ICONS, DEEP_SWORDS, DEEP_SWORD_LEN, DEEP_HELMETS } from './deep-art.js';
 import { CANOPY_MOB_ART, CANOPY_ICONS, CANOPY_SWORDS, CANOPY_SWORD_LEN, CANOPY_HELMETS } from './canopy-art.js';
-const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...FIELD_BOSS_ART, ...WILLOW_MOB_ART, ...COVES_MOB_ART, ...DEEP_MOB_ART, ...CANOPY_MOB_ART };
-// Greenhollow's branches' gear and materials (src/willowmere-art.js, src/coves-art.js, src/deep-art.js, src/canopy-art.js)
-const BRANCH_SWORDS = { reed_rapier: drawReedRapier, drift_cutlass: drawDriftCutlass, coral_saber: drawCoralSaber, tide_claw: drawTideClaw, ...DEEP_SWORDS, ...CANOPY_SWORDS };
-const BRANCH_HELMETS = { lily_hat: drawLilyHat, miller_cap: drawMillerCap, snail_helm: drawSnailHelm, snapjaw_shell: drawSnapjawShell, conch_helm: drawConchHelm, hoard_crown: drawHoardCrown, ...DEEP_HELMETS, ...CANOPY_HELMETS };
+import { WRECK_MOB_ART, WRECK_ICONS, WRECK_SWORDS, WRECK_SWORD_LEN, WRECK_HELMETS } from './wreck-art.js';
+import { THORN_MOB_ART, THORN_ICONS, THORN_SWORDS, THORN_SWORD_LEN, THORN_HELMETS } from './thornheart-art.js';
+const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...FIELD_BOSS_ART, ...WILLOW_MOB_ART, ...COVES_MOB_ART, ...DEEP_MOB_ART, ...CANOPY_MOB_ART, ...WRECK_MOB_ART, ...THORN_MOB_ART };
+// Greenhollow's branches' gear and materials (src/willowmere-art.js, src/coves-art.js, src/deep-art.js, src/canopy-art.js,
+// src/wreck-art.js, src/thornheart-art.js)
+const BRANCH_SWORDS = { reed_rapier: drawReedRapier, drift_cutlass: drawDriftCutlass, coral_saber: drawCoralSaber, tide_claw: drawTideClaw, ...DEEP_SWORDS, ...CANOPY_SWORDS, ...WRECK_SWORDS, ...THORN_SWORDS };
+const BRANCH_HELMETS = { lily_hat: drawLilyHat, miller_cap: drawMillerCap, snail_helm: drawSnailHelm, snapjaw_shell: drawSnapjawShell, conch_helm: drawConchHelm, hoard_crown: drawHoardCrown, ...DEEP_HELMETS, ...CANOPY_HELMETS, ...WRECK_HELMETS, ...THORN_HELMETS };
 import { PET_ICONS } from './pet-art.js';
-const BRANCH_ICONS = { ...WILLOW_ICONS, ...COVES_ICONS, ...DEEP_ICONS, ...CANOPY_ICONS, ...PET_ICONS }; // (and pet food)
+const BRANCH_ICONS = { ...WILLOW_ICONS, ...COVES_ICONS, ...DEEP_ICONS, ...CANOPY_ICONS, ...WRECK_ICONS, ...THORN_ICONS, ...PET_ICONS }; // (and pet food)
 
 const INK = '#5b4a6b';
 const FLOWER_COLORS = ['#ffb3c7', '#fff1a8', '#c9b6ff', '#ffffff', '#ffd1a1'];
@@ -1793,7 +1796,7 @@ function drawGolem(ctx, w, h, t, seed, m, dying) {
 
 // Blade length (from the hand) for each sword, longer for more reach
 export const SWORD_LEN = { wood_sword: 30, iron_sword: 38, spore_blade: 42, crystal_sword: 46, bone_harpoon: 50, frost_blade: 52, thorn_sword: 54, star_sword: 58,
-  magma_maul: 60, phoenix_blade: 62, cog_cleaver: 64, chrono_blade: 66, reed_rapier: 44, drift_cutlass: 50, coral_saber: 54, tide_claw: 58, ...DEEP_SWORD_LEN, ...CANOPY_SWORD_LEN };
+  magma_maul: 60, phoenix_blade: 62, cog_cleaver: 64, chrono_blade: 66, reed_rapier: 44, drift_cutlass: 50, coral_saber: 54, tide_claw: 58, ...DEEP_SWORD_LEN, ...CANOPY_SWORD_LEN, ...WRECK_SWORD_LEN, ...THORN_SWORD_LEN };
 const HELMETS = ['leaf_cap', 'mush_helm', 'iron_helm', 'fur_hood', 'king_crown', 'bramble_helm', 'glacier_helm', 'star_crown',
   'ember_helm', 'phoenix_crown', 'aether_helm', 'hourglass_crown', ...Object.keys(BRANCH_HELMETS)];
 const HELM_ICON_FIT = { ember_helm: [0.72, 1], phoenix_crown: [0.74, 2], aether_helm: [0.8, 1], hourglass_crown: [0.78, 5] };

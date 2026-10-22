@@ -25,6 +25,9 @@ Stages 3 and 4 were added because players were Lv 35–88 and out of content.
    Glowworm, Elder Threadweaver): G2, under Mushroom Grove (`docs/places/deep.md`).
 9. **The Old Oak Canopy**: G3, the treetops over Bramble Woods, with the Hornet Queen (a field boss) and
    wasp nests that burst into wasps (`docs/places/canopy.md`).
+10. **Wreck Cave** and 11. **the Thornheart**: G4, the hard pockets off the Coves (Lv 30–40, the Drowned
+   Bosun) and off Bramble Woods (Lv 50–60, the Thorn Hart), elites in both (`docs/places/wreck.md`,
+   `docs/places/thornheart.md`). A rooted shooter is `speed: 0`, `anchored` and `keep: 0` (the pitcher plant).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 

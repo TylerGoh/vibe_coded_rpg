@@ -1009,6 +1009,60 @@ const SONGS = {
     },
   },
 
+  // Wreck Cave (a hard pocket): a slow sea shanty in D minor for a ship that will never sail again, 3/4,
+  // a squeezebox pad that breathes in and out, a creaking hull, drips in the dark and a far-off bosun's whistle
+  wreck: {
+    bpm: 96, beats: 3, spb: 6, melSteps: 6, key: 62, scale: DORIAN, gain: 0.8, send: 0.42, loop: 8,
+    chords: [[1, 3, 5], [7, 9, 11], [6, 8, 10], [5, 7, 9], [1, 3, 5], [4, 6, 8], [7, 9, 11], [1, 3, 5]],
+    mel: melody(
+      '5 - 4 3 - 1', '2 - - 7 - .', '3 - 4 5 - 6', '5 - - . . .',
+      '8 - 7 5 - 4', '6 - 5 4 - .', '2 - 3 4 - 2', '1 - - . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 160, 0.012); // the sea, breathing at the mouth
+      p.eng.bed(p, 'bandpass', 900, 0.003, 2); // the cave's hollow ring
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) pad(p, ch, t, p.stepDur * 6, 0.014, { type: 'sawtooth', a: 0.25, cutoff: 1100, unison: 5 }); // the squeezebox
+      if (s === 0) e.voice(p.c, t, p.f(ch[0], -2), { type: 'triangle', vol: 0.14, tau: 0.35, cutoff: 600 });
+      if (s === 2 || s === 4) e.voice(s === 2 ? p.l : p.r, t, p.f(ch[s === 2 ? 1 : 2], -1), { ...PLUCK, vol: 0.035, tau: 0.14 });
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { type: 'sine', vol: 0.05, a: 0.05, hold: m.len * 0.75, rel: 0.2, vib: 4, vibRate: 5, partials: [[2, 0.2], [3, 0.08]] });
+      if (m && part === 1) e.voice(p.r, t, p.f(m.d, 1), { ...GLOCK, vol: 0.045 });
+      if (s === 3 && chance(0.4)) e.voice(chance(0.5) ? p.l : p.r, t + rand(0, p.stepDur), 1700 + rand(-300, 500), { type: 'sine', vol: 0.016, a: 0.001, tau: 0.05, glide: 0.6, glideT: 0.04 }); // a drip
+      if (s === 5 && bar % 4 === 1 && chance(0.5)) e.voice(p.l, t, 110, { type: 'sawtooth', vol: 0.012, a: 0.15, hold: 0.4, rel: 0.3, cutoff: 500, vib: 3, vibRate: 2 }); // the hull creaks
+      if (s === 0 && bar === 7 && pass % 3 === 2) e.voice(p.r, t, 2400, { type: 'sine', vol: 0.012, a: 0.02, hold: 0.5, rel: 0.2, vib: 25, vibRate: 14 }); // the bosun's whistle, far off
+    },
+  },
+
+  // The Thornheart (a hard pocket): an old, stern tune in E phrygian, a slow 4/4 heartbeat on low drums,
+  // bowed strings that scrape like canes, and harp notes falling like petals near the end of each phrase
+  thornheart: {
+    bpm: 84, spb: 8, key: 64, scale: PHRYGIAN, gain: 0.8, send: 0.36, loop: 8,
+    chords: [[1, 3, 5], [2, 4, 6], [1, 3, 5], [7, 9, 11], [6, 8, 10], [2, 4, 6], [4, 6, 8], [1, 3, 5]],
+    mel: melody(
+      '5 . . 6 5 . 3 .', '2 - - . 1 . . .', '3 . 5 . 6 . 8 .', '7 - - . 5 . . .',
+      '8 . . 7 6 . 5 .', '6 - 5 . 3 . . .', '4 . 3 . 2 . 3 .', '1 - - - . . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 220, 0.01);
+      p.eng.bed(p, 'bandpass', 2600, 0.004, 0.8); // canes rustling
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) pad(p, ch, t, p.stepDur * 8, 0.013, { type: 'sawtooth', a: 0.6, cutoff: 800, unison: 6 }); // bowed strings
+      if (s === 0 || s === 4) e.kick(p.c, t, s ? 0.12 : 0.2, 70, 38, 0.14); // a slow heartbeat
+      if (s === 1) e.kick(p.c, t, 0.1, 64, 36, 0.12);
+      if (s % 2 === 0) e.voice(p.c, t, p.f(s % 4 === 2 ? ch[2] : ch[0], -2), { type: 'triangle', vol: 0.08, tau: 0.12, cutoff: 500 });
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { type: 'sawtooth', vol: 0.022, a: 0.08, hold: m.len * 0.8, rel: 0.25, vib: 5, vibRate: 5, cutoff: 1600 });
+      if (m && part === 1) e.voice(p.l, t, p.f(m.d, 1), { ...PLUCK, vol: 0.06, tau: 0.3 });
+      if (bar % 4 === 3 && s >= 4) e.voice(s % 2 ? p.l : p.r, t, p.f(ch[(s + bar) % 3], 2), { ...GLOCK, vol: 0.02, tau: 0.25 }); // petals falling
+      if (s === 6 && chance(0.25)) hat(p, t, 0.008);
+    },
+  },
+
   // The Knotted Burrow: a stubborn 6/8 in C minor, low plucked strings, the thump of digging paws, and a
   // tangle of a melody that keeps looping back on itself
   knotmole: {
@@ -2253,7 +2307,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -2360,7 +2414,10 @@ export const audio = {
 Object.assign(MOB_HURT, { dragonfly: MOB_HURT.cinder_bat, gloop_snail: MOB_HURT.magma_slug, snapjaw: MOB_HURT.golem, rock_crab: MOB_HURT.obsidian_crab, storm_gull: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, snapshrimp: MOB_HURT.obsidian_crab, tidemother: MOB_HURT.obsidian_crab,
   puffcap: MOB_HURT.mushling, cave_bat: MOB_HURT.cinder_bat, puffball: MOB_HURT.mushling, puffling: MOB_HURT.cogbit, root_beetle: MOB_HURT.obsidian_crab, knot_spider: MOB_HURT.aether_knight,
   glowworm: MOB_HURT.magma_slug, glow_moth: MOB_HURT.wisp, thread_weaver: MOB_HURT.sentry, knotmole: MOB_HURT.ignis,
-  oak_squirrel: MOB_HURT.mushling, tent_caterpillar: MOB_HURT.magma_slug, flying_squirrel: MOB_HURT.aether_knight, tawny_owl: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, wasp_nest: MOB_HURT.mushling, wasp: MOB_HURT.cogbit, hornet: MOB_HURT.cinder_bat, hornet_queen: MOB_HURT.cinder_bat });
+  oak_squirrel: MOB_HURT.mushling, tent_caterpillar: MOB_HURT.magma_slug, flying_squirrel: MOB_HURT.aether_knight, tawny_owl: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, wasp_nest: MOB_HURT.mushling, wasp: MOB_HURT.cogbit, hornet: MOB_HURT.cinder_bat, hornet_queen: MOB_HURT.cinder_bat,
+  barnacle_crab: MOB_HURT.obsidian_crab, drowned_lamp: MOB_HURT.wisp, moray_eel: MOB_HURT.magma_slug, bilge_rat: MOB_HURT.aether_knight, drowned_bosun: MOB_HURT.golem,
+  thornback: MOB_HURT.bramble ?? MOB_HURT.obsidian_crab, thistle_puff: MOB_HURT.mushling, thistledown: MOB_HURT.cogbit, pitcher_plant: MOB_HURT.mushling, thorn_stalker: MOB_HURT.aether_knight, thorn_hart: MOB_HURT.golem });
 Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEATH.magma_slug, rock_crab: MOB_DEATH.obsidian_crab, snapshrimp: MOB_DEATH.obsidian_crab,
   puffcap: MOB_DEATH.mushling, cave_bat: MOB_DEATH.cinder_bat, puffball: MOB_DEATH.mushling, root_beetle: MOB_DEATH.obsidian_crab, glowworm: MOB_DEATH.magma_slug, glow_moth: MOB_DEATH.wisp,
-  oak_squirrel: MOB_DEATH.mushling, tent_caterpillar: MOB_DEATH.magma_slug, tawny_owl: MOB_DEATH.cinder_bat, wasp_nest: MOB_DEATH.mushling, hornet: MOB_DEATH.cinder_bat });
+  oak_squirrel: MOB_DEATH.mushling, tent_caterpillar: MOB_DEATH.magma_slug, tawny_owl: MOB_DEATH.cinder_bat, wasp_nest: MOB_DEATH.mushling, hornet: MOB_DEATH.cinder_bat,
+  barnacle_crab: MOB_DEATH.obsidian_crab, drowned_lamp: MOB_DEATH.wisp, moray_eel: MOB_DEATH.magma_slug, thornback: MOB_DEATH.bramble ?? MOB_DEATH.obsidian_crab, thistle_puff: MOB_DEATH.mushling, pitcher_plant: MOB_DEATH.mushling });

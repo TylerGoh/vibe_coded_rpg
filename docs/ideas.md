@@ -46,5 +46,13 @@
 - The Hornet Queen only dives (one field-boss brain). Calling wasps out of her nest would need a summon for
   field bosses, which they don't have (small bosses get a move or two, owner).
 - A vertical camera for the Canopy (climbing up, not along): its own `step()`/camera project, never started.
-- Then G4 (Wreck Cave, the Thornheart, the Drowned Bosun) per `story/world/island-depth.md`; where its gates
-  already are: `docs/places/branches.md`.
+
+## G4 left for later
+- The plan's "nasty hazard" for hard pockets: none beyond the mobs' own (water jets, ink, thorn seeds). A
+  room hazard (tide surges in Wreck Cave, thorn patches in the Thornheart) would need a stage-hazard system
+  outside the mob brains.
+- Tested on a test server with a Lv 81 character and TEST_GOD: both ways in and out, every mob spawning,
+  both readables, both field bosses' moves (ink, the stamp), the island map, a phone screenshot. Nobody has
+  fought the pockets at their own level, so how hard they really are is a guess.
+- Then G5 (Keeper's Spine, the Root Warden) per `story/world/island-depth.md`; its gate is already in the
+  Canopy: `docs/places/branches.md`.

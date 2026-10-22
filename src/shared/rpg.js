@@ -31,7 +31,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 2700;
+export const PETSHOP_W = 3000;
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -225,6 +225,56 @@ export const CANOPY_PLATFORMS = [
   { x: 5060, y: 250, w: 200, kind: 'bough' },
   { x: 2950, y: 158, w: 110, kind: 'nest' }, // the Crow's Nest, high over the Owl Hollows: easy to miss
 ];
+// ——— island depth G4: the hard pockets (docs/places/wreck.md, docs/places/thornheart.md) ———
+// Wreck Cave (room 32): a sea cave behind the flooded mouth at Saltspray Coves' far (west) end, with an old
+// apple ship wrecked inside. Like the Coves you come in at the EAST end (the mouth) and go west, deeper and
+// harder: the Cave Mouth (no mobs), the Drowned Gallery, and the Wreck itself, where the Drowned Bosun
+// roams. The crow's nest on the wreck's broken foremast (last in WRECK_PLATFORMS) is the off-the-path spot.
+export const WRECK = 32; // room id
+export const WRECK_W = 3800;
+export const WRECK_EXIT_X = WRECK_W - 90; // back out through the cave mouth to the Coves
+export const WRECK_GATE_X = 130; // the cave mouth at the Coves' far west end (the way in)
+export const WRECK_ZONES = [
+  { name: 'The Wreck', x0: 0, x1: 1800, lvl: '35–40' },
+  { name: 'The Drowned Gallery', x0: 1800, x1: 3250, lvl: '30–35' },
+  { name: 'The Cave Mouth', x0: 3250, x1: WRECK_W, lvl: null }, // (no mobs)
+];
+export const WRECK_PLATFORMS = [
+  { x: 3000, y: 340, w: 200, kind: 'ledge' },
+  { x: 2600, y: 255, w: 190, kind: 'ledge' },
+  { x: 2200, y: 340, w: 230, kind: 'spar' }, // a broken spar wedged between the rocks
+  { x: 1860, y: 255, w: 180, kind: 'ledge' },
+  { x: 1150, y: 340, w: 340, kind: 'deck' }, // the wreck: its deck aft of the break
+  { x: 1290, y: 250, w: 180, kind: 'stern' }, // the stern castle
+  { x: 420, y: 340, w: 380, kind: 'deck' }, // the foredeck
+  { x: 560, y: 248, w: 220, kind: 'yard' }, // the foremast's yard
+  { x: 615, y: 158, w: 100, kind: 'nest' }, // the crow's nest, up the broken foremast: easy to miss
+];
+// The Thornheart (room 33): through the wall of thorns at Bramble Woods' east end, into the root of the briar
+// that covers the whole east of the Wildwood. West to east: the Briar Gate (no mobs: where the thorns were
+// cut back), the Bramble Maze and the Thornheart itself, where every briar on the island grows from one
+// great root knot round an old Keeper stone (the Hedge Stone), and the Thorn Hart roams. The White Rose, a
+// briar arch high over the Maze (last in THORN_PLATFORMS), is the off-the-path spot.
+export const THORNHEART = 33; // room id
+export const THORN_W = 4200;
+export const THORN_EXIT_X = 70; // back out through the briar to Bramble Woods
+export const THORN_GATE_X = 4920; // the wall of thorns at Bramble Woods' mob-free east end (the way in)
+export const THORN_ZONES = [
+  { name: 'The Briar Gate', x0: 0, x1: 520, lvl: null }, // (no mobs)
+  { name: 'The Bramble Maze', x0: 520, x1: 2300, lvl: '50–55' },
+  { name: 'The Thornheart', x0: 2300, x1: THORN_W, lvl: '55–60' },
+];
+export const THORN_PLATFORMS = [
+  { x: 700, y: 340, w: 210, kind: 'log' },
+  { x: 1050, y: 255, w: 190, kind: 'briar' },
+  { x: 1450, y: 340, w: 220, kind: 'log' },
+  { x: 1840, y: 250, w: 210, kind: 'briar' },
+  { x: 2480, y: 340, w: 220, kind: 'root' },
+  { x: 2860, y: 255, w: 200, kind: 'briar' },
+  { x: 3260, y: 340, w: 220, kind: 'root' },
+  { x: 3640, y: 255, w: 180, kind: 'briar' },
+  { x: 1895, y: 160, w: 100, kind: 'rose' }, // the White Rose, a briar arch high over the Maze: easy to miss
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -238,6 +288,8 @@ export const STAGES = {
   [MYCELIUM]: { name: 'The Mycelium Deep', zones: MYCELIUM_ZONES, band: '15–35', pill: 'Mycelium Deep' },
   [GLOWROOT]: { name: 'Glowroot Hollow', zones: GLOWROOT_ZONES, band: '40–50', hard: true },
   [CANOPY]: { name: 'The Old Oak Canopy', zones: CANOPY_ZONES, band: '25–40', pill: 'Old Oak Canopy' },
+  [WRECK]: { name: 'Wreck Cave', zones: WRECK_ZONES, band: '30–40', hard: true },
+  [THORNHEART]: { name: 'The Thornheart', zones: THORN_ZONES, band: '50–60', hard: true, pill: 'Thornheart' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -619,6 +671,80 @@ MOBS.hornet_queen = {
   drops: [['coin', 1, 2200, 3400], ['honeycomb', 1, 4, 8], ['hornet_sting', 1, 3, 5], ['elixir', 1, 2, 3], ['mega_elixir', 1, 1, 2], ['queen_stinger', 0.25, 1, 1], ['honey_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.12, 1, 1], ['scroll_h10', 0.12, 1, 1]],
 };
 
+// ——— Greenhollow's branches, G4: the hard pockets (art: src/wreck-art.js, src/thornheart-art.js;
+// docs/places/wreck.md, docs/places/thornheart.md). On the frozen curve like the others; elites only here ———
+// Wreck Cave: barnacle crabs (front shell) and drowned lamps (go dark, then flare) in the Drowned Gallery;
+// moray eels throw a jet of water along the floor (jump it) and bilge rats scurry round behind you and bite
+// in the Wreck; the Drowned Bosun, a great old octopus in the bosun's coat, squirts ink
+MOBS.barnacle_crab = {
+  name: 'Barnacle Crab', lvl: 31, hp: 2400, atk: 83, exp: 687, speed: 55, w: 58, h: 40, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.5, lunge: 470, time: 0.32 },
+  drops: [['coin', 1, 135, 215], ['barnacle', 0.55, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.04, 1, 1], ['barnacle_helm', 0.004, 1, 1]],
+};
+MOBS.drowned_lamp = {
+  name: 'Drowned Lamp', lvl: 33, hp: 2250, atk: 89, exp: 774, speed: 60, w: 40, h: 50, aggro: true, hops: false, fly: 52,
+  ai: { kind: 'phase', every: 6.2, dur: 1.9, r: 150 },
+  drops: [['coin', 1, 145, 235], ['lamp_glass', 0.5, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.05, 1, 1]],
+};
+MOBS.moray_eel = {
+  name: 'Moray Eel', lvl: 36, hp: 2650, atk: 97, exp: 915, speed: 45, w: 70, h: 36, aggro: true, hops: false,
+  ai: { kind: 'beam', range: 520, every: 4.2, warn: 0.9, dur: 0.45, y0: 420, y1: 450, style: 'jet' },
+  drops: [['coin', 1, 160, 260], ['moray_tooth', 0.5, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.06, 1, 1], ['moray_fang', 0.003, 1, 1]],
+};
+MOBS.bilge_rat = {
+  name: 'Bilge Rat', lvl: 38, hp: 2850, atk: 103, exp: 1015, speed: 85, w: 48, h: 34, aggro: true, hops: true,
+  ai: { kind: 'blink', every: 4.8, warn: 0.45, slashWarn: 0.55, r: 105 },
+  drops: [['coin', 1, 175, 285], ['brass_button', 0.5, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.07, 1, 1]],
+};
+MOBS.barnacle_elite = elite('barnacle_crab', 'Old Barnacle Crab');
+MOBS.eel_elite = elite('moray_eel', 'Great Moray');
+// The Drowned Bosun: a field boss (small: no story), a great grey octopus who has lived in the wreck so long
+// he wears the bosun's coat and cap and blows the whistle. Passive until hit; then he keeps his distance and
+// squirts ink
+MOBS.drowned_bosun = {
+  name: 'The Drowned Bosun', field: true, lvl: 40, hp: 66000, atk: 104, exp: 19500, speed: 55, w: 136, h: 116, aggro: false, hops: false,
+  ai: { kind: 'lob', range: 480, every: 2.4, keep: 170, warn: 0.7, style: 'ink' },
+  desc: 'The Drowned Bosun is up and about in the Wreck! Hear the whistle?',
+  drops: [['coin', 1, 2300, 3500], ['ink_sac', 1, 4, 8], ['brass_button', 1, 3, 5], ['elixir', 1, 2, 3], ['mega_elixir', 1, 1, 2], ['bosun_hook', 0.25, 1, 1], ['bosun_cap', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.12, 1, 1], ['scroll_h10', 0.12, 1, 1]],
+};
+// The Thornheart: thornbacks (boars with a thorny front: hit them from behind), thistle puffs that burst into
+// thistledown, pitcher plants rooted in place that spit thorn seeds, thorn stalkers that slip round behind
+// you; the Thorn Hart, a great stag with antlers of briar, stamps the ground
+MOBS.thornback = {
+  name: 'Thornback', lvl: 51, hp: 5800, atk: 144, exp: 1753, speed: 60, w: 66, h: 46, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.55, lunge: 520, time: 0.32 },
+  drops: [['coin', 1, 275, 435], ['thorn_bristle', 0.5, 1, 2], ['mega_elixir', 0.08, 1, 1], ['thornback_helm', 0.004, 1, 1]],
+};
+MOBS.thistle_puff = {
+  name: 'Thistle Puff', lvl: 53, hp: 4700, atk: 151, exp: 1892, speed: 55, w: 52, h: 50, aggro: false, hops: true,
+  ai: { kind: 'split', into: 'thistledown', n: 3 },
+  drops: [['coin', 1, 290, 460], ['thistle_fluff', 0.5, 1, 2], ['mega_elixir', 0.08, 1, 1]],
+};
+MOBS.thistledown = {
+  name: 'Thistledown', lvl: 50, hp: 900, atk: 138, exp: 210, speed: 140, w: 26, h: 26, aggro: true, hops: false, fly: 34,
+  drops: [['coin', 1, 30, 55]],
+};
+MOBS.pitcher_plant = {
+  name: 'Pitcher Plant', lvl: 55, hp: 5000, atk: 158, exp: 2036, speed: 0, w: 50, h: 70, aggro: true, hops: false, anchored: true,
+  ai: { kind: 'lob', range: 460, every: 2.6, keep: 0, warn: 0.55, style: 'thorn' },
+  drops: [['coin', 1, 300, 480], ['pitcher_nectar', 0.5, 1, 2], ['mega_elixir', 0.09, 1, 1]],
+};
+MOBS.thorn_stalker = {
+  name: 'Thorn Stalker', lvl: 58, hp: 5400, atk: 168, exp: 2263, speed: 85, w: 60, h: 44, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.4, warn: 0.4, slashWarn: 0.5, r: 115 },
+  drops: [['coin', 1, 320, 500], ['stalker_barb', 0.5, 1, 2], ['mega_elixir', 0.1, 1, 1], ['stalker_claw', 0.003, 1, 1]],
+};
+MOBS.thornback_elite = elite('thornback', 'Old Thornback');
+MOBS.stalker_elite = elite('thorn_stalker', 'Elder Thorn Stalker');
+// The Thorn Hart: a field boss (small: no story), a great white stag with antlers of living briar, who sleeps
+// against the Hedge Stone and walks the Thornheart. Passive until hit; then he rears and stamps
+MOBS.thorn_hart = {
+  name: 'The Thorn Hart', field: true, lvl: 58, hp: 115000, atk: 160, exp: 40000, speed: 60, w: 150, h: 150, aggro: false, hops: false,
+  ai: { kind: 'stomp', every: 3.4, warn: 0.9, r: 280, range: 320, jump: 640 },
+  desc: 'The Thorn Hart is walking the Thornheart!',
+  drops: [['coin', 1, 4400, 6400], ['antler_velvet', 1, 4, 8], ['stalker_barb', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['briarheart_blade', 0.25, 1, 1], ['antler_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -649,6 +775,8 @@ const onSPlat = onRoomPlat(COVES_PLATFORMS, COVES);
 const onDPlat = onRoomPlat(MYCELIUM_PLATFORMS, MYCELIUM);
 const onGPlat = onRoomPlat(GLOWROOT_PLATFORMS, GLOWROOT);
 const onOPlat = onRoomPlat(CANOPY_PLATFORMS, CANOPY);
+const onKPlat = onRoomPlat(WRECK_PLATFORMS, WRECK);
+const onBPlat = onRoomPlat(THORN_PLATFORMS, THORNHEART);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -774,6 +902,38 @@ export const SPAWNS = [
   ...onOPlat('hornet', 11, 1),
   ...onOPlat('hornet', 12, 1),
   { kind: 'hornet_queen', x0: 4300, x1: 5320, y: FIELD_GROUND, room: CANOPY },
+  // Wreck Cave (the Cave Mouth, x > 3250, has none)
+  ...strip('barnacle_crab', 2300, 3150, FIELD_GROUND, 4, WRECK),
+  ...onKPlat('barnacle_crab', 0, 1),
+  ...onKPlat('barnacle_crab', 2, 1),
+  ...strip('drowned_lamp', 1850, 2900, FIELD_GROUND, 3, WRECK),
+  ...onKPlat('drowned_lamp', 1, 1),
+  ...onKPlat('drowned_lamp', 3, 1),
+  ...strip('moray_eel', 1150, 1800, FIELD_GROUND, 3, WRECK),
+  ...strip('moray_eel', 250, 800, FIELD_GROUND, 1, WRECK),
+  ...strip('bilge_rat', 250, 1500, FIELD_GROUND, 3, WRECK),
+  ...onKPlat('bilge_rat', 4, 1),
+  ...onKPlat('bilge_rat', 5, 1),
+  ...onKPlat('bilge_rat', 6, 1),
+  ...strip('barnacle_elite', 2400, 3100, FIELD_GROUND, 1, WRECK),
+  ...strip('eel_elite', 300, 1100, FIELD_GROUND, 1, WRECK),
+  { kind: 'drowned_bosun', x0: 200, x1: 1700, y: FIELD_GROUND, room: WRECK },
+  // the Thornheart (the Briar Gate, x < 520, has none)
+  ...strip('thornback', 620, 1350, FIELD_GROUND, 4, THORNHEART),
+  ...onBPlat('thornback', 0, 1),
+  ...strip('thistle_puff', 1300, 2250, FIELD_GROUND, 4, THORNHEART),
+  ...onBPlat('thistle_puff', 1, 1),
+  ...onBPlat('thistle_puff', 2, 1),
+  ...onBPlat('thistle_puff', 3, 1),
+  ...strip('pitcher_plant', 2420, 3200, FIELD_GROUND, 3, THORNHEART),
+  ...onBPlat('pitcher_plant', 4, 1),
+  ...strip('thorn_stalker', 2900, 3900, FIELD_GROUND, 3, THORNHEART),
+  ...onBPlat('thorn_stalker', 5, 1),
+  ...onBPlat('thorn_stalker', 6, 1),
+  ...onBPlat('thorn_stalker', 7, 1),
+  ...strip('thornback_elite', 900, 2100, FIELD_GROUND, 1, THORNHEART),
+  ...strip('stalker_elite', 3000, 3900, FIELD_GROUND, 1, THORNHEART),
+  { kind: 'thorn_hart', x0: 2450, x1: 3850, y: FIELD_GROUND, room: THORNHEART },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -906,6 +1066,25 @@ export const ITEMS = {
   stingblade: { name: 'Stingblade', price: 50000, lvl: 37, kind: 'sword', atk: 79, reach: 48, desc: "A long straight blade ground from a hornet's stinger, banded amber and black." },
   queen_stinger: { name: "Queen's Stinger", price: 56000, lvl: 39, kind: 'sword', atk: 82, reach: 50, desc: "The Hornet Queen's own stinger, gold at the tip. It hums when it's swung." },
   honey_crown: { name: 'Honeycomb Crown', price: 42000, lvl: 39, kind: 'helmet', def: 36, desc: 'A crown of golden wax cells, warm and faintly sticky. Bees follow you around.' },
+  // ——— G4: the hard pockets (art: src/wreck-art.js, src/thornheart-art.js). No trader: drops only ———
+  barnacle: { name: 'Barnacle Cluster', price: 230, kind: 'loot', desc: 'A knobbly clump of barnacles prised off a crab. The crab is relieved.' },
+  lamp_glass: { name: 'Lamp Glass', price: 270, kind: 'loot', desc: "A ship's lamp chimney, green with age, that still glows a little in the dark." },
+  moray_tooth: { name: 'Moray Tooth', price: 300, kind: 'loot', desc: 'A long hooked eel tooth. Moray eels have a second set further back. Nobody asks why.' },
+  brass_button: { name: 'Brass Button', price: 330, kind: 'loot', desc: 'A brass button with an apple stamped on it, off an old sailor\'s coat. Bilge rats hoard them.' },
+  ink_sac: { name: 'Bosun\'s Ink', price: 450, kind: 'loot', desc: 'A squishy sac of octopus ink, deep purple-black. Good for writing very serious letters.' },
+  thorn_bristle: { name: 'Thorn Bristle', price: 420, kind: 'loot', desc: "A stiff tuft of a thornback's bristles, with a thorn grown into every one." },
+  thistle_fluff: { name: 'Thistle Fluff', price: 440, kind: 'loot', desc: 'A soft purple-white puff of thistledown. It tries to float away when you open your bag.' },
+  pitcher_nectar: { name: 'Pitcher Nectar', price: 460, kind: 'loot', desc: 'A stoppered flask of sweet sticky nectar from a pitcher plant. Smells like honey and trouble.' },
+  stalker_barb: { name: 'Stalker Barb', price: 500, kind: 'loot', desc: 'A curved black thorn shed by a thorn stalker. It grew on a living thing, which is the unsettling part.' },
+  antler_velvet: { name: 'Antler Velvet', price: 600, kind: 'loot', desc: "Soft green velvet the Thorn Hart rubs off his antlers on the Hedge Stone. Tiny white roses grow on it." },
+  barnacle_helm: { name: 'Barnacle Helm', price: 37000, lvl: 33, kind: 'helmet', def: 32, desc: "An old ship's helmet so crusted with barnacles it's mostly barnacle now." },
+  moray_fang: { name: 'Moray Fang', price: 55000, lvl: 36, kind: 'sword', atk: 77, reach: 48, desc: 'A long hooked blade of eel tooth, sea-green and wickedly sharp. It bites, then holds on.' },
+  bosun_hook: { name: "Bosun's Boathook", price: 74000, lvl: 41, kind: 'sword', atk: 85, reach: 52, desc: "The Bosun's own boathook: an oak pole with a brass hook, worn smooth by eight tentacles." },
+  bosun_cap: { name: "Bosun's Cap", price: 57000, lvl: 41, kind: 'helmet', def: 37, desc: 'A navy knitted watch cap with a brass whistle on a cord. Blow it and everyone stands up straighter.' },
+  thornback_helm: { name: 'Thornback Helm', price: 93000, lvl: 52, kind: 'helmet', def: 44, desc: "A thick leather helm with a ridge of thornback bristles down the middle. Nobody pats you on the head." },
+  stalker_claw: { name: "Stalker's Claw", price: 145000, lvl: 57, kind: 'sword', atk: 107, reach: 52, desc: 'A curved black blade like a great thorn. It strikes from where you aren\'t looking.' },
+  briarheart_blade: { name: 'Briarheart Blade', price: 156000, lvl: 59, kind: 'sword', atk: 110, reach: 56, desc: 'A sword of living briar wood, grown, not forged. A white rose buds on the guard and never opens.' },
+  antler_crown: { name: 'Hart\'s Antler Crown', price: 120000, lvl: 59, kind: 'helmet', def: 49, desc: 'A crown of shed briar antlers, soft with green velvet, white roses at the tips.' },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
   // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen

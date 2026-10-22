@@ -12,6 +12,9 @@ one shared corner feed).
   (trades; `docs/places/canopy.md`), and
   the Pet Shop's Auntie Clover (sells pet food, preaches feeding; `docs/places/pets.md`). Press E
   in range to talk.
+- When a place opens, update the personas that can see it, or they keep describing the block: Moss knows
+  Wreck Cave's water is down and what lives in it, Acorn (who watches Bramble Woods from the treetops) knows
+  the tunnel through the thorns and the Thorn Hart (G4).
 - `hello` on an `NPCS` entry is the line their dialog opens with. `shop` (a `SHOPS` key) adds a **Trade**
   button to their dialog (Runa). `folk` dresses them as another island's people (`docs/art.md`).
 - Clio has `anywhere: true`: she can be asked from anywhere in the museum (Q, the "Ask Clio" touch button,

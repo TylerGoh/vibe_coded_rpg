@@ -9,13 +9,11 @@ island shows what's coming.
   the node it hangs off (`from`) and where it sits on the map (`at`). `ISLAND_MAPS` says which islands
   have a map (Greenhollow only; Frostpeak's comes with its depth pass).
 - **A branch that hasn't shipped has a `gate`**: the blocked way in, in a real room (the room and x, the
-  kind of art, the prompt, and what E says). Gates are drawn by `src/branch-gates.js`: Willowmere's
-  washed-out footbridge (Sprout Meadow), the rockfall on the shore path (the harbour's west end), the
-  Mycelium Deep's root-choked stump (Mushroom Grove), the Old Oak Canopy's rotten rope ladder (Bramble
-  Woods, before the ruins) and the Thornheart's wall of thorns (the mob-free end of Bramble Woods). Each
-  has a small sign with the place's name (red-trimmed for a hard pocket).
-- Places behind another unshipped one (Wreck Cave, Glowroot Hollow, Keeper's Spine) have `past: true`
-  and no gate: their way in will be in a room that doesn't exist yet.
+  kind of art, the prompt, and what E says). Gates are drawn by `src/branch-gates.js` (`DRAW`); each has a
+  small sign with the place's name (red-trimmed for a hard pocket). G0 laid one for every branch; after G4
+  only Keeper's Spine's fallen trunk (in the Canopy) is left. The others are drawn open now (`OPEN`).
+- A place behind another unshipped one gets `past: true` and no gate (its way in would be in a room that
+  doesn't exist yet). None is left on Greenhollow; Frostpeak's pass may need it again.
 - Walking up to a gate shows an E prompt and a beacon (`gateAt`, `drawHints` in `src/main.js`); E shows a
   toast saying what's in the way. Nothing goes to the server.
 - **Owner rules** (`Agent.md`, story): the block is an in-world reason, never a "coming soon" sign or a
@@ -30,14 +28,17 @@ island shows what's coming.
   its node's `hard` for a red-trimmed sign, like a gate's.
 - **Shipped (G3):** the Old Oak Canopy (`docs/places/canopy.md`): the rope ladder restrung (`ladder` drawn
   open). Keeper's Spine lost `past` and got its gate in the Canopy (`trunk`, at `SPINE_GATE_X`).
+- **Shipped (G4):** the hard pockets, Wreck Cave (`docs/places/wreck.md`: the water down, a plank across,
+  `flooded` drawn open) and the Thornheart (`docs/places/thornheart.md`: the thorns cut into a tunnel,
+  `thorns` drawn open). Only Keeper's Spine still has a gate.
 - The island map (`docs/ui/world-map.md`) reads the same list: shipped places solid with their levels,
   the rest dashed with a short `block` reason. Keep both in step: a node's `block` should match its gate.
 
-## Shipping a branch: the checklist (from G1–G3, for G4, G5 and Frostpeak's pass)
+## Shipping a branch: the checklist (from G1–G4, for G5 and Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
-fullest example, the Canopy (G3) the most recent.
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 32 after G3; ids 27
-  and 31 are the Pet Shop and the Canopy), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
+fullest example, the Canopy (G3) the last with a trader, G4's two pockets the most recent.
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 34 after G4; ids 27,
+  31, 32 and 33 are the Pet Shop, the Canopy, Wreck Cave and the Thornheart), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last), a `STAGES` row (`band`, `pill` if the name is long, `hard` for
   a hard pocket), mobs **appended** to `MOBS` (kinds go over the wire as their index), spawns (an
@@ -68,7 +69,10 @@ Gotchas already hit:
 - **`split` minions aren't checked by the economy script** (only spawned mobs are). Keep their EXP and gold
   small, like the pufflings and wasps.
 - **Pet prices must rise with the boss's level**, field bosses included (`--check` fails otherwise): the
-  Lv 38 Hornet Queen's pet had to go above Lv 36 Ignis's.
+  Lv 38 Hornet Queen's pet had to go above Lv 36 Ignis's. Every new pet also needs room in the Pet Shop:
+  the server warns at start-up when `PETSHOP_W` is too small (G4 raised it).
+- **A place that opens changes what characters say.** Update the personas that describe its block (G4:
+  Moss on Wreck Cave, Acorn on the thorns).
 - **A gate's `says` must fit the toast** (it doesn't wrap): under about 90 characters.
 - **3/4 music scenes need `beats: 3, melSteps: 6`** as well as `spb: 6`.
 - The island map's "you are here" label moves beside the pin when a card sits right above (`drawPin`).
@@ -77,11 +81,10 @@ Gotchas already hit:
   key presses.
 
 ## The next phases' loose ends (where things already are)
-- **G4:** Wreck Cave's gate is in Saltspray Coves (`flooded`, x 130); the Thornheart's in the Wildwood
-  (`thorns`, x 4920, the mob-free end of Bramble Woods). Both are hard pockets: `elite()` for their elites,
-  `hard: true` on their `STAGES` rows (the red chip and sign follow). The Drowned Bosun is a small field boss.
 - **G5:** Keeper's Spine's gate is the fallen trunk at the Canopy's far end (`SPINE_GATE_X`). Its door goes
   there, with an `OPEN.trunk` (the trunk cut through or rolled aside). The Canopy already draws the Spine
   over the leaves (`drawSpine` in `src/canopy.js`: a bare grey ridge, standing stones on the crest): keep
   the Spine's own art in step. It gets a waystone (`docs/places/waystones.md`) and the capstone den, the
-  Root Warden (a big boss: `lines` and a story in `story/characters/bosses.md`).
+  Root Warden (a big boss: `lines` and a story in `story/characters/bosses.md`). The Thornheart's Hedge
+  Stone points north to the ridge and says the Keepers planted the briar "to keep the road"
+  (`docs/places/thornheart.md`): the Spine's stones and the Warden's gate should agree with it.

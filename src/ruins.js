@@ -1,14 +1,15 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
 // Stone by Truffle's camp in the Mycelium Deep, the Lifted Stone by Acorn's treehouse in the Old Oak
-// Canopy). The text opens
+// Canopy, the Hedge Stone in the Thornheart). Wreck Cave has the one reading here that isn't a stone: the
+// wrecked ship's logbook (`wing` and `when` change the card's header lines). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -62,6 +63,24 @@ export const RUIN_STONES = [
     legible: ['...THE ROAD CLIMBS...', '...KEEP TO THE HIGH WAY...', 'The arrow points along the bough toward the far end of the canopy, and up.'],
     note: "Neat notches run down one edge, one a year: Ranger Acorn's, keeping count of how far the oak has lifted it. There are six. Below them, much older and almost grown over, there are a great many more.",
   },
+  {
+    room: WRECK, place: 'Wreck Cave', x: 1640, shape: 'log', name: "the ship's log", title: "The Brave Pippin's Log",
+    wing: 'Wreck Cave · the wreck of the Brave Pippin', when: 'Written in a hurried hand · read by lamplight',
+    look: "A sea chest has burst open at the foot of the wreck's stern, and the ship's logbook lies on top of it, swollen with seawater but still readable. The cover says the Brave Pippin, out of Greenhollow Bay. Little apples are stamped on the chest's brass corners.",
+    legible: [
+      'Out of Greenhollow Bay at first light, forty barrels of apples for Icefang. Fair wind. Tied up in the fjord before the morning was out. Sold the lot.',
+      "The same run, a year on. The crossing took us till noon. The old hands say the sea's grown. Nonsense.",
+      'The same run again. Dark before we raised the fjord. Rationed the apples. The crew are singing that song about the sea again.',
+      'Storm off the south shore. Ran for the sea cave and lost the rudder on the rocks. All hands safe ashore. Leaving the old girl to the octopus, who seems to have moved in already.',
+    ],
+    note: 'Someone pressed a flower between the last pages, long ago. Someone much more recently left an apple core on the chest. The bilge rats say nothing.',
+  },
+  {
+    room: THORNHEART, place: 'the Thornheart', x: THORN_W - 300, shape: 'hedge', name: 'the Hedge Stone', title: 'The Hedge Stone',
+    look: 'Every briar in the Thornheart grows from one great knot of roots, and the knot is wrapped round a stone. The briar comes up through a slot cut clean through it, as if someone set a seed there on purpose. A ring of gear teeth is carved round the slot. The moss at its foot is pressed flat in the shape of something very large that sleeps here.',
+    legible: ['...PLANTED TO KEEP THE ROAD...', '...LET IT GROW WHILE WE ARE AWAY...', 'Under the words, a hand carved pointing north, up toward the high ridge. The rest is under thorns.'],
+    note: "White hairs are caught on the thorns all round it, and only here does the briar flower: little white roses, wherever the Thorn Hart has rubbed his antlers.",
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -91,7 +110,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -597,4 +616,145 @@ function drawLifted(ctx, time, glow) {
     ctx.stroke();
   }
   void time;
+}
+
+// Wreck Cave: a sea chest burst open at the foot of the wreck, the Brave Pippin's logbook open on top of it,
+// its pages lifting in the cave's draught; brass corners stamped with apples. glow: the page catches the light
+function drawLog(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(30,40,50,0.25)';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 50, 7, 0, 0, TAU);
+  ctx.fill();
+  // the lid, fallen open behind
+  ctx.save();
+  ctx.translate(0, -40);
+  ctx.rotate(-0.35);
+  ctx.fillStyle = '#5e4232';
+  ctx.strokeStyle = '#33241a';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(-40, -30, 80, 30, [10, 10, 2, 2]);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+  // the chest
+  ctx.fillStyle = '#7a5640';
+  ctx.strokeStyle = '#3e2a1e';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(-40, -42, 80, 42, 4);
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(40,26,18,0.5)';
+  ctx.lineWidth = 1.2;
+  for (const y of [-28, -14]) {
+    ctx.beginPath();
+    ctx.moveTo(-38, y);
+    ctx.lineTo(38, y);
+    ctx.stroke();
+  }
+  // brass corners with a stamped apple
+  for (const [x, y] of [[-40, -42], [32, -42], [-40, -8], [32, -8]]) {
+    ctx.fillStyle = '#d8b050';
+    ctx.fillRect(x, y, 8, 8);
+    ctx.fillStyle = '#9a7a30';
+    circle(ctx, x + 4, y + 4.5, 2);
+  }
+  // weed and a barnacle or two
+  ctx.fillStyle = '#5f8a5a';
+  for (const x of [-34, -20, 26]) ellipse(ctx, x, -2, 4, 7);
+  // the logbook, open on top, pages lifting
+  ctx.save();
+  ctx.translate(0, -44);
+  ctx.fillStyle = '#4a5a7a';
+  ctx.beginPath();
+  ctx.roundRect(-30, -4, 60, 7, 2);
+  ctx.fill();
+  for (const s of [-1, 1]) {
+    ctx.fillStyle = glow ? '#fff6dc' : '#ece2c8';
+    ctx.strokeStyle = '#9a8a6a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, -2);
+    ctx.quadraticCurveTo(s * 14, -9, s * 28, -4);
+    ctx.lineTo(s * 28, 0);
+    ctx.quadraticCurveTo(s * 14, -5, 0, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = glow ? 'rgba(120,90,40,0.8)' : 'rgba(90,80,70,0.5)';
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(s * 5, -3 - i * 1.5 + i * 0.5);
+      ctx.lineTo(s * 23, -5 - i * 1.2 + i * 0.5);
+      ctx.stroke();
+    }
+  }
+  const lift = (Math.sin(time * 1.3) * 0.5 + 0.5) * 0.9;
+  ctx.fillStyle = '#f4ead4'; // a page lifting in the draught
+  ctx.beginPath();
+  ctx.moveTo(0, -1);
+  ctx.quadraticCurveTo(10, -6 - lift * 10, 20 - lift * 8, -5 - lift * 14);
+  ctx.lineTo(22 - lift * 8, -2 - lift * 12);
+  ctx.quadraticCurveTo(10, -2 - lift * 6, 0, 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// The Thornheart: the Hedge Stone, wrapped in the great root knot every briar in the Thornheart grows from;
+// a thick cane rises through a slot cut in it and arches away, a carved gear round the slot, white roses
+function drawHedge(ctx, time, glow) {
+  // the root knot round its foot
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 7; i++) {
+    const s = i % 2 ? 1 : -1, k = 30 + i * 9;
+    ctx.strokeStyle = i % 3 ? '#5e3a50' : '#6a4258';
+    ctx.lineWidth = 12 - i;
+    ctx.beginPath();
+    ctx.moveTo(s * (70 + i * 6), 2);
+    ctx.quadraticCurveTo(s * k, -30 - i * 4, -s * 10, -22 - i * 5);
+    ctx.stroke();
+  }
+  slab(ctx, -34, -128, 68, 112, 12);
+  // the slot and the cane rising through it, arching away over the top
+  ctx.fillStyle = '#4e4258';
+  ctx.beginPath();
+  ctx.roundRect(-5, -108, 10, 74, 4);
+  ctx.fill();
+  carvedGear(ctx, 0, -70, 22, 12, glow);
+  ctx.strokeStyle = '#5e3a50';
+  ctx.lineWidth = 9;
+  ctx.beginPath();
+  ctx.moveTo(0, -40);
+  ctx.lineTo(0, -116);
+  ctx.quadraticCurveTo(4, -170, 60, -168);
+  ctx.quadraticCurveTo(100, -164, 116, -130);
+  ctx.stroke();
+  ctx.strokeStyle = '#7a4c62';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = '#e9c6d4';
+  for (const [x, y, a] of [[-4, -126, -2.6], [10, -156, -1.4], [44, -168, -1.7], [78, -164, -1.1], [104, -146, -0.4]]) {
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(a + 1.57) * 2.5, y + Math.sin(a + 1.57) * 2.5);
+    ctx.lineTo(x + Math.cos(a) * 9, y + Math.sin(a) * 9);
+    ctx.lineTo(x + Math.cos(a - 1.57) * 2.5, y + Math.sin(a - 1.57) * 2.5);
+    ctx.closePath();
+    ctx.fill();
+  }
+  scratches(ctx, -24, -122, 48, 1, 171, glow);
+  scratches(ctx, -24, -38, 48, 2, 173, glow);
+  moss(ctx, -36, -128, 60, 181);
+  // white roses where the briar flowers, nodding
+  for (const [x, y, r] of [[30, -166, 5], [70, -170, 4.5], [112, -136, 5], [-26, -24, 4]]) {
+    const n = Math.sin(time * 1.2 + x) * 1;
+    ctx.fillStyle = '#fbf6f4';
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * TAU;
+      circle(ctx, x + n + Math.cos(a) * r * 0.55, y + Math.sin(a) * r * 0.55, r * 0.55);
+    }
+    ctx.fillStyle = '#f4d060';
+    circle(ctx, x + n, y, r * 0.3);
+  }
 }

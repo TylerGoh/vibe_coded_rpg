@@ -155,9 +155,10 @@ export class Museum {
     };
     const body = this.sheetBody;
     body.replaceChildren();
-    body.append(el('p', 'sheet-wing', e.set.length > 1 ? `Keeper ruins · ${e.place} · Stone ${e.index + 1} of ${e.set.length}` : `Keeper stone · ${e.place}`));
+    // (wing / when: a reading that isn't a Keeper stone, like Wreck Cave's logbook, says so)
+    body.append(el('p', 'sheet-wing', e.wing ?? (e.set.length > 1 ? `Keeper ruins · ${e.place} · Stone ${e.index + 1} of ${e.set.length}` : `Keeper stone · ${e.place}`)));
     body.append(el('h2', 'sheet-title', e.title));
-    body.append(el('p', 'sheet-when', 'Carved long, long ago · read with a lot of squinting'));
+    body.append(el('p', 'sheet-when', e.when ?? 'Carved long, long ago · read with a lot of squinting'));
     body.append(el('p', 'sheet-summary', e.look));
     body.append(el('h3', null, 'What you can still make out'));
     const ul = el('ul');
