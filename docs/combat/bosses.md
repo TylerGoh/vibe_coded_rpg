@@ -29,6 +29,16 @@ branches of `drawBit` and `drawFallObj`).
   Everyone leaving for a few seconds resets it; a kill respawns after `BOSS_RESPAWN_MS` (`b` in `mobs`
   is the countdown). Bosses drop their unique gear, scrolls, gold and potions. Events: `{t:'boss', a: …}`.
 
+## The reward window (S0, 2026-10-23)
+Bosses still respawn every `BOSS_RESPAWN_MS`, but each slime gets a den boss's full EXP only once per
+`BOSS_WINDOW_MS` (`bossAt` on the character: boss kind → when, saved, so relogging or a deploy doesn't
+reopen it). Kills inside it give `BOSS_REPEAT_SHARE` of the EXP, on top of the over-level falloff
+(`docs/combat/core.md`). Loot is one shared set per kill, so it rolls at full chance if anyone in the
+fight has their window open, else every drop's chance is cut to `BOSS_REPEAT_SHARE`. A toast tells each
+fighter which they got and how long is left. Why: camping Chronos every minute took players from Lv 80
+to 390 in a few hours (`story/progression.md`). Rotating between dens is fine and intended. Field bosses
+don't need it (`FIELD_BOSS_RESPAWN_MS` is longer than the window).
+
 ## The damage meter (owner, 2026-10-21)
 - Every den boss and field boss counts the damage each slime has done to it (`dmg` on the mob in
   `server/rpg.js`, by name; overkill doesn't count) and sends it to the room as `{t:'bossdmg'}` while it

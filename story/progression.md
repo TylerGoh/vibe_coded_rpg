@@ -1,6 +1,6 @@
 # Classes and progression: the S track (plan)
 
-**Status: plan, written 2026-10-23, nothing built yet.** Runs alongside the island-depth G track
+**Status: plan, written 2026-10-23, S0 shipped 2026-10-23, the rest not built yet.** Runs alongside the island-depth G track
 (`world/island-depth.md`). Everything below is `[proposed]` until the owner settles the open decisions at
 the bottom; the recommended answer is written in each time, so a session can start from it.
 
@@ -276,8 +276,8 @@ job advancements), at levels spaced further apart each time:
   they'd rather be something else. Hotbars are cleared.
 
 ## The phases (each one shippable alone)
-- [ ] **S0: close the boss faucet** (small): over-level EXP falloff, the per-player boss reward window.
-      Before the rebalance (R), because R raises boss EXP.
+- [x] **S0: close the boss faucet** (shipped 2026-10-23): over-level EXP falloff, the per-player boss reward
+      window (15 min). `docs/combat/bosses.md`, `docs/economy.md`.
 - [ ] G5 (Keeper's Spine) as planned; the Root Warden is the first boss designed with the role mechanics
       in mind (built so they can be switched on in S5).
 - [ ] **S1: staves and the Mage** (medium): the `staff` kind, the staff bolt, MAGIC from staves, a staff
@@ -304,7 +304,7 @@ Settled by the owner (2026-10-23):
   and skill points. A class's skills only work with its own weapon; only Mobility is shared.
 
 Still open (recommended answer first; a session can start from it):
-1. **Boss reward window** (S0): 10-15 minutes recommended.
+1. ~~Boss reward window~~ (S0): shipped at 15 min (`BOSS_WINDOW_MS`), easy to change if it feels harsh.
 2. **The Rebirth spot's name and keeper:** a Rebirth Pool tended by Elder Mochi (recommended).
 3. **A free first choice?** Everyone becomes a Warrior when S2 ships, and new players start as one. At
    500k, a Lv 30 who wants to be a Mage can't afford it for a very long time. Recommended: each

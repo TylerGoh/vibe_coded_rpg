@@ -27,7 +27,10 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
 - All of a character's numbers come from `statsFor(char, buffs)` in `src/shared/skills.js` (gear, scrolls,
   skills, ability points, buffs). Use it, never the parts.
 - A roll is `minRoll` (raised by DEX) to `MAX_ROLL` of ATK or MAGIC, then a crit chance and multiplier.
-- Everyone who hit a mob recently (a boss: the whole fight) gets its full EXP.
+- Everyone who hit a mob recently (a boss: the whole fight) gets its EXP, scaled by `overlevelScale`:
+  a mob more than `OVERLEVEL_GRACE` levels below you gives less, down to `OVERLEVEL_FLOOR` (S0, owner
+  2026-10-23: levels had run far past the content). Fighting at your own level is untouched. Den bosses
+  also have a reward window (`docs/combat/bosses.md`).
 - **Friendly fire:** slaps in combat rooms hurt friends only if BOTH have it on (per player, saved, default
   on; toggle in the Esc menu or the bag; a red dot by the name tag = on).
 - Defences (Bubble, Aegis, Sanctuary, Second Wind, DEF) are all applied in server `hurt()`.

@@ -963,6 +963,18 @@ export const DEN_PLATFORMS = [
   { x: 640, y: 230, w: 220, kind: 'ledge' },
 ];
 export const BOSS_RESPAWN_MS = 60_000;
+// The boss reward window (S0, story/progression.md): a den boss respawns every BOSS_RESPAWN_MS, but each
+// slime gets its full EXP and a full loot roll from a given boss only once per BOSS_WINDOW_MS. Kills
+// inside the window give BOSS_REPEAT_SHARE of the EXP, and the loot drops at that share of its chances
+// (unless someone in the fight has their window open: the loot is one shared set per kill).
+export const BOSS_WINDOW_MS = 15 * 60_000;
+export const BOSS_REPEAT_SHARE = 0.1;
+// Over-level EXP falloff (S0): a mob or boss more than OVERLEVEL_GRACE levels below you gives
+// OVERLEVEL_STEP less EXP per extra level, down to OVERLEVEL_FLOOR. Fighting at your own level is untouched.
+export const OVERLEVEL_GRACE = 10;
+export const OVERLEVEL_STEP = 0.05;
+export const OVERLEVEL_FLOOR = 0.1;
+export const overlevelScale = (lvl, mobLvl) => Math.max(OVERLEVEL_FLOOR, Math.min(1, 1 - (lvl - mobLvl - OVERLEVEL_GRACE) * OVERLEVEL_STEP));
 // A boss's HP grows by this much for every extra slime in its den (and keeps the damage already done)
 export const BOSS_HP_PER_PLAYER = 0.6;
 export const COMBAT_ROOMS = new Set([...Object.keys(STAGES).map(Number), ...DENS.map((d) => d.room)]);

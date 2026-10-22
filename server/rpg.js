@@ -12,7 +12,7 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName } from '../src/shared/rpg.js';
 import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spTotal, spSpent, mpRegen, cooldownOf, durOf, mobilityOf } from '../src/shared/skills.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
@@ -44,6 +44,7 @@ const newChar = () => ({
   ap: { str: 0, dex: 0, int: 0, luk: 0 }, // ability points (AP_STATS)
   cosmetics: [], wear: [], showHelmet: true, // the Boutique
   ways: [], // the waystones you've attuned to (src/shared/waystones.js)
+  bossAt: {}, // den boss kind → when you last got its full reward (BOSS_WINDOW_MS)
 });
 
 // players: the server's id → player map. send(ws, msg). toRoom(room)(msg). broadcast(msg).
@@ -115,6 +116,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     r.brew = ITEMS[r.brew?.id]?.buff && r.brew.until > now() ? { id: r.brew.id, until: r.brew.until } : null;
     r.town = TOWNS[r.town] ? r.town | 0 : 0;
     r.ways = [...new Set((Array.isArray(r.ways) ? r.ways : []).filter(wayById))];
+    r.bossAt = Object.fromEntries(Object.entries(r.bossAt ?? {}).filter(([k, at]) => MOBS[k]?.boss && Number.isFinite(at) && at <= now() && now() - at < BOSS_WINDOW_MS));
     cleanBot(r); // accused of botting (server/accuse.js)
     p.hurtAt = 0;
     p.cds = {};
@@ -128,9 +130,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   }
   function save(p) {
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bot, accusedAt } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bot, accusedAt }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -287,12 +289,31 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const k = MOBS[m.kind];
     m.dead = true;
     m.respawnAt = now() + (k.boss ? BOSS_RESPAWN_MS : k.field ? FIELD_RESPAWN_MS : MOB_RESPAWN_MS);
-    // everyone who hit it in the last 20 s (a boss or field boss: the whole fight) gets the full EXP: it's a co-op village
+    // everyone who hit it in the last 20 s (a boss or field boss: the whole fight) gets the EXP: it's a co-op
+    // village. Less if you're far above its level (overlevelScale), and a den boss gives its full reward
+    // once per BOSS_WINDOW_MS per slime (story/progression.md, S0)
+    const t = now();
+    let fresh = false; // someone here has this boss's window open: the loot rolls at full chance
     for (const [qid, at] of m.hitters) {
       const q = players.get(qid);
-      if (q?.joined && q.state.room === m.room && now() - at < (k.boss || k.field ? 600_000 : 20000)) gainExp(qid, q, Math.round(k.exp * (1 + (brewOf(q.rpg)?.exp ?? 0)))); // (a brewed EXP buff)
+      if (!q?.joined || q.state.room !== m.room || t - at >= (k.boss || k.field ? 600_000 : 20000)) continue;
+      let scale = overlevelScale(q.rpg.lvl, k.lvl) * (1 + (brewOf(q.rpg)?.exp ?? 0)); // (a brewed EXP buff)
+      if (k.boss) {
+        const last = q.rpg.bossAt[m.kind] ?? 0;
+        if (t - last >= BOSS_WINDOW_MS) {
+          q.rpg.bossAt[m.kind] = t;
+          q.dirty = true;
+          fresh = true;
+          toast(q, `Full reward from ${k.name}! Its next full reward for you is in ${BOSS_WINDOW_MS / 60_000} min${q.rpg.lvl - k.lvl > OVERLEVEL_GRACE ? ` (less EXP: you're far above its level)` : ''}`);
+        } else {
+          scale *= BOSS_REPEAT_SHARE;
+          toast(q, `You had ${k.name}'s full reward lately: ${Math.round(BOSS_REPEAT_SHARE * 100)}% EXP and rarer loot for ${Math.ceil((last + BOSS_WINDOW_MS - t) / 60_000)} more min`);
+        }
+      }
+      gainExp(qid, q, Math.round(k.exp * scale));
     }
-    const drops = k.drops.filter(([, chance]) => Math.random() < chance);
+    const odds = k.boss && !fresh ? BOSS_REPEAT_SHARE : 1;
+    const drops = k.drops.filter(([, chance]) => Math.random() < chance * odds);
     drops.forEach(([item, , lo, hi], i) => dropLoot(m.room, item, randInt(lo, hi), m.x + (i - (drops.length - 1) / 2) * (k.boss || k.field ? 34 : 22) + rand(-6, 6), ROOMS[m.room].ground > m.y ? m.y : ROOMS[m.room].ground));
     if (k.field) toRoom(m.room)({ t: 'boss', a: 'fieldDown', id: m.id, kind: m.kind, x: m.x, y: m.y });
     if (k.boss) {

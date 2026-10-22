@@ -51,6 +51,13 @@ Lv 5–20, which would have doubled early levelling.
 - **Field bosses** sit in the boss table (kind `field`) and must be worth `FIELD_BOSS_WORTH` minutes of
   farming in gold and in EXP (dens are worth 6–20×); `FIELD_BOSS_RESPAWN_MS` must be at least 10 min.
 
+## Bosses are no longer the EXP faucet (S0, 2026-10-23)
+The over-level falloff (`overlevelScale`) and the den bosses' reward window (`BOSS_WINDOW_MS`,
+`docs/combat/bosses.md`). The boss table's "camped 1 h vs mobs" column is a den boss killed every
+`BOSS_RESPAWN_MS` + `CAMP_FIGHT_MIN`, against an hour of farming mobs at its level, in EXP and in gold (loot
+sold); the check keeps the EXP under `BOSS_CAMP_MAX`. It sits around 0.4–0.9× now (gold 2–4×: boss gear
+still sells well). The Progress table doesn't change: it farms mobs at your own level.
+
 ## Trading (2026-10-23)
 Players can trade coins and items (`docs/social/trading.md`). That moves gold rather than making it, so
 the script doesn't change, but every sink is priced against ONE player's income: with trading, boss

@@ -3,7 +3,7 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, FIELD_BOSS_RESPAWN_MS } from '../src/shared/rpg.js';
+import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
@@ -61,6 +61,12 @@ const MOB_FIT = { hp: [0.6, 1.6], atk: [0.6, 1.6], exp: [0.75, 1.35], gold: [0.7
 const GEAR_FIT = [0.85, 1.1];
 // A field boss kill is worth this many minutes of farming at its level (dens are worth far more)
 const FIELD_BOSS_WORTH = [1.5, 8];
+// Camping a den boss (S0, the reward window): a kill every BOSS_RESPAWN_MS + CAMP_FIGHT_MIN, one full
+// reward per BOSS_WINDOW_MS and BOSS_REPEAT_SHARE for the rest. Its EXP an hour must stay within
+// BOSS_CAMP_MAX times farming mobs at the boss's level, so bosses are worth doing but not the way to level
+// (before S0, a full reward every kill: ~3x at this pace, ~10x for someone strong enough to kill it each minute)
+const CAMP_FIGHT_MIN = 2;
+const BOSS_CAMP_MAX = 2;
 
 const avg = ([, chance, lo, hi]) => chance * (lo + hi) / 2;
 const isGear = (id) => ['sword', 'helmet'].includes(ITEMS[id]?.kind);
@@ -96,6 +102,13 @@ const minutesTo = (L) => {
   return k / KILLS_PER_MIN;
 };
 
+const expPerMin = (L) => farmed(L)[1].exp * KILLS_PER_MIN;
+// A den boss camped for an hour, as a multiple of an hour of farming mobs at its level (gold counts the loot)
+function campRatio(m) {
+  const kills = 60 / (BOSS_RESPAWN_MS / 60_000 + CAMP_FIGHT_MIN), full = Math.min(kills, 60 / (BOSS_WINDOW_MS / 60_000));
+  const k = perKill(m), worth = full + (kills - full) * BOSS_REPEAT_SHARE;
+  return { exp: (m.exp * worth) / (expPerMin(m.lvl) * 60), gold: ((k.value + k.gear) * worth) / (goldPerMin(m.lvl) * 60) };
+}
 const fmt = (n) => Math.round(n).toLocaleString('en-US');
 const hrs = (min) => (min < 90 ? `${Math.round(min)} min` : `${(min / 60).toFixed(1)} h`);
 const table = (title, rows) => {
@@ -109,7 +122,8 @@ table('FAUCETS: one kill of each mob (gold = coins picked up; sell = other drops
 })));
 table('FAUCETS: one boss kill (loot is shared: one set per kill, whoever picks it up; respawn BOSS_RESPAWN_MS, field bosses FIELD_BOSS_RESPAWN_MS)', Object.fromEntries(bosses.map(([id, m]) => {
   const k = perKill(m);
-  return [id, { kind: m.field ? 'field' : 'den', lvl: m.lvl, hp: m.hp, exp: m.exp, gold: fmt(k.gold), sell: fmt(k.sell), 'gear sold': fmt(k.gear), 'vs 1 min farming': `${(k.value / goldPerMin(m.lvl)).toFixed(1)}x` }];
+  return [id, { kind: m.field ? 'field' : 'den', lvl: m.lvl, hp: m.hp, exp: m.exp, gold: fmt(k.gold), sell: fmt(k.sell), 'gear sold': fmt(k.gear), 'vs 1 min farming': `${(k.value / goldPerMin(m.lvl)).toFixed(1)}x`,
+    'camped 1 h vs mobs (exp / gold)': m.field ? '' : `${campRatio(m).exp.toFixed(1)}x / ${campRatio(m).gold.toFixed(1)}x` }];
 })));
 table(`PROGRESS: farming your own level at ${KILLS_PER_MIN} kills/min (mobs only, no bosses)`, Object.fromEntries([5, 10, 13, 15, 20, 25, 30, 40, 50, 60, 70, 80].map((L) => [`lvl ${L}`, {
   farming: farmed(L)[0], 'gold/min': fmt(goldPerMin(L)), 'play time to reach': hrs(minutesTo(L)), 'gold earned by then': fmt(earnedBy(L)),
@@ -222,6 +236,7 @@ for (const [id, m] of bosses.filter(([, m]) => m.field)) {
   for (const [what, w] of [['gold', worth], ['EXP', expWorth]]) if (w < FIELD_BOSS_WORTH[0] || w > FIELD_BOSS_WORTH[1]) problems.push(`field boss ${id}'s ${what} is worth ${w.toFixed(1)} min of farming (want ${FIELD_BOSS_WORTH.join('–')})`);
   if (!spawned.has(id)) problems.push(`field boss ${id} never spawns`);
 }
+for (const [id, m] of bosses.filter(([, m]) => m.boss)) if (campRatio(m).exp > BOSS_CAMP_MAX) problems.push(`camping den boss ${id} for an hour gives ${campRatio(m).exp.toFixed(1)}x the EXP of farming mobs (max ${BOSS_CAMP_MAX}x)`);
 if (!(FIELD_BOSS_RESPAWN_MS >= 10 * 60_000)) problems.push('field bosses come back too often (FIELD_BOSS_RESPAWN_MS under 10 min)');
 for (const [id, it] of Object.entries(ITEMS)) {
   if (!it.lvl || !['sword', 'helmet'].includes(it.kind)) continue;
