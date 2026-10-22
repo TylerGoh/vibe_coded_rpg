@@ -31,8 +31,9 @@ really hard without a mix of classes. They share one root, so this is one plan.
   go is *having everything at once*. So: more tree than any one character can fill.
 - **Loot has to speak to every class.** If a drop is useless to a quarter of the players, that quarter
   feels forgotten. Every boss drops something for each class.
-- **You are what you hold.** In a game where you see your friends, the clearest class signal is the
-  weapon in their hands. Tying the class to the weapon needs no new menus and reads at a glance.
+- **Casual first** (owner, 2026-10-23). Changing class is a short walk home, never a grind: you keep
+  your level and everything you own, and only your points start over. The weapon in your hands still
+  shows your class to everyone at a glance.
 - **Rewards should get rarer and bigger as you go.** Early levels come fast and each gives a little.
   Later, the gaps widen but each milestone is a real event: a new tier of the tree, a new choice, a
   visible change.
@@ -62,17 +63,31 @@ really hard without a mix of classes. They share one root, so this is one plan.
 | bow | **Archer** | DEX | steady damage from range, hitting what's high up or far away |
 LUK stays the shared crit stat. DEX finally gets a job (today it only raises the minimum roll).
 
-- **Mage and Cleric share the staff** (owner, 2026-10-23). With a staff in hand you pick Mage or Cleric in
-  the skill tree (free, outside combat rooms, like swapping weapons). So there are only three weapon kinds
-  to drop, price and draw. Friends still tell the two apart at a glance: a Cleric gets a soft halo over
-  its slime, a Mage a faint sparkle around its staff.
-- Each class has its own tree. **Its active skills only work with its weapon in hand** (and, for the two
-  staff classes, only for the one picked). One small shared
+- **You choose your class at the Rebirth spot in Slimeville** (owner, 2026-10-23; below). Your class
+  decides your tree and which weapon kind you can wield: Warrior a sword, Mage and Cleric a staff,
+  Archer a bow. Other weapons stay in the bag for later.
+- **Mage and Cleric share the staff** (owner, 2026-10-23), so there are only three weapon kinds to drop,
+  price and draw. Friends tell the two apart at a glance: a Cleric gets a soft halo over its slime, a
+  Mage a faint sparkle around its staff.
+- Each class has its own tree. One small shared
   tree, **Mobility** (Dash, Flash Jump, Blink, Phantom Step), works with anything; the old Guardian tree is
   split between the Knight and the Cleric.
-- Changing class = equipping another weapon (or, with a staff, picking the other staff class). Allowed anywhere outside combat rooms, free, instant. Each
-  class remembers its own points and hotbar, so a friend can keep a Cleric build and a Warrior build and
-  swap in town before a boss, depending on who else turned up.
+- Within your class, points can still be moved around for free at any time outside combat (the owner's
+  "nobody stuck in a build"), including switching fork. Only changing **class** needs the Rebirth spot.
+
+### 1a. Rebirth: changing class (owner, 2026-10-23)
+- A place in **Slimeville** (name, look and spot `[proposed]`: a **Rebirth Pool**, a softly glowing spring
+  near Elder Mochi, who tends it and can chat about it; he already lives there and is chattable, so no
+  new character is needed. Check `world/regions/greenhollow.md` and `world/atlas.md` before placing it).
+- Walk up, press E (or tap; a prompt per `docs/ui/hints.md`), and a card lists the four classes with what
+  each is good and bad at (section 1b). Choosing one: **your level, EXP, gold, bag, gear and house all
+  stay; every skill point and AP is refunded; your hotbars empty**; you come out of the pool as the new
+  class, with a splash and a sound everyone nearby sees.
+- **Free** (casual game). If people start hopping class before every boss and it feels cheap, a small
+  gold cost or a short cooldown can be added later; ask the owner first.
+- Only in Slimeville (owner). Other towns don't get one, which gives the home village a reason to visit.
+- **New characters** start as Warriors with the Wooden Sword (as today) and are pointed at the pool by
+  Elder Mochi; nothing is locked before they choose.
 - The normal attack follows the class: sword swing (as now), **staff bolt** for a Mage (a short magic
   bolt on MAGIC), **staff bonk** for a Cleric (weak, close; a hit lands a small heal on the nearest hurt
   friend so attacking is never wasted), **bow shot** (an arrow to the first mob ahead in range).
@@ -252,9 +267,9 @@ job advancements), at levels spaced further apart each time:
    and a cosmetic or comfort reward (an aura colour, a title, a bag row), not raw power.
 
 ### 9. Existing characters (the migration)
-- Levels, gold, bags and gear all stay. Swords keep working.
-- **One free full refund** of skill points and AP when the new tree ships, with a banner saying so. Old
-  skill ids map to their new homes where they still exist, so hotbars don't empty.
+- Levels, gold, bags and gear all stay. Every existing character becomes a **Warrior** (they all hold
+  swords) with **every skill point and AP refunded**, and a banner pointing them at the Rebirth spot if
+  they'd rather be something else. Hotbars are cleared.
 
 ## The phases (each one shippable alone)
 - [ ] **S0: close the boss faucet** (small): over-level EXP falloff, the per-player boss reward window.
@@ -264,10 +279,10 @@ job advancements), at levels spaced further apart each time:
 - [ ] **S1: staves and the Mage** (medium): the `staff` kind, the staff bolt, MAGIC from staves, a staff
       on every boss's drops, starter and trader staves, weapon scrolls, the economy script learning
       staves. Before R, so R's "new copy of every boss item" pass copies the staves too.
-- [ ] **S2: the tree** (large), with the CLASSES table in `npm run economy`: class trees from weapons, forks, advancements, the `spTotal` schedule, the
-      node UI (desktop and phone), per-class hotbars, the one-time refund. Warrior (with the chase moves in `step()`) and Mage, with the mage
+- [ ] **S2: the tree** (large), with the CLASSES table in `npm run economy`: the four class trees, the Rebirth spot, forks, advancements, the `spTotal` schedule, the
+      node UI (desktop and phone), the one-time refund. Warrior (with the chase moves in `step()`) and Mage, with the mage
       combos (chill/freeze/shatter, burn/spread, Arcane Charge).
-- [ ] **S3: the Cleric** (large: summons are new server entities): picking Mage or Cleric with a staff, the halo, the summons, the Cleric tree (mostly today's heal and Guardian
+- [ ] **S3: the Cleric** (large: summons are new server entities): the Cleric at the Rebirth spot, the halo, the summons, the Cleric tree (mostly today's heal and Guardian
       skills moved and extended: Cleanse, Revive), healing and damage-taken on the damage meter.
 - [ ] R, the rebalance, as planned (copies swords and staves).
 - [ ] **S4: the Archer** (large): `bow` kind, arrows, the Archer tree, DEX's new job, Acorn's bows.
@@ -280,9 +295,10 @@ job advancements), at levels spaced further apart each time:
 Settled by the owner (2026-10-23):
 - Capstone bosses: extremely hard without a mixed party, not locked. Dens and field bosses: any class solos.
 - Stat taper past the content: for everyone.
-- Mage and Cleric share the staff; you pick which with a staff in hand.
+- Mage and Cleric share the staff.
+- Class is chosen at the Rebirth spot in Slimeville: free, keeps your level, resets all AP and skill
+  points. A class's skills only work with its own weapon; only Mobility is shared.
 
 Still open (recommended answer first; a session can start from it):
-1. **Class = the weapon you hold** (recommended), or a class picked at a trainer?
-2. **Can classes mix?** Recommended: no class's active skills with another's weapon; only Mobility shared.
-3. **Boss reward window** (S0): 10-15 minutes recommended.
+1. **Boss reward window** (S0): 10-15 minutes recommended.
+2. **The Rebirth spot's name and keeper:** a Rebirth Pool tended by Elder Mochi (recommended).

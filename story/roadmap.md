@@ -39,7 +39,7 @@ further apart at high levels. **The plan, its phases and the owner's open decisi
 Interleaved with the G track: S0 (close the boss EXP faucet) and S1 (staves) go before the rebalance (R).
 - [ ] S0: over-level EXP falloff, per-player boss reward window
 - [ ] S1: staves and the Mage
-- [ ] S2: class trees from weapons, forks, advancements, the node UI, mage combos, warrior chase moves
+- [ ] S2: the four class trees, the Rebirth spot in Slimeville (change class, keep level), forks, advancements, the node UI, mage combos, warrior chase moves
 - [ ] S3: the Cleric (the Mage's staff, heals, Cleanse, Revive, summons)
 - [ ] S4: the Archer (bows, Ranger Acorn)
 - [ ] S5: bosses that need a party (Taunt, pulses, curses, barriers, weak points), loot by class
