@@ -55,10 +55,10 @@ really hard without a mix of classes. They share one root, so this is one plan.
 ### 1. Four classes, each from a weapon
 | weapon | class | main stat | role in a group |
 |---|---|---|---|
-| sword | **Warrior** | STR | holds the boss's attention (Knight) or hits hardest up close (Berserker) |
+| sword | **Warrior** | STR | catches anything and stays on it: holds the boss (Knight) or hits hardest up close (Berserker) |
 | wand | **Mage** | INT | area damage, freezing and stunning, breaking magic shields |
 | bow | **Archer** | DEX | steady damage from range, hitting what's high up or far away |
-| staff | **Cleric** | INT (and some LUK) | heals, shields, cleansing curses, reviving |
+| staff | **Cleric** | INT (and some LUK) | heals, shields, cleansing curses, reviving, summons |
 LUK stays the shared crit stat. DEX finally gets a job (today it only raises the minimum roll).
 
 - Each class has its own tree. **Its active skills only work with that weapon in hand.** One small shared
@@ -75,10 +75,10 @@ LUK stays the shared crit stat. DEX finally gets a job (today it only raises the
 Each class is strong at two things, fine at one, bad at one:
 | class | strong at | bad at | how it solos a boss |
 |---|---|---|---|
-| Warrior | toughness, damage up close | range: weak points up high, bosses that keep away | stands in and trades hits; heals itself a little from hitting (a lifesteal passive) |
+| Warrior | toughness, damage up close, catching things | range: it has to be next to its target, and getting there takes busy hands | chases down, stays on top of the boss, heals a little from hitting (a lifesteal passive) |
 | Mage | area damage and burst, control | toughness (least HP and DEF), runs out of MP | freezes and interrupts, Blinks out, kills fast before it gets hit much |
 | Archer | steady single-target damage, range, moving | swarms of adds, toughness up close | keeps its distance, kites, Net Trap to stop chasers |
-| Cleric | staying alive, helping others | burst damage: kills slowest | can't really die: heals and shields itself through everything while **Smite** chips away |
+| Cleric | staying alive, helping others, summons | burst damage: kills slowest | can't really die: heals and shields itself while its summons hold the boss and **Smite** chips away |
 
 - **The Cleric solos on sustain.** Its own damage is real but lower (holy spells, **Smite**: hits that
   also heal it, so attacking keeps it alive), and it almost never needs a potion. It takes longer; it
@@ -96,6 +96,25 @@ Each class is strong at two things, fine at one, bad at one:
   "bad at" really lower than the others'. Any skill number change re-runs it, like gold today.
 - **Real fights will disagree with the sheet.** After each class ships, watch which class people pick and
   the damage meter (damage, healing, damage taken), and nudge numbers. Expect a few rounds.
+
+### 1c. The Warrior: the chaser (owner, 2026-10-23)
+"Close range but high mobility to catch, but it takes a lot of movement inputs." The Warrior's skill is
+**getting there and staying there**: short, quick moves chained together, each one needing its own press.
+The Archer moves too, but differently: a few long moves *away*. The Warrior makes many short ones *toward*.
+- **Charge**: Dash toward a mob ahead; if it connects, the next hit is free and Dash's cooldown resets. A
+  good warrior chains charge → hit → charge across a whole room.
+- **Leap Slam**: in the air, Down + Attack drops straight down onto whatever's below (catching mobs on
+  lower platforms, cancelling a fall).
+- **Upward Cut**: Up + Attack carries you up with the swing, to reach mobs and weak points on a ledge
+  above. This partly covers the Warrior's "bad at range" problem, but costs inputs and timing.
+- **Momentum** (passive): every movement skill that ends in a hit stacks a short attack buff that drops
+  if you stop moving. Rewards keeping the chain going instead of standing and swinging.
+- **Hook** (Berserker or Knight, `[proposed]`): yank yourself to a mob up to a fair distance away, or
+  (Knight) yank a mob to you, off a friend.
+- **Netcode:** every one of these moves you, so it goes into `step()` in `src/shared/sim.js` from input
+  bits, predicted like Dash and Blink (Agent.md's core rules). Hits stay client-decided and server-capped.
+- **Phones:** the chains are built from buttons the touch layout already has (direction + Jump, Attack,
+  Dash), never a new tiny button, and the timing windows are a bit forgiving for touch.
 
 ### 2. Wands and the Mage
 - New item kind `wand`: gives MAGIC (on the same frozen curve as sword ATK, so the economy sheet's
@@ -149,8 +168,18 @@ at "the first mob ahead"):
 - Takes over from today's Magic and Guardian trees: Jelly Heal, Rally, Sanctuary, Aegis, Jelly Bubble
   (cast on a friend), Second Wind (on a friend). New: **Cleanse** (removes a boss's curse), **Revive**
   (gets a fainted friend up where they fell, with a long cooldown), **Mend Over Time** (a heal that ticks).
-- Forks: **Priest** (big heals, Revive, Cleanse) or **Warden** (shields and wards: absorbs damage before
-  it lands, Sanctuary, Aegis). Healing well is a skill about *when*: a shield before the ultimate is worth
+- **Summons** (owner, 2026-10-23). The Cleric calls helpers that fight beside it:
+  - **Jelly Spirit**: a glowing slime ghost that bounces at the boss and **draws its attention** (mobs
+    can target it), so a solo Cleric has something to hold the boss off it. This is the Cleric's main
+    solo answer.
+  - **Lantern Wisp**: floats by a friend and heals whoever stands near it.
+  - **Guardian Totem**: planted on the ground; lowers damage for friends near it. Bosses can break it.
+  - Rules: only a few out at once, they last a while then fade, they scale with MAGIC and the staff.
+  - **Netcode:** summons are server-run like mobs (the server moves them and decides their hits), drawn
+    by every client in the room; they'd join the snapshot as friendly entities. This is new plumbing:
+    the biggest technical cost of the Cleric.
+- Forks: **Priest** (big heals, Revive, Cleanse, the Lantern Wisp) or **Warden** (shields, the Jelly
+  Spirit and Guardian Totem, Sanctuary, Aegis). Healing well is a skill about *when*: a shield before the ultimate is worth
   three heals after it.
 - Lore `[proposed]`: Auntie Clover or Elder Mochi as the Clerics' trader, whichever fits their persona.
 - Clerics need recognition: the damage meter (`docs/combat/bosses.md`) also shows **healing done** and
@@ -227,9 +256,9 @@ job advancements), at levels spaced further apart each time:
       boss's drops, starter and trader wands, weapon scrolls, the economy script learning wands. Before R,
       so R's "new copy of every boss item" pass copies the wands too.
 - [ ] **S2: the tree** (large), with the CLASSES table in `npm run economy`: class trees from weapons, forks, advancements, the `spTotal` schedule, the
-      node UI (desktop and phone), per-class hotbars, the one-time refund. Warrior and Mage, with the mage
+      node UI (desktop and phone), per-class hotbars, the one-time refund. Warrior (with the chase moves in `step()`) and Mage, with the mage
       combos (chill/freeze/shatter, burn/spread, Arcane Charge).
-- [ ] **S3: the Cleric** (medium): the `staff` kind, the Cleric tree (mostly today's heal and Guardian
+- [ ] **S3: the Cleric** (large: summons are new server entities): the `staff` kind, the summons, the Cleric tree (mostly today's heal and Guardian
       skills moved and extended: Cleanse, Revive), healing and damage-taken on the damage meter.
 - [ ] R, the rebalance, as planned (copies swords, wands and staves).
 - [ ] **S4: the Archer** (large): `bow` kind, arrows, the Archer tree, DEX's new job, Acorn's bows.

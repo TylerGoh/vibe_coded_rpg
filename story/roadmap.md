@@ -39,8 +39,8 @@ further apart at high levels. **The plan, its phases and the owner's open decisi
 Interleaved with the G track: S0 (close the boss EXP faucet) and S1 (wands) go before the rebalance (R).
 - [ ] S0: over-level EXP falloff, per-player boss reward window
 - [ ] S1: wands and the Mage
-- [ ] S2: class trees from weapons, forks, advancements, the node UI, mage combos
-- [ ] S3: the Cleric (staves, heals, Cleanse, Revive)
+- [ ] S2: class trees from weapons, forks, advancements, the node UI, mage combos, warrior chase moves
+- [ ] S3: the Cleric (staves, heals, Cleanse, Revive, summons)
 - [ ] S4: the Archer (bows, Ranger Acorn)
 - [ ] S5: bosses that need a party (Taunt, pulses, curses, barriers, weak points), loot by class
 - [ ] S6: past the cap (stat taper, mastery stars)
