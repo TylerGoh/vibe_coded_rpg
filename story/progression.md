@@ -4,9 +4,9 @@
 (`world/island-depth.md`). Everything below is `[proposed]` until the owner settles the open decisions at
 the bottom; the recommended answer is written in each time, so a session can start from it.
 
-The owner asked for four things: mages feel neglected, no boss drops a wand, maybe an archer class, the
-skills should be a real tree instead of a list, and high-level players need rewards spaced further apart.
-They all have the same root, so this is one plan.
+The owner asked for: mages feel neglected, no boss drops a wand, an archer class, a Cleric class, the
+skills as a real tree instead of a list, high-level rewards spaced further apart, and bosses that are
+really hard without a mix of classes. They share one root, so this is one plan.
 
 ## What's wrong today (measured 2026-10-23, live saves and `npm run economy`)
 1. **Nobody makes a choice.** The four trees hold 94 points in total and you get one per level, so by
@@ -22,144 +22,198 @@ They all have the same root, so this is one plan.
    kills: roughly 3 hours of boss farming, against about 32 hours of farming the Lv 72 wraiths.
 4. **Late levels are empty.** Past the point where the tree is full, a level is +2 ATK, +12 HP and 5 AP.
    At Lv 390 the level alone gives 784 ATK while the best sword gives 135, so gear stops mattering too.
+5. **Every class fights every boss the same way.** One person with everything can solo any den, so
+   there's no reason to bring friends of a different kind.
 
 ## Game design principles this plan uses (the short version, for the owner)
 - **Identity comes from what you give up.** A class feels like a class only when picking it means not
   having something else. Free respec is fine (the owner's "nobody stuck in a build" stays); what has to
   go is *having everything at once*. So: more tree than any one character can fill.
-- **Loot has to speak to every class.** If a drop is useless to a third of the players, that third feels
-  forgotten. Every boss should drop something for each class.
+- **Loot has to speak to every class.** If a drop is useless to a quarter of the players, that quarter
+  feels forgotten. Every boss drops something for each class.
 - **You are what you hold.** In a game where you see your friends, the clearest class signal is the
   weapon in their hands. Tying the class to the weapon needs no new menus and reads at a glance.
-- **Rewards should get rarer and bigger as you go.** Early levels come fast and each gives a little (to
-  hook new players). Later, the gaps widen but each milestone is a real event: a new tier of the tree, a
-  new choice, a visible change. Constant tiny rewards stop being noticed; spaced big ones are remembered.
-- **Power should come from choices and gear, not just the level number.** If the level alone outweighs
-  everything else, loot and builds stop mattering and the top players are simply untouchable.
+- **Rewards should get rarer and bigger as you go.** Early levels come fast and each gives a little.
+  Later, the gaps widen but each milestone is a real event: a new tier of the tree, a new choice, a
+  visible change.
+- **Power should come from choices and gear, not just the level number.**
 - **Close the faucet before adding rewards.** The fastest source of EXP decides how the whole game plays.
-  Right now it's one boss on a one-minute timer, so that's the first thing to fix.
+- **Skill = good decisions under pressure, visible to others.** A class is skilful when a good player
+  and a new one get clearly different results from the same buttons (timing, positioning, order), and
+  the difference shows on screen. Not more buttons, and never precision aiming a phone can't do.
+- **Roles need a job only they do best, not a job only they can do.** Bosses ask questions each class
+  answers best; another class can still answer slowly (potions, kiting, a longer fight). A hard lock
+  ("no Cleric, no kill") breaks a small friend group on a night when the Cleric isn't online.
 - **Never take away what people earned.** Levels stay. Points get refunded and re-spent, never deleted.
 
 ## The design
 
-### 1. Classes come from your weapon
-Three weapon kinds, three classes:
-| weapon | class | main stat | plays like |
+### 1. Four classes, each from a weapon
+| weapon | class | main stat | role in a group |
 |---|---|---|---|
-| sword | **Warrior** | STR | in close, tough, big single hits and spins |
-| wand | **Mage** | INT | from range, area damage, crowd control, heals; fragile, MP-hungry |
-| bow | **Archer** | DEX | from range, fast single-target damage, mobility, traps |
-LUK stays the shared crit stat. This finally gives DEX a job (today it only raises the minimum roll).
+| sword | **Warrior** | STR | holds the boss's attention (Knight) or hits hardest up close (Berserker) |
+| wand | **Mage** | INT | area damage, freezing and stunning, breaking magic shields |
+| bow | **Archer** | DEX | steady damage from range, hitting what's high up or far away |
+| staff | **Cleric** | INT (and some LUK) | heals, shields, cleansing curses, reviving |
+LUK stays the shared crit stat. DEX finally gets a job (today it only raises the minimum roll).
 
-- Each class has its own tree. **Its active skills only work with that weapon in hand.** Two shared trees
-  (Guardian and Mobility, trimmed) work with anything.
+- Each class has its own tree. **Its active skills only work with that weapon in hand.** One small shared
+  tree, **Mobility** (Dash, Flash Jump, Blink, Phantom Step), works with anything; the old Guardian tree is
+  split between the Knight and the Cleric.
 - Changing class = equipping another weapon. Allowed anywhere outside combat rooms, free, instant. Each
-  class remembers its own points and hotbar, so a friend can keep a warrior build and a mage build and
-  swap in town (the two hotbar setups become per-class, or each class gets its own pair).
-- The normal attack follows the weapon: sword swing (as now), **wand tap** (a short magic bolt on MAGIC,
-  so mages stop slapping with ATK), **bow shot** (an arrow along the ground to the first mob in range).
+  class remembers its own points and hotbar, so a friend can keep a Cleric build and a Warrior build and
+  swap in town before a boss, depending on who else turned up.
+- The normal attack follows the weapon: sword swing (as now), **wand tap** (a short magic bolt on MAGIC),
+  **bow shot** (an arrow to the first mob ahead in range), **staff bonk** (weak, close; a Cleric's damage
+  isn't the point, but a hit lands a small heal on the nearest hurt friend so attacking is never wasted).
 
-### 2. Wands (the mage fix)
+### 2. Wands and the Mage
 - New item kind `wand`: gives MAGIC (on the same frozen curve as sword ATK, so the economy sheet's
   `GEAR_FIT` check covers it) and a small MP bonus. Spell power becomes level + INT + **wand**.
-- **Every den boss and field boss drops a wand alongside its sword**, themed like the sword (the
-  Tidemother's coral wand, the Knotmole's root wand, Chronos's hourglass sceptre...). Pip sells a starter
-  wand; each branch trader sells one at their `aim` level.
-- Scrolls: the sword scrolls become **weapon scrolls** (any weapon); the stat they add follows the weapon
-  (ATK on swords and bows, MAGIC on wands). Existing sword scrolls in bags just start working on wands.
-- Mage survivability: a Mage-only passive for MP Shield (damage taken from MP first) in the tree, so
-  "fragile" is a choice, not a death sentence.
+- **Every den boss and field boss drops a wand**, themed like its sword (the Tidemother's coral wand, the
+  Knotmole's root wand, Chronos's hourglass sceptre...). Pip sells a starter wand; branch traders sell one
+  at their `aim` level.
+- Scrolls: the sword scrolls become **weapon scrolls** (any weapon); the stat they add follows the weapon.
+  Existing sword scrolls in bags just start working on wands, bows and staves.
+- Forks: **Elementalist** (fire: big area damage, burn) or **Frostbinder** (ice and storm: freezing,
+  stunning, interrupting).
 
-### 3. Bows and the Archer
-- New item kind `bow`: ATK on the sword curve, but a long reach and a lower base so range is paid for.
-- Arrows are drawn and aimed by the client like every other hit (the hit rules in
-  `docs/combat/core.md` already allow client-decided, server-capped hits; the cap needs the bow's range).
-- **Ranger Acorn** (the Canopy) is the archers' trader: she already lives in the trees, hasn't touched the
-  ground in six years, and a ranger with a bow suits her. Pip sells a starter bow. Bosses drop bows too.
-- Archer skills (first draft): Double Shot, Piercing Arrow (through a line), Arrow Rain (area), Snipe (a
-  slow, huge single shot), Net Trap (roots a mob), Hawk Eye (passive range and crit), Retreat Shot (a
-  backflip that fires while dashing away: reuses the `DASH` physics).
+### 3. How the Mage is made skilful
+How games usually do it, and which fit Slimeville (a phone-friendly side view where hits are auto-aimed
+at "the first mob ahead"):
+- **Fragile power: positioning is the skill.** Mages hit hardest but have the least HP and DEF, so the
+  skill is standing in the right place: at range, behind the Knight, ready to Blink out. Already supported
+  by Mobility.
+- **Elements that combo (the main one).** Spells leave a state on a mob and other spells cash it in:
+  frost **chills** (slow) → a second frost spell **freezes** (stops it, and its next big move is cancelled)
+  → a fire spell on a frozen mob **shatters** it for a big bonus. Fire **burns**; storm on a burning mob
+  **spreads** the fire. The order you cast in decides your damage, and other players can see the ice and
+  the flames. Mobs and bosses show the state on their body (art), so a good mage is readable to friends.
+- **MP is a real budget.** Spells cost enough that spamming your best one runs you dry; a passive
+  rewards rhythm (e.g. **Arcane Charge**: each Wand Tap stores a charge, the next big spell spends them for
+  extra damage), so a good mage weaves cheap hits between expensive ones instead of mashing.
+- **Delayed spells you lead.** Meteor already lands 0.8 s later: a good mage casts it where the boss will
+  be, not where it is. More spells like that (a falling icicle, a lightning rune on the floor that strikes
+  whatever walks over it) reward reading the boss's pattern, with no aiming needed.
+- **Interrupts.** Bosses wind up their ultimates (`ULT_WARN`). A Frostbinder's freeze, cast inside that
+  window, cancels or weakens it. That's the mage's moment in a boss fight, and it's pure timing.
+- **Channelled spells with a risk.** A few strong spells that keep working while you hold still (a
+  beam, a blizzard). Moving or getting hit stops them. Big payoff if you read when it's safe to stand.
+  (Netcode: the server checks you haven't moved; movement itself stays in `step()`.)
+- **Avoid:** free mouse-aimed skillshots (hopeless on a phone), cast bars on every spell (feels slow and
+  clunky in a jumpy platformer), and anything that's only skilful because it's confusing.
 
-### 4. A real tree: advancements at widening gaps
+### 4. Bows and the Archer
+- New item kind `bow`: ATK on the sword curve, a long reach, lower base so range is paid for.
+- Arrows are aimed by the client like every other hit (`docs/combat/core.md`: client-decided,
+  server-capped hits; the cap needs the bow's range).
+- **Ranger Acorn** (the Canopy) is the archers' trader: she lives in the trees and a bow suits her. Pip
+  sells a starter bow. Bosses drop bows too.
+- Forks: **Sniper** (Snipe, Piercing Arrow, weak-point crits) or **Trapper** (Arrow Rain, Net Trap, slows).
+  Skill: the Archer is the class that hits **weak points** (below) and keeps moving (Retreat Shot fires
+  while dashing away, reusing the `DASH` physics).
+
+### 5. Staves and the Cleric
+- New item kind `staff`: gives MAGIC (healing scales with it) on the same curve as a wand, a bit less
+  damage. Clerics heal with MAGIC so a good staff matters.
+- Takes over from today's Magic and Guardian trees: Jelly Heal, Rally, Sanctuary, Aegis, Jelly Bubble
+  (cast on a friend), Second Wind (on a friend). New: **Cleanse** (removes a boss's curse), **Revive**
+  (gets a fainted friend up where they fell, with a long cooldown), **Mend Over Time** (a heal that ticks).
+- Forks: **Priest** (big heals, Revive, Cleanse) or **Warden** (shields and wards: absorbs damage before
+  it lands, Sanctuary, Aegis). Healing well is a skill about *when*: a shield before the ultimate is worth
+  three heals after it.
+- Lore `[proposed]`: Auntie Clover or Elder Mochi as the Clerics' trader, whichever fits their persona.
+- Clerics need recognition: the damage meter (`docs/combat/bosses.md`) also shows **healing done** and
+  **damage taken** (for the Knight), so the support roles see their part.
+
+### 6. Bosses that need a party
+Each boss asks a few of these questions. The class in brackets answers it best; the others can answer
+it badly (potions, running, a much longer fight).
+| boss mechanic | answered best by | without that class |
+|---|---|---|
+| **Crushing focus**: the boss locks onto one slime with heavy hits | Knight (Taunt holds the boss on them, they have the DEF) | the boss bounces between squishy players |
+| **Room-wide pulses**: damage nobody can dodge, every few seconds | Cleric (heals, shields before the pulse) | everyone drinks potions on cooldown |
+| **Curses**: a stacking debuff that gets worse until removed | Cleric (Cleanse) | wait it out at range, losing damage |
+| **Magic barrier**: a phase where physical hits do little | Mage (spells break it) | a long, slow phase |
+| **Ultimate wind-up**: a huge move after a warning | Mage (Frostbinder freezes it) | dodge with Mobility i-frames, as now |
+| **Weak points up high**: a crystal on the boss's back, a nest on a ledge | Archer (range, Piercing Arrow) | jump for it under fire |
+| **Adds**: a swarm of small mobs | Mage (area damage), Trapper | the swarm chews through the healer |
+| **Armour phase**: only heavy single hits crack the shell | Berserker | a long, slow phase |
+
+- **How hard:** den bosses stay doable alone or with any mix, just slower and riskier without the right
+  classes. The **capstone bosses** (one per island, `world/island-depth.md`) are built for a full mixed
+  party: in practice not doable without most roles. That's the endgame for groups.
+- **Scaling:** `BOSS_HP_PER_PLAYER` stays; on top, a mechanic only appears once enough slimes are there
+  (no Taunt check when you're alone), so a solo player isn't punished for being alone.
+- **Loot by class:** a boss's loot set includes one weapon, with the kind picked from the classes of the
+  slimes who fought it, so every role sees drops for itself.
+- **Retrofit:** today's nine dens and four field bosses each get one or two of the mechanics above, a boss
+  at a time, in the same pass that gives them their wand/bow/staff drop. New bosses (G5's Root Warden on)
+  are designed around them from the start.
+
+### 7. A real tree: advancements at widening gaps
 Each class tree is drawn as connected nodes, not columns, and opens in **advancements** (MapleStory's
 job advancements), at levels spaced further apart each time:
 | advancement | opens at | what it brings |
 |---|---|---|
 | 1st: the class | Lv 1 (pick your weapon) | the class's basic skills |
-| 2nd | Lv 10 | first **fork**: choose one of two branches (below) |
-| 3rd | Lv 30 | the branch's middle tier and a second smaller fork |
+| 2nd | Lv 10 | the **fork**: choose one of two branches (listed per class above) |
+| 3rd | Lv 30 | the branch's middle tier and a smaller second fork |
 | 4th | Lv 60 | the branch's capstone skill (the big ultimate) |
 | 5th | Lv 100 | mastery nodes: passives that change how skills behave, not just +% |
 | 6th | Lv 150 | the second capstone [proposed: lands with the rebalanced late islands] |
 
-**Forks** are the "giving something up" part. Each class splits into two branches at the 2nd
-advancement; you can only put points into one at a time (free to switch, outside combat):
-- Warrior: **Berserker** (damage, Berserk, Blade Storm, Sky Splitter) or **Knight** (Iron Jelly,
-  taunting hits that pull bosses off friends, Aegis moves here)
-- Mage: **Elementalist** (Meteor, Frost Nova, Starfall: area damage) or **Cleric** (Jelly Heal, Rally,
-  Sanctuary, MP Shield: the group's healer)
-- Archer: **Sniper** (Snipe, Piercing Arrow, big crits) or **Trapper** (Arrow Rain, Net Trap, slows)
-Healing and team buffs moving into the Cleric gives groups a real reason to bring a mage to a boss.
+- **Forks** are the "giving something up" part: points go into one branch at a time (free to switch,
+  outside combat).
+- **No quests** (owner, island-depth plan): an advancement simply opens when you reach the level, with a
+  banner and a sound. A class trainer can say something about it in chat, but there's nothing to fetch.
+- **Points:** `spTotal` becomes a schedule: one per level early, then fewer per level but a lump at each
+  advancement, ending where the content ends (Lv 200 after the rebalance). Sized so a character fills its
+  branch and some of Mobility, never everything. AP stay at `AP_PER_LVL` (steady small rewards per level).
+- **Mobile:** the node tree has to work on a phone (`docs/ui/mobile.md`): one tree per tab, nodes big
+  enough to tap, a node's card opening below it.
 
-**No quests** (owner, island-depth plan): an advancement simply opens when you reach the level, with a
-banner and a sound. A class trainer can say something in chat about it, but there's nothing to fetch.
+### 8. Levelling: closing the faucet, then spacing the rewards
+1. **Over-level EXP falloff.** A mob or boss more than a few levels below you gives less EXP, down to a
+   small floor. Doesn't touch anyone fighting at their own level, so the Progress table is unchanged.
+2. **Boss rewards once per window.** Bosses still respawn every minute, but each player gets full EXP and
+   a loot roll from a given boss once per reward window (10-15 min); kills inside it give a small share.
+3. **Stat growth tapers past the content** (above Lv 200 after the rebalance): gear and the tree decide
+   power there. **This lowers the current Lv 300+ players a bit**: owner decision below.
+4. **Past the last advancement: mastery stars.** Every N levels past the cap gives a star by your name
+   and a cosmetic or comfort reward (an aura colour, a title, a bag row), not raw power.
 
-**Points:** skill points stop being "one per level forever". `spTotal` becomes a schedule: one per level
-early, then fewer per level but a lump at each advancement, ending where the content ends (Lv 200 after
-the rebalance). Sized so a character can fill its chosen branch and part of the shared trees, never
-everything. AP stay at `AP_PER_LVL` (small, steady per-level rewards keep every level worth something).
-
-**Mobile:** the node tree has to work on a phone (`docs/ui/mobile.md`): one tree per tab, the nodes big
-enough to tap, the card for a node opening below it.
-
-### 5. Levelling: closing the faucet, then spacing the rewards
-In order of importance:
-1. **Over-level EXP falloff.** A mob or boss more than a few levels below you gives less EXP, falling to a
-   small floor (MMO standard). Stops Lv 300s levelling off Lv 80 content, and doesn't touch anyone
-   fighting at their own level, so `npm run economy`'s Progress table is unchanged.
-2. **Boss rewards once per window.** Bosses still respawn every minute (groups can keep fighting), but
-   each player gets full EXP and a loot roll from a given boss once per reward window (e.g. 10-15 min);
-   kills inside the window give a small share. Field bosses already have long timers, so they're fine.
-3. **Stat growth tapers past the content.** Beyond the top of the content (Lv 200 after the rebalance),
-   each level adds much less ATK/MAGIC/HP, so gear and the tree decide power there. **This lowers the
-   current Lv 300+ players a bit**: owner decision below.
-4. **Past the last advancement: mastery stars.** Every N levels past the cap gives a star (shown by your
-   name) and a small cosmetic or comfort reward (an aura colour, a title, a bag row): something to show,
-   not raw power. This is the widening-gap reward for the people already at 390.
-
-### 6. Existing characters (the migration)
-- Levels, gold, bags and gear all stay. Swords keep working (a warrior with their Chrono Blade is fine).
-- **One free full refund** of skill points and AP when the new tree ships, with a banner saying so. The
-  old skill ids map to their new homes where they still exist, so hotbars don't empty.
-- High players will still be ahead; they just have to choose a branch like everyone else.
+### 9. Existing characters (the migration)
+- Levels, gold, bags and gear all stay. Swords keep working.
+- **One free full refund** of skill points and AP when the new tree ships, with a banner saying so. Old
+  skill ids map to their new homes where they still exist, so hotbars don't empty.
 
 ## The phases (each one shippable alone)
-The G track still comes first where it says so; S0 is small enough to go in right away.
-- [ ] **S0: close the boss faucet** (small): over-level EXP falloff and the per-player boss reward window.
-      Must land **before the rebalance (R)**, because R raises boss EXP. Economy sheet: add a column for
-      boss EXP inside the window.
-- [ ] G5 (Keeper's Spine) as planned.
-- [ ] **S1: wands and the Mage** (medium): the `wand` kind, wand tap, MAGIC from wands, a wand on every
-      boss's drop table (art per boss, the biggest cost), starter and trader wands, weapon scrolls, the
-      economy script learning wands. Do it **before R**, so R's "new copy of every boss item" pass copies
-      the wands too instead of making them twice.
-- [ ] **S2: the tree** (large): class trees from weapons, forks, advancements, the `spTotal` schedule,
-      the node UI (desktop and phone), per-class hotbars, the one-time refund. Warrior and Mage only.
-- [ ] R, the rebalance, as planned (now copies swords and wands).
-- [ ] **S3: the Archer** (large): `bow` kind, arrows, the Archer tree, DEX's new job, Acorn's bows,
-      bows on the drop tables (could ride along with R's new copies, or come right after).
-- [ ] **S4: past the cap**: stat taper above the content's top, mastery stars, the advancement at Lv 150.
-- [ ] Frostpeak's depth pass, as planned.
+- [ ] **S0: close the boss faucet** (small): over-level EXP falloff, the per-player boss reward window.
+      Before the rebalance (R), because R raises boss EXP.
+- [ ] G5 (Keeper's Spine) as planned; the Root Warden is the first boss designed with the role mechanics
+      in mind (built so they can be switched on in S5).
+- [ ] **S1: wands and the Mage** (medium): the `wand` kind, Wand Tap, MAGIC from wands, wands on every
+      boss's drops, starter and trader wands, weapon scrolls, the economy script learning wands. Before R,
+      so R's "new copy of every boss item" pass copies the wands too.
+- [ ] **S2: the tree** (large): class trees from weapons, forks, advancements, the `spTotal` schedule, the
+      node UI (desktop and phone), per-class hotbars, the one-time refund. Warrior and Mage, with the mage
+      combos (chill/freeze/shatter, burn/spread, Arcane Charge).
+- [ ] **S3: the Cleric** (medium): the `staff` kind, the Cleric tree (mostly today's heal and Guardian
+      skills moved and extended: Cleanse, Revive), healing and damage-taken on the damage meter.
+- [ ] R, the rebalance, as planned (copies swords, wands and staves).
+- [ ] **S4: the Archer** (large): `bow` kind, arrows, the Archer tree, DEX's new job, Acorn's bows.
+- [ ] **S5: bosses that need a party**: the mechanics in the table above (Taunt, pulses, curses, barriers,
+      weak points, armour), retrofitted a boss at a time, loot by class.
+- [ ] **S6: past the cap**: stat taper, mastery stars, the advancement at Lv 150.
+- [ ] Frostpeak's depth pass, as planned (its bosses designed for mixed parties from the start).
 
 ## Open decisions for the owner (recommended answer first)
-1. **Class = the weapon you hold** (recommended), or a class picked at a trainer that changes with a
-   visit? The weapon way needs no new UI and shows your class to everyone.
-2. **Can classes mix?** Recommended: no class's active skills with another's weapon; only Guardian and
-   Mobility are shared. (A "spellblade" hybrid could come later as its own fork.)
-3. **Stat taper for levels past the content** (S4): apply it to everyone, which lowers today's Lv 300+
-   characters somewhat (recommended: the game stays balanced for the next islands), or only for levels
-   gained after it ships?
-4. **Boss reward window length** (S0): about 10-15 minutes recommended; shorter keeps boss farming the best
-   EXP, longer pushes people back to the open wilds.
-5. **Archer now or after the mage fix?** Recommended: after (S3). Mages are the complaint today, and the
-   archer reuses everything S1 and S2 build.
+1. **Class = the weapon you hold** (recommended), or a class picked at a trainer?
+2. **Can classes mix?** Recommended: no class's active skills with another's weapon; only Mobility shared.
+3. **How hard is "needs a party"?** Recommended: dens soft (solo is slow and risky), capstone bosses built
+   for a full mixed party. Alternative: every den needs a party, which locks out solo nights.
+4. **Stat taper past the content** (S6): for everyone, which lowers today's Lv 300+ characters somewhat
+   (recommended), or only for levels gained after it ships?
+5. **Boss reward window** (S0): 10-15 minutes recommended.
+6. **Cleric's weapon:** a staff (recommended: clear at a glance), or something softer like a bell?
