@@ -33,6 +33,16 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
       kept as Legacy, scaled new copies dropped instead
 - [ ] Frostpeak's depth pass (40-100)
 
+## 0b. Classes and progression: the S track (owner, 2026-10-23)
+Mages neglected (no wands), maybe an archer, a real skill tree instead of a list, and rewards spaced
+further apart at high levels. **The plan, its phases and the owner's open decisions: `progression.md`.**
+Interleaved with the G track: S0 (close the boss EXP faucet) and S1 (wands) go before the rebalance (R).
+- [ ] S0: over-level EXP falloff, per-player boss reward window
+- [ ] S1: wands and the Mage
+- [ ] S2: class trees from weapons, forks, advancements, the node UI
+- [ ] S3: the Archer (bows, Ranger Acorn)
+- [ ] S4: past the cap (stat taper, mastery stars)
+
 ## 1. Geography (the owner's top complaint: the islands are too close)
 - [ ] **Remove the back-door chain.** The Wildwood → Highlands trail (gone, Phase 3), the Highlands → Caldera pass and the
       Caldera → Citadel skylift go. Each island is reached by its crossing. (`world/geography.md`)

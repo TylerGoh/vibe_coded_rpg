@@ -4,6 +4,9 @@ Files: `src/shared/skills.js` (all rules and `statsFor`), `src/skilltree.js` (th
 `src/skillfx.js` (icons and effects), the hotbar and stats UI in `src/rpg.js`, server actions in the
 `skills()` handler of `server/rpg.js`.
 
+**A revamp is planned** (classes from weapons, wands, an archer, forks and advancements, levelling
+rewards): `story/progression.md`. Read it before changing skills, AP or `spTotal`.
+
 ## Skill trees
 - Four trees in `TREES`, skills in `SKILLS`: Blade (sword hits, Berserk, Sword Mastery), Magic (bolts,
   chain lightning, nova, meteor, starfall, Jelly Heal, Arcane Mind, Mana Flow), Guardian (Jelly Bubble,
