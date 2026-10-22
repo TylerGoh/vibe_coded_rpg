@@ -289,7 +289,7 @@ job advancements), at levels spaced further apart each time:
       combos (chill/freeze/shatter, burn/spread, Arcane Charge).
 - [ ] **S3: the Cleric** (large: summons are new server entities): the Cleric at the Rebirth spot, the halo, the summons, the Cleric tree (mostly today's heal and Guardian
       skills moved and extended: Cleanse, Revive), healing and damage-taken on the damage meter.
-- [ ] R, the rebalance, as planned (copies swords and staves).
+- [x] R, the rebalance (shipped 2026-10-23, before S2: it copied swords and staves; `docs/combat/items.md`).
 - [ ] **S4: the Archer** (large): `bow` kind, arrows, the Archer tree, DEX's new job, Acorn's bows.
 - [ ] **S5: bosses that need a party**: the mechanics in the table above (Taunt, pulses, curses, barriers,
       weak points, armour), retrofitted a boss at a time, loot by class.

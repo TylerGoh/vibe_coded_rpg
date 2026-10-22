@@ -17,7 +17,7 @@ this year, hmm…". A Keeper stone has surfaced in Sprout Meadow overnight. Clio
 - **Act turn:** from the east cliffs players see the open sea for the first time. Captain Brine agrees
   to run the ferry north, "while the crossing's still short enough".
 
-## Act II: Frostpeak (Lv 13–27): "The world was one"
+## Act II: Frostpeak (Lv 40–100; the legacy ridge and summit 40–60 since the rebalance): "The world was one"
 - The first crossing (the ferry room). The sea is grey and the aurora grows overhead.
 - Icefang Fjord: the fjord folk, Old Skaldi's songs about Pangelea and the Stopped Hour.
 - **Frost Queen Glacia**: she held on until her people froze. Letting go of the ice bridge is the first
@@ -26,7 +26,7 @@ this year, hmm…". A Keeper stone has surfaced in Sprout Meadow overnight. Clio
 - **Act turn:** Skaldi: "The sea is wider than it was in my mother's time. It is wider than it was last
   winter." The drift is speeding up.
 
-## Act III: Emberdeep (Lv 28–50): "Who broke the world"
+## Act III: Emberdeep (about Lv 90–150; the legacy stage 90–115 since the rebalance): "Who broke the world"
 - The long voyage through the Steam Straits.
 - The forge-slimes' anger, the giant undelivered gears, the memorial wall.
 - **Ignis**: the truth about the Tidewheel, the Keepers, and the tooth that snapped.
@@ -34,7 +34,7 @@ this year, hmm…". A Keeper stone has surfaced in Sprout Meadow overnight. Clio
 - **Act turn:** back home, Mochi finally tells the whole story: he was Pell's apprentice. "Bring him
   home if you can. He was kind, once."
 
-## Act IV: the Aether Citadel (Lv 50+): "The Stopped Hour"
+## Act IV: the Aether Citadel (about Lv 140–200; the legacy stage 140–170 since the rebalance): "The Stopped Hour"
 - The balloon climb. The whole archipelago, small, below.
 - The Skydocks and Bastion: automatons still keeping a dead city. Keeper echoes replaying their last hour.
 - **The Clockwork Colossus**: obedience without malice.

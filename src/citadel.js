@@ -1144,7 +1144,7 @@ function drawZoneSign(ctx, x, z, i, time) {
   ctx.restore();
 }
 
-// A brass board with a label, an arrow and an optional sub line ("Lv 50+")
+// A brass board with a label, an arrow and an optional sub line ("Lv 140+")
 function liftSign(ctx, x, y, label, sub, dir, time) {
   ctx.save();
   ctx.translate(x, y);
@@ -1335,7 +1335,7 @@ export function drawSkylift(ctx, x, groundY, time) {
   star4(ctx, sx - 80, groundY - 180, 4);
   ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
   const half = (ctx.measureText('Aether Citadel').width + 46) / 2;
-  liftSign(ctx, Math.min(sx, CALDERA_W - 10 - half), groundY - 266, 'Aether Citadel', 'Lv 50+', 1, time);
+  liftSign(ctx, Math.min(sx, CALDERA_W - 10 - half), groundY - 266, 'Aether Citadel', 'Lv 140+', 1, time);
   ctx.restore();
 }
 

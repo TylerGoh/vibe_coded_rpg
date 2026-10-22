@@ -1369,7 +1369,8 @@ export class Rpg {
     const bonus = [['atk', 'ATK'], ['magic', 'MAGIC'], ['def', 'DEF'], ['hp', 'HP']].filter(([k]) => e[k]).map(([k, n]) => `${n} +${e[k]}`).join(', ');
     d.textContent = it.desc + (it.atk ? ` ATK +${it.atk}.` : '') + (it.magic && it.kind === 'staff' ? ` MAGIC +${it.magic}, MP +${it.mp}. Fires a bolt instead of swinging.` : '') + (it.def ? ` DEF +${it.def}.` : '')
       + (gear ? ` Upgrade slots: ${slotsOf(sel.id) - (e.u ?? 0)} of ${slotsOf(sel.id)} left${bonus ? ` (scrolled: ${bonus})` : ''}.` : '')
-      + (it.price ? ` Sells for ${sellPrice(sel.id)} gold.` : '');
+      + (it.price ? ` Sells for ${sellPrice(sel.id)} gold.` : '')
+      + (it.legacy ? ' Legacy: the old version, from before Frostpeak, Emberdeep and the Aether Citadel grew stronger. It works as it always did, but nothing drops it any more.' : '');
     const row = document.createElement('div');
     row.className = 'inv-actions';
     const button = (label, fn) => {

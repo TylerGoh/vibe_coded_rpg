@@ -270,15 +270,15 @@ systems first, then fills the band from the bottom up.
       find is the Road Stone (the high road, the Warden holding the gate, a root running west toward the
       village) and the Watch Seat; no character lives there. Greenhollow is done: every branch on the map is
       open, from Lv 1 to 60. Not done: `docs/ideas.md` ("G5 left for later").
-- [ ] **R: the rebalance** (section above): the later islands' legacy mobs and bosses go up to their
-      new bands, their gear gets scaled new copies, and what players own is marked Legacy. Then
-      Frostpeak's pass starts.
+- [x] **R: the rebalance** (shipped 2026-10-23; `docs/combat/stages.md`, `docs/combat/items.md`,
+      `docs/economy.md`): Frostpeak's legacy stage went to 40–60, Emberdeep's to 90–115, the Citadel's to
+      140–170; their gear got scaled copies (`<id>_n`, drawn through `artOf`) and what players own became
+      Legacy. Next: Frostpeak's pass.
 
 ## Legacy loose ends (default: leave them alone until the rebalance)
-- The ferry's door still says "Lv 13+" and Frostpeak still runs 13–27. Both change in the rebalance
-  (after G5), not during Greenhollow's phases.
+- ~~The ferry's door still says "Lv 13+" and Frostpeak still runs 13–27.~~ Done in the rebalance: "Lv 40+", 40–60.
 - The pass from Frostpeak's summit down to the legacy Emberdeep stage and the skylift to the Citadel
-  stay (their level labels change in the rebalance): they're how high-level players reach that content.
+  stay (their signs say "Lv 90+" and "Lv 140+" since the rebalance): they're how high-level players reach that content.
   They go when the atlas's Phase 5 and 6 replace them with the ship and the balloon.
 
 ## After Greenhollow

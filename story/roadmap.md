@@ -52,8 +52,9 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
       the Road Stone, the Watch Seat, a waystone, moss turtles, crag kites, stone sentinels, gale sprites,
       rootlings, and the Root Warden, the capstone (with lines, built for S5's party mechanics). Greenhollow
       is done. Left over: `docs/ideas.md` ("G5 left for later")
-- [ ] R: the rebalance: the later islands' legacy mobs and bosses raised to their new bands; owned gear
-      kept as Legacy, scaled new copies dropped instead
+- [x] R (2026-10-23): the rebalance: Frostpeak 40–60, Emberdeep 90–115, the Citadel 140–170; owned gear
+      kept as Legacy, scaled copies (`<id>_n`) dropped and sold instead (`docs/combat/items.md`,
+      `docs/combat/stages.md`). Left over: `docs/ideas.md` ("R left for later")
 - [ ] Frostpeak's depth pass (40-100)
 
 ## 0b. Classes and progression: the S track (owner, 2026-10-23)

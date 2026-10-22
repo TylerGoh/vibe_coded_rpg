@@ -118,6 +118,9 @@ the room and position, never by messages (`docs/netcode.md`). Budget for that wo
 only.
 
 ## Island sheets
+**Level bands moved (the rebalance, R, 2026-10-23; `world/island-depth.md`):** Greenhollow is Lv 1–60,
+Frostpeak 40–100, Emberdeep about 90–150, the Citadel about 140–200. The bands in the sheets below are
+from before it; read each as "the same order, in the island's new band".
 
 Each sheet lists rooms in walking order. **Mob slots:** each wilds zone wants 3–4 kinds: one *passive*
 (free EXP, shows the landscape), one *aggressive* (chases), and one or two with a *gimmick* that comes
@@ -150,9 +153,9 @@ the Citadel's are machines and echoes.
    fragments), **Netmender Runa** (the trader: warm gear, frostbloom; her cousin Arne owns the Lodestar),
    **Tove** (Skaldi's granddaughter, feeds the yeti cubs, the guide to the ridge's creatures). No mobs
    (owner's call).
-3. **Frostpine Ridge** (exists, 13–17): frostlings, yeti cubs, **floe seals** (passive, belly-slide) and
+3. **Frostpine Ridge** (exists, 40–46 since the rebalance; was 13–17): frostlings, yeti cubs, **floe seals** (passive, belly-slide) and
    **snow owls** (dive), the last two added in Phase 4.
-4. **Starfall Summit** (exists, 18–27): star wisps, crystal golems, **shard-moths** (Phase 4).
+4. **Starfall Summit** (exists, 47–60 since the rebalance; was 18–27): star wisps, crystal golems, **shard-moths** (Phase 4).
    - Dens: Frost Queen Glacia, Astral Wyrm (exist).
 5. Onward: the ship south leaves from the fjord's quay: the **Lodestar**, laid up (shown, not open) until
    Phase 5, because nobody will steer south while the stars are wrong.

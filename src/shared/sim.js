@@ -218,7 +218,7 @@ ROOMS[HARBOUR] = {
   name: 'Greenhollow Harbour', width: HARBOUR_W, ground: 470, platforms: HARBOUR_PLATFORMS,
   doors: [
     { x: HARBOUR_EXIT_X, w: 80, to: VILLAGE, toX: HARBOUR_GATE_X, label: 'walk back up to Slimeville' },
-    { x: GANGWAY_X, w: 80, to: FERRY_N, toX: DECK_GANGWAY_X, label: 'board the ferry to Frostpeak (Lv 13+)', ask: 'Set sail for Frostpeak? She takes about a minute.' },
+    { x: GANGWAY_X, w: 80, to: FERRY_N, toX: DECK_GANGWAY_X, label: 'board the ferry to Frostpeak (Lv 40+)', ask: 'Set sail for Frostpeak? She takes about a minute.' },
     { x: COVES_GATE_X, w: 80, to: COVES, toX: COVES_EXIT_X, label: 'take the shore path to Saltspray Coves' },
   ],
 };

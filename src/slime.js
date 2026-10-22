@@ -3,6 +3,7 @@ import { TAU, rand, clamp, ellipse, circle } from './util.js';
 import { drawSword, drawHelmet, SWORD_LEN } from './field.js';
 import { drawStaff, STAFF_LEN } from './staff-art.js';
 import { drawEnhanceGlow } from './skillfx.js';
+import { artOf } from './shared/rpg.js';
 import { FOLK_PALETTE, drawFolk, drawFolkDress } from './fjord-art.js';
 import { drawMillerDress } from './willowmere-art.js';
 import { drawBeachcomberDress } from './coves-art.js';
@@ -117,7 +118,8 @@ export class Slime {
   // What a player has on (src/rpg.js): gear, the Boutique cosmetics they wear,
   // and whether the helmet shows (hiding it lets cosmetics like the ribbon show)
   setLook({ gear, wear, showHelmet, plus, gearE } = {}) {
-    if (gear) this.gear = showHelmet === false ? { ...gear, helmet: null } : gear;
+    // (drawn by art id: a rebalanced copy looks like its legacy original)
+    if (gear) this.gear = { ...gear, weapon: artOf(gear.weapon), helmet: showHelmet === false ? null : artOf(gear.helmet) };
     if (plus !== undefined || gearE) this.plus = plus ?? gearE?.weapon?.s ?? 0; // scroll successes on the weapon: it glows
     this.accessories = [...new Set(wear ?? [])];
   }

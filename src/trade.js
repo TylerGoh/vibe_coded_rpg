@@ -18,6 +18,7 @@ export function itemDetail(x) {
   if (it.magic) parts.push(`MAGIC +${it.magic}`);
   if (it.def) parts.push(`DEF +${it.def}`);
   if (it.lvl) parts.push(`Lv ${it.lvl}`);
+  if (it.legacy) parts.push('Legacy');
   const bonus = [['atk', 'ATK'], ['magic', 'MAGIC'], ['def', 'DEF'], ['hp', 'HP']].filter(([k]) => e[k]).map(([k, n]) => `${n} +${e[k]}`).join(', ');
   if (bonus) parts.push(`scrolled: ${bonus}`);
   if (gear) parts.push(`${slotsOf(x.id) - (e.u ?? 0)}/${slotsOf(x.id)} slots left`);

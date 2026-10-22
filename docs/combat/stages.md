@@ -18,6 +18,13 @@ Data: `src/shared/rpg.js` (`ZONES`, `HIGHLAND_ZONES`, `CALDERA_ZONES`, `CITADEL_
 3. **Emberdeep Caldera** (`CALDERA`, `src/caldera.js`): Cinder Flats, Magma Heart.
 4. **Aether Citadel** (`CITADEL`, `src/citadel.js`): Cogwork Bastion, Chrono Spire.
 Stages 3 and 4 were added because players were Lv 35–88 and out of content.
+**The rebalance (R, 2026-10-23, `story/world/island-depth.md`):** once Greenhollow covered Lv 1–60, stages
+2–4 moved up to the bottom of their islands' new bands, keeping their order and spacing: Frostpeak 40–60
+(of its 40–100), Emberdeep 90–115 (of ~90–150), the Citadel 140–170 (of ~140–200). Same `MOBS` entries and
+kinds, only `lvl`, `hp`, `atk`, `exp` and coins changed, read off the frozen curve at the new level
+(`docs/economy.md`); zone labels, `band`s, the ferry's label and the Caldera and Citadel signs moved with
+them, and Tove's and Brine's personas name the new levels. Their gear became Legacy (`docs/combat/items.md`).
+Lv 60–90 has no fresh content until Frostpeak's depth pass fills the top of its band.
 5. **Willowmere** and 6. **Saltspray Coves**: Greenhollow's first branches (`docs/places/willowmere.md`,
    `docs/places/coves.md`). `COMBAT_ROOMS` is every `STAGES` room plus the dens; `STAGES[room].pill` names
    it in the location pill. `lob` and `trail` take a `style` for their shot / puddle look, `beam` too.

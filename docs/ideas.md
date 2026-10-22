@@ -60,6 +60,14 @@
   both readables, both field bosses' moves (ink, the stamp), the island map, a phone screenshot. Nobody has
   fought the pockets at their own level, so how hard they really are is a guess.
 
+## R (the rebalance) left for later
+- Lv 60–90 has no content at its own level until Frostpeak's depth pass (the top of 40–100); players there
+  farm the Lv 50s mobs with the over-level falloff.
+- Raised dens' coins and materials are worth less, in minutes of farming, than the docs' old 6–20× (gear
+  carries more of their worth now): raise their coins if boss loot feels thin (`docs/economy.md`).
+- The atlas's island sheets still carry their old bands (a note at the top says how to read them).
+- Untested with real players: the raised mobs' and bosses' difficulty at their new levels (bots only).
+
 ## G5 left for later
 - The Root Warden's party mechanics (focus, pulse, barrier, weak point: `party` on its entry) wait for S5;
   today it fights with the shared moves only, so it's a hard solo boss, not yet a party check.

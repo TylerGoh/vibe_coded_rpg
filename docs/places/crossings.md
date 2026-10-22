@@ -65,6 +65,6 @@ scene in `src/audio.js`, the "you are here" pin at sea in `src/worldmap.js`, Bri
 - 2026-10-20: built. The Wildwood → Highlands trail went in the same update (the ferry replaces it); the
   Highlands → Caldera pass and the Caldera → Citadel skylift stay until their crossings exist (atlas Phases 5
   and 6: never remove a back door before its crossing works).
-- Level gate: none (the game has none on purpose, `docs/world.md`); the gangway label says "Lv 13+".
+- Level gate: none (the game has none on purpose, `docs/world.md`); the gangway label says "Lv 40+" (it said "Lv 13+" until the rebalance, R, raised Frostpeak).
 - `[proposed]` Later: fishing over the rail, things climbing aboard on the far routes (light, optional,
   never a death trap), a quick sail back once a route is open.

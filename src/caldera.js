@@ -1073,7 +1073,7 @@ export function drawCalderaPass(ctx, x, groundY, time) {
   // keep the sign inside the Highlands' east edge (the camera stops there)
   ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
   const hw = (ctx.measureText('Emberdeep Caldera').width + 44) / 2;
-  hangingSign(ctx, Math.min(x, HIGHLANDS_W - 10 - hw), top - 64, 'Emberdeep Caldera', 'Lv 28+', 2, time, true);
+  hangingSign(ctx, Math.min(x, HIGHLANDS_W - 10 - hw), top - 64, 'Emberdeep Caldera', 'Lv 90+', 2, time, true);
   ctx.restore();
 }
 

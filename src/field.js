@@ -5,7 +5,7 @@
 // must never import slime.js.
 import { H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { drawAlchemyIcon } from './alchemy-art.js';
-import { FIELD_W, FIELD_GROUND, FIELD_EXIT_X, ZONES, FIELD_PLATFORMS, MOBS } from './shared/rpg.js';
+import { FIELD_W, FIELD_GROUND, FIELD_EXIT_X, ZONES, FIELD_PLATFORMS, MOBS, artOf } from './shared/rpg.js';
 import { CALDERA_MOB_ART } from './caldera.js';
 import { CITADEL_MOB_ART } from './citadel.js';
 import { FJORD_MOB_ART, drawBoneHarpoon, drawFurHood } from './fjord-art.js';
@@ -1805,6 +1805,7 @@ const HELM_ICON_FIT = { ember_helm: [0.72, 1], phoenix_crown: [0.74, 2], aether_
 
 // One sword, its grip at the origin and its blade pointing up (-y). glow: 0..1 extra crystal shine.
 export function drawSword(ctx, id, glow = 0) {
+  id = artOf(id); // (a rebalanced copy looks like its legacy original)
   const L = SWORD_LEN[id] ?? 34;
   if (id === 'spore_blade') return drawSporeBlade(ctx, L, glow);
   if (id === 'thorn_sword') return drawThornSword(ctx, L, glow);
@@ -3713,6 +3714,7 @@ function iconElixir(ctx) {
 // A helmet on a slime's head, in the slime's local space (origin at its feet, body w × h, facing +x).
 // It's sized from w and h, so it squashes along with the jelly.
 export function drawHelmet(ctx, id, w, h, t = 0) {
+  id = artOf(id);
   const by = -h * 0.68; // brim line, just above the eyes
   const rx = w * 0.5, ry = h * 0.4;
   ctx.save();
@@ -3973,6 +3975,7 @@ export function drawHelmet(ctx, id, w, h, t = 0) {
 
 // Item icons for loot and the bag: id from ITEMS, centred at (x, y), fitting a size × size box.
 export function drawItemIcon(ctx, id, x, y, size) {
+  id = artOf(id);
   ctx.save();
   ctx.translate(x, y);
   const s = size / 40;

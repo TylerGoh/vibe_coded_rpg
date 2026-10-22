@@ -29,6 +29,22 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   glow colours) and `drawStaff` draws it for the bag icon (a shortened shaft so the head shows), the back
   and the cast pose (`drawStaffOnBack` / `drawStaffCast` in `src/slime.js`). The glow colour tints its bolt.
 
+## Legacy items (the rebalance, R, 2026-10-23: `story/world/island-depth.md`)
+- When Frostpeak's, Emberdeep's and the Citadel's mobs and bosses moved up to their new bands, their gear
+  got **scaled copies**: `<id>_n` (`frost_blade_n`, `chrono_staff_n`…), with a `lvl` (checked on the frozen
+  gear curve like any new gear), stats and price scaled along that curve, and `art: '<id>'`. The raised
+  mobs, bosses and Runa's shop drop and sell only the copies.
+- The **old id stays the legacy item**: same stats, scrolls and enhancements, `legacy: true`, its name
+  ends " (Legacy)" and its bag card says so (the trade window too). Nothing drops or sells it any more,
+  but it works forever and can still be scrolled. No save was migrated: bags and gear hold ids, so what
+  players owned simply became the legacy item.
+- Art: every art lookup by id goes through `artOf` (`src/shared/rpg.js`): `drawItemIcon`, `drawSword`,
+  `drawHelmet`, `drawStaff`, `staffGlow`, and `Slime.setLook` (which stores art ids for drawing). A copy
+  needs no art of its own. Do the same for any future copy.
+- Copied: the 12 den-boss items of the six raised dens, their six staves, and Runa's Seal-Fur Hood and
+  Whalebone Harpoon. Potions, scrolls and materials kept their ids (materials kept their prices: the
+  raised mobs' coins make up the rest of a kill's worth).
+
 ## Scrolls (enhancement, MapleStory style; boss drops only)
 - 100% / 60% / 10% weapon and helmet scrolls ("Sword Scroll" until S1; the ids are still `scroll_s*`), dark 30% ones (a failure may DESTROY the item), and a chaos
   scroll that rerolls an item's bonuses.
@@ -56,7 +72,8 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   `src/wreck-art.js` (`WRECK_*`) and `src/thornheart-art.js` (`THORN_*`). G5's Keeper's Spine has none
   either (`src/spine-art.js`, `SPINE_*`): mob drops and the Root Warden's set (`docs/places/spine.md`).
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
-  `aim` level for the balance sheet); floe seals and snow owls drop them rarely.
+  `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
+  are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.
 
 ## The Boutique (a shop tab)
 - The friends' signature accessories (ribbon, glasses, notes, bowtie, flute, laptop: ids `src/slime.js`

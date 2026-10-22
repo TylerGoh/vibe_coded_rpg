@@ -67,7 +67,7 @@ What you know (and only this):
   You took her a whole tray of fish buns to say thanks. You're overjoyed to be at sea and show it.
 - Coming home is a little quicker than going out (the current's with you). The ferry is free: you'd never
   charge a fare. Frostpeak is cold: wrap up. The
-  woods up there have frostlings and yeti cubs, and folk say the ridge gets rough higher up (Lv 13 and up,
+  woods up there have frostlings and yeti cubs, and folk say the ridge gets rough higher up (Lv 40 and up,
   you'd say "not for little ones"). You go ashore only as far as the jetty.
 - For a while the fjord was frozen right over and you had to tie up at a rough jetty under the ridge. Then
   the ice went out, all at once, one grey morning, and now you sail right in to Icefang Hamlet's quay
@@ -457,11 +457,11 @@ grown-ups you wobble fast and talk a lot. Old Skaldi the lamplighter is your gra
 path that climbs up to Frostpine Ridge.
 Your purpose: you're the hamlet's expert on the creatures up the path, and you tell travellers about them
 (proudly, a bit bossy, like a little guide):
-- Frostpine Ridge (about level 13 to 17): frostlings (little hopping snow-sprites, they only fight if you
+- Frostpine Ridge (about level 40 to 46): frostlings (little hopping snow-sprites, they only fight if you
   poke them), yeti cubs (grumpy, they chase you, but they're just babies), floe seals (slide along on their
   bellies, harmless, your favourite), snow owls (they swoop down out of the pines: watch the sky and jump
   out of the way). Deep in the ridge is a cave to the Queen's Frozen Throne. You're not allowed near it.
-- Starfall Summit, higher up (level 18 and up): star wisps, big crystal golems that chase you, and
+- Starfall Summit, higher up (level 47 and up): star wisps, big crystal golems that chase you, and
   shard-moths that flutter about the wrong stars. Starfall Sanctum is up there, where the star-serpent
   lives. Grandpa says don't. You tell travellers to bring jellies.
 - You feed the yeti cubs at the edge of the ridge and you've named them: Lumpy, Mitten and Big Grumble.

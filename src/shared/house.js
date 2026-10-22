@@ -78,12 +78,13 @@ export const FURNITURE = {
 // Pets: mini versions of the bosses, sold at the Pet Shop (PET_DISPLAY, below) and placed like furniture
 // (they stand on the floor, where they're put, then wander off around the house: src/house.js). Prestige
 // prices, set against the boss rows of the balance sheet, not an aim level (owner: "around 50k per pet or
-// more for more premium ones"); the later the boss, the dearer its pet. `npm run economy` lists them.
+// more for more premium ones"); the later the boss, the dearer its pet (by the boss's level: the rebalance,
+// R, raised Frostpeak's, Emberdeep's and the Citadel's bosses, so their pets went up to keep the order). `npm run economy` lists them.
 // Each pet you own is one animal with its own belly (docs/places/pets.md): it must be fed, or it dies.
 export const PET_SCALE = 0.4; // of the boss's own size
 export const PETS = {
-  turnipop: 50000, sprout_king: 50000, mother_mushroom: 60000, snapjaw: 80000, bramble_behemoth: 75000, frost_queen: 100000,
-  tidemother: 120000, astral_wyrm: 150000, knotmole: 170000, ignis: 200000, hornet_queen: 210000, drowned_bosun: 225000, pyra: 250000, thorn_hart: 300000, root_warden: 340000, colossus: 350000, chronos: 500000,
+  turnipop: 50000, sprout_king: 50000, mother_mushroom: 60000, snapjaw: 80000, bramble_behemoth: 75000, frost_queen: 230000,
+  tidemother: 120000, astral_wyrm: 280000, knotmole: 170000, ignis: 360000, hornet_queen: 210000, drowned_bosun: 225000, pyra: 400000, thorn_hart: 300000, root_warden: 340000, colossus: 450000, chronos: 500000,
 };
 for (const [kind, price] of Object.entries(PETS)) {
   const m = MOBS[kind];

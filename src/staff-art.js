@@ -4,6 +4,8 @@
 // pointing up (-y), the same way drawSword draws a sword (src/field.js), so the bag icon, the staff on a
 // slime's back and the cast all share it. staffGlow gives the colour of its bolt (src/skillfx.js).
 
+import { artOf } from './shared/rpg.js';
+
 const TAU = Math.PI * 2;
 const circle = (ctx, x, y, r) => {
   ctx.beginPath();
@@ -42,7 +44,7 @@ export const STAFFS = {
   warden_staff: { len: 68, shaft: ['#b0acc0', '#76728a'], w: 3.2, head: 'rootcrook', gem: '#ffcf7a', gem2: '#7aa05e', glow: '255,200,110' },
 };
 export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));
-export const staffGlow = (id) => STAFFS[id]?.glow ?? '190,200,255';
+export const staffGlow = (id) => STAFFS[artOf(id)]?.glow ?? '190,200,255';
 
 // A soft light behind the head (stronger while casting)
 function halo(ctx, s, y, r, a) {
@@ -523,7 +525,7 @@ const HEADS = {
 // One staff, grip at the origin, head up. glow 0..1: extra light (casting); t: time, for the moving parts;
 // len: a shorter shaft (the bag icon, so the head is big enough to tell staves apart).
 export function drawStaff(ctx, id, glow = 0, t = 0, len = 0) {
-  const s = STAFFS[id];
+  const s = STAFFS[artOf(id)]; // (a rebalanced copy looks like its legacy original)
   if (!s) return;
   const L = len || s.len, w = s.w;
   ctx.save();

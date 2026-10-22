@@ -63,6 +63,24 @@ A staff is priced exactly like its twin sword and drops in its place, never as w
 the script counts staves as gear, checks a staff with a `lvl` against the sword curve (its MAGIC as if
 ATK), checks every staff matches its twin, and that every boss drops a weapon with a staff twin.
 
+## The rebalance (R, 2026-10-23)
+Frostpeak's, Emberdeep's and the Citadel's mobs and bosses moved to their new bands (`docs/combat/stages.md`)
+and left `LEGACY_MOBS` (only the Wildwood's three are still "the curve"), so they're checked within
+`MOB_FIT` like new mobs. How the numbers were set (a one-off; the code holds the values):
+- A mob keeps its personality: each stat is its old share of the curve (clamped into `MOB_FIT`) times the
+  curve at its new level. The kill's worth too: materials kept their prices, so its coins were set to
+  make up the rest. The Cogbit (only split off a Cogling) scaled with the Cogling.
+- A den boss's HP, attack, EXP and coins scaled by the curve's own ratio between its old and new level.
+  Its gear copies sit on the gear curve and are priced on `swordPrice`/`helmetPrice`, which climb faster
+  than mob gold, so a raised den's coins and materials are only 3–6× a minute of farming now (the
+  "vs 1 min" column) while gear makes up more of its worth; camped gold is about 3–6×. Its EXP camped is
+  unchanged (0.5–0.8×).
+- PROGRESS hardly moved below Lv 60. Between 60 and 90 the farmed mob is now a Lv 58 one (nothing sits
+  there until Frostpeak's depth pass): "gold earned by" Lv 80 went from ~175k to ~187k, Lv 70 unchanged.
+- Pets (`PETS` in `src/shared/house.js`) must get dearer by boss level, so the raised bosses' pets went up
+  (Glacia 230k, the Wyrm 280k, Ignis 360k, Pyra 400k, the Colossus 450k; Chronos stays the top at 500k).
+- Runa's hood and harpoon copies are aimed at Lv 44.
+
 ## Trading (2026-10-23)
 Players can trade coins and items (`docs/social/trading.md`). That moves gold rather than making it, so
 the script doesn't change, but every sink is priced against ONE player's income: with trading, boss

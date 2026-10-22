@@ -51,11 +51,13 @@ function curve(what, L) {
   const b = Math.log(c.v[i] / c.v[i - 1]) / Math.log(c.at[i] / c.at[i - 1]);
   return c.v[i - 1] * (L / c.at[i - 1]) ** b;
 }
-// Mobs that were there when the curve was frozen: they're the curve, so they aren't checked against it
-// (until the rebalance moves them onto it). Every other mob that spawns must sit within MOB_FIT of the
-// curve at its level: HP and attack loosely (a gimmick can trade one for the other), EXP and gold tightly
-// (they set the levelling speed and the gold earned by each level).
-const LEGACY_MOBS = new Set(['sprout', 'mushling', 'bramble', 'frostling', 'yeti', 'wisp', 'golem', 'floe_seal', 'snow_owl', 'shard_moth', 'ember_imp', 'magma_slug', 'obsidian_crab', 'cinder_bat', 'cogling', 'sentry', 'aether_knight', 'chrono_wraith']);
+// Mobs that were there when the curve was frozen and still stand where they stood (the Wildwood's three):
+// they're the curve, so they aren't checked against it. The rebalance (R, 2026-10-23) moved Frostpeak's,
+// Emberdeep's and the Citadel's onto it at their new levels, so they're checked like everything else. Every
+// other mob that spawns must sit within MOB_FIT of the curve at its level: HP and attack loosely (a
+// gimmick can trade one for the other), EXP and gold tightly (they set the levelling speed and the gold
+// earned by each level).
+const LEGACY_MOBS = new Set(['sprout', 'mushling', 'bramble']);
 const MOB_FIT = { hp: [0.6, 1.6], atk: [0.6, 1.6], exp: [0.75, 1.35], gold: [0.7, 1.35] };
 // Gear with a `lvl` (anything new) must be about as strong as the curve there, never much stronger
 const GEAR_FIT = [0.85, 1.1];
@@ -125,7 +127,7 @@ table('FAUCETS: one boss kill (loot is shared: one set per kill, whoever picks i
   return [id, { kind: m.field ? 'field' : 'den', lvl: m.lvl, hp: m.hp, exp: m.exp, gold: fmt(k.gold), sell: fmt(k.sell), 'gear sold': fmt(k.gear), 'vs 1 min farming': `${(k.value / goldPerMin(m.lvl)).toFixed(1)}x`,
     'camped 1 h vs mobs (exp / gold)': m.field ? '' : `${campRatio(m).exp.toFixed(1)}x / ${campRatio(m).gold.toFixed(1)}x` }];
 })));
-table(`PROGRESS: farming your own level at ${KILLS_PER_MIN} kills/min (mobs only, no bosses)`, Object.fromEntries([5, 10, 13, 15, 20, 25, 30, 40, 50, 60, 70, 80].map((L) => [`lvl ${L}`, {
+table(`PROGRESS: farming your own level at ${KILLS_PER_MIN} kills/min (mobs only, no bosses)`, Object.fromEntries([5, 10, 13, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 170].map((L) => [`lvl ${L}`, {
   farming: farmed(L)[0], 'gold/min': fmt(goldPerMin(L)), 'play time to reach': hrs(minutesTo(L)), 'gold earned by then': fmt(earnedBy(L)),
 }])));
 
@@ -142,8 +144,8 @@ table('MOBS vs THE CURVE (at each mob\'s level; legacy ones are the curve, so th
 
 // Sinks: what each costs in minutes of farming at the level you'd buy it, and as a share of lifetime gold
 const levelFor = (price) => {
-  for (let L = 1; L <= 120; L++) if (earnedBy(L) >= price) return L;
-  return '>120';
+  for (let L = 1; L <= 200; L++) if (earnedBy(L) >= price) return L;
+  return '>200';
 };
 const sinks = [
   ...SHOP_STOCK.map((id) => ({ what: `shop: ${ITEMS[id].name}`, price: ITEMS[id].price, aim: ITEMS[id].aim })),

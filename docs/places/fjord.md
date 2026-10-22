@@ -46,7 +46,8 @@ look, dress, the later Frostpeak mobs and Runa's gear in `src/fjord-art.js`, the
   granddaughter Tove, carving driftwood birds.
 - **Netmender Runa** (`runa`): the hamlet's trader (`shop: 'runa'` on her `NPCS` entry). Her dialog has a
   **Trade** button that opens her shop (`SHOPS.runa`): jellies, elixirs, Frostbloom, and her own
-  **Seal-Fur Hood** and **Whalebone Harpoon** (priced by the balance sheet's `aim`, `docs/economy.md`).
+  **Seal-Fur Hood** and **Whalebone Harpoon** (priced by the balance sheet's `aim`, `docs/economy.md`; since
+  the rebalance the Lv 40s copies, `docs/combat/items.md` "Legacy items").
   Tier 0 plus gossip; her cousin Arne owns the Lodestar.
 - **Tove** (`tove`): Skaldi's granddaughter, a child who feeds the yeti cubs. Her purpose is being the
   guide to the creatures up the path (which ones chase, which are harmless, the dens: "Grandpa says

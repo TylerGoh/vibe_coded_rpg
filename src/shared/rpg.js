@@ -44,8 +44,8 @@ export const FJORD_PLATFORMS = [
   { x: 2790, y: 362, w: 120, kind: 'rock' },
 ];
 export const HIGHLAND_ZONES = [
-  { name: 'Frostpine Ridge', x0: 0, x1: 2000, lvl: '13–17' },
-  { name: 'Starfall Summit', x0: 2000, x1: HIGHLANDS_W, lvl: '18+' },
+  { name: 'Frostpine Ridge', x0: 0, x1: 2000, lvl: '40–46' },
+  { name: 'Starfall Summit', x0: 2000, x1: HIGHLANDS_W, lvl: '47+' },
 ];
 export const HIGHLAND_PLATFORMS = [
   { x: 380, y: 330, w: 220, kind: 'ice' },
@@ -61,8 +61,8 @@ export const CALDERA_W = 4400;
 export const CALDERA_EXIT_X = 70; // back up to the Highlands
 export const CALDERA_DOOR_X = 3950; // the pass down, at the Highlands' east end
 export const CALDERA_ZONES = [
-  { name: 'Cinder Flats', x0: 0, x1: 2200, lvl: '28–38' },
-  { name: 'Magma Heart', x0: 2200, x1: CALDERA_W, lvl: '38–50' },
+  { name: 'Cinder Flats', x0: 0, x1: 2200, lvl: '90–100' },
+  { name: 'Magma Heart', x0: 2200, x1: CALDERA_W, lvl: '100–115' },
 ];
 export const CALDERA_PLATFORMS = [
   { x: 400, y: 330, w: 220, kind: 'basalt' },
@@ -78,8 +78,8 @@ export const CITADEL_W = 4800;
 export const CITADEL_EXIT_X = 70; // back down to the Caldera
 export const CITADEL_DOOR_X = 4300; // the skylift up, at the Caldera's east end
 export const CITADEL_ZONES = [
-  { name: 'Cogwork Bastion', x0: 0, x1: 2400, lvl: '50–65' },
-  { name: 'Chrono Spire', x0: 2400, x1: CITADEL_W, lvl: '66+' },
+  { name: 'Cogwork Bastion', x0: 0, x1: 2400, lvl: '140–155' },
+  { name: 'Chrono Spire', x0: 2400, x1: CITADEL_W, lvl: '156+' },
 ];
 export const CITADEL_PLATFORMS = [
   { x: 420, y: 330, w: 220, kind: 'gear' },
@@ -308,9 +308,9 @@ export const SPINE_PLATFORMS = [
 // location pill's (src/main.js)
 export const STAGES = {
   [FIELD]: { name: 'The Wildwood', zones: ZONES, band: '1–12' },
-  [HIGHLANDS]: { name: 'Frostpeak', zones: HIGHLAND_ZONES, band: '13–27' },
-  [CALDERA]: { name: 'The Emberdeep Caldera', zones: CALDERA_ZONES, band: '28–50', pill: 'Emberdeep' },
-  [CITADEL]: { name: 'The Aether Citadel', zones: CITADEL_ZONES, band: '50+', pill: 'Aether Citadel' },
+  [HIGHLANDS]: { name: 'Frostpeak', zones: HIGHLAND_ZONES, band: '40–60' },
+  [CALDERA]: { name: 'The Emberdeep Caldera', zones: CALDERA_ZONES, band: '90–115', pill: 'Emberdeep' },
+  [CITADEL]: { name: 'The Aether Citadel', zones: CITADEL_ZONES, band: '140–170', pill: 'Aether Citadel' },
   [WILLOWMERE]: { name: 'Willowmere', zones: WILLOWMERE_ZONES, band: '5–15' },
   [COVES]: { name: 'Saltspray Coves', zones: COVES_ZONES, band: '10–25' },
   [MYCELIUM]: { name: 'The Mycelium Deep', zones: MYCELIUM_ZONES, band: '15–35', pill: 'Mycelium Deep' },
@@ -374,32 +374,32 @@ export const MOBS = {
   },
   // ——— Frostpeak ———
   frostling: {
-    name: 'Frostling', lvl: 13, hp: 380, atk: 30, exp: 90, speed: 60, w: 34, h: 34, aggro: false, hops: true,
-    drops: [['coin', 1, 25, 45], ['ice_shard', 0.55, 1, 2], ['blue_jelly', 0.15, 1, 1], ['mana_jelly', 0.2, 1, 1], ['elixir', 0.03, 1, 1]],
+    name: 'Frostling', lvl: 40, hp: 3100, atk: 108, exp: 1039, speed: 60, w: 34, h: 34, aggro: false, hops: true,
+    drops: [['coin', 1, 240, 430], ['ice_shard', 0.55, 1, 2], ['blue_jelly', 0.15, 1, 1], ['mana_jelly', 0.2, 1, 1], ['elixir', 0.03, 1, 1]],
   },
   yeti: {
-    name: 'Yeti Cub', lvl: 16, hp: 650, atk: 40, exp: 150, speed: 70, w: 52, h: 50, aggro: true, hops: false,
-    drops: [['coin', 1, 40, 70], ['ice_shard', 0.6, 1, 3], ['blue_jelly', 0.2, 1, 2], ['elixir', 0.05, 1, 1], ['frost_blade', 0.01, 1, 1]],
+    name: 'Yeti Cub', lvl: 44, hp: 3943, atk: 125, exp: 1305, speed: 70, w: 52, h: 50, aggro: true, hops: false,
+    drops: [['coin', 1, 280, 490], ['ice_shard', 0.6, 1, 3], ['blue_jelly', 0.2, 1, 2], ['elixir', 0.05, 1, 1], ['frost_blade_n', 0.01, 1, 1]],
   },
   wisp: {
-    name: 'Star Wisp', lvl: 19, hp: 800, atk: 48, exp: 230, speed: 85, w: 36, h: 40, aggro: false, hops: true,
-    drops: [['coin', 1, 60, 100], ['stardust', 0.55, 1, 2], ['mana_jelly', 0.3, 1, 2], ['elixir', 0.07, 1, 1]],
+    name: 'Star Wisp', lvl: 49, hp: 3988, atk: 138, exp: 1603, speed: 85, w: 36, h: 40, aggro: false, hops: true,
+    drops: [['coin', 1, 330, 550], ['stardust', 0.55, 1, 2], ['mana_jelly', 0.3, 1, 2], ['elixir', 0.07, 1, 1]],
   },
   golem: {
-    name: 'Crystal Golem', lvl: 22, hp: 1400, atk: 60, exp: 380, speed: 55, w: 60, h: 62, aggro: true, hops: false,
-    drops: [['coin', 1, 90, 160], ['stardust', 0.6, 1, 3], ['elixir', 0.1, 1, 1], ['star_crown', 0.008, 1, 1]],
+    name: 'Crystal Golem', lvl: 53, hp: 5910, atk: 160, exp: 2207, speed: 55, w: 60, h: 62, aggro: true, hops: false,
+    drops: [['coin', 1, 400, 710], ['stardust', 0.6, 1, 3], ['elixir', 0.1, 1, 1], ['star_crown_n', 0.008, 1, 1]],
   },
   frost_queen: {
-    name: 'Frost Queen Glacia', boss: true, lvl: 18, hp: 45000, atk: 52, exp: 6000, speed: 90, w: 140, h: 160, aggro: true, hops: false,
+    name: 'Frost Queen Glacia', boss: true, lvl: 47, hp: 240000, atk: 150, exp: 44000, speed: 90, w: 140, h: 160, aggro: true, hops: false,
     phases: [['rain', 'charge', 'slam'], ['rain', 'charge', 'slam', 'leap', 'summon'], ['barrage', 'rain', 'leap', 'slam', 'summon', 'charge']],
     ult: { name: 'Absolute Zero', kind: 'lanes' }, minion: 'frostling',
-    drops: [['frost_heart', 1, 1, 2], ['frost_blade', 1, 1, 1], ['glacier_helm', 1, 1, 1], ['coin', 1, 600, 900], ['elixir', 1, 2, 4], ['ice_shard', 1, 4, 8], ['scroll_s60', 1, 1, 1], ['scroll_h60', 1, 1, 1], ['scroll_s10', 0.2, 1, 1], ['scroll_h10', 0.2, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
+    drops: [['frost_heart', 1, 1, 2], ['frost_blade_n', 1, 1, 1], ['glacier_helm_n', 1, 1, 1], ['coin', 1, 2250, 3370], ['elixir', 1, 2, 4], ['ice_shard', 1, 4, 8], ['scroll_s60', 1, 1, 1], ['scroll_h60', 1, 1, 1], ['scroll_s10', 0.2, 1, 1], ['scroll_h10', 0.2, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
   },
   astral_wyrm: {
-    name: 'Astral Wyrm', boss: true, lvl: 25, hp: 90000, atk: 72, exp: 15000, speed: 110, w: 190, h: 150, aggro: true, hops: false,
+    name: 'Astral Wyrm', boss: true, lvl: 57, hp: 330000, atk: 180, exp: 76000, speed: 110, w: 190, h: 150, aggro: true, hops: false,
     phases: [['rain', 'charge', 'leap'], ['barrage', 'charge', 'leap', 'slam', 'summon'], ['barrage', 'charge', 'leap', 'slam', 'summon', 'rain']],
     ult: { name: 'Supernova', kind: 'nova' }, minion: 'wisp',
-    drops: [['frost_heart', 1, 2, 3], ['star_sword', 1, 1, 1], ['star_crown', 1, 1, 1], ['coin', 1, 1500, 2500], ['elixir', 1, 4, 6], ['stardust', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
+    drops: [['frost_heart', 1, 2, 3], ['star_sword_n', 1, 1, 1], ['star_crown_n', 1, 1, 1], ['coin', 1, 4360, 7260], ['elixir', 1, 4, 6], ['stardust', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
   },
   // ——— the Emberdeep Caldera ———
   // ai: what makes a mob more than a walker (server/rpg.js mobAi, client src/rpg.js):
@@ -409,89 +409,89 @@ export const MOBS = {
   //   beam: fires a low laser along the floor (jump it) · blink: teleports behind you, then slashes around
   //   itself · phase: fades out (can't be hurt), then pulses outward when it comes back (dash through it)
   ember_imp: {
-    name: 'Ember Imp', lvl: 30, hp: 1800, atk: 80, exp: 700, speed: 70, w: 34, h: 38, aggro: true, hops: true,
+    name: 'Ember Imp', lvl: 92, hp: 9794, atk: 294, exp: 6026, speed: 70, w: 34, h: 38, aggro: true, hops: true,
     ai: { kind: 'lob', range: 480, every: 2.8, keep: 170, warn: 0.5 },
-    drops: [['coin', 1, 120, 200], ['ember_core', 0.5, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.03, 1, 1], ['magma_maul', 0.003, 1, 1]],
+    drops: [['coin', 1, 750, 1240], ['ember_core', 0.5, 1, 2], ['elixir', 0.12, 1, 1], ['mega_elixir', 0.03, 1, 1], ['magma_maul_n', 0.003, 1, 1]],
   },
   magma_slug: {
-    name: 'Magma Slug', lvl: 34, hp: 3000, atk: 90, exp: 900, speed: 32, w: 62, h: 34, aggro: false, hops: false,
+    name: 'Magma Slug', lvl: 97, hp: 14409, atk: 308, exp: 6667, speed: 32, w: 62, h: 34, aggro: false, hops: false,
     ai: { kind: 'trail', every: 0.8, life: 4, w: 54 },
-    drops: [['coin', 1, 140, 230], ['ember_core', 0.6, 1, 3], ['elixir', 0.15, 1, 1], ['mega_elixir', 0.04, 1, 1]],
+    drops: [['coin', 1, 860, 1410], ['ember_core', 0.6, 1, 3], ['elixir', 0.15, 1, 1], ['mega_elixir', 0.04, 1, 1]],
   },
   obsidian_crab: {
-    name: 'Obsidian Crab', lvl: 40, hp: 3600, atk: 110, exp: 1150, speed: 60, w: 64, h: 44, aggro: true, hops: false,
+    name: 'Obsidian Crab', lvl: 104, hp: 14725, atk: 343, exp: 7022, speed: 60, w: 64, h: 44, aggro: true, hops: false,
     ai: { kind: 'shell', cut: 0.8, every: 3.2, warn: 0.5, lunge: 520, time: 0.35 },
-    drops: [['coin', 1, 170, 280], ['obsidian_shard', 0.55, 1, 2], ['elixir', 0.15, 1, 1], ['mega_elixir', 0.05, 1, 1], ['ember_helm', 0.003, 1, 1]],
+    drops: [['coin', 1, 880, 1450], ['obsidian_shard', 0.55, 1, 2], ['elixir', 0.15, 1, 1], ['mega_elixir', 0.05, 1, 1], ['ember_helm_n', 0.003, 1, 1]],
   },
   cinder_bat: {
-    name: 'Cinder Bat', lvl: 45, hp: 3200, atk: 120, exp: 1300, speed: 110, w: 46, h: 30, aggro: true, hops: false, fly: 100,
+    name: 'Cinder Bat', lvl: 109, hp: 11836, atk: 345, exp: 6930, speed: 110, w: 46, h: 30, aggro: true, hops: false, fly: 100,
     ai: { kind: 'dive', every: 3.5, warn: 0.6, time: 0.45 },
-    drops: [['coin', 1, 190, 300], ['obsidian_shard', 0.5, 1, 2], ['mega_elixir', 0.06, 1, 1], ['phoenix_blade', 0.002, 1, 1]],
+    drops: [['coin', 1, 820, 1300], ['obsidian_shard', 0.5, 1, 2], ['mega_elixir', 0.06, 1, 1], ['phoenix_blade_n', 0.002, 1, 1]],
   },
   ignis: {
-    name: 'Ignis the Magma Tyrant', boss: true, lvl: 36, hp: 150000, atk: 110, exp: 30000, speed: 85, w: 180, h: 170, aggro: true, hops: false,
+    name: 'Ignis the Magma Tyrant', boss: true, lvl: 99, hp: 680000, atk: 360, exp: 210000, speed: 85, w: 180, h: 170, aggro: true, hops: false,
     phases: [['slam', 'fireballs', 'geysers'], ['slam', 'fireballs', 'geysers', 'charge', 'flamewall'], ['geysers', 'fireballs', 'flamewall', 'leap', 'summon', 'barrage']],
     ult: { name: 'Caldera Eruption', kind: 'magma' }, minion: 'ember_imp',
-    drops: [['phoenix_feather', 1, 1, 2], ['magma_maul', 1, 1, 1], ['ember_helm', 0.6, 1, 1], ['coin', 1, 3000, 5000], ['mega_elixir', 1, 2, 4], ['ember_core', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.4, 1, 1], ['scroll_h10', 0.4, 1, 1], ['scroll_s30', 0.25, 1, 1], ['scroll_h30', 0.25, 1, 1], ['scroll_chaos', 0.25, 1, 1]],
+    drops: [['phoenix_feather', 1, 1, 2], ['magma_maul_n', 1, 1, 1], ['ember_helm_n', 0.6, 1, 1], ['coin', 1, 11170, 18620], ['mega_elixir', 1, 2, 4], ['ember_core', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.4, 1, 1], ['scroll_h10', 0.4, 1, 1], ['scroll_s30', 0.25, 1, 1], ['scroll_h30', 0.25, 1, 1], ['scroll_chaos', 0.25, 1, 1]],
   },
   pyra: {
-    name: 'Pyra the Ember Phoenix', boss: true, lvl: 46, hp: 240000, atk: 140, exp: 55000, speed: 120, w: 170, h: 140, aggro: true, hops: false, fly: 40,
+    name: 'Pyra the Ember Phoenix', boss: true, lvl: 110, hp: 870000, atk: 400, exp: 290000, speed: 120, w: 170, h: 140, aggro: true, hops: false, fly: 40,
     phases: [['feathers', 'dive', 'rings'], ['feathers', 'dive', 'rings', 'rain', 'summon'], ['feathers', 'dive', 'rings', 'barrage', 'spiral']],
     ult: { name: 'Rebirth', kind: 'rebirth' }, minion: 'cinder_bat',
-    drops: [['phoenix_feather', 1, 2, 3], ['phoenix_blade', 1, 1, 1], ['phoenix_crown', 0.6, 1, 1], ['coin', 1, 5000, 8000], ['mega_elixir', 1, 3, 5], ['obsidian_shard', 1, 6, 10], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.5, 1, 1], ['scroll_h10', 0.5, 1, 1], ['scroll_s30', 0.3, 1, 1], ['scroll_h30', 0.3, 1, 1], ['scroll_chaos', 0.3, 1, 1]],
+    drops: [['phoenix_feather', 1, 2, 3], ['phoenix_blade_n', 1, 1, 1], ['phoenix_crown_n', 0.6, 1, 1], ['coin', 1, 15730, 25170], ['mega_elixir', 1, 3, 5], ['obsidian_shard', 1, 6, 10], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.5, 1, 1], ['scroll_h10', 0.5, 1, 1], ['scroll_s30', 0.3, 1, 1], ['scroll_h30', 0.3, 1, 1], ['scroll_chaos', 0.3, 1, 1]],
   },
   // ——— the Aether Citadel ———
   cogling: {
-    name: 'Cogling', lvl: 54, hp: 5000, atk: 150, exp: 1800, speed: 140, w: 44, h: 44, aggro: true, hops: false,
+    name: 'Cogling', lvl: 144, hp: 21283, atk: 483, exp: 10901, speed: 140, w: 44, h: 44, aggro: true, hops: false,
     ai: { kind: 'split', into: 'cogbit', n: 2 },
-    drops: [['coin', 1, 260, 400], ['cog', 0.55, 1, 2], ['mega_elixir', 0.08, 1, 1], ['cog_cleaver', 0.002, 1, 1]],
+    drops: [['coin', 1, 1340, 2060], ['cog', 0.55, 1, 2], ['mega_elixir', 0.08, 1, 1], ['cog_cleaver_n', 0.002, 1, 1]],
   },
   cogbit: {
-    name: 'Cogbit', lvl: 50, hp: 1200, atk: 110, exp: 400, speed: 175, w: 24, h: 24, aggro: true, hops: true,
-    drops: [['coin', 1, 40, 80]],
+    name: 'Cogbit', lvl: 140, hp: 5108, atk: 354, exp: 2422, speed: 175, w: 24, h: 24, aggro: true, hops: true,
+    drops: [['coin', 1, 210, 410]],
   },
   sentry: {
-    name: 'Sentry Drone', lvl: 58, hp: 4500, atk: 170, exp: 2000, speed: 45, w: 48, h: 46, aggro: true, hops: false, fly: 50,
+    name: 'Sentry Drone', lvl: 148, hp: 17952, atk: 519, exp: 11009, speed: 45, w: 48, h: 46, aggro: true, hops: false, fly: 50,
     ai: { kind: 'beam', range: 620, every: 4, warn: 1, dur: 0.45, y0: 418, y1: 450 },
-    drops: [['coin', 1, 280, 430], ['cog', 0.5, 1, 2], ['aether_crystal', 0.25, 1, 1], ['mega_elixir', 0.08, 1, 1]],
+    drops: [['coin', 1, 1420, 2190], ['cog', 0.5, 1, 2], ['aether_crystal', 0.25, 1, 1], ['mega_elixir', 0.08, 1, 1]],
   },
   aether_knight: {
-    name: 'Aether Knight', lvl: 66, hp: 8000, atk: 200, exp: 3200, speed: 80, w: 50, h: 62, aggro: true, hops: false,
+    name: 'Aether Knight', lvl: 156, hp: 28192, atk: 552, exp: 14510, speed: 80, w: 50, h: 62, aggro: true, hops: false,
     ai: { kind: 'blink', every: 5, warn: 0.4, slashWarn: 0.55, r: 120 },
-    drops: [['coin', 1, 350, 550], ['aether_crystal', 0.5, 1, 2], ['mega_elixir', 0.1, 1, 1], ['aether_helm', 0.002, 1, 1]],
+    drops: [['coin', 1, 1480, 2320], ['aether_crystal', 0.5, 1, 2], ['mega_elixir', 0.1, 1, 1], ['aether_helm_n', 0.002, 1, 1]],
   },
   chrono_wraith: {
-    name: 'Chrono Wraith', lvl: 72, hp: 7000, atk: 220, exp: 3800, speed: 65, w: 44, h: 56, aggro: true, hops: false, fly: 26,
+    name: 'Chrono Wraith', lvl: 162, hp: 22705, atk: 568, exp: 15083, speed: 65, w: 44, h: 56, aggro: true, hops: false, fly: 26,
     ai: { kind: 'phase', every: 7, dur: 2.2, r: 190 },
-    drops: [['coin', 1, 400, 600], ['aether_crystal', 0.55, 1, 2], ['mega_elixir', 0.12, 1, 1], ['chrono_blade', 0.0015, 1, 1]],
+    drops: [['coin', 1, 1550, 2320], ['aether_crystal', 0.55, 1, 2], ['mega_elixir', 0.12, 1, 1], ['chrono_blade_n', 0.0015, 1, 1]],
   },
   colossus: {
-    name: 'The Clockwork Colossus', boss: true, lvl: 60, hp: 420000, atk: 200, exp: 110000, speed: 70, w: 220, h: 200, aggro: true, hops: false,
+    name: 'The Clockwork Colossus', boss: true, lvl: 150, hp: 1600000, atk: 600, exp: 580000, speed: 70, w: 220, h: 200, aggro: true, hops: false,
     phases: [['slam', 'gears', 'beam'], ['slam', 'gears', 'beam', 'grid', 'sweep'], ['grid', 'sweep', 'gears', 'beam', 'charge', 'summon']],
     ult: { name: 'Overclock', kind: 'overclock' }, minion: 'cogling',
-    drops: [['time_sand', 1, 1, 2], ['cog_cleaver', 1, 1, 1], ['aether_helm', 0.6, 1, 1], ['coin', 1, 9000, 14000], ['mega_elixir', 1, 4, 6], ['cog', 1, 8, 12], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+    drops: [['time_sand', 1, 1, 2], ['cog_cleaver_n', 1, 1, 1], ['aether_helm_n', 0.6, 1, 1], ['coin', 1, 29600, 46040], ['mega_elixir', 1, 4, 6], ['cog', 1, 8, 12], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
   },
   chronos: {
-    name: 'Chronos, Keeper of Hours', boss: true, lvl: 80, hp: 650000, atk: 260, exp: 220000, speed: 100, w: 160, h: 190, aggro: true, hops: false, fly: 30,
+    name: 'Chronos, Keeper of Hours', boss: true, lvl: 170, hp: 1900000, atk: 630, exp: 790000, speed: 100, w: 160, h: 190, aggro: true, hops: false, fly: 30,
     phases: [['bombs', 'sweep', 'blink', 'spiral'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid', 'summon']],
     ult: { name: 'Time Stop', kind: 'timestop' }, ults: [{ name: 'Time Stop', kind: 'timestop' }, { name: 'Collapse of Hours', kind: 'collapse' }], minion: 'chrono_wraith',
-    drops: [['time_sand', 1, 2, 3], ['chrono_blade', 1, 1, 1], ['hourglass_crown', 0.6, 1, 1], ['coin', 1, 15000, 25000], ['mega_elixir', 1, 5, 8], ['aether_crystal', 1, 8, 12], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s10', 0.8, 1, 2], ['scroll_h10', 0.8, 1, 2], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.5, 1, 2]],
+    drops: [['time_sand', 1, 2, 3], ['chrono_blade_n', 1, 1, 1], ['hourglass_crown_n', 0.6, 1, 1], ['coin', 1, 38920, 64870], ['mega_elixir', 1, 5, 8], ['aether_crystal', 1, 8, 12], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s10', 0.8, 1, 2], ['scroll_h10', 0.8, 1, 2], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.5, 1, 2]],
   },
   // ——— Frostpeak's later wildlife (atlas Phase 4; kept last: mob kinds go over the wire as their index) ———
   // floe seal: belly-slides along the ridge, harmless · snow owl: swoops from the pines (the cinder bat's
   // dive) · shard-moth: drifts over the summit, drawn to the wrong stars
   floe_seal: {
-    name: 'Floe Seal', lvl: 14, hp: 460, atk: 30, exp: 110, speed: 70, w: 56, h: 30, aggro: false, hops: false,
-    drops: [['coin', 1, 30, 55], ['ice_shard', 0.6, 1, 2], ['blue_jelly', 0.2, 1, 1], ['mana_jelly', 0.15, 1, 1], ['fur_hood', 0.006, 1, 1]],
+    name: 'Floe Seal', lvl: 41, hp: 3326, atk: 102, exp: 1137, speed: 70, w: 56, h: 30, aggro: false, hops: false,
+    drops: [['coin', 1, 230, 420], ['ice_shard', 0.6, 1, 2], ['blue_jelly', 0.2, 1, 1], ['mana_jelly', 0.15, 1, 1], ['fur_hood_n', 0.006, 1, 1]],
   },
   snow_owl: {
-    name: 'Snow Owl', lvl: 17, hp: 640, atk: 44, exp: 170, speed: 95, w: 44, h: 38, aggro: true, hops: false, fly: 95,
+    name: 'Snow Owl', lvl: 46, hp: 3656, atk: 135, exp: 1384, speed: 95, w: 44, h: 38, aggro: true, hops: false, fly: 95,
     ai: { kind: 'dive', every: 3.8, warn: 0.7, time: 0.5 },
-    drops: [['coin', 1, 45, 80], ['ice_shard', 0.6, 1, 3], ['elixir', 0.05, 1, 1], ['bone_harpoon', 0.004, 1, 1]],
+    drops: [['coin', 1, 260, 470], ['ice_shard', 0.6, 1, 3], ['elixir', 0.05, 1, 1], ['bone_harpoon_n', 0.004, 1, 1]],
   },
   shard_moth: {
-    name: 'Shard-Moth', lvl: 21, hp: 950, atk: 54, exp: 300, speed: 75, w: 46, h: 36, aggro: false, hops: false, fly: 70,
-    drops: [['coin', 1, 80, 130], ['stardust', 0.55, 1, 2], ['mana_jelly', 0.3, 1, 1], ['elixir', 0.08, 1, 1]],
+    name: 'Shard-Moth', lvl: 51, hp: 4130, atk: 145, exp: 1789, speed: 75, w: 46, h: 36, aggro: false, hops: false, fly: 70,
+    drops: [['coin', 1, 350, 570], ['stardust', 0.55, 1, 2], ['mana_jelly', 0.3, 1, 1], ['elixir', 0.08, 1, 1]],
   },
 };
 // ——— elites and field bosses (docs/combat/stages.md; appended after the rest: kinds go over the wire as
@@ -1099,16 +1099,22 @@ export const ITEMS = {
   king_crown: { name: 'Sprout Crown', price: 1200, kind: 'helmet', def: 6, desc: "The Sprout King's leafy crown. Still a bit springy." },
   spore_blade: { name: 'Spore Blade', price: 3000, kind: 'sword', atk: 18, reach: 24, desc: "Carved from Mother Mushroom's stalk. Puffs spores when it hits." },
   thorn_sword: { name: 'Briar Greatsword', price: 9000, kind: 'sword', atk: 32, reach: 36, desc: 'A huge thorny blade from the Bramble Behemoth.' },
-  frost_blade: { name: 'Frostbite Blade', price: 15000, kind: 'sword', atk: 44, reach: 38, desc: "Glacia's icy sword. Cold to the touch, colder to be hit by." },
-  glacier_helm: { name: 'Glacier Crown', price: 12000, kind: 'helmet', def: 20, desc: 'A crown of never-melting ice.' },
-  star_sword: { name: 'Starforged Sword', price: 40000, kind: 'sword', atk: 62, reach: 44, desc: 'Forged from a fallen star. Leaves a trail of sparkles.' },
-  star_crown: { name: 'Astral Crown', price: 30000, kind: 'helmet', def: 28, desc: 'The Astral Wyrm\'s crest. It hums with starlight.' },
+  frost_blade: { name: 'Frostbite Blade (Legacy)', legacy: true, price: 15000, kind: 'sword', atk: 44, reach: 38, desc: "Glacia's icy sword. Cold to the touch, colder to be hit by." },
+  frost_blade_n: { name: 'Frostbite Blade', lvl: 47, art: 'frost_blade', price: 110000, kind: 'sword', atk: 93, reach: 38, desc: "Glacia's icy sword. Cold to the touch, colder to be hit by." },
+  glacier_helm: { name: 'Glacier Crown (Legacy)', legacy: true, price: 12000, kind: 'helmet', def: 20, desc: 'A crown of never-melting ice.' },
+  glacier_helm_n: { name: 'Glacier Crown', lvl: 47, art: 'glacier_helm', price: 84000, kind: 'helmet', def: 41, desc: 'A crown of never-melting ice.' },
+  star_sword: { name: 'Starforged Sword (Legacy)', legacy: true, price: 40000, kind: 'sword', atk: 62, reach: 44, desc: 'Forged from a fallen star. Leaves a trail of sparkles.' },
+  star_sword_n: { name: 'Starforged Sword', lvl: 57, art: 'star_sword', price: 210000, kind: 'sword', atk: 108, reach: 44, desc: 'Forged from a fallen star. Leaves a trail of sparkles.' },
+  star_crown: { name: 'Astral Crown (Legacy)', legacy: true, price: 30000, kind: 'helmet', def: 28, desc: 'The Astral Wyrm\'s crest. It hums with starlight.' },
+  star_crown_n: { name: 'Astral Crown', lvl: 57, art: 'star_crown', price: 160000, kind: 'helmet', def: 48, desc: 'The Astral Wyrm\'s crest. It hums with starlight.' },
   ice_shard: { name: 'Ice Shard', price: 60, kind: 'loot', desc: 'A shard of ice that never melts.' },
   stardust: { name: 'Stardust', price: 120, kind: 'loot', desc: 'A pinch of glittering stardust.' },
   elixir: { name: 'Rainbow Elixir', price: 400, kind: 'potion', heal: 300, mana: 150, desc: 'Restores 300 HP and 150 MP.' },
   // Netmender Runa's (Icefang Hamlet): the fjord folk's warm gear
-  fur_hood: { name: 'Seal-Fur Hood', price: 3000, aim: 15, kind: 'helmet', def: 11, desc: 'Seal fur over a knitted cap. The fjord folk swear by it.' },
-  bone_harpoon: { name: 'Whalebone Harpoon', price: 5000, aim: 18, kind: 'sword', atk: 27, reach: 40, desc: 'Old whalebone, filed to a point. Cold to hold.' },
+  fur_hood: { name: 'Seal-Fur Hood (Legacy)', legacy: true, price: 3000, kind: 'helmet', def: 11, desc: 'Seal fur over a knitted cap. The fjord folk swear by it.' },
+  fur_hood_n: { name: 'Seal-Fur Hood', lvl: 42, aim: 44, art: 'fur_hood', price: 28000, kind: 'helmet', def: 38, desc: 'Seal fur over a knitted cap. The fjord folk swear by it.' },
+  bone_harpoon: { name: 'Whalebone Harpoon (Legacy)', legacy: true, price: 5000, kind: 'sword', atk: 27, reach: 40, desc: 'Old whalebone, filed to a point. Cold to hold.' },
+  bone_harpoon_n: { name: 'Whalebone Harpoon', lvl: 44, aim: 44, art: 'bone_harpoon', price: 36000, kind: 'sword', atk: 89, reach: 40, desc: 'Old whalebone, filed to a point. Cold to hold.' },
   bramble_helm: { name: 'Briar Helm', price: 7000, kind: 'helmet', def: 14, desc: 'Woven from living brambles. Nothing gets through.' },
   // the Caldera and the Citadel
   ember_core: { name: 'Ember Core', price: 200, kind: 'loot', desc: 'A warm little coal that never goes out.' },
@@ -1116,14 +1122,22 @@ export const ITEMS = {
   cog: { name: 'Brass Cog', price: 450, kind: 'loot', desc: 'A finely made cog. Still ticking, somehow.' },
   aether_crystal: { name: 'Aether Crystal', price: 700, kind: 'loot', desc: 'A sliver of crystallised sky.' },
   mega_elixir: { name: 'Mega Elixir', price: 1500, kind: 'potion', heal: 900, mana: 400, desc: 'Restores 900 HP and 400 MP.' },
-  magma_maul: { name: 'Magma Maul', price: 60000, kind: 'sword', atk: 78, reach: 46, slots: 9, desc: "Ignis's molten blade. It glows like a forge." },
-  ember_helm: { name: 'Ember Helm', price: 45000, kind: 'helmet', def: 34, slots: 9, desc: 'A horned helm of cooled lava, still warm inside.' },
-  phoenix_blade: { name: 'Phoenix Blade', price: 90000, kind: 'sword', atk: 92, reach: 48, slots: 9, desc: "A sword of Pyra's flame-feathers. It never stops burning." },
-  phoenix_crown: { name: 'Phoenix Crown', price: 70000, kind: 'helmet', def: 40, slots: 9, desc: 'A crest of fiery plumes.' },
-  cog_cleaver: { name: 'Cog Cleaver', price: 150000, kind: 'sword', atk: 112, reach: 52, slots: 10, desc: 'A great geared blade from the Colossus. It whirs when swung.' },
-  aether_helm: { name: 'Aether Helm', price: 120000, kind: 'helmet', def: 50, slots: 10, desc: 'Brass and sky-crystal. Light as a cloud.' },
-  chrono_blade: { name: 'Chrono Blade', price: 300000, kind: 'sword', atk: 135, reach: 56, slots: 10, desc: "The hand of Chronos's great clock, sharpened. Time slows where it cuts." },
-  hourglass_crown: { name: 'Hourglass Crown', price: 240000, kind: 'helmet', def: 62, slots: 10, desc: 'Sand still trickles through it, upward.' },
+  magma_maul: { name: 'Magma Maul (Legacy)', legacy: true, price: 60000, kind: 'sword', atk: 78, reach: 46, slots: 9, desc: "Ignis's molten blade. It glows like a forge." },
+  magma_maul_n: { name: 'Magma Maul', lvl: 99, art: 'magma_maul', price: 470000, kind: 'sword', atk: 156, reach: 46, slots: 9, desc: "Ignis's molten blade. It glows like a forge." },
+  ember_helm: { name: 'Ember Helm (Legacy)', legacy: true, price: 45000, kind: 'helmet', def: 34, slots: 9, desc: 'A horned helm of cooled lava, still warm inside.' },
+  ember_helm_n: { name: 'Ember Helm', lvl: 99, art: 'ember_helm', price: 350000, kind: 'helmet', def: 73, slots: 9, desc: 'A horned helm of cooled lava, still warm inside.' },
+  phoenix_blade: { name: 'Phoenix Blade (Legacy)', legacy: true, price: 90000, kind: 'sword', atk: 92, reach: 48, slots: 9, desc: "A sword of Pyra's flame-feathers. It never stops burning." },
+  phoenix_blade_n: { name: 'Phoenix Blade', lvl: 110, art: 'phoenix_blade', price: 530000, kind: 'sword', atk: 168, reach: 48, slots: 9, desc: "A sword of Pyra's flame-feathers. It never stops burning." },
+  phoenix_crown: { name: 'Phoenix Crown (Legacy)', legacy: true, price: 70000, kind: 'helmet', def: 40, slots: 9, desc: 'A crest of fiery plumes.' },
+  phoenix_crown_n: { name: 'Phoenix Crown', lvl: 110, art: 'phoenix_crown', price: 410000, kind: 'helmet', def: 80, slots: 9, desc: 'A crest of fiery plumes.' },
+  cog_cleaver: { name: 'Cog Cleaver (Legacy)', legacy: true, price: 150000, kind: 'sword', atk: 112, reach: 52, slots: 10, desc: 'A great geared blade from the Colossus. It whirs when swung.' },
+  cog_cleaver_n: { name: 'Cog Cleaver', lvl: 150, art: 'cog_cleaver', price: 970000, kind: 'sword', atk: 208, reach: 52, slots: 10, desc: 'A great geared blade from the Colossus. It whirs when swung.' },
+  aether_helm: { name: 'Aether Helm (Legacy)', legacy: true, price: 120000, kind: 'helmet', def: 50, slots: 10, desc: 'Brass and sky-crystal. Light as a cloud.' },
+  aether_helm_n: { name: 'Aether Helm', lvl: 150, art: 'aether_helm', price: 770000, kind: 'helmet', def: 102, slots: 10, desc: 'Brass and sky-crystal. Light as a cloud.' },
+  chrono_blade: { name: 'Chrono Blade (Legacy)', legacy: true, price: 300000, kind: 'sword', atk: 135, reach: 56, slots: 10, desc: "The hand of Chronos's great clock, sharpened. Time slows where it cuts." },
+  chrono_blade_n: { name: 'Chrono Blade', lvl: 170, art: 'chrono_blade', price: 1400000, kind: 'sword', atk: 227, reach: 56, slots: 10, desc: "The hand of Chronos's great clock, sharpened. Time slows where it cuts." },
+  hourglass_crown: { name: 'Hourglass Crown (Legacy)', legacy: true, price: 240000, kind: 'helmet', def: 62, slots: 10, desc: 'Sand still trickles through it, upward.' },
+  hourglass_crown_n: { name: 'Hourglass Crown', lvl: 170, art: 'hourglass_crown', price: 1100000, kind: 'helmet', def: 112, slots: 10, desc: 'Sand still trickles through it, upward.' },
   // ——— Greenhollow's branches (G1). lvl: the level a piece of gear is as strong as (it must sit on the
   // frozen gear curve: npm run economy); traders' gear also has an `aim`. Mob drops sit a little under
   // their trader's tier, den gear a step above. Art: src/willowmere-art.js, src/coves-art.js ———
@@ -1250,12 +1264,18 @@ export const ITEMS = {
   crystal_staff: { name: 'Crystal Staff', price: 2200, kind: 'staff', magic: 22, mp: 13, reach: 30, twin: 'crystal_sword', desc: 'A pink crystal on a pale shaft. It hums when you think hard.' },
   spore_staff: { name: 'Sporecap Staff', price: 3000, kind: 'staff', magic: 18, mp: 11, reach: 24, twin: 'spore_blade', desc: 'Grown from Mother Mushroom\'s stalk, with her spotted cap on top. Puffs spores when it casts.' },
   thorn_staff: { name: 'Briar Staff', price: 9000, kind: 'staff', magic: 32, mp: 19, reach: 36, twin: 'thorn_sword', desc: 'A twist of the Bramble Behemoth\'s briar, a red thornberry glowing in its crook.' },
-  frost_staff: { name: 'Icicle Staff', price: 15000, kind: 'staff', magic: 44, mp: 26, reach: 38, twin: 'frost_blade', desc: 'Glacia\'s sceptre: a shaft of blue ice that never melts, crowned with a snowflake.' },
-  star_staff: { name: 'Starforged Staff', price: 40000, kind: 'staff', magic: 62, mp: 37, reach: 44, twin: 'star_sword', desc: 'A fallen star set on a silver rod. It leaves sparkles in the air behind each bolt.' },
-  magma_staff: { name: 'Magma Sceptre', price: 60000, slots: 9, kind: 'staff', magic: 78, mp: 47, reach: 46, twin: 'magma_maul', desc: 'A rod of black rock with Ignis\'s molten heart in the top. Warm to hold, very warm to be hit by.' },
-  phoenix_staff: { name: 'Phoenix Feather Staff', price: 90000, slots: 9, kind: 'staff', magic: 92, mp: 55, reach: 48, twin: 'phoenix_blade', desc: 'Pyra\'s flame-feathers bound to a golden rod. It never stops burning.' },
-  cog_staff: { name: 'Cogwork Staff', price: 150000, slots: 10, kind: 'staff', magic: 112, mp: 67, reach: 52, twin: 'cog_cleaver', desc: 'A brass staff with a turning gear for a head, from the Colossus. It ticks while it thinks.' },
-  chrono_staff: { name: 'Hourglass Sceptre', price: 300000, slots: 10, kind: 'staff', magic: 135, mp: 81, reach: 56, twin: 'chrono_blade', desc: 'Chronos\'s hourglass on a rod of clock-brass. The sand runs up.' },
+  frost_staff: { name: 'Icicle Staff (Legacy)', legacy: true, price: 15000, kind: 'staff', magic: 44, mp: 26, reach: 38, twin: 'frost_blade', desc: 'Glacia\'s sceptre: a shaft of blue ice that never melts, crowned with a snowflake.' },
+  frost_staff_n: { name: 'Icicle Staff', lvl: 47, art: 'frost_staff', price: 110000, kind: 'staff', magic: 93, mp: 56, reach: 38, twin: 'frost_blade_n', desc: 'Glacia\'s sceptre: a shaft of blue ice that never melts, crowned with a snowflake.' },
+  star_staff: { name: 'Starforged Staff (Legacy)', legacy: true, price: 40000, kind: 'staff', magic: 62, mp: 37, reach: 44, twin: 'star_sword', desc: 'A fallen star set on a silver rod. It leaves sparkles in the air behind each bolt.' },
+  star_staff_n: { name: 'Starforged Staff', lvl: 57, art: 'star_staff', price: 210000, kind: 'staff', magic: 108, mp: 65, reach: 44, twin: 'star_sword_n', desc: 'A fallen star set on a silver rod. It leaves sparkles in the air behind each bolt.' },
+  magma_staff: { name: 'Magma Sceptre (Legacy)', legacy: true, price: 60000, slots: 9, kind: 'staff', magic: 78, mp: 47, reach: 46, twin: 'magma_maul', desc: 'A rod of black rock with Ignis\'s molten heart in the top. Warm to hold, very warm to be hit by.' },
+  magma_staff_n: { name: 'Magma Sceptre', lvl: 99, art: 'magma_staff', price: 470000, slots: 9, kind: 'staff', magic: 156, mp: 94, reach: 46, twin: 'magma_maul_n', desc: 'A rod of black rock with Ignis\'s molten heart in the top. Warm to hold, very warm to be hit by.' },
+  phoenix_staff: { name: 'Phoenix Feather Staff (Legacy)', legacy: true, price: 90000, slots: 9, kind: 'staff', magic: 92, mp: 55, reach: 48, twin: 'phoenix_blade', desc: 'Pyra\'s flame-feathers bound to a golden rod. It never stops burning.' },
+  phoenix_staff_n: { name: 'Phoenix Feather Staff', lvl: 110, art: 'phoenix_staff', price: 530000, slots: 9, kind: 'staff', magic: 168, mp: 101, reach: 48, twin: 'phoenix_blade_n', desc: 'Pyra\'s flame-feathers bound to a golden rod. It never stops burning.' },
+  cog_staff: { name: 'Cogwork Staff (Legacy)', legacy: true, price: 150000, slots: 10, kind: 'staff', magic: 112, mp: 67, reach: 52, twin: 'cog_cleaver', desc: 'A brass staff with a turning gear for a head, from the Colossus. It ticks while it thinks.' },
+  cog_staff_n: { name: 'Cogwork Staff', lvl: 150, art: 'cog_staff', price: 970000, slots: 10, kind: 'staff', magic: 208, mp: 125, reach: 52, twin: 'cog_cleaver_n', desc: 'A brass staff with a turning gear for a head, from the Colossus. It ticks while it thinks.' },
+  chrono_staff: { name: 'Hourglass Sceptre (Legacy)', legacy: true, price: 300000, slots: 10, kind: 'staff', magic: 135, mp: 81, reach: 56, twin: 'chrono_blade', desc: 'Chronos\'s hourglass on a rod of clock-brass. The sand runs up.' },
+  chrono_staff_n: { name: 'Hourglass Sceptre', lvl: 170, art: 'chrono_staff', price: 1400000, slots: 10, kind: 'staff', magic: 227, mp: 136, reach: 56, twin: 'chrono_blade_n', desc: 'Chronos\'s hourglass on a rod of clock-brass. The sand runs up.' },
   reed_staff: { name: 'Cattail Staff', price: 900, lvl: 8, aim: 9, kind: 'staff', magic: 19, mp: 11, reach: 30, twin: 'reed_rapier', desc: 'A tall bundle of river reeds with a cattail head, plaited at Willowmere Mill.' },
   drift_staff: { name: 'Driftwood Staff', price: 5000, lvl: 16, aim: 18, kind: 'staff', magic: 40, mp: 24, reach: 36, twin: 'drift_cutlass', desc: 'Sea-bleached driftwood with a ball of bright sea glass caught in its roots.' },
   tide_staff: { name: 'Tidemother\'s Coral Staff', price: 36000, lvl: 26, slots: 8, kind: 'staff', magic: 64, mp: 38, reach: 46, twin: 'tide_claw', desc: 'A branch of the Tidemother\'s pink coral with a pearl in its fork. It smells of the sea.' },
@@ -1288,6 +1308,9 @@ export const gearSlotOf = (id) => (isWeapon(id) ? 'weapon' : ITEMS[id]?.kind ===
 export const weaponKind = (id) => (isWeapon(id) ? ITEMS[id].kind : null);
 // A sword's staff twin: wherever the sword drops, its twin may drop instead (server/rpg.js picks by what the
 // fighters are holding, plus STAFF_OFFKIND so everyone sees both)
+// The rebalance (R, story/world/island-depth.md): an item with `art` is drawn as that item (a scaled
+// copy, `<id>_n`, looks exactly like its legacy original). Every art lookup by id goes through artOf.
+export const artOf = (id) => ITEMS[id]?.art ?? id;
 export const STAFF_OF = Object.fromEntries(Object.entries(ITEMS).filter(([, it]) => it.kind === 'staff' && it.twin).map(([id, it]) => [it.twin, id]));
 export const STAFF_OFFKIND = 0.2;
 // The staff bolt (a staff's normal attack): reach STAFF_BOLT_RANGE plus the staff's own reach, damage
@@ -1343,7 +1366,7 @@ export const SHOP_STOCK = ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'm
 // the Boutique too. Runa is also an AI character: her dialog has a Trade button (src/npc.js).
 export const SHOPS = {
   pip: { name: "Merchant Pip's Shop", room: 0 /* the village */, x: SHOP_X, stock: SHOP_STOCK, boutique: true },
-  runa: { name: "Runa's Net Shed", room: FJORD, x: RUNA_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'frostbloom', 'fur_hood', 'bone_harpoon'] },
+  runa: { name: "Runa's Net Shed", room: FJORD, x: RUNA_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'frostbloom', 'fur_hood_n', 'bone_harpoon_n'] },
   // the branches' traders (island depth: each branch sells the basic potions, so a deep branch isn't a walk
   // back to Pip, and a tier of gear for its middle levels)
   bun: { name: 'Willowmere Mill', room: WILLOWMERE, x: BUN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'reed_rapier', 'reed_staff', 'miller_cap'] },
