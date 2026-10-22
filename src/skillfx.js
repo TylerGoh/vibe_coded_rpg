@@ -935,10 +935,11 @@ export class SkillFx {
 
   // kind: 'strike' | 'spin' | 'bolt' | 'heal' | 'nova' | 'buff' | 'levelskill' | 'cleave' | 'storm' |
   // 'skysplit' | 'chain' | 'meteor' | 'starfall' | 'bubblePop' | 'rally' | 'zone' | 'aegis' | 'secondwind' |
-  // 'dash' | 'blink' | 'flashjump' | 'scroll' | 'iframe'
+  // 'dash' | 'blink' | 'flashjump' | 'scroll' | 'iframe' | 'staffbolt'
   // (options: see each FX entry)
   spawn(kind, o = {}) {
     const life = kind === 'bolt' ? (o.dur ?? 0.3) + 0.35
+      : kind === 'staffbolt' ? (o.dur ?? 0.15) + 0.25
       : kind === 'meteor' ? (o.delay ?? 0.8) + 0.6
       : kind === 'zone' ? (o.dur ?? 8)
       : kind === 'iframe' ? (o.dur ?? 0.3)
@@ -1105,6 +1106,48 @@ const FX = {
         const a = (i / 4) * TAU + e.seed;
         circle(ctx, px + Math.cos(a) * b * 12, py + Math.sin(a) * b * 8 - b * 10, 3.5 * (1 - b) + 0.5);
       }
+    }
+  },
+
+  // A staff's normal attack (S1): a small, quick orb in the staff's colour (tint 'r,g,b'), a pop on a hit
+  staffbolt(ctx, e) {
+    const { x, y, tx, ty, hit } = e.o, dur = e.o.dur ?? 0.15, tint = e.o.tint ?? '190,200,255';
+    const at = (q) => {
+      q = clamp(q, 0, 1);
+      return [x + (tx - x) * q, y + (ty - y) * q - Math.sin(q * Math.PI) * 6];
+    };
+    const q = e.age / dur;
+    if (q < 1) {
+      for (let i = 5; i >= 1; i--) {
+        const [px, py] = at(q - i * 0.06);
+        const f = 1 - i / 6;
+        ctx.fillStyle = `rgba(${tint},${0.55 * f})`;
+        circle(ctx, px, py, 6 * f + 1);
+      }
+      const [px, py] = at(q);
+      ctx.fillStyle = `rgba(${tint},0.45)`;
+      circle(ctx, px, py, 11);
+      ctx.fillStyle = '#ffffff';
+      circle(ctx, px, py, 4.5);
+      return;
+    }
+    const b = (e.age - dur) / 0.25, [px, py] = at(1);
+    ctx.globalAlpha = 1 - b;
+    if (hit) {
+      ctx.strokeStyle = `rgb(${tint})`;
+      ctx.lineWidth = 3 * (1 - b) + 1;
+      ctx.beginPath();
+      ctx.arc(px, py, 4 + b * 16, 0, TAU);
+      ctx.stroke();
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * TAU + e.seed;
+        ctx.fillStyle = i % 2 ? '#ffffff' : `rgb(${tint})`;
+        star(ctx, px + Math.cos(a) * (5 + b * 16), py + Math.sin(a) * (5 + b * 16), 3 * (1 - b) + 1);
+      }
+    } else {
+      ctx.fillStyle = `rgba(${tint},0.8)`;
+      circle(ctx, px, py, 5 * (1 - b));
+      for (let i = 0; i < 3; i++) circle(ctx, px + Math.cos(i * 2 + e.seed) * b * 9, py - b * 8, 2.5 * (1 - b) + 0.5);
     }
   },
 

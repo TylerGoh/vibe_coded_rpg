@@ -58,6 +58,11 @@ The over-level falloff (`overlevelScale`) and the den bosses' reward window (`BO
 sold); the check keeps the EXP under `BOSS_CAMP_MAX`. It sits around 0.4–0.9× now (gold 2–4×: boss gear
 still sells well). The Progress table doesn't change: it farms mobs at your own level.
 
+## Staves (S1, 2026-10-23)
+A staff is priced exactly like its twin sword and drops in its place, never as well, so no faucet moved;
+the script counts staves as gear, checks a staff with a `lvl` against the sword curve (its MAGIC as if
+ATK), checks every staff matches its twin, and that every boss drops a weapon with a staff twin.
+
 ## Trading (2026-10-23)
 Players can trade coins and items (`docs/social/trading.md`). That moves gold rather than making it, so
 the script doesn't change, but every sink is priced against ONE player's income: with trading, boss

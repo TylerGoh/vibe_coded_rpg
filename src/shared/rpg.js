@@ -982,7 +982,8 @@ export const isCombat = (room) => COMBAT_ROOMS.has(room);
 export const denAt = (room) => DENS.find((d) => d.room === room);
 
 // ——— items ———
-// kind: coin · potion (heal) · loot (just collectible, for now) · helmet (def) · sword (atk, reach)
+// kind: coin · potion (heal) · loot (just collectible, for now) · helmet (def) · sword (atk, reach) ·
+// staff (magic, mp, reach: the staff bolt's extra range; twin: the sword it drops in place of, see STAFF_OF)
 // aim: the level a shop item is priced for (docs/economy.md; npm run economy checks it)
 export const ITEMS = {
   coin: { name: 'Gold', kind: 'coin', desc: 'Shiny slime gold. Spend it at the shop in Slimeville.' },
@@ -1136,29 +1137,67 @@ export const ITEMS = {
   // fills (1 = full, which lasts PET_STARVE_MS). Fed at home: E at the pet.
   pet_kibble: { name: 'Pet Kibble', price: 400, kind: 'loot', food: 0.25, desc: 'Crunchy little biscuits. Fills a quarter of a pet\'s belly. Feed it at home: E at the pet.' },
   pet_stew: { name: 'Hearty Pet Stew', price: 1200, kind: 'loot', food: 1, desc: 'A whole bowl of stew. Fills a pet right up for two days. Feed it at home: E at the pet.' },
+  // ——— staves (S1, story/progression.md): MAGIC on the same frozen curve as their twin sword's ATK, the same
+  // price, a little MP. Equipped, the normal attack is a staff bolt (STAFF_BOLT_*). Art: src/staff-art.js.
+  wood_staff: { name: 'Twig Staff', price: 60, kind: 'staff', magic: 5, mp: 3, reach: 14, twin: 'wood_sword', desc: 'A practice staff, a bent stick with a spark caught in the knot. Fires little bolts.' },
+  iron_staff: { name: 'Apprentice Staff', price: 450, kind: 'staff', magic: 12, mp: 7, reach: 22, twin: 'iron_sword', desc: 'A proper staff with an iron ring and a blue stone. Its bolts fly true.' },
+  crystal_staff: { name: 'Crystal Staff', price: 2200, kind: 'staff', magic: 22, mp: 13, reach: 30, twin: 'crystal_sword', desc: 'A pink crystal on a pale shaft. It hums when you think hard.' },
+  spore_staff: { name: 'Sporecap Staff', price: 3000, kind: 'staff', magic: 18, mp: 11, reach: 24, twin: 'spore_blade', desc: 'Grown from Mother Mushroom\'s stalk, with her spotted cap on top. Puffs spores when it casts.' },
+  thorn_staff: { name: 'Briar Staff', price: 9000, kind: 'staff', magic: 32, mp: 19, reach: 36, twin: 'thorn_sword', desc: 'A twist of the Bramble Behemoth\'s briar, a red thornberry glowing in its crook.' },
+  frost_staff: { name: 'Icicle Staff', price: 15000, kind: 'staff', magic: 44, mp: 26, reach: 38, twin: 'frost_blade', desc: 'Glacia\'s sceptre: a shaft of blue ice that never melts, crowned with a snowflake.' },
+  star_staff: { name: 'Starforged Staff', price: 40000, kind: 'staff', magic: 62, mp: 37, reach: 44, twin: 'star_sword', desc: 'A fallen star set on a silver rod. It leaves sparkles in the air behind each bolt.' },
+  magma_staff: { name: 'Magma Sceptre', price: 60000, slots: 9, kind: 'staff', magic: 78, mp: 47, reach: 46, twin: 'magma_maul', desc: 'A rod of black rock with Ignis\'s molten heart in the top. Warm to hold, very warm to be hit by.' },
+  phoenix_staff: { name: 'Phoenix Feather Staff', price: 90000, slots: 9, kind: 'staff', magic: 92, mp: 55, reach: 48, twin: 'phoenix_blade', desc: 'Pyra\'s flame-feathers bound to a golden rod. It never stops burning.' },
+  cog_staff: { name: 'Cogwork Staff', price: 150000, slots: 10, kind: 'staff', magic: 112, mp: 67, reach: 52, twin: 'cog_cleaver', desc: 'A brass staff with a turning gear for a head, from the Colossus. It ticks while it thinks.' },
+  chrono_staff: { name: 'Hourglass Sceptre', price: 300000, slots: 10, kind: 'staff', magic: 135, mp: 81, reach: 56, twin: 'chrono_blade', desc: 'Chronos\'s hourglass on a rod of clock-brass. The sand runs up.' },
+  reed_staff: { name: 'Cattail Staff', price: 900, lvl: 8, aim: 9, kind: 'staff', magic: 19, mp: 11, reach: 30, twin: 'reed_rapier', desc: 'A tall bundle of river reeds with a cattail head, plaited at Willowmere Mill.' },
+  drift_staff: { name: 'Driftwood Staff', price: 5000, lvl: 16, aim: 18, kind: 'staff', magic: 40, mp: 24, reach: 36, twin: 'drift_cutlass', desc: 'Sea-bleached driftwood with a ball of bright sea glass caught in its roots.' },
+  tide_staff: { name: 'Tidemother\'s Coral Staff', price: 36000, lvl: 26, slots: 8, kind: 'staff', magic: 64, mp: 38, reach: 46, twin: 'tide_claw', desc: 'A branch of the Tidemother\'s pink coral with a pearl in its fork. It smells of the sea.' },
+  glowcap_staff: { name: 'Glowcap Staff', price: 11000, lvl: 24, aim: 26, kind: 'staff', magic: 58, mp: 35, reach: 42, twin: 'rootwood_saber', desc: 'A rootwood staff with a glowing blue mushroom on top. Truffle swears it reads in the dark.' },
+  knot_staff: { name: 'Knotroot Staff', price: 52000, lvl: 37, slots: 8, kind: 'staff', magic: 79, mp: 47, reach: 48, twin: 'burrow_claw', desc: 'A root the Knotmole tied in a perfect knot, with a gold light in the middle of it.' },
+  oak_staff: { name: 'Oakbranch Staff', price: 16000, lvl: 30, aim: 32, kind: 'staff', magic: 70, mp: 42, reach: 44, twin: 'ranger_billhook', desc: 'A living oak branch, still in leaf, with an acorn at the tip. Ranger Acorn cut it herself.' },
+  honey_staff: { name: 'Honeycomb Sceptre', price: 56000, lvl: 39, kind: 'staff', magic: 82, mp: 49, reach: 50, twin: 'queen_stinger', desc: 'The Hornet Queen\'s sceptre: a ball of golden comb on a black and amber rod. It drips.' },
+  bosun_staff: { name: 'Bosun\'s Lantern Pole', price: 74000, lvl: 41, kind: 'staff', magic: 85, mp: 51, reach: 52, twin: 'bosun_hook', desc: 'The Bosun\'s ship lantern on an oak pole, still lit with a cold green flame after all these years.' },
+  hart_staff: { name: 'Hart\'s Antler Staff', price: 156000, lvl: 59, kind: 'staff', magic: 110, mp: 66, reach: 56, twin: 'briarheart_blade', desc: 'A shed antler of the Thorn Hart on a briar shaft. A white rose buds between the tines and never opens.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
-  scroll_s100: { name: 'Sword Scroll 100%', price: 300, kind: 'scroll', slot: 'sword', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a sword.' },
-  scroll_s60: { name: 'Sword Scroll 60%', price: 1500, kind: 'scroll', slot: 'sword', rate: 0.6, atk: 3, magic: 2, desc: '60% chance: +3 ATK and +2 MAGIC on a sword.' },
-  scroll_s10: { name: 'Sword Scroll 10%', price: 6000, kind: 'scroll', slot: 'sword', rate: 0.1, atk: 7, magic: 5, desc: '10% chance: +7 ATK and +5 MAGIC on a sword.' },
-  scroll_s30: { name: 'Dark Sword Scroll 30%', price: 4000, kind: 'scroll', slot: 'sword', rate: 0.3, atk: 6, magic: 4, dark: 0.5, desc: '30% chance: +6 ATK and +4 MAGIC on a sword. If it fails, a 50% chance the sword is DESTROYED.' },
+  scroll_s100: { name: 'Weapon Scroll 100%', price: 300, kind: 'scroll', slot: 'weapon', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a weapon (a staff gets them the other way round).' },
+  scroll_s60: { name: 'Weapon Scroll 60%', price: 1500, kind: 'scroll', slot: 'weapon', rate: 0.6, atk: 3, magic: 2, desc: '60% chance: +3 ATK and +2 MAGIC on a weapon (a staff gets them the other way round).' },
+  scroll_s10: { name: 'Weapon Scroll 10%', price: 6000, kind: 'scroll', slot: 'weapon', rate: 0.1, atk: 7, magic: 5, desc: '10% chance: +7 ATK and +5 MAGIC on a weapon (a staff gets them the other way round).' },
+  scroll_s30: { name: 'Dark Weapon Scroll 30%', price: 4000, kind: 'scroll', slot: 'weapon', rate: 0.3, atk: 6, magic: 4, dark: 0.5, desc: '30% chance: +6 ATK and +4 MAGIC on a weapon (a staff gets them the other way round). If it fails, a 50% chance the weapon is DESTROYED.' },
   scroll_h100: { name: 'Helmet Scroll 100%', price: 300, kind: 'scroll', slot: 'helmet', rate: 1, def: 1, hp: 10, desc: 'Always works: +1 DEF and +10 max HP on a helmet.' },
   scroll_h60: { name: 'Helmet Scroll 60%', price: 1500, kind: 'scroll', slot: 'helmet', rate: 0.6, def: 2, hp: 30, desc: '60% chance: +2 DEF and +30 max HP on a helmet.' },
   scroll_h10: { name: 'Helmet Scroll 10%', price: 6000, kind: 'scroll', slot: 'helmet', rate: 0.1, def: 5, hp: 80, desc: '10% chance: +5 DEF and +80 max HP on a helmet.' },
   scroll_h30: { name: 'Dark Helmet Scroll 30%', price: 4000, kind: 'scroll', slot: 'helmet', rate: 0.3, def: 4, hp: 60, dark: 0.5, desc: '30% chance: +4 DEF and +60 max HP on a helmet. If it fails, a 50% chance the helmet is DESTROYED.' },
-  scroll_chaos: { name: 'Chaos Scroll 60%', price: 5000, kind: 'scroll', slot: 'any', rate: 0.6, chaos: true, desc: "60% chance to reroll the item's bonuses wildly: each one changes by -3 to +5 (HP by ten times that). Swords or helmets." },
+  scroll_chaos: { name: 'Chaos Scroll 60%', price: 5000, kind: 'scroll', slot: 'any', rate: 0.6, chaos: true, desc: "60% chance to reroll the item's bonuses wildly: each one changes by -3 to +5 (HP by ten times that). Weapons or helmets." },
 };
 export const STACKS = (id) => ['coin', 'potion', 'loot', 'scroll'].includes(ITEMS[id]?.kind);
+// The weapon slot (gear.weapon) holds any of these; the kind decides the normal attack (S1: a sword swings,
+// a staff fires a bolt; story/progression.md adds the bow and classes later)
+export const WEAPON_KINDS = ['sword', 'staff'];
+export const isWeapon = (id) => WEAPON_KINDS.includes(ITEMS[id]?.kind);
+export const isGear = (id) => isWeapon(id) || ITEMS[id]?.kind === 'helmet';
+export const gearSlotOf = (id) => (isWeapon(id) ? 'weapon' : ITEMS[id]?.kind === 'helmet' ? 'helmet' : null);
+export const weaponKind = (id) => (isWeapon(id) ? ITEMS[id].kind : null);
+// A sword's staff twin: wherever the sword drops, its twin may drop instead (server/rpg.js picks by what the
+// fighters are holding, plus STAFF_OFFKIND so everyone sees both)
+export const STAFF_OF = Object.fromEntries(Object.entries(ITEMS).filter(([, it]) => it.kind === 'staff' && it.twin).map(([id, it]) => [it.twin, id]));
+export const STAFF_OFFKIND = 0.2;
+// The staff bolt (a staff's normal attack): reach STAFF_BOLT_RANGE plus the staff's own reach, damage
+// STAFF_BOLT_MULT of MAGIC (less than a swing hits for: range is paid for), flying STAFF_BOLT_SPEED px/s
+export const STAFF_BOLT_RANGE = 170;
+export const STAFF_BOLT_MULT = 0.7;
+export const STAFF_BOLT_SPEED = 1100;
 
 // ——— enhancement (MapleStory style) ———
 // Every sword and helmet has a number of upgrade slots (ITEMS.slots, else DEFAULT_SLOTS). Each scroll
 // used on it takes one slot whether it works or not, and nothing ever gives a slot back. A piece of gear
 // carries its own enhancement e = { u: slots used, s: successes, atk, magic, def, hp } (bag entries and
 // the worn gear keep it with them). Dark scrolls can destroy the item when they fail.
-export const DEFAULT_SLOTS = { sword: 7, helmet: 7 };
+export const DEFAULT_SLOTS = { sword: 7, staff: 7, helmet: 7 };
 export const slotsOf = (id) => ITEMS[id]?.slots ?? DEFAULT_SLOTS[ITEMS[id]?.kind] ?? 0;
 export const canScroll = (scrollId, itemId) => {
   const sc = ITEMS[scrollId], it = ITEMS[itemId];
-  return sc?.kind === 'scroll' && (it?.kind === 'sword' || it?.kind === 'helmet') && (sc.slot === 'any' || sc.slot === it.kind);
+  return sc?.kind === 'scroll' && isGear(itemId) && (sc.slot === 'any' || sc.slot === gearSlotOf(itemId));
 };
 export const enhName = (id, e) => `${ITEMS[id]?.name ?? id}${e?.s ? ` +${e.s}` : ''}`;
 // Roll a scroll on gear `itemId` with enhancement e (not changed) → { ok, boom, e: the new enhancement }
@@ -1170,14 +1209,18 @@ export function rollScroll(scrollId, itemId, e, rnd = Math.random) {
   next.s++;
   if (sc.chaos) {
     const d = () => Math.floor(rnd() * 9) - 3; // -3 … +5
-    if (kind === 'sword') {
+    if (kind !== 'helmet') {
       next.atk = Math.max(0, next.atk + d());
       next.magic = Math.max(0, next.magic + d());
     } else {
       next.def = Math.max(0, next.def + d());
       next.hp = Math.max(0, next.hp + d() * 10);
     }
-  } else for (const k of ['atk', 'magic', 'def', 'hp']) next[k] += sc[k] ?? 0;
+  } else {
+    // a weapon scroll's main stat follows the weapon: on a staff its ATK and MAGIC swap round
+    const add = kind === 'staff' ? { ...sc, atk: sc.magic, magic: sc.atk } : sc;
+    for (const k of ['atk', 'magic', 'def', 'hp']) next[k] += add[k] ?? 0;
+  }
   return { ok: true, boom: false, e: next };
 }
 export const BAG_SLOTS = 24;
@@ -1187,7 +1230,7 @@ export const BAG_SLOTS = 24;
 export const SHOP_X = 2780;
 export const SHOP_RANGE = 120;
 export const SELL_RATE = 0.4;
-export const SHOP_STOCK = ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'wood_sword', 'iron_sword', 'crystal_sword', 'leaf_cap', 'mush_helm', 'iron_helm'];
+export const SHOP_STOCK = ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'wood_sword', 'iron_sword', 'crystal_sword', 'wood_staff', 'iron_staff', 'crystal_staff', 'leaf_cap', 'mush_helm', 'iron_helm'];
 // Every shopkeeper: where they stand (room, x; you trade within SHOP_RANGE) and what they sell. Pip's has
 // the Boutique too. Runa is also an AI character: her dialog has a Trade button (src/npc.js).
 export const SHOPS = {
@@ -1195,10 +1238,10 @@ export const SHOPS = {
   runa: { name: "Runa's Net Shed", room: FJORD, x: RUNA_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'frostbloom', 'fur_hood', 'bone_harpoon'] },
   // the branches' traders (island depth: each branch sells the basic potions, so a deep branch isn't a walk
   // back to Pip, and a tier of gear for its middle levels)
-  bun: { name: 'Willowmere Mill', room: WILLOWMERE, x: BUN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'reed_rapier', 'miller_cap'] },
-  moss: { name: "Moss's Driftwood Shack", room: COVES, x: MOSS_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'drift_cutlass', 'conch_helm'] },
-  truffle: { name: "Truffle's Camp", room: MYCELIUM, x: TRUFFLE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'rootwood_saber', 'lantern_cap'] },
-  acorn: { name: "Acorn's Treehouse", room: CANOPY, x: ACORN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'ranger_billhook', 'ranger_hood'] },
+  bun: { name: 'Willowmere Mill', room: WILLOWMERE, x: BUN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'reed_rapier', 'reed_staff', 'miller_cap'] },
+  moss: { name: "Moss's Driftwood Shack", room: COVES, x: MOSS_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'drift_cutlass', 'drift_staff', 'conch_helm'] },
+  truffle: { name: "Truffle's Camp", room: MYCELIUM, x: TRUFFLE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'rootwood_saber', 'glowcap_staff', 'lantern_cap'] },
+  acorn: { name: "Acorn's Treehouse", room: CANOPY, x: ACORN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'ranger_billhook', 'oak_staff', 'ranger_hood'] },
   // the Pet Shop: pet food only (the pets themselves are on plinths: furni-buy, src/petshop.js)
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
@@ -1221,7 +1264,7 @@ export const PICKUP_RANGE = 55;
 // ——— levels and combat ———
 export const maxHpFor = (lvl) => 40 + lvl * 12;
 export const expToNext = (lvl) => Math.round(12 * lvl ** 1.7 + 8);
-export const attackFor = (lvl, sword) => 4 + lvl * 2 + (ITEMS[sword]?.atk ?? 0);
+export const attackFor = (lvl, weapon) => 4 + lvl * 2 + (ITEMS[weapon]?.atk ?? 0); // (a staff has no atk)
 export const defenseFor = (helmet) => ITEMS[helmet]?.def ?? 0;
-export const reachFor = (sword) => ITEMS[sword]?.reach ?? 0; // extra slap reach, px
+export const reachFor = (weapon) => ITEMS[weapon]?.reach ?? 0; // extra slap reach (a staff: extra bolt range), px
 export const HURT_INVULN_MS = 1200; // after a mob hits you

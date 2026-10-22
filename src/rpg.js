@@ -12,8 +12,9 @@ import { drawBoss, drawBossBar, BossFx, drawUltBanner } from './dens.js';
 import { drawHazard } from './hazards.js';
 import { SkillFx, drawSkillIcon, drawBerserkAura, drawBubble, drawRallyAura, drawAegisAura } from './skillfx.js';
 import { audio } from './audio.js';
-import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL } from './shared/skills.js';
+import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED } from './shared/rpg.js';
+import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor } from './shared/skills.js';
+import { staffGlow } from './staff-art.js';
 import { SLAP_REACH, DASH_CD, BLINK_CD, PHANTOM_CD } from './shared/sim.js';
 
 const MOB_KINDS = Object.keys(MOBS); // same order as the server's
@@ -68,7 +69,7 @@ export class Rpg {
     document.getElementById('inv-pvp').onclick = () => this.setPvp(!this.me?.pvp);
     this.slots = [];
     for (let i = 0; i < BAG_SLOTS; i++) this.slots.push(this.slotButton(this.grid, i));
-    this.gearSlots = { helmet: this.slotButton(document.getElementById('inv-helmet'), 'helmet'), sword: this.slotButton(document.getElementById('inv-sword'), 'sword') };
+    this.gearSlots = { helmet: this.slotButton(document.getElementById('inv-helmet'), 'helmet'), weapon: this.slotButton(document.getElementById('inv-weapon'), 'weapon') };
     this.buildHotbar();
   }
 
@@ -207,10 +208,11 @@ export class Rpg {
       audio.sfx('shellBlock', { vol: 0.6 });
     }
   }
-  // A slap / sword swing: → hits to send with it ([[mobId, dmg, crit]])
+  // A slap / sword swing / staff bolt: → hits to send with it ([[mobId, dmg, crit]])
   slapHits(me, dir) {
     if (!this.me || !isCombat(this.room)) return [];
-    const [v] = this.ahead(me, dir, SLAP_REACH + (ITEMS[this.me.gear.sword]?.reach ?? 0));
+    if (this.staffOf(this.me)) return this.staffBolt(me, dir);
+    const [v] = this.ahead(me, dir, SLAP_REACH + (this.swordOf(this.me)?.reach ?? 0));
     if (!v) return [];
     const cut = this.shellCut(v, me.x);
     let [dmg, crit] = this.roll(this.me.atk);
@@ -218,6 +220,42 @@ export class Rpg {
     this.blocked(v, cut);
     this.showHit(v, dmg, crit, me.x);
     return [[v.id, dmg, crit]];
+  }
+
+  swordOf(m) {
+    const it = ITEMS[m?.gear?.weapon];
+    return it?.kind === 'sword' ? it : null;
+  }
+  staffOf(m) {
+    const it = ITEMS[m?.gear?.weapon];
+    return it?.kind === 'staff' ? it : null;
+  }
+  // A staff's normal attack: a little bolt to the first mob ahead within the staff's range (S1). The hit
+  // is sent now and shown when the bolt lands; the server caps it at STAFF_BOLT_MULT of MAGIC.
+  staffBolt(me, dir) {
+    const m = this.me, range = statsFor(m).boltRange;
+    const [v] = this.ahead(me, dir, range, 0);
+    const sx = me.x, sy = me.y;
+    const tx = v ? v.x : sx + dir * range * 0.8, ty = v ? v.y - MOBS[v.kind].h / 2 : sy - 22;
+    const dur = Math.abs(tx - sx) / STAFF_BOLT_SPEED + 0.04;
+    this.fx.spawn('staffbolt', { x: sx + dir * 18, y: sy - 10, tx, ty, dur, hit: !!v, tint: staffGlow(m.gear.weapon) });
+    if (!v) return [];
+    const cut = this.shellCut(v, sx);
+    let [dmg, crit] = this.roll(m.magic, STAFF_BOLT_MULT);
+    dmg = Math.max(1, Math.round(dmg * cut));
+    setTimeout(() => {
+      this.blocked(v, cut);
+      this.showHit(v, dmg, crit, sx);
+    }, dur * 1000);
+    return [[v.id, dmg, crit]];
+  }
+  // Someone else's staff bolt (drawn only: their hits come with the slap message)
+  otherBolt(s, dir, hits) {
+    const v = hits?.length ? this.views.get(hits[0][0]) : null;
+    const tx = v ? v.x : s.x + dir * 150, ty = v ? v.y - MOBS[v.kind].h / 2 : s.y - 22;
+    const dur = Math.abs(tx - s.x) / STAFF_BOLT_SPEED + 0.04;
+    this.fx.spawn('staffbolt', { x: s.x + dir * 18, y: s.y - 10, tx, ty, dur, hit: !!v, tint: staffGlow(s.gear?.weapon) });
+    return dur;
   }
 
   // damage roll: minRoll (85%, raised by DEX) to 115%, crits from Sword Mastery and LUK (the server caps
@@ -265,7 +303,7 @@ export class Rpg {
       if (delay) setTimeout(() => this.showHit(v, dmg, crit, sx), delay * 1000);
       else this.showHit(v, dmg, crit, sx);
     };
-    const sx = me.x, sy = me.y, reach = SLAP_REACH + (ITEMS[m.gear.sword]?.reach ?? 0) + (sk.reach ?? 0);
+    const sx = me.x, sy = me.y, reach = SLAP_REACH + (this.swordOf(m)?.reach ?? 0) + (sk.reach ?? 0);
     const sound = { strike: id === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis' }[sk.kind];
     if (sk.kind === 'strike') {
       const [v] = this.ahead(me, dir, reach);
@@ -1213,7 +1251,7 @@ export class Rpg {
   itemAt(key) {
     const m = this.me;
     if (!m) return null;
-    if (key === 'helmet' || key === 'sword') return m.gear[key] ? { id: m.gear[key], n: 1, worn: true, e: m.gearE?.[key] } : null;
+    if (key === 'helmet' || key === 'weapon') return m.gear[key] ? { id: m.gear[key], n: 1, worn: true, e: m.gearE?.[key] } : null;
     return m.bag[key] ?? null;
   }
   primary(key) {
@@ -1221,7 +1259,7 @@ export class Rpg {
     if (!b) return;
     const it = ITEMS[b.id];
     if (b.worn) this.act('unequip', key);
-    else if (it.kind === 'helmet' || it.kind === 'sword') this.act('equip', key);
+    else if (isGear(b.id)) this.act('equip', key);
     else if (it.kind === 'potion') this.act('use', key);
   }
   act(t, slot) {
@@ -1230,7 +1268,7 @@ export class Rpg {
     audio.sfx(t === 'use' ? (ITEMS[b?.id]?.mana ? 'mpPotion' : 'potion') : t === 'drop' ? 'pickup' : 'equip');
     // show it straight away (the server's 'me' follows)
     if (t === 'equip' && b) {
-      const kind = ITEMS[b.id].kind, old = m.gear[kind];
+      const kind = gearSlotOf(b.id), old = m.gear[kind];
       m.gear = { ...m.gear, [kind]: b.id };
       if (old) m.bag[slot] = { id: old, n: 1 };
       else m.bag.splice(slot, 1);
@@ -1243,13 +1281,13 @@ export class Rpg {
     if (t !== 'use' || (b?.n ?? 0) <= 1) this.selected = -1;
     this.render();
   }
-  // A scroll in the bag: one button per sword / helmet it can go on (worn first). Dark scrolls ask twice.
+  // A scroll in the bag: one button per weapon / helmet it can go on (worn first). Dark scrolls ask twice.
   scrollButtons(sel, button) {
     const m = this.me, slot = this.selected, sc = ITEMS[sel.id];
     const options = [];
-    for (const k of ['sword', 'helmet']) if (m.gear[k] && canScroll(sel.id, m.gear[k])) options.push([k, m.gear[k], m.gearE?.[k], 'worn']);
+    for (const k of ['weapon', 'helmet']) if (m.gear[k] && canScroll(sel.id, m.gear[k])) options.push([k, m.gear[k], m.gearE?.[k], 'worn']);
     m.bag.forEach((b, i) => canScroll(sel.id, b.id) && options.push([i, b.id, b.e, 'bag']));
-    if (!options.length) return button(sc.slot === 'helmet' ? 'No helmet to use it on' : sc.slot === 'sword' ? 'No sword to use it on' : 'No gear to use it on', () => {});
+    if (!options.length) return button(sc.slot === 'helmet' ? 'No helmet to use it on' : sc.slot === 'weapon' ? 'No weapon to use it on' : 'No gear to use it on', () => {});
     for (const [target, id, e, where] of options.slice(0, 4)) {
       const left = slotsOf(id) - (e?.u ?? 0);
       const arming = this.confirm?.slot === slot && this.confirm?.target === target;
@@ -1312,7 +1350,7 @@ export class Rpg {
       b.title = item ? ITEMS[item.id].name : '';
     };
     this.slots.forEach((b, i) => paint(b, i));
-    for (const k of ['helmet', 'sword']) paint(this.gearSlots[k], k);
+    for (const k of ['helmet', 'weapon']) paint(this.gearSlots[k], k);
 
     this.info.replaceChildren();
     const sel = this.itemAt(this.selected);
@@ -1327,9 +1365,9 @@ export class Rpg {
     const h = document.createElement('b');
     h.textContent = enhName(sel.id, sel.e) + (sel.n > 1 ? ` ×${sel.n}` : '');
     const d = document.createElement('p');
-    const e = sel.e ?? {}, gear = it.kind === 'sword' || it.kind === 'helmet';
+    const e = sel.e ?? {}, gear = isGear(sel.id);
     const bonus = [['atk', 'ATK'], ['magic', 'MAGIC'], ['def', 'DEF'], ['hp', 'HP']].filter(([k]) => e[k]).map(([k, n]) => `${n} +${e[k]}`).join(', ');
-    d.textContent = it.desc + (it.atk ? ` ATK +${it.atk}.` : '') + (it.def ? ` DEF +${it.def}.` : '')
+    d.textContent = it.desc + (it.atk ? ` ATK +${it.atk}.` : '') + (it.magic && it.kind === 'staff' ? ` MAGIC +${it.magic}, MP +${it.mp}. Fires a bolt instead of swinging.` : '') + (it.def ? ` DEF +${it.def}.` : '')
       + (gear ? ` Upgrade slots: ${slotsOf(sel.id) - (e.u ?? 0)} of ${slotsOf(sel.id)} left${bonus ? ` (scrolled: ${bonus})` : ''}.` : '')
       + (it.price ? ` Sells for ${sellPrice(sel.id)} gold.` : '');
     const row = document.createElement('div');
@@ -1343,7 +1381,7 @@ export class Rpg {
     };
     if (sel.worn) button('Take off', () => this.act('unequip', this.selected));
     else {
-      if (it.kind === 'helmet' || it.kind === 'sword') button('Equip', () => this.act('equip', this.selected));
+      if (isGear(sel.id)) button('Equip', () => this.act('equip', this.selected));
       if (it.kind === 'scroll') this.scrollButtons(sel, button);
       if (it.kind === 'potion') {
         button('Use', () => this.act('use', this.selected));

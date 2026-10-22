@@ -7,18 +7,35 @@ actions, `scroll()` and `shop()` in `server/rpg.js`. Client: bag UI in `src/rpg.
 `src/shop.js`, icons in `src/field.js` (`drawItemIcon`).
 
 ## Items
-Kinds: coin · potion (HP and/or MP) · loot (materials, mostly for selling) · sword (ATK, reach) · helmet
-(DEF) · scroll. Herbs (`herb: true`, loot) and brewed potions (`brewed: true`: also full restores and
+Kinds: coin · potion (HP and/or MP) · loot (materials, mostly for selling) · sword (ATK, reach) · staff
+(MAGIC, MP, bolt range) · helmet (DEF) · scroll. Swords and staves go in the one **weapon** slot (`gear.weapon`,
+`WEAPON_KINDS`, `gearSlotOf`); before S1 it was called `sword`, and `load()` in `server/rpg.js` moves old saves over. Herbs (`herb: true`, loot) and brewed potions (`brewed: true`: also full restores and
 timed buffs) come from farming and the alchemy lab: `docs/places/alchemy.md`. Recipes use some mob
 materials, so those aren't only for selling any more. Bosses drop unique swords and helmets; their later ones have more upgrade slots.
 
+## Staves (S1, 2026-10-23: `story/progression.md`)
+- Every staff has a **twin** sword (`twin` on the staff, `STAFF_OF`): the same price, slots and `lvl`, with
+  MAGIC equal to the sword's ATK (the economy script checks the match). Wherever the twin sword drops (boss
+  sets, rare mob drops), `twinPick` in `server/rpg.js` drops one or the other: the kind a random fighter is
+  holding, flipped `STAFF_OFFKIND` of the time so everyone sees both. Drops stay worth the same gold.
+- 20 staves: Pip's three starters, one at each branch trader (Bun, Moss, Truffle, Acorn), and one per den
+  and field boss. Swords that only drop from mobs (Coral Saber, Silkthread, Glowroot, Stingblade, Moray Fang,
+  Stalker's Claw, Whalebone Harpoon) have no twin yet.
+- A staff adds its MAGIC to spells and its `mp` to max MP (`statsFor`), and changes the normal attack to the
+  **staff bolt** (`docs/combat/core.md`). Swords still don't help spells, and the level's `magicFor` is
+  unchanged, so nobody lost spell power when staves came in.
+- Art: `src/staff-art.js`: `STAFFS` describes each one (shaft colours, a head shape from `HEADS`, gem and
+  glow colours) and `drawStaff` draws it for the bag icon (a shortened shaft so the head shows), the back
+  and the cast pose (`drawStaffOnBack` / `drawStaffCast` in `src/slime.js`). The glow colour tints its bolt.
+
 ## Scrolls (enhancement, MapleStory style; boss drops only)
-- 100% / 60% / 10% sword and helmet scrolls, dark 30% ones (a failure may DESTROY the item), and a chaos
+- 100% / 60% / 10% weapon and helmet scrolls ("Sword Scroll" until S1; the ids are still `scroll_s*`), dark 30% ones (a failure may DESTROY the item), and a chaos
   scroll that rerolls an item's bonuses.
-- Every sword/helmet has upgrade slots (`slotsOf`); every scroll used takes one whether it works or not,
+- A weapon scroll on a staff adds its ATK and MAGIC the other way round, so the bigger number lands on MAGIC.
+- Every weapon/helmet has upgrade slots (`slotsOf`); every scroll used takes one whether it works or not,
   never refunded. The roll is `rollScroll`.
 - An item's enhancement `e = {u, s, atk, magic, def, hp}` travels with it (bag entries, worn gear in
-  `gearE`, loot); `statsFor` adds it. `look.plus` makes swords glow (`drawEnhanceGlow`).
+  `gearE`, loot); `statsFor` adds it. `look.plus` makes the weapon glow (`drawEnhanceGlow`).
 - Bag → select a scroll → "Use on …" (dark scrolls ask twice).
 
 ## Gold and the shops

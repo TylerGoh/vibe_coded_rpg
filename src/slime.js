@@ -1,6 +1,7 @@
 // Docs: docs/art.md
 import { TAU, rand, clamp, ellipse, circle } from './util.js';
 import { drawSword, drawHelmet, SWORD_LEN } from './field.js';
+import { drawStaff, STAFF_LEN } from './staff-art.js';
 import { drawEnhanceGlow } from './skillfx.js';
 import { FOLK_PALETTE, drawFolk, drawFolkDress } from './fjord-art.js';
 import { drawMillerDress } from './willowmere-art.js';
@@ -75,7 +76,7 @@ export class Slime {
     this.rot = 0;
     this.name = '';
     this.accessories = [];
-    this.gear = { helmet: null, sword: null }; // equipped Wildwood gear (item ids from src/shared/rpg.js)
+    this.gear = { helmet: null, weapon: null }; // equipped Wildwood gear (item ids from src/shared/rpg.js)
     this.blow = 0; // dd's flute toot animation, counts down after each jump
     this.notifs = []; // yr's laptop notifications floating up
     this.nextNotif = rand(1, 3);
@@ -117,7 +118,7 @@ export class Slime {
   // and whether the helmet shows (hiding it lets cosmetics like the ribbon show)
   setLook({ gear, wear, showHelmet, plus, gearE } = {}) {
     if (gear) this.gear = showHelmet === false ? { ...gear, helmet: null } : gear;
-    if (plus !== undefined || gearE) this.plus = plus ?? gearE?.sword?.s ?? 0; // scroll successes on the sword: it glows
+    if (plus !== undefined || gearE) this.plus = plus ?? gearE?.weapon?.s ?? 0; // scroll successes on the weapon: it glows
     this.accessories = [...new Set(wear ?? [])];
   }
 
@@ -190,6 +191,52 @@ export class Slime {
     ctx.scale(0.9, 0.9);
     if (this.plus) drawEnhanceGlow(ctx, this.plus, this.t, SWORD_LEN[id] ?? 50);
     drawSword(ctx, id, this.t);
+    ctx.restore();
+  }
+
+  // An equipped staff, slung on its back like a sword but more upright
+  drawStaffOnBack(ctx, w, h, id) {
+    ctx.save();
+    ctx.translate(-w * 0.32, -h * 0.3);
+    ctx.rotate(-0.3 + Math.sin(this.t * 3) * 0.03 + this.d * 0.4);
+    ctx.scale(0.8, 0.8);
+    if (this.plus) drawEnhanceGlow(ctx, this.plus, this.t, STAFF_LEN[id] + 10);
+    drawStaff(ctx, id, 0, this.t);
+    ctx.restore();
+  }
+
+  // The staff's cast (its normal attack): raised behind the head, then thrust forward to point where the
+  // bolt goes, with a flash at the head, and back down
+  drawStaffCast(ctx, w, h, id) {
+    const k = 1 - this.slapT / SLAP_TIME; // 0 → 1
+    const UP = -2.3, AIM = -0.25;
+    const ang = k < 0.25 ? UP + (AIM - UP) * (1 - (1 - k / 0.25) ** 3) : k < 0.7 ? AIM : AIM + (UP - AIM) * ((k - 0.7) / 0.3) * 0.4;
+    const px = w * 0.3, py = -h * 0.5, arm = 9;
+    const hx = px + Math.cos(ang) * arm, hy = py + Math.sin(ang) * arm;
+    ctx.save();
+    ctx.strokeStyle = this.palette.line; // a stubby jelly arm
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(hx, hy);
+    ctx.stroke();
+    ctx.strokeStyle = this.palette.bottom;
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+    ctx.translate(hx, hy);
+    ctx.rotate(ang + Math.PI / 2);
+    ctx.scale(0.85, 0.85);
+    const flash = k > 0.2 && k < 0.6 ? Math.sin(((k - 0.2) / 0.4) * Math.PI) : 0;
+    if (this.plus) drawEnhanceGlow(ctx, this.plus, this.t, STAFF_LEN[id] + 10);
+    drawStaff(ctx, id, flash, this.t);
+    ctx.fillStyle = this.palette.bottom; // a jelly fist round the shaft
+    ctx.strokeStyle = this.palette.line;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.arc(0, 0, 3.6, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
     ctx.restore();
   }
 
@@ -351,8 +398,9 @@ export class Slime {
       ctx.rotate(clamp(this.vy / 5000, -0.1, 0.1));
     }
 
-    const helmet = this.gear?.helmet, sword = this.gear?.sword && SWORD_LEN[this.gear.sword] ? this.gear.sword : null;
+    const helmet = this.gear?.helmet, sword = SWORD_LEN[this.gear?.weapon] ? this.gear.weapon : null, staff = STAFF_LEN[this.gear?.weapon] ? this.gear.weapon : null;
     if (sword && !(this.slapT > 0)) this.drawSwordOnBack(ctx, w, h, sword);
+    if (staff && !(this.slapT > 0)) this.drawStaffOnBack(ctx, w, h, staff);
 
     // leaf sprout on top (tucked away under a helmet; a Greenhollow thing, so not on other islands' folk)
     if (!helmet && !this.folk) {
@@ -548,6 +596,7 @@ export class Slime {
     if (helmet) drawHelmet(ctx, helmet, w, h, this.t);
     if (this.slapT > 0) {
       if (sword) this.drawSwordSwing(ctx, w, h, sword);
+      else if (staff) this.drawStaffCast(ctx, w, h, staff);
       else this.drawSlap(ctx, w, h);
     }
     if (!helmet) this.drawHeadband(ctx, w, h);

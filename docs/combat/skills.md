@@ -41,5 +41,8 @@ carries their cooldowns and i-frames (`ifr`) and goes through `pack`. Some late 
 - Effects are in `AP_STATS` (descriptions) and `statsFor` (numbers): STR → ATK and HP, DEX → a higher
   minimum damage roll (`minRollFor`) and a little ATK and MAGIC, INT → MAGIC and MP, LUK → crit chance and
   crit damage. The bag shows ATK and MAGIC damage-range bars (normal hit bright, crit pale).
+- MAGIC = `magicFor(lvl)` + the staff's MAGIC (S1) + INT + scrolls; a staff also adds max MP. Blade skills
+  still use ATK, so a staff-holder's blade skills are weak and a sword-holder's spells don't get the staff's
+  boost: the first real choice before classes (S2).
 - Added because the owner said mages were weak: INT gives more per point than STR, and Arcane Mind was
   raised at the same time. Untested with real players.

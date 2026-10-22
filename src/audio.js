@@ -1519,6 +1519,12 @@ const EFFECTS = {
   swing(e, o, t) {
     e.noiseHit(o, t, { f: 500, sweep: 3200, sweepT: 0.16, q: 1.4, vol: 0.8, a: 0.06, tau: 0.05 });
   },
+  // a staff's little bolt: a bright chirp and a puff of air (lighter than the Magic Bolt skill)
+  staffBolt(e, o, t) {
+    e.voice(o, t, 900, { type: 'sine', glide: 1.8, glideT: 0.08, vol: 0.14, tau: 0.06 });
+    e.voice(o, t + 0.01, 1800, { type: 'triangle', glide: 1.4, glideT: 0.06, vol: 0.06, tau: 0.05 });
+    e.noiseHit(o, t, { type: 'highpass', f: 3000, vol: 0.12, a: 0.01, tau: 0.04 });
+  },
   hit(e, o, t) {
     e.kick(o, t, 0.5, 200, 70, 0.06);
     e.noiseHit(o, t, { type: 'lowpass', f: 900, vol: 0.3, tau: 0.03 });

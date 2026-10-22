@@ -12,7 +12,7 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, STAFF_OFFKIND, STAFF_BOLT_MULT } from '../src/shared/rpg.js';
 import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spTotal, spSpent, mpRegen, cooldownOf, durOf, mobilityOf } from '../src/shared/skills.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
@@ -39,7 +39,7 @@ const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const newChar = () => ({
   lvl: 1, exp: 0, hp: 52, mp: 26, coins: 0,
   bag: [{ id: 'wood_sword', n: 1 }, { id: 'red_jelly', n: 3 }, { id: 'mana_jelly', n: 2 }],
-  gear: { helmet: null, sword: null }, gearE: { helmet: null, sword: null }, skills: {}, hotbar: Array(HOTBAR).fill(null), potbar: ['red_jelly', 'mana_jelly', null], pvp: true,
+  gear: { helmet: null, weapon: null }, gearE: { helmet: null, weapon: null }, skills: {}, hotbar: Array(HOTBAR).fill(null), potbar: ['red_jelly', 'mana_jelly', null], pvp: true,
   alt: { hotbar: Array(HOTBAR).fill(null), potbar: Array(POTBAR).fill(null) }, set: 0, // the other hotbar setup (swapped from the Esc menu)
   ap: { str: 0, dex: 0, int: 0, luk: 0 }, // ability points (AP_STATS)
   cosmetics: [], wear: [], showHelmet: true, // the Boutique
@@ -93,8 +93,12 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     p.rpg = { ...fresh, ...(c ?? {}) };
     const r = p.rpg;
     r.bag = (r.bag ?? []).filter((b) => ITEMS[b?.id]).slice(0, BAG_SLOTS);
-    for (const s of ['helmet', 'sword']) if (!ITEMS[r.gear?.[s]]) r.gear = { ...r.gear, [s]: null };
-    r.gearE = { helmet: r.gear.helmet ? r.gearE?.helmet ?? null : null, sword: r.gear.sword ? r.gearE?.sword ?? null : null }; // scroll enhancements
+    // (before S1 the weapon slot was called `sword`)
+    const oldSword = r.gear?.sword, oldSwordE = r.gearE?.sword;
+    r.gear = { helmet: r.gear?.helmet ?? null, weapon: r.gear?.weapon ?? oldSword ?? null };
+    r.gearE = { helmet: r.gearE?.helmet ?? null, weapon: r.gearE?.weapon ?? (r.gear.weapon === oldSword ? oldSwordE : null) ?? null };
+    for (const s of ['helmet', 'weapon']) if (gearSlotOf(r.gear[s]) !== s) r.gear[s] = null;
+    for (const s of ['helmet', 'weapon']) if (!r.gear[s]) r.gearE[s] = null; // scroll enhancements
     r.skills = Object.fromEntries(Object.entries(r.skills ?? {}).filter(([id, n]) => SKILLS[id] && n > 0).map(([id, n]) => [id, Math.min(n, SKILLS[id].max)]));
     if (spSpent(r.skills) > spTotal(r.lvl)) r.skills = {};
     const skillBar = (b) => Array.from({ length: HOTBAR }, (_, i) => (ACTIVE(b?.[i]) ? b[i] : null));
@@ -155,7 +159,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     });
   }
   // What everyone else sees of you: gear, level and friendly fire (also part of join / welcome)
-  const look = (p) => ({ gear: p.rpg.gear, lvl: p.rpg.lvl, pvp: p.rpg.pvp, wear: p.rpg.wear, showHelmet: p.rpg.showHelmet, plus: p.rpg.gearE?.sword?.s ?? 0 });
+  const look = (p) => ({ gear: p.rpg.gear, lvl: p.rpg.lvl, pvp: p.rpg.pvp, wear: p.rpg.wear, showHelmet: p.rpg.showHelmet, plus: p.rpg.gearE?.weapon?.s ?? 0 });
   const showLook = (id, p, extra = {}) => broadcast({ t: 'gear', id, ...look(p), ...extra });
   const toast = (p, text) => send(p.ws, { t: 'toast', text });
 
@@ -285,6 +289,15 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (loot.length > 200) loot.shift();
   }
 
+  // A dropping sword with a staff twin (STAFF_OF): which one falls. The weapon kind a random fighter is
+  // holding, so everyone sees drops they can use; STAFF_OFFKIND of the time the other one, so both turn up.
+  function twinPick(m, sword) {
+    const held = [...m.hitters.keys()].map((qid) => ITEMS[players.get(qid)?.rpg?.gear.weapon]?.kind).filter(Boolean);
+    let staff = held.length ? held[Math.floor(Math.random() * held.length)] === 'staff' : Math.random() < 0.5;
+    if (Math.random() < STAFF_OFFKIND) staff = !staff;
+    return staff ? STAFF_OF[sword] : sword;
+  }
+
   function kill(m) {
     const k = MOBS[m.kind];
     m.dead = true;
@@ -313,7 +326,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       gainExp(qid, q, Math.round(k.exp * scale));
     }
     const odds = k.boss && !fresh ? BOSS_REPEAT_SHARE : 1;
-    const drops = k.drops.filter(([, chance]) => Math.random() < chance * odds);
+    const drops = k.drops.filter(([, chance]) => Math.random() < chance * odds).map((d) => (STAFF_OF[d[0]] ? [twinPick(m, d[0]), ...d.slice(1)] : d));
     drops.forEach(([item, , lo, hi], i) => dropLoot(m.room, item, randInt(lo, hi), m.x + (i - (drops.length - 1) / 2) * (k.boss || k.field ? 34 : 22) + rand(-6, 6), ROOMS[m.room].ground > m.y ? m.y : ROOMS[m.room].ground));
     if (k.field) toRoom(m.room)({ t: 'boss', a: 'fieldDown', id: m.id, kind: m.kind, x: m.x, y: m.y });
     if (k.boss) {
@@ -394,10 +407,11 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   }
   const capOf = (st) => 1.15 * st.critMult; // best roll × crit
 
-  // ——— a slap / sword swing in a combat room ———
+  // ——— a slap / sword swing / staff bolt in a combat room ———
   function attack(id, p, dir, hits) {
     if (p.faintUntil || !isCombat(p.state.room)) return [];
     const st = stats(p);
+    if (st.boltRange) return applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * STAFF_BOLT_MULT * capOf(st), dir, knock: 120 });
     return applyHits(id, p, hits, { range: SLAP_REACH + st.reach, cap: st.atk * capOf(st), dir });
   }
 
@@ -1209,7 +1223,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     item(id, p, m) {
       const c = p.rpg;
       if (m.t === 'unequip') {
-        const slot = m.slot === 'helmet' ? 'helmet' : 'sword';
+        const slot = m.slot === 'helmet' ? 'helmet' : 'weapon'; // (old tabs say 'sword')
         if (!c.gear[slot]) return;
         if (c.bag.length >= BAG_SLOTS) return toast(p, 'Your bag is full');
         c.bag.push(c.gearE[slot] ? { id: c.gear[slot], n: 1, e: c.gearE[slot] } : { id: c.gear[slot], n: 1 });
@@ -1223,10 +1237,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       const b = c.bag[slot];
       if (!b) return typeof m.item === 'string' && toast(p, `You're out of ${ITEMS[m.item]?.name ?? 'that'}`);
       const it = ITEMS[b.id];
-      if (m.t === 'equip' && (it.kind === 'helmet' || it.kind === 'sword')) {
-        const old = c.gear[it.kind], oldE = c.gearE[it.kind];
-        c.gear[it.kind] = b.id;
-        c.gearE[it.kind] = b.e ?? null;
+      if (m.t === 'equip' && gearSlotOf(b.id)) {
+        const gs = gearSlotOf(b.id), old = c.gear[gs], oldE = c.gearE[gs];
+        c.gear[gs] = b.id;
+        c.gearE[gs] = b.e ?? null;
         if (old) c.bag[slot] = oldE ? { id: old, n: 1, e: oldE } : { id: old, n: 1 };
         else c.bag.splice(slot, 1);
         showLook(id, p);
@@ -1260,11 +1274,12 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
 
     // A scroll from the bag on a sword or helmet (MapleStory style: every try uses up one of the item's
     // slots, success or not, and nothing gives a slot back). {t:'scroll', slot: the scroll's bag index,
-    // target: 'helmet' | 'sword' (worn) | a bag index}. Everyone in the room sees how it went.
+    // target: 'helmet' | 'weapon' (worn) | a bag index}. Everyone in the room sees how it went.
     scroll(id, p, m) {
       const c = p.rpg, sc = c.bag[m.slot >>> 0];
       if (!sc || ITEMS[sc.id]?.kind !== 'scroll' || p.faintUntil) return;
-      const worn = m.target === 'helmet' || m.target === 'sword';
+      if (m.target === 'sword') m.target = 'weapon'; // (old tabs)
+      const worn = m.target === 'helmet' || m.target === 'weapon';
       const item = worn ? (c.gear[m.target] ? { id: c.gear[m.target], e: c.gearE[m.target] } : null) : c.bag[m.target >>> 0];
       if (!item || !canScroll(sc.id, item.id)) return toast(p, "That scroll doesn't go on that");
       const used = item.e?.u ?? 0, slots = slotsOf(item.id);

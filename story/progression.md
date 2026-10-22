@@ -1,6 +1,6 @@
 # Classes and progression: the S track (plan)
 
-**Status: plan, written 2026-10-23, S0 shipped 2026-10-23, the rest not built yet.** Runs alongside the island-depth G track
+**Status: plan, written 2026-10-23, S0 and S1 shipped 2026-10-23, the rest not built yet.** Runs alongside the island-depth G track
 (`world/island-depth.md`). Everything below is `[proposed]` until the owner settles the open decisions at
 the bottom; the recommended answer is written in each time, so a session can start from it.
 
@@ -280,7 +280,8 @@ job advancements), at levels spaced further apart each time:
       window (15 min). `docs/combat/bosses.md`, `docs/economy.md`.
 - [ ] G5 (Keeper's Spine) as planned; the Root Warden is the first boss designed with the role mechanics
       in mind (built so they can be switched on in S5).
-- [ ] **S1: staves and the Mage** (medium): the `staff` kind, the staff bolt, MAGIC from staves, a staff
+- [x] **S1: staves and the Mage** (shipped 2026-10-23; `docs/combat/items.md`). Before classes, the weapon in
+      your hand decides the normal attack; spell power never went down (staves only add). Was (medium): the `staff` kind, the staff bolt, MAGIC from staves, a staff
       on every boss's drops, starter and trader staves, weapon scrolls, the economy script learning
       staves. Before R, so R's "new copy of every boss item" pass copies the staves too.
 - [ ] **S2: the tree** (large), with the CLASSES table in `npm run economy`: the four class trees, the Rebirth spot, forks, advancements, the `spTotal` schedule, the

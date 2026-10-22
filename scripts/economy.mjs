@@ -3,7 +3,7 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE } from '../src/shared/rpg.js';
+import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
@@ -69,7 +69,7 @@ const CAMP_FIGHT_MIN = 2;
 const BOSS_CAMP_MAX = 2;
 
 const avg = ([, chance, lo, hi]) => chance * (lo + hi) / 2;
-const isGear = (id) => ['sword', 'helmet'].includes(ITEMS[id]?.kind);
+const isGear = (id) => ['sword', 'staff', 'helmet'].includes(ITEMS[id]?.kind);
 // What one kill is worth: gold picked up, and what the other drops sell for (gear apart: it's rare and lumpy)
 function perKill(m) {
   let gold = 0, sell = 0, gear = 0;
@@ -239,9 +239,19 @@ for (const [id, m] of bosses.filter(([, m]) => m.field)) {
 for (const [id, m] of bosses.filter(([, m]) => m.boss)) if (campRatio(m).exp > BOSS_CAMP_MAX) problems.push(`camping den boss ${id} for an hour gives ${campRatio(m).exp.toFixed(1)}x the EXP of farming mobs (max ${BOSS_CAMP_MAX}x)`);
 if (!(FIELD_BOSS_RESPAWN_MS >= 10 * 60_000)) problems.push('field bosses come back too often (FIELD_BOSS_RESPAWN_MS under 10 min)');
 for (const [id, it] of Object.entries(ITEMS)) {
-  if (!it.lvl || !['sword', 'helmet'].includes(it.kind)) continue;
-  const f = (it.kind === 'sword' ? it.atk : it.def) / curve(it.kind, it.lvl);
-  if (f < GEAR_FIT[0] || f > GEAR_FIT[1]) problems.push(`${id} (lvl ${it.lvl}) has ${Math.round(f * 100)}% of the frozen ${it.kind} curve (want ${GEAR_FIT[0] * 100}–${GEAR_FIT[1] * 100}%)`);
+  if (!it.lvl || !['sword', 'staff', 'helmet'].includes(it.kind)) continue;
+  // a staff's MAGIC sits on the sword curve (S1, story/progression.md)
+  const f = (it.kind === 'sword' ? it.atk : it.kind === 'staff' ? it.magic : it.def) / curve(it.kind === 'staff' ? 'sword' : it.kind, it.lvl);
+  if (f < GEAR_FIT[0] || f > GEAR_FIT[1]) problems.push(`${id} (lvl ${it.lvl}) has ${Math.round(f * 100)}% of the frozen ${it.kind === 'staff' ? 'sword (as MAGIC)' : it.kind} curve (want ${GEAR_FIT[0] * 100}–${GEAR_FIT[1] * 100}%)`);
 }
+// A staff is its twin sword's equal: same price, MAGIC = the sword's ATK, so a drop that can be either is
+// worth the same (server/rpg.js twinPick) and nobody's loot is worth less
+for (const [id, it] of Object.entries(ITEMS)) {
+  if (it.kind !== 'staff') continue;
+  const tw = ITEMS[it.twin];
+  if (!tw || tw.kind !== 'sword') problems.push(`staff ${id} has no twin sword`);
+  else if (tw.price !== it.price || tw.atk !== it.magic || (tw.slots ?? 0) !== (it.slots ?? 0) || (tw.lvl ?? 0) !== (it.lvl ?? 0)) problems.push(`staff ${id} doesn't match its twin ${it.twin} (price, MAGIC vs ATK, slots, lvl)`);
+}
+for (const [id, m] of bosses) if (!(m.drops ?? []).some(([d]) => STAFF_OF[d])) problems.push(`boss ${id} drops no weapon with a staff twin`);
 console.log(problems.length ? `\nCHECKS FAILED:\n- ${problems.join('\n- ')}` : '\nAll checks pass.');
 if (process.argv.includes('--check') && problems.length) process.exit(1);

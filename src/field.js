@@ -16,6 +16,7 @@ import { DEEP_MOB_ART, DEEP_ICONS, DEEP_SWORDS, DEEP_SWORD_LEN, DEEP_HELMETS } f
 import { CANOPY_MOB_ART, CANOPY_ICONS, CANOPY_SWORDS, CANOPY_SWORD_LEN, CANOPY_HELMETS } from './canopy-art.js';
 import { WRECK_MOB_ART, WRECK_ICONS, WRECK_SWORDS, WRECK_SWORD_LEN, WRECK_HELMETS } from './wreck-art.js';
 import { THORN_MOB_ART, THORN_ICONS, THORN_SWORDS, THORN_SWORD_LEN, THORN_HELMETS } from './thornheart-art.js';
+import { drawStaff, STAFF_LEN } from './staff-art.js';
 const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...FIELD_BOSS_ART, ...WILLOW_MOB_ART, ...COVES_MOB_ART, ...DEEP_MOB_ART, ...CANOPY_MOB_ART, ...WRECK_MOB_ART, ...THORN_MOB_ART };
 // Greenhollow's branches' gear and materials (src/willowmere-art.js, src/coves-art.js, src/deep-art.js, src/canopy-art.js,
 // src/wreck-art.js, src/thornheart-art.js)
@@ -3994,7 +3995,13 @@ export function drawItemIcon(ctx, id, x, y, size) {
   else if (id === 'aether_crystal') iconAetherCrystal(ctx);
   else if (id.startsWith('scroll_')) iconScroll(ctx, id);
   else if (BRANCH_ICONS[id]) BRANCH_ICONS[id](ctx);
-  else if (SWORD_LEN[id]) {
+  else if (STAFF_LEN[id]) {
+    // a shortened shaft so the head (what tells staves apart) is big
+    ctx.rotate(Math.PI / 4);
+    ctx.scale(1.05, 1.05);
+    ctx.translate(0, 15);
+    drawStaff(ctx, id, 0, 0, 20);
+  } else if (SWORD_LEN[id]) {
     const L = SWORD_LEN[id] + 11; // blade + grip
     const k = Math.min(1, 48 / L);
     ctx.rotate(Math.PI / 4);

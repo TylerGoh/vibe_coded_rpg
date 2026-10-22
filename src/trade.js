@@ -2,7 +2,7 @@
 // The trade window (both sides' offers, your bag to offer from, gold, Ready) and the card that pops up
 // when someone asks you to trade. The server decides everything (server/trade.js): this only shows its
 // state and sends your whole offer each time you change it.
-import { ITEMS, enhName, slotsOf } from './shared/rpg.js';
+import { ITEMS, enhName, slotsOf, isGear } from './shared/rpg.js';
 import { TRADE_ITEMS } from './shared/trade.js';
 import { drawItemIcon } from './field.js';
 import { audio } from './audio.js';
@@ -13,7 +13,7 @@ const sameE = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 export function itemDetail(x) {
   const it = ITEMS[x.id];
   if (!it) return '';
-  const e = x.e ?? {}, gear = it.kind === 'sword' || it.kind === 'helmet', parts = [];
+  const e = x.e ?? {}, gear = isGear(x.id), parts = [];
   if (it.atk) parts.push(`ATK +${it.atk}`);
   if (it.magic) parts.push(`MAGIC +${it.magic}`);
   if (it.def) parts.push(`DEF +${it.def}`);

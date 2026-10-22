@@ -17,7 +17,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP } from './shared/rpg.js';
+import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
 import { drawHighlands } from './highlands.js';
 import { drawCaldera, drawCalderaPass } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
@@ -247,11 +247,13 @@ const net = new Net(wsUrl, {
   },
   onSlap(m) {
     const slapper = m.id === net.id ? mine : slimes.get(m.id);
+    let boltDur = 0; // someone else's staff bolt: their hits show when it lands
     if (slapper && slapper !== mine) {
       slapper.slap(m.dir); // ours already swung when we clicked
-      if (slapper.visible) audio.sfx(slapper.gear?.sword ? 'swing' : 'slap', { pan: clamp((slapper.x - (mine?.x ?? 0)) / 500, -1, 1), vol: 0.5 });
+      if (slapper.visible) audio.sfx(weaponSound(slapper), { pan: clamp((slapper.x - (mine?.x ?? 0)) / 500, -1, 1), vol: 0.5 });
+      if (slapper.visible && isCombat(room) && ITEMS[slapper.gear?.weapon]?.kind === 'staff') boltDur = rpg.otherBolt(slapper, m.dir, m.mobs);
     }
-    if (m.mobs && isCombat(room) && m.id !== net.id) rpg.othersHits(m.mobs, mine?.x ?? 0); // ours already showed
+    if (m.mobs && isCombat(room) && m.id !== net.id) rpg.othersHits(m.mobs, mine?.x ?? 0, boltDur); // ours already showed
     const struck = [];
     for (const id of m.hits) {
       const s = id === net.id ? mine : slimes.get(id);
@@ -748,13 +750,15 @@ function impact(x, y) {
   if (pops.length > 8) pops.shift();
 }
 let lastSlap = 0;
+// what a slap sounds like with what's in hand: a sword swings, a staff fires (its bolt), a mitten slaps
+const weaponSound = (s) => ({ sword: 'swing', staff: 'staffBolt' })[ITEMS[s.gear?.weapon]?.kind] ?? 'slap';
 // In the Wildwood a slap (or a sword swing, with one equipped) also hits mobs
 // (what it hits is decided right here from what's on screen, and shown straight away: src/rpg.js)
 function slapToward(dir) {
   if (performance.now() - lastSlap < SLAP_COOLDOWN_MS || splatted(mine)) return;
   lastSlap = performance.now();
   mine.slap(dir); // swing straight away
-  audio.sfx(mine.gear?.sword ? 'swing' : 'slap', { vol: 0.7 });
+  audio.sfx(weaponSound(mine), { vol: 0.7 });
   const hits = rpg.slapHits(mine, dir);
   net.sendNpc({ t: 'slap', dir, s: net.seq, vt: Math.round(net.renderTick() ?? 0), hits });
 }

@@ -48,7 +48,7 @@
 //   → {t:'ouch', s, mob, kind:'touch'|'charge'|'slam'|'rain', mx}  a mob hit me (the server applies the same knockback)
 //   → {t:'pickup', s}
 //   ← {t:'nomana'}  a skill you tried had too little MP
-//   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,sword}, atk, magic, def,
+//   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,weapon}, atk, magic, def,
 //       skills:{id:rank}, sp, hotbar:[6], potbar:[3], alt:{hotbar,potbar}, set, ap:{str,dex,int,luk}, apLeft,
 //       minRoll, pvp, berserk}  your character
 //   → {t:'learn'|'unlearn', skill} · {t:'respec'} · {t:'hotbar', bar:'skill'|'pot', slot, id} · {t:'pvp', on}
@@ -67,8 +67,8 @@
 //   ← {t:'faint', id, by?}  a slime hit 0 HP: it splats, and wakes up in its town 1.6 s later · ← {t:'got', item, n}  you picked something up
 //   ← {t:'gear', id, gear, lvl, up?}  to everyone, when someone's gear or level changes (join/welcome carry it too)
 //   ← {t:'toast', text}  a short notice just for you
-//   → {t:'pickup'} (Z) · → {t:'equip'|'use'|'drop', slot} (bag index) · → {t:'unequip', slot:'helmet'|'sword'}
-//   → {t:'scroll', slot, target:'helmet'|'sword'|bagIndex}  use an enhancement scroll on a sword / helmet
+//   → {t:'pickup'} (Z) · → {t:'equip'|'use'|'drop', slot} (bag index) · → {t:'unequip', slot:'helmet'|'weapon'}
+//   → {t:'scroll', slot, target:'helmet'|'weapon'|bagIndex}  use an enhancement scroll on a weapon / helmet
 //       ← {t:'scrolled', id, result:'ok'|'fail'|'boom', item, name, left, by}  to the room (bag entries and
 //       `me.gearE` carry each item's enhancement e = {u, s, atk, magic, def, hp}; look/gear carry `plus`)
 //   Newer mob / boss attacks: ← {t:'boss', a:'shots'|'puddle'|'geysers'|'sweep'|'beam'|'grid'|'bombs'|'slash'|

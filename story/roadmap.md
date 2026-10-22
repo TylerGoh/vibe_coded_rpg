@@ -59,7 +59,7 @@ Mages neglected (no magic weapons), an archer and a cleric, bosses that need a m
 further apart at high levels. **The plan, its phases and the owner's open decisions: `progression.md`.**
 Interleaved with the G track: S0 (close the boss EXP faucet) and S1 (staves) go before the rebalance (R).
 - [x] S0 (2026-10-23): over-level EXP falloff, per-player boss reward window (`docs/combat/bosses.md`)
-- [ ] S1: staves and the Mage
+- [x] S1 (2026-10-23): staves (20, twins of the boss and shop swords), the staff bolt, weapon scrolls (`docs/combat/items.md`)
 - [ ] S2: the four class trees, the Rebirth spot in Slimeville (change class, keep level), forks, advancements, the node UI, mage combos, warrior chase moves
 - [ ] S3: the Cleric (the Mage's staff, heals, Cleanse, Revive, summons)
 - [ ] S4: the Archer (bows, Ranger Acorn)

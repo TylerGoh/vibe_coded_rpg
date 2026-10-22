@@ -1,0 +1,516 @@
+// Docs: docs/combat/items.md
+// Staves (S1, story/progression.md): every staff is a shaft plus a head, described in STAFFS (length, shaft
+// colours, head shape, gem colour, glow), and drawn by drawStaff with its grip at the origin and the head
+// pointing up (-y), the same way drawSword draws a sword (src/field.js), so the bag icon, the staff on a
+// slime's back and the cast all share it. staffGlow gives the colour of its bolt (src/skillfx.js).
+
+const TAU = Math.PI * 2;
+const circle = (ctx, x, y, r) => {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, TAU);
+};
+const ellipse = (ctx, x, y, rx, ry, rot = 0) => {
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, rot, 0, TAU);
+};
+const LINE = '#3a3350';
+
+// len: the shaft from the grip to the head · shaft: [light, dark] · w: half-width at the grip ·
+// head: the shape on top (HEADS) · gem / gem2: its colours · glow: 'r,g,b' of the light round the head and of the bolt
+export const STAFFS = {
+  wood_staff: { len: 44, shaft: ['#c99a68', '#8c6440'], w: 2.6, head: 'twig', gem: '#ffe9a0', glow: '255,236,170' },
+  iron_staff: { len: 50, shaft: ['#a07a58', '#6e5038'], w: 2.6, head: 'ring', gem: '#7fb4ff', gem2: '#c9ced9', glow: '150,190,255' },
+  crystal_staff: { len: 54, shaft: ['#f4eef6', '#c7b8d4'], w: 2.6, head: 'crystal', gem: '#ffb3e0', gem2: '#e48ad0', glow: '255,170,230' },
+  spore_staff: { len: 52, shaft: ['#efe2c6', '#bba57e'], w: 3, head: 'cap', gem: '#ff8f8f', gem2: '#fff4ea', glow: '255,190,170' },
+  thorn_staff: { len: 58, shaft: ['#7fae5f', '#4e7a3c'], w: 2.8, head: 'crook', gem: '#ff6f86', glow: '255,120,150' },
+  frost_staff: { len: 60, shaft: ['#dff3ff', '#93c6e8'], w: 2.6, head: 'flake', gem: '#bfe9ff', gem2: '#ffffff', glow: '170,225,255' },
+  star_staff: { len: 62, shaft: ['#eef0fa', '#a9aec9'], w: 2.4, head: 'star', gem: '#ffe680', gem2: '#fff8d0', glow: '255,232,140' },
+  magma_staff: { len: 62, shaft: ['#5a4a52', '#2f2630'], w: 3, head: 'ember', gem: '#ff8a3c', gem2: '#ffd36a', glow: '255,150,80' },
+  phoenix_staff: { len: 64, shaft: ['#ffd98a', '#d09a3a'], w: 2.6, head: 'feather', gem: '#ff7a4a', gem2: '#ffd36a', glow: '255,190,90' },
+  cog_staff: { len: 66, shaft: ['#e8c47a', '#a8803a'], w: 2.8, head: 'gear', gem: '#ffdb8a', gem2: '#8adcd0', glow: '255,220,150' },
+  chrono_staff: { len: 68, shaft: ['#e6d090', '#a88e4a'], w: 2.6, head: 'hourglass', gem: '#c8b0ff', gem2: '#ffe9a8', glow: '200,170,255' },
+  reed_staff: { len: 54, shaft: ['#c9d88a', '#8ea050'], w: 2.4, head: 'cattail', gem: '#9a6a44', glow: '230,240,170' },
+  drift_staff: { len: 56, shaft: ['#e6ddcf', '#b0a28c'], w: 3, head: 'roots', gem: '#8fe6d0', gem2: '#d8fff4', glow: '150,235,215' },
+  tide_staff: { len: 60, shaft: ['#ffb4bf', '#e07a8c'], w: 2.8, head: 'coral', gem: '#fff6f0', gem2: '#ffb4bf', glow: '255,200,210' },
+  glowcap_staff: { len: 58, shaft: ['#8a6a54', '#5a4232'], w: 2.8, head: 'cap', gem: '#7fd0ff', gem2: '#e0f6ff', glow: '130,210,255' },
+  knot_staff: { len: 62, shaft: ['#9a7656', '#634a34'], w: 3, head: 'knot', gem: '#ffd36a', glow: '255,215,120' },
+  oak_staff: { len: 60, shaft: ['#a8825a', '#6e5236'], w: 3, head: 'leaf', gem: '#c99252', gem2: '#7fc46a', glow: '190,240,160' },
+  honey_staff: { len: 62, shaft: ['#4a3e3a', '#2a2220'], w: 2.6, head: 'comb', gem: '#ffc44a', gem2: '#ffe59a', glow: '255,200,90', band: '#e6a83a' },
+  bosun_staff: { len: 64, shaft: ['#9a7a5a', '#5e4630'], w: 2.8, head: 'lantern', gem: '#8affc0', gem2: '#d6b25a', glow: '140,255,190' },
+  hart_staff: { len: 66, shaft: ['#7a6a54', '#4a3e30'], w: 2.8, head: 'antler', gem: '#fff4f6', gem2: '#e8d6b4', glow: '255,240,245' },
+};
+export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));
+export const staffGlow = (id) => STAFFS[id]?.glow ?? '190,200,255';
+
+// A soft light behind the head (stronger while casting)
+function halo(ctx, s, y, r, a) {
+  const g = ctx.createRadialGradient(0, y, 1, 0, y, r);
+  g.addColorStop(0, `rgba(${s.glow},${a})`);
+  g.addColorStop(1, `rgba(${s.glow},0)`);
+  ctx.fillStyle = g;
+  circle(ctx, 0, y, r);
+  ctx.fill();
+}
+function gem(ctx, x, y, r, c, shine = true) {
+  ctx.fillStyle = c;
+  circle(ctx, x, y, r);
+  ctx.fill();
+  ctx.strokeStyle = LINE;
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+  if (shine) {
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    circle(ctx, x - r * 0.35, y - r * 0.35, r * 0.32);
+    ctx.fill();
+  }
+}
+
+// The heads: (ctx, s, top y, time, glow 0..1)
+const HEADS = {
+  // a bent twig with a little spark caught in its fork
+  twig(ctx, s, y, t) {
+    ctx.strokeStyle = s.shaft[1];
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 6);
+    ctx.quadraticCurveTo(-6, y, -7, y - 6);
+    ctx.moveTo(0, y + 4);
+    ctx.quadraticCurveTo(5, y - 1, 4, y - 7);
+    ctx.stroke();
+    ctx.fillStyle = '#8fd47a';
+    ellipse(ctx, -8, y - 7, 3.2, 1.8, -0.7);
+    ctx.fill();
+    gem(ctx, -1, y - 2, 2.6 + Math.sin(t * 6) * 0.4, s.gem, false);
+  },
+  // an iron ring holding a stone
+  ring(ctx, s, y) {
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 4.6;
+    circle(ctx, 0, y - 4, 7);
+    ctx.stroke();
+    ctx.strokeStyle = s.gem2;
+    ctx.lineWidth = 2.6;
+    ctx.stroke();
+    gem(ctx, 0, y - 4, 3.8, s.gem);
+  },
+  // a long faceted crystal
+  crystal(ctx, s, y) {
+    ctx.fillStyle = s.gem;
+    ctx.beginPath();
+    ctx.moveTo(0, y - 16);
+    ctx.lineTo(5.5, y - 6);
+    ctx.lineTo(3.5, y + 3);
+    ctx.lineTo(-3.5, y + 3);
+    ctx.lineTo(-5.5, y - 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+    ctx.fillStyle = s.gem2;
+    ctx.beginPath();
+    ctx.moveTo(0, y - 16);
+    ctx.lineTo(5.5, y - 6);
+    ctx.lineTo(3.5, y + 3);
+    ctx.lineTo(0, y + 3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ellipse(ctx, -2, y - 7, 1.1, 4, 0.1);
+    ctx.fill();
+  },
+  // a mushroom cap with spots (Mother Mushroom's red, Truffle's glowing blue)
+  cap(ctx, s, y) {
+    ctx.fillStyle = s.gem;
+    ctx.beginPath();
+    ctx.moveTo(-11, y + 1);
+    ctx.quadraticCurveTo(-11, y - 12, 0, y - 12);
+    ctx.quadraticCurveTo(11, y - 12, 11, y + 1);
+    ctx.quadraticCurveTo(0, y - 2, -11, y + 1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    ctx.fillStyle = s.gem2;
+    for (const [dx, dy, r] of [[-5, -6, 2.2], [3, -8, 1.8], [6.5, -3, 1.4], [-1, -3, 1.2]]) {
+      circle(ctx, dx, y + dy, r);
+      ctx.fill();
+    }
+  },
+  // the briar's crook, curling over a glowing thornberry
+  crook(ctx, s, y) {
+    ctx.strokeStyle = s.shaft[1];
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 4);
+    ctx.bezierCurveTo(0, y - 10, 12, y - 12, 10, y - 3);
+    ctx.stroke();
+    ctx.strokeStyle = s.shaft[0];
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+    ctx.fillStyle = s.shaft[1];
+    for (const [x0, y0, a] of [[-1, y - 4, -2.4], [5, y - 10, -1.2], [11, y - 7, 0.2]]) {
+      ctx.save();
+      ctx.translate(x0, y0);
+      ctx.rotate(a);
+      ctx.beginPath();
+      ctx.moveTo(0, -1.4);
+      ctx.lineTo(4, 0);
+      ctx.lineTo(0, 1.4);
+      ctx.fill();
+      ctx.restore();
+    }
+    gem(ctx, 8.5, y + 1.5, 3.2, s.gem);
+  },
+  // a six-armed snowflake
+  flake(ctx, s, y, t) {
+    ctx.save();
+    ctx.translate(0, y - 7);
+    ctx.rotate(t * 0.6);
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 6; i++) {
+      ctx.rotate(TAU / 6);
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 3.4;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, -9);
+      ctx.moveTo(0, -5);
+      ctx.lineTo(3, -7.5);
+      ctx.moveTo(0, -5);
+      ctx.lineTo(-3, -7.5);
+      ctx.stroke();
+      ctx.strokeStyle = s.gem;
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+    }
+    ctx.restore();
+    gem(ctx, 0, y - 7, 2.6, s.gem2, false);
+  },
+  // a fallen star
+  star(ctx, s, y, t) {
+    ctx.save();
+    ctx.translate(0, y - 7);
+    ctx.rotate(Math.sin(t * 2) * 0.15);
+    ctx.fillStyle = s.gem;
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + (i / 10) * TAU, r = i % 2 ? 4.4 : 10;
+      ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.4;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    ctx.fillStyle = s.gem2;
+    circle(ctx, -1.5, -1.5, 2.4);
+    ctx.fill();
+    ctx.restore();
+  },
+  // a cup of black rock holding a molten orb
+  ember(ctx, s, y, t) {
+    gem(ctx, 0, y - 6, 6 + Math.sin(t * 5) * 0.5, s.gem, false);
+    ctx.fillStyle = s.gem2;
+    circle(ctx, -1.5, y - 7.5, 2.6);
+    ctx.fill();
+    ctx.fillStyle = s.shaft[1];
+    ctx.beginPath();
+    ctx.moveTo(-9, y - 8);
+    ctx.lineTo(-5, y - 2);
+    ctx.lineTo(0, y + 3);
+    ctx.lineTo(5, y - 2);
+    ctx.lineTo(9, y - 8);
+    ctx.lineTo(6, y - 1);
+    ctx.lineTo(0, y + 6);
+    ctx.lineTo(-6, y - 1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+  },
+  // a fan of flame-feathers
+  feather(ctx, s, y, t) {
+    for (const [a, l, c] of [[-0.6, 13, s.gem], [0.6, 13, s.gem], [-0.25, 17, s.gem2], [0.25, 17, s.gem2], [0, 20, '#fff2c0']]) {
+      ctx.save();
+      ctx.translate(0, y + 2);
+      ctx.rotate(a + Math.sin(t * 7 + a * 4) * 0.05);
+      ctx.fillStyle = c;
+      ellipse(ctx, 0, -l / 2, 3.2, l / 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(58,51,80,0.6)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+    }
+  },
+  // a turning gear with a teal light in the hub
+  gear(ctx, s, y, t) {
+    ctx.save();
+    ctx.translate(0, y - 7);
+    ctx.rotate(t * 1.4);
+    ctx.fillStyle = s.gem;
+    ctx.beginPath();
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * TAU, r = i % 2 ? 8 : 10.5;
+      ctx.lineTo(Math.cos(a - 0.12) * r, Math.sin(a - 0.12) * r);
+      ctx.lineTo(Math.cos(a + 0.12) * r, Math.sin(a + 0.12) * r);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+    ctx.restore();
+    gem(ctx, 0, y - 7, 3.6, s.gem2);
+  },
+  // an hourglass in a brass frame, its sand running up
+  hourglass(ctx, s, y, t) {
+    const top = y - 18, bot = y;
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.beginPath();
+    ctx.moveTo(-6, top + 2);
+    ctx.lineTo(6, top + 2);
+    ctx.lineTo(1, (top + bot) / 2);
+    ctx.lineTo(6, bot - 2);
+    ctx.lineTo(-6, bot - 2);
+    ctx.lineTo(-1, (top + bot) / 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    const k = (t * 0.25) % 1; // sand climbing into the top bulb
+    ctx.fillStyle = s.gem2;
+    ctx.beginPath();
+    ctx.moveTo(-5 * (1 - k * 0.6), bot - 2);
+    ctx.lineTo(5 * (1 - k * 0.6), bot - 2);
+    ctx.lineTo(1, (top + bot) / 2 + 1);
+    ctx.lineTo(-1, (top + bot) / 2 + 1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = s.gem;
+    ellipse(ctx, 0, top + 4 + 2 * (1 - k), 4 * k + 1, 1.6 * k + 0.6);
+    ctx.fill();
+    ctx.fillStyle = s.shaft[0];
+    ctx.strokeStyle = LINE;
+    for (const yy of [top, bot - 1]) {
+      ctx.beginPath();
+      ctx.roundRect(-8, yy - 1.5, 16, 3.5, 1.5);
+      ctx.fill();
+      ctx.stroke();
+    }
+  },
+  // a cattail head and two reed leaves
+  cattail(ctx, s, y) {
+    ctx.strokeStyle = '#8ea050';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 4);
+    ctx.quadraticCurveTo(-7, y - 2, -9, y - 12);
+    ctx.moveTo(0, y + 3);
+    ctx.quadraticCurveTo(6, y - 3, 8, y - 10);
+    ctx.stroke();
+    ctx.fillStyle = s.gem;
+    ctx.beginPath();
+    ctx.roundRect(-3, y - 16, 6, 15, 3);
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.strokeStyle = s.shaft[0];
+    ctx.beginPath();
+    ctx.moveTo(0, y - 16);
+    ctx.lineTo(0, y - 21);
+    ctx.stroke();
+  },
+  // driftwood roots clutching a ball of sea glass
+  roots(ctx, s, y) {
+    gem(ctx, 0, y - 7, 6, s.gem);
+    ctx.fillStyle = s.gem2;
+    circle(ctx, -2, y - 9, 2);
+    ctx.fill();
+    ctx.strokeStyle = s.shaft[1];
+    ctx.lineWidth = 2.4;
+    for (const d of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(0, y + 4);
+      ctx.bezierCurveTo(d * 9, y, d * 9, y - 10, d * 3, y - 14);
+      ctx.stroke();
+    }
+  },
+  // a branch of coral with a pearl in its fork
+  coral(ctx, s, y) {
+    ctx.strokeStyle = s.shaft[1];
+    ctx.lineWidth = 3.2;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 4);
+    ctx.quadraticCurveTo(-8, y - 2, -9, y - 13);
+    ctx.moveTo(-6, y - 5);
+    ctx.lineTo(-12, y - 8);
+    ctx.moveTo(0, y + 2);
+    ctx.quadraticCurveTo(8, y - 3, 8, y - 15);
+    ctx.moveTo(6, y - 7);
+    ctx.lineTo(12, y - 10);
+    ctx.stroke();
+    ctx.strokeStyle = s.shaft[0];
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+    gem(ctx, 0, y - 5, 3.6, s.gem);
+  },
+  // a root tied in a loop round a golden light
+  knot(ctx, s, y, t) {
+    halo(ctx, s, y - 8, 9, 0.5 + Math.sin(t * 3) * 0.15);
+    ctx.strokeStyle = s.shaft[1];
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 4);
+    ctx.bezierCurveTo(-12, y - 4, -6, y - 18, 0, y - 15);
+    ctx.bezierCurveTo(8, y - 12, 8, y - 2, -4, y - 4);
+    ctx.stroke();
+    ctx.strokeStyle = s.shaft[0];
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    gem(ctx, 0, y - 9, 2.8, s.gem, false);
+  },
+  // oak leaves and an acorn
+  leaf(ctx, s, y, t) {
+    for (const [a, c] of [[-0.9, s.gem2], [0.9, s.gem2], [0, '#9bd67e']]) {
+      ctx.save();
+      ctx.translate(0, y + 1);
+      ctx.rotate(a + Math.sin(t * 2 + a) * 0.06);
+      ctx.fillStyle = c;
+      ellipse(ctx, 0, -8, 4, 8);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(58,51,80,0.6)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.fillStyle = s.gem;
+    ellipse(ctx, 0, y - 13, 3.6, 4.4);
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.fillStyle = '#8a6440';
+    ellipse(ctx, 0, y - 16.5, 4.2, 2);
+    ctx.fill();
+    ctx.stroke();
+  },
+  // a ball of golden comb, dripping
+  comb(ctx, s, y, t) {
+    gem(ctx, 0, y - 8, 8, s.gem, false);
+    ctx.strokeStyle = 'rgba(160,100,30,0.6)';
+    ctx.lineWidth = 1;
+    for (const [hx, hy] of [[-3, -11], [3, -11], [0, -6], [-5, -5], [5, -5]]) {
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) ctx.lineTo(hx + Math.cos((i / 6) * TAU) * 2.4, y + hy + Math.sin((i / 6) * TAU) * 2.4);
+      ctx.closePath();
+      ctx.stroke();
+    }
+    const d = (t * 0.7) % 1; // a drip slowly falling
+    ctx.fillStyle = s.gem2;
+    ellipse(ctx, 3, y + d * 6, 1.6, 2.2);
+    ctx.fill();
+    ctx.fillStyle = s.band;
+    ctx.fillRect(-3, y + 1, 6, 2.5);
+  },
+  // a ship's lantern with a cold green flame
+  lantern(ctx, s, y, t) {
+    ctx.strokeStyle = s.shaft[1];
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 4);
+    ctx.quadraticCurveTo(0, y - 10, 6, y - 12);
+    ctx.stroke();
+    const lx = 6, ly = y - 1;
+    ctx.strokeStyle = s.gem2;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(lx, y - 12);
+    ctx.lineTo(lx, ly - 7);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(200,255,225,0.5)';
+    ctx.beginPath();
+    ctx.roundRect(lx - 4.5, ly - 7, 9, 11, 2.5);
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.stroke();
+    ctx.fillStyle = s.gem;
+    ellipse(ctx, lx, ly - 1 + Math.sin(t * 9) * 0.4, 2, 3.4 + Math.sin(t * 7) * 0.4);
+    ctx.fill();
+    ctx.fillStyle = s.gem2;
+    ctx.fillRect(lx - 5, ly - 8, 10, 2);
+    ctx.fillRect(lx - 5, ly + 3, 10, 2);
+  },
+  // two antler tines with a white rose bud between them
+  antler(ctx, s, y) {
+    for (const [c, lw] of [[LINE, 4.6], [s.gem2, 2.8]]) {
+      ctx.strokeStyle = c;
+      ctx.lineWidth = lw;
+      for (const d of [-1, 1]) {
+        ctx.beginPath();
+        ctx.moveTo(0, y + 4);
+        ctx.quadraticCurveTo(d * 9, y - 2, d * 10, y - 16);
+        ctx.moveTo(d * 7, y - 4);
+        ctx.lineTo(d * 13, y - 8);
+        ctx.moveTo(d * 9, y - 10);
+        ctx.lineTo(d * 5, y - 15);
+        ctx.stroke();
+      }
+    }
+    ctx.fillStyle = '#7fae5f';
+    ellipse(ctx, 0, y - 2, 2.4, 3.4);
+    ctx.fill();
+    ctx.fillStyle = s.gem;
+    ellipse(ctx, 0, y - 7, 3.4, 4.4);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(58,51,80,0.6)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  },
+};
+
+// One staff, grip at the origin, head up. glow 0..1: extra light (casting); t: time, for the moving parts;
+// len: a shorter shaft (the bag icon, so the head is big enough to tell staves apart).
+export function drawStaff(ctx, id, glow = 0, t = 0, len = 0) {
+  const s = STAFFS[id];
+  if (!s) return;
+  const L = len || s.len, w = s.w;
+  ctx.save();
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  halo(ctx, s, -L - 6, 14 + glow * 8, 0.25 + glow * 0.35);
+  // the shaft: a little wider at the grip, a rounded butt below the hand
+  ctx.beginPath();
+  ctx.moveTo(-w, 9);
+  ctx.lineTo(-w * 0.75, -L + 2);
+  ctx.quadraticCurveTo(0, -L - 1, w * 0.75, -L + 2);
+  ctx.lineTo(w, 9);
+  ctx.quadraticCurveTo(0, 12, -w, 9);
+  ctx.closePath();
+  const g = ctx.createLinearGradient(-w, 0, w, 0);
+  g.addColorStop(0, s.shaft[0]);
+  g.addColorStop(1, s.shaft[1]);
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.strokeStyle = LINE;
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  // a wrap where the hand goes, and a collar under the head
+  ctx.fillStyle = s.band ?? 'rgba(58,51,80,0.35)';
+  for (const yy of [-3, 1]) ctx.fillRect(-w - 0.4, yy, w * 2 + 0.8, 1.6);
+  ctx.fillStyle = s.gem2 ?? s.gem;
+  ctx.beginPath();
+  ctx.roundRect(-w - 1.2, -L + 1, w * 2 + 2.4, 3, 1.4);
+  ctx.fill();
+  ctx.strokeStyle = LINE;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  HEADS[s.head](ctx, s, -L - 2, t, glow);
+  ctx.restore();
+}

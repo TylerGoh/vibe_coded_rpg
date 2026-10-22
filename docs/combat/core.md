@@ -24,6 +24,11 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
 
 ## Damage
 - Attack: click/tap toward a side, or X / Hit toward where you face. Reach `SLAP_REACH` plus the sword's.
+- **With a staff** (S1) the attack is a **staff bolt** instead: a small orb to the first mob ahead within
+  `STAFF_BOLT_RANGE` plus the staff's reach (`boltRange` in `statsFor`), for `STAFF_BOLT_MULT` of MAGIC,
+  flying at `STAFF_BOLT_SPEED` (`staffBolt` in `src/rpg.js`; the hit is sent at once and shown on landing).
+  The server's `attack()` checks that range and caps at MAGIC × `STAFF_BOLT_MULT`. Other players see the bolt
+  (`otherBolt`). Slapping friends with a staff is still a close bonk, judged by the server as before.
 - All of a character's numbers come from `statsFor(char, buffs)` in `src/shared/skills.js` (gear, scrolls,
   skills, ability points, buffs). Use it, never the parts.
 - A roll is `minRoll` (raised by DEX) to `MAX_ROLL` of ATK or MAGIC, then a crit chance and multiplier.

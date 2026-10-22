@@ -47,6 +47,11 @@
   field bosses, which they don't have (small bosses get a move or two, owner).
 - A vertical camera for the Canopy (climbing up, not along): its own `step()`/camera project, never started.
 
+## S1 left for later
+- Staff twins for the swords that only drop from mobs (`docs/combat/items.md` lists them).
+- The staff bolt and staff numbers were tried by a bot (bolts land, caps hold, drops follow the weapon held);
+  nobody has played a staff-wielder for real. The bolt may feel weak or strong next to a sword swing.
+
 ## G4 left for later
 - The plan's "nasty hazard" for hard pockets: none beyond the mobs' own (water jets, ink, thorn seeds). A
   room hazard (tide surges in Wreck Cave, thorn patches in the Thornheart) would need a stage-hazard system

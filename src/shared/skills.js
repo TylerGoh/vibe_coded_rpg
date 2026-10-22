@@ -1,5 +1,5 @@
 // Docs: docs/combat/skills.md
-import { attackFor, defenseFor, maxHpFor, reachFor } from './rpg.js';
+import { attackFor, defenseFor, maxHpFor, reachFor, ITEMS, STAFF_BOLT_RANGE } from './rpg.js';
 import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR_BLINK, IFR_PHANTOM, PHANTOM_CD } from './sim.js';
 
 // Shared by client and server: the two skill trees, mana, and the hotbar. Every level gives one skill
@@ -215,15 +215,17 @@ export function statsFor(c, buffs = {}) {
   const arcane = 1 + 0.12 * rankOf(c.skills, 'arcane_mind');
   const mastery = rankOf(c.skills, 'sword_mastery');
   // scroll enhancements on the worn gear (rpg.js rollScroll)
-  const ge = c.gearE ?? {}, enh = (k) => (ge.sword?.[k] ?? 0) + (ge.helmet?.[k] ?? 0);
+  const ge = c.gearE ?? {}, enh = (k) => (ge.weapon?.[k] ?? 0) + (ge.helmet?.[k] ?? 0);
+  const staff = ITEMS[c.gear?.weapon]?.kind === 'staff' ? ITEMS[c.gear.weapon] : null; // (S1: spells grow with a staff)
   const str = apOf(c.ap, 'str'), dex = apOf(c.ap, 'dex'), int = apOf(c.ap, 'int'), luk = apOf(c.ap, 'luk');
   return {
-    atk: Math.round((attackFor(c.lvl, c.gear?.sword) + enh('atk') + 0.6 * str + 0.2 * dex) * rage * rally * might),
-    magic: Math.round((magicFor(c.lvl) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might),
+    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + 0.6 * str + 0.2 * dex) * rage * rally * might),
+    magic: Math.round((magicFor(c.lvl) + (staff?.magic ?? 0) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might),
     def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 3 * rankOf(c.skills, 'iron_jelly')) * rally),
     maxHp: Math.round((maxHpFor(c.lvl) + enh('hp') + 10 * rankOf(c.skills, 'iron_jelly') + 3 * str) * (1 + 0.08 * rankOf(c.skills, 'vitality'))),
-    maxMp: maxMpFor(c.lvl, c.skills) + 2 * int,
-    reach: reachFor(c.gear?.sword),
+    maxMp: maxMpFor(c.lvl, c.skills) + 2 * int + (staff?.mp ?? 0),
+    reach: staff ? 0 : reachFor(c.gear?.weapon), // a sword's extra reach (swings and blade skills)
+    boltRange: staff ? STAFF_BOLT_RANGE + staff.reach : 0, // a staff bolt's range
     crit: 0.12 + 0.03 * mastery + Math.min(0.2, 0.0004 * luk) + (brew.crit ?? 0),
     critMult: 1.6 + 0.1 * mastery + 0.0015 * luk,
     minRoll: minRollFor(c.ap),
@@ -232,4 +234,4 @@ export function statsFor(c, buffs = {}) {
   };
 }
 export const mpRegen = (skills) => 1 + 0.5 * rankOf(skills, 'mana_flow'); // multiplier
-export const magicFor = (lvl) => 5 + lvl * 3; // spell power (swords don't help spells)
+export const magicFor = (lvl) => 5 + lvl * 3; // spell power from the level (a staff adds its magic; swords don't help spells)
