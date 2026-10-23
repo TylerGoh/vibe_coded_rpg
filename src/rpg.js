@@ -10,7 +10,7 @@ import { text } from './village.js';
 import { drawMob, drawItemIcon } from './field.js';
 import { drawBoss, drawBossBar, BossFx, drawUltBanner } from './dens.js';
 import { drawHazard } from './hazards.js';
-import { SkillFx, drawSkillIcon, drawBerserkAura, drawBubble, drawRallyAura, drawAegisAura } from './skillfx.js';
+import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, drawRallyAura, drawAegisAura } from './skillfx.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED } from './shared/rpg.js';
 import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk } from './shared/skills.js';
@@ -334,7 +334,7 @@ export class Rpg {
     };
     const sx = me.x, sy = me.y, reach = SLAP_REACH + (this.swordOf(m)?.reach ?? 0) + (sk.reach ?? 0);
     const mag = (sk.stat === 'best' ? Math.max(m.atk, m.magic) : m.magic) * (sk.fire ? m.fire ?? 1 : 1);
-    const sound = { strike: id === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis' }[sk.kind];
+    const sound = { strike: id === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter' }[sk.kind];
     if (sk.kind === 'strike') {
       const [v] = this.ahead(me, dir, reach);
       if (v) hit(v, m.atk);
@@ -414,6 +414,10 @@ export class Rpg {
     } else if (sk.kind === 'rally') {
       if (mine) mine.rallyUntil = this.time + sk.dur;
       this.fx.spawn('rally', { x: sx, y: sy, radius: sk.radius });
+    } else if (sk.kind === 'gods') {
+      if (mine) mine.godsUntil = this.time + sk.dur;
+      m.hp = Math.min(m.hp, 1); // (the server's 'me' follows)
+      this.fx.spawn('gods', { x: sx, y: sy });
     } else if (sk.kind === 'zone') {
       this.fx.spawn('zone', { x: sx, y: sy, radius: sk.radius, dur: sk.dur });
     } else if (sk.kind === 'aegis') {
@@ -451,6 +455,7 @@ export class Rpg {
     const x = caster.x, y = caster.y, vol = 0.6, pan = panX(x, myX);
     if (sk.kind === 'buff') caster.berserkUntil = this.time + (m.dur ?? 20);
     if (sk.kind === 'bubble') caster.bubbleUntil = this.time + (m.dur ?? 8);
+    if (sk.kind === 'gods') caster.godsUntil = this.time + (m.dur ?? 15);
     const follow = () => ({ x: caster.x, y: caster.y });
     if (sk.kind === 'strike') this.fx.spawn(m.skill === 'sky_splitter' ? 'skysplit' : 'strike', { x, y, dir: m.dir });
     else if (sk.kind === 'cleave') this.fx.spawn('cleave', { x, y, dir: m.dir, reach: SLAP_REACH + sk.reach });
@@ -467,7 +472,8 @@ export class Rpg {
     else if (sk.kind === 'rally') this.fx.spawn('rally', { x, y, radius: sk.radius });
     else if (sk.kind === 'zone') this.fx.spawn('zone', { x, y, radius: sk.radius, dur: m.dur });
     else if (sk.kind === 'aegis') this.fx.spawn('aegis', { x, y, radius: sk.radius });
-    const sound = { strike: m.skill === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis' }[sk.kind];
+    else if (sk.kind === 'gods') this.fx.spawn('gods', { x, y });
+    const sound = { strike: m.skill === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter' }[sk.kind];
     if (sound) audio.sfx(sound, { pan, vol });
     const delay = sk.kind === 'bolt' || sk.kind === 'fireball' ? Math.abs(m.tx - x) / 900 : sk.kind === 'meteor' ? sk.delay : sk.kind === 'starfall' ? 0.3 : 0;
     this.othersHits(m.hits, myX, delay);
@@ -985,6 +991,7 @@ export class Rpg {
     ctx.restore();
   }
   drawAura(ctx, s) {
+    if ((s.godsUntil ?? 0) > this.time) drawGodsAura(ctx, s.x, s.y, this.time, s.godsUntil - this.time);
     if ((s.berserkUntil ?? 0) > this.time) drawBerserkAura(ctx, s.x, s.y, this.time);
     if ((s.rallyUntil ?? 0) > this.time) drawRallyAura(ctx, s.x, s.y, this.time);
   }

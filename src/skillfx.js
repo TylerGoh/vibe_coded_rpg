@@ -15,6 +15,7 @@ const TREE_OF = {
   // S2: the Novice tree and the classes' new skills
   slime_bash: 'novice', pebble_toss: 'novice', jelly_patch: 'novice', jelly_thirst: 'blade', mana_shield: 'magic',
   fireball: 'fire', kindling: 'fire', glacial_spike: 'magic', absolute_zero: 'magic',
+  challenge_gods: 'gods', // (a gift: one player's own)
 };
 const PALETTE = {
   blade: [BLADE, '#ffc4b0', '#b85a48'],
@@ -23,6 +24,7 @@ const PALETTE = {
   wind: [WIND, '#c4f0f8', '#2f8aa0'],
   novice: ['#e6b85c', '#fff0c4', '#a8782a'],
   fire: ['#f08a5a', '#ffd0b0', '#b8502a'],
+  gods: ['#c8406a', '#ffd88a', '#6a1a3a'],
 };
 const ease = (k) => 1 - (1 - k) ** 3;
 // a stable pseudo-random number in [0, 1) for (seed, i)
@@ -219,6 +221,44 @@ export function drawSkillIcon(ctx, id, x, y, size) {
 }
 
 const ICONS = {
+  // ——— Gifts ———
+  challenge_gods(ctx) {
+    // a lightning bolt striking down on a single tiny heart (1 HP), rays behind
+    ctx.strokeStyle = 'rgba(255,240,190,0.75)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * TAU + 0.2;
+      ctx.moveTo(Math.cos(a) * 9, 6 + Math.sin(a) * 9);
+      ctx.lineTo(Math.cos(a) * 17, 6 + Math.sin(a) * 17);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#ff4a6a';
+    ctx.strokeStyle = '#6a1a3a';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath(); // the heart
+    ctx.moveTo(0, 13);
+    ctx.bezierCurveTo(-9, 6, -8, -1, -3.5, 0);
+    ctx.bezierCurveTo(-1.5, 0.5, 0, 2, 0, 3);
+    ctx.bezierCurveTo(0, 2, 1.5, 0.5, 3.5, 0);
+    ctx.bezierCurveTo(8, -1, 9, 6, 0, 13);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#fff6c4';
+    ctx.strokeStyle = '#a8782a';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath(); // the bolt, from the top of the badge to the heart
+    ctx.moveTo(4, -20);
+    ctx.lineTo(-5, -7);
+    ctx.lineTo(0, -7);
+    ctx.lineTo(-4, 2);
+    ctx.lineTo(7, -11);
+    ctx.lineTo(2, -11);
+    ctx.lineTo(8, -20);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  },
   // ——— Novice ———
   slime_bash(ctx, dark) {
     // a jelly leaning into a bump, an impact star ahead of it
@@ -1098,7 +1138,7 @@ const ICONS = {
 const LIFE = {
   strike: 0.35, spin: 0.5, heal: 0.9, nova: 0.6, buff: 0.6, levelskill: 0.8,
   cleave: 0.38, storm: 1.0, skysplit: 0.65, chain: 0.42, starfall: 1.3, bubblePop: 0.45, rally: 0.8, aegis: 0.7, secondwind: 1.0,
-  dash: 0.3, blink: 0.45, flashjump: 0.35, scroll: 1.4,
+  dash: 0.3, blink: 0.45, flashjump: 0.35, scroll: 1.4, gods: 1.1,
 };
 
 export class SkillFx {
@@ -1139,6 +1179,38 @@ export class SkillFx {
 }
 
 const FX = {
+  // Challenge the Gods {x, y}: a bolt of light out of the sky onto the caster, and a crimson ring bursting out
+  gods(ctx, e, k) {
+    const { x, y } = e.o, fade = 1 - k;
+    ctx.translate(x, y);
+    const flash = Math.max(0, 1 - k * 3);
+    ctx.globalAlpha = flash;
+    ctx.fillStyle = '#fff6d0';
+    ctx.fillRect(-14 * flash - 3, -600, 2 * (14 * flash + 3), 600); // the column of light
+    ctx.globalAlpha = Math.max(0, 1 - k * 2.2);
+    ctx.strokeStyle = '#fff6c4';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); // the bolt
+    let bx = 0;
+    ctx.moveTo(0, -560);
+    for (let i = 1; i <= 10; i++) {
+      bx = i === 10 ? 0 : (rnd(e.seed, i) - 0.5) * 34;
+      ctx.lineTo(bx, -560 + i * 54);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = fade;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 6 * fade + 1;
+    ctx.beginPath();
+    ctx.ellipse(0, -20, 20 + ease(k) * 80, (20 + ease(k) * 80) * 0.6, 0, 0, TAU);
+    ctx.stroke();
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * TAU + e.seed, d = 16 + ease(k) * 60;
+      ctx.fillStyle = i % 2 ? '#ffffff' : '#fff2c0';
+      star(ctx, Math.cos(a) * d, -22 + Math.sin(a) * d * 0.6 - k * 20, 4 * fade + 1);
+    }
+  },
+
   // A big bright crescent slash in front of the caster
   strike(ctx, e, k) {
     const { x, y } = e.o, dir = e.o.dir < 0 ? -1 : 1;
@@ -2496,6 +2568,34 @@ const FX = {
     }
   },
 };
+
+// While Challenge the Gods is up (feet at x, y; left: seconds to go): the slime glows white (owner), a pulse
+// quickening as the end nears, red sparks circling. Drawn before the slime.
+export function drawGodsAura(ctx, x, y, time, left) {
+  ctx.save();
+  ctx.translate(x, y);
+  const beat = 0.5 + 0.5 * Math.sin(time * (6 + Math.max(0, 15 - left) * 0.8)); // the heart races
+  const g = ctx.createRadialGradient(0, -20, 10, 0, -20, 58);
+  g.addColorStop(0, `rgba(255,255,255,${0.6 + 0.3 * beat})`);
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.ellipse(0, -20, 58, 50, 0, 0, TAU);
+  ctx.fill();
+  ctx.globalAlpha = 0.45 + 0.45 * beat;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.ellipse(0, -20, 34 + 4 * beat, 30 + 4 * beat, 0, 0, TAU);
+  ctx.stroke();
+  ctx.globalAlpha = 0.9;
+  for (let i = 0; i < 6; i++) {
+    const a = time * 2.6 + (i / 6) * TAU;
+    ctx.fillStyle = i % 2 ? '#ffffff' : '#fff2c0';
+    star(ctx, Math.cos(a) * 36, -22 + Math.sin(a) * 14, 3);
+  }
+  ctx.restore();
+}
 
 // A flickering warm aura round a slime (feet at x, y) while Berserk is on. Drawn before the slime.
 export function drawBerserkAura(ctx, x, y, time) {

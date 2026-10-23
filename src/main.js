@@ -227,7 +227,7 @@ const net = new Net(wsUrl, {
           mine.setLook(m);
           Object.assign(mine, { lvl: m.lvl, pvp: m.pvp });
           // our buffs and shields, as the server sees them (in rpg.time)
-          for (const b of ['berserk', 'rally', 'bubble', 'aegis']) mine[`${b}Until`] = rpg.time + (m[b] ?? 0) / 1000;
+          for (const b of ['berserk', 'rally', 'bubble', 'aegis', 'gods']) mine[`${b}Until`] = rpg.time + (m[b] ?? 0) / 1000;
         }
         alchemy.gotMe(m);
         skillTree.render();

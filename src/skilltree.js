@@ -7,7 +7,7 @@
 // Rules: src/shared/skills.js. On phones the card sits in the scroll after the tree (docs/ui/mobile.md).
 import { drawSkillIcon } from './skillfx.js';
 import { audio } from './audio.js';
-import { TREES, SKILLS, ACTIVE, CLASSES, CLASS_LVL, ADVANCEMENTS, rankOf, cantLearn, cantUnlearn, pointsIn, branchPoints, heldBranch, cooldownOf, branchOf, spLeft, spFree } from './shared/skills.js';
+import { TREES, SKILLS, ACTIVE, giftsOf, CLASSES, CLASS_LVL, ADVANCEMENTS, rankOf, cantLearn, cantUnlearn, pointsIn, branchPoints, heldBranch, cooldownOf, branchOf, spLeft, spFree } from './shared/skills.js';
 
 const el = (tag, cls, text) => {
   const e = document.createElement(tag);
@@ -84,7 +84,7 @@ export class SkillTree {
     if (!m || !Object.keys(m.skills).length) return;
     this.send({ t: 'respec' });
     audio.sfx('reset');
-    this.change({});
+    this.change(giftsOf(m.skills));
     this.rpg.toast('Skill points refunded: spend them however you like');
   }
   select(id) {
@@ -114,7 +114,7 @@ export class SkillTree {
   // why a skill can't take a point, as the card says it (null: it can)
   why(m, id) {
     const sk = SKILLS[id], cls = m.cls ?? 'novice';
-    if (cls === 'novice' && sk.cls !== 'novice' && sk.cls !== 'any') return `Choose ${CLASSES[sk.cls].name} at the Rebirth Pool (from Lv ${CLASS_LVL}) to learn this`;
+    if (cls === 'novice' && sk.cls !== 'novice' && sk.cls !== 'any' && !sk.gift) return `Choose ${CLASSES[sk.cls].name} at the Rebirth Pool (from Lv ${CLASS_LVL}) to learn this`;
     return cantLearn(m, id);
   }
 
@@ -212,6 +212,16 @@ export class SkillTree {
       });
       if (t.id === 'wind' && novice) col.classList.add('preview');
       tree.append(col);
+      // a gift skill (one player's own, SKILLS[id].gift) gets a row of its own under the Novice tree
+      const gifts = t.id === 'novice' ? Object.keys(giftsOf(m.skills)) : [];
+      if (gifts.length) {
+        shown.push(...gifts);
+        const g = el('div', 'skt-col gift');
+        const c = this.cell(m, 1, gifts, 'A gift from the gods');
+        c.classList.add('from', 'to');
+        g.append(c);
+        tree.append(g);
+      }
     } else {
       const k = novice ? this.peek : cls, C = CLASSES[k];
       tree.style.setProperty('--tree', C.color);
@@ -295,7 +305,7 @@ export class SkillTree {
     title.append(el('b', null, sk.name), el('span', 'skc-rank', `${rank}/${sk.max}`), el('span', 'skc-tag', tag));
     text.append(title, el('p', null, rank ? `Now: ${sk.desc(rank)}` : `Rank 1: ${sk.desc(1)}`));
     if (rank && rank < sk.max) text.append(el('p', 'skc-next', `Next rank: ${sk.desc(rank + 1)}`));
-    if (why && rank < sk.max) text.append(el('p', 'skc-why', `${why}.`.replace(/\.\.$/, '.')));
+    if (why && rank < sk.max && !sk.gift) text.append(el('p', 'skc-why', `${why}.`.replace(/\.\.$/, '.')));
     const btns = el('div', 'skc-btns');
     const btn = (label, c, fn, off) => {
       const b = el('button', c, label);
@@ -305,7 +315,7 @@ export class SkillTree {
       btns.append(b);
     };
     btn('+', 'sk-plus', () => this.learn(id), !!why);
-    btn('−', 'sk-minus', () => this.unlearn(id), !rank);
+    btn('−', 'sk-minus', () => this.unlearn(id), !rank || !!sk.gift);
     if (ACTIVE(id)) {
       const on = m.hotbar?.indexOf(id) ?? -1;
       btn(on >= 0 ? `Key ${on + 1}` : 'Hotbar', 'sk-bar', () => {

@@ -13,7 +13,7 @@
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
 import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, STAFF_OFFKIND, STAFF_BOLT_MULT, rebirthCost } from '../src/shared/rpg.js';
-import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, skillFor, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf } from '../src/shared/skills.js';
+import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf } from '../src/shared/skills.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
@@ -62,6 +62,10 @@ const CLASSES_NEWS = `Classes are here! Everyone is a Novice for now: all your s
 // chenyirong goes to darrell's level (owner: botting). Gold, bag, gear, house and pets are all kept; skill
 // points and AP are refunded, and every boss pays out again. Runs once per character: `lb` marks it done.
 const ROLLBACK = { chenyirong: 57, justin: 87, darrell: 57, tyler: 48, qing: 32, wallace: 21 };
+// An easter egg (owner, 2026-10-23): chenyirong goes back to Lv 1 once, and gets his own skill, Challenge the
+// Gods (a gift: SKILLS.challenge_gods). Gold, bag, gear, house and pets are kept. `gods` marks it done.
+const GODS_RESET = 'chenyirong';
+const GODS_NEWS = `The slime gods have seen your stubbornness and wish to test your will. You are Lv 1 again, but you alone hold a gift: Challenge the Gods (on your hotbar, and in the Novice tab of K). For ${GODS_DUR} seconds your HP is stuck at 1 and you hit ${1 + GODS_BOOST} times as hard. Live through it and you are healed to full.`;
 export function rollbackLevel(base, activeMs) {
   let lvl = base, min = activeMs / 60_000;
   while (min >= LEVEL_MIN(lvl)) min -= LEVEL_MIN(lvl++);
@@ -101,7 +105,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
 
   // ——— characters ———
   const brewOf = (c) => ((c.brew?.until ?? 0) > now() ? ITEMS[c.brew.id].buff : null); // a brewed potion's buff
-  const buffsOf = (p) => ({ berserk: (p.berserkUntil ?? 0) > now(), manaShield: (p.manaShieldUntil ?? 0) > now(), rally: (p.rallyUntil ?? 0) > now() ? p.rallyBoost : 0, brew: brewOf(p.rpg) });
+  const buffsOf = (p) => ({ gods: (p.godsUntil ?? 0) > now(), berserk: (p.berserkUntil ?? 0) > now(), manaShield: (p.manaShieldUntil ?? 0) > now(), rally: (p.rallyUntil ?? 0) > now() ? p.rallyBoost : 0, brew: brewOf(p.rpg) });
   const stats = (p) => statsFor(p.rpg, buffsOf(p));
   const left = (until) => Math.max(0, (until ?? 0) - now());
   const zones = []; // Sanctuaries: { room, x, r, until, cut }
@@ -170,6 +174,18 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       p.notice = [p.notice, CLASSES_NEWS].filter(Boolean).join('\n');
       p.dirty = true;
     }
+    if (p.name === GODS_RESET && !r.gods) { // the easter egg (once): back to Lv 1, the gift on the hotbar
+      Object.assign(r, { lvl: 1, exp: 0, skills: {}, ap: { ...fresh.ap }, bossAt: {}, gods: 1 });
+      r.hotbar = ['challenge_gods', ...Array(HOTBAR - 1).fill(null)];
+      r.alt.hotbar = Array(HOTBAR).fill(null);
+      r.hp = stats(p).maxHp;
+      r.mp = stats(p).maxMp;
+      p.notice = [p.notice, GODS_NEWS].filter(Boolean).join('\n');
+      p.dirty = true;
+    }
+    // gift skills: only their own account holds them, and it always does
+    r.skills = Object.fromEntries(Object.entries(r.skills).filter(([id]) => !SKILLS[id].gift));
+    for (const [id, sk] of Object.entries(SKILLS)) if (sk.gift === p.name) r.skills[id] = 1;
     p.hurtAt = 0;
     p.clockAt = now();
     p.cds = {};
@@ -193,9 +209,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function save(p) {
     if (p.rpg && p.joined) clock(p);
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn, gods } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn, gods }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -212,7 +228,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       hotbar: c.hotbar, potbar: c.potbar, alt: c.alt, set: c.set, pvp: c.pvp, crit: st.crit, critMult: st.critMult, minRoll: st.minRoll,
       ap: c.ap, apLeft: apTotal(c.lvl) - apSpent(c.ap),
       cosmetics: c.cosmetics, wear: c.wear, showHelmet: c.showHelmet,
-      berserk: left(p.berserkUntil), manaShield: left(p.manaShieldUntil), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), secondWind: left(p.swReadyAt),
+      berserk: left(p.berserkUntil), manaShield: left(p.manaShieldUntil), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), gods: left(p.godsUntil), secondWind: left(p.swReadyAt),
       brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
       ways: c.ways,
     });
@@ -267,10 +283,21 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // one you were in)
   function faint(id, p, by) {
     p.rpg.hp = 0;
+    p.godsUntil = 0; // (Challenge the Gods lost: no heal at the end)
     p.faintUntil = now() + FAINT_MS; // inputs are ignored meanwhile (index.js)
     p.faintBy = by;
     for (const m of mobs) if (m.target === p) m.target = null;
     toRoom(p.state.room)({ t: 'faint', id, by });
+    sendMe(p);
+  }
+  // Challenge the Gods ran out with you still standing: healed to full
+  function godsEnd(id, p) {
+    p.godsUntil = 0;
+    if (!p.rpg || !p.joined) return;
+    const amt = Math.round(stats(p).maxHp - p.rpg.hp);
+    p.rpg.hp = stats(p).maxHp;
+    if (amt > 0) toRoom(p.state.room)({ t: 'thirst', id, n: amt });
+    toast(p, 'You stared down the gods and lived. Healed to full!');
     sendMe(p);
   }
   function wakeUp(p) {
@@ -554,6 +581,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         out.targets.push(qid);
         if (q !== p) sendMe(q);
       }
+    } else if (sk.kind === 'gods') {
+      p.godsUntil = t + sk.dur * 1000; // HP capped at 1 (statsFor), healed to full when it ends (tick)
+      c.hp = Math.min(c.hp, 1);
+      out.dur = sk.dur;
     } else if (sk.kind === 'zone') {
       zones.push({ room: s.room, x: s.x, r: sk.radius, until: t + sk.dur * 1000, cut: sk.cut(rank) });
       out.dur = sk.dur;
@@ -1234,6 +1265,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         }
       }
       for (const p of players.values()) if (p.faintUntil && t >= p.faintUntil) wakeUp(p);
+      for (const [pid, p] of players) if (p.godsUntil && t >= p.godsUntil) godsEnd(pid, p);
       for (let i = zones.length - 1; i >= 0; i--) if (zones[i].until < t) zones.splice(i, 1);
       if (tick % TICK_RATE === 0) {
         // once a second: slow regen in combat rooms, quick everywhere else; loot fades after a while
@@ -1509,10 +1541,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         }
       }
       const was = c.cls;
-      Object.assign(c, { cls: m.cls, reborn: c.reborn + 1, skills: {}, ap: Object.fromEntries(AP_STATS.map(({ id: k }) => [k, 0])) });
+      Object.assign(c, { cls: m.cls, reborn: c.reborn + 1, skills: giftsOf(c.skills), ap: Object.fromEntries(AP_STATS.map(({ id: k }) => [k, 0])) });
       c.hotbar = Array(HOTBAR).fill(null);
       c.alt.hotbar = Array(HOTBAR).fill(null);
-      p.berserkUntil = p.manaShieldUntil = p.rallyUntil = p.bubbleUntil = p.aegisUntil = 0;
+      p.berserkUntil = p.manaShieldUntil = p.rallyUntil = p.bubbleUntil = p.aegisUntil = p.godsUntil = 0;
       p.cds = {};
       moves(p);
       const st = stats(p);
@@ -1537,7 +1569,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         c.skills = { ...c.skills, [m.skill]: rankOf(c.skills, m.skill) - 1 };
         if (!c.skills[m.skill]) delete c.skills[m.skill];
       } else if (m.t === 'respec') {
-        c.skills = {};
+        c.skills = giftsOf(c.skills);
         p.berserkUntil = p.manaShieldUntil = 0;
       } else if (m.t === 'hotbar') {
         const bar = m.bar === 'pot' ? c.potbar : c.hotbar, i = m.slot >>> 0;

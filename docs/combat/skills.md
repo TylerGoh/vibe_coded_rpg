@@ -113,6 +113,18 @@ Archer and Cleric come later (S3, S4).
 - MP: `maxMpFor`; active skills cost MP and have cooldowns (`cooldownOf`; the server allows slack for lag).
   Skills only work in combat rooms. Buffs live on the server player (`*Until`) and feed `statsFor`.
 
+## Gifts (one player's own skill)
+- A skill with `gift: '<account>'` (`cls`/`tree` `'gift'`) belongs to that account alone: `load()` in
+  server/rpg.js grants it (rank 1) and strips it from anyone else. It can't be learned or taken back
+  (`cantLearn` / `cantUnlearn`), costs no points (`poolOf` → `'gift'`), and survives Reset all, a rebirth and
+  the rollback (`giftsOf`). The K panel shows it in the Novice tab under "A gift from the gods".
+- **Challenge the Gods** (`challenge_gods`, chenyirong's; an owner easter egg, 2026-10-23): for `GODS_DUR`
+  s his max HP is 1 (`statsFor` with `buffs.gods`, so every heal, potion and regen is capped by the usual
+  `maxHp` clamps) and ATK / MAGIC are ×(1 + `GODS_BOOST`), which the hit caps follow too. Surviving it,
+  the server's tick (`godsEnd`) heals him to full; fainting ends it with no heal. Cooldown `GODS_CD`. He
+  glows white while it's up (`drawGodsAura`; owner asked for white). Together with it, a one-time reset
+  sent him back to Lv 1 (`GODS_RESET`, the `gods` flag on his save), keeping gold, bag, gear and house.
+
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js
 `step()`; ranks reach the physics as `state.mv` (`mobilityOf`, set by the server's `moves()`). The state

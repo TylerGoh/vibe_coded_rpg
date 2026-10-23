@@ -1348,6 +1348,11 @@ body.touch #inv {
 }
 .skt-cell.shut .skt-nodes,
 .skt-cell.dim .skt-nodes,
+/* a gift skill (one player's own) under the Novice tree */
+.skt-col.gift {
+  margin-top: calc(10px * var(--s));
+  --tree: #c8406a;
+}
 .skt-col.preview .skt-nodes,
 .skt-class.preview .skt-nodes {
   filter: grayscale(0.85);

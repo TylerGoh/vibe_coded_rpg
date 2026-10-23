@@ -9,6 +9,8 @@ import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR
 // skills cost MP and have cooldowns; passives are always on. The server (server/rpg.js) decides every cast.
 
 export const CLASS_LVL = 10; // choose a class from this level (the Rebirth Pool)
+// Challenge the Gods (chenyirong's gift): seconds at 1 HP, the damage boost (6 = +600%), the cooldown
+export const GODS_DUR = 15, GODS_BOOST = 6, GODS_CD = 120;
 // weapon: the only weapon kind the class can wield (null: any) · starter: handed out free on choosing it
 // if you own none of that kind · strong / bad: for the Rebirth Pool's card (progression.md 1b)
 export const CLASSES = {
@@ -72,7 +74,7 @@ export function advanceText(cls, lvl) {
 // slowing them) · 'meteor' (a big blast where the first mob ahead stands, a moment later) · 'starfall'
 // (every mob in the room) · 'heal' (`self`: just you) · 'buff' (Berserk) · 'shield' (Mana Shield) ·
 // 'bubble' (blocks the next hit) · 'rally' (team attack/defence buff) · 'zone' (Sanctuary) · 'aegis'
-// (team immunity) · 'passive'. `fire`: a fire spell (Kindling makes it stronger).
+// (team immunity) · 'gods' (Challenge the Gods) · 'passive'. `fire`: a fire spell (Kindling makes it stronger).
 // (S2.5 adds the Warrior's chase moves and S2.6 the Mage's Arcane Charge; S6 the Lv 150 masteries.)
 const W = { cls: 'warrior', tree: 'warrior' }, M = { cls: 'mage', tree: 'mage' };
 export const SKILLS = {
@@ -229,6 +231,14 @@ export const SKILLS = {
     desc: (r) => `Everything freezes: ${pct(3 + 0.6 * r)} magic damage to every mob within 320 px, slowing them for 8 s.`,
   },
 
+  // ——— Gifts: one player's own skill, granted by the server on load (server/rpg.js), never learned or
+  // taken back, outside the point counts. `gift`: the account it belongs to. Shown in the Novice tab.
+  challenge_gods: {
+    cls: 'gift', tree: 'gift', gift: 'chenyirong', adv: 1, name: 'Challenge the Gods', kind: 'gods', max: 1, mp: 0, cd: GODS_CD, dur: GODS_DUR,
+    boost: GODS_BOOST,
+    desc: () => `The slime gods have seen your stubbornness and wish to test your will. For ${GODS_DUR} s your HP drops to 1 and can't rise above it, and you deal +${GODS_BOOST * 100}% damage. Survive and you're healed to full. Cooldown ${GODS_CD} s.`,
+  },
+
   // ——— Mobility (every class, class points): movement runs in the shared physics (sim.js step), from
   // input bits, so it's predicted exactly. 'move' skills have their own keys (Shift: Dash, V: Blink) and
   // can sit on the hotbar too; they cost no MP. Dash and Blink make you untouchable for a moment
@@ -281,7 +291,7 @@ export function spClass(lvl) {
   for (const a of ADVANCEMENTS) if (a.lvl > CLASS_LVL && L >= a.lvl) n += SP_ADV_BONUS;
   return n;
 }
-const poolOf = (id) => (SKILLS[id]?.cls === 'novice' ? 'novice' : 'class');
+const poolOf = (id) => (SKILLS[id]?.gift ? 'gift' : SKILLS[id]?.cls === 'novice' ? 'novice' : 'class');
 export const spSpentIn = (skills, pool) => Object.entries(skills ?? {}).reduce((n, [id, r]) => n + (SKILLS[id] && poolOf(id) === pool ? r : 0), 0);
 // points left to spend: { novice, cls } (a Novice's class points pile up until it chooses a class)
 export const spLeft = (c) => ({ novice: spNovice(c.lvl) - spSpentIn(c.skills, 'novice'), cls: spClass(c.lvl) - spSpentIn(c.skills, 'class') });
@@ -290,6 +300,8 @@ export const spFree = (c) => {
   const l = spLeft(c);
   return Math.max(0, l.novice) + (c.cls && c.cls !== 'novice' ? Math.max(0, l.cls) : 0);
 };
+// the gift skills held (they survive a reset, a rebirth and a rollback)
+export const giftsOf = (skills) => Object.fromEntries(Object.entries(skills ?? {}).filter(([id]) => SKILLS[id]?.gift));
 export const pointsIn = (skills, tree) => Object.entries(skills ?? {}).reduce((n, [id, r]) => n + (SKILLS[id]?.tree === tree ? r : 0), 0);
 export const branchPoints = (skills, branch) => Object.entries(skills ?? {}).reduce((n, [id, r]) => n + (SKILLS[id]?.branch === branch ? r : 0), 0);
 // the branch of the fork you hold points in (null: none yet)
@@ -297,13 +309,14 @@ export const heldBranch = (skills) => Object.keys(skills ?? {}).map((id) => SKIL
 // can class cls use skill id at all?
 export const skillFor = (cls, id) => {
   const sk = SKILLS[id];
-  return !!sk && (sk.cls === 'novice' || sk.cls === cls || (sk.cls === 'any' && !!cls && cls !== 'novice'));
+  return !!sk && (sk.cls === 'novice' || !!sk.gift || sk.cls === cls || (sk.cls === 'any' && !!cls && cls !== 'novice'));
 };
 
 // Can this skill take another point? (c: {lvl, cls, skills}) → null if so, else why not
 export function cantLearn(c, id) {
   const sk = SKILLS[id];
   if (!sk) return 'Unknown skill';
+  if (sk.gift) return "A gift from the gods: it can't be learned";
   const cls = c.cls ?? 'novice';
   if (rankOf(c.skills, id) >= sk.max) return 'Maxed out';
   if (sk.cls === 'any' && cls === 'novice') return `Choose a class first (at Lv ${CLASS_LVL}, at the Rebirth Pool by Elder Mochi)`;
@@ -318,6 +331,7 @@ export function cantLearn(c, id) {
 // Can a point be taken back out of this skill? → null if so. (Always, free: no skill needs another.)
 export function cantUnlearn(c, id) {
   if (!SKILLS[id] || !rankOf(c.skills, id)) return 'Nothing to take back';
+  if (SKILLS[id].gift) return "A gift from the gods can't be given back";
   return null;
 }
 // The skills c may keep (on loading a save): the ones its class can use and its level has opened, while
@@ -350,13 +364,13 @@ export const apSpent = (ap) => AP_STATS.reduce((n, s) => n + apOf(ap, s.id), 0);
 export const MIN_ROLL = 0.85, MAX_ROLL = 1.15; // ±15% before DEX
 export const minRollFor = (ap) => Math.min(1.05, MIN_ROLL + 0.001 * apOf(ap, 'dex'));
 // Everything about a character's numbers in one place (c: {lvl, gear, skills}).
-// buffs: { berserk: true while it's up, rally: the Rally boost (e.g. 0.2) while it's up, manaShield: true
+// buffs: { gods: true while Challenge the Gods is up (HP capped at 1, damage boosted), berserk: true while it's up, rally: the Rally boost (e.g. 0.2) while it's up, manaShield: true
 // while Mana Shield is up, brew: a brewed potion's buff ({ atk, crit, ward, regen, ... }, ITEMS) while it's up }
 export function statsFor(c, buffs = {}) {
   const rage = buffs.berserk ? 1 + SKILLS.berserk.boost(rankOf(c.skills, 'berserk')) : 1;
   const rally = 1 + (buffs.rally ?? 0);
   const brew = buffs.brew ?? {}; // a brewed potion's buff (src/shared/alchemy.js)
-  const might = 1 + (brew.atk ?? 0);
+  const might = (1 + (brew.atk ?? 0)) * (buffs.gods ? 1 + GODS_BOOST : 1);
   const arcane = 1 + 0.2 * rankOf(c.skills, 'arcane_mind');
   const mastery = rankOf(c.skills, 'sword_mastery');
   // scroll enhancements on the worn gear (rpg.js rollScroll)
@@ -368,7 +382,7 @@ export function statsFor(c, buffs = {}) {
     atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + 0.6 * str + 0.2 * dex) * rage * rally * might),
     magic: Math.round((magicFor(c.lvl) + (staff?.magic ?? 0) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might),
     def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 5 * rankOf(c.skills, 'iron_jelly')) * rally),
-    maxHp: Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str) * (1 + 0.08 * rankOf(c.skills, 'vitality'))),
+    maxHp: buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str) * (1 + 0.08 * rankOf(c.skills, 'vitality'))),
     maxMp: maxMpFor(c.lvl, c.skills) + 2 * int + (staff?.mp ?? 0),
     reach: staff ? 0 : reachFor(c.gear?.weapon), // a sword's extra reach (swings and blade skills)
     boltRange: staff ? STAFF_BOLT_RANGE + staff.reach : 0, // a staff bolt's range
