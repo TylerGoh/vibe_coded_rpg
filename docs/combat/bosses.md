@@ -19,7 +19,9 @@ the Root Warden, Greenhollow's capstone. Thirteenth: **The Breathing Hole** (roo
 `src/dens-skerries.js`, theme `floe`; `docs/places/skerries.md`), the Old Narwhal. Big bosses can have `lines`
 (enter / phase / freed) that they say in a bubble and the chat: those four have them so far. `looks` on a boss picks how the shared beam
 and grid moves are drawn (the Warden's Keeper amber and roots; the Old Narwhal's jet of sea water), and `party` names the party mechanics a
-boss is built for, for S5 to switch on (only the Warden has it; nothing reads it yet). A new den's art lives in its own file with `DEN_ART` / `ENTRANCE_ART` / `BOSS_ART`
+boss is built for, for S5 to switch on (only the Warden has it; nothing reads it yet). Field bosses (no den;
+`docs/combat/stages.md`) have no `lines`: F3's Pale Wyrm, which has a story, tells it through the Serpent Stone
+and the personas instead (`docs/places/heights.md`). A new den's art lives in its own file with `DEN_ART` / `ENTRANCE_ART` / `BOSS_ART`
 (merged in `dens.js`), plus its theme's row in the shared effect tables (`FXPAL`, `THEME_RGB`, the theme
 branches of `drawBit` and `drawFallObj`).
 

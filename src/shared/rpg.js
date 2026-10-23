@@ -31,7 +31,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 3400;
+export const PETSHOP_W = 3800;
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -307,8 +307,8 @@ export const SPINE_PLATFORMS = [
 // The Rimeglass Glacier (room 36): a great river of blue ice above Starfall Summit, up its snout from the
 // Summit's east end. You come in at the WEST end (GLACIER_EXIT_X) and climb east, higher and harder: the
 // Cutters' Camp (no mobs: Ice-Cutter Eyvind, a waystone, the Rime Stone), the Snout, the Crevasse Field (a
-// crevasse down into the Blue Halls, blocked: BLUEHALLS_GATE_X) and the Icefall, where Old Rimehorn walks,
-// and at its top the way up to the Aurora Heights (blocked: HEIGHTS_GATE_X). Ylva's Cairn, on a high serac
+// crevasse down into the Blue Halls, open since F3: BLUEHALLS_GATE_X) and the Icefall, where Old Rimehorn walks,
+// and at its top the way up to the Aurora Heights (open since F3: HEIGHTS_GATE_X). Ylva's Cairn, on a high serac
 // over the Snout (last in GLACIER_PLATFORMS), is the hidden spot.
 export const GLACIER = 36; // room id
 export const GLACIER_W = 5400;
@@ -399,6 +399,59 @@ export const GROTTO_PLATFORMS = [
   { x: 3600, y: 255, w: 200, kind: 'shelf' },
   { x: 3430, y: 165, w: 100, kind: 'nook' }, // up among the hung tusks: easy to miss
 ];
+// ——— Frostpeak's depth pass, F3 (docs/places/heights.md, docs/places/bluehalls.md) ———
+// The Aurora Heights (room 40): the high snowfield above the Glacier's Icefall, up the cutters' new steps
+// (HEIGHTS_GATE_X in the Glacier), where the aurora hangs low enough to touch and the wrong stars are closest.
+// You come in at the WEST end (HEIGHTS_EXIT_X) and go east: the Last Step (no mobs: a waystone, the Serpent
+// Stone), the Low Lights, the Starfield and the Wyrmfall, a long glassy hollow melted into the snow where the
+// Pale Wyrm lies. Liv's Reach, on an ice spire over the Low Lights (last in HEIGHTS_PLATFORMS), is the hidden
+// spot.
+export const HEIGHTS = 40; // room id
+export const HEIGHTS_W = 5200;
+export const HEIGHTS_EXIT_X = 70; // back down the cutters' steps to the Glacier's Icefall
+export const HEIGHTS_ZONES = [
+  { name: 'The Last Step', x0: 0, x1: 900, lvl: null }, // (no mobs)
+  { name: 'The Low Lights', x0: 900, x1: 2450, lvl: '75–80' },
+  { name: 'The Starfield', x0: 2450, x1: 3850, lvl: '80–85' },
+  { name: 'The Wyrmfall', x0: 3850, x1: HEIGHTS_W, lvl: '85–90' },
+];
+export const HEIGHTS_PLATFORMS = [
+  { x: 1100, y: 340, w: 210, kind: 'cornice' },
+  { x: 1480, y: 255, w: 210, kind: 'cornice' },
+  { x: 1880, y: 340, w: 220, kind: 'cornice' },
+  { x: 2180, y: 250, w: 180, kind: 'cornice' },
+  { x: 2620, y: 340, w: 220, kind: 'cornice' },
+  { x: 3000, y: 255, w: 220, kind: 'cornice' },
+  { x: 3420, y: 340, w: 210, kind: 'cornice' },
+  { x: 4060, y: 340, w: 220, kind: 'starglass' }, // shards of the fall, standing up out of the snow
+  { x: 4440, y: 255, w: 220, kind: 'starglass' },
+  { x: 4840, y: 340, w: 200, kind: 'starglass' },
+  { x: 2215, y: 160, w: 100, kind: 'reach' }, // Liv's Reach, on top of an ice spire: easy to miss
+];
+// The Blue Halls (room 41, a hard pocket): ice caves inside the glacier, deep blue, down the cutters' mended
+// ladder from the Crevasse Field (BLUEHALLS_GATE_X). You come in at the WEST end (BLUEHALLS_EXIT_X), at the
+// ladder's foot, and go east, deeper: the Ladder Foot (no mobs), the Blue Halls and the Deep Blue, where the
+// Hall Troll stacks its walls. The Cutters' Niche, high in the first hall's wall (last in BLUEHALLS_PLATFORMS),
+// is the hidden spot.
+export const BLUEHALLS = 41; // room id
+export const BLUEHALLS_W = 4200;
+export const BLUEHALLS_EXIT_X = 70; // back up the ladder to the Glacier
+export const BLUEHALLS_ZONES = [
+  { name: 'The Ladder Foot', x0: 0, x1: 600, lvl: null }, // (no mobs)
+  { name: 'The Blue Halls', x0: 600, x1: 2350, lvl: '80–85' },
+  { name: 'The Deep Blue', x0: 2350, x1: BLUEHALLS_W, lvl: '85–90' },
+];
+export const BLUEHALLS_PLATFORMS = [
+  { x: 800, y: 340, w: 200, kind: 'shelf' },
+  { x: 1150, y: 255, w: 210, kind: 'shelf' },
+  { x: 1560, y: 340, w: 220, kind: 'shelf' },
+  { x: 1960, y: 255, w: 200, kind: 'shelf' },
+  { x: 2500, y: 340, w: 220, kind: 'shelf' },
+  { x: 2900, y: 255, w: 210, kind: 'shelf' },
+  { x: 3300, y: 340, w: 220, kind: 'shelf' },
+  { x: 3680, y: 255, w: 200, kind: 'shelf' },
+  { x: 1180, y: 165, w: 100, kind: 'niche' }, // the Cutters' Niche, high in the first hall's wall: easy to miss
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -418,6 +471,8 @@ export const STAGES = {
   [GLACIER]: { name: 'The Rimeglass Glacier', zones: GLACIER_ZONES, band: '60–75', pill: 'Rimeglass Glacier' },
   [SKERRIES]: { name: 'The Whale Skerries', zones: SKERRIES_ZONES, band: '55–70', pill: 'Whale Skerries' },
   [GROTTO]: { name: 'The Narwhal Grotto', zones: GROTTO_ZONES, band: '70–80', hard: true, pill: 'Narwhal Grotto' },
+  [HEIGHTS]: { name: 'The Aurora Heights', zones: HEIGHTS_ZONES, band: '75–90', pill: 'Aurora Heights' },
+  [BLUEHALLS]: { name: 'The Blue Halls', zones: BLUEHALLS_ZONES, band: '80–90', hard: true },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -1042,6 +1097,86 @@ MOBS.old_narwhal = {
   drops: [['royal_sap', 1, 2, 3], ['narwhal_tusk', 1, 1, 1], ['floe_crown', 0.6, 1, 1], ['coin', 1, 11000, 16500], ['mega_elixir', 1, 4, 6], ['narwhal_ivory', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
+// ——— Frostpeak's depth pass, F3: the Aurora Heights and the Blue Halls (art: src/heights-art.js,
+// src/bluehalls-art.js; docs/places/heights.md, docs/places/bluehalls.md). On the frozen curve ———
+// The Heights: ptarmigan peck about the Low Lights (harmless), snow foxes dive into the snow and come up behind
+// you, rime eagles stoop out of the aurora, aurora jellies (drifting bells of the lights' own colour) go dark
+// and flare, musk oxen stand shoulder to the wind behind a wall of horn (hit them from behind), and lost stars,
+// little ones that fell with the Wyrm, hop about the Wyrmfall flicking sparks
+MOBS.ptarmigan = {
+  name: 'Ptarmigan', lvl: 76, hp: 8000, atk: 235, exp: 4012, speed: 80, w: 40, h: 36, aggro: false, hops: true,
+  drops: [['coin', 1, 510, 765], ['ptarmigan_feather', 0.55, 1, 2], ['mega_elixir', 0.12, 1, 1]],
+};
+MOBS.snow_fox = {
+  name: 'Snow Fox', lvl: 78, hp: 8300, atk: 243, exp: 4194, speed: 95, w: 56, h: 38, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.4, warn: 0.4, slashWarn: 0.5, r: 115 },
+  drops: [['coin', 1, 540, 810], ['fox_brush', 0.5, 1, 2], ['mega_elixir', 0.12, 1, 1], ['foxfire_blade', 0.003, 1, 1]],
+};
+MOBS.rime_eagle = {
+  name: 'Rime Eagle', lvl: 81, hp: 8700, atk: 254, exp: 4471, speed: 115, w: 62, h: 40, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.3, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 565, 850], ['eagle_quill', 0.5, 1, 2], ['mega_elixir', 0.12, 1, 1]],
+};
+MOBS.aurora_jelly = {
+  name: 'Aurora Jelly', lvl: 83, hp: 9000, atk: 261, exp: 4661, speed: 65, w: 48, h: 56, aggro: true, hops: false, fly: 44,
+  ai: { kind: 'phase', every: 6.2, dur: 1.9, r: 180 },
+  drops: [['coin', 1, 585, 880], ['bottled_aurora', 0.5, 1, 2], ['mega_elixir', 0.13, 1, 1]],
+};
+MOBS.musk_ox = {
+  name: 'Musk Ox', lvl: 86, hp: 11500, atk: 272, exp: 4951, speed: 50, w: 72, h: 56, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.55, lunge: 540, time: 0.32 },
+  drops: [['coin', 1, 610, 915], ['qiviut', 0.5, 1, 2], ['mega_elixir', 0.13, 1, 1], ['muskox_helm', 0.004, 1, 1]],
+};
+MOBS.lost_star = {
+  name: 'Lost Star', lvl: 88, hp: 9800, atk: 279, exp: 5148, speed: 60, w: 40, h: 42, aggro: true, hops: true,
+  ai: { kind: 'lob', range: 460, every: 2.7, keep: 150, warn: 0.55, style: 'star' },
+  drops: [['coin', 1, 630, 945], ['star_spark', 0.5, 1, 2], ['mega_elixir', 0.14, 1, 1]],
+};
+// The Blue Halls (a hard pocket): icicle bats hang from the roof and drop on you, ice worms tunnel through the
+// walls and come out behind you, glass beetles carry a shell of clear ice in front (hit them from behind),
+// prism crawlers catch the blue light and throw it along the floor (jump it); elites of the worms and beetles
+MOBS.icicle_bat = {
+  name: 'Icicle Bat', lvl: 81, hp: 8600, atk: 254, exp: 4471, speed: 110, w: 50, h: 32, aggro: true, hops: false, fly: 60,
+  ai: { kind: 'dive', every: 3.4, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 565, 850], ['bat_wing', 0.5, 1, 2], ['mega_elixir', 0.12, 1, 1]],
+};
+MOBS.ice_worm = {
+  name: 'Ice Worm', lvl: 83, hp: 9100, atk: 261, exp: 4661, speed: 70, w: 70, h: 34, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.6, warn: 0.45, slashWarn: 0.5, r: 115 },
+  drops: [['coin', 1, 585, 880], ['worm_glass', 0.5, 1, 2], ['mega_elixir', 0.13, 1, 1]],
+};
+MOBS.glass_beetle = {
+  name: 'Glass Beetle', lvl: 86, hp: 11400, atk: 272, exp: 4951, speed: 55, w: 64, h: 44, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.5, lunge: 500, time: 0.32 },
+  drops: [['coin', 1, 610, 915], ['glass_shell', 0.5, 1, 2], ['mega_elixir', 0.13, 1, 1], ['beetle_helm', 0.004, 1, 1]],
+};
+MOBS.prism_crawler = {
+  name: 'Prism Crawler', lvl: 88, hp: 10000, atk: 279, exp: 5148, speed: 45, w: 60, h: 46, aggro: true, hops: false,
+  ai: { kind: 'beam', range: 560, every: 4.2, warn: 0.9, dur: 0.45, y0: 420, y1: 450, style: 'prism' },
+  drops: [['coin', 1, 630, 945], ['prism_shard', 0.5, 1, 2], ['mega_elixir', 0.14, 1, 1], ['prism_blade', 0.003, 1, 1]],
+};
+MOBS.worm_elite = elite('ice_worm', 'Great Ice Worm');
+MOBS.beetle_elite = elite('glass_beetle', 'Old Glass Beetle');
+// The Pale Wyrm: a field boss with a story (story/characters/bosses.md), something of the Astral Wyrm's kind
+// that fell with it and lies in the long hollow it melted in the Wyrmfall, dim and curled up. It could go back
+// up; it would rather stay fallen. Passive until hit; then it lifts off the snow and falls on you, again and
+// again (the dive), and settles back down
+MOBS.pale_wyrm = {
+  name: 'The Pale Wyrm', field: true, lvl: 90, hp: 220000, atk: 262, exp: 93000, speed: 55, w: 210, h: 100, aggro: false, hops: false, fly: 80,
+  ai: { kind: 'dive', every: 3.2, warn: 0.9, time: 0.55 },
+  desc: 'The Pale Wyrm has stirred in the Wyrmfall.',
+  drops: [['coin', 1, 8000, 11600], ['pale_scale', 1, 4, 8], ['star_spark', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['pale_star_blade', 0.25, 1, 1], ['aurora_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+// The Hall Troll: a field boss (small: no story), a great blue-grey troll out of the cutters' stories who lives
+// in the Deep Blue, cuts blocks of ice of its own and stacks them into walls nobody needs. Passive until hit;
+// then it keeps its distance and throws blocks of ice
+MOBS.hall_troll = {
+  name: 'The Hall Troll', field: true, lvl: 88, hp: 215000, atk: 270, exp: 89000, speed: 50, w: 150, h: 160, aggro: false, hops: false,
+  ai: { kind: 'lob', range: 520, every: 2.6, keep: 180, warn: 0.75, style: 'ice' },
+  desc: 'The Hall Troll is stacking ice in the Deep Blue. Hear it?',
+  drops: [['coin', 1, 7800, 11300], ['troll_tooth', 1, 4, 8], ['glass_shell', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['troll_maul', 0.25, 1, 1], ['troll_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -1078,6 +1213,8 @@ const onPPlat = onRoomPlat(SPINE_PLATFORMS, SPINE);
 const onIPlat = onRoomPlat(GLACIER_PLATFORMS, GLACIER);
 const onSkPlat = onRoomPlat(SKERRIES_PLATFORMS, SKERRIES);
 const onGrPlat = onRoomPlat(GROTTO_PLATFORMS, GROTTO);
+const onAhPlat = onRoomPlat(HEIGHTS_PLATFORMS, HEIGHTS);
+const onBhPlat = onRoomPlat(BLUEHALLS_PLATFORMS, BLUEHALLS);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -1303,6 +1440,40 @@ export const SPAWNS = [
   ...onGrPlat('brine_slug', 6, 1),
   ...onGrPlat('ice_skate', 7, 1),
   { kind: 'skate_elite', x0: 3200, x1: 3850, y: FIELD_GROUND, room: GROTTO },
+  // the Aurora Heights (the Last Step, x < 900, has none)
+  ...strip('ptarmigan', 1000, 2400, FIELD_GROUND, 4, HEIGHTS),
+  ...onAhPlat('ptarmigan', 0, 1),
+  ...strip('snow_fox', 1450, 2400, FIELD_GROUND, 3, HEIGHTS),
+  ...onAhPlat('snow_fox', 1, 1),
+  ...onAhPlat('ptarmigan', 2, 1),
+  ...onAhPlat('snow_fox', 3, 1),
+  ...strip('rime_eagle', 2500, 3800, FIELD_GROUND, 3, HEIGHTS),
+  ...onAhPlat('rime_eagle', 4, 1),
+  ...strip('aurora_jelly', 2550, 3800, FIELD_GROUND, 3, HEIGHTS),
+  ...onAhPlat('aurora_jelly', 5, 1),
+  ...onAhPlat('rime_eagle', 6, 1),
+  ...strip('musk_ox', 3900, 5100, FIELD_GROUND, 3, HEIGHTS),
+  ...onAhPlat('musk_ox', 7, 1),
+  ...strip('lost_star', 3950, 5100, FIELD_GROUND, 3, HEIGHTS),
+  ...onAhPlat('lost_star', 8, 1),
+  ...onAhPlat('lost_star', 9, 1),
+  { kind: 'pale_wyrm', x0: 3950, x1: 5050, y: FIELD_GROUND, room: HEIGHTS },
+  // the Blue Halls (the ladder's foot, x < 600, has none)
+  ...strip('icicle_bat', 700, 2300, FIELD_GROUND, 3, BLUEHALLS),
+  ...onBhPlat('icicle_bat', 1, 1),
+  ...strip('ice_worm', 900, 2300, FIELD_GROUND, 3, BLUEHALLS),
+  ...onBhPlat('ice_worm', 0, 1),
+  ...onBhPlat('ice_worm', 2, 1),
+  ...onBhPlat('icicle_bat', 3, 1),
+  { kind: 'worm_elite', x0: 1700, x1: 2250, y: FIELD_GROUND, room: BLUEHALLS },
+  ...strip('glass_beetle', 2450, 4100, FIELD_GROUND, 3, BLUEHALLS),
+  ...onBhPlat('glass_beetle', 4, 1),
+  ...strip('prism_crawler', 2450, 4100, FIELD_GROUND, 3, BLUEHALLS),
+  ...onBhPlat('prism_crawler', 5, 1),
+  ...onBhPlat('glass_beetle', 6, 1),
+  ...onBhPlat('prism_crawler', 7, 1),
+  { kind: 'beetle_elite', x0: 3300, x1: 4050, y: FIELD_GROUND, room: BLUEHALLS },
+  { kind: 'hall_troll', x0: 2700, x1: 4050, y: FIELD_GROUND, room: BLUEHALLS },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -1526,6 +1697,27 @@ export const ITEMS = {
   narwhal_tusk: { name: 'Narwhal Tusk', price: 238000, lvl: 72, slots: 9, kind: 'sword', atk: 125, reach: 62, desc: "A long spiral lance of the Old Narwhal's ivory, the tip still frosted. She grows it back; she has done it before." },
   floe_crown: { name: 'Floe Crown', price: 176000, lvl: 72, slots: 9, kind: 'helmet', def: 57, desc: 'A ring of sea ice that never melts, points standing up like the floes she held shut. It hums a long, low note.' },
   skate_blade: { name: 'Skate Wing Blade', price: 268000, lvl: 77, kind: 'sword', atk: 131, reach: 58, desc: "A wide, thin blade like a skate's wing, grey-green and rippling at the edge. It slips round things." },
+  // Frostpeak's depth pass F3: the Aurora Heights and the Blue Halls (docs/places/heights.md, docs/places/bluehalls.md)
+  ptarmigan_feather: { name: 'Ptarmigan Feather', price: 640, kind: 'loot', desc: 'A small white feather, so white it looks blue in the shade. The bird it came off is nowhere to be seen.' },
+  fox_brush: { name: 'Snow Fox Brush', price: 650, kind: 'loot', desc: 'The white tip of a snow fox\'s tail, soft as smoke. It still smells faintly of snow.' },
+  eagle_quill: { name: 'Rime Eagle Quill', price: 680, kind: 'loot', desc: 'A long grey flight feather with frost along every barb. It was a long way up.' },
+  bottled_aurora: { name: 'Bottled Aurora', price: 700, kind: 'loot', desc: 'A little of an aurora jelly\'s light in a stoppered bottle, green going to violet. It fades by morning, slowly.' },
+  qiviut: { name: 'Qiviut', price: 730, kind: 'loot', desc: 'The soft under-wool a musk ox sheds in spring. Warmer than anything Runa has ever knitted, she says, crossly.' },
+  star_spark: { name: 'Star Spark', price: 750, kind: 'loot', desc: 'A chip of a lost star, still faintly warm. It points, very slightly, at the sky.' },
+  pale_scale: { name: 'Pale Wyrm Scale', price: 840, kind: 'loot', desc: 'A thin scale like frosted glass with a dim star inside it. Hold it up and it brightens a little, then forgets to.' },
+  bat_wing: { name: 'Icicle Bat Wing', price: 680, kind: 'loot', desc: 'A thin wing of grey skin with icicles along its fingers. It rattles when it folds.' },
+  worm_glass: { name: 'Worm Glass', price: 700, kind: 'loot', desc: 'A bead of ice an ice worm has chewed so smooth it looks like glass. Ice worms chew a lot of them.' },
+  glass_shell: { name: 'Glass Beetle Shell', price: 730, kind: 'loot', desc: 'A wing case of clear blue ice, light as paper. You can read through it, if the writing is big.' },
+  prism_shard: { name: 'Prism Shard', price: 750, kind: 'loot', desc: 'A splinter off a prism crawler\'s back. Hold it to the light and it throws a little blue line on the wall.' },
+  troll_tooth: { name: "Hall Troll's Tooth", price: 820, kind: 'loot', desc: 'A blue-grey tooth the size of a fist, worn flat from chewing ice. It grows another.' },
+  foxfire_blade: { name: 'Foxfire Blade', price: 283000, lvl: 79, kind: 'sword', atk: 134, reach: 58, desc: 'A slim white blade with a snow fox\'s brush at the grip. A flicker of green runs along its edge, like the lights.' },
+  muskox_helm: { name: 'Musk Ox Helm', price: 264000, lvl: 87, kind: 'helmet', def: 66, desc: 'A boss of musk ox horn across the brow, the qiviut lining as warm as a hearth. Put your head down and walk into the wind.' },
+  pale_star_blade: { name: 'Pale Star Blade', price: 378000, lvl: 91, kind: 'sword', atk: 148, reach: 64, desc: 'A long blade of frosted starglass with a dim star caught in it near the tip. It gets a little brighter every time you lift it.' },
+  aurora_crown: { name: 'Aurora Crown', price: 289000, lvl: 91, kind: 'helmet', def: 69, desc: 'A thin circlet of starglass with the aurora moving in it, green to violet. It is very quiet to wear.' },
+  beetle_helm: { name: 'Glass Beetle Helm', price: 264000, lvl: 87, kind: 'helmet', def: 66, desc: 'A glass beetle\'s wing cases of clear blue ice, made into a helm. Everything looks a little bluer from inside.' },
+  prism_blade: { name: 'Prism Blade', price: 361000, lvl: 89, kind: 'sword', atk: 145, reach: 58, desc: 'A three-sided blade of clear ice that splits the light into a fan of blue along its edge. It never melts.' },
+  troll_maul: { name: "Hall Troll's Maul", price: 361000, lvl: 89, kind: 'sword', atk: 145, reach: 62, desc: 'A block of glacier ice the troll cut for itself, on a whole pine trunk. Heavy. Very heavy. You get used to it.' },
+  troll_helm: { name: 'Troll-Ice Helm', price: 276000, lvl: 89, kind: 'helmet', def: 67, desc: 'A lump of blue ice the Hall Troll hollowed out like a pot, worn upside down. It fits better than it should.' },
   warden_helm: { name: 'Wardenstone Helm', price: 134000, lvl: 62, slots: 9, kind: 'helmet', def: 51, desc: "A Keeper guardian's stone helm with a crown of living roots. Wear it and you stand up very straight." },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
@@ -1602,6 +1794,10 @@ export const ITEMS = {
   ivory_staff: { name: 'Walrus Ivory Staff', price: 200000, lvl: 67, kind: 'staff', magic: 120, mp: 72, reach: 54, twin: 'ivory_cutlass', desc: "A walrus tusk on a driftwood shaft, whiskers bound round the grip. It barks, a bit, when you cast." },
   narwhal_staff: { name: 'Narwhal Song Staff', price: 238000, lvl: 72, slots: 9, kind: 'staff', magic: 125, mp: 75, reach: 62, twin: 'narwhal_tusk', desc: "A twist of the Old Narwhal's ivory with sea ice at its head. Its bolts sing, low and long, like something calling a pod home." },
   skate_staff: { name: 'Skate Staff', price: 268000, lvl: 77, kind: 'staff', magic: 131, mp: 79, reach: 58, twin: 'skate_blade', desc: "A pale staff with an ice skate's wing for a head, rippling as if it were still swimming." },
+  foxfire_staff: { name: 'Foxfire Staff', price: 283000, lvl: 79, kind: 'staff', magic: 134, mp: 80, reach: 58, twin: 'foxfire_blade', desc: 'A white birch staff with a fox\'s brush bound under its head and a green flame that dances in it without burning.' },
+  pale_star_staff: { name: 'Pale Star Staff', price: 378000, lvl: 91, kind: 'staff', magic: 148, mp: 89, reach: 64, twin: 'pale_star_blade', desc: 'A staff of starglass with a dim star at its head. Its bolts fall instead of fly, softly, the way stars did.' },
+  prism_staff: { name: 'Prism Staff', price: 361000, lvl: 89, kind: 'staff', magic: 145, mp: 87, reach: 58, twin: 'prism_blade', desc: 'A rod of clear blue ice with a prism at its head. Its bolts come out as three and meet again on the way.' },
+  troll_staff: { name: 'Troll-Ice Staff', price: 361000, lvl: 89, kind: 'staff', magic: 145, mp: 87, reach: 62, twin: 'troll_maul', desc: 'A pine trunk with a lump of the troll\'s blue ice wedged in its fork. The ice hums when you cast, very low.' },
   hart_staff: { name: 'Hart\'s Antler Staff', price: 156000, lvl: 59, kind: 'staff', magic: 110, mp: 66, reach: 56, twin: 'briarheart_blade', desc: 'A shed antler of the Thorn Hart on a briar shaft. A white rose buds between the tines and never opens.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Weapon Scroll 100%', price: 300, kind: 'scroll', slot: 'weapon', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a weapon (a staff gets them the other way round).' },

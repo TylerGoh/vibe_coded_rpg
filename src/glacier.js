@@ -1,11 +1,11 @@
 // Docs: docs/places/glacier.md
 // The Rimeglass Glacier (room GLACIER, data in src/shared/rpg.js): a great river of blue ice above Starfall
 // Summit, climbed from its snout. Cold and bright: white peaks all round, the fjord and the sea far down in
-// the west, and the aurora hanging lower and brighter the higher you climb, toward the Aurora Heights (the
-// next phase: seen up there, not reached). The floor is packed snow over blue ice. West to east: the cut
+// the west, and the aurora hanging lower and brighter the higher you climb, toward the Aurora Heights (reached
+// up the Icefall since F3: src/heights.js). The floor is packed snow over blue ice. West to east: the cut
 // steps back down to the Summit (the way in), the Cutters' Camp (Ice-Cutter Eyvind's hut, the ice sledge,
 // the waystone, the Rime Stone: src/ruins.js), the Snout (low seracs), the Crevasse Field (crevasses in the
-// ice wall behind, a snow bridge, the smashed ladder down into the Blue Halls: src/branch-gates.js) and the
+// ice wall behind, a snow bridge, the mended ladder down into the Blue Halls: src/branch-gates.js) and the
 // Icefall, a jumble of great blue towers, where Old Rimehorn walks. Ylva's Cairn, a little heap of stones
 // with driftwood birds on it on the tallest serac over the Snout, is the hidden spot.
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';

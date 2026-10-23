@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -37,10 +37,8 @@ export const FROSTPEAK = [
   { id: 'ridge', name: 'Frostpine Ridge', band: '40–46', at: [230, 215], from: 'hamlet', zone: 0, zr: HIGHLANDS },
   { id: 'summit', name: 'Starfall Summit', band: '47–60', at: [360, 215], from: 'ridge', zone: 1, zr: HIGHLANDS },
   { id: 'glacier', name: 'Rimeglass Glacier', band: '60–75', at: [490, 140], from: 'summit', rooms: [GLACIER], entry: { room: HIGHLANDS, x: GLACIER_GATE_X, kind: 'snout' } },
-  { id: 'heights', name: 'Aurora Heights', band: '75–90', at: [490, 60], from: 'glacier', block: 'the steps are gone',
-    gate: { room: GLACIER, x: HEIGHTS_GATE_X, kind: 'icefall', look: 'look up the icefall', says: "An icefall sheared off the cutters' steps to the Heights. The aurora hangs just above." } },
-  { id: 'bluehalls', name: 'Blue Halls', band: '80–90', hard: true, at: [625, 140], from: 'glacier', block: 'the ladder is smashed',
-    gate: { room: GLACIER, x: BLUEHALLS_GATE_X, kind: 'crevasse', look: 'peer down the crevasse', says: "The cutters' ladder into the Blue Halls lies smashed at the bottom. Blue light, far down." } },
+  { id: 'heights', name: 'Aurora Heights', band: '75–90', at: [490, 60], from: 'glacier', rooms: [HEIGHTS], entry: { room: GLACIER, x: HEIGHTS_GATE_X, kind: 'icefall' } },
+  { id: 'bluehalls', name: 'Blue Halls', band: '80–90', hard: true, at: [625, 140], from: 'glacier', rooms: [BLUEHALLS], entry: { room: GLACIER, x: BLUEHALLS_GATE_X, kind: 'crevasse' } },
   { id: 'skerries', name: 'Whale Skerries', band: '55–70', at: [100, 290], from: 'hamlet', rooms: [SKERRIES], entry: { room: FJORD, x: SKERRIES_GATE_X, kind: 'snowslide' } },
   { id: 'grotto', name: 'Narwhal Grotto', band: '70–80', hard: true, at: [100, 350], from: 'skerries', rooms: [GROTTO], entry: { room: SKERRIES, x: GROTTO_GATE_X, kind: 'grotto' } },
   { id: 'bridge', name: "The Queen's Bridge", band: '85–100', at: [360, 300], from: 'ridge', block: 'the stair broke off',

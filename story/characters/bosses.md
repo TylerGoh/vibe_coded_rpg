@@ -53,6 +53,14 @@ Order is by level. Names are the game's current ones.
   them out past the skerries, the way she should have sung the pod. The Narwhal Grotto, beside her den, is
   where the pod shed their tusks; one very small one lies apart (her calf's, though nothing says so).
   Tier 2 only by showing.
+- **The Pale Wyrm** (a field boss in the Aurora Heights' Wyrmfall; shipped F3). Something of the Astral Wyrm's
+  kind, a small dim star-serpent that fell with it when the stars fell. It lies curled in a hollow it melted
+  into the snow, where the aurora comes down. It could rise; it would rather stay fallen: up there it was
+  steered by, and when it fell the boats were lost; down here nobody looks to it. The harder Wyrm story:
+  holding on to being fallen. Struck, it lifts and falls again and again (its `dive`), eyes shut unless
+  striking. As a field boss it has no lines: the Serpent Stone (one small star near the tail cut deeper),
+  Skaldi's one-line song ("It lies in the snow, where nobody steers by it.") and Eyvind ("tired") tell it.
+  Whether it carries a shard is left open. Tier 2 only by showing.
 
 ## Emberdeep (harsh)
 - **Ignis the Magma Tyrant** (The Molten Forge). The master smith who forged the Tidewheel's gears. He

@@ -20,13 +20,21 @@ was frozen and she used a rough jetty under the ridge; the ice went out with tha
 4. **The Rimeglass Glacier** (exists, F1: `docs/places/glacier.md`): a great river of blue ice above the
    summit, where the hamlet's ice-cutters work. Ice-Cutter Eyvind's camp, a Keeper stone frozen in the ice
    (the stars on it are in the right places), Ylva's Cairn, and Old Rimehorn the mammoth. Above it, the
-   Aurora Heights; under it, the Blue Halls (both still shut). The rest of the island's depth pass:
+   Aurora Heights; under it, the Blue Halls (both open since F3). The rest of the island's depth pass:
    `../island-depth.md`.
 5. **The Whale Skerries** (exists, F2: `docs/places/skerries.md`): black islets and shingle along the fjord's
    outer shore, out of the hamlet's west end. Hakon's whaling hut, Grandmother (a great whale's skeleton), the
    Sounding Stone (a Keeper stone: the whale road between two islands drawn close), and at the Floe Edge the
    Old Narwhal's breathing hole in the pack ice she holds shut. In the sea cliff beyond, **the Narwhal
    Grotto** (F2, a hard pocket): green ice, the pod's shed tusks frozen into the walls.
+6. **The Aurora Heights** (exists, F3: `docs/places/heights.md`): the high snowfield above the Glacier, up new
+   steps. The aurora's curtains hang down to the snow and the wrong stars are big and close. The Serpent
+   Stone (a Keeper stone: boats following a serpent of stars), Liv's Reach (Eyvind's daughter's mitten on a
+   spire), and in the Wyrmfall, a hollow melted to glass, **the Pale Wyrm** sleeps: something of the Astral
+   Wyrm's kind that fell with it and would rather stay fallen.
+7. **The Blue Halls** (exists, F3, a hard pocket: `docs/places/bluehalls.md`): ice caves inside the glacier,
+   deep blue, down the cutters' mended ladder. The Cutters' Niche (generations of names round an old pick),
+   and the Hall Troll of the cutters' stories, stacking walls of ice for nobody.
 
 ## People
 **The fjord folk:** pale, frosted slimes who go half-solid in the cold and move slowly. They remember the

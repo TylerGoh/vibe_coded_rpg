@@ -13,16 +13,17 @@ climb east, higher and harder.
 - Cold and bright: white peaks all round, the sea and the far islands far down past the glacier's foot, an
   ice wall behind the path with crevasses in it, snow blowing down the ice, and the aurora hanging lower
   and brighter the higher you climb (`auroraAt`). Over the Icefall you see the Aurora Heights, a white
-  snowfield lit green under the lights: the next phase, shown and not reached.
+  snowfield lit green under the lights (shown since F1, reached since F3).
 - West to east: **the Cutters' Camp** (no mobs: the Rime Stone, a waystone, a sledge of ice blocks, Eyvind
   and his hut, whose roof is a platform), **the Snout** (snow hares, snow petrels, glacier rams), **the
   Crevasse Field** (rams, rime wolves, frost wraiths; a snow bridge; the crevasse down to the Blue Halls)
   and **the Icefall** (frost wraiths, great yetis, Old Rimehorn; at the top the sheared climb to the
   Aurora Heights).
-- **Blocked ways on** (owner's rule: show, don't open): the crevasse into **the Blue Halls** (F3's hard
-  pocket, `BLUEHALLS_GATE_X`: the cutters' ladder lies smashed at the bottom) and the climb to **the Aurora
-  Heights** (F3, `HEIGHTS_GATE_X`: an icefall sheared off the cutters' steps). Gates in `FROSTPEAK`
-  (`src/shared/branches.js`), art `crevasse` and `icefall` in `src/branch-gates.js`.
+- **Ways on** (opened in F3; blocked in F1–F2 by the owner's show-don't-open rule): the crevasse down into
+  **the Blue Halls** (`BLUEHALLS_GATE_X`: the smashed ladder replaced by a new one, a lantern at the top;
+  `docs/places/bluehalls.md`) and the climb up to **the Aurora Heights** (`HEIGHTS_GATE_X`: new steps cut up
+  the icefall, a rope and a red flag; `docs/places/heights.md`). Doors in `ROOMS[GLACIER]`, `entry` art
+  `crevasse` and `icefall` (`OPEN`) in `src/branch-gates.js`.
 - **The Rime Stone** (`RUIN_STONES`, shape `rime`): a Keeper stone inside a block of clear ice that the
   cutters cut out of the glacier and stood up at the camp. Stars carved and joined into a chart, and two
   islands with the Keepers' road running between them over a strait no wider than a brook. Frostpeak's tier

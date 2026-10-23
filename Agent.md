@@ -148,6 +148,8 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/glacier.md](docs/places/glacier.md) | the Rimeglass Glacier (room 36, Frostpeak's first branch, Lv 60–75), Ice-Cutter Eyvind, Old Rimehorn, the Rime Stone, Ylva's Cairn |
 | [docs/places/skerries.md](docs/places/skerries.md) | the Whale Skerries (room 37, Lv 55–70, off Icefang Hamlet), Hakon the Bone-Carver, Grandmother (the whale skeleton), the Sounding Stone, the Old Narwhal and her den (38) |
 | [docs/places/grotto.md](docs/places/grotto.md) | the Narwhal Grotto (room 39, a hard pocket off the Skerries, Lv 70–80), its elites, the Tusk Hall |
+| [docs/places/heights.md](docs/places/heights.md) | the Aurora Heights (room 40, Lv 75–90, up from the Glacier's Icefall), the aurora curtains, the Serpent Stone, Liv's Reach, the Pale Wyrm (field boss) |
+| [docs/places/bluehalls.md](docs/places/bluehalls.md) | the Blue Halls (room 41, a hard pocket under the Glacier, Lv 80–90), its elites, the Cutters' Niche, the Hall Troll (field boss) |
 | [docs/places/deep.md](docs/places/deep.md) | the Mycelium Deep (room 28), Glowroot Hollow (29, a hard pocket), Forager Truffle, the Knotmole's burrow (30), the Listening Stone |
 | [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel, within one island), attuning, the travel card |
 | [docs/places/pets.md](docs/places/pets.md) | pets' hunger, moods and dying, feeding, the Pet Shop, Auntie Clover, pet food |

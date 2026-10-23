@@ -160,8 +160,11 @@ the Citadel's are machines and echoes.
    - **The Rimeglass Glacier** (exists, 60–75, Frostpeak's depth pass F1): snow hares, snow petrels, glacier
      rams, rime wolves, frost wraiths, great yetis; Old Rimehorn (field boss); Ice-Cutter Eyvind.
    - **The Whale Skerries** (exists, 55–70, F2, off the hamlet) with the Old Narwhal's den, and **the Narwhal
-     Grotto** (exists, 70–80, hard). Frostpeak's other branches (the Aurora Heights, the Blue Halls, the
-     Queen's Bridge) are planned in `island-depth.md`.
+     Grotto** (exists, 70–80, hard).
+   - **The Aurora Heights** (exists, 75–90, F3, up the Glacier's Icefall): ptarmigan, snow foxes, rime eagles,
+     aurora jellies, musk oxen, lost stars; the Pale Wyrm (field boss). **The Blue Halls** (exists, 80–90,
+     hard, under the Glacier): icicle bats, ice worms, glass beetles, prism crawlers, elites; the Hall Troll
+     (field boss). The Queen's Bridge is planned in `island-depth.md`.
 5. Onward: the ship south leaves from the fjord's quay: the **Lodestar**, laid up (shown, not open) until
    Phase 5, because nobody will steer south while the stars are wrong.
 

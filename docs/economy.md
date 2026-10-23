@@ -104,6 +104,15 @@ time to Lv 100 1.9 h → 1.8 h. Hakon's tier is aimed at Lv 60 (saber and staff 
 (Lv 70) sits between the Root Warden and the raised Ignis: ~5.9 min of farming a kill in coins and materials,
 camped 0.7× EXP / 3.2× gold. Her pet is 345k, between the Root Warden's (340k) and Old Rimehorn's (350k).
 
+## Frostpeak's depth pass, F3 (2026-10-23)
+The Aurora Heights and the Blue Halls (`docs/places/heights.md`, `docs/places/bluehalls.md`) put ten mobs on the
+curve at Lv 76–88 (and two Blue Halls elites), filling 75–90, which had nothing at its level: "farming your own
+level" at 90 now picks the lost star instead of the Lv 78 ice skate. Gold earned barely moved (the new mobs sit
+on the curve): Lv 80 ~175.6k (same), Lv 90 ~225.3k → ~224.8k, later levels ~0.9k lower. No trader, so nothing
+new is aimed. Two field bosses, each ~2.4 min of farming a kill: the Hall Troll (Lv 88) and the Pale Wyrm
+(Lv 90); their pets are 352k and 356k, between Old Rimehorn's (350k) and Ignis's (360k); `PETSHOP_W` went up
+to fit them.
+
 ## How to price something new
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Read "gold earned by then" for that level and price it at roughly half to three quarters of it: a real

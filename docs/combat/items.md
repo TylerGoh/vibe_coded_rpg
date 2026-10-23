@@ -78,7 +78,12 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   Whale Skerries: the Bone-Carver's Saber, the Driftbone Staff and the Sealskin Hood, aimed at Lv 60), with the
   Skerries' and the Narwhal Grotto's gear in `src/skerries-art.js` (`SKERRIES_*`): the Whalebone Helm, the Ivory
   Cutlass / Walrus Ivory Staff, the Angler's Lamp, the Skate Wing Blade / Skate Staff, and the Old Narwhal's
-  Narwhal Tusk / Narwhal Song Staff and Floe Crown (9 slots; `docs/places/skerries.md`).
+  Narwhal Tusk / Narwhal Song Staff and Floe Crown (9 slots; `docs/places/skerries.md`). F3 (no trader) adds the
+  Aurora Heights' gear in `src/heights-art.js` (`HEIGHTS_*`): the Foxfire Blade / Foxfire Staff, the Musk Ox Helm
+  and the Pale Wyrm's Pale Star Blade / Pale Star Staff and Aurora Crown (`docs/places/heights.md`); and the Blue
+  Halls' in `src/bluehalls-art.js` (`BLUEHALLS_*`): the Glass Beetle Helm, the Prism Blade / Prism Staff and the
+  Hall Troll's Maul / Troll-Ice Staff and Troll-Ice Helm (`docs/places/bluehalls.md`). All on the gear curve at
+  their `lvl`, priced on it.
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
   are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.

@@ -33,10 +33,12 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
   owl who judges her knitting, a nest logbook on volume nine; she restrung the Canopy's ladder herself.
 - **Ice-Cutter Eyvind** (the Rimeglass Glacier, Frostpeak's depth pass F1, **exists**): fjord folk; cuts blue
   ice for the hamlet and trades at the Cutters' Camp. Plain and quiet, a dry joke now and then. Tier 0 plus
-  the glacier (the Rime Stone's stars bother him; the Blue Halls and the Heights are shut). His life: his
+  the glacier (the Rime Stone's stars bother him); since F3 he has cut new steps up to the Aurora Heights and
+  mended the Blue Halls' ladder (with Runa's rope), and knows the Pale Wyrm ("tired") and the Hall Troll. His life: his
   daughter Liv sailed south on the Lodestar's last voyage and is stuck there while the stars are wrong; he
   writes her a letter a month for when ships sail again; he carries Skaldi's driftwood bird up to Ylva's
-  Cairn each year; he names the crevasses.
+  Cairn each year; he names the crevasses. Liv used to climb a spire on the Heights where the lights come down
+  and left a red mitten there (Liv's Reach); his grandfather's pick is frozen in the Blue Halls' Cutters' Niche.
 - **Hakon the Bone-Carver** (the Whale Skerries, Frostpeak's depth pass F2, **exists**): fjord folk; carves
   whalebone (only what the sea gives: his grandfather was Frostpeak's last whaler) in the old whaling hut and
   trades. Shy, plain, a dry joke now and then. Tier 0 plus the Skerries: Grandmother the whale skeleton (he

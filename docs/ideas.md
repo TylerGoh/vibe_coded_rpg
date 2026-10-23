@@ -61,16 +61,26 @@
   fought the pockets at their own level, so how hard they really are is a guess.
 
 ## R (the rebalance) left for later
-- Lv 80–90 has no content at its own level until Frostpeak's F3 (F1's Rimeglass Glacier filled 60–75, F2's
-  Narwhal Grotto 70–80); players there farm the Grotto's top with the over-level falloff.
 - Raised dens' coins and materials are worth less, in minutes of farming, than the docs' old 6–20× (gear
   carries more of their worth now): raise their coins if boss loot feels thin (`docs/economy.md`).
 - The atlas's island sheets still carry their old bands (a note at the top says how to read them).
 - Untested with real players: the raised mobs' and bosses' difficulty at their new levels (bots only).
 
+## F3 (the Aurora Heights and the Blue Halls) left for later
+- F4 (`story/world/island-depth.md`): the Queen's Bridge and Sigrun. Its gate (the ice stair on Frostpine
+  Ridge) is laid; Lv 90–100 on Frostpeak waits for it.
+- The Pale Wyrm has a story but, as a field boss, no `lines` and no freed moment: if the owner wants it to
+  speak (or lift a little higher each time it's beaten), field bosses would need `lines` support.
+- No trader on the Heights (the plan named none, like the Spine); Eyvind sells nothing aimed past Lv 66.
+- Tested with a Lv 85 test character, TEST_GOD and weakened bosses: both new doors both ways, every mob in
+  both rooms spawning (both elites, both field bosses), the Serpent Stone card, attuning the Heights stone
+  and travelling to it from the hamlet, the Frostpeak map with the pin on the Heights (label beside it), the
+  new gear and icons in the bag, phone screenshots. Not tested: a full kill of either field boss, the Wyrm's
+  dive and the troll's thrown block up close, the prism beam and star sparks up close. Personas not talked
+  to (no DeepSeek key on the test server). Nobody has fought either room at its level.
+
 ## F2 (the Whale Skerries and the Narwhal Grotto) left for later
-- F3–F4 (`story/world/island-depth.md`): the Aurora Heights and the Blue Halls, the Queen's Bridge and
-  Sigrun. Their gates are laid.
+- F3–F4: F3 shipped (above).
 - The Old Narwhal's freed change (the floes drifting out, fat fish in Runa's nets) isn't shown: like the
   other bosses', it waits for per-account story progress (`story/roadmap.md`, Story delivery).
 - Hakon's comb for Captain Brine: a natural little thread for Brine's persona one day (she doesn't know him).

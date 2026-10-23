@@ -25,7 +25,8 @@ kinds, only `lvl`, `hp`, `atk`, `exp` and coins changed, read off the frozen cur
 (`docs/economy.md`); zone labels, `band`s, the ferry's label and the Caldera and Citadel signs moved with
 them, and Tove's and Brine's personas name the new levels. Their gear became Legacy (`docs/combat/items.md`).
 Lv 60–90 had no fresh content until Frostpeak's depth pass started filling the top of its band (F1: the
-Rimeglass Glacier, 60–75; F2: the Whale Skerries, 55–70, and the Narwhal Grotto, 70–80).
+Rimeglass Glacier, 60–75; F2: the Whale Skerries, 55–70, and the Narwhal Grotto, 70–80; F3: the Aurora
+Heights, 75–90, and the Blue Halls, 80–90).
 5. **Willowmere** and 6. **Saltspray Coves**: Greenhollow's first branches (`docs/places/willowmere.md`,
    `docs/places/coves.md`). `COMBAT_ROOMS` is every `STAGES` room plus the dens; `STAGES[room].pill` names
    it in the location pill. `lob` and `trail` take a `style` for their shot / puddle look, `beam` too.
@@ -45,6 +46,10 @@ Rimeglass Glacier, 60–75; F2: the Whale Skerries, 55–70, and the Narwhal Gro
    entered at its east end like the Coves) with the Old Narwhal's den at its far end, and a hard pocket in
    the sea cliff beside it (Lv 70–80, elites) (`docs/places/skerries.md`, `docs/places/grotto.md`). A small
    mob can use `stomp` too (the bull walrus, with a small `r`).
+16. **The Aurora Heights** and 17. **the Blue Halls**: F3, both off the Rimeglass Glacier: up the Icefall's
+   new steps (Lv 75–90, the Pale Wyrm, a `dive` field boss) and down the crevasse's mended ladder (Lv 80–90, a
+   hard pocket with elites and the Hall Troll, a `lob` field boss) (`docs/places/heights.md`,
+   `docs/places/bluehalls.md`). New shot styles `star` and `ice`, beam style `prism` (`src/hazards.js`).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 

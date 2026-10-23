@@ -1,17 +1,18 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
 // Stone by Truffle's camp in the Mycelium Deep, the Lifted Stone by Acorn's treehouse in the Old Oak
 // Canopy, the Hedge Stone in the Thornheart, the Road Stone on Keeper's Spine; on Frostpeak, the Rime Stone
-// in the Rimeglass Glacier's Cutters' Camp and the Sounding Stone by the Whale Skerries' whaling hut, which may
-// say a little more: Frostpeak's tier is canon Tier 2). Wreck Cave has the one reading here that isn't a stone: the
+// in the Rimeglass Glacier's Cutters' Camp, the Sounding Stone by the Whale Skerries' whaling hut and the Serpent
+// Stone at the top of the steps on the Aurora Heights, which may say a little more: Frostpeak's tier is canon
+// Tier 2). Wreck Cave has the one reading here that isn't a stone: the
 // wrecked ship's logbook (`wing` and `when` change the card's header lines). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -101,6 +102,12 @@ export const RUIN_STONES = [
     legible: ['THE WHALE ROAD', '...THEY KNOW THE WAY BETWEEN...', 'The line of whales runs off the stone\'s south edge, toward open sea. The sea that way is very wide now.'],
     note: 'Someone has scratched a little narwhal at the end of the line, much newer than the rest, facing the other way.',
   },
+  {
+    room: HEIGHTS, place: 'the Aurora Heights', x: 530, shape: 'serpent', name: 'the Serpent Stone', title: 'The Serpent Stone',
+    look: 'A tall Keeper stone at the top of the steps, leaning a little into the wind, its back crusted white. Its sheltered face is carved with a long serpent made of stars joined by lines, curving right across the top of the stone, and under it a row of little boats with every bow turned to follow it. Below the boats, two islands, close together. A gear is cut at the very top.',
+    legible: ['STEER BY THE SERPENT', '...IT KNOWS THE WAY BETWEEN...', 'Every star in the carved serpent is in its place. Near its tail, one small star is cut deeper than the rest, as if someone went over it again and again.'],
+    note: 'Low down, much newer and roughly done, someone has scratched one small star lying on its side in the snow, apart from all the others.',
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -130,7 +137,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -952,4 +959,63 @@ function drawSoundingStone(ctx, time, glow) {
   for (const x of [-22, -6, 14]) ellipse(ctx, x, -28, 4, 6, 0.2);
   ctx.fillStyle = 'rgba(244,248,252,0.9)';
   ellipse(ctx, 0, -150, 24, 4);
+}
+
+// The Serpent Stone (the Aurora Heights): a tall stone leaning into the wind, rime on its back edge; carved with a
+// serpent of joined stars curving across the top, a row of little boats under it with every bow following it,
+// two islands close together below, a gear at the top; one small star near the tail cut deeper, and a newer
+// little star scratched low down, lying on its side
+function drawSerpentStone(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(40,25,60,0.18)';
+  ellipse(ctx, 0, 0, 40, 6);
+  ctx.save();
+  ctx.rotate(-0.05);
+  slab(ctx, -30, -170, 60, 168, 14);
+  const ink = glow ? '#c9a24a' : CARVE;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
+  ctx.lineWidth = 1.5;
+  // the serpent of stars
+  const pts = [[-22, -112], [-14, -124], [-4, -128], [6, -122], [12, -132], [20, -140], [24, -128]];
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+  ctx.stroke();
+  pts.forEach(([x, y], i) => circle(ctx, x, y, i === 1 ? 2.8 : 1.8));
+  ctx.beginPath(); // the deeper one, gone over again and again
+  ctx.arc(-14, -124, 4.4, 0, TAU);
+  ctx.stroke();
+  // the boats, every bow turned toward the serpent's head
+  for (const [x, y] of [[-18, -96], [-4, -92], [10, -96]]) {
+    ctx.beginPath();
+    ctx.moveTo(x - 5, y);
+    ctx.quadraticCurveTo(x, y + 5, x + 6, y - 1);
+    ctx.lineTo(x - 5, y);
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 1, y - 9);
+    ctx.lineTo(x + 5, y - 4);
+    ctx.stroke();
+  }
+  // two islands, close
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(-12, -66, 10, 5, 0, Math.PI, 0);
+  ctx.moveTo(22, -66);
+  ctx.ellipse(12, -66, 10, 5, 0, Math.PI, 0);
+  ctx.stroke();
+  carvedGear(ctx, 0, -152, 8, 10, glow);
+  scratches(ctx, -20, -50, 40, 2, 401, glow);
+  // the newer little star, scratched thin, lying on its side
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = 0.6 + (i / 10) * TAU, rr = i % 2 ? 2 : 4.5;
+    ctx[i ? 'lineTo' : 'moveTo'](14 + Math.cos(a) * rr, -20 + Math.sin(a) * rr);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  // rime on the windward edge, snow on top
+  ctx.fillStyle = 'rgba(244,248,255,0.95)';
+  for (let i = 0; i < 9; i++) ellipse(ctx, -29, -160 + i * 18, 4, 7);
+  ellipse(ctx, 0, -170, 28, 5);
+  ctx.restore();
 }

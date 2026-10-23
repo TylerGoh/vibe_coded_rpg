@@ -326,6 +326,8 @@ legacy stage (90–115), so the island's top overlaps the next one's bottom, as 
   enough to touch and the wrong stars are closest. Field boss: something of the Wyrm's kind that fell
   with it (the harder Wyrm story: one that would rather stay fallen).
   - **The Blue Halls** (hard pocket, 80–90): ice caves inside the glacier, deep blue, elites.
+  - Shipped (F3): the Heights' field boss is **the Pale Wyrm**, a lesser star-serpent lying dim in the
+    Wyrmfall; the Blue Halls got a field boss too, **the Hall Troll** out of the cutters' stories.
 - **The Queen's Bridge** (the heart, 85–100): out onto Glacia's cracked bridge across the strait. Capstone
   den at the crack: **Sigrun, the Queen's Shield** `[proposed]`, Glacia's sworn guard, who still freezes the
   crack shut every night though her queen has let go. The harder Glacia story: holding on to someone
@@ -340,5 +342,7 @@ Each its own session and dev copy, like Greenhollow's.
 - [x] **F2: the Whale Skerries and the Narwhal Grotto** (55–80), the Old Narwhal's den (2026-10-23,
       `docs/places/skerries.md`, `docs/places/grotto.md`). Hakon the Bone-Carver, Grandmother, the Sounding
       Stone; the den is the Breathing Hole at the Floe Edge, next to the Grotto's mouth.
-- [ ] **F3: the Aurora Heights and the Blue Halls** (75–90), their field bosses.
+- [x] **F3: the Aurora Heights and the Blue Halls** (75–90), their field bosses (2026-10-23,
+      `docs/places/heights.md`, `docs/places/bluehalls.md`). The Pale Wyrm (Lv 90) and the Hall Troll (Lv 88);
+      the Serpent Stone, Liv's Reach, the Cutters' Niche; no trader.
 - [ ] **F4: the Queen's Bridge** (85–100) and Sigrun, Frostpeak's capstone. Then atlas Phase 5 resumes.

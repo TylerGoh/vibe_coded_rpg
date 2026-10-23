@@ -44,15 +44,18 @@ island shows what's coming.
 - **Shipped (F2, 2026-10-23):** the Whale Skerries (`docs/places/skerries.md`: the snow slide dug through,
   `snowslide` drawn open) and the Narwhal Grotto (`docs/places/grotto.md`), which lost `past` and opened in
   the same phase: its `entry` is in the Skerries (`grotto`, the cave mouth in the sea cliff).
+- **Shipped (F3, 2026-10-23):** the Aurora Heights (`docs/places/heights.md`: new steps cut up the icefall,
+  `icefall` drawn open) and the Blue Halls (`docs/places/bluehalls.md`: a new ladder down the crevasse,
+  `crevasse` drawn open). Frostpeak's only gate left is the Queen's Bridge's ice stair (F4).
 - The island map (`docs/ui/world-map.md`) reads the same list: shipped places solid with their levels,
   the rest dashed with a short `block` reason. Keep both in step: a node's `block` should match its gate.
 
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 40 after F2; ids 27,
-  31–39 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier,
-  the Skerries, the Narwhal's den and the Grotto), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 42 after F3; ids 27,
+  31–41 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier,
+  the Skerries, the Narwhal's den, the Grotto, the Aurora Heights and the Blue Halls), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last; `onRoomPlat` helper names must be new: F2 first clashed with
   Willowmere's `onWPlat`), a `STAGES` row (`band`, `pill` if the name is long, `hard` for
@@ -96,9 +99,11 @@ Gotchas already hit:
   key presses.
 
 ## The next phases' loose ends (where things already are)
-- **Greenhollow is done** (G0–G5). Frostpeak's pass is under way (F0–F2 shipped): the next phases' gates
-  are already laid (above). F3 (the Aurora Heights, the Blue Halls) lifts the two in the Glacier; F4 the
-  ice stair on Frostpine Ridge.
+- **Greenhollow is done** (G0–G5). Frostpeak's pass is under way (F0–F3 shipped): F4 lifts the last gate, the
+  ice stair on Frostpine Ridge (`BRIDGE_GATE_X`), for the Queen's Bridge and Sigrun's capstone den.
+- F3 gotchas: the open art for a gate can be the gate's own draw function with an `open` flag (`crevasse`,
+  `icefall`); a node at the island map's top edge needs the pin label beside it (`drawIslandMap`); two more
+  pets meant `PETSHOP_W` went up again.
   Each lifted gate becomes an `entry` with open art (`OPEN`), and its block reason comes off the map.
 - A gate in a town room (the snow slide in Icefang Hamlet) works like any other; mind the town's own props
   (the hamlet's waystone moved to the lamp-fire to keep its west end clear).

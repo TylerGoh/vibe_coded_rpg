@@ -22,6 +22,10 @@ one shared corner feed).
   F2: Skaldi, Runa and Tove know the Skerries (the slide dug through), Hakon and the Old Narwhal; Runa's
   husband Bjarn says the floes stay shut (so the new trader is Hakon, not a second Bjarn). Hakon knows the
   Skerries, the den and the Grotto, and hints at Grandmother's Crown.
+  F3: Eyvind cut the new steps up to the Aurora Heights and mended the Blue Halls' ladder (with Runa's rope,
+  which she wants back); he knows both rooms, the Pale Wyrm and the Hall Troll, and hints at Liv's Reach and
+  the Cutters' Niche. Skaldi has one line of song about the small star that fell with the serpent and won't
+  get up (no explaining; his "doesn't know" moved to past the Heights). Tove knows both by their creatures.
 - `hello` on an `NPCS` entry is the line their dialog opens with. `shop` (a `SHOPS` key) adds a **Trade**
   button to their dialog (Runa). `folk` dresses them as another island's people (`docs/art.md`).
 - Clio has `anywhere: true`: she can be asked from anywhere in the museum (Q, the "Ask Clio" touch button,

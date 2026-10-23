@@ -64,7 +64,10 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
   - [x] F2 (2026-10-23): the Whale Skerries (Lv 55–70) and the Narwhal Grotto (70–80, hard), the Old Narwhal
         (den, Lv 70, with lines), Hakon the Bone-Carver, Grandmother, the Sounding Stone, a waystone
         (`docs/places/skerries.md`, `docs/places/grotto.md`). Left over: `docs/ideas.md` ("F2 left for later")
-  - [ ] F3: the Aurora Heights and the Blue Halls (75–90)
+  - [x] F3 (2026-10-23): the Aurora Heights (Lv 75–90) and the Blue Halls (80–90, hard), their field bosses
+        the Pale Wyrm (Lv 90) and the Hall Troll (Lv 88), the Serpent Stone, Liv's Reach, the Cutters' Niche, a
+        waystone (`docs/places/heights.md`, `docs/places/bluehalls.md`). Left over: `docs/ideas.md` ("F3 left
+        for later")
   - [ ] F4: the Queen's Bridge (85–100) and Sigrun, Frostpeak's capstone
 
 ## 0b. Classes and progression: the S track (owner, 2026-10-23)
