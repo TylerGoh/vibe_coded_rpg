@@ -12,12 +12,17 @@ const TREE_OF = {
   chain_lightning: 'magic', arcane_mind: 'magic', meteor: 'magic', starfall: 'magic',
   jelly_bubble: 'guardian', vitality: 'guardian', rally: 'guardian', second_wind: 'guardian', sanctuary: 'guardian', aegis: 'guardian',
   dash: 'wind', flash_jump: 'wind', blink: 'wind', phantom_step: 'wind',
+  // S2: the Novice tree and the classes' new skills
+  slime_bash: 'novice', pebble_toss: 'novice', jelly_patch: 'novice', jelly_thirst: 'blade', mana_shield: 'magic',
+  fireball: 'fire', kindling: 'fire', glacial_spike: 'magic', absolute_zero: 'magic',
 };
 const PALETTE = {
   blade: [BLADE, '#ffc4b0', '#b85a48'],
   magic: [MAGIC, '#c4cdff', '#4f5fc0'],
   guardian: [GUARD, '#bff0d8', '#2f8a64'],
   wind: [WIND, '#c4f0f8', '#2f8aa0'],
+  novice: ['#e6b85c', '#fff0c4', '#a8782a'],
+  fire: ['#f08a5a', '#ffd0b0', '#b8502a'],
 };
 const ease = (k) => 1 - (1 - k) ** 3;
 // a stable pseudo-random number in [0, 1) for (seed, i)
@@ -214,6 +219,174 @@ export function drawSkillIcon(ctx, id, x, y, size) {
 }
 
 const ICONS = {
+  // ——— Novice ———
+  slime_bash(ctx, dark) {
+    // a jelly leaning into a bump, an impact star ahead of it
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    jellyBlob(ctx, -4, 13, 24, 20, 0.6);
+    ctx.stroke();
+    ctx.fillStyle = dark;
+    ellipse(ctx, -1, 4, 1.4, 2);
+    ellipse(ctx, 5, 4, 1.4, 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    for (const dy of [-4, 2, 8]) {
+      ctx.moveTo(-21, dy);
+      ctx.lineTo(-16, dy);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#fff6c4';
+    star(ctx, 13, -6, 7, 5, 0.45);
+  },
+  pebble_toss(ctx, dark) {
+    // a pebble at the end of a dotted arc
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    for (let i = 0; i < 5; i++) circle(ctx, -16 + i * 5.5, 8 - Math.sin((i / 5) * Math.PI) * 14, 1.6);
+    ctx.fillStyle = '#e8e0d4';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ellipse(ctx, 10, 2, 8, 6.5, 0.3);
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ellipse(ctx, 7.5, -0.5, 2.5, 1.5, 0.3);
+  },
+  jelly_patch(ctx, dark) {
+    // a jelly with a crossed plaster on it
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    jellyBlob(ctx, 0, 15, 30, 26);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(2, 2);
+    for (const a of [0.6, -0.6]) {
+      ctx.save();
+      ctx.rotate(a);
+      ctx.fillStyle = '#ffd9b0';
+      ctx.beginPath();
+      ctx.roundRect(-11, -3.5, 22, 7, 3);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+    ctx.fillStyle = '#ff8fb0';
+    heart(ctx, 13, -12, 4);
+  },
+  // ——— Warrior / Mage (S2) ———
+  jelly_thirst(ctx, dark) {
+    // a sword over a heart: hits that heal
+    ctx.fillStyle = '#ff8fb0';
+    ctx.strokeStyle = '#d9507a';
+    ctx.lineWidth = 2;
+    heart(ctx, 2, 6, 12);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(-4, 12);
+    ctx.rotate(0.6);
+    iconSword(ctx, dark, 20, 2.6);
+    ctx.restore();
+    ctx.fillStyle = '#c8ffd8';
+    star(ctx, 14, -13, 4);
+  },
+  mana_shield(ctx, dark) {
+    // a round shield with a mana drop on it
+    ctx.fillStyle = '#e6ebff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(0, -17);
+    ctx.quadraticCurveTo(14, -14, 15, -9);
+    ctx.quadraticCurveTo(14, 8, 0, 17);
+    ctx.quadraticCurveTo(-14, 8, -15, -9);
+    ctx.quadraticCurveTo(-14, -14, 0, -17);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#6a7ae8';
+    ctx.beginPath();
+    ctx.moveTo(0, -9);
+    ctx.bezierCurveTo(3, -4, 7, 0, 7, 4);
+    ctx.bezierCurveTo(7, 8, 4, 10, 0, 10);
+    ctx.bezierCurveTo(-4, 10, -7, 8, -7, 4);
+    ctx.bezierCurveTo(-7, 0, -3, -4, 0, -9);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ellipse(ctx, -2.5, 3, 1.5, 3, 0.3);
+  },
+  fireball(ctx) {
+    // a ball of fire flying right, flames trailing
+    ctx.fillStyle = 'rgba(255,230,190,0.85)';
+    ctx.save();
+    ctx.translate(2, 2);
+    ctx.rotate(-Math.PI / 2);
+    flame(ctx, 0, -2, 18, 26);
+    ctx.restore();
+    ctx.fillStyle = '#ffffff';
+    circle(ctx, 6, 0, 8.5);
+    ctx.fillStyle = '#ffd36b';
+    circle(ctx, 7.5, -1, 4.5);
+  },
+  kindling(ctx, dark) {
+    // two crossed logs and a flame on them
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.fillStyle = '#ffe2c8';
+    for (const a of [0.35, -0.35]) {
+      ctx.save();
+      ctx.translate(0, 11);
+      ctx.rotate(a);
+      ctx.beginPath();
+      ctx.roundRect(-15, -3.5, 30, 7, 3.5);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.fillStyle = '#ffffff';
+    flame(ctx, 0, 8, 18, 26);
+    ctx.fillStyle = '#ffd36b';
+    flame(ctx, 0, 7, 9, 14);
+  },
+  glacial_spike(ctx, dark) {
+    // a long ice spike pointing right
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-17, -6);
+    ctx.lineTo(17, 0);
+    ctx.lineTo(-17, 6);
+    ctx.lineTo(-12, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = '#9fd4ff';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(-12, 0);
+    ctx.lineTo(12, 0);
+    ctx.stroke();
+    ctx.fillStyle = '#dff4ff';
+    star(ctx, -6, -12, 3.5);
+    star(ctx, 2, 12, 3);
+  },
+  absolute_zero(ctx, dark) {
+    // a big snowflake inside a frozen ring
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.arc(0, 0, 17, 0, TAU);
+    ctx.stroke();
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 5;
+    snowflake(ctx, 0, 0, 12);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.6;
+    snowflake(ctx, 0, 0, 12);
+  },
   // ——— Mobility (wind) ———
   dash(ctx, dark) {
     // a jelly zooming right, speed lines streaming behind it
@@ -1050,8 +1223,9 @@ const FX = {
   },
 
   // A glowing projectile with a trail; a burst on a hit, a fizzle on a miss
+  // tint: 'r,g,b' of the glow (Fireball's fire, Glacial Spike's ice); the default is Magic Bolt's blue
   bolt(ctx, e) {
-    const { x, y, tx, ty, hit } = e.o, dur = e.o.dur ?? 0.3;
+    const { x, y, tx, ty, hit } = e.o, dur = e.o.dur ?? 0.3, tint = e.o.tint ?? '160,175,255';
     const sy = y - 22, ey = ty - 18;
     const at = (q) => {
       q = clamp(q, 0, 1);
@@ -1063,14 +1237,14 @@ const FX = {
       for (let i = 8; i >= 1; i--) {
         const [px, py] = at(q - i * 0.035);
         const f = 1 - i / 9;
-        ctx.fillStyle = `rgba(160,175,255,${0.5 * f})`;
+        ctx.fillStyle = `rgba(${tint},${0.5 * f})`;
         circle(ctx, px, py + Math.sin(e.age * 30 + i) * 1.5, 9 * f + 1.5);
       }
       const [px, py] = at(q);
       const g = ctx.createRadialGradient(px, py, 1, px, py, 24);
       g.addColorStop(0, 'rgba(255,255,255,1)');
-      g.addColorStop(0.35, 'rgba(190,200,255,0.9)');
-      g.addColorStop(1, 'rgba(122,140,240,0)');
+      g.addColorStop(0.35, `rgba(${tint},0.9)`);
+      g.addColorStop(1, `rgba(${tint},0)`);
       ctx.fillStyle = g;
       circle(ctx, px, py, 24);
       ctx.save();
@@ -1085,7 +1259,7 @@ const FX = {
     const [px, py] = at(1);
     if (hit) {
       ctx.globalAlpha = 1 - b;
-      ctx.strokeStyle = '#c4cdff';
+      ctx.strokeStyle = `rgb(${tint})`;
       ctx.lineWidth = 4 * (1 - b) + 1;
       ctx.beginPath();
       ctx.arc(px, py, 6 + b * 26, 0, TAU);
@@ -1199,8 +1373,10 @@ const FX = {
   },
 
   // An icy ring bursting out to its radius, with snowflakes riding it and frost shards on the ground
+  // tint: none (frost), 'fire' (Fireball's burst: flames, no ice) or 'mana' (Mana Shield: sparkles)
   nova(ctx, e, k) {
-    const { x, y } = e.o, R = (e.o.radius ?? 190) * ease(k);
+    const { x, y } = e.o, R = (e.o.radius ?? 190) * ease(k), tint = e.o.tint;
+    const [disc, ring] = tint === 'fire' ? ['255,200,140', '255,140,70'] : tint === 'mana' ? ['205,215,255', '140,160,255'] : ['200,235,255', '150,210,255'];
     const fade = k < 0.6 ? 1 : 1 - (k - 0.6) / 0.4;
     ctx.translate(x, y);
     ctx.globalAlpha = fade;
@@ -1209,12 +1385,12 @@ const FX = {
     ctx.translate(0, -18);
     ctx.scale(1, 0.5);
     const g = ctx.createRadialGradient(0, 0, R * 0.2, 0, 0, Math.max(1, R));
-    g.addColorStop(0, 'rgba(200,235,255,0.05)');
-    g.addColorStop(0.8, 'rgba(200,235,255,0.3)');
-    g.addColorStop(1, 'rgba(200,235,255,0)');
+    g.addColorStop(0, `rgba(${disc},0.05)`);
+    g.addColorStop(0.8, `rgba(${disc},0.3)`);
+    g.addColorStop(1, `rgba(${disc},0)`);
     ctx.fillStyle = g;
     circle(ctx, 0, 0, Math.max(1, R));
-    ctx.strokeStyle = 'rgba(150,210,255,0.95)';
+    ctx.strokeStyle = `rgba(${ring},0.95)`;
     ctx.lineWidth = 7 / 0.5;
     ctx.beginPath();
     ctx.arc(0, 0, Math.max(1, R), 0, TAU);
@@ -1223,6 +1399,16 @@ const FX = {
     ctx.lineWidth = 2.5 / 0.5;
     ctx.stroke();
     ctx.restore();
+    if (tint) {
+      // flames (fire) or sparkles (mana) riding the ring instead of ice
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * TAU + e.seed, px = Math.cos(a) * R, py = -18 + Math.sin(a) * R * 0.5 - k * 10;
+        ctx.fillStyle = tint === 'fire' ? (i % 2 ? '#ffd36b' : '#ff8a4a') : i % 2 ? '#ffffff' : '#c4cdff';
+        if (tint === 'fire') flame(ctx, px, py + 6, 8, 14 * (1 - k * 0.6));
+        else star(ctx, px, py, 4.5 * (1 - k) + 1);
+      }
+      return;
+    }
     // ice shards poking up from the ground where the ring passes
     for (let i = 0; i < 14; i++) {
       const side = i % 2 ? 1 : -1, d = R * (0.35 + ((i * 37) % 60) / 100);

@@ -122,7 +122,8 @@ export class Slime {
 
   // What a player has on (src/rpg.js): gear, the Boutique cosmetics they wear,
   // and whether the helmet shows (hiding it lets cosmetics like the ribbon show)
-  setLook({ gear, wear, showHelmet, plus, gearE } = {}) {
+  setLook({ gear, wear, showHelmet, plus, gearE, cls } = {}) {
+    if (cls) this.cls = cls; // your class (src/shared/skills.js CLASSES)
     // (drawn by art id: a rebalanced copy looks like its legacy original)
     if (gear) this.gear = { ...gear, weapon: artOf(gear.weapon), helmet: showHelmet === false ? null : artOf(gear.helmet) };
     if (plus !== undefined || gearE) this.plus = plus ?? gearE?.weapon?.s ?? 0; // scroll successes on the weapon: it glows

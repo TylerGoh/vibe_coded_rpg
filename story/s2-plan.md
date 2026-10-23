@@ -1,6 +1,7 @@
 # S2, split into pieces (sub-plan for agents)
 
-**Status: plan, written 2026-10-23, nothing built.** S2 in `progression.md` ("the tree") is too big for one
+**Status: plan, written 2026-10-23. S2.1 built 2026-10-23 on the git branch `s2` (not deployed: deploy #1
+needs S2.2 and S2.3 too; start S2.2–S2.4 from that branch).** S2 in `progression.md` ("the tree") is too big for one
 session, so it's cut into six pieces, each sized for one agent. The design and the owner's decisions are in
 `progression.md` (sections 1, 1a, 1b, 1c, 2, 3, 7, 9): read it first. This file pins down what that plan
 left open and says who does what. Numbers here (maxes, the schedule) are starting points: S2.4's CLASSES
@@ -96,7 +97,17 @@ Lv 100. The masteries (★Bastion, ★Bloodlust, ★Wildfire, ★Permafrost) mov
 
 ---
 
-## S2.1: classes, trees and the server (data, rules, migration; no new UI)
+## S2.1: classes, trees and the server (data, rules, migration; no new UI) — built 2026-10-23
+As built (`docs/combat/skills.md` has the details): `REBIRTH_X` is a placeholder (2300) for S2.3 to move.
+The migration notice and the advancement messages are toasts plus chat lines (`notice` carries
+`news: 'classes'`, `{t:'advance'}`), for S2.2/S2.3 to turn into banners. On choosing a class the strongest
+weapon of its kind in the bag is equipped. Novice skills reset with the rest on a rebirth (all points
+come back). The per-rank numbers of skills whose max fell from 5 to 3 were raised to keep the max rank's
+worth; Jelly Thirst, Mana Shield, Fireball, Kindling, Glacial Spike and Absolute Zero have first-guess
+numbers for S2.4 to tune. Tested: the live DB's ten characters migrate (including a rollback + classes
+double notice), the learn / fork / level / class gates, rebirth (free once, then paid; refusals: level,
+distance, gold, full bag), weapon lock, Mana Shield in `hurt()`, Jelly Thirst, the Lv 30 advancement
+message, and every new skill cast in a headless browser.
 Docs: `docs/combat/skills.md`, `docs/combat/core.md`, `docs/combat/items.md`, `docs/netcode.md` (protocol).
 - `src/shared/skills.js`: `CLASSES` (`novice`, `warrior`, `mage`: name, weapon kind, main stat, colour, blurb, strong /
   bad at text for the pool's card, its two branches with names and blurbs); `TREES` becomes per class plus

@@ -7,6 +7,9 @@ actions, `scroll()` and `shop()` in `server/rpg.js`. Client: bag UI in `src/rpg.
 `src/shop.js`, icons in `src/field.js` (`drawItemIcon`).
 
 ## Items
+**Weapon lock (S2):** a Novice wields anything; a Warrior only swords, a Mage only staves (`weaponOk`,
+`CLASSES` in `src/shared/skills.js`; `docs/combat/skills.md`). Loot keeps dropping both kinds.
+
 Kinds: coin · potion (HP and/or MP) · loot (materials, mostly for selling) · sword (ATK, reach) · staff
 (MAGIC, MP, bolt range) · helmet (DEF) · scroll. Swords and staves go in the one **weapon** slot (`gear.weapon`,
 `WEAPON_KINDS`, `gearSlotOf`); before S1 it was called `sword`, and `load()` in `server/rpg.js` moves old saves over. Herbs (`herb: true`, loot) and brewed potions (`brewed: true`: also full restores and

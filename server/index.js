@@ -50,7 +50,8 @@
 //   ← {t:'nomana'}  a skill you tried had too little MP
 //   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,weapon}, atk, magic, def,
 //       skills:{id:rank}, sp, hotbar:[6], potbar:[3], alt:{hotbar,potbar}, set, ap:{str,dex,int,luk}, apLeft,
-//       minRoll, pvp, berserk}  your character
+//       minRoll, pvp, berserk, manaShield, fire, cls, reborn, spLeft:{novice, cls}}  your character (sp: points
+//       you can spend now; a Novice's class points pile up in spLeft.cls until it chooses a class)
 //   → {t:'learn'|'unlearn', skill} · {t:'respec'} · {t:'hotbar', bar:'skill'|'pot', slot, id} · {t:'pvp', on}
 //   → {t:'hotswap'}  swap the hotbar for the other setup · {t:'ap', stat, n} (n < 0 takes back) · {t:'ap', reset:true}
 //   → {t:'buy', item, n, shop} · {t:'sell', slot, n, shop} · {t:'buycos', id} (Boutique)  at a shop (SHOPS: Pip, Runa)
@@ -67,7 +68,13 @@
 //   ← {t:'faint', id, by?}  a slime hit 0 HP: it splats, and wakes up in its town 1.6 s later · ← {t:'got', item, n}  you picked something up
 //   ← {t:'gear', id, gear, lvl, up?}  to everyone, when someone's gear or level changes (join/welcome carry it too)
 //   ← {t:'toast', text}  a short notice just for you
-//   ← {t:'notice', text}  a one-time message on joining (a toast and a chat line: the levelling rollback)
+//   ← {t:'notice', text, news?}  a one-time message on joining (a toast and a chat line: the levelling rollback;
+//       news 'classes': the S2 migration made you a Novice)
+//   Classes (S2, src/shared/skills.js CLASSES): → {t:'rebirth', cls}  at the Rebirth Pool (REBIRTH_X in Slimeville):
+//       choose / change your class (server/rpg.js rebirth checks level, gold, the weapon); answered by
+//       ← {t:'reborn', id, cls, from} to the room, a gear message (look carries cls) and your new 'me'
+//   ← {t:'advance', lvl, cls, text}  you reached an advancement level (ADVANCEMENTS): a banner
+//   ← {t:'thirst', id, n}  Jelly Thirst healed slime id by n (to its room)
 //   → {t:'pickup'} (Z) · → {t:'equip'|'use'|'drop', slot} (bag index) · → {t:'unequip', slot:'helmet'|'weapon'}
 //   → {t:'scroll', slot, target:'helmet'|'weapon'|bagIndex}  use an enhancement scroll on a weapon / helmet
 //       ← {t:'scrolled', id, result:'ok'|'fail'|'boom', item, name, left, by}  to the room (bag entries and
@@ -332,6 +339,8 @@ wss.on('connection', (ws) => {
       rpg.item(id, p, m);
     } else if (m.t === 'scroll' && p.joined) {
       rpg.scroll(id, p, m);
+    } else if (m.t === 'rebirth' && p.joined) {
+      rpg.rebirth(id, p, m);
     } else if (['learn', 'unlearn', 'respec', 'hotbar', 'hotswap', 'ap', 'pvp', 'wear', 'showhelm'].includes(m.t) && p.joined) {
       rpg.skills(id, p, m);
     } else if ((m.t === 'buy' || m.t === 'sell' || m.t === 'buycos') && p.joined) {

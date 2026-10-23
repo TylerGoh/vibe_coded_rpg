@@ -379,7 +379,7 @@ slow levelling down, and roll those characters back to where their play time wou
       staves. Before R, so R's "new copy of every boss item" pass copies the staves too.
 - [x] **L: the levelling rebalance and the rollback** (shipped 2026-10-23, alone): L1 the EXP curve, L2
       prices in farming time, L3 rolling back the top characters. `docs/economy.md`, `docs/combat/core.md`.
-- [ ] **S2: the tree** (large; split into six agent-sized pieces in `s2-plan.md`), with the CLASSES table in `npm run economy`: the four class trees, the Rebirth spot, forks, advancements, the `spTotal` schedule, the
+- [ ] **S2: the tree** (large; split into six agent-sized pieces in `s2-plan.md`; S2.1 built 2026-10-23 on branch `s2`, not deployed), with the CLASSES table in `npm run economy`: the four class trees, the Rebirth spot, forks, advancements, the `spTotal` schedule, the
       node UI (desktop and phone), the one-time refund. Warrior (with the chase moves in `step()`) and Mage, with the mage
       combos (chill/freeze/shatter, burn/spread, Arcane Charge).
 - [ ] **S3: the Cleric** (large: summons are new server entities): the Cleric at the Rebirth spot, the halo, the summons, the Cleric tree (mostly today's heal and Guardian
