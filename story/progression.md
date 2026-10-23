@@ -314,7 +314,7 @@ slow levelling down, and roll those characters back to where their play time wou
   | potions, pet food, seeds, small furniture | 1–3 |
   | bigger furniture | up to ~10 |
   | shop and trader gear, the smaller houses | 10–20 |
-  | pets | ~20 at their boss's level, with a floor of ~15–20k so no pet is trivial (recommended; owner to confirm) |
+  | pets | ~20 at their boss's level, with a floor of ~15–20k so no pet is trivial (owner, 2026-10-23) |
   | the high end (big houses, top gear, the top pets) | ~30 |
 - Most of today's gear and house prices already sit at 4–24 minutes, so they barely move. What changes: the
   sheet's `AIM_MIN` / `AIM_MAX` share check becomes a minutes-at-aim check per band; pets get aims (their
