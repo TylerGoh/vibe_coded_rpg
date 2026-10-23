@@ -36,6 +36,12 @@ was frozen and she used a rough jetty under the ridge; the ice went out with tha
    deep blue, down the cutters' mended ladder. The Cutters' Niche (generations of names round an old pick),
    and the Hall Troll of the cutters' stories, stacking walls of ice for nobody.
 
+8. **The Queen's Bridge** (exists, F4: `docs/places/queensbridge.md`): out onto Glacia's cracked ice bridge,
+   up the ice stair on the ridge the cutters built up again. Grey sky, wind, the strait far below, the next
+   island's cliffs a ghost in the east. The Queen's guards stand frozen at their posts along the rail; the
+   Strait Stone (a Keeper stone, two shores carved further apart each time) at the stair's head; and at the
+   crack, **Sigrun, the Queen's Shield**, who freezes it shut every night. Frostpeak's capstone.
+
 ## People
 **The fjord folk:** pale, frosted slimes who go half-solid in the cold and move slowly. They remember the
 Queen as good. AI characters (exist): **Old Skaldi**, a lamplighter who keeps the hamlet's fire and the

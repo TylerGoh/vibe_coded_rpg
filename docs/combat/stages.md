@@ -26,7 +26,7 @@ kinds, only `lvl`, `hp`, `atk`, `exp` and coins changed, read off the frozen cur
 them, and Tove's and Brine's personas name the new levels. Their gear became Legacy (`docs/combat/items.md`).
 Lv 60–90 had no fresh content until Frostpeak's depth pass started filling the top of its band (F1: the
 Rimeglass Glacier, 60–75; F2: the Whale Skerries, 55–70, and the Narwhal Grotto, 70–80; F3: the Aurora
-Heights, 75–90, and the Blue Halls, 80–90).
+Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100, which finishes it).
 5. **Willowmere** and 6. **Saltspray Coves**: Greenhollow's first branches (`docs/places/willowmere.md`,
    `docs/places/coves.md`). `COMBAT_ROOMS` is every `STAGES` room plus the dens; `STAGES[room].pill` names
    it in the location pill. `lob` and `trail` take a `style` for their shot / puddle look, `beam` too.
@@ -50,6 +50,9 @@ Heights, 75–90, and the Blue Halls, 80–90).
    new steps (Lv 75–90, the Pale Wyrm, a `dive` field boss) and down the crevasse's mended ladder (Lv 80–90, a
    hard pocket with elites and the Hall Troll, a `lob` field boss) (`docs/places/heights.md`,
    `docs/places/bluehalls.md`). New shot styles `star` and `ice`, beam style `prism` (`src/hazards.js`).
+18. **The Queen's Bridge**: F4, Frostpeak's last branch, up the mended ice stair on Frostpine Ridge (Lv 85–100,
+   no field boss: Sigrun's den at the far end is the capstone) (`docs/places/queensbridge.md`). New shot style
+   `javelin` (the rime archer's).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 

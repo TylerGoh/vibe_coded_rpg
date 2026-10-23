@@ -44,6 +44,13 @@ Order is by level. Names are the game's current ones.
 - **Astral Wyrm** (Starfall Sanctum). The star-serpent sailors once steered by. It was knocked out of the
   sky in the Stopped Hour and crashed into the summit, and the stars went wrong with it. Beaten, it rises
   back to the sky, the stars return, and ships can navigate the long voyage south.
+- **Sigrun, the Queen's Shield** (The Seam, at the crack in the Queen's Bridge; Frostpeak's capstone, shipped
+  F4). Glacia's sworn guard and the captain of her guard, fjord folk frozen half to ice. Glacia froze the
+  strait to hold on; Sigrun swore to hold what her queen held, and goes on freezing the crack shut every night
+  though her queen has let go: the harder Glacia story, holding on to someone else's holding on. Her guards
+  stand frozen at their posts along the bridge (some were hamlet folk). Her lines (MOBS.sigrun.lines) are an
+  oath nobody released her from; freed, she stops mending it ("Cross while it lasts"). The shard is set in her
+  shield's boss. Skaldi knew her as a girl. Tier 2 only by showing.
 - **The Old Narwhal** (The Breathing Hole, the Whale Skerries; shipped F2; the atlas's "sea creature under the
   ice bridge"). The last of her pod. When the islands drifted and the sea grew wide, the pod swam south along
   the old whale road and she stayed; with a shard lodged at the root of her tusk she holds the floes shut

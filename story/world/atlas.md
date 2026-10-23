@@ -164,7 +164,9 @@ the Citadel's are machines and echoes.
    - **The Aurora Heights** (exists, 75–90, F3, up the Glacier's Icefall): ptarmigan, snow foxes, rime eagles,
      aurora jellies, musk oxen, lost stars; the Pale Wyrm (field boss). **The Blue Halls** (exists, 80–90,
      hard, under the Glacier): icicle bats, ice worms, glass beetles, prism crawlers, elites; the Hall Troll
-     (field boss). The Queen's Bridge is planned in `island-depth.md`.
+     (field boss). **The Queen's Bridge** (exists, 85–100, F4, up the mended ice stair on the ridge): rime
+     puffins, sleet harriers, rimeguards, hoarfrost shades, leopard seals, rime archers; Sigrun, the Queen's
+     Shield (capstone den). Frostpeak's depth pass is done.
 5. Onward: the ship south leaves from the fjord's quay: the **Lodestar**, laid up (shown, not open) until
    Phase 5, because nobody will steer south while the stars are wrong.
 

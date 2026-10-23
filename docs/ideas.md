@@ -66,9 +66,20 @@
 - The atlas's island sheets still carry their old bands (a note at the top says how to read them).
 - Untested with real players: the raised mobs' and bosses' difficulty at their new levels (bots only).
 
+## F4 (the Queen's Bridge and Sigrun) left for later
+- Emberdeep is next (atlas Phase 5): `story/world/emberdeep-depth.md` holds the plan and the owner's open
+  decisions (renames, gating the voyage on the Astral Wyrm, the balloon's block, the band top, new characters).
+- No trader on the bridge (like the Spine and the Heights): nothing on Frostpeak sells gear aimed past Lv 66.
+- Sigrun's `party` mechanics wait for S5; until then she's a big solo-able boss like the Root Warden.
+- Lore stones now say what they can at Tier 2; the frozen guards and the far shore are scenery only (the far
+  island is never named, on purpose).
+- Tested with a Lv 96 test character, TEST_GOD and a weakened Sigrun (doors, every mob, the stone, the waystone,
+  the map, her lines, phase 2 and her ultimate, the bag, a phone screenshot). Not tested: a full kill, her grid
+  and beam up close, the rime archer's javelin up close. Personas not talked to (no DeepSeek key on the test
+  server). Nobody has fought the bridge at its level.
+
 ## F3 (the Aurora Heights and the Blue Halls) left for later
-- F4 (`story/world/island-depth.md`): the Queen's Bridge and Sigrun. Its gate (the ice stair on Frostpine
-  Ridge) is laid; Lv 90–100 on Frostpeak waits for it.
+- (F4, the Queen's Bridge and Sigrun, shipped: see below.)
 - The Pale Wyrm has a story but, as a field boss, no `lines` and no freed moment: if the owner wants it to
   speak (or lift a little higher each time it's beaten), field bosses would need `lines` support.
 - No trader on the Heights (the plan named none, like the Spine); Eyvind sells nothing aimed past Lv 66.

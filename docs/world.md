@@ -32,6 +32,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | The Narwhal Grotto | 39 `GROTTO` | back out to the Skerries (west end); a hard pocket (`docs/places/grotto.md`) |
 | The Aurora Heights | 40 `HEIGHTS` | back down the steps to the Glacier's Icefall (west end) (`docs/places/heights.md`) |
 | The Blue Halls | 41 `BLUEHALLS` | back up the ladder to the Glacier's Crevasse Field (west end); a hard pocket (`docs/places/bluehalls.md`) |
+| The Queen's Bridge | 42 `QBRIDGE` | back down the ice stair to Frostpine Ridge (west end) · Sigrun's den, the Seam (room 43), at the east end (`docs/places/queensbridge.md`) |
 | Pet Shop | 27 `PETSHOP` | exit (`docs/places/pets.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17, 26, 30, 35 | exit, back to the stage it's in (`DENS[].from`) |

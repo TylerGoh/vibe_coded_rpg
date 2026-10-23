@@ -113,6 +113,14 @@ new is aimed. Two field bosses, each ~2.4 min of farming a kill: the Hall Troll 
 (Lv 90); their pets are 352k and 356k, between Old Rimehorn's (350k) and Ignis's (360k); `PETSHOP_W` went up
 to fit them.
 
+## Frostpeak's depth pass, F4 (2026-10-23)
+The Queen's Bridge (`docs/places/queensbridge.md`) put six mobs on the curve at Lv 86–98, filling 90–100, which
+had only the lost star: "farming your own level" at 100 now picks the rime archer instead of the Lv 100 magma
+slug. Gold earned moved a little: Lv 90 ~224.8k → ~225.8k, Lv 100 ~277.0k → ~281.4k, Lv 120 ~402.9k → ~408.7k
+(~1.5%; play time unchanged). No trader, so nothing new is aimed. Sigrun (Lv 100, den) is worth ~4.8 min of
+farming a kill in coins and materials, camped 0.7× EXP / 3.9× gold, between the Old Narwhal and Pyra. Her pet
+is 370k, between Ignis's (360k) and Pyra's (400k); `PETSHOP_W` went up to fit it.
+
 ## How to price something new
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Read "gold earned by then" for that level and price it at roughly half to three quarters of it: a real

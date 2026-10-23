@@ -119,6 +119,7 @@ const SHOT = {
   thorn: { glow: '200,150,190', core: '#f4e0ea', mid: '#7a4c62', rim: '#3e2232' }, // the pitcher plant's
   snow: { glow: '210,235,255', core: '#ffffff', mid: '#eef6fc', rim: '#9ab8d4' }, // the great yeti's
   spine: { glow: '220,160,255', core: '#ffd0f0', mid: '#7a3e90', rim: '#3e1a4e' }, // the sea urchin's
+  javelin: { glow: '190,230,255', core: '#ffffff', mid: '#cfe8fc', rim: '#3e6294' }, // the rime archer's
   star: { glow: '200,230,255', core: '#ffffff', mid: '#e8f4ff', rim: '#8ab0d8' }, // the lost star's spark
   ice: { glow: '140,190,255', core: '#e8f6ff', mid: '#8ec4f0', rim: '#2e5a8a' }, // the Hall Troll's block of ice
 };
@@ -268,6 +269,24 @@ function drawShot(ctx, h, now) {
     disc(ctx, 0, 0, r * 0.75);
     ctx.fillStyle = st.core;
     disc(ctx, -r * 0.25, -r * 0.25, r * 0.22);
+  } else if (h.style === 'javelin') {
+    // a javelin of clear blue ice, flying point first, a glint running down it
+    ctx.translate(p.x, p.y);
+    ctx.rotate(Math.atan2(uy, ux));
+    ctx.fillStyle = st.mid;
+    ctx.strokeStyle = st.rim;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(r * 2.2, 0);
+    ctx.lineTo(r * 0.8, -r * 0.45);
+    ctx.lineTo(-r * 2, -r * 0.2);
+    ctx.lineTo(-r * 2, r * 0.2);
+    ctx.lineTo(r * 0.8, r * 0.45);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = st.core;
+    ctx.fillRect(-r * 1.6 + ((now * 4) % 1) * r * 3, -r * 0.1, r * 0.6, r * 0.2);
   } else if (h.style === 'spine') {
     // a long purple urchin spine, flying point first, its tip lit pink
     ctx.translate(p.x, p.y);
@@ -906,6 +925,7 @@ const BEAM = {
   jet: { glow: '150,220,255', outer: 'rgba(110,190,235,0.85)', mid: '#d8f4ff', aim: '255,110,130' }, // the moray eel's water jet
   warden: { glow: '255,205,120', outer: 'rgba(255,190,90,0.88)', mid: '#fff0c8', aim: '255,96,110' }, // Keeper amber: stone sentinels and the Root Warden
   prism: { glow: '130,170,255', outer: 'rgba(110,150,255,0.85)', mid: '#e0ecff', aim: '255,110,140' }, // the prism crawler's blue light
+  shield: { glow: '200,232,255', outer: 'rgba(180,220,252,0.9)', mid: '#ffffff', aim: '255,96,120' }, // the cold light off Sigrun's shield
 };
 function drawBeam(ctx, h, now) {
   const B = BEAM[h.style] || BEAM.sentry;
@@ -983,6 +1003,7 @@ const GRID = {
   volt: { rgb: '255,210,60', bolt: '#fffbe0', rim: '#3fb6ff', fill: '255,196,40', edge: '#ffb020' },
   chrono: { rgb: '190,140,255', bolt: '#fff4d6', rim: '#ffc94a', fill: '150,100,240', edge: '#c9a4ff' },
   root: { rgb: '255,205,120', bolt: '#fff0c8', rim: '#6a4c36', fill: '140,110,70', edge: '#7aa05e' }, // the Root Warden: roots heaving the floor, amber light in the cracks
+  seam: { rgb: '190,230,255', bolt: '#ffffff', rim: '#3e6294', fill: '120,170,220', edge: '#e2f0fc' }, // Sigrun: the deck heaving along the seam, cold light in the cracks
 };
 const STRIP = 30; // the floor strip of a low grid zap
 function drawGrid(ctx, h, now) {

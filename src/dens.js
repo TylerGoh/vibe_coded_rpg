@@ -11,11 +11,12 @@ import { DEN_ART as COVES_DENS, ENTRANCE_ART as COVES_ENTRANCES, BOSS_ART as COV
 import { DEN_ART as DEEP_DENS, ENTRANCE_ART as DEEP_ENTRANCES, BOSS_ART as DEEP_BOSSES } from './dens-deep.js';
 import { DEN_ART as SPINE_DENS, ENTRANCE_ART as SPINE_ENTRANCES, BOSS_ART as SPINE_BOSSES, wardenRoot } from './dens-spine.js';
 import { DEN_ART as SKERRIES_DENS, ENTRANCE_ART as SKERRIES_ENTRANCES, BOSS_ART as SKERRIES_BOSSES } from './dens-skerries.js';
+import { DEN_ART as QBRIDGE_DENS, ENTRANCE_ART as QBRIDGE_ENTRANCES, BOSS_ART as QBRIDGE_BOSSES } from './dens-qbridge.js';
 import { glow as radialGlow } from './glow.js';
 // the third and fourth stages' dens, bosses and boss effects live in their own files (same contracts as here)
-const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS };
-const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES, ...SPINE_ENTRANCES, ...SKERRIES_ENTRANCES };
-const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES };
+const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS };
+const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES, ...SPINE_ENTRANCES, ...SKERRIES_ENTRANCES, ...QBRIDGE_ENTRANCES };
+const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES, ...QBRIDGE_BOSSES };
 const FX2 = { ...CALDERA_FX, ...CITADEL_FX };
 
 const GROUND = FIELD_GROUND; // den floors sit at the same height as the field
@@ -2343,8 +2344,9 @@ const FXPAL = {
   knot: { debris: ['#6a5048', '#8a6a5a', '#aaf0d8', '#5a4440'], dust: '160,130,130', crack: '#2a1e2c', warn: '255,96,110', jelly: ['#aaf0d8', '#c9a6e6', '#ffb0c0', '#efe4d0'] },
   warden: { debris: ['#a8a4b4', '#8a8698', '#ffcf7a', '#7aa05e'], dust: '200,196,210', crack: '#4e4a5e', warn: '255,96,110', jelly: ['#ffcf7a', '#a8a4b4', '#9ac478', '#f4ecdc'] },
   floe: { debris: ['#f4f8fc', '#cfe6f4', '#8ab8d8', '#f4ecd8'], dust: '220,236,248', crack: '#2e5a7e', warn: '255,96,120', jelly: ['#cfe6f4', '#f4f8fc', '#8ab8d8', '#f4ecd8'] },
+  oath: { debris: ['#f4f8ff', '#e2f0fc', '#b4d4f0', '#d8dce8'], dust: '226,238,252', crack: '#3e6294', warn: '255,96,120', jelly: ['#e2f0fc', '#d8dce8', '#8ab8e0', '#f4f8ff'] },
 };
-const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250' };
+const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250', oath: '190,226,255' };
 const DUR = {
   slamWarn: 1, shockwave: 0.55, chargeWarn: 0.8, rainWarn: 1, rainHit: 0.45, summon: 0.9, roar: 0.8, bossDie: 1.6,
   leap: 1.1, phase: 1.5,
@@ -2458,7 +2460,7 @@ function drawBit(ctx, theme, x, y, rot, s, c) {
   ctx.scale(s, s);
   ctx.fillStyle = c;
   if (theme === 'sprout') ellipse(ctx, 0, 0, 6, 3);
-  else if (theme === 'frost' || theme === 'floe') {
+  else if (theme === 'frost' || theme === 'floe' || theme === 'oath') {
     ctx.strokeStyle = '#7ab8e8';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -2737,7 +2739,7 @@ function drawFallObj(ctx, theme, x, y, s, rot, time) {
     ctx.fill();
     ctx.fillStyle = 'rgba(78,134,176,0.4)';
     ctx.fillRect(-8, 0, 18, 3);
-  } else if (theme === 'frost') {
+  } else if (theme === 'frost' || theme === 'oath') {
     // a chunk of ice, point down
     ctx.fillStyle = 'rgba(225,245,255,0.95)';
     ctx.strokeStyle = '#6aa0d0';
@@ -2968,7 +2970,7 @@ function fxSummon(ctx, e, k) {
   const open = Math.sin(Math.PI * Math.min(1, k * 1.15));
   const rx = 40 * open, ry = 12 * open;
   glow(ctx, x, y - 20, 60 * open + 1, 50 * open + 1, rgb, 0.6);
-  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30', tide: '#1e4a58', knot: '#2a1e2c', warden: '#4e4a5e', floe: '#1e3e5a' }[theme] ?? '#1c1020';
+  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30', tide: '#1e4a58', knot: '#2a1e2c', warden: '#4e4a5e', floe: '#1e3e5a', oath: '#2e4e78' }[theme] ?? '#1c1020';
   ellipse(ctx, x, y + 2, rx + 0.1, ry + 0.1);
   ctx.strokeStyle = `rgba(${rgb},0.9)`;
   ctx.lineWidth = 3;
@@ -2995,7 +2997,7 @@ function fxSummon(ctx, e, k) {
 
 function fxRoar(ctx, e, k) {
   const { x, y, theme } = e;
-  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255', tide: '140,220,240', knot: '170,250,225', warden: '255,200,110', floe: '190,225,250' }[theme] ?? '255,140,80';
+  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255', tide: '140,220,240', knot: '170,250,225', warden: '255,200,110', floe: '190,225,250', oath: '190,226,255' }[theme] ?? '255,140,80';
   for (let i = 0; i < 3; i++) {
     const j = clamp(k * 1.4 - i * 0.18, 0, 1);
     if (j <= 0 || j >= 1) continue;
@@ -4535,6 +4537,7 @@ function fxWaveWarn(ctx, e, k) {
     ctx.rect(-40, y - hh - 30, DEN_W + 80, hh + 34);
     ctx.clip();
     if (theme === 'tide') waterMass(ctx, x0 + dir * 20, dir, hh, e.t);
+    else if (theme === 'oath') iceMass(ctx, x0 + dir * 20, dir, hh, e.t);
     else thornMass(ctx, x0 + dir * 20, dir, hh, e.t, e.spikes);
     ctx.restore();
   }
@@ -4545,7 +4548,39 @@ function fxWaveGo(ctx, e, k) {
   const fx = e.x0 + e.dir * e.speed * e.t;
   void k;
   if (e.theme === 'tide') waterMass(ctx, fx, e.dir, 66, e.t);
+  else if (e.theme === 'oath') iceMass(ctx, fx, e.dir, 66, e.t);
   else thornMass(ctx, fx, e.dir, 66, e.t, e.spikes);
+}
+
+// Sigrun's Close the Seam: new ice racing along the floor the way she freezes the crack shut, a ridge of clear
+// blue blocks heaving up at the front, frost feathers flying off it, a trail of fresh ice behind
+function iceMass(ctx, fx, dir, hh, time) {
+  const back = fx - dir * 240, y = GROUND + 2;
+  ctx.fillStyle = 'rgba(200,230,252,0.75)';
+  ctx.fillRect(Math.min(back, fx), y - 10, Math.abs(fx - back), 12);
+  for (let i = 0; i < 7; i++) {
+    const bx = fx - dir * (i * 30), bh = hh * (1 - i * 0.12) * (0.85 + 0.15 * Math.sin(time * 9 + i));
+    if (bh <= 4) continue;
+    ctx.fillStyle = i % 2 ? '#cfe6fa' : '#b4d4f0';
+    ctx.strokeStyle = '#3e6294';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(bx - 16, y);
+    ctx.lineTo(bx - 12 + dir * 4, y - bh);
+    ctx.lineTo(bx + 4 + dir * 8, y - bh * 0.86);
+    ctx.lineTo(bx + 16, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillRect(bx - 8, y - bh + 6, 4, bh - 10);
+  }
+  glow(ctx, fx, y - hh * 0.5, 70, hh, '190,230,255', 0.5);
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  for (let i = 0; i < 6; i++) {
+    const j = (time * 3 + i * 0.17) % 1;
+    circle(ctx, fx + dir * (8 + j * 40), y - hh * 0.6 - j * 30 + i * 4, 2 + (1 - j) * 2);
+  }
 }
 
 // The Tidemother's Riptide: a rolling wall of green water with a curling white crest, shells tumbling in it

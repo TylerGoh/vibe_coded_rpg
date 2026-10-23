@@ -31,7 +31,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 3800;
+export const PETSHOP_W = 4000;
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -452,6 +452,34 @@ export const BLUEHALLS_PLATFORMS = [
   { x: 3680, y: 255, w: 200, kind: 'shelf' },
   { x: 1180, y: 165, w: 100, kind: 'niche' }, // the Cutters' Niche, high in the first hall's wall: easy to miss
 ];
+// ——— Frostpeak's depth pass, F4 (docs/places/queensbridge.md) ———
+// The Queen's Bridge (room 42): out onto the ice bridge Queen Glacia froze across the strait, up the ice stair
+// on Frostpine Ridge (mended since F4: BRIDGE_GATE_X). You come in at the WEST end (QBRIDGE_EXIT_X, the stair's
+// head) and walk east out over the strait, higher and harder: the Stairhead (no mobs: a waystone, the Strait
+// Stone), the Span, the Frozen Guard (the Queen's guards frozen at their posts along the rail) and the Crack,
+// where the bridge split and is frozen shut again every night: Sigrun's den (SIGRUN_DEN_X). The Shield's Perch,
+// a lookout on the tallest arch over the Frozen Guard (last in QBRIDGE_PLATFORMS), is the hidden spot.
+export const QBRIDGE = 42; // room id
+export const QBRIDGE_W = 5400;
+export const QBRIDGE_EXIT_X = 70; // back down the ice stair to Frostpine Ridge
+export const SIGRUN_DEN_X = 5020; // the Seam: the crack across the bridge, and Sigrun on it
+export const QBRIDGE_ZONES = [
+  { name: 'The Stairhead', x0: 0, x1: 900, lvl: null }, // (no mobs)
+  { name: 'The Span', x0: 900, x1: 2400, lvl: '85–90' },
+  { name: 'The Frozen Guard', x0: 2400, x1: 3900, lvl: '90–95' },
+  { name: 'The Crack', x0: 3900, x1: QBRIDGE_W, lvl: '95–100' },
+];
+export const QBRIDGE_PLATFORMS = [
+  { x: 1100, y: 340, w: 210, kind: 'arch' },
+  { x: 1480, y: 255, w: 210, kind: 'arch' },
+  { x: 1880, y: 340, w: 220, kind: 'arch' },
+  { x: 2560, y: 340, w: 220, kind: 'post' }, // the guards' posts: ice parapets with a frozen guard standing on each
+  { x: 2940, y: 255, w: 220, kind: 'post' },
+  { x: 3340, y: 340, w: 210, kind: 'post' },
+  { x: 4060, y: 340, w: 220, kind: 'slab' }, // slabs of the deck heaved up where it cracked
+  { x: 4440, y: 255, w: 210, kind: 'slab' },
+  { x: 3000, y: 160, w: 100, kind: 'perch' }, // the Shield's Perch, a lookout on the tallest arch: easy to miss
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -473,6 +501,7 @@ export const STAGES = {
   [GROTTO]: { name: 'The Narwhal Grotto', zones: GROTTO_ZONES, band: '70–80', hard: true, pill: 'Narwhal Grotto' },
   [HEIGHTS]: { name: 'The Aurora Heights', zones: HEIGHTS_ZONES, band: '75–90', pill: 'Aurora Heights' },
   [BLUEHALLS]: { name: 'The Blue Halls', zones: BLUEHALLS_ZONES, band: '80–90', hard: true },
+  [QBRIDGE]: { name: "The Queen's Bridge", zones: QBRIDGE_ZONES, band: '85–100', pill: "Queen's Bridge" },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -1177,6 +1206,62 @@ MOBS.hall_troll = {
   drops: [['coin', 1, 7800, 11300], ['troll_tooth', 1, 4, 8], ['glass_shell', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['troll_maul', 0.25, 1, 1], ['troll_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 
+// ——— Frostpeak's depth pass, F4: the Queen's Bridge (art: src/qbridge-art.js, src/dens-qbridge.js;
+// docs/places/queensbridge.md). On the frozen curve ———
+// Rime puffins sit along the rail (harmless), sleet harriers stoop out of the strait's wind, rimeguards (the
+// Queen's guards, frozen half-solid and still on watch) hold a round shield of ice in front (hit them from
+// behind), hoarfrost shades fade into the cold and pulse out of it, leopard seals slip down through the
+// cracks and come up behind you, and rime archers, guards still at their loopholes, throw javelins of ice
+MOBS.rime_puffin = {
+  name: 'Rime Puffin', lvl: 86, hp: 9000, atk: 272, exp: 4951, speed: 75, w: 38, h: 40, aggro: false, hops: true,
+  drops: [['coin', 1, 610, 915], ['puffin_beak', 0.55, 1, 2], ['mega_elixir', 0.13, 1, 1]],
+};
+MOBS.sleet_harrier = {
+  name: 'Sleet Harrier', lvl: 88, hp: 9700, atk: 279, exp: 5148, speed: 115, w: 60, h: 38, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.3, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 630, 945], ['harrier_talon', 0.5, 1, 2], ['mega_elixir', 0.14, 1, 1]],
+};
+MOBS.rimeguard = {
+  name: 'Rimeguard', lvl: 91, hp: 12600, atk: 291, exp: 5450, speed: 45, w: 50, h: 58, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.55, lunge: 520, time: 0.32 },
+  drops: [['coin', 1, 665, 1000], ['rime_buckle', 0.5, 1, 2], ['mega_elixir', 0.14, 1, 1], ['rimeguard_helm', 0.004, 1, 1]],
+};
+MOBS.hoarfrost_shade = {
+  name: 'Hoarfrost Shade', lvl: 93, hp: 10600, atk: 298, exp: 5655, speed: 70, w: 46, h: 58, aggro: true, hops: false, fly: 44,
+  ai: { kind: 'phase', every: 6.2, dur: 1.9, r: 180 },
+  drops: [['coin', 1, 690, 1035], ['bottled_hoarfrost', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1]],
+};
+MOBS.leopard_seal = {
+  name: 'Leopard Seal', lvl: 95, hp: 11100, atk: 306, exp: 5863, speed: 85, w: 76, h: 36, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.4, warn: 0.45, slashWarn: 0.5, r: 120 },
+  drops: [['coin', 1, 710, 1065], ['seal_whisker', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1]],
+};
+MOBS.rime_archer = {
+  name: 'Rime Archer', lvl: 98, hp: 11500, atk: 317, exp: 6182, speed: 40, w: 48, h: 58, aggro: true, hops: false,
+  ai: { kind: 'lob', range: 480, every: 2.7, keep: 170, warn: 0.6, style: 'javelin' },
+  drops: [['coin', 1, 740, 1110], ['ice_arrowhead', 0.5, 1, 2], ['mega_elixir', 0.16, 1, 1], ['rimeguard_blade', 0.003, 1, 1]],
+};
+// Sigrun, the Queen's Shield (the Seam, at the bridge's crack): Frostpeak's capstone boss, with a story
+// (story/characters/bosses.md). Glacia's sworn guard, fjord folk frozen half to ice, who still freezes the
+// crack shut every night though her queen has let go: holding on to someone else's holding on. Her beam is
+// the cold light off her shield (`looks`), her grid the deck heaving along the seam, and her ultimate, Close
+// the Seam, is the `wave` ult as new ice racing along the floor (src/dens.js iceMass).
+// party (story/progression.md, S5; nothing reads it yet): focus: her spear locks onto one slime · barrier:
+// her shield turns blades from the front (flank her) · pulse: the seam's cold every few seconds · weakpoint:
+// the shard, set in her shield's boss · adds: rimeguards
+MOBS.sigrun = {
+  name: "Sigrun, the Queen's Shield", boss: true, lvl: 100, hp: 760000, atk: 330, exp: 260000, speed: 80, w: 150, h: 190, aggro: true, hops: false,
+  phases: [['slam', 'charge', 'rain'], ['slam', 'charge', 'beam', 'rain', 'summon', 'grid'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap', 'charge']],
+  ult: { name: 'Close the Seam', kind: 'wave' }, minion: 'rimeguard', looks: { beam: 'shield', grid: 'seam' }, // (how they're drawn: src/hazards.js)
+  party: ['focus', 'barrier', 'pulse', 'weakpoint', 'adds'],
+  lines: {
+    enter: ["Halt. This is the Queen's bridge. No one crosses while I stand on it.", 'Every night it cracks, and every night I close it. Go back down. You are letting the cold out.'],
+    phase: [null, 'She told me to hold it. She never told me I could stop.', 'Her hands are open now. I saw her let go. Mine are not hers to open!'],
+    freed: '...Then let it crack. She let go, and I held on for her, and it was never mine to hold. Go on, little ones. Cross while it lasts.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['oath_blade', 1, 1, 1], ['sigrun_helm', 0.6, 1, 1], ['coin', 1, 17000, 25500], ['mega_elixir', 1, 4, 6], ['seam_ice', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -1215,6 +1300,7 @@ const onSkPlat = onRoomPlat(SKERRIES_PLATFORMS, SKERRIES);
 const onGrPlat = onRoomPlat(GROTTO_PLATFORMS, GROTTO);
 const onAhPlat = onRoomPlat(HEIGHTS_PLATFORMS, HEIGHTS);
 const onBhPlat = onRoomPlat(BLUEHALLS_PLATFORMS, BLUEHALLS);
+const onQbPlat = onRoomPlat(QBRIDGE_PLATFORMS, QBRIDGE);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -1474,6 +1560,22 @@ export const SPAWNS = [
   ...onBhPlat('prism_crawler', 7, 1),
   { kind: 'beetle_elite', x0: 3300, x1: 4050, y: FIELD_GROUND, room: BLUEHALLS },
   { kind: 'hall_troll', x0: 2700, x1: 4050, y: FIELD_GROUND, room: BLUEHALLS },
+  // the Queen's Bridge (the Stairhead, x < 900, has none; nothing right by Sigrun's seam at SIGRUN_DEN_X)
+  ...strip('rime_puffin', 1000, 2350, FIELD_GROUND, 4, QBRIDGE),
+  ...onQbPlat('rime_puffin', 0, 1),
+  ...strip('sleet_harrier', 1450, 2350, FIELD_GROUND, 3, QBRIDGE),
+  ...onQbPlat('sleet_harrier', 1, 1),
+  ...onQbPlat('rime_puffin', 2, 1),
+  ...strip('rimeguard', 2500, 3850, FIELD_GROUND, 3, QBRIDGE),
+  ...onQbPlat('rimeguard', 3, 1),
+  ...strip('hoarfrost_shade', 2550, 3850, FIELD_GROUND, 3, QBRIDGE),
+  ...onQbPlat('hoarfrost_shade', 4, 1),
+  ...onQbPlat('rimeguard', 5, 1),
+  ...strip('leopard_seal', 3950, 4800, FIELD_GROUND, 3, QBRIDGE),
+  ...strip('rime_archer', 4000, 4850, FIELD_GROUND, 3, QBRIDGE),
+  ...onQbPlat('rime_archer', 6, 1),
+  ...onQbPlat('leopard_seal', 6, 1),
+  ...onQbPlat('rime_archer', 7, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -1497,6 +1599,7 @@ export const DENS = [
   { room: 30, boss: 'knotmole', name: 'The Knotted Burrow', from: MYCELIUM, entranceX: KNOT_DEN_X, theme: 'knot' }, // (art: src/dens-deep.js)
   { room: 35, boss: 'root_warden', name: "The Warden's Court", from: SPINE, entranceX: WARDEN_DEN_X, theme: 'warden' }, // (art: src/dens-spine.js)
   { room: 38, boss: 'old_narwhal', name: 'The Breathing Hole', from: SKERRIES, entranceX: NARWHAL_DEN_X, theme: 'floe' }, // (art: src/dens-skerries.js)
+  { room: 43, boss: 'sigrun', name: 'The Seam', from: QBRIDGE, entranceX: SIGRUN_DEN_X, theme: 'oath' }, // (art: src/dens-qbridge.js)
 ];
 export const DEN_EXIT_X = 80;
 export const DEN_PLATFORMS = [
@@ -1718,6 +1821,18 @@ export const ITEMS = {
   prism_blade: { name: 'Prism Blade', price: 361000, lvl: 89, kind: 'sword', atk: 145, reach: 58, desc: 'A three-sided blade of clear ice that splits the light into a fan of blue along its edge. It never melts.' },
   troll_maul: { name: "Hall Troll's Maul", price: 361000, lvl: 89, kind: 'sword', atk: 145, reach: 62, desc: 'A block of glacier ice the troll cut for itself, on a whole pine trunk. Heavy. Very heavy. You get used to it.' },
   troll_helm: { name: 'Troll-Ice Helm', price: 276000, lvl: 89, kind: 'helmet', def: 67, desc: 'A lump of blue ice the Hall Troll hollowed out like a pot, worn upside down. It fits better than it should.' },
+  // Frostpeak's depth pass F4: the Queen's Bridge (docs/places/queensbridge.md)
+  puffin_beak: { name: 'Rime Puffin Beak', price: 660, kind: 'loot', desc: 'A puffin\'s bright striped beak, frosted at the tip. They shed them every winter and grow a duller one.' },
+  harrier_talon: { name: 'Sleet Harrier Talon', price: 690, kind: 'loot', desc: 'A hooked grey talon with ice in the curl of it. It has held on to things in a gale.' },
+  rime_buckle: { name: 'Frozen Buckle', price: 720, kind: 'loot', desc: 'A guard\'s belt buckle in old silver, the Queen\'s crown on it, frozen solid to a scrap of leather.' },
+  bottled_hoarfrost: { name: 'Bottled Hoarfrost', price: 740, kind: 'loot', desc: 'A little of a hoarfrost shade in a stoppered bottle. The glass grows feathers of frost on the inside.' },
+  seal_whisker: { name: 'Leopard Seal Whisker', price: 760, kind: 'loot', desc: 'A long stiff whisker, pale and beaded. It twitches when the ice under you creaks.' },
+  ice_arrowhead: { name: 'Ice Arrowhead', price: 790, kind: 'loot', desc: 'The head of a rime archer\'s javelin, clear blue and sharp as the day it was frozen.' },
+  seam_ice: { name: 'Seam Ice', price: 860, kind: 'loot', desc: 'A chip of the ice Sigrun freezes into the crack every night. It is the coldest thing you have ever held, and it does not melt.' },
+  rimeguard_helm: { name: 'Rimeguard Helm', price: 295000, lvl: 92, kind: 'helmet', def: 69, desc: 'A guard\'s round helm of silver gone white with rime, the Queen\'s crown on the brow. It is warmer inside than it looks.' },
+  rimeguard_blade: { name: 'Rimeguard Blade', price: 449000, lvl: 99, kind: 'sword', atk: 156, reach: 60, desc: 'A guard\'s straight sword, its edge frozen sharper than any smith could hone it. It was worn at a post nobody came to relieve.' },
+  oath_blade: { name: 'Shield-Oath Spear', price: 477000, lvl: 102, slots: 9, kind: 'sword', atk: 160, reach: 66, desc: "Sigrun's spear, its head a long leaf of blue ice that she sharpens on the bridge every night. It has never once been lowered." },
+  sigrun_helm: { name: "Sigrun's Helm", price: 364000, lvl: 102, slots: 9, kind: 'helmet', def: 75, desc: 'A tall winged helm of rimed silver and clear ice, a crown worked small on the brow: not hers, her queen\'s.' },
   warden_helm: { name: 'Wardenstone Helm', price: 134000, lvl: 62, slots: 9, kind: 'helmet', def: 51, desc: "A Keeper guardian's stone helm with a crown of living roots. Wear it and you stand up very straight." },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
@@ -1798,6 +1913,8 @@ export const ITEMS = {
   pale_star_staff: { name: 'Pale Star Staff', price: 378000, lvl: 91, kind: 'staff', magic: 148, mp: 89, reach: 64, twin: 'pale_star_blade', desc: 'A staff of starglass with a dim star at its head. Its bolts fall instead of fly, softly, the way stars did.' },
   prism_staff: { name: 'Prism Staff', price: 361000, lvl: 89, kind: 'staff', magic: 145, mp: 87, reach: 58, twin: 'prism_blade', desc: 'A rod of clear blue ice with a prism at its head. Its bolts come out as three and meet again on the way.' },
   troll_staff: { name: 'Troll-Ice Staff', price: 361000, lvl: 89, kind: 'staff', magic: 145, mp: 87, reach: 62, twin: 'troll_maul', desc: 'A pine trunk with a lump of the troll\'s blue ice wedged in its fork. The ice hums when you cast, very low.' },
+  rimeguard_staff: { name: 'Rimeguard Staff', price: 449000, lvl: 99, kind: 'staff', magic: 156, mp: 94, reach: 60, twin: 'rimeguard_blade', desc: 'A guard\'s pike cut down to a staff, the Queen\'s crown on its silver ferrule. Its bolts fly straight, as if on watch.' },
+  oath_staff: { name: 'Shield-Oath Staff', price: 477000, lvl: 102, slots: 9, kind: 'staff', magic: 160, mp: 96, reach: 66, twin: 'oath_blade', desc: "Sigrun's spear-shaft with a round boss of ice for a head, like a little shield. Its bolts hold where they land." },
   hart_staff: { name: 'Hart\'s Antler Staff', price: 156000, lvl: 59, kind: 'staff', magic: 110, mp: 66, reach: 56, twin: 'briarheart_blade', desc: 'A shed antler of the Thorn Hart on a briar shaft. A white rose buds between the tines and never opens.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Weapon Scroll 100%', price: 300, kind: 'scroll', slot: 'weapon', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a weapon (a staff gets them the other way round).' },

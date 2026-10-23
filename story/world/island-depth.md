@@ -329,7 +329,7 @@ legacy stage (90–115), so the island's top overlaps the next one's bottom, as 
   - Shipped (F3): the Heights' field boss is **the Pale Wyrm**, a lesser star-serpent lying dim in the
     Wyrmfall; the Blue Halls got a field boss too, **the Hall Troll** out of the cutters' stories.
 - **The Queen's Bridge** (the heart, 85–100): out onto Glacia's cracked bridge across the strait. Capstone
-  den at the crack: **Sigrun, the Queen's Shield** `[proposed]`, Glacia's sworn guard, who still freezes the
+  den at the crack: **Sigrun, the Queen's Shield** (shipped F4), Glacia's sworn guard, who still freezes the
   crack shut every night though her queen has let go. The harder Glacia story: holding on to someone
   else's holding on. Freed, she stops mending it.
 
@@ -345,4 +345,7 @@ Each its own session and dev copy, like Greenhollow's.
 - [x] **F3: the Aurora Heights and the Blue Halls** (75–90), their field bosses (2026-10-23,
       `docs/places/heights.md`, `docs/places/bluehalls.md`). The Pale Wyrm (Lv 90) and the Hall Troll (Lv 88);
       the Serpent Stone, Liv's Reach, the Cutters' Niche; no trader.
-- [ ] **F4: the Queen's Bridge** (85–100) and Sigrun, Frostpeak's capstone. Then atlas Phase 5 resumes.
+- [x] **F4: the Queen's Bridge** (85–100) and Sigrun, Frostpeak's capstone (2026-10-23,
+      `docs/places/queensbridge.md`). The Stairhead, the Span, the Frozen Guard, the Crack; Sigrun's den is the
+      Seam; the Strait Stone and the Shield's Perch; no trader or field boss. Frostpeak is done; atlas Phase 5
+      resumes with Emberdeep's own depth plan, `emberdeep-depth.md`.

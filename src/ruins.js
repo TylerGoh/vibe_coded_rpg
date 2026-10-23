@@ -1,18 +1,18 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
 // Stone by Truffle's camp in the Mycelium Deep, the Lifted Stone by Acorn's treehouse in the Old Oak
 // Canopy, the Hedge Stone in the Thornheart, the Road Stone on Keeper's Spine; on Frostpeak, the Rime Stone
 // in the Rimeglass Glacier's Cutters' Camp, the Sounding Stone by the Whale Skerries' whaling hut and the Serpent
-// Stone at the top of the steps on the Aurora Heights, which may say a little more: Frostpeak's tier is canon
-// Tier 2). Wreck Cave has the one reading here that isn't a stone: the
+// Stone at the top of the steps on the Aurora Heights and the Strait Stone at the head of the ice stair onto the
+// Queen's Bridge, which may say a little more: Frostpeak's tier is canon Tier 2). Wreck Cave has the one reading here that isn't a stone: the
 // wrecked ship's logbook (`wing` and `when` change the card's header lines). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -108,6 +108,12 @@ export const RUIN_STONES = [
     legible: ['STEER BY THE SERPENT', '...IT KNOWS THE WAY BETWEEN...', 'Every star in the carved serpent is in its place. Near its tail, one small star is cut deeper than the rest, as if someone went over it again and again.'],
     note: 'Low down, much newer and roughly done, someone has scratched one small star lying on its side in the snow, apart from all the others.',
   },
+  {
+    room: QBRIDGE, place: "the Queen's Bridge", x: 560, shape: 'strait', name: 'the Strait Stone', title: 'The Strait Stone',
+    look: "A Keeper stone at the head of the ice stair, far older than the bridge: the Queen's ice has grown up round its foot and over its back like a hand holding it. Its face is carved with two shores across a narrow strait, so close that their edges would fit together like the halves of a broken plate, and a gear between them, half on one shore and half on the other.",
+    legible: ['TWO SHORES. ONE ROAD.', 'Lower down the two shores are carved again, a little further apart, with a row of small waves between them. Lower still, further apart again. The bottom of the stone is under the ice.'],
+    note: "On the ice over the stone, much newer, someone has carved a little crown, and under it a round shield. Neither is a Keeper's mark.",
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -137,7 +143,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -1018,4 +1024,84 @@ function drawSerpentStone(ctx, time, glow) {
   for (let i = 0; i < 9; i++) ellipse(ctx, -29, -160 + i * 18, 4, 7);
   ellipse(ctx, 0, -170, 28, 5);
   ctx.restore();
+}
+
+// The Strait Stone (the Queen's Bridge): a broad Keeper stone with the Queen's ice grown up round its foot and
+// over its back; carved with two shores whose edges would fit together and a gear split between them, then the
+// shores again lower down, further apart with waves between, and again; a newer crown and shield cut in the ice
+function drawStraitStone(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(40,25,60,0.18)';
+  ellipse(ctx, 0, 0, 46, 7);
+  slab(ctx, -34, -150, 68, 148, 12);
+  const ink = glow ? '#c9a24a' : CARVE;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
+  ctx.lineWidth = 1.6;
+  // the shores, three times, further apart each time
+  for (const [y, gap] of [[-104, 3], [-72, 9], [-44, 16]]) {
+    ctx.beginPath();
+    ctx.moveTo(-26, y + 6);
+    ctx.lineTo(-gap - 6, y + 6);
+    ctx.lineTo(-gap - 2, y);
+    ctx.lineTo(-gap - 6, y - 4);
+    ctx.lineTo(-gap, y - 9);
+    ctx.lineTo(-26, y - 9);
+    ctx.moveTo(26, y + 6);
+    ctx.lineTo(gap + 2, y + 6);
+    ctx.lineTo(gap + 6, y);
+    ctx.lineTo(gap + 2, y - 4);
+    ctx.lineTo(gap + 8, y - 9);
+    ctx.lineTo(26, y - 9);
+    ctx.stroke();
+    if (gap > 5) {
+      ctx.beginPath();
+      for (let i = 0; i < 3; i++) {
+        const wy = y - 6 + i * 4;
+        ctx.moveTo(-gap + 3, wy);
+        ctx.quadraticCurveTo(0, wy - 2.5, gap - 3, wy);
+      }
+      ctx.stroke();
+    }
+  }
+  carvedGear(ctx, 0, -128, 9, 10, glow);
+  ctx.strokeStyle = 'rgba(244,248,252,0.7)';
+  ctx.beginPath();
+  ctx.moveTo(0, -140);
+  ctx.lineTo(0, -116);
+  ctx.stroke();
+  // the Queen's ice, up round its foot and over its back
+  ctx.fillStyle = 'rgba(190,222,248,0.75)';
+  ctx.strokeStyle = 'rgba(62,98,148,0.6)';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(-44, 2);
+  ctx.lineTo(-40, -30);
+  ctx.lineTo(-30, -24);
+  ctx.lineTo(-36, -100);
+  ctx.lineTo(-28, -150);
+  ctx.lineTo(-22, -96);
+  ctx.lineTo(-18, -26);
+  ctx.lineTo(18, -22);
+  ctx.lineTo(30, -34);
+  ctx.lineTo(44, 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  // the newer crown and shield, cut in the ice
+  ctx.strokeStyle = 'rgba(62,98,148,0.8)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(-6, -16);
+  ctx.lineTo(-6, -22);
+  ctx.lineTo(-3, -19);
+  ctx.lineTo(0, -24);
+  ctx.lineTo(3, -19);
+  ctx.lineTo(6, -22);
+  ctx.lineTo(6, -16);
+  ctx.closePath();
+  ctx.moveTo(5, -8);
+  ctx.arc(0, -8, 5, 0, TAU);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(244,248,252,0.95)';
+  ellipse(ctx, 0, -150, 30, 5);
 }

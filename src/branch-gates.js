@@ -10,7 +10,7 @@
 // Frostpeak's (its depth pass, F0): the ice
 // stair onto the Queen's Bridge broken off on Frostpine Ridge, and in the Rimeglass Glacier the crevasse with
 // the cutters' ladder smashed at the bottom (the Blue Halls) and the icefall with its steps sheared away (the
-// Aurora Heights); open: the glacier's own way in, its snout on Starfall Summit with steps cut up it (F1), the
+// Aurora Heights); none is left since F4. Open: the ice stair built up again to the Queen's Bridge (F4), the glacier's own way in, its snout on Starfall Summit with steps cut up it (F1), the
 // snow slide over the hamlet's shore path dug through to the Whale Skerries and the Narwhal Grotto's mouth in
 // the Skerries' sea cliff (F2), the crevasse with a new ladder down into the Blue Halls and the icefall with
 // new steps cut up to the Aurora Heights (F3).
@@ -1104,9 +1104,11 @@ function drawGrottoMouth(ctx, time) {
   ellipse(ctx, 10, -10, 22, 3);
 }
 // The Queen's Bridge, on Frostpine Ridge by the Frozen Throne: a stair of blue ice blocks climbing up toward
-// the bridge that arches over the strait, broken off halfway where the bridge cracked: a gap of empty air,
-// then the stair's top hanging from the bridge's underside, dripping
-function drawIcestair(ctx, time) {
+// the bridge that arches over the strait. Blocked (F0–F3): broken off halfway where the bridge cracked, a gap
+// of empty air, then the stair's top hanging from the bridge's underside, dripping, and the fjord folk's rope
+// across its foot. Open (F4): the gap built up again with fresh-cut blocks (paler, their saw marks still on
+// them: the cutters' work), a rope rail on pegs all the way up and the cutters' red flag at the foot
+function drawIcestair(ctx, time, _g, open = false) {
   // the bridge itself, coming down out of the sky from the upper left and ending in a jagged break
   const deck = () => {
     ctx.beginPath();
@@ -1145,6 +1147,7 @@ function drawIcestair(ctx, time) {
   // the lower steps, standing
   for (let i = 0; i < 4; i++) iceBlock(ctx, 40 - i * 26, -26 - i * 26, 30, 26 + i * 26);
   for (let i = 0; i < 4; i++) snowCap(ctx, 40 - i * 26, -26 - i * 26, 30);
+  if (open) return drawIcestairMended(ctx, time);
   // the broken end: jagged
   ctx.fillStyle = ICE_L;
   ctx.beginPath();
@@ -1174,6 +1177,44 @@ function drawIcestair(ctx, time) {
   ctx.fillRect(74, -44, 4, 46);
   ctx.fillStyle = '#d0485a';
   ctx.fillRect(50, -34, 6, 8);
+}
+// the mended stair (F4): new blocks up the gap to the bridge, a rope rail, the red flag
+function drawIcestairMended(ctx, time) {
+  for (let i = 0; i < 3; i++) {
+    const x = -36 - i * 14, y = -128 - i * 24;
+    iceBlock(ctx, x, y, 28, 24);
+    ctx.fillStyle = 'rgba(255,255,255,0.45)'; // fresh-cut: paler, saw marks
+    ctx.fillRect(x + 2, y + 6, 24, 16);
+    ctx.strokeStyle = 'rgba(62,98,148,0.45)';
+    ctx.lineWidth = 1;
+    for (let k = 0; k < 3; k++) {
+      ctx.beginPath();
+      ctx.moveTo(x + 4 + k * 8, y + 8);
+      ctx.lineTo(x + 8 + k * 8, y + 20);
+      ctx.stroke();
+    }
+    snowCap(ctx, x, y, 28);
+  }
+  for (let i = 0; i < 2; i++) iceBlock(ctx, -64 - i * 26, -196 + i * 14, 26, 22);
+  // the rope rail on pegs, all the way up
+  ctx.strokeStyle = '#a07e58';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(72, -40);
+  ctx.quadraticCurveTo(10, -90, -40, -210);
+  ctx.stroke();
+  ctx.fillStyle = '#5a5a66';
+  for (const [px, py] of [[72, -40], [30, -80], [-6, -140], [-40, -210]]) ctx.fillRect(px - 2, py - 4, 4, 10);
+  // the cutters' red flag at the foot
+  ctx.fillStyle = '#7a5a40';
+  ctx.fillRect(84, -66, 3, 68);
+  ctx.fillStyle = '#d0485a';
+  ctx.beginPath();
+  ctx.moveTo(87, -66);
+  ctx.quadraticCurveTo(100, -62 + Math.sin(time * 4) * 3, 108, -58 + Math.sin(time * 4 + 1) * 4);
+  ctx.lineTo(87, -50);
+  ctx.closePath();
+  ctx.fill();
 }
 // The Blue Halls, in the Glacier's Crevasse Field: a crevasse mouth in the ice wall, blue going down into dark
 // with a cold light far below. Blocked (F0–F2): the cutters' ladder lies smashed at the bottom, only its top
@@ -1434,5 +1475,5 @@ function drawSnout(ctx, time) {
 }
 
 const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall };
-const OPEN = { snout: drawSnout, crevasse: (ctx, time, g) => drawCrevasse(ctx, time, g, true), icefall: (ctx, time, g) => drawIcefall(ctx, time, g, true), snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
+const OPEN = { icestair: (ctx, time, g) => drawIcestair(ctx, time, g, true), snout: drawSnout, crevasse: (ctx, time, g) => drawCrevasse(ctx, time, g, true), icefall: (ctx, time, g) => drawIcefall(ctx, time, g, true), snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
   flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true) };

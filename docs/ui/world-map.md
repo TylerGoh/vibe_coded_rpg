@@ -8,7 +8,7 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
 
 - Code: `src/worldmap.js` (all the drawing; `islandOf(room)` maps a room to its island, with dens going
   by `DENS[].from`; every room off Greenhollow needs its row in `ISLAND_OF_STAGE`, or its pin lands on
-  Greenhollow: the Glacier, the Skerries, the Grotto, the Heights and the Blue Halls have theirs; the "you are
+  Greenhollow: the Glacier, the Skerries, the Grotto, the Heights, the Blue Halls and the Queen's Bridge have theirs; the "you are
   here" label goes beside the pin when a card sits right above or the node is at the map's top edge), the page markup in `index.html` (`#worldmap`), its styles in `src/style.css`, and
   `showMap` in `src/main.js`. It works like the Controls page: `#menu.mapview` hides the rest of the menu.
 - It only draws while the page is open (its own `requestAnimationFrame` loop, stopped by `hide()`), and

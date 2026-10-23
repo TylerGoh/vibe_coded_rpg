@@ -82,8 +82,10 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   Aurora Heights' gear in `src/heights-art.js` (`HEIGHTS_*`): the Foxfire Blade / Foxfire Staff, the Musk Ox Helm
   and the Pale Wyrm's Pale Star Blade / Pale Star Staff and Aurora Crown (`docs/places/heights.md`); and the Blue
   Halls' in `src/bluehalls-art.js` (`BLUEHALLS_*`): the Glass Beetle Helm, the Prism Blade / Prism Staff and the
-  Hall Troll's Maul / Troll-Ice Staff and Troll-Ice Helm (`docs/places/bluehalls.md`). All on the gear curve at
-  their `lvl`, priced on it.
+  Hall Troll's Maul / Troll-Ice Staff and Troll-Ice Helm (`docs/places/bluehalls.md`). F4 (no trader) adds the
+  Queen's Bridge's in `src/qbridge-art.js` (`QBRIDGE_*`): the Rimeguard Helm, the Rimeguard Blade / Rimeguard
+  Staff, and Sigrun's Shield-Oath Spear / Shield-Oath Staff and Sigrun's Helm (9 slots;
+  `docs/places/queensbridge.md`). All on the gear curve at their `lvl`, priced on it.
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
   are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.

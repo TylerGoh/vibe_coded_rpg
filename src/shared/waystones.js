@@ -5,7 +5,7 @@
 // (TOWNS in sim.js): a waystone is for getting back out, not for waking up. One in Slimeville, one at each
 // branch's entrance hub and one on Keeper's Spine (story/world/island-depth.md); none in the hard pockets.
 // The stones only reach stones on their own island (isle): islands are reached by their crossings.
-import { VILLAGE, FJORD, WILLOWMERE, COVES, MYCELIUM, CANOPY, SPINE, GLACIER, SKERRIES, HEIGHTS } from './sim.js';
+import { VILLAGE, FJORD, WILLOWMERE, COVES, MYCELIUM, CANOPY, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE } from './sim.js';
 
 // x: the stone, on its room's ground (where you arrive is a little beside it, ARRIVE_DX) · isle: its island
 // (Greenhollow when left out)
@@ -20,6 +20,7 @@ export const WAYSTONES = [
   { id: 'glacier', name: 'Rimeglass Glacier', room: GLACIER, x: 300, isle: 'frost' },
   { id: 'skerries', name: 'Whale Skerries', room: SKERRIES, x: 4800, isle: 'frost' },
   { id: 'heights', name: 'Aurora Heights', room: HEIGHTS, x: 330, isle: 'frost' },
+  { id: 'qbridge', name: "Queen's Bridge", room: QBRIDGE, x: 330, isle: 'frost' },
 ];
 export const isleOf = (w) => w.isle ?? 'green';
 export const sameIsle = (a, b) => isleOf(a) === isleOf(b);

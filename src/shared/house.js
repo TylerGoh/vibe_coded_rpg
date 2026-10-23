@@ -84,7 +84,7 @@ export const FURNITURE = {
 export const PET_SCALE = 0.4; // of the boss's own size
 export const PETS = {
   turnipop: 50000, sprout_king: 50000, mother_mushroom: 60000, snapjaw: 80000, bramble_behemoth: 75000, frost_queen: 230000,
-  tidemother: 120000, astral_wyrm: 280000, knotmole: 170000, ignis: 360000, hornet_queen: 210000, drowned_bosun: 225000, pyra: 400000, thorn_hart: 300000, root_warden: 340000, old_narwhal: 345000, rimehorn: 350000, hall_troll: 352000, pale_wyrm: 356000, colossus: 450000, chronos: 500000,
+  tidemother: 120000, astral_wyrm: 280000, knotmole: 170000, ignis: 360000, hornet_queen: 210000, drowned_bosun: 225000, pyra: 400000, thorn_hart: 300000, root_warden: 340000, old_narwhal: 345000, rimehorn: 350000, hall_troll: 352000, pale_wyrm: 356000, sigrun: 370000, colossus: 450000, chronos: 500000,
 };
 for (const [kind, price] of Object.entries(PETS)) {
   const m = MOBS[kind];

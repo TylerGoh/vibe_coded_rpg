@@ -55,7 +55,7 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
 - [x] R (2026-10-23): the rebalance: Frostpeak 40–60, Emberdeep 90–115, the Citadel 140–170; owned gear
       kept as Legacy, scaled copies (`<id>_n`) dropped and sold instead (`docs/combat/items.md`,
       `docs/combat/stages.md`). Left over: `docs/ideas.md` ("R left for later")
-- [ ] Frostpeak's depth pass (40-100): its map and phases are in `world/island-depth.md`
+- [x] Frostpeak's depth pass (40-100): its map and phases are in `world/island-depth.md`
   - [x] F0 (2026-10-23): Frostpeak's island map (`FROSTPEAK`), every unshipped branch's gate, waystones kept
         to their own island
   - [x] F1 (2026-10-23): the Rimeglass Glacier (Lv 60–75), Old Rimehorn (field boss), Ice-Cutter Eyvind, the
@@ -68,7 +68,11 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
         the Pale Wyrm (Lv 90) and the Hall Troll (Lv 88), the Serpent Stone, Liv's Reach, the Cutters' Niche, a
         waystone (`docs/places/heights.md`, `docs/places/bluehalls.md`). Left over: `docs/ideas.md` ("F3 left
         for later")
-  - [ ] F4: the Queen's Bridge (85–100) and Sigrun, Frostpeak's capstone
+  - [x] F4 (2026-10-23): the Queen's Bridge (85–100) and Sigrun, the Queen's Shield, Frostpeak's capstone (den,
+        Lv 100, with lines, built for S5's party mechanics); the Strait Stone, the Shield's Perch, a waystone
+        (`docs/places/queensbridge.md`). Frostpeak is done. Left over: `docs/ideas.md` ("F4 left for later")
+- [ ] Emberdeep's depth pass (atlas Phase 5 on): the plan, its map, phases E0–E4 and the owner's open decisions
+      are in `world/emberdeep-depth.md` (written 2026-10-23, awaiting the owner)
 
 ## 0b. Classes and progression: the S track (owner, 2026-10-23)
 Mages neglected (no magic weapons), an archer and a cleric, bosses that need a mixed party, a real skill tree instead of a list, and rewards spaced

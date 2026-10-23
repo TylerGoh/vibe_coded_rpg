@@ -19,10 +19,11 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
   life (forty years at sea, Pickles the one-legged gull, cards at the Inn) is in `server/characters.js`.
 - **Old Skaldi** (Icefang Hamlet, **exists**): lamplighter and keeper of songs. Speaks in short, sad,
   beautiful lines. Holds Tier 2, but only as song fragments he won't explain. His life: Ylva, his late
-  wife, who taught him the songs; Tove; carving driftwood birds.
+  wife, who taught him the songs; Tove; carving driftwood birds. He knew Sigrun, the Queen's Shield, as a girl
+  (F4), and has one line for the bridge he won't explain.
 - **Netmender Runa** (Icefang Hamlet, **exists**): the hamlet's trader (warm gear, frostbloom). Brisk, dry,
   warm underneath. Tier 0 plus gossip. Her husband Bjarn fishes the outer fjord; her cousin Arne owns
-  the laid-up Lodestar.
+  the laid-up Lodestar. Her great-uncle is one of the Queen's guards frozen on the bridge (F4).
 - **Tove** (Icefang Hamlet, **exists**): Skaldi's granddaughter, about eight. Feeds the yeti cubs (Lumpy,
   Mitten, Big Grumble) and tells travellers about the ridge's creatures (and the glacier's, since F1). Tier 0.
 - **The branches' traders** (Greenhollow, island depth, **exist**): Miller Bun (Willowmere), Beachcomber
@@ -34,7 +35,8 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
 - **Ice-Cutter Eyvind** (the Rimeglass Glacier, Frostpeak's depth pass F1, **exists**): fjord folk; cuts blue
   ice for the hamlet and trades at the Cutters' Camp. Plain and quiet, a dry joke now and then. Tier 0 plus
   the glacier (the Rime Stone's stars bother him); since F3 he has cut new steps up to the Aurora Heights and
-  mended the Blue Halls' ladder (with Runa's rope), and knows the Pale Wyrm ("tired") and the Hall Troll. His life: his
+  mended the Blue Halls' ladder (with Runa's rope), and knows the Pale Wyrm ("tired") and the Hall Troll; since F4 his cutters have mended the ice stair onto the
+  Queen's Bridge, and he won't go near Sigrun. His life: his
   daughter Liv sailed south on the Lodestar's last voyage and is stuck there while the stars are wrong; he
   writes her a letter a month for when ships sail again; he carries Skaldi's driftwood bird up to Ylva's
   Cairn each year; he names the crevasses. Liv used to climb a spire on the Heights where the lights come down

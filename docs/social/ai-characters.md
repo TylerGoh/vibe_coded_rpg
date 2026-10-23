@@ -26,6 +26,10 @@ one shared corner feed).
   which she wants back); he knows both rooms, the Pale Wyrm and the Hall Troll, and hints at Liv's Reach and
   the Cutters' Niche. Skaldi has one line of song about the small star that fell with the serpent and won't
   get up (no explaining; his "doesn't know" moved to past the Heights). Tove knows both by their creatures.
+  F4: Eyvind's cutters mended the ice stair onto the Queen's Bridge (Runa's rope again); he knows the bridge's
+  creatures and won't go near Sigrun ("she watched us build that stair"). Skaldi knew Sigrun as a girl and has
+  one line for the bridge ("Two shores, one road. Hold, and hold, and let it go."); Runa's great-uncle is one of
+  the frozen guards; Tove knows the bridge by its creatures.
 - `hello` on an `NPCS` entry is the line their dialog opens with. `shop` (a `SHOPS` key) adds a **Trade**
   button to their dialog (Runa). `folk` dresses them as another island's people (`docs/art.md`).
 - Clio has `anywhere: true`: she can be asked from anywhere in the museum (Q, the "Ask Clio" touch button,

@@ -52,6 +52,8 @@ export const STAFFS = {
   pale_star_staff: { len: 70, shaft: ['#dce8fa', '#8a9ac0'], w: 3, head: 'star', gem: '#ffffff', gem2: '#c8dcff', glow: '220,235,255' },
   prism_staff: { len: 66, shaft: ['#a8d0fa', '#4e7ab8'], w: 2.8, head: 'crystal', gem: '#e0ecff', gem2: '#7aa0ff', glow: '150,190,255' },
   troll_staff: { len: 66, shaft: ['#8a6a48', '#5a4434'], w: 3.4, head: 'crystal', gem: '#8ec4f0', gem2: '#2e5a8a', glow: '140,190,255' },
+  rimeguard_staff: { len: 64, shaft: ['#e0e4ee', '#8a90a8'], w: 2.8, head: 'crystal', gem: '#e2f0fc', gem2: '#8ab8e0', glow: '200,230,255' },
+  oath_staff: { len: 70, shaft: ['#c8b498', '#6a5a44'], w: 3, head: 'shield', gem: '#e2f0fc', gem2: '#3e6294', glow: '190,226,255' },
   warden_staff: { len: 68, shaft: ['#b0acc0', '#76728a'], w: 3.2, head: 'rootcrook', gem: '#ffcf7a', gem2: '#7aa05e', glow: '255,200,110' },
 };
 export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));
@@ -529,6 +531,24 @@ const HEADS = {
     ctx.stroke();
     ctx.fillStyle = s.gem2;
     ellipse(ctx, 14, y - 16, 3.4, 2, 0.5);
+    ctx.fill();
+  },
+  // Sigrun's: a little round shield of clear ice on the shaft's head, a silver boss in it, a pale pennant
+  shield(ctx, s, y) {
+    ctx.fillStyle = s.gem;
+    ctx.strokeStyle = s.gem2;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(0, y - 8, 7, 9, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    gem(ctx, 0, y - 8, 2.8, '#d8dce8');
+    ctx.fillStyle = '#8ab8e0';
+    ctx.beginPath();
+    ctx.moveTo(1, y + 2);
+    ctx.lineTo(11, y + 5);
+    ctx.lineTo(1, y + 9);
+    ctx.closePath();
     ctx.fill();
   },
 };
