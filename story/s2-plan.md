@@ -38,7 +38,7 @@ S2.1 data + server ──┬── S2.2 node tree UI ──┐
 ## Settled here (beyond progression.md)
 - **Novices (owner, 2026-10-23):** everyone starts as a Novice (`cls: 'novice'`): the Novice tree and
   Mobility, any weapon. **At Lv 10 you choose a class at the Rebirth Pool, free** (the first choice is the
-  free one; every change after costs `REBIRTH_COST`). Below Lv 10 the pool's card says "Come back at Lv 10".
+  free one; every change after costs `rebirthCost(lvl)`, which scales with level: `progression.md` L2). Below Lv 10 the pool's card says "Come back at Lv 10".
   Staying a Novice past Lv 10 is allowed; class points just pile up unspent, and a reminder shows in the K
   panel.
 - **Migration (piece S2.1):** every existing character becomes a Novice. All skill points and AP refunded,
@@ -111,9 +111,10 @@ Docs: `docs/combat/skills.md`, `docs/combat/core.md`, `docs/combat/items.md`, `d
   `sendMe` sends `cls`, `reborn`, and a `news` flag for the one-time banner; a level-up that crosses an
   advancement level sends a toast/banner event. New message **`{t:'rebirth', cls}`** (handler written here,
   server-checked: in Slimeville within range of `REBIRTH_X` from `src/shared/sim.js` (S2.3 places it; define
-  the constant here with a placeholder value), different class, not back to Novice, Lv 10 or up, `REBIRTH_COST` unless `reborn` is 0, the
+  the constant here with a placeholder value), different class, not back to Novice, Lv 10 or up, `rebirthCost(lvl)` unless `reborn` is 0, the
   weapon rules above; resets skills, AP, skill hotbars, buffs; broadcasts `{t:'reborn', id, cls}`).
-  Add `REBIRTH_COST` (500,000) to `src/shared/rpg.js` and the economy sheet's sinks with no `aim`.
+  Add `rebirthCost(lvl)` and `REBIRTH_HOURS` to `src/shared/rpg.js` (`progression.md` L2) and the economy
+  sheet's sinks.
 - `server/index.js`: route `rebirth`, protocol comment.
 - Client, minimal: `src/rpg.js` / `src/skillfx.js` cast and icons for the new skills (reuse effects with a
   tint where possible: Fireball = bolt + small nova, Glacial Spike = bolt in ice blue, Absolute Zero = nova);
@@ -147,7 +148,7 @@ Docs: `docs/world.md`, `docs/art.md`, `docs/ui/hints.md`, `docs/ui/mobile.md`, `
   (HTML overlay): below Lv 10, only "Come back at Lv 10 to choose your class" (with what the classes are);
   from Lv 10, the classes from `CLASSES` (only Warrior and Mage exist in S2; don't list or tease the
   others), each with strong at / bad at, your current one marked, the price ("Free: your first choice" or
-  500,000 coins), and what's kept and what resets. Choosing asks twice when it costs gold. Sends
+  your price from `rebirthCost(lvl)`), and what's kept and what resets. Choosing asks twice when it costs gold. Sends
   `{t:'rebirth', cls}`; the server's answer closes it.
 - `{t:'reborn'}` for everyone in the room: a splash out of the pool and a sound.
 - Elder Mochi's persona (`server/characters.js`) learns the pool: he tends it, knows what it does and costs,

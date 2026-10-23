@@ -86,7 +86,7 @@ LUK stays the shared crit stat. DEX finally gets a job (today it only raises the
   each is good and bad at (section 1b). Choosing one: **your level, EXP, gold, bag, gear and house all
   stay; every skill point and AP is refunded; your hotbars empty**; you come out of the pool as the new
   class, with a splash and a sound everyone nearby sees.
-- **Costs 500,000 coins for now** (owner, 2026-10-23; a constant like `REBIRTH_COST`, named in the
+- **Costs 500,000 coins for now; superseded: it will scale with level, `rebirthCost` in section L2** (owner, 2026-10-23; a constant like `REBIRTH_COST`, named in the
   economy sheet's sinks with no `aim`: it's a prestige sink, priced by the owner, not by the aim method).
   On 2026-10-23 only the three top characters (Lv 167+) held that much; mob farming alone earns about
   175k by Lv 80, so for most players it's a long goal, or a gift from a richer friend once trading
@@ -308,8 +308,12 @@ slow levelling down, and roll those characters back to where their play time wou
   sheet against the new "gold earned by level", so a Lv 60 sword still costs the same share of what a Lv 60
   has earned. The alternative (cut mob gold so gold earned by level stays and prices don't move) makes
   gold an hour ~10× lower, which feels bad, so it's the fallback only.
-- `REBIRTH_COST` (500k, owner-priced, no aim) becomes cheap relative to what players earn: ask the owner
-  whether to raise it when L2 ships.
+- **Changing class costs more, and scales with your level** (owner, 2026-10-23): instead of a flat 500k,
+  `rebirthCost(lvl)` = `REBIRTH_HOURS` (2) hours of farming gold at your level, from the sheet's gold a
+  minute (`KILLS_PER_MIN` on the frozen curve; mirror it in `src/shared/rpg.js` as a small formula, and
+  the sheet checks the two agree). At today's drops that's about 27k at Lv 10, 450k at Lv 60, 900k at
+  Lv 100, 1.5M at Lv 150. The first choice at Lv 10 is still free. Replaces the flat `REBIRTH_COST` in
+  section 1a and `s2-plan.md` (S2.1 builds the formula; the card shows your price).
 - Run `npm run economy` before and after; say what moved (Agent.md).
 
 ### L3: the rollback (one time, in `load()`, behind a saved flag so it runs once per character)
@@ -333,8 +337,7 @@ slow levelling down, and roll those characters back to where their play time wou
   requirement, so they'll be well geared for their new level, which is fine: they're replaying content they
   skipped. `bossAt` (S0's reward window) is cleared so every boss pays out again. Skill points and AP are
   refunded anyway (they shrink with the level).
-- **Open:** whether chenyirong's gold and items from botting should go too (the owner asked only for the
-  level). Default: only the level.
+- chenyirong keeps his gold and items (owner, 2026-10-23); only the level goes.
 - A one-time banner explains it ("Levelling has been rebalanced: you're now Lv N, where your play time
   puts you. Everything you own is kept, and every boss is worth fighting again.").
 
