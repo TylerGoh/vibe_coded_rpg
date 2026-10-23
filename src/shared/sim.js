@@ -665,8 +665,9 @@ export const NPCS = [
 ];
 export const NPC = NPCS[0]; // Elder Mochi
 // The Rebirth Pool in Slimeville, by Elder Mochi (story/s2-plan.md): choose or change your class there
-// (server/rpg.js rebirth). REBIRTH_X is a placeholder until S2.3 places and draws the pool.
-export const REBIRTH_X = 2300, REBIRTH_RANGE = 90;
+// (server/rpg.js rebirth). It sits east of his tree, between the Inn and Pip's stall, clear of Mochi's
+// talk range and the shop's (src/rebirth.js draws it and its card).
+export const REBIRTH_X = 2578, REBIRTH_RANGE = 80;
 export const npcIn = (c, room) => c.room === room || !!c.also?.includes(room);
 export const NPC_RANGE = 150;
 export const NPC_TEXT_MAX = 200; // characters per thing you say

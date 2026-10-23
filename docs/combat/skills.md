@@ -6,8 +6,9 @@ Files: `src/shared/skills.js` (all rules, `CLASSES`, `statsFor`), `src/skilltree
 
 **Classes are being built in pieces** (`story/s2-plan.md`; the design is `story/progression.md`, read it
 before changing classes, skills, AP or the point schedule). S2.1 (the data, the rules, the server, the
-migration) and S2.2 (the node-tree K panel) are built; the Rebirth Pool's place and card (S2.3), the CLASSES
-table in the economy sheet (S2.4), the Warrior's chase moves (S2.5) and the Mage's combos (S2.6) are not.
+migration), S2.2 (the node-tree K panel) and S2.3 (the Rebirth Pool: place, card, banners, Elder Mochi) are
+built; the CLASSES table in the economy sheet (S2.4), the Warrior's chase moves (S2.5) and the Mage's combos
+(S2.6) are not.
 Archer and Cleric come later (S3, S4).
 
 ## Classes (S2)
@@ -16,22 +17,37 @@ Archer and Cleric come later (S3, S4).
   Elementalist / Frostbinder). Saved on the character as `c.cls`, plus `c.reborn` (how many times a class
   was chosen; 0 = the next choice is free).
 - **Everyone starts as a Novice** (owner, 2026-10-23): the Novice tree, any weapon. **From `CLASS_LVL` you
-  choose a class at the Rebirth Pool** in Slimeville (`REBIRTH_X`, `REBIRTH_RANGE` in sim.js; a placeholder
-  spot until S2.3 places and draws it). `{t:'rebirth', cls}` → `rebirth()`: near the pool, Lv 10+, a
+  choose a class at the Rebirth Pool** in Slimeville (`REBIRTH_X`, `REBIRTH_RANGE` in sim.js; between
+  the Inn and Pip's stall, `docs/world.md`). `{t:'rebirth', cls}` → `rebirth()`: near the pool, Lv 10+, a
   different class, never back to Novice; the first choice is free, every change after costs
   `rebirthCost(lvl)` (an hour of farming gold at your level, `docs/economy.md`). Level, EXP, gold, bag,
   gear and house stay; skill points and AP all come back, the skill hotbars of both setups empty, buffs
-  end. Everyone in the room gets `{t:'reborn'}` (S2.3 draws the splash).
+  end. Everyone in the room gets `{t:'reborn'}`: a jet of water out of the pool, droplets and sparkles in the
+  new class's colour round the slime, its class name, and the `reborn` sound (`poolSplash`, `src/rebirth.js`).
 - **Weapon lock:** a class only wields its own kind (`weaponOk`; equip is refused on both sides). On
   choosing a class, a wrong weapon in hand goes back to the bag and the strongest right one from the bag
   takes its place; with none, you get the class's starter (`wood_sword` / `wood_staff`). A wrong weapon with
   a full bag refuses the change ("make room first"). Unarmed still slaps.
 - **The migration** (one time, in `load()`): a saved character with no `cls` becomes a Novice with every
   skill point and AP refunded and both skill hotbars cleared (potion bars kept), `reborn` 0, and a one-time
-  `notice` with `news: 'classes'` (a toast and chat lines for now; S2.3 can turn `news` into a banner). A
+  `notice` with `news: 'classes'` (a banner, below; the chat line stays). A
   character that is also due the L3 rollback gets both notices, one per line.
 - Healing: Jelly Heal left with the old Magic tree and comes back with the Cleric (S3); its icon and effect
   code stay. Until then, Jelly Patch and potions.
+- **The pool's card** (`PoolCard` in `src/rebirth.js`, `#pool` in `index.html`; E at the pool, or the E button
+  on touch): below `CLASS_LVL` only "Come back at Lv 10" and what the classes are; from it, Warrior and Mage
+  from `CLASSES` (never the Novice, and no teasing of classes not built yet) with strong / bad at, your own one
+  marked, the price ("Free: your first choice" while `reborn` is 0, else `rebirthCost(lvl)`; the button says
+  "Not enough gold" when short), and what's kept and what resets. Choosing asks once when free, twice when it
+  costs gold, then sends `{t:'rebirth', cls}`; `reborn` for you closes it, a toast while it waits shows in
+  it as the refusal (`rpg.onToast`). Esc steps back out of the question, E closes. Hidden HUD buttons and the
+  touch pad while it's open; on phones it fills the canvas height with 44 px buttons.
+- **The news banner** (`NewsBanner`, `newsFor`, `#news`): the classes notice and every advancement message
+  (`{t:'advance'}`) show as a banner along the top instead of a toast (the chat line stays). The Lv 10 one for
+  a Novice and the classes one point at the pool and stay until "Got it"; the others go after a while. It
+  sits lower in combat rooms, under the HP panel.
+- **Elder Mochi** tends the pool (`server/characters.js`): he hears each speaker's level and class, points
+  Lv 10+ Novices at it, and mentions it once to someone he's never talked to (`docs/social/ai-characters.md`).
 
 ## Skill trees
 - `TREES`: the Novice tree, one per class, and Mobility (`wind`). Every skill in `SKILLS` has `cls`

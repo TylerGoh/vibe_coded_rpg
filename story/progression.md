@@ -79,7 +79,7 @@ LUK stays the shared crit stat. DEX finally gets a job (today it only raises the
   "nobody stuck in a build"), including switching fork. Only changing **class** needs the Rebirth spot.
 
 ### 1a. Rebirth: changing class (owner, 2026-10-23)
-- A place in **Slimeville** (name, look and spot `[proposed]`: a **Rebirth Pool**, a softly glowing spring
+- A place in **Slimeville** (built in S2.3, `s2-plan.md`: a **Rebirth Pool**, a softly glowing spring
   near Elder Mochi, who tends it and can chat about it; he already lives there and is chattable, so no
   new character is needed. Check `world/regions/greenhollow.md` and `world/atlas.md` before placing it).
 - Walk up, press E (or tap; a prompt per `docs/ui/hints.md`), and a card lists the four classes with what

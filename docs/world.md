@@ -62,9 +62,11 @@ toast says so when your town changes. A new town = a `TOWNS` entry (room, wake-u
 - Spawn at `SPAWN_X`. West to east: the harbour gate (`HARBOUR_GATE_X`), the furniture store (`STORE_DOOR_X`; a floating island was moved off
   its roof), Bakery, mushroom house (sign "Home": its door, `HOME_DOOR_X`, leads
   into your own house), the big tree with decks and Elder Mochi, the
-  Inn, Merchant Pip's stall (`SHOP_X`), the Pet Shop (`PETSHOP_DOOR_X`; the lamp east of Pip's moved west of it), then the Lecture Hall, Music House and Museum doors and the gate
+  Inn, the **Rebirth Pool** (`REBIRTH_X`: where you choose your class, `docs/combat/skills.md`; between the
+  Inn and Pip's stall, clear of Mochi's talk range and the shop's; the lamp by the Inn moved a little west
+  for it), Merchant Pip's stall (`SHOP_X`), the Pet Shop (`PETSHOP_DOOR_X`; the lamp east of Pip's moved west of it), then the Lecture Hall, Music House and Museum doors and the gate
   to the Wildwood. Floating islands above are one-way platforms.
-- Scenery is drawn by `src/village.js`; each building's outside is drawn by its feature's file
+- Scenery is drawn by `src/village.js` (the Rebirth Pool by `src/rebirth.js`); each building's outside is drawn by its feature's file
   (`src/hall.js`, `src/piano.js`, `src/museum.js`, `src/field.js` for the gate).
 
 ## Doors and rooms run in the physics

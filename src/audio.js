@@ -1885,6 +1885,13 @@ const EFFECTS = {
     for (const m of [84, 88, 91]) e.voice(o, t + 0.34, mtof(m), { type: 'triangle', vol: 0.09, a: 0.02, hold: 0.3, rel: 0.5, partials: [[2, 0.15]], vib: 10 });
     [96, 100, 103].forEach((m, i) => e.voice(o, t + 0.42 + i * 0.07, mtof(m), { ...GLOCK, vol: 0.05, tau: 0.2 }));
   },
+  reborn(e, o, t) { // out of the Rebirth Pool as a new class: a splash, bubbles, a rising shimmer, a warm chord
+    e.noiseHit(o, t, { type: 'lowpass', f: 300, sweep: 2600, sweepT: 0.22, vol: 0.4, a: 0.06, tau: 0.12 });
+    e.noiseHit(o, t + 0.34, { type: 'highpass', f: 1800, vol: 0.16, a: 0.01, tau: 0.2 });
+    for (let i = 0; i < 6; i++) e.voice(o, t + 0.04 + i * 0.045, 320 + i * 85, { type: 'sine', glide: 0.5, glideT: 0.06, vol: 0.07, tau: 0.05 });
+    [67, 71, 74, 79, 83, 86].forEach((m, i) => e.voice(o, t + 0.2 + i * 0.06, mtof(m), { ...GLOCK, vol: 0.06, tau: 0.35 }));
+    for (const m of [55, 62, 67, 71]) e.voice(o, t + 0.24, mtof(m), { type: 'triangle', vol: 0.05, a: 0.15, hold: 0.4, rel: 0.8, partials: [[2, 0.2]], vib: 6 });
+  },
   equip(e, o, t) {
     e.noiseHit(o, t, { type: 'highpass', f: 3000, vol: 0.25, tau: 0.012 });
     e.noiseHit(o, t + 0.07, { type: 'highpass', f: 2200, vol: 0.2, tau: 0.015 });

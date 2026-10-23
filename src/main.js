@@ -59,11 +59,12 @@ import { drawBlueHalls } from './bluehalls.js';
 import { drawQueensBridge } from './qbridge.js';
 import { wayAt, wayById, sameIsle } from './shared/waystones.js';
 import { drawWaystones, wayPrompt, wayBeacons, WayCard, shimmer } from './waystones.js';
+import { PoolCard, NewsBanner, newsFor, nearPool, poolSplash } from './rebirth.js';
 import { fastGradients } from './fastcanvas.js';
 import { gfx } from './gfx.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
-import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn } from './shared/sim.js';
+import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X } from './shared/sim.js';
 
 const canvas = document.getElementById('game');
 const stage = document.getElementById('stage');
@@ -411,6 +412,21 @@ function useWaystone() {
   ways.open(at, have);
 }
 let warpedIn = -9; // when the server last moved us by waystone (the shimmer waits for the new room)
+// The Rebirth Pool (src/rebirth.js, docs/combat/skills.md): E at it opens its card; {t:'reborn'} splashes out
+// of it; the classes notice and the advancements show as a banner pointing at it
+const pool = new PoolCard((m) => net.sendNpc(m));
+const news = new NewsBanner();
+rpg.onNews = (m) => {
+  const n = newsFor(m);
+  if (n) news.show(n);
+  return !!n;
+};
+rpg.onReborn = (m, s) => {
+  if (room === VILLAGE) poolSplash(particles, s.x, s.y, m.cls, time);
+  if (m.id === net.id) pool.reborn();
+};
+rpg.onToast = (text) => pool.refused(text);
+rpg.onMe = (m) => pool.update(m);
 document.getElementById('sail-no').onclick = () => sail.close();
 function pressMove(id) {
   if (!rankOf(rpg.me?.skills, id)) return rpg.toast(`You haven't learned ${SKILLS[id].name} yet (press K)`), audio.sfx('error');
@@ -821,6 +837,13 @@ addEventListener('keydown', (e) => {
     else if (/^Digit[1-9]$/.test(e.code)) ways.list.children[Number(e.code.slice(5)) - 1]?.click();
     return;
   }
+  // the Rebirth Pool's card: Esc steps back (out of a question first), E closes it; the rest is clicks / taps
+  if (pool.isOpen) {
+    e.preventDefault();
+    if (e.code === 'Escape') pool.back();
+    else if (e.code === 'KeyE' && !e.repeat) pool.close();
+    return;
+  }
   // boarding a ship: E or Enter sets sail, Esc thinks better of it
   if (sail.door) {
     e.preventDefault();
@@ -897,6 +920,12 @@ addEventListener('keydown', (e) => {
   if (e.code === 'KeyE' && !e.repeat && menu.hidden && nearShop()) {
     e.preventDefault();
     shop.open();
+    return;
+  }
+  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && rpg.me && nearPool(net.me, room)) {
+    e.preventDefault();
+    held.clear();
+    pool.open(rpg.me); // the Rebirth Pool's card (src/rebirth.js)
     return;
   }
   if (e.code === 'KeyZ' && menu.hidden && isCombat(room) && online()) {
@@ -1087,6 +1116,7 @@ function update(realDt) {
     camX = clamp((online() ? net.me.x : 0) - W / 2, 0, roomDef(room).width + (roomDef(room).viewPad ?? 0) - W); // no panning across rooms
     particles.list = [];
     ways.close();
+    pool.close();
     if (time - warpedIn < 1.5 && mine) shimmer(particles, net.me.x, net.me.y);
     hall.closeAsk();
     museum.close();
@@ -1136,6 +1166,7 @@ function update(realDt) {
   chat.button.hidden = !online() || !TOUCH; // phones only: keyboards open the chat with Enter (owner's call)
   whoButton.hidden = !online();
   hudButtons.classList.toggle('combat', isCombat(room)); // below the HP / MP panel there
+  news.el.classList.toggle('combat', isCombat(room)); // (the news banner too)
   decoButton.hidden = !online() || !houses.isMine(room) || houses.editing;
   touch.update({
     playing: !!online(),
@@ -1145,7 +1176,7 @@ function update(realDt) {
     field: isCombat(room),
     dash: !!rankOf(rpg.me?.skills, 'dash'),
     blink: !!rankOf(rpg.me?.skills, 'blink'),
-    overlay: dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
+    overlay: dialogOpen() || pool.isOpen || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
   });
   if (room === PIANO) piano.update(dt);
   if (room === HALL) hall.update(dt, [...slimes.values()].filter((s) => s.visible).length + 1);
@@ -1236,12 +1267,13 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 const BEACON_RANGE = 420;
 const DOOR_BAND_Y = 160; // how high over the ground a door's level chip sits (under the beacon)
 function drawHints() {
-  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || houses.editing) return;
+  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || pool.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || houses.editing) return;
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);
   if (talk) acts.push({ key: 'E', label: talk.cfg.shop ? `talk to ${talk.cfg.name} (or trade)` : `talk to ${talk.cfg.name}` });
   else if (nearShop()) acts.push({ key: 'E', label: 'shop with Merchant Pip' });
+  else if (nearPool(me, room)) acts.push({ key: 'E', label: 'the Rebirth Pool' });
   else if (room === MUSEUM && museum.near) acts.push({ key: 'E', label: `read: ${museum.near.title.length > 34 ? museum.near.title.slice(0, 32) + '…' : museum.near.title}` });
   else if (wayAt(me)) acts.push({ key: 'E', label: wayPrompt(me, rpg.me?.ways) });
   else if (ruinStoneAt(me)) acts.push({ key: 'E', label: `read ${ruinStoneAt(me).name}` });
@@ -1262,6 +1294,7 @@ function drawHints() {
   for (const d of roomDef(room).doors) if (doorOpen(me, d)) far.push({ x: d.x, y: roomDef(room).ground - (isHouse(room) ? 186 : 190), near: d === door }); // above door signs
   for (const c of charsHere()) far.push({ x: c.slime.x, y: c.slime.y - c.slime.h * c.cfg.size - 52, near: c.near });
   if (room === VILLAGE) far.push({ x: SHOP_X + 20, y: ROOMS[VILLAGE].ground - 120, near: nearShop() });
+  if (room === VILLAGE) far.push({ x: REBIRTH_X, y: ROOMS[VILLAGE].ground - 110, near: nearPool(me, room) });
   for (const st of RUIN_STONES) if (st.room === room) far.push({ x: st.x, y: ROOMS[room].ground - 180, near: st === ruinStoneAt(me) });
   far.push(...wayBeacons(room, roomDef(room).ground, me));
   if (room === CLIFFS) far.push({ x: CLIFFS_SCOPE_X, y: ROOMS[CLIFFS].ground - 110, near: scopeNear(me) });
@@ -1476,7 +1509,7 @@ function render() {
 }
 
 // For tests and troubleshooting: open the game with #debug to reach its internals from the console.
-if (location.hash === '#debug') window.slimeville = { chat, net, voice, characters, museum, scope, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, pets, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
+if (location.hash === '#debug') window.slimeville = { pool, news, REBIRTH_X, chat, net, voice, characters, museum, scope, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, pets, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
 
 // #debug also keeps frame timings (window.slimeville.perf: JS time in update() and render(), and the gap
 // between frames, which includes the browser's own drawing) and shows the frame rate in the corner.

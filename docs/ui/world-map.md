@@ -17,6 +17,7 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
 - Same layout on phones: the chart is in canvas pixels × `--s`, like every overlay.
 - **No spoilers:** names and labels stay at canon Tier 0–1 plus the stage names players already see
   (`story/canon.md`). The uncharted fogs hint at the proposed side islands without naming them.
+- Slimeville is the apple tree, a few roofs and a small glowing dot for the Rebirth Pool beside the tree.
 - Greenhollow's east rim is drawn white: the east cliffs (`docs/places/cliffs.md`).
 - Aboard a crossing, `islandOf` says `'sea'` and the pin sits on the ferry's route, or `'straits'` aboard the
   Lodestar, in the Steam Straits (`PINS`).

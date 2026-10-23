@@ -90,6 +90,7 @@ export class Rpg {
     if (m.t === 'me') {
       const old = this.me;
       this.me = m;
+      this.onMe?.(m);
       if (old && mine) {
         const gained = m.lvl === old.lvl ? m.exp - old.exp : 0;
         if (gained > 0) this.pop(mine.x, mine.y - 70, `+${gained} EXP`, '#ffd34d', 15);
@@ -105,26 +106,33 @@ export class Rpg {
       this.loot = m.l;
     } else if (m.t === 'notice') {
       // a one-time message on joining (the levelling rollback, classes arriving): a toast, and a line kept in
-      // the chat (m.news names it: 'classes')
-      for (const line of m.text.split('\n')) this.toast(line), this.onAnnounce?.(line);
+      // the chat; m.news names one with a banner instead of a toast ('classes': its line is the last one)
+      const lines = m.text.split('\n'), banner = m.news && this.onNews?.(m);
+      lines.forEach((line, i) => {
+        if (!(banner && i === lines.length - 1)) this.toast(line);
+        this.onAnnounce?.(line);
+      });
     } else if (m.t === 'advance') {
-      // an advancement level reached (src/shared/skills.js ADVANCEMENTS): a toast and a line kept in the chat
-      this.toast(m.text);
+      // an advancement level reached (src/shared/skills.js ADVANCEMENTS): a banner (src/rebirth.js) and a line
+      // kept in the chat
+      if (!this.onNews?.(m)) this.toast(m.text);
       this.onAnnounce?.(m.text);
       audio.sfx('levelup');
     } else if (m.t === 'thirst') {
       const s = slimeOf(m.id);
       if (s && s.visible !== false) this.pop(s.x, s.y - 64, `+${m.n}`, '#7fe0a0', 15);
     } else if (m.t === 'reborn') {
-      // someone chose a class at the Rebirth Pool (S2.3 draws the splash)
+      // someone came out of the Rebirth Pool as a new class: the splash (onReborn, src/rebirth.js) and a sound
       const s = slimeOf(m.id);
       if (s) {
         s.cls = m.cls;
         this.fx.spawn('levelskill', { x: s.x, y: s.y });
-        this.pop(s.x, s.y - 70, CLASSES[m.cls]?.name ?? '', '#fff2b0', 20);
+        this.pop(s.x, s.y - 110, CLASSES[m.cls]?.name ?? '', CLASSES[m.cls]?.color ?? '#fff2b0', 20); // (above the E prompt)
+        this.onReborn?.(m, s);
+        audio.sfx('reborn', { pan: m.id === myId ? 0 : panX(s.x, mine?.x ?? s.x), vol: m.id === myId ? 1 : 0.7 });
       }
-      if (m.id === myId) audio.sfx('levelup');
     } else if (m.t === 'toast') {
+      this.onToast?.(m.text); // (the Rebirth Pool's card shows its refusals)
       this.toast(m.text);
       if (/full|only drop|already|Not enough|first|out of|haven't/.test(m.text)) audio.sfx('error');
       if (/Level up/.test(m.text)) audio.sfx('levelup');

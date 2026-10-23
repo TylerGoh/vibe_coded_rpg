@@ -125,6 +125,7 @@ import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
+import { CLASSES } from '../src/shared/skills.js';
 import { TICK_RATE, newState, step, pack, KEY_MASK, SPAWN_X, NPCS, NPC_TEXT_MAX, cleanText, VILLAGE, HALL, TUTOR, MUSEUM, MUSEUM_WINGS, EXHIBIT_SPACING, exhibitX, ROOMS, PROF_X, SLAP_REACH, SLAP_COOLDOWN_MS, SLAP_QUIPS, PIANO, pianoKeyAt, roomDef, isHouse, npcIn, VOYAGE_MAX, TOWNS, placeAt } from '../src/shared/sim.js';
 import { createLecture } from './lecture.js';
 import { createTutor } from './tutor.js';
@@ -460,6 +461,13 @@ function slap(id, p, m) {
 }
 
 // Where a visitor is standing in the museum, so Clio knows what "this" means
+// Elder Mochi hears each speaker's level and class (he tends the Rebirth Pool, so a Lv 10+ Novice gets
+// pointed at it: server/characters.js)
+function whoIs(p) {
+  const c = p.rpg;
+  return c ? `Lv ${c.lvl} ${CLASSES[c.cls]?.name ?? 'Novice'}` : undefined;
+}
+
 function museumPlace(x) {
   for (let w = MUSEUM_WINGS.length - 1; w >= 0; w--) {
     if (x < MUSEUM_WINGS[w].x - 100) continue;
@@ -492,7 +500,7 @@ async function talkToNpc(p, m) {
   }
   broadcast({ t: 'npc-say', npc: c.id, from: p.name, text });
   if (c.thinking++ === 0) broadcast({ t: 'npc-think', npc: c.id, on: true });
-  const result = await c.ai.reply(p.name, text, c.room === MUSEUM ? museumPlace(p.state.x) : undefined);
+  const result = await c.ai.reply(p.name, text, c.room === MUSEUM ? museumPlace(p.state.x) : c.id === 'mochi' ? whoIs(p) : undefined);
   if (--c.thinking === 0) broadcast({ t: 'npc-think', npc: c.id, on: false });
   if (result.reply) broadcast({ t: 'npc-reply', npc: c.id, to: p.name, text: result.reply });
   else send(p.ws, { t: 'npc-error', npc: c.id, text: result.error });

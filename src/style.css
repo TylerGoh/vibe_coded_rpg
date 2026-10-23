@@ -1195,7 +1195,8 @@ body.touch #inv {
   height: calc(500px * var(--s));
 }
 /* the HUD buttons (Players, Chat…) come later in the page and would sit on the panel's title */
-#skills:not([hidden]) ~ #hudbtns {
+#skills:not([hidden]) ~ #hudbtns,
+#pool:not([hidden]) ~ #hudbtns {
   display: none;
 }
 #skills-remind {
@@ -3138,4 +3139,230 @@ body.touch .tr-slot .tr-icon {
 }
 body.touch #trade .invite-btns button {
   height: calc(36px * var(--s));
+}
+
+/* ——— the Rebirth Pool's card (E at the pool, src/rebirth.js) ——— */
+#pool[hidden],
+#news[hidden] {
+  display: none;
+}
+#pool {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(660px * var(--s));
+  max-height: calc(510px * var(--s));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: calc(12px * var(--s)) calc(18px * var(--s));
+  border: calc(4px * var(--s)) solid #a8dcf0;
+  border-radius: calc(18px * var(--s));
+  background: #fbfdff;
+  color: #3a3550;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  box-shadow: 0 calc(6px * var(--s)) 0 rgba(91, 74, 107, 0.2), 0 0 calc(40px * var(--s)) rgba(190, 235, 255, 0.8);
+  animation: pool-in 0.35s ease-out;
+}
+@keyframes pool-in {
+  from {
+    transform: translate(-50%, calc(-50% - 16px * var(--s)));
+    opacity: 0;
+  }
+}
+#pool h2 {
+  margin: 0 calc(34px * var(--s)) 0 0;
+  font-size: calc(22px * var(--s));
+  color: #5a8fc0;
+}
+#pool h2 span {
+  margin-left: calc(10px * var(--s));
+  font-size: calc(14px * var(--s));
+  color: #c99a2e;
+}
+#pool-body {
+  overflow-y: auto;
+  min-height: 0;
+}
+#pool p {
+  margin: calc(4px * var(--s)) 0;
+}
+.pool-intro {
+  color: #8a7a9b;
+  font-size: calc(12px * var(--s));
+}
+.pool-big {
+  font-size: calc(18px * var(--s));
+  color: #7a5fc0;
+}
+.pool-sub {
+  color: #5b4a6b;
+}
+.pool-classes {
+  display: flex;
+  gap: calc(10px * var(--s));
+  margin: calc(6px * var(--s)) 0;
+}
+.pool-class {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: calc(8px * var(--s)) calc(10px * var(--s));
+  border: calc(3px * var(--s)) solid var(--c);
+  border-radius: calc(14px * var(--s));
+  background: #fffdf6;
+}
+.pool-name {
+  font-size: calc(18px * var(--s));
+  color: var(--c);
+}
+.pool-yours {
+  margin-left: calc(8px * var(--s));
+  padding: 0 calc(8px * var(--s));
+  border-radius: 999px;
+  background: var(--c);
+  color: #fff;
+  font-size: calc(11px * var(--s));
+  vertical-align: middle;
+}
+#pool .pool-blurb,
+#pool .pool-weapon {
+  color: #6f6382;
+  font-size: calc(12px * var(--s));
+}
+#pool .pool-sb {
+  font-size: calc(12px * var(--s));
+  flex: 1;
+}
+.pool-good {
+  color: #3f9f6a;
+}
+.pool-bad {
+  color: #d0607a;
+}
+.pool-pick,
+.pool-ask button {
+  height: calc(30px * var(--s));
+  padding: 0 calc(14px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: var(--c, #6fb6dc);
+  color: #fff;
+  font: 700 calc(14px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+.pool-pick:disabled {
+  background: #e9e3f2;
+  color: #a99bb8;
+  cursor: default;
+}
+#pool .pool-price {
+  color: #b0763a;
+}
+#pool .pool-price.short,
+#pool .pool-refused {
+  color: #d0486a;
+}
+.pool-keep {
+  padding: calc(4px * var(--s)) calc(10px * var(--s));
+  border-radius: calc(10px * var(--s));
+  background: #f1f8fc;
+  color: #5b4a6b;
+  font-size: calc(12px * var(--s));
+}
+.pool-ask {
+  margin-top: calc(8px * var(--s));
+  padding: calc(8px * var(--s)) calc(10px * var(--s));
+  border: calc(3px * var(--s)) solid #ffc6d9;
+  border-radius: calc(14px * var(--s));
+  background: #fffaf3;
+  text-align: center;
+}
+.pool-ask .pool-sure {
+  background: #4fbf86;
+}
+.pool-ask .pool-back {
+  background: #e9e3f2;
+  color: #7a6a8b;
+}
+.pool-ask button:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+#pool-close {
+  position: absolute;
+  top: calc(10px * var(--s));
+  right: calc(12px * var(--s));
+  width: calc(32px * var(--s));
+  height: calc(32px * var(--s));
+  border: none;
+  border-radius: 50%;
+  background: #e3f1f8;
+  color: #7a6a8b;
+  font-size: calc(16px * var(--s));
+  cursor: pointer;
+}
+/* phones: the whole canvas height, bigger touch targets */
+body.touch #pool {
+  top: calc(8px * var(--s));
+  transform: translateX(-50%);
+  width: calc(760px * var(--s));
+  max-height: calc(524px * var(--s));
+  animation-name: invite-in;
+}
+body.touch .pool-pick,
+body.touch .pool-ask button {
+  height: calc(44px * var(--s));
+  font-size: calc(16px * var(--s));
+}
+body.touch #pool-close {
+  width: calc(44px * var(--s));
+  height: calc(44px * var(--s));
+}
+
+/* the news banner: the classes notice and the advancements, pointing at the pool (src/rebirth.js) */
+#news {
+  position: absolute;
+  left: 50%;
+  top: calc(60px * var(--s));
+  transform: translateX(-50%);
+  width: calc(560px * var(--s));
+  box-sizing: border-box;
+  padding: calc(10px * var(--s)) calc(18px * var(--s));
+  border: calc(3px * var(--s)) solid #a8dcf0;
+  border-radius: calc(16px * var(--s));
+  background: linear-gradient(#f4fbff, #fffaf3);
+  color: #5b4a6b;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  text-align: center;
+  box-shadow: 0 calc(5px * var(--s)) 0 rgba(91, 74, 107, 0.18), 0 0 calc(30px * var(--s)) rgba(190, 235, 255, 0.7);
+}
+#news.combat {
+  top: calc(132px * var(--s));
+}
+#news.in {
+  animation: invite-in 0.35s ease-out;
+}
+#news-title {
+  display: block;
+  font-size: calc(19px * var(--s));
+  color: #5a8fc0;
+}
+#news p {
+  margin: calc(4px * var(--s)) 0 calc(8px * var(--s));
+}
+#news-ok {
+  background: #6fb6dc !important;
+}
+body.touch #news {
+  top: calc(60px * var(--s));
+  width: calc(600px * var(--s));
+}
+body.touch #news.combat {
+  top: calc(132px * var(--s));
+}
+body.touch #news-ok {
+  height: calc(40px * var(--s));
+  padding: 0 calc(24px * var(--s));
 }

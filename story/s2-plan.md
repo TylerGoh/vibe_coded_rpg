@@ -2,7 +2,7 @@
 
 **Status: plan, written 2026-10-23. S2.1 built 2026-10-23 on the git branch `s2` (not deployed: deploy #1
 needs S2.2 and S2.3 too; start S2.2–S2.4 from that branch). S2.2 built 2026-10-23 on the branch `s2.2`
-(from `s2`), not deployed.** S2 in `progression.md` ("the tree") is too big for one
+(from `s2`), not deployed. S2.3 built 2026-10-23 on the branch `s2.3` (from `s2.2`), not deployed.** S2 in `progression.md` ("the tree") is too big for one
 session, so it's cut into six pieces, each sized for one agent. The design and the owner's decisions are in
 `progression.md` (sections 1, 1a, 1b, 1c, 2, 3, 7, 9): read it first. This file pins down what that plan
 left open and says who does what. Numbers here (maxes, the schedule) are starting points: S2.4's CLASSES
@@ -159,7 +159,26 @@ Docs: `docs/combat/skills.md`, `docs/ui/mobile.md`, `docs/ui/hints.md`. Files: `
   the phone sizes in `docs/ui/mobile.md`.
 - Test with headless screenshots at desktop and phone size, Warrior and Mage, low and high level.
 
-## S2.3: the Rebirth Pool (place, card, Elder Mochi)
+## S2.3: the Rebirth Pool (place, card, Elder Mochi) — built 2026-10-23
+As built (`docs/combat/skills.md`, Classes): the pool is at `REBIRTH_X` 2578, between the Inn and Pip's
+stall (between Mochi's tree and the Inn there was no room clear of his talk range); `REBIRTH_RANGE` went to
+80 so it doesn't touch the shop's, and the lamp by the Inn moved 15 px west. Art, card, splash and banner are
+all in the new `src/rebirth.js` (a ring of pale stones with mossy boulders behind, a glowing carved drop and a
+trickle, light shafts and motes; fewer motes and one glow on Low graphics). The card is `#pool`, the banner
+`#news`; `src/rpg.js` got hooks (`onNews`, `onReborn`, `onToast`, `onMe`) that `src/main.js` wires. The card
+disables "Become" when you're short of gold, and still shows the server's refusal in red if one comes. All
+advancements use the banner (the Lv 10 Novice one and the classes one stay until dismissed). Mochi hears
+`Lv N Class` with every line (`whoIs`), and `persona(user, { first })` gives him the newcomer welcome (there
+was no new-player flow before: it's his first chat with someone). The world map's Slimeville got a small
+glowing dot. Sound `reborn` in `src/audio.js`. Tested headless at 960×540 and 844×390 (touch): the pool on
+High and Low, the prompt, the card for Lv 5 / Lv 15 Novices and a Lv 40 Mage (both confirms), choosing by
+click and by tap (free and paid; the wrong weapon went to the bag and the bag's sword came out), the
+not-enough-gold refusal, the splash, the migration banner, the Lv 10 banner from a real level-up, Mochi's
+replies with DeepSeek (points a Lv 15 Novice at the pool, tells a Lv 5 to come back at 10, deflects where
+the pool comes from); no console errors.
+Files: `src/rebirth.js` (new), `src/village.js`, `src/shared/sim.js`, `src/main.js`, `src/rpg.js`,
+`src/audio.js`, `src/worldmap.js`, `index.html`, `src/style.css`, `server/characters.js`, `server/index.js`,
+`server/npc.js`.
 Docs: `docs/world.md`, `docs/art.md`, `docs/ui/hints.md`, `docs/ui/mobile.md`, `docs/social/ai-characters.md`,
 `docs/ui/audio.md`; `story/world/regions/greenhollow.md` and `story/world/atlas.md` before placing it.
 - Place: a softly glowing spring in Slimeville near Elder Mochi (`x: 2075`), set `REBIRTH_X` to its spot,
