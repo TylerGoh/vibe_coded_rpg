@@ -301,18 +301,32 @@ slow levelling down, and roll those characters back to where their play time wou
 - Bosses: their EXP stays; the S0 camp check compares EXP an hour, which doesn't move. A boss kill becomes
   a smaller share of a level, which is fine: their worth is the loot and the fight.
 
-### L2: gold follows play time
-- **Recommended (not yet confirmed by the owner):** gold an hour stays the same (mob drops untouched), so
-  with ~10× more kills a level, players reach each level with far more gold. Everything priced with the
-  aim method (shop and trader gear, houses, furniture, pets, seeds, the Boutique) is re-aimed by the
-  sheet against the new "gold earned by level", so a Lv 60 sword still costs the same share of what a Lv 60
-  has earned. The alternative (cut mob gold so gold earned by level stays and prices don't move) makes
-  gold an hour ~10× lower, which feels bad, so it's the fallback only.
+### L2: prices in farming time (owner, 2026-10-23)
+- **Gold an hour at each level stays as it is** (mob drops untouched; it already grows a lot with level:
+  ~13k an hour at Lv 10, ~220k at Lv 60, ~450k at Lv 100, ~740k at Lv 150). Slower levels mean you stay at
+  each level longer, not that a minute pays less.
+- **Prices are set in minutes of farming at the level a thing is meant for** (its `aim`), not as a share
+  of the gold earned by that level: with ~10x slower levels, saved-up gold grows ~10x and share-of-savings
+  prices would all feel cheap (owner: "things shouldn't feel cheap"). Bands (constants in the sheet, values
+  a starting point):
+  | what | minutes of farming at its level |
+  |---|---|
+  | potions, pet food, seeds, small furniture | 1–3 |
+  | bigger furniture | up to ~10 |
+  | shop and trader gear, the smaller houses | 10–20 |
+  | pets | ~20 at their boss's level, with a floor of ~15–20k so no pet is trivial (recommended; owner to confirm) |
+  | the high end (big houses, top gear, the top pets) | ~30 |
+- Most of today's gear and house prices already sit at 4–24 minutes, so they barely move. What changes: the
+  sheet's `AIM_MIN` / `AIM_MAX` share check becomes a minutes-at-aim check per band; pets get aims (their
+  boss's level) and are re-priced (Chronos's ~270k, down from 500k; the early ones down to the floor, which
+  replaces the owner's earlier "around 50k a pet"); the Estate goes up to ~30 min, the Grand Estate down to
+  ~30 min at Lv 120 (~210k); a few big furniture pieces go up.
+- Run `npm run economy` before and after; say what moved (Agent.md).
 - **Changing class costs more, and scales with your level** (owner, 2026-10-23): instead of a flat 500k,
-  `rebirthCost(lvl)` = `REBIRTH_HOURS` (2) hours of farming gold at your level, from the sheet's gold a
+  `rebirthCost(lvl)` = `REBIRTH_HOURS` (1, owner 2026-10-23) hour of farming gold at your level, from the sheet's gold a
   minute (`KILLS_PER_MIN` on the frozen curve; mirror it in `src/shared/rpg.js` as a small formula, and
-  the sheet checks the two agree). At today's drops that's about 27k at Lv 10, 450k at Lv 60, 900k at
-  Lv 100, 1.5M at Lv 150. The first choice at Lv 10 is still free. Replaces the flat `REBIRTH_COST` in
+  the sheet checks the two agree). That's about 13k at Lv 10, 220k at Lv 60, 450k at Lv 100,
+  740k at Lv 150. The first choice at Lv 10 is still free. Replaces the flat `REBIRTH_COST` in
   section 1a and `s2-plan.md` (S2.1 builds the formula; the card shows your price).
 - Run `npm run economy` before and after; say what moved (Agent.md).
 
