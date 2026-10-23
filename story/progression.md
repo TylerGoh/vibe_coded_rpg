@@ -63,7 +63,10 @@ really hard without a mix of classes. They share one root, so this is one plan.
 | bow | **Archer** | DEX | steady damage from range, hitting what's high up or far away |
 LUK stays the shared crit stat. DEX finally gets a job (today it only raises the minimum roll).
 
-- **You choose your class at the Rebirth spot in Slimeville** (owner, 2026-10-23; below). Your class
+- **Everyone starts as a Novice** (owner, 2026-10-23, MapleStory's Beginner): no class, a few basic
+  skills (the small Novice tree, `s2-plan.md`), any weapon. **At Lv 10 you choose your class** at the
+  Rebirth Pool, free. Before Lv 10 the pool only tells you to come back at Lv 10.
+- **You choose (and later change) your class at the Rebirth spot in Slimeville** (owner, 2026-10-23; below). Your class
   decides your tree and which weapon kind you can wield: Warrior a sword, Mage and Cleric a staff,
   Archer a bow. Other weapons stay in the bag for later.
 - **Mage and Cleric share the staff** (owner, 2026-10-23), so there are only three weapon kinds to drop,
@@ -90,8 +93,9 @@ LUK stays the shared crit stat. DEX finally gets a job (today it only raises the
   exists (roadmap: trading comes first).
 - The card shows the price and asks twice before taking the coins, since nothing is refunded.
 - Only in Slimeville (owner). Other towns don't get one, which gives the home village a reason to visit.
-- **New characters** start as Warriors with the Wooden Sword (as today) and are pointed at the pool by
-  Elder Mochi; nothing is locked before they choose.
+- **New characters** start as Novices with the Wooden Sword (as today). At Lv 10 a banner and Elder
+  Mochi point them at the pool, where the first choice is free. Until they choose, they stay Novices
+  (nothing forces it, but class points can't be spent).
 - The normal attack follows the class: sword swing (as now), **staff bolt** for a Mage (a short magic
   bolt on MAGIC), **staff bonk** for a Cleric (weak, close; a hit lands a small heal on the nearest hurt
   friend so attacking is never wasted), **bow shot** (an arrow to the first mob ahead in range).
@@ -242,12 +246,12 @@ Each class tree is drawn as connected nodes, not columns, and opens in **advance
 job advancements), at levels spaced further apart each time:
 | advancement | opens at | what it brings |
 |---|---|---|
-| 1st: the class | Lv 1 (pick your weapon) | the class's basic skills |
-| 2nd | Lv 10 | the **fork**: choose one of two branches (listed per class above) |
-| 3rd | Lv 30 | the branch's middle tier and a smaller second fork |
-| 4th | Lv 60 | the branch's capstone skill (the big ultimate) |
-| 5th | Lv 100 | mastery nodes: passives that change how skills behave, not just +% |
-| 6th | Lv 150 | the second capstone [proposed: lands with the rebalanced late islands] |
+| Novice | Lv 1 | the Novice tree (a few basic skills everyone keeps) and Mobility |
+| 1st: the class | Lv 10 (at the Rebirth Pool, free) | the class's basic skills |
+| 2nd | Lv 30 | the **fork**: choose one of two branches (listed per class above) |
+| 3rd | Lv 60 | the branch's middle tier |
+| 4th | Lv 100 | the branch's capstone skill (the big ultimate) |
+| 5th | Lv 150 | mastery nodes: passives that change how skills behave, not just +% (S6) |
 
 - **Forks** are the "giving something up" part: points go into one branch at a time (free to switch,
   outside combat).
@@ -271,9 +275,9 @@ job advancements), at levels spaced further apart each time:
    and a cosmetic or comfort reward (an aura colour, a title, a bag row), not raw power.
 
 ### 9. Existing characters (the migration)
-- Levels, gold, bags and gear all stay. Every existing character becomes a **Warrior** (they all hold
-  swords) with **every skill point and AP refunded**, and a banner pointing them at the Rebirth spot if
-  they'd rather be something else. Hotbars are cleared.
+- Levels, gold, bags and gear all stay. Every existing character becomes a **Novice** (owner,
+  2026-10-23) with **every skill point and AP refunded** and the skill hotbars cleared. Everyone Lv 10 and
+  up gets a banner pointing them at the Rebirth Pool to choose a class, free.
 
 ## The phases (each one shippable alone)
 - [x] **S0: close the boss faucet** (shipped 2026-10-23): over-level EXP falloff, the per-player boss reward
@@ -284,7 +288,7 @@ job advancements), at levels spaced further apart each time:
       your hand decides the normal attack; spell power never went down (staves only add). Was (medium): the `staff` kind, the staff bolt, MAGIC from staves, a staff
       on every boss's drops, starter and trader staves, weapon scrolls, the economy script learning
       staves. Before R, so R's "new copy of every boss item" pass copies the staves too.
-- [ ] **S2: the tree** (large), with the CLASSES table in `npm run economy`: the four class trees, the Rebirth spot, forks, advancements, the `spTotal` schedule, the
+- [ ] **S2: the tree** (large; split into six agent-sized pieces in `s2-plan.md`), with the CLASSES table in `npm run economy`: the four class trees, the Rebirth spot, forks, advancements, the `spTotal` schedule, the
       node UI (desktop and phone), the one-time refund. Warrior (with the chase moves in `step()`) and Mage, with the mage
       combos (chill/freeze/shatter, burn/spread, Arcane Charge).
 - [ ] **S3: the Cleric** (large: summons are new server entities): the Cleric at the Rebirth spot, the halo, the summons, the Cleric tree (mostly today's heal and Guardian
@@ -301,14 +305,15 @@ Settled by the owner (2026-10-23):
 - Capstone bosses: extremely hard without a mixed party, not locked. Dens and field bosses: any class solos.
 - Stat taper past the content: for everyone.
 - Mage and Cleric share the staff.
-- Class is chosen at the Rebirth spot in Slimeville: 500k coins for now, keeps your level, resets all AP
-  and skill points. A class's skills only work with its own weapon; only Mobility is shared.
+- Everyone starts as a Novice and chooses a class at Lv 10 (owner, 2026-10-23). Class is chosen at the
+  Rebirth spot in Slimeville: the first choice free, every change after 500k coins for now, keeps your
+  level, resets all AP and skill points. A class's skills only work with its own weapon; only Mobility is shared.
 
 Settled by the owner (2026-10-23, "all these look good"): the two below, as recommended.
 Still open (recommended answer first; a session can start from it): none.
 1. ~~Boss reward window~~ (S0): shipped at 15 min (`BOSS_WINDOW_MS`), easy to change if it feels harsh.
 2. ~~The Rebirth spot's name and keeper~~: **a Rebirth Pool tended by Elder Mochi** (settled).
-3. ~~A free first choice?~~ **Yes** (settled): Everyone becomes a Warrior when S2 ships, and new players start as one. At
+3. ~~A free first choice?~~ **Yes** (settled; superseded in part: everyone is now a Novice until they choose at Lv 10). At
    500k, a Lv 30 who wants to be a Mage can't afford it for a very long time. Recommended: each
    character's **first** rebirth is free (the migration and new players pick once at no cost), and every
    change after that costs the 500k.

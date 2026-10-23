@@ -306,6 +306,7 @@ wss.on('connection', (ws) => {
       const s = m.s >>> 0, k = m.k & KEY_MASK;
       if (s <= p.last) return; // duplicate or out of order
       p.last = s;
+      if (k) p.keysAt = Date.now(); // for active play time (server/rpg.js clock)
       p.queue.push([s, k]);
       if (p.queue.length > MAX_QUEUE) p.queue.shift();
     } else if ((m.t === 'npc' || m.t === 'npc-open') && p.joined) {

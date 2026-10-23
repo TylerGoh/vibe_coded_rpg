@@ -27,6 +27,8 @@ const SAVE_EVERY_MS = 5000;
 const HISTORY = 40; // ticks of position history kept for lag compensation
 const MAX_REWIND = 30; // ticks (0.5 s): never rewind further than this
 const FAINT_MS = 1600;
+const ACTIVE_WINDOW_MS = 60_000; // play time counts as active while you've pressed a key this recently
+const CLOCK_GAP_MS = 30_000; // never count more than this between two clock ticks (a stalled server)
 const FIELD_BOSS_FIGHT_MS = 20000; // a field boss counts the slimes who hit it this recently as its fighters
 const FIELD_BOSS_IDLE_MS = 60000; // nobody's hit it for this long: it heals up and forgets its fighters
 const TEST_BOSS_HP = Number(process.env.TEST_BOSS_HP) || 1; // tests only: weaker bosses (dens and field bosses)
@@ -45,6 +47,7 @@ const newChar = () => ({
   cosmetics: [], wear: [], showHelmet: true, // the Boutique
   ways: [], // the waystones you've attuned to (src/shared/waystones.js)
   bossAt: {}, // den boss kind → when you last got its full reward (BOSS_WINDOW_MS)
+  played: 0, active: 0, // ms logged in, and ms of that with a key pressed in the last ACTIVE_WINDOW_MS (clock)
 });
 
 // players: the server's id → player map. send(ws, msg). toRoom(room)(msg). broadcast(msg).
@@ -121,8 +124,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     r.town = TOWNS[r.town] ? r.town | 0 : 0;
     r.ways = [...new Set((Array.isArray(r.ways) ? r.ways : []).filter(wayById))];
     r.bossAt = Object.fromEntries(Object.entries(r.bossAt ?? {}).filter(([k, at]) => MOBS[k]?.boss && Number.isFinite(at) && at <= now() && now() - at < BOSS_WINDOW_MS));
+    for (const k of ['played', 'active']) r[k] = Number.isFinite(r[k]) && r[k] > 0 ? Math.floor(r[k]) : 0;
     cleanBot(r); // accused of botting (server/accuse.js)
     p.hurtAt = 0;
+    p.clockAt = now();
     p.cds = {};
     p.hist = [];
     p.dirty = !c;
@@ -132,11 +137,21 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function moves(p) {
     if (p.state && p.rpg) p.state.mv = mobilityOf(p.rpg.skills);
   }
+  // Play time (owner, 2026-10-23: for balancing levelling speed): logged-in time, and the active part of it
+  function clock(p) {
+    const t = now(), dt = Math.min(CLOCK_GAP_MS, Math.max(0, t - (p.clockAt ?? t)));
+    p.clockAt = t;
+    if (!dt) return;
+    p.rpg.played += dt;
+    if (t - (p.keysAt ?? 0) < ACTIVE_WINDOW_MS) p.rpg.active += dt;
+    p.dirty = true;
+  }
   function save(p) {
+    if (p.rpg && p.joined) clock(p);
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active }), now());
     p.dirty = false;
   }
   setInterval(() => {

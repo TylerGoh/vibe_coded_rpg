@@ -59,5 +59,8 @@ elsewhere.
 - One JSON blob per user. `load()` in `server/rpg.js` sanitises every field (unknown items/skills dropped,
   over-spent points reset), so **a new saved field needs a default in `newChar()`, a sanitise line in
   `load()` and a place in `save()`**. Sent to its owner as `me` by `sendMe()`.
+- **Play time** (owner, 2026-10-23, for balancing how long levels take): `played` (ms logged in) and
+  `active` (the part of it with a key pressed in the last `ACTIVE_WINDOW_MS`), counted by `clock()` on every
+  save. Recorded from 2026-10-23 only: older characters started at 0. Read them straight from the DB.
 - Saved every few seconds, on disconnect and on SIGTERM (deploys). New characters start with a Wooden
   Sword and a few jellies.
