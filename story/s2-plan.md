@@ -1,7 +1,8 @@
 # S2, split into pieces (sub-plan for agents)
 
 **Status: plan, written 2026-10-23. S2.1 built 2026-10-23 on the git branch `s2` (not deployed: deploy #1
-needs S2.2 and S2.3 too; start S2.2–S2.4 from that branch).** S2 in `progression.md` ("the tree") is too big for one
+needs S2.2 and S2.3 too; start S2.2–S2.4 from that branch). S2.2 built 2026-10-23 on the branch `s2.2`
+(from `s2`), not deployed.** S2 in `progression.md` ("the tree") is too big for one
 session, so it's cut into six pieces, each sized for one agent. The design and the owner's decisions are in
 `progression.md` (sections 1, 1a, 1b, 1c, 2, 3, 7, 9): read it first. This file pins down what that plan
 left open and says who does what. Numbers here (maxes, the schedule) are starting points: S2.4's CLASSES
@@ -134,7 +135,16 @@ Docs: `docs/combat/skills.md`, `docs/combat/core.md`, `docs/combat/items.md`, `d
 - Test: a copy of the live DB loads with no errors; the Lv 390 and a Lv 5 migrate to Novices right; learn /
   unlearn / fork / level gates; rebirth through a test client (free once, then 500k); every new skill casts.
 
-## S2.2: the node tree UI (K panel), desktop and phone
+## S2.2: the node tree UI (K panel), desktop and phone — built 2026-10-23
+As built (`docs/combat/skills.md`, "The K panel"): only `src/skilltree.js`, `index.html` (`#skills`) and
+`src/style.css` changed; `src/main.js` untouched. The lines are CSS (a spine per column, a line through
+each row, an arch where the basics split), so they scale with `--s` and need no canvas. A Novice's class tab
+is "Classes" with a Warrior / Mage switch over the greyed trees; Mobility is greyed for a Novice. The card
+is pinned under the tree on desktop and in the scroll after it on phones. Tabs carry a badge with the
+points spendable there. The HUD buttons hide while the panel is open (they sat on its title). Tested
+headless at 960×540, 844×390 and 667×375 (touch): Lv 5 and Lv 15 Novices, a Lv 35 Berserker (learn, the
+other branch refused, taking points back and switching to Knight, Hotbar → key 3), a Lv 120 Frostbinder
+(scrolling, Mobility, Reset all); no console errors.
 Docs: `docs/combat/skills.md`, `docs/ui/mobile.md`, `docs/ui/hints.md`. Files: `src/skilltree.js`,
 `index.html` (`#skills`), `src/style.css`.
 - Tabs: Novice, your class (a Novice sees "Choose a class at Lv 10 at the Rebirth Pool" instead, with

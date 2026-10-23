@@ -1185,76 +1185,445 @@ body.touch #inv {
   font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
   cursor: pointer;
 }
-#skills-cols {
-  display: flex;
-  gap: calc(12px * var(--s));
-  overflow-y: auto;
-  min-height: 0;
+/* the node tree (src/skilltree.js): tabs, then the tree (scrolls), then the card of the picked skill */
+#skills {
+  --ic: calc(52px * var(--s)); /* a node's round icon */
+  --node: calc(84px * var(--s)); /* a node's width (icon and name) */
+  --gap: calc(4px * var(--s));
+  --pad: calc(24px * var(--s)); /* a cell's top: the level pill sits there */
+  --line: max(2px, calc(3px * var(--s)));
+  height: calc(500px * var(--s));
 }
-.sk-col {
+/* the HUD buttons (Players, Chat…) come later in the page and would sit on the panel's title */
+#skills:not([hidden]) ~ #hudbtns {
+  display: none;
+}
+#skills-remind {
+  margin: 0 calc(110px * var(--s)) calc(6px * var(--s)) 0;
+  padding: calc(5px * var(--s)) calc(10px * var(--s));
+  border-radius: calc(10px * var(--s));
+  background: #ffe6ee;
+  color: #c0567a;
+  font-size: calc(12px * var(--s));
+}
+#skills-remind[hidden] {
+  display: none;
+}
+#skills-tabs,
+.skt-peek {
+  display: flex;
+  gap: calc(6px * var(--s));
+}
+#skills-tabs {
+  margin-bottom: calc(6px * var(--s));
+}
+.skt-tab {
+  height: calc(30px * var(--s));
+  padding: 0 calc(16px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #f1e6d6;
+  color: #7a6a8b;
+  font: 700 calc(14px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+.skt-tab.on {
+  background: #8a6fc4;
+  color: #fff;
+}
+.skt-peek .skt-tab.on {
+  background: var(--tree);
+}
+.skt-pts {
+  display: inline-block;
+  min-width: calc(18px * var(--s));
+  margin-left: calc(6px * var(--s));
+  padding: 0 calc(4px * var(--s));
+  border-radius: 999px;
+  background: #ff7f9f;
+  color: #fff;
+  font-size: calc(12px * var(--s));
+  line-height: calc(18px * var(--s));
+}
+#skills-body {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: calc(6px * var(--s));
 }
-.sk-head {
-  padding: calc(6px * var(--s)) calc(10px * var(--s));
+#skills-tree {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-radius: calc(12px * var(--s));
+}
+.skt-head,
+.skt-pick {
+  padding: calc(4px * var(--s)) calc(10px * var(--s));
   border-radius: calc(12px * var(--s));
   background: var(--tree);
   color: #fff;
 }
-.sk-head b {
+.skt-head b {
+  margin-right: calc(8px * var(--s));
+  font-size: calc(15px * var(--s));
+}
+.skt-pick > b {
   display: block;
   font-size: calc(16px * var(--s));
 }
-.sk-head span {
-  font-size: calc(11px * var(--s));
-  opacity: 0.9;
+.skt-head span,
+.skt-pick > span {
+  font-size: calc(11.5px * var(--s));
+  opacity: 0.92;
 }
-.sk-card {
+.skt-pick {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: calc(8px * var(--s));
-  padding: calc(6px * var(--s)) calc(8px * var(--s));
-  border: calc(2px * var(--s)) solid #eee4f6;
-  border-radius: calc(12px * var(--s));
-  background: #fff;
+  gap: calc(4px * var(--s)) calc(12px * var(--s));
+  background: #f6eefc;
+  color: #6b5a7b;
 }
-.sk-card.learned {
-  border-color: var(--tree);
+.skt-pick > b {
+  color: #7a5fc0;
 }
-.sk-card.locked {
+.skt-pick > span {
+  flex-basis: 100%;
+}
+.skt-peek .skt-tab {
+  height: calc(26px * var(--s));
+  font-size: calc(13px * var(--s));
+}
+/* a cell: a level pill, then a row of nodes; the spine (::before) joins it to the cells above and below */
+.skt-cell {
+  position: relative;
+  padding: var(--pad) calc(4px * var(--s)) calc(8px * var(--s));
+}
+.skt-cell::before,
+.skt-nodes::before,
+.skt-fork::before,
+.skt-fork::after {
+  content: '';
+  position: absolute;
+  background: color-mix(in srgb, var(--tree) 45%, #fff);
+}
+.skt-cell::before {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: var(--line);
+  transform: translateX(-50%);
+}
+.skt-cell.from::before {
+  top: calc(var(--pad) + var(--ic) / 2);
+}
+.skt-cell.to::before {
+  bottom: auto;
+  height: calc(var(--pad) + var(--ic) / 2);
+}
+.skt-cell.from.to::before,
+.skt-cell.empty::before {
+  display: none;
+}
+.skt-cell.empty {
+  min-height: calc(var(--ic) / 2);
+}
+.skt-lv {
+  position: absolute;
+  top: calc(4px * var(--s));
+  left: calc(6px * var(--s));
+  padding: 0 calc(8px * var(--s));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tree) 22%, #fff);
+  color: color-mix(in srgb, var(--tree) 60%, #3a3550);
+  font-size: calc(11px * var(--s));
+  line-height: calc(16px * var(--s));
+}
+.skt-cell.shut > .skt-lv {
+  background: #eee8f2;
+  color: #9a8dab;
+}
+.skt-cell.shut .skt-nodes,
+.skt-cell.dim .skt-nodes,
+.skt-col.preview .skt-nodes,
+.skt-class.preview .skt-nodes {
+  filter: grayscale(0.85);
   opacity: 0.5;
 }
-.sk-card canvas {
-  flex: none;
-  width: calc(44px * var(--s));
-  height: calc(44px * var(--s));
+.skt-cell.dim::before,
+.skt-cell.shut::before {
+  opacity: 0.4;
 }
-.sk-body {
+.skt-nodes {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: calc(6px * var(--s)) var(--gap);
+}
+/* the line through a row's icons */
+.skt-nodes::before {
+  left: 50%;
+  top: calc(var(--ic) / 2);
+  width: calc((var(--n) - 1) * (var(--node) + var(--gap)));
+  height: var(--line);
+  transform: translate(-50%, -50%);
+}
+.skt-node {
+  position: relative;
+  width: var(--node);
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.skt-ic {
+  position: relative;
+  display: block;
+  width: var(--ic);
+  height: var(--ic);
+  margin: 0 auto;
+  border-radius: 50%;
+  box-shadow: 0 0 0 var(--line) #e6dcef;
+  background: #fff;
+}
+.skt-ic canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.skt-node.has .skt-ic {
+  box-shadow: 0 0 0 var(--line) var(--tree);
+}
+.skt-node.max .skt-ic {
+  box-shadow: 0 0 0 var(--line) #f2c14e, 0 0 calc(8px * var(--s)) rgba(242, 193, 78, 0.7);
+}
+.skt-node.can:not(.max) .skt-ic::after {
+  /* a point can go here */
+  content: '+';
+  position: absolute;
+  top: calc(-4px * var(--s));
+  right: calc(-4px * var(--s));
+  width: calc(17px * var(--s));
+  height: calc(17px * var(--s));
+  border-radius: 50%;
+  background: #6fb894;
+  color: #fff;
+  font-size: calc(14px * var(--s));
+  line-height: calc(16px * var(--s));
+  text-align: center;
+}
+.skt-node.sel .skt-ic {
+  box-shadow: 0 0 0 var(--line) #ff8fb1, 0 0 0 calc(var(--line) * 2.5) rgba(255, 143, 177, 0.35);
+}
+.skt-rank {
+  position: absolute;
+  right: calc(-8px * var(--s));
+  bottom: calc(-4px * var(--s));
+  padding: 0 calc(5px * var(--s));
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 0 max(1px, calc(1.5px * var(--s))) #e6dcef;
+  color: #6b5a7b;
+  font-size: calc(11px * var(--s));
+  line-height: calc(15px * var(--s));
+}
+.skt-node.has .skt-rank {
+  background: var(--tree);
+  color: #fff;
+  box-shadow: none;
+}
+.skt-name {
+  display: inline-block;
+  margin-top: calc(4px * var(--s));
+  padding: 0 calc(3px * var(--s));
+  border-radius: calc(6px * var(--s));
+  background: #fffdf6; /* hides the spine where it runs behind a name */
+  color: #5b4a6b;
+  font-size: calc(11.5px * var(--s));
+  line-height: 1.15;
+}
+/* the class tab: basics, the fork's split, then a grid (a column per branch, a row per advancement) */
+.skt-class {
+  margin-top: calc(4px * var(--s));
+}
+.skt-fork {
+  position: relative;
+  height: calc(18px * var(--s));
+}
+.skt-fork::before {
+  /* the split: an arch from the basics down to both branches */
+  left: calc(25% - var(--line) / 2);
+  right: calc(25% - var(--line) / 2);
+  top: calc(9px * var(--s));
+  bottom: 0;
+  background: none;
+  border: var(--line) solid color-mix(in srgb, var(--tree) 45%, #fff);
+  border-bottom: none;
+  border-radius: calc(12px * var(--s)) calc(12px * var(--s)) 0 0;
+}
+.skt-fork::after {
+  left: 50%;
+  top: 0;
+  height: calc(9px * var(--s));
+  width: var(--line);
+  transform: translateX(-50%);
+}
+.skt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: calc(10px * var(--s));
+}
+.skt-branch {
+  padding: calc(5px * var(--s)) calc(10px * var(--s));
+  border-radius: calc(12px * var(--s));
+  background: var(--tree);
+  color: #fff;
+  text-align: center;
+}
+.skt-branch b {
+  display: block;
+  font-size: calc(15px * var(--s));
+}
+.skt-branch span,
+.skt-branch em {
+  display: block;
+  font-size: calc(11px * var(--s));
+  opacity: 0.92;
+}
+.skt-branch em {
+  margin-top: calc(2px * var(--s));
+  font-style: normal;
+  color: #fff6c9;
+}
+.skt-branch.held {
+  box-shadow: 0 0 0 calc(3px * var(--s)) color-mix(in srgb, var(--tree) 35%, #fff);
+}
+.skt-branch.dim {
+  background: #cfc6da;
+}
+.skt-class.preview .skt-branch,
+.skt-class.preview .skt-cell.basics .skt-lv {
+  filter: grayscale(0.7);
+  opacity: 0.75;
+}
+/* the card of the picked skill, under the tree */
+#skills-card {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: calc(10px * var(--s));
+  min-height: calc(76px * var(--s));
+  box-sizing: border-box;
+  padding: calc(8px * var(--s)) calc(10px * var(--s));
+  border: calc(2px * var(--s)) solid color-mix(in srgb, var(--tree, #c9b6ff) 55%, #fff);
+  border-radius: calc(14px * var(--s));
+  background: #fff;
+}
+#skills-card.empty {
+  justify-content: center;
+  border-style: dashed;
+  border-color: #e6dcef;
+  color: #a08bb3;
+  font-size: calc(12.5px * var(--s));
+}
+#skills-card > .skt-ic {
+  flex: none;
+  margin: 0;
+  box-shadow: 0 0 0 var(--line) var(--tree);
+}
+.skc-body {
   flex: 1;
   min-width: 0;
 }
-.sk-body b {
-  font-size: calc(14px * var(--s));
+.skc-title b {
+  font-size: calc(15px * var(--s));
 }
-.sk-tag {
+.skc-rank {
   margin-left: calc(6px * var(--s));
-  color: #a08bb3;
-  font-size: calc(11px * var(--s));
+  padding: 0 calc(6px * var(--s));
+  border-radius: 999px;
+  background: var(--tree);
+  color: #fff;
+  font-size: calc(11.5px * var(--s));
 }
-.sk-body p {
+.skc-tag {
+  margin-left: calc(8px * var(--s));
+  color: #a08bb3;
+  font-size: calc(11.5px * var(--s));
+}
+.skc-body p {
   margin: calc(2px * var(--s)) 0 0;
   color: #6b5a7b;
-  font-size: calc(11.5px * var(--s));
+  font-size: calc(12px * var(--s));
   line-height: 1.25;
 }
-.sk-btns {
-  display: flex;
-  flex-direction: column;
-  gap: calc(4px * var(--s));
+.skc-body .skc-next {
+  color: #8a7a9b;
 }
-.sk-btns button,
+.skc-body .skc-why {
+  color: #d0607f;
+}
+.skc-btns {
+  flex: none;
+  display: flex;
+  gap: calc(6px * var(--s));
+}
+.skc-btns button {
+  min-width: calc(40px * var(--s));
+  height: calc(34px * var(--s));
+  padding: 0 calc(10px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #8a6fc4;
+  color: #fff;
+  font: 700 calc(16px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+.skc-btns .sk-minus {
+  background: #d9a0b5;
+}
+.skc-btns .sk-bar {
+  background: #6fb894;
+  font-size: calc(13px * var(--s));
+}
+.skc-btns button:disabled {
+  background: #ddd5e6;
+  cursor: default;
+}
+/* phones: bigger nodes (44 px or more on screen), and the card in the scroll after the tree */
+body.touch #skills {
+  --ic: calc(64px * var(--s));
+  --node: calc(92px * var(--s));
+  height: calc(470px * var(--s));
+}
+body.touch #skills-body {
+  overflow-y: auto;
+  display: block;
+}
+body.touch #skills-tree {
+  overflow: visible;
+}
+body.touch #skills-card {
+  margin-top: calc(6px * var(--s));
+}
+body.touch .skt-name {
+  font-size: calc(12.5px * var(--s));
+}
+body.touch .skc-btns button {
+  min-width: calc(62px * var(--s));
+  height: calc(62px * var(--s));
+  font-size: calc(20px * var(--s));
+}
+body.touch .skc-btns .sk-bar {
+  font-size: calc(14px * var(--s));
+}
 .shop-btns button,
 .shop-tabs button {
   min-width: calc(34px * var(--s));
@@ -1267,14 +1636,6 @@ body.touch #inv {
   font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
   cursor: pointer;
 }
-.sk-btns .sk-minus {
-  background: #d9a0b5;
-}
-.sk-btns .sk-bar {
-  background: #6fb894;
-  font-size: calc(11px * var(--s));
-}
-.sk-btns button:disabled,
 .shop-btns button:disabled {
   background: #ddd5e6;
   cursor: default;

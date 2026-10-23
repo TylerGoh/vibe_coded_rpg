@@ -6,7 +6,7 @@ Files: `src/shared/skills.js` (all rules, `CLASSES`, `statsFor`), `src/skilltree
 
 **Classes are being built in pieces** (`story/s2-plan.md`; the design is `story/progression.md`, read it
 before changing classes, skills, AP or the point schedule). S2.1 (the data, the rules, the server, the
-migration) is built; the node-tree K panel (S2.2), the Rebirth Pool's place and card (S2.3), the CLASSES
+migration) and S2.2 (the node-tree K panel) are built; the Rebirth Pool's place and card (S2.3), the CLASSES
 table in the economy sheet (S2.4), the Warrior's chase moves (S2.5) and the Mage's combos (S2.6) are not.
 Archer and Cleric come later (S3, S4).
 
@@ -63,11 +63,33 @@ Archer and Cleric come later (S3, S4).
 - `cantLearn(c, id)` / `cantUnlearn(c, id)` take the character (`{lvl, cls, skills}`), not its parts;
   `cleanSkills(c)` is what `load()` keeps (the class's skills, opened by the level, adding up, one branch;
   otherwise every point back).
-- K / Skills: + learn, − take a point back (always allowed now: no skill needs another), "Reset all"
-  refunds everything for free. **The owner wants nobody stuck in a build**: every allocation (skills and
-  stats) must stay reversible for free; only the class itself costs gold to change. The panel is still the
-  old column list working on the new data (a Novice sees both classes' trees greyed to look ahead); S2.2
-  replaces it with the node tree.
+- **The K panel** (K / the Skills button, `src/skilltree.js`) is a node tree in three tabs: **Novice**,
+  **your class** and **Mobility**. The class tab shows the basics on top, then the fork as two columns
+  (branch names and blurbs from `CLASSES[cls].branches`), a row per advancement past the basics (from
+  `ADVANCEMENTS`), nodes joined by lines (CSS lines: a spine per column, a line through each row, an arch
+  where the basics split). The branch you hold (`heldBranch`) is bright; the other is dimmed with "Take
+  your points back to switch". A node is the round skill icon (`drawSkillIcon`, cropped to a circle) with a
+  `2/3` rank badge, a small + when a point can go in, a gold ring when maxed. Rows the level hasn't opened
+  are greyed and labelled "opens at Lv 60".
+- **A Novice** sees a "Classes" tab instead: "Choose a class at Lv 10 at the Rebirth Pool" with a Warrior /
+  Mage switch, each class's whole tree greyed so they can look ahead (cards still open, and say "Choose
+  Warrior at the Rebirth Pool…"). From `CLASS_LVL` a pink reminder under the header says the class points
+  are piling up and to visit the Rebirth Pool by Elder Mochi. Mobility is greyed for a Novice too.
+- Clicking a node opens its **card under the tree**: name, rank, branch, level, MP / cooldown (or passive),
+  what it does now and at the next rank, and why it can't take a point (`cantLearn`, worded by the panel
+  for a Novice's look-ahead), with + / − / Hotbar (`startAssign`; "Key 3" once it's there). The header
+  shows the points left (`me.spLeft`: Novice and class; the tabs carry a badge with what's spendable there),
+  MP, and the next advancement. "Reset all" stays.
+- + learn, − take a point back (always allowed now: no skill needs another), "Reset all" refunds
+  everything for free. The panel predicts: `change()` sets `me.skills`, `sp` and `spLeft` at once and the
+  server's `me` confirms (`learn`, `unlearn`, `respec`). Every `me` re-renders the panel (it keeps the tab,
+  the open card and the scroll; icons are cached canvases). **The owner wants nobody stuck in a build**:
+  every allocation (skills and stats) must stay reversible for free; only the class itself costs gold to
+  change.
+- Phones (`body.touch`): bigger nodes (at least 44 px on screen at 667×375), big + / − / Hotbar buttons,
+  and the card sits in the panel's scroll after the tree (tapping a node scrolls it into view); on desktop
+  the tree scrolls and the card stays pinned under it. The HUD buttons (`#hudbtns`) hide while the panel is
+  open, since they'd sit on its title.
 - MP: `maxMpFor`; active skills cost MP and have cooldowns (`cooldownOf`; the server allows slack for lag).
   Skills only work in combat rooms. Buffs live on the server player (`*Until`) and feed `statsFor`.
 
