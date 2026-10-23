@@ -123,7 +123,9 @@ Archer and Cleric come later (S3, S4).
   `maxHp` clamps) and ATK / MAGIC are ×(1 + `GODS_BOOST`), which the hit caps follow too. Surviving it,
   the server's tick (`godsEnd`) heals him to full; fainting ends it with no heal. Cooldown `GODS_CD`. He
   glows white while it's up (`drawGodsAura`; owner asked for white). Together with it, a one-time reset
-  sent him back to Lv 1 (`GODS_RESET`, the `gods` flag on his save), keeping gold, bag, gear and house.
+  sent him back to Lv 1 (`GODS_RESET`, the `gods` flag on his save). After the owner tested on his account,
+  a second one (`gods` 2) took him back to Lv 1 again with no gold, gear or items (a new character's starter
+  bag) and home to Slimeville (`p.goHome`: skips the restored spot after a restart), with the gods' notice again.
 
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js

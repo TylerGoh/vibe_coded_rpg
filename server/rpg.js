@@ -183,6 +183,16 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       p.notice = [p.notice, GODS_NEWS].filter(Boolean).join('\n');
       p.dirty = true;
     }
+    if (p.name === GODS_RESET && r.gods < 2) { // (owner, 2026-10-23, once, after the owner tested his account) Lv 1 again in Slimeville, no gold or items
+      Object.assign(r, { lvl: 1, exp: 0, coins: 0, bag: fresh.bag, gear: fresh.gear, gearE: fresh.gearE, potbar: fresh.potbar, brew: null, skills: {}, ap: { ...fresh.ap }, bossAt: {}, town: 0, gods: 2 });
+      r.hotbar = ['challenge_gods', ...Array(HOTBAR - 1).fill(null)];
+      r.alt = { hotbar: Array(HOTBAR).fill(null), potbar: Array(POTBAR).fill(null) };
+      p.goHome = true; // (index.js: not put back where he stood before a restart)
+      r.hp = stats(p).maxHp;
+      r.mp = stats(p).maxMp;
+      p.notice = `${GODS_NEWS} To begin, they have taken your gold and your things, and sent you home to Slimeville.`;
+      p.dirty = true;
+    }
     // gift skills: only their own account holds them, and it always does
     r.skills = Object.fromEntries(Object.entries(r.skills).filter(([id]) => !SKILLS[id].gift));
     for (const [id, sk] of Object.entries(SKILLS)) if (sk.gift === p.name) r.skills[id] = 1;

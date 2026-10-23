@@ -549,7 +549,7 @@ async function login(id, p, m) {
     // your town (docs/world.md): you start there, unless your spot from before a restart was kept
     state.town = p.rpg.town;
     const town = TOWNS[state.town];
-    if (!process.env.TEST_SPAWN && !restorePos(acc.user, state) && town.room !== VILLAGE) placeAt(state, town.room, town.x + Math.floor(Math.random() * 120));
+    if (!process.env.TEST_SPAWN && (p.goHome || !restorePos(acc.user, state)) && town.room !== VILLAGE) placeAt(state, town.room, town.x + Math.floor(Math.random() * 120));
   }
   send(p.ws, { t: 'welcome', id, tick, rate: TICK_RATE, ice, players: [...players].filter(([, q]) => q.joined).map(([i, q]) => info(q, i)), casts: [...players].filter(([, q]) => q.joined && q.cast).map(([i]) => i) });
   broadcast({ t: 'join', ...info(p, id) }, id);
