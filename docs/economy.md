@@ -33,6 +33,7 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
   needs Citadel cogs, so it only helps late players and is kept small.
 - **Changing class**: `rebirthCost` (S2's Rebirth Pool, not used in the game yet) against the sheet's own
   gold an hour, within `REBIRTH_FIT`.
+- **Classes** (S2.4): three tables, the CLASSES section below.
 - **Checks**: aimed sinks cost their `PRICE_BANDS` minutes of farming at their aim level, never more than
   `AIM_MAX` of everything farmed by then (early on, where levels take a couple of minutes, the low end gives
   way to `AIM_EARLY` of the savings); house sizes get dearer; furniture: every piece priced, a piece 4× the
@@ -156,6 +157,56 @@ level with a 20k floor (`PET_MIN`, was 50k): the five Greenhollow den pets 20k, 
 151k, Pyra 155k, the Colossus 248k, Chronos 270k (was 500k). Nobody is refunded the difference on pets
 already bought. `rebirthCost(L)` (for S2) = `REBIRTH_HOURS` of farming gold on the frozen curve: ~16k at
 Lv 10, ~224k at Lv 60, ~440k at Lv 100, ~735k at Lv 150.
+
+## The CLASSES tables (S2.4, 2026-10-23, `story/progression.md` 1b)
+"Equal power, different shape", measured. Any change to a skill number, `statsFor`, the AP or point
+schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what moved.
+- **The builds.** Each branch (Knight, Berserker, Elementalist, Frostbinder) at `CLASS_AT` levels. Points go
+  in the order `BUILDS` gives (an id fills to its max, `[id, n]` to n), spent through `cantLearn`, so the
+  game's own rules hold: `spNovice` / `spClass`, the `adv` gates, one branch; Novice points fill the Novice
+  tree (`NOVICE_ORDER`). AP: the class's main stat, with `AP_LUK` of it in LUK. Gear on the frozen curve: the
+  weapon's ATK (a staff's MAGIC, as S1 did) on the sword curve, its reach from the nearest real weapon, a
+  staff's MP at the real staves' median MP/MAGIC; the helmet on the helmet curve; no scrolls or brews.
+  Every number comes from `statsFor` (the sheet puts the curve gear in `ITEMS` for the run and takes it out
+  again before the checks).
+- **The fight sim** (`fight`): one action every `ACTION_S` (the swing cooldown, `SLAP_COOLDOWN_MS`; the game
+  has no global cooldown, but a player presses one thing at a time). Each action: a potion (solo fights,
+  under `POTION_AT`), Jelly Patch when hurt, a buff that's down (Berserk, Rally; with a boss hitting back
+  also Mana Shield, Jelly Bubble, Sanctuary, Aegis), else the off-cooldown, affordable skill that does the
+  most damage, else the normal attack (sword swing, or staff bolt at `STAFF_BOLT_MULT`). Expected damage per
+  hit (the average roll and crit, as `roll` in `src/rpg.js`); MP comes back once a second as the server's
+  tick does it; hits taken go through `hurt()`'s order (Aegis, Bubble, DEF, Sanctuary, Mana Shield, Second
+  Wind); Jelly Thirst heals after each of your hits. Ultimates are taken as dodged and minions ignored.
+- **The columns.** Single-target and crowd damage a second over `SIM_S` (the crowd: `CROWD` mobs over
+  `CROWD_W` px, so a skill catches as many as its width covers); **ranged** damage a second at a target
+  `RANGED_PX` away (only what reaches: that's the Warrior's "bad at range", since everything but Pebble Toss
+  is melee); **toughness**: seconds alone, no potions, under a boss on the curve at that level (the dens'
+  median ATK against `curve('atk')`) hitting for `BOSS_HIT_MULT` every `BOSS_HIT_EVERY.sword`, while doing
+  its single-target rotation, capped at `TOUGH_CAP`.
+- **Time to solo each den** at the den's own level (dens under `CLASS_LVL` are the Novices' and left out):
+  the real boss's HP and ATK, a hit every `BOSS_HIT_EVERY` (more often for a sword up close than for a staff
+  at range), potions drunk (the biggest shop potion that fits) and their gold, against what the kill pays.
+- **The shape table**: Warrior ÷ Mage per column (mean of each class's branches).
+- **Checks.** Every branch can solo every den: never faints, and its potions cost at most
+  `SOLO_POTION_SHARE` of what the kill pays. Every branch's solo time within `CLASS_FIT` of the median of all
+  four. Each class's "bad at" (`BAD_AT`: the Warrior's ranged, the Mage's toughness) is its lowest column
+  against the other class, at every level.
+- **What it says (2026-10-23).** Mages out-damage Warriors most at Lv 10–60 (Warrior 0.66–0.81× single
+  target), and closer later (0.86–0.88×, the Berserker a little above the Mages from Lv 100); Mages last
+  15–30 s under the pressure Warriors shrug off (Jelly Thirst plus DEF and HP: usually past `TOUGH_CAP`),
+  so they solo fastest but drink: up to ~16 potions on Chronos, still a few % of what the kill pays. The
+  Knight is the slowest soloist (about 1.3–1.5× the median from Lv 99), never needs potions, and has
+  Rally for a party. The two Mage branches are near twins here: their difference is control (slows,
+  combos, S2.6), which the sim doesn't count. MP hardly limits a Mage once Mana Flow is in. Real fights
+  will disagree: watch the damage meter.
+- **Tuned to get here** (`src/shared/skills.js`): the Novice skills Slime Bash and Pebble Toss went from a
+  1 s / 1.2 s cooldown to 3 s (they were a third of every class's damage forever; "weak once you have a
+  class"); Jelly Thirst 3% → 1% a rank (at 3% a rank a Warrior healed 3–4× what a boss did to it: never a
+  potion, never in danger); Power Strike (1.6 + 0.42/rank → 1.8 + 0.6) and Cleave (1.3 + 0.33 → 1.5 + 0.4) up
+  for both Warrior branches; Rally +15–25% for 15 s every 40 s → +20–40% for 20 s every 30 s (the Knight's
+  only damage: it was 1.7–1.8× the median solo time from Lv 99, outside `CLASS_FIT`). Nothing else moved:
+  no mob, boss, gold, EXP, price or curve. The Warrior's chase moves (S2.5) and Arcane Charge (S2.6) add
+  damage kinds to `fight` when they land.
 
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.

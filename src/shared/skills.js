@@ -78,12 +78,12 @@ const W = { cls: 'warrior', tree: 'warrior' }, M = { cls: 'mage', tree: 'mage' }
 export const SKILLS = {
   // ——— Novice (Novice points, Lv 1, kept forever; weak once you have a class) ———
   slime_bash: {
-    cls: 'novice', tree: 'novice', adv: 1, name: 'Slime Bash', kind: 'strike', max: 3, mp: 3, cd: 1, reach: 30,
+    cls: 'novice', tree: 'novice', adv: 1, name: 'Slime Bash', kind: 'strike', max: 3, mp: 3, cd: 3, reach: 30,
     mult: (r) => 1.3 + 0.2 * r,
     desc: (r) => `Throw your whole jelly at the nearest mob ahead: ${pct(1.3 + 0.2 * r)} damage.`,
   },
   pebble_toss: {
-    cls: 'novice', tree: 'novice', adv: 1, name: 'Pebble Toss', kind: 'bolt', stat: 'best', max: 3, mp: 3, cd: 1.2, range: 240,
+    cls: 'novice', tree: 'novice', adv: 1, name: 'Pebble Toss', kind: 'bolt', stat: 'best', max: 3, mp: 3, cd: 3, range: 240,
     mult: (r) => 1.1 + 0.2 * r,
     desc: (r) => `Flick a pebble at the first mob ahead, up to 240 px away: ${pct(1.1 + 0.2 * r)} of your ATK or MAGIC, whichever is higher.`,
   },
@@ -96,13 +96,13 @@ export const SKILLS = {
   // ——— Warrior (sword, STR) ———
   power_strike: {
     ...W, adv: 10, name: 'Power Strike', kind: 'strike', max: 3, mp: 6, cd: 1.2, reach: 40,
-    mult: (r) => 1.6 + 0.42 * r,
-    desc: (r) => `A heavy swing at the nearest mob ahead: ${pct(1.6 + 0.42 * r)} damage.`,
+    mult: (r) => 1.8 + 0.6 * r,
+    desc: (r) => `A heavy swing at the nearest mob ahead: ${pct(1.8 + 0.6 * r)} damage.`,
   },
   cleave: {
     ...W, adv: 10, name: 'Cleave', kind: 'cleave', max: 3, mp: 10, cd: 2, reach: 70, targets: 3,
-    mult: (r) => 1.3 + 0.33 * r,
-    desc: (r) => `A wide swing through up to 3 mobs ahead: ${pct(1.3 + 0.33 * r)} damage each.`,
+    mult: (r) => 1.5 + 0.4 * r,
+    desc: (r) => `A wide swing through up to 3 mobs ahead: ${pct(1.5 + 0.4 * r)} damage each.`,
   },
   iron_jelly: {
     ...W, adv: 10, name: 'Iron Jelly', kind: 'passive', max: 3,
@@ -110,8 +110,8 @@ export const SKILLS = {
   },
   jelly_thirst: {
     ...W, adv: 10, name: 'Jelly Thirst', kind: 'passive', max: 3,
-    share: (r) => 0.03 * r,
-    desc: (r) => `Every hit you land heals you ${Math.round(3 * r)}% of the damage it did.`,
+    share: (r) => 0.01 * r,
+    desc: (r) => `Every hit you land heals you ${Math.round(1 * r)}% of the damage it did.`,
   },
   // Knight
   jelly_bubble: {
@@ -124,9 +124,9 @@ export const SKILLS = {
     desc: (r) => `+${8 * r}% max HP, and HP comes back faster.`,
   },
   rally: {
-    ...W, branch: 'knight', adv: 30, name: 'Rally', kind: 'rally', max: 3, mp: 25, cd: 40, radius: 300, dur: 15,
-    boost: (r) => 0.1 + 0.05 * r,
-    desc: (r) => `Rally every friend within 300 px: +${Math.round((0.1 + 0.05 * r) * 100)}% attack and defence for 15 s.`,
+    ...W, branch: 'knight', adv: 30, name: 'Rally', kind: 'rally', max: 3, mp: 25, cd: 30, radius: 300, dur: 20,
+    boost: (r) => 0.1 + 0.1 * r,
+    desc: (r) => `Rally every friend within 300 px, you too: +${Math.round((0.1 + 0.1 * r) * 100)}% attack and defence for 20 s. Cooldown 30 s.`,
   },
   second_wind: {
     ...W, branch: 'knight', adv: 30, name: 'Second Wind', kind: 'passive', max: 3,

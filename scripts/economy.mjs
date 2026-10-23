@@ -3,11 +3,13 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF } from '../src/shared/rpg.js';
+import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, DENS, STAFF_BOLT_MULT } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
+import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL } from '../src/shared/skills.js';
+import { SLAP_REACH, SLAP_COOLDOWN_MS } from '../src/shared/sim.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
 // KILLS_PER_MIN a minute counting walking, pickups and potion breaks (src/shared/rpg.js: the EXP curve is
@@ -190,8 +192,223 @@ table('ALCHEMY: one batch of each recipe (cost = seeds for its herbs + its mob m
   steps: r.steps.length, makes: r.makes, cost: fmt(brewCost(r)), 'output sells for': fmt(r.makes * sellPrice(id)), does: ITEMS[id].desc.replace(/^Brewed\. /, ''),
 }])));
 
+// ——— CLASSES (S2.4, story/progression.md 1b: "equal power, different shape") ———
+// Each class and branch at CLASS_AT levels: a build (BUILDS: skill points spent in priority order the way
+// the game allows it: spNovice / spClass, the adv gates and one branch, through cantLearn; AP into the main
+// stat with AP_LUK of it in LUK), gear on the frozen curve (a sword's ATK, or a staff's MAGIC, on the sword
+// curve; the helmet on the helmet curve; no scrolls, no brews) and statsFor for every number. Then a fight
+// sim: one action every ACTION_S (the swing cooldown, SLAP_COOLDOWN_MS: a player presses one thing at a
+// time), each action the best-damage skill that's off cooldown and affordable, else the normal attack (sword
+// swing / staff bolt). Expected damage per hit (the average roll and crit, as src/rpg.js roll does it), MP
+// regenerated once a second as server/rpg.js tick does it (none of the HP regen, since a hit lands more often
+// than every 5 s), hits taken through hurt()'s order (Aegis, Jelly Bubble, DEF, Sanctuary, Mana Shield,
+// Second Wind) and Jelly Thirst healing after each of your hits. Ultimates are dodged (Mobility) and minions
+// ignored. The Warrior's chase moves (S2.5) and Arcane Charge (S2.6) don't exist yet: add them to the sim's
+// damage kinds when they land.
+// BUILDS: per branch, its class, then the order points go in (an id fills to its max, [id, n] to n). The
+// fork's other branch never appears, so cantLearn keeps it to one; skills not open yet are skipped.
+const BUILDS = {
+  knight: { cls: 'warrior', order: ['jelly_thirst', 'power_strike', 'iron_jelly', 'cleave', 'vitality', 'rally', 'second_wind', ['dash', 1], 'jelly_bubble', 'sanctuary', 'aegis', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  berserker: { cls: 'warrior', order: ['power_strike', 'jelly_thirst', 'berserk', 'whirlwind', 'iron_jelly', 'cleave', 'sword_mastery', 'blade_storm', ['dash', 1], 'sky_splitter', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  elementalist: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'fireball', 'kindling', 'meteor', ['dash', 1], 'starfall', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  frostbinder: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'chain_lightning', 'frost_nova', 'glacial_spike', ['dash', 1], 'absolute_zero', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+};
+const NOVICE_ORDER = ['slime_bash', 'pebble_toss', 'jelly_patch']; // (nine points fill all three by Lv 9)
+const CLASS_AT = [10, 30, 60, 100, 150, 200];
+const AP_LUK = 0.2; // share of AP in LUK (the rest in the class's main stat)
+const ACTION_S = SLAP_COOLDOWN_MS / 1000;
+const SIM_S = 60; // the rotation's length for the damage columns
+const CROWD = 5, CROWD_W = 300; // the crowd column: 5 mobs standing over this many px
+const RANGED_PX = 200; // the ranged column: a target this far away (on a ledge, across a gap)
+// Hits taken in a boss fight: a solo player who dodges well still takes one every BOSS_HIT_EVERY s, of the
+// boss's ATK × BOSS_HIT_MULT (OUCH in server/rpg.js: its moves hit for 1.1–1.5×); more often up close (a
+// sword) than from range (a staff: progression.md 1b, "kills fast before it gets hit much"). The toughness
+// column puts every class under the same melee pressure from a boss on the curve at its level (the dens'
+// own ATK against curve('atk'), their median).
+const BOSS_HIT_EVERY = { sword: 2.5, staff: 3.5 }, BOSS_HIT_MULT = 1.25;
+const TOUGH_CAP = 600; // s: the toughness column stops counting here ("outlasts")
+// Solo: drink the biggest shop potion that fits when HP falls under POTION_AT (an action each); a branch
+// can solo a den if it never faints and its potions cost at most SOLO_POTION_SHARE of what the kill pays
+// (coins, drops and gear sold: a solo kill has to pay for itself)
+const POTION_AT = 0.4, SOLO_POTION_SHARE = 0.5;
+// Each branch's time to solo a den (at the den's level) within CLASS_FIT of the median of all four branches
+const CLASS_FIT = [0.6, 1.6];
+// Each class's "bad at" (progression.md 1b): its lowest column against the other class (BAD_AT)
+const BAD_AT = { warrior: 'ranged', mage: 'tough' };
+
+const SHEET_W = '__sheet_weapon', SHEET_H = '__sheet_helmet';
+const realWeapons = (kind) => Object.entries(ITEMS).filter(([id, it]) => it.kind === kind && !id.startsWith('__'));
+const powerOf = (it) => it.atk ?? it.magic;
+const reachNear = (kind, p) => realWeapons(kind).map(([, it]) => it).sort((a, b) => Math.abs(powerOf(a) - p) - Math.abs(powerOf(b) - p))[0].reach;
+const staffMp = (() => { const r = realWeapons('staff').map(([, it]) => it.mp / it.magic).sort((a, b) => a - b); return r[r.length >> 1]; })();
+function gearAt(L, kind) {
+  const p = Math.round(curve('sword', L));
+  ITEMS[SHEET_W] = kind === 'staff' ? { name: 'sheet staff', kind, magic: p, mp: Math.round(p * staffMp), reach: reachNear(kind, p) } : { name: 'sheet sword', kind, atk: p, reach: reachNear(kind, p) };
+  ITEMS[SHEET_H] = { name: 'sheet helmet', kind: 'helmet', def: Math.round(curve('helmet', L)) };
+}
+function classChar(branch, L) {
+  const b = BUILDS[branch], cls = CLASSES[b.cls];
+  gearAt(L, cls.weapon);
+  const c = { lvl: L, cls: b.cls, skills: {}, gear: { weapon: SHEET_W, helmet: SHEET_H } };
+  for (const e of [...NOVICE_ORDER, ...b.order]) {
+    const [id, cap] = Array.isArray(e) ? e : [e, SKILLS[e].max];
+    while (rankOf(c.skills, id) < cap && !cantLearn(c, id)) c.skills[id] = rankOf(c.skills, id) + 1;
+  }
+  const ap = apTotal(L), luk = Math.round(ap * AP_LUK);
+  c.ap = { [cls.stat]: ap - luk, luk };
+  return c;
+}
+const avgHit = (st) => ((st.minRoll + MAX_ROLL) / 2) * (1 + st.crit * (st.critMult - 1));
+const DAMAGE_KINDS = new Set(['strike', 'cleave', 'spin', 'storm', 'bolt', 'fireball', 'chain', 'meteor', 'nova', 'starfall']);
+const PHYS = new Set(['strike', 'cleave', 'spin', 'storm']);
+// how many of n targets standing over CROWD_W px a hit `w` px wide catches
+const caught = (n, w) => (n === 1 ? 1 : Math.min(n, Math.max(1, (n * w) / CROWD_W)));
+function hitsOf(sk, st, n) {
+  const melee = SLAP_REACH + st.reach + (sk.reach ?? 0);
+  return {
+    strike: 1, cleave: Math.min(sk.targets, caught(n, melee)), spin: caught(n, 2 * sk.radius), storm: sk.hits * caught(n, 2 * sk.radius),
+    bolt: 1, fireball: caught(n, 2 * sk.radius), chain: Math.min(sk.targets, n), meteor: caught(n, 2 * sk.radius), nova: caught(n, 2 * sk.radius), starfall: caught(n, 2 * sk.radius),
+  }[sk.kind];
+}
+function rangeOf(sk, st) {
+  if (sk.kind === 'strike' || sk.kind === 'cleave') return SLAP_REACH + st.reach + sk.reach;
+  if (['spin', 'storm', 'nova', 'starfall'].includes(sk.kind)) return sk.radius;
+  return sk.range;
+}
+// one cast's expected damage on n targets (0 if it can't reach `range`)
+function castDmg(id, rank, st, n, range) {
+  const sk = SKILLS[id];
+  if (rangeOf(sk, st) < range) return 0;
+  const base = PHYS.has(sk.kind) ? st.atk : (sk.stat === 'best' ? Math.max(st.atk, st.magic) : st.magic) * (sk.fire ? st.fire : 1);
+  return base * sk.mult(rank) * avgHit(st) * hitsOf(sk, st, n);
+}
+const attackDmg = (st, range) => (st.boltRange ? (st.boltRange >= range ? st.magic * STAFF_BOLT_MULT * avgHit(st) : 0) : SLAP_REACH + st.reach >= range ? st.atk * avgHit(st) : 0);
+const POTIONS = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))].filter((id) => ITEMS[id].kind === 'potion' && ITEMS[id].heal).map((id) => ITEMS[id]).sort((a, b) => a.heal - b.heal);
+// A fight: n targets, `range` px away; `hit` raw damage every BOSS_HIT_EVERY s (0: nobody hits back);
+// `hp`: stop once that much damage is done (a boss); `potions`: drink them. → { t, dealt, faint, drunk, gold }
+function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.sword, hp: bossHp = Infinity, potions = false, until = SIM_S }) {
+  const r = (id) => rankOf(c.skills, id);
+  const buff = { berserk: 0, rally: 0, manaShield: 0, bubble: 0, aegis: 0, zone: 0 }, cds = {};
+  const statsAt = (t) => statsFor(c, { berserk: buff.berserk > t, rally: buff.rally > t ? SKILLS.rally.boost(r('rally')) : 0, manaShield: buff.manaShield > t });
+  const top = statsFor(c);
+  let hp = top.maxHp, mp = top.maxMp, dealt = 0, drunk = 0, gold = 0, swReady = 0, lastHurt = -99, nextHit = every, nextRegen = 1;
+  const actives = Object.keys(c.skills).filter((id) => SKILLS[id].kind !== 'passive' && SKILLS[id].kind !== 'move');
+  const ready = (id, t) => r(id) && (cds[id] ?? 0) <= t && mp >= SKILLS[id].mp;
+  const use = (id, t) => { mp -= SKILLS[id].mp; cds[id] = t + cooldownOf(id, r(id)); };
+  for (let t = 0; t < until; t += ACTION_S) {
+    // what happened since the last action: MP (and HP) regen once a second, the boss's hits
+    while (nextRegen <= t || (hit && nextHit <= t)) {
+      if (hit && nextHit <= nextRegen) {
+        const at = nextHit, st = statsAt(at);
+        nextHit += every;
+        if (buff.aegis > at) continue;
+        if (buff.bubble > at) { buff.bubble = 0; continue; }
+        let d = Math.max(1, Math.round(hit - st.def));
+        if (buff.zone > at) d = Math.max(1, Math.round(d * (1 - SKILLS.sanctuary.cut(r('sanctuary')))));
+        if (st.manaShield) { const take = Math.min(Math.round(d * st.manaShield), Math.floor(mp)); mp -= take; d -= take; }
+        hp -= d;
+        lastHurt = at;
+        if (hp <= 0 && r('second_wind') && at >= swReady) { hp = 1; swReady = at + SKILLS.second_wind.cdFor(r('second_wind')); }
+        if (hp <= 0) return { t: at, dealt, faint: true, drunk, gold };
+      } else {
+        const at = nextRegen, st = statsAt(at);
+        nextRegen += 1;
+        if (hp < st.maxHp && at - lastHurt >= 5) hp = Math.min(st.maxHp, hp + Math.max(1, st.maxHp * 0.01 * st.hpRegen));
+        mp = Math.min(st.maxMp, mp + Math.max(1, st.maxMp * 0.02) * mpRegen(c.skills));
+      }
+    }
+    const st = statsAt(t);
+    // this action: a potion, Jelly Patch, a buff that's down, the best hit, or the normal attack
+    if (hit && potions && hp < POTION_AT * st.maxHp) {
+      const p = [...POTIONS].reverse().find((q) => q.heal <= st.maxHp - hp) ?? POTIONS[0];
+      hp = Math.min(st.maxHp, hp + p.heal);
+      mp = Math.min(st.maxMp, mp + (p.mana ?? 0));
+      drunk++;
+      gold += p.price;
+      continue;
+    }
+    if (hit && hp < 0.7 * st.maxHp && ready('jelly_patch', t)) {
+      use('jelly_patch', t);
+      hp = Math.min(st.maxHp, hp + SKILLS.jelly_patch.amount(r('jelly_patch')));
+      continue;
+    }
+    const buffs = { berserk: ['berserk', true], rally: ['rally', true], manaShield: ['mana_shield', hit], bubble: ['jelly_bubble', hit], zone: ['sanctuary', hit], aegis: ['aegis', hit] };
+    const b = Object.entries(buffs).find(([k, [id, want]]) => want && buff[k] <= t && ready(id, t));
+    if (b) {
+      const [k, [id]] = b;
+      use(id, t);
+      buff[k] = t + durOf(id, r(id));
+      continue;
+    }
+    let best = null, dmg = attackDmg(st, range);
+    for (const id of actives) {
+      if (!DAMAGE_KINDS.has(SKILLS[id].kind) || !ready(id, t)) continue;
+      const d = castDmg(id, r(id), st, n, range);
+      if (d > dmg) [best, dmg] = [id, d];
+    }
+    if (best) use(best, t);
+    if (!dmg) continue;
+    dealt += dmg; // (a crowd: the sum over the mobs it caught)
+    if (st.thirst) hp = Math.min(st.maxHp, hp + dmg * st.thirst);
+    if (dealt >= bossHp) return { t: t + ACTION_S, dealt, faint: false, drunk, gold };
+  }
+  return { t: until, dealt, faint: false, drunk, gold };
+}
+// the dens' ATK against the curve at their level (for the toughness column's boss at any level)
+const denBosses = DENS.map((d) => MOBS[d.boss]);
+const bossAtkX = (() => { const r = denBosses.map((m) => m.atk / curve('atk', m.lvl)).sort((a, b) => a - b); return r[r.length >> 1]; })();
+const branches = Object.keys(BUILDS);
+const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+const classRows = {}, classAt = {};
+for (const L of CLASS_AT) for (const br of branches) {
+  const c = classChar(br, L), st = statsFor(c);
+  const single = fight(c, {}).dealt / SIM_S, crowd = fight(c, { n: CROWD }).dealt / SIM_S, ranged = fight(c, { range: RANGED_PX }).dealt / SIM_S;
+  const tough = fight(c, { hit: curve('atk', L) * bossAtkX * BOSS_HIT_MULT, until: TOUGH_CAP }).t;
+  classAt[`${br} ${L}`] = { single, crowd, ranged, tough };
+  classRows[`${br} lvl ${L}`] = {
+    'single dps': fmt(single), [`crowd dps (${CROWD})`]: fmt(crowd), [`ranged dps (${RANGED_PX} px)`]: fmt(ranged), 'toughness (s)': tough >= TOUGH_CAP ? `${TOUGH_CAP}+` : Math.round(tough),
+    hp: st.maxHp, def: st.def, mp: st.maxMp, 'atk / magic': `${st.atk} / ${st.magic}`, points: Object.entries(c.skills).filter(([id]) => SKILLS[id].cls !== 'novice').map(([id, n]) => `${id.split('_').map((w) => w[0]).join('')}${n}`).join(' '),
+  };
+}
+table(`CLASSES: each branch with gear on the frozen curve (BUILDS, AP_LUK in LUK); damage a second from a ${SIM_S} s rotation (one action every ${ACTION_S} s), toughness = seconds alone under a curve boss's hits every ${BOSS_HIT_EVERY.sword} s, no potions`, classRows);
+const soloDens = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => m.lvl >= CLASS_LVL).sort((a, b) => a[1].lvl - b[1].lvl);
+const solo = {};
+for (const [id, m] of soloDens) {
+  solo[id] = {};
+  for (const br of branches) solo[id][br] = fight(classChar(br, m.lvl), { hit: m.atk * BOSS_HIT_MULT, every: BOSS_HIT_EVERY[CLASSES[BUILDS[br].cls].weapon], hp: m.hp, potions: true, until: 3600 });
+}
+table(`CLASSES: time to solo each den boss at its level (potions drunk under ${POTION_AT * 100}% HP; dens under Lv ${CLASS_LVL} are the Novices')`, Object.fromEntries(soloDens.map(([id, m]) => {
+  const ts = branches.map((br) => solo[id][br].t).sort((a, b) => a - b), med = (ts[1] + ts[2]) / 2;
+  return [id, { lvl: m.lvl, hp: fmt(m.hp), ...Object.fromEntries(branches.map((br) => { const f = solo[id][br]; return [br, f.faint ? `faints at ${mmss(f.t)}` : `${mmss(f.t)}${f.drunk ? ` (${f.drunk} pots, ${fmt(f.gold)}g)` : ''}`]; })), median: mmss(med), 'kill pays': fmt(bossWorth(id)) }];
+})));
+delete ITEMS[SHEET_W];
+delete ITEMS[SHEET_H];
+const classProblems = [];
+for (const [id, m] of soloDens) {
+  const ts = branches.map((br) => solo[id][br].t).sort((a, b) => a - b), med = (ts[1] + ts[2]) / 2;
+  for (const br of branches) {
+    const f = solo[id][br];
+    if (f.faint) classProblems.push(`${br} can't solo ${id} at lvl ${m.lvl}: faints at ${mmss(f.t)}`);
+    else if (f.gold > SOLO_POTION_SHARE * bossWorth(id)) classProblems.push(`${br}'s potions to solo ${id} cost ${fmt(f.gold)}: more than SOLO_POTION_SHARE of what the kill pays (${fmt(bossWorth(id))})`);
+    if (f.t < CLASS_FIT[0] * med || f.t > CLASS_FIT[1] * med) classProblems.push(`${br} solos ${id} (lvl ${m.lvl}) in ${mmss(f.t)}: ${(f.t / med).toFixed(2)}x the median ${mmss(med)} (want CLASS_FIT ${CLASS_FIT.join('–')})`);
+  }
+}
+// a class's shape: the mean of its branches; its "bad at" column must be its lowest against the other class
+const COLS = ['single', 'crowd', 'ranged', 'tough'];
+const meanOf = (cls, col, L) => { const bs = branches.filter((b) => BUILDS[b].cls === cls); return bs.reduce((a, b) => a + classAt[`${b} ${L}`][col], 0) / bs.length; };
+table(`CLASSES: shape, warrior ÷ mage (mean of each class's branches; toughness capped at ${TOUGH_CAP} s). Bad at (BAD_AT): the warrior's lowest column must be ${BAD_AT.warrior}, the mage's ${BAD_AT.mage} (its highest here)`, Object.fromEntries(CLASS_AT.map((L) => [`lvl ${L}`, Object.fromEntries(COLS.map((col) => [col, (meanOf('warrior', col, L) / meanOf('mage', col, L)).toFixed(2)]))])));
+for (const L of CLASS_AT) {
+  const mean = (cls, col) => meanOf(cls, col, L);
+  for (const [cls, bad] of Object.entries(BAD_AT)) {
+    const other = Object.keys(BAD_AT).find((k) => k !== cls);
+    const ratio = Object.fromEntries(COLS.map((col) => [col, mean(cls, col) / Math.max(1e-9, mean(other, col))]));
+    const low = COLS.reduce((a, b) => (ratio[a] <= ratio[b] ? a : b));
+    if (low !== bad) classProblems.push(`at lvl ${L} the ${cls}'s lowest column against the ${other} is ${low} (${ratio[low].toFixed(2)}x), not its bad-at ${bad} (${ratio[bad].toFixed(2)}x)`);
+  }
+}
+
 // ——— checks ———
-const problems = [];
+const problems = [...classProblems];
 for (const L of PROGRESS_AT.filter((L) => L >= 20)) {
   const f = minutesTo(L) / targetTo(L);
   if (f < LEVEL_PACE[0] || f > LEVEL_PACE[1]) problems.push(`reaching lvl ${L} takes ${hrs(minutesTo(L))} of farming, ${Math.round(f * 100)}% of the target pace LEVEL_MIN (want ${LEVEL_PACE[0] * 100}–${LEVEL_PACE[1] * 100}%)`);

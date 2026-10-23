@@ -7,8 +7,8 @@ Files: `src/shared/skills.js` (all rules, `CLASSES`, `statsFor`), `src/skilltree
 **Classes are being built in pieces** (`story/s2-plan.md`; the design is `story/progression.md`, read it
 before changing classes, skills, AP or the point schedule). S2.1 (the data, the rules, the server, the
 migration), S2.2 (the node-tree K panel) and S2.3 (the Rebirth Pool: place, card, banners, Elder Mochi) are
-built; the CLASSES table in the economy sheet (S2.4), the Warrior's chase moves (S2.5) and the Mage's combos
-(S2.6) are not.
+built, and the CLASSES tables in the economy sheet (S2.4, `docs/economy.md`) measure and tuned them; the
+Warrior's chase moves (S2.5) and the Mage's combos (S2.6) are not.
 Archer and Cleric come later (S3, S4).
 
 ## Classes (S2)
@@ -64,7 +64,11 @@ Archer and Cleric come later (S3, S4).
   Nova, Chain Lightning, then Glacial Spike: a long bolt that slows hard, then Absolute Zero).
 - Skills whose old max was 5 and now 3 (Power Strike, Cleave, Iron Jelly, Magic Bolt, Mana Flow, Arcane
   Mind) had their per-rank numbers raised so the max rank is worth what the old max was. S2.4's CLASSES
-  table is what tunes them.
+  tables then tuned (`docs/economy.md`): Slime Bash and Pebble Toss cool down slowly, so they stay a small
+  extra once you have a class instead of a third of your damage; Jelly Thirst heals "a little" (it used to
+  out-heal any boss); Power Strike and Cleave hit harder; Rally (it buffs you too) is the Knight's damage
+  when alone, so it's stronger and up two thirds of the time. Any skill number change: re-run
+  `npm run economy` and keep it green.
 - **Advancements gate by level, not points**: a skill can be learned from its `adv` (Novice 1; class 10,
   30, 60, 100; Mobility: Dash and Flash Jump 10, Blink 30, Phantom Step 60). Reaching one sends
   `{t:'advance', lvl, text}` (`ADVANCEMENTS`, `advanceText`): a toast and a chat line for now.

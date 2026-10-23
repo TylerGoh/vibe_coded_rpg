@@ -2,7 +2,7 @@
 
 **Status: plan, written 2026-10-23. S2.1 built 2026-10-23 on the git branch `s2` (not deployed: deploy #1
 needs S2.2 and S2.3 too; start S2.2–S2.4 from that branch). S2.2 built 2026-10-23 on the branch `s2.2`
-(from `s2`), not deployed. S2.3 built 2026-10-23 on the branch `s2.3` (from `s2.2`), not deployed.** S2 in `progression.md` ("the tree") is too big for one
+(from `s2`), not deployed. S2.3 built 2026-10-23 on the branch `s2.3` (from `s2.2`), not deployed. S2.4 built 2026-10-23 on the branch `s2.4` (from `s2.3`), not deployed.** S2 in `progression.md` ("the tree") is too big for one
 session, so it's cut into six pieces, each sized for one agent. The design and the owner's decisions are in
 `progression.md` (sections 1, 1a, 1b, 1c, 2, 3, 7, 9): read it first. This file pins down what that plan
 left open and says who does what. Numbers here (maxes, the schedule) are starting points: S2.4's CLASSES
@@ -198,7 +198,17 @@ Docs: `docs/world.md`, `docs/art.md`, `docs/ui/hints.md`, `docs/ui/mobile.md`, `
 - The migration banner and the Lv 10 banner (from S2.1) point at the pool; Mochi brings it up with any
   Lv 10+ Novice who chats to him.
 
-## S2.4: the CLASSES table in `npm run economy`
+## S2.4: the CLASSES table in `npm run economy` — built 2026-10-23
+As built (`docs/economy.md`, "The CLASSES tables"): three tables (per branch and level; time to solo each den
+at its level; the Warrior ÷ Mage shape) from a fight sim with one action per swing cooldown. The Warrior's
+"bad at range" is measured as damage a second at a target `RANGED_PX` away; the Mage's toughness as seconds
+under a curve boss's hits with no potions. "Can solo" = never faints and the potions cost at most
+`SOLO_POTION_SHARE` of the kill's loot; `CLASS_FIT` is checked per branch, not per class. Dens under Lv 10
+(Sprout King, Mother Mushroom) are left out: only Novices are that level. Tuned in `src/shared/skills.js`:
+Slime Bash and Pebble Toss cooldowns 1 s / 1.2 s → 3 s, Jelly Thirst 3% → 1% a rank, Power Strike and Cleave
+up, Rally +20–40% for 20 s every 30 s (was +15–25%, 15 s, 40 s). Every other table unchanged. Left open: the
+two Mage branches measure the same (their difference is control, S2.6); MP barely limits a Mage once Mana
+Flow is in; Mages lead damage most at Lv 10–60.
 Docs: `docs/economy.md`, `story/progression.md` 1b. Files: `scripts/economy.mjs`, `docs/economy.md`.
 - For each class and branch at Lv 10, 30, 60, 100, 150, 200: a sensible build (a `BUILDS` constant: skill
   priority per branch, spent with `spTotal`; AP into the main stat, a share into LUK), gear on the frozen
