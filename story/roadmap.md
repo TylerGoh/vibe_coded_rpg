@@ -90,7 +90,7 @@ Interleaved with the G track: S0 (close the boss EXP faucet) and S1 (staves) go 
 - [x] L (`progression.md`, owner 2026-10-23; shipped 2026-10-23, alone): slower levelling (~10 min a level on average, slowing as you
       go; Lv 200 ~35 h), prices set in minutes of farming (pets ~20 min, the high end ~30), and the top characters rolled back to their play time
       (chenyirong to darrell's level, for botting). `docs/economy.md`
-- [ ] S2 (sub-plan: `s2-plan.md`): the four class trees, the Rebirth Pool in Slimeville tended by Elder Mochi (change class, keep level; the
+- [ ] S2 (sub-plan: `s2-plan.md`; S2.1–S2.5 shipped 2026-10-23, S2.6 the Mage's combos next): the four class trees, the Rebirth Pool in Slimeville tended by Elder Mochi (change class, keep level; the
       first rebirth free, owner 2026-10-23), forks, advancements, the node UI, mage combos, warrior chase moves
 - [ ] S3: the Cleric (the Mage's staff, heals, Cleanse, Revive, summons)
 - [ ] S4: the Archer (bows, Ranger Acorn)

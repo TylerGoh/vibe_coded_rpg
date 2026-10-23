@@ -8,8 +8,8 @@ const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; /
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
-import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL } from '../src/shared/skills.js';
-import { SLAP_REACH, SLAP_COOLDOWN_MS } from '../src/shared/sim.js';
+import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR } from '../src/shared/skills.js';
+import { SLAP_REACH, SLAP_COOLDOWN_MS, DASH_CD, PHANTOM_CD, CHARGE_RESET } from '../src/shared/sim.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
 // KILLS_PER_MIN a minute counting walking, pickups and potion breaks (src/shared/rpg.js: the EXP curve is
@@ -203,13 +203,16 @@ table('ALCHEMY: one batch of each recipe (cost = seeds for its herbs + its mob m
 // regenerated once a second as server/rpg.js tick does it (none of the HP regen, since a hit lands more often
 // than every 5 s), hits taken through hurt()'s order (Aegis, Jelly Bubble, DEF, Sanctuary, Mana Shield,
 // Second Wind) and Jelly Thirst healing after each of your hits. Ultimates are dodged (Mobility) and minions
-// ignored. The Warrior's chase moves (S2.5) and Arcane Charge (S2.6) don't exist yet: add them to the sim's
-// damage kinds when they land.
+// ignored. The Warrior's chase moves (S2.5) are in too (CHASE_ACTIONS): Charge is a dash then a stronger
+// hit (two actions; Dash comes back CHARGE_RESET sooner), Leap Slam a jump then a slam (two actions, an area),
+// Upward Cut rides on a normal swing (one action, one target, melee only: the ranged column's ledge is out
+// of its reach), and each that lands stacks Momentum (kept up while the chain goes on). Arcane Charge (S2.6)
+// doesn't exist yet: add it to the sim's damage kinds when it lands.
 // BUILDS: per branch, its class, then the order points go in (an id fills to its max, [id, n] to n). The
 // fork's other branch never appears, so cantLearn keeps it to one; skills not open yet are skipped.
 const BUILDS = {
-  knight: { cls: 'warrior', order: ['jelly_thirst', 'power_strike', 'iron_jelly', 'cleave', 'vitality', 'rally', 'second_wind', ['dash', 1], 'jelly_bubble', 'sanctuary', 'aegis', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
-  berserker: { cls: 'warrior', order: ['power_strike', 'jelly_thirst', 'berserk', 'whirlwind', 'iron_jelly', 'cleave', 'sword_mastery', 'blade_storm', ['dash', 1], 'sky_splitter', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  knight: { cls: 'warrior', order: ['jelly_thirst', 'power_strike', 'iron_jelly', 'cleave', 'vitality', 'rally', 'second_wind', ['dash', 1], 'charge', 'momentum', 'jelly_bubble', 'sanctuary', 'aegis', 'leap_slam', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  berserker: { cls: 'warrior', order: ['power_strike', 'jelly_thirst', 'berserk', 'whirlwind', ['dash', 1], 'charge', 'momentum', 'iron_jelly', 'cleave', 'leap_slam', 'sword_mastery', 'blade_storm', 'sky_splitter', 'upward_cut', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   elementalist: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'fireball', 'kindling', 'meteor', ['dash', 1], 'starfall', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   frostbinder: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'chain_lightning', 'frost_nova', 'glacial_spike', ['dash', 1], 'absolute_zero', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
 };
@@ -259,6 +262,9 @@ function classChar(branch, L) {
   return c;
 }
 const avgHit = (st) => ((st.minRoll + MAX_ROLL) / 2) * (1 + st.crit * (st.critMult - 1));
+// the chase moves: actions each one takes (a dash or a jump first), and how many targets it can catch
+const CHASE_ACTIONS = { charge: 2, leap_slam: 2, upward_cut: 1 };
+const chaseCd = (c, id) => (id === 'charge' ? (DASH_CD[rankOf(c.skills, 'dash')] / 60) * (1 - PHANTOM_CD * rankOf(c.skills, 'phantom_step')) * (1 - CHARGE_RESET[rankOf(c.skills, 'charge')]) : cooldownOf(id, rankOf(c.skills, id)));
 const DAMAGE_KINDS = new Set(['strike', 'cleave', 'spin', 'storm', 'bolt', 'fireball', 'chain', 'meteor', 'nova', 'starfall']);
 const PHYS = new Set(['strike', 'cleave', 'spin', 'storm']);
 // how many of n targets standing over CROWD_W px a hit `w` px wide catches
@@ -289,7 +295,9 @@ const POTIONS = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))].filte
 function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.sword, hp: bossHp = Infinity, potions = false, until = SIM_S }) {
   const r = (id) => rankOf(c.skills, id);
   const buff = { berserk: 0, rally: 0, manaShield: 0, bubble: 0, aegis: 0, zone: 0 }, cds = {};
-  const statsAt = (t) => statsFor(c, { berserk: buff.berserk > t, rally: buff.rally > t ? SKILLS.rally.boost(r('rally')) : 0, manaShield: buff.manaShield > t });
+  let momentum = 0, momentumUntil = 0, busy = 0; // busy: actions still taken by a two-action chase move
+  const statsAt = (t) => statsFor(c, { berserk: buff.berserk > t, rally: buff.rally > t ? SKILLS.rally.boost(r('rally')) : 0, manaShield: buff.manaShield > t, momentum: momentumUntil > t ? momentum : 0 });
+  const chases = Object.keys(CHASE_ACTIONS).filter((id) => r(id) && (id !== 'charge' || r('dash')));
   const top = statsFor(c);
   let hp = top.maxHp, mp = top.maxMp, dealt = 0, drunk = 0, gold = 0, swReady = 0, lastHurt = -99, nextHit = every, nextRegen = 1;
   const actives = Object.keys(c.skills).filter((id) => SKILLS[id].kind !== 'passive' && SKILLS[id].kind !== 'move');
@@ -316,6 +324,10 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.sword, hp:
         if (hp < st.maxHp && at - lastHurt >= 5) hp = Math.min(st.maxHp, hp + Math.max(1, st.maxHp * 0.01 * st.hpRegen));
         mp = Math.min(st.maxMp, mp + Math.max(1, st.maxMp * 0.02) * mpRegen(c.skills));
       }
+    }
+    if (busy > 0) {
+      busy--;
+      continue;
     }
     const st = statsAt(t);
     // this action: a potion, Jelly Patch, a buff that's down, the best hit, or the normal attack
@@ -345,6 +357,19 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.sword, hp:
       if (!DAMAGE_KINDS.has(SKILLS[id].kind) || !ready(id, t)) continue;
       const d = castDmg(id, r(id), st, n, range);
       if (d > dmg) [best, dmg] = [id, d];
+    }
+    // a chase move, if it beats that per action it takes (n targets: Leap Slam catches the crowd)
+    let chase = null;
+    for (const id of chases) {
+      if ((cds[id] ?? 0) > t || range > SLAP_REACH + st.reach) continue;
+      const one = st.atk * SKILLS[id].mult(r(id)) * avgHit(st);
+      const d = id === 'leap_slam' ? one * caught(n, 2 * SKILLS[id].radius) : id === 'upward_cut' ? one + attackDmg(st, range) : one;
+      if (d / CHASE_ACTIONS[id] > dmg) [best, chase, dmg] = [null, id, d];
+    }
+    if (chase) {
+      cds[chase] = t + chaseCd(c, chase);
+      busy = CHASE_ACTIONS[chase] - 1;
+      if (r('momentum')) [momentum, momentumUntil] = [Math.min(MOMENTUM_MAX, (momentumUntil > t ? momentum : 0) + 1), t + MOMENTUM_DUR];
     }
     if (best) use(best, t);
     if (!dmg) continue;

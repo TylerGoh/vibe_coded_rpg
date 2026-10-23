@@ -8,7 +8,7 @@
 //
 // Everyone else: drawn INTERP ticks in the past, interpolated between the two snapshots around that
 // moment, so they glide smoothly even though packets arrive unevenly.
-import { TICK_RATE, newState, step, unpack } from './shared/sim.js';
+import { TICK_RATE, newState, step, unpack, applyCharge } from './shared/sim.js';
 import { decode, encodeInput, BIN_VERSION } from './shared/wire.js';
 
 const INTERP = 6; // ticks (100 ms) behind the newest snapshot for remote slimes
@@ -24,12 +24,12 @@ export function applyKick(s, kick) {
 }
 
 export class Net {
-  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onHouse, onChat }) {
+  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHouse, onChat }) {
     this.url = url;
-    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onHouse, onChat };
+    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHouse, onChat };
     this.id = null;
     this.me = newState(); // predicted state
-    this.pending = []; // [seq, keys] not yet acknowledged
+    this.pending = []; // [seq, keys, kick?, charge?] not yet acknowledged
     this.seq = 0;
     this.snaps = []; // { tick, players: Map(id → state) }
     this.latest = null; // newest snapshot not yet reconciled against
@@ -171,9 +171,10 @@ export class Net {
     const before = { x: this.me.x, y: this.me.y };
     this.pending = this.pending.filter(([s]) => s > snap.ack);
     Object.assign(this.me, server); // (keeps this.me.home, which snapshots don't carry)
-    for (const [, k, kick] of this.pending) {
+    for (const [, k, kick, charge] of this.pending) {
       step(this.me, k);
       if (kick) applyKick(this.me, kick); // a knockback we predicted at this step (the server applies it there too)
+      if (charge) applyCharge(this.me); // a Charge that connected after this step (the server's slap does the same)
     }
     // Ease any visible difference away over a few frames instead of popping.
     const dx = before.x - this.me.x, dy = before.y - this.me.y;
@@ -191,15 +192,27 @@ export class Net {
     this.reconcile();
     this.prev = { x: this.me.x, y: this.me.y }; // for drawing between fixed steps
     const s = ++this.seq;
-    const was = this.me.grounded;
+    const was = this.me.grounded, slam = this.me.sl, cut = this.me.uc | 0;
     step(this.me, keys);
     if (!was && this.me.grounded) this.cb.onLand(this.me); // only on fresh steps, never on replays
+    // the Warrior's chase moves: a Leap Slam landed, an Upward Cut went off (their hits: src/rpg.js chase)
+    if (slam && !this.me.sl) this.cb.onChase?.('leap_slam', this.me, s);
+    if ((this.me.uc | 0) > cut) this.cb.onChase?.('upward_cut', this.me, s);
     // the Wildwood: did a mob just hit us? (src/rpg.js decides, and returns the knockback to predict)
     const kick = this.cb.onStep?.(this.me, s);
     if (kick) applyKick(this.me, kick);
     this.pending.push([s, keys, kick]);
     if (this.pending.length > 120) this.pending.shift(); // server's gone quiet; don't grow forever
     this.ws.send(encodeInput(s, keys));
+  }
+
+  // A Charge connected with the slap sent at input `seq` (the newest: slaps go out between steps):
+  // predicted now and re-applied on every replay, like a knockback. The server does it when it runs that slap.
+  charge(seq) {
+    const e = this.pending.find((p) => p[0] === seq);
+    if (!e || e[3]) return;
+    e[3] = true;
+    if (seq === this.seq) applyCharge(this.me);
   }
 
   // The server tick other slimes (and mobs) are being drawn at: INTERP ticks behind the newest
@@ -242,6 +255,7 @@ export class Net {
         facing: f < 0.5 ? sa.facing : sb.facing,
         room: sb.room,
         dt: sb.dt, bc: sb.bc, fj: sb.fj, ifr: sb.ifr, // Mobility (for their dash / blink effects)
+        sl: sb.sl, uc: sb.uc, // the chase moves (their slam / cut effects)
       });
     }
     return out;

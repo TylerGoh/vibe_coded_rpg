@@ -4,7 +4,7 @@
 //
 // The server is authoritative. Each client sends one input per 1/60 s step:
 //   → {t:'hello', user, pass, hue, bin}  once, to log in (accounts: server/accounts.js)
-//   → {t:'in', s:seq, k:keys}          one per client step (keys: LEFT|RIGHT|JUMP|DOWN bits)
+//   → {t:'in', s:seq, k:keys}          one per client step (keys: LEFT|RIGHT|JUMP|DOWN|USE|DASH|BLINK|ATTACK bits)
 // and every tick (60 Hz) each client gets
 //   ← {t:'s', k:tick, a:lastSeqApplied, p:[[id,x,y,vx,vy,flags,drop], ...]}
 // Binary: `in`, `s` and `mobs` are binary frames (src/shared/wire.js) for clients that said `bin` in
@@ -43,8 +43,10 @@
 // The combat rooms (the stages and their dens, COMBAT_ROOMS): server/rpg.js, src/shared/rpg.js, src/shared/skills.js.
 // Combat is client-decided (responsiveness first; server/rpg.js explains). These carry `s`, the client's
 // latest input seq, and run once that input has been applied (ORDERED / runActions):
-//   → {t:'slap', dir, s, vt, hits:[[mobId, dmg, crit]]}  ← slap gets `mobs:[[id, dmg, crit, killed]]`
+//   → {t:'slap', dir, s, vt, hits:[[mobId, dmg, crit]]}  ← slap gets `mobs:[[id, dmg, crit, killed]]`, and `charge`
+//       when it was a Warrior's Charge (judged here from the slapper's state at s: sim.js chargeOpen / applyCharge)
 //   → {t:'skill', skill, dir, s, hits, tx?, ty?}  ← {t:'skill', id, skill, dir, x, y, hits, heals?, tx?, ty?, dur?}
+//       (skill 'leap_slam' / 'upward_cut': a chase move's hits, s = the input it landed / went off at)
 //   → {t:'ouch', s, mob, kind:'touch'|'charge'|'slam'|'rain', mx}  a mob hit me (the server applies the same knockback)
 //   → {t:'pickup', s}
 //   ← {t:'nomana'}  a skill you tried had too little MP
@@ -456,7 +458,7 @@ function slap(id, p, m) {
   const quip = npc && Math.floor(Math.random() * SLAP_QUIPS[npc].length);
   const mobs = isCombat(room) ? rpg.attack(id, p, dir, m.hits) : [];
   if (isCombat(room)) rpg.pvp(id, p, dir, hits);
-  const data = JSON.stringify({ t: 'slap', id, dir, hits, npc, quip, mobs: mobs.length ? mobs : undefined });
+  const data = JSON.stringify({ t: 'slap', id, dir, hits, npc, quip, mobs: mobs.length ? mobs : undefined, charge: mobs.charged || undefined });
   for (const q of players.values()) if (q.joined && q.state.room === room) send(q.ws, data);
 }
 
@@ -618,7 +620,11 @@ function update() {
     let stepped = 0;
     while (p.queue.length && p.credit >= 1) {
       const [s, k] = p.queue.shift();
+      const slam = p.state.sl, cut = p.state.uc | 0;
       stepPlayer(id, p, p.faintUntil ? 0 : k); // splatted: can't move until you wake up
+      // the Warrior's chase moves: where a Leap Slam landed / an Upward Cut went off (server/rpg.js chase checks claims against it)
+      if (slam && !p.state.sl) (p.chaseAt ??= {}).leap_slam = s;
+      if ((p.state.uc | 0) > cut) (p.chaseAt ??= {}).upward_cut = s;
       p.ack = s;
       p.credit--;
       stepped++;

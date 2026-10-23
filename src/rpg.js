@@ -13,7 +13,7 @@ import { drawHazard } from './hazards.js';
 import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, drawRallyAura, drawAegisAura } from './skillfx.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk } from './shared/skills.js';
+import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX } from './shared/skills.js';
 import { staffGlow } from './staff-art.js';
 import { SLAP_REACH, DASH_CD, BLINK_CD, PHANTOM_CD } from './shared/sim.js';
 
@@ -90,6 +90,7 @@ export class Rpg {
     if (m.t === 'me') {
       const old = this.me;
       this.me = m;
+      this.momentum = m.momentum ? { n: m.momentum, until: this.time + (m.momentumLeft ?? 0) / 1000 } : null; // (the HUD's Momentum pips)
       this.onMe?.(m);
       if (old && mine) {
         const gained = m.lvl === old.lvl ? m.exp - old.exp : 0;
@@ -237,18 +238,50 @@ export class Rpg {
       audio.sfx('shellBlock', { vol: 0.6 });
     }
   }
-  // A slap / sword swing / staff bolt: → hits to send with it ([[mobId, dmg, crit]])
-  slapHits(me, dir) {
+  // A slap / sword swing / staff bolt: → hits to send with it ([[mobId, dmg, crit]]). mult: a Charge's
+  // (the server allows it from its own state: server/rpg.js attack)
+  slapHits(me, dir, mult = 1) {
     if (!this.me || !isCombat(this.room)) return [];
     if (this.staffOf(this.me)) return this.staffBolt(me, dir);
     const [v] = this.ahead(me, dir, SLAP_REACH + (this.swordOf(this.me)?.reach ?? 0));
     if (!v) return [];
     const cut = this.shellCut(v, me.x);
-    let [dmg, crit] = this.roll(this.me.atk);
+    let [dmg, crit] = this.roll(this.me.atk, mult);
     dmg = Math.max(1, Math.round(dmg * cut));
     this.blocked(v, cut);
     this.showHit(v, dmg, crit, me.x);
     return [[v.id, dmg, crit]];
+  }
+
+  // A Charge connected (anyone's: the slap echo carries `charge` for the others)
+  chargeFx(s, dir) {
+    this.fx.spawn('charge', { x: s.x, y: s.y, dir });
+    this.pop(s.x + dir * 30, s.y - 70, 'CHARGE!', '#ffb08a', 17);
+    audio.sfx('powerStrike', { vol: 0.7 });
+  }
+  // the mobs in a column above me, up to `reach` px over my head (Upward Cut)
+  above(me, reach) {
+    return this.targets().filter((v) => {
+      const k = MOBS[v.kind];
+      return Math.abs(v.x - me.x) < 40 + k.w / 2 && v.y - k.h < me.y && v.y > me.y - 40 - reach;
+    });
+  }
+  // The Warrior's chase moves (S2.5): a Leap Slam just landed or an Upward Cut just went off, at input seq
+  // (sim.js step did the moving; main.js moveFx draws them). Hits are predicted here and sent as a skill,
+  // capped by the server (server/rpg.js chase). No MP, no hotbar.
+  chase(id, me, seq) {
+    const sk = SKILLS[id], m = this.me, rank = rankOf(m?.skills, id);
+    if (!m || !rank || !isCombat(this.room)) return;
+    const msg = { t: 'skill', skill: id, dir: me.facing, s: seq, hits: [] }, sx = me.x;
+    for (const v of id === 'leap_slam' ? this.around(me.x, me.y, sk.radius) : this.above(me, sk.reach)) {
+      const cut = this.shellCut(v, sx);
+      let [dmg, crit] = this.roll(m.atk, sk.mult(rank));
+      dmg = Math.max(1, Math.round(dmg * cut));
+      this.blocked(v, cut);
+      msg.hits.push([v.id, dmg, crit]);
+      this.showHit(v, dmg, crit, sx);
+    }
+    if (msg.hits.length) this.send(msg);
   }
 
   swordOf(m) {
@@ -1060,6 +1093,23 @@ export class Rpg {
         ctx.roundRect(x + 296, y + 32, 92, 22, 11);
         ctx.fill();
         text(ctx, `${m.apLeft} AP · ${document.body.classList.contains('touch') ? 'Bag' : 'I'}`, x + 342, y + 43.5, 11, '#ffffff');
+      }
+      const mo = this.momentum;
+      if (mo && mo.until > this.time) {
+        // Momentum (Warrior): a pip a stack, right of the HP panel (beside the points pills; the HTML
+        // Players button sits under the panel)
+        const mx = x + (m.sp > 0 || m.apLeft > 0 ? 396 : 296), my = y + 4;
+        ctx.fillStyle = 'rgba(255,255,255,0.86)';
+        ctx.beginPath();
+        ctx.roundRect(mx, my, 74 + MOMENTUM_MAX * 14, 22, 11);
+        ctx.fill();
+        text(ctx, 'Momentum', mx + 38, my + 11.5, 11, '#b85a48');
+        for (let i = 0; i < MOMENTUM_MAX; i++) {
+          ctx.fillStyle = i < mo.n ? '#e0806a' : 'rgba(224,128,106,0.25)';
+          ctx.beginPath();
+          ctx.arc(mx + 80 + i * 14, my + 11, 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
       if (this.flash > 0) {
         ctx.fillStyle = `rgba(255,60,90,${this.flash * 0.18})`;

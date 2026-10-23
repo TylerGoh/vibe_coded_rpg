@@ -13,8 +13,8 @@
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
 import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, STAFF_OFFKIND, STAFF_BOLT_MULT, rebirthCost } from '../src/shared/rpg.js';
-import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf } from '../src/shared/skills.js';
-import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE } from '../src/shared/sim.js';
+import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL } from '../src/shared/skills.js';
+import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
 import { wayAt, wayById, sameIsle, ARRIVE_DX } from '../src/shared/waystones.js';
@@ -107,7 +107,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
 
   // ——— characters ———
   const brewOf = (c) => ((c.brew?.until ?? 0) > now() ? ITEMS[c.brew.id].buff : null); // a brewed potion's buff
-  const buffsOf = (p) => ({ gods: (p.godsUntil ?? 0) > now(), berserk: (p.berserkUntil ?? 0) > now(), manaShield: (p.manaShieldUntil ?? 0) > now(), rally: (p.rallyUntil ?? 0) > now() ? p.rallyBoost : 0, brew: brewOf(p.rpg) });
+  const momentumOf = (p) => (p.momentum && p.momentum.until > now() ? p.momentum.n : 0); // Momentum's stacks (Warrior)
+  const buffsOf = (p) => ({ momentum: momentumOf(p), gods: (p.godsUntil ?? 0) > now(), berserk: (p.berserkUntil ?? 0) > now(), manaShield: (p.manaShieldUntil ?? 0) > now(), rally: (p.rallyUntil ?? 0) > now() ? p.rallyBoost : 0, brew: brewOf(p.rpg) });
   const stats = (p) => statsFor(p.rpg, buffsOf(p));
   const left = (until) => Math.max(0, (until ?? 0) - now());
   const zones = []; // Sanctuaries: { room, x, r, until, cut }
@@ -198,9 +199,12 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     p.dirty = !c;
     moves(p);
   }
-  // the Mobility skills ride along in the physics state (sim.js step), so prediction knows them too
+  // the Mobility skills and the Warrior's chase moves ride along in the physics state (sim.js step), so
+  // prediction knows them too
   function moves(p) {
-    if (p.state && p.rpg) p.state.mv = mobilityOf(p.rpg.skills);
+    if (!p.state || !p.rpg) return;
+    p.state.mv = mobilityOf(p.rpg.skills);
+    p.state.mw = chaseOf(p.rpg.skills);
   }
   // Play time (owner, 2026-10-23: for balancing levelling speed): logged-in time, and the active part of it
   function clock(p) {
@@ -233,6 +237,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       hotbar: c.hotbar, potbar: c.potbar, alt: c.alt, set: c.set, pvp: c.pvp, crit: st.crit, critMult: st.critMult, minRoll: st.minRoll,
       ap: c.ap, apLeft: apTotal(c.lvl) - apSpent(c.ap),
       cosmetics: c.cosmetics, wear: c.wear, showHelmet: c.showHelmet,
+      momentum: momentumOf(p), momentumLeft: momentumOf(p) ? left(p.momentum.until) : 0,
       berserk: left(p.berserkUntil), manaShield: left(p.manaShieldUntil), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), gods: left(p.godsUntil), secondWind: left(p.swReadyAt),
       brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
       ways: c.ways,
@@ -289,6 +294,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function faint(id, p, by) {
     p.rpg.hp = 0;
     p.godsUntil = 0; // (Challenge the Gods lost: no heal at the end)
+    p.momentum = null;
     p.faintUntil = now() + FAINT_MS; // inputs are ignored meanwhile (index.js)
     p.faintBy = by;
     for (const m of mobs) if (m.target === p) m.target = null;
@@ -517,13 +523,54 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     sendMe(p);
   }
 
+  // Momentum (Warrior): a chase move landed, one more stack (sendMe follows from the caller)
+  function momentumUp(p) {
+    const r = rankOf(p.rpg.skills, 'momentum');
+    if (!r) return;
+    p.momentum = { n: Math.min(MOMENTUM_MAX, momentumOf(p) + 1), until: now() + MOMENTUM_DUR * 1000 };
+    p.movedAt = now();
+  }
+
   // ——— a slap / sword swing / staff bolt in a combat room ———
+  // A Charge (Warrior: a slap while dashing or just after, sim.js chargeOpen) is judged from our own state
+  // at the slap's input, the same call the client made: a stronger cap, and the same state edit
+  // (applyCharge) the client predicted there. → the hits, with `charged` set for the echo
   function attack(id, p, dir, hits) {
     if (p.faintUntil || !isCombat(p.state.room)) return [];
     const st = stats(p);
-    const out = st.boltRange ? applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * STAFF_BOLT_MULT * capOf(st), dir, knock: 120 }) : applyHits(id, p, hits, { range: SLAP_REACH + st.reach, cap: st.atk * capOf(st), dir });
+    const charged = !st.boltRange && chargeOpen(p.state) && Array.isArray(hits) && hits.length > 0;
+    const mult = charged ? SKILLS.charge.mult(chaseRank(p.state.mw, 0)) : 1;
+    const out = st.boltRange ? applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * STAFF_BOLT_MULT * capOf(st), dir, knock: 120 }) : applyHits(id, p, hits, { range: SLAP_REACH + st.reach, cap: st.atk * mult * capOf(st), dir, knock: charged ? 320 : 200 });
+    if (charged) {
+      applyCharge(p.state);
+      if (out.length) {
+        momentumUp(p);
+        sendMe(p);
+      }
+    }
     thirst(id, p, out);
+    out.charged = charged;
     return out;
+  }
+
+  // ——— the Warrior's chase moves (S2.5): Leap Slam's landing and Upward Cut's hits ———
+  // The physics (sim.js step) did the move; index.js notes the input it happened at (p.chaseAt), so a
+  // claim is only taken for a slam that really landed (a cut that really went off) near that input, once.
+  const CHASE_SLACK = 30; // inputs
+  function chase(id, p, m) {
+    const sk = SKILLS[m.skill], c = p.rpg, s = p.state, rank = rankOf(c.skills, m.skill);
+    if (!rank || p.faintUntil || !isCombat(s.room) || !skillFor(c.cls, m.skill)) return;
+    const at = p.chaseAt?.[m.skill];
+    if (at === undefined || Math.abs((m.s >>> 0) - at) > CHASE_SLACK) return;
+    delete p.chaseAt[m.skill];
+    const st = stats(p), dir = s.facing < 0 ? -1 : 1;
+    const cap = st.atk * sk.mult(rank) * capOf(st);
+    const out = { t: 'skill', id, skill: m.skill, dir, x: s.x, y: s.y, hits: [] };
+    out.hits = m.skill === 'leap_slam' ? applyHits(id, p, m.hits, { max: 20, range: sk.radius, cap, dir, knock: 260 }) : applyHits(id, p, m.hits, { max: 8, range: 40, cap, dir, knock: 160 });
+    if (out.hits.length) momentumUp(p);
+    toRoom(s.room)(out);
+    thirst(id, p, out.hits);
+    sendMe(p);
   }
 
   // ——— skills (1–6) ———
@@ -531,6 +578,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   const near = (p, r) => inRoom(p.state.room).filter(([, q]) => !q.faintUntil && Math.hypot(q.state.x - p.state.x, q.state.y - p.state.y) <= r + 40);
   function cast(id, p, m) {
     const sk = SKILLS[m.skill], c = p.rpg, s = p.state;
+    if (sk?.kind === 'chase') return chase(id, p, m);
     if (!ACTIVE(m.skill) || p.faintUntil) return;
     const rank = rankOf(c.skills, m.skill);
     if (!skillFor(c.cls, m.skill)) return toast(p, `${sk.name} isn't one of your class's skills`);
@@ -1271,6 +1319,15 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       }
       for (const p of players.values()) if (p.faintUntil && t >= p.faintUntil) wakeUp(p);
       for (const [pid, p] of players) if (p.godsUntil && t >= p.godsUntil) godsEnd(pid, p);
+      // Momentum: gone after MOMENTUM_STILL s standing still (or when its time runs out)
+      for (const p of players.values()) {
+        if (!p.momentum || !p.state) continue;
+        if (!p.state.grounded || Math.abs(p.state.vx) > 1) p.movedAt = t;
+        if (p.momentum.until <= t || t - (p.movedAt ?? t) >= MOMENTUM_STILL * 1000) {
+          p.momentum = null;
+          if (p.joined && p.rpg) sendMe(p);
+        }
+      }
       for (let i = zones.length - 1; i >= 0; i--) if (zones[i].until < t) zones.splice(i, 1);
       if (tick % TICK_RATE === 0) {
         // once a second: slow regen in combat rooms, quick everywhere else; loot fades after a while

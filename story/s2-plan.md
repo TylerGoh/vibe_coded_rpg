@@ -1,6 +1,6 @@
 # S2, split into pieces (sub-plan for agents)
 
-**Status: S2.1–S2.4 built and deployed together (deploy #1) on 2026-10-23; S2.5 and S2.6 not built yet.** S2 in `progression.md` ("the tree") is too big for one
+**Status: S2.1–S2.4 built and deployed together (deploy #1) on 2026-10-23; S2.5 built and deployed (deploy #2) the same day; S2.6 not built yet.** S2 in `progression.md` ("the tree") is too big for one
 session, so it's cut into six pieces, each sized for one agent. The design and the owner's decisions are in
 `progression.md` (sections 1, 1a, 1b, 1c, 2, 3, 7, 9): read it first. This file pins down what that plan
 left open and says who does what. Numbers here (maxes, the schedule) are starting points: S2.4's CLASSES
@@ -218,7 +218,12 @@ Docs: `docs/economy.md`, `story/progression.md` 1b. Files: `scripts/economy.mjs`
   "bad at" (progression.md 1b) really is its lowest column. Tune skill numbers until green, and say what
   moved.
 
-## S2.5: Warrior chase moves (in `step()`)
+## S2.5: Warrior chase moves (in `step()`) — built 2026-10-23
+Built as below, with these choices: Upward Cut and Leap Slam take their Jump / Down from a grace window
+(`UPCUT_GRACE`, `SLAM_GRACE`), not a held key, so phones can do them one tap after the other; Charge stops
+the dash on the hit; the chase moves work outside combat rooms too (moving only, like Dash). How it works:
+`docs/combat/skills.md` ("The Warrior's chase moves").
+
 Docs: `docs/netcode.md` (all of it), `docs/combat/skills.md`, `docs/combat/core.md`, `docs/ui/mobile.md`.
 Files: `src/shared/sim.js`, `src/shared/wire.js`, `src/net.js`, `src/main.js`, `src/rpg.js`, `server/rpg.js`,
 `server/index.js`, `src/shared/skills.js`.

@@ -40,6 +40,9 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
   on; toggle in the Esc menu or the bag; a red dot by the name tag = on).
 - Defences (Bubble, Aegis, Sanctuary, Second Wind, DEF, a brewed ward, Mana Shield) are all applied in
   server `hurt()`. Mana Shield takes its share of a hit off MP while there's MP (never an ultimate's).
+- **Charge** (Warrior): a slap while dashing or just after (`chargeOpen`) is judged by `attack()` from the
+  server's own state at that input: a higher cap and the same state edit the client predicted
+  (`docs/combat/skills.md`).
 - **Jelly Thirst** (Warrior): `thirst()` heals the hitter a share of the damage its slap or skill just did
   (after the server's cap), and tells the room `{t:'thirst', id, n}` for the green +HP.
 

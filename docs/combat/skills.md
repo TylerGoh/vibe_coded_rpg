@@ -8,7 +8,7 @@ Files: `src/shared/skills.js` (all rules, `CLASSES`, `statsFor`), `src/skilltree
 before changing classes, skills, AP or the point schedule). S2.1 (the data, the rules, the server, the
 migration), S2.2 (the node-tree K panel) and S2.3 (the Rebirth Pool: place, card, banners, Elder Mochi) are
 built, and the CLASSES tables in the economy sheet (S2.4, `docs/economy.md`) measure and tuned them; the
-Warrior's chase moves (S2.5) and the Mage's combos (S2.6) are not.
+Warrior's chase moves (S2.5, below) too. The Mage's combos (S2.6) are not.
 Archer and Cleric come later (S3, S4).
 
 ## Classes (S2)
@@ -127,6 +127,39 @@ Archer and Cleric come later (S3, S4).
   gold gone unless `keepGold` (justin keeps his), home to Slimeville (`p.goHome`: skips the spot restored
   after a restart), and the gods' notice. chenyirong first had an earlier step (`gods` 1) that only reset his
   level; the owner then tested on his account, hence the full one.
+
+## The Warrior's chase moves (S2.5) run in the physics too
+`story/progression.md` 1c: the Warrior's skill is getting there and staying there, many short moves toward
+the target, each its own press. Four Lv 10 basics (`kind: 'chase'`, `how` says the input), **no MP and no
+hotbar** (`ACTIVE` leaves them out): they move you, so they live in sim.js `step()`, which can't know MP;
+only cooldowns, in the physics state.
+- **The Attack bit** (`ATTACK`, input bit 128; `KEY_MASK` is 255): set for a few steps whenever an attack
+  goes off (X, click, tap, Hit: `slapToward` in main.js). The press still sends its normal slap as before.
+  The ranks reach the physics as `state.mw` (`chaseOf`, set by the server's `moves()` with `mv`).
+- **Leap Slam**: in the air, Attack within `SLAM_GRACE` ticks of holding Down: straight down at `SLAM_V`
+  (`state.sl`, no steering, no Dash / Blink / Flash Jump meanwhile), and where it lands the client sends the
+  hits around it (`rpg.chase` → `{t:'skill', skill:'leap_slam', s, hits}`). Cooldown `SLAM_CD` (`sc`).
+- **Upward Cut**: Attack while still rising, within `UPCUT_GRACE` ticks of holding Jump: an upward burst of
+  `UPCUT_V`, and a hit on every mob in a column up to `reach` px above (`rpg.above`). Cooldown `UPCUT_CD`
+  (`uc`). For mobs on a ledge: it doesn't count as range in the economy sheet.
+- **The grace windows are for phones** (owner: phones only get the buttons they have): Jump, ▼ and Hit are
+  all under the right thumb, so "hold Down and attack" is really "tap ▼, then Hit soon after". `uw` / `lw`
+  in the state count the ticks since Jump / Down were held.
+- **Charge**: a slap that connects while dashing or within `CHARGE_WINDOW` ticks after (`cw`; `chargeOpen`)
+  hits for the skill's `mult`, stops the dash at walking speed, and gives back `CHARGE_RESET` of Dash's
+  cooldown (`applyCharge`). Only the client knows its slap connected (hits are client-decided), so this is a
+  predicted state edit: `net.charge(seq)` applies it at the slap's input and on every replay, and the server
+  makes the same call from its own state when it runs that slap (`attack()` in server/rpg.js), raising the
+  cap to match. The slap echo carries `charge` for everyone's effect. Needs Dash.
+- **Momentum** (passive): each Charge, Leap Slam or Upward Cut that lands adds a stack (`MOMENTUM_MAX`), +`per`
+  ATK each, in `statsFor` (`buffs.momentum`) so the caps follow. Stacks last `MOMENTUM_DUR` s from the last
+  one and all go after `MOMENTUM_STILL` s standing still (the server's tick). Shown as pips right of the HP
+  panel; `me.momentum`.
+- The server only takes a slam's or a cut's hits if its own physics landed that slam / fired that cut near
+  that input (`p.chaseAt`, noted in index.js's input loop; `CHASE_SLACK`), and only once.
+- Effects for anyone come from state changes (main.js `moveFx`: `sl`, `uc`), like Dash's; the E-hint list
+  shows "Charge", "↓+X Leap Slam" and "Upward Cut" while each is possible (`docs/ui/hints.md`).
+- Not built: **Hook** (progression.md 1c, `[proposed]`).
 
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js

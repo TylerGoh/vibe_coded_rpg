@@ -205,8 +205,17 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   potion, never in danger); Power Strike (1.6 + 0.42/rank → 1.8 + 0.6) and Cleave (1.3 + 0.33 → 1.5 + 0.4) up
   for both Warrior branches; Rally +15–25% for 15 s every 40 s → +20–40% for 20 s every 30 s (the Knight's
   only damage: it was 1.7–1.8× the median solo time from Lv 99, outside `CLASS_FIT`). Nothing else moved:
-  no mob, boss, gold, EXP, price or curve. The Warrior's chase moves (S2.5) and Arcane Charge (S2.6) add
-  damage kinds to `fight` when they land.
+  no mob, boss, gold, EXP, price or curve. Arcane Charge (S2.6) adds a damage kind to `fight` when it lands.
+- **The Warrior's chase moves (S2.5)** are in `fight` (`CHASE_ACTIONS`): Charge is a dash and a stronger
+  hit (two actions, Dash back `CHARGE_RESET` sooner), Leap Slam a jump and a slam (two actions, an area),
+  Upward Cut rides on a swing (one action, melee only: the ranged column's ledge stays out of reach, so
+  the Warrior's bad-at holds), each landing stacks Momentum. Both Warrior BUILDS take Dash 1, Charge and
+  Momentum after their core skills (the Berserker Leap Slam too). What moved: the Warriors' single-target
+  damage against the Mages went from 0.86–0.88× to 0.88× at Lv 100 and 0.97–1.02× at Lv 150–200 (the
+  Knight solos the dens from Sigrun on ~11% faster; the Berserker the Lv 150+ ones ~8% faster, the Astral
+  Wyrm ~20%, and Ignis ~10% slower, since its points moved); Lv 10–60 barely
+  moved (few points to spare). Momentum was first +3/4% a stack: the Berserker ran 1.3× the Mages at
+  Lv 200, so it's +2/3%. Nothing else moved.
 
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.

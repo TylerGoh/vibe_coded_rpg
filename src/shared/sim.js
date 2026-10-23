@@ -451,7 +451,8 @@ export function pianoKeyAt(s) {
 // Input bits, one byte per step
 export const LEFT = 1, RIGHT = 2, JUMP = 4, DOWN = 8, USE = 16; // USE: E, goes through doors
 export const DASH = 32, BLINK = 64; // the Mobility skills (Shift, V); they only act on the press
-export const KEY_MASK = 127;
+export const ATTACK = 128; // set on the step an attack goes off (X, click, Hit): the Warrior's chase moves read it
+export const KEY_MASK = 255;
 
 // ——— Mobility (skills.js 'wind' tree). state.mv packs the ranks (skills.js mobilityOf), set by the
 // server from the character's skills and sent in every snapshot, so prediction knows them too.
@@ -465,6 +466,35 @@ export const IFR_DASH = 15, IFR_BLINK = 18, IFR_PHANTOM = 6; // + per Phantom St
 export const PHANTOM_CD = 0.15; // cooldowns this much shorter per Phantom Step rank
 const rankBits = (mv, i) => (mv >> (i * 2)) & 3; // 0 Dash · 1 Flash Jump · 2 Blink · 3 Phantom Step
 
+// ——— the Warrior's chase moves (S2.5, skills.js; docs/combat/skills.md). state.mw packs their ranks
+// (skills.js chaseOf: bits 0–1 Charge · 2–3 Leap Slam · 4–5 Upward Cut), set by the server like mv. They cost
+// no MP (step() can't know MP): only cooldowns, in the state. Their hits are sent by the client
+// (src/rpg.js chase*) and capped by the server (server/rpg.js chase), like every other hit.
+// Leap Slam: in the air, Attack within SLAM_GRACE ticks of holding Down: straight down at SLAM_V; the hits
+// go off where it lands. Upward Cut: Attack while still rising, within UPCUT_GRACE ticks of holding Jump: an
+// upward burst of UPCUT_V. The grace windows are for phones, where Jump, Down and Hit share one thumb.
+// Charge: a slap that connects while dashing or up to CHARGE_WINDOW ticks after (cw) hits harder and gives
+// back CHARGE_RESET of Dash's cooldown (applyCharge, run by both sides at that input).
+export const SLAM_V = 1300, SLAM_CD = [0, 240, 180];
+export const UPCUT_V = 900, UPCUT_CD = [0, 240, 180];
+export const SLAM_GRACE = 15, UPCUT_GRACE = 15, CHARGE_WINDOW = 15;
+export const CHARGE_RESET = [0, 0.5, 0.7];
+export const chaseRank = (mw, i) => ((mw | 0) >> (i * 2)) & 3; // 0 Charge · 1 Leap Slam · 2 Upward Cut
+// Is a slap right now a Charge? (dashing, or just after)
+export const chargeOpen = (s) => chaseRank(s.mw, 0) > 0 && ((s.dt | 0) > 0 || (s.cw | 0) > 0);
+// A Charge connected: the same edit on both sides, at the input the slap went off at (src/net.js replays it)
+export function applyCharge(s) {
+  const r = chaseRank(s.mw, 0), dash = rankBits(s.mv | 0, 0);
+  if (!r) return s;
+  s.cw = 0;
+  if (s.dt) {
+    s.dt = 0; // the dash stops on the hit, at walking speed, so the next one can be aimed
+    s.vx = q(s.facing * WALK);
+  }
+  if (dash) s.dc = Math.min(s.dc | 0, Math.round(DASH_CD[dash] * (1 - PHANTOM_CD * rankBits(s.mv | 0, 3)) * (1 - CHARGE_RESET[r])));
+  return s;
+}
+
 const GRAVITY = 2300; // same feel as Slime Hop
 const JUMP_V = 800;
 const MAX_FALL = 1400;
@@ -477,13 +507,15 @@ const HALF_W = 16; // half the slime's footprint, for platform edges and world b
 // use: whether E was already held last step (doors only trigger on the press, not while held)
 // jh / dh / bh: Jump / Dash / Blink held last step. mv: mobility ranks. dt: dash ticks left; dc / bc: dash / blink
 // cooldowns; ifr: untouchable ticks; fj: the Flash Jump is used up (until you land)
+// The chase moves: mw their ranks; ah: Attack held last step; sl: slamming (Leap Slam, until it lands); sc / uc:
+// Leap Slam / Upward Cut cooldowns; cw: the Charge window after a dash; uw / lw: ticks since Jump / Down were held
 // home: the room id of your own house (set by the server at login; 0 = none yet, so that door stays shut)
 // vt: voyage ticks, how long you've been aboard a crossing (0 everywhere else)
 // town: your town (an index into TOWNS), the last one you were in
-export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0 });
+export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0 });
 // Move a slime to (room, x), standing, keeping who it is (house, mobility, town). For the server's
 // teleports (waking up, invites, tests); doors do this inside step().
-export const placeAt = (s, room, x) => Object.assign(s, newState(x), { room, y: roomDef(room).ground, home: s.home, mv: s.mv, facing: s.facing, town: townOf(room) >= 0 ? townOf(room) : s.town | 0 });
+export const placeAt = (s, room, x) => Object.assign(s, newState(x), { room, y: roomDef(room).ground, home: s.home, mv: s.mv, mw: s.mw, facing: s.facing, town: townOf(room) >= 0 ? townOf(room) : s.town | 0 });
 
 // Whether door d can be used right now (your own house once you have one; a ship's gangway once she's in,
 // or back ashore while she's casting off). A door with `ask` is confirmed on the client first (src/main.js).
@@ -513,7 +545,8 @@ export function step(s, keys) {
     s.room = door.to === HOME ? s.home : town ? town.room : door.to;
     s.x = town ? town.homeX : door.toX;
     s.y = roomDef(s.room).ground;
-    s.vx = s.vy = s.drop = s.dt = s.vt = 0;
+    s.vx = s.vy = s.drop = s.dt = s.vt = s.cw = 0;
+    s.sl = false;
     s.grounded = true;
     s.onPlat = false;
     return s;
@@ -521,24 +554,40 @@ export function step(s, keys) {
   const room = roomDef(s.room);
   s.vt = room.crossing ? Math.min(VOYAGE_MAX, (s.vt | 0) + 1) : 0;
   if (room.town !== undefined) s.town = room.town;
-  const pressedJump = keys & JUMP && !s.jh, pressedDash = keys & DASH && !s.dh, pressedBlink = keys & BLINK && !s.bh;
+  const pressedJump = keys & JUMP && !s.jh, pressedDash = keys & DASH && !s.dh, pressedBlink = keys & BLINK && !s.bh, pressedAttack = keys & ATTACK && !s.ah;
   s.jh = !!(keys & JUMP);
   s.dh = !!(keys & DASH);
   s.bh = !!(keys & BLINK);
+  s.ah = !!(keys & ATTACK);
   if (s.dc) s.dc--;
   if (s.bc) s.bc--;
   if (s.ifr) s.ifr--;
-  const mv = s.mv | 0, phantom = rankBits(mv, 3), cdK = 1 - PHANTOM_CD * phantom;
+  if (s.sc) s.sc--;
+  if (s.uc) s.uc--;
+  if (s.cw) s.cw--;
+  s.uw = keys & JUMP ? UPCUT_GRACE : Math.max(0, (s.uw | 0) - 1);
+  s.lw = keys & DOWN ? SLAM_GRACE : Math.max(0, (s.lw | 0) - 1);
+  const mv = s.mv | 0, phantom = rankBits(mv, 3), cdK = 1 - PHANTOM_CD * phantom, mw = s.mw | 0;
 
   const dir = (keys & RIGHT ? 1 : 0) - (keys & LEFT ? 1 : 0);
   if (dir) s.facing = dir;
   s.vx = approach(s.vx, dir * WALK, (s.grounded ? ACCEL_GROUND : ACCEL_AIR) * DT);
-  if (pressedDash && rankBits(mv, 0) && !s.dc && !s.dt) {
+  if (pressedAttack && !s.grounded && !s.sl) {
+    if (s.lw && chaseRank(mw, 1) && !s.sc) {
+      s.sl = true; // Leap Slam: straight down (the hits go off where it lands)
+      s.sc = SLAM_CD[chaseRank(mw, 1)];
+      s.dt = s.cw = 0;
+    } else if (s.uw && s.vy < 0 && chaseRank(mw, 2) && !s.uc) {
+      s.vy = -UPCUT_V; // Upward Cut: the swing carries you up
+      s.uc = UPCUT_CD[chaseRank(mw, 2)];
+    }
+  }
+  if (pressedDash && rankBits(mv, 0) && !s.dc && !s.dt && !s.sl) {
     s.dt = DASH_TICKS;
     s.dc = Math.round(DASH_CD[rankBits(mv, 0)] * cdK);
     s.ifr = Math.max(s.ifr, IFR_DASH + IFR_PHANTOM * phantom);
   }
-  if (pressedBlink && rankBits(mv, 2) && !s.bc) {
+  if (pressedBlink && rankBits(mv, 2) && !s.bc && !s.sl) {
     s.x = Math.min(room.width - HALF_W, Math.max(HALF_W, s.x + s.facing * BLINK_DIST[rankBits(mv, 2)]));
     s.bc = Math.round(BLINK_CD[rankBits(mv, 2)] * cdK);
     s.ifr = Math.max(s.ifr, IFR_BLINK + IFR_PHANTOM * phantom);
@@ -549,6 +598,7 @@ export function step(s, keys) {
     s.dt--;
     s.vx = s.facing * (s.dt ? DASH_V : WALK); // ends at walking speed, so it stops crisply
     s.vy = Math.min(s.vy, 0); // a level dash, in the air too
+    if (!s.dt) s.cw = CHARGE_WINDOW; // a slap that lands this soon after still counts as a Charge
   }
 
   // Holding ↓ on a platform drops you through it (↓ + jump too, MapleStory style). ↓ alone used to do
@@ -559,7 +609,7 @@ export function step(s, keys) {
   } else if (keys & JUMP && s.grounded) {
     s.vy = -JUMP_V;
     s.grounded = false;
-  } else if (pressedJump && !s.grounded && !s.fj && rankBits(mv, 1)) {
+  } else if (pressedJump && !s.grounded && !s.fj && !s.sl && rankBits(mv, 1)) {
     s.vy = -FJ_VY; // Flash Jump
     s.vx = s.facing * FJ_VX[rankBits(mv, 1)];
     s.fj = true;
@@ -569,6 +619,10 @@ export function step(s, keys) {
   const prevY = s.y;
   s.x = Math.min(room.width - HALF_W, Math.max(HALF_W, s.x + s.vx * DT));
   s.vy = Math.min(s.vy + GRAVITY * DT, MAX_FALL);
+  if (s.sl) {
+    s.vx = 0; // a slam falls straight
+    s.vy = SLAM_V;
+  }
   s.y += s.vy * DT;
   s.grounded = false;
   s.onPlat = false;
@@ -594,7 +648,7 @@ export function step(s, keys) {
     }
   }
 
-  if (s.grounded) s.fj = false;
+  if (s.grounded) s.fj = s.sl = false; // (a slam ends where it lands: the client sends its hits then)
   s.x = q(s.x);
   s.y = q(s.y);
   s.vx = q(s.vx);
@@ -603,10 +657,11 @@ export function step(s, keys) {
   return s;
 }
 
-// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town]
+// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town, mw, flags2, sc, uc, cw, uw, lw]
 // (`home` never changes, so it isn't in snapshots: welcome / join info carry it, and src/net.js keeps ours)
 // flags: 1 grounded · 2 on a platform · 4 facing left · 8 E held · 16 Jump held · 32 Dash held · 64 Blink held · 128 Flash Jump used
-export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0];
+// flags2: 1 Attack held · 2 slamming
+export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0, s.mw | 0, (s.ah ? 1 : 0) | (s.sl ? 2 : 0), s.sc | 0, s.uc | 0, s.cw | 0, s.uw | 0, s.lw | 0];
 export function unpack(a, s = {}) {
   s.x = a[1];
   s.y = a[2];
@@ -629,6 +684,14 @@ export function unpack(a, s = {}) {
   s.ifr = a[12] ?? 0;
   s.vt = a[13] ?? 0;
   s.town = a[14] ?? 0;
+  s.mw = a[15] ?? 0;
+  s.ah = !!((a[16] ?? 0) & 1);
+  s.sl = !!((a[16] ?? 0) & 2);
+  s.sc = a[17] ?? 0;
+  s.uc = a[18] ?? 0;
+  s.cw = a[19] ?? 0;
+  s.uw = a[20] ?? 0;
+  s.lw = a[21] ?? 0;
   return s;
 }
 

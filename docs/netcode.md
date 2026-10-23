@@ -10,9 +10,14 @@ protocol is documented in the comment at the top of that file: keep it updated**
   the last input it ran in every `s` snapshot; the client rewinds to the server state and replays its
   unacked inputs. State is quantised inside `step()` so prediction matches the server bit for bit.
 - **Anything that changes movement goes in `step()`**, driven by input bits (`LEFT RIGHT JUMP DOWN USE`
-  plus `DASH BLINK` for the Mobility skills), never by side-channel messages. Doors, rooms, Dash, Blink and
-  Flash Jump all work this way. Per-player movement abilities ride in the state (`state.mv`) so prediction
-  knows them too.
+  plus `DASH BLINK` for the Mobility skills and `ATTACK` for the Warrior's chase moves), never by
+  side-channel messages. Doors, rooms, Dash, Blink, Flash Jump, Leap Slam and Upward Cut all work this way.
+  Per-player movement abilities ride in the state (`state.mv`, `state.mw`) so prediction knows them too.
+- **Predicted state edits**: two things change your state from a client-decided event rather than an
+  input: a mob's knockback (`applyKick`, from `ouch`) and a Warrior's Charge connecting (`applyCharge`,
+  from a slap). The client stores the edit on that input's `pending` entry, applies it now and on every
+  replay; the server applies the same edit when it runs the message at that `s`. Both sides must compute
+  it from the state alone (see `docs/combat/skills.md`).
 - Remote slimes render 100 ms behind, interpolated. Mobs are drawn on the server clock the same way
   (`net.renderTick()`).
 - Animation dt is capped at 1/30 s separately from the sim's catch-up: bigger steps turned the jelly
@@ -43,6 +48,8 @@ protocol is documented in the comment at the top of that file: keep it updated**
   encodes each version someone needs, once per tick). **Bump `BIN_VERSION` for the next wire change too**:
   old tabs reconnect after a deploy with their old code, so a silent format change garbles every slime.
 - 2026-10-20: wire version 3 adds `town` (35 bytes per slime; `BYTES_OF` in `wire.js` per version).
+- 2026-10-23: wire version 4 adds the chase moves' state (`mw`, a second flags byte: Attack held and
+  slamming, `sc`, `uc`, `cw`, `uw`, `lw`): 44 bytes per slime. Tested with 150 ms of fake lag: no snapping.
 - Ideas not done yet: send snapshots of only the slimes in your room (plus broadcasters), or at 30 Hz
   for remote slimes; delta-encode mob updates.
 

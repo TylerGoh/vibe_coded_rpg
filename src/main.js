@@ -64,7 +64,7 @@ import { fastGradients } from './fastcanvas.js';
 import { gfx } from './gfx.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
-import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X } from './shared/sim.js';
+import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, chargeOpen, chaseRank, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X } from './shared/sim.js';
 
 const canvas = document.getElementById('game');
 const stage = document.getElementById('stage');
@@ -240,6 +240,10 @@ const net = new Net(wsUrl, {
   onStep(me, seq) {
     return rpg.step(me, seq, !!mine && splatted(mine));
   },
+  // a Leap Slam just landed, or an Upward Cut just went off (fresh steps only): its hits (src/rpg.js)
+  onChase(id, me, seq) {
+    if (mine && !splatted(mine)) rpg.chase(id, me, seq, mine);
+  },
   // personal houses: a house's layout, or someone inviting us over
   onHouse(m) {
     if (m.t === 'house') houses.receive(m);
@@ -261,6 +265,7 @@ const net = new Net(wsUrl, {
       slapper.slap(m.dir); // ours already swung when we clicked
       if (slapper.visible) audio.sfx(weaponSound(slapper), { pan: clamp((slapper.x - (mine?.x ?? 0)) / 500, -1, 1), vol: 0.5 });
       if (slapper.visible && isCombat(room) && ITEMS[slapper.gear?.weapon]?.kind === 'staff') boltDur = rpg.otherBolt(slapper, m.dir, m.mobs);
+      if (slapper.visible && m.charge) rpg.chargeFx(slapper, m.dir); // a Charge (ours showed when we hit)
     }
     if (m.mobs && isCombat(room) && m.id !== net.id) rpg.othersHits(m.mobs, mine?.x ?? 0, boltDur); // ours already showed
     const struck = [];
@@ -436,7 +441,7 @@ function pressMove(id) {
 // Dash / Blink / Flash Jump effects, for anyone: spotted from changes in their physics state
 function moveFx(s, st) {
   const was = s.mvWas ?? st;
-  s.mvWas = { dt: st.dt ?? 0, bc: st.bc ?? 0, fj: !!st.fj, x: st.x, y: st.y };
+  s.mvWas = { dt: st.dt ?? 0, bc: st.bc ?? 0, fj: !!st.fj, x: st.x, y: st.y, sl: !!st.sl, uc: st.uc ?? 0 };
   if (!was || st === was) return;
   const vol = s === mine ? 0.8 : 0.4, pan = clamp((st.x - (mine?.x ?? st.x)) / 500, -1, 1), follow = () => ({ x: s.x, y: s.y });
   if ((st.dt ?? 0) > 0 && !(was.dt > 0)) {
@@ -452,6 +457,20 @@ function moveFx(s, st) {
   if (st.fj && !was.fj) {
     rpg.fx.spawn('flashjump', { x: st.x, y: st.y, dir: st.facing ?? 1 });
     audio.sfx('flashJump', { pan, vol });
+  }
+  // the Warrior's chase moves (their hits: src/rpg.js chase)
+  if (st.sl && !was.sl) {
+    rpg.fx.spawn('slamfall', { follow, dur: 0.6 });
+    audio.sfx('dash', { pan, vol: vol * 0.7 });
+  }
+  if (was.sl && !st.sl) {
+    rpg.fx.spawn('slam', { x: st.x, y: st.y, radius: SKILLS.leap_slam.radius });
+    for (let i = 0; i < 12; i++) particles.add({ x: st.x + rand(-20, 20), y: st.y - 4, vx: rand(-320, 320), vy: rand(-380, -120), g: 1300, size: rand(3, 6), color: i % 2 ? '#fff4e2' : '#e8d4bc', life: rand(0.35, 0.6) });
+    audio.sfx('skySplitter', { pan, vol: vol * 0.8 });
+  }
+  if ((st.uc ?? 0) > (was.uc ?? 0) + 5) {
+    rpg.fx.spawn('upcut', { x: st.x, y: st.y, dir: st.facing ?? s.facing ?? 1, follow });
+    audio.sfx('cleave', { pan, vol });
   }
 }
 const SKILL_KIND = (id) => ({ power_strike: 'strike', sky_splitter: 'strike', cleave: 'strike', whirlwind: 'spin', blade_storm: 'spin' })[id]; // (these swing the sword)
@@ -694,11 +713,11 @@ musicButton.onclick = () => {
 // Controls: every key (or touch button), in the Esc menu instead of as labels on the HUD (owner's request)
 const CONTROLS = TOUCH
   ? [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-     ['Tap the game', 'slap · Hit attacks'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree'],
+     ['Tap the game', 'slap · Hit attacks'], ['Dash, then Hit', 'Charge (Warrior)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree'],
      ['Players', "who's online, invite, message"], ['Chat', 'chat · /w name to whisper · /r to reply'], ['Decorate', 'in your own house'],
      ['Mic · Broadcast', 'talk to slimes nearby · to everyone'], ['Menu', 'this menu']]
   : [['← → / A D', 'walk'], ['↑ / W / Space', 'jump (twice with Flash Jump)'], ['↓ / S', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-     ['Click', 'slap · attack'], ['X', 'attack'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
+     ['Click', 'slap · attack'], ['X', 'attack'], ['Shift then X', 'Charge (Warrior)'], ['↓ + X in the air', 'Leap Slam (Warrior)'], ['Jump + X, rising', 'Upward Cut (Warrior)'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
      ['I · K', 'bag · skill tree'], ['P', "who's online, invite, message"], ['Enter', 'chat · /w name to whisper · /r to reply'],
      ['R', 'decorate your house'], ['C · H · Q', 'course menu · raise your hand · ask Clio'], ['M · B', 'mic · broadcast to everyone'],
      ['F', 'fullscreen'], ['Esc', 'this menu']];
@@ -783,8 +802,17 @@ function slapToward(dir) {
   lastSlap = performance.now();
   mine.slap(dir); // swing straight away
   audio.sfx(weaponSound(mine), { vol: 0.7 });
-  const hits = rpg.slapHits(mine, dir);
+  // Charge (Warrior): a hit while dashing or just after is stronger and gives Dash back (sim.js applyCharge)
+  const charge = isCombat(room) && chargeOpen(net.me); // (the server makes the same call from its own state)
+  const hits = rpg.slapHits(mine, dir, charge ? SKILLS.charge.mult(chaseRank(net.me.mw, 0)) : 1);
+  if (charge && hits.length) {
+    net.charge(net.seq);
+    rpg.chargeFx(mine, dir);
+  }
   net.sendNpc({ t: 'slap', dir, s: net.seq, vt: Math.round(net.renderTick() ?? 0), hits });
+  // the chase moves (Leap Slam, Upward Cut) read the attack inside the physics, on the next step
+  moveBits |= ATTACK;
+  moveSteps = Math.max(moveSteps, 3);
 }
 canvas.addEventListener('pointerdown', (e) => {
   piano.unlock();
@@ -1286,6 +1314,10 @@ function drawHints() {
   if (isCombat(room)) {
     if (rpg.nearLoot) acts.push({ key: 'Z', label: 'pick up loot' });
     if ([...rpg.views.values()].some((v) => Math.abs(v.x - me.x) < 130 && Math.abs(v.y - me.y) < 70)) acts.push({ key: 'X', label: TOUCH ? 'attack' : 'attack (or click)' });
+    // the Warrior's chase moves, while one is possible (sim.js step decides)
+    if (chargeOpen(me)) acts.push({ key: 'X', label: 'Charge' });
+    if (!me.grounded && !me.sl && chaseRank(me.mw, 1) && !me.sc) acts.push({ key: '↓+X', label: 'Leap Slam' });
+    if (!me.grounded && !me.sl && me.vy < 0 && chaseRank(me.mw, 2) && !me.uc) acts.push({ key: 'X', label: 'Upward Cut' });
   }
   if (me.grounded && me.onPlat) acts.push({ key: '↓', label: room === PIANO ? 'drop off the black key' : 'drop down' });
   drawPrompts(ctx, mine.x, mine.y - mine.h - 30, acts, camX, time, TOUCH);

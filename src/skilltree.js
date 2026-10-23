@@ -300,7 +300,7 @@ export class SkillTree {
     ic.append(this.icon(id, touch ? 64 : 52, true));
     const text = el('div', 'skc-body');
     const cd = cooldownOf(id, Math.max(1, rank));
-    const tag = [sk.branch && branchOf(sk.branch).name, sk.adv > 1 && `Lv ${sk.adv}`, sk.kind === 'move' ? `${sk.key} · ${cd} s cooldown · no MP` : ACTIVE(id) ? `${sk.mp} MP · ${cd} s cooldown` : 'passive'].filter(Boolean).join(' · ');
+    const tag = [sk.branch && branchOf(sk.branch).name, sk.adv > 1 && `Lv ${sk.adv}`, sk.kind === 'move' ? `${sk.key} · ${cd} s cooldown · no MP` : sk.kind === 'chase' ? `${sk.how}${cd ? ` · ${Math.round(cd * 10) / 10} s cooldown` : ''} · no MP` : ACTIVE(id) ? `${sk.mp} MP · ${cd} s cooldown` : 'passive'].filter(Boolean).join(' · ');
     const title = el('div', 'skc-title');
     title.append(el('b', null, sk.name), el('span', 'skc-rank', `${rank}/${sk.max}`), el('span', 'skc-tag', tag));
     text.append(title, el('p', null, rank ? `Now: ${sk.desc(rank)}` : `Rank 1: ${sk.desc(1)}`));

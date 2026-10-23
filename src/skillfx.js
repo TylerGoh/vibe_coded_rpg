@@ -16,6 +16,7 @@ const TREE_OF = {
   slime_bash: 'novice', pebble_toss: 'novice', jelly_patch: 'novice', jelly_thirst: 'blade', mana_shield: 'magic',
   fireball: 'fire', kindling: 'fire', glacial_spike: 'magic', absolute_zero: 'magic',
   challenge_gods: 'gods', // (a gift: one player's own)
+  charge: 'blade', leap_slam: 'blade', upward_cut: 'blade', momentum: 'blade', // the Warrior's chase moves (S2.5)
 };
 const PALETTE = {
   blade: [BLADE, '#ffc4b0', '#b85a48'],
@@ -221,6 +222,80 @@ export function drawSkillIcon(ctx, id, x, y, size) {
 }
 
 const ICONS = {
+  // ——— the Warrior's chase moves (S2.5) ———
+  charge(ctx, dark) {
+    // a sword thrust forward with speed lines streaming behind it, a star where it lands
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    for (const [y, x0, x1] of [[-8, -19, -9], [0, -21, -7], [8, -18, -9]]) {
+      ctx.moveTo(x0, y);
+      ctx.lineTo(x1, y);
+    }
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(-4, 0);
+    ctx.rotate(Math.PI / 2);
+    iconSword(ctx, dark, 20, 3);
+    ctx.restore();
+    ctx.fillStyle = '#fff6c4';
+    star(ctx, 17, 0, 5);
+  },
+  leap_slam(ctx, dark) {
+    // a sword driving straight down into the ground, a shockwave ring spreading out
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.ellipse(0, 14, 17, 4.5, 0, 0, TAU);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.beginPath();
+    ctx.moveTo(-14, 4);
+    ctx.lineTo(-19, -1);
+    ctx.moveTo(14, 4);
+    ctx.lineTo(19, -1);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(0, -12);
+    ctx.rotate(Math.PI);
+    iconSword(ctx, dark, 20, 3);
+    ctx.restore();
+  },
+  upward_cut(ctx, dark) {
+    // a rising crescent with an up arrow and a sword sweeping up through it
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.beginPath();
+    ctx.arc(4, 4, 18, Math.PI * 0.55, Math.PI * 1.45);
+    ctx.arc(9, 4, 14, Math.PI * 1.4, Math.PI * 0.6, true);
+    ctx.closePath();
+    ctx.fill();
+    ctx.save();
+    ctx.translate(6, 12);
+    ctx.rotate(0.3);
+    iconSword(ctx, dark, 20, 3);
+    ctx.restore();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    ctx.moveTo(-13, -10);
+    ctx.lineTo(-8, -17);
+    ctx.lineTo(-3, -10);
+    ctx.stroke();
+  },
+  momentum(ctx, dark) {
+    // three chevrons, getting bigger, pushing forward
+    ctx.lineWidth = 3.2;
+    [[-11, 6, 0.55], [-2, 8, 0.8], [8, 10, 1]].forEach(([x, h, a]) => {
+      ctx.strokeStyle = `rgba(255,255,255,${a})`;
+      ctx.beginPath();
+      ctx.moveTo(x - h * 0.6, -h);
+      ctx.lineTo(x + h * 0.4, 0);
+      ctx.lineTo(x - h * 0.6, h);
+      ctx.stroke();
+    });
+    ctx.fillStyle = '#fff6c4';
+    star(ctx, 17, -14, 3.5);
+  },
   // ——— Gifts ———
   challenge_gods(ctx) {
     // a lightning bolt striking down on a single tiny heart (1 HP), rays behind
@@ -1139,6 +1214,7 @@ const LIFE = {
   strike: 0.35, spin: 0.5, heal: 0.9, nova: 0.6, buff: 0.6, levelskill: 0.8,
   cleave: 0.38, storm: 1.0, skysplit: 0.65, chain: 0.42, starfall: 1.3, bubblePop: 0.45, rally: 0.8, aegis: 0.7, secondwind: 1.0,
   dash: 0.3, blink: 0.45, flashjump: 0.35, scroll: 1.4, gods: 1.1,
+  charge: 0.35, slam: 0.55, upcut: 0.4,
 };
 
 export class SkillFx {
@@ -1148,14 +1224,14 @@ export class SkillFx {
 
   // kind: 'strike' | 'spin' | 'bolt' | 'heal' | 'nova' | 'buff' | 'levelskill' | 'cleave' | 'storm' |
   // 'skysplit' | 'chain' | 'meteor' | 'starfall' | 'bubblePop' | 'rally' | 'zone' | 'aegis' | 'secondwind' |
-  // 'dash' | 'blink' | 'flashjump' | 'scroll' | 'iframe' | 'staffbolt'
+  // 'dash' | 'blink' | 'flashjump' | 'scroll' | 'iframe' | 'staffbolt' | 'charge' | 'slam' | 'slamfall' | 'upcut'
   // (options: see each FX entry)
   spawn(kind, o = {}) {
     const life = kind === 'bolt' ? (o.dur ?? 0.3) + 0.35
       : kind === 'staffbolt' ? (o.dur ?? 0.15) + 0.25
       : kind === 'meteor' ? (o.delay ?? 0.8) + 0.6
       : kind === 'zone' ? (o.dur ?? 8)
-      : kind === 'iframe' ? (o.dur ?? 0.3)
+      : kind === 'iframe' || kind === 'slamfall' ? (o.dur ?? 0.3)
       : LIFE[kind];
     if (!life) return;
     this.list.push({ kind, o, age: 0, life, seed: Math.random() * 1000 });
@@ -1179,6 +1255,95 @@ export class SkillFx {
 }
 
 const FX = {
+  // ——— the Warrior's chase moves (S2.5) ———
+  // Charge {x, y, dir}: a burst of sparks and a short coral thrust where the dash hit
+  charge(ctx, e, k) {
+    const { x, y } = e.o, dir = e.o.dir < 0 ? -1 : 1, fade = 1 - k;
+    ctx.translate(x + dir * 30, y - 22);
+    ctx.scale(dir, 1);
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = 'rgba(255,154,126,0.5)';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 18 + ease(k) * 26, 10 + ease(k) * 6, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let i = 0; i < 7; i++) {
+      const a = (i / 7 - 0.5) * 2.2, d0 = 8 + ease(k) * 12, d1 = d0 + 14 * fade + 4;
+      ctx.moveTo(Math.cos(a) * d0, Math.sin(a) * d0);
+      ctx.lineTo(Math.cos(a) * d1, Math.sin(a) * d1);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#fff6c4';
+    star(ctx, 0, 0, 9 * fade + 2);
+  },
+  // Leap Slam falling {follow}: a streak of speed lines above the slime as it drops
+  slamfall(ctx, e) {
+    const p = e.o.follow?.();
+    if (!p) return;
+    ctx.translate(p.x, p.y - 40);
+    for (let i = 0; i < 5; i++) {
+      const dx = (i - 2) * 9, len = 26 + rnd(e.seed, i) * 26;
+      ctx.globalAlpha = 0.7 - Math.abs(i - 2) * 0.15;
+      ctx.strokeStyle = i % 2 ? 'rgba(255,200,180,0.9)' : '#ffffff';
+      ctx.lineWidth = i === 2 ? 4 : 2.5;
+      ctx.beginPath();
+      ctx.moveTo(dx, -4);
+      ctx.lineTo(dx, -4 - len);
+      ctx.stroke();
+    }
+  },
+  // Leap Slam landing {x, y, radius}: a shockwave ring along the floor and cracks of light
+  slam(ctx, e, k) {
+    const { x, y } = e.o, R = (e.o.radius ?? 100) * (0.3 + 0.7 * ease(k)), fade = 1 - k;
+    ctx.translate(x, y);
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = 'rgba(255,220,200,0.3)';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, R, R * 0.22, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 5 * fade + 1;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, R, R * 0.22, 0, 0, TAU);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,154,126,0.9)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = Math.PI + (i / 5) * Math.PI, d = 10 + R * 0.5;
+      ctx.moveTo(Math.cos(a) * 8, Math.sin(a) * 4);
+      ctx.lineTo(Math.cos(a) * d, Math.sin(a) * d * 0.6);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#fff6c4';
+    star(ctx, 0, -6, 10 * fade + 2);
+  },
+  // Upward Cut {x, y, dir, follow}: a crescent sweeping up from below the slime to over its head
+  upcut(ctx, e, k) {
+    const p = e.o.follow?.() ?? e.o, dir = e.o.dir < 0 ? -1 : 1;
+    ctx.translate(p.x, p.y - 30);
+    ctx.scale(dir, 1);
+    const sweep = ease(Math.min(1, k / 0.5)), fade = k < 0.5 ? 1 : 1 - (k - 0.5) / 0.5;
+    const a0 = Math.PI * 0.6, a1 = a0 - Math.PI * 1.2 * sweep, R = 50;
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = '#ff9a7e';
+    ctx.beginPath();
+    ctx.arc(0, 0, R + 4, a0, a1, true);
+    ctx.arc(-6, 0, R - 8, a1, a0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(0, 0, R, a0 - 0.1, a1, true);
+    ctx.arc(-4, 0, R - 4, a1, a0 - 0.1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#fff6c4';
+    star(ctx, Math.cos(a1) * (R + 2), Math.sin(a1) * (R + 2), 7 * (1 - k * 0.6));
+  },
+
   // Challenge the Gods {x, y}: a bolt of light out of the sky onto the caster, and a crimson ring bursting out
   gods(ctx, e, k) {
     const { x, y } = e.o, fade = 1 - k;

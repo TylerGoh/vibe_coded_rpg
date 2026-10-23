@@ -1,6 +1,6 @@
 // Docs: docs/combat/skills.md
 import { attackFor, defenseFor, maxHpFor, reachFor, ITEMS, STAFF_BOLT_RANGE } from './rpg.js';
-import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR_BLINK, IFR_PHANTOM, PHANTOM_CD } from './sim.js';
+import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR_BLINK, IFR_PHANTOM, PHANTOM_CD, SLAM_CD, UPCUT_CD, CHARGE_RESET } from './sim.js';
 
 // Shared by client and server: classes, their skill trees, mana, and the hotbar (story/progression.md,
 // story/s2-plan.md). Everyone starts as a Novice; at CLASS_LVL you choose a class at the Rebirth Pool
@@ -74,8 +74,9 @@ export function advanceText(cls, lvl) {
 // slowing them) · 'meteor' (a big blast where the first mob ahead stands, a moment later) · 'starfall'
 // (every mob in the room) · 'heal' (`self`: just you) · 'buff' (Berserk) · 'shield' (Mana Shield) ·
 // 'bubble' (blocks the next hit) · 'rally' (team attack/defence buff) · 'zone' (Sanctuary) · 'aegis'
-// (team immunity) · 'gods' (Challenge the Gods) · 'passive'. `fire`: a fire spell (Kindling makes it stronger).
-// (S2.5 adds the Warrior's chase moves and S2.6 the Mage's Arcane Charge; S6 the Lv 150 masteries.)
+// (team immunity) · 'gods' (Challenge the Gods) · 'chase' (the Warrior's chase moves: no hotbar, no MP, set off
+// by movement + Attack inside sim.js step(); `how` says which) · 'passive'. `fire`: a fire spell (Kindling makes it stronger).
+// (S2.6 adds the Mage's Arcane Charge; S6 the Lv 150 masteries.)
 const W = { cls: 'warrior', tree: 'warrior' }, M = { cls: 'mage', tree: 'mage' };
 export const SKILLS = {
   // ——— Novice (Novice points, Lv 1, kept forever; weak once you have a class) ———
@@ -114,6 +115,27 @@ export const SKILLS = {
     ...W, adv: 10, name: 'Jelly Thirst', kind: 'passive', max: 3,
     share: (r) => 0.01 * r,
     desc: (r) => `Every hit you land heals you ${Math.round(1 * r)}% of the damage it did.`,
+  },
+  // the chase moves (S2.5, story/progression.md 1c): short moves toward the target, each its own press
+  charge: {
+    ...W, adv: 10, name: 'Charge', kind: 'chase', max: 2, how: 'Dash, then hit',
+    mult: (r) => [1, 1.8, 2.2][r],
+    desc: (r) => `Hit a mob while you Dash (or just after) for ${pct([1, 1.8, 2.2][Math.max(1, r)])} damage: the dash stops on it and ${Math.round(CHARGE_RESET[Math.max(1, r)] * 100)}% of Dash's cooldown comes back, so you can chain charge, hit, charge. Needs Dash.`,
+  },
+  leap_slam: {
+    ...W, adv: 10, name: 'Leap Slam', kind: 'chase', max: 2, how: 'In the air: Down + Attack', radius: 100, cdFor: (r) => SLAM_CD[r] / 60,
+    mult: (r) => 1.8 + 0.5 * r,
+    desc: (r) => `In the air, hold Down and attack: drop straight down and slam every mob within 100 px of where you land for ${pct(1.8 + 0.5 * Math.max(1, r))} damage. Cooldown ${SLAM_CD[Math.max(1, r)] / 60} s.`,
+  },
+  upward_cut: {
+    ...W, adv: 10, name: 'Upward Cut', kind: 'chase', max: 2, how: 'Jump, then attack while rising', reach: 160, cdFor: (r) => UPCUT_CD[r] / 60,
+    mult: (r) => 1.0 + 0.3 * r,
+    desc: (r) => `Attack while you're still rising from a jump: the swing carries you higher and cuts every mob up to 160 px above you for ${pct(1.0 + 0.3 * Math.max(1, r))} damage. For mobs on a ledge. Cooldown ${UPCUT_CD[Math.max(1, r)] / 60} s.`,
+  },
+  momentum: {
+    ...W, adv: 10, name: 'Momentum', kind: 'passive', max: 2,
+    per: (r) => [0, 0.02, 0.03][r],
+    desc: (r) => `Every Charge, Leap Slam or Upward Cut that lands adds a stack: +${Math.round([0, 0.02, 0.03][Math.max(1, r)] * 100)}% attack each, up to ${MOMENTUM_MAX}. They last ${MOMENTUM_DUR} s, and all go if you stand still.`,
   },
   // Knight
   jelly_bubble: {
@@ -265,11 +287,17 @@ function pct(m) {
   return `${Math.round(m * 100)}%`;
 }
 export const cooldownOf = (id, rank) => SKILLS[id].cdFor?.(rank) ?? SKILLS[id].cd;
+// Momentum (Warrior): stacks from chase-move hits, each lasting MOMENTUM_DUR s from the last; standing still
+// for MOMENTUM_STILL s loses them all (server/rpg.js)
+export const MOMENTUM_MAX = 5, MOMENTUM_DUR = 8, MOMENTUM_STILL = 1;
+// The chase moves' ranks, packed for the physics (sim.js step reads state.mw): bits 0–1 Charge · 2–3 Leap
+// Slam · 4–5 Upward Cut
+export const chaseOf = (skills) => rankOf(skills, 'charge') | (rankOf(skills, 'leap_slam') << 2) | (rankOf(skills, 'upward_cut') << 4);
 // The movement abilities a character has, packed for the physics (sim.js step reads state.mv):
 // bits 0–1 Dash rank · 2–3 Flash Jump · 4–5 Blink · 6–7 Phantom Step
 export const mobilityOf = (skills) => rankOf(skills, 'dash') | (rankOf(skills, 'flash_jump') << 2) | (rankOf(skills, 'blink') << 4) | (rankOf(skills, 'phantom_step') << 6);
 export const durOf = (id, rank) => (typeof SKILLS[id].dur === 'function' ? SKILLS[id].dur(rank) : SKILLS[id].dur);
-export const ACTIVE = (id) => SKILLS[id] && SKILLS[id].kind !== 'passive';
+export const ACTIVE = (id) => SKILLS[id] && SKILLS[id].kind !== 'passive' && SKILLS[id].kind !== 'chase'; // (hotbar skills)
 
 export const HOTBAR = 6; // skill slots, keys 1–6 (a skill id or null)
 export const POTBAR = 3; // potion slots, keys 7–9 (a potion item id or null)
@@ -364,13 +392,14 @@ export const apSpent = (ap) => AP_STATS.reduce((n, s) => n + apOf(ap, s.id), 0);
 export const MIN_ROLL = 0.85, MAX_ROLL = 1.15; // ±15% before DEX
 export const minRollFor = (ap) => Math.min(1.05, MIN_ROLL + 0.001 * apOf(ap, 'dex'));
 // Everything about a character's numbers in one place (c: {lvl, gear, skills}).
-// buffs: { gods: true while Challenge the Gods is up (HP capped at 1, damage boosted), berserk: true while it's up, rally: the Rally boost (e.g. 0.2) while it's up, manaShield: true
+// buffs: { momentum: Momentum's stacks, gods: true while Challenge the Gods is up (HP capped at 1, damage boosted), berserk: true while it's up, rally: the Rally boost (e.g. 0.2) while it's up, manaShield: true
 // while Mana Shield is up, brew: a brewed potion's buff ({ atk, crit, ward, regen, ... }, ITEMS) while it's up }
 export function statsFor(c, buffs = {}) {
   const rage = buffs.berserk ? 1 + SKILLS.berserk.boost(rankOf(c.skills, 'berserk')) : 1;
   const rally = 1 + (buffs.rally ?? 0);
   const brew = buffs.brew ?? {}; // a brewed potion's buff (src/shared/alchemy.js)
   const might = (1 + (brew.atk ?? 0)) * (buffs.gods ? 1 + GODS_BOOST : 1);
+  const push = 1 + SKILLS.momentum.per(rankOf(c.skills, 'momentum')) * Math.min(MOMENTUM_MAX, buffs.momentum ?? 0); // (Momentum: ATK only)
   const arcane = 1 + 0.2 * rankOf(c.skills, 'arcane_mind');
   const mastery = rankOf(c.skills, 'sword_mastery');
   // scroll enhancements on the worn gear (rpg.js rollScroll)
@@ -379,7 +408,7 @@ export function statsFor(c, buffs = {}) {
   const str = apOf(c.ap, 'str'), dex = apOf(c.ap, 'dex'), int = apOf(c.ap, 'int'), luk = apOf(c.ap, 'luk');
   const ms = rankOf(c.skills, 'mana_shield');
   return {
-    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + 0.6 * str + 0.2 * dex) * rage * rally * might),
+    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + 0.6 * str + 0.2 * dex) * rage * rally * might * push),
     magic: Math.round((magicFor(c.lvl) + (staff?.magic ?? 0) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might),
     def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 5 * rankOf(c.skills, 'iron_jelly')) * rally),
     maxHp: buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str) * (1 + 0.08 * rankOf(c.skills, 'vitality'))),

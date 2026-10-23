@@ -8,7 +8,7 @@ import { text } from './village.js';
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 
 // What each key is called on the touch controls (src/touch.js)
-const TOUCH_NAMES = { E: 'E', Z: 'Loot', X: 'Hit', '↓': '▼', H: 'Hand', C: 'Courses', Q: 'Ask Clio', I: 'Bag' };
+const TOUCH_NAMES = { E: 'E', Z: 'Loot', X: 'Hit', '↓': '▼', '↓+X': '▼ Hit', H: 'Hand', C: 'Courses', Q: 'Ask Clio', I: 'Bag' };
 export const keyName = (key, touch) => (touch ? TOUCH_NAMES[key] ?? key : key);
 
 function keycap(ctx, x, y, label, h = 22) {
