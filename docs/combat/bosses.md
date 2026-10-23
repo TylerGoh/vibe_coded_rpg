@@ -55,6 +55,12 @@ don't need it (`FIELD_BOSS_RESPAWN_MS` is longer than the window).
   `server/rpg.js`, by name; overkill doesn't count) and sends it to the room as `{t:'bossdmg'}` while it
   changes. The client draws it on the right, under the boss bar (`drawMeter` in `src/rpg.js`): the top
   five with their share, and you always.
+- **Healing done and damage taken** (S3, for the Cleric and the Knight): under the damage, once anyone has
+  some, the top three of each (`heal` and `taken` on the mob, sent as `h` and `k` on `bossdmg`). `credit()` in
+  `server/rpg.js` adds to every den boss in the room and every field boss being fought there: a heal from
+  `healFrom` (Jelly Heal, Mend, the wisp, Smite, the bonk), damage taken from a mob or boss in `hurt()`
+  (capped at the HP that was left). A heal there also counts as fighting the boss (`hitters`), so a Cleric
+  who only heals still gets the EXP and the loot roll. Same resets as the damage.
 - **It starts over whenever the boss's HP does**: a respawn after a kill, a den boss healing when
   everyone left, a field boss healing when left alone. HP growing for more fighters
   (`BOSS_HP_PER_PLAYER`) and Pyra's Rebirth heal aren't resets. After a kill the den keeps showing the

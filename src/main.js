@@ -218,7 +218,8 @@ const net = new Net(wsUrl, {
       if (isCombat(room)) rpg.hurt(s?.visible || s === mine ? s : null, m.dmg, m.id === net.id);
     } else if (m.t === 'faint') {
       const s = m.id === net.id ? mine : slimes.get(m.id);
-      if (s && isCombat(room) && (s === mine || s.visible)) splat(s, m.id === net.id);
+      if (s && isCombat(room) && (s === mine || s.visible)) splat(s, m.id === net.id, m.wait);
+      if (m.wait && m.id === net.id) rpg.toast(`Hold on: a Cleric can revive you (${m.wait} s)`);
     } else {
       if (m.t === 'guard') return rpg.guard(m, m.id === net.id ? mine : slimes.get(m.id), m.id === net.id);
       rpg.receive(m, { mine, myId: net.id, slimeOf: (id) => (id === net.id ? mine : slimes.get(id)) });
@@ -228,6 +229,10 @@ const net = new Net(wsUrl, {
           Object.assign(mine, { lvl: m.lvl, pvp: m.pvp });
           // our buffs and shields, as the server sees them (in rpg.time)
           for (const b of ['berserk', 'rally', 'bubble', 'aegis', 'gods']) mine[`${b}Until`] = rpg.time + (m[b] ?? 0) / 1000;
+          // a Cleric's Barrier on us: how much of it is left (it fades as it soaks)
+          if (m.barrier > 0 && !((mine.barrierUntil ?? 0) > rpg.time && mine.barrierTop)) mine.barrierTop = m.barrier;
+          mine.barrierUntil = m.barrier > 0 ? rpg.time + (m.barrierLeft ?? 0) / 1000 : 0;
+          mine.barrierF = m.barrier > 0 ? Math.min(1, m.barrier / (mine.barrierTop || m.barrier)) : 0;
         }
         alchemy.gotMe(m);
         skillTree.render();
@@ -264,7 +269,9 @@ const net = new Net(wsUrl, {
     if (slapper && slapper !== mine) {
       slapper.slap(m.dir); // ours already swung when we clicked
       if (slapper.visible) audio.sfx(weaponSound(slapper), { pan: clamp((slapper.x - (mine?.x ?? 0)) / 500, -1, 1), vol: 0.5 });
-      if (slapper.visible && isCombat(room) && ITEMS[slapper.gear?.weapon]?.kind === 'staff') boltDur = rpg.otherBolt(slapper, m.dir, m.mobs);
+      const staff = ITEMS[slapper.gear?.weapon]?.kind === 'staff';
+      if (slapper.visible && isCombat(room) && staff && slapper.cls !== 'cleric') boltDur = rpg.otherBolt(slapper, m.dir, m.mobs);
+      if (slapper.visible && isCombat(room) && staff && slapper.cls === 'cleric') for (const [id] of m.mobs ?? []) { const v = rpg.views.get(id); if (v) rpg.bonkFx(v); } // (a Cleric's bonk)
       if (slapper.visible && m.charge) rpg.chargeFx(slapper, m.dir); // a Charge (ours showed when we hit)
     }
     if (m.mobs && isCombat(room) && m.id !== net.id) rpg.othersHits(m.mobs, mine?.x ?? 0, boltDur); // ours already showed
@@ -476,10 +483,12 @@ function moveFx(s, st) {
 const SKILL_KIND = (id) => ({ power_strike: 'strike', sky_splitter: 'strike', cleave: 'strike', whirlwind: 'spin', blade_storm: 'spin' })[id]; // (these swing the sword)
 // ——— fainting: the slime goes splat into a puddle of its own jelly (then wakes up in the village) ———
 const SPLAT_TIME = 1.6;
-const splats = []; // { s, x, y, at, seed }
-function splat(s, isMe) {
+const splats = []; // { s, x, y, at, seed, life }
+// wait: seconds it stays down for a Cleric's Revive (S3), instead of SPLAT_TIME
+function splat(s, isMe, wait) {
   s.splatAt = time;
-  splats.push({ s, x: s.x, y: s.y, at: time, seed: Math.random() * 100 });
+  s.splatFor = wait || SPLAT_TIME;
+  splats.push({ s, x: s.x, y: s.y, at: time, seed: Math.random() * 100, life: s.splatFor });
   for (let i = 0; i < 16; i++) {
     particles.add({ x: s.x + rand(-14, 14), y: s.y - rand(8, 26), vx: rand(-260, 260), vy: rand(-430, -150), g: 1100, size: rand(3, 7), color: i % 3 ? s.palette.top : s.palette.bottom, life: rand(0.5, 0.9) });
   }
@@ -487,15 +496,26 @@ function splat(s, isMe) {
   audio.sfx('faint', { pan: clamp((s.x - (mine?.x ?? 0)) / 500, -1, 1), vol: isMe ? 1 : 0.6 });
   if (isMe) held.clear();
 }
-const splatted = (s) => s.splatAt !== undefined && time - s.splatAt < SPLAT_TIME;
+const splatted = (s) => s.splatAt !== undefined && time - s.splatAt < (s.splatFor ?? SPLAT_TIME);
+// a Cleric got s back up where it fell (Revive, Miracle): no more puddle
+function unsplat(s) {
+  s.splatAt = undefined;
+  for (let i = splats.length - 1; i >= 0; i--) if (splats[i].s === s) splats.splice(i, 1);
+}
+rpg.onRevived = (id) => {
+  const s = id === net.id ? mine : slimes.get(id);
+  if (s) unsplat(s);
+};
+// Revive's check before casting: a knocked-out slime within r of (x, y)?
+rpg.downNear = (x, y, r) => [...slimes.values()].some((s) => s.visible !== false && splatted(s) && Math.hypot(s.x - x, s.y - y) <= r + 40);
 function drawSplats() {
   for (let i = splats.length - 1; i >= 0; i--) {
-    const p = splats[i], k = (time - p.at) / SPLAT_TIME;
+    const p = splats[i], k = (time - p.at) / p.life, settle = Math.min(1, ((time - p.at) / SPLAT_TIME) * 7);
     if (k > 1) {
       splats.splice(i, 1);
       continue;
     }
-    const pal = p.s.palette, spread = 1 - (1 - Math.min(1, k * 7)) ** 3; // splats out fast, then settles
+    const pal = p.s.palette, spread = 1 - (1 - settle) ** 3; // splats out fast, then settles
     ctx.save();
     ctx.globalAlpha = Math.min(1, (1 - k) * 4);
     ctx.translate(p.x, p.y);
@@ -794,7 +814,7 @@ function impact(x, y) {
 }
 let lastSlap = 0;
 // what a slap sounds like with what's in hand: a sword swings, a staff fires (its bolt), a mitten slaps
-const weaponSound = (s) => ({ sword: 'swing', staff: 'staffBolt' })[ITEMS[s.gear?.weapon]?.kind] ?? 'slap';
+const weaponSound = (s) => (s.cls === 'cleric' && ITEMS[s.gear?.weapon]?.kind === 'staff' ? 'swing' : { sword: 'swing', staff: 'staffBolt' }[ITEMS[s.gear?.weapon]?.kind] ?? 'slap'); // (a Cleric bonks)
 // In the Wildwood a slap (or a sword swing, with one equipped) also hits mobs
 // (what it hits is decided right here from what's on screen, and shown straight away: src/rpg.js)
 function slapToward(dir) {

@@ -10,10 +10,11 @@ import { text } from './village.js';
 import { drawMob, drawItemIcon } from './field.js';
 import { drawBoss, drawBossBar, BossFx, drawUltBanner } from './dens.js';
 import { drawHazard } from './hazards.js';
-import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, drawRallyAura, drawAegisAura } from './skillfx.js';
+import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, drawBarrier, drawRallyAura, drawAegisAura } from './skillfx.js';
+import { Summons } from './summons.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult } from './shared/skills.js';
+import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, BONK_MULT, BONK_REACH } from './shared/skills.js';
 import { drawMobState, drawArcanePips } from './elements.js';
 import { staffGlow } from './staff-art.js';
 import { SLAP_REACH, DASH_CD, BLINK_CD, PHANTOM_CD } from './shared/sim.js';
@@ -56,6 +57,8 @@ export class Rpg {
     this.bossBack = 0; // seconds until this den's boss returns (0: it's here)
     this.dmg = new Map(); // boss / field boss id → { kind, d: [[name, damage], …], at }: the damage meter
     this.fx = new SkillFx();
+    this.summons = new Summons(this); // the Cleric's spirits, wisps and totems (S3)
+    this.downNear = () => false; // (x, y, r) → is a knocked-out slime there? (main.js: Revive's check)
     this.bossFx = new BossFx();
     this.hz = []; // the newer mobs' and bosses' attacks: simulated here, judged in step(), drawn by hazards.js
     this.timed = []; // [time, fn]: follow-ups (a geyser erupting, a bomb going off…)
@@ -167,8 +170,10 @@ export class Rpg {
       this.skillEcho(m, slimeOf, myId, mine);
     } else if (m.t === 'boss') {
       this.bossEvent(m, mine);
+    } else if (m.t === 'summons' || m.t === 'sumhit' || m.t === 'sumhurt' || m.t === 'sumgone') {
+      this.summons.receive(m, { mine });
     } else if (m.t === 'bossdmg') {
-      if (m.d.length) this.dmg.set(m.id, { kind: m.kind, d: m.d, at: this.time });
+      if (m.d.length) this.dmg.set(m.id, { kind: m.kind, d: m.d, h: m.h ?? [], k: m.k ?? [], at: this.time });
       else this.dmg.delete(m.id); // its HP was reset: the meter starts over
     } else if (m.t === 'scrolled') {
       this.scrolled(m, slimeOf(m.id), m.id === myId);
@@ -254,6 +259,7 @@ export class Rpg {
   // (the server allows it from its own state: server/rpg.js attack)
   slapHits(me, dir, mult = 1) {
     if (!this.me || !isCombat(this.room)) return [];
+    if (this.staffOf(this.me) && this.me.cls === 'cleric') return this.bonk(me, dir);
     if (this.staffOf(this.me)) return this.staffBolt(me, dir);
     const [v] = this.ahead(me, dir, SLAP_REACH + (this.swordOf(this.me)?.reach ?? 0));
     if (!v) return [];
@@ -263,6 +269,22 @@ export class Rpg {
     this.blocked(v, cut);
     this.showHit(v, dmg, crit, me.x);
     return [[v.id, dmg, crit]];
+  }
+
+  // A Cleric's staff bonk (S3): close, on MAGIC; the server heals a hurt friend from it (server/rpg.js bonk)
+  bonk(me, dir) {
+    const [v] = this.ahead(me, dir, SLAP_REACH + BONK_REACH);
+    if (!v) return [];
+    const cut = this.shellCut(v, me.x);
+    let [dmg, crit] = this.roll(this.me.magic, BONK_MULT);
+    dmg = Math.max(1, Math.round(dmg * cut));
+    this.blocked(v, cut);
+    this.showHit(v, dmg, crit, me.x);
+    this.bonkFx(v);
+    return [[v.id, dmg, crit]];
+  }
+  bonkFx(v) {
+    this.fx.spawn('bonk', { x: v.x, y: v.y - MOBS[v.kind].h * 0.6 });
   }
 
   // A Charge connected (anyone's: the slap echo carries `charge` for the others)
@@ -392,6 +414,7 @@ export class Rpg {
     if (!isCombat(this.room)) return fail('Skills only work out in the Wildwood', 'error');
     if (this.cooldown(id) > 0) return false;
     if (m.mp < sk.mp) return fail('Not enough MP', 'noMana');
+    if (sk.kind === 'revive' && !this.downNear(me.x, me.y, sk.radius)) return fail('Nobody near you is knocked out', 'error');
     m.mp -= sk.mp; // the server's next 'me' corrects this
     this.cds[id] = this.time + cooldownOf(id, rank);
     const msg = { t: 'skill', skill: id, dir, s: seq, hits: [] };
@@ -413,8 +436,8 @@ export class Rpg {
       else this.showHit(v, dmg, crit, sx);
     };
     const sx = me.x, sy = me.y, reach = SLAP_REACH + (this.swordOf(m)?.reach ?? 0) + (sk.reach ?? 0);
-    const mag = (sk.stat === 'best' ? Math.max(m.atk, m.magic) : m.magic) * (sk.fire ? m.fire ?? 1 : 1);
-    const sound = { strike: id === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter' }[sk.kind];
+    const mag = (sk.stat === 'best' ? Math.max(m.atk, m.magic) : m.magic) * (sk.fire ? m.fire ?? 1 : 1) * (sk.holy ? m.heal ?? 1 : 1);
+    const sound = { strike: id === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter', mend: 'heal', miracle: 'aegis', revive: 'secondWind', barrier: 'bubble', summon: 'rally' }[sk.kind];
     if (sk.kind === 'strike') {
       const [v] = this.ahead(me, dir, reach);
       if (v) hit(v, m.atk);
@@ -481,8 +504,15 @@ export class Rpg {
       const hits = this.around(sx, sy, sk.radius);
       hits.forEach((v, n) => hit(v, mag, 0.3 + 0.08 * n));
       this.fx.spawn('starfall', { x: sx, y: sy, radius: sk.radius, targets: hits.map((v) => ({ x: v.x, y: v.y })) });
-    } else if (sk.kind === 'heal') {
+    } else if (sk.kind === 'heal' || sk.kind === 'mend' || sk.kind === 'miracle') {
+      this.fx.spawn('heal', { x: sx, y: sy, radius: Math.min(sk.radius, 400), targets: [{ x: sx, y: sy }] });
+    } else if (sk.kind === 'barrier') {
+      if (mine) Object.assign(mine, { barrierUntil: this.time + sk.dur, barrierF: 1 });
+      this.fx.spawn('barrier', { x: sx, y: sy, radius: sk.radius });
+    } else if (sk.kind === 'revive') {
       this.fx.spawn('heal', { x: sx, y: sy, radius: sk.radius, targets: [{ x: sx, y: sy }] });
+    } else if (sk.kind === 'summon') {
+      this.summons.called(sx + (sk.what === 'totem' ? 0 : dir * 36), sy);
     } else if (sk.kind === 'buff') {
       if (mine) mine.berserkUntil = this.time + sk.dur;
       this.fx.spawn('buff', { x: sx, y: sy });
@@ -513,7 +543,7 @@ export class Rpg {
   // (fire, and a burst where it lands)
   boltFx(id, sk, x, y, tx, ty, dur, hit) {
     if (sk.stat === 'best') return this.fx.spawn('staffbolt', { x: x + 8 * Math.sign(tx - x), y: y - 24, tx, ty, dur: dur * 1.4, hit, tint: '214,196,170' });
-    this.fx.spawn('bolt', { x, y: y - 22, tx, ty, dur, hit, tint: sk.fire ? '255,150,80' : sk.ice ? '160,225,255' : undefined });
+    this.fx.spawn('bolt', { x, y: y - 22, tx, ty, dur, hit, tint: sk.fire ? '255,150,80' : sk.ice ? '160,225,255' : sk.holy ? '255,232,150' : undefined });
     if (sk.kind === 'fireball') this.timed.push([this.time + dur, () => this.fx.spawn('nova', { x: tx, y: ty + 18, radius: sk.radius, tint: 'fire' })]);
   }
 
@@ -530,6 +560,15 @@ export class Rpg {
       if (!s) continue;
       if (sk.kind === 'rally') s.rallyUntil = this.time + m.dur;
       if (sk.kind === 'aegis') s.aegisUntil = this.time + m.dur;
+      if (sk.kind === 'barrier') Object.assign(s, { barrierUntil: this.time + m.dur, barrierF: 1 });
+    }
+    // Revive / Miracle: everyone it got back up (main.js clears their splat)
+    for (const pid of m.revived ?? []) {
+      const s = slimeOf(pid);
+      this.onRevived?.(pid);
+      if (!s) continue;
+      this.fx.spawn('revive', { x: s.x, y: s.y });
+      this.pop(s.x, s.y - 70, 'REVIVED!', '#ffe9a0', 22);
     }
     if (m.id === myId || !caster || caster.visible === false) return;
     const x = caster.x, y = caster.y, vol = 0.6, pan = panX(x, myX);
@@ -548,13 +587,16 @@ export class Rpg {
     else if (sk.kind === 'chain' && m.points) this.fx.spawn('chain', { points: m.points.map(([px, py]) => ({ x: px, y: py })) });
     else if (sk.kind === 'nova') this.fx.spawn('nova', { x, y, radius: sk.radius });
     else if (sk.kind === 'starfall') this.fx.spawn('starfall', { x, y, radius: sk.radius, targets: m.hits.map(([id]) => this.views.get(id)).filter(Boolean).map((v) => ({ x: v.x, y: v.y })) });
-    else if (sk.kind === 'heal') this.fx.spawn('heal', { x, y, radius: sk.radius, targets: (m.heals ?? []).map(([pid]) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
+    else if (sk.kind === 'heal' || sk.kind === 'miracle') this.fx.spawn('heal', { x, y, radius: Math.min(sk.radius, 400), targets: (m.heals ?? []).map(([pid]) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
+    else if (sk.kind === 'mend' || sk.kind === 'revive') this.fx.spawn('heal', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
+    else if (sk.kind === 'barrier') this.fx.spawn('barrier', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
+    else if (sk.kind === 'summon' && m.sx !== undefined) this.summons.called(m.sx, m.sy);
     else if (sk.kind === 'buff') this.fx.spawn('buff', { x, y });
     else if (sk.kind === 'rally') this.fx.spawn('rally', { x, y, radius: sk.radius });
     else if (sk.kind === 'zone') this.fx.spawn('zone', { x, y, radius: sk.radius, dur: m.dur });
     else if (sk.kind === 'aegis') this.fx.spawn('aegis', { x, y, radius: sk.radius });
     else if (sk.kind === 'gods') this.fx.spawn('gods', { x, y });
-    const sound = { strike: m.skill === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter' }[sk.kind];
+    const sound = { strike: m.skill === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter', mend: 'heal', miracle: 'aegis', revive: 'secondWind', barrier: 'bubble', summon: 'rally' }[sk.kind];
     if (sound) audio.sfx(sound, { pan, vol });
     const delay = sk.kind === 'bolt' || sk.kind === 'fireball' ? Math.abs(m.tx - x) / 900 : sk.kind === 'meteor' ? sk.delay : sk.kind === 'starfall' ? 0.3 : 0;
     this.othersHits(m.hits, myX, delay);
@@ -570,6 +612,14 @@ export class Rpg {
     } else if (m.what === 'block') {
       audio.sfx('block', { vol: isMe ? 1 : 0.5 });
       this.pop(s.x, s.y - 64, 'IMMUNE', '#ffe28a', 18);
+    } else if (m.what === 'barrier') { // a Barrier broke (it took an ultimate, or ran out of soak)
+      s.barrierUntil = 0;
+      this.fx.spawn('bubblePop', { x: s.x, y: s.y });
+      audio.sfx('bubblePop');
+      this.pop(s.x, s.y - 64, 'BARRIER', '#ffe28a', 18);
+    } else if (m.what === 'soak') { // the Barrier soaked a hit up whole
+      this.pop(s.x, s.y - 60, 'SOAKED', '#ffe9a0', 15);
+      audio.sfx('block', { vol: isMe ? 0.7 : 0.35 });
     } else if (m.what === 'secondwind') {
       this.fx.spawn('secondwind', { x: s.x, y: s.y });
       audio.sfx('secondWind');
@@ -899,6 +949,7 @@ export class Rpg {
     this.time += dt;
     this.flash = Math.max(0, (this.flash ?? 0) - dt * 3);
     this.fx.update(dt);
+    this.summons.update(dt);
     this.bossFx.update(dt);
     for (const g of this.ghosts) g.dying += dt * (MOBS[g.kind].boss ? 0.8 : 2.2);
     this.ghosts = this.ghosts.filter((g) => g.dying < 1);
@@ -991,6 +1042,7 @@ export class Rpg {
     this.says = null;
     this.bossBack = 0;
     this.dmg.clear();
+    this.summons.clear();
     this.ouchNext = null;
     this.ult = null;
     this.wave = null;
@@ -1002,6 +1054,7 @@ export class Rpg {
 
   // ——— drawing, in world space ———
   drawWorld(ctx) {
+    this.summons.drawGround(ctx); // (a Guardian Totem's ring)
     for (const d of this.loot) {
       if (this.taken.has(d[0])) continue;
       const bob = Math.sin(this.time * 3 + d[0]) * 3;
@@ -1040,6 +1093,7 @@ export class Rpg {
       if (k.field) bar(ctx, v.x - 50, v.y - k.h - 16, 100, 8, hp / v.maxHp, '#ff6f91');
       else if (hp < v.maxHp) bar(ctx, v.x - 24, v.y - k.h - 10, 48, 6, hp / v.maxHp, '#ff6f91');
     }
+    this.summons.draw(ctx); // the Cleric's spirits, wisps and totems (S3)
     this.bossFx.draw(ctx);
     this.drawSays(ctx);
   }
@@ -1090,6 +1144,7 @@ export class Rpg {
   drawShields(ctx, s) {
     if ((s.bubbleUntil ?? 0) > this.time) drawBubble(ctx, s.x, s.y, this.time);
     if ((s.aegisUntil ?? 0) > this.time) drawAegisAura(ctx, s.x, s.y, this.time);
+    if ((s.barrierUntil ?? 0) > this.time) drawBarrier(ctx, s.x, s.y, this.time, s.barrierF ?? 1);
   }
   drawFx(ctx) {
     for (const h of this.hz) if (h.type !== 'puddle' && h.type !== 'geyser') drawHazard(ctx, h, this.time);
@@ -1240,33 +1295,47 @@ export class Rpg {
 
   // The damage meter: who's done how much to this den's boss (kept up after the kill, until it's back), or
   // to the field boss fought last in this room. Right side, under the top-right buttons (and the boss bar).
+  // Under the damage, once anyone has some (S3): healing done (the Cleric's part) and damage taken (the
+  // Knight's), the top few of each.
   drawMeter(ctx, den) {
     let e = null;
     for (const v of this.dmg.values()) if (den ? v.kind === den.boss : this.time - v.at < 30 && (!e || v.at > e.at)) e = v;
     if (!e) return;
-    const me = this.slimeOf(this.myId)?.name, total = e.d.reduce((a, [, v]) => a + v, 0) || 1;
-    const ROWS = 5, mine = e.d.findIndex(([n]) => n === me);
-    const rows = e.d.slice(0, ROWS).map((r, i) => [i, ...r]);
-    if (mine >= ROWS) rows.push([mine, ...e.d[mine]]); // (you're always on it)
-    const w = 196, x = W - 16 - w, y = 182, rh = 19, h = 30 + rows.length * rh; // (under the boss bar, and the controls line on phones)
+    const me = this.slimeOf(this.myId)?.name;
+    const section = (list, n) => {
+      const mine = list.findIndex(([name]) => name === me), rows = list.slice(0, n).map((r, i) => [i, ...r]);
+      if (mine >= n) rows.push([mine, ...list[mine]]); // (you're always on it)
+      return { rows, total: list.reduce((a, [, v]) => a + v, 0) || 1 };
+    };
+    const parts = [[`Damage · ${MOBS[e.kind].name}`.slice(0, 30), section(e.d, 5), 'rgba(255,143,177,0.6)']];
+    if (e.h?.length) parts.push(['Healing', section(e.h, 3), 'rgba(110,214,160,0.7)']);
+    if (e.k?.length) parts.push(['Damage taken', section(e.k, 3), 'rgba(130,170,240,0.65)']);
+    const w = 196, x = W - 16 - w, y = 182, rh = 19; // (under the boss bar, and the controls line on phones)
+    const h = 12 + parts.reduce((n, [, sec]) => n + 18 + sec.rows.length * rh, 0);
     ctx.fillStyle = 'rgba(45,32,60,0.78)';
     ctx.beginPath();
     ctx.roundRect(x, y, w, h, 12);
     ctx.fill();
-    text(ctx, `Damage · ${MOBS[e.kind].name}`.slice(0, 30), x + 10, y + 14, 11, 'rgba(255,255,255,0.8)', 'left');
-    rows.forEach(([i, name, v], j) => {
-      const ry = y + 26 + j * rh, share = v / total, you = name === me;
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      ctx.beginPath();
-      ctx.roundRect(x + 8, ry, w - 16, rh - 4, 5);
-      ctx.fill();
-      ctx.fillStyle = you ? 'rgba(255,211,77,0.75)' : 'rgba(255,143,177,0.6)';
-      ctx.beginPath();
-      ctx.roundRect(x + 8, ry, Math.max(6, (w - 16) * share), rh - 4, 5);
-      ctx.fill();
-      text(ctx, `${i + 1}. ${name}`.slice(0, 16), x + 13, ry + 8, 11, '#fffaf0', 'left');
-      text(ctx, `${v >= 10000 ? `${(v / 1000).toFixed(v >= 100000 ? 0 : 1)}k` : v.toLocaleString()} · ${Math.round(share * 100)}%`, x + w - 13, ry + 8, 11, '#fffaf0', 'right');
-    });
+    let ry = y + 14;
+    for (const [title, { rows, total }, color] of parts) {
+      text(ctx, title, x + 10, ry, 11, 'rgba(255,255,255,0.8)', 'left');
+      ry += 12;
+      for (const [i, name, v] of rows) {
+        const share = v / total, you = name === me;
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath();
+        ctx.roundRect(x + 8, ry, w - 16, rh - 4, 5);
+        ctx.fill();
+        ctx.fillStyle = you ? 'rgba(255,211,77,0.75)' : color;
+        ctx.beginPath();
+        ctx.roundRect(x + 8, ry, Math.max(6, (w - 16) * share), rh - 4, 5);
+        ctx.fill();
+        text(ctx, `${i + 1}. ${name}`.slice(0, 16), x + 13, ry + 8, 11, '#fffaf0', 'left');
+        text(ctx, `${v >= 10000 ? `${(v / 1000).toFixed(v >= 100000 ? 0 : 1)}k` : v.toLocaleString()} · ${Math.round(share * 100)}%`, x + w - 13, ry + 8, 11, '#fffaf0', 'right');
+        ry += rh;
+      }
+      ry += 6;
+    }
   }
 
   // Someone in the room got hurt

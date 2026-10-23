@@ -77,7 +77,8 @@ file next to the DB skips it for a game-breaking deploy.
 `chat`/`chat-log`/`chat-error` text chat ·
 `cast` broadcast · `npc-*` AI characters · `lecture`/`hands`/`ask*` lecture hall · `vote`/`courses` ·
 `tutor*` quiz · `note` piano · `slap` · the combat set (`me`, `mobs`, `loot`, `hurt`, `faint`, `got`,
-`gear`, `toast`, `skill`, `boss`, `nomana`, `shop`, `scrolled`) · bag / skills / stats actions (`equip`,
+`gear`, `toast`, `skill`, `boss`, `nomana`, `shop`, `scrolled`; the Cleric's summons `summons`, `sumhit`,
+`sumhurt`, `sumgone`, which `src/net.js` must list in its `RPG` set to route) · bag / skills / stats actions (`equip`,
 `unequip`, `use`, `drop`, `scroll`, `learn`, `unlearn`, `respec`, `hotbar`, `hotswap`, `ap`, `pvp`,
 `wear`, `showhelm`, `buy`, `sell`, `buycos`) · houses (`house`, `house-set`, `house-kick`, `invite`, `visit`). Routing for these is one `if` chain in `server/index.js`;
 a new message needs a branch there and a line in the protocol comment.

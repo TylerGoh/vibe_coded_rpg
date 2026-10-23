@@ -3156,7 +3156,7 @@ body.touch #trade .invite-btns button {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: calc(660px * var(--s));
+  width: calc(760px * var(--s)); /* (three classes side by side since S3) */
   max-height: calc(510px * var(--s));
   box-sizing: border-box;
   display: flex;

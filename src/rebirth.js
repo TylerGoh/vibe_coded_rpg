@@ -8,7 +8,7 @@ import { TAU, rand } from './util.js';
 import { glow } from './glow.js';
 import { gfx } from './gfx.js';
 import { GROUND_Y, VILLAGE, REBIRTH_X, REBIRTH_RANGE } from './shared/sim.js';
-import { CLASSES, CLASS_LVL, ADVANCEMENTS } from './shared/skills.js';
+import { CLASSES, CLASS_LVL, ADVANCEMENTS, classNames } from './shared/skills.js';
 import { rebirthCost } from './shared/rpg.js';
 
 export const nearPool = (me, room) => room === VILLAGE && !!me && Math.abs(me.x - REBIRTH_X) < REBIRTH_RANGE;
@@ -419,12 +419,12 @@ export function newsFor(m) {
   if (m.t === 'notice' && m.news === 'classes') {
     return {
       title: 'Classes are here!',
-      text: `Everyone is a Novice for now: your skill points and ability points are refunded (K and I) and your skill hotbars are empty. From Lv ${CLASS_LVL}, choose Warrior or Mage at the Rebirth Pool, ${WHERE}. Your first choice is free. Healing spells come back with a later class; until then, Jelly Patch and potions.`,
+      text: `Everyone is a Novice for now: your skill points and ability points are refunded (K and I) and your skill hotbars are empty. From Lv ${CLASS_LVL}, choose ${classNames()} at the Rebirth Pool, ${WHERE}. Your first choice is free.`,
       sticky: true,
     };
   }
   if (m.t === 'advance') {
-    if (m.lvl === CLASS_LVL && m.cls === 'novice') return { title: `Lv ${CLASS_LVL}: choose your class!`, text: `Warrior or Mage: step into the Rebirth Pool, ${WHERE}. Your first choice is free.`, sticky: true };
+    if (m.lvl === CLASS_LVL && m.cls === 'novice') return { title: `Lv ${CLASS_LVL}: choose your class!`, text: `${classNames()}: step into the Rebirth Pool, ${WHERE}. Your first choice is free.`, sticky: true };
     const name = ADVANCEMENTS.find((a) => a.lvl === m.lvl)?.name ?? 'An advancement';
     return { title: `Lv ${m.lvl}: ${name}!`, text: m.text };
   }

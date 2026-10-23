@@ -37,6 +37,21 @@ export const CLASSES = {
       { id: 'frostbinder', name: 'Frostbinder', blurb: 'Ice and storm: slows, long range and control.' },
     ],
   },
+  // S3 (story/progression.md 5): the other staff class. Its normal attack is a staff bonk (BONK_*), not a bolt
+  cleric: {
+    name: 'Cleric', weapon: 'staff', starter: 'wood_staff', stat: 'int', color: '#5fc79a',
+    blurb: 'A staff and a soft halo. Heals and shields its friends, calls spirits to fight beside it, and almost never goes down.',
+    strong: 'staying alive, keeping friends alive, summons', bad: 'damage: it kills slowest, crowds most of all',
+    branches: [
+      { id: 'priest', name: 'Priest', blurb: 'Big heals, a heal that lingers, a healing wisp, and getting fallen friends back up.' },
+      { id: 'warden', name: 'Warden', blurb: 'Spirits and a totem that hold the boss, and barriers before the big hits.' },
+    ],
+  },
+};
+// the classes you can choose at the Rebirth Pool, by name ("Warrior, Mage or Cleric")
+export const classNames = (join = 'or') => {
+  const n = Object.entries(CLASSES).filter(([id]) => id !== 'novice').map(([, c]) => c.name);
+  return n.length > 1 ? `${n.slice(0, -1).join(', ')} ${join} ${n.at(-1)}` : n[0];
 };
 export const branchOf = (id) => Object.values(CLASSES).flatMap((c) => c.branches).find((b) => b.id === id);
 
@@ -46,6 +61,7 @@ export const TREES = [
   { id: 'novice', name: 'Novice', color: CLASSES.novice.color, blurb: 'Basic tricks every slime keeps. Paid with Novice points (Lv 1–9).' },
   { id: 'warrior', name: 'Warrior', color: CLASSES.warrior.color, blurb: CLASSES.warrior.blurb },
   { id: 'mage', name: 'Mage', color: CLASSES.mage.color, blurb: CLASSES.mage.blurb },
+  { id: 'cleric', name: 'Cleric', color: CLASSES.cleric.color, blurb: CLASSES.cleric.blurb },
   { id: 'wind', name: 'Mobility', color: '#5fc4d8', blurb: 'Dash, double jump and teleport, for every class. Some late bosses need these to dodge.' },
 ];
 
@@ -59,7 +75,7 @@ export const ADVANCEMENTS = [
 // The banner when you reach an advancement level as class cls
 export function advanceText(cls, lvl) {
   const c = CLASSES[cls] ?? CLASSES.novice;
-  if (cls === 'novice') return lvl === CLASS_LVL ? `Lv ${lvl}! You can choose your class now: Warrior or Mage, free, at the Rebirth Pool by Elder Mochi in Slimeville.` : `Lv ${lvl}: the ${ADVANCEMENTS.find((a) => a.lvl === lvl)?.name ?? 'next advancement'} is waiting. Choose a class at the Rebirth Pool by Elder Mochi first.`;
+  if (cls === 'novice') return lvl === CLASS_LVL ? `Lv ${lvl}! You can choose your class now: ${classNames()}, free, at the Rebirth Pool by Elder Mochi in Slimeville.` : `Lv ${lvl}: the ${ADVANCEMENTS.find((a) => a.lvl === lvl)?.name ?? 'next advancement'} is waiting. Choose a class at the Rebirth Pool by Elder Mochi first.`;
   const [a, b] = c.branches;
   if (lvl === 30) return `2nd advancement! Your ${c.name} tree forks (K): ${a.name} or ${b.name}. Points go in one branch at a time; switching back is free.`;
   return `${ADVANCEMENTS.find((x) => x.lvl === lvl)?.name ?? 'An advancement'}! New ${c.name} skills open in your tree (K).`;
@@ -78,7 +94,11 @@ export function advanceText(cls, lvl) {
 // by movement + Attack inside sim.js step(); `how` says which) · 'passive'. `fire`: a fire spell (Kindling makes it stronger).
 // `el`: the spell's element for the Mage's combos (S2.6, ELEMENTS below): 'frost' chills / freezes, 'fire' burns
 // and shatters a frozen mob, 'storm' spreads a burn. (S6 adds the Lv 150 masteries.)
-const W = { cls: 'warrior', tree: 'warrior' }, M = { cls: 'mage', tree: 'mage' };
+// The Cleric's kinds (S3): 'heal' with `power` (× MAGIC × Holy Power; Jelly Patch's `amount` is flat) · 'mend' (a
+// heal over time) · 'summon' (`what`: 'spirit' | 'wisp' | 'totem' | 'seraph': server-run helpers, SUMMONS below)
+// · 'revive' (fainted friends back up) · 'miracle' (heal everyone, revive everyone) · 'barrier' (soaks damage, or
+// one ultimate). `holy` + `smite` on a bolt: it heals the caster a share of its damage.
+const W = { cls: 'warrior', tree: 'warrior' }, M = { cls: 'mage', tree: 'mage' }, C = { cls: 'cleric', tree: 'cleric' };
 export const SKILLS = {
   // ——— Novice (Novice points, Lv 1, kept forever; weak once you have a class) ———
   slime_bash: {
@@ -259,6 +279,72 @@ export const SKILLS = {
     desc: (r) => `Everything freezes: ${pct(3 + 0.6 * r)} magic damage to every mob within 320 px, slowing them for 8 s.`,
   },
 
+  // ——— Cleric (staff, INT; S3, story/progression.md 5). Heals scale with MAGIC × `heal` (Holy Power) ———
+  smite: {
+    ...C, adv: 10, name: 'Smite', kind: 'bolt', holy: true, max: 3, mp: 6, cd: 1.2, range: 320,
+    mult: (r) => 0.9 + 0.25 * r, smite: (r) => 0.25 + 0.05 * r,
+    desc: (r) => `Holy light at the first mob ahead, up to 320 px away: ${pct(0.9 + 0.25 * r)} magic damage, and you heal ${pct(0.25 + 0.05 * Math.max(1, r))} of the damage it does.`,
+  },
+  heal: {
+    ...C, adv: 10, name: 'Jelly Heal', kind: 'heal', max: 3, mp: 14, cd: 4, radius: 220,
+    power: (r) => 0.35 + 0.1 * r,
+    desc: (r) => `Heal yourself and every friend within 220 px for ${pct(0.35 + 0.1 * Math.max(1, r))} of your MAGIC.`,
+  },
+  jelly_spirit: {
+    ...C, adv: 10, name: 'Jelly Spirit', kind: 'summon', what: 'spirit', max: 3, mp: 25, cd: 20, dur: 20,
+    mult: (r) => 0.5 + 0.15 * r, life: (r) => 0.5 + 0.2 * r,
+    desc: (r) => `Call a glowing slime ghost for 20 s. It bounces at the nearest mob, hits it for ${pct(0.5 + 0.15 * Math.max(1, r))} of your MAGIC every second and draws its attention, so the mob (even a boss) goes after it instead of you. It has ${pct(0.5 + 0.2 * Math.max(1, r))} of your max HP. One at a time.`,
+  },
+  faith: {
+    ...C, adv: 10, name: 'Faith', kind: 'passive', max: 3,
+    desc: (r) => `+${15 * r}% magic power: your heals, Smite and spirits.`,
+  },
+  // Priest (heals)
+  mend: {
+    ...C, branch: 'priest', adv: 30, name: 'Mend', kind: 'mend', max: 3, mp: 20, cd: 12, radius: 260, dur: 10,
+    power: (r) => 0.06 + 0.02 * r,
+    desc: (r) => `A heal that lingers: you and every friend within 260 px heal ${pct(0.06 + 0.02 * Math.max(1, r))} of your MAGIC every second for 10 s.`,
+  },
+  lantern_wisp: {
+    ...C, branch: 'priest', adv: 30, name: 'Lantern Wisp', kind: 'summon', what: 'wisp', max: 3, mp: 30, cd: 40, dur: 30,
+    power: (r) => 0.08 + 0.03 * r,
+    desc: (r) => `A little lantern spirit for 30 s. It floats to whichever friend near you is hurt worst (or you) and every second heals everyone within ${WISP_R} px of it for ${pct(0.08 + 0.03 * Math.max(1, r))} of your MAGIC. Nothing can hit it.`,
+  },
+  revive: {
+    ...C, branch: 'priest', adv: 60, name: 'Revive', kind: 'revive', max: 3, mp: 40, radius: 220,
+    cdFor: (r) => [0, 90, 70, 50][r], share: (r) => 0.2 + 0.1 * r,
+    desc: (r) => `Get every knocked-out friend within 220 px back up where they fell, with ${pct(0.2 + 0.1 * Math.max(1, r))} of their HP and no EXP lost. While you have it ready, friends who faint near you wait ${REVIVE_WAIT} s for you before waking up in town. Cooldown ${[0, 90, 70, 50][Math.max(1, r)]} s.`,
+  },
+  holy_power: {
+    ...C, branch: 'priest', adv: 60, name: 'Holy Power', kind: 'passive', max: 5,
+    desc: (r) => `Your heals (Jelly Heal, Mend, Miracle, the Lantern Wisp, the bonk's) and Smite's holy light are ${8 * r}% stronger.`,
+  },
+  miracle: {
+    ...C, branch: 'priest', adv: 100, name: 'Miracle', kind: 'miracle', max: 3, mp: 80, cd: 120, radius: 600,
+    power: (r) => 2 + 0.5 * r,
+    desc: (r) => `Every friend within 600 px, you too, heals ${pct(2 + 0.5 * Math.max(1, r))} of your MAGIC, and every knocked-out friend there gets back up with full HP. Cooldown 120 s.`,
+  },
+  // Warden (spirits, the totem, barriers)
+  guardian_totem: {
+    ...C, branch: 'warden', adv: 30, name: 'Guardian Totem', kind: 'summon', what: 'totem', max: 3, mp: 30, cd: 35, dur: 25, radius: 160,
+    cut: (r) => 0.15 + 0.05 * r, life: (r) => 0.8 + 0.3 * r,
+    desc: (r) => `Plant a carved totem where you stand for 25 s: you and friends within 160 px of it take ${pct(0.15 + 0.05 * Math.max(1, r))} less damage. Mobs that touch it and bosses near it wear it down (${pct(0.8 + 0.3 * Math.max(1, r))} of your max HP). One at a time.`,
+  },
+  barrier: {
+    ...C, branch: 'warden', adv: 30, name: 'Barrier', kind: 'barrier', max: 5, mp: 25, cd: 25, radius: 240, dur: 10,
+    power: (r) => 0.6 + 0.2 * r,
+    desc: (r) => `You and every friend within 240 px get a barrier for 10 s that soaks up ${pct(0.6 + 0.2 * Math.max(1, r))} of your MAGIC in damage. A boss's ultimate breaks it instead of knocking you out: cast it just before.`,
+  },
+  spirit_bond: {
+    ...C, branch: 'warden', adv: 60, name: 'Spirit Bond', kind: 'passive', max: 5,
+    desc: (r) => `Your spirits and your totem have ${12 * r}% more HP and your spirits hit ${6 * r}% harder. From rank ${BOND_TWO}: two Jelly Spirits at once.`,
+  },
+  seraph: {
+    ...C, branch: 'warden', adv: 100, name: 'Seraph', kind: 'summon', what: 'seraph', max: 3, mp: 70, cd: 90, dur: 20,
+    mult: (r) => 0.6 + 0.15 * r, life: (r) => 2 + r,
+    desc: (r) => `Call a great winged spirit for 20 s. Every mob within ${SERAPH_TAUNT} px goes after it, and every second it hits every mob within ${SERAPH_R} px of it for ${pct(0.6 + 0.15 * Math.max(1, r))} of your MAGIC. It has ${pct(2 + Math.max(1, r))} of your max HP.`,
+  },
+
   // ——— Gifts: one player's own skill, granted by the server on load (server/rpg.js), never learned or
   // taken back, outside the point counts. `gift`: the account(s) it belongs to. Shown in the Novice tab.
   challenge_gods: {
@@ -306,6 +392,29 @@ export const ARCANE_MAX = 3, ARCANE_DUR = 10;
 const SPELL_KINDS = new Set(['bolt', 'fireball', 'chain', 'meteor', 'nova', 'starfall']);
 export const spendsArcane = (id) => SKILLS[id]?.cls === 'mage' && SPELL_KINDS.has(SKILLS[id].kind);
 export const arcaneMult = (skills, n) => 1 + SKILLS.arcane_charge.per(rankOf(skills, 'arcane_charge')) * Math.min(ARCANE_MAX, n | 0);
+// ——— the Cleric (S3, story/progression.md 5) ———
+// The staff bonk (a Cleric's normal attack, instead of the staff bolt): close (SLAP_REACH + BONK_REACH), BONK_MULT
+// of MAGIC, and BONK_HEAL of what it did heals the hurt friend nearest you (or you) within BONK_HEAL_R
+export const BONK_MULT = 0.7, BONK_REACH = 18, BONK_HEAL = 0.4, BONK_HEAL_R = 320;
+// Summons (server/summons.js runs them like mobs; src/summons.js draws them). Spirits (and the Seraph) chase
+// the nearest mob within SPIRIT_SEEK at SPIRIT_SPEED and hit every SPIRIT_HIT_S; a mob they hit, and every
+// mob within SPIRIT_TAUNT (the Seraph: SERAPH_TAUNT) that's after a slime, goes after them instead. The Seraph
+// hits every mob within SERAPH_R. Spirits and totems get hurt: a mob touching one hits it for SUMMON_TOUCH of
+// the mob's ATK every SUMMON_HURT_S; a boss within BOSS_SUMMON_REACH of one hits it for BOSS_SUMMON_HIT of its
+// ATK every BOSS_SUMMON_S; an ultimate going off takes ULT_SUMMON of every one's max HP. The wisp heals
+// everyone within WISP_R of it every WISP_TICK s and can't be hit. Spirit Bond: two spirits from BOND_TWO.
+export const SPIRIT_SEEK = 520, SPIRIT_SPEED = 240, SPIRIT_HIT_S = 1, SPIRIT_TAUNT = 240, SERAPH_TAUNT = 420, SERAPH_R = 150;
+export const SUMMON_TOUCH = 0.5, SUMMON_HURT_S = 0.8, BOSS_SUMMON_REACH = 140, BOSS_SUMMON_HIT = 1.3, BOSS_SUMMON_S = 1.2, ULT_SUMMON = 0.5;
+export const WISP_R = 150, WISP_TICK = 1, BOND_TWO = 3;
+// Revive: a slime that faints in a combat room where a Cleric is holding Revive (or Miracle) ready stays down
+// REVIVE_WAIT s (instead of waking in town at once), so the Cleric can get it back up
+export const REVIVE_WAIT = 8;
+// a heal's size: Jelly Patch's flat `amount`, else `power` × MAGIC × Holy Power (st: statsFor)
+export const healOf = (id, rank, st) => (SKILLS[id].amount ? SKILLS[id].amount(rank) : Math.round(st.magic * SKILLS[id].power(rank) * st.heal));
+// a summon's max HP and its hit (before the roll), from its skill's rank and the caster's stats
+export const summonHp = (id, rank, st) => Math.round(st.maxHp * (SKILLS[id].life?.(rank) ?? 1) * (1 + 0.12 * st.bond));
+export const summonHit = (id, rank, st) => st.magic * (SKILLS[id].mult?.(rank) ?? 0) * (1 + 0.06 * st.bond);
+export const spiritCap = (skills) => (rankOf(skills, 'spirit_bond') >= BOND_TWO ? 2 : 1);
 const secs = (ticks) => `${Math.round((ticks / 60) * 100) / 100} s`;
 function pct(m) {
   return `${Math.round(m * 100)}%`;
@@ -424,11 +533,12 @@ export function statsFor(c, buffs = {}) {
   const brew = buffs.brew ?? {}; // a brewed potion's buff (src/shared/alchemy.js)
   const might = (1 + (brew.atk ?? 0)) * (buffs.gods ? 1 + GODS_BOOST : 1);
   const push = 1 + SKILLS.momentum.per(rankOf(c.skills, 'momentum')) * Math.min(MOMENTUM_MAX, buffs.momentum ?? 0); // (Momentum: ATK only)
-  const arcane = 1 + 0.2 * rankOf(c.skills, 'arcane_mind');
+  const arcane = (1 + 0.2 * rankOf(c.skills, 'arcane_mind')) * (1 + 0.15 * rankOf(c.skills, 'faith'));
   const mastery = rankOf(c.skills, 'sword_mastery');
   // scroll enhancements on the worn gear (rpg.js rollScroll)
   const ge = c.gearE ?? {}, enh = (k) => (ge.weapon?.[k] ?? 0) + (ge.helmet?.[k] ?? 0);
   const staff = ITEMS[c.gear?.weapon]?.kind === 'staff' ? ITEMS[c.gear.weapon] : null; // (S1: spells grow with a staff)
+  const bonk = !!staff && c.cls === 'cleric'; // (S3: a Cleric bonks with its staff instead of firing a bolt)
   const str = apOf(c.ap, 'str'), dex = apOf(c.ap, 'dex'), int = apOf(c.ap, 'int'), luk = apOf(c.ap, 'luk');
   const ms = rankOf(c.skills, 'mana_shield');
   return {
@@ -438,7 +548,10 @@ export function statsFor(c, buffs = {}) {
     maxHp: buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str) * (1 + 0.08 * rankOf(c.skills, 'vitality'))),
     maxMp: maxMpFor(c.lvl, c.skills) + 2 * int + (staff?.mp ?? 0),
     reach: staff ? 0 : reachFor(c.gear?.weapon), // a sword's extra reach (swings and blade skills)
-    boltRange: staff ? STAFF_BOLT_RANGE + staff.reach : 0, // a staff bolt's range
+    boltRange: staff && !bonk ? STAFF_BOLT_RANGE + staff.reach : 0, // a staff bolt's range
+    bonk, // the normal attack is the Cleric's staff bonk (BONK_*)
+    heal: 1 + 0.08 * rankOf(c.skills, 'holy_power'), // the Cleric's heals' multiplier, and Smite's (`holy` skills) (Holy Power)
+    bond: rankOf(c.skills, 'spirit_bond'), // Spirit Bond's rank (summons' HP and damage)
     crit: 0.12 + 0.03 * mastery + Math.min(0.2, 0.0004 * luk) + (brew.crit ?? 0),
     critMult: 1.6 + 0.1 * mastery + 0.0015 * luk,
     minRoll: minRollFor(c.ap),

@@ -8,7 +8,7 @@ const BLADE = '#e0806a', MAGIC = '#7a8cf0', GUARD = '#4fb88f', WIND = '#5fc4d8';
 const TREE_OF = {
   power_strike: 'blade', iron_jelly: 'blade', whirlwind: 'blade', berserk: 'blade',
   cleave: 'blade', sword_mastery: 'blade', blade_storm: 'blade', sky_splitter: 'blade',
-  magic_bolt: 'magic', mana_flow: 'magic', heal: 'magic', frost_nova: 'magic',
+  magic_bolt: 'magic', mana_flow: 'magic', heal: 'holy', frost_nova: 'magic',
   chain_lightning: 'magic', arcane_mind: 'magic', meteor: 'magic', starfall: 'magic',
   jelly_bubble: 'guardian', vitality: 'guardian', rally: 'guardian', second_wind: 'guardian', sanctuary: 'guardian', aegis: 'guardian',
   dash: 'wind', flash_jump: 'wind', blink: 'wind', phantom_step: 'wind',
@@ -18,6 +18,9 @@ const TREE_OF = {
   challenge_gods: 'gods', // (a gift: one player's own)
   charge: 'blade', leap_slam: 'blade', upward_cut: 'blade', momentum: 'blade', // the Warrior's chase moves (S2.5)
   arcane_charge: 'magic', // (S2.6)
+  // the Cleric (S3)
+  smite: 'holy', faith: 'holy', jelly_spirit: 'holy', mend: 'holy', lantern_wisp: 'holy', revive: 'holy', holy_power: 'holy',
+  miracle: 'holy', guardian_totem: 'holy', barrier: 'holy', spirit_bond: 'holy', seraph: 'holy',
 };
 const PALETTE = {
   blade: [BLADE, '#ffc4b0', '#b85a48'],
@@ -27,6 +30,7 @@ const PALETTE = {
   novice: ['#e6b85c', '#fff0c4', '#a8782a'],
   fire: ['#f08a5a', '#ffd0b0', '#b8502a'],
   gods: ['#c8406a', '#ffd88a', '#6a1a3a'],
+  holy: ['#5fc79a', '#fff2c0', '#2f8a64'],
 };
 const ease = (k) => 1 - (1 - k) ** 3;
 // a stable pseudo-random number in [0, 1) for (seed, i)
@@ -223,6 +227,212 @@ export function drawSkillIcon(ctx, id, x, y, size) {
 }
 
 const ICONS = {
+  // ——— the Cleric (S3) ———
+  smite(ctx, dark) { // a falling shaft of light with a star where it strikes
+    ctx.fillStyle = 'rgba(255,240,170,0.9)';
+    ctx.beginPath();
+    ctx.moveTo(-5, -20);
+    ctx.lineTo(5, -20);
+    ctx.lineTo(9, 8);
+    ctx.lineTo(-9, 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    star(ctx, 0, 8, 11, 4, 0.35);
+    ctx.fillStyle = '#ffe9a0';
+    star(ctx, 0, 8, 5, 4, 0.4);
+    ctx.fillStyle = '#c8ffd8';
+    star(ctx, 14, -12, 3.5);
+  },
+  faith(ctx, dark) { // a halo over a glowing heart
+    ctx.strokeStyle = '#ffd96a';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(0, -13, 11, 3.5, 0, 0, TAU);
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    heart(ctx, 0, 6, 13);
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+    ctx.fillStyle = '#ffe9a0';
+    star(ctx, 0, 4, 4);
+  },
+  jelly_spirit(ctx, dark) { // a little slime ghost
+    ctx.fillStyle = 'rgba(240,255,248,0.95)';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-12, 12);
+    ctx.bezierCurveTo(-14, -6, -7, -16, 0, -16);
+    ctx.bezierCurveTo(7, -16, 14, -6, 12, 12);
+    ctx.quadraticCurveTo(8, 15, 4, 12);
+    ctx.quadraticCurveTo(0, 15, -4, 12);
+    ctx.quadraticCurveTo(-8, 15, -12, 12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = dark;
+    ellipse(ctx, -4, -3, 1.6, 2.4);
+    ellipse(ctx, 4, -3, 1.6, 2.4);
+    ctx.fillStyle = '#ffe9a0';
+    star(ctx, 15, -13, 3.5);
+  },
+  mend(ctx, dark) { // a heart with a ring of leaves turning round it
+    ctx.fillStyle = '#ff8fb0';
+    heart(ctx, 0, 3, 12);
+    ctx.fillStyle = '#c8ffd8';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.2;
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * TAU - 0.6;
+      ctx.beginPath();
+      ctx.ellipse(Math.cos(a) * 15, 1 + Math.sin(a) * 15, 4.5, 2.2, a + 1.2, 0, TAU);
+      ctx.fill();
+      ctx.stroke();
+    }
+  },
+  lantern_wisp(ctx, dark) { // a paper lantern glowing
+    ctx.fillStyle = 'rgba(255,230,150,0.6)';
+    circle(ctx, 0, 2, 16);
+    ctx.fillStyle = '#8a6a4a';
+    ctx.fillRect(-1.2, -18, 2.4, 6);
+    ctx.beginPath();
+    ctx.roundRect(-7, -13, 14, 4, 1.5);
+    ctx.roundRect(-7, 14, 14, 4, 1.5);
+    ctx.fill();
+    ctx.fillStyle = '#fff6d0';
+    ctx.strokeStyle = '#b8863a';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(0, 2, 11, 12, 0, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffb060';
+    ellipse(ctx, 0, 4, 3.5, 5);
+  },
+  revive(ctx, dark) { // a slime rising out of a puddle in a beam of light
+    ctx.fillStyle = 'rgba(255,245,190,0.85)';
+    ctx.fillRect(-8, -22, 16, 34);
+    ctx.fillStyle = '#9fe6c0';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(0, 14, 16, 4, 0, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(-9, 10);
+    ctx.bezierCurveTo(-10, -4, 10, -4, 9, 10);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(14, -6);
+    ctx.lineTo(14, -18);
+    ctx.moveTo(9, -13);
+    ctx.lineTo(14, -18);
+    ctx.lineTo(19, -13);
+    ctx.stroke();
+  },
+  holy_power(ctx, dark) { // a cross of light inside a sunburst
+    ctx.fillStyle = '#ffe9a0';
+    star(ctx, 0, 0, 18, 8, 0.55);
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.roundRect(-3, -11, 6, 22, 2);
+    ctx.roundRect(-11, -3, 22, 6, 2);
+    ctx.fill();
+  },
+  miracle(ctx, dark) { // three hearts under a big star
+    ctx.fillStyle = '#ffe9a0';
+    star(ctx, 0, -8, 13, 5, 0.45);
+    ctx.fillStyle = '#ff8fb0';
+    heart(ctx, -11, 12, 7);
+    heart(ctx, 0, 14, 8);
+    heart(ctx, 11, 12, 7);
+  },
+  guardian_totem(ctx, dark) { // the carved totem with its gem
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.6;
+    [[16, 18, '#c9a27a'], [2, 16, '#b88c62'], [-11, 14, '#d4b088']].forEach(([y, w, c]) => {
+      ctx.fillStyle = c;
+      ctx.beginPath();
+      ctx.roundRect(-w / 2, y - 12, w, 12, 3.5);
+      ctx.fill();
+      ctx.stroke();
+    });
+    ctx.fillStyle = '#7ff0b0';
+    ctx.beginPath();
+    ctx.moveTo(0, -24);
+    ctx.lineTo(5, -18);
+    ctx.lineTo(0, -12);
+    ctx.lineTo(-5, -18);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#5a3c26';
+    ellipse(ctx, -3, -5, 1.2, 1.7);
+    ellipse(ctx, 3, -5, 1.2, 1.7);
+  },
+  barrier(ctx, dark) { // a golden bubble of hexagons
+    ctx.strokeStyle = '#ffd96a';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(0, 0, 16, 0, TAU);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+    ctx.lineWidth = 1.4;
+    for (const [x, y] of [[0, 0], [-8, -6], [8, -6], [-8, 7], [8, 7]]) {
+      ctx.beginPath();
+      for (let i = 0; i <= 6; i++) {
+        const a = (i / 6) * TAU;
+        ctx[i ? 'lineTo' : 'moveTo'](x + Math.cos(a) * 4.5, y + Math.sin(a) * 4.5);
+      }
+      ctx.stroke();
+    }
+  },
+  spirit_bond(ctx, dark) { // two little ghosts holding hands
+    for (const [x, s] of [[-7, 1], [7, -1]]) {
+      ctx.fillStyle = 'rgba(240,255,248,0.95)';
+      ctx.strokeStyle = dark;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(x - 8, 12);
+      ctx.bezierCurveTo(x - 9, -2, x - 4, -10, x, -10);
+      ctx.bezierCurveTo(x + 4, -10, x + 9, -2, x + 8, 12);
+      ctx.quadraticCurveTo(x, 15, x - 8, 12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = dark;
+      ellipse(ctx, x - 2.5 + s, -2, 1.1, 1.7);
+      ellipse(ctx, x + 2.5 + s, -2, 1.1, 1.7);
+    }
+    ctx.fillStyle = '#ff8fb0';
+    heart(ctx, 0, -16, 5);
+  },
+  seraph(ctx, dark) { // wings and a halo
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.4;
+    for (const sd of [-1, 1]) for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.ellipse(sd * (9 + i * 4), -2 + i * 6, 10 - i * 2, 4.5, sd * 0.5, 0, TAU);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#f2fff8';
+    circle(ctx, 0, 4, 7);
+    ctx.stroke();
+    ctx.strokeStyle = '#ffd96a';
+    ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    ctx.ellipse(0, -13, 8, 2.6, 0, 0, TAU);
+    ctx.stroke();
+  },
   // ——— the Mage's Arcane Charge (S2.6): three charges stacked into a burst ———
   arcane_charge(ctx, dark) {
     ctx.lineWidth = 2;
@@ -1236,6 +1446,7 @@ const LIFE = {
   cleave: 0.38, storm: 1.0, skysplit: 0.65, chain: 0.42, starfall: 1.3, bubblePop: 0.45, rally: 0.8, aegis: 0.7, secondwind: 1.0,
   dash: 0.3, blink: 0.45, flashjump: 0.35, scroll: 1.4, gods: 1.1,
   charge: 0.35, slam: 0.55, upcut: 0.4, shatter: 0.55,
+  barrier: 0.6, revive: 1.1, bonk: 0.3, // (S3)
 };
 
 export class SkillFx {
@@ -1276,6 +1487,55 @@ export class SkillFx {
 }
 
 const FX = {
+  // ——— the Cleric (S3) ———
+  // Barrier {x, y, radius, targets}: a golden ring sweeping out, and a flash of hexagons round everyone it shields
+  barrier(ctx, e, k) {
+    const { x, y } = e.o, R = (e.o.radius ?? 200) * ease(Math.min(1, k / 0.5)), a = 1 - k;
+    ctx.save();
+    ctx.translate(x, y - 6);
+    ctx.scale(1, 0.3);
+    ctx.strokeStyle = `rgba(255,217,106,${a})`;
+    ctx.lineWidth = 4 / 0.3;
+    ctx.beginPath();
+    ctx.arc(0, 0, R, 0, TAU);
+    ctx.stroke();
+    ctx.restore();
+    for (const t of e.o.targets ?? [{ x, y }]) {
+      ctx.strokeStyle = `rgba(255,236,160,${a})`;
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 6; i++) {
+        const ang = (i / 6) * TAU + k * 2, hx = t.x + Math.cos(ang) * 30, hy = t.y - 22 + Math.sin(ang) * 30;
+        ctx.beginPath();
+        for (let j = 0; j <= 6; j++) {
+          const b = (j / 6) * TAU;
+          ctx[j ? 'lineTo' : 'moveTo'](hx + Math.cos(b) * 6, hy + Math.sin(b) * 6);
+        }
+        ctx.stroke();
+      }
+    }
+  },
+  // Revive {x, y}: a pillar of soft light on a slime getting back up, sparkles rising
+  revive(ctx, e, k) {
+    const { x, y } = e.o, a = Math.sin(k * Math.PI);
+    const g = ctx.createLinearGradient(x, y - 200, x, y);
+    g.addColorStop(0, 'rgba(255,245,200,0)');
+    g.addColorStop(1, `rgba(255,245,200,${0.6 * a})`);
+    ctx.fillStyle = g;
+    ctx.fillRect(x - 26, y - 200, 52, 200);
+    for (let i = 0; i < 8; i++) {
+      const s = (k * 1.4 + i / 8) % 1;
+      ctx.fillStyle = `rgba(255,236,160,${a * (1 - s)})`;
+      star(ctx, x + Math.sin(i * 2.7 + e.seed) * 22, y - 10 - s * 120, 3 + (i % 3));
+    }
+  },
+  // Bonk {x, y}: a little holy star where a Cleric's staff lands
+  bonk(ctx, e, k) {
+    const { x, y } = e.o, a = 1 - k;
+    ctx.fillStyle = `rgba(255,240,170,${a})`;
+    star(ctx, x, y, 8 + 10 * k, 4, 0.35);
+    ctx.fillStyle = `rgba(255,255,255,${a})`;
+    star(ctx, x, y, 4 + 4 * k, 4, 0.4);
+  },
   // ——— the Mage's combos (S2.6) ———
   // Shatter {x, y, r}: a frozen mob's ice bursting: pale shards flying out, a ring of frost
   shatter(ctx, e, k) {
@@ -2848,6 +3108,29 @@ export function drawBerserkAura(ctx, x, y, time) {
 }
 
 // A wobbly translucent jelly bubble round a slime (feet at x, y) while Jelly Bubble is up. Drawn before the slime.
+// A Cleric's Barrier (S3) as worn: a thin golden shell of hexagons, brighter the more it still soaks up (f: 0–1)
+export function drawBarrier(ctx, x, y, time, f = 1) {
+  ctx.save();
+  ctx.translate(x, y - 22);
+  ctx.globalAlpha = 0.35 + 0.45 * f;
+  ctx.strokeStyle = 'rgba(255,217,106,0.9)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 38, 35, 0, 0, TAU);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,245,200,0.7)';
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * TAU + time * 0.6, hx = Math.cos(a) * 34, hy = Math.sin(a) * 31;
+    ctx.beginPath();
+    for (let j = 0; j <= 6; j++) {
+      const b = (j / 6) * TAU;
+      ctx[j ? 'lineTo' : 'moveTo'](hx + Math.cos(b) * 5, hy + Math.sin(b) * 5);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
 export function drawBubble(ctx, x, y, time) {
   ctx.save();
   ctx.translate(x, y - 22);

@@ -1,6 +1,6 @@
 # S2, split into pieces (sub-plan for agents)
 
-**Status: S2.1–S2.4 built and deployed together (deploy #1) on 2026-10-23; S2.5 built and deployed (deploy #2) the same day; S2.6 not built yet.** S2 in `progression.md` ("the tree") is too big for one
+**Status: done. S2.1–S2.4 built and deployed together (deploy #1) on 2026-10-23; S2.5 (deploy #2) and S2.6 (deploy #3) the same day.** S2 in `progression.md` ("the tree") is too big for one
 session, so it's cut into six pieces, each sized for one agent. The design and the owner's decisions are in
 `progression.md` (sections 1, 1a, 1b, 1c, 2, 3, 7, 9): read it first. This file pins down what that plan
 left open and says who does what. Numbers here (maxes, the schedule) are starting points: S2.4's CLASSES

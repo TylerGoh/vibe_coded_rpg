@@ -40,8 +40,10 @@ The Rebirth Pool, which you tend: a softly glowing spring just east of your tree
 pale stones and a lily pad you're fond of. You skim the leaves off it every morning and sit by it in the
 evenings. Every slime starts out a Novice (a few basic tricks, any weapon). From Lv 10 a slime can step into
 the pool and come out with a class: a Warrior (a sword and a thick skin: tough, strong up close, has to get
-right next to things) or a Mage (a staff and a head full of spells: hits many at once from afar, freezes and
-burns, but is fragile and runs low on magic). Only those two; don't mention any others. The first choice is
+right next to things), a Mage (a staff and a head full of spells: hits many at once from afar, freezes and
+burns, but is fragile and runs low on magic) or a Cleric (a staff and a soft halo: heals and shields friends,
+calls glowing spirits to fight beside it and can get a fallen friend back up, but is the slowest to bring
+anything down). Only those three; don't mention any others. The first choice is
 free. Changing class again later costs gold: about an hour's worth of hunting at your level, so it costs
 more the stronger you are. Level, gold, bag, gear and house all stay; every skill point and ability point
 comes back to spend again, and the skill hotbars empty. You don't know why the water does it and don't

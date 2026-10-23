@@ -161,7 +161,7 @@ Lv 10, ~224k at Lv 60, ~440k at Lv 100, ~735k at Lv 150.
 ## The CLASSES tables (S2.4, 2026-10-23, `story/progression.md` 1b)
 "Equal power, different shape", measured. Any change to a skill number, `statsFor`, the AP or point
 schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what moved.
-- **The builds.** Each branch (Knight, Berserker, Elementalist, Frostbinder) at `CLASS_AT` levels. Points go
+- **The builds.** Each branch (Knight, Berserker, Elementalist, Frostbinder, Priest, Warden) at `CLASS_AT` levels. Points go
   in the order `BUILDS` gives (an id fills to its max, `[id, n]` to n), spent through `cantLearn`, so the
   game's own rules hold: `spNovice` / `spClass`, the `adv` gates, one branch; Novice points fill the Novice
   tree (`NOVICE_ORDER`). AP: the class's main stat, with `AP_LUK` of it in LUK. Gear on the frozen curve: the
@@ -181,16 +181,17 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   `CROWD_W` px, so a skill catches as many as its width covers); **ranged** damage a second at a target
   `RANGED_PX` away (only what reaches: that's the Warrior's "bad at range", since everything but Pebble Toss
   is melee); **toughness**: seconds alone, no potions, under a boss on the curve at that level (the dens'
-  median ATK against `curve('atk')`) hitting for `BOSS_HIT_MULT` every `BOSS_HIT_EVERY.sword`, while doing
+  median ATK against `curve('atk')`) hitting for `BOSS_HIT_MULT` every `BOSS_HIT_EVERY.warrior`, while doing
   its single-target rotation, capped at `TOUGH_CAP`.
 - **Time to solo each den** at the den's own level (dens under `CLASS_LVL` are the Novices' and left out):
-  the real boss's HP and ATK, a hit every `BOSS_HIT_EVERY` (more often for a sword up close than for a staff
-  at range), potions drunk (the biggest shop potion that fits) and their gold, against what the kill pays.
-- **The shape table**: Warrior ÷ Mage per column (mean of each class's branches).
+  the real boss's HP and ATK, a hit every `BOSS_HIT_EVERY` by class (most often for a Warrior up close, least
+  for a Mage at range, the Cleric in between: it bonks close but Smites from afar), potions drunk (the biggest shop potion that fits) and their gold, against what the kill pays.
+- **The shape table**: each class ÷ the other classes' mean, per column (mean of each class's branches).
 - **Checks.** Every branch can solo every den: never faints, and its potions cost at most
   `SOLO_POTION_SHARE` of what the kill pays. Every branch's solo time within `CLASS_FIT` of the median of all
-  four. Each class's "bad at" (`BAD_AT`: the Warrior's ranged, the Mage's toughness) is its lowest column
-  against the other class, at every level.
+  of them. Each class's "bad at" (`BAD_AT`: the Warrior's ranged, the Mage's toughness, the Cleric's crowd) is
+  its lowest column against the others' mean, at every level (a crowd bad-at only once someone has an area
+  skill: before the fork every crowd column is the single one).
 - **What it says (2026-10-23).** Mages out-damage Warriors most at Lv 10–60 (Warrior 0.66–0.81× single
   target), and closer later (0.86–0.88×, the Berserker a little above the Mages from Lv 100); Mages last
   15–30 s under the pressure Warriors shrug off (Jelly Thirst plus DEF and HP: usually past `TOUGH_CAP`),
@@ -226,6 +227,21 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   (the Elementalist ~10%, and ~15–20% in a crowd, from burns), so Warrior ÷ Mage single target went
   0.88 → 0.82 at Lv 100, 0.97 → 0.90 at 150, 1.02 → 0.94 at 200 (Lv 10–60 barely moved); the Elementalist
   solos dens ~8–10% faster, the Frostbinder ~3–5%. Nothing else moved: no mob, boss, gold, EXP or price.
+
+- **The Cleric (S3, 2026-10-23)** is in `fight`: the staff bonk (`BONK_MULT`, and `BONK_HEAL` of it healing
+  itself), Smite's self-heal, Jelly Heal under `HEAL_AT`, Miracle under `MIRACLE_AT`, Mend under `MEND_AT` (a
+  heal a second), the Lantern Wisp, the Barrier's soak and the Totem's cut, and its spirits: their hits on
+  every column (they walk to the target), and they **draw** `SPIRIT_DRAW` of a boss's hits (the Seraph
+  `SERAPH_DRAW`) onto their own HP while they stand, worn down by the boss too (`BOSS_SUMMON_HIT` every
+  `BOSS_SUMMON_S`). Both Cleric BUILDS take a rank of Smite, the Spirit and Jelly Heal first. What it says:
+  the Cleric's toughness is past `TOUGH_CAP` at every level and it solos every den **without a potion**; it's
+  among the slowest soloists from Lv 47 (about 1.0–1.4× the median; the Knight is slower on a couple of
+  dens), lowest in a crowd (0.5–0.85× the others' mean from Lv 30), 0.8–1.0× on one target, about even at
+  range (Smite and the spirits). Tuned to get here: the bonk 0.9 → 0.7 of MAGIC, Smite
+  1.0 + 0.3/rank → 0.9 + 0.25, the Seraph 1.0 + 0.25 → 0.6 + 0.15, Spirit Bond's damage 10% → 6% a rank (the
+  Warden ran level with the Mages at Lv 100+), and Holy Power now also strengthens Smite (the Priest was 1.62×
+  the median on Pyra). With six branches the median moved, but no Warrior or Mage number did, and nothing
+  outside the CLASSES tables: no mob, boss, gold, EXP, price or curve.
 
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.

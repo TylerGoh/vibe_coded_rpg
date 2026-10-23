@@ -2,20 +2,22 @@
 
 Files: `src/shared/skills.js` (all rules, `CLASSES`, `statsFor`), `src/skilltree.js` (the K panel),
 `src/skillfx.js` (icons and effects), `src/elements.js` (the Mage's combo states drawn on mobs, the Arcane
-Charge pips), the hotbar and stats UI in `src/rpg.js`, server actions in the `skills()` and `rebirth()`
+Charge pips), `server/summons.js` and `src/summons.js` (the Cleric's summons, its halo, the Mage's staff
+sparkle), the hotbar and stats UI in `src/rpg.js`, server actions in the `skills()` and `rebirth()`
 handlers of `server/rpg.js`.
 
 **Classes are being built in pieces** (`story/s2-plan.md`; the design is `story/progression.md`, read it
 before changing classes, skills, AP or the point schedule). S2.1 (the data, the rules, the server, the
 migration), S2.2 (the node-tree K panel) and S2.3 (the Rebirth Pool: place, card, banners, Elder Mochi) are
 built, and the CLASSES tables in the economy sheet (S2.4, `docs/economy.md`) measure and tuned them; the
-Warrior's chase moves (S2.5) and the Mage's combos and Arcane Charge (S2.6), both below, too.
-Archer and Cleric come later (S3, S4).
+Warrior's chase moves (S2.5) and the Mage's combos and Arcane Charge (S2.6), both below, too. The Cleric
+(S3, 2026-10-23) has its own section below. The Archer comes later (S4).
 
 ## Classes (S2)
-- `CLASSES`: `novice`, `warrior` (sword, STR), `mage` (staff, INT), each with its weapon kind, starter
-  weapon, colour, blurb, strong / bad at text (for the pool's card) and two `branches` (Knight / Berserker,
-  Elementalist / Frostbinder). Saved on the character as `c.cls`, plus `c.reborn` (how many times a class
+- `CLASSES`: `novice`, `warrior` (sword, STR), `mage` (staff, INT), `cleric` (staff, INT; S3), each with its
+  weapon kind, starter weapon, colour, blurb, strong / bad at text (for the pool's card) and two `branches`
+  (Knight / Berserker, Elementalist / Frostbinder, Priest / Warden). `classNames()` words the list ("Warrior,
+  Mage or Cleric") for the banners and notices, so a new class needs no text hunt. Saved on the character as `c.cls`, plus `c.reborn` (how many times a class
   was chosen; 0 = the next choice is free).
 - **Everyone starts as a Novice** (owner, 2026-10-23): the Novice tree, any weapon. **From `CLASS_LVL` you
   choose a class at the Rebirth Pool** in Slimeville (`REBIRTH_X`, `REBIRTH_RANGE` in sim.js; between
@@ -33,11 +35,12 @@ Archer and Cleric come later (S3, S4).
   skill point and AP refunded and both skill hotbars cleared (potion bars kept), `reborn` 0, and a one-time
   `notice` with `news: 'classes'` (a banner, below; the chat line stays). A
   character that is also due the L3 rollback gets both notices, one per line.
-- Healing: Jelly Heal left with the old Magic tree and comes back with the Cleric (S3); its icon and effect
-  code stay. Until then, Jelly Patch and potions.
+- Healing: Jelly Heal left with the old Magic tree and came back as a Cleric skill (S3, the same `heal` id
+  and icon).
 - **The pool's card** (`PoolCard` in `src/rebirth.js`, `#pool` in `index.html`; E at the pool, or the E button
-  on touch): below `CLASS_LVL` only "Come back at Lv 10" and what the classes are; from it, Warrior and Mage
-  from `CLASSES` (never the Novice, and no teasing of classes not built yet) with strong / bad at, your own one
+  on touch): below `CLASS_LVL` only "Come back at Lv 10" and what the classes are; from it, every class in
+  `CLASSES` side by side (never the Novice, and no teasing of classes not built yet; the card is wider since
+  there are three) with strong / bad at, your own one
   marked, the price ("Free: your first choice" while `reborn` is 0, else `rebirthCost(lvl)`; the button says
   "Not enough gold" when short), and what's kept and what resets. Choosing asks once when free, twice when it
   costs gold, then sends `{t:'rebirth', cls}`; `reborn` for you closes it, a toast while it waits shows in
@@ -92,8 +95,8 @@ Archer and Cleric come later (S3, S4).
   your points back to switch". A node is the round skill icon (`drawSkillIcon`, cropped to a circle) with a
   `2/3` rank badge, a small + when a point can go in, a gold ring when maxed. Rows the level hasn't opened
   are greyed and labelled "opens at Lv 60".
-- **A Novice** sees a "Classes" tab instead: "Choose a class at Lv 10 at the Rebirth Pool" with a Warrior /
-  Mage switch, each class's whole tree greyed so they can look ahead (cards still open, and say "Choose
+- **A Novice** sees a "Classes" tab instead: "Choose a class at Lv 10 at the Rebirth Pool" with a switch
+  between the classes, each class's whole tree greyed so they can look ahead (cards still open, and say "Choose
   Warrior at the Rebirth Pool…"). From `CLASS_LVL` a pink reminder under the header says the class points
   are piling up and to visit the Rebirth Pool by Elder Mochi. Mobility is greyed for a Novice too.
 - Clicking a node opens its **card under the tree**: name, rank, branch, level, MP / cooldown (or passive),
@@ -197,6 +200,68 @@ server's mob (`chillUntil`, `frozenUntil`, `burn`), set in `element()` from `app
   The HUD shows `ARCANE_MAX` diamonds in the MP bar's right end, lit per charge, for anyone with a rank.
 - Not built: the **interrupt** (freezing a boss during `ULT_WARN` cancels its ultimate) waits for S5
   (`docs/ideas.md`); the masteries (Permafrost, Wildfire) are S6's.
+
+## The Cleric (S3)
+`story/progression.md` 1b and 5: the other staff class. It solos on sustain ("takes longer, never loses"),
+and in a party its heals, shields and summons matter more than its damage. Rules and numbers in
+`src/shared/skills.js` (`BONK_MULT` and the constants after it).
+- **Looks**: a soft golden halo over its head (`drawHalo`, `src/summons.js`, drawn in `Slime.draw` from
+  `cls`) so friends tell it from a Mage at a glance; a Mage's staff gets a faint sparkle on its back
+  (`drawStaffSparkle`). Both everywhere, not just in combat rooms.
+- **The staff bonk** is its normal attack instead of the staff bolt (`statsFor` gives a Cleric with a staff
+  `bonk` and no `boltRange`): close (`SLAP_REACH` + `BONK_REACH`), `BONK_MULT` of MAGIC, and `BONK_HEAL` of
+  the damage heals the hurt friend nearest it within `BONK_HEAL_R` (itself when nobody else is hurt), so
+  attacking is never wasted (`bonk` in `server/rpg.js`; `bonk` / `bonkFx` in `src/rpg.js`; others see a
+  little holy star where it lands, not a bolt).
+- **Heals scale with MAGIC**: `healOf` (`power(rank)` × MAGIC × `heal`, Holy Power's multiplier; Jelly Patch
+  keeps its flat `amount`). Every heal goes through `healFrom` on the server: capped at max HP, a green +HP
+  for the room (`thirst`), and counted on the damage meter.
+- **Basics (Lv 10)**: Smite (a `holy` bolt: it heals its caster `smite(rank)` of the damage; Holy Power makes
+  its light stronger too), Jelly Heal (you and friends within its radius), Jelly Spirit (below), Faith
+  (+MAGIC, like Arcane Mind).
+- **Priest**: Mend (a heal every second for its `dur`, `q.mend`, ticked by the server; it ends if the
+  caster leaves the room), the Lantern Wisp (below), Revive, Holy Power, then Miracle (heals everyone near
+  and gets every knocked-out friend there up at full HP).
+- **Warden**: the Guardian Totem (below), Barrier (you and friends near: `q.barrier` soaks up to its amount
+  for its `dur`, before Mana Shield; **a boss ultimate breaks it instead of knocking you out**, the "shield
+  before the big hit" moment; guards `'soak'` and `'barrier'`), Spirit Bond (summons' HP and damage; two
+  Jelly Spirits from `BOND_TWO`), then the Seraph.
+- **Revive**: when a slime faints in a combat room where a Cleric holds Revive or Miracle ready (cooling
+  down for less than `REVIVE_WAIT`), its faint lasts `REVIVE_WAIT` s instead of the usual moment
+  (`{t:'faint', wait}`: the puddle stays, and the fainted player is told to hold on). Revive gets every
+  knocked-out slime within its radius up where it fell with `share(rank)` of its HP and no EXP lost; the
+  client won't cast it with nobody down (`rpg.downNear`, from main.js's splats), and neither will the
+  server. The skill echo's `revived` clears their puddles (`rpg.onRevived` → `unsplat`).
+- **Cleanse** isn't built: there are no curses to lift until S5 (`docs/ideas.md`).
+
+### Summons (`server/summons.js`, drawn by `src/summons.js`)
+- Server-run like mobs, a `summon` kind skill with `what`: **spirit** (Jelly Spirit), **wisp** (Lantern Wisp),
+  **totem** (Guardian Totem), **seraph** (the Seraph). HP from the caster's max HP (`summonHp`: `life(rank)`
+  and Spirit Bond), hits from MAGIC (`summonHit`). One of each at a time (two spirits with Spirit Bond 3+); a
+  new one replaces the oldest. They go when their time runs out, their HP does, or their Cleric leaves the
+  room, logs off or changes class.
+- **Spirits and the Seraph** float to the nearest mob within `SPIRIT_SEEK` (the one after their Cleric
+  first), hit it every `SPIRIT_HIT_S` (the Seraph: every mob within `SERAPH_R`) through `damage()` as their
+  Cleric's hit (the meter, EXP and loot count it), and **draw attention**: a mob they hit, and every mob
+  within `SPIRIT_TAUNT` that's after a slime (the Seraph: every mob within `SERAPH_TAUNT`), goes after them.
+  That's the Cleric's solo answer: a boss chasing the spirit aims its moves at the spirit, not the Cleric.
+  The trick that makes it cheap: a summon carries the same fields a player does for the mob code
+  (`state.x/y/room/facing`, `joined`, `faintUntil`), so `m.target` can be one and nothing else changed.
+- **Getting worn down** (server-decided, since only clients judge hits on slimes): a mob touching a spirit or
+  totem hits it for `SUMMON_TOUCH` of its ATK every `SUMMON_HURT_S`; a den or field boss within
+  `BOSS_SUMMON_REACH` hits it for `BOSS_SUMMON_HIT` every `BOSS_SUMMON_S`; an ultimate going off takes
+  `ULT_SUMMON` of every one's max HP. Frozen mobs don't hurt them.
+- **The wisp** floats by whichever friend near its Cleric is hurt worst (or the Cleric) and heals everyone
+  within `WISP_R` every `WISP_TICK`; nothing can hit it.
+- **The totem** stands where it was planted; `hurt()` cuts the damage of slimes within its radius by
+  `cut(rank)` (`cutAt`), not an ultimate's.
+- **Wire**: `{t:'summons', s: [[id, what, owner, x, y, hp, maxHp, dir]]}` about 20 times a second to rooms
+  with summons (one empty list when the last goes; `what` indexes `SUMMON_WHATS`), `{t:'sumhit', h:
+  [[summonId, hits]]}` (shown like anyone's hits), `{t:'sumhurt', id, dmg}`, `{t:'sumgone', id, how:
+  'faded'|'broke', x, y}`. The client glides each to its newest spot. Art: a see-through mint slime ghost
+  with a wispy tail, a paper lantern with a face, a three-block carved post with a green gem and a dashed
+  ring on the ground, a big winged ghost with a halo.
+- **The damage meter** shows healing done and damage taken under the damage (`docs/combat/bosses.md`).
 
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js

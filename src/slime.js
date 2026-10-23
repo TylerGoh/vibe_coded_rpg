@@ -2,6 +2,7 @@
 import { TAU, rand, clamp, ellipse, circle } from './util.js';
 import { drawSword, drawHelmet, SWORD_LEN } from './field.js';
 import { drawStaff, STAFF_LEN } from './staff-art.js';
+import { drawHalo, drawStaffSparkle } from './summons.js';
 import { drawEnhanceGlow } from './skillfx.js';
 import { artOf } from './shared/rpg.js';
 import { FOLK_PALETTE, drawFolk, drawFolkDress } from './fjord-art.js';
@@ -210,6 +211,7 @@ export class Slime {
     ctx.scale(0.8, 0.8);
     if (this.plus) drawEnhanceGlow(ctx, this.plus, this.t, STAFF_LEN[id] + 10);
     drawStaff(ctx, id, 0, this.t);
+    if (this.cls === 'mage') drawStaffSparkle(ctx, STAFF_LEN[id], this.t); // (S3: a Mage's staff sparkles, a Cleric has a halo)
     ctx.restore();
   }
 
@@ -390,7 +392,8 @@ export class Slime {
   }
 
   draw(ctx) {
-    const sx = 1 + this.d, sy = 1 - this.d;
+    const d = clamp(this.d, -0.6, 0.6); // (a pile of hits at once can fling the spring past a flat jelly: never draw it inside out)
+    const sx = 1 + d, sy = 1 - d;
     const w = this.w * sx, h = this.h * sy;
     ctx.save();
     const shudder = this.reaction === 'wince' ? Math.sin(this.t * 70) * 0.9 * (this.reactTime / MOODS.angry[2]) : 0;
@@ -603,6 +606,7 @@ export class Slime {
     }
     this.drawAccessory(ctx, w, h, fx);
     if (helmet) drawHelmet(ctx, helmet, w, h, this.t);
+    if (this.cls === 'cleric') drawHalo(ctx, -h - (helmet ? 14 : 8), this.t); // (S3: friends tell a Cleric at a glance)
     if (this.slapT > 0) {
       if (sword) this.drawSwordSwing(ctx, w, h, sword);
       else if (staff) this.drawStaffCast(ctx, w, h, staff);

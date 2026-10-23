@@ -13,7 +13,8 @@
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
 import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, STAFF_OFFKIND, STAFF_BOLT_MULT, rebirthCost } from '../src/shared/rpg.js';
-import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult } from '../src/shared/skills.js';
+import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, healOf, classNames, BONK_MULT, BONK_REACH, BONK_HEAL, BONK_HEAL_R, REVIVE_WAIT } from '../src/shared/skills.js';
+import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
@@ -53,7 +54,7 @@ const newChar = () => ({
 });
 
 // S2, classes (story/s2-plan.md): the one-time notice for characters saved before classes existed
-const CLASSES_NEWS = `Classes are here! Everyone is a Novice for now: all your skill points and ability points are refunded (K and I) and your skill hotbars are empty. From Lv ${CLASS_LVL}, choose your class, Warrior or Mage, at the Rebirth Pool by Elder Mochi in Slimeville: your first choice is free. Healing spells come back with a future class; until then, Jelly Patch (Novice tree) and potions.`;
+const CLASSES_NEWS = `Classes are here! Everyone is a Novice for now: all your skill points and ability points are refunded (K and I) and your skill hotbars are empty. From Lv ${CLASS_LVL}, choose your class, ${classNames()}, at the Rebirth Pool by Elder Mochi in Slimeville: your first choice is free.`;
 
 // L3, the levelling rebalance's rollback (story/progression.md, owner 2026-10-23): a one-time move of the
 // characters who levelled far past their play time (mostly by camping bosses before S0) back to the level
@@ -104,6 +105,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       hover: k.fly ?? 0, hoverCur: k.fly ?? 0, dive: null, later: [],
       // bosses and field bosses: damage dealt by each slime (name → HP) since its HP was last full
       dmg: new Map(), dmgDirty: true,
+      // and (S3) healing done and damage taken while it was fought (name → HP), for the support roles
+      heal: new Map(), taken: new Map(),
     });
   }
 
@@ -115,6 +118,31 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   const stats = (p) => statsFor(p.rpg, buffsOf(p));
   const left = (until) => Math.max(0, (until ?? 0) - now());
   const zones = []; // Sanctuaries: { room, x, r, until, cut }
+  // The Cleric's summons (S3): run like mobs (server/summons.js), their hits credited to the Cleric
+  const summons = createSummons({ players, mobs, toRoom, stats, damage, heal: (id, p, qid, q, amt) => healFrom(id, p, qid, q, amt) });
+  // The damage meter's other columns (S3): healing done (key 'heal') and damage taken ('taken'), credited to
+  // every den boss and every field boss being fought in room. A heal also counts as fighting it (EXP, loot).
+  function credit(room, id, name, key, amt) {
+    const t = now();
+    for (const m of mobs) {
+      if (m.dead || m.gone || m.room !== room || !(m.den || (MOBS[m.kind].field && t - Math.max(0, ...m.hitters.values()) < FIELD_BOSS_FIGHT_MS))) continue;
+      m[key].set(name, (m[key].get(name) ?? 0) + amt);
+      m.dmgDirty = true;
+      if (key === 'heal') m.hitters.set(id, t);
+    }
+  }
+  // Player id / p heals qid / q for amt (capped at q's max HP): +HP over q for the room (pop: false when the
+  // skill's echo shows it), healing on the meter. → the HP healed
+  function healFrom(id, p, qid, q, amt, pop = true) {
+    if (!q?.rpg || q.faintUntil || !q.joined) return 0;
+    const a = Math.max(0, Math.min(stats(q).maxHp - q.rpg.hp, Math.round(amt)));
+    if (a < 1) return 0;
+    q.rpg.hp += a;
+    if (pop) toRoom(q.state.room)({ t: 'thirst', id: qid, n: a });
+    sendMe(q);
+    credit(q.state.room, id, p.name, 'heal', a);
+    return a;
+  }
   function load(p) {
     let c;
     try {
@@ -236,12 +264,12 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     p.dirty = true;
     send(p.ws, {
       t: 'me', lvl: c.lvl, exp: c.exp, next: expToNext(c.lvl), hp: Math.ceil(c.hp), maxHp: st.maxHp, mp: Math.floor(c.mp), maxMp: st.maxMp,
-      coins: c.coins, bag: c.bag, gear: c.gear, gearE: c.gearE, atk: st.atk, magic: st.magic, def: st.def, skills: c.skills, sp: spFree(c), spLeft: spLeft(c), cls: c.cls, reborn: c.reborn,
+      coins: c.coins, bag: c.bag, gear: c.gear, gearE: c.gearE, atk: st.atk, magic: st.magic, heal: st.heal, def: st.def, skills: c.skills, sp: spFree(c), spLeft: spLeft(c), cls: c.cls, reborn: c.reborn,
       hotbar: c.hotbar, potbar: c.potbar, alt: c.alt, set: c.set, pvp: c.pvp, crit: st.crit, critMult: st.critMult, minRoll: st.minRoll,
       ap: c.ap, apLeft: apTotal(c.lvl) - apSpent(c.ap),
       cosmetics: c.cosmetics, wear: c.wear, showHelmet: c.showHelmet,
       momentum: momentumOf(p), momentumLeft: momentumOf(p) ? left(p.momentum.until) : 0, arcane: arcaneOf(p),
-      berserk: left(p.berserkUntil), manaShield: left(p.manaShieldUntil), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), gods: left(p.godsUntil), secondWind: left(p.swReadyAt),
+      berserk: left(p.berserkUntil), manaShield: left(p.manaShieldUntil), barrier: p.barrier && p.barrier.until > now() ? Math.ceil(p.barrier.left) : 0, barrierLeft: left(p.barrier?.until), mend: left(p.mend?.until), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), gods: left(p.godsUntil), secondWind: left(p.swReadyAt),
       brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
       ways: c.ways,
     });
@@ -299,10 +327,13 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     p.godsUntil = 0; // (Challenge the Gods lost: no heal at the end)
     p.momentum = null;
     p.arcane = null;
-    p.faintUntil = now() + FAINT_MS; // inputs are ignored meanwhile (index.js)
+    p.barrier = p.mend = null;
+    // a Cleric here holding Revive (or Miracle) ready: stay down REVIVE_WAIT s for it, instead of waking in town
+    const t = now(), wait = isCombat(p.state.room) && inRoom(p.state.room).some(([, q]) => q !== p && !q.faintUntil && q.rpg.cls === 'cleric' && ['revive', 'miracle'].some((k) => rankOf(q.rpg.skills, k) && (q.cds?.[k] ?? 0) - t < REVIVE_WAIT * 1000));
+    p.faintUntil = t + (wait ? REVIVE_WAIT * 1000 : FAINT_MS); // inputs are ignored meanwhile (index.js)
     p.faintBy = by;
     for (const m of mobs) if (m.target === p) m.target = null;
-    toRoom(p.state.room)({ t: 'faint', id, by });
+    toRoom(p.state.room)({ t: 'faint', id, by, wait: wait ? REVIVE_WAIT : undefined });
     sendMe(p);
   }
   // Challenge the Gods ran out with you still standing: healed to full
@@ -331,7 +362,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // ult: a boss ultimate, which knocks you out outright, unless you're shielded (Aegis, Jelly Bubble),
   // standing in a Sanctuary (then it's 60% of your max HP), or Second Wind saves you.
   const guard = (qid, q, what) => toRoom(q.state.room)({ t: 'guard', id: qid, what });
-  function hurt(qid, q, raw, fromX, by, knock = 380, ult = false) {
+  // mob: the mob that did it (the damage meter's "taken" column), if it was one
+  function hurt(qid, q, raw, fromX, by, knock = 380, ult = false, mob = null) {
     if (q.faintUntil || TEST_GOD) return;
     const t = now(), st = stats(q);
     if ((q.aegisUntil ?? 0) > t) return guard(qid, q, 'block');
@@ -340,10 +372,30 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       sendMe(q);
       return guard(qid, q, 'pop');
     }
+    const bar = q.barrier && q.barrier.until > t ? q.barrier : null; // a Cleric's Barrier (S3)
+    if (bar && ult) {
+      q.barrier = null; // it takes the ultimate instead of you, and breaks
+      sendMe(q);
+      return guard(qid, q, 'barrier');
+    }
     const zone = zones.find((z) => z.room === q.state.room && z.until > t && Math.abs(q.state.x - z.x) < z.r);
     let dmg = ult ? (zone ? Math.round(st.maxHp * 0.6) : Math.ceil(q.rpg.hp) + 1) : Math.max(1, Math.round(raw * rand(0.85, 1.15) - st.def));
     if (zone && !ult) dmg = Math.max(1, Math.round(dmg * (1 - zone.cut)));
+    const totem = ult ? 0 : summons.cutAt(q); // a Guardian Totem near you
+    if (totem) dmg = Math.max(1, Math.round(dmg * (1 - totem)));
     if (st.ward && !ult) dmg = Math.max(1, Math.round(dmg * (1 - st.ward))); // a brewed ward
+    if (bar) { // the Barrier soaks it up first
+      const soak = Math.min(bar.left, dmg);
+      bar.left -= soak;
+      dmg -= soak;
+      if (bar.left <= 0) q.barrier = null;
+      if (dmg <= 0) {
+        q.hurtAt = t;
+        sendMe(q);
+        return guard(qid, q, 'soak');
+      }
+      if (!q.barrier) guard(qid, q, 'barrier');
+    }
     if (st.manaShield && !ult) { // Mana Shield: a share of it comes off MP while there's MP
       const take = Math.min(Math.round(dmg * st.manaShield), Math.floor(q.rpg.mp));
       q.rpg.mp -= take;
@@ -351,6 +403,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     q.hurtAt = t;
     q.rpg.hp -= dmg;
+    if (mob) credit(q.state.room, qid, q.name, 'taken', Math.min(dmg, Math.max(0, Math.ceil(q.rpg.hp + dmg))));
     const sw = rankOf(q.rpg.skills, 'second_wind');
     if (q.rpg.hp <= 0 && sw && t >= (q.swReadyAt ?? 0)) {
       q.rpg.hp = 1; // Second Wind
@@ -575,6 +628,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function attack(id, p, dir, hits) {
     if (p.faintUntil || !isCombat(p.state.room)) return [];
     const st = stats(p);
+    if (st.bonk) return bonk(id, p, dir, hits);
     const charged = !st.boltRange && chargeOpen(p.state) && Array.isArray(hits) && hits.length > 0;
     const mult = charged ? SKILLS.charge.mult(chaseRank(p.state.mw, 0)) : 1;
     const out = st.boltRange ? applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * STAFF_BOLT_MULT * capOf(st), dir, knock: 120 }) : applyHits(id, p, hits, { range: SLAP_REACH + st.reach, cap: st.atk * mult * capOf(st), dir, knock: charged ? 320 : 200 });
@@ -589,6 +643,24 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     thirst(id, p, out);
     out.charged = charged;
+    return out;
+  }
+
+  // The Cleric's staff bonk (S3, skills.js BONK_*): close and weak, and BONK_HEAL of what it did heals the hurt
+  // friend nearest you within BONK_HEAL_R (you, when nobody else is hurt)
+  function bonk(id, p, dir, hits) {
+    const st = stats(p);
+    const out = applyHits(id, p, hits, { range: SLAP_REACH + BONK_REACH, cap: st.magic * BONK_MULT * capOf(st), dir, knock: 160 });
+    const amt = out.reduce((n, h) => n + h[1], 0) * BONK_HEAL * st.heal;
+    if (amt >= 1) {
+      let best = null, bestD = BONK_HEAL_R;
+      for (const [qid, q] of inRoom(p.state.room)) {
+        const d = Math.abs(q.state.x - p.state.x);
+        if (q !== p && !q.faintUntil && q.rpg.hp < stats(q).maxHp && d < bestD) [best, bestD] = [[qid, q], d];
+      }
+      const [qid, q] = best ?? [id, p];
+      healFrom(id, p, qid, q, amt);
+    }
     return out;
   }
 
@@ -625,6 +697,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (!isCombat(s.room)) return toast(p, 'Skills only work out in the Wildwood');
     if ((p.cds[m.skill] ?? 0) > now() + 250) return; // still cooling down (with slack for lag)
     if (c.mp < sk.mp) return send(p.ws, { t: 'nomana' });
+    const down = sk.kind === 'revive' || sk.kind === 'miracle' ? downNear(p, sk.radius) : [];
+    if (sk.kind === 'revive' && !down.length) return toast(p, 'Nobody near you is knocked out'); // (the client checks first: src/rpg.js cast)
     c.mp -= sk.mp;
     p.cds[m.skill] = now() + cooldownOf(m.skill, rank) * 1000;
     const st = stats(p), dir = m.dir < 0 ? -1 : 1, t = now();
@@ -632,7 +706,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const charges = spendsArcane(m.skill) ? arcaneOf(p) : 0;
     if (spendsArcane(m.skill)) p.arcane = null;
     const mult = (sk.mult?.(rank) ?? 1) * capOf(st) * arcaneMult(c.skills, charges);
-    const phys = st.atk * mult, magic = (sk.stat === 'best' ? Math.max(st.atk, st.magic) : st.magic) * mult * (sk.fire ? st.fire : 1);
+    const phys = st.atk * mult, magic = (sk.stat === 'best' ? Math.max(st.atk, st.magic) : st.magic) * mult * (sk.fire ? st.fire : 1) * (sk.holy ? st.heal : 1);
     const out = { t: 'skill', id, skill: m.skill, dir, x: s.x, y: s.y, hits: [] };
     if (charges) out.arcane = charges;
     const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, el: sk.el ?? null, ...o }));
@@ -648,14 +722,28 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       if (Array.isArray(m.points)) out.points = m.points.slice(0, 6).map((q) => [Number(q[0]) || 0, Number(q[1]) || 0]);
     } else if (sk.kind === 'nova') hit({ max: 20, range: sk.radius, cap: magic, knock: 100, slow: sk.slow });
     else if (sk.kind === 'starfall') hit({ max: 30, range: sk.radius, cap: magic, knock: 80 });
-    else if (sk.kind === 'heal') {
+    else if (sk.kind === 'heal' || sk.kind === 'miracle') {
       out.heals = [];
-      for (const [qid, q] of sk.self ? [[id, p]] : near(p, sk.radius)) {
-        const max = stats(q).maxHp, amt = Math.min(max - q.rpg.hp, sk.amount(rank));
-        q.rpg.hp += amt;
-        out.heals.push([qid, Math.round(amt)]);
+      const amt = healOf(m.skill, rank, st);
+      for (const [qid, q] of sk.self ? [[id, p]] : near(p, sk.radius)) out.heals.push([qid, healFrom(id, p, qid, q, amt, false)]);
+      if (sk.kind === 'miracle') out.revived = down.map(([qid, q]) => revive(qid, q, 1));
+    } else if (sk.kind === 'revive') {
+      out.revived = down.map(([qid, q]) => revive(qid, q, sk.share(rank)));
+    } else if (sk.kind === 'mend' || sk.kind === 'barrier') {
+      out.dur = sk.dur;
+      out.targets = [];
+      const amt = healOf(m.skill, rank, st);
+      for (const [qid, q] of near(p, sk.radius)) {
+        if (sk.kind === 'mend') q.mend = { until: t + sk.dur * 1000, amt, by: id, next: t + 1000 };
+        else q.barrier = { until: t + sk.dur * 1000, left: amt };
+        out.targets.push(qid);
         if (q !== p) sendMe(q);
       }
+    } else if (sk.kind === 'summon') {
+      const su = summons.add(id, p, m.skill, rank);
+      out.sid = su.id;
+      out.sx = Math.round(su.x);
+      out.sy = Math.round(su.y);
     } else if (sk.kind === 'buff') {
       p.berserkUntil = t + sk.dur * 1000;
       out.dur = sk.dur;
@@ -687,7 +775,19 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     toRoom(s.room)(out);
     thirst(id, p, out.hits);
+    if (sk.smite && out.hits.length) healFrom(id, p, id, p, out.hits.reduce((n, h) => n + h[1], 0) * sk.smite(rank) * st.heal); // Smite
     sendMe(p);
+  }
+  // knocked-out slimes within r of p (Revive, Miracle): [[id, q]]
+  const downNear = (p, r) => inRoom(p.state.room).filter(([, q]) => q !== p && q.faintUntil > now() && Math.hypot(q.state.x - p.state.x, q.state.y - p.state.y) <= r + 40);
+  // get a knocked-out slime back up where it fell, with share of its max HP (it never woke up: no EXP lost)
+  function revive(qid, q, share) {
+    q.faintUntil = 0;
+    q.faintBy = null;
+    q.rpg.hp = Math.max(1, Math.round(stats(q).maxHp * share));
+    q.hurtAt = now(); // (a moment's invulnerability, as after any hit)
+    sendMe(q);
+    return qid;
   }
 
   // ——— ouch: the client says something hit it (run in input order; see index.js) ———
@@ -709,7 +809,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (m.kind !== 'touch' && m.kind !== 'charge' && !MOBS[mob.kind].boss && !MOBS[mob.kind].ai) return;
     if (ult && now() > mob.ultLiveUntil) return; // no ultimate going off right now
     const mx = Number.isFinite(m.mx) && Math.abs(m.mx - mob.x) < DEN_W ? m.mx : mob.x;
-    hurt(id, p, MOBS[mob.kind].atk * mult, mx, undefined, knock, ult);
+    hurt(id, p, MOBS[mob.kind].atk * mult, mx, undefined, knock, ult, mob);
   }
 
   // ——— mobs and bosses, every tick ———
@@ -1278,6 +1378,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       m.hp = Math.min(m.maxHp, m.hp + m.maxHp * 0.15);
     }
     m.ultLiveUntil = t + lasts; // clients report their 'ult' ouches within this window
+    summons.ult(m.room); // (spirits and totems take a big share of it)
     m.timer = lasts / 1000;
     m.ultAt = t + ULT_EVERY[Math.max(1, m.stage)] * 1000;
     bossEvent(m, 'ultHit', { ...u, x: Math.round(m.x) });
@@ -1337,7 +1438,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
           continue;
         }
         if (MOBS[m.kind].field && (m.hp < m.maxHp || m.fighters > 1) && t - Math.max(0, ...m.hitters.values()) > FIELD_BOSS_IDLE_MS) {
-          Object.assign(m, { hp: MOBS[m.kind].hp, maxHp: MOBS[m.kind].hp, fighters: 1, hitters: new Map(), dmg: new Map(), dmgDirty: true }); // left alone: it heals up (and the damage meter starts over)
+          Object.assign(m, { hp: MOBS[m.kind].hp, maxHp: MOBS[m.kind].hp, fighters: 1, hitters: new Map(), dmg: new Map(), heal: new Map(), taken: new Map(), dmgDirty: true }); // left alone: it heals up (and the damage meter starts over)
         }
         if (m.den) {
           m.emptyFor = here.length ? 0 : m.emptyFor + dt;
@@ -1346,6 +1447,19 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         if (here.length) stepMob(m, here, dt);
       }
       for (let i = mobs.length - 1; i >= 0; i--) if (mobs[i].gone) mobs.splice(i, 1);
+      summons.tick(dt, tick); // the Cleric's spirits, wisps and totems (server/summons.js)
+      // Mend (Cleric): a heal every second while it lasts, from its caster (gone if the caster left)
+      for (const [qid, q] of players) {
+        const md = q.mend;
+        if (!md || t < md.next) continue;
+        const by = players.get(md.by);
+        if (t >= md.until || !q.joined || !q.rpg || !by?.joined || by.state.room !== q.state.room) {
+          q.mend = null;
+          continue;
+        }
+        md.next += 1000;
+        healFrom(md.by, by, qid, q, md.amt);
+      }
       // burns (the Mage's combos): a tick of damage every BURN_TICK_MS, counted for the caster (the damage meter,
       // EXP); the burn ends with its time or when the caster leaves the room. → {t:'burn', h: [[mobId, dmg, 0, killed]]}
       const burnt = new Map();
@@ -1391,7 +1505,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         for (const m of mobs) {
           if (m.gone || !(m.dmgDirty || (tick % 180 === 0 && m.dmg.size)) || !rooms.get(m.room)?.length) continue;
           m.dmgDirty = false;
-          toRoom(m.room)({ t: 'bossdmg', id: m.id, kind: m.kind, d: [...m.dmg].sort((a, b) => b[1] - a[1]).map(([n, v]) => [n, Math.round(v)]) });
+          const rows = (map) => [...map].sort((a, b) => b[1] - a[1]).map(([n, v]) => [n, Math.round(v)]);
+          toRoom(m.room)({ t: 'bossdmg', id: m.id, kind: m.kind, d: rows(m.dmg), h: m.heal.size ? rows(m.heal) : undefined, k: m.taken.size ? rows(m.taken) : undefined });
         }
       }
       for (const p of players.values()) if (p.faintUntil && t >= p.faintUntil) wakeUp(p);
@@ -1684,6 +1799,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       c.hotbar = Array(HOTBAR).fill(null);
       c.alt.hotbar = Array(HOTBAR).fill(null);
       p.berserkUntil = p.manaShieldUntil = p.rallyUntil = p.bubbleUntil = p.aegisUntil = p.godsUntil = 0;
+      p.barrier = p.mend = null;
+      summons.clear(id);
       p.cds = {};
       moves(p);
       const st = stats(p);

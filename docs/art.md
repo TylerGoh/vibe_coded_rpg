@@ -16,6 +16,10 @@
 - The Mage's combo states on mobs (ice, frost, flames) are drawn over any mob's or boss's own art from its
   `w` / `h` (`drawMobState`, `src/elements.js`), so new mobs get them for free.
 - A new AI character or friend accessory needs its drawing in `src/slime.js` (or a file it calls).
+- **Class looks** (S3): a Cleric wears a soft golden halo, a Mage's staff sparkles on its back
+  (`drawHalo`, `drawStaffSparkle` in `src/summons.js`, called from `Slime.draw`), so the two staff classes
+  read apart. The Cleric's summons (a ghost slime, a paper lantern, a carved totem, a winged spirit) are in
+  the same file. `Slime.draw` clamps the jelly squash so a pile of hits at once can't draw it inside out.
 - **Each island's people look their own** (`story/characters/people.md`): `Slime.setFolk(folk)`. So far
   the fjord folk of Frostpeak (`folk: 'fjord'` on an `NPCS` entry): a pale, frosted palette, a rime crust
   with glints, a slow half-solid wobble, no leaf (`src/fjord-art.js`; `docs/places/fjord.md`), and the forge

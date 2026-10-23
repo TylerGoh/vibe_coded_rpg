@@ -137,6 +137,21 @@
   the loot), the Pet Shop, phone screenshots. The root grid didn't come up in the test fight (it's random
   in phase 2), so its look has only been read, not seen. Nobody has fought the Spine at its level.
 
+## S3 (the Cleric) left for later
+- **Cleanse** (`story/progression.md` 5): nothing puts a curse on a slime yet, so it waits for S5's curses,
+  with the potion backups (a Cleansing Tonic, a Barrier Draught at the alchemy lab).
+- **The Clerics' trader** (`[proposed]`: Auntie Clover or Elder Mochi), and boss drops by class (S5).
+- Revive: a knocked-out slime can't choose to wake up in town early while a Cleric could still revive it
+  (it's `REVIVE_WAIT` s at most). A "Wake up now" button if that annoys anyone.
+- Summons only touch combat: the spirits don't climb (they float to the mob's height), they don't dodge, and
+  a boss's aimed moves go at them but its room-wide ones still hit the slimes (as intended). Untested with
+  people: whether a spirit holding a boss feels right, whether the wisp's +1s are noise, and whether the
+  meter's three sections crowd a phone in a big party.
+- Tested on a throwaway server with Lv 100 test Clerics: every Cleric skill cast, the spirit hunting and
+  killing mobs, the wisp following and healing, the totem cutting and being worn down, the Seraph, the
+  Barrier, a friend fainting, waiting and being Revived, the meter's Healing and Damage taken rows, the pool
+  card and the K panel on a phone. Nobody has fought a real den boss as a Cleric at its level.
+
 ## S2.6 (the Mage's combos and Arcane Charge) left for later
 - **The interrupt** (story/progression.md 3): freezing a boss inside its `ULT_WARN` window should cancel or
   weaken the ultimate. Waits for S5 (party mechanics); the freeze already reaches bosses (`FREEZE_BOSS`).

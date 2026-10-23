@@ -68,10 +68,12 @@
 //       last three); b: seconds until a den's boss is back)
 //   ← {t:'boss', a:'warn'|'charge'|'leap'|'slam'|'rain'|'rainHit'|'summon'|'phase'|'rage'|'ultWarn'|'ultHit'|'die', id, x, y, dir,
 //       act?, dur?, marks?, r?, tx?, n? (phase), kind/name/safe/lanes/x0/speed? (ultimates)}
-//   ← {t:'guard', id, what:'pop'|'block'|'secondwind'}  a Jelly Bubble / Aegis took a hit, or Second Wind saved someone
+//   ← {t:'guard', id, what:'pop'|'block'|'secondwind'|'barrier'|'soak'}  a Jelly Bubble / Aegis took a hit, Second Wind saved
+//       someone, a Cleric's Barrier broke ('barrier') or soaked a whole hit ('soak')
 //   ← {t:'loot', l:[[id, item, n, x, y]]}  everything on the room's ground, whenever it changes
 //   ← {t:'hurt', id, dmg, hp, max, by?}  a mob (or `by`, a slapping friend) hit a slime (to its room)
-//   ← {t:'faint', id, by?}  a slime hit 0 HP: it splats, and wakes up in its town 1.6 s later · ← {t:'got', item, n}  you picked something up
+//   ← {t:'faint', id, by?, wait?}  a slime hit 0 HP: it splats, and wakes up in its town 1.6 s later (wait: s it stays
+//       down instead, for a Cleric's Revive) · ← {t:'got', item, n}  you picked something up
 //   ← {t:'gear', id, gear, lvl, up?}  to everyone, when someone's gear or level changes (join/welcome carry it too)
 //   ← {t:'toast', text}  a short notice just for you
 //   ← {t:'notice', text, news?}  a one-time message on joining (a toast and a chat line: the levelling rollback;
@@ -92,8 +94,12 @@
 //   Inputs: k also has DASH (32) and BLINK (64); snapshots carry each slime's mobility state (sim.js pack).
 //   Big bosses talk (MOBS[kind].lines): ← {t:'boss', a:'say', id, kind, text}  on walking in (just to you), at a
 //   new phase and when freed (to the den).
-//   Damage meter (bosses and field bosses): ← {t:'bossdmg', id, kind, d: [[name, damage], …]} most first; empty
-//   when its HP was reset (respawned, or healed when left alone).
+//   Damage meter (bosses and field bosses): ← {t:'bossdmg', id, kind, d: [[name, damage], …], h?, k?} most first; empty
+//   when its HP was reset (respawned, or healed when left alone). h: healing done, k: damage taken (S3), same shape.
+//   The Cleric's summons (S3, server/summons.js): ← {t:'summons', s: [[id, what, owner, x, y, hp, maxHp, dir]]}
+//   ~20 Hz to rooms with any (an empty one when the last goes) · ← {t:'sumhit', h: [[summonId, hits]]} ·
+//   ← {t:'sumhurt', id, dmg} · ← {t:'sumgone', id, how: 'faded'|'broke', x, y}. A skill echo may carry
+//   `revived` (ids got back up), `sid`/`sx`/`sy` (a summon called), `targets` (Mend, Barrier).
 // Waystones (src/shared/waystones.js, docs/places/waystones.md): → {t:'way'} at one: attune to it (`me.ways`
 //   lists yours) · → {t:'way', to} at an attuned one: the server moves you to stone `to`
 //   ← {t:'warp', id, x, in?}  to the room you left and the one you arrived in (a shimmer where you were / are)

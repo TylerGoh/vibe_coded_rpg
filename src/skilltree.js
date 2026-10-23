@@ -230,7 +230,7 @@ export class SkillTree {
         const pick = el('div', 'skt-pick');
         pick.append(el('b', null, m.lvl < CLASS_LVL ? `Choose a class at Lv ${CLASS_LVL} at the Rebirth Pool` : 'Choose your class at the Rebirth Pool by Elder Mochi'));
         const sw = el('div', 'skt-peek');
-        for (const id of ['warrior', 'mage']) {
+        for (const id of Object.keys(CLASSES).filter((c) => c !== 'novice')) {
           const b = el('button', 'skt-tab' + (k === id ? ' on' : ''), CLASSES[id].name);
           b.type = 'button';
           b.style.setProperty('--tree', CLASSES[id].color);

@@ -1,6 +1,6 @@
 # Classes and progression: the S track (plan)
 
-**Status: plan, written 2026-10-23, S0 and S1 shipped 2026-10-23, the rest not built yet.** Runs alongside the island-depth G track
+**Status: plan, written 2026-10-23; S0, S1, L, R, S2 and S3 shipped 2026-10-23; S4–S6 not built yet.** Runs alongside the island-depth G track
 (`world/island-depth.md`). Everything below is `[proposed]` until the owner settles the open decisions at
 the bottom; the recommended answer is written in each time, so a session can start from it.
 
@@ -379,11 +379,14 @@ slow levelling down, and roll those characters back to where their play time wou
       staves. Before R, so R's "new copy of every boss item" pass copies the staves too.
 - [x] **L: the levelling rebalance and the rollback** (shipped 2026-10-23, alone): L1 the EXP curve, L2
       prices in farming time, L3 rolling back the top characters. `docs/economy.md`, `docs/combat/core.md`.
-- [ ] **S2: the tree** (large; split into six agent-sized pieces in `s2-plan.md`; S2.1–S2.4 deployed 2026-10-23; S2.5 and S2.6 to go), with the CLASSES table in `npm run economy`: the four class trees, the Rebirth spot, forks, advancements, the `spTotal` schedule, the
+- [x] **S2: the tree** (large; split into six agent-sized pieces in `s2-plan.md`; all deployed 2026-10-23), with the CLASSES table in `npm run economy`: the four class trees, the Rebirth spot, forks, advancements, the `spTotal` schedule, the
       node UI (desktop and phone), the one-time refund. Warrior (with the chase moves in `step()`) and Mage, with the mage
       combos (chill/freeze/shatter, burn/spread, Arcane Charge).
-- [ ] **S3: the Cleric** (large: summons are new server entities): the Cleric at the Rebirth spot, the halo, the summons, the Cleric tree (mostly today's heal and Guardian
-      skills moved and extended: Cleanse, Revive), healing and damage-taken on the damage meter.
+- [x] **S3: the Cleric** (shipped 2026-10-23; `docs/combat/skills.md`, "The Cleric"): the Cleric at the Rebirth Pool, the halo, the
+      staff bonk, the summons (server-run: `server/summons.js`), the tree (Smite, Jelly Heal, Jelly Spirit, Faith; Priest: Mend, the
+      Lantern Wisp, Revive, Holy Power, Miracle; Warden: the Guardian Totem, Barrier, Spirit Bond, the Seraph), healing and
+      damage taken on the damage meter. The Knight kept its Guardian skills (Sanctuary, Aegis, Bubble, Second Wind): the
+      Cleric got its own instead of taking them, so S2's Knight didn't change. Cleanse waits for S5's curses.
 - [x] R, the rebalance (shipped 2026-10-23, before S2: it copied swords and staves; `docs/combat/items.md`).
 - [ ] **S4: the Archer** (large): `bow` kind, arrows, the Archer tree, DEX's new job, Acorn's bows.
 - [ ] **S5: bosses that need a party**: the mechanics in the table above (Taunt, pulses, curses, barriers,

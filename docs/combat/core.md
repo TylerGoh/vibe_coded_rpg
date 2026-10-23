@@ -54,7 +54,9 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
 0 HP → `faint`: the slime splats into a puddle of its colour for a moment (`drawSplats` in main.js; the
 server zeroes its inputs and the client sends none), then `wakeUp()` puts it in **its town** (the last
 town it was in: `TOWNS`, `docs/world.md`; Slimeville or Icefang Hamlet) with full HP, minus a slice of a
-level's EXP. `placeAt` keeps its house door working (waking up used to shut it until the next login). Regen is slow in combat rooms (none right after a hit), fast
+level's EXP. `placeAt` keeps its house door working (waking up used to shut it until the next login).
+With a Cleric holding Revive ready in the room, the faint lasts `REVIVE_WAIT` instead, so it can be got back
+up where it fell with no EXP lost (`docs/combat/skills.md`, the Cleric). Regen is slow in combat rooms (none right after a hit), fast
 elsewhere.
 
 ## HUD and bag
