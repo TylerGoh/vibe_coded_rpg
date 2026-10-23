@@ -67,6 +67,7 @@
 //   ← {t:'faint', id, by?}  a slime hit 0 HP: it splats, and wakes up in its town 1.6 s later · ← {t:'got', item, n}  you picked something up
 //   ← {t:'gear', id, gear, lvl, up?}  to everyone, when someone's gear or level changes (join/welcome carry it too)
 //   ← {t:'toast', text}  a short notice just for you
+//   ← {t:'notice', text}  a one-time message on joining (a toast and a chat line: the levelling rollback)
 //   → {t:'pickup'} (Z) · → {t:'equip'|'use'|'drop', slot} (bag index) · → {t:'unequip', slot:'helmet'|'weapon'}
 //   → {t:'scroll', slot, target:'helmet'|'weapon'|bagIndex}  use an enhancement scroll on a weapon / helmet
 //       ← {t:'scrolled', id, result:'ok'|'fail'|'boom', item, name, left, by}  to the room (bag entries and

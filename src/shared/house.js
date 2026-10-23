@@ -11,15 +11,15 @@ import { MOBS, PETSHOP_W } from './rpg.js';
 
 // Every house is an open-plan inside (x 0 → inside, big picture windows onto the sky) with a backyard
 // right behind it (inside → inside + yard). Bigger sizes cost gold, paid once to expand for good; prices
-// are set against the economy balance sheet (docs/economy.md, npm run economy): `aim` is the level whose
-// lifetime farming gold the price is checked against. No aim: a prestige size for big boss farmers.
+// are set against the economy balance sheet (docs/economy.md, npm run economy): `aim` is the level the price
+// is checked at, in minutes of farming there (L2: the smaller sizes 10-20, the big ones about 30).
 export const HOUSE_SIZES = [
   { name: 'Cottage', inside: 960, yard: 720, pieces: 60, price: 0 },
   { name: 'Cozy Home', inside: 1280, yard: 960, pieces: 80, price: 2000, aim: 12 },
-  { name: 'Family House', inside: 1600, yard: 1200, pieces: 100, price: 8000, aim: 22 },
+  { name: 'Family House', inside: 1600, yard: 1200, pieces: 100, price: 10000, aim: 22 },
   { name: 'Manor', inside: 1920, yard: 1440, pieces: 120, price: 30000, aim: 40 },
-  { name: 'Estate', inside: 2400, yard: 1680, pieces: 150, price: 80000, aim: 65 },
-  { name: 'Grand Estate', inside: 2880, yard: 2080, pieces: 180, price: 400000 },
+  { name: 'Estate', inside: 2400, yard: 1680, pieces: 150, price: 130000, aim: 65 },
+  { name: 'Grand Estate', inside: 2880, yard: 2080, pieces: 180, price: 210000, aim: 120 },
 ];
 export const sizeOf = (layout) => HOUSE_SIZES[layout?.size] ?? HOUSE_SIZES[0];
 export const houseWidth = (layout) => sizeOf(layout).inside + sizeOf(layout).yard;
@@ -43,8 +43,8 @@ export const FURNITURE = {
   chair: { name: 'Chair', price: 300, sec: 'Living room', w: 44, h: 74, layer: 'floor', top: 34 },
   dresser: { name: 'Dresser', price: 2500, sec: 'Bedroom', w: 100, h: 80, layer: 'floor', top: 80 },
   bookshelf: { name: 'Bookshelf', price: 7000, sec: 'Bedroom', w: 92, h: 160, layer: 'floor', top: 160 },
-  fireplace: { name: 'Fireplace', price: 18000, sec: 'Living room', w: 140, h: 130, layer: 'floor', top: 112 },
-  piano: { name: 'Piano', price: 25000, sec: 'Living room', w: 120, h: 96, layer: 'floor', top: 96 },
+  fireplace: { name: 'Fireplace', price: 22000, sec: 'Living room', w: 140, h: 130, layer: 'floor', top: 112 },
+  piano: { name: 'Piano', price: 30000, sec: 'Living room', w: 120, h: 96, layer: 'floor', top: 96 },
   lamp: { name: 'Floor lamp', price: 500, sec: 'Living room', w: 40, h: 124, layer: 'floor' },
   plant: { name: 'Plant', price: 150, sec: 'Little things', w: 44, h: 64, layer: 'floor' },
   tree: { name: 'Potted tree', price: 1500, sec: 'Bedroom', w: 70, h: 136, layer: 'floor' },
@@ -67,8 +67,8 @@ export const FURNITURE = {
   hedge: { name: 'Hedge', price: 800, sec: 'Garden', w: 100, h: 62, layer: 'floor', top: 58 },
   birdbath: { name: 'Birdbath', price: 900, sec: 'Garden', w: 50, h: 62, layer: 'floor' },
   lamppost: { name: 'Lamp post', price: 1200, sec: 'Garden', w: 34, h: 150, layer: 'floor' },
-  oak: { name: 'Garden tree', price: 30000, sec: 'Garden', w: 170, h: 240, layer: 'floor', top: 170 },
-  swing: { name: 'Swing', price: 12000, sec: 'Garden', w: 110, h: 170, layer: 'floor', seat: { top: 44, w: 52 } },
+  oak: { name: 'Garden tree', price: 36000, sec: 'Garden', w: 170, h: 240, layer: 'floor', top: 170 },
+  swing: { name: 'Swing', price: 15000, sec: 'Garden', w: 110, h: 170, layer: 'floor', seat: { top: 44, w: 52 } },
   pond: { name: 'Pond', price: 10000, sec: 'Garden', w: 160, h: 12, layer: 'rug' },
   // farming and alchemy (docs/places/alchemy.md): every house gets a couple free (GIFT in shared/alchemy.js)
   garden_plot: { name: 'Garden plot', price: 600, sec: 'Farm & lab', w: 110, h: 30, layer: 'floor', yard: true },
@@ -77,14 +77,15 @@ export const FURNITURE = {
 
 // Pets: mini versions of the bosses, sold at the Pet Shop (PET_DISPLAY, below) and placed like furniture
 // (they stand on the floor, where they're put, then wander off around the house: src/house.js). Prestige
-// prices, set against the boss rows of the balance sheet, not an aim level (owner: "around 50k per pet or
-// more for more premium ones"); the later the boss, the dearer its pet (by the boss's level: the rebalance,
-// R, raised Frostpeak's, Emberdeep's and the Citadel's bosses, so their pets went up to keep the order). `npm run economy` lists them.
+// prices: about 20 minutes of farming at its boss's level, with a floor (PET_MIN in the balance sheet) so no
+// pet is trivial (owner, L2 2026-10-23; before that, "around 50k per pet or more"); the later the boss, the
+// dearer its pet. `npm run economy` lists and checks them.
 // Each pet you own is one animal with its own belly (docs/places/pets.md): it must be fed, or it dies.
 export const PET_SCALE = 0.4; // of the boss's own size
 export const PETS = {
-  turnipop: 50000, sprout_king: 50000, mother_mushroom: 60000, snapjaw: 80000, bramble_behemoth: 75000, frost_queen: 230000,
-  tidemother: 120000, astral_wyrm: 280000, knotmole: 170000, ignis: 360000, hornet_queen: 210000, drowned_bosun: 225000, pyra: 400000, thorn_hart: 300000, root_warden: 340000, old_narwhal: 345000, rimehorn: 350000, hall_troll: 352000, pale_wyrm: 356000, sigrun: 370000, colossus: 450000, chronos: 500000,
+  sprout_king: 20000, turnipop: 20000, mother_mushroom: 20000, bramble_behemoth: 20000, snapjaw: 20000, tidemother: 22000, knotmole: 38000,
+  hornet_queen: 46000, drowned_bosun: 47000, frost_queen: 48000, astral_wyrm: 82000, thorn_hart: 83000, root_warden: 84000, old_narwhal: 97000,
+  rimehorn: 108000, hall_troll: 131000, pale_wyrm: 132000, ignis: 150000, sigrun: 151000, pyra: 155000, colossus: 248000, chronos: 270000,
 };
 for (const [kind, price] of Object.entries(PETS)) {
   const m = MOBS[kind];

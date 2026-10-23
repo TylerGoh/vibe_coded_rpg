@@ -3,54 +3,39 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF } from '../src/shared/rpg.js';
+import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
+import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
 
-// Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about this many
-// a minute counting walking, pickups and potion breaks. Bosses aren't counted in "earned by level".
-const KILLS_PER_MIN = 6;
-// A sink aimed at level L (its `aim`) should cost between these shares of what farming has earned by L
-const AIM_MIN = 0.25, AIM_MAX = 1.0;
-// Furniture: buying one of every piece is a long-term collection goal, between what farming has earned by
-// these two levels
-const SET_FROM = 40, SET_TO = 90;
-const PET_MIN = 50000; // owner: "around 50k per pet or more for more premium ones"
+// Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
+// KILLS_PER_MIN a minute counting walking, pickups and potion breaks (src/shared/rpg.js: the EXP curve is
+// built on it). Bosses aren't counted in "earned by level".
+// Prices in farming time (L2, story/progression.md, owner 2026-10-23: "things shouldn't feel cheap"): a sink
+// aimed at level L (its `aim`) costs between these many minutes of farming at L, by kind. Levels are slow
+// now, so savings pile up: a share of the gold earned by L would make everything cheap. Two guards: never
+// more than everything farmed by L (AIM_MAX of it), and early on, where a level is a couple of minutes, the
+// low end gives way to AIM_EARLY of the savings instead.
+const PRICE_BANDS = { gear: [10, 25], house: [10, 35], pet: [15, 25] };
+const AIM_MAX = 1.0, AIM_EARLY = 0.5;
+// Furniture: buying one of every piece is a long-term collection goal: between what farming earns in this
+// many hours of play from a new character
+const SET_HOURS = [1.5, 4];
+// Furniture is priced by size, not aimed; the big pieces cost at most FURN_MAX_MIN minutes of farming at
+// FURN_LVL (where the bigger houses are bought)
+const FURN_LVL = 60, FURN_MAX_MIN = 10;
+// Pets are aimed at their boss's level (PRICE_BANDS.pet), but never under this floor (owner, 2026-10-23: a
+// floor of ~15-20k, so no pet is trivial)
+const PET_MIN = 20000;
+// Changing class (rebirthCost in src/shared/rpg.js: REBIRTH_HOURS of farming gold at your level, on the frozen
+// curve) must stay within this of the sheet's real farming gold
+const REBIRTH_FIT = [0.75, 1.4];
 // Pet food (docs/places/pets.md): a day of feeding the cheapest way costs at most this many minutes of
 // farming at the level where the cheapest pet is first affordable (care, not a second price tag)
 const PET_UPKEEP_MAX_MIN = 5;
 
-// ——— the frozen legacy curves (story/world/island-depth.md, G0) ———
-// Today's mobs and gear written down level by level, frozen on 2026-10-20. NEVER REFIT: the rebalance
-// changes the legacy numbers, and everything new is priced against these, so the levelling speed and the
-// house and shop aims stay valid.
-// - Mobs: a smoothed fit through the legacy mobs that spawn (local log-log fits around each knot level;
-//   the Sprout itself at Lv 1): HP, attack, EXP, and gold = what a kill is worth (coins plus drops sold,
-//   gear apart). Kills per level fall from ~10 at Lv 5 to ~5 by Lv 70, as they do today.
-// - Gear: the sword and helmet ladder itself (shop gear, then each den's: Briar 12, Frostbite 18,
-//   Starforged 25, Magma Maul 36, Phoenix 46, Cog Cleaver 60, Chrono 80, and the matching helmets).
-// Between knots it's straight on log-log; past the last knot it carries on as a power law with `tail`
-// (fitted on the Lv 30+ mobs; EXP's is expToNext's own 1.7, so kills per level stay flat from there; gear
-// keeps its last segment's slope). Prices: a rough a·L^b guide for the table, not checked.
-const CURVE = {
-  hp: { at: [1, 5, 10, 15, 20, 30, 40, 50, 60, 72], v: [22, 70, 222, 521, 937, 1979, 3145, 4330, 5654, 7545], tail: 1.451 },
-  atk: { at: [1, 5, 10, 15, 20, 30, 40, 50, 60, 72], v: [5, 11, 22, 36, 51, 80, 109, 141, 175, 221], tail: 1.169 },
-  exp: { at: [1, 5, 10, 15, 20, 30, 40, 50, 60, 72], v: [6, 18, 56, 131, 264, 645, 1120, 1685, 2421, 3660], tail: 1.7 },
-  gold: { at: [1, 5, 10, 15, 20, 30, 40, 50, 60, 72], v: [5, 15, 44, 87, 145, 259, 369, 486, 621, 807], tail: 1.265 },
-  sword: { at: [1, 5, 9, 12, 18, 25, 36, 46, 60, 80], v: [5, 12, 22, 32, 44, 62, 78, 92, 112, 135], tail: 0.69 },
-  helmet: { at: [1, 5, 9, 12, 18, 25, 36, 46, 60, 80], v: [2, 5, 9, 14, 20, 28, 34, 40, 50, 62], tail: 0.79 },
-  swordPrice: { pow: [38.616, 2.037] }, helmetPrice: { pow: [31.592, 2.022] },
-};
-function curve(what, L) {
-  const c = CURVE[what];
-  if (c.pow) return c.pow[0] * L ** c.pow[1];
-  const n = c.at.length;
-  if (L >= c.at[n - 1]) return c.v[n - 1] * (L / c.at[n - 1]) ** c.tail;
-  const i = Math.max(1, c.at.findIndex((k) => k >= L));
-  const b = Math.log(c.v[i] / c.v[i - 1]) / Math.log(c.at[i] / c.at[i - 1]);
-  return c.v[i - 1] * (L / c.at[i - 1]) ** b;
-}
+// The frozen legacy curves (CURVE, curve()) live in src/shared/curve.js: the game builds expToNext on them.
 // Mobs that were there when the curve was frozen and still stand where they stood (the Wildwood's three):
 // they're the curve, so they aren't checked against it. The rebalance (R, 2026-10-23) moved Frostpeak's,
 // Emberdeep's and the Citadel's onto it at their new levels, so they're checked like everything else. Every
@@ -127,8 +112,13 @@ table('FAUCETS: one boss kill (loot is shared: one set per kill, whoever picks i
   return [id, { kind: m.field ? 'field' : 'den', lvl: m.lvl, hp: m.hp, exp: m.exp, gold: fmt(k.gold), sell: fmt(k.sell), 'gear sold': fmt(k.gear), 'vs 1 min farming': `${(k.value / goldPerMin(m.lvl)).toFixed(1)}x`,
     'camped 1 h vs mobs (exp / gold)': m.field ? '' : `${campRatio(m).exp.toFixed(1)}x / ${campRatio(m).gold.toFixed(1)}x` }];
 })));
-table(`PROGRESS: farming your own level at ${KILLS_PER_MIN} kills/min (mobs only, no bosses)`, Object.fromEntries([5, 10, 13, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 170].map((L) => [`lvl ${L}`, {
-  farming: farmed(L)[0], 'gold/min': fmt(goldPerMin(L)), 'play time to reach': hrs(minutesTo(L)), 'gold earned by then': fmt(earnedBy(L)),
+// The pace (L1): play time to reach a level against the owner's target, LEVEL_MIN(L) minutes a level
+// (src/shared/rpg.js), never faster than the old curve; the check keeps the play time within LEVEL_PACE of it
+const LEVEL_PACE = [0.85, 1.25];
+const targetTo = (L) => { let t = 0; for (let l = 1; l < L; l++) t += LEVEL_MIN(l); return t; };
+const PROGRESS_AT = [5, 10, 13, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 170, 200];
+table(`PROGRESS: farming your own level at ${KILLS_PER_MIN} kills/min (mobs only, no bosses)`, Object.fromEntries(PROGRESS_AT.map((L) => [`lvl ${L}`, {
+  farming: farmed(L)[0], 'gold/min': fmt(goldPerMin(L)), 'min a level': (expToNext(L) / farmed(L)[1].exp / KILLS_PER_MIN).toFixed(1), 'play time to reach': hrs(minutesTo(L)), 'target (LEVEL_MIN)': hrs(targetTo(L)), 'gold earned by then': fmt(earnedBy(L)),
 }])));
 
 // The frozen curves, extended to where the later islands' bands will go (Frostpeak 40–100, Emberdeep
@@ -148,9 +138,9 @@ const levelFor = (price) => {
   return '>200';
 };
 const sinks = [
-  ...SHOP_STOCK.map((id) => ({ what: `shop: ${ITEMS[id].name}`, price: ITEMS[id].price, aim: ITEMS[id].aim })),
+  ...SHOP_STOCK.map((id) => ({ what: `shop: ${ITEMS[id].name}`, price: ITEMS[id].price, aim: ITEMS[id].aim, band: 'gear' })),
   ...Object.values(COSMETICS).map((c) => ({ what: `boutique: ${c.name}`, price: c.price })),
-  ...HOUSE_SIZES.slice(1).map((s) => ({ what: `house: ${s.name}`, price: s.price, aim: s.aim })),
+  ...HOUSE_SIZES.slice(1).map((s) => ({ what: `house: ${s.name}`, price: s.price, aim: s.aim, band: 'house' })),
 ];
 const furniture = Object.entries(FURNITURE).filter(([, f]) => !f.pet).sort((a, b) => a[1].price - b[1].price);
 // pets (mini bosses, sold at the Pet Shop) are prestige buys priced against boss kills, not furniture
@@ -162,14 +152,15 @@ const upkeepDay = Math.min(...foods.map(([, it]) => perBelly(it))) * (86400_000 
 const bossWorth = (kind) => { const k = perKill(MOBS[kind]); return k.value + k.gear; }; // one kill's gold, drops sold and gear sold
 table('SINKS: what gold buys ("first affordable" = the level where lifetime farming gold reaches the price)', Object.fromEntries(sinks.map((s) => [s.what, {
   price: fmt(s.price), 'first affordable': `lvl ${levelFor(s.price)}`,
-  ...(s.aim ? { aim: `lvl ${s.aim}`, 'share of gold by aim': `${Math.round((s.price / earnedBy(s.aim)) * 100)}%`, 'farming min at aim': Math.round(s.price / goldPerMin(s.aim)) } : {}),
+  ...(s.aim ? { aim: `lvl ${s.aim}`, 'farming min at aim': Math.round(s.price / goldPerMin(s.aim)), band: `${PRICE_BANDS[s.band].join('–')} min`, 'share of gold by aim': `${Math.round((s.price / earnedBy(s.aim)) * 100)}%` } : {}),
 }])));
 
 table('SINKS: furniture (the furniture store), cheapest first', Object.fromEntries(furniture.map(([k, f]) => [k, {
-  price: fmt(f.price), size: `${f.w}×${f.h}`, 'first affordable': `lvl ${levelFor(f.price)}`, 'farming min at lvl 30': (f.price / goldPerMin(30)).toFixed(1), 'at lvl 70': (f.price / goldPerMin(70)).toFixed(1),
+  price: fmt(f.price), size: `${f.w}×${f.h}`, 'first affordable': `lvl ${levelFor(f.price)}`, 'farming min at lvl 10': (f.price / goldPerMin(10)).toFixed(1), 'at lvl 30': (f.price / goldPerMin(30)).toFixed(1), [`at lvl ${FURN_LVL}`]: (f.price / goldPerMin(FURN_LVL)).toFixed(1),
 }])));
-table('SINKS: pets (prestige: price vs kills of the boss itself, and vs lifetime farming gold)', Object.fromEntries(pets.map(([k, f]) => [k, {
-  price: fmt(f.price), boss: `${f.pet} (lvl ${MOBS[f.pet].lvl})`, 'kills of it (all loot sold)': (f.price / bossWorth(f.pet)).toFixed(1), 'first affordable': `lvl ${levelFor(f.price)}`, 'farming min at lvl 70': Math.round(f.price / goldPerMin(70)),
+const petMin = (f) => f.price / goldPerMin(MOBS[f.pet].lvl); // minutes of farming at its boss's level
+table('SINKS: pets (aimed at their boss\'s level, with a floor: price vs farming there, and vs kills of the boss)', Object.fromEntries(pets.map(([k, f]) => [k, {
+  price: fmt(f.price), boss: `${f.pet} (lvl ${MOBS[f.pet].lvl})`, 'farming min at its lvl': Math.round(petMin(f)), 'kills of it (all loot sold)': (f.price / bossWorth(f.pet)).toFixed(1), 'first affordable': `lvl ${levelFor(f.price)}`,
   'food a month vs price': `${Math.round(((upkeepDay * 30) / f.price) * 100)}%`,
 }])));
 table('SINKS: pet food (a full belly lasts PET_STARVE_MS; upkeep = a day fed the cheapest way, per pet)', Object.fromEntries(foods.map(([id, it]) => [id, {
@@ -178,7 +169,14 @@ table('SINKS: pet food (a full belly lasts PET_STARVE_MS; upkeep = a day fed the
 const petLvl = levelFor(pets[0][1].price);
 console.log(`Pet upkeep: ${fmt(upkeepDay)} gold a day per pet = ${(upkeepDay / goldPerMin(petLvl)).toFixed(1)} min of farming at lvl ${petLvl} (first pet affordable; max ${PET_UPKEEP_MAX_MIN})`);
 const setCost = furniture.reduce((a, [, f]) => a + f.price, 0);
-console.log(`One of every piece: ${fmt(setCost)} gold (farming has earned that by lvl ${levelFor(setCost)}; target lvl ${SET_FROM}–${SET_TO})`);
+// gold farmed in the first `h` hours of a new character's play
+const earnedIn = (h) => { let L = 1; while (L < 400 && minutesTo(L + 1) <= h * 60) L++; return earnedBy(L); };
+const playFor = (price) => { let L = 1; while (L < 400 && earnedBy(L) < price) L++; return minutesTo(L); };
+console.log(`One of every piece: ${fmt(setCost)} gold (farming has earned that by lvl ${levelFor(setCost)}, ${hrs(playFor(setCost))} of play; target ${SET_HOURS.join('–')} h)`);
+
+table(`CHANGING CLASS: rebirthCost (REBIRTH_HOURS = ${REBIRTH_HOURS} h of farming gold at your level, on the frozen curve) vs the sheet's farming`, Object.fromEntries([10, 20, 30, 40, 60, 80, 100, 120, 150, 200].map((L) => [`lvl ${L}`, {
+  'rebirthCost': fmt(rebirthCost(L)), 'sheet: gold an hour × REBIRTH_HOURS': fmt(goldPerMin(L) * 60 * REBIRTH_HOURS), ratio: (rebirthCost(L) / (goldPerMin(L) * 60 * REBIRTH_HOURS)).toFixed(2),
+}])));
 
 // Farming and alchemy (docs/places/alchemy.md): seeds are a small sink; herbs and brews must sell for less
 // than they cost to make, so a garden is never a gold farm (they're for drinking)
@@ -194,9 +192,23 @@ table('ALCHEMY: one batch of each recipe (cost = seeds for its herbs + its mob m
 
 // ——— checks ———
 const problems = [];
+for (const L of PROGRESS_AT.filter((L) => L >= 20)) {
+  const f = minutesTo(L) / targetTo(L);
+  if (f < LEVEL_PACE[0] || f > LEVEL_PACE[1]) problems.push(`reaching lvl ${L} takes ${hrs(minutesTo(L))} of farming, ${Math.round(f * 100)}% of the target pace LEVEL_MIN (want ${LEVEL_PACE[0] * 100}–${LEVEL_PACE[1] * 100}%)`);
+}
+// priced in minutes of farming at the aim level (PRICE_BANDS), never more than the savings by then
+const bandProblem = (what, price, aim, band) => {
+  const [lo, hi] = PRICE_BANDS[band], gpm = goldPerMin(aim), saved = earnedBy(aim);
+  if (price > saved * AIM_MAX) return `${what} costs more than everything farmed by its aim level ${aim} (${fmt(saved)})`;
+  if (price > hi * gpm || price < Math.min(lo * gpm, AIM_EARLY * saved)) return `${what} costs ${(price / gpm).toFixed(1)} min of farming at its aim level ${aim} (want ${lo}–${hi})`;
+};
 for (const s of sinks.filter((s) => s.aim)) {
-  const share = s.price / earnedBy(s.aim);
-  if (share < AIM_MIN || share > AIM_MAX) problems.push(`${s.what} costs ${Math.round(share * 100)}% of the gold farmed by its aim level ${s.aim} (want ${AIM_MIN * 100}–${AIM_MAX * 100}%)`);
+  const p = bandProblem(s.what, s.price, s.aim, s.band);
+  if (p) problems.push(p);
+}
+for (const L of [10, 20, 30, 40, 60, 80, 100, 120, 150, 200]) {
+  const f = rebirthCost(L) / (goldPerMin(L) * 60 * REBIRTH_HOURS);
+  if (f < REBIRTH_FIT[0] || f > REBIRTH_FIT[1]) problems.push(`rebirthCost(${L}) is ${f.toFixed(2)}x the sheet's ${REBIRTH_HOURS} h of farming gold (want ${REBIRTH_FIT.join('–')})`);
 }
 for (let i = 2; i < HOUSE_SIZES.length; i++) if (HOUSE_SIZES[i].price <= HOUSE_SIZES[i - 1].price) problems.push(`house size ${HOUSE_SIZES[i].name} isn't dearer than the one before`);
 for (const [k, f] of furniture) if (!(f.price > 0)) problems.push(`furniture ${k} has no price`);
@@ -206,13 +218,15 @@ const upright = furniture.filter(([, f]) => f.layer !== 'rug');
 for (const [a, fa] of upright) for (const [b, fb] of upright) {
   if (fa.w * fa.h >= 4 * fb.w * fb.h && fa.price < fb.price) problems.push(`furniture ${a} is far bigger than ${b} but cheaper`);
 }
+for (const [k, f] of furniture) if (f.price / goldPerMin(FURN_LVL) > FURN_MAX_MIN) problems.push(`furniture ${k} costs ${(f.price / goldPerMin(FURN_LVL)).toFixed(1)} min of farming at lvl ${FURN_LVL} (max ${FURN_MAX_MIN})`);
 for (const [k, f] of pets) {
-  if (f.price < PET_MIN) problems.push(`pet ${k} costs ${fmt(f.price)}: pets are prestige buys, at least ${fmt(PET_MIN)} (owner)`);
+  if (f.price < PET_MIN) problems.push(`pet ${k} costs ${fmt(f.price)}: under the floor PET_MIN, ${fmt(PET_MIN)} (owner)`);
+  else if (f.price > PET_MIN) { const p = bandProblem(`pet ${k}`, f.price, MOBS[f.pet].lvl, 'pet'); if (p && f.price > PRICE_BANDS.pet[0] * goldPerMin(MOBS[f.pet].lvl)) problems.push(p); }
   for (const [k2, f2] of pets) if (MOBS[f2.pet].lvl < MOBS[f.pet].lvl && f2.price > f.price) problems.push(`pet ${k} (a later boss) is cheaper than ${k2}`);
 }
 if (upkeepDay / goldPerMin(petLvl) > PET_UPKEEP_MAX_MIN) problems.push(`a day of pet food costs ${(upkeepDay / goldPerMin(petLvl)).toFixed(1)} min of farming at lvl ${petLvl}: more than ${PET_UPKEEP_MAX_MIN}`);
 for (const [a, fa] of foods) for (const [b, fb] of foods) if (fa.food > fb.food && perBelly(fa) > perBelly(fb)) problems.push(`pet food ${a} is a bigger portion than ${b} but dearer per belly`);
-if (setCost < earnedBy(SET_FROM) || setCost > earnedBy(SET_TO)) problems.push(`one of every piece of furniture costs ${fmt(setCost)}: want it between the gold earned by lvl ${SET_FROM} and lvl ${SET_TO}`);
+if (setCost < earnedIn(SET_HOURS[0]) || setCost > earnedIn(SET_HOURS[1])) problems.push(`one of every piece of furniture costs ${fmt(setCost)}: want it between what farming earns in ${SET_HOURS[0]} h and ${SET_HOURS[1]} h of play`);
 for (const id of SHOP_STOCK) if (sellPrice(id) >= ITEMS[id].price) problems.push(`${id} sells for as much as it costs`);
 for (const [id, c] of Object.entries(CROPS)) if (c.yield[1] * sellPrice(id) >= c.seed) problems.push(`a ${id} harvest can sell for more than its seed costs: a gold farm`);
 for (const [id, r] of Object.entries(RECIPES)) {

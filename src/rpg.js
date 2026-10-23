@@ -103,6 +103,10 @@ export class Rpg {
       this.bossBack = m.b ?? 0;
     } else if (m.t === 'loot') {
       this.loot = m.l;
+    } else if (m.t === 'notice') {
+      // a one-time message on joining (the levelling rollback): a toast, and a line kept in the chat
+      this.toast(m.text);
+      this.onAnnounce?.(m.text);
     } else if (m.t === 'toast') {
       this.toast(m.text);
       if (/full|only drop|already|Not enough|first|out of|haven't/.test(m.text)) audio.sfx('error');

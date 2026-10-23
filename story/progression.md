@@ -279,7 +279,7 @@ job advancements), at levels spaced further apart each time:
   2026-10-23) with **every skill point and AP refunded** and the skill hotbars cleared. Everyone Lv 10 and
   up gets a banner pointing them at the Rebirth Pool to choose a class, free.
 
-## L: the levelling rebalance and the rollback (owner, 2026-10-23; plan, not built)
+## L: the levelling rebalance and the rollback (owner, 2026-10-23; shipped 2026-10-23, ahead of S2)
 **Why.** After R, levels take about 1 minute each past Lv 30 (about 5 kills, flat all the way up), so the
 whole game to Lv 200 is about 3 hours of farming and the advancements (section 7) land every ~30 minutes
 instead of further apart. And the top characters (Lv 380+, mostly from Chronos farming before S0) are so far
@@ -356,7 +356,12 @@ slow levelling down, and roll those characters back to where their play time wou
   puts you. Everything you own is kept, and every boss is worth fighting again.").
 
 ### When it ships
-- **Before S2, and in the same deploy as S2's deploy #1** (`s2-plan.md`), so players get one big change
+- **Shipped on its own on 2026-10-23** (owner chose not to wait for S2): its own rollback notice, so S2's
+  migration will be a second change with its own banner. Built as: `expToNext` and `LEVEL_MIN` in
+  `src/shared/rpg.js` on the frozen curve (moved to `src/shared/curve.js`), `rebirthCost` and
+  `REBIRTH_HOURS` there too (unused until S2.1), the bands in `scripts/economy.mjs`, the rollback in
+  `load()` (`ROLLBACK`, `rollbackLevel`, the `lb` flag). Numbers and what moved: `docs/economy.md`.
+- Was planned: **before S2, and in the same deploy as S2's deploy #1** (`s2-plan.md`), so players get one big change
   (new levels, Novices, the refund, the Rebirth Pool) with one banner, not two upheavals a few days apart.
   L can be built first and on its own (it touches `expToNext`, `scripts/economy.mjs`, prices and `load()`,
   not the skill code), then held until S2.1–S2.3 are ready.
@@ -372,8 +377,8 @@ slow levelling down, and roll those characters back to where their play time wou
       your hand decides the normal attack; spell power never went down (staves only add). Was (medium): the `staff` kind, the staff bolt, MAGIC from staves, a staff
       on every boss's drops, starter and trader staves, weapon scrolls, the economy script learning
       staves. Before R, so R's "new copy of every boss item" pass copies the staves too.
-- [ ] **L: the levelling rebalance and the rollback** (above): L1 the EXP curve, L2 gold follows play
-      time, L3 rolling back the top characters. Built before S2, shipped with S2's first deploy.
+- [x] **L: the levelling rebalance and the rollback** (shipped 2026-10-23, alone): L1 the EXP curve, L2
+      prices in farming time, L3 rolling back the top characters. `docs/economy.md`, `docs/combat/core.md`.
 - [ ] **S2: the tree** (large; split into six agent-sized pieces in `s2-plan.md`), with the CLASSES table in `npm run economy`: the four class trees, the Rebirth spot, forks, advancements, the `spTotal` schedule, the
       node UI (desktop and phone), the one-time refund. Warrior (with the chase moves in `step()`) and Mage, with the mage
       combos (chill/freeze/shatter, burn/spread, Arcane Charge).

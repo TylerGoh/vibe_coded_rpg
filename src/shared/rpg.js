@@ -2,6 +2,7 @@
 // Shared by client and server: the mob stage (the Wildwood, east of the village), its mobs, items,
 // levels and combat numbers. The server runs the mobs and decides every hit, drop and pickup
 // (server/rpg.js); the client only draws them (src/rpg.js, art in src/field.js).
+import { curve } from './curve.js';
 
 export const FIELD = 5; // room id (see ROOMS in sim.js)
 export const FIELD_W = 5200; // the last stretch (where the Highlands trail used to be) is mob-free: the briar thins out toward the sea cliffs
@@ -1739,8 +1740,8 @@ export const ITEMS = {
   reed_rapier: { name: 'Reed Rapier', price: 900, lvl: 8, aim: 9, kind: 'sword', atk: 19, reach: 30, desc: 'A long thin blade with a grip of plaited river reeds.' },
   snail_helm: { name: 'Snailshell Helm', price: 4000, lvl: 12, kind: 'helmet', def: 14, desc: 'A spiral shell, still a little sticky inside. Very snug.' },
   snapjaw_shell: { name: 'Snapjaw Shell', price: 6500, lvl: 15, kind: 'helmet', def: 17, desc: "A scute from Old Snapjaw's back, mossy and older than the mill." },
-  drift_cutlass: { name: 'Driftwood Cutlass', price: 5000, lvl: 16, aim: 18, kind: 'sword', atk: 40, reach: 36, desc: 'Sea-bleached driftwood with an edge of bright sea glass.' },
-  conch_helm: { name: 'Conch Helm', price: 4000, lvl: 16, aim: 18, kind: 'helmet', def: 18, desc: 'A big pink conch. Hold it to your ear and you hear the sea.' },
+  drift_cutlass: { name: 'Driftwood Cutlass', price: 7000, lvl: 16, aim: 18, kind: 'sword', atk: 40, reach: 36, desc: 'Sea-bleached driftwood with an edge of bright sea glass.' },
+  conch_helm: { name: 'Conch Helm', price: 6000, lvl: 16, aim: 18, kind: 'helmet', def: 18, desc: 'A big pink conch. Hold it to your ear and you hear the sea.' },
   coral_saber: { name: 'Coral Saber', price: 16000, lvl: 21, kind: 'sword', atk: 52, reach: 42, desc: 'A curved blade of pink coral, grown, not forged.' },
   tide_claw: { name: "Tidemother's Claw", price: 36000, lvl: 26, kind: 'sword', atk: 64, reach: 46, slots: 8, desc: "The Tidemother's great claw, still gripping. It never lets go of anything." },
   hoard_crown: { name: 'Hoardshell Crown', price: 27000, lvl: 26, kind: 'helmet', def: 29, slots: 8, desc: 'A crown crusted with buttons, bottle caps and shells the sea gave back.' },
@@ -1753,8 +1754,8 @@ export const ITEMS = {
   glow_bead: { name: 'Glowworm Bead', price: 380, kind: 'loot', desc: "A warm bead of light from a glowworm's tail. It never quite goes out." },
   moth_dust: { name: 'Glowmoth Dust', price: 420, kind: 'loot', desc: 'Shimmering wing dust. It leaves your fingers glowing for an hour.' },
   glowthread: { name: 'Glowthread', price: 460, kind: 'loot', desc: 'A strand of the glowing threads that run under the island. It hums faintly.' },
-  rootwood_saber: { name: 'Rootwood Saber', price: 11000, lvl: 24, aim: 26, kind: 'sword', atk: 58, reach: 42, desc: 'Carved from a root of the Deep, dark and hard as iron. It glows along the grain.' },
-  lantern_cap: { name: 'Lantern Cap', price: 8500, lvl: 24, aim: 26, kind: 'helmet', def: 26, desc: "A forager's leather cap with a glowing mushroom for a lamp. Never be lost underground." },
+  rootwood_saber: { name: 'Rootwood Saber', price: 16000, lvl: 24, aim: 26, kind: 'sword', atk: 58, reach: 42, desc: 'Carved from a root of the Deep, dark and hard as iron. It glows along the grain.' },
+  lantern_cap: { name: 'Lantern Cap', price: 14500, lvl: 24, aim: 26, kind: 'helmet', def: 26, desc: "A forager's leather cap with a glowing mushroom for a lamp. Never be lost underground." },
   beetle_helm: { name: 'Beetleshell Helm', price: 22000, lvl: 27, kind: 'helmet', def: 29, desc: "A root beetle's horned wing case. Charge with it at your peril." },
   silk_blade: { name: 'Silkthread Blade', price: 36000, lvl: 31, kind: 'sword', atk: 70, reach: 46, desc: 'A pale blade wound tight with knot silk. It whispers when it cuts.' },
   burrow_claw: { name: "Knotmole's Claw", price: 52000, lvl: 37, kind: 'sword', atk: 79, reach: 48, slots: 8, desc: "The Knotmole's great digging claw. It has tied a thousand knots and untied one." },
@@ -1769,8 +1770,8 @@ export const ITEMS = {
   wasp_paper: { name: 'Wasp Paper', price: 300, kind: 'loot', desc: 'A curl of grey paper from a wasp nest, chewed from old wood. You could write on it, carefully.' },
   hornet_sting: { name: 'Hornet Stinger', price: 330, kind: 'loot', desc: 'A hornet stinger as long as a finger. Hold it by the blunt end.' },
   honeycomb: { name: 'Wild Honeycomb', price: 420, kind: 'loot', desc: "A slab of golden comb from the Hornet Queen's nest, dripping. Hornets don't make honey. These ones stole it." },
-  ranger_billhook: { name: "Ranger's Billhook", price: 16000, lvl: 30, aim: 32, kind: 'sword', atk: 70, reach: 44, desc: 'A hooked oak-handled blade for clearing paths through the branches. Ranger Acorn keeps hers very sharp.' },
-  ranger_hood: { name: "Ranger's Hat", price: 12000, lvl: 30, aim: 32, kind: 'helmet', def: 31, desc: 'A broad green felt hat with an acorn badge and a jay feather in the band.' },
+  ranger_billhook: { name: "Ranger's Billhook", price: 21000, lvl: 30, aim: 32, kind: 'sword', atk: 70, reach: 44, desc: 'A hooked oak-handled blade for clearing paths through the branches. Ranger Acorn keeps hers very sharp.' },
+  ranger_hood: { name: "Ranger's Hat", price: 18000, lvl: 30, aim: 32, kind: 'helmet', def: 31, desc: 'A broad green felt hat with an acorn badge and a jay feather in the band.' },
   owl_cap: { name: 'Owlfeather Cap', price: 30000, lvl: 33, kind: 'helmet', def: 32, desc: 'A cap of soft owl feathers with two little ear tufts. You hear everything in it.' },
   stingblade: { name: 'Stingblade', price: 50000, lvl: 37, kind: 'sword', atk: 79, reach: 48, desc: "A long straight blade ground from a hornet's stinger, banded amber and black." },
   queen_stinger: { name: "Queen's Stinger", price: 56000, lvl: 39, kind: 'sword', atk: 82, reach: 50, desc: "The Hornet Queen's own stinger, gold at the tip. It hums when it's swung." },
@@ -1930,11 +1931,11 @@ export const ITEMS = {
   chrono_staff: { name: 'Hourglass Sceptre (Legacy)', legacy: true, price: 300000, slots: 10, kind: 'staff', magic: 135, mp: 81, reach: 56, twin: 'chrono_blade', desc: 'Chronos\'s hourglass on a rod of clock-brass. The sand runs up.' },
   chrono_staff_n: { name: 'Hourglass Sceptre', lvl: 170, art: 'chrono_staff', price: 1400000, slots: 10, kind: 'staff', magic: 227, mp: 136, reach: 56, twin: 'chrono_blade_n', desc: 'Chronos\'s hourglass on a rod of clock-brass. The sand runs up.' },
   reed_staff: { name: 'Cattail Staff', price: 900, lvl: 8, aim: 9, kind: 'staff', magic: 19, mp: 11, reach: 30, twin: 'reed_rapier', desc: 'A tall bundle of river reeds with a cattail head, plaited at Willowmere Mill.' },
-  drift_staff: { name: 'Driftwood Staff', price: 5000, lvl: 16, aim: 18, kind: 'staff', magic: 40, mp: 24, reach: 36, twin: 'drift_cutlass', desc: 'Sea-bleached driftwood with a ball of bright sea glass caught in its roots.' },
+  drift_staff: { name: 'Driftwood Staff', price: 7000, lvl: 16, aim: 18, kind: 'staff', magic: 40, mp: 24, reach: 36, twin: 'drift_cutlass', desc: 'Sea-bleached driftwood with a ball of bright sea glass caught in its roots.' },
   tide_staff: { name: 'Tidemother\'s Coral Staff', price: 36000, lvl: 26, slots: 8, kind: 'staff', magic: 64, mp: 38, reach: 46, twin: 'tide_claw', desc: 'A branch of the Tidemother\'s pink coral with a pearl in its fork. It smells of the sea.' },
-  glowcap_staff: { name: 'Glowcap Staff', price: 11000, lvl: 24, aim: 26, kind: 'staff', magic: 58, mp: 35, reach: 42, twin: 'rootwood_saber', desc: 'A rootwood staff with a glowing blue mushroom on top. Truffle swears it reads in the dark.' },
+  glowcap_staff: { name: 'Glowcap Staff', price: 16000, lvl: 24, aim: 26, kind: 'staff', magic: 58, mp: 35, reach: 42, twin: 'rootwood_saber', desc: 'A rootwood staff with a glowing blue mushroom on top. Truffle swears it reads in the dark.' },
   knot_staff: { name: 'Knotroot Staff', price: 52000, lvl: 37, slots: 8, kind: 'staff', magic: 79, mp: 47, reach: 48, twin: 'burrow_claw', desc: 'A root the Knotmole tied in a perfect knot, with a gold light in the middle of it.' },
-  oak_staff: { name: 'Oakbranch Staff', price: 16000, lvl: 30, aim: 32, kind: 'staff', magic: 70, mp: 42, reach: 44, twin: 'ranger_billhook', desc: 'A living oak branch, still in leaf, with an acorn at the tip. Ranger Acorn cut it herself.' },
+  oak_staff: { name: 'Oakbranch Staff', price: 21000, lvl: 30, aim: 32, kind: 'staff', magic: 70, mp: 42, reach: 44, twin: 'ranger_billhook', desc: 'A living oak branch, still in leaf, with an acorn at the tip. Ranger Acorn cut it herself.' },
   honey_staff: { name: 'Honeycomb Sceptre', price: 56000, lvl: 39, kind: 'staff', magic: 82, mp: 49, reach: 50, twin: 'queen_stinger', desc: 'The Hornet Queen\'s sceptre: a ball of golden comb on a black and amber rod. It drips.' },
   bosun_staff: { name: 'Bosun\'s Lantern Pole', price: 74000, lvl: 41, kind: 'staff', magic: 85, mp: 51, reach: 52, twin: 'bosun_hook', desc: 'The Bosun\'s ship lantern on an oak pole, still lit with a cold green flame after all these years.' },
   sentinel_staff: { name: 'Sentinel Staff', price: 126000, lvl: 53, kind: 'staff', magic: 102, mp: 61, reach: 54, twin: 'sentinel_blade', desc: "A Keeper sentinel's grey stone rod, its amber eye-stone set in the head. It looks where you're looking." },
@@ -2071,7 +2072,20 @@ export const PICKUP_RANGE = 55;
 
 // ——— levels and combat ———
 export const maxHpFor = (lvl) => 40 + lvl * 12;
-export const expToNext = (lvl) => Math.round(12 * lvl ** 1.7 + 8);
+// The levelling pace (L1, story/progression.md, owner 2026-10-23): about LEVEL_MIN(L) minutes of farming
+// mobs at your own level (KILLS_PER_MIN kills a minute of the frozen curve's EXP) for level L, slowing as you
+// get stronger: 0.5·L^0.65 up to Lv 100 (10 min there), then a tenth of a minute per level (20 min at Lv 200),
+// and never faster than the old curve (12·L^1.7 + 8), which still sets the first dozen levels. The balance
+// sheet checks the real pace against LEVEL_MIN within LEVEL_PACE.
+export const KILLS_PER_MIN = 6;
+export const LEVEL_MIN = (lvl) => (lvl <= 100 ? 0.5 * lvl ** 0.65 : lvl / 10);
+const oldExpToNext = (lvl) => Math.round(12 * lvl ** 1.7 + 8);
+export const expToNext = (lvl) => Math.max(oldExpToNext(lvl), Math.round(LEVEL_MIN(lvl) * KILLS_PER_MIN * curve('exp', lvl)));
+// Changing class at the Rebirth Pool (S2, story/progression.md L2, owner 2026-10-23): REBIRTH_HOURS of farming
+// gold at your level (KILLS_PER_MIN kills of the frozen curve's gold), so it costs the same play time at any
+// level. The first choice at Lv 10 is free. The balance sheet checks it against its own farming gold.
+export const REBIRTH_HOURS = 1;
+export const rebirthCost = (lvl) => Math.round((REBIRTH_HOURS * 60 * KILLS_PER_MIN * curve('gold', Math.max(1, lvl))) / 1000) * 1000;
 export const attackFor = (lvl, weapon) => 4 + lvl * 2 + (ITEMS[weapon]?.atk ?? 0); // (a staff has no atk)
 export const defenseFor = (helmet) => ITEMS[helmet]?.def ?? 0;
 export const reachFor = (weapon) => ITEMS[weapon]?.reach ?? 0; // extra slap reach (a staff: extra bolt range), px

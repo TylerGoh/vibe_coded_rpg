@@ -52,7 +52,7 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
   fence, the sky. No door between them; you just walk out.
 - Houses are wider than one screen, so the camera pans like anywhere else. Decorating works wherever you
   are: walk to pan (on phones too, the touch pad stays), click / tap where the piece goes.
-- **Pay to expand**: `HOUSE_SIZES` from the free Cottage up to a prestige Grand Estate; each size is wider
+- **Pay to expand**: `HOUSE_SIZES` from the free Cottage up to the big Grand Estate; each size is wider
   inside and out and holds more `pieces`. Expand (in the decorate panel) asks once, then buys on a second
   press (`house-grow` with the size being bought, so a double click can't buy two). Sizes only grow. Prices
   are set against the balance sheet (`docs/economy.md`): keep `npm run economy -- --check` green when you
@@ -75,8 +75,9 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
   They're `FURNITURE` entries (`pet_<boss>`), so owning, the decorate panel and `cleanLayout` work as for
   any piece. In the house each one wanders around where it was put (`petAt`: from the time, so everyone sees
   about the same walk); while you decorate, yours stand still on their spot so you can pick them up.
-- Prices: owner asked "around 50k per pet or more for more premium ones". They're prestige sinks: the later
-  the boss, the dearer (`npm run economy` has a pets table and checks it, `docs/economy.md`).
+- Prices (L2, owner 2026-10-23): about 20 minutes of farming at the boss's level, with a floor so no pet is
+  trivial (before that: "around 50k per pet or more"); the later the boss, the dearer (`npm run economy` has
+  a pets table and checks it, `docs/economy.md`).
 
 ## How it works
 - Saved rows hold the layout plus `owned`; `{t:'furni', owned}` tells the owner what they own at login

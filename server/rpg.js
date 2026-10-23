@@ -12,7 +12,7 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, STAFF_OFFKIND, STAFF_BOLT_MULT } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, STAFF_OFFKIND, STAFF_BOLT_MULT } from '../src/shared/rpg.js';
 import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spTotal, spSpent, mpRegen, cooldownOf, durOf, mobilityOf } from '../src/shared/skills.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
@@ -48,7 +48,21 @@ const newChar = () => ({
   ways: [], // the waystones you've attuned to (src/shared/waystones.js)
   bossAt: {}, // den boss kind → when you last got its full reward (BOSS_WINDOW_MS)
   played: 0, active: 0, // ms logged in, and ms of that with a key pressed in the last ACTIVE_WINDOW_MS (clock)
+  lb: 1, // the levelling rebalance's rollback has been looked at (ROLLBACK; new characters never need it)
 });
+
+// L3, the levelling rebalance's rollback (story/progression.md, owner 2026-10-23): a one-time move of the
+// characters who levelled far past their play time (mostly by camping bosses before S0) back to the level
+// their estimated play time gives on the new EXP curve (the lower end of the estimate), plus whatever their
+// recorded play time (`active`, all of it recorded since that estimate) adds on top at LEVEL_MIN a level.
+// chenyirong goes to darrell's level (owner: botting). Gold, bag, gear, house and pets are all kept; skill
+// points and AP are refunded, and every boss pays out again. Runs once per character: `lb` marks it done.
+const ROLLBACK = { chenyirong: 57, justin: 87, darrell: 57, tyler: 48, qing: 32, wallace: 21 };
+export function rollbackLevel(base, activeMs) {
+  let lvl = base, min = activeMs / 60_000;
+  while (min >= LEVEL_MIN(lvl)) min -= LEVEL_MIN(lvl++);
+  return lvl;
+}
 
 // players: the server's id → player map. send(ws, msg). toRoom(room)(msg). broadcast(msg).
 export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
@@ -126,6 +140,20 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     r.bossAt = Object.fromEntries(Object.entries(r.bossAt ?? {}).filter(([k, at]) => MOBS[k]?.boss && Number.isFinite(at) && at <= now() && now() - at < BOSS_WINDOW_MS));
     for (const k of ['played', 'active']) r[k] = Number.isFinite(r[k]) && r[k] > 0 ? Math.floor(r[k]) : 0;
     cleanBot(r); // accused of botting (server/accuse.js)
+    if (c && !c.lb) { // (a saved character from before the rollback: fresh ones start with lb)
+      const to = ROLLBACK[p.name] ? rollbackLevel(ROLLBACK[p.name], r.active) : r.lvl;
+      if (to < r.lvl) {
+        const from = r.lvl;
+        Object.assign(r, { lvl: to, exp: 0, skills: {}, ap: { ...fresh.ap }, bossAt: {} });
+        r.hotbar = Array(HOTBAR).fill(null);
+        r.alt.hotbar = Array(HOTBAR).fill(null);
+        r.hp = stats(p).maxHp;
+        r.mp = stats(p).maxMp;
+        p.notice = `Levelling has been rebalanced: you're now Lv ${to} (from Lv ${from}), where your play time puts you. Everything you own is kept, your skill points and ability points are refunded (K and I), and every boss is worth fighting again.`;
+      }
+      r.lb = 1;
+      p.dirty = true;
+    }
     p.hurtAt = 0;
     p.clockAt = now();
     p.cds = {};
@@ -149,9 +177,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function save(p) {
     if (p.rpg && p.joined) clock(p);
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, lb } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, lb }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -1188,6 +1216,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     },
 
     entered(p) {
+      if (p.notice) send(p.ws, { t: 'notice', text: p.notice }); // a one-time message on joining (the rollback)
+      p.notice = null;
       if (isCombat(p.state.room)) send(p.ws, lootMsg(p.state.room));
       const boss = mobs.find((m) => m.den && m.room === p.state.room && !m.dead), enter = boss && MOBS[boss.kind].lines?.enter;
       if (enter) bossSays(boss, pick(enter), p);

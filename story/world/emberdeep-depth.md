@@ -17,7 +17,7 @@ almost no humour. The springs and Auntie Soot are the last soft spot. Names get 
   stage (Cogwork Bastion from 140) on 140–150. Both are 10 levels, half Greenhollow/Frostpeak's 20 (an open
   decision below). As on Frostpeak, the island's last slice (145–150) has one place of its own plus the
   next island's bottom.
-- **Levelling speed unchanged:** new mobs sit on the frozen curve (`CURVE` in `scripts/economy.mjs`, which
+- **Levelling speed unchanged:** new mobs sit on the frozen curve (`CURVE` in `src/shared/curve.js`, which
   already runs to Lv 200), within `MOB_FIT`. The island just holds more levels.
 
 ## The landing: the Steam Straits and Forgehold (atlas Phase 5)

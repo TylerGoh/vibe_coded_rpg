@@ -13,13 +13,15 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
   per EXP, and kills per level at the mob's own level.
 - **Faucets, bosses**: the same per kill, and how many minutes of ordinary farming one kill is worth.
 - **Progress**: for a player farming mobs at their own level (`KILLS_PER_MIN`, mobs only, no bosses):
-  gold a minute, play time to reach a level, and **gold earned by then** (the key number for pricing).
+  gold a minute, minutes a level, play time to reach a level against the target pace (`LEVEL_MIN`), and
+  gold earned by then. Checked: play time to each level from 20 on within `LEVEL_PACE` of the target.
 - **Sinks**: every price, the level whose lifetime farming gold first reaches it, and for sinks with an
-  `aim` level: what share of the gold earned by that level it costs. Furniture has its own table: price,
-  size, first affordable level, and minutes of farming at two levels, plus what one of every piece costs.
-- **Pets** (mini bosses for houses, `PETS`): prestige sinks priced against the boss rows, not an aim; the
-  table shows each one in kills of its own boss and in farming minutes. Checked: at least `PET_MIN` (the
-  owner's floor) and never cheaper than an earlier boss's pet. Kept out of the furniture checks. Pets
+  `aim` level: **minutes of farming at that level** (the key number for pricing since L2) against its band
+  in `PRICE_BANDS`. Furniture has its own table: price, size, first affordable level, and minutes of
+  farming at three levels, plus what one of every piece costs.
+- **Pets** (mini bosses for houses, `PETS`): aimed at their boss's level (`PRICE_BANDS` pet band, about 20
+  minutes of farming there), never under the floor `PET_MIN`, never cheaper than an earlier boss's pet; the
+  table also shows each one in kills of its own boss. Kept out of the furniture checks. Pets
   eat (`docs/places/pets.md`): the pet food table and a "food a month vs price" column; checked that a day
   of feeding stays under `PET_UPKEEP_MAX_MIN` minutes of farming where pets first become affordable, and
   that a bigger portion is never dearer per belly.
@@ -29,13 +31,17 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
   herbs an hour from the two free plots: brewing is meant to be well worth the time. Brewed EXP and gold
   buffs (`exp`, `gold` on a potion's `buff`) speed up the faucets for whoever drinks one; the gold one
   needs Citadel cogs, so it only helps late players and is kept small.
-- **Checks**: aimed sinks cost between `AIM_MIN` and `AIM_MAX` of the gold earned by their aim level;
-  house sizes get dearer; furniture: every piece priced, a piece 4× the size of another (rugs aside) never
-  cheaper, one of every piece costing between the gold earned by `SET_FROM` and `SET_TO`; nothing in the shop sells for what it costs; no mob is a gold farm (far more
-  gold per EXP than its neighbours).
+- **Changing class**: `rebirthCost` (S2's Rebirth Pool, not used in the game yet) against the sheet's own
+  gold an hour, within `REBIRTH_FIT`.
+- **Checks**: aimed sinks cost their `PRICE_BANDS` minutes of farming at their aim level, never more than
+  `AIM_MAX` of everything farmed by then (early on, where levels take a couple of minutes, the low end gives
+  way to `AIM_EARLY` of the savings); house sizes get dearer; furniture: every piece priced, a piece 4× the
+  size of another (rugs aside) never cheaper, none dearer than `FURN_MAX_MIN` minutes of farming at
+  `FURN_LVL`, one of every piece costing what farming earns in `SET_HOURS` of play; nothing in the shop sells
+  for what it costs; no mob is a gold farm (far more gold per EXP than its neighbours).
 
 ## The frozen legacy curves (island depth, `story/world/island-depth.md`)
-`CURVE` in the script is today's mobs and gear written down level by level on 2026-10-20 (smoothed knots
+`CURVE` (in `src/shared/curve.js` since L1, so the game's `expToNext` and `rebirthCost` read it too) is today's mobs and gear written down level by level on 2026-10-20 (smoothed knots
 through the legacy mobs; the sword and helmet ladder itself), carried on past the last knot as a power law
 so it reaches the later islands' bands (to Lv 200). **Never refit it**: the rebalance will move the legacy
 mobs onto it, and every new mob and item is priced against it, so the levelling speed and the house and
@@ -84,7 +90,7 @@ and left `LEGACY_MOBS` (only the Wildwood's three are still "the curve"), so the
 ## Trading (2026-10-23)
 Players can trade coins and items (`docs/social/trading.md`). That moves gold rather than making it, so
 the script doesn't change, but every sink is priced against ONE player's income: with trading, boss
-farmers can fund friends, so pooled gold meets those prices (the Rebirth's 500k, house sizes, pets).
+farmers can fund friends, so pooled gold meets those prices (changing class, house sizes, pets).
 Treat aims as "earliest a funded player gets there", and keep prestige sinks for the farmers themselves.
 
 ## Frostpeak's depth pass, F1 (2026-10-23)
@@ -128,19 +134,46 @@ at 156k (66% of gold earned by Lv 92), the Smith's Iron Cap at 123k (52%). **Aun
 potions and the Spring-Boiled Egg (500 HP for 600: a little better per gold than an elixir's HP, no MP), not
 aimed. Trading lets boss farmers fund friends to these sooner (see Trading above).
 
-## How to price something new
+## The levelling rebalance, L1 and L2 (2026-10-23, `story/progression.md`)
+**L1, the pace.** `expToNext` = the larger of the old curve and `LEVEL_MIN(L)` minutes of `KILLS_PER_MIN` kills
+of the frozen curve's EXP at L (owner's curve "A": `0.5·L^0.65` minutes up to Lv 100, then `L/10`). Mobs and
+their EXP didn't move. PROGRESS, play time to reach: Lv 10 19 min (same), Lv 30 48 min → 1.6 h, Lv 60 77 min →
+4.5 h, Lv 100 1.8 h → 10.3 h, Lv 150 2.7 h → 23.7 h, Lv 200 ~40 h (the target's 35 h, plus the gaps where the
+farmed mob sits well under your level). "Gold earned by" grew with it (Lv 60 ~99k → ~562k, Lv 100 ~281k →
+~2.6M), since a minute pays the same and you spend far longer at each level. Bosses: EXP and the camp
+column unchanged (both are per hour); a kill is a smaller share of a level now.
+
+**L2, prices in farming time.** The share-of-savings check (25–100% of "gold earned by" the aim) became
+minutes at the aim (`PRICE_BANDS`), since savings went up ~5–10× and every aimed price would have looked
+cheap. What moved: Bun's tier unchanged (its early levels still go by in a couple of minutes: capped by
+the savings); Moss's Driftwood pair 5,000 → 7,000 and Conch Helm 4,000 → 6,000; Truffle's Rootwood/Glowcap
+11,000 → 16,000 and Lantern Cap 8,500 → 14,500; Acorn's Billhook/Oakbranch 16,000 → 21,000 and Ranger's Hat
+12,000 → 18,000 (all now ~10–12 min); Runa, Eyvind, Hakon and Slag unchanged (11–24 min already). Houses:
+Family House 8,000 → 10,000, Estate 80,000 → 130,000 (~30 min at 65), Grand Estate 400,000 → 210,000 and
+aimed at Lv 120 (~30 min). Big furniture up: Garden tree 30k → 36k, Piano 25k → 30k, Fireplace 18k → 22k,
+Swing 12k → 15k (one of every piece 138k → 156k, ~2.4 h of play). Pets re-priced at ~20 min at their boss's
+level with a 20k floor (`PET_MIN`, was 50k): the five Greenhollow den pets 20k, Tidemother 22k, … Sigrun
+151k, Pyra 155k, the Colossus 248k, Chronos 270k (was 500k). Nobody is refunded the difference on pets
+already bought. `rebirthCost(L)` (for S2) = `REBIRTH_HOURS` of farming gold on the frozen curve: ~16k at
+Lv 10, ~224k at Lv 60, ~440k at Lv 100, ~735k at Lv 150.
+
+## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
-2. Read "gold earned by then" for that level and price it at roughly half to three quarters of it: a real
-   goal, but not everything they have (potions keep costing). Add the `aim` to the data when the item
-   lives in a list the script reads (like `HOUSE_SIZES`, or an `ITEMS` entry sold in a shop: every
-   shopkeeper's stock in `SHOPS` is read); otherwise add it to the script's sinks list.
+2. Price it in **minutes of farming at that level** (the PROGRESS table's gold/min), by kind
+   (`PRICE_BANDS`): potions, pet food, seeds and small furniture 1–3; bigger furniture up to ~10; shop and
+   trader gear and the smaller houses 10–20 (weapons ~12, helmets ~10); the high end (big houses, top
+   gear, late pets) ~30. Not a share of the gold earned by then: levels are slow, savings pile up, and
+   share-of-savings prices all felt cheap (owner: "things shouldn't feel cheap"). Add the `aim` to the
+   data when the item lives in a list the script reads (like `HOUSE_SIZES`, or an `ITEMS` entry sold in a
+   shop: every shopkeeper's stock in `SHOPS` is read); otherwise add it to the script's sinks list.
 3. Something meant only for players who farm bosses (a prestige item) gets no `aim`: price it against
    the boss rows (a few dozen late-boss kills), and say so in a comment.
 4. Re-run the script and keep the checks green. If you have to break a target, write down why here.
 
 ## How to scale a new mob, boss or stage
 - Gold per EXP falls smoothly from the first stage to the last; a new mob should land between its
-  neighbours by level. Kills per level stay roughly flat (a handful), so levels come at a steady pace.
+  neighbours by level. A mob on the curve keeps the pace: `expToNext` is built on the curve's EXP, so a
+  level is about `LEVEL_MIN` minutes of farming wherever you are (dozens of kills late on since L1).
 - Drops are mostly gold and materials (sold at `SELL_RATE`); gear drops are rare. Bosses drop a lot more
   (see their "vs 1 min farming" column) because the fight is hard and the loot is shared, one set per kill.
 - A stage's shop prices and the next house size should be reachable around the levels that stage is for

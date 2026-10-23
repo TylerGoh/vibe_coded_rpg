@@ -8,8 +8,9 @@ table is what tunes them.
 
 ## Order and shipping
 **L comes first** (`progression.md`, "L: the levelling rebalance"): the new EXP curve is what makes the
-advancement levels below (10, 30, 60, 100) widen in play time (~20 min, ~1.5 h, ~4.5 h, ~10 h). L is built
-before S2 and ships in deploy #1 with it.
+advancement levels below (10, 30, 60, 100) widen in play time (~20 min, ~1.5 h, ~4.5 h, ~10 h). **L shipped
+on its own on 2026-10-23**: `rebirthCost` and `REBIRTH_HOURS` already exist in `src/shared/rpg.js` (S2.1 only
+uses them), and the rollback already happened, so S2's migration has its own banner.
 ```
 S2.1 data + server ──┬── S2.2 node tree UI ──┐
                      ├── S2.3 Rebirth Pool ──┼── deploy #1 (classes go live, the refund happens)
@@ -113,8 +114,8 @@ Docs: `docs/combat/skills.md`, `docs/combat/core.md`, `docs/combat/items.md`, `d
   server-checked: in Slimeville within range of `REBIRTH_X` from `src/shared/sim.js` (S2.3 places it; define
   the constant here with a placeholder value), different class, not back to Novice, Lv 10 or up, `rebirthCost(lvl)` unless `reborn` is 0, the
   weapon rules above; resets skills, AP, skill hotbars, buffs; broadcasts `{t:'reborn', id, cls}`).
-  Add `rebirthCost(lvl)` and `REBIRTH_HOURS` to `src/shared/rpg.js` (`progression.md` L2) and the economy
-  sheet's sinks.
+  `rebirthCost(lvl)` and `REBIRTH_HOURS` are already in `src/shared/rpg.js` and the economy sheet (L shipped
+  them); just use them.
 - `server/index.js`: route `rebirth`, protocol comment.
 - Client, minimal: `src/rpg.js` / `src/skillfx.js` cast and icons for the new skills (reuse effects with a
   tint where possible: Fireball = bolt + small nova, Glacial Spike = bolt in ice blue, Absolute Zero = nova);
