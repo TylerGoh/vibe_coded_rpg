@@ -1,14 +1,15 @@
 // Docs: docs/places/fjord.md
 // Icefang Fjord and Icefang Hamlet (room FJORD, src/shared/rpg.js): Frostpeak's landing and its town. West
-// to east: the stone quay where the Puddle Jumper ties up (her gangway is a door, FJORD_DOCK_X), the laid-up
-// Lodestar that won't sail south (the next phase, shown but not open: no stars to steer by), Runa's net
+// to east: the stone quay where the Puddle Jumper ties up (her gangway is a door, FJORD_DOCK_X), the Lodestar,
+// sailing south again since atlas Phase 5 (her gangway is a door too, FJORD_LODESTAR_X), Runa's net
 // shed, the turf hut whose door is everyone's own front door (FJORD_HOME_X), the lamp-fire where Old
 // Skaldi stands, the smokehouse, and the path up to Frostpine Ridge. Behind it all: the fjord's black water
 // with floes, its rock walls, the aurora, and the Queen's ice bridge, cracked, hanging across the south.
 // This room paints its own sky. Also here: the path down to the hamlet at the ridge's west end
-// (drawFjordPath, called by src/highlands.js).
+// (drawFjordPath, called by src/highlands.js), and the Lodestar herself (drawLodestar), moored here and at
+// Forgehold's quay (src/forgehold.js).
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
-import { FJORD_W, FIELD_GROUND, FJORD_DOCK_X, FJORD_HOME_X, FJORD_FIRE_X, FJORD_EXIT_X, FJORD_PLATFORMS } from './shared/rpg.js';
+import { FJORD_W, FIELD_GROUND, FJORD_DOCK_X, FJORD_LODESTAR_X, FJORD_HOME_X, FJORD_FIRE_X, FJORD_EXIT_X, FJORD_PLATFORMS } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
 import { drawFerry, drawBoarding } from './harbour.js';
 
@@ -17,8 +18,8 @@ const HORIZON = 300; // the sea line, in screen space
 const INK = '#4a4a66';
 const QUAY_END = 1420; // stone quay west of here, the hamlet's snowy ground east of it
 const FERRY_X = FJORD_DOCK_X - 140; // her stern (the gangway sits 140 px along, as at Greenhollow)
-const SHIP_X = 1030, SHIP_LEN = 380; // the Lodestar, laid up
-const NOTICE_X = 1225;
+const SHIP_X = 1030, SHIP_LEN = 380; // the Lodestar, moored, her gangway at FJORD_LODESTAR_X
+const NOTICE_X = 1290;
 const SHED_X = 1560; // Runa's net shed (she stands in front of it: RUNA_X)
 const LAMPS = [250, 1000, 1400, 2380, 2760];
 const visible = (x0, x1, L, R) => x1 > L && x0 < R;
@@ -71,7 +72,10 @@ export function drawFjord(ctx, camX, viewW, time) {
   drawQuay(ctx, Math.max(0, L), Math.min(QUAY_END, R));
   drawGround(ctx, Math.max(QUAY_END, L), Math.min(FJORD_W, R));
   if (visible(FJORD_DOCK_X - 200, FJORD_DOCK_X + 120, L, R)) drawBoarding(ctx, FJORD_DOCK_X, time, GROUND, ['FERRY TO GREENHOLLOW', 'The fjord is open!', 'Home in under a minute.']);
-  if (visible(NOTICE_X - 100, NOTICE_X + 100, L, R)) drawNotice(ctx, NOTICE_X, time);
+  if (visible(FJORD_LODESTAR_X - 80, NOTICE_X + 100, L, R)) {
+    drawLodestarGangway(ctx, FJORD_LODESTAR_X, time);
+    drawNotice(ctx, NOTICE_X, time);
+  }
   const cr = roof('crates');
   if (visible(cr.x - 10, cr.x + cr.w + 10, L, R)) drawCrates(ctx, cr);
   if (visible(SHED_X - 130, SHED_X + 130, L, R)) drawShed(ctx, SHED_X, time);
@@ -654,10 +658,11 @@ function drawLamp(ctx, x, time) {
   ellipse(ctx, x, top - 12, 7, 2.5);
 }
 
-// The Lodestar: an old two-masted ship laid up at the end of the quay, sails furled and frosted, a tarp
-// over her wheel. She sailed south once; nobody will take her out while the stars are wrong.
-function drawLodestar(ctx, time) {
-  const x0 = SHIP_X, x1 = SHIP_X + SHIP_LEN, wl = GROUND - 20 + Math.sin(time * 0.7 + 1) * 1.5, deck = wl - 64;
+// The Lodestar: an old two-masted ship moored along the quay, sails furled, ready to sail south. She was laid
+// up for seven years, frosted over, a tarp on her wheel, while the stars were wrong; the Phase 5 update took
+// the frost and the tarp off. x0: her stern; ground: the quay's top (her deck sits about 84 px above it).
+export function drawLodestar(ctx, time, x0 = SHIP_X, ground = GROUND) {
+  const x1 = x0 + SHIP_LEN, wl = ground - 20 + Math.sin(time * 0.7 + 1) * 1.5, deck = wl - 64;
   ctx.save();
   ctx.fillStyle = '#3e4258';
   ctx.beginPath();
@@ -677,7 +682,7 @@ function drawLodestar(ctx, time) {
   ctx.closePath();
   ctx.fill();
   text(ctx, 'LODESTAR', x1 - 40, deck + 22, 12, '#c9a07a');
-  ctx.fillStyle = 'rgba(244,248,255,0.85)'; // frost crusted on her rail
+  ctx.fillStyle = '#8a6a52'; // her rail, scrubbed
   ctx.fillRect(x0, deck - 4, SHIP_LEN + 30, 4);
   // two masts, their sails furled tight and frosted, the rigging slack
   for (const [mx, mh] of [[x0 + 110, 210], [x0 + 260, 250]]) {
@@ -692,14 +697,12 @@ function drawLodestar(ctx, time) {
     ctx.moveTo(mx - 50, deck - mh * 0.72);
     ctx.lineTo(mx + 50, deck - mh * 0.72);
     ctx.stroke();
-    ctx.fillStyle = '#d9d2c4';
+    ctx.fillStyle = '#efe4cc'; // the sail, furled ready, with its red stripe peeping out
     ctx.beginPath();
     ctx.roundRect(mx - 48, deck - mh * 0.72 - 6, 96, 12, 6);
     ctx.fill();
-    ctx.fillStyle = '#f6f9ff';
-    ctx.beginPath();
-    ctx.roundRect(mx - 46, deck - mh * 0.72 - 9, 92, 5, 2.5);
-    ctx.fill();
+    ctx.fillStyle = 'rgba(208,72,90,0.5)';
+    ctx.fillRect(mx - 20, deck - mh * 0.72 - 6, 14, 12);
     ctx.strokeStyle = 'rgba(200,190,175,0.7)';
     ctx.lineWidth = 1.2;
     ctx.beginPath();
@@ -709,30 +712,63 @@ function drawLodestar(ctx, time) {
     ctx.quadraticCurveTo(mx + 70, deck - mh * 0.4, mx + 120, deck - 6);
     ctx.stroke();
   }
-  // a tarp lashed over the wheel at the stern, and a gull asleep on it
-  ctx.fillStyle = '#8a9a7e';
+  // her wheel at the stern, uncovered, and a red pennant at the masthead
+  ctx.strokeStyle = '#8a6a52';
+  ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(x0 + 10, deck);
-  ctx.quadraticCurveTo(x0 + 34, deck - 46, x0 + 60, deck);
+  ctx.arc(x0 + 34, deck - 22, 12, 0, TAU);
+  ctx.moveTo(x0 + 34, deck - 22);
+  ctx.lineTo(x0 + 34, deck);
+  ctx.stroke();
+  const mt = deck - 250, flap = Math.sin(time * 4) * 3;
+  ctx.fillStyle = '#d0485a';
+  ctx.beginPath();
+  ctx.moveTo(x0 + 260, mt);
+  ctx.quadraticCurveTo(x0 + 236, mt + 5 + flap, x0 + 214, mt + 8 + flap);
+  ctx.lineTo(x0 + 260, mt + 14);
   ctx.closePath();
   ctx.fill();
-  ctx.fillStyle = '#f4f6fa';
-  ellipse(ctx, x0 + 36, deck - 30, 9, 6);
-  ctx.fillStyle = '#e8a54a';
-  ctx.fillRect(x0 + 44, deck - 31, 4, 2);
   // the doubled mooring lines
   ctx.strokeStyle = '#a89282';
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.moveTo(x0, deck + 4);
-  ctx.quadraticCurveTo(x0 - 16, GROUND - 8, x0 - 6, GROUND - 2);
+  ctx.quadraticCurveTo(x0 - 16, ground - 8, x0 - 6, ground - 2);
   ctx.moveTo(x1 + 20, deck - 6);
-  ctx.quadraticCurveTo(x1 + 50, GROUND - 6, x1 + 30, GROUND - 2);
+  ctx.quadraticCurveTo(x1 + 50, ground - 6, x1 + 30, ground - 2);
   ctx.stroke();
   ctx.restore();
 }
 
-// The notice on the quay by the Lodestar: why she doesn't sail (in-world, the owner's rule)
+// The Lodestar's gangway, run up from the quay to her deck (the door: FJORD_LODESTAR_X; shared with Forgehold)
+export function drawLodestarGangway(ctx, x, time, ground = GROUND) {
+  const deck = ground - 84 + Math.sin(time * 0.7 + 1) * 1.5;
+  ctx.fillStyle = '#a07a58';
+  ctx.beginPath();
+  ctx.moveTo(x - 44, ground);
+  ctx.lineTo(x + 16, deck);
+  ctx.lineTo(x + 38, deck);
+  ctx.lineTo(x - 22, ground);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#7a5a40';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 1; i < 6; i++) {
+    const t = i / 6;
+    ctx.moveTo(x - 44 + t * 60, ground + t * (deck - ground));
+    ctx.lineTo(x - 22 + t * 60, ground + t * (deck - ground));
+  }
+  ctx.stroke();
+  ctx.strokeStyle = '#c9b8aa'; // its hand rope
+  ctx.beginPath();
+  ctx.moveTo(x - 38, ground - 28);
+  ctx.quadraticCurveTo(x - 8, deck - 2, x + 20, deck - 26);
+  ctx.stroke();
+}
+
+// The notice on the quay by the Lodestar. For seven years it said "No sailings. No stars to steer by."; the
+// Phase 5 update changed it, no quest (the owner's rule: the update itself lifts the block)
 function drawNotice(ctx, x, time) {
   const base = GROUND;
   ctx.fillStyle = '#8f7a6a';
@@ -748,13 +784,9 @@ function drawNotice(ctx, x, time) {
   ctx.fill();
   ctx.stroke();
   text(ctx, 'LODESTAR · SOUTH', 0, -24, 13, '#3e4258');
-  text(ctx, 'No sailings.', 0, -4, 13, INK);
-  text(ctx, 'No stars to steer by.', 0, 13, 12, INK);
+  text(ctx, 'Sailing again.', 0, -4, 13, INK);
+  text(ctx, 'Stars enough to steer by.', 0, 13, 12, INK);
   text(ctx, '- Arne', 50, 26, 10, '#8f6240');
-  ctx.fillStyle = '#f6f9ff';
-  ctx.beginPath();
-  ctx.roundRect(-80, -44, 160, 6, 3);
-  ctx.fill();
   ctx.restore();
 }
 

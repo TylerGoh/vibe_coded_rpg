@@ -5,6 +5,7 @@ import { drawStaff, STAFF_LEN } from './staff-art.js';
 import { drawEnhanceGlow } from './skillfx.js';
 import { artOf } from './shared/rpg.js';
 import { FOLK_PALETTE, drawFolk, drawFolkDress } from './fjord-art.js';
+import { FORGE_PALETTE, drawForgeFolk, drawForgeDress } from './forgehold-art.js';
 import { drawMillerDress } from './willowmere-art.js';
 import { drawBeachcomberDress } from './coves-art.js';
 import { drawForagerDress } from './deep-art.js';
@@ -105,11 +106,13 @@ export class Slime {
   }
 
   // Another island's people (story/characters/people.md): 'fjord' = Frostpeak's fjord folk, pale and
-  // frosted, half-solid in the cold, with a slow wobble (lively: a child, who still bounces)
+  // frosted, half-solid in the cold, with a slow wobble; 'forge' = Emberdeep's forge folk, dark, dense and
+  // ember-flecked, just as stiff (lively: a child or a youngster, who still bounces)
   setFolk(folk, lively = false) {
     this.folk = folk;
     this.lively = lively;
     if (folk === 'fjord') this.palette = FOLK_PALETTE(this.hue);
+    if (folk === 'forge') this.palette = FORGE_PALETTE(this.hue);
   }
 
   setName(name) {
@@ -377,7 +380,7 @@ export class Slime {
     }
 
     // Jelly wobble: a spring pulling toward a target squash; a bouncier jiggle while walking
-    const stiff = this.folk === 'fjord' && !this.lively; // half-solid: a slow, small wobble
+    const stiff = !!this.folk && !this.lively; // half-solid (or dense): a slow, small wobble
     const target = this.grounded
       ? Math.sin(this.t * (walking ? 20 : stiff ? 6 : 14)) * (walking ? 0.07 : stiff ? 0.012 : 0.025)
       : -clamp(Math.abs(this.vy) / 3500, 0, 0.18);
@@ -435,11 +438,12 @@ export class Slime {
     ctx.lineJoin = 'round';
     ctx.stroke();
 
-    if (this.folk === 'fjord') {
+    if (this.folk) {
       ctx.save();
       bodyPath(ctx, w, h);
       ctx.clip();
-      drawFolk(ctx, w, h, this.t);
+      if (this.folk === 'fjord') drawFolk(ctx, w, h, this.t);
+      else drawForgeFolk(ctx, w, h, this.t);
       ctx.restore();
     }
 
@@ -934,6 +938,7 @@ export class Slime {
       ctx.restore();
     }
     for (const kind of ['lamplighter', 'netmender', 'mittens']) if (this.has(kind)) drawFolkDress(ctx, kind, w, h, fx, this.t); // Icefang Hamlet's people
+    for (const kind of ['forgewarden', 'bathkeeper', 'apprentice', 'skipper']) if (this.has(kind)) drawForgeDress(ctx, kind, w, h, fx, this.t); // Forgehold's people, and the Lodestar's skipper
     if (this.has('miller')) drawMillerDress(ctx, w, h, fx, this.t, bodyPath); // Willowmere's Miller Bun
     if (this.has('beachcomber')) drawBeachcomberDress(ctx, w, h, fx, this.t); // Saltspray Coves' Beachcomber Moss
     if (this.has('forager')) drawForagerDress(ctx, w, h, fx, this.t); // the Mycelium Deep's Forager Truffle

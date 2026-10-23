@@ -12,7 +12,8 @@ was frozen and she used a rough jetty under the ridge; the ice went out with tha
 1. **Icefang Fjord** (exists, a safe town room: `docs/places/fjord.md`): the landing. A narrow fjord of
    black rock and blue ice, and a fishing hamlet of turf-roofed huts round a lamp-fire. A great **ice
    bridge** that Queen Glacia froze across the strait to the next island hangs in the sky, cracked down the
-   middle. The **Lodestar**, the old ship that sailed south, is laid up at the quay: no stars to steer by.
+   middle. The **Lodestar**, the old ship that sails south, laid up at the quay for seven years while there were
+   no stars to steer by, sails again since Phase 5.
 2. **Frostpine Ridge** (exists): snow forest on the climb. Frostlings, yeti cubs.
 3. **Starfall Summit** (exists): a crater where the **Astral Wyrm** fell. Glassy ground and crystal golems
    grown from star-dust. The sky up here is full of stars that are visibly *in the wrong places*: some
@@ -57,4 +58,5 @@ back, so ships can steer again, which opens the voyage south.
 
 ## Change from today
 The trail from the Wildwood is gone: Frostpeak is reached by the ferry, which lands at the hamlet (Phase
-4). It's still left by a "Caldera pass" at the summit, which goes when the Steam Straits ship runs.
+4). The "Caldera pass" at the summit went when the Steam Straits ship started running (Phase 5): Frostpeak is
+left south by the Lodestar from the hamlet's quay, and the summit's end is a plain lookout.

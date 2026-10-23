@@ -15,7 +15,11 @@ Data: `src/shared/rpg.js` (`ZONES`, `HIGHLAND_ZONES`, `CALDERA_ZONES`, `CITADEL_
    mob slots: **floe seals** (passive, belly-slide) and **snow owls** (the cinder bat's dive) on the ridge,
    **shard-moths** (passive flyers) on the summit; art in `src/fjord-art.js`. Mob kinds go over the wire
    as their index in `MOBS`, so new mobs are appended at the end of it.
-3. **Emberdeep Caldera** (`CALDERA`, `src/caldera.js`): Cinder Flats, Magma Heart.
+3. **Emberdeep** (`CALDERA`, `src/caldera.js`; the owner renamed it from "Emberdeep Caldera" in atlas Phase 5:
+   the island is Emberdeep, the Caldera its heart): Cinder Flats, Magma Heart. Reached by the Lodestar from
+   Icefang Hamlet, which lands at Forgehold (a safe town room, `docs/places/forgehold.md`); its west end is the
+   road down there. The old pass from Starfall Summit went in the same update (the summit's end is a lookout).
+   Its branches' gates are in Cinder Flats and Magma Heart (`docs/places/branches.md`).
 4. **Aether Citadel** (`CITADEL`, `src/citadel.js`): Cogwork Bastion, Chrono Spire.
 Stages 3 and 4 were added because players were Lv 35–88 and out of content.
 **The rebalance (R, 2026-10-23, `story/world/island-depth.md`):** once Greenhollow covered Lv 1–60, stages

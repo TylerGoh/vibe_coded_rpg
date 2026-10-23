@@ -10,12 +10,15 @@
 // Frostpeak's (its depth pass, F0): the ice
 // stair onto the Queen's Bridge broken off on Frostpine Ridge, and in the Rimeglass Glacier the crevasse with
 // the cutters' ladder smashed at the bottom (the Blue Halls) and the icefall with its steps sheared away (the
-// Aurora Heights); none is left since F4. Open: the ice stair built up again to the Queen's Bridge (F4), the glacier's own way in, its snout on Starfall Summit with steps cut up it (F1), the
+// Aurora Heights); none is left since F4. Emberdeep's (atlas Phase 5, E0): a geyser across Forgehold's beach
+// path (the Black Sands), a fresh lava tongue down the gully (the Smoking Coast), the charcoal road's fallen
+// iron bridge (the Ashwood), the fuming vent field (the Brimstone Fields), and the balloon lying deflated by
+// the thermal column (atlas Phase 6). Open: the ice stair built up again to the Queen's Bridge (F4), the glacier's own way in, its snout on Starfall Summit with steps cut up it (F1), the
 // snow slide over the hamlet's shore path dug through to the Whale Skerries and the Narwhal Grotto's mouth in
 // the Skerries' sea cliff (F2), the crevasse with a new ladder down into the Blue Halls and the icefall with
 // new steps cut up to the Aurora Heights (F3).
 // Feet on the ground at (g.x, ground).
-import { TAU, mulberry32, ellipse, clamp } from './util.js';
+import { TAU, mulberry32, circle, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';
 
 const INK = '#5b4a6b';
@@ -51,8 +54,8 @@ export function drawEntries(ctx, room, ground, L, R, time) {
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118 };
-const SCALE = { bridge: 1.5, thorns: 1.15 };
+const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, fumes: -130, balloon: -190 };
+const SCALE = { bridge: 1.5, thorns: 1.15, balloon: 0.82 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
 function sign(ctx, x, name, hard, lit) {
@@ -1474,6 +1477,289 @@ function drawSnout(ctx, time) {
   ctx.fill();
 }
 
-const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall };
+// ——— Emberdeep (atlas Phase 5, E0: story/world/emberdeep-depth.md) ———
+// The Black Sands, off Forgehold's west end: a new geyser has broken out right across the beach path. A
+// scalded ring in the black sand, a bubbling pool, and every few seconds a column of boiling water.
+function drawGeyser(ctx, time) {
+  ctx.fillStyle = '#c8b8a4'; // the scalded ring
+  ctx.beginPath();
+  ctx.ellipse(0, 2, 74, 9, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#e8dcc8';
+  ctx.beginPath();
+  ctx.ellipse(0, 1, 50, 6, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#6ab4a8'; // the pool, bubbling
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 30, 5, 0, 0, TAU);
+  ctx.fill();
+  for (let i = 0; i < 4; i++) {
+    const k = (time * 1.6 + i / 4) % 1;
+    ctx.fillStyle = `rgba(255,255,255,${0.8 * (1 - k)})`;
+    ellipse(ctx, -18 + i * 12, -1 - k * 4, 2 + k * 3, 1.6 + k * 2);
+  }
+  // the path's stones running into it from both sides
+  ctx.fillStyle = '#6a5a62';
+  for (const dx of [-112, -92, 90, 110]) ellipse(ctx, dx, 3, 9, 3.5);
+  // the spout: building, up, falling back in steam
+  const ph = (time * 0.28) % 1;
+  if (ph > 0.55 && ph < 0.85) {
+    const k = (ph - 0.55) / 0.3, h = Math.sin(k * Math.PI) * 230;
+    ctx.fillStyle = 'rgba(250,252,250,0.9)';
+    ctx.beginPath();
+    ctx.moveTo(-14, 0);
+    ctx.quadraticCurveTo(-6, -h * 0.6, -9, -h);
+    ctx.lineTo(9, -h);
+    ctx.quadraticCurveTo(6, -h * 0.6, 14, 0);
+    ctx.closePath();
+    ctx.fill();
+    circle(ctx, 0, -h, 18 + k * 8);
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    for (const dx of [-20, 18]) circle(ctx, dx, -h * 0.8, 10);
+  }
+  for (let i = 0; i < 6; i++) { // steam hanging over it
+    const k = (time * 0.18 + i / 6) % 1;
+    ctx.fillStyle = `rgba(250,248,246,${0.45 * Math.sin(k * Math.PI)})`;
+    circle(ctx, Math.sin(i * 2.3 + time * 0.4) * 30, -20 - k * 140, 14 + k * 26);
+  }
+  // a rope strung across on two stakes, red rags knotted on it
+  ctx.strokeStyle = '#4a3e46';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (const px of [-70, 70]) {
+    ctx.moveTo(px, 4);
+    ctx.lineTo(px, -44);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = '#c9b8aa';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-70, -40);
+  ctx.quadraticCurveTo(0, -26, 70, -40);
+  ctx.stroke();
+  ctx.fillStyle = '#d0485a';
+  for (const t of [0.25, 0.5, 0.75]) ctx.fillRect(-70 + t * 140 - 2, -36 + Math.sin(t * Math.PI) * 9, 4, 8);
+}
+
+// The Smoking Coast, down a gully south off Cinder Flats: a fresh lava tongue has run down it, crusting over
+// black with red still showing in the cracks. The gully's walls frame it; steam lifts off.
+function drawLavaTongue(ctx, time) {
+  ctx.fillStyle = '#5a3e4c'; // the gully's walls
+  for (const s of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(s * 120, 4);
+    ctx.quadraticCurveTo(s * 110, -90, s * 70, -150);
+    ctx.lineTo(s * 40, -140);
+    ctx.quadraticCurveTo(s * 60, -60, s * 50, 4);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.fillStyle = '#7a5a68';
+  for (const s of [-1, 1]) ellipse(ctx, s * 86, -60, 12, 30, s * 0.2);
+  // the tongue: a black crust spilling out of the gully across the path
+  ctx.fillStyle = '#2a2026';
+  ctx.beginPath();
+  ctx.moveTo(-40, -138);
+  ctx.quadraticCurveTo(-56, -70, -96, 4);
+  ctx.lineTo(96, 4);
+  ctx.quadraticCurveTo(56, -70, 40, -138);
+  ctx.closePath();
+  ctx.fill();
+  const pulse = 0.6 + 0.3 * Math.sin(time * 2.2);
+  ctx.strokeStyle = `rgba(255,${110 + Math.round(40 * pulse)},60,${pulse})`;
+  ctx.lineWidth = 2.4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  const r = mulberry32(5101);
+  for (let i = 0; i < 9; i++) {
+    const y = -130 + i * 15, half = 30 + i * 7;
+    const x0 = (r() - 0.5) * half;
+    ctx.moveTo(x0, y);
+    ctx.lineTo(x0 + (r() - 0.5) * 30, y + 10);
+    ctx.lineTo(x0 + (r() - 0.5) * 40, y + 16);
+  }
+  ctx.stroke();
+  ctx.fillStyle = `rgba(255,150,70,${0.5 * pulse})`; // the hot front edge
+  ctx.beginPath();
+  ctx.ellipse(0, 3, 90, 4, 0, 0, TAU);
+  ctx.fill();
+  for (let i = 0; i < 5; i++) {
+    const k = (time * 0.25 + i / 5) % 1;
+    ctx.fillStyle = `rgba(240,232,232,${0.4 * Math.sin(k * Math.PI)})`;
+    circle(ctx, -40 + i * 20 + Math.sin(k * 4 + i) * 6, -20 - k * 120, 10 + k * 16);
+  }
+}
+
+// The Ashwood, up the old charcoal road north out of Cinder Flats: its iron bridge over a lava channel has
+// fallen in, one end still on the near bank, the truss sagging into the glow. Ash trees on the far side.
+function drawIronBridge(ctx, time) {
+  ctx.fillStyle = '#6a6062'; // the ash trees beyond, grey and bare
+  for (const [x, h] of [[30, 120], [62, 150], [96, 110], [128, 140]]) {
+    ctx.fillRect(x - 3, -h, 6, h - 30);
+    ctx.beginPath();
+    ctx.moveTo(x, -h + 30);
+    ctx.lineTo(x - 18, -h + 6);
+    ctx.moveTo(x, -h + 50);
+    ctx.lineTo(x + 16, -h + 26);
+    ctx.strokeStyle = '#6a6062';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
+  // the channel, glowing
+  const pulse = 0.7 + 0.2 * Math.sin(time * 1.8);
+  const g = ctx.createLinearGradient(0, -12, 0, 6);
+  g.addColorStop(0, `rgba(255,140,70,${pulse})`);
+  g.addColorStop(1, `rgba(255,220,120,${pulse})`);
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(-70, 6);
+  ctx.quadraticCurveTo(-56, -14, -40, -16);
+  ctx.lineTo(40, -16);
+  ctx.quadraticCurveTo(56, -14, 70, 6);
+  ctx.closePath();
+  ctx.fill();
+  // the near abutment, and the fallen truss tipping down into the channel
+  ctx.fillStyle = '#4a3e46';
+  ctx.beginPath();
+  ctx.roundRect(-100, -24, 34, 28, 4);
+  ctx.fill();
+  ctx.strokeStyle = '#3a3438';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-74, -24);
+  ctx.lineTo(30, 2);
+  ctx.moveTo(-74, -44);
+  ctx.lineTo(24, -14);
+  ctx.stroke();
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i <= 5; i++) {
+    const t = i / 5;
+    const xa = -74 + t * 104, ya = -24 + t * 26, xb = -74 + t * 98, yb = -44 + t * 30;
+    ctx.moveTo(xa, ya);
+    ctx.lineTo(xb, yb);
+    if (i < 5) ctx.lineTo(-74 + (t + 0.2) * 104, -24 + (t + 0.2) * 26);
+  }
+  ctx.stroke();
+  // the far abutment, and a road post beyond
+  ctx.fillStyle = '#4a3e46';
+  ctx.beginPath();
+  ctx.roundRect(66, -24, 34, 28, 4);
+  ctx.fill();
+  for (let i = 0; i < 3; i++) {
+    const k = (time * 0.3 + i / 3) % 1;
+    ctx.fillStyle = `rgba(255,190,120,${Math.sin(k * Math.PI) * 0.7})`;
+    circle(ctx, -20 + i * 22 + Math.sin(k * 6) * 4, -14 - k * 60, 1.6);
+  }
+}
+
+// The Brimstone Fields, up the cone's flank from Magma Heart: the path climbs into a field of vents crusted
+// yellow, fuming. Nobody can breathe that air today.
+function drawFumes(ctx, time) {
+  ctx.fillStyle = '#6a5048'; // the flank, rising to the right
+  ctx.beginPath();
+  ctx.moveTo(-100, 4);
+  ctx.quadraticCurveTo(0, -40, 130, -170);
+  ctx.lineTo(130, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#d8c060'; // sulphur crusts
+  for (const [x, y, r] of [[-30, -10, 14], [10, -30, 18], [50, -66, 16], [86, -104, 14], [40, -20, 10], [110, -140, 12]]) ellipse(ctx, x, y, r, r * 0.45, -0.5);
+  ctx.fillStyle = '#4a3a34'; // the vents
+  for (const [x, y] of [[10, -32], [50, -68], [86, -106]]) ellipse(ctx, x, y, 6, 3, -0.5);
+  // the path's marker cairns going up into it
+  ctx.fillStyle = '#8a7a72';
+  for (const [x, y] of [[-60, -6], [-24, -18]]) {
+    ellipse(ctx, x, y, 6, 4);
+    ellipse(ctx, x, y - 6, 4, 3);
+  }
+  // the fumes: yellow clouds rolling out of the vents
+  for (let i = 0; i < 12; i++) {
+    const k = (time * 0.14 + i / 12) % 1, src = [[10, -32], [50, -68], [86, -106]][i % 3];
+    ctx.fillStyle = `rgba(226,214,120,${0.42 * Math.sin(k * Math.PI)})`;
+    circle(ctx, src[0] - k * 70 + Math.sin(i * 1.7 + time * 0.5) * 10, src[1] - k * 90, 14 + k * 34);
+  }
+}
+
+// The thermal column (atlas Phase 6): the balloon lies deflated in its cradle on a ledge, patched, its basket
+// tipped and its burner cold. Behind it the column of hot air shimmers up into the sky, and stalls.
+function drawBalloon(ctx, time) {
+  // the column's shimmer, rising behind
+  const stall = 0.5 + 0.5 * Math.sin(time * 0.35);
+  for (let i = 0; i < 8; i++) {
+    const y = -40 - i * 40, wob = Math.sin(time * 2 + i) * 6 * stall;
+    ctx.fillStyle = `rgba(255,220,190,${0.12 * stall * (1 - i / 9)})`;
+    ellipse(ctx, 30 + wob, y, 40 + i * 4, 22);
+  }
+  // the ledge and the cradle
+  ctx.fillStyle = '#4a3a44';
+  ctx.beginPath();
+  ctx.roundRect(-110, -22, 230, 26, 6);
+  ctx.fill();
+  ctx.strokeStyle = '#6a5040';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  for (const x of [-80, -20, 40, 90]) {
+    ctx.moveTo(x, -22);
+    ctx.lineTo(x + 6, -56);
+  }
+  ctx.moveTo(-80, -56);
+  ctx.lineTo(96, -56);
+  ctx.stroke();
+  // the envelope, deflated, draped over the cradle in folds, with patches
+  ctx.fillStyle = '#c0605a';
+  ctx.strokeStyle = '#7a3a38';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-100, -26);
+  ctx.quadraticCurveTo(-90, -78, -40, -70);
+  ctx.quadraticCurveTo(-10, -96, 30, -74);
+  ctx.quadraticCurveTo(70, -92, 104, -60);
+  ctx.quadraticCurveTo(118, -40, 110, -24);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = '#e8c45a'; // its gores
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (const x of [-60, -20, 20, 60]) {
+    ctx.moveTo(x, -28);
+    ctx.quadraticCurveTo(x + 8, -60, x + 4, -80);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#d8c8a8'; // patches
+  ctx.fillRect(-48, -60, 14, 10);
+  ctx.fillRect(48, -54, 12, 12);
+  // the basket, tipped on its side, and the burner, cold
+  ctx.fillStyle = '#a8784a';
+  ctx.strokeStyle = '#6a4a2e';
+  ctx.beginPath();
+  ctx.roundRect(-150, -36, 40, 34, 4);
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = '#6a4a2e';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let y = -30; y < 0; y += 6) {
+    ctx.moveTo(-150, y);
+    ctx.lineTo(-110, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#5e5a66';
+  ctx.beginPath();
+  ctx.roundRect(-140, -50, 20, 14, 3);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(200,190,175,0.8)'; // slack ropes from the basket to the envelope
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(-112, -34);
+  ctx.quadraticCurveTo(-104, -10, -96, -30);
+  ctx.moveTo(-112, -20);
+  ctx.quadraticCurveTo(-106, 0, -100, -26);
+  ctx.stroke();
+}
+
+const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon };
 const OPEN = { icestair: (ctx, time, g) => drawIcestair(ctx, time, g, true), snout: drawSnout, crevasse: (ctx, time, g) => drawCrevasse(ctx, time, g, true), icefall: (ctx, time, g) => drawIcefall(ctx, time, g, true), snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
   flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true) };

@@ -17,9 +17,9 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, CALDERA_DOOR_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
-import { drawHighlands } from './highlands.js';
-import { drawCaldera, drawCalderaPass } from './caldera.js';
+import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
+import { drawHighlands, drawSummitLookout } from './highlands.js';
+import { drawCaldera } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
 import { drawDen, drawDenEntrance } from './dens.js';
 import { SkillTree } from './skilltree.js';
@@ -37,7 +37,8 @@ import { Chat } from './chat.js';
 import { WorldMap } from './worldmap.js';
 import { drawHarbour } from './harbour.js';
 import { drawFjord } from './fjord.js';
-import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel } from './crossing.js';
+import { drawForgehold } from './forgehold.js';
+import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel, shipName } from './crossing.js';
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
 import { GATES, gateAt } from './shared/branches.js';
@@ -1300,7 +1301,7 @@ function render() {
     else if (room === QBRIDGE) drawQueensBridge(ctx, camX, W, time);
     else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
-      if (near(CALDERA_DOOR_X)) drawCalderaPass(ctx, CALDERA_DOOR_X, ROOMS[HIGHLANDS].ground, time);
+      if (near(SUMMIT_LOOKOUT_X)) drawSummitLookout(ctx, SUMMIT_LOOKOUT_X, ROOMS[HIGHLANDS].ground, time);
     } else if (room === CALDERA) {
       drawCaldera(ctx, camX, W, time);
       if (near(CITADEL_DOOR_X)) drawSkylift(ctx, CITADEL_DOOR_X, ROOMS[CALDERA].ground, time);
@@ -1312,6 +1313,7 @@ function render() {
   else if (room === PETSHOP) drawPetShop(ctx, store, camX, W, time);
   else if (room === HARBOUR) drawHarbour(ctx, camX, W, time);
   else if (room === FJORD) drawFjord(ctx, camX, W, time);
+  else if (room === FORGEHOLD) drawForgehold(ctx, camX, W, time);
   else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
   else if (roomDef(room)?.crossing) drawCrossing(ctx, room, camX, W, time, online() ? net.me : null);
   else drawVillage(ctx, camX, W, time);
@@ -1409,12 +1411,13 @@ function render() {
     else if (status === 'online' && room === PETSHOP) drawPill(16, 14, 260, `Pet Shop · ${here} shopper${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === HARBOUR) drawPill(16, 14, 300, `Greenhollow Harbour · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === FJORD) drawPill(16, 14, 300, `Icefang Hamlet · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === FORGEHOLD) drawPill(16, 14, 300, `Forgehold · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CLIFFS) drawPill(16, 14, 300, `The East Cliffs · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && crossingAt(room, net.me)) {
       // aboard: where she's bound, how long till she's in, and a little track of the voyage
       const cr = crossingAt(room, net.me);
       const pw = TOUCH ? 300 : 360; // (on phones the top buttons start just past 330)
-      drawPill(16, 14, pw, `${TOUCH ? 'Ferry' : 'Puddle Jumper'} · ${crossingLabel(cr)} · ${here} aboard`);
+      drawPill(16, 14, pw, `${shipName(cr, TOUCH)} · ${crossingLabel(cr)} · ${here} aboard`);
       ctx.fillStyle = 'rgba(91,74,107,0.18)';
       ctx.beginPath();
       ctx.roundRect(46, 42, pw - 60, 4, 2);

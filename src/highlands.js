@@ -3,6 +3,7 @@
 // (the hamlet: src/fjord.js; data in src/shared/rpg.js). Frostpine Ridge is a snowy pine forest at soft
 // blue dusk; Starfall Summit is a crystal mountaintop under a starry violet night. This room draws its own sky (all 540 px).
 // The two den cave mouths (x 1880 and 3820) are drawn elsewhere, so the scenery leaves room round them.
+// Also here: the summit lookout at the east end (drawSummitLookout), where the pass down to Emberdeep was.
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { HIGHLANDS_W, FIELD_GROUND, HIGHLANDS_EXIT_X, HIGHLAND_ZONES, HIGHLAND_PLATFORMS, DENS, HIGHLANDS } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
@@ -630,5 +631,56 @@ function drawZoneSign(ctx, x, z, i, time) {
     ctx.fillStyle = '#fff3a8';
     star4(ctx, tw / 2 - 4, -26, 6 + Math.sin(time * 3) * 1.2);
   }
+  ctx.restore();
+}
+
+// At Starfall Summit's east end (SUMMIT_LOOKOUT_X): a plain lookout where the pass down to Emberdeep used to
+// be (it went when the Lodestar started sailing, atlas Phase 5). A shelf of rock at the edge, the old steps
+// drifted over with snow, two posts with a rope between them, and a little cairn. No door, no sign: you look
+// south from here, and Emberdeep's smoke is on the horizon in the sky behind. (The Starfall den mouth is only
+// 130 px to the west, so this stays narrow.)
+export function drawSummitLookout(ctx, x, groundY, time) {
+  const b = groundY;
+  ctx.save();
+  ctx.fillStyle = '#5a4a72'; // the rock shelf
+  ctx.beginPath();
+  ctx.moveTo(x - 46, b + 2);
+  ctx.quadraticCurveTo(x - 40, b - 26, x - 10, b - 30);
+  ctx.lineTo(x + 30, b - 26);
+  ctx.quadraticCurveTo(x + 50, b - 16, x + 54, b + 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#f4f8ff'; // the old steps, drifted over
+  ctx.beginPath();
+  ctx.moveTo(x - 44, b + 2);
+  ctx.quadraticCurveTo(x - 30, b - 34, x + 6, b - 34);
+  ctx.quadraticCurveTo(x + 40, b - 30, x + 56, b + 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = 'rgba(200,214,240,0.7)';
+  ellipse(ctx, x + 4, b - 22, 26, 5);
+  // two posts and a rope at the edge
+  ctx.strokeStyle = '#6a5a7a';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (const px of [x - 28, x + 34]) {
+    ctx.moveTo(px, b - 30);
+    ctx.lineTo(px, b - 70);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = '#c9b8aa';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x - 28, b - 64);
+  ctx.quadraticCurveTo(x + 3, b - 52 + Math.sin(time * 1.1) * 1.5, x + 34, b - 64);
+  ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  for (const px of [x - 28, x + 34]) ellipse(ctx, px, b - 71, 4, 2.2);
+  // a little cairn on the shelf
+  ctx.fillStyle = '#8a7a9a';
+  for (const [dx, dy, r] of [[-10, -38, 7], [-4, -48, 6], [-8, -56, 4.5], [-6, -62, 3]]) ellipse(ctx, x + dx, b + dy, r, r * 0.75);
+  ctx.fillStyle = '#ffffff';
+  ellipse(ctx, x - 6, b - 65, 3.4, 1.6);
   ctx.restore();
 }

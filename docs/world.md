@@ -12,9 +12,11 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Grand Museum of History | 3 `MUSEUM` | exit · wing portals in the lobby (`wingPortalX`) · back-to-lobby door at each wing (`wingReturnX`) |
 | Tutoring Room | 4 `TUTOR` | back to the hall |
 | The Wildwood | 5 `FIELD` | village · 3 dens · Willowmere's footbridge · the Mycelium Deep's stump · the Old Oak Canopy's rope ladder · the cut in the thorns to the Thornheart · the gap to the east cliffs (east end; the Highlands trail went when the ferry started) |
-| Frostpeak (Frostpine Ridge, Starfall Summit) | 9 `HIGHLANDS` | down to Icefang Hamlet (west end) · 2 dens · Caldera pass |
-| Icefang Hamlet (Icefang Fjord) | 23 `FJORD` | the ferry's gangway (`FJORD_DOCK_X`, boards `FERRY_S`) · your house (`FJORD_HOME_X`) · up to Frostpine Ridge (east end) (`docs/places/fjord.md`) |
-| Emberdeep Caldera | 12 `CALDERA` | Highlands · 2 dens · Citadel skylift |
+| Frostpeak (Frostpine Ridge, Starfall Summit) | 9 `HIGHLANDS` | down to Icefang Hamlet (west end) · 2 dens · the Glacier's snout · the ice stair to the Queen's Bridge; a plain lookout at the east end where the Caldera pass was (`SUMMIT_LOOKOUT_X`) |
+| Icefang Hamlet (Icefang Fjord) | 23 `FJORD` | the ferry's gangway (`FJORD_DOCK_X`, boards `FERRY_S`) · the Lodestar's gangway (`FJORD_LODESTAR_X`, boards `STEAM_N`) · your house (`FJORD_HOME_X`) · up to Frostpine Ridge (east end) · the shore path to the Skerries (`docs/places/fjord.md`) |
+| Emberdeep (Cinder Flats, Magma Heart) | 12 `CALDERA` | down the road to Forgehold (west end) · 2 dens · Citadel skylift |
+| Forgehold (Black Sand Shore) | 44 `FORGEHOLD` | the Lodestar's gangway (`FORGE_DOCK_X`, boards `STEAM_S`) · your house (`FORGE_HOME_X`) · up the road to Cinder Flats (east end) (`docs/places/forgehold.md`) |
+| The Lodestar's deck, out / home | 45 `STEAM_N`, 46 `STEAM_S` | ashore at Forgehold / Icefang Hamlet, once she's in; back ashore while she casts off (`docs/places/crossings.md`) |
 | Aether Citadel | 13 `CITADEL` | Caldera · 2 dens |
 | Greenhollow's East Cliffs | 20 `CLIFFS` | back into the Wildwood (west end); a vista, no mobs (`docs/places/cliffs.md`) |
 | Greenhollow Harbour | 19 `HARBOUR` | back up to the village (east end) · the ferry's gangway (`GANGWAY_X`, boards `FERRY_N`) (`docs/places/harbour.md`) |
@@ -49,7 +51,7 @@ band. Blocked ways into branches that haven't shipped: `docs/places/branches.md`
 
 ## Towns
 **Owner's rule (2026-10-20): every island's landing has a town, and every town works like Slimeville.**
-A town (`TOWNS` in `src/shared/sim.js`: Slimeville and Icefang Hamlet so far) has a door into your own
+A town (`TOWNS` in `src/shared/sim.js`: Slimeville, Icefang Hamlet and Forgehold so far) has a door into your own
 house, and being in one makes it **your town** (`state.town`, set inside `step()`, in snapshots and saved
 with the character). You wake up there after fainting, start there when your spot from before a restart
 wasn't kept, your house's front door (`to: TOWN`) lets you out there, and invites work from any town. A

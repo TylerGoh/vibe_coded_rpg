@@ -307,9 +307,11 @@ stand-in door into an existing area.
       `docs/places/fjord.md`). Towns came with it: respawn in your town and a home door in every town
       (`docs/world.md`). The stage is renamed **Frostpeak**. Phase 5's visible-but-blocked: the Lodestar,
       laid up at the quay, no stars to steer by.
-- [ ] **Phase 5: the south.** The Steam Straits crossing (the Lodestar sails), Black Sand Shore with the
+- [x] **Phase 5: the south.** The Steam Straits crossing (the Lodestar sails), Black Sand Shore with the
       springs, Forgehold (Ash, Auntie Soot, Slag) as Emberdeep's town (respawn, home door). The Caldera
-      pass goes. Next phase's block: the balloon, grounded for an in-world reason.
+      pass goes. Next phase's block: the balloon, grounded for an in-world reason. (Shipped 2026-10-23 as
+      Emberdeep's E0, `emberdeep-depth.md`, `docs/places/forgehold.md`: one room for the shore and the town,
+      Skipper Arne at the wheel, the stage renamed **Emberdeep**, the balloon grounded by the stalling column.)
 - [ ] **Phase 6: the climb.** The thermal column vista, the balloon crossing, the Skydocks zone, the
       Skydocks camp as the Citadel's town, and the Dockwarden. The skylift goes.
 - [ ] **Phase 7: story progress.** Per-account lore tiers feeding every AI character; boss lines

@@ -18,7 +18,7 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   MAGIC equal to the sword's ATK (the economy script checks the match). Wherever the twin sword drops (boss
   sets, rare mob drops), `twinPick` in `server/rpg.js` drops one or the other: the kind a random fighter is
   holding, flipped `STAFF_OFFKIND` of the time so everyone sees both. Drops stay worth the same gold.
-- 22 staves: Pip's three starters, one at each branch trader (Bun, Moss, Truffle, Acorn), one per den
+- Staves: Pip's three starters, one at each branch trader (Bun, Moss, Truffle, Acorn, Eyvind, Hakon, Slag), one per den
   and field boss, and the Sentinel Staff (G5: the first twin of a sword that only drops from mobs). The
   other mob-only swords (Coral Saber, Silkthread, Glowroot, Stingblade, Moray Fang, Stalker's Claw,
   Whalebone Harpoon) have no twin yet. Each staff's look is a row in `STAFFS` (`src/staff-art.js`).
@@ -86,6 +86,12 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   Queen's Bridge's in `src/qbridge-art.js` (`QBRIDGE_*`): the Rimeguard Helm, the Rimeguard Blade / Rimeguard
   Staff, and Sigrun's Shield-Oath Spear / Shield-Oath Staff and Sigrun's Helm (9 slots;
   `docs/places/queensbridge.md`). All on the gear curve at their `lvl`, priced on it.
+  Emberdeep's E0 (atlas Phase 5) adds **Slag** (`SHOPS.slag`, Forgehold: the **Slag Maul**, its twin the
+  **Bellows Rod** and the **Smith's Iron Cap**, aimed at Lv 92, the island's start; register "forged for a
+  wheel that never got it"), art in `src/forgehold-art.js` (`FORGE_*`; the rod is a row in `STAFFS`), and
+  **Auntie Soot** (`SHOPS.soot`: the basic potions and her **Spring-Boiled Egg**, `spring_egg`, a plain heal
+  between the elixirs; `docs/places/forgehold.md`). Emberdeep's gear names: basalt, black glass, iron, slag,
+  charcoal, sulphur, ember, never ice, fur, shell or leaf.
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
   are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.

@@ -1,12 +1,13 @@
 // Docs: docs/combat/stages.md
-// The Emberdeep Caldera (room 12): the third mob stage, down a lava-lit pass at the Highlands' east end
-// (data in src/shared/rpg.js). Cinder Flats is a warm ash plain under an orange dusk, with smouldering
+// Emberdeep (room 12, still CALDERA in code): the third mob stage, up the road from Forgehold, the island's
+// landing town (src/forgehold.js; data in src/shared/rpg.js). Cinder Flats is a warm ash plain under an orange dusk, with smouldering
 // boulders and drifting embers; Magma Heart sinks deeper, under a crimson-violet sky, with glowing lava
 // rivers, obsidian spires and the volcano's maw. This room draws its own sky (all 540 px).
 // Left clear for others: the den mouths (x 2080, 4060) and the skylift up to the Citadel (x 4300).
-// Also here: the pass down from the Highlands (drawCalderaPass) and the Caldera's four mobs.
+// Also here: the Caldera's four mobs. (The pass down from Starfall Summit went in atlas Phase 5; its end on
+// the summit is a plain lookout now, drawn by src/highlands.js.)
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
-import { CALDERA_W, CALDERA_EXIT_X, CALDERA_ZONES, CALDERA_PLATFORMS, CALDERA, DENS, FIELD_GROUND, HIGHLANDS_W, CITADEL_DOOR_X } from './shared/rpg.js';
+import { CALDERA_W, CALDERA_EXIT_X, CALDERA_ZONES, CALDERA_PLATFORMS, CALDERA, DENS, FIELD_GROUND, CITADEL_DOOR_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
 import { glow as radialGlow } from './glow.js';
 
@@ -20,7 +21,7 @@ const smooth = (a, b, x) => {
 const heatK = (x) => smooth(B - 300, B + 300, x); // 0 = Cinder Flats, 1 = Magma Heart
 const visible = (x0, x1, L, R) => x1 > L && x0 < R;
 // keep big scenery away from the den entrances and the skylift
-const CLEAR_XS = [...DENS.filter((d) => d.from === CALDERA).map((d) => d.entranceX), CITADEL_DOOR_X];
+const CLEAR_XS = [...DENS.filter((d) => d.from === CALDERA).map((d) => d.entranceX), CITADEL_DOOR_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X];
 const clearOf = (x, pad = 150) => CLEAR_XS.every((d) => Math.abs(x - d) > pad);
 const SCENERY_END = CITADEL_DOOR_X - 150;
 
@@ -895,32 +896,28 @@ function drawZoneSign(ctx, x, z, i, time) {
 // The way back up: a basalt arch with a cold blue glow and frost, "← Frostpeak"
 function drawExit(ctx, x, time) {
   const base = GROUND;
-  // cool mountain air spilling down through the arch
-  softGlow(ctx, x, base - 70, 110, '200,224,255', 0.45);
-  ctx.fillStyle = '#e8eef8';
+  // the road down to Forgehold: warm forge-light spilling up through the arch
+  softGlow(ctx, x, base - 70, 110, '255,190,130', 0.45);
+  ctx.fillStyle = '#4a3a44';
   ctx.beginPath();
   ctx.ellipse(x, base + 2, 58, 6, 0, 0, TAU);
   ctx.fill();
-  // steps going up behind the arch
+  // steps going down behind the arch
   for (let i = 0; i < 4; i++) {
-    ctx.fillStyle = '#a8909a';
+    ctx.fillStyle = mix('#a8909a', '#ffcf9a', i / 4);
     ctx.beginPath();
-    ctx.roundRect(x - 34 + i * 4, base - 14 - i * 16, 68 - i * 8, 10, 4);
-    ctx.fill();
-    ctx.fillStyle = '#f2f6ff';
-    ctx.beginPath();
-    ctx.roundRect(x - 30 + i * 4, base - 16 - i * 16, 60 - i * 8, 4, 2);
+    ctx.roundRect(x - 34 + i * 4, base - 6 - i * 9, 68 - i * 8, 6, 3);
     ctx.fill();
   }
-  rockArch(ctx, x, base, 54, 150, time, true);
+  rockArch(ctx, x, base, 54, 150, time, false);
   ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
-  const half = (ctx.measureText('Frostpeak').width + 44) / 2;
-  hangingSign(ctx, Math.max(x, 10 + half), base - 150, 'Frostpeak', null, -1, time, false);
-  // a few snowflakes drifting down out of it
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  for (let i = 0; i < 6; i++) {
-    const k = (time * 0.22 + i / 6) % 1;
-    circle(ctx, x - 36 + ((i * 29) % 72) + Math.sin(k * 6 + i) * 6, base - 140 + k * 140, 1.5 + (i % 3) * 0.5);
+  const half = (ctx.measureText('Forgehold').width + 44) / 2;
+  hangingSign(ctx, Math.max(x, 10 + half), base - 150, 'Forgehold', null, -1, time, false);
+  // a hammer ringing somewhere below: a spark or two
+  for (let i = 0; i < 4; i++) {
+    const k = (time * 0.3 + i / 4) % 1;
+    ctx.fillStyle = `rgba(255,${190 + i * 10},120,${Math.sin(k * Math.PI) * 0.8})`;
+    circle(ctx, x - 24 + ((i * 29) % 52) + Math.sin(k * 6 + i) * 5, base - 20 - k * 110, 1.5);
   }
 }
 
@@ -1008,72 +1005,6 @@ function hangingSign(ctx, x, y, label, sub, dir, time, frosty) {
     ctx.fill();
     text(ctx, sub, 0, 48.5, 10, '#b0503a');
   }
-  ctx.restore();
-}
-
-// The pass down to the Caldera, drawn in the Highlands at CALDERA_DOOR_X: a snowy rock arch over steps
-// that sink out of sight, lit orange from below, with embers rising out and a sign "Emberdeep Caldera".
-// (The Starfall den mouth is only 130 px to the west, so this stays narrow.)
-export function drawCalderaPass(ctx, x, groundY, time) {
-  const b = groundY, half = 42, height = 132, top = b - height;
-  ctx.save();
-  softGlow(ctx, x, b - 40, 120, '255,160,90', 0.5 + 0.08 * Math.sin(time * 2));
-  // the opening: a warm glow welling up from deep below
-  const opening = () => {
-    ctx.beginPath();
-    ctx.moveTo(x - half, b + 2);
-    ctx.lineTo(x - half, top + half);
-    ctx.arc(x, top + half, half, Math.PI, 0);
-    ctx.lineTo(x + half, b + 2);
-    ctx.closePath();
-  };
-  ctx.save();
-  opening();
-  ctx.clip();
-  const g = ctx.createLinearGradient(0, top, 0, b);
-  g.addColorStop(0, '#4a2a4a');
-  g.addColorStop(0.55, '#c0505a');
-  g.addColorStop(1, '#ffc060');
-  ctx.fillStyle = g;
-  ctx.fillRect(x - half, top - 2, half * 2, height + 6);
-  // steps going down into the glow, getting smaller and brighter
-  for (let i = 0; i < 5; i++) {
-    const sy = b - 4 - i * 9, sw = 70 - i * 10;
-    ctx.fillStyle = mix('#7a5060', '#ffd88a', i / 5);
-    ctx.beginPath();
-    ctx.roundRect(x - sw / 2, sy - 4, sw, 6, 3);
-    ctx.fill();
-  }
-  // embers drifting up out of the depths
-  for (let i = 0; i < 7; i++) {
-    const k = (time * 0.35 + i / 7) % 1;
-    ctx.fillStyle = `rgba(255,${190 + (i % 3) * 20},110,${Math.sin(k * Math.PI)})`;
-    circle(ctx, x - 30 + ((i * 23) % 60) + Math.sin(k * 7 + i) * 5, b - 10 - k * (height - 10), 1.6 + (i % 2) * 0.8);
-  }
-  ctx.restore();
-  rockArch(ctx, x, b, half, height, time, true);
-  // the inner rim catches the orange light
-  ctx.strokeStyle = 'rgba(255,170,90,0.6)';
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.moveTo(x - half + 3, b - 4);
-  ctx.lineTo(x - half + 3, top + half);
-  ctx.arc(x, top + half, half - 3, Math.PI, 0);
-  ctx.lineTo(x + half - 3, b - 4);
-  ctx.stroke();
-  // melted snow: a warm wet patch in front
-  ctx.fillStyle = 'rgba(255,190,140,0.35)';
-  ellipse(ctx, x, b + 2, 52, 5);
-  // embers escaping above the arch
-  for (let i = 0; i < 5; i++) {
-    const k = (time * 0.25 + i / 5) % 1;
-    ctx.fillStyle = `rgba(255,190,110,${(1 - k) * 0.9})`;
-    circle(ctx, x - 20 + ((i * 17) % 40) + Math.sin(k * 5 + i) * 10, top - k * 70, 1.8);
-  }
-  // keep the sign inside the Highlands' east edge (the camera stops there)
-  ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
-  const hw = (ctx.measureText('Emberdeep Caldera').width + 44) / 2;
-  hangingSign(ctx, Math.min(x, HIGHLANDS_W - 10 - hw), top - 64, 'Emberdeep Caldera', 'Lv 90+', 2, time, true);
   ctx.restore();
 }
 

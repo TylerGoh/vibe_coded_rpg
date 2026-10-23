@@ -15,13 +15,14 @@ export const DT = 1 / TICK_RATE;
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_DOOR_X, CALDERA_PLATFORMS, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_PLATFORMS, FORGEHOLD, FORGE_W, FORGE_DOCK_X, FORGE_HOME_X, FORGE_SPAWN_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X, ASH_X, SLAG_X, FJORD_LODESTAR_X, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X } from './rpg.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
 export const CLIFFS = 20; // Greenhollow's east cliffs, past the end of the Wildwood (docs/places/cliffs.md)
 export const FERRY_N = 21, FERRY_S = 22; // the ferry's deck, out to Frostpeak and back home (docs/places/crossings.md)
-export { FIELD, FJORD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE };
+export const STEAM_N = 45, STEAM_S = 46; // the Lodestar's deck, south through the Steam Straits to Emberdeep and back north
+export { FIELD, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE };
 
 export const PLATFORMS = [
   { x: 360, y: 335, w: 190, kind: 'island' },
@@ -178,7 +179,6 @@ ROOMS[HIGHLANDS] = {
   name: 'Frostpeak', width: HIGHLANDS_W, ground: FIELD_GROUND, platforms: HIGHLAND_PLATFORMS,
   doors: [
     { x: HIGHLANDS_EXIT_X, w: 80, to: FJORD, toX: FJORD_EXIT_X, label: 'walk down to Icefang Hamlet' },
-    { x: CALDERA_DOOR_X, w: 80, to: CALDERA, toX: CALDERA_EXIT_X, label: 'descend to the Emberdeep Caldera' },
     { x: GLACIER_GATE_X, w: 80, to: GLACIER, toX: GLACIER_EXIT_X, label: 'climb the cut steps up onto the Rimeglass Glacier' },
     { x: BRIDGE_GATE_X, w: 80, to: QBRIDGE, toX: QBRIDGE_EXIT_X, label: "climb the mended ice stair up onto the Queen's Bridge" },
     ...denDoors(HIGHLANDS),
@@ -211,11 +211,12 @@ ROOMS[QBRIDGE] = {
   name: "The Queen's Bridge", width: QBRIDGE_W, ground: FIELD_GROUND, platforms: QBRIDGE_PLATFORMS,
   doors: [{ x: QBRIDGE_EXIT_X, w: 80, to: HIGHLANDS, toX: BRIDGE_GATE_X, label: 'climb back down the ice stair to Frostpine Ridge (mobs!)' }, ...denDoors(QBRIDGE)],
 };
-// room 12: the Emberdeep Caldera · room 13: the Aether Citadel · rooms 14–17: their dens
+// room 12: Emberdeep (Cinder Flats, Magma Heart), up the road from Forgehold · room 13: the Aether Citadel ·
+// rooms 14–17: their dens
 ROOMS[CALDERA] = {
-  name: 'The Emberdeep Caldera', width: CALDERA_W, ground: FIELD_GROUND, platforms: CALDERA_PLATFORMS,
+  name: 'Emberdeep', width: CALDERA_W, ground: FIELD_GROUND, platforms: CALDERA_PLATFORMS,
   doors: [
-    { x: CALDERA_EXIT_X, w: 80, to: HIGHLANDS, toX: CALDERA_DOOR_X, label: 'climb back up to Frostpeak' },
+    { x: CALDERA_EXIT_X, w: 80, to: FORGEHOLD, toX: FORGE_EXIT_X, label: 'walk back down the road to Forgehold' },
     { x: CITADEL_DOOR_X, w: 80, to: CITADEL, toX: CITADEL_EXIT_X, label: 'ride the skylift to the Aether Citadel' },
     ...denDoors(CALDERA),
   ],
@@ -287,6 +288,12 @@ ROOMS[FERRY_N] = deck('The Puddle Jumper, bound for Frostpeak', { route: 'cold',
   { to: FJORD, toX: FJORD_DOCK_X, label: 'go ashore at Icefang Hamlet' }, { to: HARBOUR, toX: GANGWAY_X });
 ROOMS[FERRY_S] = deck('The Puddle Jumper, bound for Greenhollow', { route: 'cold', from: 'frost', to: 'green', ticks: 45 * TICK_RATE },
   { to: HARBOUR, toX: GANGWAY_X, label: 'go ashore at Greenhollow Harbour' }, { to: FJORD, toX: FJORD_DOCK_X });
+// The Lodestar (atlas Phase 5): south from Icefang Hamlet through the Steam Straits to Forgehold. The long
+// voyage (story/world/geography.md), so clearly longer than the ferry's; north again is quicker.
+ROOMS[STEAM_N] = deck('The Lodestar, bound for Emberdeep', { route: 'steam', from: 'frost', to: 'ember', ticks: 90 * TICK_RATE },
+  { to: FORGEHOLD, toX: FORGE_DOCK_X, label: 'go ashore at Forgehold' }, { to: FJORD, toX: FJORD_LODESTAR_X });
+ROOMS[STEAM_S] = deck('The Lodestar, bound for Frostpeak', { route: 'steam', from: 'ember', to: 'frost', ticks: 70 * TICK_RATE },
+  { to: FJORD, toX: FJORD_LODESTAR_X, label: 'go ashore at Icefang Hamlet' }, { to: FORGEHOLD, toX: FORGE_DOCK_X });
 export const VOYAGE_MAX = 65535; // state.vt stops counting here (it's a u16 on the wire)
 // room 23: Icefang Fjord, Frostpeak's landing, and its town, Icefang Hamlet (docs/places/fjord.md). A safe
 // room: the ferry's dock at the west end, the hamlet round its lamp-fire, the path up to Frostpine Ridge
@@ -295,9 +302,22 @@ ROOMS[FJORD] = {
   name: 'Icefang Hamlet', width: FJORD_W, ground: FIELD_GROUND, platforms: FJORD_PLATFORMS,
   doors: [
     { x: FJORD_DOCK_X, w: 80, to: FERRY_S, toX: DECK_GANGWAY_X, label: 'board the ferry home to Greenhollow', ask: 'Sail home to Greenhollow? About 45 seconds at sea.' },
+    { x: FJORD_LODESTAR_X, w: 80, to: STEAM_N, toX: DECK_GANGWAY_X, label: 'board the Lodestar south to Emberdeep (Lv 90+)', ask: 'Set sail south for Emberdeep? The Lodestar takes about a minute and a half.' },
     { x: FJORD_HOME_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
     { x: FJORD_EXIT_X, w: 80, to: HIGHLANDS, toX: HIGHLANDS_EXIT_X, label: 'climb up to Frostpine Ridge (mobs!)' },
     { x: SKERRIES_GATE_X, w: 80, to: SKERRIES, toX: SKERRIES_EXIT_X, label: 'take the shore path out to the Whale Skerries' },
+  ],
+};
+// room 44 (atlas Phase 5, docs/places/forgehold.md): Forgehold, Emberdeep's landing and its town, with Black
+// Sand Shore as its waterfront. A safe room: the Lodestar's quay at the west end, the springs, the town on
+// its ledges, the road up into Cinder Flats at the east end. The Black Sands' beach path at the far west end
+// is a gate (EMBERDEEP in branches.js). Its platforms are FORGE_PLATFORMS (rpg.js).
+ROOMS[FORGEHOLD] = {
+  name: 'Forgehold', width: FORGE_W, ground: FIELD_GROUND, platforms: FORGE_PLATFORMS,
+  doors: [
+    { x: FORGE_DOCK_X, w: 80, to: STEAM_S, toX: DECK_GANGWAY_X, label: 'board the Lodestar north to Frostpeak', ask: 'Sail north to Icefang Hamlet? A little over a minute at sea.' },
+    { x: FORGE_HOME_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
+    { x: FORGE_EXIT_X, w: 80, to: CALDERA, toX: CALDERA_EXIT_X, label: 'climb the road up into Cinder Flats (mobs!)' },
   ],
 };
 // rooms 37 and 39 (Frostpeak's depth pass F2): the Whale Skerries, out of the hamlet's west end along the shore
@@ -382,6 +402,7 @@ ROOMS[THORNHEART] = {
 export const TOWNS = [
   { room: VILLAGE, name: 'Slimeville', x: SPAWN_X, homeX: HOME_DOOR_X },
   { room: FJORD, name: 'Icefang Hamlet', x: FJORD_SPAWN_X, homeX: FJORD_HOME_X },
+  { room: FORGEHOLD, name: 'Forgehold', x: FORGE_SPAWN_X, homeX: FORGE_HOME_X },
 ];
 TOWNS.forEach((t, i) => (ROOMS[t.room].town = i)); // (step() reads room.town)
 export const townOf = (room) => ROOMS[room]?.town ?? -1; // -1: not a town
@@ -628,6 +649,11 @@ export const NPCS = [
   { id: 'tove', name: 'Tove', short: 'Tove', room: FJORD, x: 2480, hue: 215, range: 110, size: 0.8, accessory: 'mittens', folk: 'fjord', lively: true, faces: -1, blurb: "Skaldi's granddaughter, who feeds the yeti cubs", hello: 'Are you going up the ridge? Ask me about the animals! (Everyone can hear you.)' },
   { id: 'eyvind', name: 'Ice-Cutter Eyvind', short: 'Eyvind', room: GLACIER, x: EYVIND_X, hue: 196, range: 100, size: 1.15, accessory: 'icecutter', folk: 'fjord', faces: 1, blurb: 'cuts blue ice on the Rimeglass Glacier and trades at his hut', shop: 'eyvind', hello: 'Mind the crevasses. Buying or talking? Trade is the button. (Everyone can hear you.)' },
   { id: 'hakon', name: 'Hakon the Bone-Carver', short: 'Hakon', room: SKERRIES, x: HAKON_X, hue: 188, range: 110, size: 1.1, accessory: 'bonecarver', folk: 'fjord', faces: 1, blurb: 'carves whalebone in the old whaling hut on the Skerries and trades there', shop: 'hakon', hello: 'Mind the urchins. Buying or talking? Trade is the button. (Everyone can hear you.)' },
+  // the Lodestar's skipper, at her wheel both ways, and Forgehold's forge folk (atlas Phase 5)
+  { id: 'arne', name: 'Skipper Arne', short: 'Arne', room: STEAM_N, also: [STEAM_S], x: 250, hue: 200, range: 130, size: 1.2, accessory: 'skipper', folk: 'fjord', faces: 1, blurb: 'skipper of the Lodestar, at her wheel', hello: 'Mind the hot rail. Ask me if you like. (Everyone can hear you.)' },
+  { id: 'ash', name: 'Forgewarden Ash', short: 'Ash', room: FORGEHOLD, x: ASH_X, hue: 14, range: 130, size: 1.3, accessory: 'forgewarden', folk: 'forge', faces: -1, blurb: 'keeps the great forge and the memorial wall', hello: 'You came up the Straits. Good. Ask what you need. (Everyone can hear you.)' },
+  { id: 'soot', name: 'Auntie Soot', short: 'Soot', room: FORGEHOLD, x: SOOT_X, hue: 340, range: 120, size: 1.15, accessory: 'bathkeeper', folk: 'forge', faces: 1, blurb: 'runs the springs, sells potions and boiled eggs', shop: 'soot', hello: 'Oh, a sailor! Sit, soak, have an egg. Trade is the button. (Everyone can hear you.)' },
+  { id: 'slag', name: 'Slag', short: 'Slag', room: FORGEHOLD, x: SLAG_X, hue: 28, range: 120, size: 0.95, accessory: 'apprentice', folk: 'forge', lively: true, faces: -1, blurb: "Ash's apprentice, who trades forge gear by his stack of gear-teeth", shop: 'slag', hello: 'Are you from the north? Is there snow? Trade is the button. (Everyone can hear you.)' },
   // Greenhollow's branches (island depth G1): each has a character who trades and is worth a chat
   { id: 'bun', name: 'Miller Bun', short: 'Bun', room: WILLOWMERE, x: BUN_X, hue: 34, range: 120, size: 1.2, accessory: 'miller', faces: 1, blurb: 'runs the Willowmere mill and trades at its door', shop: 'bun', hello: 'Mind the flour! Buying or chatting? Trade is the button. (Everyone can hear you.)' },
   { id: 'truffle', name: 'Forager Truffle', short: 'Truffle', room: MYCELIUM, x: TRUFFLE_X, hue: 330, range: 120, size: 1.05, accessory: 'forager', faces: 1, blurb: 'forages the Deep and trades at her camp', shop: 'truffle', hello: 'Shh, the puffcaps are napping. Buying or chatting? Trade is the button. (Everyone can hear you.)' },
@@ -654,6 +680,10 @@ export const SLAP_QUIPS = {
   clover: ['Not in front of the little ones!', 'Ow! Now you\'ve upset the kibble.', 'Shoo! Even Turnipop has better manners.', 'Gentle hands, dear. GENTLE.'],
   clio: ['Excuse me! This is a museum!', 'Ow! Please don\'t touch the curator.', 'History will remember that, you know.', 'Hmph! Security!'],
   mochi: ['Oof! Respect your elders, young one!', 'Hmph! My poor old jelly…', 'Ow! What was that for?', 'Goodness! Is that how they greet folks nowadays?'],
+  arne: ['Oi! Not on my deck.', 'Hm. The Straits are rougher.', 'Do that again and you swim.', 'My knee felt that.'],
+  ash: ['Hm.', 'I have been hit by a hammer. That was not a hammer.', 'Done?', 'Go and hit some slag.'],
+  soot: ['Oh! Mind the eggs!', 'Manners, dear. Even here.', 'Into the cold pool with you.', 'Ash would never.'],
+  slag: ['Ow! Was that a northern greeting?', 'Hey! I was filing!', 'Is that how you do it where there is snow?', "I'm telling Ash."],
   skaldi: ['Hm.', 'The cold has done worse.', 'Mind the fire, child.', 'That was unkind. Sit down.'],
   runa: ['Hands off the nets!', "That'll cost you.", 'Hmph. Fjord manners, is it?', 'I have a needle and I know how to use it.'],
   hakon: ['Oi! Mind the carving!', 'Hm. Grandmother saw that.', "That's no way to treat a man with a knife in his hand.", 'Do it again and I carve you into a comb.'],

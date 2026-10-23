@@ -4,7 +4,7 @@
 // routes and fog where the charts run out, plus a bouncing "you are here" slime. Tapping an island that has
 // one (ISLAND_MAPS) opens its own map: its places as a graph, shipped ones solid, blocked ones dashed
 // (src/shared/branches.js). It sends nothing to the server.
-import { FJORD, HIGHLANDS, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, CALDERA, CITADEL, DENS } from './shared/rpg.js';
+import { FJORD, FORGEHOLD, HIGHLANDS, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, CALDERA, CITADEL, DENS } from './shared/rpg.js';
 import { roomDef } from './shared/sim.js';
 import { ISLAND_MAPS, nodeAt, shipped } from './shared/branches.js';
 import { TOUCH } from './touch.js';
@@ -14,10 +14,10 @@ const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const INK = '#5b4a6b';
 
 // Which island a room is on. Everything not listed (the village, its buildings, houses, the Wildwood) is home.
-// Aboard a crossing you're 'sea': on the ferry's route.
-const ISLAND_OF_STAGE = { [HIGHLANDS]: 'frost', [FJORD]: 'frost', [GLACIER]: 'frost', [SKERRIES]: 'frost', [GROTTO]: 'frost', [HEIGHTS]: 'frost', [BLUEHALLS]: 'frost', [QBRIDGE]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel' };
+// Aboard a crossing you're out on its route: 'sea' (the ferry's) or 'straits' (the Lodestar's).
+const ISLAND_OF_STAGE = { [FORGEHOLD]: 'ember', [HIGHLANDS]: 'frost', [FJORD]: 'frost', [GLACIER]: 'frost', [SKERRIES]: 'frost', [GROTTO]: 'frost', [HEIGHTS]: 'frost', [BLUEHALLS]: 'frost', [QBRIDGE]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel' };
 export function islandOf(room) {
-  if (roomDef(room)?.crossing) return 'sea';
+  if (roomDef(room)?.crossing) return roomDef(room).crossing.route === 'steam' ? 'straits' : 'sea';
   const den = DENS.find((d) => d.room === room);
   return ISLAND_OF_STAGE[den ? den.from : room] ?? 'green';
 }
@@ -26,12 +26,12 @@ export function islandOf(room) {
 const ISLANDS = {
   green: { x: 150, y: 205, name: 'Greenhollow', sub: 'Slimeville · the Wildwood' },
   frost: { x: 395, y: 92, name: 'Frostpeak', sub: 'Icefang Hamlet · the far north' },
-  ember: { x: 400, y: 296, name: 'Emberdeep', sub: 'the far south' },
+  ember: { x: 400, y: 296, name: 'Emberdeep', sub: 'Forgehold · the far south' },
   citadel: { x: 545, y: 150, name: 'Aether Citadel', sub: 'in the sky' },
 };
-const PINS = { ...ISLANDS, sea: { x: 205, y: 150 } }; // (sea: out on the ferry's route)
+const PINS = { ...ISLANDS, sea: { x: 205, y: 150 }, straits: { x: 334, y: 214 } }; // (out on the ferry's route, out in the Steam Straits)
 // Where to tap for an island's own map (on the chart), and the way back from it
-const TAP = { green: { x: 150, y: 215, rx: 85, ry: 85 }, frost: { x: 395, y: 112, rx: 72, ry: 64 } };
+const TAP = { green: { x: 150, y: 215, rx: 85, ry: 85 }, frost: { x: 395, y: 112, rx: 72, ry: 64 }, ember: { x: 400, y: 300, rx: 72, ry: 56 } };
 const BACK = { x: 16, y: 16, w: 132, h: 30 };
 
 // Small seeded random, so the coastlines and waves are the same every time the page opens
@@ -303,7 +303,9 @@ function drawChart(ctx, t, here, hue) {
     const dy = key === 'frost' ? 48 : key === 'ember' ? 50 : key === 'citadel' ? 34 + bob : 64;
     label(ctx, isl.x, isl.y + dy, isl.name, 16);
     label(ctx, isl.x, isl.y + dy + 14, isl.sub, 11, 'rgba(91, 74, 107, 0.75)', 600);
-    if (ISLAND_MAPS[key]) label(ctx, isl.x, isl.y + dy + 29, TOUCH ? 'tap for its map' : 'click for its map', 11, '#e46f95', 600);
+    // (Emberdeep sits near the chart's bottom edge, so its hint goes beside it)
+    const [hx, hy] = key === 'ember' ? [isl.x + 122, isl.y + 26] : [isl.x, isl.y + dy + 29];
+    if (ISLAND_MAPS[key]) label(ctx, hx, hy, TOUCH ? 'tap for its map' : 'click for its map', 11, '#e46f95', 600);
   }
   label(ctx, 470, 236, 'the Maelstrom', 11, 'rgba(91, 74, 107, 0.6)', 600);
 
@@ -369,6 +371,7 @@ const CARD_W = 108, CARD_H = 40;
 const LOOK = {
   green: { sea: ['#b9dcee', '#b4e0d4'], land: '#c8eab3', rim: '#a6d48f', edge: '#7fbf73', ok: '#5f9a52', path: '#c99b6b' },
   frost: { sea: ['#aec8de', '#a4c2d6'], land: '#eef6fb', rim: '#c6dbea', edge: '#7fa8d4', ok: '#4e7ea8', path: '#a8b8c8' },
+  ember: { sea: ['#b8d4c4', '#a8ccb8'], land: '#e2cfc8', rim: '#c4a8a4', edge: '#c07a6a', ok: '#a0503e', path: '#9a7a70' },
 };
 function drawIslandMap(ctx, t, key, here, hue) {
   const nodes = ISLAND_MAPS[key], byId = Object.fromEntries(nodes.map((n) => [n.id, n])), lk = LOOK[key] ?? LOOK.green;

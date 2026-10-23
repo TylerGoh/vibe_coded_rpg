@@ -16,4 +16,7 @@
 - A new AI character or friend accessory needs its drawing in `src/slime.js` (or a file it calls).
 - **Each island's people look their own** (`story/characters/people.md`): `Slime.setFolk(folk)`. So far
   the fjord folk of Frostpeak (`folk: 'fjord'` on an `NPCS` entry): a pale, frosted palette, a rime crust
-  with glints, a slow half-solid wobble, no leaf (`src/fjord-art.js`; `docs/places/fjord.md`).
+  with glints, a slow half-solid wobble, no leaf (`src/fjord-art.js`; `docs/places/fjord.md`), and the forge
+  folk of Emberdeep (`folk: 'forge'`): dark and dense, mid-dark rather than black so the face reads, ember
+  flecks that pulse, a warm glow low down, the same stiff wobble, no leaf (`FORGE_PALETTE`, `drawForgeFolk`
+  in `src/forgehold-art.js`; `docs/places/forgehold.md`).

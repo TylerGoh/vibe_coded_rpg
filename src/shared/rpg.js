@@ -35,6 +35,7 @@ export const PETSHOP_W = 4000;
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
+export const FJORD_LODESTAR_X = 1180; // the Lodestar's gangway, south to Emberdeep (boards STEAM_N, sim.js)
 export const FJORD_EXIT_X = FJORD_W - 90; // up to Frostpine Ridge
 export const RUNA_X = 1560; // Netmender Runa, at her net shed (she trades: SHOPS)
 export const FJORD_PLATFORMS = [
@@ -55,11 +56,47 @@ export const HIGHLAND_PLATFORMS = [
   { x: 2750, y: 230, w: 200, kind: 'crystal' },
   { x: 3250, y: 320, w: 240, kind: 'crystal' },
 ];
-// The third stage: the Emberdeep Caldera, a volcano down a lava-lit pass at the Highlands' east end
+// The third stage: Emberdeep (the room is still called the Caldera in code), up the road from Forgehold. The
+// pass down from Starfall Summit went when the Lodestar started sailing (atlas Phase 5): the summit's east
+// end is a plain lookout now (SUMMIT_LOOKOUT_X, drawn by src/highlands.js).
 export const CALDERA = 12; // room id
 export const CALDERA_W = 4400;
-export const CALDERA_EXIT_X = 70; // back up to the Highlands
-export const CALDERA_DOOR_X = 3950; // the pass down, at the Highlands' east end
+export const CALDERA_EXIT_X = 70; // back down the road to Forgehold
+export const SUMMIT_LOOKOUT_X = 3950; // where the pass used to go down, at Starfall Summit's east end
+// Emberdeep's branches' blocked ways in (EMBERDEEP in branches.js; docs/places/branches.md), in Cinder Flats
+// and Magma Heart, and the grounded balloon by the thermal column (atlas Phase 6)
+export const COAST_GATE_X = 1190; // the gully south to the Smoking Coast (a fresh lava tongue across it)
+export const ASHWOOD_GATE_X = 1690; // the old charcoal road north to the Ashwood (its iron bridge fallen in)
+export const BRIMSTONE_GATE_X = 3270; // up the cone's flank to the Brimstone Fields (the vent field fuming)
+export const BALLOON_X = 3745; // the balloon in its cradle, deflated
+// Forgehold (room 44, atlas Phase 5, docs/places/forgehold.md): Emberdeep's landing and its town, a safe room.
+// West to east: the beach path out to the Black Sands (a geyser broke out across it), Black Sand Shore's
+// rusted iron quay where the Lodestar ties up, Auntie Soot's springs, then the town on its ledges in the
+// caldera's outer wall: your front door, the waystone, the great forge (you wake by it) with Forgewarden
+// Ash, the memorial wall, Slag's stack of gear-teeth, and the road up into Cinder Flats at the east end.
+export const FORGEHOLD = 44; // room id
+export const FORGE_W = 3400;
+export const SANDS_GATE_X = 150; // the beach path to the Black Sands
+export const FORGE_DOCK_X = 640; // the Lodestar's gangway (boards STEAM_S, sim.js)
+export const SOOT_X = 1290; // Auntie Soot, at her springs (she trades: SHOPS)
+export const FORGE_HOME_X = 1770; // the iron door in the rock that is everyone's own front door
+export const FORGE_SPAWN_X = 2080; // where you wake up, by the great forge
+export const FORGE_FIRE_X = 2200; // the great forge
+export const ASH_X = 2330; // Forgewarden Ash, at the forge
+export const FORGE_WALL_X = 2630; // the memorial wall
+export const SLAG_X = 2980; // Slag, by his stack of gear-teeth (he trades: SHOPS)
+export const FORGE_EXIT_X = FORGE_W - 90; // the road up into Cinder Flats
+// iron crates on the quay, the bathhouse roof, ledges in the wall joined by chains and iron stairs (drawing),
+// the forge's hood, a ledge over the memorial wall, and Slag's stack of gear-teeth
+export const FORGE_PLATFORMS = [
+  { x: 770, y: 380, w: 104, kind: 'crates' },
+  { x: 1150, y: 318, w: 230, kind: 'bathroof' },
+  { x: 1620, y: 300, w: 210, kind: 'ledge' },
+  { x: 1880, y: 214, w: 190, kind: 'ledge' },
+  { x: 2140, y: 300, w: 130, kind: 'hood' },
+  { x: 2520, y: 268, w: 230, kind: 'ledge' },
+  { x: 2830, y: 352, w: 150, kind: 'teeth' }, // Slag's stack of gear-teeth
+];
 export const CALDERA_ZONES = [
   { name: 'Cinder Flats', x0: 0, x1: 2200, lvl: '90–100' },
   { name: 'Magma Heart', x0: 2200, x1: CALDERA_W, lvl: '100–115' },
@@ -486,7 +523,7 @@ export const QBRIDGE_PLATFORMS = [
 export const STAGES = {
   [FIELD]: { name: 'The Wildwood', zones: ZONES, band: '1–12' },
   [HIGHLANDS]: { name: 'Frostpeak', zones: HIGHLAND_ZONES, band: '40–60' },
-  [CALDERA]: { name: 'The Emberdeep Caldera', zones: CALDERA_ZONES, band: '90–115', pill: 'Emberdeep' },
+  [CALDERA]: { name: 'Emberdeep', zones: CALDERA_ZONES, band: '90–115' },
   [CITADEL]: { name: 'The Aether Citadel', zones: CITADEL_ZONES, band: '140–170', pill: 'Aether Citadel' },
   [WILLOWMERE]: { name: 'Willowmere', zones: WILLOWMERE_ZONES, band: '5–15' },
   [COVES]: { name: 'Saltspray Coves', zones: COVES_ZONES, band: '10–25' },
@@ -584,7 +621,7 @@ export const MOBS = {
     ult: { name: 'Supernova', kind: 'nova' }, minion: 'wisp',
     drops: [['frost_heart', 1, 2, 3], ['star_sword_n', 1, 1, 1], ['star_crown_n', 1, 1, 1], ['coin', 1, 4360, 7260], ['elixir', 1, 4, 6], ['stardust', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
   },
-  // ——— the Emberdeep Caldera ———
+  // ——— Emberdeep (the legacy stage: Cinder Flats, Magma Heart) ———
   // ai: what makes a mob more than a walker (server/rpg.js mobAi, client src/rpg.js):
   //   lob: lobs a fireball at you from range (and backs off when you're close) · trail: leaves burning
   //   puddles behind it · shell: its front shell blocks `cut` of the damage (hit it from behind) and it
@@ -1906,6 +1943,12 @@ export const ITEMS = {
   howl_staff: { name: 'Howling Staff', price: 209000, lvl: 68, kind: 'staff', magic: 121, mp: 72, reach: 54, twin: 'rimefang', desc: 'A grey staff bound in rime wolf pelt, a white fang at its tip. Its bolts howl on the way out.' },
   tusk_staff: { name: 'Rimehorn Staff', price: 262000, lvl: 76, kind: 'staff', magic: 130, mp: 78, reach: 60, twin: 'tusk_blade', desc: "A curved staff of old mammoth ivory wound with red-brown wool, frost flowers growing up it as you cast." },
   driftbone_staff: { name: 'Driftbone Staff', price: 64000, lvl: 58, aim: 60, kind: 'staff', magic: 109, mp: 65, reach: 52, twin: 'bonecarver_knife', desc: 'A staff of sea-bleached whalebone, a ring of seals carved round its head chasing each other forever.' },
+  // Forgehold's traders (atlas Phase 5): Slag's heavy forge gear, aimed at the island's start, and Auntie
+  // Soot's eggs, boiled in the hottest spring
+  slag_maul: { name: 'Slag Maul', price: 156000, lvl: 88, aim: 92, kind: 'sword', atk: 144, reach: 54, desc: 'Black slag on an iron haft, hammered from the scrap of a gear-tooth. Forged for a wheel that never got it.' },
+  bellows_rod: { name: 'Bellows Rod', price: 156000, lvl: 88, aim: 92, kind: 'staff', magic: 144, mp: 86, reach: 54, twin: 'slag_maul', desc: "An iron poker from the great forge, a coal that won't go out caught in its cage." },
+  smith_cap: { name: "Smith's Iron Cap", price: 123000, lvl: 88, aim: 92, kind: 'helmet', def: 66, desc: 'Riveted iron with a leather flap against the sparks. Heavy. Forgehold folk nap in them.' },
+  spring_egg: { name: 'Spring-Boiled Egg', price: 600, kind: 'potion', heal: 500, desc: "Boiled in Auntie Soot's hottest pool. Still warm. Restores 500 HP." },
   ivory_staff: { name: 'Walrus Ivory Staff', price: 200000, lvl: 67, kind: 'staff', magic: 120, mp: 72, reach: 54, twin: 'ivory_cutlass', desc: "A walrus tusk on a driftwood shaft, whiskers bound round the grip. It barks, a bit, when you cast." },
   narwhal_staff: { name: 'Narwhal Song Staff', price: 238000, lvl: 72, slots: 9, kind: 'staff', magic: 125, mp: 75, reach: 62, twin: 'narwhal_tusk', desc: "A twist of the Old Narwhal's ivory with sea ice at its head. Its bolts sing, low and long, like something calling a pod home." },
   skate_staff: { name: 'Skate Staff', price: 268000, lvl: 77, kind: 'staff', magic: 131, mp: 79, reach: 58, twin: 'skate_blade', desc: "A pale staff with an ice skate's wing for a head, rippling as if it were still swimming." },
@@ -2005,6 +2048,9 @@ export const SHOPS = {
   // the Pet Shop: pet food only (the pets themselves are on plinths: furni-buy, src/petshop.js)
   eyvind: { name: "The Cutters' Hut", room: GLACIER, x: EYVIND_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'cutter_cleaver', 'glacier_staff', 'cutter_cap'] },
   hakon: { name: 'The Whaling Hut', room: SKERRIES, x: HAKON_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'bonecarver_knife', 'driftbone_staff', 'sealskin_hood'] },
+  // Forgehold (atlas Phase 5): Auntie Soot's potions and eggs at the springs, Slag's forge gear
+  soot: { name: "Auntie Soot's Springs", room: FORGEHOLD, x: SOOT_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'spring_egg'] },
+  slag: { name: "Slag's Stack", room: FORGEHOLD, x: SLAG_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'slag_maul', 'bellows_rod', 'smith_cap'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));

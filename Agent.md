@@ -127,7 +127,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/economy.md](docs/economy.md) | ANY gold / EXP / price / drop / scaling change: the balance sheet, `npm run economy` |
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |
 | [docs/social/chat.md](docs/social/chat.md) | the chatbox, public chat, private messages, chat speech bubbles |
-| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, the branches' traders (Bun, Moss, Truffle, Acorn, Eyvind, Hakon), Auntie Clover, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
+| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, the branches' traders (Bun, Moss, Truffle, Acorn, Eyvind, Hakon), Skipper Arne, Forgehold's three (Ash, Soot, Slag), Auntie Clover, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
 | [docs/social/trading.md](docs/social/trading.md) | trading coins and items between players, the trade log |
 | [docs/social/accuse.md](docs/social/accuse.md) | accusing someone of botting, the canvas deny button, the EXP skim |
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
@@ -135,10 +135,11 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/museum.md](docs/places/museum.md) | the history museum and its content |
 | [docs/places/houses.md](docs/places/houses.md) | personal houses, the furniture store, the backyard, expanding, decorating, pets, the swing, the Players panel, invites |
 | [docs/places/harbour.md](docs/places/harbour.md) | Greenhollow Harbour, the lighthouse, Captain Brine, the far-off islands drawn in every sky |
-| [docs/places/crossings.md](docs/places/crossings.md) | crossing rooms (the ferry's deck), the voyage clock `state.vt`, boarding (the Set sail card), future sea/balloon routes |
-| [docs/places/fjord.md](docs/places/fjord.md) | Icefang Fjord and Icefang Hamlet (Frostpeak's landing town), Skaldi, Runa and her shop, Tove, the fjord folk's look, the laid-up Lodestar |
+| [docs/places/crossings.md](docs/places/crossings.md) | crossing rooms (the ferry's and the Lodestar's decks), the voyage clock `state.vt`, boarding (the Set sail card), route themes, the future balloon |
+| [docs/places/fjord.md](docs/places/fjord.md) | Icefang Fjord and Icefang Hamlet (Frostpeak's landing town), Skaldi, Runa and her shop, Tove, the fjord folk's look, the Lodestar's berth |
+| [docs/places/forgehold.md](docs/places/forgehold.md) | Forgehold (Emberdeep's landing town, room 44), Ash, Soot and Slag and their shops, the forge folk's look, the memorial wall, the Caldera pass's removal and the summit lookout, the Emberdeep rename |
 | [docs/places/cliffs.md](docs/places/cliffs.md) | the Keeper ruins in Bramble Woods, Greenhollow's east cliffs, the telescope |
-| [docs/places/branches.md](docs/places/branches.md) | each island's branches, their blocked entrances (gates), the island maps' data (`GREENHOLLOW`, `FROSTPEAK`); **how to ship a branch (checklist, gotchas) and where the next phases' gates are** |
+| [docs/places/branches.md](docs/places/branches.md) | each island's branches, their blocked entrances (gates), the island maps' data (`GREENHOLLOW`, `FROSTPEAK`, `EMBERDEEP`); **how to ship a branch (checklist, gotchas) and where the next phases' gates are** |
 | [docs/places/willowmere.md](docs/places/willowmere.md) | Willowmere (room 24), Miller Bun, Old Snapjaw, the weir stone |
 | [docs/places/coves.md](docs/places/coves.md) | Saltspray Coves (room 25), Beachcomber Moss, the Tidemother's den (26), boss `lines` |
 | [docs/places/canopy.md](docs/places/canopy.md) | the Old Oak Canopy (room 31), Ranger Acorn, the Hornet Queen, wasp nests, the Lifted Stone, the cut trunk to Keeper's Spine |

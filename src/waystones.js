@@ -14,12 +14,14 @@ const visible = (x0, x1, L, R) => x1 > L && x0 < R;
 export function drawWaystones(ctx, room, ground, L, R, time, near, ways = []) {
   for (const w of WAYSTONES) {
     if (w.room !== room || !visible(w.x - 90, w.x + 90, L, R)) continue;
-    drawStone(ctx, w.x, ground + 2, time, w === near, ways.includes(w.id), w.isle === 'frost');
+    drawStone(ctx, w.x, ground + 2, time, w === near, ways.includes(w.id), w.isle);
   }
 }
 
-// frost: Frostpeak's stones wear snow and rime where Greenhollow's wear moss
-function drawStone(ctx, x, base, time, near, lit, frost = false) {
+// isle: Frostpeak's stones wear snow and rime where Greenhollow's wear moss; Emberdeep's are dusted with ash,
+// with glints of black glass and a warm crack low down
+function drawStone(ctx, x, base, time, near, lit, isle = 'green') {
+  const frost = isle === 'frost', ember = isle === 'ember';
   ctx.save();
   ctx.translate(x, base);
   const hum = lit ? 0.55 + 0.25 * Math.sin(time * 2.2) : 0;
@@ -84,7 +86,26 @@ function drawStone(ctx, x, base, time, near, lit, frost = false) {
   ctx.fillStyle = CARVE;
   for (const dx of [-10, 0, 10]) circle(ctx, dx, -26, 1.6);
   // moss over the shady side and the top (on Frostpeak: rime down the windward side, a cap of snow and a drift)
-  if (frost) {
+  if (ember) {
+    ctx.fillStyle = 'rgba(176,168,170,0.8)'; // ash settled on the ledges of the stone
+    for (let y = -112; y < -10; y += 14) ellipse(ctx, -16 + Math.sin(y * 0.12) * 4, y, 6, 2.4, -0.2);
+    ctx.fillStyle = '#b8b0b2';
+    ellipse(ctx, -2, -123, 15, 5, -0.3);
+    ctx.fillStyle = '#4a3c44'; // a drift of black sand round its foot
+    ellipse(ctx, 0, -1, 34, 6);
+    ctx.fillStyle = `rgba(255,150,80,${0.35 + 0.2 * Math.sin(time * 1.7)})`; // the warm crack
+    ctx.fillRect(10, -24, 2, 14);
+    ctx.fillStyle = 'rgba(30,24,40,0.8)'; // black glass
+    for (const [gx, gy] of [[-14, -90], [8, -48], [-6, -14]]) {
+      ctx.beginPath();
+      ctx.moveTo(gx, gy - 4);
+      ctx.lineTo(gx + 3, gy);
+      ctx.lineTo(gx, gy + 3);
+      ctx.lineTo(gx - 3, gy);
+      ctx.closePath();
+      ctx.fill();
+    }
+  } else if (frost) {
     ctx.fillStyle = 'rgba(236,246,255,0.85)';
     for (let y = -112; y < -10; y += 13) circle(ctx, -20 + Math.sin(y * 0.1) * 3, y, 3.5 + Math.sin(y) * 1.2);
     ctx.fillStyle = '#f6fbff';

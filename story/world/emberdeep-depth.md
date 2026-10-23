@@ -1,6 +1,7 @@
 # Emberdeep's depth plan: the south (atlas Phase 5 and the E track)
 
-**A plan, not yet approved.** It covers what happens after Frostpeak's capstone (F4): atlas Phase 5 (the
+**Approved by the owner 2026-10-23, with every default below** ("all these look good"). E0 shipped the same
+day (`docs/places/forgehold.md`). It covers what happens after Frostpeak's capstone (F4): atlas Phase 5 (the
 Steam Straits, the landing and its town) and then Emberdeep's depth pass, the same way `island-depth.md`
 did Greenhollow and Frostpeak. It follows that file's owner direction and "deep" checklist; read them
 first. Places, mobs, bosses and people below are `[proposed]` until they ship; anything the owner has to
@@ -215,7 +216,8 @@ each branch hub; none in hard pockets), a crossing theme, a folk look. Follow th
 ## Emberdeep phases
 Each its own session and dev copy. Order: the landing first, then the empty levels (115–130), then bottom
 up, then the capstone; then atlas Phase 6.
-- [ ] **E0: the south (atlas Phase 5).** The Lodestar sails (two `'steam'` decks, Skipper Arne); Forgehold
+- [x] **E0: the south (atlas Phase 5)** (shipped 2026-10-23; the Caldera pass went after both directions were
+      tested; Magma Heart's waystone came with it; the balloon's gate sits west of Pyra's den, by the column). The Lodestar sails (two `'steam'` decks, Skipper Arne); Forgehold
       with Black Sand Shore (a town: respawn, home door, waystone; Ash, Soot and her shop, Slag and his
       shop; the forge-slime look; the memorial wall); the legacy room renamed and its west door repointed
       to Forgehold; Emberdeep's island map with every gate in the table laid. **The Caldera pass goes in
@@ -247,8 +249,8 @@ Fold the map and phases into `island-depth.md` (or link this file from it), tick
 update the Emberdeep sheet and link graph in `atlas.md`, add the cast to `../characters/people.md`, and log
 the renames in `../inventory.md`.
 
-## Open decisions for the owner
-Each has a default a builder can go ahead with.
+## Decisions (settled 2026-10-23: the owner took every default)
+Kept as written for the reasoning; each `[default]` below is now the decision.
 1. **Renames.** "Emberdeep Caldera" → **Emberdeep** (the island and the stage's pill and room name; the
    zones keep their names, "the Caldera" being Magma Heart's bowl) `[default: yes, in E0]`. The skylift →
    **a balloon** `[default: not a rename; the skylift is removed in Phase 6 when the balloon replaces it]`.

@@ -1,13 +1,16 @@
-# Crossings: the ferry and the sea between islands
+# Crossings: the ferry, the Lodestar and the sea between islands
 
-Atlas Phase 3, "the crossing room" (`story/world/atlas.md`). Story: `story/world/geography.md` (distance and
-travel), `story/world/regions/frostpeak.md`.
+Atlas Phase 3, "the crossing room", and Phase 5, the Steam Straits (`story/world/atlas.md`). Story:
+`story/world/geography.md` (distance and travel), `story/world/regions/frostpeak.md`,
+`story/world/regions/emberdeep.md`.
 
-Files: the rooms in `src/shared/sim.js` (`FERRY_N`, `FERRY_S`, `DECK_W`, `DECK_GROUND`, `DECK_PLATFORMS`,
+Files: the rooms in `src/shared/sim.js` (`FERRY_N`, `FERRY_S`, `STEAM_N`, `STEAM_S`, `DECK_W`, `DECK_GROUND`, `DECK_PLATFORMS`,
 `DECK_GANGWAY_X`, `GANGWAY_X`, `CAST_OFF`, each room's `crossing`, `doorOpen`, `voyage`, `VOYAGE_MAX`), the
-drawing in `src/crossing.js` (`drawCrossing`, `drawCrossingFront`, `crossingAt`), the harbour end in
-`src/harbour.js`, the Frostpeak end at Icefang Hamlet's quay (`src/fjord.js`, `docs/places/fjord.md`), the voyage pill in `src/main.js`, the `crossing` music
-scene in `src/audio.js`, the "you are here" pin at sea in `src/worldmap.js`, Brine's persona in
+drawing in `src/crossing.js` (`drawCrossing`, `drawCrossingFront`, `crossingAt`, `SHIPS`, `shipName`), the harbour end in
+`src/harbour.js`, the Frostpeak end at Icefang Hamlet's quay (`src/fjord.js`, `docs/places/fjord.md`: both
+ships moor there), the Emberdeep end at Forgehold's quay (`src/forgehold.js`, `docs/places/forgehold.md`), the
+voyage pill in `src/main.js`, the `crossing` and `straits` music scenes in `src/audio.js`, the "you are here"
+pin at sea in `src/worldmap.js`, Brine's and Arne's personas in
 `server/characters.js`.
 
 ## What it is
@@ -16,8 +19,10 @@ scene in `src/audio.js`, the "you are here" pin at sea in `src/worldmap.js`, Bri
   chat with Captain Brine at the wheel. No mobs: crossings are safe rooms (atlas).
 - **One room type, themed per route.** A room is a crossing when its `ROOMS` entry has `crossing: { route,
   from, to, ticks }`. `route` picks the palette and props in `src/crossing.js` (only `'cold'` so far: the
-  Greenhollow–Frostpeak ferry); `from` / `to` are `src/distant.js` island keys. The Steam Straits ship and
-  the balloon (atlas Phases 5 and 6) are new entries plus a new route theme, not new code paths.
+  Greenhollow–Frostpeak ferry); `from` / `to` are `src/distant.js` island keys. The Lodestar (atlas Phase 5) is the `'steam'` route; the
+  balloon (Phase 6) will be another entry plus a route theme, not a new code path. Each route's ship has its
+  own look on the same deck (`SHIPS`: hull, name, a paddle box or not, the funnel, the sail), and its name is
+  on the voyage pill (`shipName`).
 - **Each direction is its own room** (`FERRY_N` out, `FERRY_S` home), so the two sailings don't share a deck
   and nobody sees the sea run backwards. Captain Brine stands in both (`also` on his `NPCS` entry).
 - The first crossing out is the slow one (`story/world/geography.md`): the way home has a smaller `ticks`.
@@ -50,6 +55,19 @@ scene in `src/audio.js`, the "you are here" pin at sea in `src/worldmap.js`, Bri
   jetty at the ridge's west end with the hamlet in sight up the fjord. The Phase 4 update thawed it and
   moved the berth to the hamlet, no unlock quest (owner's rule); the jetty became the path down.
 
+## The steam route (the Lodestar, atlas Phase 5)
+- `STEAM_N` (room 45, out: Icefang Hamlet to Forgehold) and `STEAM_S` (46, home). The long voyage: out is
+  clearly longer than the ferry's, home quicker (`ticks`). Boarded at the hamlet's quay (`FJORD_LODESTAR_X`,
+  "Lv 90+", no gate) and at Forgehold's (`FORGE_DOCK_X`), each with the "Set sail?" card.
+- The sea (`drawSteamSea`), driven by `w` (how far toward Emberdeep): the hamlet and the aurora fall astern,
+  the last icebergs thin out, fog banks lie on the water and then fog over everything for a while, the water
+  turns warm and green, geysers spout out of the sea and steam lifts off it, ash settles, frigatebirds come
+  out, and Emberdeep's smoke column grows over the bow until the black cliffs (Forgehold's lights in rows up
+  the wall, the rusted iron quay) come alongside.
+- The ship: the Lodestar, an old dark-hulled fjord-folk ship with a gold band, no paddle box, a galley
+  stovepipe for a funnel, a cream sail with a red stripe. Skipper Arne at her wheel on both decks (`also`).
+- Aboard, the World map's pin sits in the Steam Straits (`islandOf` gives `'straits'`).
+
 ## The harbour end
 - The lighthouse is lit (the patch lit it, owner's call: Granny Wicks came home and lit it). Brine's
   condition for sailing is met, so the notice says "All aboard!" and the gangway (`GANGWAY_X`) is a door.
@@ -65,6 +83,9 @@ scene in `src/audio.js`, the "you are here" pin at sea in `src/worldmap.js`, Bri
 - 2026-10-20: built. The Wildwood → Highlands trail went in the same update (the ferry replaces it); the
   Highlands → Caldera pass and the Caldera → Citadel skylift stay until their crossings exist (atlas Phases 5
   and 6: never remove a back door before its crossing works).
-- Level gate: none (the game has none on purpose, `docs/world.md`); the gangway label says "Lv 40+" (it said "Lv 13+" until the rebalance, R, raised Frostpeak).
+- 2026-10-23 (atlas Phase 5): the Lodestar sails. The Caldera pass went in the same update, after both
+  directions were tested. The skylift stays until the balloon works (Phase 6).
+- Level gate: none (the game has none on purpose, `docs/world.md`); the ferry's gangway label says "Lv 40+" (it said "Lv 13+" until the rebalance, R, raised Frostpeak), the
+  Lodestar's "Lv 90+".
 - `[proposed]` Later: fishing over the rail, things climbing aboard on the far routes (light, optional,
   never a death trap), a quick sail back once a route is open.

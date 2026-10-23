@@ -121,6 +121,13 @@ slug. Gold earned moved a little: Lv 90 ~224.8k → ~225.8k, Lv 100 ~277.0k → 
 farming a kill in coins and materials, camped 0.7× EXP / 3.9× gold, between the Old Narwhal and Pyra. Her pet
 is 370k, between Ignis's (360k) and Pyra's (400k); `PETSHOP_W` went up to fit it.
 
+## Emberdeep's depth pass, E0 (atlas Phase 5, 2026-10-23)
+Forgehold, the landing town, adds no mobs, so no faucet moved (PROGRESS unchanged). Two traders: **Slag**'s tier
+is aimed at Lv 92, the island's start (`lvl` 88 on the gear curve): the Slag Maul and its twin the Bellows Rod
+at 156k (66% of gold earned by Lv 92), the Smith's Iron Cap at 123k (52%). **Auntie Soot** sells the basic
+potions and the Spring-Boiled Egg (500 HP for 600: a little better per gold than an elixir's HP, no MP), not
+aimed. Trading lets boss farmers fund friends to these sooner (see Trading above).
+
 ## How to price something new
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Read "gold earned by then" for that level and price it at roughly half to three quarters of it: a real

@@ -47,7 +47,20 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
   talks to her), the Old Narwhal singing under the ice, the Grotto he went into once. His life: sweet on
   Captain Brine, who has never noticed him waving from the point (a comb carved for her, never given); plays
   a bone flute badly; Runa sends him darned socks. Not "Bjarni": Runa's husband is Bjarn.
-- **Forgewarden Ash** (Forgehold): bitter, honest, slow to trust. Holds Tier 3.
+- **Forgewarden Ash** (Forgehold, Phase 5, **exists**): forge folk; keeps the great forge and the memorial wall,
+  and tells newcomers plainly what's dangerous inland. Bitter, honest, slow to trust. Holds Tier 3 but
+  deflects it ("Go and ask the old smith in the Forge. Then come back.") until per-account progress exists.
+  His sister Brenna went up to the rim the morning everything broke; the wall's blank space is hers. One nail
+  for every smith who dies; a stubborn pot of mint Soot waters; loses to Soot at stones every evening.
+- **Auntie Soot** (Forgehold, **exists**): forge folk; runs the springs, sells potions and spring-boiled eggs.
+  "Auntie" to the whole town, no children of her own; knits slag-wool socks; holds Arne's letters for "the
+  northern girl out on the coast" (Liv) and is knitting her something. The one kind voice. Tier 0 plus gossip.
+- **Slag** (Forgehold, **exists**): forge folk, young; Ash's apprentice and the gear trader. Drags gear-teeth out
+  of the ash, has filed one for three years, believes the gears can still be finished; never seen snow, asks
+  every northerner; afraid of the sea. Tier 0 plus the forges.
+- **Skipper Arne** (the Lodestar, **exists**): fjord folk, Runa's cousin; the crossing south. Seven years laid up
+  and ashamed of it; sailed home without his deckhand Liv on the last voyage; carried Eyvind's letters south;
+  reads the weather off his bad knee; sleeps on deck in the heat. Tier 0 plus the southern passage.
 - **The Last Echo** (the Citadel): a Keeper echo stuck repeating, who becomes briefly lucid when players
   bring Mochi's name. Holds Tier 4.
 - **Pell** (post-game, by the apple tree): see `mochi-and-chronos.md`.

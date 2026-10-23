@@ -1297,8 +1297,8 @@ function drawExit(ctx, x, time) {
   const base = GROUND;
   drawStation(ctx, x + 30, base, time, false);
   ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
-  const half = (ctx.measureText('Emberdeep Caldera').width + 46) / 2;
-  liftSign(ctx, Math.max(x + 30, half + 10), base - 262, 'Emberdeep Caldera', null, -1, time);
+  const half = (ctx.measureText('Emberdeep').width + 46) / 2;
+  liftSign(ctx, Math.max(x + 30, half + 10), base - 262, 'Emberdeep', null, -1, time);
 }
 
 // The skylift in the Caldera (door at CITADEL_DOOR_X): a brass station with its cable running up into

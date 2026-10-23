@@ -304,10 +304,11 @@ Settled by the owner (2026-10-23):
 - Class is chosen at the Rebirth spot in Slimeville: 500k coins for now, keeps your level, resets all AP
   and skill points. A class's skills only work with its own weapon; only Mobility is shared.
 
-Still open (recommended answer first; a session can start from it):
+Settled by the owner (2026-10-23, "all these look good"): the two below, as recommended.
+Still open (recommended answer first; a session can start from it): none.
 1. ~~Boss reward window~~ (S0): shipped at 15 min (`BOSS_WINDOW_MS`), easy to change if it feels harsh.
-2. **The Rebirth spot's name and keeper:** a Rebirth Pool tended by Elder Mochi (recommended).
-3. **A free first choice?** Everyone becomes a Warrior when S2 ships, and new players start as one. At
+2. ~~The Rebirth spot's name and keeper~~: **a Rebirth Pool tended by Elder Mochi** (settled).
+3. ~~A free first choice?~~ **Yes** (settled): Everyone becomes a Warrior when S2 ships, and new players start as one. At
    500k, a Lv 30 who wants to be a Mage can't afford it for a very long time. Recommended: each
    character's **first** rebirth is free (the migration and new players pick once at no cost), and every
    change after that costs the 500k.

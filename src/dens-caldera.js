@@ -1,5 +1,5 @@
 // Docs: docs/combat/bosses.md
-// The Emberdeep Caldera's two boss dens (The Molten Forge, Phoenix Roost), their cave mouths in the
+// Emberdeep's two legacy boss dens (The Molten Forge, Phoenix Roost), their cave mouths in the
 // Caldera, their bosses (Ignis the Magma Tyrant, Pyra the Ember Phoenix) and their boss effects.
 // dens.js imports this file and dispatches to it (same contracts as its own dens/bosses/effects), so this
 // file must NOT import dens.js: the few helpers it needs are copied below.

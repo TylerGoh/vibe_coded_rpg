@@ -8,12 +8,14 @@ A long ship voyage south through the **Steam Straits**: warm green water, geyser
 column on the horizon. It needs the stars restored (the Astral Wyrm beaten).
 
 ## Landscape, shore to heart
-1. **Black Sand Shore** `[proposed, new first zone]`: obsidian beaches, a harbour of rusted iron, and
-   hot springs where slimes soak. The last soft spot before the hard country.
+1. **Black Sand Shore** (exists since Phase 5, as Forgehold's waterfront): obsidian beaches, a harbour of
+   rusted iron, and hot springs where slimes soak (Auntie Soot's). The last soft spot before the hard country.
+   The Black Sands beyond it are a branch (`../emberdeep-depth.md`, E1).
 2. **Cinder Flats** (exists): ash plains and dead forges. Half-buried giant gear-teeth that were never
    delivered to the Tidewheel stick out of the ash.
-3. **Forgehold** `[proposed]`: the forge-slimes' town, cut into the caldera wall. Bellows, chains and
-   heat-haze. A memorial wall of smiths' names.
+3. **Forgehold** (exists, Phase 5): the forge-slimes' town, cut into the caldera wall. Bellows, chains and
+   heat-haze. A memorial wall of smiths' names, with one blank space (Brenna's). It's the landing town, one
+   room with the shore, so it comes before Cinder Flats on the road in.
 4. **Magma Heart** (exists): the volcano's core. **The Molten Forge**, where Ignis made the Tidewheel's
    gears, and **Phoenix Roost** at the rim.
 5. **The thermal column** `[proposed]`: the volcano's updraft. The balloon to the Citadel launches here.

@@ -66,6 +66,17 @@
 - The atlas's island sheets still carry their old bands (a note at the top says how to read them).
 - Untested with real players: the raised mobs' and bosses' difficulty at their new levels (bots only).
 
+## E0 (atlas Phase 5: the Lodestar and Forgehold) left for later
+- Nobody has sat through a real 90-second Lodestar voyage with friends aboard: the long out-trip was the
+  owner's "the long voyage", but check it doesn't drag. The fog stretch hides the landmarks on purpose.
+- Liv isn't in the game yet (E2): Soot holds Arne's sack of letters for her; Eyvind's persona still waits.
+- The Black Sands' hot-spring herb for the alchemy lab (plan: "if cheap"), the Cinder Flats gear-teeth half
+  buried in the ash, and the slag golem in Magma Heart (E0's optionals) weren't done; E1 or later.
+- Ignis's and Pyra's `lines` wait for E4. Ash's Tier 3 waits for per-account story progress (Phase 7).
+- The ember waystone look and the forge folk are only checked in headless screenshots, not on a real phone.
+- Getting home from Emberdeep is two sailings (the default): if it annoys people, a direct Forgehold to
+  Greenhollow sailing waits for the "routes reconnect" idea in `story/world/geography.md`.
+
 ## F4 (the Queen's Bridge and Sigrun) left for later
 - Emberdeep is next (atlas Phase 5): `story/world/emberdeep-depth.md` holds the plan and the owner's open
   decisions (renames, gating the voyage on the Astral Wyrm, the balloon's block, the band top, new characters).

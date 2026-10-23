@@ -30,7 +30,7 @@ beam is `beam` from `src/crossing.js`),
 An AI character like Elder Mochi (`docs/social/ai-characters.md`): he sails the ferry, and you can chat
 with him at her wheel during the crossing. His persona knows only canon Tier 0 and his own trade, deflects
 lore questions ("ask old Mochi"), knows the fjord thawed and she sails right in to Icefang Hamlet again
-(and knows its three people a little, and why the Lodestar won't sail south), and mostly talks about his
+(and knows its three people a little, and that the Lodestar sails south again, atlas Phase 5), and mostly talks about his
 own life: forty years at sea, his
 ship, Pickles, superstitions, cards at the Inn. Slapping him gets `SLAP_QUIPS.brine`.
 

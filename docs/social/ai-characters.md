@@ -11,7 +11,9 @@ one shared corner feed).
   Mycelium Deep's Forager Truffle (trades; `docs/places/deep.md`), the Old Oak Canopy's Ranger Acorn
   (trades; `docs/places/canopy.md`), the Rimeglass Glacier's Ice-Cutter Eyvind (fjord folk, trades;
   `docs/places/glacier.md`), the Whale Skerries' Hakon the Bone-Carver (fjord folk, trades;
-  `docs/places/skerries.md`), and
+  `docs/places/skerries.md`), the Lodestar's Skipper Arne (fjord folk, at her wheel on both decks, like
+  Brine; `docs/places/crossings.md`), Forgehold's Forgewarden Ash, Auntie Soot and Slag (forge folk; Soot and
+  Slag trade; `docs/places/forgehold.md`), and
   the Pet Shop's Auntie Clover (sells pet food, preaches feeding; `docs/places/pets.md`). Press E
   in range to talk.
 - When a place opens, update the personas that can see it, or they keep describing the block: Moss knows
@@ -30,6 +32,12 @@ one shared corner feed).
   creatures and won't go near Sigrun ("she watched us build that stair"). Skaldi knew Sigrun as a girl and has
   one line for the bridge ("Two shores, one road. Hold, and hold, and let it go."); Runa's great-uncle is one of
   the frozen guards; Tove knows the bridge by its creatures.
+  E0 (atlas Phase 5): the Lodestar sails and the Caldera pass is gone. Brine is thrilled for Arne and says the
+  only way south is his ship; Skaldi lit every quay lamp; Runa is glad and cross (her tarp); Eyvind sent his box
+  of letters south with Arne and has no answer yet; Tove wants to go. In Forgehold, Ash lists every shut way
+  out by its in-world block and deflects Tier 3 ("Go and ask the old smith in the Forge. Then come back."),
+  and only tells of Brenna on a second asking. Soot holds Arne's letters for "the northern girl out on the
+  coast" (Liv, E2). When an Emberdeep branch opens, update Ash (and Soot, Slag, Arne where they'd know).
 - `hello` on an `NPCS` entry is the line their dialog opens with. `shop` (a `SHOPS` key) adds a **Trade**
   button to their dialog (Runa). `folk` dresses them as another island's people (`docs/art.md`).
 - Clio has `anywhere: true`: she can be asked from anywhere in the museum (Q, the "Ask Clio" touch button,

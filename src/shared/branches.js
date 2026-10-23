@@ -1,12 +1,12 @@
 // Docs: docs/places/branches.md
-// Each island's branches (story/world/island-depth.md; Greenhollow's, then Frostpeak's): the side areas off the main trail, each its own
+// Each island's branches (story/world/island-depth.md; Greenhollow's, then Frostpeak's, then Emberdeep's: story/world/emberdeep-depth.md): the side areas off the main trail, each its own
 // combat room once it ships. Until then the way in is there but blocked by something in the world (a
 // node's `gate`: drawn by src/branch-gates.js, E shows what's wrong), never a "coming soon" sign. The
 // island map (src/worldmap.js) draws this list as a graph: shipped places solid, the rest blocked.
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -43,7 +43,28 @@ export const FROSTPEAK = [
   { id: 'grotto', name: 'Narwhal Grotto', band: '70–80', hard: true, at: [100, 350], from: 'skerries', rooms: [GROTTO], entry: { room: SKERRIES, x: GROTTO_GATE_X, kind: 'grotto' } },
   { id: 'bridge', name: "The Queen's Bridge", band: '85–100', at: [360, 300], from: 'ridge', rooms: [QBRIDGE], entry: { room: HIGHLANDS, x: BRIDGE_GATE_X, kind: 'icestair' } },
 ];
-export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK };
+// Emberdeep (atlas Phase 5, E0 on: story/world/emberdeep-depth.md): Forgehold, the legacy stage's two zones,
+// and every branch's gate laid before any of them ships. The balloon by the thermal column is atlas Phase 6
+// (to the Citadel's Skydocks), not a branch, but it's blocked the same way and shown on the map.
+export const EMBERDEEP = [
+  { id: 'forgehold', name: 'Forgehold', at: [205, 215], rooms: [FORGEHOLD], town: true },
+  { id: 'flats', name: 'Cinder Flats', band: '90–100', at: [355, 215], from: 'forgehold', zone: 0, zr: CALDERA },
+  { id: 'heart', name: 'Magma Heart', band: '100–115', at: [505, 215], from: 'flats', zone: 1, zr: CALDERA },
+  { id: 'sands', name: 'Black Sands', band: '90–100', at: [76, 215], from: 'forgehold', block: 'a new geyser',
+    gate: { room: FORGEHOLD, x: SANDS_GATE_X, kind: 'geyser', look: 'look at the geyser', says: 'A new geyser has broken out right across the beach path. It scalds every few seconds.' } },
+  { id: 'coast', name: 'Smoking Coast', band: '100–115', at: [355, 295], from: 'flats', block: 'a lava tongue',
+    gate: { room: CALDERA, x: COAST_GATE_X, kind: 'lavatongue', look: 'look down the gully', says: 'Fresh lava has run down the gully to the coast. Still crusting over, red underneath.' } },
+  { id: 'tubes', name: 'Drained Tubes', band: '115–125', hard: true, at: [205, 300], from: 'coast', past: true, block: 'past the Coast' },
+  { id: 'ashwood', name: 'The Ashwood', band: '115–130', at: [355, 135], from: 'flats', block: 'the bridge fell in',
+    gate: { room: CALDERA, x: ASHWOOD_GATE_X, kind: 'ironbridge', look: 'look at the fallen bridge', says: "The charcoal road's iron bridge fell into the lava channel. Ash trees on the far side." } },
+  { id: 'foundry', name: 'Old Foundry', band: '130–145', hard: true, at: [205, 135], from: 'ashwood', past: true, block: 'past the Ashwood' },
+  { id: 'brimstone', name: 'Brimstone Fields', band: '125–140', at: [505, 135], from: 'heart', block: 'the vents are fuming',
+    gate: { room: CALDERA, x: BRIMSTONE_GATE_X, kind: 'fumes', look: 'look up the flank', says: 'The vent field across the path is fuming yellow. Nobody can breathe that air today.' } },
+  { id: 'rim', name: 'Caldera Rim', band: '135–150', at: [505, 58], from: 'brimstone', past: true, block: 'past the Fields' },
+  { id: 'column', name: 'The Balloon', at: [640, 215], from: 'heart', block: 'the column stalls',
+    gate: { room: CALDERA, x: BALLOON_X, kind: 'balloon', look: 'look at the balloon', says: 'The column keeps stalling. Nobody goes up in a wind that drops out under them.' } },
+];
+export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK, ember: EMBERDEEP };
 const ALL = Object.values(ISLAND_MAPS).flat();
 export const shipped = (n) => !n.gate && !n.past;
 export const ENTRIES = ALL.filter((n) => n.entry).map((n) => ({ ...n.entry, branch: n.id, name: n.name, band: n.band, hard: !!n.hard }));

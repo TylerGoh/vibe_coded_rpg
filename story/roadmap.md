@@ -71,8 +71,15 @@ are fleshed out. **The plan and its phases: `world/island-depth.md`.**
   - [x] F4 (2026-10-23): the Queen's Bridge (85–100) and Sigrun, the Queen's Shield, Frostpeak's capstone (den,
         Lv 100, with lines, built for S5's party mechanics); the Strait Stone, the Shield's Perch, a waystone
         (`docs/places/queensbridge.md`). Frostpeak is done. Left over: `docs/ideas.md` ("F4 left for later")
-- [ ] Emberdeep's depth pass (atlas Phase 5 on): the plan, its map, phases E0–E4 and the owner's open decisions
-      are in `world/emberdeep-depth.md` (written 2026-10-23, awaiting the owner)
+- [ ] Emberdeep's depth pass (atlas Phase 5 on): the plan, its map and phases E0–E4 are in
+      `world/emberdeep-depth.md` (approved 2026-10-23 with every default)
+  - [x] E0 (2026-10-23): the south: the Lodestar sails (two `'steam'` decks, Skipper Arne), Forgehold with
+        Black Sand Shore (a town; Ash, Soot and her shop, Slag and his shop; the forge folk; the memorial wall),
+        the stage renamed Emberdeep, Emberdeep's island map with every gate, waystones in Forgehold and Magma
+        Heart, the Caldera pass gone, the balloon grounded (`docs/places/forgehold.md`). Left over:
+        `docs/ideas.md` ("E0 left for later")
+  - [ ] E1: the Ashwood and the Black Sands · E2: the Smoking Coast, the Drained Tubes, the Hatchkeeper, Liv ·
+        E3: the Brimstone Fields, the Old Foundry · E4: the Caldera Rim and Brenna, then atlas Phase 6
 
 ## 0b. Classes and progression: the S track (owner, 2026-10-23)
 Mages neglected (no magic weapons), an archer and a cleric, bosses that need a mixed party, a real skill tree instead of a list, and rewards spaced
@@ -80,28 +87,28 @@ further apart at high levels. **The plan, its phases and the owner's open decisi
 Interleaved with the G track: S0 (close the boss EXP faucet) and S1 (staves) go before the rebalance (R).
 - [x] S0 (2026-10-23): over-level EXP falloff, per-player boss reward window (`docs/combat/bosses.md`)
 - [x] S1 (2026-10-23): staves (20, twins of the boss and shop swords), the staff bolt, weapon scrolls (`docs/combat/items.md`)
-- [ ] S2: the four class trees, the Rebirth spot in Slimeville (change class, keep level), forks, advancements, the node UI, mage combos, warrior chase moves
+- [ ] S2: the four class trees, the Rebirth Pool in Slimeville tended by Elder Mochi (change class, keep level; the
+      first rebirth free, owner 2026-10-23), forks, advancements, the node UI, mage combos, warrior chase moves
 - [ ] S3: the Cleric (the Mage's staff, heals, Cleanse, Revive, summons)
 - [ ] S4: the Archer (bows, Ranger Acorn)
 - [ ] S5: bosses that need a party (Taunt, pulses, curses, barriers, weak points), loot by class
 - [ ] S6: past the cap (stat taper, mastery stars)
 
 ## 1. Geography (the owner's top complaint: the islands are too close)
-- [ ] **Remove the back-door chain.** The Wildwood → Highlands trail (gone, Phase 3), the Highlands → Caldera pass and the
+- [ ] **Remove the back-door chain.** The Wildwood → Highlands trail (gone, Phase 3), the Highlands → Caldera pass (gone, Phase 5) and the
       Caldera → Citadel skylift go. Each island is reached by its crossing. (`world/geography.md`)
 - [x] **Greenhollow Harbour**, a new room west of the village: piers, an unlit lighthouse, Captain Brine,
       the ferry. (`world/regions/greenhollow.md`)
 - [x] **Crossing rooms:** a ship deck over a scrolling sea, for roughly a minute, then you arrive. One room
       type, themed per route (cold sea, Steam Straits, cloud climb). Movement on deck is normal `step()`
       physics; the scroll is drawing only. (The cold sea ferry shipped: `docs/places/crossings.md`.)
-- [ ] **A landing town at the start of each island** (Icefang Fjord: done, Phase 4; Black Sand Shore and
-      Forgehold; the Skydocks camp): a calm stretch with a town and harbour, before the mobs. Owner's
+- [ ] **A landing town at the start of each island** (Icefang Fjord: done, Phase 4; Black Sand Shore and Forgehold: done, Phase 5; the Skydocks camp): a calm stretch with a town and harbour, before the mobs. Owner's
       rule: every landing is a town with respawn and a door home (`world/atlas.md`).
 - [x] **The Wildwood ends at sea cliffs** with the view across the water (room 20, the telescope; the
       Highlands trail beside it went in Phase 3).
 - [x] **Distant islands in every outdoor sky,** in compass direction (`world/geography.md`, `src/distant.js`).
-- [ ] Gating: the Steam Straits voyage needs the Astral Wyrm beaten (stars restored). Ask the owner
-      before adding any hard gate. The game has none today, on purpose (`docs/world.md`).
+- [x] Gating: the Steam Straits voyage needs the Astral Wyrm beaten? **No** (owner, 2026-10-23): the update
+      lifted the block, Arne's line credits the stars, the gangway says "Lv 90+". No hard gates, on purpose.
 
 ## 2. Story delivery
 - [ ] **Per-account story progress:** bosses beaten at least once, saved with the character. Gives the
@@ -113,11 +120,10 @@ Interleaved with the G track: S0 (close the boss EXP faucet) and S1 (staves) go 
 
 ## 3. New places and people
 - [ ] Regional AI characters: Captain Brine (done), Old Skaldi, Runa and Tove (done), the branches' Bun, Moss,
-      Truffle and Acorn (done), Forgewarden Ash, the Last Echo.
-- [ ] Settlements: the fjord hamlet (done), Forgehold, the Skydocks camp.
+      Truffle and Acorn (done), Forgewarden Ash (done, Phase 5, with Auntie Soot, Slag and Skipper Arne), the Last Echo.
+- [ ] Settlements: the fjord hamlet (done), Forgehold (done), the Skydocks camp.
 - [ ] The Slime Ages wing in the museum.
-- [ ] Each island's people drawn as their own slime type (`characters/people.md`): the fjord folk done
-      (`Slime.setFolk`); forge-slimes next.
+- [ ] Each island's people drawn as their own slime type (`characters/people.md`): the fjord folk done (`Slime.setFolk`); the forge folk done (Phase 5); the Skydocks' next.
 
 ## 4. Endgame and beyond
 - [ ] The Wheel restart: a server-wide event, then the world flag and the changed skies.
@@ -127,5 +133,5 @@ Interleaved with the G track: S0 (close the boss EXP faucet) and S1 (staves) go 
 ## Renames under consideration
 Today's stage names fit the story with small changes. Propose these to the owner before renaming:
 - Done (owner, Phase 4): "Frostpeak Highlands" → **Frostpeak** (the island), the Highlands its interior.
-- "Emberdeep Caldera" → **Emberdeep** (the island), with the Caldera as its heart.
+- Done (owner, Phase 5): "Emberdeep Caldera" → **Emberdeep** (the island), with the Caldera as its heart.
 - The skylift → a **balloon** riding the thermal column.

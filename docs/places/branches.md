@@ -4,10 +4,10 @@ The island depth plan (`story/world/island-depth.md`) grows Greenhollow to Lv 1�
 ("branches") off the main trail. Phase G0 laid every branch's entrance before any of them exists, so the
 island shows what's coming.
 
-- Data: `GREENHOLLOW` and `FROSTPEAK` in `src/shared/branches.js`. Each holds every place on its island's
+- Data: `GREENHOLLOW`, `FROSTPEAK` and `EMBERDEEP` in `src/shared/branches.js`. Each holds every place on its island's
   map: the towns, the stage's zones (`zone`, with `zr` the stage room when it isn't the Wildwood), the
   branches, each with its band, `hard` for hard pockets, the node it hangs off (`from`) and where it sits on
-  the map (`at`). `ISLAND_MAPS` says which islands have a map (Greenhollow and Frostpeak); `GATES`,
+  the map (`at`). `ISLAND_MAPS` says which islands have a map (Greenhollow, Frostpeak, Emberdeep); `GATES`,
   `ENTRIES` and `nodeAt` read all of them.
 - **A branch that hasn't shipped has a `gate`**: the blocked way in, in a real room (the room and x, the
   kind of art, the prompt, and what E says). Gates are drawn by `src/branch-gates.js` (`DRAW`); each has a
@@ -49,16 +49,24 @@ island shows what's coming.
   `crevasse` drawn open). Frostpeak's only gate left is the Queen's Bridge's ice stair (F4).
 - **Shipped (F4, 2026-10-23):** the Queen's Bridge (`docs/places/queensbridge.md`: the ice stair built up again,
   `icestair` drawn open) and Sigrun's den. Frostpeak has no gates left.
+- **Emberdeep (E0, atlas Phase 5, 2026-10-23):** its map and every gate, the same way (plan:
+  `story/world/emberdeep-depth.md`). Forgehold is the town (`docs/places/forgehold.md`); the legacy stage's
+  two zones are nodes (`zr: CALDERA`). Blocked: the Black Sands (a geyser across Forgehold's beach path,
+  `geyser`, `SANDS_GATE_X`), the Smoking Coast (a fresh lava tongue down the gully in Cinder Flats,
+  `lavatongue`, `COAST_GATE_X`), the Ashwood (the charcoal road's iron bridge fallen into a lava channel,
+  `ironbridge`, `ASHWOOD_GATE_X`), the Brimstone Fields (the vent field fuming, up Magma Heart's flank,
+  `fumes`, `BRIMSTONE_GATE_X`); `past`: the Drained Tubes (behind the Coast), the Old Foundry (behind the
+  Ashwood) and the Caldera Rim (behind the Fields). The balloon by the thermal column (`balloon`, `BALLOON_X`)
+  is atlas Phase 6's block, not a branch, drawn and mapped the same way. Mind the den mouths' boss signs: the
+  bridge and the balloon first overlapped Ignis's and Pyra's and moved west (the balloon is drawn smaller,
+  `SCALE`).
 - The island map (`docs/ui/world-map.md`) reads the same list: shipped places solid with their levels,
   the rest dashed with a short `block` reason. Keep both in step: a node's `block` should match its gate.
 
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 44 after F4; ids 27,
-  31–43 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier,
-  the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge and
-  Sigrun's den), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 47 after E0; ids 27, 31–46 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold and the Lodestar's two decks), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last; `onRoomPlat` helper names must be new: F2 first clashed with
   Willowmere's `onWPlat`), a `STAGES` row (`band`, `pill` if the name is long, `hard` for
@@ -102,9 +110,12 @@ Gotchas already hit:
   key presses.
 
 ## The next phases' loose ends (where things already are)
-- **Greenhollow is done** (G0–G5) and **Frostpeak is done** (F0–F4). Next is atlas Phase 5, Emberdeep: its
-  plan, map, phases and gates are in `story/world/emberdeep-depth.md` (open decisions there for the owner).
-  Emberdeep needs its own island map (`ISLAND_MAPS`, a new list like `FROSTPEAK`) and `ISLAND_OF_STAGE` rows.
+- **Greenhollow is done** (G0–G5) and **Frostpeak is done** (F0–F4). **Emberdeep's E0 shipped** (atlas Phase 5:
+  the Lodestar, Forgehold, the map and every gate). Next is E1: the Ashwood (115–130) and the Black Sands
+  (90–100, easy), plan in `story/world/emberdeep-depth.md` (the owner approved every default). E1 lifts the
+  `ironbridge` and `geyser` gates (give each an open look in `OPEN`, the F3 pattern: the draw function with an
+  `open` flag) and lays the Old Foundry's gate in the Ashwood. Every new Emberdeep room needs its
+  `ISLAND_OF_STAGE` row (`'ember'`) and its waystone `isle: 'ember'`; update Ash's persona (he lists the blocks).
 - F4 gotchas: the open art for the ice stair is `drawIcestair` with an `open` flag (the F3 pattern); a capstone
   with a new `wave` look needs its own mass in `fxWaveWarn` / `fxWaveGo` (`iceMass`); a staff can need a new head
   shape in `HEADS` (`shield`); Sigrun's pet pushed `PETSHOP_W` up again.

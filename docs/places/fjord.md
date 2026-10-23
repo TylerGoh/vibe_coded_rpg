@@ -4,9 +4,10 @@ Atlas Phase 4, "Frostpeak's front" (`story/world/atlas.md`). Story: `story/world
 `story/characters/people.md`.
 
 Files: the room in `src/shared/sim.js` (`FJORD` in `ROOMS`, its doors, the `TOWNS` entry), its layout
-constants in `src/shared/rpg.js` (`FJORD`, `FJORD_W`, `FJORD_DOCK_X`, `FJORD_HOME_X`, `FJORD_SPAWN_X`,
+constants in `src/shared/rpg.js` (`FJORD`, `FJORD_W`, `FJORD_DOCK_X`, `FJORD_LODESTAR_X`, `FJORD_HOME_X`, `FJORD_SPAWN_X`,
 `FJORD_FIRE_X`, `FJORD_EXIT_X`, `RUNA_X`, `FJORD_PLATFORMS`, Runa's stock in `SHOPS`), the drawing in
-`src/fjord.js` (`drawFjord`, plus `drawFjordPath` for the path down at the ridge's west end), the fjord folk's
+`src/fjord.js` (`drawFjord`, plus `drawFjordPath` for the path down at the ridge's west end, and the Lodestar,
+`drawLodestar` and `drawLodestarGangway`, shared with Forgehold), the fjord folk's
 look, dress, the later Frostpeak mobs and Runa's gear in `src/fjord-art.js`, the three personas in
 `server/characters.js`, the `fjord` music scene in `src/audio.js`, the hamlet on the World map
 (`src/worldmap.js`).
@@ -14,7 +15,8 @@ look, dress, the later Frostpeak mobs and Runa's gear in `src/fjord-art.js`, the
 ## What it is
 - **Room 23, a town and a safe room** (no mobs, like every harbour and hometown: atlas). West to east: the
   stone quay where the Puddle Jumper ties up (her gangway, `FJORD_DOCK_X`, boards `FERRY_S` after the usual
-  "Set sail?" card), the laid-up **Lodestar** and her notice, **Runa's net shed**, the turf hut whose door
+  "Set sail?" card), the **Lodestar** with her gangway (`FJORD_LODESTAR_X`, boards `STEAM_N` south to
+  Emberdeep, `docs/places/crossings.md`) and Arne's notice, **Runa's net shed**, the turf hut whose door
   is **everyone's own front door** (`FJORD_HOME_X`), the **lamp-fire** where Old Skaldi stands and where you
   wake up, Tove with her bucket, the smokehouse, and the **path up to Frostpine Ridge** (`FJORD_EXIT_X`,
   into the stage's west end at `HIGHLANDS_EXIT_X`).
@@ -39,10 +41,12 @@ look, dress, the later Frostpeak mobs and Runa's gear in `src/fjord-art.js`, the
 - In Phase 3 the fjord was frozen and the ferry tied up at a rough jetty at the ridge's west end, with
   the hamlet visible up the fjord. The Phase 4 update thawed it, no quest (owner's rule): the ferry now
   lands here, the ridge jetty became a path down to the hamlet, and Brine's persona says the ice went out.
-- **The next phase shows but doesn't open:** the Lodestar, an old ship that sailed south, is laid up at
-  the end of the quay. Her skipper Arne won't take her out because the stars are wrong ("No stars to steer
-  by", the notice says; canon Tier 2: the Astral Wyrm fell and ships can't steer). Phase 5 (the Steam
-  Straits) lifts it in its own update. No door on her. The Caldera pass from the summit stays until then.
+- **The next phase showed but didn't open:** from Phase 4 the Lodestar lay laid up at the end of the quay,
+  frosted, a tarp on her wheel, no door on her: her skipper Arne wouldn't take her out because the stars were
+  wrong ("No sailings. No stars to steer by.", canon Tier 2: the Astral Wyrm fell and ships can't steer).
+  The Phase 5 update lifted it, no quest (owner's rule): the frost and the tarp are gone, her gangway is a door,
+  and the notice says "Sailing again. Stars enough to steer by." The Caldera pass from the summit went then
+  (`docs/places/forgehold.md`).
 
 ## The people (AI characters, `docs/social/ai-characters.md`)
 - **Old Skaldi** (`skaldi`): the lamplighter, by the fire. Speaks in short, sad lines. Knows Tier 0 and the

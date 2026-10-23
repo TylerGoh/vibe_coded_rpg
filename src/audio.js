@@ -576,6 +576,64 @@ const SONGS = {
     },
   },
 
+  // Forgehold (docs/places/forgehold.md): harsh, grieving, proud. A slow D minor dirge in 4/4 on a low reedy
+  // horn over a held drone, the great forge's anvil ringing on the beats (two strikes and a rest, like a smith
+  // working), the bellows breathing, and the island's deep rumble under it all
+  forgehold: {
+    bpm: 66, spb: 4, melSteps: 4, key: 50, scale: MINOR, gain: 0.74, send: 0.4, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5], [7, 9, 11], [6, 8, 10], [5, 7, 9]],
+    mel: melody(
+      '5 - 4 3', '3 - - .', '4 - 3 2', '2 - - .',
+      '5 - 6 5', '4 - 3 .', '2 - 3 2', '1 - - .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 140, 0.016); // the mountain, rumbling
+      p.eng.bed(p, 'bandpass', 500, 0.005, 0.5); // the forge's roar
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) {
+        e.voice(p.c, t, p.f(1, -2), { type: 'sawtooth', vol: 0.05, a: 0.8, hold: p.stepDur * 3, rel: 1, cutoff: 380 });
+        pad(p, ch, t, p.stepDur * 4, 0.012, { type: 'triangle', a: 0.7, cutoff: 800, rel: 1 });
+      }
+      if (s === 0 || s === 1) anvil(e, s ? p.r : p.l, t, 1100 + (bar % 2) * 60, s ? 0.03 : 0.045, 0.3); // ting, ting, ...
+      if (s === 2 && chance(0.5)) e.noiseHit(p.c, t, { type: 'lowpass', f: 400, sweep: 900, sweepT: 0.6, vol: 0.03, a: 0.5, hold: 0.1, tau: 0.4 }); // the bellows
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d), { type: 'sawtooth', vol: 0.03, a: 0.12, hold: m.len * 0.85, rel: 0.5, cutoff: 900, vib: 5, vibRate: 4.5 });
+      if (m && part === 1) e.voice(p.r, t, p.f(m.d, 1), { ...GLOCK, vol: 0.035, tau: 0.6 });
+      if (chance(0.25)) e.noiseHit(chance(0.5) ? p.l : p.r, t + rand(0, p.stepDur), { f: rand(2200, 3800), q: 3, vol: 0.008, tau: 0.01 }); // sparks
+    },
+  },
+
+  // Aboard the Lodestar (the steam route, docs/places/crossings.md): the ferry's shanty slowed and turned minor,
+  // a fiddle-ish line over a fjord drone, the hull creaking, waves, and further south the hiss of steam
+  straits: {
+    bpm: 84, beats: 2, spb: 6, melSteps: 6, key: 62, scale: MINOR, gain: 0.74, send: 0.35, loop: 8,
+    chords: [[1, 3, 5], [7, 9, 11], [6, 8, 10], [5, 7, 9], [1, 3, 5], [4, 6, 8], [6, 8, 10], [5, 7, 9]],
+    mel: melody(
+      '5 . 5 4 . 3', '2 . . 1 . .', '3 . 4 5 . 6', '5 . . . . .',
+      '8 . 7 6 . 5', '4 . 5 3 . .', '2 . 3 2 . 1', '1 . . . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 340, 0.014); // the sea
+      p.eng.bed(p, 'highpass', 3000, 0.004); // steam hissing off the water
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) {
+        e.voice(p.c, t, p.f(1, -2), { type: 'triangle', vol: 0.07, a: 0.4, hold: p.stepDur * 5, rel: 0.8, cutoff: 600 });
+        e.voice(p.c, t, p.f(5, -2), { type: 'triangle', vol: 0.045, a: 0.4, hold: p.stepDur * 5, rel: 0.8, cutoff: 600 });
+      }
+      if (s === 0 || s === 3) e.voice(p.c, t, p.f(ch[s ? 2 : 0], -2), { type: 'triangle', vol: 0.12, tau: 0.3, cutoff: 600 });
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.c, t, p.f(m.d, 1), { type: 'sawtooth', vol: 0.024, a: 0.1, hold: m.len * 0.85, rel: 0.3, cutoff: 1500, vib: 7, vibRate: 5.2 });
+      if (m && part === 1) e.voice(p.r, t, p.f(m.d, 1), { ...GLOCK, vol: 0.04 });
+      if (s === 0 && bar % 2 === 1) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'lowpass', f: 300, sweep: 1100, sweepT: 0.9, vol: 0.045, a: 0.8, hold: 0.15, tau: 0.5 }); // a wave on the hull
+      if (s === 4 && chance(0.3)) e.noiseHit(p.l, t, { type: 'bandpass', f: 220, q: 6, vol: 0.02, a: 0.05, hold: 0.2, tau: 0.3 }); // the hull creaking
+      if (s === 2 && bar === 6 && pass % 2 === 1) e.noiseHit(p.r, t, { type: 'highpass', f: 2500, vol: 0.03, a: 0.3, hold: 0.6, tau: 0.6 }); // a geyser, far off
+    },
+  },
+
   // Lecture hall: soft maj7 pads and a rare bell; the professor talks over it
   hall: {
     bpm: 56, spb: 8, key: 60, scale: MAJOR, gain: 0.6, send: 0.35,
@@ -1483,7 +1541,7 @@ const SONGS = {
     },
   },
 
-  // ——— the Emberdeep Caldera ———
+  // ——— Emberdeep (the legacy stage) ———
   // Cinder Flats: a warm desert-ish adventure in D phrygian dominant, hand drums and marimba, lava bubbles
   cinder: {
     bpm: 112, spb: 8, swing: 0.1, key: 62, scale: PHRYG_DOM, gain: 0.8, send: 0.25, loop: 8,
@@ -2574,11 +2632,11 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
-  if (room === 12) return ZONE_KEYS[zone] ?? 'cinder'; // the Emberdeep Caldera
+  if (room === 12) return ZONE_KEYS[zone] ?? 'cinder'; // Emberdeep (the legacy stage)
   if (room === 13) return ZONE_KEYS[zone] ?? 'cogwork'; // the Aether Citadel
   if (room >= 100) return 'tutor'; // personal houses (HOUSE_BASE in sim.js): the cozy music box
   return ROOM_KEYS[room] ?? null;

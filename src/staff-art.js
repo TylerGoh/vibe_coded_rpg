@@ -55,6 +55,7 @@ export const STAFFS = {
   rimeguard_staff: { len: 64, shaft: ['#e0e4ee', '#8a90a8'], w: 2.8, head: 'crystal', gem: '#e2f0fc', gem2: '#8ab8e0', glow: '200,230,255' },
   oath_staff: { len: 70, shaft: ['#c8b498', '#6a5a44'], w: 3, head: 'shield', gem: '#e2f0fc', gem2: '#3e6294', glow: '190,226,255' },
   warden_staff: { len: 68, shaft: ['#b0acc0', '#76728a'], w: 3.2, head: 'rootcrook', gem: '#ffcf7a', gem2: '#7aa05e', glow: '255,200,110' },
+  bellows_rod: { len: 62, shaft: ['#8a8490', '#4e4a56'], w: 2.8, head: 'ring', gem: '#ff8a3c', gem2: '#5e5a66', glow: '255,150,80' },
 };
 export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));
 export const staffGlow = (id) => STAFFS[artOf(id)]?.glow ?? '190,200,255';
