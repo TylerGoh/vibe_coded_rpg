@@ -59,6 +59,8 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    `javelin` (the rime archer's).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
+A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob
+skips `stepMob` past gravity (no AI, no `later` follow-ups, its touch harmless), a chilled one walks slowed.
 
 ## Special mobs (`ai` in `MOBS`, run by `mobAi`)
 stomp (field bosses) leaps and lands with a shockwave · ember imp lobs fireballs · magma slug leaves burning puddles · obsidian crab's front shell blocks most of

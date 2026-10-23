@@ -8,7 +8,7 @@ const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; /
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
-import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR } from '../src/shared/skills.js';
+import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S } from '../src/shared/skills.js';
 import { SLAP_REACH, SLAP_COOLDOWN_MS, DASH_CD, PHANTOM_CD, CHARGE_RESET } from '../src/shared/sim.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
@@ -206,15 +206,19 @@ table('ALCHEMY: one batch of each recipe (cost = seeds for its herbs + its mob m
 // ignored. The Warrior's chase moves (S2.5) are in too (CHASE_ACTIONS): Charge is a dash then a stronger
 // hit (two actions; Dash comes back CHARGE_RESET sooner), Leap Slam a jump then a slam (two actions, an area),
 // Upward Cut rides on a normal swing (one action, one target, melee only: the ranged column's ledge is out
-// of its reach), and each that lands stacks Momentum (kept up while the chain goes on). Arcane Charge (S2.6)
-// doesn't exist yet: add it to the sim's damage kinds when it lands.
+// of its reach), and each that lands stacks Momentum (kept up while the chain goes on). The Mage's combos
+// (S2.6): Arcane Charge (each staff bolt that lands stores a charge, the next Mage spell spends them; the
+// choice of the best action counts them) and burns (a fire spell sets its targets burning for BURN_DPS of its
+// damage a second over BURN_S, the stronger burn kept). Chill / freeze is control (a frozen boss is only
+// slowed, and the sim's boss doesn't move), and a shatter needs a fire spell on a frost mage's freeze: the
+// two Mage branches together, never one alone, so solo fights have none.
 // BUILDS: per branch, its class, then the order points go in (an id fills to its max, [id, n] to n). The
 // fork's other branch never appears, so cantLearn keeps it to one; skills not open yet are skipped.
 const BUILDS = {
   knight: { cls: 'warrior', order: ['jelly_thirst', 'power_strike', 'iron_jelly', 'cleave', 'vitality', 'rally', 'second_wind', ['dash', 1], 'charge', 'momentum', 'jelly_bubble', 'sanctuary', 'aegis', 'leap_slam', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   berserker: { cls: 'warrior', order: ['power_strike', 'jelly_thirst', 'berserk', 'whirlwind', ['dash', 1], 'charge', 'momentum', 'iron_jelly', 'cleave', 'leap_slam', 'sword_mastery', 'blade_storm', 'sky_splitter', 'upward_cut', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
-  elementalist: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'fireball', 'kindling', 'meteor', ['dash', 1], 'starfall', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
-  frostbinder: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'chain_lightning', 'frost_nova', 'glacial_spike', ['dash', 1], 'absolute_zero', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  elementalist: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'fireball', 'kindling', 'meteor', 'arcane_charge', ['dash', 1], 'starfall', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  frostbinder: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'chain_lightning', 'frost_nova', 'glacial_spike', 'arcane_charge', ['dash', 1], 'absolute_zero', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
 };
 const NOVICE_ORDER = ['slime_bash', 'pebble_toss', 'jelly_patch']; // (nine points fill all three by Lv 9)
 const CLASS_AT = [10, 30, 60, 100, 150, 200];
@@ -296,6 +300,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.sword, hp:
   const r = (id) => rankOf(c.skills, id);
   const buff = { berserk: 0, rally: 0, manaShield: 0, bubble: 0, aegis: 0, zone: 0 }, cds = {};
   let momentum = 0, momentumUntil = 0, busy = 0; // busy: actions still taken by a two-action chase move
+  let charges = 0, chargesUntil = 0, burnDps = 0, burnUntil = 0; // Arcane Charge; the burn on the target(s) (summed over a crowd)
   const statsAt = (t) => statsFor(c, { berserk: buff.berserk > t, rally: buff.rally > t ? SKILLS.rally.boost(r('rally')) : 0, manaShield: buff.manaShield > t, momentum: momentumUntil > t ? momentum : 0 });
   const chases = Object.keys(CHASE_ACTIONS).filter((id) => r(id) && (id !== 'charge' || r('dash')));
   const top = statsFor(c);
@@ -325,6 +330,11 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.sword, hp:
         mp = Math.min(st.maxMp, mp + Math.max(1, st.maxMp * 0.02) * mpRegen(c.skills));
       }
     }
+    // a burn ticking since the last action (the server's BURN_TICK_MS, smoothed)
+    if (burnUntil > t - ACTION_S) {
+      dealt += burnDps * Math.min(ACTION_S, burnUntil - (t - ACTION_S));
+      if (dealt >= bossHp) return { t, dealt, faint: false, drunk, gold };
+    }
     if (busy > 0) {
       busy--;
       continue;
@@ -353,9 +363,10 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.sword, hp:
       continue;
     }
     let best = null, dmg = attackDmg(st, range);
+    const held = chargesUntil > t ? charges : 0;
     for (const id of actives) {
       if (!DAMAGE_KINDS.has(SKILLS[id].kind) || !ready(id, t)) continue;
-      const d = castDmg(id, r(id), st, n, range);
+      const d = castDmg(id, r(id), st, n, range) * (spendsArcane(id) ? arcaneMult(c.skills, held) : 1);
       if (d > dmg) [best, dmg] = [id, d];
     }
     // a chase move, if it beats that per action it takes (n targets: Leap Slam catches the crowd)
@@ -372,6 +383,9 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.sword, hp:
       if (r('momentum')) [momentum, momentumUntil] = [Math.min(MOMENTUM_MAX, (momentumUntil > t ? momentum : 0) + 1), t + MOMENTUM_DUR];
     }
     if (best) use(best, t);
+    if (best && spendsArcane(best)) charges = 0;
+    else if (!best && !chase && st.boltRange && dmg && r('arcane_charge')) [charges, chargesUntil] = [Math.min(ARCANE_MAX, held + 1), t + ARCANE_DUR];
+    if (best && SKILLS[best].el === 'fire') [burnDps, burnUntil] = [Math.max(burnUntil > t ? burnDps : 0, dmg * BURN_DPS), t + BURN_S];
     if (!dmg) continue;
     dealt += dmg; // (a crowd: the sum over the mobs it caught)
     if (st.thirst) hp = Math.min(st.maxHp, hp + dmg * st.thirst);

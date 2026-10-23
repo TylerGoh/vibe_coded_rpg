@@ -245,7 +245,12 @@ Files: `src/shared/sim.js`, `src/shared/wire.js`, `src/net.js`, `src/main.js`, `
   (`CONTROLS` in main.js) and `docs/ui/hints.md` updated.
 - Test: prediction with 150 ms of fake lag shows no snapping; desktop and touch.
 
-## S2.6: Mage combos and Arcane Charge
+## S2.6: Mage combos and Arcane Charge — built 2026-10-23
+Built as below, with these choices: a shatter is marked by the client on the hit and allowed by the server
+only on a mob it also has frozen; frost on a frozen mob doesn't refresh it; fire and frost sit on opposite
+branches, so a shatter is a two-Mage combo; Magic Bolt spends Arcane Charges like any Mage spell; the mob
+states ride in wire version 5. How it works: `docs/combat/skills.md` ("The Mage's combos and Arcane Charge").
+
 Docs: `docs/combat/skills.md`, `docs/combat/core.md`, `docs/combat/stages.md`, `docs/combat/bosses.md`,
 `docs/art.md`, `docs/performance.md`. Files: `server/rpg.js`, `src/rpg.js`, `src/skillfx.js`, mob drawing,
 `src/shared/wire.js` (mob flags), `src/shared/skills.js`.

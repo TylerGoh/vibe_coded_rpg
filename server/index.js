@@ -47,12 +47,15 @@
 //       when it was a Warrior's Charge (judged here from the slapper's state at s: sim.js chargeOpen / applyCharge)
 //   → {t:'skill', skill, dir, s, hits, tx?, ty?}  ← {t:'skill', id, skill, dir, x, y, hits, heals?, tx?, ty?, dur?}
 //       (skill 'leap_slam' / 'upward_cut': a chase move's hits, s = the input it landed / went off at)
+//       A fire spell's hit may be [mobId, dmg, crit, 1]: the client saw the mob frozen (a shatter); the echo's hits
+//       are [id, dmg, crit, killed, 1?] (1: shattered), and `arcane` is the Arcane Charges the spell spent
+//   ← {t:'burn', h:[[mobId, dmg, 0, killed]]}  burns ticking on mobs in your room (the Mage's combos)
 //   → {t:'ouch', s, mob, kind:'touch'|'charge'|'slam'|'rain', mx}  a mob hit me (the server applies the same knockback)
 //   → {t:'pickup', s}
 //   ← {t:'nomana'}  a skill you tried had too little MP
 //   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,weapon}, atk, magic, def,
 //       skills:{id:rank}, sp, hotbar:[6], potbar:[3], alt:{hotbar,potbar}, set, ap:{str,dex,int,luk}, apLeft,
-//       minRoll, pvp, berserk, manaShield, fire, cls, reborn, spLeft:{novice, cls}}  your character (sp: points
+//       minRoll, pvp, berserk, manaShield, fire, cls, reborn, spLeft:{novice, cls}, momentum, arcane}  your character (sp: points
 //       you can spend now; a Novice's class points pile up in spLeft.cls until it chooses a class)
 //   → {t:'learn'|'unlearn', skill} · {t:'respec'} · {t:'hotbar', bar:'skill'|'pot', slot, id} · {t:'pvp', on}
 //   → {t:'hotswap'}  swap the hotbar for the other setup · {t:'ap', stat, n} (n < 0 takes back) · {t:'ap', reset:true}
@@ -61,7 +64,8 @@
 //   → {t:'wear', id, on} · {t:'showhelm', on}  Boutique cosmetics (gear messages carry wear / showHelmet)
 //   ← {t:'mobs', k, m:[[id, kind, x, y, hp, flags, maxHp]], b?}  30 Hz to each combat room (kind: index into
 //       MOB_KINDS; flags 1 facing left · 2 walking · 4 angry · 8 telegraphing · 16 charging · 32 enraged ·
-//       64 slowed; b: seconds until a den's boss is back)
+//       64 slowed · 128 special · 256 chilled · 512 frozen · 1024 burning (binary: wire.js, version 5 for the
+//       last three); b: seconds until a den's boss is back)
 //   ← {t:'boss', a:'warn'|'charge'|'leap'|'slam'|'rain'|'rainHit'|'summon'|'phase'|'rage'|'ultWarn'|'ultHit'|'die', id, x, y, dir,
 //       act?, dur?, marks?, r?, tx?, n? (phase), kind/name/safe/lanes/x0/speed? (ultimates)}
 //   ← {t:'guard', id, what:'pop'|'block'|'secondwind'}  a Jelly Bubble / Aegis took a hit, or Second Wind saved someone

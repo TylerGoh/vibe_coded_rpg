@@ -50,6 +50,12 @@ protocol is documented in the comment at the top of that file: keep it updated**
 - 2026-10-20: wire version 3 adds `town` (35 bytes per slime; `BYTES_OF` in `wire.js` per version).
 - 2026-10-23: wire version 4 adds the chase moves' state (`mw`, a second flags byte: Attack held and
   slamming, `sc`, `uc`, `cw`, `uw`, `lw`): 44 bytes per slime. Tested with 150 ms of fake lag: no snapping.
+- 2026-10-23: wire version 5 (the Mage's combos): mob flags grow past a byte (256 chilled, 512 frozen, 1024
+  burning). In binary they ride in the egg byte's upper bits (bit 0 still says an egg follows), so a mob
+  record stays 23 bytes; `encodeMobs` takes the recipient's version and gives tabs from before (`bin` < 5)
+  the egg bit alone (their decoder reads any non-zero byte as an egg). The server encodes the mobs once per
+  version in the room. Slime records are unchanged (`BYTES_OF[5]` is version 4's 44). JSON tabs get the
+  wide flags, which their code masks away.
 - Ideas not done yet: send snapshots of only the slimes in your room (plus broadcasters), or at 30 Hz
   for remote slimes; delta-encode mob updates.
 

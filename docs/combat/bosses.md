@@ -33,6 +33,9 @@ branches of `drawBit` and `drawFallObj`).
 - Basic moves: slam (anyone on the floor within range when it lands: jump or use a ledge), leap, charge,
   rain, barrage, summon. The later bosses add their own (geysers, feathers, beams, clock bombs, void
   sweeps…), all sent through the hazards pipeline (`docs/combat/stages.md`).
+- The Mage's combos (`docs/combat/skills.md`): a frozen boss (den or field) isn't stopped, only slowed
+  to `FROZEN_BOSS_SLOW` for `FREEZE_BOSS`, and its timers and moves run on; a fire spell still shatters it.
+  Burns count for their caster on the damage meter. Freezing a boss to cancel its ultimate is S5's.
 - Boss HP grows per extra slime in the den (`BOSS_HP_PER_PLAYER`), aimed at a few minutes per fight.
   Everyone leaving for a few seconds resets it; a kill respawns after `BOSS_RESPAWN_MS` (`b` in `mobs`
   is the countdown). Bosses drop their unique gear, scrolls, gold and potions. Events: `{t:'boss', a: …}`.

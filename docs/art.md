@@ -13,6 +13,8 @@
   other islands show far off in their compass direction. A new outdoor room must call it too.
 - Keep art cheap on slow machines (`docs/performance.md`): soft glows go through `glow()` in
   `src/glow.js`; big gradient fills should be `fillRect`s (which the game canvas draws as cached strips).
+- The Mage's combo states on mobs (ice, frost, flames) are drawn over any mob's or boss's own art from its
+  `w` / `h` (`drawMobState`, `src/elements.js`), so new mobs get them for free.
 - A new AI character or friend accessory needs its drawing in `src/slime.js` (or a file it calls).
 - **Each island's people look their own** (`story/characters/people.md`): `Slime.setFolk(folk)`. So far
   the fjord folk of Frostpeak (`folk: 'fjord'` on an `NPCS` entry): a pale, frosted palette, a rime crust

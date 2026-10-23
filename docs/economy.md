@@ -217,6 +217,16 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   moved (few points to spare). Momentum was first +3/4% a stack: the Berserker ran 1.3× the Mages at
   Lv 200, so it's +2/3%. Nothing else moved.
 
+- **The Mage's combos (S2.6)** are in `fight` too: Arcane Charge (a staff bolt that lands stores a charge,
+  the next Mage spell spends them; choosing the best action counts them) and burns (a fire spell's
+  `BURN_DPS` over `BURN_S`, the stronger kept; summed over a crowd). Chill / freeze is control the sim
+  doesn't count, and a shatter needs both Mage branches, so solo fights have none. Both Mage BUILDS take
+  Arcane Charge after their branch's Lv 60 skills. Tuned down twice to get here (+30% a charge and 8% burn
+  first ran the Mages 15–30% up): at +4/8/12% a charge and a 2% burn, the Mages gained ~5% single target
+  (the Elementalist ~10%, and ~15–20% in a crowd, from burns), so Warrior ÷ Mage single target went
+  0.88 → 0.82 at Lv 100, 0.97 → 0.90 at 150, 1.02 → 0.94 at 200 (Lv 10–60 barely moved); the Elementalist
+  solos dens ~8–10% faster, the Frostbinder ~3–5%. Nothing else moved: no mob, boss, gold, EXP or price.
+
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Price it in **minutes of farming at that level** (the PROGRESS table's gold/min), by kind

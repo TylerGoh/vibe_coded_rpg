@@ -41,6 +41,9 @@ rules that keep art cheap. Files: `src/fastcanvas.js`, `src/glow.js`, `src/gfx.j
 Village 12 → 18 → 36 · Wildwood 6 → 11 → 20 · Caldera 6 → 8 → 14 · Hour Sanctum 6 → 10 → 17 ·
 Mycelium Deep 9 → 14 → 23 · Harbour 18 → 39 → 58. Unthrottled, every room holds 60.
 
+- The Mage's combo states (`src/elements.js`) are flat fills and strokes, a handful of shapes per mob that
+  has one, no gradients or glows. Keep it that way: a Starfall can set a whole screen of mobs burning.
+
 ## Next, if it's still slow (not done yet)
 - **Bake static scenery when a room loads**: draw the parts of a room that don't animate (platforms,
   buildings, far layers) once into canvases at device resolution and copy them 1:1 each frame, like the

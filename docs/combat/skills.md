@@ -1,14 +1,15 @@
 # Classes, skills, MP, the hotbar, Mobility and ability points
 
 Files: `src/shared/skills.js` (all rules, `CLASSES`, `statsFor`), `src/skilltree.js` (the K panel),
-`src/skillfx.js` (icons and effects), the hotbar and stats UI in `src/rpg.js`, server actions in the
-`skills()` and `rebirth()` handlers of `server/rpg.js`.
+`src/skillfx.js` (icons and effects), `src/elements.js` (the Mage's combo states drawn on mobs, the Arcane
+Charge pips), the hotbar and stats UI in `src/rpg.js`, server actions in the `skills()` and `rebirth()`
+handlers of `server/rpg.js`.
 
 **Classes are being built in pieces** (`story/s2-plan.md`; the design is `story/progression.md`, read it
 before changing classes, skills, AP or the point schedule). S2.1 (the data, the rules, the server, the
 migration), S2.2 (the node-tree K panel) and S2.3 (the Rebirth Pool: place, card, banners, Elder Mochi) are
 built, and the CLASSES tables in the economy sheet (S2.4, `docs/economy.md`) measure and tuned them; the
-Warrior's chase moves (S2.5, below) too. The Mage's combos (S2.6) are not.
+Warrior's chase moves (S2.5) and the Mage's combos and Arcane Charge (S2.6), both below, too.
 Archer and Cleric come later (S3, S4).
 
 ## Classes (S2)
@@ -59,7 +60,7 @@ Archer and Cleric come later (S3, S4).
   their damage, the Warrior's solo answer); **Knight** (Jelly Bubble, Vitality, Rally, Second Wind, then
   Sanctuary, Aegis); **Berserker** (Whirlwind, Berserk, then Sword Mastery, Blade Storm, Sky Splitter).
 - **Mage**: basics at Lv 10 (Magic Bolt, Mana Flow, Arcane Mind, Mana Shield: for a while a share of the
-  damage you take comes off MP instead); **Elementalist** (Fireball: a bolt that bursts where it lands; then
+  damage you take comes off MP instead; Arcane Charge, below); **Elementalist** (Fireball: a bolt that bursts where it lands; then
   Meteor, Kindling: fire spells (`fire` on the skill) hit harder; then Starfall); **Frostbinder** (Frost
   Nova, Chain Lightning, then Glacial Spike: a long bolt that slows hard, then Absolute Zero).
 - Skills whose old max was 5 and now 3 (Power Strike, Cleave, Iron Jelly, Magic Bolt, Mana Flow, Arcane
@@ -160,6 +161,42 @@ only cooldowns, in the physics state.
 - Effects for anyone come from state changes (main.js `moveFx`: `sl`, `uc`), like Dash's; the E-hint list
   shows "Charge", "↓+X Leap Slam" and "Upward Cut" while each is possible (`docs/ui/hints.md`).
 - Not built: **Hook** (progression.md 1c, `[proposed]`).
+
+## The Mage's combos and Arcane Charge (S2.6)
+`story/progression.md` 3: the Mage's skill is the order you cast in, and friends can see it on the mobs.
+Rules and numbers in `src/shared/skills.js` (`CHILL_S` and the constants after it); the state lives on the
+server's mob (`chillUntil`, `frozenUntil`, `burn`), set in `element()` from `applyHits` in `server/rpg.js`.
+- **Elements**: `el` on the skill. Frost (Frost Nova, Glacial Spike, Absolute Zero) **chills** for `CHILL_S`
+  (slowed like `slow`); frost on a chilled mob **freezes** it: an ordinary mob stops dead for `FREEZE_S` (no
+  AI, no walking, its touch harmless on both sides), a den or field boss is only slowed to
+  `FROZEN_BOSS_SLOW` for `FREEZE_BOSS`. Frost on a frozen mob does nothing (no refresh: nothing stays frozen).
+- Fire (Fireball, Meteor, Starfall) on a frozen mob **shatters** it: `SHATTER_MULT` damage and the freeze
+  ends. The client decides it like any hit (`v.frozen` on its screen) and marks that hit (`[id, dmg, crit,
+  1]`); the server's cap allows `SHATTER_MULT` only if the mob is frozen there too (or thawed less than
+  `SHATTER_GRACE_MS` ago), else the hit is capped as a plain one. The echo marks a shattered hit
+  (`[id, dmg, crit, killed, 1]`) so friends see the shards and "SHATTER!".
+- Fire also **burns**: `BURN_DPS` of the hit's damage a second for `BURN_S` (a new burn keeps the stronger
+  dps), ticked by the server every `BURN_TICK_MS` through `damage()` as the caster's hit, so it counts on
+  the damage meter and for EXP; it ends early if the caster leaves the room. Everyone in the room gets
+  `{t:'burn', h}` (small orange numbers).
+- Storm (Chain Lightning) on a burning mob **spreads** the burn to every mob within `BURN_SPREAD` px that
+  isn't burning harder, as the spreader's burn.
+- **Fire and frost are on opposite branches**, so a shatter (and a spread) takes an Elementalist and a
+  Frostbinder together: a party combo by design (2026-10-23, S2.6's call; progression.md lists the combos
+  without saying who casts them). Alone, a Frostbinder freezes (control; from Lv 60, when Glacial Spike gives it a second frost spell inside `CHILL_S`) and an Elementalist burns.
+- Shown on the mob for everyone (`drawMobState`, `src/elements.js`): frost at the feet and drifting flakes
+  (chilled), a see-through crust of ice with a glint and icicles (frozen), small flames and sparks
+  (burning). Wire: mob flags 256 / 512 / 1024 (`docs/netcode.md`). The client predicts its own spell's
+  effect for half a second (`predictEl`: `chillLocal`, `frozenLocal`, `thawLocal`, `burnLocal`) until the
+  server's flags arrive.
+- **Arcane Charge** (`arcane_charge`, passive, Mage basics): each staff bolt that hits stores a charge (up to
+  `ARCANE_MAX`, gone `ARCANE_DUR` s after the last); the next Mage damage spell (`spendsArcane`: Magic Bolt
+  too) spends them all for +`per` each (`arcaneMult`). Both sides count: the client in `staffBolt` /
+  `cast` (its prediction, `charges()`), the server in `attack()` / `cast()` (`p.arcane`, which sets the
+  cap; `me.arcane`; fainting clears it). The echo carries `arcane` (an "ARCANE xN" pop over the caster).
+  The HUD shows `ARCANE_MAX` diamonds in the MP bar's right end, lit per charge, for anyone with a rank.
+- Not built: the **interrupt** (freezing a boss during `ULT_WARN` cancels its ultimate) waits for S5
+  (`docs/ideas.md`); the masteries (Permafrost, Wildfire) are S6's.
 
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js

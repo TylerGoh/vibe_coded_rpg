@@ -43,6 +43,10 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
 - **Charge** (Warrior): a slap while dashing or just after (`chargeOpen`) is judged by `attack()` from the
   server's own state at that input: a higher cap and the same state edit the client predicted
   (`docs/combat/skills.md`).
+- **The Mage's combos** (`docs/combat/skills.md`): `applyHits` takes the spell's element (`el`) and applies
+  chill / freeze / burn / spread after each hit (`element()`); a fire hit the client marked as a shatter is
+  capped at `SHATTER_MULT` more only if the server's mob is frozen too. A Mage spell's cap also includes
+  the server's Arcane Charge count (`arcaneMult`). Burns tick on the server as the caster's hits.
 - **Jelly Thirst** (Warrior): `thirst()` heals the hitter a share of the damage its slap or skill just did
   (after the server's cap), and tells the room `{t:'thirst', id, n}` for the green +HP.
 

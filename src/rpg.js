@@ -13,7 +13,8 @@ import { drawHazard } from './hazards.js';
 import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, drawRallyAura, drawAegisAura } from './skillfx.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX } from './shared/skills.js';
+import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult } from './shared/skills.js';
+import { drawMobState, drawArcanePips } from './elements.js';
 import { staffGlow } from './staff-art.js';
 import { SLAP_REACH, DASH_CD, BLINK_CD, PHANTOM_CD } from './shared/sim.js';
 
@@ -91,6 +92,9 @@ export class Rpg {
       const old = this.me;
       this.me = m;
       this.momentum = m.momentum ? { n: m.momentum, until: this.time + (m.momentumLeft ?? 0) / 1000 } : null; // (the HUD's Momentum pips)
+      // Arcane Charge: we predict our own charges (staffBolt, cast); the server's count wins once ours has
+      // been quiet a moment (a 'me' sent before our last bolt arrived would otherwise take one away)
+      if (this.time - (this.arcane?.at ?? -9) > 1) this.arcane = { n: m.arcane ?? 0, at: -9, until: this.time + ARCANE_DUR };
       this.onMe?.(m);
       if (old && mine) {
         const gained = m.lvl === old.lvl ? m.exp - old.exp : 0;
@@ -119,6 +123,14 @@ export class Rpg {
       if (!this.onNews?.(m)) this.toast(m.text);
       this.onAnnounce?.(m.text);
       audio.sfx('levelup');
+    } else if (m.t === 'burn') {
+      // burns ticking (the Mage's combos): small orange numbers on every burning mob, anyone's
+      for (const [id, dmg, , killed] of m.h ?? []) {
+        const v = this.views.get(id);
+        if (!v || this.killed.has(id)) continue;
+        this.pop(v.x + rand(-10, 10), v.y - MOBS[v.kind].h - 8, String(dmg), '#ffa860', 14);
+        if (killed) this.mobDied(v, mine?.x ?? v.x);
+      }
     } else if (m.t === 'thirst') {
       const s = slimeOf(m.id);
       if (s && s.visible !== false) this.pop(s.x, s.y - 64, `+${m.n}`, '#7fe0a0', 15);
@@ -302,6 +314,7 @@ export class Rpg {
     const dur = Math.abs(tx - sx) / STAFF_BOLT_SPEED + 0.04;
     this.fx.spawn('staffbolt', { x: sx + dir * 18, y: sy - 10, tx, ty, dur, hit: !!v, tint: staffGlow(m.gear.weapon) });
     if (!v) return [];
+    if (rankOf(m.skills, 'arcane_charge')) this.arcane = { n: Math.min(ARCANE_MAX, this.charges() + 1), at: this.time, until: this.time + ARCANE_DUR }; // (the server counts it too: attack)
     const cut = this.shellCut(v, sx);
     let [dmg, crit] = this.roll(m.magic, STAFF_BOLT_MULT);
     dmg = Math.max(1, Math.round(dmg * cut));
@@ -310,6 +323,33 @@ export class Rpg {
       this.showHit(v, dmg, crit, sx);
     }, dur * 1000);
     return [[v.id, dmg, crit]];
+  }
+  // Arcane Charge's stored charges (Mage), as we predict them
+  charges() {
+    return this.arcane && this.arcane.until > this.time ? this.arcane.n : 0;
+  }
+  // The Mage's combos (S2.6): what our spell of element el just did to v's state, predicted until the
+  // server's flags say so (they're its call: server/rpg.js element). Short local times bridge the gap.
+  predictEl(v, el, shatter) {
+    const t = this.time;
+    if (el === 'frost' && !v.frozen) {
+      if (v.chill) Object.assign(v, { frozenLocal: t + 0.5, chillGone: t + 0.5, chillLocal: 0, frozen: true, chill: false });
+      else Object.assign(v, { chillLocal: t + 0.5, chill: true });
+    } else if (el === 'fire') {
+      if (shatter) Object.assign(v, { thawLocal: t + 0.6, frozenLocal: 0, frozen: false });
+      Object.assign(v, { burnLocal: t + 0.5, burning: true });
+    } else if (el === 'storm' && v.burning) {
+      for (const q of this.targets()) if (q !== v && Math.abs(q.x - v.x) < BURN_SPREAD + MOBS[q.kind].w / 2 && Math.abs(q.y - v.y) < BURN_SPREAD) Object.assign(q, { burnLocal: t + 0.5, burning: true });
+    }
+  }
+  // A shatter landed on v (ours or a friend's): shards, a word, a crack
+  shatterFx(v, delay = 0) {
+    const k = MOBS[v.kind];
+    this.timed.push([this.time + delay, () => {
+      this.fx.spawn('shatter', { x: v.x, y: v.y - k.h / 2, r: Math.max(30, k.w * 0.6) });
+      audio.sfx('crit', { vol: 0.8 });
+    }]);
+    this.pop(v.x, v.y - k.h - 40, 'SHATTER!', '#bfe8ff', 20, delay);
   }
   // Someone else's staff bolt (drawn only: their hits come with the slap message)
   otherBolt(s, dir, hits) {
@@ -355,13 +395,20 @@ export class Rpg {
     m.mp -= sk.mp; // the server's next 'me' corrects this
     this.cds[id] = this.time + cooldownOf(id, rank);
     const msg = { t: 'skill', skill: id, dir, s: seq, hits: [] };
-    const mult = sk.mult?.(rank) ?? 1;
+    // Arcane Charge: a Mage damage spell spends every stored charge for extra damage (the server counts the same)
+    const charges = spendsArcane(id) ? this.charges() : 0;
+    if (spendsArcane(id)) this.arcane = { n: 0, at: this.time, until: 0 };
+    if (charges && mine) this.pop(mine.x, mine.y - 112, `ARCANE x${charges}`, '#c4cdff', 16);
+    const mult = (sk.mult?.(rank) ?? 1) * arcaneMult(m.skills, charges);
     const hit = (v, base, delay = 0) => {
       const cut = this.shellCut(v, sx);
-      let [dmg, crit] = this.roll(base, mult);
+      const shatter = sk.el === 'fire' && !!v.frozen; // fire on a frozen mob (the Mage's combos)
+      let [dmg, crit] = this.roll(base, mult * (shatter ? SHATTER_MULT : 1));
       dmg = Math.max(1, Math.round(dmg * cut));
       if (!delay) this.blocked(v, cut);
-      msg.hits.push([v.id, dmg, crit]);
+      msg.hits.push(shatter ? [v.id, dmg, crit, 1] : [v.id, dmg, crit]);
+      if (sk.el) this.predictEl(v, sk.el, shatter);
+      if (shatter) this.shatterFx(v, delay);
       if (delay) setTimeout(() => this.showHit(v, dmg, crit, sx), delay * 1000);
       else this.showHit(v, dmg, crit, sx);
     };
@@ -486,6 +533,7 @@ export class Rpg {
     }
     if (m.id === myId || !caster || caster.visible === false) return;
     const x = caster.x, y = caster.y, vol = 0.6, pan = panX(x, myX);
+    if (m.arcane) this.pop(x, y - 112, `ARCANE x${m.arcane}`, '#c4cdff', 14);
     if (sk.kind === 'buff') caster.berserkUntil = this.time + (m.dur ?? 20);
     if (sk.kind === 'bubble') caster.bubbleUntil = this.time + (m.dur ?? 8);
     if (sk.kind === 'gods') caster.godsUntil = this.time + (m.dur ?? 15);
@@ -530,11 +578,12 @@ export class Rpg {
   }
   // Someone else's hits ([[mobId, dmg, crit, killed]]): numbers, flashes, kills
   othersHits(hits, myX, delay = 0) {
-    for (const [id, dmg, crit, killed] of hits ?? []) {
+    for (const [id, dmg, crit, killed, shattered] of hits ?? []) {
       const v = this.views.get(id);
       if (!v) continue;
       const k = MOBS[v.kind];
       v.hurt = 1;
+      if (shattered) this.shatterFx(v, delay);
       this.pop(v.x, v.y - k.h - 14, String(dmg), crit ? '#ffb0c8' : '#e8e4f4', crit ? 22 : 17, delay);
       audio.sfx('mobHurt', { kind: MOBS[v.kind].base ?? v.kind, pan: panX(v.x, myX), vol: 0.5 });
       if (killed) this.mobDied(v, myX);
@@ -833,6 +882,7 @@ export class Rpg {
       for (const v of this.targets()) {
         const k = MOBS[v.kind];
         if (Math.abs(me.x - v.x) > k.w / 2 + 12 || me.y < v.y - k.h - 4 || me.y > v.y + 30) continue;
+        if (v.frozen && !k.boss && !k.field) continue; // frozen solid: harmless (the server agrees: ouch)
         ouch = { mob: v.id, kind: v.charging ? 'charge' : 'touch', mx: v.x };
         break;
       }
@@ -898,6 +948,11 @@ export class Rpg {
       v.enraged = !!(fl & 32);
       v.slow = !!(fl & 64) || (v.slowLocal ?? 0) > this.time;
       v.special = !!(fl & 128);
+      // the Mage's combos (256 chilled · 512 frozen · 1024 burning), plus what our own spells predicted
+      const tt = this.time;
+      v.frozen = (!!(fl & 512) && !((v.thawLocal ?? 0) > tt)) || (v.frozenLocal ?? 0) > tt;
+      v.chill = !v.frozen && ((!!(fl & 256) && !((v.chillGone ?? 0) > tt)) || (v.chillLocal ?? 0) > tt);
+      v.burning = !!(fl & 1024) || (v.burnLocal ?? 0) > tt;
       v.shield = mb[7];
       v.shieldMax = mb[8];
       v.t += dt;
@@ -959,7 +1014,10 @@ export class Rpg {
     for (const h of this.hz) if (h.type === 'puddle' || h.type === 'geyser') drawHazard(ctx, h, this.time);
     const draw = (v) => (MOBS[v.kind].boss ? drawBoss(ctx, v, this.time) : drawMob(ctx, v, this.time));
     for (const g of this.ghosts) draw({ ...g, hurt: 0 });
-    for (const v of this.views.values()) if (!this.killed.has(v.id)) draw(v);
+    for (const v of this.views.values()) if (!this.killed.has(v.id)) {
+      draw(v);
+      drawMobState(ctx, v, MOBS[v.kind], this.time); // ice, frost, flames (the Mage's combos)
+    }
     for (const v of this.views.values()) {
       const k = MOBS[v.kind];
       if (k.boss || this.killed.has(v.id)) continue; // the boss has its bar at the top of the screen
@@ -1076,6 +1134,7 @@ export class Rpg {
       text(ctx, `HP ${Math.ceil(m.hp)} / ${m.maxHp}`, x + 166, y + 15.5, 10.5, '#4a3550');
       bar(ctx, x + 54, y + 26, 224, 14, m.mp / m.maxMp, '#6f9cff');
       text(ctx, `MP ${Math.max(0, Math.floor(m.mp))} / ${m.maxMp}`, x + 166, y + 33.5, 10.5, '#26356b');
+      if (rankOf(m.skills, 'arcane_charge')) drawArcanePips(ctx, x + 278, y + 33, this.charges(), ARCANE_MAX, this.time); // Arcane Charge
       bar(ctx, x + 54, y + 44, 150, 11, m.exp / m.next, '#ffcf4d');
       text(ctx, `EXP ${m.exp} / ${m.next}`, x + 129, y + 50, 9.5, '#5b4a2b');
       drawItemIcon(ctx, 'coin', x + 222, y + 50, 16);

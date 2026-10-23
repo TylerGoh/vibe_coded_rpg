@@ -12,9 +12,10 @@ export const SNAP = 1, INPUT = 2, MOBS = 3;
 // · vt u16 · town u8 · mw u8 · flags2 u8 · sc u16 · uc u16 · cw u8 · uw u8 · lw u8. Version 2 added vt (the
 // voyage clock), version 3 town (docs/world.md), version 4 the Warrior's chase moves (sim.js); tabs from
 // before them say bin: 1, 2 or 3 and get the shorter records (their code has none of it), so the server
-// encodes each version someone needs.
-export const BIN_VERSION = 4;
-const SLIME_BYTES = 44, BYTES_OF = { 1: 32, 2: 34, 3: 35, 4: 44 };
+// encodes each version someone needs. Version 5 changed only the mobs (their combo states, below): its
+// slime records are version 4's.
+export const BIN_VERSION = 5;
+const SLIME_BYTES = 44, BYTES_OF = { 1: 32, 2: 34, 3: 35, 4: 44, 5: 44 };
 const c = (v) => Math.round(v * 100);
 
 // The per-slime part of a snapshot, shared by every recipient: packed = [sim.js pack() arrays]
@@ -68,8 +69,11 @@ export function encodeInput(seq, keys) {
   return v.buffer;
 }
 
-// list: [[id, kind, x, y, hp, flags, maxHp, (eggHp, eggMax)?]] · b: seconds until a den's boss is back (0 = n/a)
-export function encodeMobs(tick, list, b = 0) {
+// list: [[id, kind, x, y, hp, flags, maxHp, (eggHp, eggMax)?]] · b: seconds until a den's boss is back (0 = n/a).
+// flags past the low byte (the Mage's combos: 256 chilled · 512 frozen · 1024 burning) ride in the egg byte's
+// upper bits from version 5 (bit 0: an egg follows); a tab from before reads that byte as "egg or not", so
+// it gets the egg bit alone (version: what the recipient said in its hello)
+export function encodeMobs(tick, list, b = 0, version = BIN_VERSION) {
   let size = 9;
   for (const m of list) size += m.length > 7 ? 31 : 23;
   const buf = new ArrayBuffer(size), v = new DataView(buf);
@@ -84,9 +88,9 @@ export function encodeMobs(tick, list, b = 0) {
     v.setInt32(o + 5, m[2], true);
     v.setInt32(o + 9, m[3], true);
     v.setUint32(o + 13, m[4], true);
-    v.setUint8(o + 17, m[5]);
+    v.setUint8(o + 17, m[5] & 255);
     v.setUint32(o + 18, Math.round(m[6]), true);
-    v.setUint8(o + 22, m.length > 7 ? 1 : 0);
+    v.setUint8(o + 22, (m.length > 7 ? 1 : 0) | (version >= 5 ? ((m[5] >> 8) & 127) << 1 : 0));
     o += 23;
     if (m.length > 7) {
       v.setUint32(o, m[7], true);
@@ -115,8 +119,8 @@ export function decode(data) {
     const m = [], n = v.getUint16(7, true);
     let o = 9;
     for (let i = 0; i < n; i++) {
-      const a = [v.getUint32(o, true), v.getUint8(o + 4), v.getInt32(o + 5, true), v.getInt32(o + 9, true), v.getUint32(o + 13, true), v.getUint8(o + 17), v.getUint32(o + 18, true)];
-      const egg = v.getUint8(o + 22);
+      const x = v.getUint8(o + 22), egg = x & 1;
+      const a = [v.getUint32(o, true), v.getUint8(o + 4), v.getInt32(o + 5, true), v.getInt32(o + 9, true), v.getUint32(o + 13, true), v.getUint8(o + 17) | ((x >> 1) << 8), v.getUint32(o + 18, true)];
       o += 23;
       if (egg) {
         a.push(v.getUint32(o, true), v.getUint32(o + 4, true));

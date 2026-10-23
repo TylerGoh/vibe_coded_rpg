@@ -17,6 +17,7 @@ const TREE_OF = {
   fireball: 'fire', kindling: 'fire', glacial_spike: 'magic', absolute_zero: 'magic',
   challenge_gods: 'gods', // (a gift: one player's own)
   charge: 'blade', leap_slam: 'blade', upward_cut: 'blade', momentum: 'blade', // the Warrior's chase moves (S2.5)
+  arcane_charge: 'magic', // (S2.6)
 };
 const PALETTE = {
   blade: [BLADE, '#ffc4b0', '#b85a48'],
@@ -222,6 +223,26 @@ export function drawSkillIcon(ctx, id, x, y, size) {
 }
 
 const ICONS = {
+  // ——— the Mage's Arcane Charge (S2.6): three charges stacked into a burst ———
+  arcane_charge(ctx, dark) {
+    ctx.lineWidth = 2;
+    [[-11, 9, 0.6], [-3, 3, 0.8], [5, -3, 1]].forEach(([x, y, a]) => {
+      ctx.globalAlpha = a;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(x, y - 6);
+      ctx.lineTo(x + 4.5, y);
+      ctx.lineTo(x, y + 6);
+      ctx.lineTo(x - 4.5, y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = dark;
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#fff6c4';
+    star(ctx, 14, -12, 6);
+  },
   // ——— the Warrior's chase moves (S2.5) ———
   charge(ctx, dark) {
     // a sword thrust forward with speed lines streaming behind it, a star where it lands
@@ -1214,7 +1235,7 @@ const LIFE = {
   strike: 0.35, spin: 0.5, heal: 0.9, nova: 0.6, buff: 0.6, levelskill: 0.8,
   cleave: 0.38, storm: 1.0, skysplit: 0.65, chain: 0.42, starfall: 1.3, bubblePop: 0.45, rally: 0.8, aegis: 0.7, secondwind: 1.0,
   dash: 0.3, blink: 0.45, flashjump: 0.35, scroll: 1.4, gods: 1.1,
-  charge: 0.35, slam: 0.55, upcut: 0.4,
+  charge: 0.35, slam: 0.55, upcut: 0.4, shatter: 0.55,
 };
 
 export class SkillFx {
@@ -1224,7 +1245,7 @@ export class SkillFx {
 
   // kind: 'strike' | 'spin' | 'bolt' | 'heal' | 'nova' | 'buff' | 'levelskill' | 'cleave' | 'storm' |
   // 'skysplit' | 'chain' | 'meteor' | 'starfall' | 'bubblePop' | 'rally' | 'zone' | 'aegis' | 'secondwind' |
-  // 'dash' | 'blink' | 'flashjump' | 'scroll' | 'iframe' | 'staffbolt' | 'charge' | 'slam' | 'slamfall' | 'upcut'
+  // 'dash' | 'blink' | 'flashjump' | 'scroll' | 'iframe' | 'staffbolt' | 'charge' | 'slam' | 'slamfall' | 'upcut' | 'shatter'
   // (options: see each FX entry)
   spawn(kind, o = {}) {
     const life = kind === 'bolt' ? (o.dur ?? 0.3) + 0.35
@@ -1255,6 +1276,33 @@ export class SkillFx {
 }
 
 const FX = {
+  // ——— the Mage's combos (S2.6) ———
+  // Shatter {x, y, r}: a frozen mob's ice bursting: pale shards flying out, a ring of frost
+  shatter(ctx, e, k) {
+    const { x, y } = e.o, r = e.o.r ?? 30, fade = 1 - k;
+    ctx.translate(x, y);
+    ctx.globalAlpha = fade * 0.7;
+    ctx.strokeStyle = '#d6f1ff';
+    ctx.lineWidth = 3 * fade + 1;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * (0.5 + ease(k)), 0, TAU);
+    ctx.stroke();
+    ctx.globalAlpha = fade;
+    for (let i = 0; i < 9; i++) {
+      const a = (i / 9) * TAU + rnd(e.seed, i), d = r * (0.3 + ease(k) * (0.9 + rnd(e.seed, i + 9) * 0.6)), sz = 4 + rnd(e.seed, i + 18) * 5;
+      ctx.save();
+      ctx.translate(Math.cos(a) * d, Math.sin(a) * d + k * k * 30);
+      ctx.rotate(a + k * 6);
+      ctx.fillStyle = i % 2 ? '#ffffff' : '#bfe8ff';
+      ctx.beginPath();
+      ctx.moveTo(0, -sz);
+      ctx.lineTo(sz * 0.5, sz * 0.6);
+      ctx.lineTo(-sz * 0.5, sz * 0.6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+  },
   // ——— the Warrior's chase moves (S2.5) ———
   // Charge {x, y, dir}: a burst of sparks and a short coral thrust where the dash hit
   charge(ctx, e, k) {

@@ -136,3 +136,11 @@
   map, the den and a full Warden kill (enter / phase / freed lines, its beam, Hold Fast, summoned rootlings,
   the loot), the Pet Shop, phone screenshots. The root grid didn't come up in the test fight (it's random
   in phase 2), so its look has only been read, not seen. Nobody has fought the Spine at its level.
+
+## S2.6 (the Mage's combos and Arcane Charge) left for later
+- **The interrupt** (story/progression.md 3): freezing a boss inside its `ULT_WARN` window should cancel or
+  weaken the ultimate. Waits for S5 (party mechanics); the freeze already reaches bosses (`FREEZE_BOSS`).
+- A shatter needs an Elementalist and a Frostbinder together (the branches split fire and frost). If solo
+  Mages feel they're missing the combo, a branch could get a weak spell of the other element.
+- Untested with people: whether the states read in a busy fight (the ice rooms of Frostpeak are pale too),
+  and whether burns' small numbers are noise. Arcane Charge's numbers are from the economy sheet only.

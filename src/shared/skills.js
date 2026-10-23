@@ -76,7 +76,8 @@ export function advanceText(cls, lvl) {
 // 'bubble' (blocks the next hit) · 'rally' (team attack/defence buff) · 'zone' (Sanctuary) · 'aegis'
 // (team immunity) · 'gods' (Challenge the Gods) · 'chase' (the Warrior's chase moves: no hotbar, no MP, set off
 // by movement + Attack inside sim.js step(); `how` says which) · 'passive'. `fire`: a fire spell (Kindling makes it stronger).
-// (S2.6 adds the Mage's Arcane Charge; S6 the Lv 150 masteries.)
+// `el`: the spell's element for the Mage's combos (S2.6, ELEMENTS below): 'frost' chills / freezes, 'fire' burns
+// and shatters a frozen mob, 'storm' spreads a burn. (S6 adds the Lv 150 masteries.)
 const W = { cls: 'warrior', tree: 'warrior' }, M = { cls: 'mage', tree: 'mage' };
 export const SKILLS = {
   // ——— Novice (Novice points, Lv 1, kept forever; weak once you have a class) ———
@@ -211,14 +212,19 @@ export const SKILLS = {
     share: (r) => 0.2 + 0.1 * r,
     desc: (r) => `For 60 s, ${Math.round((0.2 + 0.1 * r) * 100)}% of the damage you take comes off your MP instead of your HP.`,
   },
+  arcane_charge: {
+    ...M, adv: 10, name: 'Arcane Charge', kind: 'passive', max: 3,
+    per: (r) => [0, 0.04, 0.08, 0.12][r],
+    desc: (r) => `Every staff bolt that hits stores a charge (up to ${ARCANE_MAX}, for ${ARCANE_DUR} s). Your next spell spends them all: +${Math.round([0, 0.04, 0.08, 0.12][Math.max(1, r)] * 100)}% damage for each. Weave cheap bolts between your big spells.`,
+  },
   // Elementalist (fire)
   fireball: {
-    ...M, branch: 'elementalist', adv: 30, name: 'Fireball', kind: 'fireball', fire: true, max: 5, mp: 12, cd: 2.5, range: 380, radius: 70,
+    ...M, branch: 'elementalist', adv: 30, name: 'Fireball', kind: 'fireball', fire: true, el: 'fire', max: 5, mp: 12, cd: 2.5, range: 380, radius: 70,
     mult: (r) => 1.3 + 0.2 * r,
     desc: (r) => `A ball of fire at the first mob ahead that bursts where it lands: ${pct(1.3 + 0.2 * r)} magic damage to everything within 70 px.`,
   },
   meteor: {
-    ...M, branch: 'elementalist', adv: 60, name: 'Meteor', kind: 'meteor', fire: true, max: 3, mp: 40, cd: 15, range: 450, radius: 150, delay: 0.8,
+    ...M, branch: 'elementalist', adv: 60, name: 'Meteor', kind: 'meteor', fire: true, el: 'fire', max: 3, mp: 40, cd: 15, range: 450, radius: 150, delay: 0.8,
     mult: (r) => 3.5 + 0.6 * r,
     desc: (r) => `Calls a meteor down on the first mob ahead: ${pct(3.5 + 0.6 * r)} magic damage to everything within 150 px.`,
   },
@@ -227,28 +233,28 @@ export const SKILLS = {
     desc: (r) => `Your fire spells (Fireball, Meteor, Starfall) hit ${6 * r}% harder.`,
   },
   starfall: {
-    ...M, branch: 'elementalist', adv: 100, name: 'Starfall', kind: 'starfall', fire: true, max: 3, mp: 70, cd: 60, radius: 700,
+    ...M, branch: 'elementalist', adv: 100, name: 'Starfall', kind: 'starfall', fire: true, el: 'fire', max: 3, mp: 70, cd: 60, radius: 700,
     mult: (r) => 2.5 + 0.6 * r,
     desc: (r) => `Stars rain on every mob within 700 px: ${pct(2.5 + 0.6 * r)} magic damage each.`,
   },
   // Frostbinder (ice and storm)
   frost_nova: {
-    ...M, branch: 'frostbinder', adv: 30, name: 'Frost Nova', kind: 'nova', max: 3, mp: 30, cd: 10, radius: 190, slow: 4,
+    ...M, branch: 'frostbinder', adv: 30, name: 'Frost Nova', kind: 'nova', el: 'frost', max: 3, mp: 30, cd: 10, radius: 190, slow: 4,
     mult: (r) => 1.8 + 0.4 * r,
     desc: (r) => `A burst of frost: ${pct(1.8 + 0.4 * r)} magic damage to every mob within 190 px, slowing them for 4 s.`,
   },
   chain_lightning: {
-    ...M, branch: 'frostbinder', adv: 30, name: 'Chain Lightning', kind: 'chain', max: 5, mp: 14, cd: 3, range: 380, jump: 220, targets: 4,
+    ...M, branch: 'frostbinder', adv: 30, name: 'Chain Lightning', kind: 'chain', el: 'storm', max: 5, mp: 14, cd: 3, range: 380, jump: 220, targets: 4,
     mult: (r) => 1.0 + 0.15 * r,
     desc: (r) => `Lightning that leaps between up to 4 mobs: ${pct(1.0 + 0.15 * r)} magic damage each.`,
   },
   glacial_spike: {
-    ...M, branch: 'frostbinder', adv: 60, name: 'Glacial Spike', kind: 'bolt', ice: true, max: 5, mp: 16, cd: 4, range: 560, slow: 5,
+    ...M, branch: 'frostbinder', adv: 60, name: 'Glacial Spike', kind: 'bolt', ice: true, el: 'frost', max: 5, mp: 16, cd: 4, range: 560, slow: 5,
     mult: (r) => 2 + 0.3 * r,
     desc: (r) => `A spike of ice at the first mob ahead, up to 560 px away: ${pct(2 + 0.3 * r)} magic damage, and it's slowed hard for 5 s.`,
   },
   absolute_zero: {
-    ...M, branch: 'frostbinder', adv: 100, name: 'Absolute Zero', kind: 'nova', ice: true, max: 3, mp: 60, cd: 45, radius: 320, slow: 8,
+    ...M, branch: 'frostbinder', adv: 100, name: 'Absolute Zero', kind: 'nova', ice: true, el: 'frost', max: 3, mp: 60, cd: 45, radius: 320, slow: 8,
     mult: (r) => 3 + 0.6 * r,
     desc: (r) => `Everything freezes: ${pct(3 + 0.6 * r)} magic damage to every mob within 320 px, slowing them for 8 s.`,
   },
@@ -282,6 +288,24 @@ export const SKILLS = {
     desc: (r) => `Dash and Blink keep you untouchable ${secs(IFR_PHANTOM * Math.max(1, r))} longer and cool down ${Math.round(PHANTOM_CD * Math.max(1, r) * 100)}% faster.`,
   },
 };
+// ——— the Mage's combos (S2.6, story/progression.md 3): states on a mob, owned by the server (server/rpg.js
+// applyHits), sent in the mob flags and drawn on the mob (src/elements.js) ———
+// A frost spell CHILLS a mob for CHILL_S (it's slowed); a frost spell on a chilled mob FREEZES it: an ordinary
+// mob stops dead for FREEZE_S, a boss (den or field) is only slowed to FROZEN_BOSS_SLOW for FREEZE_BOSS s.
+// A fire spell on a frozen mob SHATTERS it: SHATTER_MULT damage, and the freeze ends (a freeze that ran out
+// less than SHATTER_GRACE_MS ago still counts: the caster's screen is a little behind). Fire BURNS: BURN_DPS
+// of the hit's damage every second for BURN_S (a fresh burn keeps the stronger one), ticked by the server
+// every BURN_TICK_MS and counted for the caster. Storm (Chain Lightning) on a burning mob SPREADS the burn to
+// every mob within BURN_SPREAD px that isn't burning harder.
+export const CHILL_S = 6, FREEZE_S = 3, FREEZE_BOSS = 1.5, FROZEN_BOSS_SLOW = 0.25, SHATTER_MULT = 2.5, SHATTER_GRACE_MS = 400;
+export const BURN_S = 4, BURN_DPS = 0.02, BURN_TICK_MS = 500, BURN_SPREAD = 160;
+export const ELEMENTS = ['frost', 'fire', 'storm'];
+// Arcane Charge (Mage basics): each staff bolt that hits adds a charge, up to ARCANE_MAX, all gone ARCANE_DUR s
+// after the last one; the next Mage damage spell (spendsArcane) spends them all for +per(rank) damage each
+export const ARCANE_MAX = 3, ARCANE_DUR = 10;
+const SPELL_KINDS = new Set(['bolt', 'fireball', 'chain', 'meteor', 'nova', 'starfall']);
+export const spendsArcane = (id) => SKILLS[id]?.cls === 'mage' && SPELL_KINDS.has(SKILLS[id].kind);
+export const arcaneMult = (skills, n) => 1 + SKILLS.arcane_charge.per(rankOf(skills, 'arcane_charge')) * Math.min(ARCANE_MAX, n | 0);
 const secs = (ticks) => `${Math.round((ticks / 60) * 100) / 100} s`;
 function pct(m) {
   return `${Math.round(m * 100)}%`;

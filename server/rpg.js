@@ -13,7 +13,7 @@
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
 import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, STAFF_OFFKIND, STAFF_BOLT_MULT, rebirthCost } from '../src/shared/rpg.js';
-import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL } from '../src/shared/skills.js';
+import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult } from '../src/shared/skills.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
@@ -94,6 +94,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     return Object.assign(m, {
       kind: m.sp.kind, room: m.sp.room, x: m.den ? DEN_W * 0.7 : rand(m.sp.x0, m.sp.x1), y: m.sp.y, vx: 0, vy: 0, dir: -1, walk: 0, hp, maxHp: hp, fighters: 1,
       wander: rand(0.5, 2), target: null, targetUntil: 0, dead: false, respawnAt: 0, hitters: new Map(), hist: [], slowUntil: 0,
+      // the Mage's combos (S2.6, skills.js CHILL_S…): chilled / frozen until, a burn { until, dps, by, next }
+      chillUntil: 0, frozenUntil: 0, burn: null,
       // bosses: walk → warn → act, every few seconds
       phase: 'walk', next: 3, timer: 0, act: null, enraged: false, last: null, emptyFor: 0,
       stage: 0, chain: 0, ultAt: 0, ultArmed: false, ult: null, ultLiveUntil: 0, rains: [], slamR: 300,
@@ -107,6 +109,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
 
   // ——— characters ———
   const brewOf = (c) => ((c.brew?.until ?? 0) > now() ? ITEMS[c.brew.id].buff : null); // a brewed potion's buff
+  const arcaneOf = (p) => (p.arcane && p.arcane.until > now() ? p.arcane.n : 0); // Arcane Charge's charges (Mage)
   const momentumOf = (p) => (p.momentum && p.momentum.until > now() ? p.momentum.n : 0); // Momentum's stacks (Warrior)
   const buffsOf = (p) => ({ momentum: momentumOf(p), gods: (p.godsUntil ?? 0) > now(), berserk: (p.berserkUntil ?? 0) > now(), manaShield: (p.manaShieldUntil ?? 0) > now(), rally: (p.rallyUntil ?? 0) > now() ? p.rallyBoost : 0, brew: brewOf(p.rpg) });
   const stats = (p) => statsFor(p.rpg, buffsOf(p));
@@ -237,7 +240,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       hotbar: c.hotbar, potbar: c.potbar, alt: c.alt, set: c.set, pvp: c.pvp, crit: st.crit, critMult: st.critMult, minRoll: st.minRoll,
       ap: c.ap, apLeft: apTotal(c.lvl) - apSpent(c.ap),
       cosmetics: c.cosmetics, wear: c.wear, showHelmet: c.showHelmet,
-      momentum: momentumOf(p), momentumLeft: momentumOf(p) ? left(p.momentum.until) : 0,
+      momentum: momentumOf(p), momentumLeft: momentumOf(p) ? left(p.momentum.until) : 0, arcane: arcaneOf(p),
       berserk: left(p.berserkUntil), manaShield: left(p.manaShieldUntil), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), gods: left(p.godsUntil), secondWind: left(p.swReadyAt),
       brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
       ways: c.ways,
@@ -295,6 +298,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     p.rpg.hp = 0;
     p.godsUntil = 0; // (Challenge the Gods lost: no heal at the end)
     p.momentum = null;
+    p.arcane = null;
     p.faintUntil = now() + FAINT_MS; // inputs are ignored meanwhile (index.js)
     p.faintBy = by;
     for (const m of mobs) if (m.target === p) m.target = null;
@@ -494,8 +498,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   }
   const alive = (room) => mobs.filter((m) => !m.dead && m.room === room);
   const SLACK = 200; // px: how far from where we think a mob is the client may hit it (lag, interpolation)
-  // Apply hits the client worked out: [[mobId, dmg, crit], …] → [[mobId, dmg, crit, killed], …]
-  function applyHits(id, p, hits, { max = 1, range, cap, dir, knock = 200, slow = 0 }) {
+  // Apply hits the client worked out: [[mobId, dmg, crit, shatter?], …] → [[mobId, dmg, crit, killed, shattered?], …].
+  // el: the spell's element (the Mage's combos, skills.js CHILL_S…): the client marks a fire hit it saw land on
+  // a frozen mob (shatter), and the cap allows SHATTER_MULT for it only if the mob really is frozen here
+  function applyHits(id, p, hits, { max = 1, range, cap, dir, knock = 200, slow = 0, el = null }) {
     const out = [];
     if (!Array.isArray(hits)) return out;
     for (const h of hits.slice(0, max)) {
@@ -505,11 +511,42 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       if (m.special && !m.egg) continue; // phased out / mid-teleport: can't be hit
       // an Obsidian Crab's front shell takes most of a hit from the front (the client shows the same cut)
       const shell = k.ai?.kind === 'shell' && Math.sign(p.state.x - m.x) === m.dir ? 1 - k.ai.cut : 1;
-      const dmg = Math.max(1, Math.min(Math.round(Number(h[1]) || 0), Math.ceil(cap * shell) + 1));
+      const shatter = el === 'fire' && !!h[3] && m.frozenUntil > now() - SHATTER_GRACE_MS;
+      const dmg = Math.max(1, Math.min(Math.round(Number(h[1]) || 0), Math.ceil(cap * shell * (shatter ? SHATTER_MULT : 1)) + 1));
       if (slow) m.slowUntil = now() + slow * 1000 * (MOBS[m.kind].boss ? 0.5 : 1);
-      out.push(damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock));
+      const hit = damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock);
+      if (shatter) hit.push(1);
+      if (el && !m.dead) element(m, el, dmg, id, shatter);
+      out.push(hit);
     }
     return out;
+  }
+  // A spell of element el just hit m for dmg (from player id): the combo states (skills.js CHILL_S…)
+  function element(m, el, dmg, id, shatter) {
+    const t = now(), k = MOBS[m.kind];
+    if (el === 'frost') {
+      if (m.frozenUntil > t) return; // (already frozen: no refresh, so nothing stays frozen for ever)
+      if (m.chillUntil > t) {
+        m.chillUntil = 0;
+        m.frozenUntil = t + (k.boss || k.field ? FREEZE_BOSS : FREEZE_S) * 1000;
+        if (!k.boss && !k.field) m.vx = 0;
+      } else m.chillUntil = t + CHILL_S * 1000;
+    } else if (el === 'fire') {
+      if (shatter) m.frozenUntil = m.chillUntil = 0;
+      burn(m, dmg * BURN_DPS, id);
+    } else if (el === 'storm' && m.burn && m.burn.until > t) {
+      // Chain Lightning on a burning mob: the fire jumps to the mobs near it (the spreader's burn now)
+      for (const q of alive(m.room)) {
+        if (q === m || (q.special && !q.egg) || Math.abs(q.x - m.x) > BURN_SPREAD + MOBS[q.kind].w / 2 || Math.abs(q.y - m.y) > BURN_SPREAD) continue;
+        if (!q.burn || q.burn.until <= t || q.burn.dps < m.burn.dps) burn(q, m.burn.dps, id);
+      }
+    }
+  }
+  // set m burning at dps for BURN_S (from player id); a burn already going keeps the stronger dps
+  function burn(m, dps, id) {
+    const t = now(), b = m.burn && m.burn.until > t ? m.burn : null;
+    if (b && b.dps > dps) b.until = Math.max(b.until, t + BURN_S * 1000);
+    else m.burn = { until: t + BURN_S * 1000, dps, by: id, next: b?.next ?? t + BURN_TICK_MS };
   }
   const capOf = (st) => 1.15 * st.critMult; // best roll × crit
   // Jelly Thirst: the hits p just landed heal it a share of their damage (everyone in the room sees the +HP)
@@ -541,6 +578,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const charged = !st.boltRange && chargeOpen(p.state) && Array.isArray(hits) && hits.length > 0;
     const mult = charged ? SKILLS.charge.mult(chaseRank(p.state.mw, 0)) : 1;
     const out = st.boltRange ? applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * STAFF_BOLT_MULT * capOf(st), dir, knock: 120 }) : applyHits(id, p, hits, { range: SLAP_REACH + st.reach, cap: st.atk * mult * capOf(st), dir, knock: charged ? 320 : 200 });
+    // Arcane Charge (Mage): a staff bolt that hit stores a charge for the next spell
+    if (st.boltRange && out.length && rankOf(p.rpg.skills, 'arcane_charge')) p.arcane = { n: Math.min(ARCANE_MAX, arcaneOf(p) + 1), until: now() + ARCANE_DUR * 1000 };
     if (charged) {
       applyCharge(p.state);
       if (out.length) {
@@ -589,10 +628,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     c.mp -= sk.mp;
     p.cds[m.skill] = now() + cooldownOf(m.skill, rank) * 1000;
     const st = stats(p), dir = m.dir < 0 ? -1 : 1, t = now();
-    const mult = (sk.mult?.(rank) ?? 1) * capOf(st);
+    // Arcane Charge: a Mage damage spell spends every stored charge (the client predicted the same count)
+    const charges = spendsArcane(m.skill) ? arcaneOf(p) : 0;
+    if (spendsArcane(m.skill)) p.arcane = null;
+    const mult = (sk.mult?.(rank) ?? 1) * capOf(st) * arcaneMult(c.skills, charges);
     const phys = st.atk * mult, magic = (sk.stat === 'best' ? Math.max(st.atk, st.magic) : st.magic) * mult * (sk.fire ? st.fire : 1);
     const out = { t: 'skill', id, skill: m.skill, dir, x: s.x, y: s.y, hits: [] };
-    const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, ...o }));
+    if (charges) out.arcane = charges;
+    const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, el: sk.el ?? null, ...o }));
     if (sk.kind === 'strike') hit({ range: SLAP_REACH + st.reach + sk.reach, cap: phys, knock: 320 });
     else if (sk.kind === 'cleave') hit({ max: sk.targets, range: SLAP_REACH + st.reach + sk.reach, cap: phys, knock: 260 });
     else if (sk.kind === 'spin') hit({ max: 20, range: sk.radius, cap: phys, knock: 260 });
@@ -662,6 +705,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const ult = m.kind === 'ult';
     if (!ult && now() - p.hurtAt < HURT_INVULN_MS - 250) return; // (an ultimate ignores the invulnerability)
     if (m.kind === 'touch' && Math.abs(mob.x - p.state.x) > MOBS[mob.kind].w / 2 + SLACK) return;
+    if ((m.kind === 'touch' || m.kind === 'charge') && mob.frozenUntil > now() && !MOBS[mob.kind].boss && !MOBS[mob.kind].field) return; // frozen solid: harmless
     if (m.kind !== 'touch' && m.kind !== 'charge' && !MOBS[mob.kind].boss && !MOBS[mob.kind].ai) return;
     if (ult && now() > mob.ultLiveUntil) return; // no ultimate going off right now
     const mx = Number.isFinite(m.mx) && Math.abs(m.mx - mob.x) < DEN_W ? m.mx : mob.x;
@@ -671,7 +715,18 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // ——— mobs and bosses, every tick ———
   function stepMob(m, here, dt) {
     const k = MOBS[m.kind], sp = m.sp, t = now();
-    const slow = m.slowUntil > t ? (k.boss ? 0.6 : 0.4) : 1;
+    const big = k.boss || k.field, frozen = m.frozenUntil > t;
+    if (frozen && !big) {
+      // frozen solid (the Mage's combos): no thinking, no walking, no attacks; only gravity
+      m.vx = 0;
+      if (!k.fly && (m.vy !== 0 || m.y < sp.y)) {
+        m.vy += GRAVITY * dt;
+        m.y = Math.min(sp.y, m.y + m.vy * dt);
+        if (m.y >= sp.y) m.vy = 0;
+      }
+      return;
+    }
+    const slow = frozen ? FROZEN_BOSS_SLOW : m.slowUntil > t || m.chillUntil > t ? (k.boss ? 0.6 : 0.4) : 1;
     if (m.target && (t > m.targetUntil || !m.target.joined || m.target.state.room !== m.room || m.target.faintUntil)) m.target = null;
     if (!m.target && (k.aggro || m.minion)) {
       let best = null, bestD = k.boss ? Infinity : 230;
@@ -1291,20 +1346,42 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         if (here.length) stepMob(m, here, dt);
       }
       for (let i = mobs.length - 1; i >= 0; i--) if (mobs[i].gone) mobs.splice(i, 1);
+      // burns (the Mage's combos): a tick of damage every BURN_TICK_MS, counted for the caster (the damage meter,
+      // EXP); the burn ends with its time or when the caster leaves the room. → {t:'burn', h: [[mobId, dmg, 0, killed]]}
+      const burnt = new Map();
+      for (const m of mobs) {
+        const b = m.burn;
+        if (!b || m.dead || m.gone) continue;
+        const q = players.get(b.by);
+        if (t >= b.until || !q?.joined || !q.rpg || q.state.room !== m.room) {
+          m.burn = null;
+          continue;
+        }
+        if (t < b.next) continue;
+        b.next += BURN_TICK_MS;
+        if (m.special && !m.egg) continue; // (phased out: the flames can't reach it)
+        const hit = damage(m, Math.max(1, Math.round((b.dps * BURN_TICK_MS) / 1000)), false, b.by, q, 0, 0);
+        if (!burnt.has(m.room)) burnt.set(m.room, []);
+        burnt.get(m.room).push(hit);
+      }
+      for (const [room, h] of burnt) toRoom(room)({ t: 'burn', h });
       // ~30 Hz mob snapshots to each combat room: [id, kind, x, y, hp, flags, maxHp]
       // flags: 1 facing left · 2 walking · 4 angry · 8 telegraphing · 16 charging · 32 enraged · 64 slowed ·
-      // 128 special (phased out, mid-teleport, Pyra's egg); then [egg hp, egg max] while there's an egg
+      // 128 special (phased out, mid-teleport, Pyra's egg); the Mage's combos above the byte: 256 chilled · 512
+      // frozen · 1024 burning (wire version 5 sends them in a second byte; older tabs get the low byte only);
+      // then [egg hp, egg max] while there's an egg
       if (tick % 2 === 0) {
         for (const [room, here] of rooms) {
           if (!here.length) continue;
           const list = mobs.filter((m) => m.room === room && !m.dead && !m.gone).map((m) => [m.id, MOB_KINDS.indexOf(m.kind), Math.round(m.x), Math.round(m.y), Math.max(0, Math.ceil(m.hp)),
-            (m.dir < 0 ? 1 : 0) | (Math.abs(m.vx) > 10 ? 2 : 0) | (m.target ? 4 : 0) | (m.phase === 'warn' ? 8 : 0) | (m.act === 'charge' && m.phase === 'act' ? 16 : 0) | (m.enraged ? 32 : 0) | (m.slowUntil > t ? 64 : 0) | (m.special ? 128 : 0) | (m.aiPhase === 'warn' || m.aiPhase === 'out' || m.aiPhase === 'slash' ? 8 : 0) | (m.aiPhase === 'lunge' || m.dive ? 16 : 0), m.maxHp,
+            (m.dir < 0 ? 1 : 0) | (Math.abs(m.vx) > 10 ? 2 : 0) | (m.target ? 4 : 0) | (m.phase === 'warn' ? 8 : 0) | (m.act === 'charge' && m.phase === 'act' ? 16 : 0) | (m.enraged ? 32 : 0) | (m.slowUntil > t ? 64 : 0) | (m.special ? 128 : 0) | (m.aiPhase === 'warn' || m.aiPhase === 'out' || m.aiPhase === 'slash' ? 8 : 0) | (m.aiPhase === 'lunge' || m.dive ? 16 : 0) | (m.chillUntil > t ? 256 : 0) | (m.frozenUntil > t ? 512 : 0) | (m.burn && m.burn.until > t ? 1024 : 0), m.maxHp,
             ...(m.egg ? [Math.max(0, Math.ceil(m.egg.hp)), m.egg.max] : [])]);
           const boss = mobs.find((m) => m.den && m.room === room);
           const msg = { t: 'mobs', k: tick, m: list };
           if (boss?.dead) msg.b = Math.ceil((boss.respawnAt - t) / 1000); // seconds until the boss is back
-          let data, bin; // binary for current clients (src/shared/wire.js), JSON for old tabs
-          for (const [, q] of here) send(q.ws, q.bin ? (bin ??= encodeMobs(tick, list, msg.b)) : (data ??= JSON.stringify(msg)));
+          let data; // binary for current clients (src/shared/wire.js, each version once), JSON for old tabs
+          const bin = {};
+          for (const [, q] of here) send(q.ws, q.bin ? (bin[q.bin] ??= encodeMobs(tick, list, msg.b, q.bin)) : (data ??= JSON.stringify(msg)));
         }
       }
       // the damage meter of each boss and field boss: {t:'bossdmg', id, kind, d: [[name, damage], …] (most first)}
