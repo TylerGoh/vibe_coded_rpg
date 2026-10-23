@@ -1,8 +1,6 @@
 # S2, split into pieces (sub-plan for agents)
 
-**Status: plan, written 2026-10-23. S2.1 built 2026-10-23 on the git branch `s2` (not deployed: deploy #1
-needs S2.2 and S2.3 too; start S2.2–S2.4 from that branch). S2.2 built 2026-10-23 on the branch `s2.2`
-(from `s2`), not deployed. S2.3 built 2026-10-23 on the branch `s2.3` (from `s2.2`), not deployed. S2.4 built 2026-10-23 on the branch `s2.4` (from `s2.3`), not deployed.** S2 in `progression.md` ("the tree") is too big for one
+**Status: S2.1–S2.4 built and deployed together (deploy #1) on 2026-10-23; S2.5 and S2.6 not built yet.** S2 in `progression.md` ("the tree") is too big for one
 session, so it's cut into six pieces, each sized for one agent. The design and the owner's decisions are in
 `progression.md` (sections 1, 1a, 1b, 1c, 2, 3, 7, 9): read it first. This file pins down what that plan
 left open and says who does what. Numbers here (maxes, the schedule) are starting points: S2.4's CLASSES
