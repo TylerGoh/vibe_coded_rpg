@@ -114,18 +114,19 @@ Archer and Cleric come later (S3, S4).
   Skills only work in combat rooms. Buffs live on the server player (`*Until`) and feed `statsFor`.
 
 ## Gifts (one player's own skill)
-- A skill with `gift: '<account>'` (`cls`/`tree` `'gift'`) belongs to that account alone: `load()` in
+- A skill with `gift: ['<account>', …]` (`cls`/`tree` `'gift'`) belongs to those accounts alone: `load()` in
   server/rpg.js grants it (rank 1) and strips it from anyone else. It can't be learned or taken back
   (`cantLearn` / `cantUnlearn`), costs no points (`poolOf` → `'gift'`), and survives Reset all, a rebirth and
   the rollback (`giftsOf`). The K panel shows it in the Novice tab under "A gift from the gods".
-- **Challenge the Gods** (`challenge_gods`, chenyirong's; an owner easter egg, 2026-10-23): for `GODS_DUR`
-  s his max HP is 1 (`statsFor` with `buffs.gods`, so every heal, potion and regen is capped by the usual
+- **Challenge the Gods** (`challenge_gods`, chenyirong's and justin's; an owner easter egg, 2026-10-23): for
+  `GODS_DUR` s their max HP is 1 (`statsFor` with `buffs.gods`, so every heal, potion and regen is capped by the usual
   `maxHp` clamps) and ATK / MAGIC are ×(1 + `GODS_BOOST`), which the hit caps follow too. Surviving it,
-  the server's tick (`godsEnd`) heals him to full; fainting ends it with no heal. Cooldown `GODS_CD`. He
-  glows white while it's up (`drawGodsAura`; owner asked for white). Together with it, a one-time reset
-  sent him back to Lv 1 (`GODS_RESET`, the `gods` flag on his save). After the owner tested on his account,
-  a second one (`gods` 2) took him back to Lv 1 again with no gold, gear or items (a new character's starter
-  bag) and home to Slimeville (`p.goHome`: skips the restored spot after a restart), with the gods' notice again.
+  the server's tick (`godsEnd`) heals them to full; fainting ends it with no heal. Cooldown `GODS_CD`. They
+  glow white while it's up (`drawGodsAura`; owner asked for white). With it came a one-time reset
+  (`GODS_RESET`, the `gods` flag on the save, 2 = done): Lv 1, every item gone (a new character's starter bag),
+  gold gone unless `keepGold` (justin keeps his), home to Slimeville (`p.goHome`: skips the spot restored
+  after a restart), and the gods' notice. chenyirong first had an earlier step (`gods` 1) that only reset his
+  level; the owner then tested on his account, hence the full one.
 
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js

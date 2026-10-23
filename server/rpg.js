@@ -62,10 +62,12 @@ const CLASSES_NEWS = `Classes are here! Everyone is a Novice for now: all your s
 // chenyirong goes to darrell's level (owner: botting). Gold, bag, gear, house and pets are all kept; skill
 // points and AP are refunded, and every boss pays out again. Runs once per character: `lb` marks it done.
 const ROLLBACK = { chenyirong: 57, justin: 87, darrell: 57, tyler: 48, qing: 32, wallace: 21 };
-// An easter egg (owner, 2026-10-23): chenyirong goes back to Lv 1 once, and gets his own skill, Challenge the
-// Gods (a gift: SKILLS.challenge_gods). Gold, bag, gear, house and pets are kept. `gods` marks it done.
-const GODS_RESET = 'chenyirong';
-const GODS_NEWS = `The slime gods have seen your stubbornness and wish to test your will. You are Lv 1 again, but you alone hold a gift: Challenge the Gods (on your hotbar, and in the Novice tab of K). For ${GODS_DUR} seconds your HP is stuck at 1 and you hit ${1 + GODS_BOOST} times as hard. Live through it and you are healed to full.`;
+// An easter egg (owner, 2026-10-23): these players go back to Lv 1 once, lose every item (a new character's
+// starter bag), are sent home to Slimeville, and hold a skill of their own, Challenge the Gods (a gift:
+// SKILLS.challenge_gods). keepGold: their gold stays. House and pets are kept. `gods` 2 marks it done
+// (chenyirong had an earlier step, `gods` 1, that kept everything but the level).
+const GODS_RESET = { chenyirong: { keepGold: false }, justin: { keepGold: true } };
+const GODS_NEWS = `The slime gods have seen your stubbornness and wish to test your will. You are Lv 1 again, but you hold a rare gift: Challenge the Gods (on your hotbar, and in the Novice tab of K). For ${GODS_DUR} seconds your HP is stuck at 1 and you hit ${1 + GODS_BOOST} times as hard. Live through it and you are healed to full.`;
 export function rollbackLevel(base, activeMs) {
   let lvl = base, min = activeMs / 60_000;
   while (min >= LEVEL_MIN(lvl)) min -= LEVEL_MIN(lvl++);
@@ -174,28 +176,21 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       p.notice = [p.notice, CLASSES_NEWS].filter(Boolean).join('\n');
       p.dirty = true;
     }
-    if (p.name === GODS_RESET && !r.gods) { // the easter egg (once): back to Lv 1, the gift on the hotbar
-      Object.assign(r, { lvl: 1, exp: 0, skills: {}, ap: { ...fresh.ap }, bossAt: {}, gods: 1 });
-      r.hotbar = ['challenge_gods', ...Array(HOTBAR - 1).fill(null)];
-      r.alt.hotbar = Array(HOTBAR).fill(null);
-      r.hp = stats(p).maxHp;
-      r.mp = stats(p).maxMp;
-      p.notice = [p.notice, GODS_NEWS].filter(Boolean).join('\n');
-      p.dirty = true;
-    }
-    if (p.name === GODS_RESET && r.gods < 2) { // (owner, 2026-10-23, once, after the owner tested his account) Lv 1 again in Slimeville, no gold or items
-      Object.assign(r, { lvl: 1, exp: 0, coins: 0, bag: fresh.bag, gear: fresh.gear, gearE: fresh.gearE, potbar: fresh.potbar, brew: null, skills: {}, ap: { ...fresh.ap }, bossAt: {}, town: 0, gods: 2 });
+    const gods = GODS_RESET[p.name];
+    if (gods && !(r.gods >= 2)) { // the easter egg (once): Lv 1 in Slimeville, no items, the gift on the hotbar
+      if (!gods.keepGold) r.coins = 0;
+      Object.assign(r, { lvl: 1, exp: 0, bag: fresh.bag, gear: fresh.gear, gearE: fresh.gearE, potbar: fresh.potbar, brew: null, skills: {}, ap: { ...fresh.ap }, bossAt: {}, town: 0, gods: 2 });
       r.hotbar = ['challenge_gods', ...Array(HOTBAR - 1).fill(null)];
       r.alt = { hotbar: Array(HOTBAR).fill(null), potbar: Array(POTBAR).fill(null) };
-      p.goHome = true; // (index.js: not put back where he stood before a restart)
+      p.goHome = true; // (index.js: not put back where they stood before a restart)
       r.hp = stats(p).maxHp;
       r.mp = stats(p).maxMp;
-      p.notice = `${GODS_NEWS} To begin, they have taken your gold and your things, and sent you home to Slimeville.`;
+      p.notice = `${GODS_NEWS} To begin, they have taken ${gods.keepGold ? 'your things' : 'your gold and your things'}, and sent you home to Slimeville.`;
       p.dirty = true;
     }
     // gift skills: only their own account holds them, and it always does
     r.skills = Object.fromEntries(Object.entries(r.skills).filter(([id]) => !SKILLS[id].gift));
-    for (const [id, sk] of Object.entries(SKILLS)) if (sk.gift === p.name) r.skills[id] = 1;
+    for (const [id, sk] of Object.entries(SKILLS)) if ([sk.gift].flat().includes(p.name)) r.skills[id] = 1;
     p.hurtAt = 0;
     p.clockAt = now();
     p.cds = {};

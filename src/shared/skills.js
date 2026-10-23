@@ -9,7 +9,7 @@ import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR
 // skills cost MP and have cooldowns; passives are always on. The server (server/rpg.js) decides every cast.
 
 export const CLASS_LVL = 10; // choose a class from this level (the Rebirth Pool)
-// Challenge the Gods (chenyirong's gift): seconds at 1 HP, the damage boost (6 = +600%), the cooldown
+// Challenge the Gods (a gift: chenyirong's and justin's): seconds at 1 HP, the damage boost (6 = +600%), the cooldown
 export const GODS_DUR = 15, GODS_BOOST = 6, GODS_CD = 120;
 // weapon: the only weapon kind the class can wield (null: any) · starter: handed out free on choosing it
 // if you own none of that kind · strong / bad: for the Rebirth Pool's card (progression.md 1b)
@@ -232,9 +232,9 @@ export const SKILLS = {
   },
 
   // ——— Gifts: one player's own skill, granted by the server on load (server/rpg.js), never learned or
-  // taken back, outside the point counts. `gift`: the account it belongs to. Shown in the Novice tab.
+  // taken back, outside the point counts. `gift`: the account(s) it belongs to. Shown in the Novice tab.
   challenge_gods: {
-    cls: 'gift', tree: 'gift', gift: 'chenyirong', adv: 1, name: 'Challenge the Gods', kind: 'gods', max: 1, mp: 0, cd: GODS_CD, dur: GODS_DUR,
+    cls: 'gift', tree: 'gift', gift: ['chenyirong', 'justin'], adv: 1, name: 'Challenge the Gods', kind: 'gods', max: 1, mp: 0, cd: GODS_CD, dur: GODS_DUR,
     boost: GODS_BOOST,
     desc: () => `The slime gods have seen your stubbornness and wish to test your will. For ${GODS_DUR} s your HP drops to 1 and can't rise above it, and you deal +${GODS_BOOST * 100}% damage. Survive and you're healed to full. Cooldown ${GODS_CD} s.`,
   },
