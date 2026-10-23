@@ -7,6 +7,9 @@ left open and says who does what. Numbers here (maxes, the schedule) are startin
 table is what tunes them.
 
 ## Order and shipping
+**L comes first** (`progression.md`, "L: the levelling rebalance"): the new EXP curve is what makes the
+advancement levels below (10, 30, 60, 100) widen in play time (~20 min, ~1.5 h, ~4.5 h, ~10 h). L is built
+before S2 and ships in deploy #1 with it.
 ```
 S2.1 data + server ──┬── S2.2 node tree UI ──┐
                      ├── S2.3 Rebirth Pool ──┼── deploy #1 (classes go live, the refund happens)

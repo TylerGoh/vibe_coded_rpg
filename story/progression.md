@@ -279,6 +279,73 @@ job advancements), at levels spaced further apart each time:
   2026-10-23) with **every skill point and AP refunded** and the skill hotbars cleared. Everyone Lv 10 and
   up gets a banner pointing them at the Rebirth Pool to choose a class, free.
 
+## L: the levelling rebalance and the rollback (owner, 2026-10-23; plan, not built)
+**Why.** After R, levels take about 1 minute each past Lv 30 (about 5 kills, flat all the way up), so the
+whole game to Lv 200 is about 3 hours of farming and the advancements (section 7) land every ~30 minutes
+instead of further apart. And the top characters (Lv 380+, mostly from Chronos farming before S0) are so far
+above every mob that the over-level falloff means **they miss out on every older boss** (owner). So:
+slow levelling down, and roll those characters back to where their play time would put them.
+
+### L1: the new EXP curve
+- **Target (owner): about 10 minutes of farming a level on average, slowing as you get stronger.** The
+  curve is "A" (picked 2026-10-23 from three): minutes a level `0.5·L^0.65` up to Lv 100 (10 min at
+  Lv 100), then `10·L/100` (20 min at Lv 200), but **never faster than today at any level** (today's early
+  levels already take ~2 min, so Lv 1–15 barely change; a new player still chooses a class ~20 min in).
+  Past Lv 200 it keeps growing at the same slope (nothing to fight there; S6's stars).
+- Total farming time to reach: Lv 10 ~20 min, Lv 30 ~1.5 h, Lv 60 ~4.5 h, Lv 100 ~10 h, Lv 150 ~21 h,
+  Lv 200 ~35 h. That makes section 7's advancement levels (10, 30, 60, 100, 150) widen in time as intended.
+- **How:** only `expToNext` changes (in `src/shared/rpg.js`), fitted so `npm run economy`'s Progress table
+  hits the targets above (`KILLS_PER_MIN` farming on the frozen curve). Mob HP, damage and EXP stay where R
+  put them; the frozen curves are never refit. The sheet gains a check: minutes a level within a band of
+  the target at each level (a `LEVEL_PACE` constant), so a later change can't quietly break it.
+- Bosses: their EXP stays; the S0 camp check compares EXP an hour, which doesn't move. A boss kill becomes
+  a smaller share of a level, which is fine: their worth is the loot and the fight.
+
+### L2: gold follows play time
+- **Recommended (not yet confirmed by the owner):** gold an hour stays the same (mob drops untouched), so
+  with ~10× more kills a level, players reach each level with far more gold. Everything priced with the
+  aim method (shop and trader gear, houses, furniture, pets, seeds, the Boutique) is re-aimed by the
+  sheet against the new "gold earned by level", so a Lv 60 sword still costs the same share of what a Lv 60
+  has earned. The alternative (cut mob gold so gold earned by level stays and prices don't move) makes
+  gold an hour ~10× lower, which feels bad, so it's the fallback only.
+- `REBIRTH_COST` (500k, owner-priced, no aim) becomes cheap relative to what players earn: ask the owner
+  whether to raise it when L2 ships.
+- Run `npm run economy` before and after; say what moved (Agent.md).
+
+### L3: the rollback (one time, in `load()`, behind a saved flag so it runs once per character)
+- Each character's level is set to the level its **estimated play time** before 2026-10-23 gives on the
+  new curve, taking the **lower end** of the estimate (owner), plus whatever its **recorded active play
+  time** since then (`active`, `docs/combat/core.md`) gives on top, on the new curve. EXP to 0 within the
+  new level. **chenyirong goes to darrell's level** (owner: botting).
+
+  | character | level on 2026-10-23 | estimated play time | rolls back to (before adding recorded time) |
+  |---|---|---|---|
+  | chenyirong | 390 | (botting) | **Lv 57**, darrell's |
+  | justin | 380 | 8–12 h | **Lv 87** |
+  | darrell | 167 | 4–6 h | **Lv 57** |
+  | tyler | 112 | 3–4 h | **Lv 48** |
+  | qing | 81 | ~1.5 h | **Lv 32** |
+  | wallace | 36 | ~45 min | **Lv 21** |
+  | everyone else (Lv 10 or less) | | under 20 min | unchanged |
+  (Estimates from 2026-10-23: account dates, chat activity, and the old pace of Lv 80 → 390 being about 3 h of
+  Chronos farming. Play time wasn't recorded before that day.)
+- **Kept:** gold, bag, gear and its scrolls, house, pets, cosmetics, waystones. Gear has no level
+  requirement, so they'll be well geared for their new level, which is fine: they're replaying content they
+  skipped. `bossAt` (S0's reward window) is cleared so every boss pays out again. Skill points and AP are
+  refunded anyway (they shrink with the level).
+- **Open:** whether chenyirong's gold and items from botting should go too (the owner asked only for the
+  level). Default: only the level.
+- A one-time banner explains it ("Levelling has been rebalanced: you're now Lv N, where your play time
+  puts you. Everything you own is kept, and every boss is worth fighting again.").
+
+### When it ships
+- **Before S2, and in the same deploy as S2's deploy #1** (`s2-plan.md`), so players get one big change
+  (new levels, Novices, the refund, the Rebirth Pool) with one banner, not two upheavals a few days apart.
+  L can be built first and on its own (it touches `expToNext`, `scripts/economy.mjs`, prices and `load()`,
+  not the skill code), then held until S2.1–S2.3 are ready.
+- Split for agents: **L1+L3** together (the curve and the rollback, both in levels), **L2** after L1 (it
+  needs the new Progress table). Same agent rules as `s2-plan.md`.
+
 ## The phases (each one shippable alone)
 - [x] **S0: close the boss faucet** (shipped 2026-10-23): over-level EXP falloff, the per-player boss reward
       window (15 min). `docs/combat/bosses.md`, `docs/economy.md`.
@@ -288,6 +355,8 @@ job advancements), at levels spaced further apart each time:
       your hand decides the normal attack; spell power never went down (staves only add). Was (medium): the `staff` kind, the staff bolt, MAGIC from staves, a staff
       on every boss's drops, starter and trader staves, weapon scrolls, the economy script learning
       staves. Before R, so R's "new copy of every boss item" pass copies the staves too.
+- [ ] **L: the levelling rebalance and the rollback** (above): L1 the EXP curve, L2 gold follows play
+      time, L3 rolling back the top characters. Built before S2, shipped with S2's first deploy.
 - [ ] **S2: the tree** (large; split into six agent-sized pieces in `s2-plan.md`), with the CLASSES table in `npm run economy`: the four class trees, the Rebirth spot, forks, advancements, the `spTotal` schedule, the
       node UI (desktop and phone), the one-time refund. Warrior (with the chase moves in `step()`) and Mage, with the mage
       combos (chill/freeze/shatter, burn/spread, Arcane Charge).
