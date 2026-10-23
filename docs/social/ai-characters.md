@@ -38,6 +38,12 @@ one shared corner feed).
   out by its in-world block and deflects Tier 3 ("Go and ask the old smith in the Forge. Then come back."),
   and only tells of Brenna on a second asking. Soot holds Arne's letters for "the northern girl out on the
   coast" (Liv, E2). When an Emberdeep branch opens, update Ash (and Soot, Slag, Arne where they'd know).
+- **Elder Mochi tends the Rebirth Pool** (S2.3, `docs/combat/skills.md`): he knows what it does, that the
+  first choice is free and later changes cost about an hour's gold at your level, and only Warrior and Mage.
+  The server labels each line to him with the speaker's level and class (`whoIs` in `server/index.js`, the
+  `ctx` of `reply()`), so he brings the pool up with any Lv 10+ Novice; and `persona(user, { first })` (from
+  `server/npc.js`: no memory of them yet) makes him welcome a newcomer and mention the pool once. His
+  lore is canon Tier 0 only; anything deeper he deflects ("better found than told").
 - `hello` on an `NPCS` entry is the line their dialog opens with. `shop` (a `SHOPS` key) adds a **Trade**
   button to their dialog (Runa). `folk` dresses them as another island's people (`docs/art.md`).
 - Clio has `anywhere: true`: she can be asked from anywhere in the museum (Q, the "Ask Clio" touch button,

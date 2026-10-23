@@ -38,7 +38,10 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
   also have a reward window (`docs/combat/bosses.md`).
 - **Friendly fire:** slaps in combat rooms hurt friends only if BOTH have it on (per player, saved, default
   on; toggle in the Esc menu or the bag; a red dot by the name tag = on).
-- Defences (Bubble, Aegis, Sanctuary, Second Wind, DEF) are all applied in server `hurt()`.
+- Defences (Bubble, Aegis, Sanctuary, Second Wind, DEF, a brewed ward, Mana Shield) are all applied in
+  server `hurt()`. Mana Shield takes its share of a hit off MP while there's MP (never an ultimate's).
+- **Jelly Thirst** (Warrior): `thirst()` heals the hitter a share of the damage its slap or skill just did
+  (after the server's cap), and tells the room `{t:'thirst', id, n}` for the green +HP.
 
 ## Fainting and regen
 0 HP → `faint`: the slime splats into a puddle of its colour for a moment (`drawSplats` in main.js; the
@@ -73,5 +76,7 @@ elsewhere.
   character as done (fresh ones start with it; the check reads the saved row, not the merged one, since
   `newChar()`'s default would hide a missing flag). A rolled-back character gets a one-time `notice` (a
   toast and a chat line) on joining, sent from `entered()`.
-- Saved every few seconds, on disconnect and on SIGTERM (deploys). New characters start with a Wooden
-  Sword and a few jellies.
+- **Classes** (S2): `cls` and `reborn` are saved; the one-time migration to Novices is in `load()` too
+  (`docs/combat/skills.md`).
+- Saved every few seconds, on disconnect and on SIGTERM (deploys). New characters start as Novices with a
+  Wooden Sword and a few jellies.

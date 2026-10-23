@@ -50,7 +50,7 @@ export async function deepseek(messages, maxTokens, opts = {}) {
   return text;
 }
 
-// char: { id, name, short, persona(user), replyTokens } — see server/characters.js and NPCS in sim.js
+// char: { id, name, short, persona(user, { first }), replyTokens } — see server/characters.js and NPCS in sim.js
 export function createNpc(dbPath, char) {
   const db = new DatabaseSync(dbPath);
   db.exec(`
@@ -109,7 +109,7 @@ export function createNpc(dbPath, char) {
   function prompt(user, mem) {
     const since = log[0]?.ts ?? Infinity; // personal lines older than the public window
     const older = mem.messages.filter((m) => (m.ts ?? 0) < since);
-    let system = char.persona(user);
+    let system = char.persona(user, { first: !mem.summary && !mem.messages.length }); // (first: they've never talked)
     if (mem.summary) system += `\n\nWhat you remember about ${user}:\n${mem.summary}`;
     if (older.length) system += `\n\nEarlier chats with ${user}:\n${older.map((m) => `${m.role === 'user' ? user : 'You'}: ${m.content}`).join('\n')}`;
     const turns = [];

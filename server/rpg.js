@@ -12,9 +12,9 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, STAFF_OFFKIND, STAFF_BOLT_MULT } from '../src/shared/rpg.js';
-import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spTotal, spSpent, mpRegen, cooldownOf, durOf, mobilityOf } from '../src/shared/skills.js';
-import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt } from '../src/shared/sim.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, STAFF_OFFKIND, STAFF_BOLT_MULT, rebirthCost } from '../src/shared/rpg.js';
+import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, skillFor, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf } from '../src/shared/skills.js';
+import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
 import { wayAt, wayById, sameIsle, ARRIVE_DX } from '../src/shared/waystones.js';
@@ -49,7 +49,11 @@ const newChar = () => ({
   bossAt: {}, // den boss kind → when you last got its full reward (BOSS_WINDOW_MS)
   played: 0, active: 0, // ms logged in, and ms of that with a key pressed in the last ACTIVE_WINDOW_MS (clock)
   lb: 1, // the levelling rebalance's rollback has been looked at (ROLLBACK; new characters never need it)
+  cls: 'novice', reborn: 0, // your class (CLASSES; chosen at the Rebirth Pool) and how many times you've chosen one
 });
+
+// S2, classes (story/s2-plan.md): the one-time notice for characters saved before classes existed
+const CLASSES_NEWS = `Classes are here! Everyone is a Novice for now: all your skill points and ability points are refunded (K and I) and your skill hotbars are empty. From Lv ${CLASS_LVL}, choose your class, Warrior or Mage, at the Rebirth Pool by Elder Mochi in Slimeville: your first choice is free. Healing spells come back with a future class; until then, Jelly Patch (Novice tree) and potions.`;
 
 // L3, the levelling rebalance's rollback (story/progression.md, owner 2026-10-23): a one-time move of the
 // characters who levelled far past their play time (mostly by camping bosses before S0) back to the level
@@ -97,7 +101,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
 
   // ——— characters ———
   const brewOf = (c) => ((c.brew?.until ?? 0) > now() ? ITEMS[c.brew.id].buff : null); // a brewed potion's buff
-  const buffsOf = (p) => ({ berserk: (p.berserkUntil ?? 0) > now(), rally: (p.rallyUntil ?? 0) > now() ? p.rallyBoost : 0, brew: brewOf(p.rpg) });
+  const buffsOf = (p) => ({ berserk: (p.berserkUntil ?? 0) > now(), manaShield: (p.manaShieldUntil ?? 0) > now(), rally: (p.rallyUntil ?? 0) > now() ? p.rallyBoost : 0, brew: brewOf(p.rpg) });
   const stats = (p) => statsFor(p.rpg, buffsOf(p));
   const left = (until) => Math.max(0, (until ?? 0) - now());
   const zones = []; // Sanctuaries: { room, x, r, until, cut }
@@ -116,9 +120,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     r.gearE = { helmet: r.gearE?.helmet ?? null, weapon: r.gearE?.weapon ?? (r.gear.weapon === oldSword ? oldSwordE : null) ?? null };
     for (const s of ['helmet', 'weapon']) if (gearSlotOf(r.gear[s]) !== s) r.gear[s] = null;
     for (const s of ['helmet', 'weapon']) if (!r.gear[s]) r.gearE[s] = null; // scroll enhancements
-    r.skills = Object.fromEntries(Object.entries(r.skills ?? {}).filter(([id, n]) => SKILLS[id] && n > 0).map(([id, n]) => [id, Math.min(n, SKILLS[id].max)]));
-    if (spSpent(r.skills) > spTotal(r.lvl)) r.skills = {};
-    const skillBar = (b) => Array.from({ length: HOTBAR }, (_, i) => (ACTIVE(b?.[i]) ? b[i] : null));
+    r.cls = CLASSES[r.cls] ? r.cls : 'novice';
+    r.reborn = Math.max(0, Math.floor(Number(r.reborn) || 0));
+    r.skills = cleanSkills(r); // (only your class's skills, opened by your level, adding up)
+    const skillBar = (b) => Array.from({ length: HOTBAR }, (_, i) => (ACTIVE(b?.[i]) && skillFor(r.cls, b[i]) ? b[i] : null));
     const potBar = (b) => Array.from({ length: POTBAR }, (_, i) => (ITEMS[b?.[i]]?.kind === 'potion' ? b[i] : null));
     r.hotbar = skillBar(r.hotbar);
     r.potbar = potBar(r.potbar);
@@ -154,6 +159,17 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       r.lb = 1;
       p.dirty = true;
     }
+    if (c && !c.cls) { // S2 (one time): a character from before classes becomes a Novice, every point refunded
+      Object.assign(r, { cls: 'novice', reborn: 0, skills: {}, ap: { ...fresh.ap } });
+      r.hotbar = Array(HOTBAR).fill(null);
+      r.alt.hotbar = Array(HOTBAR).fill(null);
+      const st2 = stats(p);
+      r.hp = Math.min(st2.maxHp, r.hp);
+      r.mp = Math.min(st2.maxMp, r.mp);
+      p.news = 'classes'; // (the client can show it as a banner)
+      p.notice = [p.notice, CLASSES_NEWS].filter(Boolean).join('\n');
+      p.dirty = true;
+    }
     p.hurtAt = 0;
     p.clockAt = now();
     p.cds = {};
@@ -177,9 +193,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function save(p) {
     if (p.rpg && p.joined) clock(p);
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, lb } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, lb }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -192,17 +208,17 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     p.dirty = true;
     send(p.ws, {
       t: 'me', lvl: c.lvl, exp: c.exp, next: expToNext(c.lvl), hp: Math.ceil(c.hp), maxHp: st.maxHp, mp: Math.floor(c.mp), maxMp: st.maxMp,
-      coins: c.coins, bag: c.bag, gear: c.gear, gearE: c.gearE, atk: st.atk, magic: st.magic, def: st.def, skills: c.skills, sp: spTotal(c.lvl) - spSpent(c.skills),
+      coins: c.coins, bag: c.bag, gear: c.gear, gearE: c.gearE, atk: st.atk, magic: st.magic, def: st.def, skills: c.skills, sp: spFree(c), spLeft: spLeft(c), cls: c.cls, reborn: c.reborn,
       hotbar: c.hotbar, potbar: c.potbar, alt: c.alt, set: c.set, pvp: c.pvp, crit: st.crit, critMult: st.critMult, minRoll: st.minRoll,
       ap: c.ap, apLeft: apTotal(c.lvl) - apSpent(c.ap),
       cosmetics: c.cosmetics, wear: c.wear, showHelmet: c.showHelmet,
-      berserk: left(p.berserkUntil), rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), secondWind: left(p.swReadyAt),
+      berserk: left(p.berserkUntil), manaShield: left(p.manaShieldUntil), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), secondWind: left(p.swReadyAt),
       brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
       ways: c.ways,
     });
   }
   // What everyone else sees of you: gear, level and friendly fire (also part of join / welcome)
-  const look = (p) => ({ gear: p.rpg.gear, lvl: p.rpg.lvl, pvp: p.rpg.pvp, wear: p.rpg.wear, showHelmet: p.rpg.showHelmet, plus: p.rpg.gearE?.weapon?.s ?? 0 });
+  const look = (p) => ({ cls: p.rpg.cls, gear: p.rpg.gear, lvl: p.rpg.lvl, pvp: p.rpg.pvp, wear: p.rpg.wear, showHelmet: p.rpg.showHelmet, plus: p.rpg.gearE?.weapon?.s ?? 0 });
   const showLook = (id, p, extra = {}) => broadcast({ t: 'gear', id, ...look(p), ...extra });
   const toast = (p, text) => send(p.ws, { t: 'toast', text });
 
@@ -226,6 +242,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     c.exp += exp;
     let up = false;
+    const was = c.lvl, freeWas = spFree(c);
     while (c.exp >= expToNext(c.lvl)) {
       c.exp -= expToNext(c.lvl);
       c.lvl++;
@@ -236,7 +253,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       c.hp = st.maxHp;
       c.mp = st.maxMp;
       showLook(qid, q, { up: true });
-      toast(q, `Level up! You're level ${c.lvl} (+1 skill point: K · +${AP_PER_LVL} ability points: I)`);
+      const pts = spFree(c) - freeWas;
+      toast(q, `Level up! You're level ${c.lvl} (${pts > 0 ? `+${pts} skill point${pts > 1 ? 's' : ''}: K · ` : ''}+${AP_PER_LVL * (c.lvl - was)} ability points: I)`);
+      // an advancement opened: a banner (ADVANCEMENTS)
+      for (const a of ADVANCEMENTS) if (was < a.lvl && c.lvl >= a.lvl) send(q.ws, { t: 'advance', lvl: a.lvl, cls: c.cls, text: advanceText(c.cls, a.lvl) });
     }
     sendMe(q);
   }
@@ -282,6 +302,11 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     let dmg = ult ? (zone ? Math.round(st.maxHp * 0.6) : Math.ceil(q.rpg.hp) + 1) : Math.max(1, Math.round(raw * rand(0.85, 1.15) - st.def));
     if (zone && !ult) dmg = Math.max(1, Math.round(dmg * (1 - zone.cut)));
     if (st.ward && !ult) dmg = Math.max(1, Math.round(dmg * (1 - st.ward))); // a brewed ward
+    if (st.manaShield && !ult) { // Mana Shield: a share of it comes off MP while there's MP
+      const take = Math.min(Math.round(dmg * st.manaShield), Math.floor(q.rpg.mp));
+      q.rpg.mp -= take;
+      dmg -= take;
+    }
     q.hurtAt = t;
     q.rpg.hp -= dmg;
     const sw = rankOf(q.rpg.skills, 'second_wind');
@@ -449,13 +474,24 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     return out;
   }
   const capOf = (st) => 1.15 * st.critMult; // best roll × crit
+  // Jelly Thirst: the hits p just landed heal it a share of their damage (everyone in the room sees the +HP)
+  function thirst(id, p, hits) {
+    const st = stats(p), c = p.rpg;
+    if (!st.thirst || !hits.length || p.faintUntil) return;
+    const amt = Math.min(st.maxHp - c.hp, Math.round(hits.reduce((n, h) => n + h[1], 0) * st.thirst));
+    if (amt < 1) return;
+    c.hp += amt;
+    toRoom(p.state.room)({ t: 'thirst', id, n: amt });
+    sendMe(p);
+  }
 
   // ——— a slap / sword swing / staff bolt in a combat room ———
   function attack(id, p, dir, hits) {
     if (p.faintUntil || !isCombat(p.state.room)) return [];
     const st = stats(p);
-    if (st.boltRange) return applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * STAFF_BOLT_MULT * capOf(st), dir, knock: 120 });
-    return applyHits(id, p, hits, { range: SLAP_REACH + st.reach, cap: st.atk * capOf(st), dir });
+    const out = st.boltRange ? applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * STAFF_BOLT_MULT * capOf(st), dir, knock: 120 }) : applyHits(id, p, hits, { range: SLAP_REACH + st.reach, cap: st.atk * capOf(st), dir });
+    thirst(id, p, out);
+    return out;
   }
 
   // ——— skills (1–6) ———
@@ -465,6 +501,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const sk = SKILLS[m.skill], c = p.rpg, s = p.state;
     if (!ACTIVE(m.skill) || p.faintUntil) return;
     const rank = rankOf(c.skills, m.skill);
+    if (!skillFor(c.cls, m.skill)) return toast(p, `${sk.name} isn't one of your class's skills`);
     if (!rank) return toast(p, `You haven't learned ${sk.name} yet (K)`);
     if (!isCombat(s.room)) return toast(p, 'Skills only work out in the Wildwood');
     if ((p.cds[m.skill] ?? 0) > now() + 250) return; // still cooling down (with slack for lag)
@@ -472,16 +509,17 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     c.mp -= sk.mp;
     p.cds[m.skill] = now() + cooldownOf(m.skill, rank) * 1000;
     const st = stats(p), dir = m.dir < 0 ? -1 : 1, t = now();
-    const phys = st.atk * (sk.mult?.(rank) ?? 1) * capOf(st), magic = st.magic * (sk.mult?.(rank) ?? 1) * capOf(st);
+    const mult = (sk.mult?.(rank) ?? 1) * capOf(st);
+    const phys = st.atk * mult, magic = (sk.stat === 'best' ? Math.max(st.atk, st.magic) : st.magic) * mult * (sk.fire ? st.fire : 1);
     const out = { t: 'skill', id, skill: m.skill, dir, x: s.x, y: s.y, hits: [] };
     const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, ...o }));
     if (sk.kind === 'strike') hit({ range: SLAP_REACH + st.reach + sk.reach, cap: phys, knock: 320 });
     else if (sk.kind === 'cleave') hit({ max: sk.targets, range: SLAP_REACH + st.reach + sk.reach, cap: phys, knock: 260 });
     else if (sk.kind === 'spin') hit({ max: 20, range: sk.radius, cap: phys, knock: 260 });
     else if (sk.kind === 'storm') hit({ max: 20 * sk.hits, range: sk.radius, cap: phys, knock: 60 });
-    else if (sk.kind === 'bolt' || sk.kind === 'chain' || sk.kind === 'meteor') {
+    else if (sk.kind === 'bolt' || sk.kind === 'fireball' || sk.kind === 'chain' || sk.kind === 'meteor') {
       const range = sk.kind === 'chain' ? sk.range + sk.jump * sk.targets : sk.range + (sk.radius ?? 0);
-      hit({ max: sk.kind === 'bolt' ? 1 : sk.kind === 'chain' ? sk.targets : 20, range, cap: magic, knock: 120 });
+      hit({ max: sk.kind === 'bolt' ? 1 : sk.kind === 'chain' ? sk.targets : sk.kind === 'fireball' ? 8 : 20, range, cap: magic, knock: 120, slow: sk.slow ?? 0 });
       out.tx = Number(m.tx) || s.x + dir * sk.range;
       out.ty = Number(m.ty) || s.y - 22;
       if (Array.isArray(m.points)) out.points = m.points.slice(0, 6).map((q) => [Number(q[0]) || 0, Number(q[1]) || 0]);
@@ -489,7 +527,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     else if (sk.kind === 'starfall') hit({ max: 30, range: sk.radius, cap: magic, knock: 80 });
     else if (sk.kind === 'heal') {
       out.heals = [];
-      for (const [qid, q] of near(p, sk.radius)) {
+      for (const [qid, q] of sk.self ? [[id, p]] : near(p, sk.radius)) {
         const max = stats(q).maxHp, amt = Math.min(max - q.rpg.hp, sk.amount(rank));
         q.rpg.hp += amt;
         out.heals.push([qid, Math.round(amt)]);
@@ -500,6 +538,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       out.dur = sk.dur;
     } else if (sk.kind === 'bubble') {
       p.bubbleUntil = t + sk.dur * 1000;
+      out.dur = sk.dur;
+    } else if (sk.kind === 'shield') {
+      p.manaShieldUntil = t + sk.dur * 1000;
       out.dur = sk.dur;
     } else if (sk.kind === 'rally' || sk.kind === 'aegis') {
       const dur = durOf(m.skill, rank);
@@ -518,6 +559,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       out.dur = sk.dur;
     }
     toRoom(s.room)(out);
+    thirst(id, p, out.hits);
     sendMe(p);
   }
 
@@ -1216,8 +1258,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     },
 
     entered(p) {
-      if (p.notice) send(p.ws, { t: 'notice', text: p.notice }); // a one-time message on joining (the rollback)
-      p.notice = null;
+      // a one-time message on joining (the rollback, classes arriving); news: which one, for a banner
+      if (p.notice) send(p.ws, { t: 'notice', text: p.notice, news: p.news ?? undefined });
+      p.notice = p.news = null;
       if (isCombat(p.state.room)) send(p.ws, lootMsg(p.state.room));
       const boss = mobs.find((m) => m.den && m.room === p.state.room && !m.dead), enter = boss && MOBS[boss.kind].lines?.enter;
       if (enter) bossSays(boss, pick(enter), p);
@@ -1284,6 +1327,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       if (!b) return typeof m.item === 'string' && toast(p, `You're out of ${ITEMS[m.item]?.name ?? 'that'}`);
       const it = ITEMS[b.id];
       if (m.t === 'equip' && gearSlotOf(b.id)) {
+        if (!weaponOk(c.cls, gearSlotOf(b.id) === 'weapon' ? b.id : null)) return toast(p, `A ${CLASSES[c.cls].name} can only wield a ${CLASSES[c.cls].weapon} (change class at the Rebirth Pool)`);
         const gs = gearSlotOf(b.id), old = c.gear[gs], oldE = c.gearE[gs];
         c.gear[gs] = b.id;
         c.gearE[gs] = b.e ?? null;
@@ -1433,25 +1477,72 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       sendMe(p);
     },
 
+    // The Rebirth Pool in Slimeville (S2, story/s2-plan.md): {t:'rebirth', cls} chooses your class (from
+    // CLASS_LVL; the first choice is free) or changes it (rebirthCost(lvl) gold). Level, EXP, gold, bag, gear
+    // and house all stay; every skill point and AP comes back, the skill hotbars empty and buffs end. The
+    // weapon must suit the new class: a wrong one goes back in the bag (refused if the bag is full), a right
+    // one from the bag takes its place, and if you own none of that kind you get its starter weapon.
+    rebirth(id, p, m) {
+      const c = p.rpg, s = p.state, cl = CLASSES[m.cls];
+      if (!cl || m.cls === 'novice' || p.faintUntil) return;
+      if (s.room !== VILLAGE || Math.abs(s.x - REBIRTH_X) > REBIRTH_RANGE + 40) return toast(p, 'Walk over to the Rebirth Pool first');
+      if (m.cls === c.cls) return toast(p, `You're a ${cl.name} already`);
+      if (c.lvl < CLASS_LVL) return toast(p, `Come back at Lv ${CLASS_LVL} to choose your class`);
+      const cost = c.reborn ? rebirthCost(c.lvl) : 0;
+      if (c.coins < cost) return toast(p, `Not enough gold: changing class costs ${cost.toLocaleString('en-US')} at your level`);
+      const g = c.gear, wrong = g.weapon && !weaponOk(m.cls, g.weapon) ? { id: g.weapon, n: 1, ...(c.gearE.weapon ? { e: c.gearE.weapon } : {}) } : null;
+      const power = (b) => (ITEMS[b.id].atk ?? ITEMS[b.id].magic ?? 0) + (b.e?.atk ?? 0) + (b.e?.magic ?? 0);
+      const from = !g.weapon || wrong ? c.bag.reduce((best, b, i) => (ITEMS[b.id]?.kind === cl.weapon && (best < 0 || power(b) > power(c.bag[best])) ? i : best), -1) : -1; // (the strongest)
+      if (wrong && from < 0 && c.bag.length >= BAG_SLOTS) return toast(p, `Your bag is full: make room for your ${ITEMS[wrong.id].name} first`);
+      c.coins -= cost;
+      if (!g.weapon || wrong) {
+        if (from >= 0) {
+          const b = c.bag[from];
+          g.weapon = b.id;
+          c.gearE.weapon = b.e ?? null;
+          if (wrong) c.bag[from] = wrong;
+          else c.bag.splice(from, 1);
+        } else {
+          if (wrong) c.bag.push(wrong);
+          g.weapon = cl.starter;
+          c.gearE.weapon = null;
+        }
+      }
+      const was = c.cls;
+      Object.assign(c, { cls: m.cls, reborn: c.reborn + 1, skills: {}, ap: Object.fromEntries(AP_STATS.map(({ id: k }) => [k, 0])) });
+      c.hotbar = Array(HOTBAR).fill(null);
+      c.alt.hotbar = Array(HOTBAR).fill(null);
+      p.berserkUntil = p.manaShieldUntil = p.rallyUntil = p.bubbleUntil = p.aegisUntil = 0;
+      p.cds = {};
+      moves(p);
+      const st = stats(p);
+      c.hp = Math.min(c.hp, st.maxHp);
+      c.mp = Math.min(c.mp, st.maxMp);
+      toRoom(s.room)({ t: 'reborn', id, cls: m.cls, from: was });
+      showLook(id, p);
+      toast(p, `You're a ${cl.name} now${cost ? ` (${cost.toLocaleString('en-US')} gold)` : ''}! Your skill points and ability points are all yours to spend (K and I).`);
+      sendMe(p);
+    },
+
     // The skill tree (K): learn / take back a point / reset everything, and the hotbar
     skills(id, p, m) {
       const c = p.rpg;
       if (m.t === 'learn') {
-        const why = cantLearn(c.lvl, c.skills, m.skill);
+        const why = cantLearn(c, m.skill);
         if (why) return toast(p, why);
         c.skills = { ...c.skills, [m.skill]: rankOf(c.skills, m.skill) + 1 };
       } else if (m.t === 'unlearn') {
-        const why = cantUnlearn(c.skills, m.skill);
+        const why = cantUnlearn(c, m.skill);
         if (why) return toast(p, why);
         c.skills = { ...c.skills, [m.skill]: rankOf(c.skills, m.skill) - 1 };
         if (!c.skills[m.skill]) delete c.skills[m.skill];
       } else if (m.t === 'respec') {
         c.skills = {};
-        p.berserkUntil = 0;
+        p.berserkUntil = p.manaShieldUntil = 0;
       } else if (m.t === 'hotbar') {
         const bar = m.bar === 'pot' ? c.potbar : c.hotbar, i = m.slot >>> 0;
         if (i >= bar.length) return;
-        const ok = m.id === null || (m.bar === 'pot' ? ITEMS[m.id]?.kind === 'potion' : ACTIVE(m.id));
+        const ok = m.id === null || (m.bar === 'pot' ? ITEMS[m.id]?.kind === 'potion' : ACTIVE(m.id) && skillFor(c.cls, m.id));
         if (!ok) return;
         for (let j = 0; j < bar.length; j++) if (bar[j] === m.id) bar[j] = null; // one slot per thing
         bar[i] = m.id;

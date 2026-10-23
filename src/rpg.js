@@ -13,7 +13,7 @@ import { drawHazard } from './hazards.js';
 import { SkillFx, drawSkillIcon, drawBerserkAura, drawBubble, drawRallyAura, drawAegisAura } from './skillfx.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor } from './shared/skills.js';
+import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk } from './shared/skills.js';
 import { staffGlow } from './staff-art.js';
 import { SLAP_REACH, DASH_CD, BLINK_CD, PHANTOM_CD } from './shared/sim.js';
 
@@ -90,6 +90,7 @@ export class Rpg {
     if (m.t === 'me') {
       const old = this.me;
       this.me = m;
+      this.onMe?.(m);
       if (old && mine) {
         const gained = m.lvl === old.lvl ? m.exp - old.exp : 0;
         if (gained > 0) this.pop(mine.x, mine.y - 70, `+${gained} EXP`, '#ffd34d', 15);
@@ -104,10 +105,34 @@ export class Rpg {
     } else if (m.t === 'loot') {
       this.loot = m.l;
     } else if (m.t === 'notice') {
-      // a one-time message on joining (the levelling rollback): a toast, and a line kept in the chat
-      this.toast(m.text);
+      // a one-time message on joining (the levelling rollback, classes arriving): a toast, and a line kept in
+      // the chat; m.news names one with a banner instead of a toast ('classes': its line is the last one)
+      const lines = m.text.split('\n'), banner = m.news && this.onNews?.(m);
+      lines.forEach((line, i) => {
+        if (!(banner && i === lines.length - 1)) this.toast(line);
+        this.onAnnounce?.(line);
+      });
+    } else if (m.t === 'advance') {
+      // an advancement level reached (src/shared/skills.js ADVANCEMENTS): a banner (src/rebirth.js) and a line
+      // kept in the chat
+      if (!this.onNews?.(m)) this.toast(m.text);
       this.onAnnounce?.(m.text);
+      audio.sfx('levelup');
+    } else if (m.t === 'thirst') {
+      const s = slimeOf(m.id);
+      if (s && s.visible !== false) this.pop(s.x, s.y - 64, `+${m.n}`, '#7fe0a0', 15);
+    } else if (m.t === 'reborn') {
+      // someone came out of the Rebirth Pool as a new class: the splash (onReborn, src/rebirth.js) and a sound
+      const s = slimeOf(m.id);
+      if (s) {
+        s.cls = m.cls;
+        this.fx.spawn('levelskill', { x: s.x, y: s.y });
+        this.pop(s.x, s.y - 110, CLASSES[m.cls]?.name ?? '', CLASSES[m.cls]?.color ?? '#fff2b0', 20); // (above the E prompt)
+        this.onReborn?.(m, s);
+        audio.sfx('reborn', { pan: m.id === myId ? 0 : panX(s.x, mine?.x ?? s.x), vol: m.id === myId ? 1 : 0.7 });
+      }
     } else if (m.t === 'toast') {
+      this.onToast?.(m.text); // (the Rebirth Pool's card shows its refusals)
       this.toast(m.text);
       if (/full|only drop|already|Not enough|first|out of|haven't/.test(m.text)) audio.sfx('error');
       if (/Level up/.test(m.text)) audio.sfx('levelup');
@@ -308,7 +333,8 @@ export class Rpg {
       else this.showHit(v, dmg, crit, sx);
     };
     const sx = me.x, sy = me.y, reach = SLAP_REACH + (this.swordOf(m)?.reach ?? 0) + (sk.reach ?? 0);
-    const sound = { strike: id === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis' }[sk.kind];
+    const mag = (sk.stat === 'best' ? Math.max(m.atk, m.magic) : m.magic) * (sk.fire ? m.fire ?? 1 : 1);
+    const sound = { strike: id === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis' }[sk.kind];
     if (sk.kind === 'strike') {
       const [v] = this.ahead(me, dir, reach);
       if (v) hit(v, m.atk);
@@ -323,18 +349,27 @@ export class Rpg {
       const inside = this.around(sx, sy, sk.radius);
       for (let n = 0; n < sk.hits; n++) for (const v of inside) hit(v, m.atk, n * 0.22);
       this.fx.spawn('storm', { x: sx, y: sy, radius: sk.radius, hits: sk.hits, follow: () => mine && { x: mine.x, y: mine.y } });
-    } else if (sk.kind === 'bolt' || sk.kind === 'meteor') {
+    } else if (sk.kind === 'bolt' || sk.kind === 'fireball' || sk.kind === 'meteor') {
       const [v] = this.ahead(me, dir, sk.range, 0);
       const tx = v ? v.x : sx + dir * sk.range, ty = v ? v.y - MOBS[v.kind].h / 2 : sy - 22;
       msg.tx = Math.round(tx);
       msg.ty = Math.round(ty);
-      if (sk.kind === 'bolt') {
+      if (sk.kind === 'bolt' || sk.kind === 'fireball') {
         const dur = Math.abs(tx - sx) / 900 + 0.05;
-        if (v) hit(v, m.magic, dur), setTimeout(() => audio.sfx('boltHit', { pan: panX(tx, sx) }), dur * 1000);
-        this.fx.spawn('bolt', { x: sx, y: sy - 22, tx, ty, dur, hit: !!v });
+        if (sk.kind === 'fireball') {
+          // it bursts where it lands, hitting everything near (even if it only reached the floor)
+          const fy = v ? v.y : sy;
+          for (const t of this.around(tx, fy, sk.radius, true)) hit(t, mag, dur);
+          if (v) setTimeout(() => audio.sfx('boltHit', { pan: panX(tx, sx) }), dur * 1000);
+        } else if (v) {
+          if (sk.slow) v.slowLocal = this.time + dur + sk.slow;
+          hit(v, mag, dur);
+          setTimeout(() => audio.sfx('boltHit', { pan: panX(tx, sx) }), dur * 1000);
+        }
+        this.boltFx(id, sk, sx, sy, tx, ty, dur, !!v);
       } else {
         const fy = v ? v.y : 450; // the blast is on the floor under the target
-        for (const t of this.around(tx, fy, sk.radius, true)) hit(t, m.magic, sk.delay);
+        for (const t of this.around(tx, fy, sk.radius, true)) hit(t, mag, sk.delay);
         setTimeout(() => audio.sfx('meteorHit', { pan: panX(tx, sx) }), sk.delay * 1000);
         this.fx.spawn('meteor', { x: tx, y: fy, radius: sk.radius, delay: sk.delay });
       }
@@ -351,7 +386,7 @@ export class Rpg {
           chain.push(next);
         }
       }
-      chain.forEach((v, n) => hit(v, m.magic, 0.05 * n));
+      chain.forEach((v, n) => hit(v, mag, 0.05 * n));
       const points = [[sx + dir * 16, sy - 24], ...chain.map((v) => [v.x, v.y - MOBS[v.kind].h / 2])];
       if (!chain.length) points.push([sx + dir * sk.range * 0.6, sy - 30]);
       msg.points = points.map(([x, y]) => [Math.round(x), Math.round(y)]);
@@ -359,12 +394,12 @@ export class Rpg {
     } else if (sk.kind === 'nova') {
       for (const v of this.around(sx, sy, sk.radius, true)) {
         v.slowLocal = this.time + sk.slow;
-        hit(v, m.magic);
+        hit(v, mag);
       }
       this.fx.spawn('nova', { x: sx, y: sy, radius: sk.radius });
     } else if (sk.kind === 'starfall') {
       const hits = this.around(sx, sy, sk.radius);
-      hits.forEach((v, n) => hit(v, m.magic, 0.3 + 0.08 * n));
+      hits.forEach((v, n) => hit(v, mag, 0.3 + 0.08 * n));
       this.fx.spawn('starfall', { x: sx, y: sy, radius: sk.radius, targets: hits.map((v) => ({ x: v.x, y: v.y })) });
     } else if (sk.kind === 'heal') {
       this.fx.spawn('heal', { x: sx, y: sy, radius: sk.radius, targets: [{ x: sx, y: sy }] });
@@ -373,6 +408,9 @@ export class Rpg {
       this.fx.spawn('buff', { x: sx, y: sy });
     } else if (sk.kind === 'bubble') {
       if (mine) mine.bubbleUntil = this.time + sk.dur;
+    } else if (sk.kind === 'shield') {
+      if (mine) mine.manaShieldUntil = this.time + sk.dur;
+      this.fx.spawn('nova', { x: sx, y: sy, radius: 70, tint: 'mana' });
     } else if (sk.kind === 'rally') {
       if (mine) mine.rallyUntil = this.time + sk.dur;
       this.fx.spawn('rally', { x: sx, y: sy, radius: sk.radius });
@@ -385,6 +423,14 @@ export class Rpg {
     if (sound) audio.sfx(sound);
     this.send(msg);
     return true;
+  }
+
+  // A bolt-like spell's flight: Magic Bolt, Pebble Toss (a small pebble), Glacial Spike (ice), Fireball
+  // (fire, and a burst where it lands)
+  boltFx(id, sk, x, y, tx, ty, dur, hit) {
+    if (sk.stat === 'best') return this.fx.spawn('staffbolt', { x: x + 8 * Math.sign(tx - x), y: y - 24, tx, ty, dur: dur * 1.4, hit, tint: '214,196,170' });
+    this.fx.spawn('bolt', { x, y: y - 22, tx, ty, dur, hit, tint: sk.fire ? '255,150,80' : sk.ice ? '160,225,255' : undefined });
+    if (sk.kind === 'fireball') this.timed.push([this.time + dur, () => this.fx.spawn('nova', { x: tx, y: ty + 18, radius: sk.radius, tint: 'fire' })]);
   }
 
   // The server's {t:'skill'} for everyone in the room (ours: our hits are already shown)
@@ -410,7 +456,8 @@ export class Rpg {
     else if (sk.kind === 'cleave') this.fx.spawn('cleave', { x, y, dir: m.dir, reach: SLAP_REACH + sk.reach });
     else if (sk.kind === 'spin') this.fx.spawn('spin', { x, y, radius: sk.radius, follow });
     else if (sk.kind === 'storm') this.fx.spawn('storm', { x, y, radius: sk.radius, hits: sk.hits, follow });
-    else if (sk.kind === 'bolt') this.fx.spawn('bolt', { x, y: y - 22, tx: m.tx, ty: m.ty, dur: Math.abs(m.tx - x) / 900 + 0.05, hit: m.hits.length > 0 });
+    else if (sk.kind === 'bolt' || sk.kind === 'fireball') this.boltFx(m.skill, sk, x, y, m.tx, m.ty, Math.abs(m.tx - x) / 900 + 0.05, m.hits.length > 0);
+    else if (sk.kind === 'shield') this.fx.spawn('nova', { x, y, radius: 70, tint: 'mana' });
     else if (sk.kind === 'meteor') this.fx.spawn('meteor', { x: m.tx, y: 450, radius: sk.radius, delay: sk.delay });
     else if (sk.kind === 'chain' && m.points) this.fx.spawn('chain', { points: m.points.map(([px, py]) => ({ x: px, y: py })) });
     else if (sk.kind === 'nova') this.fx.spawn('nova', { x, y, radius: sk.radius });
@@ -420,9 +467,9 @@ export class Rpg {
     else if (sk.kind === 'rally') this.fx.spawn('rally', { x, y, radius: sk.radius });
     else if (sk.kind === 'zone') this.fx.spawn('zone', { x, y, radius: sk.radius, dur: m.dur });
     else if (sk.kind === 'aegis') this.fx.spawn('aegis', { x, y, radius: sk.radius });
-    const sound = { strike: m.skill === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis' }[sk.kind];
+    const sound = { strike: m.skill === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis' }[sk.kind];
     if (sound) audio.sfx(sound, { pan, vol });
-    const delay = sk.kind === 'bolt' ? Math.abs(m.tx - x) / 900 : sk.kind === 'meteor' ? sk.delay : sk.kind === 'starfall' ? 0.3 : 0;
+    const delay = sk.kind === 'bolt' || sk.kind === 'fireball' ? Math.abs(m.tx - x) / 900 : sk.kind === 'meteor' ? sk.delay : sk.kind === 'starfall' ? 0.3 : 0;
     this.othersHits(m.hits, myX, delay);
   }
   // A shield or Second Wind did its thing: {id, what: 'pop' | 'block' | 'secondwind'}
@@ -1268,6 +1315,11 @@ export class Rpg {
   }
   act(t, slot) {
     const m = this.me, b = this.itemAt(slot);
+    if (t === 'equip' && b && gearSlotOf(b.id) === 'weapon' && !weaponOk(m.cls, b.id)) {
+      // a class wields only its own weapon kind (src/shared/skills.js CLASSES)
+      this.toast(`A ${CLASSES[m.cls].name} can only wield a ${CLASSES[m.cls].weapon} (change class at the Rebirth Pool)`);
+      return audio.sfx('error');
+    }
     this.send({ t, slot });
     audio.sfx(t === 'use' ? (ITEMS[b?.id]?.mana ? 'mpPotion' : 'potion') : t === 'drop' ? 'pickup' : 'equip');
     // show it straight away (the server's 'me' follows)

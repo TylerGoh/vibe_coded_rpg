@@ -97,9 +97,14 @@
       </div>
       <div id="skills" role="dialog" aria-label="Skill tree" hidden>
         <h2>Skills <span id="skills-sp"></span></h2>
-        <p class="skills-help"><span id="skills-mp"></span> · + learn · − take a point back · put active skills on the hotbar (keys 1–6)</p>
+        <p class="skills-help" id="skills-next"></p>
+        <p id="skills-remind" hidden></p>
+        <div id="skills-tabs" role="tablist"></div>
+        <div id="skills-body">
+          <div id="skills-tree"></div>
+          <div id="skills-card"></div>
+        </div>
         <button id="skills-reset" type="button">Reset all</button>
-        <div id="skills-cols"></div>
         <button id="skills-close" type="button" aria-label="Close">✕</button>
       </div>
       <div id="shop" role="dialog" aria-label="Shop" hidden>
@@ -107,6 +112,16 @@
         <div class="shop-tabs"><button id="shop-buy" type="button">Buy</button><button id="shop-sell" type="button">Sell</button><button id="shop-cos" type="button">Boutique</button></div>
         <div id="shop-list"></div>
         <button id="shop-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <div id="pool" role="dialog" aria-label="The Rebirth Pool" hidden>
+        <h2>The Rebirth Pool <span id="pool-gold"></span></h2>
+        <div id="pool-body"></div>
+        <button id="pool-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <div id="news" role="status" hidden>
+        <b id="news-title"></b>
+        <p id="news-text"></p>
+        <div class="invite-btns"><button id="news-ok" type="button">Got it</button></div>
       </div>
       <div id="hotbar" hidden></div>
       <div id="hudbtns">

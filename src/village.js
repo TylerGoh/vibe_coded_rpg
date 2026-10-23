@@ -2,7 +2,7 @@
 // Slimeville: everything in the village that isn't a slime. Drawn in world coordinates, in the same
 // soft, rounded style as Slime Hop (ground and flowers follow src/world.js in the game folder).
 import { H, TAU, mulberry32, circle, ellipse, mix } from './util.js';
-import { WORLD_W, GROUND_Y, PLATFORMS, HALL_DOOR_X, PIANO_DOOR_X, MUSEUM_DOOR_X, HARBOUR_GATE_X } from './shared/sim.js';
+import { WORLD_W, GROUND_Y, PLATFORMS, HALL_DOOR_X, PIANO_DOOR_X, MUSEUM_DOOR_X, HARBOUR_GATE_X, REBIRTH_X } from './shared/sim.js';
 import { drawHallOutside } from './hall.js';
 import { drawMusicHouse } from './piano.js';
 import { drawMuseumOutside } from './museum.js';
@@ -11,6 +11,7 @@ import { FIELD_GATE_X, SHOP_X } from './shared/rpg.js';
 import { drawStoreWindow } from './store.js';
 import { drawPetShopWindow } from './petshop.js';
 import { drawHarbourGate } from './harbour.js';
+import { drawRebirthPool } from './rebirth.js';
 
 const FLOWER_COLORS = ['#ffb3c7', '#fff1a8', '#c9b6ff', '#ffffff', '#ffd1a1'];
 const INK = '#5b4a6b';
@@ -23,8 +24,8 @@ const HOUSES = [
   { x: 2935, w: 170, h: 140, wall: '#fff1f4', roof: '#ffb3c7', roofDark: '#e88fa8', style: 'gable', door: '#9c7bd1', sign: 'Pets', petshop: true }, // the Pet Shop (PETSHOP_DOOR_X, src/petshop.js)
 ];
 const TREE = { x: 1960 };
-const LAMPS = [300, 1130, 1700, 2520, 2915];
-const BUNTING = [[1130, 1700], [2520, 2915]]; // (the east lamp moved west of the Pet Shop)
+const LAMPS = [300, 1130, 1700, 2505, 2915];
+const BUNTING = [[1130, 1700], [2505, 2915]]; // (the east lamp moved west of the Pet Shop; the one by the Inn nudged west for the Rebirth Pool)
 const WELL = { x: 1790 };
 const SIGNPOST = { x: 175 }; // (moved east to make room for the harbour gate)
 
@@ -651,6 +652,7 @@ export function drawVillage(ctx, camX, viewW, time) {
   if (visible(PIANO_DOOR_X - 200, PIANO_DOOR_X + 200, L, R)) drawMusicHouse(ctx, PIANO_DOOR_X, GROUND_Y, time);
   if (visible(MUSEUM_DOOR_X - 340, MUSEUM_DOOR_X + 340, L, R)) drawMuseumOutside(ctx, MUSEUM_DOOR_X, GROUND_Y, time);
   drawGround(ctx, Math.max(0, L), Math.min(WORLD_W, R), time);
+  if (visible(REBIRTH_X - 130, REBIRTH_X + 130, L, R)) drawRebirthPool(ctx, time); // the Rebirth Pool (src/rebirth.js)
   PLATFORMS.forEach((p, i) => {
     if (!visible(p.x - 20, p.x + p.w + 20, L, R)) return;
     if (p.kind === 'deck') drawDeck(ctx, p);

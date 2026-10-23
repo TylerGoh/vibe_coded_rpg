@@ -1,6 +1,8 @@
 # S2, split into pieces (sub-plan for agents)
 
-**Status: plan, written 2026-10-23, nothing built.** S2 in `progression.md` ("the tree") is too big for one
+**Status: plan, written 2026-10-23. S2.1 built 2026-10-23 on the git branch `s2` (not deployed: deploy #1
+needs S2.2 and S2.3 too; start S2.2–S2.4 from that branch). S2.2 built 2026-10-23 on the branch `s2.2`
+(from `s2`), not deployed. S2.3 built 2026-10-23 on the branch `s2.3` (from `s2.2`), not deployed. S2.4 built 2026-10-23 on the branch `s2.4` (from `s2.3`), not deployed.** S2 in `progression.md` ("the tree") is too big for one
 session, so it's cut into six pieces, each sized for one agent. The design and the owner's decisions are in
 `progression.md` (sections 1, 1a, 1b, 1c, 2, 3, 7, 9): read it first. This file pins down what that plan
 left open and says who does what. Numbers here (maxes, the schedule) are starting points: S2.4's CLASSES
@@ -96,7 +98,17 @@ Lv 100. The masteries (★Bastion, ★Bloodlust, ★Wildfire, ★Permafrost) mov
 
 ---
 
-## S2.1: classes, trees and the server (data, rules, migration; no new UI)
+## S2.1: classes, trees and the server (data, rules, migration; no new UI) — built 2026-10-23
+As built (`docs/combat/skills.md` has the details): `REBIRTH_X` is a placeholder (2300) for S2.3 to move.
+The migration notice and the advancement messages are toasts plus chat lines (`notice` carries
+`news: 'classes'`, `{t:'advance'}`), for S2.2/S2.3 to turn into banners. On choosing a class the strongest
+weapon of its kind in the bag is equipped. Novice skills reset with the rest on a rebirth (all points
+come back). The per-rank numbers of skills whose max fell from 5 to 3 were raised to keep the max rank's
+worth; Jelly Thirst, Mana Shield, Fireball, Kindling, Glacial Spike and Absolute Zero have first-guess
+numbers for S2.4 to tune. Tested: the live DB's ten characters migrate (including a rollback + classes
+double notice), the learn / fork / level / class gates, rebirth (free once, then paid; refusals: level,
+distance, gold, full bag), weapon lock, Mana Shield in `hurt()`, Jelly Thirst, the Lv 30 advancement
+message, and every new skill cast in a headless browser.
 Docs: `docs/combat/skills.md`, `docs/combat/core.md`, `docs/combat/items.md`, `docs/netcode.md` (protocol).
 - `src/shared/skills.js`: `CLASSES` (`novice`, `warrior`, `mage`: name, weapon kind, main stat, colour, blurb, strong /
   bad at text for the pool's card, its two branches with names and blurbs); `TREES` becomes per class plus
@@ -123,7 +135,16 @@ Docs: `docs/combat/skills.md`, `docs/combat/core.md`, `docs/combat/items.md`, `d
 - Test: a copy of the live DB loads with no errors; the Lv 390 and a Lv 5 migrate to Novices right; learn /
   unlearn / fork / level gates; rebirth through a test client (free once, then 500k); every new skill casts.
 
-## S2.2: the node tree UI (K panel), desktop and phone
+## S2.2: the node tree UI (K panel), desktop and phone — built 2026-10-23
+As built (`docs/combat/skills.md`, "The K panel"): only `src/skilltree.js`, `index.html` (`#skills`) and
+`src/style.css` changed; `src/main.js` untouched. The lines are CSS (a spine per column, a line through
+each row, an arch where the basics split), so they scale with `--s` and need no canvas. A Novice's class tab
+is "Classes" with a Warrior / Mage switch over the greyed trees; Mobility is greyed for a Novice. The card
+is pinned under the tree on desktop and in the scroll after it on phones. Tabs carry a badge with the
+points spendable there. The HUD buttons hide while the panel is open (they sat on its title). Tested
+headless at 960×540, 844×390 and 667×375 (touch): Lv 5 and Lv 15 Novices, a Lv 35 Berserker (learn, the
+other branch refused, taking points back and switching to Knight, Hotbar → key 3), a Lv 120 Frostbinder
+(scrolling, Mobility, Reset all); no console errors.
 Docs: `docs/combat/skills.md`, `docs/ui/mobile.md`, `docs/ui/hints.md`. Files: `src/skilltree.js`,
 `index.html` (`#skills`), `src/style.css`.
 - Tabs: Novice, your class (a Novice sees "Choose a class at Lv 10 at the Rebirth Pool" instead, with
@@ -138,7 +159,26 @@ Docs: `docs/combat/skills.md`, `docs/ui/mobile.md`, `docs/ui/hints.md`. Files: `
   the phone sizes in `docs/ui/mobile.md`.
 - Test with headless screenshots at desktop and phone size, Warrior and Mage, low and high level.
 
-## S2.3: the Rebirth Pool (place, card, Elder Mochi)
+## S2.3: the Rebirth Pool (place, card, Elder Mochi) — built 2026-10-23
+As built (`docs/combat/skills.md`, Classes): the pool is at `REBIRTH_X` 2578, between the Inn and Pip's
+stall (between Mochi's tree and the Inn there was no room clear of his talk range); `REBIRTH_RANGE` went to
+80 so it doesn't touch the shop's, and the lamp by the Inn moved 15 px west. Art, card, splash and banner are
+all in the new `src/rebirth.js` (a ring of pale stones with mossy boulders behind, a glowing carved drop and a
+trickle, light shafts and motes; fewer motes and one glow on Low graphics). The card is `#pool`, the banner
+`#news`; `src/rpg.js` got hooks (`onNews`, `onReborn`, `onToast`, `onMe`) that `src/main.js` wires. The card
+disables "Become" when you're short of gold, and still shows the server's refusal in red if one comes. All
+advancements use the banner (the Lv 10 Novice one and the classes one stay until dismissed). Mochi hears
+`Lv N Class` with every line (`whoIs`), and `persona(user, { first })` gives him the newcomer welcome (there
+was no new-player flow before: it's his first chat with someone). The world map's Slimeville got a small
+glowing dot. Sound `reborn` in `src/audio.js`. Tested headless at 960×540 and 844×390 (touch): the pool on
+High and Low, the prompt, the card for Lv 5 / Lv 15 Novices and a Lv 40 Mage (both confirms), choosing by
+click and by tap (free and paid; the wrong weapon went to the bag and the bag's sword came out), the
+not-enough-gold refusal, the splash, the migration banner, the Lv 10 banner from a real level-up, Mochi's
+replies with DeepSeek (points a Lv 15 Novice at the pool, tells a Lv 5 to come back at 10, deflects where
+the pool comes from); no console errors.
+Files: `src/rebirth.js` (new), `src/village.js`, `src/shared/sim.js`, `src/main.js`, `src/rpg.js`,
+`src/audio.js`, `src/worldmap.js`, `index.html`, `src/style.css`, `server/characters.js`, `server/index.js`,
+`server/npc.js`.
 Docs: `docs/world.md`, `docs/art.md`, `docs/ui/hints.md`, `docs/ui/mobile.md`, `docs/social/ai-characters.md`,
 `docs/ui/audio.md`; `story/world/regions/greenhollow.md` and `story/world/atlas.md` before placing it.
 - Place: a softly glowing spring in Slimeville near Elder Mochi (`x: 2075`), set `REBIRTH_X` to its spot,
@@ -158,7 +198,17 @@ Docs: `docs/world.md`, `docs/art.md`, `docs/ui/hints.md`, `docs/ui/mobile.md`, `
 - The migration banner and the Lv 10 banner (from S2.1) point at the pool; Mochi brings it up with any
   Lv 10+ Novice who chats to him.
 
-## S2.4: the CLASSES table in `npm run economy`
+## S2.4: the CLASSES table in `npm run economy` — built 2026-10-23
+As built (`docs/economy.md`, "The CLASSES tables"): three tables (per branch and level; time to solo each den
+at its level; the Warrior ÷ Mage shape) from a fight sim with one action per swing cooldown. The Warrior's
+"bad at range" is measured as damage a second at a target `RANGED_PX` away; the Mage's toughness as seconds
+under a curve boss's hits with no potions. "Can solo" = never faints and the potions cost at most
+`SOLO_POTION_SHARE` of the kill's loot; `CLASS_FIT` is checked per branch, not per class. Dens under Lv 10
+(Sprout King, Mother Mushroom) are left out: only Novices are that level. Tuned in `src/shared/skills.js`:
+Slime Bash and Pebble Toss cooldowns 1 s / 1.2 s → 3 s, Jelly Thirst 3% → 1% a rank, Power Strike and Cleave
+up, Rally +20–40% for 20 s every 30 s (was +15–25%, 15 s, 40 s). Every other table unchanged. Left open: the
+two Mage branches measure the same (their difference is control, S2.6); MP barely limits a Mage once Mana
+Flow is in; Mages lead damage most at Lv 10–60.
 Docs: `docs/economy.md`, `story/progression.md` 1b. Files: `scripts/economy.mjs`, `docs/economy.md`.
 - For each class and branch at Lv 10, 30, 60, 100, 150, 200: a sensible build (a `BUILDS` constant: skill
   priority per branch, spent with `spTotal`; AP into the main stat, a share into LUK), gear on the frozen

@@ -203,6 +203,10 @@ function drawChart(ctx, t, here, hue) {
   ctx.fill();
   ctx.fillStyle = '#ff7a8f';
   for (const [x, y] of [[137, 197], [143, 202], [141, 195]]) ctx.fillRect(x, y, 2.5, 2.5);
+  ctx.fillStyle = `rgba(190, 236, 255, ${0.75 + 0.25 * Math.sin(t * 2)})`; // the Rebirth Pool, by the tree
+  ctx.beginPath();
+  ctx.ellipse(152, 208, 3.6, 2.2, 0, 0, Math.PI * 2);
+  ctx.fill();
   ctx.strokeStyle = '#f4ecdc'; // the white east cliffs, where the Wildwood ends
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
