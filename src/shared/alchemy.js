@@ -54,8 +54,17 @@ export const RECIPES = {
   star_elixir: { tier: 5, makes: 3, steps: ['grind:stardust', 'add:starlotus', 'add:starlotus', 'cool', 'stir', 'heat', 'add:moonbell', 'distill', 'grind:aether_crystal', 'stir', 'distill'] },
   gilded_draught: { tier: 5, makes: 3, steps: ['grind:cog', 'add:sunberry', 'add:sunberry', 'add:starlotus', 'heat', 'stir', 'add:cog', 'distill', 'stir'] },
   phoenix_draught: { tier: 5, makes: 2, steps: ['add:phoenix_feather', 'grind:ember_core', 'add:emberroot', 'add:emberroot', 'heat', 'heat', 'stir', 'add:starlotus', 'distill', 'stir'] },
+  // S5.5, a boss mechanic's backup for every class (story/s5-plan.md): royal sap from the bosses that curse and pulse
+  cleansing_tonic: { tier: 3, makes: 3, steps: ['grind:royal_sap', 'add:mintleaf', 'add:mintleaf', 'add:moonbell', 'cool', 'stir', 'distill'] },
+  barrier_draught: { tier: 3, makes: 3, steps: ['add:royal_sap', 'grind:crab_shell', 'add:frostbloom', 'heat', 'stir', 'cool', 'distill'] },
   hour_elixir: { tier: 6, makes: 2, steps: ['grind:time_sand', 'add:aether_crystal', 'add:starlotus', 'add:starlotus', 'cool', 'stir', 'heat', 'add:moonbell', 'distill', 'grind:stardust', 'stir', 'cool', 'distill'] },
 };
+// The two S5.5 potions (`cure` on the item): the Cleansing Tonic clears your own curse stacks (a boss's `curse`), the
+// Barrier Draught absorbs the next boss pulse that hits you within DRAUGHT_S. Weaker than the class answers on
+// purpose (Cleanse clears a friend too, every few seconds; a Cleric's Barrier soaks every hit): one use each, and
+// drinking either starts CURE_CD, shared by both, so neither keeps up with every curse or every pulse.
+export const CURE_CD = 30;
+export const DRAUGHT_S = 120;
 export const BUFF_LABELS = { atk: 'ATK and MAGIC', crit: 'crit chance', ward: 'less damage taken', regen: 'HP regen', exp: 'EXP', gold: 'gold' };
 
 export const stepItem = (s) => (s.startsWith('add:') || s.startsWith('grind:') ? s.slice(s.indexOf(':') + 1) : null);

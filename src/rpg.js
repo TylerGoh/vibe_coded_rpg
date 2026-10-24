@@ -753,6 +753,13 @@ export class Rpg {
     } else if (m.what === 'dodge') { // Evasion (Archer, S4): the hit missed
       this.pop(s.x, s.y - 64, 'MISS', '#e6f0a8', 18);
       audio.sfx('dodge', { vol: isMe ? 0.8 : 0.4 });
+    } else if (m.what === 'draught') { // a Barrier Draught took a boss's pulse (S5.5)
+      this.fx.spawn('bubblePop', { x: s.x, y: s.y });
+      audio.sfx('block', { vol: isMe ? 0.8 : 0.4 });
+      this.pop(s.x, s.y - 64, 'ABSORBED', '#ffe9a0', 18);
+    } else if (m.what === 'cleansed') { // a Cleansing Tonic lifted a curse (S5.5)
+      this.pop(s.x, s.y - 64, 'CLEANSED', '#e8e4ff', 18);
+      audio.sfx('buff', { vol: isMe ? 0.8 : 0.4 });
     } else if (m.what === 'secondwind') {
       this.fx.spawn('secondwind', { x: s.x, y: s.y });
       audio.sfx('secondWind');
@@ -1677,6 +1684,10 @@ export class Rpg {
       });
     }
   }
+  // seconds until the Cleansing Tonic / Barrier Draught can be drunk again (S5.5, from 'me')
+  cureLeft() {
+    return this.me?.cure > 0 ? this.me.cure / 1000 - (this.time - (this.meAt ?? this.time)) : 0;
+  }
   // a potion from the hotbar (7–9)
   drink(id) {
     const m = this.me, it = ITEMS[id];
@@ -1689,6 +1700,13 @@ export class Rpg {
     if ((it.heal && !it.mana && m.hp >= m.maxHp) || (it.mana && !it.heal && m.mp >= m.maxMp)) {
       this.toast("You're already full");
       return audio.sfx('error');
+    }
+    if (it.cure) { // S5.5's two potions: the server checks again and toasts why
+      const cd = this.cureLeft();
+      if (cd > 0 || (it.cure === 'curse' && !(m.curse?.n > 0))) {
+        this.toast(cd > 0 ? `${it.name}: ready in ${Math.ceil(cd)} s` : "You're not cursed");
+        return audio.sfx('error');
+      }
     }
     this.send({ t: 'use', item: id });
     audio.sfx(it.buff ? 'buff' : it.mana ? 'mpPotion' : 'potion');

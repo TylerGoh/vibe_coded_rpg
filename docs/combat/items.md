@@ -15,7 +15,9 @@ Kinds: coin · potion (HP and/or MP) · loot (materials, mostly for selling) · 
 (MAGIC, MP, bolt range) · bow (ATK, arrow range; S4) · helmet (DEF) · scroll. Swords, staves and bows go in the one **weapon** slot (`gear.weapon`,
 `WEAPON_KINDS`, `gearSlotOf`); before S1 it was called `sword`, and `load()` in `server/rpg.js` moves old saves over. Herbs (`herb: true`, loot) and brewed potions (`brewed: true`: also full restores and
 timed buffs) come from farming and the alchemy lab: `docs/places/alchemy.md`. Recipes use some mob
-materials, so those aren't only for selling any more. Bosses drop unique swords and helmets; their later ones have more upgrade slots.
+materials, so those aren't only for selling any more. Two brews answer boss mechanics (`cure` on the item: the
+Cleansing Tonic and the Barrier Draught, S5.5). Every boss and field boss from `LOOT_TWIN_LVL` drops a sword with a
+staff and a bow twin, so `twinPick` can give each class its own kind (checked by `npm run economy`). Bosses drop unique swords and helmets; their later ones have more upgrade slots.
 
 ## Staves (S1, 2026-10-23: `story/progression.md`)
 - Every staff has a **twin** sword (`twin` on the staff, `STAFF_OF`): the same price, slots and `lvl`, with

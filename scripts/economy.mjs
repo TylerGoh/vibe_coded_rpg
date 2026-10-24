@@ -192,6 +192,15 @@ table('ALCHEMY: one batch of each recipe (cost = seeds for its herbs + its mob m
   steps: r.steps.length, makes: r.makes, cost: fmt(brewCost(r)), 'output sells for': fmt(r.makes * sellPrice(id)), does: ITEMS[id].desc.replace(/^Brewed\. /, ''),
 }])));
 
+// The loot check (S5.5, story/progression.md 6: "a boss's loot includes one weapon, its kind picked from the classes
+// who fought it"): every den and field boss from LOOT_TWIN_LVL drops a sword with both a staff and a bow twin, so
+// twinPick (server/rpg.js) can hand each class its own kind. Under it nobody has a class yet.
+const LOOT_TWIN_LVL = 10;
+const weaponDrops = (m) => (m.drops ?? []).filter(([d]) => STAFF_OF[d] && BOW_OF[d]);
+table(`LOOT BY CLASS: each boss's twinned weapon (sword / staff / bow; checked from Lv ${LOOT_TWIN_LVL})`, Object.fromEntries(bosses.map(([id, m]) => [id, {
+  lvl: m.lvl, kind: m.boss ? 'den' : 'field', weapon: weaponDrops(m).map(([d, ch]) => `${d} / ${STAFF_OF[d]} / ${BOW_OF[d]} (${Math.round(ch * 100)}%)`).join(', ') || 'none',
+}])));
+
 // ——— CLASSES (S2.4, story/progression.md 1b: "equal power, different shape") ———
 // Each class and branch at CLASS_AT levels: a build (BUILDS: skill points spent in priority order the way
 // the game allows it: spNovice / spClass, the adv gates and one branch, through cantLearn; AP into the main
@@ -632,6 +641,7 @@ for (const [id, it] of Object.entries(ITEMS)) {
   if (!tw || tw.kind !== 'sword') problems.push(`bow ${id} has no twin sword`);
   else if (tw.price !== it.price || tw.atk !== it.atk || (tw.slots ?? 0) !== (it.slots ?? 0) || (tw.lvl ?? 0) !== (it.lvl ?? 0)) problems.push(`bow ${id} doesn't match its twin ${it.twin} (price, ATK, slots, lvl)`);
 }
+for (const [id, m] of bosses) if (m.lvl >= LOOT_TWIN_LVL && !weaponDrops(m).length) problems.push(`${m.boss ? 'boss' : 'field boss'} ${id} (lvl ${m.lvl}) drops no sword with both a staff and a bow twin: twinPick can't give every class its own kind`);
 for (const [sword, staff] of Object.entries(STAFF_OF)) if (!BOW_OF[sword] && !ITEMS[sword].legacy) problems.push(`${sword} has a staff twin (${staff}) but no bow twin`);
 console.log(problems.length ? `\nCHECKS FAILED:\n- ${problems.join('\n- ')}` : '\nAll checks pass.');
 if (process.argv.includes('--check') && problems.length) process.exit(1);

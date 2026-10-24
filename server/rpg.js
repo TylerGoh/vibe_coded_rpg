@@ -17,7 +17,7 @@ import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, ap
 import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
-import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
+import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs, CURE_CD, DRAUGHT_S } from '../src/shared/alchemy.js';
 import { wayAt, wayById, sameIsle, ARRIVE_DX } from '../src/shared/waystones.js';
 import { caughtBy, cleanBot, BOT_CUT } from './accuse.js';
 
@@ -287,6 +287,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       berserk: left(p.berserkUntil), shield: c.shield ? 1 : 0, barrier: p.barrier && p.barrier.until > now() ? Math.ceil(p.barrier.left) : 0, barrierLeft: left(p.barrier?.until), mend: left(p.mend?.until), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), gods: left(p.godsUntil), secondWind: left(p.swReadyAt),
       brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
       curse: p.curse ? { n: p.curse.n, left: left(p.curse.until) } : undefined, // (S5.2: a boss's curse stacks)
+      draught: left(p.draughtUntil), cure: left(p.cureAt), // (S5.5: a Barrier Draught waiting for a pulse; the two potions' shared cooldown)
       ways: c.ways,
     });
   }
@@ -344,6 +345,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     p.momentum = null;
     p.arcane = null;
     p.barrier = p.mend = null;
+    p.draughtUntil = 0; // (and drops a Barrier Draught, S5.5)
     if (p.curse) uncurse(id, p, true); // (a KO lifts a curse, S5.2)
     // in a combat room you stay down where you fell until you ask to wake up in town ({t:'wake'}), so a
     // Cleric can come and Revive you (owner, 2026-10-24: get everyone used to that); elsewhere, a moment
@@ -390,6 +392,11 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (q.faintUntil || TEST_GOD) return;
     const t = now(), st = stats(q), dot = flat === 'dot';
     if ((q.aegisUntil ?? 0) > t) return dot ? undefined : guard(qid, q, 'block');
+    if (flat === true && (q.draughtUntil ?? 0) > t) { // a Barrier Draught (S5.5) takes a boss's pulse whole, once
+      q.draughtUntil = 0;
+      sendMe(q);
+      return guard(qid, q, 'draught');
+    }
     if ((q.bubbleUntil ?? 0) > t && !dot) {
       q.bubbleUntil = 0; // the bubble takes the hit, and pops
       sendMe(q);
@@ -1563,7 +1570,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         m.pulseHit = 0;
         m.pulseAt = t + PULSE_EVERY * 1000;
         bossEvent(m, 'pulseHit');
-        // (S5.5's Barrier Draught hooks in here, or in hurt() on `flat`)
+        // (a Barrier Draught takes it in hurt(), on `flat`)
         for (const [qid, q] of inFight(m, here)) hurt(qid, q, stats(q).maxHp * PULSE_HP, m.x, undefined, 0, false, m, true);
       }
     } else m.pulseAt = m.pulseHit = 0;
@@ -2032,6 +2039,16 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       } else if (m.t === 'use' && it.kind === 'potion') {
         const st = stats(p);
         if (p.faintUntil) return;
+        if (it.cure) { // S5.5: the Cleansing Tonic and the Barrier Draught, one shared cooldown (CURE_CD)
+          const t = now();
+          if ((p.cureAt ?? 0) > t) return toast(p, `${it.name}: ready in ${Math.ceil((p.cureAt - t) / 1000)} s`);
+          if (it.cure === 'curse' && !p.curse) return toast(p, "You're not cursed");
+          p.cureAt = t + CURE_CD * 1000;
+          if (it.cure === 'curse') {
+            uncurse(id, p, true);
+            guard(id, p, 'cleansed');
+          } else p.draughtUntil = t + DRAUGHT_S * 1000;
+        }
         if (it.heal && c.hp >= st.maxHp && !it.mana) return toast(p, "You're already at full HP");
         if (it.mana && c.mp >= st.maxMp && !it.heal) return toast(p, "You're already at full MP");
         if (it.heal) c.hp = Math.min(st.maxHp, c.hp + it.heal);

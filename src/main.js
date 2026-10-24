@@ -1392,6 +1392,9 @@ function drawHints() {
     // and no bow (arrows reach it anyway): jump for it
     const cl = mineR?.hotbar?.indexOf('cleanse') ?? -1, cTo = cl >= 0 && rpg.cooldown('cleanse') <= 0 && mineR.mp >= SKILLS.cleanse.mp ? rpg.cleanseTarget(me, SKILLS.cleanse.radius) : null;
     if (cTo) acts.push({ key: String(cl + 1), label: cTo === me ? 'Cleanse your curse' : 'Cleanse: lift your friend\'s curse' });
+    // S5.5: cursed, no Cleanse of your own to cast, a Cleansing Tonic on the potion bar and off cooldown
+    const tonic = mineR?.potbar?.indexOf('cleansing_tonic') ?? -1;
+    if (!cTo && mineR?.curse?.n > 0 && tonic >= 0 && rpg.cureLeft() <= 0 && mineR.bag.some((b) => b.id === 'cleansing_tonic')) acts.push({ key: String(HOTBAR + tonic + 1), label: 'drink a Cleansing Tonic' });
     const wk = rpg.party.weakOpen();
     if (wk && !rpg.bowOf(mineR) && me.grounded && Math.abs(wk.v.x - me.x) < 260) acts.push({ key: 'Space', label: 'jump and hit the glowing weak point' });
   }

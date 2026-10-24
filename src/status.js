@@ -31,11 +31,13 @@ export function statusOf(rpg, mine) {
   if ((mine.barrierUntil ?? 0) > t && m.barrier > 0) out.push({ key: 'barrier', icon: 'barrier', name: `Barrier: soaks ${m.barrier} more damage`, left: mine.barrierUntil - t, n: m.barrier });
   timed('mend', 'mend', 'Mend: healing every second', fromMe(m.mend));
   if (m.brew && ITEMS[m.brew.id]) timed('brew', `item:${m.brew.id}`, ITEMS[m.brew.id].name, fromMe(m.brew.left));
+  timed('draught', 'item:barrier_draught', 'Barrier Draught: takes the next boss pulse whole', fromMe(m.draught)); // (S5.5)
   if (m.shield) out.push({ key: 'shield', icon: 'mana_shield', name: 'Mana Shield: on (cast it again to turn it off)' });
   const mo = rpg.momentum;
   if (mo && mo.until > t && mo.n > 0) out.push({ key: 'momentum', icon: 'momentum', name: `Momentum: ${mo.n} of ${MOMENTUM_MAX} stacks (more attack; keep moving)`, left: mo.until - t, n: mo.n });
   const arc = rankOf(m.skills, 'arcane_charge') ? rpg.charges() : 0;
   if (arc > 0) out.push({ key: 'arcane', icon: 'arcane_charge', name: `Arcane Charge: your next spell spends ${arc}`, n: arc });
+  timed('cure', 'item:cleansing_tonic', 'Cleansing Tonic and Barrier Draught: recharging', fromMe(m.cure), { cool: true });
   timed('secondwind', 'second_wind', 'Second Wind: recharging', fromMe(m.secondWind), { cool: true });
   return out;
 }

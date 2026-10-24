@@ -23,7 +23,8 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
 - S5.2's mechanics: anyone with Cleanse on the hotbar, ready and with the MP sees "<its key> Cleanse: lift your
   friend's curse" (or "Cleanse your curse") while someone in reach is cursed (`rpg.cleanseTarget`), and anyone
   without a bow near a boss whose weak point is open sees "Space jump and hit the glowing weak point" (Jump on touch:
-  `Space` is in `TOUCH_NAMES`). The `tell` toasts (each `PARTY_HINTS` times a session, worded for your class) cover
+  `Space` is in `TOUCH_NAMES`). Cursed, with no Cleanse to cast but a Cleansing Tonic on the potion bar and off
+  `CURE_CD`, you see "<its key> drink a Cleansing Tonic" (S5.5). The `tell` toasts (each `PARTY_HINTS` times a session, worded for your class) cover
   the sigil, being cursed, a friend cursed when you have Cleanse, the barrier, the armour, the weak point and the
   stagger; an interrupt always toasts who froze the ultimate away. Over the boss, a hit cut by a phase pops
   "WARDED" / "ARMOURED" and one on the weak point "WEAK POINT!" (at most every 0.7 s).

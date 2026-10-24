@@ -60,6 +60,20 @@ prompts, the buff on the HUD), `src/alchemy-art.js` (crops, herb and potion icon
 - **One brewed buff at a time**: drinking another replaces it. It's saved with the character (`brew`),
   so it survives a relog, and `me` sends it (`brew: {id, left}`) for the HUD pill under the HP panel.
 
+## The boss-mechanic potions (S5.5, 2026-10-24)
+- `story/progression.md` section 6: every class gets a poor answer to every boss mechanic. For curses and pulses
+  that answer is brewed: the **Cleansing Tonic** (`cure: 'curse'`: lifts all your curse stacks, `uncurse` in
+  `server/rpg.js`) and the **Barrier Draught** (`cure: 'pulse'`: the next boss pulse that hits you within
+  `DRAUGHT_S` is taken whole, in `hurt()`). Both need a `royal_sap`, which the bosses that curse and pulse drop.
+- **Weaker than the class answer, on purpose**: one use each, self only (Cleanse also clears a friend, every few
+  seconds), and drinking either starts `CURE_CD`, which both share (the plan said "a cooldown shared with the
+  other brews"; there was no brew cooldown, and adding one to every brew would have changed them all, so the two
+  share their own). `CURE_CD` is longer than a pulse's or a curse's beat, so they cover every other one at best.
+- The Barrier Draught isn't a brewed buff: it doesn't replace your Brew of Might. It, and the cooldown, show in
+  the status box (`src/status.js`); neither is saved, and a KO drops a waiting draught. The tonic refuses (and isn't
+  used up) when you aren't cursed or it's cooling down. Cursed with a tonic on the potion bar and no Cleanse to
+  cast, you see "<its key> drink a Cleansing Tonic".
+
 ## Plots and their crops
 - Each plot in a layout carries an `id` the server gives it (`tag` in `server/house.js`); crops are kept
   in the house row's `farm` under that id, out of the client's reach. Moving a plot while decorating

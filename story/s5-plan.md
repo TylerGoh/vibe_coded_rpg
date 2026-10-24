@@ -235,7 +235,28 @@ says why). Bosses below Lv 10 get none: nobody has a class yet.
 - Each boss's art gets its dome / shell / spot drawn to fit it (its own art file, `src/dens*.js`).
 - Run `npm run economy` before and after: the stagger speeds kills up a little, so a boss's EXP an hour moves.
 
-### S5.5: the potions and the loot check
+### S5.5: the potions and the loot check (built 2026-10-24)
+**Built** (hand-back to the main session; ships with whichever deploy comes next). What landed:
+- Two recipes (`RECIPES.cleansing_tonic`, `RECIPES.barrier_draught`, tier 3, three potions a batch), both on a
+  `royal_sap`: the reagent the cursing / pulsing bosses already drop (the Tidemother, the Knotmole, the Root Warden,
+  the Old Narwhal, Sigrun), so no new drop and no faucet moved. Items carry `cure: 'curse' | 'pulse'`.
+- "One use, a cooldown shared with the other brews": there was no brew cooldown, and putting one on every brew
+  would have changed them all, so the two share their own, `CURE_CD` (`src/shared/alchemy.js`). The Barrier
+  Draught is not a brewed buff (it doesn't take the Brew of Might's slot): it waits `DRAUGHT_S` for a pulse. With
+  `CURE_CD` over `PULSE_EVERY` and `CURSE_EVERY`, they cover at most every other pulse or curse, and one slime
+  can't cover both at once: weaker than Cleanse and a Barrier, on purpose.
+- Server: the drink in `use` (`server/rpg.js`, `p.cureAt`, `p.draughtUntil`, not saved, a KO drops the draught);
+  the draught takes the pulse in `hurt()` on `flat === true` (after Aegis, before a Bubble), guard `draught`;
+  the tonic uses `uncurse`, guard `cleansed`. `me` sends `draught` and `cure` (ms left).
+- Client: the status box (`src/status.js`) shows the waiting draught and the shared cooldown (greyed); `drink`
+  refuses on cooldown or when not cursed; the "drink a Cleansing Tonic" prompt; the pulse and curse toasts name
+  the potions. Flask art in `src/alchemy-art.js` (marks `spark`, `shield`).
+- The loot check: every boss already dropped a sword with both twins, so no twins were added. `npm run economy`
+  now prints LOOT BY CLASS and checks it from `LOOT_TWIN_LVL`.
+- Tested on a test server with `TEST_PARTY=sprout_king:pulse,curse`, two players (one on a phone): brewing both
+  at a house lab, the draught absorbing a pulse (the other slime took 30%), the cooldown refusing, the tonic
+  refused when not cursed and lifting two stacks, the status box on desktop and phone.
+
 Docs: `docs/places/alchemy.md`, `docs/combat/items.md`, `docs/economy.md`.
 - The Cleansing Tonic and the Barrier Draught: recipes, reagents, prices by the economy method, the buff
   hooks into S5.2's curse and S5.1's pulse.

@@ -72,7 +72,8 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 - **S2.6:** the interrupt is built (S5.2) but dark until a boss lists it. A shatter
   needs an Elementalist and a Frostbinder together; if solo Mages miss it, a branch could get a weak
   spell of the other element. Untested: whether the states read in Frostpeak's pale rooms.
-- **S3:** Cleanse is built (S5.2); the Cleansing Tonic and the Barrier Draught at the alchemy lab are S5.5's.
+- **S3:** Cleanse is built (S5.2); the Cleansing Tonic and the Barrier Draught (S5.5) too. Untested by people:
+  whether `CURE_CD` and `DRAUGHT_S` feel right once real bosses curse and pulse.
   The Clerics' trader (`[proposed]`: Auntie Clover or Elder Mochi). Summons don't climb or dodge.
   Untested: whether a spirit holding a boss feels right, whether the meter crowds a phone in a big party.
 - **S4:** weak points are built (S5.2, dark until a boss lists them): every arrow reaches one, the mark holds it open. Net Trap catches only what walks

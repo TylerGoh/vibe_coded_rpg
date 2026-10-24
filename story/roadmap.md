@@ -19,7 +19,8 @@ No quests, no hard level gates.
       by class, the status box, Cleanse (design: `progression.md` section 6; five pieces: `s5-plan.md`).
   - [x] S5.1 + S5.2: the engine (shipped dark), Rally's taunt, Cleanse, the status box (live 2026-10-24)
   - [ ] S5.3: switch on the party dens (Root Warden, Sigrun) and tune them. **Start here.**
-  - [ ] S5.4: the retrofit, a stage at a time; S5.5: the potions and the loot check
+  - [ ] S5.4: the retrofit, a stage at a time
+  - [x] S5.5: the Cleansing Tonic, the Barrier Draught, the loot check (built 2026-10-24, not deployed yet)
 - [ ] **Final bosses** (owner, 2026-10-24; plan: `final-bosses.md`): one per island, very hard, about
       30 minutes for four players at the recommended level (the boss's own level shown far higher). Far
       deeper in: each pocket gets better, then a new deep room, a cinematic approach room, the den. Moves

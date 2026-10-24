@@ -2012,6 +2012,8 @@ export const ITEMS = {
   star_elixir: { name: 'Starlotus Elixir', price: 650, kind: 'potion', brewed: true, full: true, buff: { atk: 0.2, crit: 0.05, ward: 0.15 }, dur: 600, desc: 'Brewed. Fully restores HP and MP, then +20% ATK and MAGIC, +5% crit and 15% less damage taken for 10 minutes.' },
   gilded_draught: { name: 'Gilded Draught', price: 480, kind: 'potion', brewed: true, buff: { gold: 0.2 }, dur: 600, desc: 'Brewed. +20% gold picked up for 10 minutes.' },
   phoenix_draught: { name: 'Phoenix Draught', price: 1800, kind: 'potion', brewed: true, full: true, buff: { atk: 0.35, crit: 0.15, regen: 1 }, dur: 600, desc: 'Brewed. Fully restores HP and MP, then +35% ATK and MAGIC, +15% crit and double HP regeneration for 10 minutes.' },
+  cleansing_tonic: { name: 'Cleansing Tonic', price: 40, kind: 'potion', brewed: true, cure: 'curse', desc: 'Brewed. Lifts every curse stack off you at once. Shares a 30 s cooldown with the Barrier Draught.' },
+  barrier_draught: { name: 'Barrier Draught', price: 40, kind: 'potion', brewed: true, cure: 'pulse', desc: "Brewed. Absorbs the next boss pulse that hits you within 2 minutes. Shares a 30 s cooldown with the Cleansing Tonic." },
   hour_elixir: { name: 'Elixir of Hours', price: 4400, kind: 'potion', brewed: true, full: true, buff: { atk: 0.3, crit: 0.1, ward: 0.25, exp: 0.2 }, dur: 900, desc: 'Brewed. Fully restores HP and MP, then +30% ATK and MAGIC, +10% crit, 25% less damage taken and +20% EXP for 15 minutes.' },
   sludge: { name: 'Murky Sludge', price: 1, kind: 'loot', desc: 'A brew gone wrong. It bubbles sadly.' },
   // ——— pet food (Auntie Clover's, the Pet Shop: docs/places/pets.md). food: how much of a pet's belly one

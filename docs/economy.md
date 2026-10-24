@@ -275,6 +275,14 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   branches). The new sinks are the bows, each at its twin sword's price (Pip's starters, one at each branch
   trader); a drop that used to be a sword or a staff can now be a bow, worth the same.
 
+## The potions and the loot check (S5.5, 2026-10-24)
+The Cleansing Tonic and the Barrier Draught are brews, priced like the others: a batch's ingredients (a
+`royal_sap` plus herbs, ~100–140 gold at sell value) cost far more than its potions sell for (checked). Aimed at the
+first bosses that will curse or pulse (the Tidemother, Lv 25, in S5.4's draft), where a batch is a few seconds of
+farming in herbs; the real price is the royal sap, a boss drop, and `CURE_CD` keeps them a poor answer. They drop
+from nothing and sell to nobody's profit, so no faucet, sink or PROGRESS number moved. The new LOOT BY CLASS table
+lists each boss's twinned weapon; the check (`LOOT_TWIN_LVL` up) found every boss already had one.
+
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Price it in **minutes of farming at that level** (the PROGRESS table's gold/min), by kind

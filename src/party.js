@@ -59,7 +59,7 @@ export class Party {
     if (!m.n && had && s && (m.id === r.myId || s.visible !== false)) r.pop(s.x, s.y - 80, 'CURSE LIFTED', '#e4d4ff', m.id === r.myId ? 18 : 15);
     if (m.id === r.myId && m.n > had) {
       const cleric = rankOf(r.me?.skills, 'cleanse');
-      this.tell('cursed', cleric ? 'You are cursed: your hits are softer and it burns. Cleanse it (or step well back to let it fade)' : 'You are cursed: your hits are softer and it burns. A Cleric can Cleanse it, or step well back to let it fade');
+      this.tell('cursed', cleric ? 'You are cursed: your hits are softer and it burns. Cleanse it (or step well back to let it fade)' : 'You are cursed: your hits are softer and it burns. A Cleric can Cleanse it, a Cleansing Tonic lifts it, or step well back to let it fade');
     } else if (m.n > had && rankOf(r.me?.skills, 'cleanse')) this.tell('cursedFriend', 'A friend is cursed (the dark wisps): Cleanse lifts it');
   }
   // → is mechanic `mech` on for boss `id` (or any boss here)?
@@ -135,7 +135,7 @@ export class Party {
       this.pulses.push({ mob: m.id, warnAt: t, at: t + m.dur });
       audio.sfx('phaseOut', { pan, vol: 0.7 });
       const cleric = cls === 'cleric', knight = rankOf(me?.skills, 'jelly_bubble') || rankOf(me?.skills, 'sanctuary');
-      this.tell('pulse', cleric ? 'A pulse is coming that nobody can dodge: Barrier and heals now!' : knight ? 'A pulse is coming that nobody can dodge: Bubble or Sanctuary takes it' : 'A pulse is coming that nobody can dodge: top up your HP (a Cleric\'s Barrier soaks it)');
+      this.tell('pulse', cleric ? 'A pulse is coming that nobody can dodge: Barrier and heals now!' : knight ? 'A pulse is coming that nobody can dodge: Bubble or Sanctuary takes it' : 'A pulse is coming that nobody can dodge: top up your HP, or drink a Barrier Draught first (a Cleric\'s Barrier soaks it)');
       return true;
     }
     if (m.a === 'pulseHit') {

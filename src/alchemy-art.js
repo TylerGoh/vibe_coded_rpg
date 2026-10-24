@@ -263,6 +263,8 @@ const BREW = {
   gilded_draught: { shape: 'tall', color: '#ffcf4a', mark: 'coin' },
   phoenix_draught: { shape: 'round', color: '#ff9a5c', mark: 'flame', rainbow: true },
   hour_elixir: { shape: 'tall', color: '#e8d4ff', mark: 'hourglass', rainbow: true },
+  cleansing_tonic: { shape: 'tall', color: '#f2f6ff', mark: 'spark' }, // (S5.5: clear as spring water)
+  barrier_draught: { shape: 'wide', color: '#ffe9a0', mark: 'shield' }, // (S5.5: the Cleric's Barrier gold)
   sludge: { shape: 'round', color: '#8a9a5b', mark: 'blob' },
 };
 function flask(ctx, { shape, color, mark, rainbow }) {
@@ -378,6 +380,27 @@ function flask(ctx, { shape, color, mark, rainbow }) {
     circle(ctx, -0.8, my - 0.8, 1.8);
   } else if (mark === 'hourglass') {
     hourglass(ctx, 0, my, 4.5, '#7a5fd1');
+  } else if (mark === 'spark') { // a four-point sparkle: a curse lifted
+    ctx.fillStyle = '#8a7ad8';
+    ctx.beginPath();
+    ctx.moveTo(0, my - 4.8);
+    ctx.quadraticCurveTo(0.8, my - 0.8, 4.8, my);
+    ctx.quadraticCurveTo(0.8, my + 0.8, 0, my + 4.8);
+    ctx.quadraticCurveTo(-0.8, my + 0.8, -4.8, my);
+    ctx.quadraticCurveTo(-0.8, my - 0.8, 0, my - 4.8);
+    ctx.fill();
+  } else if (mark === 'shield') { // a little round-bottomed shield
+    ctx.fillStyle = '#d9a020';
+    ctx.beginPath();
+    ctx.moveTo(-3.8, my - 3.8);
+    ctx.lineTo(3.8, my - 3.8);
+    ctx.lineTo(3.8, my);
+    ctx.quadraticCurveTo(3.4, my + 3.4, 0, my + 4.8);
+    ctx.quadraticCurveTo(-3.4, my + 3.4, -3.8, my);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#fff4c8';
+    ctx.fillRect(-0.7, my - 2.8, 1.4, 5.6);
   } else if (mark === 'blob') {
     circle(ctx, -1.5, my + 1, 2.4);
     circle(ctx, 1.8, my - 1, 1.6);

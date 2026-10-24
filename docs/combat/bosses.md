@@ -76,7 +76,8 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
   "PULSE 2.1" over it), then `pulseHit`: the server itself hurts every fighter for `PULSE_HP` of their max HP
   through `hurt()` with `flat` (no DEF, no roll, no Evasion, no knockback; no `ouch`). Aegis blocks it, a Bubble
   pops on it, a Barrier soaks it, Sanctuary, the Guardian Totem, a brewed ward and Mana Shield cut it as they cut
-  any hit. Neither starts during an ultimate's warning. S5.5's Barrier Draught hooks in there.
+  any hit. Neither starts during an ultimate's warning. A Barrier Draught (S5.5, `docs/places/alchemy.md`) takes
+  it whole before any of those, in `hurt()` on `flat === true`.
 - **Hints**: the first `PARTY_HINTS` times a session, a toast names the answer (the focus on you, on a friend
   when you have Rally, a pulse coming, worded for your class); the prompt list over your slime shows "Dash: get
   clear" while focused and "Rally: take the boss's focus" while it's on a friend (`docs/ui/hints.md`).
@@ -128,8 +129,8 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
 | mechanic | best | everyone else |
 |---|---|---|
 | focus | Knight's Rally takes it | the focused one Dashes and kites; others hit |
-| pulse | Cleric's Barrier and heals; Knight's Bubble, Sanctuary, Aegis | potions (S5.5: the Barrier Draught) |
-| curse | Cleric's Cleanse | step out of the sigil; stand past `CURSE_FADE_R` to fade it; S5.5's Cleansing Tonic |
+| pulse | Cleric's Barrier and heals; Knight's Bubble, Sanctuary, Aegis | potions, the Barrier Draught (S5.5) |
+| curse | Cleric's Cleanse | step out of the sigil; stand past `CURSE_FADE_R` to fade it; the Cleansing Tonic (S5.5) |
 | barrier | Mage's spells (and a Cleric's holy bolts and Smite) break it | wait it out; `BARRIER_PHYS` still lands |
 | armour | Berserker (Sky Splitter, Blade Storm, Power Strike); Snipe, Heartseeker; a shatter, Meteor | wait it out; `ARMOUR_CUT` still lands |
 | weak point | Archer: every arrow reaches it | jump for it (Upward Cut, Flash Jump, a ledge); a staff bolt cast mid-jump |
