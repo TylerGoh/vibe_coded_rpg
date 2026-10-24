@@ -10,7 +10,8 @@
 // Binary: `in`, `s` and `mobs` are binary frames (src/shared/wire.js) for clients that said `bin` in
 // their hello; JSON for older tabs still open from before (they can't read binary). Everything else is JSON.
 // `bin` is the snapshot version the tab reads (BIN_VERSION; 1 = before the voyage clock `vt`).
-// plus ← welcome / join / leave events, or ← {t:'denied', reason} for a bad login.
+// plus ← welcome / join / leave events (welcome's `build` names the client build being served: src/update.js
+//   offers an Install when it differs from the tab's own), or ← {t:'denied', reason} for a bad login.
 // Proximity voice chat is peer-to-peer WebRTC (src/voice.js); the server only relays the call setup:
 //   → {t:'rtc', to, d}  is forwarded as  ← {t:'rtc', from, d}  (offers, answers, ICE candidates, byes).
 // Broadcasting: → {t:'cast', on}  ← {t:'cast', id, on}  to everyone. A broadcaster is heard by every slime in
@@ -135,7 +136,7 @@
 // against `a`; everyone else is interpolated a few ticks in the past.
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
@@ -178,6 +179,23 @@ const TYPES = {
   '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.json': 'application/json', '.woff2': 'font/woff2',
   '.webmanifest': 'application/manifest+json',
 };
+
+// The build being served: the hashed asset files dist/index.html loads (src/update.js reads the same list from
+// its own page). Re-read when index.html changes, so a rebuild without a restart still counts.
+let buildCache = { mtime: 0, id: '' };
+function buildId() {
+  try {
+    const file = join(DIST, 'index.html');
+    const mtime = statSync(file).mtimeMs;
+    if (mtime !== buildCache.mtime) {
+      const id = [...new Set(readFileSync(file, 'utf8').match(/assets\/[\w.-]+\.(?:js|css)/g) ?? [])].sort().join(',');
+      buildCache = { mtime, id };
+    }
+  } catch {
+    buildCache = { mtime: 0, id: '' };
+  }
+  return buildCache.id;
+}
 
 async function serveStatic(req, res) {
   const url = new URL(req.url, 'http://x');
@@ -278,25 +296,30 @@ try {
 } catch (e) {
   console.error('could not read saved positions', e);
 }
+// Where a slime stands, in the saved form restorePos reads.
+function posOf(p) {
+  const { room, x, vt } = p.state;
+  if (!isHouse(room)) return { room, x, ...(vt ? { vt } : {}) }; // (vt: mid-crossing, so the voyage goes on)
+  return room === p.state.home ? { room: 'home', x } : { room: TOWNS[p.state.town | 0].room, x: TOWNS[p.state.town | 0].homeX }; // (someone else's house: their town's front door)
+}
 function savePositions() {
   const pos = {};
-  for (const p of players.values()) {
-    if (!p.joined) continue;
-    const { room, x, vt } = p.state;
-    if (!isHouse(room)) pos[p.name] = { room, x, ...(vt ? { vt } : {}) }; // (vt: mid-crossing, so the voyage goes on)
-    else pos[p.name] = room === p.state.home ? { room: 'home', x } : { room: TOWNS[p.state.town | 0].room, x: TOWNS[p.state.town | 0].homeX }; // (someone else's house: their town's front door)
-  }
+  for (const p of players.values()) if (p.joined) pos[p.name] = posOf(p);
   try {
     writeFileSync(POS_FILE, JSON.stringify({ at: Date.now(), pos }));
   } catch (e) {
     console.error('could not save positions', e);
   }
 }
-// Put a slime back where it stood before the restart (at most once per account). → whether it did
+// A slime that just left (a reload, e.g. to install a new patch: src/update.js) is kept here for RELOAD_KEEP_MS,
+// so coming straight back puts it where it stood. Not while splatted (that wakes you up in town).
+const RELOAD_KEEP_MS = 3 * 60_000;
+// Put a slime back where it stood before the restart or its reload (at most once per account). → whether it did
 function restorePos(user, state) {
   const v = savedPos.get(user);
   if (!v) return false;
   savedPos.delete(user);
+  if (v.until && Date.now() > v.until) return false;
   const room = v.room === 'home' ? state.home : v.room;
   const r = Number.isInteger(room) && roomDef(room);
   if (!r) return false;
@@ -428,7 +451,10 @@ wss.on('connection', (ws) => {
         if (p.state.room === room) setTimeout(() => recount(room), 0); // after they're gone from the room
       }
     }
-    if (online.get(p.name) === id) online.delete(p.name);
+    if (online.get(p.name) === id) {
+      online.delete(p.name);
+      if (p.joined && !p.faintUntil) savedPos.set(p.name, { ...posOf(p), until: Date.now() + RELOAD_KEEP_MS });
+    }
     if (p.joined) broadcast({ t: 'leave', id });
   });
 });
@@ -560,12 +586,12 @@ async function login(id, p, m) {
   if (old) p.invites = old.invites;
   if (!p.rpg) rpg.load(p);
   if (!old) {
-    // your town (docs/world.md): you start there, unless your spot from before a restart was kept
+    // your town (docs/world.md): you start there, unless your spot from before a restart (or a reload) was kept
     state.town = p.rpg.town;
     const town = TOWNS[state.town];
     if (!process.env.TEST_SPAWN && (p.goHome || !restorePos(acc.user, state)) && town.room !== VILLAGE) placeAt(state, town.room, town.x + Math.floor(Math.random() * 120));
   }
-  send(p.ws, { t: 'welcome', id, tick, rate: TICK_RATE, ice, players: [...players].filter(([, q]) => q.joined).map(([i, q]) => info(q, i)), casts: [...players].filter(([, q]) => q.joined && q.cast).map(([i]) => i) });
+  send(p.ws, { t: 'welcome', id, tick, rate: TICK_RATE, ice, build: buildId(), players: [...players].filter(([, q]) => q.joined).map(([i, q]) => info(q, i)), casts: [...players].filter(([, q]) => q.joined && q.cast).map(([i]) => i) });
   broadcast({ t: 'join', ...info(p, id) }, id);
   rpg.sendMe(p);
   houses.sendOwned(p);

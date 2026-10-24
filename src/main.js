@@ -61,6 +61,7 @@ import { wayAt, wayById, sameIsle } from './shared/waystones.js';
 import { drawWaystones, wayPrompt, wayBeacons, WayCard, shimmer } from './waystones.js';
 import { PoolCard, NewsBanner, newsFor, nearPool, poolSplash } from './rebirth.js';
 import { fastGradients } from './fastcanvas.js';
+import { checkBuild, onInstall, takeResume } from './update.js';
 import { gfx } from './gfx.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
@@ -295,6 +296,7 @@ const net = new Net(wsUrl, {
     }
     for (const [x, y] of struck) impact(x - m.dir * 6, y);
   },
+  onBuild: checkBuild,
   onStatus(s) {
     status = s;
     if (s === 'online') voice.setIceServers(net.ice);
@@ -803,6 +805,14 @@ joinPanel.addEventListener('submit', (e) => {
   e.preventDefault();
   join();
 });
+// Install on the new-patch banner (src/update.js) reloads; carry the login across it so you're straight back in.
+onInstall(() => (joined ? { user: profile.name, pass: passInput.value } : null));
+const resume = takeResume();
+if (resume) {
+  nameInput.value = resume.user;
+  passInput.value = resume.pass;
+  join();
+}
 
 // ——— slapping: click (or tap) to slap toward that side ———
 const pops = []; // "SLAP!" words floating up from hits
@@ -845,6 +855,7 @@ function slapToward(dir, aimed = false) {
 canvas.addEventListener('pointerdown', (e) => {
   piano.unlock();
   audio.unlock();
+  voice.unlock(); // (after Install's auto-login nothing has been a gesture yet)
   if (online()) {
     const r = canvas.getBoundingClientRect();
     if (accuse.tap(((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H)) return; // "Not a bot!"
@@ -874,6 +885,7 @@ addEventListener('keydown', (e) => {
   if (!joined) return;
   piano.unlock(); // any key press counts as the gesture browsers need before playing sound
   audio.unlock();
+  voice.unlock();
   const typing = document.activeElement?.tagName === 'INPUT';
   if (dialogOpen() || hall.askOpen || typing) {
     // typing to a character, a question or an answer: keys go to the text box, Esc closes it / lets go

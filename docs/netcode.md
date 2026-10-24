@@ -76,6 +76,9 @@ accounts DB); at startup it reads that once, and each account's first login with
 there (`restorePos`). House room ids change every restart, so your own house is saved as "home" and anyone
 else's as its front door. Owner's ask: small deploys mustn't send everyone back to spawn. A `reset-positions`
 file next to the DB skips it for a game-breaking deploy.
+Reloads keep them too: when a slime disconnects (not while splatted, not when a newer login took it over),
+its spot goes into the same map for `RELOAD_KEEP_MS` (`posOf`), so a reload, e.g. Install on the new-patch
+banner (`docs/ui/updates.md`), comes straight back where it stood.
 
 ## Protocol cheat sheet
 `hello`/`welcome`/`denied` login · `in` inputs · `s` snapshots · `join`/`leave` · `rtc` voice signalling ·

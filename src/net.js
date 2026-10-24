@@ -24,9 +24,9 @@ export function applyKick(s, kick) {
 }
 
 export class Net {
-  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHouse, onChat }) {
+  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHouse, onChat, onBuild }) {
     this.url = url;
-    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHouse, onChat };
+    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHouse, onChat, onBuild };
     this.id = null;
     this.me = newState(); // predicted state
     this.pending = []; // [seq, keys, kick?, charge?] not yet acknowledged
@@ -147,6 +147,7 @@ export class Net {
       for (const p of m.players) this.addPlayer(p);
       this.me.home = this.roster.get(m.id)?.home ?? 0; // our house's room (snapshots leave it out: it never changes)
       this.cb.onStatus('online');
+      this.cb.onBuild(m.build); // a newer patch is live? (src/update.js)
       for (const id of m.casts ?? []) this.cb.onCast(id, true);
     } else if (m.t === 'join') {
       this.addPlayer(m);
