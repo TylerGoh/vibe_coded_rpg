@@ -597,8 +597,9 @@ export class Rpg {
     } else if (sk.kind === 'bubble') {
       if (mine) mine.bubbleUntil = this.time + sk.dur;
     } else if (sk.kind === 'shield') {
-      if (mine) mine.manaShieldUntil = this.time + sk.dur;
-      this.fx.spawn('nova', { x: sx, y: sy, radius: 70, tint: 'mana' });
+      m.shield = m.shield ? 0 : 1; // a toggle (the server's 'me' follows)
+      if (m.shield) this.fx.spawn('nova', { x: sx, y: sy, radius: 70, tint: 'mana' });
+      this.toast(`Mana Shield ${m.shield ? 'on' : 'off'}`);
     } else if (sk.kind === 'rally') {
       if (mine) mine.rallyUntil = this.time + sk.dur;
       this.fx.spawn('rally', { x: sx, y: sy, radius: sk.radius });
@@ -674,7 +675,7 @@ export class Rpg {
     else if (sk.kind === 'spin') this.fx.spawn('spin', { x, y, radius: sk.radius, follow });
     else if (sk.kind === 'storm') this.fx.spawn('storm', { x, y, radius: sk.radius, hits: sk.hits, follow });
     else if (sk.kind === 'bolt' || sk.kind === 'fireball') this.boltFx(m.skill, sk, x, y, m.tx, m.ty, Math.abs(m.tx - x) / 900 + 0.05, m.hits.length > 0);
-    else if (sk.kind === 'shield') this.fx.spawn('nova', { x, y, radius: 70, tint: 'mana' });
+    else if (sk.kind === 'shield' && m.on) this.fx.spawn('nova', { x, y, radius: 70, tint: 'mana' });
     else if (sk.kind === 'meteor') this.fx.spawn('meteor', { x: m.tx, y: 450, radius: sk.radius, delay: sk.delay });
     else if (sk.kind === 'chain' && m.points) this.fx.spawn('chain', { points: m.points.map(([px, py]) => ({ x: px, y: py })) });
     else if (sk.kind === 'nova') this.fx.spawn('nova', { x, y, radius: sk.radius });
@@ -1540,6 +1541,7 @@ export class Rpg {
         const sk = SKILLS[id], cd = id ? this.cooldown(id) : 0;
         s.cd.style.height = sk && cd > 0 ? `${(cd / sk.cd) * 100}%` : '0%';
         s.b.classList.toggle('dim', !!sk && (!rankOf(this.me.skills, id) || this.me.mp < sk.mp));
+        s.b.classList.toggle('on', !!sk?.toggle && !!this.me.shield); // a toggle that's switched on (Mana Shield)
         s.n.textContent = '';
       } else {
         const n = id ? this.me.bag.filter((b) => b.id === id).reduce((a, b) => a + b.n, 0) : 0;

@@ -116,7 +116,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   const brewOf = (c) => ((c.brew?.until ?? 0) > now() ? ITEMS[c.brew.id].buff : null); // a brewed potion's buff
   const arcaneOf = (p) => (p.arcane && p.arcane.until > now() ? p.arcane.n : 0); // Arcane Charge's charges (Mage)
   const momentumOf = (p) => (p.momentum && p.momentum.until > now() ? p.momentum.n : 0); // Momentum's stacks (Warrior)
-  const buffsOf = (p) => ({ momentum: momentumOf(p), gods: (p.godsUntil ?? 0) > now(), berserk: (p.berserkUntil ?? 0) > now(), manaShield: (p.manaShieldUntil ?? 0) > now(), rally: (p.rallyUntil ?? 0) > now() ? p.rallyBoost : 0, brew: brewOf(p.rpg) });
+  const buffsOf = (p) => ({ momentum: momentumOf(p), gods: (p.godsUntil ?? 0) > now(), berserk: (p.berserkUntil ?? 0) > now(), manaShield: !!p.rpg.shield, rally: (p.rallyUntil ?? 0) > now() ? p.rallyBoost : 0, brew: brewOf(p.rpg) });
   const stats = (p) => statsFor(p.rpg, buffsOf(p));
   const left = (until) => Math.max(0, (until ?? 0) - now());
   const zones = []; // Sanctuaries: { room, x, r, until, cut }
@@ -251,9 +251,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function save(p) {
     if (p.rpg && p.joined) clock(p);
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn, gods } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn, gods, shield } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn, gods }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn, gods, shield }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -271,7 +271,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       ap: c.ap, apLeft: apTotal(c.lvl) - apSpent(c.ap),
       cosmetics: c.cosmetics, wear: c.wear, showHelmet: c.showHelmet,
       momentum: momentumOf(p), momentumLeft: momentumOf(p) ? left(p.momentum.until) : 0, arcane: arcaneOf(p),
-      berserk: left(p.berserkUntil), manaShield: left(p.manaShieldUntil), barrier: p.barrier && p.barrier.until > now() ? Math.ceil(p.barrier.left) : 0, barrierLeft: left(p.barrier?.until), mend: left(p.mend?.until), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), gods: left(p.godsUntil), secondWind: left(p.swReadyAt),
+      berserk: left(p.berserkUntil), shield: c.shield ? 1 : 0, barrier: p.barrier && p.barrier.until > now() ? Math.ceil(p.barrier.left) : 0, barrierLeft: left(p.barrier?.until), mend: left(p.mend?.until), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), gods: left(p.godsUntil), secondWind: left(p.swReadyAt),
       brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
       ways: c.ways,
     });
@@ -800,8 +800,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       p.bubbleUntil = t + sk.dur * 1000;
       out.dur = sk.dur;
     } else if (sk.kind === 'shield') {
-      p.manaShieldUntil = t + sk.dur * 1000;
-      out.dur = sk.dur;
+      c.shield = !c.shield; // a toggle, saved with the character
+      out.on = c.shield ? 1 : 0;
     } else if (sk.kind === 'rally' || sk.kind === 'aegis') {
       const dur = durOf(m.skill, rank);
       out.dur = dur;
@@ -1862,7 +1862,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       Object.assign(c, { cls: m.cls, reborn: c.reborn + 1, skills: giftsOf(c.skills), ap: Object.fromEntries(AP_STATS.map(({ id: k }) => [k, 0])) });
       c.hotbar = Array(HOTBAR).fill(null);
       c.alt.hotbar = Array(HOTBAR).fill(null);
-      p.berserkUntil = p.manaShieldUntil = p.rallyUntil = p.bubbleUntil = p.aegisUntil = p.godsUntil = 0;
+      c.shield = false;
+      p.berserkUntil = p.rallyUntil = p.bubbleUntil = p.aegisUntil = p.godsUntil = 0;
       p.barrier = p.mend = null;
       summons.clear(id);
       p.cds = {};
@@ -1890,7 +1891,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         if (!c.skills[m.skill]) delete c.skills[m.skill];
       } else if (m.t === 'respec') {
         c.skills = giftsOf(c.skills);
-        p.berserkUntil = p.manaShieldUntil = 0;
+        p.berserkUntil = 0;
+        c.shield = false;
       } else if (m.t === 'hotbar') {
         const bar = m.bar === 'pot' ? c.potbar : c.hotbar, i = m.slot >>> 0;
         if (i >= bar.length) return;

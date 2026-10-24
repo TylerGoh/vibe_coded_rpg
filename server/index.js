@@ -58,7 +58,7 @@
 //   ← {t:'nomana'}  a skill you tried had too little MP
 //   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,weapon}, atk, magic, def,
 //       skills:{id:rank}, sp, hotbar:[6], potbar:[3], alt:{hotbar,potbar}, set, ap:{str,dex,int,luk}, apLeft,
-//       minRoll, pvp, berserk, manaShield, fire, cls, reborn, spLeft:{novice, cls}, momentum, arcane}  your character (sp: points
+//       minRoll, pvp, berserk, shield (Mana Shield switched on), fire, cls, reborn, spLeft:{novice, cls}, momentum, arcane}  your character (sp: points
 //       you can spend now; a Novice's class points pile up in spLeft.cls until it chooses a class)
 //   → {t:'learn'|'unlearn', skill} · {t:'respec'} · {t:'hotbar', bar:'skill'|'pot', slot, id} · {t:'pvp', on}
 //   → {t:'hotswap'}  swap the hotbar for the other setup · {t:'ap', stat, n} (n < 0 takes back) · {t:'ap', reset:true}

@@ -448,7 +448,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     if (b) {
       const [k, [id]] = b;
       use(id, t);
-      buff[k] = t + durOf(id, r(id));
+      buff[k] = SKILLS[id].toggle ? Infinity : t + durOf(id, r(id)); // (a toggle stays on)
       continue;
     }
     let best = null, dmg = attackDmg(st, range, c);

@@ -65,8 +65,10 @@ Warrior's chase moves (S2.5) and the Mage's combos and Arcane Charge (S2.6), bot
 - **Warrior**: basics at Lv 10 (Power Strike, Cleave, Iron Jelly, Jelly Thirst: hits heal you a share of
   their damage, the Warrior's solo answer); **Knight** (Jelly Bubble, Vitality, Rally, Second Wind, then
   Sanctuary, Aegis); **Berserker** (Whirlwind, Berserk, then Sword Mastery, Blade Storm, Sky Splitter).
-- **Mage**: basics at Lv 10 (Magic Bolt, Mana Flow, Arcane Mind, Mana Shield: for a while a share of the
-  damage you take comes off MP instead; Arcane Charge, below); **Elementalist** (Fireball: a bolt that bursts where it lands; then
+- **Mage**: basics at Lv 10 (Magic Bolt, Mana Flow, Arcane Mind, Mana Shield: a toggle (owner,
+  2026-10-24; it was a 60 s buff): while it's on, a share of the damage you take comes off MP instead. Cast
+  it again to turn it off; it costs no MP, `toggle` on the skill, `c.shield` on the saved character (so it
+  survives a relog or a deploy; a rebirth or Reset all turns it off), and its hotbar slot glows blue while on; Arcane Charge, below); **Elementalist** (Fireball: a bolt that bursts where it lands; then
   Meteor, Kindling: fire spells (`fire` on the skill) hit harder; then Starfall); **Frostbinder** (Frost
   Nova, Chain Lightning, then Glacial Spike: a long bolt that slows hard, then Absolute Zero).
 - Skills whose old max was 5 and now 3 (Power Strike, Cleave, Iron Jelly, Magic Bolt, Mana Flow, Arcane

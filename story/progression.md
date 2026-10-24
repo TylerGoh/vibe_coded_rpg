@@ -395,7 +395,8 @@ slow levelling down, and roll those characters back to where their play time wou
       Deadeye, Hunter's Mark, Heartseeker; Trapper: Arrow Rain, Net Trap, Barbed Arrows, Trap Mastery, Thousand
       Arrows), Acorn the archers' trader, the CLASSES tables. Weak points wait for S5.
 - [ ] **S5: bosses that need a party**: the mechanics in the table above (Taunt, pulses, curses, barriers,
-      weak points, armour), retrofitted a boss at a time, loot by class. Split into five pieces in `s5-plan.md`.
+      weak points, armour), retrofitted a boss at a time, loot by class, and **the status box** (every buff
+      and curse on you, as icons with timers; owner, 2026-10-24). Split into five pieces in `s5-plan.md`.
 - [ ] **S6: past the cap**: stat taper, mastery stars, the advancement at Lv 150.
 - [ ] Frostpeak's depth pass, as planned (its bosses designed for mixed parties from the start).
 

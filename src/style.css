@@ -1875,6 +1875,11 @@ body.touch .shop-warn {
 .hb-slot.dim canvas {
   opacity: 0.4;
 }
+.hb-slot.on {
+  border-color: #6f9cff;
+  box-shadow: 0 0 calc(6px * var(--s)) calc(2px * var(--s)) rgba(111, 156, 255, 0.75);
+  background: #e6eeff;
+}
 .hb-cd {
   position: absolute;
   left: 0;

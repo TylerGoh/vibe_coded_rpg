@@ -130,8 +130,17 @@ Docs: `docs/combat/bosses.md`, `docs/combat/skills.md` (the Knight), `docs/netco
 - **Taunt** in `src/shared/skills.js`, its cast on both sides, its icon, its hint and its word above the slime.
 - `pulse`: the ring telegraph (a new boss event, drawn in `src/rpg.js` / `src/hazards.js`), the hit through
   `hurt()` as `noDodge`, Barrier, Bubble, Sanctuary and Aegis absorbing it as they do other hits.
+- **The status box** (owner, 2026-10-24: "buffs and nerfs probably need a box status"; lumped into S5 because
+  curses and focus are the first debuffs, and players need to see a curse's stacks to know to Cleanse or back
+  off). A row of small icons under the HP/MP panel, one per thing on you, each with its time left (or its
+  stacks): the buffs that exist today (Berserk, Rally, Bubble, Aegis, Barrier with what's left of it, Mend, a
+  brewed potion, Challenge the Gods, Mana Shield while it's switched on, with no timer, Second Wind's
+  cooldown), Momentum's pips and Arcane Charge moved into it, and from S5 the debuffs (focus, curse stacks)
+  with a red rim. The server's `me` already sends most of the timers (`sendMe`). Tap / hover an icon for its
+  name. Phones: it must fit beside the touch controls (`docs/ui/mobile.md`). Built here so S5.2's curse
+  lands with somewhere to show.
 - Test: a test boss with `party: ['focus', 'pulse']` and two test Knights: the focus moves, Taunt pulls it,
-  the pulse lands, Barrier soaks it, alone neither shows up.
+  the pulse lands, Barrier soaks it, alone neither shows up. The status box shows a Knight's buffs and the focus.
 
 ### S5.2: curses and Cleanse, barrier, armour, weak points, the interrupt
 Docs: the S5.1 ones, plus `docs/combat/core.md` (hits on mobs, the cap), the Cleric and Mage sections of

@@ -101,7 +101,7 @@ export function advanceText(cls, lvl) {
 // slows it, `stat: 'best'` hits on the better of ATK and MAGIC) · 'fireball' (a bolt that bursts in
 // `radius` where it lands) · 'chain' (a bolt that jumps between mobs) · 'nova' (every mob in a radius,
 // slowing them) · 'meteor' (a big blast where the first mob ahead stands, a moment later) · 'starfall'
-// (every mob in the room) · 'heal' (`self`: just you) · 'buff' (Berserk) · 'shield' (Mana Shield) ·
+// (every mob in the room) · 'heal' (`self`: just you) · 'buff' (Berserk) · 'shield' (Mana Shield, a `toggle`: cast it again to turn it off) ·
 // 'bubble' (blocks the next hit) · 'rally' (team attack/defence buff) · 'zone' (Sanctuary) · 'aegis'
 // (team immunity) · 'gods' (Challenge the Gods) · 'chase' (the Warrior's chase moves: no hotbar, no MP, set off
 // by movement + Attack inside sim.js step(); `how` says which) · 'passive'. `fire`: a fire spell (Kindling makes it stronger).
@@ -245,9 +245,9 @@ export const SKILLS = {
     desc: (r) => `+${20 * r}% magic power.`,
   },
   mana_shield: {
-    ...M, adv: 10, name: 'Mana Shield', kind: 'shield', max: 3, mp: 20, cd: 30, dur: 60,
+    ...M, adv: 10, name: 'Mana Shield', kind: 'shield', toggle: true, max: 3, mp: 0, cd: 1,
     share: (r) => 0.2 + 0.1 * r,
-    desc: (r) => `For 60 s, ${Math.round((0.2 + 0.1 * r) * 100)}% of the damage you take comes off your MP instead of your HP.`,
+    desc: (r) => `On / off: while it's on, ${Math.round((0.2 + 0.1 * r) * 100)}% of the damage you take comes off your MP instead of your HP.`,
   },
   arcane_charge: {
     ...M, adv: 10, name: 'Arcane Charge', kind: 'passive', max: 3,
@@ -633,7 +633,7 @@ export const MIN_ROLL = 0.85, MAX_ROLL = 1.15; // ±15% before DEX
 export const minRollFor = (ap) => Math.min(1.05, MIN_ROLL + 0.001 * apOf(ap, 'dex'));
 // Everything about a character's numbers in one place (c: {lvl, gear, skills}).
 // buffs: { momentum: Momentum's stacks, gods: true while Challenge the Gods is up (HP capped at 1, damage boosted), berserk: true while it's up, rally: the Rally boost (e.g. 0.2) while it's up, manaShield: true
-// while Mana Shield is up, brew: a brewed potion's buff ({ atk, crit, ward, regen, ... }, ITEMS) while it's up }
+// while Mana Shield is switched on, brew: a brewed potion's buff ({ atk, crit, ward, regen, ... }, ITEMS) while it's up }
 export function statsFor(c, buffs = {}) {
   const rage = buffs.berserk ? 1 + SKILLS.berserk.boost(rankOf(c.skills, 'berserk')) : 1;
   const rally = 1 + (buffs.rally ?? 0);
