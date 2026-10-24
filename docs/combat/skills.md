@@ -58,6 +58,8 @@ Warrior's chase moves (S2.5) and the Mage's combos and Arcane Charge (S2.6), bot
 - `TREES`: the Novice tree, one per class (four since S4), and Mobility (`wind`). Every skill in `SKILLS` has `cls`
   (`novice`, a class, or `any` for Mobility), `tree`, `adv` (the level it opens at) and, past the basics,
   a `branch`.
+- **Descriptions never say "px"** (owner, 2026-10-24): distances are bare numbers for players to compare,
+  "(range 240)" for how far a shot reaches, "within range 100" for an area. Same on item cards (`docs/combat/items.md`).
 - **Novice tree** (kept forever, weak once you have a class): Slime Bash, Pebble Toss (on the better of
   ATK and MAGIC, `stat: 'best'`, so a staff Novice isn't stuck), Jelly Patch (heals only you). Nine points.
 - **Warrior**: basics at Lv 10 (Power Strike, Cleave, Iron Jelly, Jelly Thirst: hits heal you a share of

@@ -126,7 +126,7 @@ export const SKILLS = {
   pebble_toss: {
     cls: 'novice', tree: 'novice', adv: 1, name: 'Pebble Toss', kind: 'bolt', stat: 'best', max: 3, mp: 3, cd: 3, range: 240,
     mult: (r) => 1.1 + 0.2 * r,
-    desc: (r) => `Flick a pebble at the first mob ahead, up to 240 px away: ${pct(1.1 + 0.2 * r)} of your ATK or MAGIC, whichever is higher.`,
+    desc: (r) => `Flick a pebble at the first mob ahead (range 240): ${pct(1.1 + 0.2 * r)} of your ATK or MAGIC, whichever is higher.`,
   },
   jelly_patch: {
     cls: 'novice', tree: 'novice', adv: 1, name: 'Jelly Patch', kind: 'heal', self: true, max: 3, mp: 6, cd: 30, radius: 40,
@@ -163,12 +163,12 @@ export const SKILLS = {
   leap_slam: {
     ...W, adv: 10, name: 'Leap Slam', kind: 'chase', max: 2, how: 'In the air: Down + Attack', radius: 100, cdFor: (r) => SLAM_CD[r] / 60,
     mult: (r) => 1.8 + 0.5 * r,
-    desc: (r) => `In the air, hold Down and attack: drop straight down and slam every mob within 100 px of where you land for ${pct(1.8 + 0.5 * Math.max(1, r))} damage. Cooldown ${SLAM_CD[Math.max(1, r)] / 60} s.`,
+    desc: (r) => `In the air, hold Down and attack: drop straight down and slam every mob within range 100 of where you land for ${pct(1.8 + 0.5 * Math.max(1, r))} damage. Cooldown ${SLAM_CD[Math.max(1, r)] / 60} s.`,
   },
   upward_cut: {
     ...W, adv: 10, name: 'Upward Cut', kind: 'chase', max: 2, how: 'Jump, then attack while rising', reach: 160, cdFor: (r) => UPCUT_CD[r] / 60,
     mult: (r) => 1.0 + 0.3 * r,
-    desc: (r) => `Attack while you're still rising from a jump: the swing carries you higher and cuts every mob up to 160 px above you for ${pct(1.0 + 0.3 * Math.max(1, r))} damage. For mobs on a ledge. Cooldown ${UPCUT_CD[Math.max(1, r)] / 60} s.`,
+    desc: (r) => `Attack while you're still rising from a jump: the swing carries you higher and cuts every mob up to 160 above you for ${pct(1.0 + 0.3 * Math.max(1, r))} damage. For mobs on a ledge. Cooldown ${UPCUT_CD[Math.max(1, r)] / 60} s.`,
   },
   momentum: {
     ...W, adv: 10, name: 'Momentum', kind: 'passive', max: 2,
@@ -188,7 +188,7 @@ export const SKILLS = {
   rally: {
     ...W, branch: 'knight', adv: 30, name: 'Rally', kind: 'rally', max: 3, mp: 25, cd: 30, radius: 300, dur: 20,
     boost: (r) => 0.1 + 0.1 * r,
-    desc: (r) => `Rally every friend within 300 px, you too: +${Math.round((0.1 + 0.1 * r) * 100)}% attack and defence for 20 s. Cooldown 30 s.`,
+    desc: (r) => `Rally every friend within range 300, you too: +${Math.round((0.1 + 0.1 * r) * 100)}% attack and defence for 20 s. Cooldown 30 s.`,
   },
   second_wind: {
     ...W, branch: 'knight', adv: 30, name: 'Second Wind', kind: 'passive', max: 3,
@@ -202,13 +202,13 @@ export const SKILLS = {
   },
   aegis: {
     ...W, branch: 'knight', adv: 100, name: 'Aegis', kind: 'aegis', max: 3, mp: 60, cd: 90, radius: 260, dur: (r) => 1.5 + 0.5 * r,
-    desc: (r) => `You and every friend within 260 px can't be hurt at all for ${1.5 + 0.5 * r} s.`,
+    desc: (r) => `You and every friend within range 260 can't be hurt at all for ${1.5 + 0.5 * r} s.`,
   },
   // Berserker
   whirlwind: {
     ...W, branch: 'berserker', adv: 30, name: 'Whirlwind', kind: 'spin', max: 5, mp: 14, cd: 4, radius: 100,
     mult: (r) => 1.0 + 0.2 * r,
-    desc: (r) => `Spin and hit every mob within 100 px: ${pct(1.0 + 0.2 * r)} damage each.`,
+    desc: (r) => `Spin and hit every mob within range 100: ${pct(1.0 + 0.2 * r)} damage each.`,
   },
   berserk: {
     ...W, branch: 'berserker', adv: 30, name: 'Berserk', kind: 'buff', max: 3, mp: 20, cd: 30, dur: 20,
@@ -222,7 +222,7 @@ export const SKILLS = {
   blade_storm: {
     ...W, branch: 'berserker', adv: 60, name: 'Blade Storm', kind: 'storm', max: 3, mp: 30, cd: 12, radius: 130, hits: 4,
     mult: (r) => 0.8 + 0.15 * r,
-    desc: (r) => `A storm of slashes: hits every mob within 130 px 4 times for ${pct(0.8 + 0.15 * r)} each.`,
+    desc: (r) => `A storm of slashes: hits every mob within range 130 4 times for ${pct(0.8 + 0.15 * r)} each.`,
   },
   sky_splitter: {
     ...W, branch: 'berserker', adv: 100, name: 'Sky Splitter', kind: 'strike', max: 3, mp: 50, cd: 45, reach: 90,
@@ -234,7 +234,7 @@ export const SKILLS = {
   magic_bolt: {
     ...M, adv: 10, name: 'Magic Bolt', kind: 'bolt', max: 3, mp: 5, cd: 0.8, range: 380,
     mult: (r) => 1.1 + 0.33 * r,
-    desc: (r) => `A bolt at the first mob ahead, up to 380 px away: ${pct(1.1 + 0.33 * r)} magic damage.`,
+    desc: (r) => `A bolt at the first mob ahead (range 380): ${pct(1.1 + 0.33 * r)} magic damage.`,
   },
   mana_flow: {
     ...M, adv: 10, name: 'Mana Flow', kind: 'passive', max: 3,
@@ -258,12 +258,12 @@ export const SKILLS = {
   fireball: {
     ...M, branch: 'elementalist', adv: 30, name: 'Fireball', kind: 'fireball', fire: true, el: 'fire', max: 5, mp: 12, cd: 2.5, range: 380, radius: 70,
     mult: (r) => 1.3 + 0.2 * r,
-    desc: (r) => `A ball of fire at the first mob ahead that bursts where it lands: ${pct(1.3 + 0.2 * r)} magic damage to everything within 70 px.`,
+    desc: (r) => `A ball of fire at the first mob ahead that bursts where it lands: ${pct(1.3 + 0.2 * r)} magic damage to everything within range 70.`,
   },
   meteor: {
     ...M, branch: 'elementalist', adv: 60, name: 'Meteor', kind: 'meteor', fire: true, el: 'fire', max: 3, mp: 40, cd: 15, range: 450, radius: 150, delay: 0.8,
     mult: (r) => 3.5 + 0.6 * r,
-    desc: (r) => `Calls a meteor down on the first mob ahead: ${pct(3.5 + 0.6 * r)} magic damage to everything within 150 px.`,
+    desc: (r) => `Calls a meteor down on the first mob ahead: ${pct(3.5 + 0.6 * r)} magic damage to everything within range 150.`,
   },
   kindling: {
     ...M, branch: 'elementalist', adv: 60, name: 'Kindling', kind: 'passive', max: 5,
@@ -272,13 +272,13 @@ export const SKILLS = {
   starfall: {
     ...M, branch: 'elementalist', adv: 100, name: 'Starfall', kind: 'starfall', fire: true, el: 'fire', max: 3, mp: 70, cd: 60, radius: 700,
     mult: (r) => 2.5 + 0.6 * r,
-    desc: (r) => `Stars rain on every mob within 700 px: ${pct(2.5 + 0.6 * r)} magic damage each.`,
+    desc: (r) => `Stars rain on every mob within range 700: ${pct(2.5 + 0.6 * r)} magic damage each.`,
   },
   // Frostbinder (ice and storm)
   frost_nova: {
     ...M, branch: 'frostbinder', adv: 30, name: 'Frost Nova', kind: 'nova', el: 'frost', max: 3, mp: 30, cd: 10, radius: 190, slow: 4,
     mult: (r) => 1.8 + 0.4 * r,
-    desc: (r) => `A burst of frost: ${pct(1.8 + 0.4 * r)} magic damage to every mob within 190 px, slowing them for 4 s.`,
+    desc: (r) => `A burst of frost: ${pct(1.8 + 0.4 * r)} magic damage to every mob within range 190, slowing them for 4 s.`,
   },
   chain_lightning: {
     ...M, branch: 'frostbinder', adv: 30, name: 'Chain Lightning', kind: 'chain', el: 'storm', max: 5, mp: 14, cd: 3, range: 380, jump: 220, targets: 4,
@@ -288,24 +288,24 @@ export const SKILLS = {
   glacial_spike: {
     ...M, branch: 'frostbinder', adv: 60, name: 'Glacial Spike', kind: 'bolt', ice: true, el: 'frost', max: 5, mp: 16, cd: 4, range: 560, slow: 5,
     mult: (r) => 2 + 0.3 * r,
-    desc: (r) => `A spike of ice at the first mob ahead, up to 560 px away: ${pct(2 + 0.3 * r)} magic damage, and it's slowed hard for 5 s.`,
+    desc: (r) => `A spike of ice at the first mob ahead (range 560): ${pct(2 + 0.3 * r)} magic damage, and it's slowed hard for 5 s.`,
   },
   absolute_zero: {
     ...M, branch: 'frostbinder', adv: 100, name: 'Absolute Zero', kind: 'nova', ice: true, el: 'frost', max: 3, mp: 60, cd: 45, radius: 320, slow: 8,
     mult: (r) => 3 + 0.6 * r,
-    desc: (r) => `Everything freezes: ${pct(3 + 0.6 * r)} magic damage to every mob within 320 px, slowing them for 8 s.`,
+    desc: (r) => `Everything freezes: ${pct(3 + 0.6 * r)} magic damage to every mob within range 320, slowing them for 8 s.`,
   },
 
   // ——— Cleric (staff, INT; S3, story/progression.md 5). Heals scale with MAGIC × `heal` (Holy Power) ———
   smite: {
     ...C, adv: 10, name: 'Smite', kind: 'bolt', holy: true, max: 3, mp: 6, cd: 1.2, range: 320,
     mult: (r) => 0.9 + 0.25 * r, smite: (r) => 0.25 + 0.05 * r,
-    desc: (r) => `Holy light at the first mob ahead, up to 320 px away: ${pct(0.9 + 0.25 * r)} magic damage, and you heal ${pct(0.25 + 0.05 * Math.max(1, r))} of the damage it does.`,
+    desc: (r) => `Holy light at the first mob ahead (range 320): ${pct(0.9 + 0.25 * r)} magic damage, and you heal ${pct(0.25 + 0.05 * Math.max(1, r))} of the damage it does.`,
   },
   heal: {
     ...C, adv: 10, name: 'Jelly Heal', kind: 'heal', max: 3, mp: 14, cd: 4, radius: 220,
     power: (r) => 0.35 + 0.1 * r,
-    desc: (r) => `Heal yourself and every friend within 220 px for ${pct(0.35 + 0.1 * Math.max(1, r))} of your MAGIC.`,
+    desc: (r) => `Heal yourself and every friend within range 220 for ${pct(0.35 + 0.1 * Math.max(1, r))} of your MAGIC.`,
   },
   jelly_spirit: {
     ...C, adv: 10, name: 'Jelly Spirit', kind: 'summon', what: 'spirit', max: 3, mp: 25, cd: 20, dur: 20,
@@ -320,17 +320,17 @@ export const SKILLS = {
   mend: {
     ...C, branch: 'priest', adv: 30, name: 'Mend', kind: 'mend', max: 3, mp: 20, cd: 12, radius: 260, dur: 10,
     power: (r) => 0.06 + 0.02 * r,
-    desc: (r) => `A heal that lingers: you and every friend within 260 px heal ${pct(0.06 + 0.02 * Math.max(1, r))} of your MAGIC every second for 10 s.`,
+    desc: (r) => `A heal that lingers: you and every friend within range 260 heal ${pct(0.06 + 0.02 * Math.max(1, r))} of your MAGIC every second for 10 s.`,
   },
   lantern_wisp: {
     ...C, branch: 'priest', adv: 30, name: 'Lantern Wisp', kind: 'summon', what: 'wisp', max: 3, mp: 30, cd: 40, dur: 30,
     power: (r) => 0.08 + 0.03 * r,
-    desc: (r) => `A little lantern spirit for 30 s. It floats to whichever friend near you is hurt worst (or you) and every second heals everyone within ${WISP_R} px of it for ${pct(0.08 + 0.03 * Math.max(1, r))} of your MAGIC. Nothing can hit it.`,
+    desc: (r) => `A little lantern spirit for 30 s. It floats to whichever friend near you is hurt worst (or you) and every second heals everyone within range ${WISP_R} of it for ${pct(0.08 + 0.03 * Math.max(1, r))} of your MAGIC. Nothing can hit it.`,
   },
   revive: {
     ...C, branch: 'priest', adv: 60, name: 'Revive', kind: 'revive', max: 3, mp: 40, radius: 220,
     cdFor: (r) => [0, 90, 70, 50][r], share: (r) => 0.2 + 0.1 * r,
-    desc: (r) => `Get every knocked-out friend within 220 px back up where they fell, with ${pct(0.2 + 0.1 * Math.max(1, r))} of their HP and no EXP lost. While you have it ready, friends who faint near you wait ${REVIVE_WAIT} s for you before waking up in town. Cooldown ${[0, 90, 70, 50][Math.max(1, r)]} s.`,
+    desc: (r) => `Get every knocked-out friend within range 220 back up where they fell, with ${pct(0.2 + 0.1 * Math.max(1, r))} of their HP and no EXP lost. While you have it ready, friends who faint near you wait ${REVIVE_WAIT} s for you before waking up in town. Cooldown ${[0, 90, 70, 50][Math.max(1, r)]} s.`,
   },
   holy_power: {
     ...C, branch: 'priest', adv: 60, name: 'Holy Power', kind: 'passive', max: 5,
@@ -339,18 +339,18 @@ export const SKILLS = {
   miracle: {
     ...C, branch: 'priest', adv: 100, name: 'Miracle', kind: 'miracle', max: 3, mp: 80, cd: 120, radius: 600,
     power: (r) => 2 + 0.5 * r,
-    desc: (r) => `Every friend within 600 px, you too, heals ${pct(2 + 0.5 * Math.max(1, r))} of your MAGIC, and every knocked-out friend there gets back up with full HP. Cooldown 120 s.`,
+    desc: (r) => `Every friend within range 600, you too, heals ${pct(2 + 0.5 * Math.max(1, r))} of your MAGIC, and every knocked-out friend there gets back up with full HP. Cooldown 120 s.`,
   },
   // Warden (spirits, the totem, barriers)
   guardian_totem: {
     ...C, branch: 'warden', adv: 30, name: 'Guardian Totem', kind: 'summon', what: 'totem', max: 3, mp: 30, cd: 35, dur: 25, radius: 160,
     cut: (r) => 0.15 + 0.05 * r, life: (r) => 0.8 + 0.3 * r,
-    desc: (r) => `Plant a carved totem where you stand for 25 s: you and friends within 160 px of it take ${pct(0.15 + 0.05 * Math.max(1, r))} less damage. Mobs that touch it and bosses near it wear it down (${pct(0.8 + 0.3 * Math.max(1, r))} of your max HP). One at a time.`,
+    desc: (r) => `Plant a carved totem where you stand for 25 s: you and friends within range 160 of it take ${pct(0.15 + 0.05 * Math.max(1, r))} less damage. Mobs that touch it and bosses near it wear it down (${pct(0.8 + 0.3 * Math.max(1, r))} of your max HP). One at a time.`,
   },
   barrier: {
     ...C, branch: 'warden', adv: 30, name: 'Barrier', kind: 'barrier', max: 5, mp: 25, cd: 25, radius: 240, dur: 10,
     power: (r) => 0.6 + 0.2 * r,
-    desc: (r) => `You and every friend within 240 px get a barrier for 10 s that soaks up ${pct(0.6 + 0.2 * Math.max(1, r))} of your MAGIC in damage. A boss's ultimate breaks it instead of knocking you out: cast it just before.`,
+    desc: (r) => `You and every friend within range 240 get a barrier for 10 s that soaks up ${pct(0.6 + 0.2 * Math.max(1, r))} of your MAGIC in damage. A boss's ultimate breaks it instead of knocking you out: cast it just before.`,
   },
   spirit_bond: {
     ...C, branch: 'warden', adv: 60, name: 'Spirit Bond', kind: 'passive', max: 5,
@@ -359,14 +359,14 @@ export const SKILLS = {
   seraph: {
     ...C, branch: 'warden', adv: 100, name: 'Seraph', kind: 'summon', what: 'seraph', max: 3, mp: 70, cd: 90, dur: 20,
     mult: (r) => 0.6 + 0.15 * r, life: (r) => 2 + r,
-    desc: (r) => `Call a great winged spirit for 20 s. Every mob within ${SERAPH_TAUNT} px goes after it, and every second it hits every mob within ${SERAPH_R} px of it for ${pct(0.6 + 0.15 * Math.max(1, r))} of your MAGIC. It has ${pct(2 + Math.max(1, r))} of your max HP.`,
+    desc: (r) => `Call a great winged spirit for 20 s. Every mob within range ${SERAPH_TAUNT} goes after it, and every second it hits every mob within range ${SERAPH_R} of it for ${pct(0.6 + 0.15 * Math.max(1, r))} of your MAGIC. It has ${pct(2 + Math.max(1, r))} of your max HP.`,
   },
 
   // ——— Archer (bow, DEX; S4, story/progression.md 4). Every arrow is on ATK ———
   double_shot: {
     ...A, adv: 10, name: 'Double Shot', kind: 'shot', arrows: 2, max: 3, mp: 5, cd: 1, range: 420,
     mult: (r) => 0.75 + 0.15 * r,
-    desc: (r) => `Two quick arrows at the first mob ahead, up to 420 px away: ${pct(0.75 + 0.15 * Math.max(1, r))} damage each.`,
+    desc: (r) => `Two quick arrows at the first mob ahead (range 420): ${pct(0.75 + 0.15 * Math.max(1, r))} damage each.`,
   },
   retreat_shot: {
     ...A, adv: 10, name: 'Retreat Shot', kind: 'chase', max: 2, how: 'Dash, then shoot back',
@@ -375,7 +375,7 @@ export const SKILLS = {
   },
   keen_eye: {
     ...A, adv: 10, name: 'Keen Eye', kind: 'passive', max: 3,
-    desc: (r) => `Your bow shots reach ${KEEN_RANGE * r} px further, and +${2 * r}% critical chance.`,
+    desc: (r) => `+${KEEN_RANGE * r} bow range, and +${2 * r}% critical chance.`,
   },
   steady_hands: {
     ...A, adv: 10, name: 'Steady Hands', kind: 'passive', max: 3,
@@ -390,12 +390,12 @@ export const SKILLS = {
   snipe: {
     ...A, branch: 'sniper', adv: 30, name: 'Snipe', kind: 'shot', arrows: 1, far: true, max: 5, mp: 16, cd: 4, range: 640,
     mult: (r) => 2.6 + 0.4 * r,
-    desc: (r) => `One long, hard arrow at the first mob ahead, up to 640 px away: ${pct(2.6 + 0.4 * Math.max(1, r))} damage, and ${pct(FAR_BONUS)} more if it's over ${FAR_PX} px away. Keep your distance.`,
+    desc: (r) => `One long, hard arrow at the first mob ahead (range 640): ${pct(2.6 + 0.4 * Math.max(1, r))} damage, and ${pct(FAR_BONUS)} more if it's more than ${FAR_PX} away. Keep your distance.`,
   },
   piercing_arrow: {
     ...A, branch: 'sniper', adv: 30, name: 'Piercing Arrow', kind: 'pierce', max: 5, mp: 14, cd: 3, range: 520, targets: 6,
     mult: (r) => 0.7 + 0.12 * r,
-    desc: (r) => `An arrow that goes right through every mob in a line ahead (up to 6, 520 px): ${pct(0.7 + 0.12 * Math.max(1, r))} damage each.`,
+    desc: (r) => `An arrow that goes right through every mob in a line ahead (up to 6, range 520): ${pct(0.7 + 0.12 * Math.max(1, r))} damage each.`,
   },
   deadeye: {
     ...A, branch: 'sniper', adv: 60, name: 'Deadeye', kind: 'passive', max: 5,
@@ -404,18 +404,18 @@ export const SKILLS = {
   hunters_mark: {
     ...A, branch: 'sniper', adv: 60, name: "Hunter's Mark", kind: 'mark', max: 3, mp: 20, cd: 18, dur: 12, range: 640,
     boost: (r) => 0.1 + 0.05 * r,
-    desc: (r) => `Mark the first mob ahead (up to 640 px) for 12 s: every slime's hits on it, yours and your friends', do ${pct(0.1 + 0.05 * Math.max(1, r))} more. One mark at a time.`,
+    desc: (r) => `Mark the first mob ahead (range 640) for 12 s: every slime's hits on it, yours and your friends', do ${pct(0.1 + 0.05 * Math.max(1, r))} more. One mark at a time.`,
   },
   heartseeker: {
     ...A, branch: 'sniper', adv: 100, name: 'Heartseeker', kind: 'pierce', far: true, max: 3, mp: 55, cd: 40, range: 960, targets: 10,
     mult: (r) => 5 + 1.5 * r,
-    desc: (r) => `One enormous arrow straight across the room (960 px), through everything in its way: ${pct(5 + 1.5 * Math.max(1, r))} damage each, ${pct(FAR_BONUS)} more on mobs over ${FAR_PX} px away.`,
+    desc: (r) => `One enormous arrow straight across the room (range 960), through everything in its way: ${pct(5 + 1.5 * Math.max(1, r))} damage each, ${pct(FAR_BONUS)} more on mobs more than ${FAR_PX} away.`,
   },
   // Trapper (nets, slows, arrows from the sky)
   arrow_rain: {
     ...A, branch: 'trapper', adv: 30, name: 'Arrow Rain', kind: 'rain', max: 5, mp: 20, cd: 6, range: 450, radius: 130, hits: 3,
     mult: (r) => 0.4 + 0.08 * r,
-    desc: (r) => `Loose a volley into the sky: it comes down round the first mob ahead (up to 450 px), hitting everything within 130 px of it 3 times for ${pct(0.4 + 0.08 * Math.max(1, r))} each.`,
+    desc: (r) => `Loose a volley into the sky: it comes down round the first mob ahead (range 450), hitting everything within range 130 of it 3 times for ${pct(0.4 + 0.08 * Math.max(1, r))} each.`,
   },
   net_trap: {
     ...A, branch: 'trapper', adv: 30, name: 'Net Trap', kind: 'summon', what: 'net', max: 3, mp: 15, cd: 12, dur: 20,
@@ -429,12 +429,12 @@ export const SKILLS = {
   trap_mastery: {
     ...A, branch: 'trapper', adv: 60, name: 'Trap Mastery', kind: 'passive', max: 3,
     burst: (r) => 1.2 + 0.4 * r,
-    desc: (r) => `Your net catches ${1 + Math.max(1, r)} mobs instead of one, and bursts with every catch: ${pct(1.2 + 0.4 * Math.max(1, r))} of your attack to every mob within ${NET_BURST_R} px.`,
+    desc: (r) => `Your net catches ${1 + Math.max(1, r)} mobs instead of one, and bursts with every catch: ${pct(1.2 + 0.4 * Math.max(1, r))} of your attack to every mob within range ${NET_BURST_R}.`,
   },
   thousand_arrows: {
     ...A, branch: 'trapper', adv: 100, name: 'Thousand Arrows', kind: 'rain', max: 3, mp: 70, cd: 60, range: 520, radius: 340, hits: 6, slow: 3,
     mult: (r) => 0.8 + 0.2 * r,
-    desc: (r) => `The sky goes dark with arrows: everything within 340 px of the first mob ahead is hit 6 times for ${pct(0.8 + 0.2 * Math.max(1, r))} each and slowed.`,
+    desc: (r) => `The sky goes dark with arrows: everything within range 340 of the first mob ahead is hit 6 times for ${pct(0.8 + 0.2 * Math.max(1, r))} each and slowed.`,
   },
 
   // ——— Gifts: one player's own skill, granted by the server on load (server/rpg.js), never learned or
@@ -451,15 +451,15 @@ export const SKILLS = {
   // ("i-frames"): that's how you get through the tall sweeps and the Colossus's / Chronos's ultimates.
   dash: {
     cls: 'any', tree: 'wind', adv: 10, name: 'Dash', kind: 'move', max: 3, mp: 0, cdFor: (r) => DASH_CD[r] / 60, key: 'Shift',
-    desc: (r) => `Shift: burst ${Math.round((DASH_V * DASH_TICKS) / 60)} px the way you face (in the air too), untouchable for ${secs(IFR_DASH)}. Cooldown ${DASH_CD[Math.max(1, r)] / 60} s.`,
+    desc: (r) => `Shift: burst forward ${Math.round((DASH_V * DASH_TICKS) / 60)} (in the air too), untouchable for ${secs(IFR_DASH)}. Cooldown ${DASH_CD[Math.max(1, r)] / 60} s.`,
   },
   flash_jump: {
     cls: 'any', tree: 'wind', adv: 10, name: 'Flash Jump', kind: 'passive', max: 3,
-    desc: (r) => `Press Jump again in mid-air for a second, forward-flying jump (${FJ_VX[Math.max(1, r)]} px/s).`,
+    desc: (r) => `Press Jump again in mid-air for a second, forward-flying jump (speed ${FJ_VX[Math.max(1, r)]}).`,
   },
   blink: {
     cls: 'any', tree: 'wind', adv: 30, name: 'Blink', kind: 'move', max: 3, mp: 0, cdFor: (r) => BLINK_CD[r] / 60, key: 'V',
-    desc: (r) => `V: teleport ${BLINK_DIST[Math.max(1, r)]} px the way you face, straight through anything, untouchable for ${secs(IFR_BLINK)}. Cooldown ${BLINK_CD[Math.max(1, r)] / 60} s.`,
+    desc: (r) => `V: teleport forward ${BLINK_DIST[Math.max(1, r)]}, straight through anything, untouchable for ${secs(IFR_BLINK)}. Cooldown ${BLINK_CD[Math.max(1, r)] / 60} s.`,
   },
   phantom_step: {
     cls: 'any', tree: 'wind', adv: 60, name: 'Phantom Step', kind: 'passive', max: 2,
