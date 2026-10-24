@@ -13,9 +13,9 @@ No quests, no hard level gates.
 ## Now, in this order (owner, 2026-10-24)
 1. **SP: the skill pool** (plan: `skills-plan.md`): more skills for every class, mobbing, long buffs,
    passives that change play, staples at every advancement, casting from the K panel.
-   - [ ] SP1: under the hood (long buffs, fields, damage over time, on-kill hooks, pull, new summons), the
-         K panel's Cast button. Ships dark. **Start here.**
-   - [ ] SP2–SP5: the Warrior's, Mage's, Cleric's and Archer's new skills (side by side after SP1)
+   - [x] SP1: under the hood (long buffs, fields, damage over time, on-kill hooks, pull, new summons), the
+         K panel's Cast button (live 2026-10-24, acae22d; the machinery dark behind `TEST_SKILLS`)
+   - [ ] SP2–SP5: the Warrior's, Mage's, Cleric's and Archer's new skills (side by side). **Start here.**
    - [ ] SP6: the balance pass, then the owner plays
 2. **FB1: Greenhollow's final boss**, under the Thornheart (the Sunken Road, the Road's End). Plan:
    `final-bosses.md`: very hard, about 30 minutes for four players at the recommended level (the boss's own
