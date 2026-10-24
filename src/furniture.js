@@ -89,9 +89,9 @@ const DRAW = {
     rr(ctx, 12, -74, 8, 74, 3, WOOD_DARK); // back post
     rr(ctx, 8, -74, 16, 8, 4, WOOD);
     rr(ctx, 14, -62, 6, 24, 2, WOOD);
-    rr(ctx, -22, -38, 46, 8, 4, WOOD);
-    rr(ctx, -18, -34, 36, 8, 4, '#ffb3c7'); // seat cushion
-    rr(ctx, -20, -30, 6, 30, 2, WOOD_DARK);
+    rr(ctx, -22, -32, 46, 8, 4, WOOD); // seat
+    rr(ctx, -18, -39, 36, 9, 4, '#ffb3c7'); // its cushion, on top (FURNITURE.chair.top sits in it)
+    rr(ctx, -20, -26, 6, 26, 2, WOOD_DARK);
   },
   dresser(ctx) {
     rr(ctx, -50, -80, 100, 76, 8, '#fff3e2');
