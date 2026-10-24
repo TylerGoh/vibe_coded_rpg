@@ -90,7 +90,8 @@ elsewhere.
 - HUD (combat rooms): level, HP, MP, EXP, gold, pills for unspent skill points ("· K") and ability
   points ("AP · I"). Name tags show "Lv N" there.
 - Z / Loot picks up the nearest loot that fits (hidden locally at once; `lootFits`): with a full bag it skips
-  items it can't hold, so the coins beside them still come in (owner bug, 2026-10-24). I / Bag: `BAG_SLOTS` slots + Helmet and
+  items it can't hold, so the coins beside them still come in (owner bug, 2026-10-24). Loot on the floor (mob and boss drops,
+  coins, items you Drop) vanishes `LOOT_LIFE_MS` after it lands, for everyone; anyone can pick it up until then. I / Bag: `BAG_SLOTS` slots + Helmet and
   Sword; tap to select, tap again to equip/use; "Put on hotbar" for potions; Drop only in combat rooms;
   scrolls get "Use on …" (`docs/combat/items.md`). The bag's left column holds the stats
   (`docs/combat/skills.md`), and its Style row the cosmetics.
