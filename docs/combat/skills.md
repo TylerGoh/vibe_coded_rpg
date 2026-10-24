@@ -67,8 +67,12 @@ with its section below. Next for classes: the bigger skill pool (`story/skills-p
   Sanctuary, Aegis; Rally also taunts, S5: every mob in its range turns on the Knight for `TAUNT_S` and a boss's
   focus moves to them, `docs/combat/bosses.md`; owner, 2026-10-24: folded into Rally instead of a new Taunt
   skill, so the Knight's point budget didn't move); **Berserker** (Whirlwind, Berserk, then Sword Mastery, Blade Storm, Sky Splitter).
+  SP2 filled the Warrior's pool (below, "The Warrior's skill pool"): War Cry and Hook in the basics; the Knight's
+  Ground Shake, Shield Bash, Shockwave, Holy Lance, Retribution, Judgement, Guardian's Oath, Unbroken; the Berserker's
+  Rending Slash, Bloodlust, Execution, Frenzy, Cyclone, Rampage.
   Against a boss's armour (S5.2) heavy hits crack it: any hit whose multiplier reaches `ARMOUR_CRACK` (Power
-  Strike, Sky Splitter) and Blade Storm (`crack: true`, its hits are small but many); `hitKinds` decides.
+  Strike, Sky Splitter, and SP2's Shield Bash, Holy Lance, Judgement from rank 2) and Blade Storm and Execution
+  (`crack: true`); `hitKinds` decides.
 - **Mage**: basics at Lv 10 (Magic Bolt, Mana Flow, Arcane Mind (opens at Lv 15: with two points a level a Lv 12 Mage
   holding it soloed the Bramble Behemoth too fast for `CLASS_FIT`), Mana Shield: a toggle (owner,
   2026-10-24; it was a 60 s buff): while it's on, a share of the damage you take comes off MP instead. Cast
@@ -186,7 +190,18 @@ only cooldowns, in the physics state.
   that input (`p.chaseAt`, noted in index.js's input loop; `CHASE_SLACK`), and only once.
 - Effects for anyone come from state changes (main.js `moveFx`: `sl`, `uc`), like Dash's; the E-hint list
   shows "Charge", "↓+X Leap Slam" and "Upward Cut" while each is possible (`docs/ui/hints.md`).
-- Not built: **Hook** (progression.md 1c, `[proposed]`).
+- **Hook** (SP2, the fifth): Down (held, or within `SLAM_GRACE` ticks: "▼ then Dash" on touch) + Dash, needs Dash
+  and its own cooldown `HOOK_CD` (`hc`). `step()` throws the chain: a level yank at `HOOK_V` for up to `HOOK_TICKS`
+  (`hk`; a Dash doesn't go off with it). The physics can't see mobs, so the step it fires `net.tick` asks
+  `rpg.hook` (main.js `onHook`), which finds the first mob ahead on your level within `HOOK_RANGE`, works out the
+  ticks left to reach it (0: nothing there, the chain comes back and you stay) and both sides cut the yank there
+  (`applyHook`, a predicted edit like Charge's: `docs/netcode.md`). The message always goes, in any room, so the
+  server's physics stay in step; in a combat room it also carries the landing's hit (capped by `chase()`, which
+  checks `p.chaseAt.hook`). It only ever shortens the yank, so a lying client gets no more than a Dash-like move.
+  Knockback 0, so the mob stays where you land. A Hook that lands adds Momentum. Drawn as a chain (`hook` fx) for
+  everyone; the E-hint list shows "↓+Shift Hook" when a mob is ahead out of reach. **On a platform, ▼ drops you
+  through first** (the drop isn't held back for it), so Hook from a platform yanks you along just under it: a
+  known quirk, not worth another button (owner: phones only have the buttons they have).
 
 ## The Mage's combos and Arcane Charge (S2.6)
 `story/progression.md` 3: the Mage's skill is the order you cast in, and friends can see it on the mobs.
@@ -374,6 +389,7 @@ draws the list (one HTML cell each, its icon painted once with `drawSkillIcon` /
 - Tap or hover an icon for its name (a small label under the row; the tap doesn't slap the game underneath).
   Phones: the strip sits in the free space left of the screen between the HUD buttons and the movement pad, cells
   of 32 instead of 30. The panels come later in the page and cover it.
+- SP2: Retribution's store (`me.retri`, with the amount) and Bloodlust while it's on (HP under `BLOODLUST_AT`).
 - A new buff or debuff: add its line to `statusOf` (a skill id for its icon, or a drawn one like the focus's).
 
 ## The skill pool's machinery (SP1)
@@ -412,6 +428,36 @@ yet; SP2–SP5 declare their skills on it (data in `SKILLS`, rules and constants
 - **Pull** (`pull` px on a hitting skill) and **taunt** (`taunt: true`): `pull()` slides every ordinary mob in reach
   toward the caster over `PULL_MS` (`m.pull`, at the top of `stepMob`), never a boss, field boss or anchored mob,
   never past its patrol; mob positions only. The echo carries `pulled` and `taunt` counts.
+
+## The Warrior's skill pool (SP2)
+`story/skills-plan.md`, the Warrior table. Numbers in `SKILLS`; rules and constants from `momentumMax` on in
+`src/shared/skills.js`. Descriptions read their own numbers (`SKILLS.x.mult(R1(r))`), so a retune can't leave a
+stale description. Every active skill has an icon (`ICONS`, `TREE_OF` in `src/skillfx.js`: the Knight's in the
+guardian green, the rest coral) and its own look (`anim` on the skill → `hitFx` in `src/rpg.js` → `FX`): `bash`,
+`rend`, `execute`, `lance`, `shake`, `wave`, `judgement`, `warcry`, `hook`.
+- **Basics**: **War Cry**, a long party buff (`fx: atk`; SP1's machinery, cast from the K panel). **Hook**, the fifth
+  chase move (above). **Cleave** goes through `2 + rank` mobs (`targets(rank)`; `targetsOf` reads a number or a
+  function, for Cleave and the Archer's pierces).
+- **Knight**: **Ground Shake** (a `spin` with SP1's `pull` and `taunt`: never pulls a boss), **Shield Bash** (a
+  `strike` with `stun`: an ordinary mob it hits can't move or hurt anyone for `STUN_S`, `m.stunUntil`, treated like a
+  net in `stepMob` and `ouch`; the mob flag bits are full, so the echo's `stun` list draws the stars, `v.stunLocal`,
+  `drawStun` in `src/elements.js`; a boss only flinches), **Shockwave** (`kind: 'wave'`: every mob standing on your
+  floor within `range` both ways; the client keeps it to your floor, the server only checks the distance),
+  **Holy Lance** (a `cleave` with `targets: 2` and a long `reach`), **Retribution** (passive: while Rally is up, damage
+  taken is stored in `p.retri`, at most `RETRI_HOLD` × max HP; the next Shield Bash adds `retriMult` on top, never
+  more than `RETRI_CAP` × ATK, the same sum on both sides from `me.retri` and the server's own store, so the cap
+  stays honest), **Judgement** (a wide `spin` that taunts), **Guardian's Oath** (a long party buff, `fx: def`, plus
+  `oath`: in `hurt()`, a friend's hit moves `share(rank)` of it to the Knight who swore it while they're within
+  `OATH_R` in the room; the Knight takes it as a `'dot'` hurt so it can't bounce between two oaths; never an
+  ultimate), **Unbroken** (passive: `statsFor`'s `buffs.attackers`, the mobs after you within `UNBROKEN_R`, up to
+  `UNBROKEN_MAX`, each `per(rank)` more DEF; the server counts them in `buffsOf`).
+- **Berserker**: **Rending Slash** (a `strike` with SP1's bleed), **Bloodlust** (passive: `statsFor` reads `buffs.hp`;
+  under `BLOODLUST_AT` of max HP, more ATK and Jelly Thirst doubled; `me.atk` follows from the server), **Execution**
+  (a `strike` with `exec(rank)`: × that on a mob at `EXEC_AT` of its HP or less, read off the client's HP bar and
+  allowed by `applyHits`' `exec` from the server's own HP; `onKill: refund`), **Frenzy** (passive, `onKill:
+  extendBuff` on Berserk), **Cyclone** (a `field` with `follow`: `fieldTick` moves it to its caster every tick and
+  `src/fields.js` draws it round them in the `blade` look; it never touches movement), **Rampage** (passive:
+  `momentumMax`, and Whirlwind and Blade Storm landing add a stack, `momentumUp`).
 
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js

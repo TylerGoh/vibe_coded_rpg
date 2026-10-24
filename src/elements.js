@@ -5,12 +5,13 @@
 // small flames licking over the top and sparks rising. Cheap on purpose (docs/performance.md): flat fills
 // and strokes, no gradients or glows, a handful of shapes per mob. The Archer's (S4) too: Hunter's Mark, a red
 // target ring turning over the mob's head, and a Net Trap's net thrown over a caught mob. SP1's damage over time:
-// bleeding (red drops falling off it) and poisoned (green bubbles rising off it).
+// bleeding (red drops falling off it) and poisoned (green bubbles rising off it). SP2's Shield Bash: stunned, a ring
+// of little stars turning over its head.
 import { TAU } from './util.js';
 
 // v: a mob view (x = middle, y = feet; v.chill / v.frozen / v.burning set in src/rpg.js update) · k: its MOBS entry
 export function drawMobState(ctx, v, k, time) {
-  if (!v.chill && !v.frozen && !v.burning && !v.marked && !v.netted && !v.bleeding && !v.poisoned) return;
+  if (!v.chill && !v.frozen && !v.burning && !v.marked && !v.netted && !v.bleeding && !v.poisoned && !v.stunned) return;
   const w = k.w, h = k.h, x = v.x, y = v.y, s = v.seed ?? 0;
   ctx.save();
   if (v.frozen) drawIce(ctx, x, y, w, h, time, s, k.boss || k.field);
@@ -20,7 +21,26 @@ export function drawMobState(ctx, v, k, time) {
   if (v.poisoned) drawPoison(ctx, x, y, w, h, time, s);
   if (v.netted) drawNet(ctx, x, y, w, h, time);
   if (v.marked) drawMark(ctx, x, y - h - 18, Math.min(18, 8 + w * 0.12), time);
+  if (v.stunned) drawStun(ctx, x, y - h - 8, Math.max(14, w * 0.32), time);
   ctx.restore();
+}
+
+// Stunned (Shield Bash): three little yellow stars circling over the head on a flat ellipse
+function drawStun(ctx, x, y, r, time) {
+  for (let i = 0; i < 3; i++) {
+    const a = time * 5 + (i / 3) * TAU, sx = x + Math.cos(a) * r, sy = y + Math.sin(a) * r * 0.3, s = 4 + Math.sin(a) * 1.2;
+    ctx.fillStyle = '#ffe27a';
+    ctx.strokeStyle = '#c8962a';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    for (let k = 0; k < 10; k++) {
+      const rr = k % 2 ? s * 0.45 : s, aa = (k / 10) * TAU - Math.PI / 2;
+      ctx.lineTo(sx + Math.cos(aa) * rr, sy + Math.sin(aa) * rr);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
 }
 
 // A net thrown over the mob (Net Trap): a dome of crossed cords over its body, knots where they meet, the

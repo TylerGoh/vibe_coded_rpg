@@ -8,7 +8,7 @@ const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; /
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
-import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds, isLongBuff, fxText } from '../src/shared/skills.js';
+import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds, isLongBuff, fxText, buffFx, momentumMax, EXEC_AT, BLEED_S, RETRI_HOLD, retriMult, targetsOf, statOf } from '../src/shared/skills.js';
 import { SLAP_REACH, SLAP_COOLDOWN_MS, DASH_CD, PHANTOM_CD, CHARGE_RESET } from '../src/shared/sim.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
@@ -240,8 +240,9 @@ table(`LOOT BY CLASS: each boss's twinned weapon (sword / staff / bow; checked f
 // BUILDS: per branch, its class, then the order points go in (an id fills to its max, [id, n] to n). The
 // fork's other branch never appears, so cantLearn keeps it to one; skills not open yet are skipped.
 const BUILDS = {
-  knight: { cls: 'warrior', order: ['jelly_thirst', 'power_strike', 'iron_jelly', 'cleave', 'vitality', 'rally', 'second_wind', ['dash', 1], 'charge', 'momentum', 'jelly_bubble', 'sanctuary', 'aegis', 'leap_slam', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
-  berserker: { cls: 'warrior', order: ['power_strike', 'jelly_thirst', 'berserk', 'whirlwind', ['dash', 1], 'charge', 'momentum', 'iron_jelly', 'cleave', 'leap_slam', 'sword_mastery', 'blade_storm', 'sky_splitter', 'upward_cut', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  // (SP2: each branch's new staples as they open, then War Cry and Hook; the new passives come in with "every passive")
+  knight: { cls: 'warrior', order: ['jelly_thirst', 'power_strike', 'iron_jelly', 'cleave', 'vitality', 'rally', 'second_wind', ['dash', 1], 'charge', 'momentum', 'jelly_bubble', 'leap_slam', 'shield_bash', 'ground_shake', 'sanctuary', 'holy_lance', 'shockwave', 'aegis', 'judgement', 'guardians_oath', 'war_cry', 'hook', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  berserker: { cls: 'warrior', order: ['power_strike', 'jelly_thirst', 'berserk', 'whirlwind', ['dash', 1], 'charge', 'momentum', 'iron_jelly', 'cleave', 'rending_slash', 'leap_slam', 'sword_mastery', 'blade_storm', 'execution', 'sky_splitter', 'cyclone', 'war_cry', 'hook', 'upward_cut', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   elementalist: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'fireball', 'kindling', 'meteor', 'arcane_charge', ['dash', 1], 'starfall', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   frostbinder: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'chain_lightning', 'frost_nova', 'glacial_spike', 'arcane_charge', ['dash', 1], 'absolute_zero', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   priest: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'jelly_spirit', 'heal', 'faith', 'cleanse', 'mend', 'lantern_wisp', 'holy_power', 'revive', 'miracle', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
@@ -306,26 +307,30 @@ function classChar(branch, L) {
 const avgHit = (st) => ((st.minRoll + MAX_ROLL) / 2) * (1 + st.crit * (st.critMult - 1));
 // the chase moves: actions each one takes (a dash or a jump first), and how many targets it can catch
 // (the Archer's Retreat Shot, S4: a dash, then a stronger bow shot; Dash comes back at its own pace)
-const CHASE_ACTIONS = { charge: 2, leap_slam: 2, upward_cut: 1, retreat_shot: 2 };
+const CHASE_ACTIONS = { charge: 2, leap_slam: 2, upward_cut: 1, retreat_shot: 2, hook: 2 }; // (Hook, SP2: the throw, then the ride; melee only, like Charge)
 const dashCd = (c) => (DASH_CD[rankOf(c.skills, 'dash')] / 60) * (1 - PHANTOM_CD * rankOf(c.skills, 'phantom_step'));
 const chaseCd = (c, id) => (id === 'charge' ? dashCd(c) * (1 - CHARGE_RESET[rankOf(c.skills, 'charge')]) : id === 'retreat_shot' ? dashCd(c) : cooldownOf(id, rankOf(c.skills, id)));
-const DAMAGE_KINDS = new Set(['strike', 'cleave', 'spin', 'storm', 'bolt', 'fireball', 'chain', 'meteor', 'nova', 'starfall', 'shot', 'pierce', 'rain']);
-const PHYS = new Set(['strike', 'cleave', 'spin', 'storm', 'shot', 'pierce', 'rain']);
+const DAMAGE_KINDS = new Set(['strike', 'cleave', 'spin', 'storm', 'bolt', 'fireball', 'chain', 'meteor', 'nova', 'starfall', 'shot', 'pierce', 'rain', 'wave', 'field']);
+const PHYS = new Set(['strike', 'cleave', 'spin', 'storm', 'shot', 'pierce', 'rain', 'wave']);
 const ARROWS = new Set(['shot', 'pierce', 'rain']); // (Barbed Arrows: everything after the first arrow hits a slowed mob)
 const barbed = (c) => 1 + BARB_BONUS * rankOf(c.skills, 'barbed_arrows');
 // how many of n targets standing over CROWD_W px a hit `w` px wide catches
 const caught = (n, w) => (n === 1 ? 1 : Math.min(n, Math.max(1, (n * w) / CROWD_W)));
-function hitsOf(sk, st, n) {
+// (SP2: wave, Shockwave, along the floor both ways; field, a field's every tick over its whole time, in one action:
+// Cyclone carried through the pack, a Mage's walls; a strip covers 2 × radius too)
+function hitsOf(sk, st, n, rank) {
   const melee = SLAP_REACH + st.reach + (sk.reach ?? 0);
   return {
-    strike: 1, cleave: Math.min(sk.targets, caught(n, melee)), spin: caught(n, 2 * sk.radius), storm: sk.hits * caught(n, 2 * sk.radius),
+    wave: caught(n, 2 * (sk.range ?? 0)), field: sk.kind === 'field' ? (sk.dur / (sk.every ?? 1)) * caught(n, 2 * sk.radius) : 0,
+    strike: 1, cleave: Math.min(targetsOf(sk, rank), caught(n, melee)), spin: caught(n, 2 * sk.radius), storm: sk.hits * caught(n, 2 * sk.radius),
     bolt: 1, fireball: caught(n, 2 * sk.radius), chain: Math.min(sk.targets, n), meteor: caught(n, 2 * sk.radius), nova: caught(n, 2 * sk.radius), starfall: caught(n, 2 * sk.radius),
-    shot: sk.arrows, pierce: Math.min(sk.targets, n), rain: sk.hits * caught(n, 2 * sk.radius),
+    shot: sk.arrows, pierce: Math.min(targetsOf(sk, rank), n), rain: sk.hits * caught(n, 2 * sk.radius),
   }[sk.kind];
 }
 function rangeOf(sk, st) {
   if (sk.kind === 'strike' || sk.kind === 'cleave') return SLAP_REACH + st.reach + sk.reach;
-  if (['spin', 'storm', 'nova', 'starfall'].includes(sk.kind)) return sk.radius;
+  if (sk.kind === 'wave') return 0; // (Shockwave runs along your own floor: never up to a ledge)
+  if (['spin', 'storm', 'nova', 'starfall', 'field'].includes(sk.kind)) return sk.radius;
   return sk.range;
 }
 // one cast's expected damage on n targets (0 if it can't reach `range`). c: the character (Barbed Arrows, the net)
@@ -336,8 +341,8 @@ function castDmg(id, rank, st, n, range, c) {
     return tm && !range ? st.atk * SKILLS.trap_mastery.burst(tm) * avgHit(st) * Math.min(1 + tm, n) * caught(n, 2 * NET_BURST_R) : 0;
   }
   if (rangeOf(sk, st) < range) return 0;
-  const base = PHYS.has(sk.kind) ? st.atk : (sk.stat === 'best' ? Math.max(st.atk, st.magic) : st.magic) * (sk.fire ? st.fire : 1) * (sk.holy ? st.heal : 1);
-  return base * sk.mult(rank) * avgHit(st) * hitsOf(sk, st, n) * (ARROWS.has(sk.kind) ? barbed(c) : 1);
+  const base = sk.kind === 'field' ? statOf(sk, st) * (sk.fire ? st.fire : 1) : PHYS.has(sk.kind) ? st.atk : (sk.stat === 'best' ? Math.max(st.atk, st.magic) : st.magic) * (sk.fire ? st.fire : 1) * (sk.holy ? st.heal : 1);
+  return base * sk.mult(rank) * avgHit(st) * hitsOf(sk, st, n, rank) * (ARROWS.has(sk.kind) ? barbed(c) : 1);
 }
 // the normal attack's expected damage at `range` (c: the character, for Barbed Arrows)
 const attackDmg = (st, range, c) => (st.boltRange ? (st.boltRange >= range ? st.magic * (st.holyBolt ? HOLY_BOLT_MULT : STAFF_BOLT_MULT) * avgHit(st) : 0) : st.arrowRange ? (st.arrowRange >= range ? st.atk * BOW_SHOT_MULT * avgHit(st) * barbed(c) : 0) : SLAP_REACH + st.reach >= range ? st.atk * avgHit(st) : 0);
@@ -395,15 +400,20 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
   let evadeAcc = 0; // Evasion (Archer): a share of the hits that miss, counted out evenly
   let momentum = 0, momentumUntil = 0, busy = 0; // busy: actions still taken by a two-action chase move
   let charges = 0, chargesUntil = 0, burnDps = 0, burnUntil = 0; // Arcane Charge; the burn on the target(s) (summed over a crowd)
+  let bleedDps = 0, bleedUntil = 0, retri = 0; // (SP2: a bleed on the target(s), like the burn; Retribution's store)
+  // SP2: the long buffs held are on all fight (cast before it, minutes long: War Cry, Guardian's Oath on yourself)
+  const long = buffFx(Object.keys(c.skills).filter((id) => isLongBuff(SKILLS[id]) && r(id)).map((id) => SKILLS[id].fx(r(id))));
   // the Cleric: its spirits / Seraph up ({ id, until, hp, def, dps, draw }), the totem, the Barrier, Mend, the wisp
   const sums = [];
   let drawAcc = 0, totem = null, barrier = 0, barrierUntil = 0, mendUntil = 0, mendAmt = 0, wispUntil = 0, wispAmt = 0;
-  const statsAt = (t) => statsFor(c, { berserk: buff.berserk > t, rally: buff.rally > t ? SKILLS.rally.boost(r('rally')) : 0, manaShield: buff.manaShield > t, momentum: momentumUntil > t ? momentum : 0 });
-  const chases = Object.keys(CHASE_ACTIONS).filter((id) => r(id) && ((id !== 'charge' && id !== 'retreat_shot') || r('dash')));
+  const statsAt = (t) => statsFor(c, { berserk: buff.berserk > t, rally: buff.rally > t ? SKILLS.rally.boost(r('rally')) : 0, manaShield: buff.manaShield > t, momentum: momentumUntil > t ? momentum : 0, long, hp, attackers: hit ? 1 : 0 }); // (hp: Bloodlust; one boss after you: Unbroken)
+  const chases = Object.keys(CHASE_ACTIONS).filter((id) => r(id) && ((id !== 'charge' && id !== 'retreat_shot' && id !== 'hook') || r('dash')));
   // Hunter's Mark (Sniper): everything on the marked mob hits harder; on a crowd only one of them is marked
   const markX = (t) => (buff.mark > t ? 1 + SKILLS.hunters_mark.boost(r('hunters_mark')) / n : 1);
-  const top = statsFor(c);
-  let hp = top.maxHp, mp = top.maxMp, dealt = 0, drunk = 0, gold = 0, swReady = 0, lastHurt = -99, nextHit = every, nextRegen = 1;
+  let hp = Infinity; // (statsAt reads it for Bloodlust: set just below)
+  const top = statsFor(c, { long });
+  hp = top.maxHp;
+  let mp = top.maxMp, dealt = 0, drunk = 0, gold = 0, swReady = 0, lastHurt = -99, nextHit = every, nextRegen = 1;
   const actives = Object.keys(c.skills).filter((id) => SKILLS[id].kind !== 'passive' && SKILLS[id].kind !== 'move');
   const ready = (id, t) => r(id) && (cds[id] ?? 0) <= t && mp >= SKILLS[id].mp;
   const use = (id, t) => { mp -= SKILLS[id].mp; cds[id] = t + cooldownOf(id, r(id)); };
@@ -430,6 +440,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
         if (totem && totem.until > at && totem.hp > 0) d = Math.max(1, Math.round(d * (1 - totem.cut)));
         if (barrier > 0 && barrierUntil > at) { const soak = Math.min(barrier, d); barrier -= soak; d -= soak; if (d <= 0) continue; }
         if (st.manaShield) { const take = Math.min(Math.round(d * st.manaShield), Math.floor(mp)); mp -= take; d -= take; }
+        if (buff.rally > at && r('retribution')) retri = Math.min(st.maxHp * RETRI_HOLD, retri + d); // (SP2: stored for the next Shield Bash)
         hp -= d;
         lastHurt = at;
         if (hp <= 0 && r('second_wind') && at >= swReady) { hp = 1; swReady = at + SKILLS.second_wind.cdFor(r('second_wind')); }
@@ -446,6 +457,10 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     // a burn ticking since the last action (the server's BURN_TICK_MS, smoothed)
     if (burnUntil > t - ACTION_S) {
       dealt += burnDps * Math.min(ACTION_S, burnUntil - (t - ACTION_S));
+      if (dealt >= bossHp) return { t, dealt, faint: false, drunk, gold };
+    }
+    if (bleedUntil > t - ACTION_S) { // (SP2: a bleed, the same way)
+      dealt += bleedDps * Math.min(ACTION_S, bleedUntil - (t - ACTION_S));
       if (dealt >= bossHp) return { t, dealt, faint: false, drunk, gold };
     }
     // the spirits' hits since the last action, and the boss wearing them (and the totem) down
@@ -525,7 +540,10 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     const held = chargesUntil > t ? charges : 0;
     for (const id of actives) {
       if ((!DAMAGE_KINDS.has(SKILLS[id].kind) && SKILLS[id].what !== 'net') || !ready(id, t)) continue;
-      const d = castDmg(id, r(id), st, n, range, c) * (spendsArcane(id) ? arcaneMult(c.skills, held) : 1);
+      // (SP2: Execution on a boss in its last EXEC_AT; a Shield Bash lets Retribution's store out; a bleed's whole tick-down)
+      const sk = SKILLS[id], low = sk.exec && bossHp < Infinity && dealt >= (1 - EXEC_AT) * bossHp ? sk.exec(r(id)) : 1;
+      const one = castDmg(id, r(id), st, n, range, c) * (spendsArcane(id) ? arcaneMult(c.skills, held) : 1) * low;
+      const d = one + (sk.stun && one ? st.atk * retriMult(c.skills, retri, st.atk) * avgHit(st) : 0) + (sk.dot ? one * sk.dot.share(r(id)) * BLEED_S * 0.5 : 0); // (half the bleed counted when choosing)
       if (d > dmg) [best, dmg] = [id, d];
     }
     // a chase move, if it beats that per action it takes (n targets: Leap Slam catches the crowd)
@@ -539,9 +557,16 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     if (chase) {
       cds[chase] = t + chaseCd(c, chase);
       busy = CHASE_ACTIONS[chase] - 1;
-      if (r('momentum')) [momentum, momentumUntil] = [Math.min(MOMENTUM_MAX, (momentumUntil > t ? momentum : 0) + 1), t + MOMENTUM_DUR];
+      if (r('momentum')) [momentum, momentumUntil] = [Math.min(momentumMax(c.skills), (momentumUntil > t ? momentum : 0) + 1), t + MOMENTUM_DUR];
     }
     if (best) use(best, t);
+    if (best && SKILLS[best].stun) retri = 0;
+    if (best && r('rampage') && r('momentum') && (best === 'whirlwind' || best === 'blade_storm')) [momentum, momentumUntil] = [Math.min(momentumMax(c.skills), (momentumUntil > t ? momentum : 0) + 1), t + MOMENTUM_DUR]; // (Rampage)
+    if (best && SKILLS[best].dot) { // the bleed: share of the hit a second over BLEED_S (the bleed part of dmg taken back out)
+      const hitPart = dmg / (1 + SKILLS[best].dot.share(r(best)) * BLEED_S * 0.5);
+      [bleedDps, bleedUntil] = [Math.max(bleedUntil > t ? bleedDps : 0, hitPart * SKILLS[best].dot.share(r(best))), t + BLEED_S];
+      dmg = hitPart;
+    }
     if (best && spendsArcane(best)) charges = 0;
     else if (!best && !chase && st.boltRange && !st.holyBolt && dmg && r('arcane_charge')) [charges, chargesUntil] = [Math.min(ARCANE_MAX, held + 1), t + ARCANE_DUR];
     if (best && SKILLS[best].el === 'fire') [burnDps, burnUntil] = [Math.max(burnUntil > t ? burnDps : 0, dmg * BURN_DPS), t + BURN_S];

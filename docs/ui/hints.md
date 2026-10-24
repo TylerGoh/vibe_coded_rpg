@@ -14,7 +14,9 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
 - Waystones (`wayPrompt`) and every room's Keeper stones (`ruinStoneAt` is room-aware now) have prompts
   and beacons.
 - In combat rooms a Warrior also sees its chase moves while each is possible right now: "X Charge"
-  (dashing or just after), "↓+X Leap Slam" (in the air, ▼ Hit on touch), "X Upward Cut" (still rising). An
+  (dashing or just after), "↓+X Leap Slam" (in the air, ▼ Hit on touch), "X Upward Cut" (still rising),
+  "↓+Shift Hook" ("▼ Dash" on touch; SP2) while Hook and Dash are ready and a mob stands ahead within Hook's
+  range but out of a sword's reach (`HOOK_RANGE`, `rpg.ahead`). An
   Archer with a bow sees "X Retreat Shot" while dashing or just after (S4: X / Hit then shoots backward).
 - A boss's focus (S5, `docs/combat/bosses.md`): the focused slime sees "Shift get clear: the boss is after you"
   (Dash on touch; `Shift` is in `TOUCH_NAMES`), and anyone with Rally on the hotbar, ready and with the MP sees

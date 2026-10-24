@@ -13,9 +13,10 @@ export const SNAP = 1, INPUT = 2, MOBS = 3;
 // voyage clock), version 3 town (docs/world.md), version 4 the Warrior's chase moves (sim.js); tabs from
 // before them say bin: 1, 2 or 3 and get the shorter records (their code has none of it), so the server
 // encodes each version someone needs. Version 5 changed only the mobs (their combo states, below): its
-// slime records are version 4's.
-export const BIN_VERSION = 5;
-const SLIME_BYTES = 44, BYTES_OF = { 1: 32, 2: 34, 3: 35, 4: 44, 5: 44 };
+// slime records are version 4's. Version 6 (SP2's Hook) adds · mw's high byte u8 (Hook's rank sits in bits 8–9)
+// · hk u8 · hc u16.
+export const BIN_VERSION = 6;
+const SLIME_BYTES = 48, BYTES_OF = { 1: 32, 2: 34, 3: 35, 4: 44, 5: 44, 6: 48 };
 const c = (v) => Math.round(v * 100);
 
 // The per-slime part of a snapshot, shared by every recipient: packed = [sim.js pack() arrays]
@@ -47,6 +48,11 @@ export function encodeSlimes(packed, version = BIN_VERSION) {
       v.setUint8(o + 41, Math.min(255, a[19] | 0));
       v.setUint8(o + 42, Math.min(255, a[20] | 0));
       v.setUint8(o + 43, Math.min(255, a[21] | 0));
+    }
+    if (size > 44) {
+      v.setUint8(o + 44, ((a[15] | 0) >> 8) & 255);
+      v.setUint8(o + 45, Math.min(255, a[22] | 0));
+      v.setUint16(o + 46, Math.min(65535, a[23] | 0), true);
     }
   });
   return new Uint8Array(buf);
@@ -111,7 +117,8 @@ export function decode(data) {
     for (let o = 9; o + SLIME_BYTES <= v.byteLength; o += SLIME_BYTES) {
       p.push([v.getUint32(o, true), v.getInt32(o + 4, true) / 100, v.getInt32(o + 8, true) / 100, v.getInt32(o + 12, true) / 100, v.getInt32(o + 16, true) / 100,
         v.getUint8(o + 20), v.getUint16(o + 21, true) / 100, v.getUint16(o + 23, true), v.getUint8(o + 25), v.getUint8(o + 26), v.getUint16(o + 27, true), v.getUint16(o + 29, true), v.getUint8(o + 31), v.getUint16(o + 32, true), v.getUint8(o + 34),
-        v.getUint8(o + 35), v.getUint8(o + 36), v.getUint16(o + 37, true), v.getUint16(o + 39, true), v.getUint8(o + 41), v.getUint8(o + 42), v.getUint8(o + 43)]);
+        v.getUint8(o + 35) | (v.getUint8(o + 44) << 8), v.getUint8(o + 36), v.getUint16(o + 37, true), v.getUint16(o + 39, true), v.getUint8(o + 41), v.getUint8(o + 42), v.getUint8(o + 43),
+        v.getUint8(o + 45), v.getUint16(o + 46, true)]);
     }
     return { t: 's', k: v.getUint32(1, true), a: v.getUint32(5, true), p };
   }

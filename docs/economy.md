@@ -331,6 +331,30 @@ player can learn uses them yet (the test skills only appear with `TEST_SKILLS`, 
 class table moved (`npm run economy` was identical before and after, plus the empty LONG BUFFS line). SP2–SP5 price
 their skills through the CLASSES tables as usual; an `exp` buff goes on the sheet as a faucet.
 
+## The Warrior's skill pool (SP2, 2026-10-24)
+`fight` learned SP2's pieces: long buffs held are on for the whole fight (cast beforehand: War Cry's ATK, the Oath's
+DEF on yourself), `wave` (Shockwave: `caught` over twice its range, never at range: it runs along your own floor) and
+`field` (Cyclone, a Mage's walls: every tick of its whole time in one action), Cleave's targets by rank, bleed ticking
+like a burn, Execution's × in the boss's last `EXEC_AT`, Retribution's store (hits taken under Rally, let out by the
+next Shield Bash), Bloodlust (`statsAt` passes HP), Unbroken (one attacker: the boss), Rampage (`momentumMax`, and
+Whirlwind / Blade Storm stack) and Hook as a two-action chase move (melee only, like Charge). Both Warrior BUILDS
+take their branch's new staples as they open, then War Cry and Hook; the new passives come with "every passive".
+- **What moved** (single / crowd damage a second, before → after): Knight Lv 30 1,511 / 2,575 → 1,603 / 2,612, Lv 60
+  4,365 / 7,606 → 4,813 / 8,644, Lv 100 7,096 / 12,365 → 8,642 / 17,085, Lv 200 14,426 / 25,138 → 17,572 / 35,298;
+  Berserker Lv 30 1,699 / 2,767 → 1,810 / 2,926, Lv 60 5,222 / 10,202 → 4,903 / 10,262, Lv 100 9,191 / 17,728 →
+  11,071 / 21,955, Lv 200 18,693 / 36,052 → 22,894 / 45,230. Shape (Warrior ÷ the others' mean) single 1.04 → 1.26–1.27
+  and crowd 1.26 → 1.64–1.66 from Lv 100 (Lv 30–60 within a few %). The Knight's ranged column doubled (Holy Lance's
+  reach passes `RANGED_PX`) but stays its bad-at by far (0.12–0.15). Den solo times: the Knight ~10–20% faster (it
+  was the slowest soloist), the Berserker ~10–20% faster from Lv 99 (0.72× the median on Ignis, inside `CLASS_FIT`).
+  A full-pack clear for a Lv 100+ Warrior is ~25–40% faster. Nothing outside the CLASSES tables: no mob, boss, gold,
+  EXP, price or curve. No EXP buff, so the LONG BUFFS line has no faucet.
+- **Why the Warrior now leads both columns from Lv 100**: the sim lets every learned active fire (it doesn't model the
+  six hotbar slots, and the K panel's Cast makes the rest reachable anyway), so every new staple adds damage instead
+  of replacing the old one. Only the Warrior has its pool so far; SP3–SP5 add the others' the same way, and SP6
+  balances all four at once (owner: balance by shape; the Mage should top mobbing). The new skills were tuned down
+  once already (first cut: Berserker 0.52× the median on Chronos, failing `CLASS_FIT`): per cast they're stronger than
+  the tier before (Rule 1), with long cooldowns so they add less per second.
+
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Price it in **minutes of farming at that level** (the PROGRESS table's gold/min), by kind

@@ -5,7 +5,8 @@
 // small gradient per field, flat shapes, a handful of particles worked out from the clock (no state to keep).
 // A strip is a glowing band along the floor with a haze rising off it; a round one an ellipse on the floor under a
 // faint dome. Each look has its own colours and bits: fire (flame tongues and embers), frost (flakes and floor
-// crystals), holy (rising motes and rays), poison (bubbles), plain (sparkles).
+// crystals), holy (rising motes and rays), poison (bubbles), plain (sparkles). SP2's Cyclone is a `follow` field drawn
+// round its caster wherever it goes, in the 'blade' look: no floor glow, a whirl of steel crescents.
 import { TAU, clamp } from './util.js';
 import { FIELD_LOOKS, FIELD_TALL } from './shared/skills.js';
 
@@ -16,6 +17,7 @@ const LOOK = {
   frost: ['170,222,255', '#7cbde6', '#ffffff'],
   holy: ['255,228,140', '#e8b84a', '#fff6c8'],
   poison: ['168,222,112', '#78b84a', '#e4ffc0'],
+  blade: ['255,190,170', '#e0806a', '#ffffff'],
 };
 
 export class Fields {
@@ -28,17 +30,17 @@ export class Fields {
   clear(room) {
     if (room !== this.room) this.list.clear();
   }
-  // {t:'fields', room, f: [[id, skill, owner, x, y, r, round, msLeft, look]]}: the room's fields now
+  // {t:'fields', room, f: [[id, skill, owner, x, y, r, round, msLeft, look, follow]]}: the room's fields now
   receive(m) {
     const t = this.rpg.time, seen = new Set();
     if (m.room !== this.room) this.list.clear();
     this.room = m.room;
-    for (const [id, skill, owner, x, y, r, round, ms, look] of m.f ?? []) {
+    for (const [id, skill, owner, x, y, r, round, ms, look, follow] of m.f ?? []) {
       seen.add(id);
       const f = this.list.get(id);
       const until = t + ms / 1000;
       if (f) f.until = until;
-      else this.list.set(id, { id, skill, owner, x, y, r, round: !!round, until, look: FIELD_LOOKS[look] ?? 'plain', born: t, seed: (id * 7.31) % 10 });
+      else this.list.set(id, { id, skill, owner, x, y, r, round: !!round, until, look: FIELD_LOOKS[look] ?? 'plain', born: t, seed: (id * 7.31) % 10, follow: !!follow });
     }
     for (const [id, f] of this.list) if (!seen.has(id)) f.until = Math.min(f.until, t); // (gone: fade out)
   }
@@ -53,12 +55,48 @@ export class Fields {
     for (const f of this.list.values()) {
       const a = clamp(Math.min((t - f.born) / 0.3, (f.until - t + 0.5) / 0.5), 0, 1);
       if (a <= 0) continue;
+      if (f.follow) { // (Cyclone: round its caster, wherever it is now)
+        const s = this.rpg.slimeOf(f.owner);
+        if (s) [f.x, f.y] = [s.x, s.y];
+      }
       ctx.save();
       ctx.globalAlpha = a;
-      if (f.round) round(ctx, f, t);
+      if (f.look === 'blade') whirl(ctx, f, t);
+      else if (f.round) round(ctx, f, t);
       else strip(ctx, f, t);
       ctx.restore();
     }
+  }
+}
+
+// Cyclone (SP2): a whirl of coral and white crescents round the slime, tilted like a spinning top, sparks flung off
+function whirl(ctx, f, t) {
+  const R = f.r, y = f.y - 20;
+  ctx.save();
+  ctx.translate(f.x, y);
+  ctx.scale(1, 0.42);
+  ctx.fillStyle = 'rgba(255,200,180,0.16)';
+  ctx.beginPath();
+  ctx.arc(0, 0, R, 0, TAU);
+  ctx.fill();
+  for (let i = 0; i < 4; i++) {
+    const r = R * (0.45 + i * 0.17), a = t * (16 - i * 2) + i * 1.7;
+    ctx.strokeStyle = i % 2 ? 'rgba(255,154,126,0.85)' : 'rgba(255,255,255,0.95)';
+    ctx.lineWidth = (6 - i) / 0.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, a, a + 1.9);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, r, a + Math.PI, a + Math.PI + 1.4);
+    ctx.stroke();
+  }
+  ctx.restore();
+  ctx.fillStyle = '#fff4e2';
+  for (let i = 0; i < 6; i++) {
+    const a = t * 9 + i * 1.05 + f.seed, d = R * (0.7 + 0.3 * ((t * 3 + i * 0.37) % 1));
+    ctx.beginPath();
+    ctx.arc(f.x + Math.cos(a) * d, y + Math.sin(a) * d * 0.42, 2.2, 0, TAU);
+    ctx.fill();
   }
 }
 

@@ -479,7 +479,13 @@ export const SLAM_V = 1300, SLAM_CD = [0, 240, 180];
 export const UPCUT_V = 900, UPCUT_CD = [0, 240, 180];
 export const SLAM_GRACE = 15, UPCUT_GRACE = 15, CHARGE_WINDOW = 15;
 export const CHARGE_RESET = [0, 0.5, 0.7];
-export const chaseRank = (mw, i) => ((mw | 0) >> (i * 2)) & 3; // 0 Charge · 1 Leap Slam · 2 Upward Cut · 3 Retreat Shot
+// Hook (SP2): Down (held, or within SLAM_GRACE ticks) + Dash: a chain yanks you level along the floor at HOOK_V for
+// up to HOOK_TICKS (hk), the fifth chase move. The physics can't see mobs, so the client says how far the mob is in
+// ticks the step it fires (src/rpg.js hook) and both sides cut the yank short there (applyHook, at that input, like
+// a Charge); nothing ahead: 0, the chain comes back and you stay. It can only shorten the yank. Needs Dash.
+export const HOOK_V = 1500, HOOK_TICKS = 14, HOOK_CD = [0, 300, 240];
+export const HOOK_RANGE = Math.round((HOOK_V * HOOK_TICKS) / TICK_RATE) - 10; // how far a mob may be (the description's range)
+export const chaseRank = (mw, i) => ((mw | 0) >> (i * 2)) & 3; // 0 Charge · 1 Leap Slam · 2 Upward Cut · 3 Retreat Shot · 4 Hook
 // Is a slap right now a Charge? (dashing, or just after)
 export const chargeOpen = (s) => chaseRank(s.mw, 0) > 0 && ((s.dt | 0) > 0 || (s.cw | 0) > 0);
 // Is a bow shot right now a Retreat Shot (Archer, S4)? Dashing or just after (the same window as Charge),
@@ -505,17 +511,28 @@ const WALK = 270;
 const ACCEL_GROUND = 2600;
 const ACCEL_AIR = 1500;
 const DROP_TIME = 0.25; // seconds platforms are ignored after dropping through one
+// A Hook's yank cut to d more ticks (src/rpg.js worked out how far its mob is): the same edit on both sides, at the
+// input the hook fired at (src/net.js replays it; server/rpg.js chase makes it from the hook's own message)
+export function applyHook(s, d) {
+  const left = Math.max(0, Math.min(s.hk | 0, d | 0));
+  if (left === (s.hk | 0)) return s;
+  s.hk = left;
+  if (!left) s.vx = q(s.facing * WALK); // (it stops crisply)
+  return s;
+}
+
 const HALF_W = 16; // half the slime's footprint, for platform edges and world bounds
 
 // use: whether E was already held last step (doors only trigger on the press, not while held)
 // jh / dh / bh: Jump / Dash / Blink held last step. mv: mobility ranks. dt: dash ticks left; dc / bc: dash / blink
 // cooldowns; ifr: untouchable ticks; fj: the Flash Jump is used up (until you land)
 // The chase moves: mw their ranks; ah: Attack held last step; sl: slamming (Leap Slam, until it lands); sc / uc:
-// Leap Slam / Upward Cut cooldowns; cw: the Charge window after a dash; uw / lw: ticks since Jump / Down were held
+// Leap Slam / Upward Cut cooldowns; cw: the Charge window after a dash; uw / lw: ticks since Jump / Down were held;
+// hk: Hook's yank ticks left, hc: its cooldown (SP2)
 // home: the room id of your own house (set by the server at login; 0 = none yet, so that door stays shut)
 // vt: voyage ticks, how long you've been aboard a crossing (0 everywhere else)
 // town: your town (an index into TOWNS), the last one you were in
-export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0 });
+export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0, hk: 0, hc: 0 });
 // Move a slime to (room, x), standing, keeping who it is (house, mobility, town). For the server's
 // teleports (waking up, invites, tests); doors do this inside step().
 export const placeAt = (s, room, x) => Object.assign(s, newState(x), { room, y: roomDef(room).ground, home: s.home, mv: s.mv, mw: s.mw, facing: s.facing, town: townOf(room) >= 0 ? townOf(room) : s.town | 0 });
@@ -548,7 +565,7 @@ export function step(s, keys) {
     s.room = door.to === HOME ? s.home : town ? town.room : door.to;
     s.x = town ? town.homeX : door.toX;
     s.y = roomDef(s.room).ground;
-    s.vx = s.vy = s.drop = s.dt = s.vt = s.cw = 0;
+    s.vx = s.vy = s.drop = s.dt = s.vt = s.cw = s.hk = 0;
     s.sl = false;
     s.grounded = true;
     s.onPlat = false;
@@ -568,6 +585,7 @@ export function step(s, keys) {
   if (s.sc) s.sc--;
   if (s.uc) s.uc--;
   if (s.cw) s.cw--;
+  if (s.hc) s.hc--;
   s.uw = keys & JUMP ? UPCUT_GRACE : Math.max(0, (s.uw | 0) - 1);
   s.lw = keys & DOWN ? SLAM_GRACE : Math.max(0, (s.lw | 0) - 1);
   const mv = s.mv | 0, phantom = rankBits(mv, 3), cdK = 1 - PHANTOM_CD * phantom, mw = s.mw | 0;
@@ -585,7 +603,11 @@ export function step(s, keys) {
       s.uc = UPCUT_CD[chaseRank(mw, 2)];
     }
   }
-  if (pressedDash && rankBits(mv, 0) && !s.dc && !s.dt && !s.sl) {
+  if (pressedDash && s.lw && chaseRank(mw, 4) && rankBits(mv, 0) && !s.hc && !s.hk && !s.dt && !s.sl) {
+    s.hk = HOOK_TICKS; // Hook: the chain flies out (src/rpg.js finds the mob and cuts the yank to it: applyHook)
+    s.hc = HOOK_CD[chaseRank(mw, 4)];
+    s.cw = 0;
+  } else if (pressedDash && rankBits(mv, 0) && !s.dc && !s.dt && !s.sl && !s.hk) {
     s.dt = DASH_TICKS;
     s.dc = Math.round(DASH_CD[rankBits(mv, 0)] * cdK);
     s.ifr = Math.max(s.ifr, IFR_DASH + IFR_PHANTOM * phantom);
@@ -603,10 +625,15 @@ export function step(s, keys) {
     s.vy = Math.min(s.vy, 0); // a level dash, in the air too
     if (!s.dt) s.cw = CHARGE_WINDOW; // a slap that lands this soon after still counts as a Charge
   }
+  if (s.hk) {
+    s.hk--;
+    s.vx = s.facing * (s.hk ? HOOK_V : WALK); // yanked level along, at walking speed once it's there
+    s.vy = Math.min(s.vy, 0);
+  }
 
   // Holding ↓ on a platform drops you through it (↓ + jump too, MapleStory style). ↓ alone used to do
   // nothing, and on touch ▼ and Jump sit under the same thumb, so dropping was nearly impossible there.
-  if (keys & DOWN && s.grounded && s.onPlat) {
+  if (keys & DOWN && s.grounded && s.onPlat && !s.hk) {
     s.drop = DROP_TIME; // fall through the platform underfoot
     s.grounded = false;
   } else if (keys & JUMP && s.grounded) {
@@ -660,11 +687,11 @@ export function step(s, keys) {
   return s;
 }
 
-// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town, mw, flags2, sc, uc, cw, uw, lw]
+// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town, mw, flags2, sc, uc, cw, uw, lw, hk, hc]
 // (`home` never changes, so it isn't in snapshots: welcome / join info carry it, and src/net.js keeps ours)
 // flags: 1 grounded · 2 on a platform · 4 facing left · 8 E held · 16 Jump held · 32 Dash held · 64 Blink held · 128 Flash Jump used
 // flags2: 1 Attack held · 2 slamming
-export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0, s.mw | 0, (s.ah ? 1 : 0) | (s.sl ? 2 : 0), s.sc | 0, s.uc | 0, s.cw | 0, s.uw | 0, s.lw | 0];
+export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0, s.mw | 0, (s.ah ? 1 : 0) | (s.sl ? 2 : 0), s.sc | 0, s.uc | 0, s.cw | 0, s.uw | 0, s.lw | 0, s.hk | 0, s.hc | 0];
 export function unpack(a, s = {}) {
   s.x = a[1];
   s.y = a[2];
@@ -695,6 +722,8 @@ export function unpack(a, s = {}) {
   s.cw = a[19] ?? 0;
   s.uw = a[20] ?? 0;
   s.lw = a[21] ?? 0;
+  s.hk = a[22] ?? 0;
+  s.hc = a[23] ?? 0;
   return s;
 }
 

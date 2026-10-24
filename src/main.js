@@ -66,7 +66,7 @@ import { checkBuild, onInstall, takeResume } from './update.js';
 import { gfx } from './gfx.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
-import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, chargeOpen, retreatOpen, chaseRank, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X } from './shared/sim.js';
+import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, chargeOpen, retreatOpen, chaseRank, HOOK_RANGE, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X } from './shared/sim.js';
 
 const canvas = document.getElementById('game');
 const stage = document.getElementById('stage');
@@ -258,6 +258,10 @@ const net = new Net(wsUrl, {
   // a Leap Slam just landed, or an Upward Cut just went off (fresh steps only): its hits (src/rpg.js)
   onChase(id, me, seq) {
     if (mine && !splatted(mine)) rpg.chase(id, me, seq, mine);
+  },
+  // a Hook just fired (SP2): its mob, its hit, and how many ticks the yank takes (always sent: the server cuts it the same)
+  onHook(me, seq) {
+    return rpg.hook(me, seq);
   },
   // personal houses: a house's layout, or someone inviting us over
   onHouse(m) {
@@ -762,11 +766,11 @@ musicButton.onclick = () => {
 // Controls: every key (or touch button), in the Esc menu instead of as labels on the HUD (owner's request)
 const CONTROLS = TOUCH
   ? [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-     ['Tap the game', 'slap · Hit attacks'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree (Cast a skill from its card)'],
+     ['Tap the game', 'slap · Hit attacks'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['▼ then Dash', 'Hook (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree (Cast a skill from its card)'],
      ['Players', "who's online, invite, message"], ['Chat', 'chat · /w name to whisper · /r to reply'], ['Decorate', 'in your own house'],
      ['Mic · Broadcast', 'talk to slimes nearby · to everyone'], ['Menu', 'this menu']]
   : [['← → / A D', 'walk'], ['↑ / W / Space', 'jump (twice with Flash Jump)'], ['↓ / S', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-     ['Click', 'slap · attack'], ['X', 'attack'], ['Shift then X', 'Charge (Warrior) · Retreat Shot (Archer)'], ['↓ + X in the air', 'Leap Slam (Warrior)'], ['Jump + X, rising', 'Upward Cut (Warrior)'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
+     ['Click', 'slap · attack'], ['X', 'attack'], ['Shift then X', 'Charge (Warrior) · Retreat Shot (Archer)'], ['↓ + X in the air', 'Leap Slam (Warrior)'], ['↓ + Shift', 'Hook (Warrior)'], ['Jump + X, rising', 'Upward Cut (Warrior)'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
      ['I · K', 'bag · skill tree (double-click a skill, or Cast, to cast it)'], ['P', "who's online, invite, message"], ['Enter', 'chat · /w name to whisper · /r to reply'],
      ['R', 'decorate your house'], ['C · H · Q', 'course menu · raise your hand · ask Clio'], ['M · B', 'mic · broadcast to everyone'],
      ['F', 'fullscreen'], ['Esc', 'this menu']];
@@ -1388,6 +1392,7 @@ function drawHints() {
     if (ITEMS[rpg.me?.gear?.weapon]?.kind === 'bow' && retreatOpen(me, -(me.facing < 0 ? -1 : 1))) acts.push({ key: 'X', label: 'Retreat Shot' }); // (the Archer's, S4)
     if (!me.grounded && !me.sl && chaseRank(me.mw, 1) && !me.sc) acts.push({ key: '↓+X', label: 'Leap Slam' });
     if (!me.grounded && !me.sl && me.vy < 0 && chaseRank(me.mw, 2) && !me.uc) acts.push({ key: 'X', label: 'Upward Cut' });
+    if (chaseRank(me.mw, 4) && !me.hc && !me.hk && rankOf(rpg.me?.skills, 'dash') && rpg.ahead(me, me.facing < 0 ? -1 : 1, HOOK_RANGE, 0).some((v) => Math.abs(v.x - me.x) > 110)) acts.push({ key: TOUCH ? '▼ Dash' : '↓+Shift', label: 'Hook' }); // (SP2: a mob out of reach ahead)
     // a boss's focus (S5, src/party.js): on you, Dash clear; on a friend, a Knight's Rally takes it
     const foc = rpg.party.focused(), mineR = rpg.me;
     if (foc && foc === net.id && rankOf(mineR?.skills, 'dash')) acts.push({ key: 'Shift', label: 'get clear: the boss is after you' });

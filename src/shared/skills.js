@@ -1,6 +1,6 @@
 // Docs: docs/combat/skills.md
 import { attackFor, defenseFor, maxHpFor, reachFor, ITEMS, STAFF_BOLT_RANGE, BOW_RANGE, heavyHit } from './rpg.js';
-import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR_BLINK, IFR_PHANTOM, PHANTOM_CD, SLAM_CD, UPCUT_CD, CHARGE_RESET } from './sim.js';
+import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR_BLINK, IFR_PHANTOM, PHANTOM_CD, SLAM_CD, UPCUT_CD, CHARGE_RESET, HOOK_CD, HOOK_RANGE } from './sim.js';
 
 // Shared by client and server: classes, their skill trees, mana, and the hotbar (story/progression.md,
 // story/archive/s2-plan.md). Everyone starts as a Novice; at CLASS_LVL you choose a class at the Rebirth Pool
@@ -103,7 +103,7 @@ export function advanceText(cls, lvl) {
 // slowing them) · 'meteor' (a big blast where the first mob ahead stands, a moment later) · 'starfall'
 // (every mob in the room) · 'heal' (`self`: just you) · 'buff' (Berserk) · 'shield' (Mana Shield, a `toggle`: cast it again to turn it off) ·
 // 'bubble' (blocks the next hit) · 'rally' (team attack/defence buff) · 'zone' (Sanctuary) · 'aegis'
-// (team immunity) · 'gods' (Challenge the Gods) · 'chase' (the Warrior's chase moves: no hotbar, no MP, set off
+// (team immunity) · 'wave' (SP2's Shockwave: every mob on your floor within `range` both ways) · 'gods' (Challenge the Gods) · 'chase' (the Warrior's chase moves: no hotbar, no MP, set off
 // by movement + Attack inside sim.js step(); `how` says which) · 'passive'. `fire`: a fire spell (Kindling makes it stronger).
 // `el`: the spell's element for the Mage's combos (S2.6, ELEMENTS below): 'frost' chills / freezes, 'fire' burns
 // and shatters a frozen mob, 'storm' spreads a burn. (S6 adds the Lv 150 masteries.)
@@ -144,9 +144,9 @@ export const SKILLS = {
     desc: (r) => `A heavy swing at the nearest mob ahead: ${pct(1.8 + 0.6 * r)} damage.`,
   },
   cleave: {
-    ...W, adv: 10, name: 'Cleave', kind: 'cleave', max: 3, mp: 10, cd: 2, reach: 70, targets: 3,
+    ...W, adv: 10, name: 'Cleave', kind: 'cleave', max: 3, mp: 10, cd: 2, reach: 70, targets: (r) => 2 + Math.max(1, r), // (SP2: more mobs with rank)
     mult: (r) => 1.5 + 0.4 * r,
-    desc: (r) => `A wide swing through up to 3 mobs ahead: ${pct(1.5 + 0.4 * r)} damage each.`,
+    desc: (r) => `A wide swing through up to ${2 + Math.max(1, r)} mobs ahead: ${pct(1.5 + 0.4 * r)} damage each.`,
   },
   iron_jelly: {
     ...W, adv: 10, name: 'Iron Jelly', kind: 'passive', max: 3,
@@ -178,6 +178,17 @@ export const SKILLS = {
     per: (r) => [0, 0.02, 0.03][r],
     desc: (r) => `Every Charge, Leap Slam or Upward Cut that lands adds a stack: +${Math.round([0, 0.02, 0.03][Math.max(1, r)] * 100)}% attack each, up to ${MOMENTUM_MAX}. They last ${MOMENTUM_DUR} s, and all go if you stand still.`,
   },
+  // SP2 (story/skills-plan.md): the basics' long buff, and Hook, a fifth chase move
+  war_cry: {
+    ...W, adv: 10, name: 'War Cry', kind: 'buff', max: 3, mp: 20, cd: 30, dur: 240, party: 300,
+    fx: (r) => ({ atk: 0.02 * r }),
+    desc: (r) => `A roar that lasts: +${pct(SKILLS.war_cry.fx(R1(r)).atk)} attack for you and every friend within range 300, for 4 min.`,
+  },
+  hook: {
+    ...W, adv: 10, name: 'Hook', kind: 'chase', max: 2, how: 'Down + Dash, facing a mob', cdFor: (r) => HOOK_CD[r] / 60, range: HOOK_RANGE,
+    mult: (r) => 1.2 + 0.3 * r,
+    desc: (r) => `Hold Down and Dash toward a mob (range ${HOOK_RANGE}): a chain flies out, hooks it and yanks you to it, and the landing hits it for ${pct(SKILLS.hook.mult(R1(r)))} damage. Nothing ahead and the chain comes back empty. Cooldown ${HOOK_CD[R1(r)] / 60} s. Needs Dash.`,
+  },
   // Knight
   jelly_bubble: {
     ...W, branch: 'knight', adv: 30, name: 'Jelly Bubble', kind: 'bubble', max: 3, mp: 20, cd: 45, dur: 8,
@@ -205,9 +216,51 @@ export const SKILLS = {
     cut: (r) => 0.5 + 0.1 * r,
     desc: (r) => `A holy circle for 8 s: friends inside take ${Math.round((0.5 + 0.1 * r) * 100)}% less damage, and boss ultimates can't knock them out.`,
   },
+  // SP2: the Knight gathers the pack and holds it
+  ground_shake: {
+    ...W, branch: 'knight', adv: 30, name: 'Ground Shake', kind: 'spin', max: 3, mp: 18, cd: 10, radius: 170, pull: 90, taunt: true, anim: 'shake',
+    mult: (r) => 0.7 + 0.1 * r,
+    desc: (r) => `Slam the floor: every mob within range 170 is hit for ${pct(SKILLS.ground_shake.mult(R1(r)))} damage, dragged a little toward you and turns on you. Never drags a boss. Cooldown ${SKILLS.ground_shake.cd} s.`,
+  },
+  shield_bash: {
+    ...W, branch: 'knight', adv: 30, name: 'Shield Bash', kind: 'strike', max: 3, mp: 14, cd: 10, reach: 40, stun: true, anim: 'bash',
+    mult: (r) => 2.8 + 0.4 * r,
+    desc: (r) => `Ram your shield into the mob ahead: ${pct(SKILLS.shield_bash.mult(R1(r)))} damage, and an ordinary mob is stunned for ${STUN_S} s (a boss only flinches). Cooldown ${SKILLS.shield_bash.cd} s.`,
+  },
+  shockwave: {
+    ...W, branch: 'knight', adv: 60, name: 'Shockwave', kind: 'wave', max: 3, mp: 26, cd: 10, range: 280,
+    mult: (r) => 1.2 + 0.2 * r,
+    desc: (r) => `Stamp so hard a wave runs along the floor both ways (range ${SKILLS.shockwave.range} each side): ${pct(SKILLS.shockwave.mult(R1(r)))} damage to every mob standing on your floor. Cooldown ${SKILLS.shockwave.cd} s.`,
+  },
+  holy_lance: {
+    ...W, branch: 'knight', adv: 60, name: 'Holy Lance', kind: 'cleave', max: 3, mp: 30, cd: 16, reach: 150, targets: 2, anim: 'lance',
+    mult: (r) => 3.8 + 0.4 * r,
+    desc: (r) => `A long thrust of light that runs through the first 2 mobs ahead: ${pct(SKILLS.holy_lance.mult(R1(r)))} damage each. Cooldown ${SKILLS.holy_lance.cd} s.`,
+  },
+  retribution: {
+    ...W, branch: 'knight', adv: 60, name: 'Retribution', kind: 'passive', max: 3,
+    share: (r) => 0.3 + 0.2 * r,
+    desc: (r) => `While Rally is up, the damage you take is stored. Your next Shield Bash lets ${pct(SKILLS.retribution.share(R1(r)))} of it out on top (up to ${pct(RETRI_CAP)} of your attack more).`,
+  },
   aegis: {
     ...W, branch: 'knight', adv: 100, name: 'Aegis', kind: 'aegis', max: 3, mp: 60, cd: 90, radius: 260, dur: (r) => 1.5 + 0.5 * r,
     desc: (r) => `You and every friend within range 260 can't be hurt at all for ${1.5 + 0.5 * r} s.`,
+  },
+  judgement: {
+    ...W, branch: 'knight', adv: 100, name: 'Judgement', kind: 'spin', max: 3, mp: 50, cd: 24, radius: 260, taunt: true, anim: 'judgement',
+    mult: (r) => 2.1 + 0.3 * r,
+    desc: (r) => `Light falls on every mob within range 260: ${pct(SKILLS.judgement.mult(R1(r)))} damage each, and they all turn on you. Cooldown ${SKILLS.judgement.cd} s.`,
+  },
+  guardians_oath: {
+    ...W, branch: 'knight', adv: 100, name: "Guardian's Oath", kind: 'buff', max: 3, mp: 40, cd: 60, dur: 300, party: 300, oath: true,
+    fx: (r) => ({ def: 0.1 + 0.05 * r }),
+    share: (r) => 0.1 + 0.05 * r,
+    desc: (r) => `Swear to guard every friend within range 300, you too, for 5 min: +${pct(SKILLS.guardians_oath.fx(R1(r)).def)} defence, and while you stand near them ${pct(SKILLS.guardians_oath.share(R1(r)))} of the damage they take comes to you instead.`,
+  },
+  unbroken: {
+    ...W, branch: 'knight', adv: 100, name: 'Unbroken', kind: 'passive', max: 3,
+    per: (r) => 0.04 * r,
+    desc: (r) => `+${pct(SKILLS.unbroken.per(R1(r)))} defence for every mob after you right now, up to ${UNBROKEN_MAX} of them.`,
   },
   // Berserker
   whirlwind: {
@@ -220,6 +273,17 @@ export const SKILLS = {
     boost: (r) => 0.25 + 0.1 * r,
     desc: (r) => `Battle rage: +${Math.round((0.25 + 0.1 * r) * 100)}% attack for 20 s.`,
   },
+  rending_slash: {
+    ...W, branch: 'berserker', adv: 30, name: 'Rending Slash', kind: 'strike', max: 3, mp: 12, cd: 8, reach: 40, anim: 'rend',
+    mult: (r) => 1.8 + 0.2 * r,
+    dot: { kind: 'bleed', share: (r) => 0.06 + 0.02 * r },
+    desc: (r) => `A ragged cut at the mob ahead: ${pct(SKILLS.rending_slash.mult(R1(r)))} damage, and it bleeds ${pct(SKILLS.rending_slash.dot.share(R1(r)))} of that every second for ${BLEED_S} s. Cooldown ${SKILLS.rending_slash.cd} s.`,
+  },
+  bloodlust: {
+    ...W, branch: 'berserker', adv: 30, name: 'Bloodlust', kind: 'passive', max: 3,
+    boost: (r) => 0.05 + 0.05 * r,
+    desc: (r) => `Below half HP: +${pct(SKILLS.bloodlust.boost(R1(r)))} attack, and Jelly Thirst heals double.`,
+  },
   sword_mastery: {
     ...W, branch: 'berserker', adv: 60, name: 'Sword Mastery', kind: 'passive', max: 5,
     desc: (r) => `+${3 * r}% critical chance and critical hits do +${10 * r}% more damage.`,
@@ -229,10 +293,31 @@ export const SKILLS = {
     mult: (r) => 0.8 + 0.15 * r,
     desc: (r) => `A storm of slashes: hits every mob within range 130 4 times for ${pct(0.8 + 0.15 * r)} each.`,
   },
+  execution: {
+    ...W, branch: 'berserker', adv: 60, name: 'Execution', kind: 'strike', max: 3, mp: 30, cd: 15, reach: 50, crack: true, anim: 'execute',
+    mult: (r) => 3.1 + 0.3 * r,
+    exec: (r) => 1.45 + 0.1 * r, // × on a mob at EXEC_AT of its HP or less
+    onKill: { what: 'refund' },
+    desc: (r) => `A beheading blow at the mob ahead: ${pct(SKILLS.execution.mult(R1(r)))} damage, ${pct(SKILLS.execution.mult(R1(r)) * SKILLS.execution.exec(R1(r)))} if it's down to ${pct(EXEC_AT)} of its HP. A kill gives its cooldown back. Cooldown ${SKILLS.execution.cd} s.`,
+  },
+  frenzy: {
+    ...W, branch: 'berserker', adv: 60, name: 'Frenzy', kind: 'passive', max: 3,
+    onKill: { what: 'extendBuff', buff: 'berserk', s: (r) => r },
+    desc: (r) => `Every kill adds ${SKILLS.frenzy.onKill.s(R1(r))} s to Berserk while it's up (never past its full time).`,
+  },
   sky_splitter: {
     ...W, branch: 'berserker', adv: 100, name: 'Sky Splitter', kind: 'strike', max: 3, mp: 50, cd: 45, reach: 90,
     mult: (r) => 5 + 1.5 * r,
     desc: (r) => `One enormous overhead blow at the mob ahead: ${pct(5 + 1.5 * r)} damage.`,
+  },
+  cyclone: {
+    ...W, branch: 'berserker', adv: 100, name: 'Cyclone', kind: 'field', at: 'self', follow: true, shape: 'round', look: 'blade', max: 3, mp: 50, cd: 24, radius: 110, dur: 4, every: 0.3,
+    mult: (r) => 0.35 + 0.05 * r,
+    desc: (r) => `For ${SKILLS.cyclone.dur} s you're a spinning blade: every mob within range ${SKILLS.cyclone.radius} of you is cut for ${pct(SKILLS.cyclone.mult(R1(r)))} damage every ${SKILLS.cyclone.every} s. Keep moving: you carry it with you. Cooldown ${SKILLS.cyclone.cd} s.`,
+  },
+  rampage: {
+    ...W, branch: 'berserker', adv: 100, name: 'Rampage', kind: 'passive', max: 2,
+    desc: (r) => `Momentum stacks up to ${MOMENTUM_MAX + R1(r)}, and Whirlwind and Blade Storm add a stack when they hit.`,
   },
 
   // ——— Mage (staff, INT) ———
@@ -560,8 +645,8 @@ export const fxText = (fx) => Object.entries(fx ?? {}).filter(([k, v]) => v && B
 // along the floor, FIELD_TALL high) or 'round' (a circle of `radius`) · `mult(rank)` × the caster's stat (statOf) a tick ·
 // `el`: it chills / burns like a spell (the Mage's combos) · `heal(rank)` × MAGIC × Holy Power heals every friend inside
 // each tick · `look`: how it's drawn (FIELD_LOOKS; from el / heal when unset). One per skill per caster (a recast
-// replaces it); it ends early if its caster leaves the room.
-export const FIELD_TALL = 90, FIELD_LOOKS = ['plain', 'fire', 'frost', 'holy', 'poison'];
+// replaces it); it ends early if its caster leaves the room. `follow` (SP2's Cyclone): it moves with its caster.
+export const FIELD_TALL = 90, FIELD_LOOKS = ['plain', 'fire', 'frost', 'holy', 'poison', 'blade']; // (blade: SP2's Cyclone)
 export const fieldLook = (sk) => sk.look ?? (sk.el === 'fire' ? 'fire' : sk.el === 'frost' ? 'frost' : sk.heal ? 'holy' : 'plain');
 // Damage over time (SP1 widened the Mage's burn): `dot: { kind: 'bleed' | 'poison', share(rank) }` on a hitting skill
 // leaves each mob it hits losing share × the hit's damage a second for DOTS[kind].s (a fresh one keeps the stronger
@@ -611,6 +696,7 @@ export const summonHp = (id, rank, st) => Math.round(st.maxHp * (SKILLS[id].life
 export const summonHit = (id, rank, st) => (SKILLS[id].stat ? statOf(SKILLS[id], st) : st.magic) * (SKILLS[id].mult?.(rank) ?? 0) * (1 + 0.06 * st.bond);
 export const spiritCap = (skills) => (rankOf(skills, 'spirit_bond') >= BOND_TWO ? 2 : 1);
 const secs = (ticks) => `${Math.round((ticks / 60) * 100) / 100} s`;
+const R1 = (r) => Math.max(1, r); // (a description at rank 0 shows rank 1)
 function pct(m) {
   return `${Math.round(m * 100)}%`;
 }
@@ -618,9 +704,23 @@ export const cooldownOf = (id, rank) => SKILLS[id].cdFor?.(rank) ?? SKILLS[id].c
 // Momentum (Warrior): stacks from chase-move hits, each lasting MOMENTUM_DUR s from the last; standing still
 // for MOMENTUM_STILL s loses them all (server/rpg.js)
 export const MOMENTUM_MAX = 5, MOMENTUM_DUR = 8, MOMENTUM_STILL = 1;
+// ——— SP2, the Warrior's skill pool (story/skills-plan.md) ———
+// Rampage: Momentum's cap goes up a stack a rank (and Whirlwind / Blade Storm add stacks: server/rpg.js cast)
+export const momentumMax = (skills) => MOMENTUM_MAX + rankOf(skills, 'rampage');
+// Shield Bash (`stun` on the skill): an ordinary mob can't move or hurt anyone for STUN_S s (server m.stunUntil;
+// the echo's `stun` draws the stars). Retribution: damage taken while Rally is up is stored (p.retri, never more than
+// RETRI_HOLD × max HP); the next Shield Bash adds share(rank) of it, at most RETRI_CAP × ATK more (the cap allows it).
+// Execution: × exec(rank) on a mob at EXEC_AT of its HP or less (the client reads its bar, the server its own HP).
+// Unbroken: +per(rank) DEF for every mob after you within UNBROKEN_R, up to UNBROKEN_MAX. Bloodlust: below
+// BLOODLUST_AT of max HP. Guardian's Oath: a friend's hit moves share(rank) to its Knight within OATH_R (server hurt).
+export const STUN_S = 1.5, RETRI_CAP = 3, RETRI_HOLD = 1, EXEC_AT = 0.3, UNBROKEN_MAX = 5, UNBROKEN_R = 400, BLOODLUST_AT = 0.5, OATH_R = 450;
+// how many mobs a cleave or a pierce goes through at a rank (Cleave grows with rank since SP2)
+export const targetsOf = (sk, rank) => (typeof sk.targets === 'function' ? sk.targets(rank) : sk.targets);
+// Retribution's extra multiplier on a Shield Bash: what's stored, against ATK
+export const retriMult = (skills, stored, atk) => (rankOf(skills, 'retribution') && stored > 0 && atk > 0 ? Math.min(RETRI_CAP, (stored * SKILLS.retribution.share(rankOf(skills, 'retribution'))) / atk) : 0);
 // The chase moves' ranks, packed for the physics (sim.js step reads state.mw): bits 0–1 Charge · 2–3 Leap
-// Slam · 4–5 Upward Cut · 6–7 Retreat Shot (the Archer's, S4: sim.js retreatOpen)
-export const chaseOf = (skills) => rankOf(skills, 'charge') | (rankOf(skills, 'leap_slam') << 2) | (rankOf(skills, 'upward_cut') << 4) | (rankOf(skills, 'retreat_shot') << 6);
+// Slam · 4–5 Upward Cut · 6–7 Retreat Shot (the Archer's, S4: sim.js retreatOpen) · 8–9 Hook (SP2)
+export const chaseOf = (skills) => rankOf(skills, 'charge') | (rankOf(skills, 'leap_slam') << 2) | (rankOf(skills, 'upward_cut') << 4) | (rankOf(skills, 'retreat_shot') << 6) | (rankOf(skills, 'hook') << 8);
 // The movement abilities a character has, packed for the physics (sim.js step reads state.mv):
 // bits 0–1 Dash rank · 2–3 Flash Jump · 4–5 Blink · 6–7 Phantom Step
 export const mobilityOf = (skills) => rankOf(skills, 'dash') | (rankOf(skills, 'flash_jump') << 2) | (rankOf(skills, 'blink') << 4) | (rankOf(skills, 'phantom_step') << 6);
@@ -720,14 +820,15 @@ export const minRollFor = (ap) => Math.min(1.05, MIN_ROLL + 0.001 * apOf(ap, 'de
 // Everything about a character's numbers in one place (c: {lvl, gear, skills}).
 // buffs: { momentum: Momentum's stacks, gods: true while Challenge the Gods is up (HP capped at 1, damage boosted), berserk: true while it's up, rally: the Rally boost (e.g. 0.2) while it's up, manaShield: true
 // while Mana Shield is switched on, brew: a brewed potion's buff ({ atk, crit, ward, regen, ... }, ITEMS) while it's up,
-// long: the long buffs on you added up (buffFx: { atk, magic, def, hp, crit, critDmg, exp, cut }, SP1) }
+// long: the long buffs on you added up (buffFx: { atk, magic, def, hp, crit, critDmg, exp, cut }, SP1),
+// hp: HP now (Bloodlust), attackers: mobs after you now (Unbroken) (SP2) }
 export function statsFor(c, buffs = {}) {
   const long = buffs.long ?? {}; // (SP1's long buffs)
   const rage = buffs.berserk ? 1 + SKILLS.berserk.boost(rankOf(c.skills, 'berserk')) : 1;
   const rally = 1 + (buffs.rally ?? 0);
   const brew = buffs.brew ?? {}; // a brewed potion's buff (src/shared/alchemy.js)
   const might = (1 + (brew.atk ?? 0)) * (buffs.gods ? 1 + GODS_BOOST : 1);
-  const push = 1 + SKILLS.momentum.per(rankOf(c.skills, 'momentum')) * Math.min(MOMENTUM_MAX, buffs.momentum ?? 0); // (Momentum: ATK only)
+  const push = 1 + SKILLS.momentum.per(rankOf(c.skills, 'momentum')) * Math.min(momentumMax(c.skills), buffs.momentum ?? 0); // (Momentum: ATK only)
   const arcane = (1 + 0.2 * rankOf(c.skills, 'arcane_mind')) * (1 + 0.15 * rankOf(c.skills, 'faith'));
   const mastery = rankOf(c.skills, 'sword_mastery');
   // scroll enhancements on the worn gear (rpg.js rollScroll)
@@ -738,11 +839,15 @@ export function statsFor(c, buffs = {}) {
   const holyBolt = !!staff && c.cls === 'cleric'; // (S3: a Cleric's staff fires a holy bolt that heals)
   const str = apOf(c.ap, 'str'), dex = apOf(c.ap, 'dex'), int = apOf(c.ap, 'int'), luk = apOf(c.ap, 'luk');
   const ms = rankOf(c.skills, 'mana_shield');
+  // SP2: Bloodlust below BLOODLUST_AT of max HP (buffs.hp: HP now), Unbroken's DEF per mob after you (buffs.attackers)
+  const hpMax = buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str + (bow ? BOW_DEX_HP * dex : 0)) * (1 + 0.08 * rankOf(c.skills, 'vitality')) * (1 + (long.hp ?? 0)));
+  const lust = rankOf(c.skills, 'bloodlust') && buffs.hp != null && buffs.hp < hpMax * BLOODLUST_AT ? SKILLS.bloodlust.boost(rankOf(c.skills, 'bloodlust')) : 0;
+  const stand = 1 + SKILLS.unbroken.per(rankOf(c.skills, 'unbroken')) * Math.min(UNBROKEN_MAX, buffs.attackers ?? 0);
   return {
-    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + (bow ? 0.2 * str + 0.6 * dex : 0.6 * str + 0.2 * dex)) * rage * rally * might * push * (bow ? 1 + STEADY * rankOf(c.skills, 'steady_hands') : 1) * (1 + (long.atk ?? 0))),
+    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + (bow ? 0.2 * str + 0.6 * dex : 0.6 * str + 0.2 * dex)) * rage * rally * might * push * (bow ? 1 + STEADY * rankOf(c.skills, 'steady_hands') : 1) * (1 + (long.atk ?? 0)) * (1 + lust)),
     magic: Math.round((magicFor(c.lvl) + (staff?.magic ?? 0) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might * (1 + (long.magic ?? 0))),
-    def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 5 * rankOf(c.skills, 'iron_jelly')) * rally * (1 + (long.def ?? 0))),
-    maxHp: buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str + (bow ? BOW_DEX_HP * dex : 0)) * (1 + 0.08 * rankOf(c.skills, 'vitality')) * (1 + (long.hp ?? 0))),
+    def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 5 * rankOf(c.skills, 'iron_jelly')) * rally * (1 + (long.def ?? 0)) * stand),
+    maxHp: hpMax,
     maxMp: maxMpFor(c.lvl, c.skills) + 2 * int + (staff?.mp ?? 0),
     reach: staff || bow ? 0 : reachFor(c.gear?.weapon), // a sword's extra reach (swings and blade skills)
     boltRange: staff ? STAFF_BOLT_RANGE + staff.reach : 0, // a staff bolt's range (a Cleric's holy bolt's too)
@@ -758,7 +863,8 @@ export function statsFor(c, buffs = {}) {
     minRoll: minRollFor(c.ap),
     hpRegen: (1 + 0.25 * rankOf(c.skills, 'vitality')) * (1 + (brew.regen ?? 0)),
     ward: brew.ward ?? 0, // share of damage taken away (server/rpg.js hurt)
-    thirst: SKILLS.jelly_thirst.share(rankOf(c.skills, 'jelly_thirst')), // share of damage dealt that heals you (Jelly Thirst)
+    thirst: SKILLS.jelly_thirst.share(rankOf(c.skills, 'jelly_thirst')) * (lust ? 2 : 1), // share of damage dealt that heals you (Jelly Thirst; Bloodlust doubles it)
+    bloodlust: !!lust, // (SP2: below half HP with Bloodlust)
     manaShield: buffs.manaShield && ms ? SKILLS.mana_shield.share(ms) : 0, // share of damage taken that comes off MP (hurt)
     fire: 1 + 0.06 * rankOf(c.skills, 'kindling'), // fire spells' multiplier (Kindling)
   };

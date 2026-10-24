@@ -683,11 +683,12 @@ function update() {
     let stepped = 0;
     while (p.queue.length && p.credit >= 1) {
       const [s, k] = p.queue.shift();
-      const slam = p.state.sl, cut = p.state.uc | 0;
+      const slam = p.state.sl, cut = p.state.uc | 0, hooks = p.state.hc | 0;
       stepPlayer(id, p, p.faintUntil ? 0 : k); // splatted: can't move until you wake up
       // the Warrior's chase moves: where a Leap Slam landed / an Upward Cut went off (server/rpg.js chase checks claims against it)
       if (slam && !p.state.sl) (p.chaseAt ??= {}).leap_slam = s;
       if ((p.state.uc | 0) > cut) (p.chaseAt ??= {}).upward_cut = s;
+      if ((p.state.hc | 0) > hooks) (p.chaseAt ??= {}).hook = s; // (a Hook fired: its message cuts the yank, SP2)
       p.ack = s;
       p.credit--;
       stepped++;

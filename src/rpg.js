@@ -17,11 +17,11 @@ import { Party } from './party.js';
 import { StatusBox, statusOf } from './status.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, STAFF_BOLT_RANGE, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE, curseMult, heavyHit } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds, isLongBuff, DOTS, statOf } from './shared/skills.js';
+import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds, isLongBuff, DOTS, statOf, targetsOf, retriMult, EXEC_AT, STUN_S } from './shared/skills.js';
 import { drawMobState } from './elements.js';
 import { staffGlow } from './staff-art.js';
 import { bowTint } from './bow-art.js';
-import { SLAP_REACH, DASH_CD, BLINK_CD, PHANTOM_CD } from './shared/sim.js';
+import { SLAP_REACH, DASH_CD, BLINK_CD, PHANTOM_CD, HOOK_V, HOOK_RANGE, TICK_RATE } from './shared/sim.js';
 
 const MOB_KINDS = Object.keys(MOBS); // same order as the server's
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
@@ -41,6 +41,7 @@ const TILE = 150; // den floor tiles for the grid attacks
 const SKILL_SOUND = Object.fromEntries(Object.entries({
   strike: (id) => (id === 'sky_splitter' ? 'skySplitter' : 'powerStrike'), cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter', mend: 'heal', miracle: 'aegis', revive: 'secondWind', barrier: 'bubble', summon: 'rally',
   field: 'nova', // (SP1)
+  wave: 'skySplitter', // (SP2)
   shot: (id) => (id === 'snipe' ? 'snipe' : 'bowShot'), pierce: (id) => (id === 'heartseeker' ? 'snipe' : 'pierce'), rain: 'arrowRain', mark: 'mark',
 }).map(([k, v]) => [k, typeof v === 'function' ? v : () => v]));
 const kickFrom = (me, mx, knock) => ({ vx: Math.sign(me.x - mx || 1) * knock, vy: -Math.min(420, knock * 1.1) });
@@ -360,7 +361,7 @@ export class Rpg {
       msg.hits.push(weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]);
       this.showHit(v, dmg, crit, sx);
     }
-    if (msg.hits.length) this.send(msg);
+    if (msg.hits.length) this.afterInput(() => this.send(msg)); // (after this step's input: see hook)
   }
 
   swordOf(m) {
@@ -509,6 +510,44 @@ export class Rpg {
     });
   }
   // Cast from the hotbar: predicts everything, then tells the server. → true if it went off
+  // Hook (SP2) just fired at input seq (sim.js: the chain flies out): the first mob ahead within HOOK_RANGE on our
+  // level, if any. → how many more ticks the yank takes to reach it (0: nothing there, the chain comes back), which
+  // src/net.js applies at once (applyHook) and the server makes the same cut from this message. Its hit lands then.
+  hook(me, seq) {
+    const m = this.me, rank = rankOf(m?.skills, 'hook'), dir = me.facing < 0 ? -1 : 1;
+    const [v] = m && rank && isCombat(this.room) ? this.ahead(me, dir, HOOK_RANGE, 0) : [];
+    const msg = { t: 'skill', skill: 'hook', dir, s: seq, d: 0, hits: [] };
+    if (v) {
+      const gap = Math.abs(v.x - me.x) - MOBS[v.kind].w / 2 - 14;
+      msg.d = clamp(Math.ceil(gap / (HOOK_V / TICK_RATE)), 0, me.hk | 0);
+      msg.tx = Math.round(v.x);
+      const sk = SKILLS.hook, cut = this.shellCut(v, me.x), [pm, weak] = this.party.mod(v, { heavy: heavyHit(sk.mult(rank)) }, me.y, me.x);
+      let [dmg, crit] = this.roll(m.atk, sk.mult(rank) * this.markOn(v));
+      dmg = Math.max(1, Math.round(dmg * cut * pm));
+      msg.hits.push(weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]);
+      setTimeout(() => this.showHit(v, dmg, crit, v.x - dir * 30), (msg.d / TICK_RATE) * 1000);
+    }
+    this.fx.spawn('hook', { x: me.x, y: me.y, dir, len: v ? Math.abs(v.x - me.x) - MOBS[v.kind].w / 2 : HOOK_RANGE * 0.7, hit: !!v, dur: v ? msg.d / TICK_RATE : 0, follow: () => this.slimeOf(this.myId) });
+    audio.sfx(v ? 'cleave' : 'dash', { vol: 0.7 });
+    // sent right after this step's input (net.afterInput), never before it or a step later: the server cuts the yank
+    // when it runs this message, which must be just after stepping that input (sooner: no hook there yet; later: a snap)
+    this.afterInput(() => this.send(msg));
+    return msg.d;
+  }
+  // run f once net.tick has sent the current step's input (straight away when there's no net, e.g. tests)
+  afterInput(f) {
+    if (this.net?.afterInput) this.net.afterInput.push(f);
+    else f();
+  }
+  // a damage skill's own look (SP2's skills share kinds but not looks: `anim` on the skill)
+  hitFx(id, sk, x, y, dir, extra = {}) {
+    const a = sk.anim;
+    if (sk.kind === 'strike') this.fx.spawn(id === 'sky_splitter' ? 'skysplit' : a === 'bash' ? 'bash' : a === 'rend' ? 'rend' : a === 'execute' ? 'execute' : 'strike', { x, y, dir });
+    else if (sk.kind === 'cleave') this.fx.spawn(a === 'lance' ? 'lance' : 'cleave', { x, y, dir, reach: SLAP_REACH + sk.reach + (extra.reach ?? 0) });
+    else if (sk.kind === 'spin') this.fx.spawn(a === 'shake' ? 'shake' : a === 'judgement' ? 'judgement' : 'spin', { x, y, radius: sk.radius, follow: extra.follow, targets: extra.targets });
+    else if (sk.kind === 'wave') this.fx.spawn('wave', { x, y, range: sk.range });
+  }
+
   cast(id, me, dir, seq, mine) {
     const sk = SKILLS[id], m = this.me;
     if (!sk || !m) return false;
@@ -533,6 +572,10 @@ export class Rpg {
     if (charges && mine) this.pop(mine.x, mine.y - 112, `ARCANE x${charges}`, '#c4cdff', 16);
     const mult = (sk.mult?.(rank) ?? 1) * arcaneMult(m.skills, charges);
     const kinds = hitKinds(sk, rank, m, charges, m.skills); // (S5.2: magic, heavy, arrow: what a boss's mechanics make of it)
+    // SP2: Retribution's store comes out with a Shield Bash (the server adds the same: retriMult); Execution on a low mob
+    const retri = sk.stun ? retriMult(m.skills, m.retri, m.atk) : 0;
+    if (sk.stun) m.retri = 0;
+    const low = (v) => (sk.exec && v.maxHp && v.hp <= v.maxHp * EXEC_AT ? sk.exec(rank) : 1);
     const hit = (v, base, delay = 0, extra = 1) => {
       const cut = this.shellCut(v, sx);
       const shatter = sk.el === 'fire' && !!v.frozen; // fire on a frozen mob (the Mage's combos)
@@ -591,14 +634,23 @@ export class Rpg {
       this.arrowFx(id, sk, sx, sy, dir, v.x, v.y - MOBS[v.kind].h / 2, true, m.gear?.weapon);
     } else if (sk.kind === 'strike') {
       const [v] = this.ahead(me, dir, reach);
-      if (v) hit(v, m.atk);
-      this.fx.spawn(id === 'sky_splitter' ? 'skysplit' : 'strike', { x: sx, y: sy, dir });
+      if (v) {
+        hit(v, m.atk, 0, low(v) * (retri ? (mult + retri) / mult : 1));
+        if (retri) this.pop(v.x, v.y - MOBS[v.kind].h - 40, 'RETRIBUTION', '#ffe08a', 16);
+        if (sk.stun && !MOBS[v.kind].boss && !MOBS[v.kind].field) v.stunLocal = this.time + STUN_S;
+      }
+      this.hitFx(id, sk, sx, sy, dir);
     } else if (sk.kind === 'cleave') {
-      for (const v of this.ahead(me, dir, reach).slice(0, sk.targets)) hit(v, m.atk);
-      this.fx.spawn('cleave', { x: sx, y: sy, dir, reach });
+      for (const v of this.ahead(me, dir, reach).slice(0, targetsOf(sk, rank))) hit(v, m.atk);
+      this.hitFx(id, sk, sx, sy, dir, { reach: this.swordOf(m)?.reach ?? 0 });
     } else if (sk.kind === 'spin') {
-      for (const v of this.around(sx, sy, sk.radius)) hit(v, m.atk);
-      this.fx.spawn('spin', { x: sx, y: sy, radius: sk.radius, follow: () => mine && { x: mine.x, y: mine.y } });
+      const inside = this.around(sx, sy, sk.radius);
+      for (const v of inside) hit(v, m.atk);
+      this.hitFx(id, sk, sx, sy, dir, { follow: () => mine && { x: mine.x, y: mine.y }, targets: inside.map((v) => ({ x: v.x, y: v.y })) });
+    } else if (sk.kind === 'wave') {
+      // Shockwave (SP2): along the floor both ways, only mobs standing on our floor
+      for (const v of this.targets()) if (Math.abs(v.x - sx) < sk.range + MOBS[v.kind].w / 2 && Math.abs(v.y - sy) < 24 && !MOBS[v.kind].fly) hit(v, m.atk, Math.abs(v.x - sx) / 900);
+      this.hitFx(id, sk, sx, sy, dir);
     } else if (sk.kind === 'storm') {
       const inside = this.around(sx, sy, sk.radius);
       for (let n = 0; n < sk.hits; n++) for (const v of inside) hit(v, m.atk, n * 0.22);
@@ -677,7 +729,7 @@ export class Rpg {
       this.fx.spawn('nova', { x: msg.tx ?? sx, y: (msg.ty ?? sy) + 10, radius: 50, tint: sk.el === 'fire' ? 'fire' : sk.el === 'frost' ? undefined : 'mana' });
     } else if (isLongBuff(sk)) {
       // SP1's long buffs: the status box shows them once the server's 'me' says so
-      this.fx.spawn(sk.party ? 'rally' : 'buff', { x: sx, y: sy, radius: sk.party });
+      this.fx.spawn(id === 'war_cry' ? 'warcry' : sk.party ? 'rally' : 'buff', { x: sx, y: sy, radius: sk.party });
     } else if (sk.kind === 'buff') {
       if (mine) mine.berserkUntil = this.time + sk.dur;
       this.fx.spawn('buff', { x: sx, y: sy });
@@ -752,6 +804,11 @@ export class Rpg {
     }
     // Rally's taunt (S5): it pulled mobs (a boss's focus too) onto the caster
     if (m.taunt && caster && (m.id === myId || caster.visible !== false)) this.pop(caster.x, caster.y - 96, 'TAUNT!', '#ff9a7a', m.id === myId ? 22 : 18);
+    // Shield Bash's stun (SP2): stars over the mobs it stunned, for everyone (no mob flag left for it)
+    for (const mid of m.stun ?? []) {
+      const v = this.views.get(mid);
+      if (v) v.stunLocal = this.time + STUN_S;
+    }
     if (m.id === myId || !caster || caster.visible === false) return;
     const x = caster.x, y = caster.y, vol = 0.6, pan = panX(x, myX);
     if (m.arcane) this.pop(x, y - 112, `ARCANE x${m.arcane}`, '#c4cdff', 14);
@@ -759,9 +816,8 @@ export class Rpg {
     if (sk.kind === 'bubble') caster.bubbleUntil = this.time + (m.dur ?? 8);
     if (sk.kind === 'gods') caster.godsUntil = this.time + (m.dur ?? 15);
     const follow = () => ({ x: caster.x, y: caster.y });
-    if (sk.kind === 'strike') this.fx.spawn(m.skill === 'sky_splitter' ? 'skysplit' : 'strike', { x, y, dir: m.dir });
-    else if (sk.kind === 'cleave') this.fx.spawn('cleave', { x, y, dir: m.dir, reach: SLAP_REACH + sk.reach });
-    else if (sk.kind === 'spin') this.fx.spawn('spin', { x, y, radius: sk.radius, follow });
+    if (m.skill === 'hook') this.fx.spawn('hook', { x, y, dir: m.dir, len: Math.max(30, Math.abs((m.tx ?? x) - x) - 20), hit: m.hits.length > 0, dur: (m.d ?? 0) / TICK_RATE, follow });
+    else if (sk.kind === 'strike' || sk.kind === 'cleave' || sk.kind === 'spin' || sk.kind === 'wave') this.hitFx(m.skill, sk, x, y, m.dir, { follow, targets: m.hits.map(([id]) => this.views.get(id)).filter(Boolean).map((v) => ({ x: v.x, y: v.y })) });
     else if (sk.kind === 'storm') this.fx.spawn('storm', { x, y, radius: sk.radius, hits: sk.hits, follow });
     else if (sk.kind === 'bolt' || sk.kind === 'fireball') this.boltFx(m.skill, sk, x, y, m.tx, m.ty, Math.abs(m.tx - x) / 900 + 0.05, m.hits.length > 0);
     else if (sk.kind === 'shield' && m.on) this.fx.spawn('nova', { x, y, radius: 70, tint: 'mana' });
@@ -773,7 +829,7 @@ export class Rpg {
     else if (sk.kind === 'mend' || sk.kind === 'revive' || sk.kind === 'cleanse') this.fx.spawn('heal', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'barrier') this.fx.spawn('barrier', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'summon' && m.sx !== undefined) this.summons.called(m.sx, m.sy, sk.what);
-    else if (isLongBuff(sk)) this.fx.spawn(sk.party ? 'rally' : 'buff', { x, y, radius: sk.party }); // (SP1)
+    else if (isLongBuff(sk)) this.fx.spawn(m.skill === 'war_cry' ? 'warcry' : sk.party ? 'rally' : 'buff', { x, y, radius: sk.party }); // (SP1)
     else if (sk.kind === 'field') this.fx.spawn('nova', { x: m.tx ?? x, y: (m.ty ?? y) + 10, radius: 50, tint: sk.el === 'fire' ? 'fire' : sk.el === 'frost' ? undefined : 'mana' });
     else if (sk.onKill?.what === 'ricochet' && m.hits?.length) { // (SP1: someone's arrow jumping off a kill)
       const v = this.views.get(m.hits[0][0]);
@@ -1134,7 +1190,7 @@ export class Rpg {
       for (const v of this.targets()) {
         const k = MOBS[v.kind];
         if (Math.abs(me.x - v.x) > k.w / 2 + 12 || me.y < v.y - k.h - 4 || me.y > v.y + 30) continue;
-        if ((v.frozen || v.netted) && !k.boss && !k.field) continue; // frozen solid or netted: harmless (the server agrees: ouch)
+        if ((v.frozen || v.netted || v.stunned) && !k.boss && !k.field) continue; // frozen solid, netted or stunned: harmless (the server agrees: ouch)
         ouch = { mob: v.id, kind: v.charging ? 'charge' : 'touch', mx: v.x };
         break;
       }
@@ -1216,6 +1272,7 @@ export class Rpg {
       // SP1's damage over time: 8192 bleeding · 16384 poisoned
       v.bleeding = !!(fl & 8192);
       v.poisoned = !!(fl & 16384);
+      v.stunned = (v.stunLocal ?? 0) > tt && !MOBS[v.kind].boss && !MOBS[v.kind].field; // (Shield Bash, SP2: from the skill's echo)
       v.shield = mb[7];
       v.shieldMax = mb[8];
       v.t += dt;

@@ -19,6 +19,8 @@ const TREE_OF = {
   fireball: 'fire', kindling: 'fire', glacial_spike: 'magic', absolute_zero: 'magic',
   challenge_gods: 'gods', // (a gift: one player's own)
   charge: 'blade', leap_slam: 'blade', upward_cut: 'blade', momentum: 'blade', // the Warrior's chase moves (S2.5)
+  war_cry: 'blade', hook: 'blade', rending_slash: 'blade', bloodlust: 'blade', execution: 'blade', frenzy: 'blade', cyclone: 'blade', rampage: 'blade', // (SP2)
+  ground_shake: 'guardian', shield_bash: 'guardian', shockwave: 'guardian', holy_lance: 'guardian', retribution: 'guardian', judgement: 'guardian', guardians_oath: 'guardian', unbroken: 'guardian',
   arcane_charge: 'magic', // (S2.6)
   // the Cleric (S3)
   smite: 'holy', faith: 'holy', jelly_spirit: 'holy', mend: 'holy', lantern_wisp: 'holy', revive: 'holy', holy_power: 'holy',
@@ -804,6 +806,340 @@ const ICONS = {
     });
     ctx.fillStyle = '#fff6c4';
     star(ctx, 17, -14, 3.5);
+  },
+  // ——— SP2: the Warrior's skill pool ———
+  war_cry(ctx, dark) { // an open mouth shouting, with sound arcs fanning out
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(-6, 2, 10, 12, 0, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#b85a48';
+    ctx.beginPath();
+    ctx.ellipse(-3, 5, 5, 6.5, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.6;
+    for (const r of [8, 13, 18]) {
+      ctx.globalAlpha = 1 - r / 30;
+      ctx.beginPath();
+      ctx.arc(2, 2, r, -0.7, 0.7);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  },
+  hook(ctx, dark) { // a chain flying right, a hook on its end
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.2;
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.ellipse(-16 + i * 7, 6 - i * 3, 4, 2.4, -0.4, 0, TAU);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 3.4;
+    ctx.beginPath();
+    ctx.moveTo(10, -6);
+    ctx.lineTo(10, 6);
+    ctx.arc(4, 6, 6, 0, Math.PI * 0.95);
+    ctx.stroke();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(10, -6);
+    ctx.lineTo(10, 6);
+    ctx.arc(4, 6, 6, 0, Math.PI * 0.95);
+    ctx.stroke();
+    ctx.fillStyle = '#fff6c4';
+    star(ctx, 15, -12, 4);
+  },
+  ground_shake(ctx, dark) { // a fist on the floor, rings and cracks, arrows pulling in
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.ellipse(0, 12, 18, 5, 0, 0, TAU);
+    ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (const s of [-1, 1]) {
+      ctx.moveTo(s * 19, -4);
+      ctx.lineTo(s * 11, -4);
+      ctx.moveTo(s * 14, -8);
+      ctx.lineTo(s * 10, -4);
+      ctx.lineTo(s * 14, 0);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.beginPath();
+    ctx.roundRect(-7, -14, 14, 20, 5);
+    ctx.fill();
+    ctx.stroke();
+  },
+  shield_bash(ctx, dark) { // a round shield thrust forward with stars off its rim
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(-6, -15);
+    ctx.quadraticCurveTo(6, -15, 10, -10);
+    ctx.quadraticCurveTo(10, 8, -6, 16);
+    ctx.quadraticCurveTo(-18, 6, -16, -10);
+    ctx.quadraticCurveTo(-12, -15, -6, -15);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffd36b';
+    circle(ctx, -4, 0, 4);
+    ctx.fillStyle = '#fff6c4';
+    star(ctx, 15, -8, 4.5);
+    star(ctx, 17, 6, 3.5);
+  },
+  shockwave(ctx, dark) { // a stamp in the middle and waves running both ways along a line
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-20, 12);
+    ctx.lineTo(20, 12);
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    for (const s of [-1, 1]) {
+      for (const [d, h] of [[7, 8], [15, 5]]) {
+        ctx.beginPath();
+        ctx.moveTo(s * (d - 4), 12);
+        ctx.quadraticCurveTo(s * d, 12 - h * 2, s * (d + 4), 12);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, -16);
+    ctx.lineTo(0, 4);
+    ctx.moveTo(-5, -1);
+    ctx.lineTo(0, 4);
+    ctx.lineTo(5, -1);
+    ctx.stroke();
+  },
+  holy_lance(ctx, dark) { // a long golden spear of light through two rings
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx.lineWidth = 2;
+    for (const x of [-4, 8]) {
+      ctx.beginPath();
+      ctx.ellipse(x, 0, 3, 8, 0, 0, TAU);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#fff2b0';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(-20, -2);
+    ctx.lineTo(10, -2);
+    ctx.lineTo(10, -5);
+    ctx.lineTo(20, 0);
+    ctx.lineTo(10, 5);
+    ctx.lineTo(10, 2);
+    ctx.lineTo(-20, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    star(ctx, 20, 0, 4);
+  },
+  retribution(ctx, dark) { // a shield with a jagged red bolt coming back out of it
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-8, -14);
+    ctx.lineTo(8, -14);
+    ctx.quadraticCurveTo(10, 6, 0, 16);
+    ctx.quadraticCurveTo(-10, 6, -8, -14);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#e8584a';
+    ctx.beginPath();
+    ctx.moveTo(2, -10);
+    ctx.lineTo(-4, 1);
+    ctx.lineTo(1, 1);
+    ctx.lineTo(-2, 11);
+    ctx.lineTo(6, -2);
+    ctx.lineTo(1, -2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#fff6c4';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(12, -6);
+    ctx.lineTo(19, -10);
+    ctx.moveTo(12, 2);
+    ctx.lineTo(19, 2);
+    ctx.stroke();
+  },
+  judgement(ctx, dark) { // shafts of light falling on a ring
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(0, 13, 18, 5, 0, 0, TAU);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,246,196,0.95)';
+    for (const x of [-12, 0, 12]) {
+      ctx.beginPath();
+      ctx.moveTo(x - 3, -18);
+      ctx.lineTo(x + 3, -18);
+      ctx.lineTo(x + 2, 12);
+      ctx.lineTo(x - 2, 12);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.fillStyle = '#ffffff';
+    star(ctx, 0, -16, 5);
+    void dark;
+  },
+  guardians_oath(ctx, dark) { // a big shield over two small slimes
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(-16, -14);
+    ctx.lineTo(16, -14);
+    ctx.quadraticCurveTo(18, 6, 0, 18);
+    ctx.quadraticCurveTo(-18, 6, -16, -14);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.6;
+    for (const x of [-6, 6]) {
+      ctx.beginPath();
+      ctx.moveTo(x - 6, 8);
+      ctx.quadraticCurveTo(x - 6, -2, x, -2);
+      ctx.quadraticCurveTo(x + 6, -2, x + 6, 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#ffd36b';
+    star(ctx, 0, -9, 4);
+  },
+  unbroken(ctx, dark) { // a slime standing firm, three arrows bouncing off it
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-10, 14);
+    ctx.quadraticCurveTo(-11, -4, 0, -5);
+    ctx.quadraticCurveTo(11, -4, 10, 14);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    for (const [x, y, dx] of [[-19, -10, 5], [19, -10, -5], [19, 6, -5]]) {
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + dx, y + 3);
+    }
+    ctx.stroke();
+    ctx.fillStyle = dark;
+    circle(ctx, -3, 5, 1.6);
+    circle(ctx, 3, 5, 1.6);
+  },
+  rending_slash(ctx, dark) { // three ragged claw cuts with drops falling
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3.4;
+    ctx.beginPath();
+    for (const dx of [-8, 0, 8]) {
+      ctx.moveTo(dx - 7, -14);
+      ctx.quadraticCurveTo(dx, -2, dx + 5, 10);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#e8584a';
+    for (const [x, y] of [[-5, 15], [4, 17], [12, 13]]) {
+      ctx.beginPath();
+      ctx.moveTo(x, y - 4);
+      ctx.quadraticCurveTo(x + 3, y, x, y + 2);
+      ctx.quadraticCurveTo(x - 3, y, x, y - 4);
+      ctx.fill();
+    }
+    void dark;
+  },
+  bloodlust(ctx, dark) { // a cracked heart with a red glow
+    ctx.fillStyle = '#e8584a';
+    heart(ctx, 0, 2, 12);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-1, -8);
+    ctx.lineTo(3, -2);
+    ctx.lineTo(-2, 3);
+    ctx.lineTo(2, 9);
+    ctx.stroke();
+    void dark;
+  },
+  execution(ctx, dark) { // a huge blade coming down on a small red mark
+    ctx.save();
+    ctx.translate(-2, 10);
+    ctx.rotate(Math.PI * 0.85);
+    iconSword(ctx, dark, 22, 4);
+    ctx.restore();
+    ctx.fillStyle = '#e8584a';
+    ctx.beginPath();
+    ctx.ellipse(6, 15, 9, 3, 0, 0, TAU);
+    ctx.fill();
+  },
+  frenzy(ctx, dark) { // a flame with a clock hand in it
+    ctx.fillStyle = '#ff9a7e';
+    flame(ctx, 0, 14, 22, 30);
+    ctx.fillStyle = '#ffffff';
+    circle(ctx, 0, 4, 7);
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 4);
+    ctx.lineTo(0, -1);
+    ctx.moveTo(0, 4);
+    ctx.lineTo(4, 6);
+    ctx.stroke();
+  },
+  cyclone(ctx, dark) { // a spinning top of blades
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 4; i++) {
+      ctx.lineWidth = 3.4 - i * 0.5;
+      ctx.beginPath();
+      ctx.ellipse(0, -10 + i * 7, 18 - i * 4, 4.5 - i * 0.6, 0, 0.3 + i, 4.2 + i);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(-3, 12);
+    ctx.lineTo(0, 19);
+    ctx.lineTo(3, 12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  },
+  rampage(ctx, dark) { // four chevrons stacked higher than Momentum's
+    ctx.lineWidth = 3;
+    [[-14, 5, 0.45], [-6, 7, 0.65], [2, 9, 0.85], [11, 11, 1]].forEach(([x, h, a]) => {
+      ctx.strokeStyle = `rgba(255,255,255,${a})`;
+      ctx.beginPath();
+      ctx.moveTo(x - h * 0.6, -h);
+      ctx.lineTo(x + h * 0.4, 0);
+      ctx.lineTo(x - h * 0.6, h);
+      ctx.stroke();
+    });
+    ctx.fillStyle = '#e8584a';
+    star(ctx, 16, -14, 4);
+    void dark;
   },
   // ——— Gifts ———
   challenge_gods(ctx) {
@@ -1724,6 +2060,7 @@ const LIFE = {
   cleave: 0.38, storm: 1.0, skysplit: 0.65, chain: 0.42, starfall: 1.3, bubblePop: 0.45, rally: 0.8, aegis: 0.7, secondwind: 1.0,
   dash: 0.3, blink: 0.45, flashjump: 0.35, scroll: 1.4, gods: 1.1,
   charge: 0.35, slam: 0.55, upcut: 0.4, shatter: 0.55,
+  hook: 0.5, bash: 0.4, rend: 0.45, execute: 0.55, lance: 0.45, shake: 0.6, wave: 0.65, judgement: 1.0, warcry: 0.8, // (SP2)
   barrier: 0.6, revive: 1.1, // (S3)
 };
 
@@ -1734,7 +2071,8 @@ export class SkillFx {
 
   // kind: 'strike' | 'spin' | 'bolt' | 'heal' | 'nova' | 'buff' | 'levelskill' | 'cleave' | 'storm' |
   // 'skysplit' | 'chain' | 'meteor' | 'starfall' | 'bubblePop' | 'rally' | 'zone' | 'aegis' | 'secondwind' |
-  // 'dash' | 'blink' | 'flashjump' | 'scroll' | 'iframe' | 'staffbolt' | 'holybolt' | 'charge' | 'slam' | 'slamfall' | 'upcut' | 'shatter'
+  // 'dash' | 'blink' | 'flashjump' | 'scroll' | 'iframe' | 'staffbolt' | 'holybolt' | 'charge' | 'slam' | 'slamfall' | 'upcut' | 'shatter' |
+  // SP2: 'hook' | 'bash' | 'rend' | 'execute' | 'lance' | 'shake' | 'wave' | 'judgement' | 'warcry'
   // (options: see each FX entry)
   spawn(kind, o = {}) {
     const life = kind === 'bolt' ? (o.dur ?? 0.3) + 0.35
@@ -1769,6 +2107,228 @@ export class SkillFx {
 }
 
 const FX = {
+  // ——— SP2: the Warrior's skill pool ———
+  // Hook {x, y, dir, len, hit, dur, follow}: a chain whipping out to len (the hook catching at its end), then the slime
+  // riding it in (the chain shortening with the slime) or, a miss, snapping back
+  hook(ctx, e, k) {
+    const dir = e.o.dir < 0 ? -1 : 1, out = Math.min(1, e.age / 0.08), p = e.o.follow?.() ?? e.o;
+    const tip = e.o.x + dir * e.o.len * out, ride = e.o.hit ? Math.min(1, Math.max(0, (e.age - 0.08) / Math.max(0.05, e.o.dur))) : 0;
+    const back = !e.o.hit && e.age > 0.12 ? Math.min(1, (e.age - 0.12) / 0.15) : 0;
+    const x0 = p.x + dir * 12, x1 = e.o.hit ? tip : tip - (tip - x0) * back, y = e.o.y - 22;
+    if (e.o.hit && ride >= 1 && k > 0.8) ctx.globalAlpha = (1 - k) / 0.2;
+    const n = Math.max(2, Math.floor(Math.abs(x1 - x0) / 9));
+    ctx.strokeStyle = '#b8b2c8';
+    ctx.lineWidth = 2.2;
+    for (let i = 0; i < n; i++) {
+      const cx = x0 + ((x1 - x0) * (i + 0.5)) / n, cy = y + Math.sin(i * 1.3 + e.age * 30) * (1 - out) * 3;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 4.5, i % 2 ? 2.4 : 3.4, 0, 0, TAU);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = '#7a7290';
+    ctx.lineWidth = 3.4;
+    ctx.beginPath();
+    ctx.moveTo(x1, y - 8);
+    ctx.lineTo(x1, y + 2);
+    ctx.arc(x1 - dir * 6, y + 2, 6, dir > 0 ? 0 : Math.PI, dir > 0 ? Math.PI * 0.95 : Math.PI * 0.05, dir < 0);
+    ctx.stroke();
+    if (e.o.hit && out >= 1) {
+      ctx.fillStyle = '#fff6c4';
+      star(ctx, x1, y, 8 * (1 - k) + 2);
+    }
+  },
+  // Shield Bash {x, y, dir}: a round shield punching forward, a burst and stars where it meets the mob
+  bash(ctx, e, k) {
+    const { x, y } = e.o, dir = e.o.dir < 0 ? -1 : 1, push = ease(Math.min(1, k / 0.35)), fade = k < 0.4 ? 1 : 1 - (k - 0.4) / 0.6;
+    ctx.translate(x + dir * (20 + push * 34), y - 24);
+    ctx.scale(dir, 1);
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = 'rgba(191,240,216,0.45)';
+    ctx.beginPath();
+    ctx.ellipse(8, 0, 18 + push * 14, 22 + push * 8, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#2f8a64';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 9, 18, 0, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffd36b';
+    circle(ctx, 2, 0, 4);
+    ctx.fillStyle = '#fff6c4';
+    for (let i = 0; i < 3; i++) star(ctx, 20 + i * 6, -14 + i * 14, (6 - i) * (1 - k) + 2);
+  },
+  // Rending Slash {x, y, dir}: three ragged red-edged claw cuts ripping across
+  rend(ctx, e, k) {
+    const { x, y } = e.o, dir = e.o.dir < 0 ? -1 : 1, draw = ease(Math.min(1, k / 0.4)), fade = k < 0.4 ? 1 : 1 - (k - 0.4) / 0.6;
+    ctx.translate(x + dir * 40, y - 26);
+    ctx.scale(dir, 1);
+    ctx.globalAlpha = fade;
+    for (const [i, c, w] of [[0, '#e8584a', 7], [1, '#ffffff', 3.5]]) {
+      ctx.strokeStyle = c;
+      ctx.lineWidth = w;
+      ctx.beginPath();
+      for (const dy of [-12, 0, 12]) {
+        ctx.moveTo(-20, dy - 14);
+        ctx.quadraticCurveTo(-2, dy - 4 + i, -20 + 40 * draw, dy + 12 * draw);
+      }
+      ctx.stroke();
+    }
+  },
+  // Execution {x, y, dir}: a huge dark-red blade arc coming straight down in front, and a flash at the floor
+  execute(ctx, e, k) {
+    const { x, y } = e.o, dir = e.o.dir < 0 ? -1 : 1, sweep = ease(Math.min(1, k / 0.35)), fade = k < 0.4 ? 1 : 1 - (k - 0.4) / 0.6;
+    ctx.translate(x + dir * 36, y - 40);
+    ctx.scale(dir, 1);
+    ctx.globalAlpha = fade;
+    const a0 = -Math.PI * 0.75, a1 = a0 + Math.PI * 1.1 * sweep, R = 62;
+    ctx.fillStyle = '#b8324a';
+    ctx.beginPath();
+    ctx.arc(0, 0, R + 6, a0, a1);
+    ctx.arc(-8, 0, R - 12, a1, a0, true);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(0, 0, R, a0 + 0.1, a1);
+    ctx.arc(-4, 0, R - 5, a1, a0 + 0.1, true);
+    ctx.closePath();
+    ctx.fill();
+    if (k > 0.3) {
+      ctx.fillStyle = 'rgba(255,200,190,0.7)';
+      ctx.beginPath();
+      ctx.ellipse(18, 40, 40 * (k - 0.2), 7, 0, 0, TAU);
+      ctx.fill();
+    }
+  },
+  // Holy Lance {x, y, dir, reach}: a long golden spear of light thrusting out and fading
+  lance(ctx, e, k) {
+    const { x, y } = e.o, dir = e.o.dir < 0 ? -1 : 1, len = (e.o.reach ?? 220) * ease(Math.min(1, k / 0.3)), fade = k < 0.35 ? 1 : 1 - (k - 0.35) / 0.65;
+    ctx.translate(x + dir * 14, y - 24);
+    ctx.scale(dir, 1);
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = 'rgba(255,232,150,0.4)';
+    ctx.beginPath();
+    ctx.ellipse(len / 2, 0, len / 2 + 10, 12, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#fff2b0';
+    ctx.strokeStyle = '#e8b84a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, -3);
+    ctx.lineTo(len - 14, -3);
+    ctx.lineTo(len - 14, -7);
+    ctx.lineTo(len + 4, 0);
+    ctx.lineTo(len - 14, 7);
+    ctx.lineTo(len - 14, 3);
+    ctx.lineTo(0, 3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    star(ctx, len + 4, 0, 7 * (1 - k) + 2);
+  },
+  // Ground Shake {x, y, radius}: the floor jolts: a ring racing out to the radius, cracks, dust thrown up
+  shake(ctx, e, k) {
+    const { x, y } = e.o, R = (e.o.radius ?? 170) * (0.2 + 0.8 * ease(k)), fade = 1 - k;
+    ctx.translate(x, y);
+    ctx.globalAlpha = fade;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4 * fade + 1;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, R, R * 0.18, 0, 0, TAU);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(79,184,143,0.85)';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * TAU + 0.3;
+      ctx.moveTo(Math.cos(a) * 10, Math.sin(a) * 3);
+      ctx.lineTo(Math.cos(a) * R * 0.6, Math.sin(a) * R * 0.11);
+    }
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(232,212,188,0.9)';
+    for (let i = 0; i < 10; i++) {
+      const s = i % 2 ? 1 : -1, d = R * (0.3 + rnd(e.seed, i) * 0.7);
+      circle(ctx, s * d, -Math.sin(k * Math.PI) * (10 + rnd(e.seed, i + 9) * 22), 3 + rnd(e.seed, i + 3) * 3);
+    }
+  },
+  // Shockwave {x, y, range}: two humps of earth running out along the floor both ways, a stamp flash in the middle
+  wave(ctx, e, k) {
+    const { x, y } = e.o, R = e.o.range ?? 280, d = R * ease(k), fade = k < 0.7 ? 1 : 1 - (k - 0.7) / 0.3;
+    ctx.translate(x, y);
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = 'rgba(255,240,220,0.7)';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 26 * (1 - k) + 6, 6, 0, 0, TAU);
+    ctx.fill();
+    for (const s of [-1, 1]) {
+      const cx = s * d;
+      ctx.fillStyle = 'rgba(232,212,188,0.95)';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.moveTo(cx - 22, 0);
+      ctx.quadraticCurveTo(cx - s * 4, -30 * (1 - k * 0.5), cx + 22, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+      ctx.beginPath();
+      ctx.moveTo(cx - s * 26, -6);
+      ctx.lineTo(cx - s * 50, -4);
+      ctx.stroke();
+    }
+  },
+  // Judgement {x, y, radius, targets}: a ring of light on the floor and a shaft of light falling on every mob it hit
+  judgement(ctx, e, k) {
+    const { x, y } = e.o, R = e.o.radius ?? 260, fade = k < 0.6 ? 1 : 1 - (k - 0.6) / 0.4, fall = ease(Math.min(1, k / 0.3));
+    ctx.save();
+    ctx.globalAlpha = fade * 0.9;
+    ctx.strokeStyle = '#ffe9a0';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 8]);
+    ctx.lineDashOffset = -e.age * 60;
+    ctx.beginPath();
+    ctx.ellipse(x, y, R * (0.6 + 0.4 * fall), R * 0.12, 0, 0, TAU);
+    ctx.stroke();
+    ctx.restore();
+    ctx.globalAlpha = fade;
+    for (const t of [{ x, y }, ...(e.o.targets ?? [])].slice(0, 12)) {
+      const top = t.y - 260, bot = top + (t.y - top) * fall;
+      ctx.fillStyle = 'rgba(255,246,196,0.55)';
+      ctx.beginPath();
+      ctx.moveTo(t.x - 14, top);
+      ctx.lineTo(t.x + 14, top);
+      ctx.lineTo(t.x + 9, bot);
+      ctx.lineTo(t.x - 9, bot);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(t.x - 2.5, top, 5, bot - top);
+      if (fall >= 1) star(ctx, t.x, t.y - 20, 10 * (1 - k) + 3);
+    }
+  },
+  // War Cry {x, y, radius}: rings of sound bursting out and coral sparks thrown up
+  warcry(ctx, e, k) {
+    const { x, y } = e.o, R = Math.min(e.o.radius ?? 300, 220), fade = 1 - k;
+    ctx.translate(x, y - 26);
+    ctx.globalAlpha = fade;
+    ctx.strokeStyle = 'rgba(255,154,126,0.9)';
+    for (let i = 0; i < 3; i++) {
+      const r = R * ease(Math.max(0, Math.min(1, k * 1.4 - i * 0.18)));
+      ctx.lineWidth = 5 - i;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r, r * 0.55, 0, 0, TAU);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#fff6c4';
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * TAU + e.seed, d = 24 + R * 0.4 * ease(k);
+      star(ctx, Math.cos(a) * d, Math.sin(a) * d * 0.55 - 10 * k, 5 * fade + 1.5);
+    }
+  },
   // ——— the Archer (S4) ———
   // An arrow {x, y, tx, ty, dur, hit, tint, big}: a shallow arc there, nose along its path, a faint trail; on
   // landing a little burst of splinters (hit) or the arrow stuck in the ground, fading (miss)

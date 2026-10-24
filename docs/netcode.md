@@ -11,13 +11,19 @@ protocol is documented in the comment at the top of that file: keep it updated**
   unacked inputs. State is quantised inside `step()` so prediction matches the server bit for bit.
 - **Anything that changes movement goes in `step()`**, driven by input bits (`LEFT RIGHT JUMP DOWN USE`
   plus `DASH BLINK` for the Mobility skills and `ATTACK` for the Warrior's chase moves), never by
-  side-channel messages. Doors, rooms, Dash, Blink, Flash Jump, Leap Slam and Upward Cut all work this way.
+  side-channel messages. Doors, rooms, Dash, Blink, Flash Jump, Leap Slam, Upward Cut and Hook all work this way.
   Per-player movement abilities ride in the state (`state.mv`, `state.mw`) so prediction knows them too.
-- **Predicted state edits**: two things change your state from a client-decided event rather than an
-  input: a mob's knockback (`applyKick`, from `ouch`) and a Warrior's Charge connecting (`applyCharge`,
-  from a slap). The client stores the edit on that input's `pending` entry, applies it now and on every
-  replay; the server applies the same edit when it runs the message at that `s`. Both sides must compute
-  it from the state alone (see `docs/combat/skills.md`).
+- **Predicted state edits**: three things change your state from a client-decided event rather than an
+  input: a mob's knockback (`applyKick`, from `ouch`), a Warrior's Charge connecting (`applyCharge`,
+  from a slap) and a Hook cut short at its mob (`applyHook`, SP2: the client says how many ticks the yank
+  has left; the edit can only shorten it). The client stores the edit on that input's `pending` entry
+  (`[seq, keys, kick, charge, hook]`), applies it now and on every replay; the server applies the same edit
+  when it runs the message at that `s`. Charge and knockback are computed from the state alone (see
+  `docs/combat/skills.md`).
+- **A chase move's message goes right after its input** (`net.afterInput`, flushed in `tick()` straight after
+  `encodeInput`; `rpg.afterInput`). Sent before it, the server could run it before stepping that input (the
+  end-of-tick `runActions(…, all)` flush) and reject it; sent a frame later (a sped-up or slow client runs
+  several steps a frame), the server would apply Hook's cut a step late: a snap back. Found in SP2's test.
 - Remote slimes render 100 ms behind, interpolated. Mobs are drawn on the server clock the same way
   (`net.renderTick()`).
 - Animation dt is capped at 1/30 s separately from the sim's catch-up: bigger steps turned the jelly
@@ -56,6 +62,9 @@ protocol is documented in the comment at the top of that file: keep it updated**
   the egg bit alone (their decoder reads any non-zero byte as an egg). The server encodes the mobs once per
   version in the room. Slime records are unchanged (`BYTES_OF[5]` is version 4's 44). JSON tabs get the
   wide flags, which their code masks away.
+- 2026-10-24: wire version 6 (SP2's Hook): 48 bytes per slime: `mw`'s high byte (Hook's rank is bits 8–9 of
+  `mw`, past the old u8), `hk` (the yank's ticks left) u8, `hc` (its cooldown) u16; `pack` / `unpack` carry them
+  as entries 22–23. Older tabs get version 4's records.
 - 2026-10-24 (the Archer, S4): no wire version change. Two more mob flags in the same byte (2048 marked by
   Hunter's Mark, 4096 netted; the 7 bits there hold up to 16384), Retreat Shot's rank in `mw` bits 6–7 (it was
   6 bits used of the byte), the slap echo's `retreat`, the skill's `mob` / echo's `mark`, and

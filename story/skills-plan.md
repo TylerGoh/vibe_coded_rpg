@@ -1,7 +1,6 @@
 # SP: the skill pool (plan)
 
-**Status: SP1 built (2026-10-24, waiting for its deploy; ships dark except the K panel's Cast button). SP2–SP5
-next.** Written 2026-10-24 (owner's ask). Comes first on the roadmap, ahead of
+**Status: SP1 live; SP2 (the Warrior) built (2026-10-24, waiting for its deploy). SP3–SP5 next.** Written 2026-10-24 (owner's ask). Comes first on the roadmap, ahead of
 Greenhollow's final boss. Builds on the class design in `progression.md` (sections 1b, 1c, 3–7) and on how
 skills work today (`docs/combat/skills.md`). Read both first. Names here are working names; numbers live
 in `src/shared/skills.js` and are set by `npm run economy` (`CLASS_FIT`, `BAD_AT`), never guessed here.
@@ -180,6 +179,26 @@ What SP2–SP5 should know:
   (`docs/economy.md`, "Long buffs"); the LONG BUFFS line in `npm run economy` lists it automatically.
 - The mob flag bits are full (16384 was the last spare): another mob state needs a wire version bump or a message.
 - Phones: the K panel fits 5 nodes per branch line at 667×375; a 6th wraps. Keep names short.
+
+### SP2: built (2026-10-24, waiting for deploy)
+What landed (details: `docs/combat/skills.md`, "The Warrior's skill pool (SP2)" and the chase moves' Hook):
+- Every skill in the Warrior table, as planned. Kinds reused: `buff` (War Cry, Guardian's Oath), `spin` (Ground Shake
+  with `pull` + `taunt`, Judgement with `taunt`), `strike` (Shield Bash, Rending Slash with a bleed, Execution),
+  `cleave` (Holy Lance), `field` (Cyclone). New: `kind: 'wave'` (Shockwave), `stun`, `exec`, `follow` (a field that
+  moves with its caster), `anim` (a skill's own look on a shared kind), and the passives' rules (Retribution,
+  Unbroken, Bloodlust, Rampage) in `statsFor` / `hurt()` / `momentumMax`. Cleave's targets grow with rank (`targetsOf`).
+- **Hook** is in `step()`: Down + Dash (▼ then Dash on touch). The physics can't see mobs, so the client cuts the
+  yank at its mob with a predicted edit (`applyHook`), Charge-style. Wire version 6 (`hk`, `hc`, `mw`'s high byte).
+- Found and fixed on the way: a chase move's message must go right after its input (`net.afterInput`), or the server
+  can run it before that input (Leap Slam / Upward Cut hits could be dropped that way too).
+What SP3–SP5 should know:
+- `anim` on a skill picks its look in `hitFx` (src/rpg.js) for strike / cleave / spin / wave: add a look there and in
+  `FX` (src/skillfx.js) rather than a new kind. `follow: true` on a field makes a moving aura. `targets` can be a
+  function of rank (`targetsOf`). `stun: true` on a hit works for any class (echo-drawn, no mob flag).
+- **The economy sheet doesn't model the hotbar's six slots**: every learned active fires, so each new staple adds
+  damage rather than replacing the old one. The Warrior now leads single and crowd from Lv 100 (1.26 / 1.65× the
+  others' mean). Expect the same jump for your class; keep `CLASS_FIT` green and leave the cross-class shape to SP6.
+- Long buffs held count as always on in `fight` (cast before the fight).
 
 SP2–SP5 touch different parts of `SKILLS` and their own effects. They can run side by side, but `src/shared/skills.js`
 is shared, so they merge one at a time. Each one deploys on its own: a class at a time is fine (the others

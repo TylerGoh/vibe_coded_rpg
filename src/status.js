@@ -7,7 +7,7 @@
 import { drawSkillIcon } from './skillfx.js';
 import { drawItemIcon } from './field.js';
 import { ITEMS } from './shared/rpg.js';
-import { rankOf, MOMENTUM_MAX, SKILLS, fxText } from './shared/skills.js';
+import { rankOf, SKILLS, fxText, momentumMax, BLOODLUST_AT } from './shared/skills.js';
 
 // What's on you now → [{ key, name, icon (a skill id, or 'item:<id>', 'focus', 'curse'), left (s, or none),
 // n (stacks / amount), debuff, cool }]. rpg: the Rpg (its `me`, meAt, momentum, charges, focusLeft);
@@ -36,7 +36,10 @@ export function statusOf(rpg, mine) {
   timed('draught', 'item:barrier_draught', 'Barrier Draught: takes the next boss pulse whole', fromMe(m.draught)); // (S5.5)
   if (m.shield) out.push({ key: 'shield', icon: 'mana_shield', name: 'Mana Shield: on (cast it again to turn it off)' });
   const mo = rpg.momentum;
-  if (mo && mo.until > t && mo.n > 0) out.push({ key: 'momentum', icon: 'momentum', name: `Momentum: ${mo.n} of ${MOMENTUM_MAX} stacks (more attack; keep moving)`, left: mo.until - t, n: mo.n });
+  if (mo && mo.until > t && mo.n > 0) out.push({ key: 'momentum', icon: 'momentum', name: `Momentum: ${mo.n} of ${momentumMax(m.skills)} stacks (more attack; keep moving)`, left: mo.until - t, n: mo.n });
+  // SP2: Retribution's store (the next Shield Bash lets it out), Bloodlust while it's on
+  if (m.retri > 0) out.push({ key: 'retri', icon: 'retribution', name: `Retribution: ${m.retri} damage stored for your next Shield Bash`, n: m.retri });
+  if (rankOf(m.skills, 'bloodlust') && m.hp < m.maxHp * BLOODLUST_AT) out.push({ key: 'bloodlust', icon: 'bloodlust', name: 'Bloodlust: below half HP, you hit harder and Jelly Thirst heals double' });
   const arc = rankOf(m.skills, 'arcane_charge') ? rpg.charges() : 0;
   if (arc > 0) out.push({ key: 'arcane', icon: 'arcane_charge', name: `Arcane Charge: your next spell spends ${arc}`, n: arc });
   timed('cure', 'item:cleansing_tonic', 'Cleansing Tonic and Barrier Draught: recharging', fromMe(m.cure), { cool: true });

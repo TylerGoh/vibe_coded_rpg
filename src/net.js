@@ -8,7 +8,7 @@
 //
 // Everyone else: drawn INTERP ticks in the past, interpolated between the two snapshots around that
 // moment, so they glide smoothly even though packets arrive unevenly.
-import { TICK_RATE, newState, step, unpack, applyCharge } from './shared/sim.js';
+import { TICK_RATE, newState, step, unpack, applyCharge, applyHook } from './shared/sim.js';
 import { decode, encodeInput, BIN_VERSION } from './shared/wire.js';
 import { installSpeed } from './shared/testspeed.js';
 import { enableTestSkills } from './shared/skills.js';
@@ -26,12 +26,13 @@ export function applyKick(s, kick) {
 }
 
 export class Net {
-  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHouse, onChat, onBuild }) {
+  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild }) {
     this.url = url;
-    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHouse, onChat, onBuild };
+    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild };
     this.id = null;
     this.me = newState(); // predicted state
-    this.pending = []; // [seq, keys, kick?, charge?] not yet acknowledged
+    this.pending = []; // [seq, keys, kick?, charge?, hook?] not yet acknowledged
+    this.afterInput = []; // messages to send right after this step's input (src/rpg.js hook / chase)
     this.seq = 0;
     this.snaps = []; // { tick, players: Map(id → state) }
     this.latest = null; // newest snapshot not yet reconciled against
@@ -176,8 +177,9 @@ export class Net {
     const before = { x: this.me.x, y: this.me.y };
     this.pending = this.pending.filter(([s]) => s > snap.ack);
     Object.assign(this.me, server); // (keeps this.me.home, which snapshots don't carry)
-    for (const [, k, kick, charge] of this.pending) {
+    for (const [, k, kick, charge, hook] of this.pending) {
       step(this.me, k);
+      if (hook !== undefined) applyHook(this.me, hook); // a Hook cut short at its mob (the server's hook message does the same)
       if (kick) applyKick(this.me, kick); // a knockback we predicted at this step (the server applies it there too)
       if (charge) applyCharge(this.me); // a Charge that connected after this step (the server's slap does the same)
     }
@@ -197,8 +199,11 @@ export class Net {
     this.reconcile();
     this.prev = { x: this.me.x, y: this.me.y }; // for drawing between fixed steps
     const s = ++this.seq;
-    const was = this.me.grounded, slam = this.me.sl, cut = this.me.uc | 0;
+    const was = this.me.grounded, slam = this.me.sl, cut = this.me.uc | 0, hooks = this.me.hc | 0;
     step(this.me, keys);
+    // Hook (SP2): it just fired; src/rpg.js finds the mob, sends the hook and says how many ticks the yank takes
+    const hook = (this.me.hc | 0) > hooks ? this.cb.onHook?.(this.me, s) ?? 0 : undefined;
+    if (hook !== undefined) applyHook(this.me, hook);
     if (!was && this.me.grounded) this.cb.onLand(this.me); // only on fresh steps, never on replays
     // the Warrior's chase moves: a Leap Slam landed, an Upward Cut went off (their hits: src/rpg.js chase)
     if (slam && !this.me.sl) this.cb.onChase?.('leap_slam', this.me, s);
@@ -206,9 +211,10 @@ export class Net {
     // the Wildwood: did a mob just hit us? (src/rpg.js decides, and returns the knockback to predict)
     const kick = this.cb.onStep?.(this.me, s);
     if (kick) applyKick(this.me, kick);
-    this.pending.push([s, keys, kick]);
+    this.pending.push([s, keys, kick, undefined, hook]);
     if (this.pending.length > 120) this.pending.shift(); // server's gone quiet; don't grow forever
     this.ws.send(encodeInput(s, keys));
+    for (const f of this.afterInput.splice(0)) f(); // (a chase move's message: right after the input it happened at)
   }
 
   // A Charge connected with the slap sent at input `seq` (the newest: slaps go out between steps):

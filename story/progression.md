@@ -63,8 +63,8 @@ Mage and Cleric share the staff (owner); a Cleric shows a halo, a Mage a sparkle
 ### 1c. The Warrior: the chaser (owner)
 "Close range but high mobility to catch, but it takes a lot of movement inputs." Many short moves
 *toward* the target, each its own press: Charge, Leap Slam, Upward Cut, Momentum (all built,
-`docs/combat/skills.md`). Not built: **Hook** `[proposed]` (yank yourself to a mob, or, as a Knight, a mob
-to you). Anything that moves you goes in `step()`; chains use buttons phones already have.
+`docs/combat/skills.md`), and **Hook** (SP2: yank yourself to a mob; the Knight's Ground Shake pulls mobs to
+it instead). Anything that moves you goes in `step()`; chains use buttons phones already have.
 
 ### 2. Staves and the Mage
 Built in S1/S2 (`docs/combat/items.md`, `docs/combat/skills.md`): staves give MAGIC on the sword curve,
