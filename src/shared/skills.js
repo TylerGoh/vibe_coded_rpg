@@ -4,7 +4,7 @@ import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR
 
 // Shared by client and server: classes, their skill trees, mana, and the hotbar (story/progression.md,
 // story/archive/s2-plan.md). Everyone starts as a Novice; at CLASS_LVL you choose a class at the Rebirth Pool
-// (server/rpg.js rebirth). Each class has basics, then two branches (the fork: points in one at a time),
+// (server/rpg.js rebirth). Each class has basics, then two branches (both learnable since 2026-10-24),
 // opening at the advancement levels (`adv` on each skill). Mobility is shared by every class. Active
 // skills cost MP and have cooldowns; passives are always on. The server (server/rpg.js) decides every cast.
 
@@ -90,11 +90,11 @@ export function advanceText(cls, lvl) {
   const c = CLASSES[cls] ?? CLASSES.novice;
   if (cls === 'novice') return lvl === CLASS_LVL ? `Lv ${lvl}! You can choose your class now: ${classNames()}, free, at the Rebirth Pool by Elder Mochi in Slimeville.` : `Lv ${lvl}: the ${ADVANCEMENTS.find((a) => a.lvl === lvl)?.name ?? 'next advancement'} is waiting. Choose a class at the Rebirth Pool by Elder Mochi first.`;
   const [a, b] = c.branches;
-  if (lvl === 30) return `2nd advancement! Your ${c.name} tree forks (K): ${a.name} or ${b.name}. Points go in one branch at a time; switching back is free.`;
+  if (lvl === 30) return `2nd advancement! Your ${c.name} tree opens two branches (K): ${a.name} and ${b.name}. Learn from both; your hotbar decides what you bring.`;
   return `${ADVANCEMENTS.find((x) => x.lvl === lvl)?.name ?? 'An advancement'}! New ${c.name} skills open in your tree (K).`;
 }
 
-// cls: 'novice' | a class | 'any' (Mobility) · tree: the K panel tab · branch: the fork (none: basics) ·
+// cls: 'novice' | a class | 'any' (Mobility) · tree: the K panel tab · branch: which of the two branches (none: basics) ·
 // adv: the level it opens at.
 // kind: 'strike' (hit the nearest mob ahead) · 'cleave' (the nearest few ahead) · 'spin' (every mob
 // around you) · 'storm' (every mob around you, several times) · 'bolt' (first mob ahead, at range; `slow`
@@ -243,7 +243,7 @@ export const SKILLS = {
     desc: (r) => `+${25 * r} max MP, and MP comes back ${r ? `${Math.round(mpRegenOf(r) * 10) / 10}×` : ''} faster.`,
   },
   arcane_mind: {
-    ...M, adv: 10, name: 'Arcane Mind', kind: 'passive', max: 3,
+    ...M, adv: 15, name: 'Arcane Mind', kind: 'passive', max: 3,
     desc: (r) => `+${20 * r}% magic power.`,
   },
   mana_shield: {
@@ -563,23 +563,26 @@ export const rankOf = (skills, id) => skills?.[id] ?? 0;
 
 // ——— skill points: two separate counts, so the Novice tree can never eat class points ———
 // Novice points: one a level up to SP_NOVICE_LVL (exactly fills the Novice tree). Class points (the class
-// tree and Mobility) from CLASS_LVL: SP_CLASS_START, then one every SP_EVERY_EARLY levels to Lv 60, one
-// every SP_EVERY_LATE levels to SP_CAP_LVL, and SP_ADV_BONUS more at each later advancement (30, 60, 100).
-// Sized so you finish one branch and some of Mobility, never everything. Nothing past SP_CAP_LVL (S6).
-export const SP_NOVICE_LVL = 9, SP_CLASS_START = 3, SP_EVERY_EARLY = 3, SP_EVERY_LATE = 10, SP_ADV_BONUS = 2, SP_CAP_LVL = 200;
+// tree and Mobility): SP_PER_LVL a level from CLASS_LVL (owner, 2026-10-24: "2 points per level"), but never
+// more than spRoom, the ranks your level has opened (so none pile up unspendable). No fork any more (owner,
+// 2026-10-24): both branches can be learned; the hotbar's few slots are the limit. Nothing past SP_CAP_LVL (S6).
+export const SP_NOVICE_LVL = 9, SP_PER_LVL = 2, SP_CAP_LVL = 200;
 export const spNovice = (lvl) => Math.max(0, Math.min(lvl, SP_NOVICE_LVL));
-export function spClass(lvl) {
-  if (lvl < CLASS_LVL) return 0;
-  const L = Math.min(lvl, SP_CAP_LVL);
-  let n = SP_CLASS_START + Math.floor((Math.min(L, 60) - CLASS_LVL) / SP_EVERY_EARLY);
-  if (L > 60) n += Math.floor((L - 60) / SP_EVERY_LATE);
-  for (const a of ADVANCEMENTS) if (a.lvl > CLASS_LVL && L >= a.lvl) n += SP_ADV_BONUS;
-  return n;
+// the class ranks c could hold at its level: its class's skills (both branches) and Mobility that its level has
+// opened. A Novice has no cap (its points wait for a class).
+export function spRoom(c) {
+  const cls = c.cls;
+  if (!cls || cls === 'novice' || !CLASSES[cls]) return Infinity;
+  return Object.values(SKILLS).reduce((n, s) => n + (!s.gift && (s.cls === cls || s.cls === 'any') && c.lvl >= s.adv ? s.max : 0), 0);
+}
+export function spClass(c) {
+  if (c.lvl < CLASS_LVL) return 0;
+  return Math.min(SP_PER_LVL * (Math.min(c.lvl, SP_CAP_LVL) - CLASS_LVL + 1), spRoom(c));
 }
 const poolOf = (id) => (SKILLS[id]?.gift ? 'gift' : SKILLS[id]?.cls === 'novice' ? 'novice' : 'class');
 export const spSpentIn = (skills, pool) => Object.entries(skills ?? {}).reduce((n, [id, r]) => n + (SKILLS[id] && poolOf(id) === pool ? r : 0), 0);
 // points left to spend: { novice, cls } (a Novice's class points pile up until it chooses a class)
-export const spLeft = (c) => ({ novice: spNovice(c.lvl) - spSpentIn(c.skills, 'novice'), cls: spClass(c.lvl) - spSpentIn(c.skills, 'class') });
+export const spLeft = (c) => ({ novice: spNovice(c.lvl) - spSpentIn(c.skills, 'novice'), cls: spClass(c) - spSpentIn(c.skills, 'class') });
 // what the HUD counts as "points to spend"
 export const spFree = (c) => {
   const l = spLeft(c);
@@ -589,8 +592,6 @@ export const spFree = (c) => {
 export const giftsOf = (skills) => Object.fromEntries(Object.entries(skills ?? {}).filter(([id]) => SKILLS[id]?.gift));
 export const pointsIn = (skills, tree) => Object.entries(skills ?? {}).reduce((n, [id, r]) => n + (SKILLS[id]?.tree === tree ? r : 0), 0);
 export const branchPoints = (skills, branch) => Object.entries(skills ?? {}).reduce((n, [id, r]) => n + (SKILLS[id]?.branch === branch ? r : 0), 0);
-// the branch of the fork you hold points in (null: none yet)
-export const heldBranch = (skills) => Object.keys(skills ?? {}).map((id) => SKILLS[id]?.branch).find(Boolean) ?? null;
 // can class cls use skill id at all?
 export const skillFor = (cls, id) => {
   const sk = SKILLS[id];
@@ -607,8 +608,6 @@ export function cantLearn(c, id) {
   if (sk.cls === 'any' && cls === 'novice') return `Choose a class first (at Lv ${CLASS_LVL}, at the Rebirth Pool by Elder Mochi)`;
   if (!skillFor(cls, id)) return `That's ${aOrAn(CLASSES[sk.cls].name)} skill`;
   if (c.lvl < sk.adv) return `Opens at Lv ${sk.adv}`;
-  const held = heldBranch(c.skills);
-  if (sk.branch && held && held !== sk.branch) return `Take your ${branchOf(held).name} points back first`;
   const left = spLeft(c)[poolOf(id) === 'novice' ? 'novice' : 'cls'];
   if (left <= 0) return poolOf(id) === 'novice' ? 'No Novice points left (one a level up to Lv 9)' : 'No class points left (more come as you level)';
   return null;
@@ -620,12 +619,11 @@ export function cantUnlearn(c, id) {
   return null;
 }
 // The skills c may keep (on loading a save): the ones its class can use and its level has opened, while
-// the points add up and the fork holds; anything else and they all come back as points ({})
+// the points add up; anything else and they all come back as points ({})
 export function cleanSkills(c) {
   const s = Object.fromEntries(Object.entries(c.skills ?? {}).filter(([id, n]) => skillFor(c.cls, id) && n > 0 && c.lvl >= SKILLS[id].adv).map(([id, n]) => [id, Math.min(n | 0, SKILLS[id].max)]).filter(([, n]) => n > 0));
-  const branches = new Set(Object.keys(s).map((id) => SKILLS[id].branch).filter(Boolean));
   const left = spLeft({ ...c, skills: s });
-  return branches.size > 1 || left.novice < 0 || left.cls < 0 ? {} : s;
+  return left.novice < 0 || left.cls < 0 ? {} : s;
 }
 // Can class cls hold weapon item id? (a Novice: anything)
 export const weaponOk = (cls, id) => !id || !CLASSES[cls]?.weapon || ITEMS[id]?.kind === CLASSES[cls].weapon;

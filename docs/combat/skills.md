@@ -69,7 +69,8 @@ with its section below. Next for classes: S5's party mechanics (`story/s5-plan.m
   skill, so the Knight's point budget didn't move); **Berserker** (Whirlwind, Berserk, then Sword Mastery, Blade Storm, Sky Splitter).
   Against a boss's armour (S5.2) heavy hits crack it: any hit whose multiplier reaches `ARMOUR_CRACK` (Power
   Strike, Sky Splitter) and Blade Storm (`crack: true`, its hits are small but many); `hitKinds` decides.
-- **Mage**: basics at Lv 10 (Magic Bolt, Mana Flow, Arcane Mind, Mana Shield: a toggle (owner,
+- **Mage**: basics at Lv 10 (Magic Bolt, Mana Flow, Arcane Mind (opens at Lv 15: with two points a level a Lv 12 Mage
+  holding it soloed the Bramble Behemoth too fast for `CLASS_FIT`), Mana Shield: a toggle (owner,
   2026-10-24; it was a 60 s buff): while it's on, a share of the damage you take comes off MP instead. Cast
   it again to turn it off; it costs no MP, `toggle` on the skill, `c.shield` on the saved character (so it
   survives a relog or a deploy; a rebirth or Reset all turns it off), and its hotbar slot glows blue while on; Arcane Charge, below); **Elementalist** (Fireball: a bolt that bursts where it lands; then
@@ -85,23 +86,26 @@ with its section below. Next for classes: S5's party mechanics (`story/s5-plan.m
 - **Advancements gate by level, not points**: a skill can be learned from its `adv` (Novice 1; class 10,
   30, 60, 100; Mobility: Dash and Flash Jump 10, Blink 30, Phantom Step 60). Reaching one sends
   `{t:'advance', lvl, text}` (`ADVANCEMENTS`, `advanceText`): a toast and a chat line for now.
-- **The fork**: points sit in one branch at a time; learning in the other is refused ("Take your Knight
+- **No fork any more** (owner, 2026-10-24: "forget about branch locking ... the limiting factor will be their
+  hotbar slots"): both branches can be learned at once; the branches are only how the tree is laid out. What
+  you bring to a fight is what fits on the hotbar (`HOTBAR`, and its two setups). Before that, points sat in
+  one branch at a time ("Take your Knight
   points back first", free). Basics and Mobility have no branch.
 - **Points, two counts** so the Novice tree can't eat class points: `spNovice` (one a level to
-  `SP_NOVICE_LVL`) and `spClass` (from `CLASS_LVL`: `SP_CLASS_START`, then one every `SP_EVERY_EARLY` levels
-  to Lv 60, one every `SP_EVERY_LATE` to `SP_CAP_LVL`, plus `SP_ADV_BONUS` at each later advancement).
-  Sized so you fill one branch and some of Mobility, never everything. Mobility takes class points, so a
-  Novice can't learn it; a Novice's class points pile up unspent. `me.sp` is what you can spend now
+  `SP_NOVICE_LVL`) and `spClass(c)`: `SP_PER_LVL` a level from `CLASS_LVL` (owner, 2026-10-24: "2 points per
+  level"; it was one every three), never more than `spRoom(c)`, the ranks of every class skill and Mobility
+  skill your level has opened, so points never pile up past what you can spend. In practice you can hold
+  everything that's open soon after each advancement. Mobility takes class points, so a Novice can't learn
+  it; a Novice's class points pile up unspent (no cap until it has a class). `me.sp` is what you can spend now
   (`spFree`), `me.spLeft` both counts.
 - `cantLearn(c, id)` / `cantUnlearn(c, id)` take the character (`{lvl, cls, skills}`), not its parts;
-  `cleanSkills(c)` is what `load()` keeps (the class's skills, opened by the level, adding up, one branch;
+  `cleanSkills(c)` is what `load()` keeps (the class's skills, opened by the level, adding up;
   otherwise every point back).
 - **The K panel** (K / the Skills button, `src/skilltree.js`) is a node tree in three tabs: **Novice**,
-  **your class** and **Mobility**. The class tab shows the basics on top, then the fork as two columns
+  **your class** and **Mobility**. The class tab shows the basics on top, then the two branches as columns
   (branch names and blurbs from `CLASSES[cls].branches`), a row per advancement past the basics (from
   `ADVANCEMENTS`), nodes joined by lines (CSS lines: a spine per column, a line through each row, an arch
-  where the basics split). The branch you hold (`heldBranch`) is bright; the other is dimmed with "Take
-  your points back to switch". A node is the round skill icon (`drawSkillIcon`, cropped to a circle) with a
+  where the basics split). A branch with points in it is bright (`held`); nothing is dimmed or locked. A node is the round skill icon (`drawSkillIcon`, cropped to a circle) with a
   `2/3` rank badge, a small + when a point can go in, a gold ring when maxed. Rows the level hasn't opened
   are greyed and labelled "opens at Lv 60".
 - **A Novice** sees a "Classes" tab instead: "Choose a class at Lv 10 at the Rebirth Pool" with a switch

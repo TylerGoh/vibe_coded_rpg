@@ -169,7 +169,9 @@ Lv 10, ~224k at Lv 60, ~440k at Lv 100, ~735k at Lv 150.
 schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what moved.
 - **The builds.** Each branch (Knight, Berserker, Elementalist, Frostbinder, Priest, Warden, Sniper, Trapper) at `CLASS_AT` levels. Points go
   in the order `BUILDS` gives (an id fills to its max, `[id, n]` to n), spent through `cantLearn`, so the
-  game's own rules hold: `spNovice` / `spClass`, the `adv` gates, one branch; Novice points fill the Novice
+  game's own rules hold: `spNovice` / `spClass`, the `adv` gates; then every passive of the class the build doesn't list (both branches: no fork since
+  2026-10-24, and a passive takes no hotbar slot; the other branch's actives stay out, since the hotbar is the
+  limit); Novice points fill the Novice
   tree (`NOVICE_ORDER`). AP: the class's main stat, with `AP_LUK` of it in LUK. Gear on the frozen curve: the
   weapon's ATK (a staff's MAGIC, as S1 did; a bow's ATK) on the sword curve, its reach from the nearest real weapon, a
   staff's MP at the real staves' median MP/MAGIC; the helmet on the helmet curve; no scrolls or brews.

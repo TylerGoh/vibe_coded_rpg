@@ -49,7 +49,9 @@ Mage and Cleric share the staff (owner); a Cleric shows a halo, a Mage a sparkle
 | Cleric | staying alive, helping others, summons | burst damage: kills slowest | can't really die: heals and shields itself while its summons hold the boss and Smite chips away |
 
 - **The Cleric solos on sustain:** it takes longer, it never loses.
-- **Both branches of every class can solo.** A fork changes how you win, never whether you can.
+- **Both branches of every class can solo.** A branch changes how you win, never whether you can. (Since
+  2026-10-24 there's no fork lock: owner, "forget about branch locking"; you can learn both and the hotbar's
+  few slots are what you choose between.)
 - **Every class carries an answer to every boss mechanic**, even a poor one (section 6), and **brewed
   potions** give everyone a backup (a Cleansing Tonic for curses, a Barrier Draught for pulses:
   `docs/places/alchemy.md`, to build in S5).
@@ -119,13 +121,13 @@ badly (potions, running, a much longer fight).
 |---|---|---|
 | Novice | Lv 1 | the Novice tree and Mobility |
 | 1st: the class | Lv 10 (at the Rebirth Pool, free) | the class's basic skills |
-| 2nd | Lv 30 | the **fork**: one of two branches |
+| 2nd | Lv 30 | the **branches**: two of them, both learnable (no lock since 2026-10-24) |
 | 3rd | Lv 60 | the branch's middle tier |
 | 4th | Lv 100 | the branch's capstone skill |
 | 5th | Lv 150 | mastery nodes: passives that change how skills behave (S6) |
 
-**No quests** (owner): an advancement opens at its level with a banner. The point schedule is sized so a
-character fills its branch and some of Mobility, never everything (`spClass`, `SP_CAP_LVL`).
+**No quests** (owner): an advancement opens at its level with a banner. The point schedule (owner, 2026-10-24): two points a level, capped at what's open (`spClass`,
+`spRoom`), so you can hold everything open and the hotbar is the limit.
 
 ### 8. Levelling past the content (S6)
 Built (S0): the over-level EXP falloff and the per-player boss reward window (`BOSS_WINDOW_MS`,

@@ -1,13 +1,13 @@
 // Docs: docs/combat/skills.md
 // The skill tree (K, or the Skills button): a node tree in three tabs, Novice, your class and Mobility.
-// The class tab shows the basics on top, then the fork as two columns (one per branch) with a row per
+// The class tab shows the basics on top, then the two branches as columns (one per branch) with a row per
 // advancement, nodes joined by lines. A Novice sees both classes' trees greyed, to look ahead. Clicking a
 // node opens its card under the tree: + spends a point, − takes one back, Hotbar puts an active skill on
 // keys 1–6. "Reset all" refunds everything for free, so nobody gets stuck with a build.
 // Rules: src/shared/skills.js. On phones the card sits in the scroll after the tree (docs/ui/mobile.md).
 import { drawSkillIcon } from './skillfx.js';
 import { audio } from './audio.js';
-import { TREES, SKILLS, ACTIVE, giftsOf, CLASSES, CLASS_LVL, ADVANCEMENTS, rankOf, cantLearn, cantUnlearn, pointsIn, branchPoints, heldBranch, cooldownOf, branchOf, spLeft, spFree } from './shared/skills.js';
+import { TREES, SKILLS, ACTIVE, giftsOf, CLASSES, CLASS_LVL, ADVANCEMENTS, rankOf, cantLearn, cantUnlearn, pointsIn, branchPoints, cooldownOf, branchOf, spLeft, spFree } from './shared/skills.js';
 
 const el = (tag, cls, text) => {
   const e = document.createElement(tag);
@@ -16,7 +16,7 @@ const el = (tag, cls, text) => {
   return e;
 };
 const skillsOf = (tree, pred = () => true) => Object.keys(SKILLS).filter((id) => SKILLS[id].tree === tree && pred(SKILLS[id]));
-const ADV_NAMES = { 30: 'the fork', 60: '3rd advancement', 100: '4th advancement' };
+const ADV_NAMES = { 30: 'the branches', 60: '3rd advancement', 100: '4th advancement' };
 
 export class SkillTree {
   constructor({ rpg, send, onOpenChange }) {
@@ -163,7 +163,7 @@ export class SkillTree {
     const next = ADVANCEMENTS.find((a) => a.lvl > m.lvl);
     document.getElementById('skills-next').textContent = `MP ${Math.floor(m.mp)} / ${m.maxMp} · ` + (novice
       ? (m.lvl < CLASS_LVL ? `Next: Lv ${CLASS_LVL}, choose a class` : 'Your class is waiting at the Rebirth Pool')
-      : next ? `Next: Lv ${next.lvl}, ${ADV_NAMES[next.lvl] ?? next.name}${next.lvl === 30 ? ` (${CLASSES[cls].branches.map((b) => b.name).join(' or ')})` : ''}` : 'Every advancement is open');
+      : next ? `Next: Lv ${next.lvl}, ${ADV_NAMES[next.lvl] ?? next.name}${next.lvl === 30 ? ` (${CLASSES[cls].branches.map((b) => b.name).join(' and ')})` : ''}` : 'Every advancement is open');
     // a Novice past CLASS_LVL: class points are piling up
     const remind = document.getElementById('skills-remind');
     remind.hidden = !(novice && m.lvl >= CLASS_LVL);
@@ -256,24 +256,19 @@ export class SkillTree {
       const top = this.cell(m, CLASS_LVL, basics, `Lv ${CLASS_LVL} · ${C.name} basics`, novice);
       top.classList.add('from', 'basics');
       body.append(top, el('div', 'skt-fork'));
-      // the fork: a column per branch, a row per advancement past the basics
+      // the branches: a column per branch, a row per advancement past the basics
       const grid = el('div', 'skt-grid');
-      const held = heldBranch(m.skills);
       const rows = ADVANCEMENTS.map((a) => a.lvl).filter((lv) => lv > CLASS_LVL);
       C.branches.forEach((br, ci) => {
-        const dim = !novice && held && held !== br.id;
-        const head = el('div', 'skt-branch' + (dim ? ' dim' : '') + (held === br.id ? ' held' : ''));
+        const head = el('div', 'skt-branch' + (!novice && branchPoints(m.skills, br.id) ? ' held' : ''));
         head.style.gridColumn = String(ci + 1);
         head.style.gridRow = '1';
         head.append(el('b', null, `${br.name} · ${branchPoints(m.skills, br.id)} pts`), el('span', null, br.blurb));
-        if (dim) head.append(el('em', null, 'Take your points back to switch'));
-        else if (!novice && !held && m.lvl >= rows[0]) head.append(el('em', null, 'Points go in one branch at a time'));
         grid.append(head);
         rows.forEach((lv, ri) => {
           const ids = skillsOf(k, (s) => s.branch === br.id && s.adv === lv);
           shown.push(...ids);
           const c = this.cell(m, lv, ids, undefined, novice);
-          if (dim) c.classList.add('dim');
           if (ri === rows.length - 1) c.classList.add('to');
           c.style.gridColumn = String(ci + 1);
           c.style.gridRow = String(ri + 2);

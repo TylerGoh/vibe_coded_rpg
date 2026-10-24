@@ -283,7 +283,10 @@ function classChar(branch, L) {
   const b = BUILDS[branch], cls = CLASSES[b.cls];
   gearAt(L, cls.weapon);
   const c = { lvl: L, cls: b.cls, skills: {}, gear: { weapon: SHEET_W, helmet: SHEET_H } };
-  for (const e of [...NOVICE_ORDER, ...b.order]) {
+  // no fork since 2026-10-24: the build's own actives (the hotbar holds only HOTBAR of them), then every passive
+  // of the class it doesn't list yet, both branches (a passive takes no slot)
+  const passives = Object.keys(SKILLS).filter((id) => SKILLS[id].cls === b.cls && SKILLS[id].kind === 'passive' && !b.order.some((e) => (Array.isArray(e) ? e[0] : e) === id));
+  for (const e of [...NOVICE_ORDER, ...b.order, ...passives]) {
     const [id, cap] = Array.isArray(e) ? e : [e, SKILLS[e].max];
     while (rankOf(c.skills, id) < cap && !cantLearn(c, id)) c.skills[id] = rankOf(c.skills, id) + 1;
   }
