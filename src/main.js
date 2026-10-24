@@ -1638,7 +1638,12 @@ function frame(now) {
   last = now;
   gfx.sample(gap / 1000);
   const t0 = performance.now();
-  update(dt);
+  if (speed > 1) {
+    // TEST_SPEED test servers only: a sped-up frame is several 1/30 s animation steps, so every client
+    // clock (rpg.time, cooldowns, phase timers) keeps pace with the server instead of being held by the cap
+    const n = Math.ceil(dt * 30);
+    for (let i = 0; i < n; i++) update(dt / n);
+  } else update(dt);
   const t1 = performance.now();
   render();
   const t2 = performance.now();

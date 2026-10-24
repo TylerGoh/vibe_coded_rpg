@@ -26,11 +26,10 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
   (and hold keys N× shorter). The `#debug` fps readout reads N× low (it uses the sped-up clock). Up to ~10×
   works on this box; past that the server or a busy browser can fall behind (ticks just stop scaling).
   Date.now runs ahead of real time, so timestamps saved in the test DB (pets, crops) end up in the future:
-  use a copy of the DB. **The client's own clock falls behind past ~2×**: `rpg.time` adds the frame's dt, which
-  the animation cap holds at 1/30 s, so client-side cooldowns run slow (a headless player attacks and casts far
-  less often than at real speed: S5.3's bots fought ~4× slower at 10×) and phase timers the server sends as "ms
-  left" (a boss's barrier, weak point, stagger) end early on the client. Measure fight lengths and hit
-  prediction at `TEST_SPEED=1`; use high speeds for server-side timing and waiting.
+  use a copy of the DB. A sped-up client runs each frame as several animation steps of at most 1/30 s (`frame` in
+  `src/main.js`), so its clocks (`rpg.time`, cooldowns, the phase timers the server sends as "ms left") keep pace
+  with the server: measured, `rpg.time` gains 10 s a real second at 10×. (Before that fix the animation cap held the
+  client to ~2×: S5.3's bots fought ~4× slower at 10× and boss phases ended early on the client.)
 - Several headless players at once need **one browser each** (`launch({ game, cdp: <its own port> })` before each
   `page()`): background tabs stop running their frames. Drive them in-page (a `setInterval` dispatching
   `KeyboardEvent`s on `window`) rather than with `key()`, which only reaches the focused page.

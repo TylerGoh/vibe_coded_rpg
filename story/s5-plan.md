@@ -1,8 +1,8 @@
 # S5, split into pieces (sub-plan for agents)
 
 **Status (2026-10-24): S5.1 and S5.2 are LIVE (deploy #1, e1df118, shipped dark); S5.5 (potions, loot check) and S5.3
-(the party dens switched on and tuned) are LIVE too. Next: S5.4. Test faster with `TEST_SPEED=10`, but measure fight
-lengths at real speed (`docs/testing.md`).** S5 in `progression.md` ("bosses that need a party",
+(the party dens switched on and tuned) are LIVE too. Next: S5.4. Test faster with `TEST_SPEED=10` (fight
+lengths too, since the client clock fix: `docs/testing.md`).** S5 in `progression.md` ("bosses that need a party",
 section 6) is too big for one session, so it's cut into five pieces, each sized for one agent. Read
 `progression.md` sections 1b and 6 first: they hold the design and the owner's rules. This file pins down what
 that plan left open and says who does what. Numbers here are starting points: they live as named constants
