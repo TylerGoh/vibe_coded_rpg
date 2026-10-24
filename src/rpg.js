@@ -281,7 +281,7 @@ export class Rpg {
     if (this.bowOf(this.me)) return this.bowShot(me, dir, mult);
     const [v] = this.ahead(me, dir, SLAP_REACH + (this.swordOf(this.me)?.reach ?? 0));
     if (!v) return [];
-    const cut = this.shellCut(v, me.x), [pm, weak] = this.party.mod(v, { heavy: heavyHit(mult) }, me.y); // (S5.2: a boss's barrier, armour, weak point, stagger)
+    const cut = this.shellCut(v, me.x), [pm, weak] = this.party.mod(v, { heavy: heavyHit(mult) }, me.y, me.x); // (S5.2: a boss's barrier, armour, weak point, stagger)
     let [dmg, crit] = this.roll(this.me.atk, mult * this.markOn(v));
     dmg = Math.max(1, Math.round(dmg * cut * pm));
     this.blocked(v, cut);
@@ -311,7 +311,7 @@ export class Rpg {
     if (!m || !rank || !isCombat(this.room)) return;
     const msg = { t: 'skill', skill: id, dir: me.facing, s: seq, hits: [] }, sx = me.x;
     for (const v of id === 'leap_slam' ? this.around(me.x, me.y, sk.radius) : this.above(me, sk.reach)) {
-      const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { heavy: heavyHit(sk.mult(rank)) }, me.y);
+      const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { heavy: heavyHit(sk.mult(rank)) }, me.y, sx);
       let [dmg, crit] = this.roll(m.atk, sk.mult(rank) * this.markOn(v));
       dmg = Math.max(1, Math.round(dmg * cut * pm));
       this.blocked(v, cut);
@@ -351,7 +351,7 @@ export class Rpg {
     const dur = Math.abs(tx - sx) / BOW_SHOT_SPEED + 0.03;
     this.fx.spawn('arrow', { x: sx + dir * 30, y: sy - 13, tx, ty, dur, hit: !!v, tint: bowTint(m.gear.weapon) });
     if (!v) return [];
-    const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { arrow: true }, sy);
+    const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { arrow: true }, sy, sx);
     let [dmg, crit] = this.roll(m.atk, BOW_SHOT_MULT * mult * arrowBonus(m.skills, null, this.slowed(v), 0) * this.markOn(v));
     dmg = Math.max(1, Math.round(dmg * cut * pm));
     if (rankOf(m.skills, 'barbed_arrows')) v.slowLocal = this.time + dur + 1;
@@ -385,7 +385,7 @@ export class Rpg {
     this.fx.spawn(holy ? 'holybolt' : 'staffbolt', { x: sx + dir * 18, y: sy - 10, tx, ty, dur, hit: !!v, tint: staffGlow(m.gear.weapon) });
     if (!v) return [];
     if (!holy && rankOf(m.skills, 'arcane_charge')) this.arcane = { n: Math.min(ARCANE_MAX, this.charges() + 1), at: this.time, until: this.time + ARCANE_DUR }; // (the server counts it too: attack)
-    const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { magic: true }, sy);
+    const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { magic: true }, sy, sx);
     let [dmg, crit] = this.roll(m.magic, (holy ? HOLY_BOLT_MULT : STAFF_BOLT_MULT) * this.markOn(v));
     dmg = Math.max(1, Math.round(dmg * cut * pm));
     setTimeout(() => {
@@ -494,7 +494,7 @@ export class Rpg {
     const hit = (v, base, delay = 0, extra = 1) => {
       const cut = this.shellCut(v, sx);
       const shatter = sk.el === 'fire' && !!v.frozen; // fire on a frozen mob (the Mage's combos)
-      const [pm, weak] = this.party.mod(v, { ...kinds, heavy: kinds.heavy || shatter }, sy);
+      const [pm, weak] = this.party.mod(v, { ...kinds, heavy: kinds.heavy || shatter }, sy, sx);
       let [dmg, crit] = this.roll(base, mult * extra * this.markOn(v) * (shatter ? SHATTER_MULT : 1));
       dmg = Math.max(1, Math.round(dmg * cut * pm));
       if (!delay) this.blocked(v, cut);

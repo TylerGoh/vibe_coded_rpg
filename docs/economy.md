@@ -192,6 +192,17 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
 - **Time to solo each den** at the den's own level (dens under `CLASS_LVL` are the Novices' and left out):
   the real boss's HP and ATK, a hit every `BOSS_HIT_EVERY` by class (most often for a Warrior up close, least
   for a Mage, a Cleric or an Archer at range), potions drunk (the biggest shop potion that fits) and their gold, against what the kill pays.
+- **Party dens** (S5.3; `isPartyDen`: `partyDen` + `partyLive`, the Root Warden and Sigrun) are left out of the solo
+  table and checks and get their own, **PARTY DENS**: each branch alone against the boss's mechanics as a lone slime
+  meets them (pulse, barrier, weak point: `fight`'s `mech`; adds, focus and ultimates left out), its HP from
+  `bossMaxHp` (never under `PARTY_DEN_HP_FLOOR` slimes' worth), next to the same fight without them; and a mixed
+  party of `PARTY_TEAM` (each member's own run with the boss's hits shared out, the others' spells wearing the
+  barrier and the arrows filling the weak point: `help`; the Knight in front of a front-only barrier, the rest
+  behind it `PARTY_BEHIND` of the time; alone, `SOLO_BEHIND` and `WEAK_JUMP`). Checks: the party's time within
+  `PARTY_DEN_MIN` sim minutes, the solo median at least `PARTY_DEN_SOLO` × that, at least one branch can finish it
+  alone (never locked), nobody in the party faints. Owner's targets (`story/s5-plan.md`): a mixed party wins in a few
+  minutes; alone only by playing very well for much longer. The sim plays faster than people do (ordinary dens'
+  solo kills come out at 1.5–3 min here and are "a few minutes" in play).
 - **The shape table**: each class ÷ the other classes' mean, per column (mean of each class's branches).
 - **Checks.** Every branch can solo every den: never faints, and its potions cost at most
   `SOLO_POTION_SHARE` of what the kill pays. Every branch's solo time within `CLASS_FIT` of the median of all
@@ -274,6 +285,16 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   boss, gold, EXP or curve number, and no Warrior, Mage or Cleric row (the solo table's median now counts eight
   branches). The new sinks are the bows, each at its twin sword's price (Pip's starters, one at each branch
   trader); a drop that used to be a sword or a staff can now be a bow, worth the same.
+- **The party dens (S5.3, 2026-10-24).** Switching the Root Warden's and Sigrun's mechanics on barely slowed a lone
+  slime in the sim (the Mage got faster: it breaks the barrier and the stagger pays it back), and a party of four
+  killed them in under 1:30, so a party den's HP was reshaped instead: never under `PARTY_DEN_HP_FLOOR` (4)
+  slimes' worth (`bossMaxHp`, like the final bosses' "four is the floor"), and its base `hp` raised (the Warden
+  440k → 600k, Sigrun 760k → 1.05M; EXP, gold and drops unchanged). Now: a mixed party of four 2:00 / 1:56 in the
+  sim; alone, median 8:53 / 8:19 (4.4× / 4.3× the party), the Elementalist fastest (~6 min: it's the barrier's
+  answer), the Frostbinder fainting at ~2:13 on both (the pulse on 760 HP with potions only; a player who dodges
+  better than the sim's hit every 3.5 s gets through), the Trapper fainting on the Warden. Kill pays per minute
+  falls for a lone slime, which is the point. Nothing else moved: the two rows left the solo table (and its
+  `CLASS_FIT` check) for the PARTY DENS table, and only their HP changed in FAUCETS.
 
 ## The potions and the loot check (S5.5, 2026-10-24)
 The Cleansing Tonic and the Barrier Draught are brews, priced like the others: a batch's ingredients (a

@@ -49,9 +49,20 @@ Warden: only her line says so).
   heaving along the seam (**grid**, `looks.grid: 'seam'`) and summons (rimeguards); phase 3 adds echo,
   barrage and leap. Her ultimate **Close the Seam** is the shared `wave` ult drawn as new ice racing along
   the floor (`iceMass` in `src/dens.js`, theme `oath`): jump it.
-- **Built for the party mechanics** (`story/progression.md`, S5): `party` names focus, barrier (her shield
-  turns blades from the front), pulse, weakpoint (the shard set in her shield's boss, already drawn) and adds;
-  nothing reads it yet.
+- **The party mechanics** (S5.3, `docs/combat/bosses.md`): focus, pulse, adds (more rimeguards for a bigger
+  party), the interrupt (freeze Close the Seam), and two that only face front: her **barrier is her shield**
+  (`barrierFront`: a curved wall of ice off her front, `looks.dome: 'ice'`; hits from behind land in full, and
+  while it's up she plants her feet and turns to her target only `BARRIER_TURN_S` after they got behind her: the
+  focused slime, ideally a Knight who Rallied it, holds her front while the rest flank; a Mage's spells on the
+  shield break it) and her **weak point is the shard in her shield's boss** (`weak.front`, low enough to hit from
+  the floor, but only from in front). All but the focus are on alone too, and her HP is never under a party of
+  four's (`PARTY_DEN_HP_FLOOR`); `hp` was raised to 1.05M. Her first barrier gets her line ("My shield is up.
+  Nothing passes it from the front. Nothing ever has.").
+- Tested (2026-10-24, headless bots, `TEST_GOD`): at real speed a Lv 100 Knight in front and a Sniper flanking,
+  then a Lv 102 Frostbinder alone (3:32) and Berserker alone (5:12), at the old 760k base: 1,220 hits logged
+  through the cap with none clipped, the flank's hits landing in full during the shield and the front's cut. The
+  sim (PARTY DENS) puts a mixed party of four at 1:56 and a lone slime at ~8 min (median). A phone screenshot
+  showed her shield's shard and the hint. Nobody has fought it for real yet.
 - The den: the middle of the bridge at dusk, high over the strait, the balustrade snapped near the seam, the
   seam itself glowing in the floor at the far end; the name on a pale blue pennant with a crown.
 - Loot: the Shield-Oath Spear (a sword; its twin the Shield-Oath Staff) and Sigrun's Helm, on the frozen

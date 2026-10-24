@@ -1395,8 +1395,11 @@ function drawHints() {
     // S5.5: cursed, no Cleanse of your own to cast, a Cleansing Tonic on the potion bar and off cooldown
     const tonic = mineR?.potbar?.indexOf('cleansing_tonic') ?? -1;
     if (!cTo && mineR?.curse?.n > 0 && tonic >= 0 && rpg.cureLeft() <= 0 && mineR.bag.some((b) => b.id === 'cleansing_tonic')) acts.push({ key: String(HOTBAR + tonic + 1), label: 'drink a Cleansing Tonic' });
-    const wk = rpg.party.weakOpen();
-    if (wk && !rpg.bowOf(mineR) && me.grounded && Math.abs(wk.v.x - me.x) < 260) acts.push({ key: 'Space', label: 'jump and hit the glowing weak point' });
+    const wk = rpg.party.weakOpen(), wkHigh = wk && wk.v.y - wk.spot.y > 110; // (Sigrun's sits in her shield, low enough to hit from the floor)
+    if (wk && wkHigh && !rpg.bowOf(mineR) && me.grounded && Math.abs(wk.v.x - me.x) < 260) acts.push({ key: 'Space', label: 'jump and hit the glowing weak point' });
+    // S5.3: a front-only barrier (Sigrun's shield) facing you: get round behind it (a Mage's spells break it instead)
+    const fs = rpg.party.frontShield();
+    if (fs && Math.abs(fs.x - me.x) < 420 && Math.sign(me.x - fs.x) === fs.facing && mineR?.cls !== 'mage') acts.push({ key: rankOf(mineR?.skills, 'dash') ? 'Shift' : '←→', label: 'get round behind her shield' });
   }
   if (me.grounded && me.onPlat) acts.push({ key: '↓', label: room === PIANO ? 'drop off the black key' : 'drop down' });
   drawPrompts(ctx, mine.x, mine.y - mine.h - 30, acts, camX, time, TOUCH);

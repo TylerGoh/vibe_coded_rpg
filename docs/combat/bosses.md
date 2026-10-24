@@ -52,9 +52,25 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
   anything off). Owner's gates (2026-10-24): den and field bosses every mechanic at 2 fighters, `interrupt` always
   on; party dens everything from 1 but `focus`. `partyAll` on a boss (the final bosses, `story/final-bosses.md`)
   switches every one on from the first slime; their HP floor and enrage aren't built.
-- **It ships dark.** Nothing switches on unless the boss also has `partyLive` (S5.3 gives it to the party dens,
-  S5.4 to the retrofitted bosses, a stage at a time). No real boss has it yet. Tests use `TEST_PARTY`
-  (`docs/testing.md`).
+- **It ships dark.** Nothing switches on unless the boss also has `partyLive` (S5.3 gave it to the party dens,
+  S5.4 gives it to the retrofitted bosses, a stage at a time). Tests use `TEST_PARTY` (`docs/testing.md`).
+- **The party dens (S5.3)**: the Root Warden and Sigrun have `partyLive` with focus, pulse, barrier, weak point,
+  adds and the interrupt (added here: the Frostbinder's payoff), all but the focus on from the first slime. Their
+  HP is never under `PARTY_DEN_HP_FLOOR` slimes' worth (`bossMaxHp`, shared: spawn and the den's growth in
+  `bossBrain`), so a lone slime faces a party's HP and every mechanic; the barrier's and weak point's HP stay shares
+  of the plain `hp`. Each has a `lines.shield`, said the first time its barrier goes up in a fight (`saidShield`).
+  `looks.dome` tints the barrier (`keeper`: amber with little gears; `ice`). Tuning and tests: their place docs and
+  the PARTY DENS table in `npm run economy` (`docs/economy.md`).
+- **Front-only mechanics (S5.3, Sigrun)**: `barrierFront` on a boss makes its barrier cover only the side it
+  faces (`barrierCovers`, shared like the Obsidian Crab's shell cut): a hit from behind does full damage, and only
+  hits on it wear it down (`onShield` in `partyHit`). `weak.front` puts the weak point on its front (`weakFaces`).
+  The client passes the hitter's x to `Party.mod`; the server is generous for 400 ms after the boss turns round
+  (`dirAt`) and within 24 px of its middle. While a front-only barrier is up the boss plants its feet in
+  `bossBrain` and turns to its target only `BARRIER_TURN_S` after they got behind it (`behindSince`), so a party
+  flanks while whoever has the focus holds the front, and a lone slime dodges round and hits before it turns. Drawn
+  as a curved wall of ice off its front (`drawFrontWall`).
+- **adds (S5.3)**: a summon brings `ADDS_PER_FIGHTER` more minions for each slime past the first, and one more may
+  stand at once for each, up to `ADDS_MAX` (`addsCap`); alone a wave is what it always was.
 - **The engine**: `partyTick(m, k, here, t)` runs from `stepMob` for every den and field boss with a `party`, before
   its targeting. It works out the bits (`PARTY_MECHS` order, `partyBit`) and sends `{t:'party', id, on, f, fl}` to
   the room when they change and every 2 s while any is on (for anyone walking in); the client (`src/party.js`,
@@ -109,10 +125,11 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
   party-scaled max, so one Mage breaks it in a few seconds in any party). The armour (a shell of plates) cuts every
   hit that isn't heavy to `ARMOUR_CUT`; a heavy hit does full damage and cracks it (one crack a cast, `crack`
   events), and `ARMOUR_CRACKS` cracks break it. Both drop by themselves when the time runs out (`shieldDrop`), no
-  stagger. Sigrun's front-only barrier is S5.3's.
+  stagger. Sigrun's covers only her front (below).
 - **weakpoint**: every `WEAK_EVERY` s a glowing crystal opens high on the boss for `WEAK_OPEN_S` (`WEAK_MARK_S` while
   Hunter's Mark is on it). Where: `weak: { dx, dy, r }` on the boss (shares of its width and height from its feet,
-  dx toward the way it faces); `weakOf` has a default for bosses without one (S5.3 / S5.4 place each boss's). A hit
+  dx toward the way it faces; `front: true`: only hit from in front); `weakOf` has a default for bosses without one
+  (the Warden's and Sigrun's are placed; S5.4 places the rest). A hit
   the client sees reach it carries `h[4] = 1` and does `WEAK_MULT`; the server takes it only while it's open and the
   hitter could reach it (`weakReach`: any arrow, from anywhere in range; anything else needs the hitter's body
   within `WEAK_REACH` of the spot's height: a jump, a ledge, Upward Cut, Flash Jump). Hits on it fill `WEAK_HP` of

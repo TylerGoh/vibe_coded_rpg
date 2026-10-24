@@ -12,7 +12,7 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX } from '../src/shared/rpg.js';
 import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen } from '../src/shared/sim.js';
@@ -97,7 +97,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   const now = () => Date.now();
 
   function spawn(m) {
-    const k = MOBS[m.sp.kind], hp = Math.round(k.hp * (k.boss || k.field ? TEST_BOSS_HP : 1));
+    const k = MOBS[m.sp.kind], hp = Math.round(k.boss || k.field ? bossMaxHp(k, 1) * TEST_BOSS_HP : k.hp); // (a party den: a party's worth from the start)
     return Object.assign(m, {
       kind: m.sp.kind, room: m.sp.room, x: m.den ? DEN_W * 0.7 : rand(m.sp.x0, m.sp.x1), y: m.sp.y, vx: 0, vy: 0, dir: -1, walk: 0, hp, maxHp: hp, fighters: 1,
       wander: rand(0.5, 2), target: null, targetUntil: 0, dead: false, respawnAt: 0, hitters: new Map(), hist: [], slowUntil: 0,
@@ -122,6 +122,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       // its way { x, at }, the shield phase { kind: 'barrier' | 'armour', from (after its warning), until, hp, max,
       // cracks } and when the next comes, the weak point { until, fill, max } and when it next opens
       staggerUntil: 0, staggerQueued: false, curseAt: 0, curseSigil: null, shield: null, shieldNext: 0, shieldLast: null, weak: null, weakNext: 0,
+      // S5.3: when it last turned round (the front-only barrier's grace), whether it's said its barrier line, and how
+      // long its target has been behind its front-only barrier
+      dirWas: -1, dirAt: 0, saidShield: false, behindSince: 0,
     });
   }
 
@@ -615,13 +618,13 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       const shell = k.ai?.kind === 'shell' && Math.sign(p.state.x - m.x) === m.dir ? 1 - k.ai.cut : 1;
       const shatter = el === 'fire' && !!h[3] && m.frozenUntil > now() - SHATTER_GRACE_MS;
       const marked = m.mark && m.mark.until > now() - SHATTER_GRACE_MS ? 1 + m.mark.boost : 1; // Hunter's Mark (S4): everyone's hits
-      const ps = m.partyOn ? partyHit(m) : null, weak = !!h[4] && !!ps?.weakOpen && weakReach(weakOf(k, m.x, m.y, m.dir), p.state.y, arrow, 40);
+      const ps = m.partyOn ? partyHit(m, p.state.x) : null, weak = !!h[4] && !!ps?.weakOpen && weakReach(weakOf(k, m.x, m.y, m.dir), p.state.y, arrow, 40);
       const pm = ps ? partyHitMult(ps, { magic, heavy: heavy || shatter, weak }) : 1;
       const dmg = Math.max(1, Math.min(Math.round(Number(h[1]) || 0), Math.ceil(cap * shell * marked * cursed * pm * (shatter ? SHATTER_MULT : 1)) + 1));
       if (slow) m.slowUntil = now() + slow * 1000 * (MOBS[m.kind].boss ? 0.5 : 1);
       const hit = damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock);
       if (shatter) hit.push(1);
-      if (ps && !m.dead) partyHitLanded(m, dmg, { magic, heavy: (heavy || shatter) && !cracked.has(m), weak }) && cracked.add(m);
+      if (ps && !m.dead) partyHitLanded(m, dmg, { magic, heavy: (heavy || shatter) && !cracked.has(m), weak, onShield: ps.onShield }) && cracked.add(m);
       if (el && !m.dead) element(m, el, dmg, id, shatter);
       out.push(hit);
     }
@@ -1178,13 +1181,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     gears: 0.5, beam: 0.3, grid: 0.3, sweep: 0.3, bombs: 0.4, blink: 0.3, echo: 0.5,
   };
   const minionsIn = (room) => mobs.filter((q) => q.minion && !q.dead && q.room === room).length;
+  const addsCap = (m) => (partyOn(m, 'adds') ? Math.min(ADDS_MAX, 4 + m.fighters) : 5); // (how many of its minions may stand at once)
   // A boss's attack pattern; returns how fast it wants to walk.
   // Three stages (PHASE_AT): more moves and longer combos as its HP drops; below ULT_FIRST it starts
   // using its ultimate (a one-hit KO unless you stand somewhere safe), then every ULT_EVERY seconds.
   function bossBrain(m, k, here, dt, t) {
     // more slimes in the den: more HP (it never shrinks back mid-fight)
     if (here.length > m.fighters) {
-      const max = Math.round(k.hp * TEST_BOSS_HP * (1 + BOSS_HP_PER_PLAYER * (here.length - 1)));
+      const max = Math.round(bossMaxHp(k, here.length) * TEST_BOSS_HP);
       m.hp += max - m.maxHp;
       m.maxHp = max;
       m.fighters = here.length;
@@ -1229,7 +1233,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       bossEvent(m, 'warn', extra);
     };
     const choose = () => {
-      const list = k.phases[stage].filter((a) => a !== m.last && !(a === 'summon' && minionsIn(m.room) >= 4));
+      const list = k.phases[stage].filter((a) => a !== m.last && !(a === 'summon' && minionsIn(m.room) >= addsCap(m) - 1));
       return pick(list.length ? list : k.phases[stage]);
     };
     if (m.phase === 'walk') {
@@ -1241,6 +1245,15 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       }
       if (!m.target) return 0;
       const dx = m.target.state.x - m.x;
+      // S5.3: behind a front-only barrier (Sigrun's shield) it plants its feet, turning to its target only once
+      // they've been behind it BARRIER_TURN_S
+      if (k.barrierFront && m.shield?.kind === 'barrier' && partyOn(m, 'barrier')) {
+        const side = Math.sign(dx) || m.dir;
+        if (side === m.dir) m.behindSince = 0;
+        else if (!m.behindSince) m.behindSince = t;
+        else if (t - m.behindSince >= BARRIER_TURN_S * 1000) [m.dir, m.vx, m.behindSince] = [side, 0, 0];
+        return 0;
+      }
       return Math.abs(dx) > k.w * 0.4 ? Math.sign(dx) * k.speed * [1, 1.15, 1.35][stage] : 0;
     }
     m.timer -= dt;
@@ -1278,7 +1291,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       } else if (newMove(m, k, here, stage, t)) {
         // (the newer bosses' moves: newMove sets m.timer)
       } else if (m.act === 'summon') {
-        const n = Math.min([2, 2, 3][stage], 5 - minionsIn(m.room));
+        const n = Math.min([2, 2, 3][stage] + (partyOn(m, 'adds') ? Math.round(ADDS_PER_FIGHTER * (m.fighters - 1)) : 0), addsCap(m) - minionsIn(m.room)); // (S5.3: adds)
         for (let i = 0; i < n; i++) {
           const x = Math.max(120, Math.min(DEN_W - 120, m.x + rand(-160, 160)));
           const minion = spawn({ id: nextMob++, sp: { kind: k.minion, x0: 60, x1: DEN_W - 60, y: m.sp.y, room: m.room }, minion: true });
@@ -1533,6 +1546,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const bits = m.dead ? 0 : partyBits(m);
     let dirty = bits !== m.partyOn;
     m.partyOn = bits;
+    if (m.dir !== m.dirWas) [m.dirWas, m.dirAt] = [m.dir, t]; // (when it last turned round: partyHit's front checks)
     // focus: one slime at a time, FOCUS_S each, FOCUS_GAP between (someone else next time if it can)
     if (bits & partyBit('focus')) {
       const f = m.focus;
@@ -1617,6 +1631,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         m.shieldLast = kind;
         m.shieldNext = m.shield.until + (b ? BARRIER_EVERY : ARMOUR_EVERY) * 1000;
         bossEvent(m, 'shieldUp', { kind, dur: warn });
+        if (!m.saidShield) bossSays(m, k.lines?.shield); // (once a fight: S5.3's line about it)
+        m.saidShield = true;
         dirty = true;
       }
     } else if (m.shield || m.shieldNext) {
@@ -1649,19 +1665,26 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     if (dirty || (m.partyDirty && t - m.partySentAt > 150) || (bits && t - m.partySentAt > 2000)) sendParty(m); // (and every 2 s, for anyone who just came in)
   }
-  // S5.2: a boss's party state as the hit cap sees it, a little generous at the edges (the client's view of a phase
-  // starting or ending runs a moment behind): { stag, shield, weakOpen }
-  function partyHit(m) {
-    const t = now(), sh = m.shield;
-    return { stag: m.staggerUntil > t - 300, shield: sh && t >= sh.from + 250 ? sh.kind : null, weakOpen: !!m.weak && t < m.weak.until + 300 };
+  // S5.2: a boss's party state as the hit cap sees it for a hit from fromX, a little generous at the edges (the
+  // client's view of a phase starting or ending, or of the boss turning round, runs a moment behind): { stag, shield,
+  // weakOpen, onShield (the hit struck the barrier: it wears it down) }. S5.3: a front-only barrier (Sigrun's) only
+  // counts from in front, and only once she's faced that way a moment; a front weak point takes a hit from either
+  // side while she's just turned
+  function partyHit(m, fromX) {
+    const t = now(), sh = m.shield, k = MOBS[m.kind];
+    const turned = t - (m.dirAt ?? 0) < 400, near = Math.abs(fromX - m.x) < 24;
+    const covers = barrierCovers(k, m.x, m.dir, fromX) && !(k.barrierFront && (turned || near));
+    const faces = weakFaces(k, m.x, m.dir, fromX) || turned || near;
+    const up = sh && t >= sh.from + 250 ? sh.kind : null;
+    return { stag: m.staggerUntil > t - 300, shield: up === 'barrier' && !covers ? null : up, weakOpen: !!m.weak && t < m.weak.until + 300 && faces, onShield: barrierCovers(k, m.x, m.dir, fromX) };
   }
   // a hit just landed on a boss with its party mechanics on: magic wears a barrier down, a heavy hit cracks armour,
   // a hit on the weak point fills it. Each one, done, staggers it. → true if it cracked the armour
-  function partyHitLanded(m, dmg, { magic, heavy, weak }) {
+  function partyHitLanded(m, dmg, { magic, heavy, weak, onShield = true }) {
     const t = now(), sh = m.shield;
     let cracked = false;
     if (sh && t >= sh.from) {
-      if (sh.kind === 'barrier' && magic) {
+      if (sh.kind === 'barrier' && magic && onShield) {
         sh.hp -= dmg;
         m.partyDirty = true;
         if (sh.hp <= 0) breakShield(m);

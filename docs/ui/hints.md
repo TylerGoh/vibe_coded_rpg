@@ -28,6 +28,10 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
   the sigil, being cursed, a friend cursed when you have Cleanse, the barrier, the armour, the weak point and the
   stagger; an interrupt always toasts who froze the ultimate away. Over the boss, a hit cut by a phase pops
   "WARDED" / "ARMOURED" and one on the weak point "WEAK POINT!" (at most every 0.7 s).
+- S5.3's party dens: while Sigrun's front-only shield is up and you stand on its side (not a Mage), "Shift get round
+  behind her shield" (`←→` without Dash; `rpg.party.frontShield()`); the jump prompt only shows for a weak point too
+  high to hit from the floor (hers is in her shield). Her shield and weak point have their own toasts
+  (`barrierFront`, `weakFront`).
 - `drawHints()` builds the list in the same order the E key acts in. **A new interaction must add its
   line there.** (The old per-object pills were removed in favour of this.)
 - Room-wide actions stay as pills top-right on desktop (H hand, C courses, Q Clio, X/I/K in combat rooms,

@@ -1,8 +1,8 @@
 # S5, split into pieces (sub-plan for agents)
 
-**Status (2026-10-24): S5.1 and S5.2 are built and LIVE (deploy #1, commit e1df118, shipped dark: no real
-boss has `partyLive`). Next: S5.3, not started (a first attempt was stopped before it finished and thrown
-away; start it fresh from the live tree). Test faster with `TEST_SPEED=10` (`docs/testing.md`).** S5 in `progression.md` ("bosses that need a party",
+**Status (2026-10-24): S5.1 and S5.2 are LIVE (deploy #1, e1df118, shipped dark); S5.5 (potions, loot check) and S5.3
+(the party dens switched on and tuned) are LIVE too. Next: S5.4. Test faster with `TEST_SPEED=10`, but measure fight
+lengths at real speed (`docs/testing.md`).** S5 in `progression.md` ("bosses that need a party",
 section 6) is too big for one session, so it's cut into five pieces, each sized for one agent. Read
 `progression.md` sections 1b and 6 first: they hold the design and the owner's rules. This file pins down what
 that plan left open and says who does what. Numbers here are starting points: they live as named constants
@@ -198,7 +198,25 @@ Docs: the S5.1 ones, plus `docs/combat/core.md` (hits on mobs, the cap), the Cle
 - Test: the same test boss with each mechanic in turn, with a Mage, an Archer, a Berserker and a Cleric.
   Record the stagger and the cancelled ult as phone screenshots too.
 
-### S5.3: the party dens
+### S5.3: the party dens (built 2026-10-24)
+**Built** (waiting for deploy #2). What landed, and what S5.4 should know:
+- The Root Warden and Sigrun have `partyLive`, their `weak` (the Warden's shard high on its back; Sigrun's in her
+  shield's boss, `front: true`), a `lines.shield` and `looks.dome`. Both also list `interrupt` now (liberal call:
+  the Frostbinder's payoff; the plan's table names it as a party mechanic).
+- **Sigrun's front-only barrier**: `barrierFront`, `barrierCovers` / `weakFaces` / `inFront` shared, the hitter's x into
+  `Party.mod` and `partyHit`, `BARRIER_TURN_S` (she plants and turns slowly while it's up). Any S5.4 boss can reuse it.
+- **`adds` is built** (it wasn't in S5.2): `ADDS_PER_FIGHTER`, `ADDS_MAX`, `addsCap`. Alone a wave is unchanged.
+- **The HP, a deviation from "nothing extra past the gate"**: the mechanics alone barely slowed a lone slime in the
+  sim (2:25 vs 2:23 on the Warden; the Mage got faster), and a party of four won in under 1:30. So a party den's
+  HP is never under `PARTY_DEN_HP_FLOOR` (4) slimes' worth (`bossMaxHp`, the final bosses' "four is the floor"),
+  and the base `hp` went up (Warden 600k, Sigrun 1.05M). Sim: party 2:00 / 1:56, alone ~9 / ~8 min median (4.4×),
+  two branches fainting. Owner to confirm after real fights; the knobs are `PARTY_DEN_HP_FLOOR` and the two `hp`s.
+- `npm run economy` has a PARTY DENS table and its checks (`docs/economy.md`); `fight` models the pulse, the barrier,
+  the weak point and the stagger (`mech`), which S5.4 can use to check a retrofitted boss.
+- Tested with headless bots (one browser each, `TEST_GOD`): `docs/places/spine.md`, `docs/places/queensbridge.md`.
+  Found: past ~2× `TEST_SPEED` the client's clock lags (`docs/testing.md`), so fight lengths are measured at 1×.
+- Not tested: real people, survival (the bots don't dodge), the adds' bigger waves with four, a duo or trio.
+
 Docs: `docs/places/spine.md`, `docs/places/queensbridge.md`, `docs/combat/bosses.md`.
 - Turn the Warden's and Sigrun's `party` on (`capMin`), place their weak points (the Warden's shard high on its
   back, Sigrun's in her shield's boss), give Sigrun the front-only barrier, tune with a mixed test party of four

@@ -1029,14 +1029,16 @@ MOBS.rootling = {
 // at the end of the Keepers' road long after anyone could relieve it. Its ultimate, Hold Fast, is the
 // `lanes` ult as roots: they burst up through every stretch of floor but one.
 // party: the party mechanics it's built for (story/progression.md, S5; PARTY above), with `partyDen` (the
-// party den's gates); off until S5.3 gives it `partyLive`. focus: its slams lock onto one slime · pulse: the shard's light every few
-// seconds · barrier: a rune shield that turns blades · weakpoint: the shard, high on its back · adds: rootlings
+// party den's gates), switched on by `partyLive` (S5.3). focus: its slams lock onto one slime · pulse: the shard's
+// light every few seconds · barrier: a rune shield that turns blades · weakpoint: the Anchor shard, high on its
+// back (`weak`, drawn in src/dens-spine.js) · adds: rootlings · interrupt: freeze Hold Fast as it winds up
 MOBS.root_warden = {
-  name: 'The Root Warden', boss: true, lvl: 60, hp: 440000, atk: 200, exp: 115000, speed: 65, w: 200, h: 230, aggro: true, hops: false,
+  name: 'The Root Warden', boss: true, lvl: 60, hp: 600000, atk: 200, exp: 115000, speed: 65, w: 200, h: 230, aggro: true, hops: false,
   phases: [['slam', 'beam', 'charge'], ['slam', 'beam', 'grid', 'summon', 'echo'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap']],
-  ult: { name: 'Hold Fast', kind: 'lanes' }, minion: 'rootling', looks: { beam: 'warden', grid: 'root' }, // (how its beam and grid are drawn: src/hazards.js)
-  party: ['focus', 'pulse', 'barrier', 'weakpoint', 'adds'], partyDen: true,
+  ult: { name: 'Hold Fast', kind: 'lanes' }, minion: 'rootling', looks: { beam: 'warden', grid: 'root', dome: 'keeper' }, // (how its beam, grid and barrier are drawn: src/hazards.js, src/party.js)
+  party: ['focus', 'pulse', 'barrier', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, weak: { dx: -0.31, dy: -0.7, r: 22 },
   lines: {
+    shield: "Ward. The ward. I remember that word too. No blade passes the Keepers' ward.", // (the first barrier of a fight)
     enter: ['HALT. The road is shut. No one passes until the Keepers come back.', 'Another one. They all come up the road sooner or later. None of them are Keepers.'],
     phase: [null, 'The roots have me by every joint. Good. Roots do not let go. Neither do I.', 'Hold. Hold the gate. Hold. I have forgotten every word but that one.'],
     freed: "...They are not coming back, are they. Then I am relieved. Let the roots have me. The gate stays shut, little ones. But the road is yours.",
@@ -1284,15 +1286,18 @@ MOBS.rime_archer = {
 // crack shut every night though her queen has let go: holding on to someone else's holding on. Her beam is
 // the cold light off her shield (`looks`), her grid the deck heaving along the seam, and her ultimate, Close
 // the Seam, is the `wave` ult as new ice racing along the floor (src/dens.js iceMass).
-// party (story/progression.md, S5; PARTY above, a party den, off until S5.3 gives it `partyLive`): focus: her spear locks onto one slime · barrier:
-// her shield turns blades from the front (flank her) · pulse: the seam's cold every few seconds · weakpoint:
-// the shard, set in her shield's boss · adds: rimeguards
+// party (story/progression.md, S5; PARTY above, a party den, switched on by `partyLive`, S5.3): focus: her spear
+// locks onto one slime · barrier: her shield, which only covers her front (`barrierFront`: flank her; while it's up
+// she plants her feet and turns to her target only BARRIER_TURN_S after they got behind her) · pulse: the seam's
+// cold every few seconds · weakpoint: the shard set in her shield's boss, so it's struck from in front
+// (`weak.front`) · adds: rimeguards · interrupt: freeze Close the Seam as it winds up
 MOBS.sigrun = {
-  name: "Sigrun, the Queen's Shield", boss: true, lvl: 100, hp: 760000, atk: 330, exp: 260000, speed: 80, w: 150, h: 190, aggro: true, hops: false,
+  name: "Sigrun, the Queen's Shield", boss: true, lvl: 100, hp: 1050000, atk: 330, exp: 260000, speed: 80, w: 150, h: 190, aggro: true, hops: false,
   phases: [['slam', 'charge', 'rain'], ['slam', 'charge', 'beam', 'rain', 'summon', 'grid'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap', 'charge']],
-  ult: { name: 'Close the Seam', kind: 'wave' }, minion: 'rimeguard', looks: { beam: 'shield', grid: 'seam' }, // (how they're drawn: src/hazards.js)
-  party: ['focus', 'barrier', 'pulse', 'weakpoint', 'adds'], partyDen: true,
+  ult: { name: 'Close the Seam', kind: 'wave' }, minion: 'rimeguard', looks: { beam: 'shield', grid: 'seam', dome: 'ice' }, // (how they're drawn: src/hazards.js, src/party.js)
+  party: ['focus', 'barrier', 'pulse', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, barrierFront: true, weak: { dx: 0.43, dy: -0.36, r: 20, front: true },
   lines: {
+    shield: 'My shield is up. Nothing passes it from the front. Nothing ever has.', // (the first barrier of a fight)
     enter: ["Halt. This is the Queen's bridge. No one crosses while I stand on it.", 'Every night it cracks, and every night I close it. Go back down. You are letting the cold out.'],
     phase: [null, 'She told me to hold it. She never told me I could stop.', 'Her hands are open now. I saw her let go. Mine are not hers to open!'],
     freed: '...Then let it crack. She let go, and I held on for her, and it was never mine to hold. Go on, little ones. Cross while it lasts.',
@@ -1407,6 +1412,21 @@ export function weakOf(k, x, y, dir) {
 }
 // can a hit from a slime whose feet are at y reach the spot? (arrow: any arrow can)
 export const weakReach = (spot, y, arrow, slack = 0) => arrow || Math.abs(y - 20 - spot.y) < spot.r + WEAK_REACH + slack;
+// S5.3: front-only mechanics, like the Obsidian Crab's front shell. Sigrun's barrier is her shield (`barrierFront`
+// on the boss): it only covers the side she faces, so a hit from behind her does full damage, and only hits on
+// it (from in front) wear it down. Her weak point is set in the shield (`weak.front`): only a hit from in front
+// finds it. While her barrier is up she plants her feet and turns to face her target only BARRIER_TURN_S after
+// they got behind her (server/rpg.js bossBrain): a party flanks her while she faces whoever has her focus; a
+// lone slime has to dodge round her and hit before she turns.
+export const inFront = (bx, dir, fromX) => Math.sign(fromX - bx) === dir;
+export const barrierCovers = (k, bx, dir, fromX) => !k.barrierFront || inFront(bx, dir, fromX);
+export const weakFaces = (k, bx, dir, fromX) => !k.weak?.front || inFront(bx, dir, fromX);
+export const BARRIER_TURN_S = 1.2;
+// adds (S5.3): a boss with `adds` switched on summons ADDS_PER_FIGHTER more minions a wave for every slime
+// fighting it past the first (rounded), and lets one more stand at once for each, up to ADDS_MAX (alone: a wave
+// of 2–3 and 5 at once, as without it)
+export const ADDS_PER_FIGHTER = 0.5;
+export const ADDS_MAX = 8;
 // the stagger (a barrier broken, armour broken, a weak point filled, an ultimate interrupted): the boss stops for
 // STAGGER_S and takes STAGGER_DMG more from everyone
 export const STAGGER_S = 4;
@@ -1766,6 +1786,12 @@ export const OVERLEVEL_FLOOR = 0.1;
 export const overlevelScale = (lvl, mobLvl) => Math.max(OVERLEVEL_FLOOR, Math.min(1, 1 - (lvl - mobLvl - OVERLEVEL_GRACE) * OVERLEVEL_STEP));
 // A boss's HP grows by this much for every extra slime in its den (and keeps the damage already done)
 export const BOSS_HP_PER_PLAYER = 0.6;
+// S5.3: a party den (`partyDen` + `partyLive`: the Root Warden, Sigrun) is built for a full party, so its HP is
+// never under PARTY_DEN_HP_FLOOR slimes' worth, even alone (like the final bosses' "four is the floor",
+// story/final-bosses.md); past that it grows as any den boss's does. Its barrier and weak point (BARRIER_HP,
+// WEAK_HP) stay shares of its plain `hp`, so one Mage or Archer still breaks them as quickly.
+export const PARTY_DEN_HP_FLOOR = 4;
+export const bossMaxHp = (k, fighters) => k.hp * (1 + BOSS_HP_PER_PLAYER * (Math.max(fighters, k.partyDen && k.partyLive ? PARTY_DEN_HP_FLOOR : 1) - 1));
 export const COMBAT_ROOMS = new Set([...Object.keys(STAGES).map(Number), ...DENS.map((d) => d.room)]);
 export const isCombat = (room) => COMBAT_ROOMS.has(room);
 export const denAt = (room) => DENS.find((d) => d.room === room);

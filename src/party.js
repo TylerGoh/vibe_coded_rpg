@@ -11,7 +11,7 @@ import { TAU } from './util.js';
 import { text } from './village.js';
 import { glow } from './glow.js';
 import { audio } from './audio.js';
-import { MOBS, DEN_W, partyBit, PARTY_HINTS, partyHitMult, weakOf, weakReach, ARMOUR_CRACKS } from './shared/rpg.js';
+import { MOBS, DEN_W, partyBit, PARTY_HINTS, partyHitMult, weakOf, weakReach, ARMOUR_CRACKS, barrierCovers, weakFaces } from './shared/rpg.js';
 import { rankOf } from './shared/skills.js';
 
 const RED = '232,64,92', CURSE = '96,52,140', DOME = '150,170,255', WEAK = '255,214,120';
@@ -96,18 +96,29 @@ export class Party {
     }
     return null;
   }
-  // S5.2: what boss v's mechanics do to our hit of kinds { magic, heavy, arrow } from a slime whose feet are at y
-  // → [multiplier, weak] (weak: it's on the weak point: the hit carries h[4]). The server caps it the same way.
-  mod(v, { magic = false, heavy = false, arrow = false } = {}, y = 0) {
+  // S5.3: the view of a boss here whose front-only barrier (Sigrun's shield) is up, or null
+  frontShield() {
+    const r = this.rpg, t = r.time;
+    for (const [id, b] of this.bosses) {
+      const v = r.views.get(id);
+      if (v && MOBS[v.kind].barrierFront && b.sh?.kind === 'barrier' && t >= b.sh.from && t < b.sh.until) return v;
+    }
+    return null;
+  }
+  // S5.2: what boss v's mechanics do to our hit of kinds { magic, heavy, arrow } from a slime whose feet are at
+  // (x, y) → [multiplier, weak] (weak: it's on the weak point: the hit carries h[4]). The server caps it the same
+  // way. S5.3: a front-only barrier (Sigrun's) or weak point only counts from the side the boss faces.
+  mod(v, { magic = false, heavy = false, arrow = false } = {}, y = 0, x = v?.x + (v?.facing ?? 1)) {
     const b = this.bosses.get(v?.id);
     if (!b) return [1, false];
-    const t = this.rpg.time, sh = b.sh && t >= b.sh.from && t < b.sh.until ? b.sh.kind : null;
-    const weak = !!(b.wk && b.wk.until > t) && weakReach(weakOf(MOBS[v.kind], v.x, v.y, v.facing), y, arrow);
+    const kk = MOBS[v.kind], t = this.rpg.time;
+    let sh = b.sh && t >= b.sh.from && t < b.sh.until ? b.sh.kind : null;
+    if (sh === 'barrier' && !barrierCovers(kk, v.x, v.facing, x)) sh = null; // (round the back of her shield)
+    const weak = !!(b.wk && b.wk.until > t) && weakFaces(kk, v.x, v.facing, x) && weakReach(weakOf(kk, v.x, v.y, v.facing), y, arrow);
     const k = partyHitMult({ stag: b.stUntil > t, shield: sh }, { magic, heavy, weak });
     // a word over it now and then: what cut the hit, or that it found the spot
     if (t - this.said > 0.7 && ((sh === 'barrier' && !magic) || (sh === 'armour' && !heavy) || weak)) {
       this.said = t;
-      const kk = MOBS[v.kind];
       if (weak) this.rpg.pop(v.x, v.y - kk.h - 46, 'WEAK POINT!', '#ffe08a', 17);
       else this.rpg.pop(v.x, v.y - kk.h - 30, sh === 'barrier' ? 'WARDED' : 'ARMOURED', '#b8c4ff', 14);
       if (!weak) audio.sfx('shellBlock', { vol: 0.5 });
@@ -160,7 +171,8 @@ export class Party {
     }
     if (m.a === 'shieldUp') {
       audio.sfx(m.kind === 'barrier' ? 'bubble' : 'shellBlock', { pan });
-      if (m.kind === 'barrier') this.tell('barrier', cls === 'mage' || cls === 'cleric' ? 'A rune barrier! Blades barely scratch it, but your spells break it: break it to stagger the boss' : 'A rune barrier! Your hits do little through it: a Mage\'s spells break it, or wait it out');
+      if (m.kind === 'barrier' && k.barrierFront) this.tell('barrierFront', cls === 'mage' || cls === 'cleric' ? 'Her shield is up! Hits from in front barely land: get round behind her, or break it with your spells to stagger her' : 'Her shield is up! Hits from in front barely land: get round behind her (she turns slowly), or let a Mage break it');
+      else if (m.kind === 'barrier') this.tell('barrier', cls === 'mage' || cls === 'cleric' ? 'A rune barrier! Blades barely scratch it, but your spells break it: break it to stagger the boss' : 'A rune barrier! Your hits do little through it: a Mage\'s spells break it, or wait it out');
       else this.tell('armour', rankOf(me?.skills, 'sky_splitter') || rankOf(me?.skills, 'blade_storm') || rankOf(me?.skills, 'snipe') ? 'Armour! Small hits glance off: your heavy hits crack it' : 'Armour! Small hits glance off: heavy hits (Sky Splitter, Blade Storm, Snipe, a shatter) crack it, or wait it out');
       return true;
     }
@@ -182,7 +194,8 @@ export class Party {
     }
     if (m.a === 'weakOpen') {
       audio.sfx('mark', { pan, vol: 0.6 });
-      this.tell('weak', cls === 'archer' ? 'A weak point is glowing on the boss: your arrows reach it from anywhere (Hunter\'s Mark keeps it open)' : 'A weak point is glowing high on the boss: jump and hit it (arrows reach it from anywhere)');
+      if (k.weak?.front) this.tell('weakFront', 'A weak point is glowing in her shield: hit it from in front (arrows too), and fill the ring to stagger her');
+      else this.tell('weak', cls === 'archer' ? 'A weak point is glowing on the boss: your arrows reach it from anywhere (Hunter\'s Mark keeps it open)' : 'A weak point is glowing high on the boss: jump and hit it (arrows reach it from anywhere)');
       return true;
     }
     if (m.a === 'weakBreak') {
@@ -410,31 +423,49 @@ function drawWisps(ctx, s, n, t) {
 }
 // The barrier: a rune dome over the boss, fading in over its warning, dimmer as its HP goes; the armour: a shell of
 // plates round it, with a crack a hit that cracked it
+// (S5.3: `looks.dome` on the boss tints it: the Root Warden's in Keeper amber; Sigrun's, `barrierFront`, is a curved
+// wall of ice in front of her shield instead of a dome, with runes of frost)
+const DOMES = { keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'] };
 function drawShield(ctx, v, k, sh, t) {
   const fade = Math.max(0, Math.min(1, 1 - (sh.from - t) / 1.5)), end = Math.min(1, (sh.until - t) / 0.6);
   const a = fade * end, cx = v.x, cy = v.y - k.h * 0.5, rx = k.w * 0.72, ry = k.h * 0.68;
   if (a <= 0) return;
   ctx.save();
-  if (sh.kind === 'barrier') {
+  if (sh.kind === 'barrier' && k.barrierFront) {
+    drawFrontWall(ctx, v, k, typeof sh.v === 'number' ? sh.v : 1, a, t);
+  } else if (sh.kind === 'barrier') {
     const hp = typeof sh.v === 'number' ? sh.v : 1, pulse = 0.5 + 0.5 * Math.sin(t * 4);
+    const [col, rim, rune] = DOMES[k.looks?.dome] ?? [DOME, '200,212,255', '235,240,255'];
     ctx.globalAlpha = a;
-    glow(ctx, cx, cy, rx * 1.1, ry * 1.1, DOME, 0.25 + 0.2 * hp);
-    ctx.fillStyle = `rgba(${DOME},${0.1 + 0.12 * hp})`;
-    ctx.strokeStyle = `rgba(200,212,255,${0.55 + 0.35 * hp})`;
+    glow(ctx, cx, cy, rx * 1.1, ry * 1.1, col, 0.25 + 0.2 * hp);
+    ctx.fillStyle = `rgba(${col},${0.1 + 0.12 * hp})`;
+    ctx.strokeStyle = `rgba(${rim},${0.55 + 0.35 * hp})`;
     ctx.lineWidth = 3 + 2 * pulse * hp;
     ctx.beginPath();
     ctx.ellipse(cx, cy, rx, ry, 0, 0, TAU);
     ctx.fill();
     ctx.stroke();
-    // runes turning round its rim
-    ctx.fillStyle = `rgba(235,240,255,${0.5 + 0.4 * hp})`;
+    // runes turning round its rim (the Warden's: little Keeper gears)
+    ctx.fillStyle = `rgba(${rune},${0.5 + 0.4 * hp})`;
+    ctx.strokeStyle = `rgba(${rune},${0.5 + 0.4 * hp})`;
     for (let i = 0; i < 10; i++) {
       const an = t * 0.6 + (i * TAU) / 10, x = cx + Math.cos(an) * rx, y = cy + Math.sin(an) * ry;
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(an);
-      ctx.fillRect(-2, -6, 4, 12);
-      ctx.fillRect(-5, -1.5, 10, 3);
+      if (k.looks?.dome === 'keeper') {
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.arc(0, 0, 4.5, 0, TAU);
+        ctx.stroke();
+        for (let j = 0; j < 6; j++) {
+          const g = (j * TAU) / 6;
+          ctx.fillRect(Math.cos(g) * 6 - 1.5, Math.sin(g) * 6 - 1.5, 3, 3);
+        }
+      } else {
+        ctx.fillRect(-2, -6, 4, 12);
+        ctx.fillRect(-5, -1.5, 10, 3);
+      }
       ctx.restore();
     }
   } else {
@@ -466,6 +497,41 @@ function drawShield(ctx, v, k, sh, t) {
     }
   }
   ctx.restore();
+}
+// A front-only barrier (Sigrun's, S5.3): a tall curved wall of ice standing off the side she faces, frost runes
+// drifting up it, thinner as its HP goes; open behind her (hp: 0–1, a: its fade)
+function drawFrontWall(ctx, v, k, hp, a, t) {
+  const [col, rim, rune] = DOMES[k.looks?.dome] ?? DOMES.ice, f = v.facing, pulse = 0.5 + 0.5 * Math.sin(t * 4);
+  const x0 = v.x + f * k.w * 0.62, top = v.y - k.h * 1.08, bot = v.y + 4, bulge = f * k.w * 0.22;
+  ctx.globalAlpha = a;
+  glow(ctx, x0 + bulge * 0.5, (top + bot) / 2, k.w * 0.32, k.h * 0.62, col, 0.25 + 0.25 * hp);
+  // the pane: a crescent, thick in the middle
+  ctx.fillStyle = `rgba(${col},${0.16 + 0.16 * hp})`;
+  ctx.strokeStyle = `rgba(${rim},${0.6 + 0.35 * hp})`;
+  ctx.lineWidth = 3 + 2 * pulse * hp;
+  ctx.beginPath();
+  ctx.moveTo(x0, top);
+  ctx.quadraticCurveTo(x0 + bulge * 2, (top + bot) / 2, x0, bot);
+  ctx.quadraticCurveTo(x0 + bulge * 0.6, (top + bot) / 2, x0, top);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  // frost runes drifting up it
+  ctx.fillStyle = `rgba(${rune},${0.45 + 0.45 * hp})`;
+  for (let i = 0; i < 6; i++) {
+    const ph = (t * 0.35 + i / 6) % 1, y = bot - ph * (bot - top), s = Math.sin(ph * Math.PI);
+    const x = x0 + bulge * (1.1 * s + 0.15);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.globalAlpha = a * s;
+    ctx.fillRect(-1.5, -6, 3, 12);
+    ctx.rotate(Math.PI / 3);
+    ctx.fillRect(-1.5, -5, 3, 10);
+    ctx.rotate(Math.PI / 3);
+    ctx.fillRect(-1.5, -5, 3, 10);
+    ctx.restore();
+  }
+  ctx.globalAlpha = a;
 }
 // The weak point: a glowing crystal (brighter under Hunter's Mark), a ring round it filling as it's hit, and the
 // seconds it stays open

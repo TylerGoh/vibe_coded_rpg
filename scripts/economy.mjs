@@ -3,12 +3,12 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT } from '../src/shared/rpg.js';
+import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
-import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R } from '../src/shared/skills.js';
+import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds } from '../src/shared/skills.js';
 import { SLAP_REACH, SLAP_COOLDOWN_MS, DASH_CD, PHANTOM_CD, CHARGE_RESET } from '../src/shared/sim.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
@@ -332,8 +332,46 @@ const attackDmg = (st, range, c) => (st.boltRange ? (st.boltRange >= range ? st.
 const POTIONS = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))].filter((id) => ITEMS[id].kind === 'potion' && ITEMS[id].heal).map((id) => ITEMS[id]).sort((a, b) => a.heal - b.heal);
 // A fight: n targets, `range` px away; `hit` raw damage every BOSS_HIT_EVERY s (0: nobody hits back);
 // `hp`: stop once that much damage is done (a boss); `potions`: drink them. → { t, dealt, faint, drunk, gold }
-function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, hp: bossHp = Infinity, potions = false, until = SIM_S }) {
+function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, hp: bossHp = Infinity, potions = false, until = SIM_S, mech = null }) {
   const r = (id) => rankOf(c.skills, id);
+  // S5's party mechanics (PARTY DENS below): mech = { pulse, barrier, weak, hp1 (the boss's one-slime HP), behind (a
+  // share of your hits from behind a front-only barrier), front (Sigrun's: front-only barrier and weak point), jump
+  // (a share of your non-arrow hits that reach a high weak point), help { magic, weak } (the rest of the party's
+  // damage a second on the barrier and the weak point) }
+  const M = mech ? { shNext: BARRIER_EVERY * 0.5, shFrom: 0, shUntil: 0, shHp: 0, wkNext: WEAK_EVERY * 0.5, wkOpen: false, wkUntil: 0, wkFill: 0, stag: 0, pulse: PULSE_EVERY + PULSE_WARN, staggers: 0, ...mech } : null;
+  const shUp = (t) => M?.barrier && t >= M.shFrom && t < M.shUntil, wkUp = (t) => M?.weak && M.wkOpen && t < M.wkUntil;
+  const stagger = (t) => { M.stag = t + STAGGER_S; M.staggers++; };
+  const wearShield = (d, t) => { if ((M.shHp -= d) <= 0) { M.shUntil = t; stagger(t); } }; // (broken: the next still comes on time)
+  const fillWeak = (d, t) => { if ((M.wkFill += d) >= M.hp1 * WEAK_HP) { M.wkOpen = false; M.wkNext = t + WEAK_EVERY; stagger(t); } };
+  // the boss's phases at time t (and the party's help wearing them down since the last action)
+  const mechStep = (t, dt) => {
+    if (!M) return;
+    if (M.barrier) {
+      if (t >= M.shNext) [M.shFrom, M.shUntil, M.shHp, M.shNext] = [M.shNext + BARRIER_WARN, M.shNext + BARRIER_WARN + BARRIER_S, M.hp1 * BARRIER_HP, M.shNext + BARRIER_WARN + BARRIER_S + BARRIER_EVERY];
+      if (shUp(t)) wearShield(M.help.magic * dt, t);
+    }
+    if (M.weak) {
+      if (M.wkOpen && t >= M.wkUntil) [M.wkOpen, M.wkNext] = [false, M.wkUntil + WEAK_EVERY];
+      if (!M.wkOpen && t >= M.wkNext) [M.wkOpen, M.wkUntil, M.wkFill] = [true, t + (buff.mark > t || M.help.mark ? WEAK_MARK_S : WEAK_OPEN_S), 0];
+      if (wkUp(t)) fillWeak(M.help.weak * dt, t);
+    }
+  };
+  // what the phases do to a hit of `kinds` for d at time t (the barrier and weak point worn down by it)
+  const mechHit = (d, kinds, t) => {
+    if (!M || !d) return d;
+    let k = M.stag > t ? 1 + STAGGER_DMG : 1;
+    const facing = M.front ? 1 - M.behind : 1; // (the share of hits that land on her front: her shield)
+    if (shUp(t)) {
+      if (!kinds.magic) k *= 1 - facing + facing * BARRIER_PHYS;
+      else wearShield(d * facing, t);
+    }
+    if (wkUp(t)) {
+      const reach = facing * (kinds.arrow ? 1 : M.jump);
+      k *= 1 + (WEAK_MULT - 1) * reach;
+      fillWeak(d * k * reach, t);
+    }
+    return d * k;
+  };
   const buff = { berserk: 0, rally: 0, manaShield: 0, bubble: 0, aegis: 0, zone: 0, mark: 0 }, cds = {};
   let evadeAcc = 0; // Evasion (Archer): a share of the hits that miss, counted out evenly
   let momentum = 0, momentumUntil = 0, busy = 0; // busy: actions still taken by a two-action chase move
@@ -352,20 +390,23 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
   const use = (id, t) => { mp -= SKILLS[id].mp; cds[id] = t + cooldownOf(id, r(id)); };
   for (let t = 0; t < until; t += ACTION_S) {
     // what happened since the last action: MP (and HP) regen once a second, the boss's hits
-    while (nextRegen <= t || (hit && nextHit <= t)) {
-      if (hit && nextHit <= nextRegen) {
-        const at = nextHit, st = statsAt(at);
-        nextHit += every;
+    while (nextRegen <= t || (hit && nextHit <= t) || (M?.pulse && M.pulse <= t)) {
+      const pulse = M?.pulse && M.pulse <= t && M.pulse <= nextRegen && !(hit && nextHit < M.pulse);
+      if (pulse || (hit && nextHit <= nextRegen)) {
+        const at = pulse ? M.pulse : nextHit, st = statsAt(at);
+        if (pulse) M.pulse += PULSE_EVERY + PULSE_WARN;
+        else nextHit += every;
+        if (!pulse && M?.stag > at) continue; // (staggered: no moves)
         if (buff.aegis > at) continue;
         if (buff.bubble > at) { buff.bubble = 0; continue; }
-        if (st.evade && (evadeAcc += st.evade) >= 1) { evadeAcc -= 1; continue; } // (Evasion: it missed)
-        const drawer = sums.find((q) => q.until > at && q.hp > 0);
+        if (!pulse && st.evade && (evadeAcc += st.evade) >= 1) { evadeAcc -= 1; continue; } // (Evasion: it missed)
+        const drawer = !pulse && sums.find((q) => q.until > at && q.hp > 0);
         if (drawer && (drawAcc += drawer.draw) >= 1) { // the boss is after the spirit: this one lands on it
           drawAcc -= 1;
           drawer.hp -= Math.max(1, hit - drawer.def);
           continue;
         }
-        let d = Math.max(1, Math.round(hit - st.def));
+        let d = pulse ? Math.round(st.maxHp * PULSE_HP) : Math.max(1, Math.round(hit - st.def)); // (the pulse: flat, past DEF)
         if (buff.zone > at) d = Math.max(1, Math.round(d * (1 - SKILLS.sanctuary.cut(r('sanctuary')))));
         if (totem && totem.until > at && totem.hp > 0) d = Math.max(1, Math.round(d * (1 - totem.cut)));
         if (barrier > 0 && barrierUntil > at) { const soak = Math.min(barrier, d); barrier -= soak; d -= soak; if (d <= 0) continue; }
@@ -397,6 +438,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     }
     if (hit && totem && totem.until > t) totem.hp -= Math.max(1, (hit / BOSS_HIT_MULT) * BOSS_SUMMON_HIT - totem.def) * (ACTION_S / BOSS_SUMMON_S);
     if (dealt >= bossHp) return { t, dealt, faint: false, drunk, gold };
+    mechStep(t, ACTION_S);
     if (busy > 0) {
       busy--;
       continue;
@@ -486,19 +528,20 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     if (best && SKILLS[best].el === 'fire') [burnDps, burnUntil] = [Math.max(burnUntil > t ? burnDps : 0, dmg * BURN_DPS), t + BURN_S];
     if (!dmg) continue;
     dmg *= markX(t);
+    if (M) dmg = mechHit(dmg, chase ? { arrow: chase === 'retreat_shot' } : best ? hitKinds(SKILLS[best], r(best), st, held, c.skills) : { magic: !!st.boltRange, arrow: !!st.arrowRange }, t);
     dealt += dmg; // (a crowd: the sum over the mobs it caught)
     if (st.thirst) hp = Math.min(st.maxHp, hp + dmg * st.thirst);
     if (best && SKILLS[best].smite) hp = Math.min(st.maxHp, hp + dmg * SKILLS[best].smite(r(best)) * st.heal); // Smite
     if (!best && !chase && st.holyBolt) hp = Math.min(st.maxHp, hp + dmg * HOLY_BOLT_HEAL * st.heal); // the holy bolt (alone: it heals you)
     if (dealt >= bossHp) return { t: t + ACTION_S, dealt, faint: false, drunk, gold };
   }
-  return { t: until, dealt, faint: false, drunk, gold };
+  return { t: until, dealt, faint: false, drunk, gold, staggers: M?.staggers };
 }
 // the dens' ATK against the curve at their level (for the toughness column's boss at any level)
 const denBosses = DENS.map((d) => MOBS[d.boss]);
 const bossAtkX = (() => { const r = denBosses.map((m) => m.atk / curve('atk', m.lvl)).sort((a, b) => a - b); return r[r.length >> 1]; })();
 const branches = Object.keys(BUILDS);
-const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+const mmss = (s) => { const r = Math.round(s); return `${Math.floor(r / 60)}:${String(r % 60).padStart(2, '0')}`; };
 const classRows = {}, classAt = {};
 for (const L of CLASS_AT) for (const br of branches) {
   const c = classChar(br, L), st = statsFor(c);
@@ -512,7 +555,8 @@ for (const L of CLASS_AT) for (const br of branches) {
 }
 table(`CLASSES: each branch with gear on the frozen curve (BUILDS, AP_LUK in LUK); damage a second from a ${SIM_S} s rotation (one action every ${ACTION_S} s), toughness = seconds alone under a curve boss's hits every ${BOSS_HIT_EVERY.warrior} s, no potions`, classRows);
 const medianOf = (xs) => { const ts = [...xs].sort((a, b) => a - b), h = ts.length >> 1; return ts.length % 2 ? ts[h] : (ts[h - 1] + ts[h]) / 2; };
-const soloDens = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => m.lvl >= CLASS_LVL).sort((a, b) => a[1].lvl - b[1].lvl);
+const isPartyDen = (m) => !!(m.partyDen && m.partyLive); // (S5.3: those are in the PARTY DENS table instead)
+const soloDens = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => m.lvl >= CLASS_LVL && !isPartyDen(m)).sort((a, b) => a[1].lvl - b[1].lvl);
 const solo = {};
 for (const [id, m] of soloDens) {
   solo[id] = {};
@@ -522,9 +566,55 @@ table(`CLASSES: time to solo each den boss at its level (potions drunk under ${P
   const med = medianOf(branches.map((br) => solo[id][br].t));
   return [id, { lvl: m.lvl, hp: fmt(m.hp), ...Object.fromEntries(branches.map((br) => { const f = solo[id][br]; return [br, f.faint ? `faints at ${mmss(f.t)}` : `${mmss(f.t)}${f.drunk ? ` (${f.drunk} pots, ${fmt(f.gold)}g)` : ''}`]; })), median: mmss(med), 'kill pays': fmt(bossWorth(id)) }];
 })));
+// PARTY DENS (S5.3; story/s5-plan.md): a party den fights a lone slime with every mechanic but the focus on (PARTY
+// capMin), so it's measured apart: each branch alone against the pulse, the barrier and the weak point (the sim
+// leaves out the adds, the focus and the ultimates, which a party answers better too), and a mixed party of
+// PARTY_TEAM at the boss's level. Its HP is bossMaxHp's: a party's worth (PARTY_DEN_HP_FLOOR) even alone. In the party the boss's hits are shared out
+// (each member takes one every PARTY_TEAM.length × as often), the Mages' and Clerics' spells wear the barrier down for
+// everyone, the Archer's arrows fill the weak point, and the Knight holds a front-only barrier's focus (all hits on
+// her front) while the others flank (PARTY_BEHIND). Alone, a slime reaches a high weak point with WEAK_JUMP of its
+// non-arrow hits and gets round a front-only one with SOLO_BEHIND of them. Targets (owner): a mixed party wins in a
+// few minutes (PARTY_DEN_MIN of the sim's minutes: it plays faster than people do, and its ordinary dens' solo
+// kills, which the owner wants at a few minutes, come out at 1.5–3); alone it takes PARTY_DEN_SOLO × the party's
+// time or more, and at least one branch can still finish it (never locked).
+const PARTY_TEAM = ['knight', 'priest', 'frostbinder', 'sniper'];
+const WEAK_JUMP = 0.3, SOLO_BEHIND = 0.35, PARTY_BEHIND = 0.8;
+const PARTY_DEN_MIN = [1, 4], PARTY_DEN_SOLO = 3, PARTY_SIM_S = 600;
+const partyDens = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => isPartyDen(m)).sort((a, b) => a[1].lvl - b[1].lvl);
+const mechOf = (m, fighters) => ({ pulse: partyActive(m, fighters, 'pulse'), barrier: partyActive(m, fighters, 'barrier'), weak: partyActive(m, fighters, 'weakpoint'), hp1: m.hp, front: !!m.barrierFront });
+const partyRun = {};
+for (const [id, m] of partyDens) {
+  const n = PARTY_TEAM.length, hp = bossMaxHp(m, n), front = !!m.barrierFront;
+  // the help each member gets from the others: their damage a second on the barrier (spells) and on the weak point
+  const base = Object.fromEntries(PARTY_TEAM.map((br) => [br, fight(classChar(br, m.lvl), {}).dealt / SIM_S]));
+  const isMagic = (br) => ['mage', 'cleric'].includes(BUILDS[br].cls), isArrow = (br) => BUILDS[br].cls === 'archer';
+  const behindOf = (br) => (front && br !== 'knight' ? PARTY_BEHIND : 0);
+  const onFront = (br) => (front ? 1 - behindOf(br) : 1);
+  const runs = PARTY_TEAM.map((br) => {
+    const others = PARTY_TEAM.filter((o) => o !== br);
+    const help = { magic: others.filter(isMagic).reduce((a, o) => a + base[o] * onFront(o), 0), weak: others.reduce((a, o) => a + base[o] * onFront(o) * (isArrow(o) ? 1 : front ? 1 : WEAK_JUMP), 0), mark: others.some((o) => rankOf(classChar(o, m.lvl).skills, 'hunters_mark')) };
+    const f = fight(classChar(br, m.lvl), { hit: m.atk * BOSS_HIT_MULT, every: BOSS_HIT_EVERY[BUILDS[br].cls] * n, potions: true, until: PARTY_SIM_S, mech: { ...mechOf(m, n), behind: behindOf(br), jump: front ? 1 : WEAK_JUMP, help } });
+    return { br, dps: f.dealt / f.t, faint: f.faint, drunk: f.drunk };
+  });
+  const dps = runs.reduce((a, q) => a + q.dps, 0);
+  const solo = Object.fromEntries(branches.map((br) => [br, fight(classChar(br, m.lvl), { hit: m.atk * BOSS_HIT_MULT, every: BOSS_HIT_EVERY[BUILDS[br].cls], hp: bossMaxHp(m, 1), potions: true, until: 3600, mech: { ...mechOf(m, 1), behind: SOLO_BEHIND, jump: front ? 1 : WEAK_JUMP, help: { magic: 0, weak: 0 } } })]));
+  const plain = Object.fromEntries(branches.map((br) => [br, fight(classChar(br, m.lvl), { hit: m.atk * BOSS_HIT_MULT, every: BOSS_HIT_EVERY[BUILDS[br].cls], hp: bossMaxHp(m, 1), potions: true, until: 3600 }).t]));
+  partyRun[id] = { m, hp, party: hp / dps, runs, solo, plain };
+}
+table(`PARTY DENS: each branch alone with every mechanic but the focus on (vs the same boss without them), and a mixed party of ${PARTY_TEAM.join(', ')} (want the party in ${PARTY_DEN_MIN.join('–')} min, alone ${PARTY_DEN_SOLO}x the party's time or more)`, Object.fromEntries(partyDens.map(([id]) => {
+  const q = partyRun[id], done = branches.filter((br) => !q.solo[br].faint), med = medianOf(branches.map((br) => q.solo[br].t));
+  return [id, { lvl: q.m.lvl, ...Object.fromEntries(branches.map((br) => { const f = q.solo[br]; return [br, `${f.faint ? `faints ${mmss(f.t)}` : mmss(f.t)}${f.drunk ? ` (${f.drunk} pots)` : ''} / ${mmss(q.plain[br])}`]; })), 'alone median': `${mmss(med)}${done.length < branches.length ? ` (${branches.length - done.length} faint)` : ''}`, [`party of ${PARTY_TEAM.length}`]: `${mmss(q.party)} (${fmt(q.hp)} HP${q.runs.some((r) => r.faint) ? `, ${q.runs.filter((r) => r.faint).map((r) => r.br).join(' ')} faint` : ''})`, 'alone ÷ party': (med / q.party).toFixed(1) }];
+})));
 delete ITEMS[SHEET_W];
 delete ITEMS[SHEET_H];
 const classProblems = [];
+for (const [id] of partyDens) {
+  const q = partyRun[id], med = medianOf(branches.map((br) => q.solo[br].t));
+  if (q.party < PARTY_DEN_MIN[0] * 60 || q.party > PARTY_DEN_MIN[1] * 60) classProblems.push(`a mixed party kills party den ${id} in ${mmss(q.party)} (want PARTY_DEN_MIN ${PARTY_DEN_MIN.join('–')} min)`);
+  if (med < PARTY_DEN_SOLO * q.party) classProblems.push(`party den ${id} alone takes ${mmss(med)} (median): under PARTY_DEN_SOLO ${PARTY_DEN_SOLO}x the party's ${mmss(q.party)}`);
+  if (branches.every((br) => q.solo[br].faint)) classProblems.push(`nobody can solo party den ${id}: it must stay possible (never locked)`);
+  for (const r of q.runs) if (r.faint) classProblems.push(`the ${r.br} faints in the mixed party at party den ${id}`);
+}
 for (const [id, m] of soloDens) {
   const med = medianOf(branches.map((br) => solo[id][br].t));
   for (const br of branches) {

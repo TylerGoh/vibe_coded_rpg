@@ -47,9 +47,16 @@ Knotmole: only its line says so).
   keep their defaults). Its ultimate **Hold Fast** is the shared `lanes` ult drawn as roots bursting up
   through every lane but one (`wardenRoot`, used by `fxLanesWarn` / `fxLanesHit` in `src/dens.js` when the
   theme is `warden`).
-- **Built for the party mechanics** (`story/progression.md`, S5): party dens are meant to be extremely hard
-  without a mixed party. `party` on its entry names what S5 switches on (focus, pulse, barrier, weakpoint,
-  adds); nothing reads it yet. The art already has the weak point: the Anchor shard glowing high in its back.
+- **The party mechanics** (S5.3, `docs/combat/bosses.md`): focus, pulse, barrier (a rune dome in Keeper amber,
+  `looks.dome: 'keeper'`), the weak point (the Anchor shard high in its back, `weak`: hit it with arrows, or jump),
+  adds (more rootlings for a bigger party) and the interrupt (freeze Hold Fast as it winds up). All but the focus
+  are on for a lone slime too, and its HP is never under a party of four's (`PARTY_DEN_HP_FLOOR`): built for a
+  mixed party, extremely hard alone, never locked. `hp` was raised to 600k for it. The first barrier of a fight
+  gets its line (`lines.shield`: "Ward. The ward. I remember that word too...").
+- Tested (2026-10-24, headless bots at real speed, `TEST_GOD`, nobody dodging): a Lv 60 Knight, Priest,
+  Frostbinder and Sniper killed it in about a minute (440k base) and about 1:20 (600k); alone, a Lv 62
+  Frostbinder in 3:13 (440k) and a Lv 62 Berserker in about 13 min (600k). The sim (`npm run economy`, PARTY DENS) puts the party at 2:00 and a lone slime at ~9 min (median),
+  some branches fainting. Nobody has fought it for real yet.
 - The den: an open court at the very top of the ridge, sky all round, a broken colonnade (the ledges are
   fallen lintels), flagstones heaved up by roots, and in the far wall the **sealed gate**: a round stone
   door with a ring of pictures like the Roll of Keepers (the hourglass scratched out), roots holding it shut
