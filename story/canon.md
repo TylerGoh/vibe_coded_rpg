@@ -3,8 +3,7 @@
 The settled facts. Short on purpose: AI characters get fed this text (sliced by tier, see
 `delivery.md`), and anything here they'll repeat as truth. Change it only with the owner's okay.
 
-Status: **first draft, written 2026-10-20, awaiting the owner's review.** Until it's reviewed, treat it
-as strongly proposed.
+Status: **reviewed by the owner (2026-10-24).**
 
 ## Tier 0: what everyone in Slimeville knows
 - Slimeville sits on Greenhollow Bay, on the island of **Greenhollow**, in the **Glass Sea**.
