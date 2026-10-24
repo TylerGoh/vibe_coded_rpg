@@ -97,7 +97,7 @@ clearing, but it never dies (1b). Every damage skill also heals a little, so att
 |---|---|---|---|---|
 | 10 basics | **Radiance**: light around you that hurts every mob near and heals every friend near a little | Smite (have) | **Blessing**: long, +max HP and a little ATK and MAGIC for you and friends near | Faith (have); Jelly Heal, Jelly Spirit, Cleanse (have) |
 | 30 Priest | **Sacred Light**: a column of light on a group at range; heals you for each mob it hits | Smite stays | Mend, Lantern Wisp (have) | **Devotion**: overhealing turns into a small barrier |
-| 60 Priest | **Consecration**: holy ground for a while; mobs on it are hurt, friends on it healed | **Judgment**: a holy bolt that hits harder the more friends near are hurt | **Holy Symbol** (owner decision below) | Revive, Holy Power (have) |
+| 60 Priest | **Consecration**: holy ground for a while; mobs on it are hurt, friends on it healed | **Judgment**: a holy bolt that hits harder the more friends near are hurt | **Holy Symbol**: long, more EXP for you and friends near (owner: OK) | Revive, Holy Power (have) |
 | 100 Priest | **Genesis**: light falls on every mob in the room | - | Miracle (have) | - |
 | 30 Warden | **Sprites**: three little spirits, each going after a different mob | - | Guardian Totem, Barrier (have) | **Warding Totem**: your totem pulses damage at mobs near it |
 | 60 Warden | - | **Stone Guardian**: a golem summon that taunts and slams the mob in front of it | **Resolve**: long, friends near take less damage while they stand near your summons | Spirit Bond (have) |
@@ -153,17 +153,17 @@ is shared, so they merge one at a time. Each one deploys on its own: a class at 
 are untouched). No skill points are lost: new ranks only add to `spRoom`.
 
 ## Economy and balance (every piece)
-- **Mobbing is a faucet.** The sheet's farming assumes `KILLS_PER_MIN`; strong mobbing skills raise what
-  players really kill a minute, which is EXP and gold. Each piece checks the CLASSES tables and says how far
-  a full-pack clear moves the kill rate. If it moves a lot, `KILLS_PER_MIN` (or mob counts) is retuned rather
-  than letting levels race, and the reply says so (`docs/economy.md`).
-- `CLASS_FIT` and `BAD_AT` stay green: equal power, different shape. The Mage should top the mobbing table,
-  the Cleric be last at mobbing but first at staying alive, the Archer top single-target at range.
+- **Faster farming is fine** (owner, 2026-10-24): higher-level players with better area skills farm faster,
+  and the curve can scale with that. Don't hold mobbing back to protect `KILLS_PER_MIN`; just say in the reply
+  how far a full-pack clear moves it, and retune the sheet's assumption to match.
+- **What matters is balance between classes, by shape**: some classes are better at bossing, some at
+  mobbing, and that's on purpose (owner). The Mage should top mobbing, the Archer single-target at range, the
+  Cleric be last at mobbing but first at staying alive, the Warrior in between with the most movement.
+  `CLASS_FIT` and `BAD_AT` stay green; a class that's best at both, or worst at both, is the bug.
 - Party buffs stack across classes on purpose (a full party should feel strong), but S5's party dens and the
   final bosses are tuned with them on.
 
-## Open decisions for the owner
-- **Holy Symbol**: MapleStory's version gives the party more EXP. That's a faucet (`progression.md`
-  principles: "close the faucet before adding rewards"). The plan's default: it gives +MAGIC and +ATK instead,
-  unless the owner wants the EXP version.
+## Settled (owner, 2026-10-24)
+- **Holy Symbol gives the party more EXP**, MapleStory style (asked: the EXP version is OK). It goes on the
+  economy sheet like any faucet: name its share as a constant and show it in `npm run economy`.
 - Names are working names: rename freely.

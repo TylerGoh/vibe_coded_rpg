@@ -2,7 +2,7 @@
 
 **Status (2026-10-24): S5.1 and S5.2 are LIVE (deploy #1, e1df118, shipped dark); S5.5 (potions, loot check) and S5.3
 (the party dens switched on and tuned) are LIVE too. S5.4's Greenhollow part is LIVE (9ae4d48); its Frostpeak part
-is built (waiting for its deploy); next: S5.4 for Emberdeep. Test faster with `TEST_SPEED=10` (fight
+is LIVE too (14aee71); next: S5.4 for Emberdeep. Test faster with `TEST_SPEED=10` (fight
 lengths too, since the client clock fix: `docs/testing.md`).** S5 in `progression.md` ("bosses that need a party",
 section 6) is too big for one session, so it's cut into five pieces, each sized for one agent. Read
 `progression.md` sections 1b and 6 first: they hold the design and the owner's rules. This file pins down what
@@ -242,7 +242,7 @@ Docs: `docs/places/spine.md`, `docs/places/queensbridge.md`, `docs/combat/bosses
 - Tested with two headless players on all seven (one on a phone): `docs/combat/bosses.md`. Not tried: the interrupt on
   them, the den adds' bigger waves, people.
 
-**Frostpeak built (2026-10-24, waiting for its deploy).** What landed, and what the next stage (Emberdeep) should know:
+**Frostpeak LIVE (2026-10-24, 14aee71).** What landed, and what the next stage (Emberdeep) should know:
 - The six Frostpeak bosses have `party` + `partyLive` as drafted, no swaps; the three den bosses also got `interrupt`
   (Glacia's was in the draft). Glacia has one `lines.shield` (her only line, said the first time the dome goes up).
   The Narwhal's weak point is `front` (Sigrun's rule: it's on her face), low enough for melee from the floor.
