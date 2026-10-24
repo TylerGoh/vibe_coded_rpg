@@ -382,7 +382,11 @@ const DRAW = {
   // In a house the glass is see-through (house.js cuts it out of the wall, so the real sky shows); `sky` paints
   // a pretend sky instead, for the store icon and the piece you're carrying
   window(ctx, t, sky) {
-    rr(ctx, -48, -96, 96, 96, [46, 46, 8, 8], '#ffffff');
+    ctx.fillStyle = '#ffffff'; // the frame: a ring, so the glass inside stays open
+    ctx.beginPath();
+    ctx.roundRect(-48, -96, 96, 96, [46, 46, 8, 8]);
+    ctx.roundRect(-40, -88, 80, 80, [40, 40, 4, 4]);
+    ctx.fill('evenodd');
     ctx.save();
     ctx.beginPath();
     ctx.roundRect(-40, -88, 80, 80, [40, 40, 4, 4]);
