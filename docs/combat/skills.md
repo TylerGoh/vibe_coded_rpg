@@ -207,15 +207,18 @@ server's mob (`chillUntil`, `frozenUntil`, `burn`), set in `element()` from `app
 ## The Cleric (S3)
 `story/progression.md` 1b and 5: the other staff class. It solos on sustain ("takes longer, never loses"),
 and in a party its heals, shields and summons matter more than its damage. Rules and numbers in
-`src/shared/skills.js` (`BONK_MULT` and the constants after it).
+`src/shared/skills.js` (`HOLY_BOLT_MULT` and the constants after it).
 - **Looks**: a soft golden halo over its head (`drawHalo`, `src/summons.js`, drawn in `Slime.draw` from
   `cls`) so friends tell it from a Mage at a glance; a Mage's staff gets a faint sparkle on its back
   (`drawStaffSparkle`). Both everywhere, not just in combat rooms.
-- **The staff bonk** is its normal attack instead of the staff bolt (`statsFor` gives a Cleric with a staff
-  `bonk` and no `boltRange`): close (`SLAP_REACH` + `BONK_REACH`), `BONK_MULT` of MAGIC, and `BONK_HEAL` of
-  the damage heals the hurt friend nearest it within `BONK_HEAL_R` (itself when nobody else is hurt), so
-  attacking is never wasted (`bonk` in `server/rpg.js`; `bonk` / `bonkFx` in `src/rpg.js`; others see a
-  little holy star where it lands, not a bolt).
+- **The holy bolt** is its normal attack: a staff bolt with the Mage's range (`statsFor` gives a Cleric with a
+  staff `holyBolt` and the same `boltRange`), `HOLY_BOLT_MULT` of MAGIC, and `HOLY_BOLT_HEAL` of the damage
+  heals the hurt friend nearest it within `HOLY_BOLT_HEAL_R` (itself when nobody else is hurt), so attacking is
+  never wasted (`holyBolt` in `server/rpg.js`; `staffBolt` / `otherBolt` in `src/rpg.js` pick the `holybolt`
+  fx by class: a spinning golden star with a sparkle trail, a ring, rays and a rising shower of stars on a
+  hit). It stores no Arcane Charge (a Mage skill). **Ranged on purpose** (owner, 2026-10-24): the magic
+  classes' power is their spells; the normal attack is only for weaving between them, and it used to be a
+  close staff bonk with one tiny star, which felt bad and was hard to see.
 - **Heals scale with MAGIC**: `healOf` (`power(rank)` × MAGIC × `heal`, Holy Power's multiplier; Jelly Patch
   keeps its flat `amount`). Every heal goes through `healFrom` on the server: capped at max HP, a green +HP
   for the room (`thirst`), and counted on the damage meter.

@@ -8,7 +8,7 @@ const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; /
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
-import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, BONK_MULT, BONK_REACH, BONK_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R } from '../src/shared/skills.js';
+import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R } from '../src/shared/skills.js';
 import { SLAP_REACH, SLAP_COOLDOWN_MS, DASH_CD, PHANTOM_CD, CHARGE_RESET } from '../src/shared/sim.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
@@ -212,7 +212,7 @@ table('ALCHEMY: one batch of each recipe (cost = seeds for its herbs + its mob m
 // damage a second over BURN_S, the stronger burn kept). Chill / freeze is control (a frozen boss is only
 // slowed, and the sim's boss doesn't move), and a shatter needs a fire spell on a frost mage's freeze: the
 // two Mage branches together, never one alone, so solo fights have none. The Cleric (S3): its normal attack
-// is the staff bonk (close, on MAGIC, BONK_HEAL of it healing itself when alone); Smite heals it a share of its
+// is the holy bolt (a staff bolt's range, on MAGIC, HOLY_BOLT_HEAL of it healing itself when alone); Smite heals it a share of its
 // damage; Jelly Heal (under HEAL_AT of max HP), Miracle (under MIRACLE_AT), Mend (under MEND_AT, a heal a
 // second) and the Lantern Wisp (a heal every WISP_TICK) keep it up; the Barrier soaks hits before they land;
 // the Guardian Totem cuts them. Spirits (and the Seraph) add their hits every SPIRIT_HIT_S on any column (they
@@ -244,7 +244,7 @@ const RANGED_PX = 200; // the ranged column: a target this far away (on a ledge,
 // sword) than from range (a staff: progression.md 1b, "kills fast before it gets hit much"). The toughness
 // column puts every class under the same melee pressure from a boss on the curve at its level (the dens'
 // own ATK against curve('atk'), their median).
-const BOSS_HIT_EVERY = { warrior: 2.5, mage: 3.5, cleric: 3, archer: 3.5 }, BOSS_HIT_MULT = 1.25; // (by class: the Cleric bonks close but Smites from afar; the Archer keeps its distance)
+const BOSS_HIT_EVERY = { warrior: 2.5, mage: 3.5, cleric: 3.5, archer: 3.5 }, BOSS_HIT_MULT = 1.25; // (by class: only the Warrior fights up close)
 // The Cleric's choices (S3): heal under these shares of max HP; a spirit draws SPIRIT_DRAW of a boss's hits
 // (the Seraph SERAPH_DRAW) while it stands
 const HEAL_AT = 0.65, MEND_AT = 0.85, MIRACLE_AT = 0.45, SPIRIT_DRAW = 0.5, SERAPH_DRAW = 0.75;
@@ -319,7 +319,7 @@ function castDmg(id, rank, st, n, range, c) {
   return base * sk.mult(rank) * avgHit(st) * hitsOf(sk, st, n) * (ARROWS.has(sk.kind) ? barbed(c) : 1);
 }
 // the normal attack's expected damage at `range` (c: the character, for Barbed Arrows)
-const attackDmg = (st, range, c) => (st.bonk ? (SLAP_REACH + BONK_REACH >= range ? st.magic * BONK_MULT * avgHit(st) : 0) : st.boltRange ? (st.boltRange >= range ? st.magic * STAFF_BOLT_MULT * avgHit(st) : 0) : st.arrowRange ? (st.arrowRange >= range ? st.atk * BOW_SHOT_MULT * avgHit(st) * barbed(c) : 0) : SLAP_REACH + st.reach >= range ? st.atk * avgHit(st) : 0);
+const attackDmg = (st, range, c) => (st.boltRange ? (st.boltRange >= range ? st.magic * (st.holyBolt ? HOLY_BOLT_MULT : STAFF_BOLT_MULT) * avgHit(st) : 0) : st.arrowRange ? (st.arrowRange >= range ? st.atk * BOW_SHOT_MULT * avgHit(st) * barbed(c) : 0) : SLAP_REACH + st.reach >= range ? st.atk * avgHit(st) : 0);
 const POTIONS = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))].filter((id) => ITEMS[id].kind === 'potion' && ITEMS[id].heal).map((id) => ITEMS[id]).sort((a, b) => a.heal - b.heal);
 // A fight: n targets, `range` px away; `hit` raw damage every BOSS_HIT_EVERY s (0: nobody hits back);
 // `hp`: stop once that much damage is done (a boss); `potions`: drink them. → { t, dealt, faint, drunk, gold }
@@ -473,14 +473,14 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     }
     if (best) use(best, t);
     if (best && spendsArcane(best)) charges = 0;
-    else if (!best && !chase && st.boltRange && dmg && r('arcane_charge')) [charges, chargesUntil] = [Math.min(ARCANE_MAX, held + 1), t + ARCANE_DUR];
+    else if (!best && !chase && st.boltRange && !st.holyBolt && dmg && r('arcane_charge')) [charges, chargesUntil] = [Math.min(ARCANE_MAX, held + 1), t + ARCANE_DUR];
     if (best && SKILLS[best].el === 'fire') [burnDps, burnUntil] = [Math.max(burnUntil > t ? burnDps : 0, dmg * BURN_DPS), t + BURN_S];
     if (!dmg) continue;
     dmg *= markX(t);
     dealt += dmg; // (a crowd: the sum over the mobs it caught)
     if (st.thirst) hp = Math.min(st.maxHp, hp + dmg * st.thirst);
     if (best && SKILLS[best].smite) hp = Math.min(st.maxHp, hp + dmg * SKILLS[best].smite(r(best)) * st.heal); // Smite
-    if (!best && !chase && st.bonk) hp = Math.min(st.maxHp, hp + dmg * BONK_HEAL * st.heal); // the bonk (alone: it heals you)
+    if (!best && !chase && st.holyBolt) hp = Math.min(st.maxHp, hp + dmg * HOLY_BOLT_HEAL * st.heal); // the holy bolt (alone: it heals you)
     if (dealt >= bossHp) return { t: t + ACTION_S, dealt, faint: false, drunk, gold };
   }
   return { t: until, dealt, faint: false, drunk, gold };

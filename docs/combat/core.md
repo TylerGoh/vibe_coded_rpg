@@ -31,7 +31,13 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
   `STAFF_BOLT_RANGE` plus the staff's reach (`boltRange` in `statsFor`), for `STAFF_BOLT_MULT` of MAGIC,
   flying at `STAFF_BOLT_SPEED` (`staffBolt` in `src/rpg.js`; the hit is sent at once and shown on landing).
   The server's `attack()` checks that range and caps at MAGIC × `STAFF_BOLT_MULT`. Other players see the bolt
-  (`otherBolt`). Slapping friends with a staff is still a close bonk, judged by the server as before.
+  (`otherBolt`). A Cleric's is the golden **holy bolt** (same range, `HOLY_BOLT_MULT`, and it heals a friend:
+  `docs/combat/skills.md`, The Cleric). Slapping friends with a staff is still a close bonk, judged by the
+  server as before.
+- **Owner decision (2026-10-24): both magic classes attack from range.** A Mage's or Cleric's power is its
+  spells (and the Cleric's heals and summons), not the normal attack; a ranged normal attack only lets them
+  weave cheap hits between spells from where they stand. So don't make a magic class's normal attack melee
+  to "balance" it. (The Cleric first had a close staff bonk; it felt bad and hid its particles.)
 - **With a bow** (S4) it's a **bow shot**: an arrow to the first mob ahead within `arrowRange` (`statsFor`) for
   `BOW_SHOT_MULT` of ATK (`bowShot`; others see `otherArrow`); the server's `shoot()` checks the range and caps
   it, a Retreat Shot (`retreatOpen`) higher. Hits on friends with a bow are a close slap, as with a staff.

@@ -1699,7 +1699,7 @@ const LIFE = {
   cleave: 0.38, storm: 1.0, skysplit: 0.65, chain: 0.42, starfall: 1.3, bubblePop: 0.45, rally: 0.8, aegis: 0.7, secondwind: 1.0,
   dash: 0.3, blink: 0.45, flashjump: 0.35, scroll: 1.4, gods: 1.1,
   charge: 0.35, slam: 0.55, upcut: 0.4, shatter: 0.55,
-  barrier: 0.6, revive: 1.1, bonk: 0.3, // (S3)
+  barrier: 0.6, revive: 1.1, // (S3)
 };
 
 export class SkillFx {
@@ -1709,11 +1709,12 @@ export class SkillFx {
 
   // kind: 'strike' | 'spin' | 'bolt' | 'heal' | 'nova' | 'buff' | 'levelskill' | 'cleave' | 'storm' |
   // 'skysplit' | 'chain' | 'meteor' | 'starfall' | 'bubblePop' | 'rally' | 'zone' | 'aegis' | 'secondwind' |
-  // 'dash' | 'blink' | 'flashjump' | 'scroll' | 'iframe' | 'staffbolt' | 'charge' | 'slam' | 'slamfall' | 'upcut' | 'shatter'
+  // 'dash' | 'blink' | 'flashjump' | 'scroll' | 'iframe' | 'staffbolt' | 'holybolt' | 'charge' | 'slam' | 'slamfall' | 'upcut' | 'shatter'
   // (options: see each FX entry)
   spawn(kind, o = {}) {
     const life = kind === 'bolt' ? (o.dur ?? 0.3) + 0.35
       : kind === 'staffbolt' ? (o.dur ?? 0.15) + 0.25
+      : kind === 'holybolt' ? (o.dur ?? 0.15) + 0.4
       : kind === 'meteor' ? (o.delay ?? 0.8) + 0.6
       : kind === 'zone' ? (o.dur ?? 8)
       : kind === 'iframe' || kind === 'slamfall' ? (o.dur ?? 0.3)
@@ -1900,14 +1901,6 @@ const FX = {
       ctx.fillStyle = `rgba(255,236,160,${a * (1 - s)})`;
       star(ctx, x + Math.sin(i * 2.7 + e.seed) * 22, y - 10 - s * 120, 3 + (i % 3));
     }
-  },
-  // Bonk {x, y}: a little holy star where a Cleric's staff lands
-  bonk(ctx, e, k) {
-    const { x, y } = e.o, a = 1 - k;
-    ctx.fillStyle = `rgba(255,240,170,${a})`;
-    star(ctx, x, y, 8 + 10 * k, 4, 0.35);
-    ctx.fillStyle = `rgba(255,255,255,${a})`;
-    star(ctx, x, y, 4 + 4 * k, 4, 0.4);
   },
   // ——— the Mage's combos (S2.6) ———
   // Shatter {x, y, r}: a frozen mob's ice bursting: pale shards flying out, a ring of frost
@@ -2240,6 +2233,67 @@ const FX = {
       ctx.fillStyle = `rgba(${tint},0.8)`;
       circle(ctx, px, py, 5 * (1 - b));
       for (let i = 0; i < 3; i++) circle(ctx, px + Math.cos(i * 2 + e.seed) * b * 9, py - b * 8, 2.5 * (1 - b) + 0.5);
+    }
+  },
+
+  // A Cleric's holy bolt (S3): a spinning golden star with a trail of little sparkles that drift down as it
+  // flies; on a hit a ring, a cross of rays and a rising shower of stars; on a miss a soft fizzle of sparkles
+  holybolt(ctx, e) {
+    const { x, y, tx, ty, hit } = e.o, dur = e.o.dur ?? 0.15;
+    const at = (q) => {
+      q = clamp(q, 0, 1);
+      return [x + (tx - x) * q, y + (ty - y) * q - Math.sin(q * Math.PI) * 8];
+    };
+    const q = e.age / dur;
+    if (q < 1) {
+      for (let i = 7; i >= 1; i--) {
+        const [px, py] = at(q - i * 0.05);
+        const f = 1 - i / 8;
+        ctx.fillStyle = i % 2 ? `rgba(255,255,255,${0.7 * f})` : `rgba(255,222,120,${0.8 * f})`;
+        star(ctx, px + Math.sin(i * 2.3 + e.seed) * 4, py + (1 - f) * 8, 4 * f + 1.2);
+      }
+      const [px, py] = at(q);
+      ctx.fillStyle = 'rgba(255,226,130,0.4)';
+      circle(ctx, px, py, 12);
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(e.age * 14);
+      ctx.fillStyle = '#ffe28a';
+      star(ctx, 0, 0, 9, 4, 0.35);
+      ctx.fillStyle = '#ffffff';
+      star(ctx, 0, 0, 4.5, 4, 0.4);
+      ctx.restore();
+      return;
+    }
+    const b = (e.age - dur) / 0.4, [px, py] = at(1), fade = 1 - b;
+    if (hit) {
+      ctx.globalAlpha = fade;
+      ctx.strokeStyle = '#ffe28a';
+      ctx.lineWidth = 3 * fade + 1;
+      ctx.beginPath();
+      ctx.arc(px, py, 6 + ease(b) * 22, 0, TAU);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(255,246,200,0.85)';
+      for (let i = 0; i < 4; i++) {
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.rotate((i / 4) * TAU + Math.PI / 4);
+        ctx.fillRect(-1.5 * fade - 0.5, 4, 3 * fade + 1, 8 + ease(b) * 18);
+        ctx.restore();
+      }
+      ctx.fillStyle = '#ffffff';
+      star(ctx, px, py, 10 * fade + 2, 4, 0.35);
+      for (let i = 0; i < 6; i++) {
+        const a = (i / 6) * TAU + e.seed, d = 6 + ease(b) * 20;
+        ctx.fillStyle = i % 2 ? '#ffffff' : '#ffd86a';
+        star(ctx, px + Math.cos(a) * d, py + Math.sin(a) * d - b * 18, 3.5 * fade + 1);
+      }
+    } else {
+      ctx.globalAlpha = fade;
+      for (let i = 0; i < 4; i++) {
+        ctx.fillStyle = i % 2 ? '#ffffff' : '#ffe28a';
+        star(ctx, px + Math.cos(i * 1.7 + e.seed) * b * 12, py - b * 14, 3 * fade + 0.8);
+      }
     }
   },
 

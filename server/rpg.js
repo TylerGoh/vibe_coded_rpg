@@ -13,7 +13,7 @@
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
 import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost } from '../src/shared/rpg.js';
-import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, healOf, classNames, BONK_MULT, BONK_REACH, BONK_HEAL, BONK_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn } from '../src/shared/skills.js';
+import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
@@ -645,7 +645,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function attack(id, p, dir, hits) {
     if (p.faintUntil || !isCombat(p.state.room)) return [];
     const st = stats(p);
-    if (st.bonk) return bonk(id, p, dir, hits);
+    if (st.holyBolt) return holyBolt(id, p, dir, hits);
     if (st.arrowRange) return shoot(id, p, dir, hits, st);
     const charged = !st.boltRange && chargeOpen(p.state) && Array.isArray(hits) && hits.length > 0;
     const mult = charged ? SKILLS.charge.mult(chaseRank(p.state.mw, 0)) : 1;
@@ -679,14 +679,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   const barbSlow = (p) => (rankOf(p.rpg.skills, 'barbed_arrows') ? BARB_SLOW : 0);
   const barbCap = (p) => 1 + BARB_BONUS * rankOf(p.rpg.skills, 'barbed_arrows');
 
-  // The Cleric's staff bonk (S3, skills.js BONK_*): close and weak, and BONK_HEAL of what it did heals the hurt
-  // friend nearest you within BONK_HEAL_R (you, when nobody else is hurt)
-  function bonk(id, p, dir, hits) {
+  // The Cleric's holy bolt (S3, skills.js HOLY_BOLT_*): the staff bolt's range, and HOLY_BOLT_HEAL of what it did
+  // heals the hurt friend nearest you within HOLY_BOLT_HEAL_R (you, when nobody else is hurt)
+  function holyBolt(id, p, dir, hits) {
     const st = stats(p);
-    const out = applyHits(id, p, hits, { range: SLAP_REACH + BONK_REACH, cap: st.magic * BONK_MULT * capOf(st), dir, knock: 160 });
-    const amt = out.reduce((n, h) => n + h[1], 0) * BONK_HEAL * st.heal;
+    const out = applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * HOLY_BOLT_MULT * capOf(st), dir, knock: 120 });
+    const amt = out.reduce((n, h) => n + h[1], 0) * HOLY_BOLT_HEAL * st.heal;
     if (amt >= 1) {
-      let best = null, bestD = BONK_HEAL_R;
+      let best = null, bestD = HOLY_BOLT_HEAL_R;
       for (const [qid, q] of inRoom(p.state.room)) {
         const d = Math.abs(q.state.x - p.state.x);
         if (q !== p && !q.faintUntil && q.rpg.hp < stats(q).maxHp && d < bestD) [best, bestD] = [[qid, q], d];

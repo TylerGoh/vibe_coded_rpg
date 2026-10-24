@@ -37,7 +37,7 @@ export const CLASSES = {
       { id: 'frostbinder', name: 'Frostbinder', blurb: 'Ice and storm: slows, long range and control.' },
     ],
   },
-  // S3 (story/progression.md 5): the other staff class. Its normal attack is a staff bonk (BONK_*), not a bolt
+  // S3 (story/progression.md 5): the other staff class. Its normal attack is the holy bolt (HOLY_BOLT_*)
   cleric: {
     name: 'Cleric', weapon: 'staff', starter: 'wood_staff', stat: 'int', color: '#5fc79a',
     blurb: 'A staff and a soft halo. Heals and shields its friends, calls spirits to fight beside it, and almost never goes down.',
@@ -334,7 +334,7 @@ export const SKILLS = {
   },
   holy_power: {
     ...C, branch: 'priest', adv: 60, name: 'Holy Power', kind: 'passive', max: 5,
-    desc: (r) => `Your heals (Jelly Heal, Mend, Miracle, the Lantern Wisp, the bonk's) and Smite's holy light are ${8 * r}% stronger.`,
+    desc: (r) => `Your heals (Jelly Heal, Mend, Miracle, the Lantern Wisp, the holy bolt's) and Smite's holy light are ${8 * r}% stronger.`,
   },
   miracle: {
     ...C, branch: 'priest', adv: 100, name: 'Miracle', kind: 'miracle', max: 3, mp: 80, cd: 120, radius: 600,
@@ -485,9 +485,9 @@ const SPELL_KINDS = new Set(['bolt', 'fireball', 'chain', 'meteor', 'nova', 'sta
 export const spendsArcane = (id) => SKILLS[id]?.cls === 'mage' && SPELL_KINDS.has(SKILLS[id].kind);
 export const arcaneMult = (skills, n) => 1 + SKILLS.arcane_charge.per(rankOf(skills, 'arcane_charge')) * Math.min(ARCANE_MAX, n | 0);
 // ——— the Cleric (S3, story/progression.md 5) ———
-// The staff bonk (a Cleric's normal attack, instead of the staff bolt): close (SLAP_REACH + BONK_REACH), BONK_MULT
-// of MAGIC, and BONK_HEAL of what it did heals the hurt friend nearest you (or you) within BONK_HEAL_R
-export const BONK_MULT = 0.7, BONK_REACH = 18, BONK_HEAL = 0.4, BONK_HEAL_R = 320;
+// The holy bolt (a Cleric's normal attack, its staff bolt): the staff bolt's range, HOLY_BOLT_MULT of MAGIC, and
+// HOLY_BOLT_HEAL of what it did heals the hurt friend nearest you (or you) within HOLY_BOLT_HEAL_R
+export const HOLY_BOLT_MULT = 0.7, HOLY_BOLT_HEAL = 0.4, HOLY_BOLT_HEAL_R = 320;
 // Summons (server/summons.js runs them like mobs; src/summons.js draws them). Spirits (and the Seraph) chase
 // the nearest mob within SPIRIT_SEEK at SPIRIT_SPEED and hit every SPIRIT_HIT_S; a mob they hit, and every
 // mob within SPIRIT_TAUNT (the Seraph: SERAPH_TAUNT) that's after a slime, goes after them instead. The Seraph
@@ -647,7 +647,7 @@ export function statsFor(c, buffs = {}) {
   const staff = ITEMS[c.gear?.weapon]?.kind === 'staff' ? ITEMS[c.gear.weapon] : null; // (S1: spells grow with a staff)
   const bow = ITEMS[c.gear?.weapon]?.kind === 'bow' ? ITEMS[c.gear.weapon] : null; // (S4: a bow shoots, and aims with DEX)
   const aim = rankOf(c.skills, 'deadeye'), keen = rankOf(c.skills, 'keen_eye');
-  const bonk = !!staff && c.cls === 'cleric'; // (S3: a Cleric bonks with its staff instead of firing a bolt)
+  const holyBolt = !!staff && c.cls === 'cleric'; // (S3: a Cleric's staff fires a holy bolt that heals)
   const str = apOf(c.ap, 'str'), dex = apOf(c.ap, 'dex'), int = apOf(c.ap, 'int'), luk = apOf(c.ap, 'luk');
   const ms = rankOf(c.skills, 'mana_shield');
   return {
@@ -657,10 +657,10 @@ export function statsFor(c, buffs = {}) {
     maxHp: buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str + (bow ? BOW_DEX_HP * dex : 0)) * (1 + 0.08 * rankOf(c.skills, 'vitality'))),
     maxMp: maxMpFor(c.lvl, c.skills) + 2 * int + (staff?.mp ?? 0),
     reach: staff || bow ? 0 : reachFor(c.gear?.weapon), // a sword's extra reach (swings and blade skills)
-    boltRange: staff && !bonk ? STAFF_BOLT_RANGE + staff.reach : 0, // a staff bolt's range
+    boltRange: staff ? STAFF_BOLT_RANGE + staff.reach : 0, // a staff bolt's range (a Cleric's holy bolt's too)
     arrowRange: bow ? BOW_RANGE + bow.reach + KEEN_RANGE * keen : 0, // a bow shot's range (S4)
     evade: SKILLS.evasion.chance(rankOf(c.skills, 'evasion')), // the chance a hit misses (Evasion, server/rpg.js hurt)
-    bonk, // the normal attack is the Cleric's staff bonk (BONK_*)
+    holyBolt, // the normal attack is the Cleric's holy bolt (HOLY_BOLT_*)
     heal: 1 + 0.08 * rankOf(c.skills, 'holy_power'), // the Cleric's heals' multiplier, and Smite's (`holy` skills) (Holy Power)
     bond: rankOf(c.skills, 'spirit_bond'), // Spirit Bond's rank (summons' HP and damage)
     crit: 0.12 + 0.03 * (mastery + aim) + 0.02 * keen + Math.min(0.2, 0.0004 * luk) + (brew.crit ?? 0),

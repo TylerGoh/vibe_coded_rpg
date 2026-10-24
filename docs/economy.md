@@ -191,7 +191,7 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   its single-target rotation, capped at `TOUGH_CAP`.
 - **Time to solo each den** at the den's own level (dens under `CLASS_LVL` are the Novices' and left out):
   the real boss's HP and ATK, a hit every `BOSS_HIT_EVERY` by class (most often for a Warrior up close, least
-  for a Mage or an Archer at range, the Cleric in between: it bonks close but Smites from afar), potions drunk (the biggest shop potion that fits) and their gold, against what the kill pays.
+  for a Mage, a Cleric or an Archer at range), potions drunk (the biggest shop potion that fits) and their gold, against what the kill pays.
 - **The shape table**: each class ÷ the other classes' mean, per column (mean of each class's branches).
 - **Checks.** Every branch can solo every den: never faints, and its potions cost at most
   `SOLO_POTION_SHARE` of what the kill pays. Every branch's solo time within `CLASS_FIT` of the median of all
@@ -236,8 +236,8 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   0.88 → 0.82 at Lv 100, 0.97 → 0.90 at 150, 1.02 → 0.94 at 200 (Lv 10–60 barely moved); the Elementalist
   solos dens ~8–10% faster, the Frostbinder ~3–5%. Nothing else moved: no mob, boss, gold, EXP or price.
 
-- **The Cleric (S3, 2026-10-23)** is in `fight`: the staff bonk (`BONK_MULT`, and `BONK_HEAL` of it healing
-  itself), Smite's self-heal, Jelly Heal under `HEAL_AT`, Miracle under `MIRACLE_AT`, Mend under `MEND_AT` (a
+- **The Cleric (S3, 2026-10-23)** is in `fight`: the holy bolt (`HOLY_BOLT_MULT`, and `HOLY_BOLT_HEAL` of it
+  healing itself; a close staff bonk until 2026-10-24), Smite's self-heal, Jelly Heal under `HEAL_AT`, Miracle under `MIRACLE_AT`, Mend under `MEND_AT` (a
   heal a second), the Lantern Wisp, the Barrier's soak and the Totem's cut, and its spirits: their hits on
   every column (they walk to the target), and they **draw** `SPIRIT_DRAW` of a boss's hits (the Seraph
   `SERAPH_DRAW`) onto their own HP while they stand, worn down by the boss too (`BOSS_SUMMON_HIT` every
@@ -250,6 +250,10 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   Warden ran level with the Mages at Lv 100+), and Holy Power now also strengthens Smite (the Priest was 1.62×
   the median on Pyra). With six branches the median moved, but no Warrior or Mage number did, and nothing
   outside the CLASSES tables: no mob, boss, gold, EXP, price or curve.
+  **The holy bolt (2026-10-24)**: the bonk became a ranged bolt (same multiplier) and the Cleric's
+  `BOSS_HIT_EVERY` went 3 → 3.5 (it now stands back like a Mage). Only the ranged column moved: the Cleric
+  0.83–0.93× → 1.16–1.49× the others' mean (the Mages' and Archers' ratios dip by that much). Single target,
+  crowd, toughness, potions and gold didn't; den solo times within a second or two. Its bad-at (crowd) holds.
 
 - **The Archer (S4, 2026-10-24)** is in `fight`: the bow shot (`BOW_SHOT_MULT`), its arrow kinds (`shot`,
   `pierce`, `rain`: all on ATK, Barbed Arrows' bonus on every arrow after the first, which has slowed the mob;

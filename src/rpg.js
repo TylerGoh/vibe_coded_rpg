@@ -14,7 +14,7 @@ import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, draw
 import { Summons } from './summons.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, STAFF_BOLT_RANGE, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, BONK_MULT, BONK_REACH, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn } from './shared/skills.js';
+import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn } from './shared/skills.js';
 import { drawMobState, drawArcanePips } from './elements.js';
 import { staffGlow } from './staff-art.js';
 import { bowTint } from './bow-art.js';
@@ -268,7 +268,6 @@ export class Rpg {
   // (the server allows it from its own state: server/rpg.js attack)
   slapHits(me, dir, mult = 1) {
     if (!this.me || !isCombat(this.room)) return [];
-    if (this.staffOf(this.me) && this.me.cls === 'cleric') return this.bonk(me, dir);
     if (this.staffOf(this.me)) return this.staffBolt(me, dir);
     if (this.bowOf(this.me)) return this.bowShot(me, dir, mult);
     const [v] = this.ahead(me, dir, SLAP_REACH + (this.swordOf(this.me)?.reach ?? 0));
@@ -281,21 +280,6 @@ export class Rpg {
     return [[v.id, dmg, crit]];
   }
 
-  // A Cleric's staff bonk (S3): close, on MAGIC; the server heals a hurt friend from it (server/rpg.js bonk)
-  bonk(me, dir) {
-    const [v] = this.ahead(me, dir, SLAP_REACH + BONK_REACH);
-    if (!v) return [];
-    const cut = this.shellCut(v, me.x);
-    let [dmg, crit] = this.roll(this.me.magic, BONK_MULT * this.markOn(v));
-    dmg = Math.max(1, Math.round(dmg * cut));
-    this.blocked(v, cut);
-    this.showHit(v, dmg, crit, me.x);
-    this.bonkFx(v);
-    return [[v.id, dmg, crit]];
-  }
-  bonkFx(v) {
-    this.fx.spawn('bonk', { x: v.x, y: v.y - MOBS[v.kind].h * 0.6 });
-  }
 
   // A Charge connected (anyone's: the slap echo carries `charge` for the others)
   chargeFx(s, dir) {
@@ -381,18 +365,19 @@ export class Rpg {
     this.pop(s.x - dir * 20, s.y - 70, 'RETREAT SHOT', '#e6f0a8', 14);
   }
   // A staff's normal attack: a little bolt to the first mob ahead within the staff's range (S1). The hit
-  // is sent now and shown when the bolt lands; the server caps it at STAFF_BOLT_MULT of MAGIC.
+  // is sent now and shown when the bolt lands; the server caps it at STAFF_BOLT_MULT of MAGIC. A Cleric's is
+  // the holy bolt (S3): golden, HOLY_BOLT_MULT of MAGIC, and the server heals a hurt friend from it.
   staffBolt(me, dir) {
-    const m = this.me, range = statsFor(m).boltRange;
+    const m = this.me, range = statsFor(m).boltRange, holy = m.cls === 'cleric';
     const [v] = this.ahead(me, dir, range, 0);
     const sx = me.x, sy = me.y;
     const tx = v ? v.x : sx + dir * range * 0.8, ty = v ? v.y - MOBS[v.kind].h / 2 : sy - 22;
     const dur = Math.abs(tx - sx) / STAFF_BOLT_SPEED + 0.04;
-    this.fx.spawn('staffbolt', { x: sx + dir * 18, y: sy - 10, tx, ty, dur, hit: !!v, tint: staffGlow(m.gear.weapon) });
+    this.fx.spawn(holy ? 'holybolt' : 'staffbolt', { x: sx + dir * 18, y: sy - 10, tx, ty, dur, hit: !!v, tint: staffGlow(m.gear.weapon) });
     if (!v) return [];
-    if (rankOf(m.skills, 'arcane_charge')) this.arcane = { n: Math.min(ARCANE_MAX, this.charges() + 1), at: this.time, until: this.time + ARCANE_DUR }; // (the server counts it too: attack)
+    if (!holy && rankOf(m.skills, 'arcane_charge')) this.arcane = { n: Math.min(ARCANE_MAX, this.charges() + 1), at: this.time, until: this.time + ARCANE_DUR }; // (the server counts it too: attack)
     const cut = this.shellCut(v, sx);
-    let [dmg, crit] = this.roll(m.magic, STAFF_BOLT_MULT * this.markOn(v));
+    let [dmg, crit] = this.roll(m.magic, (holy ? HOLY_BOLT_MULT : STAFF_BOLT_MULT) * this.markOn(v));
     dmg = Math.max(1, Math.round(dmg * cut));
     setTimeout(() => {
       this.blocked(v, cut);
@@ -427,12 +412,12 @@ export class Rpg {
     }]);
     this.pop(v.x, v.y - k.h - 40, 'SHATTER!', '#bfe8ff', 20, delay);
   }
-  // Someone else's staff bolt (drawn only: their hits come with the slap message)
+  // Someone else's staff bolt or holy bolt (drawn only: their hits come with the slap message)
   otherBolt(s, dir, hits) {
     const v = hits?.length ? this.views.get(hits[0][0]) : null;
     const tx = v ? v.x : s.x + dir * 150, ty = v ? v.y - MOBS[v.kind].h / 2 : s.y - 22;
     const dur = Math.abs(tx - s.x) / STAFF_BOLT_SPEED + 0.04;
-    this.fx.spawn('staffbolt', { x: s.x + dir * 18, y: s.y - 10, tx, ty, dur, hit: !!v, tint: staffGlow(s.gear?.weapon) });
+    this.fx.spawn(s.cls === 'cleric' ? 'holybolt' : 'staffbolt', { x: s.x + dir * 18, y: s.y - 10, tx, ty, dur, hit: !!v, tint: staffGlow(s.gear?.weapon) });
     return dur;
   }
 

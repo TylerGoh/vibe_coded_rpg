@@ -97,8 +97,9 @@ LUK stays the shared crit stat. DEX finally gets a job (today it only raises the
   Mochi point them at the pool, where the first choice is free. Until they choose, they stay Novices
   (nothing forces it, but class points can't be spent).
 - The normal attack follows the class: sword swing (as now), **staff bolt** for a Mage (a short magic
-  bolt on MAGIC), **staff bonk** for a Cleric (weak, close; a hit lands a small heal on the nearest hurt
-  friend so attacking is never wasted), **bow shot** (an arrow to the first mob ahead in range).
+  bolt on MAGIC), **holy bolt** for a Cleric (a golden staff bolt; a hit lands a small heal on the nearest
+  hurt friend so attacking is never wasted; it was a close staff bonk until 2026-10-24, made ranged because
+  a magic class's power is its spells and the normal attack is only for weaving between them), **bow shot** (an arrow to the first mob ahead in range).
 
 ### 1b. Balance: equal power, different shape
 Each class is strong at two things, fine at one, bad at one:
@@ -383,7 +384,7 @@ slow levelling down, and roll those characters back to where their play time wou
       node UI (desktop and phone), the one-time refund. Warrior (with the chase moves in `step()`) and Mage, with the mage
       combos (chill/freeze/shatter, burn/spread, Arcane Charge).
 - [x] **S3: the Cleric** (shipped 2026-10-23; `docs/combat/skills.md`, "The Cleric"): the Cleric at the Rebirth Pool, the halo, the
-      staff bonk, the summons (server-run: `server/summons.js`), the tree (Smite, Jelly Heal, Jelly Spirit, Faith; Priest: Mend, the
+      staff bonk (since a ranged holy bolt), the summons (server-run: `server/summons.js`), the tree (Smite, Jelly Heal, Jelly Spirit, Faith; Priest: Mend, the
       Lantern Wisp, Revive, Holy Power, Miracle; Warden: the Guardian Totem, Barrier, Spirit Bond, the Seraph), healing and
       damage taken on the damage meter. The Knight kept its Guardian skills (Sanctuary, Aegis, Bubble, Second Wind): the
       Cleric got its own instead of taking them, so S2's Knight didn't change. Cleanse waits for S5's curses.

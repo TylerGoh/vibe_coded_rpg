@@ -279,10 +279,9 @@ const net = new Net(wsUrl, {
       slapper.slap(m.dir); // ours already swung when we clicked
       if (slapper.visible) audio.sfx(weaponSound(slapper), { pan: clamp((slapper.x - (mine?.x ?? 0)) / 500, -1, 1), vol: 0.5 });
       const staff = ITEMS[slapper.gear?.weapon]?.kind === 'staff', bow = ITEMS[slapper.gear?.weapon]?.kind === 'bow';
-      if (slapper.visible && isCombat(room) && staff && slapper.cls !== 'cleric') boltDur = rpg.otherBolt(slapper, m.dir, m.mobs);
+      if (slapper.visible && isCombat(room) && staff) boltDur = rpg.otherBolt(slapper, m.dir, m.mobs);
       if (slapper.visible && isCombat(room) && bow) boltDur = rpg.otherArrow(slapper, m.dir, m.mobs); // (S4: an arrow)
       if (slapper.visible && m.retreat) rpg.retreatFx(slapper, m.dir);
-      if (slapper.visible && isCombat(room) && staff && slapper.cls === 'cleric') for (const [id] of m.mobs ?? []) { const v = rpg.views.get(id); if (v) rpg.bonkFx(v); } // (a Cleric's bonk)
       if (slapper.visible && m.charge) rpg.chargeFx(slapper, m.dir); // a Charge (ours showed when we hit)
     }
     if (m.mobs && isCombat(room) && m.id !== net.id) rpg.othersHits(m.mobs, mine?.x ?? 0, boltDur); // ours already showed
@@ -845,7 +844,7 @@ function impact(x, y) {
 }
 let lastSlap = 0;
 // what a slap sounds like with what's in hand: a sword swings, a staff fires (its bolt), a mitten slaps
-const weaponSound = (s) => (s.cls === 'cleric' && ITEMS[s.gear?.weapon]?.kind === 'staff' ? 'swing' : { sword: 'swing', staff: 'staffBolt', bow: 'bowShot' }[ITEMS[s.gear?.weapon]?.kind] ?? 'slap'); // (a Cleric bonks)
+const weaponSound = (s) => ({ sword: 'swing', staff: 'staffBolt', bow: 'bowShot' }[ITEMS[s.gear?.weapon]?.kind] ?? 'slap');
 // In the Wildwood a slap (or a sword swing, with one equipped) also hits mobs
 // (what it hits is decided right here from what's on screen, and shown straight away: src/rpg.js)
 // aimed: a click or tap toward a side (X and the Hit button go the way you face, except that while an Archer's
