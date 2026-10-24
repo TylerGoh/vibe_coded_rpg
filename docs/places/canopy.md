@@ -28,6 +28,11 @@ the Canopy's WEST end (`CANOPY_EXIT_X`, the ladder back down) and go east, highe
   that, a few swings pushed them out of reach).
 - **The Hornet Queen** (field boss, Lv 38, small: no story): roams the Wasp Crowns on the `dive` brain,
   passive until hit, the usual field-boss rules (`docs/combat/stages.md`). Her pet is the Mini Hornet Queen.
+  S5.4 party mechanics (two or more slimes fighting her): `adds` (a field boss has no summon, so she calls her
+  `minion` wasps every `FIELD_ADDS_EVERY` s, at most `FIELD_ADDS_MAX` of hers at once; they leave when she dies or
+  heals up) and a `weakpoint`, her honey sac (`weak` on her abdomen, drawn as a glowing honeycomb cell,
+  `looks.weak: 'honey'`). She hovers, so the spot is in the air: arrows, or jump. The plan's "nest on a ledge" would
+  have been a separate thing to hit, and weak points are hits on the boss itself, so it moved onto her.
 - Fliers only pick a target within 70 px of their height (`stepMob`), so owls and hornets hover low
   (`fly` ≤ 66) to notice slimes on the bough; the queen hovers higher and is passive anyway.
 - **Ranger Acorn** (`server/characters.js`): trades basic potions, mega elixirs, the Ranger's Billhook, the

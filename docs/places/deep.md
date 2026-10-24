@@ -29,7 +29,9 @@ Deep's WEST end (`MYCELIUM_EXIT_X`, the root stair back up) and go east, deeper 
 - **The Knotmole** (den, Lv 35, theme `knot`): a big boss with `lines` and a story
   (`story/characters/bosses.md`). Her ultimate is Root Quake, the shared `stomp` (get off the floor);
   minions are puffcaps. Her den, mouth and body are in `src/dens-deep.js`; `dens.js` only has her theme in
-  its shared tables (`FXPAL`, `THEME_RGB`, falling clods, debris). Her pet is the Mini Knotmole.
+  its shared tables (`FXPAL`, `THEME_RGB`, falling clods, debris). Her pet is the Mini Knotmole. S5.4 party
+  mechanics (two or more in the burrow): `focus` (she sniffs out one slime at a time; Rally takes it) and `adds`
+  (more puffcaps); `interrupt` (freeze Root Quake as it warns) from the first slime (`docs/combat/bosses.md`).
 - **Forager Truffle** (`server/characters.js`): trades basic potions, mega elixirs (it's a long way back to
   Pip), the Rootwood Saber and the Lantern Cap (`SHOPS.truffle`); knows Tier 0, the Deep, and that the
   threads run off under the sea, nothing else of the lore. Music: `deep`, `glowroot`, den `knotmole`.

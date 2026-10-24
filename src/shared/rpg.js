@@ -591,6 +591,9 @@ export const MOBS = {
     name: 'Bramble Behemoth', boss: true, lvl: 12, hp: 30000, atk: 36, exp: 2500, speed: 95, w: 170, h: 130, aggro: true, hops: false,
     phases: [['charge', 'slam'], ['charge', 'slam', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
     ult: { name: 'Thorn Tsunami', kind: 'wave' }, minion: 'bramble',
+    // S5.4 (story/s5-plan.md, docs/combat/bosses.md): its bark hardens into armour (`looks.shell`: drawn as bark
+    // plates, src/party.js); freezing Thorn Tsunami as it rears cancels it
+    party: ['armour', 'interrupt'], partyLive: true, looks: { shell: 'bark' },
     drops: [['royal_sap', 1, 1, 2], ['thorn_sword', 1, 1, 1], ['bramble_helm', 1, 1, 1], ['coin', 1, 250, 400], ['blue_jelly', 1, 2, 4], ['mana_jelly', 1, 2, 4], ['scroll_s100', 1, 1, 3], ['scroll_h100', 1, 1, 3], ['scroll_s60', 0.6, 1, 1], ['scroll_h60', 0.6, 1, 1], ['scroll_s10', 0.1, 1, 1], ['scroll_h10', 0.1, 1, 1]],
   },
   // ——— Frostpeak ———
@@ -766,6 +769,9 @@ MOBS.gloop_snail = {
 MOBS.snapjaw = {
   name: 'Old Snapjaw', field: true, lvl: 15, hp: 12000, atk: 40, exp: 2400, speed: 40, w: 124, h: 82, aggro: false, hops: false,
   ai: { kind: 'shell', cut: 0.75, every: 3, warn: 0.7, lunge: 560, time: 0.4 },
+  // S5.4: with two or more on him he draws his head in and the whole shell goes hard (armour on every side, on top
+  // of the front cut; `looks.shell`: mossy scutes)
+  party: ['armour'], partyLive: true, looks: { shell: 'scute' },
   desc: 'Old Snapjaw has surfaced in the Millpond!',
   drops: [['coin', 1, 600, 1000], ['gloop', 1, 4, 6], ['blue_jelly', 1, 2, 3], ['snapjaw_shell', 0.4, 1, 1], ['reed_rapier', 0.25, 1, 1], ['scroll_s100', 0.5, 1, 1], ['scroll_h100', 0.5, 1, 1], ['scroll_s60', 0.15, 1, 1], ['scroll_h60', 0.15, 1, 1]],
 };
@@ -799,6 +805,9 @@ MOBS.tidemother = {
   name: 'The Tidemother', boss: true, lvl: 25, hp: 80000, atk: 66, exp: 13000, speed: 90, w: 184, h: 150, aggro: true, hops: false,
   phases: [['slam', 'charge'], ['slam', 'charge', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
   ult: { name: 'Riptide', kind: 'wave' }, minion: 'rock_crab',
+  // S5.4: the tide (a pulse, `looks.pulse`: sea-green rings, "TIDE"), more crabs for a party, and freezing
+  // Riptide as it rises cancels it
+  party: ['pulse', 'adds', 'interrupt'], partyLive: true, looks: { pulse: 'tide' },
   lines: {
     enter: ['Mine. All of it is mine. The sea brought it and the sea shan\'t have it back.', 'Shoo! Don\'t touch the pretty things. Don\'t touch ANY of the things.'],
     phase: [null, 'You want my shells? My bottles? My lovely lost buttons? No!', 'If the tide goes out, it takes everything! I won\'t let it! I WON\'T!'],
@@ -865,6 +874,9 @@ MOBS.knotmole = {
   name: 'The Knotmole', boss: true, lvl: 35, hp: 135000, atk: 96, exp: 26000, speed: 80, w: 190, h: 150, aggro: true, hops: false,
   phases: [['slam', 'charge'], ['slam', 'charge', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
   ult: { name: 'Root Quake', kind: 'stomp' }, minion: 'puffcap',
+  // S5.4: she sniffs out one slime at a time (focus), more puffcaps for a party, and freezing Root Quake as she
+  // rears cancels it
+  party: ['focus', 'adds', 'interrupt'], partyLive: true,
   lines: {
     enter: ["Who's that? Out! The warm is MINE. Every last thread of it.", "Can't see you. Can smell you, though. You smell cold. Go away and stay cold."],
     phase: [null, 'Tied it tight, I did. Every knot. You shan\'t undo a single one!', 'If I let go it all runs off into the dark, off under the sea, and I\'ll be cold again! COLD!'],
@@ -917,6 +929,10 @@ MOBS.hornet = {
 MOBS.hornet_queen = {
   name: 'The Hornet Queen', field: true, lvl: 38, hp: 62000, atk: 100, exp: 18000, speed: 70, w: 118, h: 96, aggro: false, hops: false, fly: 115,
   ai: { kind: 'dive', every: 2.8, warn: 0.8, time: 0.5 },
+  // S5.4: a party brings her wasps (adds: a field boss with no summon calls `minion`s every FIELD_ADDS_EVERY s,
+  // server/rpg.js partyTick) and her honey sac glows (the weak point at `weak`, on her abdomen, high in the air:
+  // arrows, or jump; `looks.weak`: a honeycomb cell)
+  party: ['adds', 'weakpoint'], partyLive: true, minion: 'wasp', weak: { dx: -0.45, dy: -0.5, r: 20 }, looks: { weak: 'honey' },
   desc: 'The Hornet Queen has left her nest in the Wasp Crowns!',
   drops: [['coin', 1, 2200, 3400], ['honeycomb', 1, 4, 8], ['hornet_sting', 1, 3, 5], ['elixir', 1, 2, 3], ['mega_elixir', 1, 1, 2], ['queen_stinger', 0.25, 1, 1], ['honey_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.12, 1, 1], ['scroll_h10', 0.12, 1, 1]],
 };
@@ -954,6 +970,8 @@ MOBS.eel_elite = elite('moray_eel', 'Great Moray');
 MOBS.drowned_bosun = {
   name: 'The Drowned Bosun', field: true, lvl: 40, hp: 66000, atk: 104, exp: 19500, speed: 55, w: 136, h: 116, aggro: false, hops: false,
   ai: { kind: 'lob', range: 480, every: 2.4, keep: 170, warn: 0.7, style: 'ink' },
+  // S5.4: the drowned's curse (a sea-green sigil of ink, `looks.curse`)
+  party: ['curse'], partyLive: true, looks: { curse: 'drowned' },
   desc: 'The Drowned Bosun is up and about in the Wreck! Hear the whistle?',
   drops: [['coin', 1, 2300, 3500], ['ink_sac', 1, 4, 8], ['brass_button', 1, 3, 5], ['elixir', 1, 2, 3], ['mega_elixir', 1, 1, 2], ['bosun_hook', 0.25, 1, 1], ['bosun_cap', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.12, 1, 1], ['scroll_h10', 0.12, 1, 1]],
 };
@@ -991,6 +1009,9 @@ MOBS.stalker_elite = elite('thorn_stalker', 'Elder Thorn Stalker');
 MOBS.thorn_hart = {
   name: 'The Thorn Hart', field: true, lvl: 58, hp: 115000, atk: 160, exp: 40000, speed: 60, w: 150, h: 150, aggro: false, hops: false,
   ai: { kind: 'stomp', every: 3.4, warn: 0.9, r: 280, range: 320, jump: 640 },
+  // S5.4: he lowers his antlers at one slime at a time (focus) and the briars curse whoever stands where he
+  // points (a thorny sigil, `looks.curse`)
+  party: ['focus', 'curse'], partyLive: true, looks: { curse: 'thorn' },
   desc: 'The Thorn Hart is walking the Thornheart!',
   drops: [['coin', 1, 4400, 6400], ['antler_velvet', 1, 4, 8], ['stalker_barb', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['briarheart_blade', 0.25, 1, 1], ['antler_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
@@ -1427,6 +1448,10 @@ export const BARRIER_TURN_S = 1.2;
 // of 2–3 and 5 at once, as without it)
 export const ADDS_PER_FIGHTER = 0.5;
 export const ADDS_MAX = 8;
+// S5.4: a field boss has no summon move, so one with `adds` on (the Hornet Queen) calls its `minion`s every
+// FIELD_ADDS_EVERY s instead: ADDS_PER_FIGHTER a slime past the first (at least one), FIELD_ADDS_MAX of its own at once
+export const FIELD_ADDS_EVERY = 12;
+export const FIELD_ADDS_MAX = 4;
 // the stagger (a barrier broken, armour broken, a weak point filled, an ultimate interrupted): the boss stops for
 // STAGGER_S and takes STAGGER_DMG more from everyone
 export const STAGGER_S = 4;

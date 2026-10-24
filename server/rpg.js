@@ -12,7 +12,7 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX } from '../src/shared/rpg.js';
 import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen } from '../src/shared/sim.js';
@@ -536,6 +536,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const drops = k.drops.filter(([, chance]) => Math.random() < chance * odds).map((d) => (STAFF_OF[d[0]] || BOW_OF[d[0]] ? [twinPick(m, d[0]), ...d.slice(1)] : d));
     drops.forEach(([item, , lo, hi], i) => dropLoot(m.room, item, randInt(lo, hi), m.x + (i - (drops.length - 1) / 2) * (k.boss || k.field ? 34 : 22) + rand(-6, 6), ROOMS[m.room].ground > m.y ? m.y : ROOMS[m.room].ground));
     if (k.field) toRoom(m.room)({ t: 'boss', a: 'fieldDown', id: m.id, kind: m.kind, x: m.x, y: m.y });
+    if (k.field) for (const q of ownMinions(m)) q.dead = q.gone = true; // (S5.4: the adds it called flee)
+    if (m.partyOn) toRoom(m.room)({ t: 'party', id: m.id, on: 0 }); // (its party drawing goes)
     if (k.boss) {
       toRoom(m.room)({ t: 'boss', a: 'die', id: m.id, x: m.x, y: m.y });
       bossSays(m, k.lines?.freed);
@@ -590,7 +592,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function fieldFighters(m) {
     const t = now(), n = [...m.hitters.values()].filter((at) => t - at < FIELD_BOSS_FIGHT_MS).length;
     if (n <= m.fighters) return;
-    const max = Math.round(MOBS[m.kind].hp * (1 + BOSS_HP_PER_PLAYER * (n - 1)));
+    const max = Math.round(MOBS[m.kind].hp * (1 + BOSS_HP_PER_PLAYER * (n - 1)) * TEST_BOSS_HP);
     m.hp += max - m.maxHp;
     m.maxHp = max;
     m.fighters = n;
@@ -1181,6 +1183,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     gears: 0.5, beam: 0.3, grid: 0.3, sweep: 0.3, bombs: 0.4, blink: 0.3, echo: 0.5,
   };
   const minionsIn = (room) => mobs.filter((q) => q.minion && !q.dead && q.room === room).length;
+  const ownMinions = (m) => mobs.filter((q) => q.minion && !q.dead && q.by === m.id); // (S5.4: a field boss's called adds)
   const addsCap = (m) => (partyOn(m, 'adds') ? Math.min(ADDS_MAX, 4 + m.fighters) : 5); // (how many of its minions may stand at once)
   // A boss's attack pattern; returns how fast it wants to walk.
   // Three stages (PHASE_AT): more moves and longer combos as its HP drops; below ULT_FIRST it starts
@@ -1602,7 +1605,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         if (tg && Number.isFinite(tg.x)) {
           const cx = Math.round(tg.x);
           m.curseSigil = { x: cx, at: t + CURSE_WARN * 1000 };
-          bossEvent(m, 'curseWarn', { cx, r: CURSE_R, dur: CURSE_WARN });
+          bossEvent(m, 'curseWarn', { cx, r: CURSE_R, dur: CURSE_WARN, fy: m.den ? undefined : m.sp.y }); // (fy: a field boss's floor, S5.4: it may be mid-leap)
         }
       }
       if (m.curseSigil && t >= m.curseSigil.at) {
@@ -1663,6 +1666,22 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       m.weak = null;
       m.weakNext = 0;
     }
+    // S5.4: adds on a field boss (no summon move of its own: the Hornet Queen calls her wasps) every FIELD_ADDS_EVERY s
+    if (k.field && k.minion && bits & partyBit('adds')) {
+      if (!m.addsAt) m.addsAt = t + FIELD_ADDS_EVERY * 500;
+      if (t >= m.addsAt && !busy) {
+        m.addsAt = t + FIELD_ADDS_EVERY * 1000;
+        const n = Math.min(Math.max(1, Math.round(ADDS_PER_FIGHTER * (m.fighters - 1))), FIELD_ADDS_MAX - ownMinions(m).length);
+        for (let i = 0; i < n; i++) {
+          const q = spawn({ id: nextMob++, sp: { kind: k.minion, x0: m.sp.x0, x1: m.sp.x1, y: m.sp.y, room: m.room }, minion: true, by: m.id });
+          q.x = Math.max(m.sp.x0, Math.min(m.sp.x1, m.x + rand(-140, 140)));
+          q.target = m.target;
+          q.targetUntil = t + 8000;
+          mobs.push(q);
+        }
+        if (n > 0) bossEvent(m, 'summon');
+      }
+    } else m.addsAt = 0;
     if (dirty || (m.partyDirty && t - m.partySentAt > 150) || (bits && t - m.partySentAt > 2000)) sendParty(m); // (and every 2 s, for anyone who just came in)
   }
   // S5.2: a boss's party state as the hit cap sees it for a hit from fromX, a little generous at the edges (the
@@ -1862,7 +1881,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
           continue;
         }
         if (MOBS[m.kind].field && (m.hp < m.maxHp || m.fighters > 1) && t - Math.max(0, ...m.hitters.values()) > FIELD_BOSS_IDLE_MS) {
-          Object.assign(m, { hp: MOBS[m.kind].hp, maxHp: MOBS[m.kind].hp, fighters: 1, hitters: new Map(), dmg: new Map(), heal: new Map(), taken: new Map(), dmgDirty: true }); // left alone: it heals up (and the damage meter starts over)
+          Object.assign(m, { hp: Math.round(MOBS[m.kind].hp * TEST_BOSS_HP), maxHp: Math.round(MOBS[m.kind].hp * TEST_BOSS_HP), fighters: 1, hitters: new Map(), dmg: new Map(), heal: new Map(), taken: new Map(), dmgDirty: true }); // left alone: it heals up (and the damage meter starts over)
+          for (const q of ownMinions(m)) q.dead = q.gone = true; // (S5.4: and its called adds go; partyTick switches its mechanics off)
         }
         if (m.den) {
           m.emptyFor = here.some(([, q]) => !q.faintUntil) ? 0 : m.emptyFor + dt; // (knocked-out slimes lying there don't count)

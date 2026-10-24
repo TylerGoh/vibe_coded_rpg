@@ -11,6 +11,8 @@ door is the mended footbridge at `WILLOWMERE_GATE_X` in the Wildwood (drawn by `
   snails, Old Snapjaw). A high willow bough at the far end is the off-the-path spot. Duchess the heron
   stands in the millrace (Bun's persona knows her).
 - Mobs reuse legacy brains: dragonfly = `dive`, gloop snail = `trail` with `style: 'goo'` (a lilac sticky
-  puddle in `src/hazards.js`), Old Snapjaw = a field boss with the `shell` brain (hit him from behind).
+  puddle in `src/hazards.js`), Old Snapjaw = a field boss with the `shell` brain (hit him from behind). S5.4: with two or more slimes on him he
+  also takes the `armour` party mechanic (his whole shell hardens, on top of the front cut; drawn as mossy scutes,
+  `looks.shell: 'scute'`): heavy hits crack it, or wait it out (`docs/combat/bosses.md`). Alone, nothing changes.
 - **Miller Bun** (`server/characters.js`): trades basic potions, the Reed Rapier and the Miller's Cap
   (`SHOPS.bun`); knows Tier 0 plus Willowmere. Music scene `willowmere` (`src/audio.js`).

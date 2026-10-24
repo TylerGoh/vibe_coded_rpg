@@ -3,7 +3,7 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG } from '../src/shared/rpg.js';
+import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CUT, ARMOUR_CRACKS } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
@@ -340,9 +340,11 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
   // S5's party mechanics (PARTY DENS below): mech = { pulse, barrier, weak, hp1 (the boss's one-slime HP), behind (a
   // share of your hits from behind a front-only barrier), front (Sigrun's: front-only barrier and weak point), jump
   // (a share of your non-arrow hits that reach a high weak point), help { magic, weak } (the rest of the party's
-  // damage a second on the barrier and the weak point) }
-  const M = mech ? { shNext: BARRIER_EVERY * 0.5, shFrom: 0, shUntil: 0, shHp: 0, wkNext: WEAK_EVERY * 0.5, wkOpen: false, wkUntil: 0, wkFill: 0, stag: 0, pulse: PULSE_EVERY + PULSE_WARN, staggers: 0, ...mech } : null;
+  // damage a second on the barrier and the weak point) }; S5.4: armour (a shell phase: non-heavy hits ×ARMOUR_CUT,
+  // your heavy hits crack it, one an action; the others' cracks aren't counted, so a party is a little slower here)
+  const M = mech ? { shNext: BARRIER_EVERY * 0.5, shFrom: 0, shUntil: 0, shHp: 0, wkNext: WEAK_EVERY * 0.5, wkOpen: false, wkUntil: 0, wkFill: 0, stag: 0, pulse: PULSE_EVERY + PULSE_WARN, staggers: 0, arNext: ARMOUR_EVERY * 0.5, arFrom: 0, arUntil: 0, cracks: 0, ...mech } : null;
   const shUp = (t) => M?.barrier && t >= M.shFrom && t < M.shUntil, wkUp = (t) => M?.weak && M.wkOpen && t < M.wkUntil;
+  const arUp = (t) => M?.armour && !M.barrier && t >= M.arFrom && t < M.arUntil;
   const stagger = (t) => { M.stag = t + STAGGER_S; M.staggers++; };
   const wearShield = (d, t) => { if ((M.shHp -= d) <= 0) { M.shUntil = t; stagger(t); } }; // (broken: the next still comes on time)
   const fillWeak = (d, t) => { if ((M.wkFill += d) >= M.hp1 * WEAK_HP) { M.wkOpen = false; M.wkNext = t + WEAK_EVERY; stagger(t); } };
@@ -353,6 +355,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
       if (t >= M.shNext) [M.shFrom, M.shUntil, M.shHp, M.shNext] = [M.shNext + BARRIER_WARN, M.shNext + BARRIER_WARN + BARRIER_S, M.hp1 * BARRIER_HP, M.shNext + BARRIER_WARN + BARRIER_S + BARRIER_EVERY];
       if (shUp(t)) wearShield(M.help.magic * dt, t);
     }
+    if (M.armour && !M.barrier && t >= M.arNext) [M.arFrom, M.arUntil, M.cracks, M.arNext] = [M.arNext + ARMOUR_WARN, M.arNext + ARMOUR_WARN + ARMOUR_S, 0, M.arNext + ARMOUR_WARN + ARMOUR_S + ARMOUR_EVERY];
     if (M.weak) {
       if (M.wkOpen && t >= M.wkUntil) [M.wkOpen, M.wkNext] = [false, M.wkUntil + WEAK_EVERY];
       if (!M.wkOpen && t >= M.wkNext) [M.wkOpen, M.wkUntil, M.wkFill] = [true, t + (buff.mark > t || M.help.mark ? WEAK_MARK_S : WEAK_OPEN_S), 0];
@@ -367,6 +370,10 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     if (shUp(t)) {
       if (!kinds.magic) k *= 1 - facing + facing * BARRIER_PHYS;
       else wearShield(d * facing, t);
+    }
+    if (arUp(t)) {
+      if (!kinds.heavy) k *= ARMOUR_CUT;
+      else if (++M.cracks >= ARMOUR_CRACKS) { M.arUntil = t; stagger(t); }
     }
     if (wkUp(t)) {
       const reach = facing * (kinds.arrow ? 1 : M.jump);
@@ -608,6 +615,25 @@ table(`PARTY DENS: each branch alone with every mechanic but the focus on (vs th
   const q = partyRun[id], done = branches.filter((br) => !q.solo[br].faint), med = medianOf(branches.map((br) => q.solo[br].t));
   return [id, { lvl: q.m.lvl, ...Object.fromEntries(branches.map((br) => { const f = q.solo[br]; return [br, `${f.faint ? `faints ${mmss(f.t)}` : mmss(f.t)}${f.drunk ? ` (${f.drunk} pots)` : ''} / ${mmss(q.plain[br])}`]; })), 'alone median': `${mmss(med)}${done.length < branches.length ? ` (${branches.length - done.length} faint)` : ''}`, [`party of ${PARTY_TEAM.length}`]: `${mmss(q.party)} (${fmt(q.hp)} HP${q.runs.some((r) => r.faint) ? `, ${q.runs.filter((r) => r.faint).map((r) => r.br).join(' ')} faint` : ''})`, 'alone ÷ party': (med / q.party).toFixed(1) }];
 })));
+// RETROFIT (S5.4; story/s5-plan.md): the den and field bosses given party mechanics (`partyLive`, not a party den).
+// Alone nothing switches on, so the solo tables above don't move; this shows what they do to a duo (RETRO_DUOS, at
+// the boss's level, its hits shared out like PARTY DENS'): the kill time with them off / on. Only the pulse, barrier,
+// armour, weak point and stagger are modelled (not the focus, curse or adds: a duo answers those by playing, not by DPS).
+const RETRO_DUOS = [['berserker', 'sniper'], ['knight', 'frostbinder']];
+const retro = bosses.filter(([, m]) => m.partyLive && !m.partyDen && m.lvl >= CLASS_LVL).sort((a, b) => a[1].lvl - b[1].lvl);
+const duoRun = (m, duo, on) => {
+  const n = duo.length, hp = bossMaxHp(m, n), base = Object.fromEntries(duo.map((br) => [br, fight(classChar(br, m.lvl), {}).dealt / SIM_S]));
+  const isMagic = (br) => ['mage', 'cleric'].includes(BUILDS[br].cls), isArrow = (br) => BUILDS[br].cls === 'archer';
+  const runs = duo.map((br) => {
+    const o = duo.filter((x) => x !== br);
+    const help = { magic: o.filter(isMagic).reduce((a, x) => a + base[x], 0), weak: o.reduce((a, x) => a + base[x] * (isArrow(x) ? 1 : WEAK_JUMP), 0), mark: o.some((x) => rankOf(classChar(x, m.lvl).skills, 'hunters_mark')) };
+    const mech = on ? { ...mechOf(m, n), armour: partyActive(m, n, 'armour'), behind: 0, jump: WEAK_JUMP, help } : null;
+    const f = fight(classChar(br, m.lvl), { hit: m.atk * BOSS_HIT_MULT, every: BOSS_HIT_EVERY[BUILDS[br].cls] * n, potions: true, until: PARTY_SIM_S, mech });
+    return f.dealt / f.t;
+  });
+  return hp / runs.reduce((a, d) => a + d, 0);
+};
+table(`RETROFIT: den and field bosses with party mechanics (alone: none on, the solo tables hold); a duo's kill time with them off / on`, Object.fromEntries(retro.map(([id, m]) => [id, { lvl: m.lvl, field: m.field ? 'yes' : '', mechanics: m.party.join(' '), ...Object.fromEntries(RETRO_DUOS.map((duo) => { const off = duoRun(m, duo, false), on = duoRun(m, duo, true); return [duo.join(' + '), `${mmss(off)} / ${mmss(on)} (${on <= off ? '' : '+'}${Math.round((on / off - 1) * 100)}%)`]; })) }])));
 delete ITEMS[SHEET_W];
 delete ITEMS[SHEET_H];
 const classProblems = [];

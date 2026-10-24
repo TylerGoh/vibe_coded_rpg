@@ -25,7 +25,9 @@ deeper and harder, so `WRECK_ZONES` run hard → easy by x. Don't "fix" this.
   = `blink`. Elites: the Old Barnacle Crab (Gallery) and the Great Moray (the Wreck).
 - **The Drowned Bosun** (field boss, Lv 40, small: no story): a great grey-lilac octopus in the bosun's coat
   and knitted cap, a brass whistle on a cord. Roams the Wreck on the `lob` brain (`style: 'ink'`), passive
-  until hit. Usual field-boss rules (`docs/combat/stages.md`). His pet is the Mini Drowned Bosun.
+  until hit. Usual field-boss rules (`docs/combat/stages.md`). His pet is the Mini Drowned Bosun. S5.4: with two
+  or more fighting him, the drowned's `curse` (a sea-green ink sigil with bubbles, `looks.curse: 'drowned'`;
+  Cleanse, a Cleansing Tonic or standing off fades it: `docs/combat/bosses.md`).
 - Gear (drops only, on the frozen curve): the Barnacle Helm and the Moray Fang off the mobs, the Bosun's
   Boathook and Bosun's Cap off the Bosun. Beachcomber Moss's persona (`server/characters.js`) knows the cave
   is open and what's in it. Music scene `wreck` (a slow 3/4 shanty, drips, a creaking hull).

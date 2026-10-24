@@ -160,7 +160,37 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
   armour ~0.4×, four Power Strikes cracked and broke it; an Archer's arrows filled the weak point in ~4 s (the mark
   held it open 11 s); a curse landed on both, burned, softened a slap ~12%, Cleanse lifted a friend's then the
   Cleric's own, and walking far off faded one; a Frostbinder froze the Sprout King's warning stomp away (both
-  banners gone). Not tried on a field boss yet; numbers untested with people.
+  banners gone). Numbers untested with people.
+
+### The retrofit (S5.4): Greenhollow (built 2026-10-24)
+Den and field bosses, the owner's gates (every mechanic at 2 fighters, `interrupt` from 1): alone they fight as before.
+| boss | mechanics | drawn as |
+|---|---|---|
+| Bramble Behemoth (den, Lv 12) | armour, interrupt | bark plates with thorns (`looks.shell: 'bark'`) |
+| Old Snapjaw (field, 15) | armour (on top of his front shell) | mossy scutes (`looks.shell: 'scute'`) |
+| The Tidemother (den, 25) | pulse (the tide), adds, interrupt | sea-green rings with foam, "TIDE" (`looks.pulse: 'tide'`) |
+| The Knotmole (den, 35) | focus, adds, interrupt | the usual line and reticle |
+| The Hornet Queen (field, 38) | adds, weakpoint | her honey sac on her abdomen, a honeycomb cell (`looks.weak: 'honey'`) |
+| The Drowned Bosun (field, 40) | curse (the drowned) | a sea-green ink sigil with bubbles (`looks.curse: 'drowned'`) |
+| The Thorn Hart (field, 58) | focus, curse (the thorns) | a briar sigil with thorns round its rim (`looks.curse: 'thorn'`) |
+- The `looks` keys (`shell`, `pulse`, `curse`, `weak`) are tables in `src/party.js` (`SHELLS`, `PULSES`, `CURSES`); a
+  boss without one gets the S5.2 look. The cursed slime's own wisps stay violet.
+- **Field bosses** (first used here): `fieldFighters` is the gate's count (a second slime's hit switches them on;
+  they stay on till it heals up alone, which now also sends its party bits off and sends its called adds away, as
+  its death does). The curse sigil goes on the field boss's floor (`fy` on `curseWarn`: the Thorn Hart may be mid-leap).
+  A field boss has no summon move, so `adds` there is its own call: every `FIELD_ADDS_EVERY` s, `ADDS_PER_FIGHTER` of
+  its `minion` a slime past the first (at least one), `FIELD_ADDS_MAX` of its own at once (`by` on each, `ownMinions`).
+  No ultimates, so no `interrupt`.
+- Swaps from the plan's draft: the Hornet Queen's weak point is on her (a separate nest would be a separate mob to
+  hit). Every den boss here also got `interrupt` (all three ults read as something you can freeze mid-rise). No
+  `lines` were added: the Behemoth and the field bosses have none, and the Tidemother's and Knotmole's mechanics have
+  no line hook (only `lines.shield`).
+- Tested with two headless players on each of the seven (`TEST_SPEED=10`, `TEST_GOD`): alone the bits were 0 (field)
+  or only `interrupt` (den); with two they switched on. Seen: the Behemoth's armour up, Power Strikes cracking and
+  breaking it, the stagger; Snapjaw's armour; the tide pulse warn and hit; the Knotmole's focus; the Hornet Queen's
+  wasps called, her weak point opened, filled by arrows and broken (stagger), also on a phone; the Bosun's and Hart's
+  curses landing (stacks on the status box), the Hart's focus. Not tried: the interrupt on these three (S5.2's code),
+  den adds' bigger waves (no summon came in the test window), real people.
 
 ## The reward window (S0, 2026-10-23)
 Bosses still respawn every `BOSS_RESPAWN_MS`, but each slime gets a den boss's full EXP only once per

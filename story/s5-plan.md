@@ -1,7 +1,8 @@
 # S5, split into pieces (sub-plan for agents)
 
 **Status (2026-10-24): S5.1 and S5.2 are LIVE (deploy #1, e1df118, shipped dark); S5.5 (potions, loot check) and S5.3
-(the party dens switched on and tuned) are LIVE too. Next: S5.4. Test faster with `TEST_SPEED=10` (fight
+(the party dens switched on and tuned) are LIVE too. S5.4's Greenhollow part is built (waiting for its deploy);
+next: S5.4 for Frostpeak. Test faster with `TEST_SPEED=10` (fight
 lengths too, since the client clock fix: `docs/testing.md`).** S5 in `progression.md` ("bosses that need a party",
 section 6) is too big for one session, so it's cut into five pieces, each sized for one agent. Read
 `progression.md` sections 1b and 6 first: they hold the design and the owner's rules. This file pins down what
@@ -225,6 +226,21 @@ Docs: `docs/places/spine.md`, `docs/places/queensbridge.md`, `docs/combat/bosses
 - Their `lines` can mention the mechanic once (the Warden's rune shield going up), in their voice.
 
 ### S5.4: the retrofit, a boss at a time
+**Greenhollow built (2026-10-24, waiting for its deploy).** What landed, and what the next stage should know:
+- The seven Greenhollow bosses below have `party` + `partyLive` as drafted, plus `interrupt` on the three den bosses
+  (Behemoth, Tidemother, Knotmole). One swap: the Hornet Queen's weak point is her honey sac (`weak` on her), not a
+  nest on a ledge, since a weak point is a hit on the boss. Their looks: `looks.shell` / `pulse` / `curse` / `weak`
+  (tables in `src/party.js`); reuse or add a row for each Frostpeak boss (ice armour, a breathing-hole pulse...).
+- **Field bosses work** (first tried here): the gate counts `fieldFighters`; the idle heal and death now switch the bits
+  off and send its called adds away; the curse sigil sits on its floor (`fy`). A field boss has no summon, so `adds`
+  there is `FIELD_ADDS_EVERY` / `FIELD_ADDS_MAX` and its `minion` (Hornet Queen: `wasp`). Field bosses have no ult, so
+  no interrupt. Fliers' weak points are in the air (arrows or a jump), as the Pale Wyrm's will be.
+- `TEST_BOSS_HP` now also holds when a field boss's HP grows or heals (it reset to full HP before).
+- `npm run economy` has a RETROFIT table (a duo's kill time, mechanics off / on) and `fight` models armour. Alone
+  nothing moves; armour costs a duo ~20%, a weak point saves ~7%.
+- Tested with two headless players on all seven (one on a phone): `docs/combat/bosses.md`. Not tried: the interrupt on
+  them, the den adds' bigger waves, people.
+
 Docs: `docs/combat/bosses.md`, `docs/combat/stages.md` (field bosses), each boss's place doc.
 One or two mechanics each, picked to fit the boss (a draft; the agent can swap them for a better fit, and
 says why). Bosses below Lv 10 get none: nobody has a class yet.

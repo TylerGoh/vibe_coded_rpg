@@ -157,8 +157,8 @@ export class Party {
       return true;
     }
     if (m.a === 'curseWarn') {
-      const floor = k.boss ? 450 : m.y;
-      this.sigils.push({ mob: m.id, x: m.cx, y: floor, r: m.r, at: t, end: t + m.dur });
+      const floor = k.boss ? 450 : m.fy ?? m.y; // (fy: a field boss's floor, S5.4)
+      this.sigils.push({ mob: m.id, x: m.cx, y: floor, r: m.r, at: t, end: t + m.dur, look: CURSES[k.looks?.curse] ?? CURSES.dark, thorn: k.looks?.curse === 'thorn', drowned: k.looks?.curse === 'drowned' });
       audio.sfx('bossWarn', { pan, vol: 0.45 });
       this.tell('curseWarn', 'A dark sigil on the floor: step out of it before it closes, or it curses you');
       return true;
@@ -241,7 +241,7 @@ export class Party {
       if (!v || r.killed.has(id)) continue;
       const k = MOBS[v.kind];
       if (b.sh && t < b.sh.until && t > b.sh.from - 1.6) drawShield(ctx, v, k, b.sh, t);
-      if (b.wk && b.wk.until > t) drawWeak(ctx, weakOf(k, v.x, v.y, v.facing), b.wk, t, !!v.marked);
+      if (b.wk && b.wk.until > t) drawWeak(ctx, weakOf(k, v.x, v.y, v.facing), b.wk, t, !!v.marked, k.looks?.weak);
       if (b.stUntil > t) drawDizzy(ctx, v, k, t, b.stUntil - t);
       if (!b.focus || b.until <= t) continue;
       const s = r.slimeOf(b.focus);
@@ -252,7 +252,7 @@ export class Party {
       const v = r.views.get(p.mob);
       if (!v) continue;
       const k = MOBS[v.kind], cx = v.x, cy = v.y - k.h * 0.5, reach = k.boss ? DEN_W : 900;
-      if (p.hitAt) drawPulseHit(ctx, cx, cy, reach, (t - p.hitAt) / 0.8);
+      if (p.hitAt) drawPulseHit(ctx, cx, cy, reach, (t - p.hitAt) / 0.8, k);
       else drawPulseWarn(ctx, cx, cy, k, reach, (t - p.warnAt) / Math.max(0.1, p.at - p.warnAt), t, p.at - t);
     }
   }
@@ -307,29 +307,44 @@ function drawFocus(ctx, v, k, s, t, me) {
 }
 
 // The pulse on its way: rings closing in on the boss from across the room, a violet wash and "PULSE" with the
-// seconds left over it (k: 0 → 1 over the warning)
+// seconds left over it (k: 0 → 1 over the warning). S5.4: `looks.pulse` on the boss recolours it (the
+// Tidemother's tide: sea-green rings with foam on them, "TIDE")
+const PULSES = {
+  violet: { ring: '176,110,255', glow: '190,130,255', hit: '160,100,250', word: 'PULSE', fill: '#f1e4ff', edge: 'rgba(40,20,70,0.75)' },
+  tide: { ring: '80,196,214', glow: '120,220,232', hit: '60,170,206', word: 'TIDE', fill: '#e2fbff', edge: 'rgba(8,48,66,0.78)', foam: true },
+};
 function drawPulseWarn(ctx, x, y, kind, reach, k, t, left) {
   if (k > 1) return;
+  const P = PULSES[kind.looks?.pulse] ?? PULSES.violet;
   ctx.save();
   const pulse = 0.5 + 0.5 * Math.sin(t * (6 + 12 * k));
   for (let i = 0; i < 3; i++) {
     const f = 1 - ((k * 1.6 + i / 3) % 1), rad = kind.w * 0.6 + f * reach;
-    ctx.strokeStyle = `rgba(176,110,255,${(0.15 + 0.5 * k) * (1 - f * 0.6)})`;
+    ctx.strokeStyle = `rgba(${P.ring},${(0.15 + 0.5 * k) * (1 - f * 0.6)})`;
     ctx.lineWidth = 4 + 6 * k;
     ctx.beginPath();
     ctx.arc(x, y, rad, 0, TAU);
     ctx.stroke();
+    if (P.foam) { // (little white caps riding the ring)
+      ctx.fillStyle = `rgba(240,252,255,${(0.2 + 0.5 * k) * (1 - f * 0.6)})`;
+      for (let j = 0; j < 14; j++) {
+        const an = (j * TAU) / 14 + i * 0.4 + t * 0.3;
+        ctx.beginPath();
+        ctx.arc(x + Math.cos(an) * rad, y + Math.sin(an) * rad, 2.5 + 2 * k, 0, TAU);
+        ctx.fill();
+      }
+    }
   }
-  glow(ctx, x, y, kind.w * (0.8 + 0.4 * k), kind.w * (0.8 + 0.4 * k), '190,130,255', 0.4 + 0.4 * pulse * k);
-  outlined(ctx, `PULSE ${Math.max(0, left).toFixed(1)}`, x, y - kind.h * 0.6 - 30, 20, '#f1e4ff', 'rgba(40,20,70,0.75)');
+  glow(ctx, x, y, kind.w * (0.8 + 0.4 * k), kind.w * (0.8 + 0.4 * k), P.glow, 0.4 + 0.4 * pulse * k);
+  outlined(ctx, `${P.word} ${Math.max(0, left).toFixed(1)}`, x, y - kind.h * 0.6 - 30, 20, P.fill, P.edge);
   ctx.restore();
 }
 // The pulse going off: a bright ring racing out across the room (f: 0 → 1)
-function drawPulseHit(ctx, x, y, reach, f) {
+function drawPulseHit(ctx, x, y, reach, f, kind) {
   if (f > 1) return;
-  const rad = 40 + f * reach, a = 1 - f;
+  const rad = 40 + f * reach, a = 1 - f, P = PULSES[kind?.looks?.pulse] ?? PULSES.violet;
   ctx.save();
-  ctx.strokeStyle = `rgba(160,100,250,${0.8 * a})`;
+  ctx.strokeStyle = `rgba(${P.hit},${0.8 * a})`;
   ctx.lineWidth = 26 * a + 4;
   ctx.beginPath();
   ctx.arc(x, y, rad, 0, TAU);
@@ -352,14 +367,21 @@ function outlined(ctx, label, x, y, size, fill, edge) {
 
 // ——— S5.2 ———
 // A curse on its way: a dark violet sigil on the floor where it'll land, its ring closing as the time runs out;
-// then (hit) a burst of dark smoke going up
+// then (hit) a burst of dark smoke going up. S5.4: `looks.curse` on the boss recolours it (the Drowned Bosun's:
+// sea-green ink with bubbles rising; the Thorn Hart's: briar green with thorns round the rim)
+const CURSES = {
+  dark: { fill: CURSE, rim: '150,96,210', inner: '230,200,255', star: '200,160,240', smoke: '70,36,110' },
+  drowned: { fill: '34,104,100', rim: '84,184,164', inner: '206,252,236', star: '140,222,200', smoke: '20,66,70' },
+  thorn: { fill: '52,84,36', rim: '120,162,70', inner: '226,240,190', star: '160,196,104', smoke: '46,62,30' },
+};
 function drawSigil(ctx, s, t) {
+  const L = s.look ?? CURSES.dark;
   ctx.save();
   ctx.translate(s.x, s.y);
   ctx.scale(1, 0.28);
   if (s.hit) {
     const f = Math.min(1, (t - s.hit) / 0.7), a = 1 - f;
-    ctx.fillStyle = `rgba(${CURSE},${0.35 * a})`;
+    ctx.fillStyle = `rgba(${L.fill},${0.35 * a})`;
     ctx.beginPath();
     ctx.arc(0, 0, s.r * (1 + 0.15 * f), 0, TAU);
     ctx.fill();
@@ -367,7 +389,7 @@ function drawSigil(ctx, s, t) {
     ctx.save();
     for (let i = 0; i < 7; i++) {
       const x = s.x + (i / 6 - 0.5) * s.r * 1.6, y = s.y - 10 - f * (60 + (i % 3) * 25);
-      ctx.fillStyle = `rgba(70,36,110,${0.5 * a})`;
+      ctx.fillStyle = `rgba(${L.smoke},${0.5 * a})`;
       ctx.beginPath();
       ctx.arc(x, y, 10 + 8 * f, 0, TAU);
       ctx.fill();
@@ -376,23 +398,34 @@ function drawSigil(ctx, s, t) {
     return;
   }
   const k = Math.min(1, (t - s.at) / Math.max(0.1, s.end - s.at)), pulse = 0.5 + 0.5 * Math.sin(t * 10);
-  ctx.fillStyle = `rgba(${CURSE},${0.16 + 0.22 * k})`;
+  ctx.fillStyle = `rgba(${L.fill},${0.16 + 0.22 * k})`;
   ctx.beginPath();
   ctx.arc(0, 0, s.r, 0, TAU);
   ctx.fill();
-  ctx.strokeStyle = `rgba(150,96,210,${0.6 + 0.3 * pulse})`;
+  ctx.strokeStyle = `rgba(${L.rim},${0.6 + 0.3 * pulse})`;
   ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.arc(0, 0, s.r, 0, TAU);
   ctx.stroke();
+  if (s.thorn) { // (thorns standing up round the rim)
+    ctx.fillStyle = `rgba(${L.rim},${0.7 + 0.25 * k})`;
+    for (let i = 0; i < 16; i++) {
+      const an = (i * TAU) / 16, cx = Math.cos(an) * s.r, cy = Math.sin(an) * s.r, nx = Math.cos(an), ny = Math.sin(an);
+      ctx.beginPath();
+      ctx.moveTo(cx - ny * 7, cy + nx * 7);
+      ctx.lineTo(cx + nx * (14 + 8 * k), cy + ny * (14 + 8 * k));
+      ctx.lineTo(cx + ny * 7, cy - nx * 7);
+      ctx.fill();
+    }
+  }
   // the closing ring and a turning star of runes
-  ctx.strokeStyle = `rgba(230,200,255,${0.5 + 0.4 * k})`;
+  ctx.strokeStyle = `rgba(${L.inner},${0.5 + 0.4 * k})`;
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.arc(0, 0, s.r * (1 - k * 0.92), 0, TAU);
   ctx.stroke();
   ctx.rotate(t * 0.8);
-  ctx.strokeStyle = `rgba(200,160,240,${0.45 + 0.3 * k})`;
+  ctx.strokeStyle = `rgba(${L.star},${0.45 + 0.3 * k})`;
   ctx.lineWidth = 3;
   ctx.beginPath();
   for (let i = 0; i <= 5; i++) {
@@ -401,6 +434,19 @@ function drawSigil(ctx, s, t) {
   }
   ctx.stroke();
   ctx.restore();
+  if (s.drowned) { // (bubbles of ink rising off it, in screen space: not squashed)
+    ctx.save();
+    ctx.strokeStyle = `rgba(${L.inner},${0.35 + 0.35 * k})`;
+    ctx.lineWidth = 1.6;
+    for (let i = 0; i < 8; i++) {
+      const ph = (t * 0.7 + i / 8) % 1, bx = s.x + Math.sin(i * 2.7) * s.r * 0.8, by = s.y - ph * 70;
+      ctx.globalAlpha = Math.sin(ph * Math.PI);
+      ctx.beginPath();
+      ctx.arc(bx + Math.sin(t * 3 + i) * 3, by, 3 + (i % 3), 0, TAU);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
 }
 // A curse on a slime: n small dark wisps curling up round it
 function drawWisps(ctx, s, n, t) {
@@ -425,6 +471,12 @@ function drawWisps(ctx, s, n, t) {
 // plates round it, with a crack a hit that cracked it
 // (S5.3: `looks.dome` on the boss tints it: the Root Warden's in Keeper amber; Sigrun's, `barrierFront`, is a curved
 // wall of ice in front of her shield instead of a dome, with runes of frost)
+// S5.4: `looks.shell` recolours the armour's plates (the Bramble Behemoth's bark, thorned; Old Snapjaw's mossy scutes)
+const SHELLS = {
+  stone: { edge: 'rgba(80,66,58,0.9)', face: 'rgba(196,176,150,0.95)' },
+  bark: { edge: 'rgba(58,36,24,0.95)', face: 'rgba(132,92,58,0.95)', thorns: 'rgba(214,190,160,0.95)' },
+  scute: { edge: 'rgba(40,58,32,0.95)', face: 'rgba(112,140,78,0.95)', moss: 'rgba(150,196,96,0.95)' },
+};
 const DOMES = { keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'] };
 function drawShield(ctx, v, k, sh, t) {
   const fade = Math.max(0, Math.min(1, 1 - (sh.from - t) / 1.5)), end = Math.min(1, (sh.until - t) / 0.6);
@@ -469,19 +521,36 @@ function drawShield(ctx, v, k, sh, t) {
       ctx.restore();
     }
   } else {
-    const cracks = typeof sh.v === 'number' ? sh.v : 0;
+    const cracks = typeof sh.v === 'number' ? sh.v : 0, S = SHELLS[k.looks?.shell] ?? SHELLS.stone;
     ctx.globalAlpha = a;
     ctx.lineCap = 'round';
     for (let i = 0; i < 7; i++) {
       const a0 = Math.PI * (1.05 + i * 0.13), a1 = a0 + 0.11;
-      ctx.strokeStyle = 'rgba(80,66,58,0.9)';
+      ctx.strokeStyle = S.edge;
       ctx.lineWidth = 15;
       ctx.beginPath();
       ctx.ellipse(cx, cy, rx * 0.92, ry * 0.92, 0, a0, a1);
       ctx.stroke();
-      ctx.strokeStyle = 'rgba(196,176,150,0.95)';
+      ctx.strokeStyle = S.face;
       ctx.lineWidth = 9;
       ctx.stroke();
+      const am = (a0 + a1) / 2, px = cx + Math.cos(am) * rx * 0.92, py = cy + Math.sin(am) * ry * 0.92;
+      if (S.thorns) { // (the Behemoth's bark: a thorn on every plate)
+        const nx = Math.cos(am), ny = Math.sin(am);
+        ctx.fillStyle = S.thorns;
+        ctx.beginPath();
+        ctx.moveTo(px - ny * 4, py + nx * 4);
+        ctx.lineTo(px + nx * 16, py + ny * 16);
+        ctx.lineTo(px + ny * 4, py - nx * 4);
+        ctx.fill();
+      }
+      if (S.moss) { // (Snapjaw's scutes: tufts of pond moss)
+        ctx.fillStyle = S.moss;
+        ctx.beginPath();
+        ctx.arc(px + 3, py - 2, 3.2, 0, TAU);
+        ctx.arc(px - 3, py + 1, 2.4, 0, TAU);
+        ctx.fill();
+      }
     }
     // a crack per hit that cracked it
     ctx.strokeStyle = 'rgba(255,240,200,0.95)';
@@ -535,7 +604,8 @@ function drawFrontWall(ctx, v, k, hp, a, t) {
 }
 // The weak point: a glowing crystal (brighter under Hunter's Mark), a ring round it filling as it's hit, and the
 // seconds it stays open
-function drawWeak(ctx, spot, wk, t, marked) {
+// (S5.4: `looks.weak: 'honey'`, the Hornet Queen's honey sac: a glowing honeycomb cell with a drip, not a crystal)
+function drawWeak(ctx, spot, wk, t, marked, look) {
   const pulse = 0.5 + 0.5 * Math.sin(t * 6), r = spot.r;
   ctx.save();
   glow(ctx, spot.x, spot.y, r * 2.4, r * 2.4, WEAK, (marked ? 0.75 : 0.5) + 0.3 * pulse);
@@ -544,19 +614,33 @@ function drawWeak(ctx, spot, wk, t, marked) {
   ctx.strokeStyle = '#b8782a';
   ctx.lineWidth = 2.4;
   ctx.beginPath();
-  ctx.moveTo(0, -r * 0.8);
-  ctx.lineTo(r * 0.5, 0);
-  ctx.lineTo(0, r * 0.8);
-  ctx.lineTo(-r * 0.5, 0);
+  if (look === 'honey') {
+    for (let i = 0; i < 6; i++) ctx[i ? 'lineTo' : 'moveTo'](Math.cos((i * TAU) / 6) * r * 0.75, Math.sin((i * TAU) / 6) * r * 0.75);
+  } else {
+    ctx.moveTo(0, -r * 0.8);
+    ctx.lineTo(r * 0.5, 0);
+    ctx.lineTo(0, r * 0.8);
+    ctx.lineTo(-r * 0.5, 0);
+  }
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,0.8)';
   ctx.beginPath();
-  ctx.moveTo(-r * 0.12, -r * 0.5);
-  ctx.lineTo(r * 0.14, -r * 0.1);
-  ctx.lineTo(-r * 0.2, 0);
-  ctx.closePath();
+  if (look === 'honey') {
+    ctx.arc(-r * 0.22, -r * 0.22, r * 0.18, 0, TAU);
+    ctx.fill();
+    // a drop of honey hanging off it, swelling and falling
+    const f = (t * 0.8) % 1;
+    ctx.fillStyle = '#f0a830';
+    ctx.beginPath();
+    ctx.arc(0, r * 0.75 + f * f * 26, 2.5 + 2 * Math.min(1, f * 3), 0, TAU);
+  } else {
+    ctx.moveTo(-r * 0.12, -r * 0.5);
+    ctx.lineTo(r * 0.14, -r * 0.1);
+    ctx.lineTo(-r * 0.2, 0);
+    ctx.closePath();
+  }
   ctx.fill();
   // how full it is
   ctx.strokeStyle = 'rgba(90,60,30,0.45)';

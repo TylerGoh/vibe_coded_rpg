@@ -202,7 +202,11 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   barrier and the arrows filling the weak point: `help`; the Knight in front of a front-only barrier, the rest
   behind it `PARTY_BEHIND` of the time; alone, `SOLO_BEHIND` and `WEAK_JUMP`). Checks: the party's time within
   `PARTY_DEN_MIN` sim minutes, the solo median at least `PARTY_DEN_SOLO` × that, at least one branch can finish it
-  alone (never locked), nobody in the party faints. Owner's targets (`story/s5-plan.md`): a mixed party wins in a few
+  alone (never locked), nobody in the party faints.
+- **RETROFIT** (S5.4): the den and field bosses given party mechanics (`partyLive`, not a party den). Alone none
+  switch on, so the solo tables don't move; the table shows a duo (`RETRO_DUOS`) killing each with the mechanics off
+  / on. `fight` models armour too now (non-heavy hits cut, your own heavy hits crack it; a partner's cracks aren't
+  counted, so it reads a little slow). Focus, curse and adds aren't modelled. No check: it's a guide. Owner's targets (`story/s5-plan.md`): a mixed party wins in a few
   minutes; alone only by playing very well for much longer. The sim plays faster than people do (ordinary dens'
   solo kills come out at 1.5–3 min here and are "a few minutes" in play).
 - **The shape table**: each class ÷ the other classes' mean, per column (mean of each class's branches).
@@ -297,6 +301,11 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   better than the sim's hit every 3.5 s gets through), the Trapper fainting on the Warden. Kill pays per minute
   falls for a lone slime, which is the point. Nothing else moved: the two rows left the solo table (and its
   `CLASS_FIT` check) for the PARTY DENS table, and only their HP changed in FAUCETS.
+- **S5.4, Greenhollow's retrofit (2026-10-24).** Seven den and field bosses got party mechanics (`docs/combat/bosses.md`).
+  Alone nothing switches on, so no solo row, faucet or check moved; the new RETROFIT table shows what a duo feels. Armour
+  slows a duo ~20% on the Bramble Behemoth and Old Snapjaw (a partner's cracks aren't modelled: real duos break it faster),
+  the Tidemother's pulse and the focus/curse bosses move ~0–9%, and the Hornet Queen's weak point speeds a duo ~7% (the
+  stagger). Her called wasps add a little EXP (a `wasp` every `FIELD_ADDS_EVERY` s against an 18k-EXP boss): ignored.
 
 ## The potions and the loot check (S5.5, 2026-10-24)
 The Cleansing Tonic and the Barrier Draught are brews, priced like the others: a batch's ingredients (a

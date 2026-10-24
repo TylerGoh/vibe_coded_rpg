@@ -23,7 +23,9 @@ east, deeper and harder.
   and the Elder Thorn Stalker (the heart).
 - **The Thorn Hart** (field boss, Lv 58, small: no story): a great white stag with antlers of living briar,
   velvet green, white roses at the tips. Roams the Thornheart on the `stomp` brain (rears, then stamps a
-  shockwave along the floor), passive until hit. His pet is the Mini Thorn Hart.
+  shockwave along the floor), passive until hit. His pet is the Mini Thorn Hart. S5.4: with two or more fighting
+  him, `focus` (his antlers lowered at one slime; Rally takes it) and the thorns' `curse` (a briar-green sigil with
+  thorns round its rim, `looks.curse: 'thorn'`) (`docs/combat/bosses.md`).
 - Gear (drops only, on the frozen curve): the Thornback Helm and the Stalker's Claw off the mobs, the
   Briarheart Blade and Hart's Antler Crown off the Hart. Ranger Acorn's persona knows the tunnel is cut and
   has watched the Hart from the treetops. Music scene `thornheart` (a stern E phrygian tune, a slow
