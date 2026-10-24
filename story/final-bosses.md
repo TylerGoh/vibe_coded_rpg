@@ -84,8 +84,8 @@ Every final boss sits at the end of the same three steps, past the island's hard
 - **An enrage** at `FINAL_ENRAGE_MIN` (a little past 30 minutes): much stronger, shown in the room, so a
   party that's too weak runs out of time instead of winning slowly.
 - **Fainting:** today's combat-room rule (down until a Cleric's Revive or the town); you can walk back in.
-- **Rewards:** the island's best gear, one piece per class (S5's loot by class), plus something only it
-  drops (owner to pick: a cosmetic or a title). A long per-player reward window (`FINAL_WINDOW_MS`).
+- **Rewards: items only** (owner, 2026-10-24: no unique cosmetic or title): the island's best gear, one
+  piece per class (S5's loot by class). A long per-player reward window (`FINAL_WINDOW_MS`).
   Priced through `npm run economy` like any den: a 30-minute kill split four ways.
 - **The economy sheet** gains a FINAL table: a mixed party of four (one of each class) at its level wins
   near 30 minutes (`FINAL_KILL_MIN`, checked within a band); three can't before the enrage.
@@ -134,5 +134,4 @@ Each its own session (or two) and dev copy. Before building: read `progression.m
 - Then each new island's depth pass ends with its own (Emberdeep's is E5).
 
 ## Open questions for the owner (default first)
-1. The unique reward: a cosmetic (an aura, a hat) or a title by your name?
-2. The reward window: a day, or a week?
+1. The reward window: a day, or a week?
