@@ -3156,7 +3156,7 @@ body.touch #trade .invite-btns button {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: calc(760px * var(--s)); /* (three classes side by side since S3) */
+  width: calc(910px * var(--s)); /* (four classes side by side since S4) */
   max-height: calc(510px * var(--s));
   box-sizing: border-box;
   display: flex;
@@ -3312,7 +3312,7 @@ body.touch #trade .invite-btns button {
 body.touch #pool {
   top: calc(8px * var(--s));
   transform: translateX(-50%);
-  width: calc(760px * var(--s));
+  width: calc(930px * var(--s));
   max-height: calc(524px * var(--s));
   animation-name: invite-in;
 }

@@ -13,10 +13,11 @@ import { drawHazard } from './hazards.js';
 import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, drawBarrier, drawRallyAura, drawAegisAura } from './skillfx.js';
 import { Summons } from './summons.js';
 import { audio } from './audio.js';
-import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, BONK_MULT, BONK_REACH } from './shared/skills.js';
+import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE } from './shared/rpg.js';
+import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, BONK_MULT, BONK_REACH, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn } from './shared/skills.js';
 import { drawMobState, drawArcanePips } from './elements.js';
 import { staffGlow } from './staff-art.js';
+import { bowTint } from './bow-art.js';
 import { SLAP_REACH, DASH_CD, BLINK_CD, PHANTOM_CD } from './shared/sim.js';
 
 const MOB_KINDS = Object.keys(MOBS); // same order as the server's
@@ -33,6 +34,11 @@ const ULT_HINT = {
 // ultimates Dash / Blink i-frames can get you through (the rest want you somewhere safe)
 const DODGEABLE_ULT = new Set(['collapse']);
 const TILE = 150; // den floor tiles for the grid attacks
+// each skill kind's sound (id: the skill, for the ones that sound different)
+const SKILL_SOUND = Object.fromEntries(Object.entries({
+  strike: (id) => (id === 'sky_splitter' ? 'skySplitter' : 'powerStrike'), cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter', mend: 'heal', miracle: 'aegis', revive: 'secondWind', barrier: 'bubble', summon: 'rally',
+  shot: (id) => (id === 'snipe' ? 'snipe' : 'bowShot'), pierce: (id) => (id === 'heartseeker' ? 'snipe' : 'pierce'), rain: 'arrowRain', mark: 'mark',
+}).map(([k, v]) => [k, typeof v === 'function' ? v : () => v]));
 const kickFrom = (me, mx, knock) => ({ vx: Math.sign(me.x - mx || 1) * knock, vy: -Math.min(420, knock * 1.1) });
 
 export class Rpg {
@@ -170,7 +176,7 @@ export class Rpg {
       this.skillEcho(m, slimeOf, myId, mine);
     } else if (m.t === 'boss') {
       this.bossEvent(m, mine);
-    } else if (m.t === 'summons' || m.t === 'sumhit' || m.t === 'sumhurt' || m.t === 'sumgone') {
+    } else if (m.t === 'summons' || m.t === 'sumhit' || m.t === 'sumhurt' || m.t === 'sumgone' || m.t === 'netcatch') {
       this.summons.receive(m, { mine });
     } else if (m.t === 'bossdmg') {
       if (m.d.length) this.dmg.set(m.id, { kind: m.kind, d: m.d, h: m.h ?? [], k: m.k ?? [], at: this.time });
@@ -261,10 +267,11 @@ export class Rpg {
     if (!this.me || !isCombat(this.room)) return [];
     if (this.staffOf(this.me) && this.me.cls === 'cleric') return this.bonk(me, dir);
     if (this.staffOf(this.me)) return this.staffBolt(me, dir);
+    if (this.bowOf(this.me)) return this.bowShot(me, dir, mult);
     const [v] = this.ahead(me, dir, SLAP_REACH + (this.swordOf(this.me)?.reach ?? 0));
     if (!v) return [];
     const cut = this.shellCut(v, me.x);
-    let [dmg, crit] = this.roll(this.me.atk, mult);
+    let [dmg, crit] = this.roll(this.me.atk, mult * this.markOn(v));
     dmg = Math.max(1, Math.round(dmg * cut));
     this.blocked(v, cut);
     this.showHit(v, dmg, crit, me.x);
@@ -276,7 +283,7 @@ export class Rpg {
     const [v] = this.ahead(me, dir, SLAP_REACH + BONK_REACH);
     if (!v) return [];
     const cut = this.shellCut(v, me.x);
-    let [dmg, crit] = this.roll(this.me.magic, BONK_MULT);
+    let [dmg, crit] = this.roll(this.me.magic, BONK_MULT * this.markOn(v));
     dmg = Math.max(1, Math.round(dmg * cut));
     this.blocked(v, cut);
     this.showHit(v, dmg, crit, me.x);
@@ -309,7 +316,7 @@ export class Rpg {
     const msg = { t: 'skill', skill: id, dir: me.facing, s: seq, hits: [] }, sx = me.x;
     for (const v of id === 'leap_slam' ? this.around(me.x, me.y, sk.radius) : this.above(me, sk.reach)) {
       const cut = this.shellCut(v, sx);
-      let [dmg, crit] = this.roll(m.atk, sk.mult(rank));
+      let [dmg, crit] = this.roll(m.atk, sk.mult(rank) * this.markOn(v));
       dmg = Math.max(1, Math.round(dmg * cut));
       this.blocked(v, cut);
       msg.hits.push([v.id, dmg, crit]);
@@ -326,6 +333,50 @@ export class Rpg {
     const it = ITEMS[m?.gear?.weapon];
     return it?.kind === 'staff' ? it : null;
   }
+  bowOf(m) {
+    const it = ITEMS[m?.gear?.weapon];
+    return it?.kind === 'bow' ? it : null;
+  }
+  // Hunter's Mark (Archer, S4) on mob view v: everyone's hits on it do more (the server's cap allows the same)
+  markOn(v) {
+    return v?.marked ? 1 + (v.markBoost ?? SKILLS.hunters_mark.boost(1)) : 1;
+  }
+  // Is mob view v slowed, chilled, frozen or netted (Barbed Arrows' bonus)?
+  slowed(v) {
+    return !!(v.slow || v.chill || v.frozen || v.netted);
+  }
+  // A bow's normal attack (S4): an arrow to the first mob ahead within the bow's range, BOW_SHOT_MULT of ATK
+  // (mult: a Retreat Shot's, main.js). Sent now, shown when it lands; the server caps it (server/rpg.js shoot).
+  bowShot(me, dir, mult = 1) {
+    const m = this.me, range = statsFor(m).arrowRange;
+    const [v] = this.ahead(me, dir, range, 0);
+    const sx = me.x, sy = me.y;
+    const tx = v ? v.x : sx + dir * range * 0.85, ty = v ? v.y - MOBS[v.kind].h / 2 : sy - 20;
+    const dur = Math.abs(tx - sx) / BOW_SHOT_SPEED + 0.03;
+    this.fx.spawn('arrow', { x: sx + dir * 14, y: sy - 20, tx, ty, dur, hit: !!v, tint: bowTint(m.gear.weapon) });
+    if (!v) return [];
+    const cut = this.shellCut(v, sx);
+    let [dmg, crit] = this.roll(m.atk, BOW_SHOT_MULT * mult * arrowBonus(m.skills, null, this.slowed(v), 0) * this.markOn(v));
+    dmg = Math.max(1, Math.round(dmg * cut));
+    if (rankOf(m.skills, 'barbed_arrows')) v.slowLocal = this.time + dur + 1;
+    setTimeout(() => {
+      this.blocked(v, cut);
+      this.showHit(v, dmg, crit, sx);
+    }, dur * 1000);
+    return [[v.id, dmg, crit]];
+  }
+  // Someone else's arrow (drawn only: their hits come with the slap message) → when it lands
+  otherArrow(s, dir, hits) {
+    const v = hits?.length ? this.views.get(hits[0][0]) : null;
+    const tx = v ? v.x : s.x + dir * 200, ty = v ? v.y - MOBS[v.kind].h / 2 : s.y - 20;
+    const dur = Math.abs(tx - s.x) / BOW_SHOT_SPEED + 0.03;
+    this.fx.spawn('arrow', { x: s.x + dir * 14, y: s.y - 20, tx, ty, dur, hit: !!v, tint: bowTint(s.gear?.weapon) });
+    return dur;
+  }
+  // A Retreat Shot went off (ours or anyone's; the dash draws its own dust): a word over the shooter
+  retreatFx(s, dir) {
+    this.pop(s.x - dir * 20, s.y - 70, 'RETREAT SHOT', '#e6f0a8', 14);
+  }
   // A staff's normal attack: a little bolt to the first mob ahead within the staff's range (S1). The hit
   // is sent now and shown when the bolt lands; the server caps it at STAFF_BOLT_MULT of MAGIC.
   staffBolt(me, dir) {
@@ -338,7 +389,7 @@ export class Rpg {
     if (!v) return [];
     if (rankOf(m.skills, 'arcane_charge')) this.arcane = { n: Math.min(ARCANE_MAX, this.charges() + 1), at: this.time, until: this.time + ARCANE_DUR }; // (the server counts it too: attack)
     const cut = this.shellCut(v, sx);
-    let [dmg, crit] = this.roll(m.magic, STAFF_BOLT_MULT);
+    let [dmg, crit] = this.roll(m.magic, STAFF_BOLT_MULT * this.markOn(v));
     dmg = Math.max(1, Math.round(dmg * cut));
     setTimeout(() => {
       this.blocked(v, cut);
@@ -423,10 +474,10 @@ export class Rpg {
     if (spendsArcane(id)) this.arcane = { n: 0, at: this.time, until: 0 };
     if (charges && mine) this.pop(mine.x, mine.y - 112, `ARCANE x${charges}`, '#c4cdff', 16);
     const mult = (sk.mult?.(rank) ?? 1) * arcaneMult(m.skills, charges);
-    const hit = (v, base, delay = 0) => {
+    const hit = (v, base, delay = 0, extra = 1) => {
       const cut = this.shellCut(v, sx);
       const shatter = sk.el === 'fire' && !!v.frozen; // fire on a frozen mob (the Mage's combos)
-      let [dmg, crit] = this.roll(base, mult * (shatter ? SHATTER_MULT : 1));
+      let [dmg, crit] = this.roll(base, mult * extra * this.markOn(v) * (shatter ? SHATTER_MULT : 1));
       dmg = Math.max(1, Math.round(dmg * cut));
       if (!delay) this.blocked(v, cut);
       msg.hits.push(shatter ? [v.id, dmg, crit, 1] : [v.id, dmg, crit]);
@@ -437,8 +488,47 @@ export class Rpg {
     };
     const sx = me.x, sy = me.y, reach = SLAP_REACH + (this.swordOf(m)?.reach ?? 0) + (sk.reach ?? 0);
     const mag = (sk.stat === 'best' ? Math.max(m.atk, m.magic) : m.magic) * (sk.fire ? m.fire ?? 1 : 1) * (sk.holy ? m.heal ?? 1 : 1);
-    const sound = { strike: id === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter', mend: 'heal', miracle: 'aegis', revive: 'secondWind', barrier: 'bubble', summon: 'rally' }[sk.kind];
-    if (sk.kind === 'strike') {
+    const sound = sk.what === 'net' ? 'netSet' : SKILL_SOUND[sk.kind]?.(id);
+    // an arrow skill's bonus on v (Archer, S4): Barbed Arrows on a slowed mob, Snipe's long shot
+    const arrow = (v) => arrowBonus(m.skills, sk, this.slowed(v), Math.abs(v.x - sx));
+    const barbed = rankOf(m.skills, 'barbed_arrows') ? 1 : 0;
+    if (sk.kind === 'shot' || sk.kind === 'pierce') {
+      // the Archer's arrows: Double Shot / Snipe at the first mob ahead, Piercing Arrow / Heartseeker through a line
+      const line = sk.kind === 'pierce' ? this.ahead(me, dir, sk.range, 0).slice(0, sk.targets) : this.ahead(me, dir, sk.range, 0).slice(0, 1);
+      const v = line[0], far = line.at(-1);
+      const tx = sk.kind === 'pierce' ? sx + dir * sk.range : v ? v.x : sx + dir * sk.range, ty = v ? v.y - MOBS[v.kind].h / 2 : sy - 20;
+      msg.tx = Math.round(tx);
+      msg.ty = Math.round(ty);
+      const speed = sk.kind === 'pierce' ? 2200 : 1600;
+      for (const q of line) {
+        const at = Math.abs(q.x - sx) / speed + 0.03;
+        if (barbed || sk.slow) q.slowLocal = this.time + at + 1;
+        for (let n = 0; n < (sk.arrows ?? 1); n++) hit(q, m.atk, at + n * 0.12, arrow(q));
+      }
+      this.arrowFx(id, sk, sx, sy, dir, tx, ty, !!v, m.gear?.weapon);
+      if (far) setTimeout(() => audio.sfx('arrowHit', { pan: panX(far.x, sx) }), (Math.abs(far.x - sx) / speed) * 1000);
+    } else if (sk.kind === 'rain') {
+      // a volley up into the sky, coming down round the first mob ahead (or out in front)
+      const [v] = this.ahead(me, dir, sk.range, 0);
+      const tx = v ? v.x : sx + dir * Math.min(sk.range, 260), fy = v ? v.y : sy;
+      msg.tx = Math.round(tx);
+      msg.ty = Math.round(fy);
+      const inside = this.around(tx, fy, sk.radius);
+      for (let n = 0; n < sk.hits; n++) for (const q of inside) hit(q, m.atk, RAIN_AT + n * RAIN_EVERY, arrow(q));
+      if (barbed || sk.slow) for (const q of inside) q.slowLocal = this.time + RAIN_AT + (sk.slow ?? 1);
+      this.fx.spawn('rain', { sx, sy, x: tx, y: fy, radius: sk.radius, hits: sk.hits, big: sk.radius > 200 });
+    } else if (sk.kind === 'mark') {
+      const [v] = this.ahead(me, dir, sk.range, 0);
+      if (!v) {
+        this.cds[id] = 0; // nothing to mark: no MP, no cooldown (the server would refuse it)
+        m.mp += sk.mp;
+        return fail('Nothing ahead to mark', 'error');
+      }
+      msg.mob = v.id;
+      for (const q of this.views.values()) if (q.markBy === this.myId) q.markLocal = 0;
+      Object.assign(v, { markLocal: this.time + 0.6, marked: true, markBoost: sk.boost(rank), markBy: this.myId });
+      this.arrowFx(id, sk, sx, sy, dir, v.x, v.y - MOBS[v.kind].h / 2, true, m.gear?.weapon);
+    } else if (sk.kind === 'strike') {
       const [v] = this.ahead(me, dir, reach);
       if (v) hit(v, m.atk);
       this.fx.spawn(id === 'sky_splitter' ? 'skysplit' : 'strike', { x: sx, y: sy, dir });
@@ -512,7 +602,7 @@ export class Rpg {
     } else if (sk.kind === 'revive') {
       this.fx.spawn('heal', { x: sx, y: sy, radius: sk.radius, targets: [{ x: sx, y: sy }] });
     } else if (sk.kind === 'summon') {
-      this.summons.called(sx + (sk.what === 'totem' ? 0 : dir * 36), sy);
+      this.summons.called(sx + (sk.what === 'totem' || sk.what === 'net' ? 0 : dir * 36), sy, sk.what);
     } else if (sk.kind === 'buff') {
       if (mine) mine.berserkUntil = this.time + sk.dur;
       this.fx.spawn('buff', { x: sx, y: sy });
@@ -547,6 +637,14 @@ export class Rpg {
     if (sk.kind === 'fireball') this.timed.push([this.time + dur, () => this.fx.spawn('nova', { x: tx, y: ty + 18, radius: sk.radius, tint: 'fire' })]);
   }
 
+  // An arrow skill's flight (Archer, S4): Double Shot's two arrows, Snipe's long one, a piercing streak, the mark
+  arrowFx(id, sk, x, y, dir, tx, ty, hit, weapon) {
+    const tint = bowTint(weapon);
+    if (sk.kind === 'pierce') return this.fx.spawn('pierce', { x: x + dir * 14, y: y - 20, tx, ty: y - 20, dur: Math.abs(tx - x) / 2200, big: id === 'heartseeker' });
+    const dur = Math.abs(tx - x) / 1600 + 0.03;
+    for (let n = 0; n < (sk.arrows ?? 1); n++) this.timed.push([this.time + n * 0.12, () => this.fx.spawn('arrow', { x: x + dir * 14, y: y - 20, tx, ty, dur, hit, tint: sk.kind === 'mark' ? '255,120,110' : tint, big: !!sk.far })]);
+  }
+
   // The server's {t:'skill'} for everyone in the room (ours: our hits are already shown)
   skillEcho(m, slimeOf, myId, mine) {
     const sk = SKILLS[m.skill], caster = slimeOf(m.id), myX = mine?.x ?? m.x;
@@ -569,6 +667,12 @@ export class Rpg {
       if (!s) continue;
       this.fx.spawn('revive', { x: s.x, y: s.y });
       this.pop(s.x, s.y - 70, 'REVIVED!', '#ffe9a0', 22);
+    }
+    // Hunter's Mark (S4): the mob it's on, and how much it adds, for everyone's rolls (markOn)
+    if (m.mark) {
+      const [mid, boost] = m.mark, v = this.views.get(mid);
+      for (const q of this.views.values()) if (q.markBy === m.id) Object.assign(q, { markLocal: 0, markBy: null });
+      if (v) Object.assign(v, { markBoost: boost, markBy: m.id, markLocal: this.time + 0.6, marked: true });
     }
     if (m.id === myId || !caster || caster.visible === false) return;
     const x = caster.x, y = caster.y, vol = 0.6, pan = panX(x, myX);
@@ -596,9 +700,11 @@ export class Rpg {
     else if (sk.kind === 'zone') this.fx.spawn('zone', { x, y, radius: sk.radius, dur: m.dur });
     else if (sk.kind === 'aegis') this.fx.spawn('aegis', { x, y, radius: sk.radius });
     else if (sk.kind === 'gods') this.fx.spawn('gods', { x, y });
-    const sound = { strike: m.skill === 'sky_splitter' ? 'skySplitter' : 'powerStrike', cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter', mend: 'heal', miracle: 'aegis', revive: 'secondWind', barrier: 'bubble', summon: 'rally' }[sk.kind];
+    else if (sk.kind === 'shot' || sk.kind === 'pierce' || sk.kind === 'mark') this.arrowFx(m.skill, sk, x, y, m.dir, m.tx ?? x + m.dir * 300, m.ty ?? y - 20, m.hits.length > 0 || !!m.mark, caster.gear?.weapon);
+    else if (sk.kind === 'rain') this.fx.spawn('rain', { sx: x, sy: y, x: m.tx, y: m.ty, radius: sk.radius, hits: sk.hits, big: sk.radius > 200 });
+    const sound = sk.what === 'net' ? 'netSet' : SKILL_SOUND[sk.kind]?.(m.skill);
     if (sound) audio.sfx(sound, { pan, vol });
-    const delay = sk.kind === 'bolt' || sk.kind === 'fireball' ? Math.abs(m.tx - x) / 900 : sk.kind === 'meteor' ? sk.delay : sk.kind === 'starfall' ? 0.3 : 0;
+    const delay = sk.kind === 'bolt' || sk.kind === 'fireball' ? Math.abs(m.tx - x) / 900 : sk.kind === 'meteor' ? sk.delay : sk.kind === 'starfall' ? 0.3 : sk.kind === 'shot' ? Math.abs(m.tx - x) / 1600 : sk.kind === 'pierce' ? 0.15 : sk.kind === 'rain' ? RAIN_AT : 0;
     this.othersHits(m.hits, myX, delay);
   }
   // A shield or Second Wind did its thing: {id, what: 'pop' | 'block' | 'secondwind'}
@@ -620,6 +726,9 @@ export class Rpg {
     } else if (m.what === 'soak') { // the Barrier soaked a hit up whole
       this.pop(s.x, s.y - 60, 'SOAKED', '#ffe9a0', 15);
       audio.sfx('block', { vol: isMe ? 0.7 : 0.35 });
+    } else if (m.what === 'dodge') { // Evasion (Archer, S4): the hit missed
+      this.pop(s.x, s.y - 64, 'MISS', '#e6f0a8', 18);
+      audio.sfx('dodge', { vol: isMe ? 0.8 : 0.4 });
     } else if (m.what === 'secondwind') {
       this.fx.spawn('secondwind', { x: s.x, y: s.y });
       audio.sfx('secondWind');
@@ -932,7 +1041,7 @@ export class Rpg {
       for (const v of this.targets()) {
         const k = MOBS[v.kind];
         if (Math.abs(me.x - v.x) > k.w / 2 + 12 || me.y < v.y - k.h - 4 || me.y > v.y + 30) continue;
-        if (v.frozen && !k.boss && !k.field) continue; // frozen solid: harmless (the server agrees: ouch)
+        if ((v.frozen || v.netted) && !k.boss && !k.field) continue; // frozen solid or netted: harmless (the server agrees: ouch)
         ouch = { mob: v.id, kind: v.charging ? 'charge' : 'touch', mx: v.x };
         break;
       }
@@ -1004,6 +1113,10 @@ export class Rpg {
       v.frozen = (!!(fl & 512) && !((v.thawLocal ?? 0) > tt)) || (v.frozenLocal ?? 0) > tt;
       v.chill = !v.frozen && ((!!(fl & 256) && !((v.chillGone ?? 0) > tt)) || (v.chillLocal ?? 0) > tt);
       v.burning = !!(fl & 1024) || (v.burnLocal ?? 0) > tt;
+      // the Archer's (S4): 2048 marked (Hunter's Mark) · 4096 netted (Net Trap)
+      v.marked = !!(fl & 2048) || (v.markLocal ?? 0) > tt;
+      if (!v.marked) v.markBy = null;
+      v.netted = !!(fl & 4096);
       v.shield = mb[7];
       v.shieldMax = mb[8];
       v.t += dt;
@@ -1502,7 +1615,7 @@ export class Rpg {
     const m = this.me, b = this.itemAt(slot);
     if (t === 'equip' && b && gearSlotOf(b.id) === 'weapon' && !weaponOk(m.cls, b.id)) {
       // a class wields only its own weapon kind (src/shared/skills.js CLASSES)
-      this.toast(`A ${CLASSES[m.cls].name} can only wield a ${CLASSES[m.cls].weapon} (change class at the Rebirth Pool)`);
+      this.toast(`${aOrAn(CLASSES[m.cls].name).replace(/^a/, 'A')} can only wield ${aOrAn(CLASSES[m.cls].weapon)} (change class at the Rebirth Pool)`);
       return audio.sfx('error');
     }
     this.send({ t, slot });
@@ -1608,7 +1721,7 @@ export class Rpg {
     const d = document.createElement('p');
     const e = sel.e ?? {}, gear = isGear(sel.id);
     const bonus = [['atk', 'ATK'], ['magic', 'MAGIC'], ['def', 'DEF'], ['hp', 'HP']].filter(([k]) => e[k]).map(([k, n]) => `${n} +${e[k]}`).join(', ');
-    d.textContent = it.desc + (it.atk ? ` ATK +${it.atk}.` : '') + (it.magic && it.kind === 'staff' ? ` MAGIC +${it.magic}, MP +${it.mp}. Fires a bolt instead of swinging.` : '') + (it.def ? ` DEF +${it.def}.` : '')
+    d.textContent = it.desc + (it.atk ? ` ATK +${it.atk}.` : '') + (it.magic && it.kind === 'staff' ? ` MAGIC +${it.magic}, MP +${it.mp}. Fires a bolt instead of swinging.` : '') + (it.kind === 'bow' ? ` Shoots arrows instead of swinging (${BOW_RANGE + it.reach} px). Archers aim with DEX.` : '') + (it.def ? ` DEF +${it.def}.` : '')
       + (gear ? ` Upgrade slots: ${slotsOf(sel.id) - (e.u ?? 0)} of ${slotsOf(sel.id)} left${bonus ? ` (scrolled: ${bonus})` : ''}.` : '')
       + (it.price ? ` Sells for ${sellPrice(sel.id)} gold.` : '')
       + (it.legacy ? ' Legacy: the old version, from before Frostpeak, Emberdeep and the Aether Citadel grew stronger. It works as it always did, but nothing drops it any more.' : '');

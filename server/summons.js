@@ -5,11 +5,12 @@
 // rule and number is in src/shared/skills.js (SPIRIT_SEEK and the constants after it). Clients only draw them
 // (src/summons.js) from {t:'summons'} snapshots. A summon is also a mob target: it carries the same
 // fields a player does (state.x / y / room / facing, joined, faintUntil), so the mob and boss code that
-// chases and aims at m.target needs no change.
+// chases and aims at m.target needs no change. The Archer's Net Trap (S4) lives here too: planted where it was
+// set, never a target, it catches the first mob that walks into it (NET_R and the constants after it).
 import { MOBS } from '../src/shared/rpg.js';
-import { SKILLS, SPIRIT_SEEK, SPIRIT_SPEED, SPIRIT_HIT_S, SPIRIT_TAUNT, SERAPH_TAUNT, SERAPH_R, SUMMON_TOUCH, SUMMON_HURT_S, BOSS_SUMMON_REACH, BOSS_SUMMON_HIT, BOSS_SUMMON_S, ULT_SUMMON, WISP_R, WISP_TICK, MAX_ROLL, spiritCap, summonHp, summonHit } from '../src/shared/skills.js';
+import { SKILLS, SPIRIT_SEEK, SPIRIT_SPEED, SPIRIT_HIT_S, SPIRIT_TAUNT, SERAPH_TAUNT, SERAPH_R, SUMMON_TOUCH, SUMMON_HURT_S, BOSS_SUMMON_REACH, BOSS_SUMMON_HIT, BOSS_SUMMON_S, ULT_SUMMON, WISP_R, WISP_TICK, MAX_ROLL, spiritCap, summonHp, summonHit, NET_R, NET_BURST_R, rankOf } from '../src/shared/skills.js';
 
-export const SUMMON_WHATS = ['spirit', 'wisp', 'totem', 'seraph']; // over the wire as an index
+export const SUMMON_WHATS = ['spirit', 'wisp', 'totem', 'seraph', 'net']; // over the wire as an index
 const rand = (a, b) => a + Math.random() * (b - a);
 
 // ctx: { players, mobs (the live array), toRoom, stats(p), damage(m, dmg, crit, id, p, dir, knock), heal(id, p, qid, q, amt, at) }
@@ -40,9 +41,9 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
       const mine = list.filter((q) => q.owner === id && q.what === what);
       const cap = what === 'spirit' ? spiritCap(p.rpg.skills) : 1;
       while (mine.length >= cap) remove(mine.shift(), 'faded');
-      const hp = what === 'wisp' ? 1 : summonHp(skill, rank, st);
+      const hp = what === 'wisp' || what === 'net' ? 1 : summonHp(skill, rank, st), planted = what === 'totem' || what === 'net';
       const s = {
-        id: nextId++, what, skill, owner: id, room: s0.room, x: s0.x + (what === 'totem' ? 0 : (s0.facing < 0 ? -1 : 1) * 36), y: s0.y,
+        id: nextId++, what, skill, owner: id, room: s0.room, x: s0.x + (planted ? 0 : (s0.facing < 0 ? -1 : 1) * 36), y: s0.y,
         dir: s0.facing < 0 ? -1 : 1, hp, maxHp: hp, until: t + sk.dur * 1000, hitAt: t + 400, tauntAt: t, touchAt: 0, bossAt: new Map(),
         hit: summonHit(skill, rank, st), crit: st.crit, critMult: st.critMult, minRoll: st.minRoll, def: Math.round(st.def * 0.5),
         heal: what === 'wisp' ? Math.round(st.magic * sk.power(rank) * st.heal) : 0, cut: sk.cut?.(rank) ?? 0, r: sk.radius ?? 0,
@@ -50,6 +51,10 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
         summon: true, joined: true, faintUntil: 0, name: SKILLS[skill].name, state: { room: s0.room, x: 0, y: 0, facing: 1 },
         target: null, follow: null,
       };
+      if (what === 'net') { // (S4) how long a catch holds, how many it takes, and Trap Mastery's burst
+        const tm = rankOf(p.rpg.skills, 'trap_mastery');
+        Object.assign(s, { snare: sk.snare(rank), left: 1 + tm, burst: tm ? st.atk * SKILLS.trap_mastery.burst(tm) : 0, joined: false, hitAt: t + 300 });
+      }
       if (what === 'wisp') s.y -= 64;
       sync(s);
       list.push(s);
@@ -65,7 +70,7 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
 
     // A boss's ultimate went off in room: every spirit and totem there takes ULT_SUMMON of its max HP
     ult(room) {
-      for (const s of [...list]) if (s.room === room && s.what !== 'wisp') hurt(s, s.maxHp * ULT_SUMMON);
+      for (const s of [...list]) if (s.room === room && s.what !== 'wisp' && s.what !== 'net') hurt(s, s.maxHp * ULT_SUMMON);
     },
 
     // Every summon of player id goes (it left, fainted out of the room, changed class)
@@ -81,6 +86,7 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
         if (!p?.joined || !p.rpg || p.state.room !== s.room) { remove(s, 'faded'); continue; }
         if (t >= s.until) { remove(s, 'faded'); continue; }
         if (s.what === 'wisp') wisp(s, p, t, dt);
+        else if (s.what === 'net') net(s, p, t, hits);
         else if (s.what === 'totem') hurtBy(s, t);
         else {
           spirit(s, p, t, dt, hits);
@@ -183,6 +189,36 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
     s.x += (gx - s.x) * Math.min(1, dt * 4);
     s.y += (gy - s.y) * Math.min(1, dt * 4);
     s.dir = Math.sign(gx - s.x) || s.dir;
+  }
+
+  // ——— the Net Trap (Archer, S4): on the ground where it was set; the first mob (on the ground) that walks into
+  // it is caught: snareUntil (server/rpg.js stepMob: an ordinary mob stops dead and can't hurt anyone, a boss
+  // is only slowed, for half as long). Trap Mastery: more catches, each bursting round the caught mob. ———
+  function net(s, p, t, hits) {
+    if (t < s.hitAt) return; // (a moment to set it down)
+    const caught = [], out = [];
+    for (const m of alive(s.room)) {
+      const k = MOBS[m.kind];
+      if (s.left <= 0) break;
+      if (m.snareUntil > t || k.fly || Math.abs(m.x - s.x) > NET_R + k.w / 2 || Math.abs(m.y - s.y) > 40) continue;
+      m.snareUntil = t + s.snare * 1000 * (big(k) ? 0.5 : 1);
+      if (!big(k)) m.vx = 0;
+      s.left--;
+      caught.push(m.id);
+      if (!s.burst) continue;
+      for (const q of alive(s.room)) {
+        if (Math.abs(q.x - m.x) > NET_BURST_R + MOBS[q.kind].w / 2 || Math.abs(q.y - m.y) > NET_BURST_R) continue;
+        const crit = Math.random() < s.crit;
+        out.push(damage(q, Math.max(1, Math.round(s.burst * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1))), crit, s.owner, p, Math.sign(q.x - m.x) || 1, 120));
+      }
+    }
+    if (!caught.length) return;
+    toRoom(s.room)({ t: 'netcatch', id: s.id, m: caught, x: Math.round(s.x), y: Math.round(s.y) });
+    if (out.length) {
+      if (!hits.has(s.room)) hits.set(s.room, []);
+      hits.get(s.room).push([s.id, out]);
+    }
+    if (s.left <= 0) remove(s, 'sprung');
   }
 
   // ——— spirits and totems get worn down: touched by mobs, hit by bosses nearby ———

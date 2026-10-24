@@ -45,7 +45,9 @@
 // latest input seq, and run once that input has been applied (ORDERED / runActions):
 //   → {t:'slap', dir, s, vt, hits:[[mobId, dmg, crit]]}  ← slap gets `mobs:[[id, dmg, crit, killed]]`, and `charge`
 //       when it was a Warrior's Charge (judged here from the slapper's state at s: sim.js chargeOpen / applyCharge)
-//   → {t:'skill', skill, dir, s, hits, tx?, ty?}  ← {t:'skill', id, skill, dir, x, y, hits, heals?, tx?, ty?, dur?}
+//       and `retreat` when it was an Archer's Retreat Shot (sim.js retreatOpen; a bow's slap is an arrow, S4)
+//   → {t:'skill', skill, dir, s, hits, tx?, ty?, mob?}  ← {t:'skill', id, skill, dir, x, y, hits, heals?, tx?, ty?, dur?, mark?}
+//       (Hunter's Mark: `mob` is the mob aimed at; the echo's `mark` is [mobId, boost, dur])
 //       (skill 'leap_slam' / 'upward_cut': a chase move's hits, s = the input it landed / went off at)
 //       A fire spell's hit may be [mobId, dmg, crit, 1]: the client saw the mob frozen (a shatter); the echo's hits
 //       are [id, dmg, crit, killed, 1?] (1: shattered), and `arcane` is the Arcane Charges the spell spent
@@ -468,7 +470,7 @@ function slap(id, p, m) {
   const quip = npc && Math.floor(Math.random() * SLAP_QUIPS[npc].length);
   const mobs = isCombat(room) ? rpg.attack(id, p, dir, m.hits) : [];
   if (isCombat(room)) rpg.pvp(id, p, dir, hits);
-  const data = JSON.stringify({ t: 'slap', id, dir, hits, npc, quip, mobs: mobs.length ? mobs : undefined, charge: mobs.charged || undefined });
+  const data = JSON.stringify({ t: 'slap', id, dir, hits, npc, quip, mobs: mobs.length ? mobs : undefined, charge: mobs.charged || undefined, retreat: mobs.retreat || undefined });
   for (const q of players.values()) if (q.joined && q.state.room === room) send(q.ws, data);
 }
 

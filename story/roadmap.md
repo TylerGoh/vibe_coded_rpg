@@ -94,7 +94,9 @@ Interleaved with the G track: S0 (close the boss EXP faucet) and S1 (staves) go 
       first rebirth free, owner 2026-10-23), forks, advancements, the node UI, mage combos, warrior chase moves
 - [x] S3 (2026-10-23): the Cleric (the Mage's staff, heals, Revive, summons, the meter's healing and damage taken;
       Cleanse waits for S5's curses). Left over: `docs/ideas.md` ("S3 left for later")
-- [ ] S4: the Archer (bows, Ranger Acorn)
+- [x] S4 (2026-10-24): the Archer (bows twinned with every boss and trader sword, DEX as its main stat, Sniper /
+      Trapper, Retreat Shot, Hunter's Mark, Net Trap, Ranger Acorn the archers' trader). Left over:
+      `docs/ideas.md` ("S4 left for later")
 - [ ] S5: bosses that need a party (Taunt, pulses, curses, barriers, weak points), loot by class
 - [ ] S6: past the cap (stat taper, mastery stars)
 

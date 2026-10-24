@@ -1844,6 +1844,56 @@ const EFFECTS = {
     e.voice(o, t + 0.01, 1800, { type: 'triangle', glide: 1.4, glideT: 0.06, vol: 0.06, tau: 0.05 });
     e.noiseHit(o, t, { type: 'highpass', f: 3000, vol: 0.12, a: 0.01, tau: 0.04 });
   },
+  // ——— the Archer (S4) ———
+  // a bow shot: the string's low twang and the hiss of the arrow leaving
+  bowShot(e, o, t) {
+    e.voice(o, t, 180, { type: 'triangle', glide: 0.7, glideT: 0.12, vol: 0.22, a: 0.002, tau: 0.07, cutoff: 1400 });
+    e.voice(o, t, 360, { type: 'sine', glide: 0.8, glideT: 0.08, vol: 0.06, tau: 0.05 });
+    e.noiseHit(o, t + 0.01, { type: 'bandpass', f: 2600, sweep: 5200, sweepT: 0.12, q: 1.2, vol: 0.18, a: 0.01, tau: 0.05 });
+  },
+  // an arrow thunking home
+  arrowHit(e, o, t) {
+    e.kick(o, t, 0.3, 320, 120, 0.03);
+    e.noiseHit(o, t, { type: 'lowpass', f: 1600, vol: 0.2, tau: 0.025 });
+  },
+  // Snipe / Heartseeker: a heavier twang and a long whistle
+  snipe(e, o, t) {
+    e.voice(o, t, 120, { type: 'triangle', glide: 0.6, glideT: 0.18, vol: 0.3, a: 0.002, tau: 0.1, cutoff: 1200 });
+    e.noiseHit(o, t + 0.02, { type: 'bandpass', f: 1800, sweep: 7000, sweepT: 0.3, q: 2, vol: 0.22, a: 0.02, tau: 0.12 });
+    e.voice(o, t + 0.03, 2400, { type: 'sine', glide: 0.85, glideT: 0.3, vol: 0.04, tau: 0.15 });
+  },
+  // Piercing Arrow: a twang and a quick tearing zip
+  pierce(e, o, t) {
+    e.voice(o, t, 160, { type: 'triangle', glide: 0.7, glideT: 0.1, vol: 0.24, a: 0.002, tau: 0.07, cutoff: 1400 });
+    e.noiseHit(o, t + 0.01, { type: 'bandpass', f: 1200, sweep: 6000, sweepT: 0.16, q: 3, vol: 0.25, a: 0.005, tau: 0.08 });
+  },
+  // Arrow Rain: a volley loosed upward, then a patter of arrows coming down
+  arrowRain(e, o, t) {
+    e.voice(o, t, 170, { type: 'triangle', glide: 0.7, glideT: 0.12, vol: 0.2, a: 0.002, tau: 0.07, cutoff: 1400 });
+    e.noiseHit(o, t + 0.02, { type: 'bandpass', f: 3000, sweep: 6000, sweepT: 0.25, q: 1, vol: 0.14, a: 0.05, tau: 0.08 });
+    for (let i = 0; i < 7; i++) e.noiseHit(o, t + 0.45 + i * 0.09, { type: 'lowpass', f: 1200 + (i % 3) * 300, vol: 0.12, tau: 0.02 });
+  },
+  // Hunter's Mark: a soft rising two-note ping
+  mark(e, o, t) {
+    e.voice(o, t, 880, { ...GLOCK, vol: 0.14, tau: 0.1 });
+    e.voice(o, t + 0.08, 1320, { ...GLOCK, vol: 0.12, tau: 0.16 });
+  },
+  // a Net Trap set down: a rustle of rope and a wooden peg tapped in
+  netSet(e, o, t) {
+    e.noiseHit(o, t, { type: 'bandpass', f: 900, q: 0.8, vol: 0.18, a: 0.03, tau: 0.08 });
+    e.kick(o, t + 0.12, 0.3, 500, 260, 0.025);
+  },
+  // and springing: a snap and the little bell
+  netSnap(e, o, t) {
+    e.noiseHit(o, t, { type: 'highpass', f: 1500, vol: 0.3, a: 0.002, tau: 0.03 });
+    e.kick(o, t, 0.35, 260, 90, 0.05);
+    e.voice(o, t + 0.04, 2093, { ...GLOCK, vol: 0.1, tau: 0.2 });
+    e.voice(o, t + 0.12, 2637, { ...GLOCK, vol: 0.07, tau: 0.2 });
+  },
+  // Evasion: a quick whoosh past you
+  dodge(e, o, t) {
+    e.noiseHit(o, t, { type: 'bandpass', f: 1400, sweep: 400, sweepT: 0.15, q: 1.5, vol: 0.22, a: 0.01, tau: 0.06 });
+  },
   hit(e, o, t) {
     e.kick(o, t, 0.5, 200, 70, 0.06);
     e.noiseHit(o, t, { type: 'lowpass', f: 900, vol: 0.3, tau: 0.03 });

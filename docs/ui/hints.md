@@ -14,7 +14,8 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
 - Waystones (`wayPrompt`) and every room's Keeper stones (`ruinStoneAt` is room-aware now) have prompts
   and beacons.
 - In combat rooms a Warrior also sees its chase moves while each is possible right now: "X Charge"
-  (dashing or just after), "↓+X Leap Slam" (in the air, ▼ Hit on touch), "X Upward Cut" (still rising).
+  (dashing or just after), "↓+X Leap Slam" (in the air, ▼ Hit on touch), "X Upward Cut" (still rising). An
+  Archer with a bow sees "X Retreat Shot" while dashing or just after (S4: X / Hit then shoots backward).
 - `drawHints()` builds the list in the same order the E key acts in. **A new interaction must add its
   line there.** (The old per-object pills were removed in favour of this.)
 - Room-wide actions stay as pills top-right on desktop (H hand, C courses, Q Clio, X/I/K in combat rooms,

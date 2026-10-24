@@ -1666,7 +1666,8 @@ export const denAt = (room) => DENS.find((d) => d.room === room);
 
 // ——— items ———
 // kind: coin · potion (heal) · loot (just collectible, for now) · helmet (def) · sword (atk, reach) ·
-// staff (magic, mp, reach: the staff bolt's extra range; twin: the sword it drops in place of, see STAFF_OF)
+// staff (magic, mp, reach: the staff bolt's extra range; twin: the sword it drops in place of, see STAFF_OF) ·
+// bow (atk, reach: the arrow's extra range, twin; made from its sword below, BOW_LIST)
 // aim: the level a shop item is priced for (docs/economy.md; npm run economy checks it)
 export const ITEMS = {
   coin: { name: 'Gold', kind: 'coin', desc: 'Shiny slime gold. Spend it at the shop in Slimeville.' },
@@ -1971,10 +1972,57 @@ export const ITEMS = {
   scroll_h30: { name: 'Dark Helmet Scroll 30%', price: 4000, kind: 'scroll', slot: 'helmet', rate: 0.3, def: 4, hp: 60, dark: 0.5, desc: '30% chance: +4 DEF and +60 max HP on a helmet. If it fails, a 50% chance the helmet is DESTROYED.' },
   scroll_chaos: { name: 'Chaos Scroll 60%', price: 5000, kind: 'scroll', slot: 'any', rate: 0.6, chaos: true, desc: "60% chance to reroll the item's bonuses wildly: each one changes by -3 to +5 (HP by ten times that). Weapons or helmets." },
 };
+// ——— bows (S4, story/progression.md 4): the Archer's weapon. Every staff's twin sword has a bow twin too, made
+// here from the sword so they can never drift apart: the same price, `lvl`, `aim`, slots, ATK and reach (the
+// reach adds to the arrow's range, BOW_RANGE). Equipped, the normal attack is a bow shot (BOW_SHOT_*). The
+// raised legacy pairs only get a bow for their `_n` copy: nobody ever owned a legacy bow. Art: src/bow-art.js.
+// [id, twin sword, name, description]
+const BOW_LIST = [
+  ['wood_bow', 'wood_sword', 'Practice Bow', 'A bent hazel stick and a bit of string. The arrows mostly go where you look.'],
+  ['iron_bow', 'iron_sword', "Hunter's Bow", 'A proper ash bow with an iron-capped grip. Pulls smooth, shoots straight.'],
+  ['crystal_bow', 'crystal_sword', 'Crystal Bow', 'Pale wood tipped with pink crystal at both ends. Its arrows leave a faint shimmer.'],
+  ['spore_bow', 'spore_blade', 'Sporecap Bow', "Grown from Mother Mushroom's stalk, a spotted cap on each tip. Every arrow puffs a little cloud."],
+  ['thorn_bow', 'thorn_sword', 'Briar Bow', "A curve of the Bramble Behemoth's briar, strung with thornvine. Don't hold it by the wrong end."],
+  ['frost_bow', 'frost_blade_n', 'Icicle Bow', "Glacia's bow: a curve of blue ice that never melts, strung with frost."],
+  ['star_bow', 'star_sword_n', 'Starforged Bow', 'Silver limbs with a fallen star in the grip. Its arrows streak like shooting stars.'],
+  ['magma_bow', 'magma_maul_n', 'Magma Bow', "Black rock limbs with Ignis's molten heart in the grip. Its arrows glow orange all the way there."],
+  ['phoenix_bow', 'phoenix_blade_n', 'Phoenix Feather Bow', "Pyra's flame-feathers along a golden bow. The string never cools."],
+  ['cog_bow', 'cog_cleaver_n', 'Cogwork Bow', "A brass bow from the Colossus with a little gear that winds the string for you. It ticks."],
+  ['chrono_bow', 'chrono_blade_n', 'Hourglass Bow', "Clock-brass limbs round Chronos's hourglass. Its arrows seem to land a moment before you loose them."],
+  ['reed_bow', 'reed_rapier', 'Reed Bow', 'Bundled river reeds bound with mill twine. Light, springy and a bit damp.'],
+  ['drift_bow', 'drift_cutlass', 'Driftwood Bow', 'Sea-bleached driftwood strung with fishing line, a bead of sea glass on each tip.'],
+  ['tide_bow', 'tide_claw', "Tidemother's Coral Bow", "A curve of the Tidemother's pink coral strung with kelp, a pearl in the grip. It smells of the sea."],
+  ['glowcap_bow', 'rootwood_saber', 'Glowcap Bow', "Rootwood limbs with a little blue glowcap on each tip. Truffle says it's for shooting in the dark."],
+  ['knot_bow', 'burrow_claw', 'Knotroot Bow', 'A root the Knotmole bent into a perfect curve, a gold light caught in the knot at its grip.'],
+  ['oak_bow', 'ranger_billhook', "Ranger's Longbow", "Acorn's own make: a tall oak longbow, still in leaf at the tips. She'll show you how to hold it."],
+  ['honey_bow', 'queen_stinger', "Hornet Queen's Bow", 'Black and amber limbs with comb at the grip, strung with silk. Its arrows hum like wasps.'],
+  ['bosun_bow', 'bosun_hook', "Bosun's Spar Bow", "Bent from the Brave Pippin's oak spars, a cold green lantern-flame in the grip."],
+  ['hart_bow', 'briarheart_blade', "Hart's Antler Bow", "Two curves of the Thorn Hart's antler, joined at the grip and strung with briar."],
+  ['sentinel_bow', 'sentinel_blade', 'Sentinel Bow', "Grey Keeper stone that bends when it shouldn't, an amber eye-stone in the grip. It looks where you're aiming."],
+  ['warden_bow', 'warden_blade', "Warden's Rootbow", "Grey stone limbs wound with roots, the Warden's amber light in the grip. Old, patient and very strong."],
+  ['glacier_bow', 'cutter_cleaver', 'Glacier Bow', 'Blackened driftwood with glacier ice set in the tips. Eyvind cut the ice; Skaldi bent the wood.'],
+  ['howl_bow', 'rimefang', 'Howling Bow', 'Grey wood wrapped in rime wolf pelt, a fang on each tip. Its arrows howl on the way out.'],
+  ['tusk_bow', 'tusk_blade', 'Rimehorn Bow', 'A curve of old mammoth ivory wound with red-brown wool. Frost flowers grow up it as you draw.'],
+  ['driftbone_bow', 'bonecarver_knife', 'Driftbone Bow', 'Sea-bleached whalebone, a ring of carved seals chasing each other round the grip forever.'],
+  ['ivory_bow', 'ivory_cutlass', 'Walrus Ivory Bow', 'Two walrus tusks on a driftwood grip, whiskers bound round it. It barks, a bit, when you loose.'],
+  ['narwhal_bow', 'narwhal_tusk', 'Narwhal Song Bow', "A twist of the Old Narwhal's ivory strung with sea ice. Its arrows sing, low and long."],
+  ['skate_bow', 'skate_blade', 'Skate Wing Bow', "A pale bow shaped like an ice skate's wings, rippling as if it were still swimming."],
+  ['foxfire_bow', 'foxfire_blade', 'Foxfire Bow', "White birch with a fox's brush at the grip and a green flame running along the string."],
+  ['pale_star_bow', 'pale_star_blade', 'Pale Star Bow', 'Starglass limbs with a dim star in the grip. Its arrows fall softly, the way stars did.'],
+  ['prism_bow', 'prism_blade', 'Prism Bow', 'Clear blue ice with a prism at the grip. Its arrows split into three colours and meet again on the mob.'],
+  ['troll_bow', 'troll_maul', 'Troll-Ice Bow', "A bent pine trunk with a lump of the troll's blue ice wedged in the grip. Very heavy. Very strong."],
+  ['rimeguard_bow', 'rimeguard_blade', 'Rimeguard Bow', "A guard's longbow, the Queen's crown on its silver grip. Its arrows fly straight, as if on watch."],
+  ['oath_bow', 'oath_blade', 'Shield-Oath Bow', 'A war bow with a little shield on its grip and an oath carved down its back. It has never broken one.'],
+  ['spring_bow', 'slag_maul', 'Ironspring Bow', 'Two leaf-springs off an old forge bellows, riveted together and strung with wire. Forged for a wheel that never got it.'],
+];
+for (const [id, twin, name, desc] of BOW_LIST) {
+  const sw = ITEMS[twin];
+  ITEMS[id] = { name, price: sw.price, ...(sw.lvl ? { lvl: sw.lvl } : {}), ...(sw.aim ? { aim: sw.aim } : {}), ...(sw.slots ? { slots: sw.slots } : {}), kind: 'bow', atk: sw.atk, reach: sw.reach, twin, desc };
+}
 export const STACKS = (id) => ['coin', 'potion', 'loot', 'scroll'].includes(ITEMS[id]?.kind);
 // The weapon slot (gear.weapon) holds any of these; the kind decides the normal attack (S1: a sword swings,
-// a staff fires a bolt; story/progression.md adds the bow and classes later)
-export const WEAPON_KINDS = ['sword', 'staff'];
+// a staff fires a bolt; S4: a bow shoots an arrow). A class wields one kind (CLASSES in skills.js).
+export const WEAPON_KINDS = ['sword', 'staff', 'bow'];
 export const isWeapon = (id) => WEAPON_KINDS.includes(ITEMS[id]?.kind);
 export const isGear = (id) => isWeapon(id) || ITEMS[id]?.kind === 'helmet';
 export const gearSlotOf = (id) => (isWeapon(id) ? 'weapon' : ITEMS[id]?.kind === 'helmet' ? 'helmet' : null);
@@ -1985,19 +2033,26 @@ export const weaponKind = (id) => (isWeapon(id) ? ITEMS[id].kind : null);
 // copy, `<id>_n`, looks exactly like its legacy original). Every art lookup by id goes through artOf.
 export const artOf = (id) => ITEMS[id]?.art ?? id;
 export const STAFF_OF = Object.fromEntries(Object.entries(ITEMS).filter(([, it]) => it.kind === 'staff' && it.twin).map(([id, it]) => [it.twin, id]));
+// and its bow twin (S4): a drop can be any of the three (server/rpg.js twinPick)
+export const BOW_OF = Object.fromEntries(Object.entries(ITEMS).filter(([, it]) => it.kind === 'bow' && it.twin).map(([id, it]) => [it.twin, id]));
 export const STAFF_OFFKIND = 0.2;
 // The staff bolt (a staff's normal attack): reach STAFF_BOLT_RANGE plus the staff's own reach, damage
 // STAFF_BOLT_MULT of MAGIC (less than a swing hits for: range is paid for), flying STAFF_BOLT_SPEED px/s
 export const STAFF_BOLT_RANGE = 170;
 export const STAFF_BOLT_MULT = 0.7;
 export const STAFF_BOLT_SPEED = 1100;
+// The bow shot (a bow's normal attack, S4): an arrow to the first mob ahead within BOW_RANGE plus the bow's
+// reach (and Keen Eye's), BOW_SHOT_MULT of ATK (less than a swing: range is paid for), at BOW_SHOT_SPEED px/s
+export const BOW_RANGE = 250;
+export const BOW_SHOT_MULT = 0.75;
+export const BOW_SHOT_SPEED = 1400;
 
 // ——— enhancement (MapleStory style) ———
 // Every sword and helmet has a number of upgrade slots (ITEMS.slots, else DEFAULT_SLOTS). Each scroll
 // used on it takes one slot whether it works or not, and nothing ever gives a slot back. A piece of gear
 // carries its own enhancement e = { u: slots used, s: successes, atk, magic, def, hp } (bag entries and
 // the worn gear keep it with them). Dark scrolls can destroy the item when they fail.
-export const DEFAULT_SLOTS = { sword: 7, staff: 7, helmet: 7 };
+export const DEFAULT_SLOTS = { sword: 7, staff: 7, bow: 7, helmet: 7 };
 export const slotsOf = (id) => ITEMS[id]?.slots ?? DEFAULT_SLOTS[ITEMS[id]?.kind] ?? 0;
 export const canScroll = (scrollId, itemId) => {
   const sc = ITEMS[scrollId], it = ITEMS[itemId];
@@ -2034,7 +2089,7 @@ export const BAG_SLOTS = 24;
 export const SHOP_X = 2780;
 export const SHOP_RANGE = 120;
 export const SELL_RATE = 0.4;
-export const SHOP_STOCK = ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'wood_sword', 'iron_sword', 'crystal_sword', 'wood_staff', 'iron_staff', 'crystal_staff', 'leaf_cap', 'mush_helm', 'iron_helm'];
+export const SHOP_STOCK = ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'wood_sword', 'iron_sword', 'crystal_sword', 'wood_staff', 'iron_staff', 'crystal_staff', 'wood_bow', 'iron_bow', 'crystal_bow', 'leaf_cap', 'mush_helm', 'iron_helm'];
 // Every shopkeeper: where they stand (room, x; you trade within SHOP_RANGE) and what they sell. Pip's has
 // the Boutique too. Runa is also an AI character: her dialog has a Trade button (src/npc.js).
 export const SHOPS = {
@@ -2042,16 +2097,16 @@ export const SHOPS = {
   runa: { name: "Runa's Net Shed", room: FJORD, x: RUNA_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'frostbloom', 'fur_hood_n', 'bone_harpoon_n'] },
   // the branches' traders (island depth: each branch sells the basic potions, so a deep branch isn't a walk
   // back to Pip, and a tier of gear for its middle levels)
-  bun: { name: 'Willowmere Mill', room: WILLOWMERE, x: BUN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'reed_rapier', 'reed_staff', 'miller_cap'] },
-  moss: { name: "Moss's Driftwood Shack", room: COVES, x: MOSS_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'drift_cutlass', 'drift_staff', 'conch_helm'] },
-  truffle: { name: "Truffle's Camp", room: MYCELIUM, x: TRUFFLE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'rootwood_saber', 'glowcap_staff', 'lantern_cap'] },
-  acorn: { name: "Acorn's Treehouse", room: CANOPY, x: ACORN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'ranger_billhook', 'oak_staff', 'ranger_hood'] },
+  bun: { name: 'Willowmere Mill', room: WILLOWMERE, x: BUN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'reed_rapier', 'reed_staff', 'reed_bow', 'miller_cap'] },
+  moss: { name: "Moss's Driftwood Shack", room: COVES, x: MOSS_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'drift_cutlass', 'drift_staff', 'drift_bow', 'conch_helm'] },
+  truffle: { name: "Truffle's Camp", room: MYCELIUM, x: TRUFFLE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'rootwood_saber', 'glowcap_staff', 'glowcap_bow', 'lantern_cap'] },
+  acorn: { name: "Acorn's Treehouse", room: CANOPY, x: ACORN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'ranger_billhook', 'oak_staff', 'oak_bow', 'ranger_hood'] },
   // the Pet Shop: pet food only (the pets themselves are on plinths: furni-buy, src/petshop.js)
-  eyvind: { name: "The Cutters' Hut", room: GLACIER, x: EYVIND_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'cutter_cleaver', 'glacier_staff', 'cutter_cap'] },
-  hakon: { name: 'The Whaling Hut', room: SKERRIES, x: HAKON_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'bonecarver_knife', 'driftbone_staff', 'sealskin_hood'] },
+  eyvind: { name: "The Cutters' Hut", room: GLACIER, x: EYVIND_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'cutter_cleaver', 'glacier_staff', 'glacier_bow', 'cutter_cap'] },
+  hakon: { name: 'The Whaling Hut', room: SKERRIES, x: HAKON_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'bonecarver_knife', 'driftbone_staff', 'driftbone_bow', 'sealskin_hood'] },
   // Forgehold (atlas Phase 5): Auntie Soot's potions and eggs at the springs, Slag's forge gear
   soot: { name: "Auntie Soot's Springs", room: FORGEHOLD, x: SOOT_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'spring_egg'] },
-  slag: { name: "Slag's Stack", room: FORGEHOLD, x: SLAG_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'slag_maul', 'bellows_rod', 'smith_cap'] },
+  slag: { name: "Slag's Stack", room: FORGEHOLD, x: SLAG_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'slag_maul', 'bellows_rod', 'spring_bow', 'smith_cap'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));
@@ -2088,5 +2143,5 @@ export const REBIRTH_HOURS = 1;
 export const rebirthCost = (lvl) => Math.round((REBIRTH_HOURS * 60 * KILLS_PER_MIN * curve('gold', Math.max(1, lvl))) / 1000) * 1000;
 export const attackFor = (lvl, weapon) => 4 + lvl * 2 + (ITEMS[weapon]?.atk ?? 0); // (a staff has no atk)
 export const defenseFor = (helmet) => ITEMS[helmet]?.def ?? 0;
-export const reachFor = (weapon) => ITEMS[weapon]?.reach ?? 0; // extra slap reach (a staff: extra bolt range), px
+export const reachFor = (weapon) => ITEMS[weapon]?.reach ?? 0; // extra slap reach (a staff: extra bolt range; a bow: extra arrow range), px
 export const HURT_INVULN_MS = 1200; // after a mob hits you

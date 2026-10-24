@@ -479,9 +479,12 @@ export const SLAM_V = 1300, SLAM_CD = [0, 240, 180];
 export const UPCUT_V = 900, UPCUT_CD = [0, 240, 180];
 export const SLAM_GRACE = 15, UPCUT_GRACE = 15, CHARGE_WINDOW = 15;
 export const CHARGE_RESET = [0, 0.5, 0.7];
-export const chaseRank = (mw, i) => ((mw | 0) >> (i * 2)) & 3; // 0 Charge · 1 Leap Slam · 2 Upward Cut
+export const chaseRank = (mw, i) => ((mw | 0) >> (i * 2)) & 3; // 0 Charge · 1 Leap Slam · 2 Upward Cut · 3 Retreat Shot
 // Is a slap right now a Charge? (dashing, or just after)
 export const chargeOpen = (s) => chaseRank(s.mw, 0) > 0 && ((s.dt | 0) > 0 || (s.cw | 0) > 0);
+// Is a bow shot right now a Retreat Shot (Archer, S4)? Dashing or just after (the same window as Charge),
+// shooting back the way you came (dir: the shot's side). Nothing about the move changes, so no state edit.
+export const retreatOpen = (s, dir) => chaseRank(s.mw, 3) > 0 && ((s.dt | 0) > 0 || (s.cw | 0) > 0) && dir === -(s.facing < 0 ? -1 : 1);
 // A Charge connected: the same edit on both sides, at the input the slap went off at (src/net.js replays it)
 export function applyCharge(s) {
   const r = chaseRank(s.mw, 0), dash = rankBits(s.mv | 0, 0);

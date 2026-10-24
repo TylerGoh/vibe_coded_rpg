@@ -56,6 +56,11 @@ protocol is documented in the comment at the top of that file: keep it updated**
   the egg bit alone (their decoder reads any non-zero byte as an egg). The server encodes the mobs once per
   version in the room. Slime records are unchanged (`BYTES_OF[5]` is version 4's 44). JSON tabs get the
   wide flags, which their code masks away.
+- 2026-10-24 (the Archer, S4): no wire version change. Two more mob flags in the same byte (2048 marked by
+  Hunter's Mark, 4096 netted; the 7 bits there hold up to 16384), Retreat Shot's rank in `mw` bits 6–7 (it was
+  6 bits used of the byte), the slap echo's `retreat`, the skill's `mob` / echo's `mark`, and
+  `{t:'netcatch', id, m, x, y}` with the summons messages. Retreat Shot changes no physics: it's read from
+  the state at the shot's input (`retreatOpen`), like Charge, but with nothing to replay.
 - Ideas not done yet: send snapshots of only the slimes in your room (plus broadcasters), or at 30 Hz
   for remote slimes; delta-encode mob updates.
 

@@ -2,22 +2,23 @@
 
 Files: `src/shared/skills.js` (all rules, `CLASSES`, `statsFor`), `src/skilltree.js` (the K panel),
 `src/skillfx.js` (icons and effects), `src/elements.js` (the Mage's combo states drawn on mobs, the Arcane
-Charge pips), `server/summons.js` and `src/summons.js` (the Cleric's summons, its halo, the Mage's staff
-sparkle), the hotbar and stats UI in `src/rpg.js`, server actions in the `skills()` and `rebirth()`
-handlers of `server/rpg.js`.
+Charge pips, Hunter's Mark and a net on a caught mob), `server/summons.js` and `src/summons.js` (the Cleric's
+summons, its halo, the Mage's staff sparkle, the Archer's Net Trap), the hotbar and stats UI in `src/rpg.js`,
+server actions in the `skills()` and `rebirth()` handlers of `server/rpg.js`.
 
 **Classes are being built in pieces** (`story/s2-plan.md`; the design is `story/progression.md`, read it
 before changing classes, skills, AP or the point schedule). S2.1 (the data, the rules, the server, the
 migration), S2.2 (the node-tree K panel) and S2.3 (the Rebirth Pool: place, card, banners, Elder Mochi) are
 built, and the CLASSES tables in the economy sheet (S2.4, `docs/economy.md`) measure and tuned them; the
 Warrior's chase moves (S2.5) and the Mage's combos and Arcane Charge (S2.6), both below, too. The Cleric
-(S3, 2026-10-23) has its own section below. The Archer comes later (S4).
+(S3, 2026-10-23) and the Archer (S4, 2026-10-24) have their own sections below.
 
 ## Classes (S2)
-- `CLASSES`: `novice`, `warrior` (sword, STR), `mage` (staff, INT), `cleric` (staff, INT; S3), each with its
-  weapon kind, starter weapon, colour, blurb, strong / bad at text (for the pool's card) and two `branches`
-  (Knight / Berserker, Elementalist / Frostbinder, Priest / Warden). `classNames()` words the list ("Warrior,
-  Mage or Cleric") for the banners and notices, so a new class needs no text hunt. Saved on the character as `c.cls`, plus `c.reborn` (how many times a class
+- `CLASSES`: `novice`, `warrior` (sword, STR), `mage` (staff, INT), `cleric` (staff, INT; S3), `archer` (bow,
+  DEX; S4), each with its weapon kind, starter weapon, colour, blurb, strong / bad at text (for the pool's card)
+  and two `branches` (Knight / Berserker, Elementalist / Frostbinder, Priest / Warden, Sniper / Trapper).
+  `classNames()` words the list ("Warrior, Mage, Cleric or Archer") for the banners and notices, and `aOrAn`
+  the article ("an Archer"), so a new class needs no text hunt. Saved on the character as `c.cls`, plus `c.reborn` (how many times a class
   was chosen; 0 = the next choice is free).
 - **Everyone starts as a Novice** (owner, 2026-10-23): the Novice tree, any weapon. **From `CLASS_LVL` you
   choose a class at the Rebirth Pool** in Slimeville (`REBIRTH_X`, `REBIRTH_RANGE` in sim.js; between
@@ -29,7 +30,7 @@ Warrior's chase moves (S2.5) and the Mage's combos and Arcane Charge (S2.6), bot
   new class's colour round the slime, its class name, and the `reborn` sound (`poolSplash`, `src/rebirth.js`).
 - **Weapon lock:** a class only wields its own kind (`weaponOk`; equip is refused on both sides). On
   choosing a class, a wrong weapon in hand goes back to the bag and the strongest right one from the bag
-  takes its place; with none, you get the class's starter (`wood_sword` / `wood_staff`). A wrong weapon with
+  takes its place; with none, you get the class's starter (`wood_sword` / `wood_staff` / `wood_bow`). A wrong weapon with
   a full bag refuses the change ("make room first"). Unarmed still slaps.
 - **The migration** (one time, in `load()`): a saved character with no `cls` becomes a Novice with every
   skill point and AP refunded and both skill hotbars cleared (potion bars kept), `reborn` 0, and a one-time
@@ -39,8 +40,8 @@ Warrior's chase moves (S2.5) and the Mage's combos and Arcane Charge (S2.6), bot
   and icon).
 - **The pool's card** (`PoolCard` in `src/rebirth.js`, `#pool` in `index.html`; E at the pool, or the E button
   on touch): below `CLASS_LVL` only "Come back at Lv 10" and what the classes are; from it, every class in
-  `CLASSES` side by side (never the Novice, and no teasing of classes not built yet; the card is wider since
-  there are three) with strong / bad at, your own one
+  `CLASSES` side by side (never the Novice, and no teasing of classes not built yet; the card is nearly the
+  canvas's width since there are four) with strong / bad at, your own one
   marked, the price ("Free: your first choice" while `reborn` is 0, else `rebirthCost(lvl)`; the button says
   "Not enough gold" when short), and what's kept and what resets. Choosing asks once when free, twice when it
   costs gold, then sends `{t:'rebirth', cls}`; `reborn` for you closes it, a toast while it waits shows in
@@ -54,7 +55,7 @@ Warrior's chase moves (S2.5) and the Mage's combos and Arcane Charge (S2.6), bot
   Lv 10+ Novices at it, and mentions it once to someone he's never talked to (`docs/social/ai-characters.md`).
 
 ## Skill trees
-- `TREES`: the Novice tree, one per class, and Mobility (`wind`). Every skill in `SKILLS` has `cls`
+- `TREES`: the Novice tree, one per class (four since S4), and Mobility (`wind`). Every skill in `SKILLS` has `cls`
   (`novice`, a class, or `any` for Mobility), `tree`, `adv` (the level it opens at) and, past the basics,
   a `branch`.
 - **Novice tree** (kept forever, weak once you have a class): Slime Bash, Pebble Toss (on the better of
@@ -263,6 +264,51 @@ and in a party its heals, shields and summons matter more than its damage. Rules
   ring on the ground, a big winged ghost with a halo.
 - **The damage meter** shows healing done and damage taken under the damage (`docs/combat/bosses.md`).
 
+## The Archer (S4)
+`story/progression.md` 1b and 4: the bow class. Strong at steady single-target damage from range and at
+staying on the move; bad at crowds and at anything up close (it solos by keeping its distance, kiting, and
+netting whatever chases it). Rules and numbers in `src/shared/skills.js` (`KEEN_RANGE` and the constants after
+it); bows in `docs/combat/items.md`.
+- **Looks**: the bow on its back (and the draw-and-loose pose when it shoots) is what tells friends it's an
+  Archer; no halo or sparkle (`drawBowOnBack` / `drawBowShoot` in `src/slime.js`).
+- **The bow shot** is its normal attack (any bow holder's, a Novice's too): an arrow to the first mob ahead
+  within `arrowRange` (`statsFor`: `BOW_RANGE` + the bow's reach + Keen Eye), `BOW_SHOT_MULT` of ATK, flying at
+  `BOW_SHOT_SPEED` (`bowShot` / `otherArrow` in `src/rpg.js`; `shoot` in `server/rpg.js`).
+- **DEX's job** (owner's ask: DEX only raised the minimum roll before): with a bow, DEX does what STR does for a
+  sword, +0.6 ATK and `BOW_DEX_HP` max HP a point, and STR only +0.2 ATK (it still gives its HP). `AP_STATS`
+  says so in the bag.
+- **Basics (Lv 10)**: Double Shot (two arrows), Retreat Shot (below), Keen Eye (range and crit), Steady Hands
+  (+ATK with a bow), Evasion (`EVADE` a rank: a hit misses, see `hurt()`).
+- **Sniper**: Snipe (one long hard arrow, `FAR_BONUS` more past `FAR_PX`: keeping your distance pays), Piercing
+  Arrow (through every mob in a line), then Deadeye (crit, like Sword Mastery) and Hunter's Mark, then
+  Heartseeker (a giant piercing arrow across the room). **Trapper**: Arrow Rain (a volley that comes down round
+  the first mob ahead, `RAIN_AT` then a wave every `RAIN_EVERY`), Net Trap, then Barbed Arrows (every arrow slows
+  for `BARB_SLOW`; `BARB_BONUS` a rank more on a slowed, chilled, frozen or netted mob) and Trap Mastery, then
+  Thousand Arrows (a huge rain that slows).
+- **Retreat Shot** (`kind: 'chase'`, no MP, no hotbar; Charge's twin for the Archer): a bow shot while dashing
+  or within `CHARGE_WINDOW` ticks after, **back the way you came**, is a Retreat Shot for its `mult`. X / the
+  Hit button fire back on their own while it's open (a click or tap aims where you tap, and counts only if
+  it's backward). It changes nothing about the move, so unlike Charge there's no state edit: `retreatOpen`
+  (sim.js) is judged by both sides from the physics state at the shot's input; its rank rides in `state.mw`
+  bits 6–7 (`chaseOf`). The slap echo carries `retreat` (a "RETREAT SHOT" word), and the E-hint list shows
+  "X Retreat Shot" while it's open. Needs Dash.
+- **Hunter's Mark** (`kind: 'mark'`): the client sends the mob it aimed at (`mob`); the server checks the range
+  and sets `m.mark` (`until`, `boost`, `by`; one per Archer), and **everyone's** hits on that mob get the boost:
+  `applyHits` raises every cap, and each client's rolls use `markOn(v)` (the echo's `mark` tells everyone the
+  boost; mob flag 2048 says a mob is marked, for late joiners, who assume the lowest boost). Drawn as a turning
+  red target ring over the mob (`drawMark`). The party mechanic: S5's weak points will lean on it.
+- **Net Trap** (`summon`, `what: 'net'`): server-run with the Cleric's summons (`net` in `server/summons.js`):
+  planted where you stand, never a target and never hurt; the first mob on the ground that walks within `NET_R`
+  of it is caught (`m.snareUntil`): an ordinary mob stops dead and can't hurt anyone (both sides skip its
+  touch, like a frozen one), a boss is only slowed to `NET_BOSS_SLOW` for half as long. Trap Mastery lets it
+  catch more and bursts each catch (`burst(rank)` × ATK on everything within `NET_BURST_R`, sent as `sumhit`);
+  spent, it goes with `how: 'sprung'`. `{t:'netcatch', id, m, x, y}` shows the snap and "CAUGHT!"; the caught
+  mob wears a net (flag 4096, `drawNet`).
+- **Evasion**: in `hurt()`, after Aegis and the bubble and never an ultimate, a dodged hit does no damage but
+  still knocks you back, because the client predicted that knockback at that step (the physics would rubber-
+  band otherwise). Everyone sees "MISS" (`guard` `'dodge'`).
+- Not built: weak points (S5) for Deadeye and the mark to land on; `docs/ideas.md` ("S4 left for later").
+
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js
 `step()`; ranks reach the physics as `state.mv` (`mobilityOf`, set by the server's `moves()`). The state
@@ -283,9 +329,9 @@ carries their cooldowns and i-frames (`ifr`) and goes through `pack`. Some late 
   Stats column on the left of the bag: − / + with a step of 1 / 10 / All, and Reset. All free, any time
   (`{t:'ap', stat, n}`, n < 0 takes back; `{t:'ap', reset: true}`).
 - Effects are in `AP_STATS` (descriptions) and `statsFor` (numbers): STR → ATK and HP, DEX → a higher
-  minimum damage roll (`minRollFor`) and a little ATK and MAGIC, INT → MAGIC and MP, LUK → crit chance and
-  crit damage. The bag shows ATK and MAGIC damage-range bars (normal hit bright, crit pale).
+  minimum damage roll (`minRollFor`) and a little ATK and MAGIC (with a bow: the Archer's main stat, ATK and
+  HP like STR; S4), INT → MAGIC and MP, LUK → crit chance and crit damage. The bag shows ATK and MAGIC damage-range bars (normal hit bright, crit pale).
 - MAGIC = `magicFor(lvl)` + the staff's MAGIC (S1) + INT + scrolls; a staff also adds max MP. Warrior skills
-  use ATK and Mage spells MAGIC; the weapon lock makes a class's weapon match its skills.
+  use ATK and Mage spells MAGIC (Archer arrows ATK); the weapon lock makes a class's weapon match its skills.
 - Added because the owner said mages were weak: INT gives more per point than STR, and Arcane Mind was
   raised at the same time. Untested with real players.

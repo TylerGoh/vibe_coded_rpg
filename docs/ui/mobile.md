@@ -13,6 +13,8 @@ Files: `src/touch.js` (buttons, fullscreen), touch layout rules in `src/style.cs
 - Tap-style buttons hold their key ~120 ms so the 60 Hz sim sees it. Tapping the canvas slaps.
 - Combos that need two right-thumb buttons at once (the Warrior's Leap Slam: ▼ + Hit; Upward Cut: Jump +
   Hit) use a grace window in the physics instead (`SLAM_GRACE`, `UPCUT_GRACE`): tap one, then the other.
+  The Archer's Retreat Shot is Dash, then Hit (Hit shoots backward on its own while it's open), so it needs
+  no new button either; tapping the game aims where you tap.
 - The HUD buttons and pills don't carry key labels (owner, 2026-10-20: they crowded the combat HUD); every
   key and touch button is listed on the Esc menu's **Controls** page (`CONTROLS` in `src/main.js`, one list
   for touch, one for keyboards). A new key or button goes there.

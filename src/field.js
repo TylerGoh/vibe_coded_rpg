@@ -24,6 +24,7 @@ import { BLUEHALLS_MOB_ART, BLUEHALLS_ICONS, BLUEHALLS_SWORDS, BLUEHALLS_SWORD_L
 import { QBRIDGE_MOB_ART, QBRIDGE_ICONS, QBRIDGE_SWORDS, QBRIDGE_SWORD_LEN, QBRIDGE_HELMETS } from './qbridge-art.js';
 import { FORGE_ICONS, FORGE_SWORDS, FORGE_SWORD_LEN, FORGE_HELMETS } from './forgehold-art.js';
 import { drawStaff, STAFF_LEN } from './staff-art.js';
+import { drawBow, BOW_LEN } from './bow-art.js';
 const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...FIELD_BOSS_ART, ...WILLOW_MOB_ART, ...COVES_MOB_ART, ...DEEP_MOB_ART, ...CANOPY_MOB_ART, ...WRECK_MOB_ART, ...THORN_MOB_ART, ...SPINE_MOB_ART, ...GLACIER_MOB_ART, ...SKERRIES_MOB_ART, ...HEIGHTS_MOB_ART, ...BLUEHALLS_MOB_ART, ...QBRIDGE_MOB_ART };
 // Greenhollow's branches' gear and materials (src/willowmere-art.js, src/coves-art.js, src/deep-art.js, src/canopy-art.js,
 // src/wreck-art.js, src/thornheart-art.js, src/spine-art.js, src/glacier-art.js, src/skerries-art.js, src/heights-art.js,
@@ -4006,7 +4007,14 @@ export function drawItemIcon(ctx, id, x, y, size) {
   else if (id === 'aether_crystal') iconAetherCrystal(ctx);
   else if (id.startsWith('scroll_')) iconScroll(ctx, id);
   else if (BRANCH_ICONS[id]) BRANCH_ICONS[id](ctx);
-  else if (STAFF_LEN[id]) {
+  else if (BOW_LEN[id]) {
+    // the whole bow, tilted, scaled to fill the slot
+    ctx.rotate(-Math.PI / 4);
+    const k = Math.min(1.1, 46 / (2 * BOW_LEN[id] + 8));
+    ctx.scale(k, k);
+    ctx.translate(-3, 0);
+    drawBow(ctx, id, 0, 0);
+  } else if (STAFF_LEN[id]) {
     // a shortened shaft so the head (what tells staves apart) is big
     ctx.rotate(Math.PI / 4);
     ctx.scale(1.05, 1.05);

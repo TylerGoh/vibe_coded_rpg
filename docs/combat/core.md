@@ -29,6 +29,9 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
   flying at `STAFF_BOLT_SPEED` (`staffBolt` in `src/rpg.js`; the hit is sent at once and shown on landing).
   The server's `attack()` checks that range and caps at MAGIC × `STAFF_BOLT_MULT`. Other players see the bolt
   (`otherBolt`). Slapping friends with a staff is still a close bonk, judged by the server as before.
+- **With a bow** (S4) it's a **bow shot**: an arrow to the first mob ahead within `arrowRange` (`statsFor`) for
+  `BOW_SHOT_MULT` of ATK (`bowShot`; others see `otherArrow`); the server's `shoot()` checks the range and caps
+  it, a Retreat Shot (`retreatOpen`) higher. Hits on friends with a bow are a close slap, as with a staff.
 - All of a character's numbers come from `statsFor(char, buffs)` in `src/shared/skills.js` (gear, scrolls,
   skills, ability points, buffs). Use it, never the parts.
 - A roll is `minRoll` (raised by DEX) to `MAX_ROLL` of ATK or MAGIC, then a crit chance and multiplier.
@@ -38,8 +41,11 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
   also have a reward window (`docs/combat/bosses.md`).
 - **Friendly fire:** slaps in combat rooms hurt friends only if BOTH have it on (per player, saved, default
   on; toggle in the Esc menu or the bag; a red dot by the name tag = on).
-- Defences (Bubble, Aegis, Sanctuary, Second Wind, DEF, a brewed ward, Mana Shield) are all applied in
-  server `hurt()`. Mana Shield takes its share of a hit off MP while there's MP (never an ultimate's).
+- Defences (Bubble, Aegis, Sanctuary, Second Wind, DEF, a brewed ward, Mana Shield, the Archer's Evasion) are
+  all applied in server `hurt()`. Mana Shield takes its share of a hit off MP while there's MP (never an
+  ultimate's). An evaded hit (S4) still knocks you back, as the client predicted, but does no damage.
+- **Hunter's Mark** (S4): every slime's hits on a marked mob may be `boost` bigger; `applyHits` raises any
+  hitter's cap while `m.mark` is up, and a netted mob, like a frozen one, can't hurt anyone by touch.
 - **Charge** (Warrior): a slap while dashing or just after (`chargeOpen`) is judged by `attack()` from the
   server's own state at that input: a higher cap and the same state edit the client predicted
   (`docs/combat/skills.md`).

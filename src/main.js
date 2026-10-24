@@ -64,7 +64,7 @@ import { fastGradients } from './fastcanvas.js';
 import { gfx } from './gfx.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
-import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, chargeOpen, chaseRank, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X } from './shared/sim.js';
+import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, chargeOpen, retreatOpen, chaseRank, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X } from './shared/sim.js';
 
 const canvas = document.getElementById('game');
 const stage = document.getElementById('stage');
@@ -269,8 +269,10 @@ const net = new Net(wsUrl, {
     if (slapper && slapper !== mine) {
       slapper.slap(m.dir); // ours already swung when we clicked
       if (slapper.visible) audio.sfx(weaponSound(slapper), { pan: clamp((slapper.x - (mine?.x ?? 0)) / 500, -1, 1), vol: 0.5 });
-      const staff = ITEMS[slapper.gear?.weapon]?.kind === 'staff';
+      const staff = ITEMS[slapper.gear?.weapon]?.kind === 'staff', bow = ITEMS[slapper.gear?.weapon]?.kind === 'bow';
       if (slapper.visible && isCombat(room) && staff && slapper.cls !== 'cleric') boltDur = rpg.otherBolt(slapper, m.dir, m.mobs);
+      if (slapper.visible && isCombat(room) && bow) boltDur = rpg.otherArrow(slapper, m.dir, m.mobs); // (S4: an arrow)
+      if (slapper.visible && m.retreat) rpg.retreatFx(slapper, m.dir);
       if (slapper.visible && isCombat(room) && staff && slapper.cls === 'cleric') for (const [id] of m.mobs ?? []) { const v = rpg.views.get(id); if (v) rpg.bonkFx(v); } // (a Cleric's bonk)
       if (slapper.visible && m.charge) rpg.chargeFx(slapper, m.dir); // a Charge (ours showed when we hit)
     }
@@ -733,11 +735,11 @@ musicButton.onclick = () => {
 // Controls: every key (or touch button), in the Esc menu instead of as labels on the HUD (owner's request)
 const CONTROLS = TOUCH
   ? [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-     ['Tap the game', 'slap · Hit attacks'], ['Dash, then Hit', 'Charge (Warrior)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree'],
+     ['Tap the game', 'slap · Hit attacks'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree'],
      ['Players', "who's online, invite, message"], ['Chat', 'chat · /w name to whisper · /r to reply'], ['Decorate', 'in your own house'],
      ['Mic · Broadcast', 'talk to slimes nearby · to everyone'], ['Menu', 'this menu']]
   : [['← → / A D', 'walk'], ['↑ / W / Space', 'jump (twice with Flash Jump)'], ['↓ / S', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-     ['Click', 'slap · attack'], ['X', 'attack'], ['Shift then X', 'Charge (Warrior)'], ['↓ + X in the air', 'Leap Slam (Warrior)'], ['Jump + X, rising', 'Upward Cut (Warrior)'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
+     ['Click', 'slap · attack'], ['X', 'attack'], ['Shift then X', 'Charge (Warrior) · Retreat Shot (Archer)'], ['↓ + X in the air', 'Leap Slam (Warrior)'], ['Jump + X, rising', 'Upward Cut (Warrior)'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
      ['I · K', 'bag · skill tree'], ['P', "who's online, invite, message"], ['Enter', 'chat · /w name to whisper · /r to reply'],
      ['R', 'decorate your house'], ['C · H · Q', 'course menu · raise your hand · ask Clio'], ['M · B', 'mic · broadcast to everyone'],
      ['F', 'fullscreen'], ['Esc', 'this menu']];
@@ -814,17 +816,23 @@ function impact(x, y) {
 }
 let lastSlap = 0;
 // what a slap sounds like with what's in hand: a sword swings, a staff fires (its bolt), a mitten slaps
-const weaponSound = (s) => (s.cls === 'cleric' && ITEMS[s.gear?.weapon]?.kind === 'staff' ? 'swing' : { sword: 'swing', staff: 'staffBolt' }[ITEMS[s.gear?.weapon]?.kind] ?? 'slap'); // (a Cleric bonks)
+const weaponSound = (s) => (s.cls === 'cleric' && ITEMS[s.gear?.weapon]?.kind === 'staff' ? 'swing' : { sword: 'swing', staff: 'staffBolt', bow: 'bowShot' }[ITEMS[s.gear?.weapon]?.kind] ?? 'slap'); // (a Cleric bonks)
 // In the Wildwood a slap (or a sword swing, with one equipped) also hits mobs
 // (what it hits is decided right here from what's on screen, and shown straight away: src/rpg.js)
-function slapToward(dir) {
+// aimed: a click or tap toward a side (X and the Hit button go the way you face, except that while an Archer's
+// Retreat Shot is open they shoot back the way you came: sim.js retreatOpen)
+function slapToward(dir, aimed = false) {
   if (performance.now() - lastSlap < SLAP_COOLDOWN_MS || splatted(mine)) return;
   lastSlap = performance.now();
+  const bow = isCombat(room) && ITEMS[rpg.me?.gear?.weapon]?.kind === 'bow';
+  if (bow && !aimed && retreatOpen(net.me, -dir)) dir = -dir;
+  const retreat = bow && retreatOpen(net.me, dir); // (the server makes the same call from its own state)
   mine.slap(dir); // swing straight away
   audio.sfx(weaponSound(mine), { vol: 0.7 });
   // Charge (Warrior): a hit while dashing or just after is stronger and gives Dash back (sim.js applyCharge)
   const charge = isCombat(room) && chargeOpen(net.me); // (the server makes the same call from its own state)
-  const hits = rpg.slapHits(mine, dir, charge ? SKILLS.charge.mult(chaseRank(net.me.mw, 0)) : 1);
+  const hits = rpg.slapHits(mine, dir, charge ? SKILLS.charge.mult(chaseRank(net.me.mw, 0)) : retreat ? SKILLS.retreat_shot.mult(chaseRank(net.me.mw, 3)) : 1);
+  if (retreat && hits.length) rpg.retreatFx(mine, dir);
   if (charge && hits.length) {
     net.charge(net.seq);
     rpg.chargeFx(mine, dir);
@@ -846,7 +854,7 @@ canvas.addEventListener('pointerdown', (e) => {
   if (scope.isOpen) return scope.tap((e.clientX - r.left) / r.width); // looking through the telescope
   const worldX = camX + ((e.clientX - r.left) / r.width) * W;
   if (houses.editing) return houses.pointer('down', worldX, ((e.clientY - r.top) / r.height) * H); // decorating: put down / pick up
-  slapToward(Math.sign(worldX - mine.x) || mine.facing);
+  slapToward(Math.sign(worldX - mine.x) || mine.facing, true);
 });
 canvas.addEventListener('pointermove', (e) => {
   if (!houses.editing) return;
@@ -1336,6 +1344,7 @@ function drawHints() {
     if ([...rpg.views.values()].some((v) => Math.abs(v.x - me.x) < 130 && Math.abs(v.y - me.y) < 70)) acts.push({ key: 'X', label: TOUCH ? 'attack' : 'attack (or click)' });
     // the Warrior's chase moves, while one is possible (sim.js step decides)
     if (chargeOpen(me)) acts.push({ key: 'X', label: 'Charge' });
+    if (ITEMS[rpg.me?.gear?.weapon]?.kind === 'bow' && retreatOpen(me, -(me.facing < 0 ? -1 : 1))) acts.push({ key: 'X', label: 'Retreat Shot' }); // (the Archer's, S4)
     if (!me.grounded && !me.sl && chaseRank(me.mw, 1) && !me.sc) acts.push({ key: '↓+X', label: 'Leap Slam' });
     if (!me.grounded && !me.sl && me.vy < 0 && chaseRank(me.mw, 2) && !me.uc) acts.push({ key: 'X', label: 'Upward Cut' });
   }

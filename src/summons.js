@@ -2,12 +2,14 @@
 // The Cleric's summons as everyone in the room sees them (S3; the server runs them: server/summons.js).
 // {t:'summons', s: [[id, what, owner, x, y, hp, maxHp, dir], …]} ~20 times a second; we glide each one to
 // its newest spot. Their hits ({t:'sumhit'}) show like anyone's (src/rpg.js othersHits). Art: soft, pastel,
-// procedural, like the slimes. Positions: x, y = the feet (the wisp: its own middle).
+// procedural, like the slimes. Positions: x, y = the feet (the wisp: its own middle). The Archer's Net Trap
+// (S4) is drawn here too: a rope net pegged out on the ground, flicking up when it catches something
+// ({t:'netcatch'}); the mob it caught wears the net (src/elements.js).
 import { TAU, clamp, circle, ellipse } from './util.js';
-import { SKILLS, WISP_R, SERAPH_R } from './shared/skills.js';
+import { SKILLS, WISP_R, SERAPH_R, NET_R } from './shared/skills.js';
 import { audio } from './audio.js';
 
-const WHATS = ['spirit', 'wisp', 'totem', 'seraph']; // (server/summons.js SUMMON_WHATS)
+const WHATS = ['spirit', 'wisp', 'totem', 'seraph', 'net']; // (server/summons.js SUMMON_WHATS)
 const rand = (a, b) => a + Math.random() * (b - a);
 
 export class Summons {
@@ -46,13 +48,24 @@ export class Summons {
     } else if (m.t === 'sumgone') {
       const s = this.list.get(m.id);
       this.list.delete(m.id);
+      if (m.how === 'sprung') return; // (a net that caught its last: the catch already showed)
       this.puffs.push({ x: s?.x ?? m.x, y: s?.y ?? m.y, what: s?.what ?? 'spirit', at: rpg.time, broke: m.how === 'broke' });
       if (m.how === 'broke') audio.sfx('bubblePop', { vol: 0.6 });
+    } else if (m.t === 'netcatch') {
+      // a Net Trap caught something: it flicks up round the mob (the mob then wears it: v.netted)
+      const s = this.list.get(m.id);
+      if (s) s.sprung = rpg.time;
+      for (const id of m.m) {
+        const v = rpg.views.get(id);
+        if (v) this.puffs.push({ x: v.x, y: v.y, what: 'snap', at: rpg.time });
+      }
+      rpg.pop(m.x, m.y - 40, 'CAUGHT!', '#e6f0a8', 16);
+      audio.sfx('netSnap', { pan: clamp((m.x - (mine?.x ?? m.x)) / 500, -1, 1) });
     }
   }
   // a summon just called (the caster's skill echo): a burst where it appears
-  called(x, y) {
-    this.puffs.push({ x, y, what: 'call', at: this.rpg.time });
+  called(x, y, what) {
+    this.puffs.push({ x, y, what: what === 'net' ? 'set' : 'call', at: this.rpg.time });
   }
   update(dt) {
     for (const s of this.list.values()) {
@@ -69,6 +82,7 @@ export class Summons {
   // the totems' rings go under everything; the rest over the mobs
   drawGround(ctx) {
     for (const s of this.list.values()) if (s.what === 'totem') totemRing(ctx, s);
+    for (const s of this.list.values()) if (s.what === 'net') net(ctx, s, this.rpg.time);
   }
   draw(ctx) {
     const time = this.rpg.time;
@@ -77,9 +91,9 @@ export class Summons {
       if (s.what === 'spirit') spirit(ctx, s, 1);
       else if (s.what === 'seraph') seraph(ctx, s);
       else if (s.what === 'wisp') wisp(ctx, s);
-      else totem(ctx, s);
+      else if (s.what === 'totem') totem(ctx, s);
       ctx.restore();
-      if (s.what !== 'wisp' && s.hp < s.maxHp) hpBar(ctx, s.x - 20, s.y - (s.what === 'seraph' ? 96 : s.what === 'totem' ? 76 : 52), 40, 5, s.hp / s.maxHp);
+      if (s.what !== 'wisp' && s.what !== 'net' && s.hp < s.maxHp) hpBar(ctx, s.x - 20, s.y - (s.what === 'seraph' ? 96 : s.what === 'totem' ? 76 : 52), 40, 5, s.hp / s.maxHp);
     }
     for (const p of this.puffs) puff(ctx, p, (time - p.at) / 0.7);
   }
@@ -305,10 +319,81 @@ function totem(ctx, s) {
   ellipse(ctx, x - 2, gy - 3, 1.8, 2.6, 0.4);
 }
 
-// fading out (motes rising), breaking (shards and a pop), or appearing (a ring of light)
+// The Net Trap (S4): a rope net pegged flat on the ground, as wide as it catches (NET_R), a wooden peg at each
+// corner and a little bell on a cord; it twitches for a moment after it has caught something
+const NET_ROPE = '#b8945e', NET_DARK = '#6e5232';
+function net(ctx, s, time) {
+  const w = NET_R, h = 9, x = s.x, y = s.y - 2, twitch = s.sprung ? Math.max(0, 1 - (time - s.sprung) * 3) : 0;
+  ctx.save();
+  ctx.translate(x, y);
+  if (twitch) ctx.translate(0, -twitch * 6);
+  // the shadow it casts, so it reads as lying on the ground
+  ctx.fillStyle = 'rgba(60,40,30,0.16)';
+  ellipse(ctx, 0, 2, w + 6, h + 2);
+  ctx.fill();
+  // the mesh: two sets of diagonal cords inside the ellipse
+  ctx.save();
+  ellipse(ctx, 0, 0, w, h);
+  ctx.clip();
+  ctx.strokeStyle = NET_ROPE;
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (let i = -w * 2; i <= w * 2; i += 9) {
+    ctx.moveTo(i - h * 2, -h);
+    ctx.lineTo(i + h * 2, h);
+    ctx.moveTo(i + h * 2, -h);
+    ctx.lineTo(i - h * 2, h);
+  }
+  ctx.stroke();
+  ctx.restore();
+  ctx.strokeStyle = NET_DARK;
+  ctx.lineWidth = 2.2;
+  ellipse(ctx, 0, 0, w, h);
+  ctx.stroke();
+  // pegs at the four corners
+  for (const [px, py] of [[-w * 0.8, -h * 0.6], [w * 0.8, -h * 0.6], [-w * 0.8, h * 0.6], [w * 0.8, h * 0.6]]) {
+    ctx.fillStyle = '#d8b07a';
+    ctx.strokeStyle = NET_DARK;
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.roundRect(px - 2, py - 6, 4, 8, 1.5);
+    ctx.fill();
+    ctx.stroke();
+  }
+  // the bell on its cord, which gives a little swing
+  const sw = Math.sin(time * 3 + s.id) * 0.25 + twitch * Math.sin(time * 40) * 0.6;
+  ctx.strokeStyle = NET_DARK;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(w * 0.8, -h * 0.6 - 6);
+  ctx.lineTo(w * 0.8 + Math.sin(sw) * 8, -h * 0.6 - 14);
+  ctx.stroke();
+  ctx.fillStyle = '#ffd96a';
+  ctx.strokeStyle = '#a8782a';
+  circle(ctx, w * 0.8 + Math.sin(sw) * 8, -h * 0.6 - 15, 3);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+// fading out (motes rising), breaking (shards and a pop), appearing (a ring of light), a net set down (a
+// puff of dust), or a net snapping up round a mob (cords flicking up and in)
 function puff(ctx, p, k) {
   const a = 1 - k;
   ctx.save();
+  if (p.what === 'set' || p.what === 'snap') {
+    ctx.strokeStyle = `rgba(184,148,94,${a})`;
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 6; i++) {
+      const ang = Math.PI + (i / 5) * Math.PI, r = p.what === 'snap' ? 34 * (1 - k * 0.6) : 14 + 26 * k;
+      ctx.beginPath();
+      ctx.moveTo(p.x + Math.cos(ang) * r, p.y + Math.sin(ang) * r * (p.what === 'snap' ? 1.2 : 0.3));
+      ctx.lineTo(p.x + Math.cos(ang) * (r + 8), p.y + Math.sin(ang) * (r + 8) * (p.what === 'snap' ? 1.2 : 0.3));
+      ctx.stroke();
+    }
+    ctx.restore();
+    return;
+  }
   if (p.what === 'call') {
     ctx.strokeStyle = `rgba(200,255,225,${a})`;
     ctx.lineWidth = 3 * a + 1;

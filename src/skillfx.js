@@ -3,6 +3,8 @@
 // skill tree, the spell and sword effects (SkillFx, drawn in world space) and the Berserk aura.
 // Positions are slime feet (y = bottom); a slime is ~50 wide × 42 tall.
 import { TAU, clamp, circle, ellipse } from './util.js';
+import { drawArrow } from './bow-art.js';
+import { RAIN_AT, RAIN_EVERY } from './shared/skills.js';
 
 const BLADE = '#e0806a', MAGIC = '#7a8cf0', GUARD = '#4fb88f', WIND = '#5fc4d8';
 const TREE_OF = {
@@ -21,6 +23,10 @@ const TREE_OF = {
   // the Cleric (S3)
   smite: 'holy', faith: 'holy', jelly_spirit: 'holy', mend: 'holy', lantern_wisp: 'holy', revive: 'holy', holy_power: 'holy',
   miracle: 'holy', guardian_totem: 'holy', barrier: 'holy', spirit_bond: 'holy', seraph: 'holy',
+  // the Archer (S4)
+  double_shot: 'archer', retreat_shot: 'archer', keen_eye: 'archer', steady_hands: 'archer', evasion: 'archer', snipe: 'archer',
+  piercing_arrow: 'archer', deadeye: 'archer', hunters_mark: 'archer', heartseeker: 'archer', arrow_rain: 'archer', net_trap: 'archer',
+  barbed_arrows: 'archer', trap_mastery: 'archer', thousand_arrows: 'archer',
 };
 const PALETTE = {
   blade: [BLADE, '#ffc4b0', '#b85a48'],
@@ -31,7 +37,94 @@ const PALETTE = {
   fire: ['#f08a5a', '#ffd0b0', '#b8502a'],
   gods: ['#c8406a', '#ffd88a', '#6a1a3a'],
   holy: ['#5fc79a', '#fff2c0', '#2f8a64'],
+  archer: ['#a6b04a', '#eef4c0', '#5e6a22'],
 };
+// A white arrow for the icons: its head at (x, y) pointing along rot, len long
+function iconArrow(ctx, dark, x, y, len, rot, head = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rot);
+  ctx.strokeStyle = dark;
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(-len, 0);
+  ctx.lineTo(-4, 0);
+  ctx.stroke();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 2.4;
+  ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = dark;
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(4 * head, 0);
+  ctx.lineTo(-6 * head, -5 * head);
+  ctx.lineTo(-4 * head, 0);
+  ctx.lineTo(-6 * head, 5 * head);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  for (const side of [-1, 1]) { // fletching
+    ctx.beginPath();
+    ctx.moveTo(-len + 2, 0);
+    ctx.lineTo(-len - 3, side * 5);
+    ctx.lineTo(-len + 7, side * 4);
+    ctx.lineTo(-len + 9, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+// a reticle: a ring with four ticks
+function reticle(ctx, x, y, r, color, w = 2.4) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = w;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, TAU);
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * TAU;
+    ctx.moveTo(x + Math.cos(a) * (r - 4), y + Math.sin(a) * (r - 4));
+    ctx.lineTo(x + Math.cos(a) * (r + 5), y + Math.sin(a) * (r + 5));
+  }
+  ctx.stroke();
+}
+// a little net: a square of crossed cords with a peg at each corner
+function iconNet(ctx, dark, x, y, r) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.strokeStyle = dark;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(-r, -r * 0.6, 2 * r, 1.2 * r, 4);
+  ctx.stroke();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(-r, -r * 0.6, 2 * r, 1.2 * r, 4);
+  ctx.clip();
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (let i = -2 * r; i <= 2 * r; i += 6) {
+    ctx.moveTo(i, -r);
+    ctx.lineTo(i + r, r);
+    ctx.moveTo(i, -r);
+    ctx.lineTo(i - r, r);
+  }
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#fff2c4';
+  ctx.strokeStyle = dark;
+  ctx.lineWidth = 1.4;
+  for (const [px, py] of [[-r, -r * 0.6], [r, -r * 0.6], [-r, r * 0.6], [r, r * 0.6]]) {
+    circle(ctx, px, py, 2.6);
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.restore();
+}
 const ease = (k) => 1 - (1 - k) ** 3;
 // a stable pseudo-random number in [0, 1) for (seed, i)
 const rnd = (seed, i) => {
@@ -227,6 +320,166 @@ export function drawSkillIcon(ctx, id, x, y, size) {
 }
 
 const ICONS = {
+  // ——— the Archer (S4) ———
+  double_shot(ctx, dark) { // two arrows side by side
+    iconArrow(ctx, dark, 14, -9, 26, -0.35);
+    iconArrow(ctx, dark, 16, 5, 26, -0.35);
+  },
+  retreat_shot(ctx, dark) { // an arrow flying back, with dash lines going the other way
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    for (const [y, x0, x1] of [[6, 6, 18], [12, 2, 16], [18, 8, 18]]) {
+      ctx.moveTo(x0, y);
+      ctx.lineTo(x1, y);
+    }
+    ctx.stroke();
+    iconArrow(ctx, dark, -16, -6, 24, Math.PI);
+  },
+  keen_eye(ctx, dark) { // an eye with a crosshair in it
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-17, 0);
+    ctx.quadraticCurveTo(0, -16, 17, 0);
+    ctx.quadraticCurveTo(0, 16, -17, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#7a8a2a';
+    circle(ctx, 0, 0, 6.5);
+    ctx.fill();
+    reticle(ctx, 0, 0, 6.5, '#e8504a', 1.6);
+    ctx.fillStyle = '#ffffff';
+    circle(ctx, -2, -2, 1.6);
+    ctx.fill();
+  },
+  steady_hands(ctx, dark) { // a bow drawn, an arrow on the string
+    ctx.save();
+    ctx.translate(4, 0);
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(-6, -17);
+    ctx.quadraticCurveTo(10, 0, -6, 17);
+    ctx.stroke();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(-6, -17);
+    ctx.lineTo(-14, 0);
+    ctx.lineTo(-6, 17);
+    ctx.stroke();
+    ctx.restore();
+    iconArrow(ctx, dark, 18, 0, 26, 0, 0.9);
+  },
+  evasion(ctx, dark) { // a see-through slime stepping aside as an arrow goes by
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ellipse(ctx, -6, 6, 11, 9);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.8;
+    ellipse(ctx, 6, 8, 10, 8.5);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = dark;
+    circle(ctx, 3, 7, 1.4);
+    ctx.fill();
+    circle(ctx, 9, 7, 1.4);
+    ctx.fill();
+    iconArrow(ctx, dark, 18, -10, 30, 0, 0.8);
+  },
+  snipe(ctx, dark) { // a crosshair with an arrow coming in from far off
+    reticle(ctx, 6, 4, 11, '#ffffff', 3);
+    ctx.fillStyle = '#e8504a';
+    circle(ctx, 6, 4, 2.4);
+    ctx.fill();
+    iconArrow(ctx, dark, 4, 2, 22, 0.55, 0.8);
+  },
+  piercing_arrow(ctx, dark) { // an arrow through three rings
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx.lineWidth = 2.4;
+    for (const x of [-10, 0, 10]) {
+      ctx.beginPath();
+      ctx.ellipse(x, 0, 3.5, 9, 0, 0, TAU);
+      ctx.stroke();
+    }
+    iconArrow(ctx, dark, 19, 0, 36, 0);
+  },
+  deadeye(ctx, dark) { // a bullseye with an arrow in its middle
+    for (const [r, c] of [[16, '#ffffff'], [11, '#e8504a'], [6.5, '#ffffff'], [2.6, '#e8504a']]) {
+      ctx.fillStyle = c;
+      circle(ctx, -2, 2, r);
+      ctx.fill();
+    }
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.6;
+    circle(ctx, -2, 2, 16);
+    ctx.stroke();
+    iconArrow(ctx, dark, -1, 1, 20, 2.4, 0.8);
+  },
+  hunters_mark(ctx, dark) { // a red mark turning over a target
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ellipse(ctx, 0, 12, 13, 5);
+    ctx.fill();
+    reticle(ctx, 0, -2, 12, '#ffffff', 4.5);
+    reticle(ctx, 0, -2, 12, '#e8504a', 2.4);
+    ctx.fillStyle = '#e8504a';
+    circle(ctx, 0, -2, 3);
+    ctx.fill();
+  },
+  heartseeker(ctx, dark) { // a big golden arrow through a heart
+    ctx.fillStyle = '#ffd0d8';
+    heart(ctx, 2, 2, 12);
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+    iconArrow(ctx, dark, 20, -8, 38, 0.42, 1.2);
+  },
+  arrow_rain(ctx, dark) { // three arrows falling from the sky
+    for (const [x, y] of [[-10, 4], [0, 12], [10, 4]]) iconArrow(ctx, dark, x, y, 18, Math.PI / 2 - 0.2, 0.8);
+  },
+  net_trap(ctx, dark) {
+    iconNet(ctx, dark, 0, 4, 15);
+  },
+  barbed_arrows(ctx, dark) { // a big hooked arrowhead
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(18, -12);
+    ctx.lineTo(0, -6);
+    ctx.lineTo(4, -2);
+    ctx.lineTo(-6, 4);
+    ctx.lineTo(-2, 8);
+    ctx.lineTo(-16, 16);
+    ctx.lineTo(-8, 2);
+    ctx.lineTo(-12, -2);
+    ctx.lineTo(-2, -8);
+    ctx.lineTo(-6, -12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#c8d08a';
+    circle(ctx, 4, -6, 2);
+    ctx.fill();
+  },
+  trap_mastery(ctx, dark) { // a net with a burst over it
+    iconNet(ctx, dark, 0, 7, 13);
+    ctx.fillStyle = '#fff2c4';
+    star(ctx, 0, -9, 10, 6, 0.45);
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+  },
+  thousand_arrows(ctx, dark) { // a sky full of arrows
+    for (const [x, y] of [[-14, -2], [-5, 8], [4, -4], [13, 6], [-9, 16], [9, 18]]) iconArrow(ctx, dark, x, y, 13, Math.PI / 2 - 0.25, 0.6);
+  },
   // ——— the Cleric (S3) ———
   smite(ctx, dark) { // a falling shaft of light with a star where it strikes
     ctx.fillStyle = 'rgba(255,240,170,0.9)';
@@ -1464,6 +1717,9 @@ export class SkillFx {
       : kind === 'meteor' ? (o.delay ?? 0.8) + 0.6
       : kind === 'zone' ? (o.dur ?? 8)
       : kind === 'iframe' || kind === 'slamfall' ? (o.dur ?? 0.3)
+      : kind === 'arrow' ? (o.dur ?? 0.2) + 0.3
+      : kind === 'pierce' ? (o.dur ?? 0.3) + 0.45
+      : kind === 'rain' ? RAIN_AT + (o.hits ?? 3) * RAIN_EVERY + 0.4
       : LIFE[kind];
     if (!life) return;
     this.list.push({ kind, o, age: 0, life, seed: Math.random() * 1000 });
@@ -1487,6 +1743,123 @@ export class SkillFx {
 }
 
 const FX = {
+  // ——— the Archer (S4) ———
+  // An arrow {x, y, tx, ty, dur, hit, tint, big}: a shallow arc there, nose along its path, a faint trail; on
+  // landing a little burst of splinters (hit) or the arrow stuck in the ground, fading (miss)
+  arrow(ctx, e) {
+    const { x, y, tx, ty, hit } = e.o, dur = e.o.dur ?? 0.2, tint = e.o.tint ?? '240,230,200';
+    const lift = Math.min(18, Math.abs(tx - x) * 0.04);
+    const at = (q) => [x + (tx - x) * q, y + (ty - y) * q - Math.sin(q * Math.PI) * lift];
+    const q = Math.min(1, e.age / dur);
+    const [px, py] = at(q), [bx, by] = at(Math.max(0, q - 0.04));
+    const ang = Math.atan2(py - by, px - bx || Math.sign(tx - x) || 1);
+    if (q < 1) {
+      const [t0x, t0y] = at(Math.max(0, q - 0.25));
+      ctx.strokeStyle = `rgba(${tint},0.45)`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(t0x, t0y);
+      ctx.lineTo(px, py);
+      ctx.stroke();
+      ctx.translate(px, py);
+      ctx.rotate(ang);
+      drawArrow(ctx, -26, 0, 26, tint, e.o.big);
+      return;
+    }
+    const b = (e.age - dur) / 0.3;
+    ctx.globalAlpha = 1 - b;
+    if (hit) {
+      ctx.fillStyle = `rgb(${tint})`;
+      for (let i = 0; i < 5; i++) {
+        const a = ang + Math.PI + (i - 2) * 0.5, d = 4 + b * 18;
+        ctx.save();
+        ctx.translate(px + Math.cos(a) * d, py + Math.sin(a) * d);
+        ctx.rotate(a);
+        ctx.fillRect(-3, -0.8, 6, 1.6);
+        ctx.restore();
+      }
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2 * (1 - b) + 0.5;
+      ctx.beginPath();
+      ctx.arc(px, py, 3 + b * 12, 0, TAU);
+      ctx.stroke();
+    } else {
+      ctx.translate(px, py);
+      ctx.rotate(ang);
+      drawArrow(ctx, -26, 0, 26, tint);
+    }
+  },
+  // Piercing Arrow / Heartseeker {x, y, tx, ty, dur, big}: a streak of light along the line with the arrow at its
+  // head, the streak lingering and thinning out behind
+  pierce(ctx, e) {
+    const { x, y, tx, big } = e.o, dur = Math.max(0.05, e.o.dur ?? 0.3), dir = Math.sign(tx - x) || 1;
+    const q = Math.min(1, e.age / dur), hx = x + (tx - x) * q, fade = e.age > dur ? 1 - (e.age - dur) / 0.45 : 1;
+    const w = big ? 9 : 4;
+    ctx.globalAlpha = Math.max(0, fade);
+    const g = ctx.createLinearGradient(x, 0, hx, 0);
+    g.addColorStop(0, `rgba(255,240,180,0)`);
+    g.addColorStop(1, big ? 'rgba(255,220,120,0.9)' : 'rgba(240,250,200,0.85)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(x, y - w * 0.3);
+    ctx.lineTo(hx, y - w / 2);
+    ctx.lineTo(hx, y + w / 2);
+    ctx.lineTo(x, y + w * 0.3);
+    ctx.closePath();
+    ctx.fill();
+    if (q < 1) {
+      ctx.translate(hx, y);
+      ctx.scale(dir, 1);
+      drawArrow(ctx, -30, 0, 30, big ? '255,210,110' : '230,240,180', big);
+    }
+  },
+  // Arrow Rain / Thousand Arrows {sx, sy, x, y, radius, hits, big}: a few arrows shot up from the archer, then
+  // waves of them coming down slantwise over the area, each landing with a puff of dust
+  rain(ctx, e) {
+    const { sx, sy, x, y, radius: R = 130, hits = 3, big } = e.o, t = e.age;
+    if (t < 0.3) {
+      for (let i = 0; i < 3; i++) {
+        const q = t / 0.3, ax = sx + (i - 1) * 6, ay = sy - 30 - q * 160;
+        ctx.save();
+        ctx.globalAlpha = 1 - q;
+        ctx.translate(ax, ay);
+        ctx.rotate(-Math.PI / 2 + (i - 1) * 0.12);
+        drawArrow(ctx, -22, 0, 22);
+        ctx.restore();
+      }
+    }
+    const per = big ? 14 : 7, FALL = 0.2;
+    for (let n = 0; n < hits; n++) {
+      const land = RAIN_AT + n * RAIN_EVERY;
+      for (let i = 0; i < per; i++) {
+        const ox = (rnd(e.seed + n, i) * 2 - 1) * R, at = land + (rnd(e.seed, n * 31 + i) - 0.5) * 0.12, gx = x + ox, gy = y - 2;
+        const q = (t - (at - FALL)) / FALL;
+        if (q < 0 || q > 2) continue;
+        if (q <= 1) {
+          ctx.save();
+          ctx.translate(gx - 60 * (1 - q), gy - 220 * (1 - q));
+          ctx.rotate(Math.atan2(220, 60));
+          drawArrow(ctx, -22, 0, 22);
+          ctx.restore();
+        } else {
+          const b = q - 1;
+          ctx.globalAlpha = 1 - b;
+          ctx.fillStyle = 'rgba(230,220,200,0.8)';
+          circle(ctx, gx - 6 - b * 6, gy - 3 - b * 4, 4 * (1 - b) + 1);
+          ctx.fill();
+          circle(ctx, gx + 6 + b * 6, gy - 3 - b * 4, 4 * (1 - b) + 1);
+          ctx.fill();
+          ctx.save();
+          ctx.translate(gx, gy);
+          ctx.rotate(Math.atan2(220, 60));
+          drawArrow(ctx, -18, 0, 14);
+          ctx.restore();
+          ctx.globalAlpha = 1;
+        }
+      }
+    }
+  },
+
   // ——— the Cleric (S3) ———
   // Barrier {x, y, radius, targets}: a golden ring sweeping out, and a flash of hexagons round everyone it shields
   barrier(ctx, e, k) {

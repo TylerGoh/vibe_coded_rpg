@@ -4,14 +4,15 @@ Any price or drop change: check it against the balance sheet first (`docs/econom
 
 Data: `ITEMS`, `STACKS`, scroll rules, `SHOP_STOCK`, `COSMETICS` in `src/shared/rpg.js`. Server: bag
 actions, `scroll()` and `shop()` in `server/rpg.js`. Client: bag UI in `src/rpg.js`, shop in
-`src/shop.js`, icons in `src/field.js` (`drawItemIcon`).
+`src/shop.js`, icons in `src/field.js` (`drawItemIcon`), staves in `src/staff-art.js`, bows in `src/bow-art.js`.
 
 ## Items
-**Weapon lock (S2):** a Novice wields anything; a Warrior only swords, a Mage only staves (`weaponOk`,
-`CLASSES` in `src/shared/skills.js`; `docs/combat/skills.md`). Loot keeps dropping both kinds.
+**Weapon lock (S2):** a Novice wields anything; a Warrior only swords, a Mage and a Cleric only staves, an
+Archer only bows (`weaponOk`, `CLASSES` in `src/shared/skills.js`; `docs/combat/skills.md`). Loot keeps
+dropping every kind.
 
 Kinds: coin · potion (HP and/or MP) · loot (materials, mostly for selling) · sword (ATK, reach) · staff
-(MAGIC, MP, bolt range) · helmet (DEF) · scroll. Swords and staves go in the one **weapon** slot (`gear.weapon`,
+(MAGIC, MP, bolt range) · bow (ATK, arrow range; S4) · helmet (DEF) · scroll. Swords, staves and bows go in the one **weapon** slot (`gear.weapon`,
 `WEAPON_KINDS`, `gearSlotOf`); before S1 it was called `sword`, and `load()` in `server/rpg.js` moves old saves over. Herbs (`herb: true`, loot) and brewed potions (`brewed: true`: also full restores and
 timed buffs) come from farming and the alchemy lab: `docs/places/alchemy.md`. Recipes use some mob
 materials, so those aren't only for selling any more. Bosses drop unique swords and helmets; their later ones have more upgrade slots.
@@ -32,6 +33,26 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   glow colours) and `drawStaff` draws it for the bag icon (a shortened shaft so the head shows), the back
   and the cast pose (`drawStaffOnBack` / `drawStaffCast` in `src/slime.js`). The glow colour tints its bolt.
 
+## Bows (S4, 2026-10-24: `story/progression.md` 4)
+- Every sword with a staff twin has a **bow twin** too (`BOW_LIST`, `BOW_OF`): the bow is *made from the sword*
+  in code (same price, `lvl`, `aim`, slots, ATK and reach), so they can't drift apart; the economy script checks
+  it anyway, and that every staff-twinned sword has one. The raised legacy pairs only got a bow for their `_n`
+  copy (`frost_bow` is the twin of `frost_blade_n`): nobody ever owned a legacy bow, so there's no legacy bow.
+- Drops: `twinPick` in `server/rpg.js` picks among the three kinds: the kind a random fighter holds, and
+  `STAFF_OFFKIND` of the time one of the other two, so every class sees drops for itself. Drops stay worth
+  the same gold.
+- Sold: Pip's three starters (Practice, Hunter's, Crystal Bow) and one at every branch trader beside their
+  staff (Reed, Driftwood, Glowcap, Glacier, Driftbone, Ironspring Bow). **Ranger Acorn** is the archers' trader
+  (owner's plan): her own Ranger's Longbow, and she's the one to ask about archery in her chat.
+- A bow adds its ATK like a sword, and its reach to the arrow's range (`BOW_RANGE`, `statsFor` `arrowRange`); a
+  weapon scroll on a bow works as on a sword (the bigger number on ATK). The normal attack becomes the **bow
+  shot** (`docs/combat/core.md`).
+- Art: `src/bow-art.js`: `BOWS` describes each one (limb length, wood colours, thickness, a tip shape from
+  `TIPS`, grip wrap and stone, string, the arrow's tint) and `drawBow` draws it for the bag icon (the whole bow,
+  tilted), the back and the shot (`drawBowOnBack` / `drawBowShoot` in `src/slime.js`); `drawArrow` is every
+  arrow (`src/skillfx.js`). Each bow's look is themed on its twin (coral and kelp for the Tidemother's, antler
+  for the Thorn Hart's, leaf-springs and rivets for Slag's Ironspring Bow).
+
 ## Legacy items (the rebalance, R, 2026-10-23: `story/world/island-depth.md`)
 - When Frostpeak's, Emberdeep's and the Citadel's mobs and bosses moved up to their new bands, their gear
   got **scaled copies**: `<id>_n` (`frost_blade_n`, `chrono_staff_n`…), with a `lvl` (checked on the frozen
@@ -51,7 +72,8 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
 ## Scrolls (enhancement, MapleStory style; boss drops only)
 - 100% / 60% / 10% weapon and helmet scrolls ("Sword Scroll" until S1; the ids are still `scroll_s*`), dark 30% ones (a failure may DESTROY the item), and a chaos
   scroll that rerolls an item's bonuses.
-- A weapon scroll on a staff adds its ATK and MAGIC the other way round, so the bigger number lands on MAGIC.
+- A weapon scroll on a staff adds its ATK and MAGIC the other way round, so the bigger number lands on MAGIC
+  (a bow takes them as a sword does).
 - Every weapon/helmet has upgrade slots (`slotsOf`); every scroll used takes one whether it works or not,
   never refunded. The roll is `rollScroll`.
 - An item's enhancement `e = {u, s, atk, magic, def, hp}` travels with it (bag entries, worn gear in

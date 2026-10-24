@@ -39,8 +39,11 @@ one shared corner feed).
   and only tells of Brenna on a second asking. Soot holds Arne's letters for "the northern girl out on the
   coast" (Liv, E2). When an Emberdeep branch opens, update Ash (and Soot, Slag, Arne where they'd know).
 - **Elder Mochi tends the Rebirth Pool** (S2.3, `docs/combat/skills.md`): he knows what it does, that the
-  first choice is free and later changes cost about an hour's gold at your level, and only Warrior, Mage and
-  Cleric (the Cleric added with S3; add each new class to his persona in `server/characters.js` when it ships).
+  first choice is free and later changes cost about an hour's gold at your level, and only Warrior, Mage,
+  Cleric and Archer (the Cleric added with S3, the Archer with S4, pointing archers at Ranger Acorn; add each
+  new class to his persona in `server/characters.js` when it ships). The branch traders' personas name what
+  they sell, so a new item in a shop needs a line there too (S4 added each one's bow, and the staves Bun, Moss
+  and Truffle had been selling without saying).
   The server labels each line to him with the speaker's level and class (`whoIs` in `server/index.js`, the
   `ctx` of `reply()`), so he brings the pool up with any Lv 10+ Novice; and `persona(user, { first })` (from
   `server/npc.js`: no memory of them yet) makes him welcome a newcomer and mention the pool once. His

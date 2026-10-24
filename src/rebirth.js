@@ -8,7 +8,7 @@ import { TAU, rand } from './util.js';
 import { glow } from './glow.js';
 import { gfx } from './gfx.js';
 import { GROUND_Y, VILLAGE, REBIRTH_X, REBIRTH_RANGE } from './shared/sim.js';
-import { CLASSES, CLASS_LVL, ADVANCEMENTS, classNames } from './shared/skills.js';
+import { CLASSES, CLASS_LVL, ADVANCEMENTS, classNames, aOrAn } from './shared/skills.js';
 import { rebirthCost } from './shared/rpg.js';
 
 export const nearPool = (me, room) => room === VILLAGE && !!me && Math.abs(me.x - REBIRTH_X) < REBIRTH_RANGE;
@@ -315,7 +315,7 @@ export class PoolCard {
       parts.push(row);
     } else {
       const cost = this.cost(), mine = CLASSES[m.cls];
-      parts.push(el('p', 'pool-sub', m.cls === 'novice' ? `You're a Novice, Lv ${m.lvl}. Choose your class:` : `You're a ${mine?.name ?? m.cls}, Lv ${m.lvl}. Change your class:`));
+      parts.push(el('p', 'pool-sub', m.cls === 'novice' ? `You're a Novice, Lv ${m.lvl}. Choose your class:` : `You're ${aOrAn(mine?.name ?? m.cls)}, Lv ${m.lvl}. Change your class:`));
       const row = el('div', 'pool-classes');
       for (const [id, c] of classes) row.append(this.classCard(c, id));
       parts.push(row);
@@ -341,12 +341,12 @@ export class PoolCard {
     card.append(head, el('p', 'pool-blurb', c.blurb));
     const sb = el('p', 'pool-sb');
     sb.append(el('b', 'pool-good', 'Strong at: '), c.strong, el('br'), el('b', 'pool-bad', 'Bad at: '), c.bad);
-    card.append(sb, el('p', 'pool-weapon', `Wields a ${c.weapon}. Main stat: ${c.stat.toUpperCase()}.`));
+    card.append(sb, el('p', 'pool-weapon', `Wields ${aOrAn(c.weapon)}. Main stat: ${c.stat.toUpperCase()}.`));
     if (id) {
       const b = el('button', 'pool-pick');
       b.type = 'button';
       const cost = this.cost(), short = m.coins < cost;
-      b.textContent = m.cls === id ? `You're a ${c.name}` : short ? 'Not enough gold' : `Become a ${c.name}`;
+      b.textContent = m.cls === id ? `You're ${aOrAn(c.name)}` : short ? 'Not enough gold' : `Become ${aOrAn(c.name)}`;
       b.disabled = m.cls === id || short || !!this.waiting;
       b.onclick = () => {
         this.refusal = '';
@@ -382,10 +382,10 @@ export class PoolCard {
       yes.textContent = 'Stepping in…';
       yes.disabled = no.disabled = true;
     } else if (!cost) {
-      q = `Step into the pool and come out a ${c.name}? Free: your first choice. Changing again later costs gold.`;
-      yes.textContent = `Become a ${c.name}`;
+      q = `Step into the pool and come out ${aOrAn(c.name)}? Free: your first choice. Changing again later costs gold.`;
+      yes.textContent = `Become ${aOrAn(c.name)}`;
     } else if (step === 1) {
-      q = `Become a ${c.name} for ${gold(cost)} gold?`;
+      q = `Become ${aOrAn(c.name)} for ${gold(cost)} gold?`;
       yes.textContent = `Yes, ${gold(cost)} gold`;
     } else {
       q = `Sure? The ${gold(cost)} gold isn't given back, and your skill points and ability points reset.`;

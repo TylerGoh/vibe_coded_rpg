@@ -2,6 +2,7 @@
 import { TAU, rand, clamp, ellipse, circle } from './util.js';
 import { drawSword, drawHelmet, SWORD_LEN } from './field.js';
 import { drawStaff, STAFF_LEN } from './staff-art.js';
+import { drawBow, BOW_LEN } from './bow-art.js';
 import { drawHalo, drawStaffSparkle } from './summons.js';
 import { drawEnhanceGlow } from './skillfx.js';
 import { artOf } from './shared/rpg.js';
@@ -215,6 +216,51 @@ export class Slime {
     ctx.restore();
   }
 
+  // An equipped bow (S4), slung across its back and leaning back, the top limb rising past its head
+  drawBowOnBack(ctx, w, h, id) {
+    ctx.save();
+    ctx.translate(-w * 0.44, -h * 0.58);
+    ctx.rotate(-0.62 + Math.sin(this.t * 3) * 0.03 + this.d * 0.4);
+    ctx.scale(-0.85, 0.85);
+    if (this.plus) drawEnhanceGlow(ctx, this.plus, this.t, BOW_LEN[id] * 2);
+    drawBow(ctx, id, 0, this.t);
+    ctx.restore();
+  }
+
+  // The bow shot (its normal attack): up in front, the string pulled back fast and loosed (the arrow is
+  // already flying: src/rpg.js bowShot), a little kick, then lowered
+  drawBowShoot(ctx, w, h, id) {
+    const k = 1 - this.slapT / SLAP_TIME; // 0 → 1
+    const draw = k < 0.1 ? k / 0.1 : k < 0.16 ? 1 - (k - 0.1) / 0.06 : 0;
+    const kick = k > 0.16 && k < 0.4 ? Math.sin(((k - 0.16) / 0.24) * Math.PI) * 0.18 : 0;
+    const lower = k > 0.7 ? (k - 0.7) / 0.3 : 0;
+    const px = w * 0.3, py = -h * 0.5, gx = w * 0.62, gy = -h * 0.45 + lower * 10;
+    ctx.save();
+    ctx.strokeStyle = this.palette.line; // a stubby jelly arm out to the grip
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(gx, gy);
+    ctx.stroke();
+    ctx.strokeStyle = this.palette.bottom;
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+    ctx.translate(gx, gy);
+    ctx.rotate(-kick + lower * 0.5);
+    ctx.scale(0.85, 0.85);
+    if (this.plus) drawEnhanceGlow(ctx, this.plus, this.t, BOW_LEN[id] * 2);
+    drawBow(ctx, id, draw, this.t, k < 0.3 ? 1 - k / 0.3 : 0);
+    ctx.fillStyle = this.palette.bottom; // a jelly fist round the grip
+    ctx.strokeStyle = this.palette.line;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.arc(-1, 0, 3.6, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
   // The staff's cast (its normal attack): raised behind the head, then thrust forward to point where the
   // bolt goes, with a flash at the head, and back down
   drawStaffCast(ctx, w, h, id) {
@@ -409,9 +455,10 @@ export class Slime {
       ctx.rotate(clamp(this.vy / 5000, -0.1, 0.1));
     }
 
-    const helmet = this.gear?.helmet, sword = SWORD_LEN[this.gear?.weapon] ? this.gear.weapon : null, staff = STAFF_LEN[this.gear?.weapon] ? this.gear.weapon : null;
+    const helmet = this.gear?.helmet, sword = SWORD_LEN[this.gear?.weapon] ? this.gear.weapon : null, staff = STAFF_LEN[this.gear?.weapon] ? this.gear.weapon : null, bow = BOW_LEN[this.gear?.weapon] ? this.gear.weapon : null;
     if (sword && !(this.slapT > 0)) this.drawSwordOnBack(ctx, w, h, sword);
     if (staff && !(this.slapT > 0)) this.drawStaffOnBack(ctx, w, h, staff);
+    if (bow && !(this.slapT > 0)) this.drawBowOnBack(ctx, w, h, bow);
 
     // leaf sprout on top (tucked away under a helmet; a Greenhollow thing, so not on other islands' folk)
     if (!helmet && !this.folk) {
@@ -610,6 +657,7 @@ export class Slime {
     if (this.slapT > 0) {
       if (sword) this.drawSwordSwing(ctx, w, h, sword);
       else if (staff) this.drawStaffCast(ctx, w, h, staff);
+      else if (bow) this.drawBowShoot(ctx, w, h, bow);
       else this.drawSlap(ctx, w, h);
     }
     if (!helmet) this.drawHeadband(ctx, w, h);

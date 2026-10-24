@@ -122,7 +122,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/combat/core.md](docs/combat/core.md) | attacking, damage, HP/EXP, fainting, friendly fire, the bag, saving characters |
 | [docs/combat/stages.md](docs/combat/stages.md) | the four stages, zones, mobs and their AI, hazards, elites, field bosses |
 | [docs/combat/bosses.md](docs/combat/bosses.md) | boss dens, boss moves, ultimates, boss art, the damage meter |
-| [docs/combat/skills.md](docs/combat/skills.md) | skill trees, MP, the hotbar and its two setups, Mobility, ability points (STR/DEX/INT/LUK), the Warrior's chase moves, the Mage's combos (chill, freeze, shatter, burn) and Arcane Charge |
+| [docs/combat/skills.md](docs/combat/skills.md) | classes, skill trees, MP, the hotbar and its two setups, Mobility, ability points (STR/DEX/INT/LUK), the Warrior's chase moves, the Mage's combos (chill, freeze, shatter, burn) and Arcane Charge, the Cleric, the Archer (bow shot, Retreat Shot, Hunter's Mark, Net Trap) |
 | [docs/combat/items.md](docs/combat/items.md) | items, gear, scrolls, gold, the shop, the Boutique |
 | [docs/economy.md](docs/economy.md) | ANY gold / EXP / price / drop / scaling change: the balance sheet, `npm run economy` |
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |

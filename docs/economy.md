@@ -70,6 +70,12 @@ A staff is priced exactly like its twin sword and drops in its place, never as w
 the script counts staves as gear, checks a staff with a `lvl` against the sword curve (its MAGIC as if
 ATK), checks every staff matches its twin, and that every boss drops a weapon with a staff twin.
 
+## Bows (S4, 2026-10-24)
+The same for bows: made from their twin sword (same price, `lvl`, slots, ATK), so drops (one of three kinds now,
+never more) and the branch traders' stock move no faucet. The script counts bows as gear on the sword curve,
+checks each matches its twin, and that every sword with a staff twin (legacy ones aside) has a bow twin, so
+every boss drops something for every class.
+
 ## The rebalance (R, 2026-10-23)
 Frostpeak's, Emberdeep's and the Citadel's mobs and bosses moved to their new bands (`docs/combat/stages.md`)
 and left `LEGACY_MOBS` (only the Wildwood's three are still "the curve"), so they're checked within
@@ -161,11 +167,11 @@ Lv 10, ~224k at Lv 60, ~440k at Lv 100, ~735k at Lv 150.
 ## The CLASSES tables (S2.4, 2026-10-23, `story/progression.md` 1b)
 "Equal power, different shape", measured. Any change to a skill number, `statsFor`, the AP or point
 schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what moved.
-- **The builds.** Each branch (Knight, Berserker, Elementalist, Frostbinder, Priest, Warden) at `CLASS_AT` levels. Points go
+- **The builds.** Each branch (Knight, Berserker, Elementalist, Frostbinder, Priest, Warden, Sniper, Trapper) at `CLASS_AT` levels. Points go
   in the order `BUILDS` gives (an id fills to its max, `[id, n]` to n), spent through `cantLearn`, so the
   game's own rules hold: `spNovice` / `spClass`, the `adv` gates, one branch; Novice points fill the Novice
   tree (`NOVICE_ORDER`). AP: the class's main stat, with `AP_LUK` of it in LUK. Gear on the frozen curve: the
-  weapon's ATK (a staff's MAGIC, as S1 did) on the sword curve, its reach from the nearest real weapon, a
+  weapon's ATK (a staff's MAGIC, as S1 did; a bow's ATK) on the sword curve, its reach from the nearest real weapon, a
   staff's MP at the real staves' median MP/MAGIC; the helmet on the helmet curve; no scrolls or brews.
   Every number comes from `statsFor` (the sheet puts the curve gear in `ITEMS` for the run and takes it out
   again before the checks).
@@ -185,13 +191,15 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   its single-target rotation, capped at `TOUGH_CAP`.
 - **Time to solo each den** at the den's own level (dens under `CLASS_LVL` are the Novices' and left out):
   the real boss's HP and ATK, a hit every `BOSS_HIT_EVERY` by class (most often for a Warrior up close, least
-  for a Mage at range, the Cleric in between: it bonks close but Smites from afar), potions drunk (the biggest shop potion that fits) and their gold, against what the kill pays.
+  for a Mage or an Archer at range, the Cleric in between: it bonks close but Smites from afar), potions drunk (the biggest shop potion that fits) and their gold, against what the kill pays.
 - **The shape table**: each class ÷ the other classes' mean, per column (mean of each class's branches).
 - **Checks.** Every branch can solo every den: never faints, and its potions cost at most
   `SOLO_POTION_SHARE` of what the kill pays. Every branch's solo time within `CLASS_FIT` of the median of all
-  of them. Each class's "bad at" (`BAD_AT`: the Warrior's ranged, the Mage's toughness, the Cleric's crowd) is
-  its lowest column against the others' mean, at every level (a crowd bad-at only once someone has an area
-  skill: before the fork every crowd column is the single one).
+  of them. Each class's "bad at" (`BAD_AT`: the Warrior's ranged, the Mage's toughness, the Cleric's crowd, the
+  Archer's toughness and crowd) is its lowest column (the Archer: its two lowest) against the others' mean, at
+  every level (a crowd bad-at only once someone has an area skill: before the fork every crowd column is the
+  single one). And the Mage is the least tough class of all (progression.md: "least HP and DEF"), so no class's
+  toughness may fall under the Mage's.
 - **What it says (2026-10-23).** Mages out-damage Warriors most at Lv 10–60 (Warrior 0.66–0.81× single
   target), and closer later (0.86–0.88×, the Berserker a little above the Mages from Lv 100); Mages last
   15–30 s under the pressure Warriors shrug off (Jelly Thirst plus DEF and HP: usually past `TOUGH_CAP`),
@@ -242,6 +250,25 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   Warden ran level with the Mages at Lv 100+), and Holy Power now also strengthens Smite (the Priest was 1.62×
   the median on Pyra). With six branches the median moved, but no Warrior or Mage number did, and nothing
   outside the CLASSES tables: no mob, boss, gold, EXP, price or curve.
+
+- **The Archer (S4, 2026-10-24)** is in `fight`: the bow shot (`BOW_SHOT_MULT`), its arrow kinds (`shot`,
+  `pierce`, `rain`: all on ATK, Barbed Arrows' bonus on every arrow after the first, which has slowed the mob;
+  Snipe's long-shot bonus is left out, the sim's boss stands close), Retreat Shot as a chase move (a dash, then
+  a stronger shot, at range too, Dash's own cooldown), Hunter's Mark as a buff on the target (on a crowd only
+  one mob of `n` is marked), the Net Trap's Trap Mastery bursts (on mobs that walk in: never at range), and
+  Evasion (a share of the boss's hits that miss, counted out evenly). BOSS_HIT_EVERY for the Archer is the
+  Mage's: it keeps its distance. Two bad-ats, from the plan's "crowds of mobs, and anything up close": the
+  toughness column is a boss hitting it up close. What it says: Sniper and Trapper solo every den at about the
+  median time (the Sniper a little under from Lv 99, the Trapper up to 1.1×), drinking a few potions up to ~29
+  on Chronos (~5% of what the kill pays); single target 0.9–1.07× the others' mean, crowd 0.8–1.0× (always under
+  its single and ranged), ranged 1.3–1.65× (second only to the Mages), toughness a little over the Mage's.
+  **Tuned to get here**: Piercing Arrow 1.1 + 0.2/rank → 0.7 + 0.12 and Arrow Rain 0.55 + 0.1 → 0.4 + 0.08 (the
+  crowd column ran 1.05–1.12× the others: an Archer out-crowding the Warriors), and the Archer was less tough
+  than the Mage (10 s against 18 at Lv 100: the Mage's Mana Shield doubles its HP), so DEX with a bow gives HP
+  like STR (`BOW_DEX_HP`) and Evasion went 4% → 7% a rank. Nothing outside the CLASSES tables moved: no mob,
+  boss, gold, EXP or curve number, and no Warrior, Mage or Cleric row (the solo table's median now counts eight
+  branches). The new sinks are the bows, each at its twin sword's price (Pip's starters, one at each branch
+  trader); a drop that used to be a sword or a staff can now be a bow, worth the same.
 
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.

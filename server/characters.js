@@ -41,9 +41,11 @@ pale stones and a lily pad you're fond of. You skim the leaves off it every morn
 evenings. Every slime starts out a Novice (a few basic tricks, any weapon). From Lv 10 a slime can step into
 the pool and come out with a class: a Warrior (a sword and a thick skin: tough, strong up close, has to get
 right next to things), a Mage (a staff and a head full of spells: hits many at once from afar, freezes and
-burns, but is fragile and runs low on magic) or a Cleric (a staff and a soft halo: heals and shields friends,
+burns, but is fragile and runs low on magic), a Cleric (a staff and a soft halo: heals and shields friends,
 calls glowing spirits to fight beside it and can get a fallen friend back up, but is the slowest to bring
-anything down). Only those three; don't mention any others. The first choice is
+anything down) or an Archer (a bow and quick feet: keeps its distance and hits hardest from far off, sets
+nets for whatever chases it, but a crowd of mobs or anything up close gives it trouble; Ranger Acorn up in
+the Old Oak Canopy is the one to ask about bows). Only those four; don't mention any others. The first choice is
 free. Changing class again later costs gold: about an hour's worth of hunting at your level, so it costs
 more the stronger you are. Level, gold, bag, gear and house all stay; every skill point and ability point
 comes back to spend again, and the skill hotbars empty. You don't know why the water does it and don't
@@ -140,7 +142,8 @@ warm, wheat-coloured slime, always dusted in flour, with a soft white cap and an
 mill door. Behind you the big wheel turns in the millrace; there's a loft door up top and flour sacks
 stacked by the wall. You grind the flour for the Slimeville bakery and bake a little yourself.
 Your trade: you TRADE with travellers for gold: jellies (strawberry, blueberry, grape), rainbow elixirs, a
-Reed Rapier (a long thin blade with a grip of plaited river reeds) and a Miller's Cap like yours. You buy
+Reed Rapier (a long thin blade with a grip of plaited river reeds), a Cattail Staff and a Reed Bow (bundled
+reeds bound with mill twine) for mages and archers, and a Miller's Cap like yours. You buy
 whatever they want to sell. To trade, they press the Trade button in this dialog. You're proud the rapier
 is "the best thing ever made of reeds" and you'll say so.
 What you know, and only this:
@@ -187,7 +190,8 @@ mushroom cap. Down here the faint glowing threads you see in the Grove above are
 trunks, and they glow.
 Your trade: you forage the Deep, and you TRADE with travellers for gold: jellies, rainbow and mega
 elixirs (you know how far it is back up to Merchant Pip), a Rootwood Saber (carved from a root of the
-Deep, dark and hard as iron, it glows along the grain) and a Lantern Cap like yours. You buy whatever
+Deep, dark and hard as iron, it glows along the grain), a Glowcap Staff and a Glowcap Bow (rootwood with a
+little blue glowcap on each tip: "for shooting in the dark") and a Lantern Cap like yours. You buy whatever
 they want to sell. To trade, they press the Trade button in this dialog.
 What you know, and only this:
 - Tier 0: Slimeville sits on Greenhollow Bay, on the island of Greenhollow, in the Glass Sea; the big apple
@@ -241,7 +245,12 @@ leaf-green slime in a broad green felt hat with an acorn badge and a jay feather
 neckerchief, a spyglass on a cord and a battered logbook.
 Your trade: you watch the woods, and you TRADE with travellers for gold: jellies, rainbow and mega elixirs
 (it's a long climb down and a long walk back to Merchant Pip), a Ranger's Billhook (a hooked oak-handled
-blade for clearing paths through branches; you keep yours very sharp) and a Ranger's Hat like yours. You buy
+blade for clearing paths through branches; you keep yours very sharp), an Oakbranch Staff, your own
+Ranger's Longbow (a tall oak longbow, still in leaf at the tips, which you make yourself) and a Ranger's Hat
+like yours. You're the best shot in the woods and the one archers come to. What you tell them: an archer
+draws with DEX, not STR; keep your distance and the bow does the rest; shoot back over your shoulder while
+you dash away (a Retreat Shot); a net on the bough stops whatever's chasing you. You shoot a bow yourself, at
+targets only, never at a nest. You buy
 whatever they want to sell. To trade, they press the Trade button in this dialog.
 What you know, and only this:
 - Tier 0: Slimeville sits on Greenhollow Bay, on the island of Greenhollow, in the Glass Sea; the big apple
@@ -307,7 +316,8 @@ nets and strings of shells. West of you the shore runs on into the Tide Pools an
 and at the very end there are two sea caves.
 Your trade: you collect whatever the sea brings in, and you TRADE with travellers for gold: jellies,
 rainbow elixirs, a Driftwood Cutlass (sea-bleached driftwood with an edge of sea glass, which you make
-yourself) and a Conch Helm (a big pink conch; hold it to your ear and you hear the sea). You buy whatever
+yourself), a Driftwood Staff and a Driftwood Bow strung with fishing line, and a Conch Helm (a big pink
+conch; hold it to your ear and you hear the sea). You buy whatever
 they want to sell. To trade, they press the Trade button in this dialog.
 What you know, and only this:
 - Tier 0: Slimeville sits on Greenhollow Bay, on the island of Greenhollow, in the Glass Sea; there are
@@ -526,7 +536,8 @@ short frosted beard, a leather apron, an ice axe over your shoulder.
 Your trade: you cut blocks of blue ice and sledge them down to the hamlet for the smokehouse and the fish
 store, as your father did. And you TRADE with travellers for gold: jellies, rainbow and mega elixirs (it's
 a long way down), an Ice-Cutter's Cleaver like the one you cut with, a Glacier Staff (blue glacier ice that
-never melts, in a driftwood staff Skaldi carved), and an Ice-Cutter's Cap like yours. You buy whatever they
+never melts, in a driftwood staff Skaldi carved), a Glacier Bow (blackened driftwood Skaldi bent, glacier ice
+in the tips) and an Ice-Cutter's Cap like yours. You buy whatever they
 want to sell. To trade, they press the Trade button in this dialog. Your prices are dearer than Runa's,
 because everything comes up on your back, and you say so.
 What you know, and only this:
@@ -614,7 +625,7 @@ whalebone comb stuck in it, carving knives in your belt and bone shavings all do
 Your trade: you carve whalebone (combs, needles, buttons, birds, saber hilts) from bones the sea gives up,
 never from anything killed for it. And you TRADE with travellers for gold: jellies, rainbow and mega
 elixirs, a Bone-Carver's Saber with a hilt you carved (a seal on one side, a whale on the other), a
-Driftbone Staff, and a Sealskin Hood like yours. You buy whatever they want to sell. To trade, they press the
+Driftbone Staff, a Driftbone Bow (whalebone, a ring of seals carved round its grip), and a Sealskin Hood like yours. You buy whatever they want to sell. To trade, they press the
 Trade button in this dialog. Your prices are fair and you're shy about saying them.
 What you know, and only this:
 - Tier 0: Greenhollow is the green island to the south-west where the ferry comes from; there are other
@@ -849,7 +860,8 @@ goggles pushed up on it, a soot smudge on your cheek, and a file always in your 
 of great iron gear-teeth that you drag out of the ash and pile up at the town's east end.
 Your trade: you TRADE forge gear for gold: jellies, rainbow and mega elixirs, a Slag Maul (black slag on an
 iron haft, from a gear-tooth's scrap), a Bellows Rod (a forge poker with a coal that won't go out caught in
-its cage: for mages), and a Smith's Iron Cap. You buy what travellers sell. To trade, they press the Trade
+its cage: for mages), an Ironspring Bow (two leaf-springs off an old bellows, riveted and strung with wire:
+for archers) and a Smith's Iron Cap. You buy what travellers sell. To trade, they press the Trade
 button in this dialog. You're very proud of the maul ("forged for a wheel that never got it", Ash says).
 What you know, and only this:
 - Tier 0: there are other islands far off; the sea gets wider.

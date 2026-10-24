@@ -3,17 +3,86 @@
 // over the mob's own art so everyone in the room can read what a mage did. Chilled: frost creeping up from
 // the feet and a few drifting flakes. Frozen: a crust of ice over the body, with glints and icicles. Burning:
 // small flames licking over the top and sparks rising. Cheap on purpose (docs/performance.md): flat fills
-// and strokes, no gradients or glows, a handful of shapes per mob.
+// and strokes, no gradients or glows, a handful of shapes per mob. The Archer's (S4) too: Hunter's Mark, a red
+// target ring turning over the mob's head, and a Net Trap's net thrown over a caught mob.
 import { TAU } from './util.js';
 
 // v: a mob view (x = middle, y = feet; v.chill / v.frozen / v.burning set in src/rpg.js update) · k: its MOBS entry
 export function drawMobState(ctx, v, k, time) {
-  if (!v.chill && !v.frozen && !v.burning) return;
+  if (!v.chill && !v.frozen && !v.burning && !v.marked && !v.netted) return;
   const w = k.w, h = k.h, x = v.x, y = v.y, s = v.seed ?? 0;
   ctx.save();
   if (v.frozen) drawIce(ctx, x, y, w, h, time, s, k.boss || k.field);
   else if (v.chill) drawChill(ctx, x, y, w, h, time, s);
   if (v.burning) drawFlames(ctx, x, y, w, h, time, s);
+  if (v.netted) drawNet(ctx, x, y, w, h, time);
+  if (v.marked) drawMark(ctx, x, y - h - 18, Math.min(18, 8 + w * 0.12), time);
+  ctx.restore();
+}
+
+// A net thrown over the mob (Net Trap): a dome of crossed cords over its body, knots where they meet, the
+// ends pegged at its feet. It shivers a little as the mob struggles.
+function drawNet(ctx, x, y, w, h, time) {
+  const rx = w * 0.56, ry = h * 0.98, j = Math.sin(time * 18) * 1.2;
+  ctx.save();
+  ctx.translate(x + j, y);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, rx, ry, 0, Math.PI, TAU);
+  ctx.closePath();
+  ctx.save();
+  ctx.clip();
+  ctx.strokeStyle = 'rgba(150,112,64,0.85)';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  const step = Math.max(9, w / 6);
+  for (let i = -rx * 2; i <= rx * 2; i += step) {
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i + ry, -ry);
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i - ry, -ry);
+  }
+  ctx.stroke();
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(110,82,50,0.9)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, rx, ry, 0, Math.PI, TAU);
+  ctx.stroke();
+  ctx.fillStyle = '#d8b07a';
+  for (const px of [-rx, rx]) {
+    ctx.beginPath();
+    ctx.roundRect(px - 2, -6, 4, 8, 1.5);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// Hunter's Mark: a red ring with four ticks, turning slowly, and a dot in the middle, over the mob's head
+function drawMark(ctx, x, y, r, time) {
+  const pulse = 1 + Math.sin(time * 5) * 0.08;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(time * 0.8);
+  ctx.scale(pulse, pulse);
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 4.5;
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, TAU);
+  ctx.stroke();
+  ctx.strokeStyle = '#e8504a';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.beginPath();
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * TAU;
+    ctx.moveTo(Math.cos(a) * (r - 4), Math.sin(a) * (r - 4));
+    ctx.lineTo(Math.cos(a) * (r + 5), Math.sin(a) * (r + 5));
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#e8504a';
+  ctx.beginPath();
+  ctx.arc(0, 0, 2.6, 0, TAU);
+  ctx.fill();
   ctx.restore();
 }
 

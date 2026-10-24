@@ -30,8 +30,10 @@ the Canopy's WEST end (`CANOPY_EXIT_X`, the ladder back down) and go east, highe
   passive until hit, the usual field-boss rules (`docs/combat/stages.md`). Her pet is the Mini Hornet Queen.
 - Fliers only pick a target within 70 px of their height (`stepMob`), so owls and hornets hover low
   (`fly` ≤ 66) to notice slimes on the bough; the queen hovers higher and is passive anyway.
-- **Ranger Acorn** (`server/characters.js`): trades basic potions, mega elixirs, the Ranger's Billhook and
-  the Ranger's Hat (`SHOPS.acorn`); knows Tier 0, the Canopy's creatures and nests, the trunk across the
+- **Ranger Acorn** (`server/characters.js`): trades basic potions, mega elixirs, the Ranger's Billhook, the
+  Oakbranch Staff, her own Ranger's Longbow and the Ranger's Hat (`SHOPS.acorn`); since S4 she's the archers'
+  trader (owner's plan), a good shot herself (at targets, never a nest), and passes on the basics of the
+  class in chat (DEX, distance, Retreat Shot, nets); knows Tier 0, the Canopy's creatures and nests, the trunk across the
   path to the Spine, cut through now (not why it's called that; she's been up as far as the first standing
   stones), and that the oak lifted the old stone; nothing else of the
   lore. Her life: hasn't touched the ground in six years, Zip the hat-stealing flying squirrel, knitted

@@ -1,6 +1,6 @@
 # Classes and progression: the S track (plan)
 
-**Status: plan, written 2026-10-23; S0, S1, L, R, S2 and S3 shipped 2026-10-23; S4–S6 not built yet.** Runs alongside the island-depth G track
+**Status: plan, written 2026-10-23; S0, S1, L, R, S2 and S3 shipped 2026-10-23, S4 on 2026-10-24; S5–S6 not built yet.** Runs alongside the island-depth G track
 (`world/island-depth.md`). Everything below is `[proposed]` until the owner settles the open decisions at
 the bottom; the recommended answer is written in each time, so a session can start from it.
 
@@ -388,7 +388,11 @@ slow levelling down, and roll those characters back to where their play time wou
       damage taken on the damage meter. The Knight kept its Guardian skills (Sanctuary, Aegis, Bubble, Second Wind): the
       Cleric got its own instead of taking them, so S2's Knight didn't change. Cleanse waits for S5's curses.
 - [x] R, the rebalance (shipped 2026-10-23, before S2: it copied swords and staves; `docs/combat/items.md`).
-- [ ] **S4: the Archer** (large): `bow` kind, arrows, the Archer tree, DEX's new job, Acorn's bows.
+- [x] **S4: the Archer** (shipped 2026-10-24; `docs/combat/skills.md`, "The Archer"; bows in `docs/combat/items.md`):
+      a bow twin for every staff-twinned sword (drops pick among three kinds), the bow shot, DEX as the bow's
+      STR, the tree (Double Shot, Retreat Shot, Keen Eye, Steady Hands, Evasion; Sniper: Snipe, Piercing Arrow,
+      Deadeye, Hunter's Mark, Heartseeker; Trapper: Arrow Rain, Net Trap, Barbed Arrows, Trap Mastery, Thousand
+      Arrows), Acorn the archers' trader, the CLASSES tables. Weak points wait for S5.
 - [ ] **S5: bosses that need a party**: the mechanics in the table above (Taunt, pulses, curses, barriers,
       weak points, armour), retrofitted a boss at a time, loot by class.
 - [ ] **S6: past the cap**: stat taper, mastery stars, the advancement at Lv 150.

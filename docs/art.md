@@ -16,7 +16,9 @@
 - The Mage's combo states on mobs (ice, frost, flames) are drawn over any mob's or boss's own art from its
   `w` / `h` (`drawMobState`, `src/elements.js`), so new mobs get them for free.
 - A new AI character or friend accessory needs its drawing in `src/slime.js` (or a file it calls).
-- **Class looks** (S3): a Cleric wears a soft golden halo, a Mage's staff sparkles on its back
+- **Class looks** (S3, S4): an Archer is told by its bow (slung on its back, leaning back with the top limb
+  past its head: `drawBowOnBack`; drawn and loosed when it shoots: `drawBowShoot`, `src/bow-art.js`); a Cleric
+  wears a soft golden halo, a Mage's staff sparkles on its back
   (`drawHalo`, `drawStaffSparkle` in `src/summons.js`, called from `Slime.draw`), so the two staff classes
   read apart. The Cleric's summons (a ghost slime, a paper lantern, a carved totem, a winged spirit) are in
   the same file. `Slime.draw` clamps the jelly squash so a pile of hits at once can't draw it inside out.

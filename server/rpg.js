@@ -12,10 +12,10 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, STAFF_OFFKIND, STAFF_BOLT_MULT, rebirthCost } from '../src/shared/rpg.js';
-import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, healOf, classNames, BONK_MULT, BONK_REACH, BONK_HEAL, BONK_HEAL_R, REVIVE_WAIT } from '../src/shared/skills.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost } from '../src/shared/rpg.js';
+import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, healOf, classNames, BONK_MULT, BONK_REACH, BONK_HEAL, BONK_HEAL_R, REVIVE_WAIT, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
-import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank } from '../src/shared/sim.js';
+import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs } from '../src/shared/alchemy.js';
 import { wayAt, wayById, sameIsle, ARRIVE_DX } from '../src/shared/waystones.js';
@@ -97,6 +97,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       wander: rand(0.5, 2), target: null, targetUntil: 0, dead: false, respawnAt: 0, hitters: new Map(), hist: [], slowUntil: 0,
       // the Mage's combos (S2.6, skills.js CHILL_S…): chilled / frozen until, a burn { until, dps, by, next }
       chillUntil: 0, frozenUntil: 0, burn: null,
+      // the Archer's (S4): netted until (Net Trap), and Hunter's Mark { until, boost, by }
+      snareUntil: 0, mark: null,
       // bosses: walk → warn → act, every few seconds
       phase: 'walk', next: 3, timer: 0, act: null, enraged: false, last: null, emptyFor: 0,
       stage: 0, chain: 0, ultAt: 0, ultArmed: false, ult: null, ultLiveUntil: 0, rains: [], slamR: 300,
@@ -372,6 +374,12 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       sendMe(q);
       return guard(qid, q, 'pop');
     }
+    if (!ult && st.evade && Math.random() < st.evade) { // Evasion (Archer, S4): it misses, but you're still knocked
+      q.hurtAt = t; // back, as the client predicted (src/rpg.js step), so the physics stays in step
+      knockBack(q, fromX, knock);
+      sendMe(q);
+      return guard(qid, q, 'dodge');
+    }
     const bar = q.barrier && q.barrier.until > t ? q.barrier : null; // a Cleric's Barrier (S3)
     if (bar && ult) {
       q.barrier = null; // it takes the ultimate instead of you, and breaks
@@ -412,12 +420,15 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     toRoom(q.state.room)(hurtMsg(qid, q, dmg, by));
     if (q.rpg.hp <= 0) return faint(qid, q, by);
-    // knocked back (and up): the client's prediction catches up from the next snapshot
+    knockBack(q, fromX, knock);
+    sendMe(q);
+  }
+  // knocked back (and up): the client's prediction catches up from the next snapshot
+  function knockBack(q, fromX, knock) {
     const s = q.state;
     s.vx = Math.sign(s.x - fromX || 1) * knock;
     s.vy = -Math.min(420, knock * 1.1);
     s.grounded = s.onPlat = false;
-    sendMe(q);
   }
 
   // Slapping a friend in a combat room hurts them too, if you both have friendly fire on
@@ -452,13 +463,15 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (loot.length > 200) loot.shift();
   }
 
-  // A dropping sword with a staff twin (STAFF_OF): which one falls. The weapon kind a random fighter is
-  // holding, so everyone sees drops they can use; STAFF_OFFKIND of the time the other one, so both turn up.
+  // A dropping sword with a staff twin (STAFF_OF) and a bow twin (BOW_OF, S4): which one falls. The weapon kind
+  // a random fighter is holding, so everyone sees drops they can use; STAFF_OFFKIND of the time one of the
+  // others, so every kind turns up.
   function twinPick(m, sword) {
-    const held = [...m.hitters.keys()].map((qid) => ITEMS[players.get(qid)?.rpg?.gear.weapon]?.kind).filter(Boolean);
-    let staff = held.length ? held[Math.floor(Math.random() * held.length)] === 'staff' : Math.random() < 0.5;
-    if (Math.random() < STAFF_OFFKIND) staff = !staff;
-    return staff ? STAFF_OF[sword] : sword;
+    const of = { sword, staff: STAFF_OF[sword], bow: BOW_OF[sword] }, kinds = Object.keys(of).filter((k) => of[k]);
+    const held = [...m.hitters.keys()].map((qid) => ITEMS[players.get(qid)?.rpg?.gear.weapon]?.kind).filter((k) => kinds.includes(k));
+    let kind = held.length ? held[Math.floor(Math.random() * held.length)] : kinds[Math.floor(Math.random() * kinds.length)];
+    if (Math.random() < STAFF_OFFKIND) { const other = kinds.filter((k) => k !== kind); kind = other[Math.floor(Math.random() * other.length)] ?? kind; }
+    return of[kind];
   }
 
   function kill(m) {
@@ -489,7 +502,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       gainExp(qid, q, Math.round(k.exp * scale));
     }
     const odds = k.boss && !fresh ? BOSS_REPEAT_SHARE : 1;
-    const drops = k.drops.filter(([, chance]) => Math.random() < chance * odds).map((d) => (STAFF_OF[d[0]] ? [twinPick(m, d[0]), ...d.slice(1)] : d));
+    const drops = k.drops.filter(([, chance]) => Math.random() < chance * odds).map((d) => (STAFF_OF[d[0]] || BOW_OF[d[0]] ? [twinPick(m, d[0]), ...d.slice(1)] : d));
     drops.forEach(([item, , lo, hi], i) => dropLoot(m.room, item, randInt(lo, hi), m.x + (i - (drops.length - 1) / 2) * (k.boss || k.field ? 34 : 22) + rand(-6, 6), ROOMS[m.room].ground > m.y ? m.y : ROOMS[m.room].ground));
     if (k.field) toRoom(m.room)({ t: 'boss', a: 'fieldDown', id: m.id, kind: m.kind, x: m.x, y: m.y });
     if (k.boss) {
@@ -565,7 +578,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       // an Obsidian Crab's front shell takes most of a hit from the front (the client shows the same cut)
       const shell = k.ai?.kind === 'shell' && Math.sign(p.state.x - m.x) === m.dir ? 1 - k.ai.cut : 1;
       const shatter = el === 'fire' && !!h[3] && m.frozenUntil > now() - SHATTER_GRACE_MS;
-      const dmg = Math.max(1, Math.min(Math.round(Number(h[1]) || 0), Math.ceil(cap * shell * (shatter ? SHATTER_MULT : 1)) + 1));
+      const marked = m.mark && m.mark.until > now() - SHATTER_GRACE_MS ? 1 + m.mark.boost : 1; // Hunter's Mark (S4): everyone's hits
+      const dmg = Math.max(1, Math.min(Math.round(Number(h[1]) || 0), Math.ceil(cap * shell * marked * (shatter ? SHATTER_MULT : 1)) + 1));
       if (slow) m.slowUntil = now() + slow * 1000 * (MOBS[m.kind].boss ? 0.5 : 1);
       const hit = damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock);
       if (shatter) hit.push(1);
@@ -629,6 +643,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (p.faintUntil || !isCombat(p.state.room)) return [];
     const st = stats(p);
     if (st.bonk) return bonk(id, p, dir, hits);
+    if (st.arrowRange) return shoot(id, p, dir, hits, st);
     const charged = !st.boltRange && chargeOpen(p.state) && Array.isArray(hits) && hits.length > 0;
     const mult = charged ? SKILLS.charge.mult(chaseRank(p.state.mw, 0)) : 1;
     const out = st.boltRange ? applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * STAFF_BOLT_MULT * capOf(st), dir, knock: 120 }) : applyHits(id, p, hits, { range: SLAP_REACH + st.reach, cap: st.atk * mult * capOf(st), dir, knock: charged ? 320 : 200 });
@@ -645,6 +660,21 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     out.charged = charged;
     return out;
   }
+
+  // A bow shot (S4): an arrow to the first mob ahead within the bow's range, BOW_SHOT_MULT of ATK. A Retreat
+  // Shot (sim.js retreatOpen: dashing or just after, shooting back the way you came) is judged from our own
+  // state at the shot's input, like a Charge, but changes nothing about the move.
+  function shoot(id, p, dir, hits, st) {
+    const r = chaseRank(p.state.mw, 3), retreat = r > 0 && retreatOpen(p.state, dir);
+    const mult = BOW_SHOT_MULT * (retreat ? SKILLS.retreat_shot.mult(r) : 1) * barbCap(p);
+    const out = applyHits(id, p, hits, { range: st.arrowRange, cap: st.atk * mult * capOf(st), dir, knock: 100, slow: barbSlow(p) });
+    out.retreat = retreat && out.length > 0;
+    return out;
+  }
+  // Barbed Arrows (Trapper): every arrow slows, and the cap allows its bonus on a slowed mob (the client only
+  // adds it when its view of the mob says so: skills.js arrowBonus)
+  const barbSlow = (p) => (rankOf(p.rpg.skills, 'barbed_arrows') ? BARB_SLOW : 0);
+  const barbCap = (p) => 1 + BARB_BONUS * rankOf(p.rpg.skills, 'barbed_arrows');
 
   // The Cleric's staff bonk (S3, skills.js BONK_*): close and weak, and BONK_HEAL of what it did heals the hurt
   // friend nearest you within BONK_HEAL_R (you, when nobody else is hurt)
@@ -720,6 +750,22 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       out.tx = Number(m.tx) || s.x + dir * sk.range;
       out.ty = Number(m.ty) || s.y - 22;
       if (Array.isArray(m.points)) out.points = m.points.slice(0, 6).map((q) => [Number(q[0]) || 0, Number(q[1]) || 0]);
+    } else if (sk.kind === 'shot' || sk.kind === 'pierce' || sk.kind === 'rain') {
+      // the Archer's (S4): arrows on ATK; Barbed Arrows slows, Snipe / Heartseeker allow FAR_BONUS
+      const cap = phys * barbCap(p) * (sk.far ? 1 + FAR_BONUS : 1), slow = Math.max(sk.slow ?? 0, barbSlow(p));
+      if (sk.kind === 'shot') hit({ max: sk.arrows, range: sk.range, cap, knock: sk.far ? 260 : 120, slow });
+      else if (sk.kind === 'pierce') hit({ max: sk.targets, range: sk.range, cap, knock: 160, slow });
+      else hit({ max: 20 * sk.hits, range: sk.range + sk.radius, cap, knock: 40, slow });
+      out.tx = Number(m.tx) || s.x + dir * sk.range;
+      out.ty = Number(m.ty) || s.y - 22;
+    } else if (sk.kind === 'mark') {
+      // Hunter's Mark: the mob the client aimed at, if it's in range; one mark per Archer at a time
+      const mob = mobs.find((q) => q.id === m.mob && !q.dead && q.room === s.room);
+      if (mob && Math.abs(mob.x - s.x) <= sk.range + MOBS[mob.kind].w / 2 + SLACK) {
+        for (const q of mobs) if (q.mark?.by === id) q.mark = null;
+        mob.mark = { until: t + sk.dur * 1000, boost: sk.boost(rank), by: id };
+        out.mark = [mob.id, sk.boost(rank), sk.dur];
+      }
     } else if (sk.kind === 'nova') hit({ max: 20, range: sk.radius, cap: magic, knock: 100, slow: sk.slow });
     else if (sk.kind === 'starfall') hit({ max: 30, range: sk.radius, cap: magic, knock: 80 });
     else if (sk.kind === 'heal' || sk.kind === 'miracle') {
@@ -805,7 +851,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const ult = m.kind === 'ult';
     if (!ult && now() - p.hurtAt < HURT_INVULN_MS - 250) return; // (an ultimate ignores the invulnerability)
     if (m.kind === 'touch' && Math.abs(mob.x - p.state.x) > MOBS[mob.kind].w / 2 + SLACK) return;
-    if ((m.kind === 'touch' || m.kind === 'charge') && mob.frozenUntil > now() && !MOBS[mob.kind].boss && !MOBS[mob.kind].field) return; // frozen solid: harmless
+    if ((m.kind === 'touch' || m.kind === 'charge') && (mob.frozenUntil > now() || mob.snareUntil > now()) && !MOBS[mob.kind].boss && !MOBS[mob.kind].field) return; // frozen solid or netted: harmless
     if (m.kind !== 'touch' && m.kind !== 'charge' && !MOBS[mob.kind].boss && !MOBS[mob.kind].ai) return;
     if (ult && now() > mob.ultLiveUntil) return; // no ultimate going off right now
     const mx = Number.isFinite(m.mx) && Math.abs(m.mx - mob.x) < DEN_W ? m.mx : mob.x;
@@ -815,9 +861,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // ——— mobs and bosses, every tick ———
   function stepMob(m, here, dt) {
     const k = MOBS[m.kind], sp = m.sp, t = now();
-    const big = k.boss || k.field, frozen = m.frozenUntil > t;
-    if (frozen && !big) {
-      // frozen solid (the Mage's combos): no thinking, no walking, no attacks; only gravity
+    const big = k.boss || k.field, frozen = m.frozenUntil > t, netted = m.snareUntil > t;
+    if ((frozen || netted) && !big) {
+      // frozen solid (the Mage's combos) or caught in a net (the Archer's Net Trap): no thinking, no walking,
+      // no attacks; only gravity
       m.vx = 0;
       if (!k.fly && (m.vy !== 0 || m.y < sp.y)) {
         m.vy += GRAVITY * dt;
@@ -826,7 +873,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       }
       return;
     }
-    const slow = frozen ? FROZEN_BOSS_SLOW : m.slowUntil > t || m.chillUntil > t ? (k.boss ? 0.6 : 0.4) : 1;
+    const slow = frozen ? FROZEN_BOSS_SLOW : netted ? NET_BOSS_SLOW : m.slowUntil > t || m.chillUntil > t ? (k.boss ? 0.6 : 0.4) : 1;
     if (m.target && (t > m.targetUntil || !m.target.joined || m.target.state.room !== m.room || m.target.faintUntil)) m.target = null;
     if (!m.target && (k.aggro || m.minion)) {
       let best = null, bestD = k.boss ? Infinity : 230;
@@ -1482,13 +1529,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       // ~30 Hz mob snapshots to each combat room: [id, kind, x, y, hp, flags, maxHp]
       // flags: 1 facing left · 2 walking · 4 angry · 8 telegraphing · 16 charging · 32 enraged · 64 slowed ·
       // 128 special (phased out, mid-teleport, Pyra's egg); the Mage's combos above the byte: 256 chilled · 512
-      // frozen · 1024 burning (wire version 5 sends them in a second byte; older tabs get the low byte only);
+      // frozen · 1024 burning; the Archer's (S4): 2048 marked (Hunter's Mark) · 4096 netted (wire version 5 sends
+      // them in a second byte; older tabs get the low byte only);
       // then [egg hp, egg max] while there's an egg
       if (tick % 2 === 0) {
         for (const [room, here] of rooms) {
           if (!here.length) continue;
           const list = mobs.filter((m) => m.room === room && !m.dead && !m.gone).map((m) => [m.id, MOB_KINDS.indexOf(m.kind), Math.round(m.x), Math.round(m.y), Math.max(0, Math.ceil(m.hp)),
-            (m.dir < 0 ? 1 : 0) | (Math.abs(m.vx) > 10 ? 2 : 0) | (m.target ? 4 : 0) | (m.phase === 'warn' ? 8 : 0) | (m.act === 'charge' && m.phase === 'act' ? 16 : 0) | (m.enraged ? 32 : 0) | (m.slowUntil > t ? 64 : 0) | (m.special ? 128 : 0) | (m.aiPhase === 'warn' || m.aiPhase === 'out' || m.aiPhase === 'slash' ? 8 : 0) | (m.aiPhase === 'lunge' || m.dive ? 16 : 0) | (m.chillUntil > t ? 256 : 0) | (m.frozenUntil > t ? 512 : 0) | (m.burn && m.burn.until > t ? 1024 : 0), m.maxHp,
+            (m.dir < 0 ? 1 : 0) | (Math.abs(m.vx) > 10 ? 2 : 0) | (m.target ? 4 : 0) | (m.phase === 'warn' ? 8 : 0) | (m.act === 'charge' && m.phase === 'act' ? 16 : 0) | (m.enraged ? 32 : 0) | (m.slowUntil > t ? 64 : 0) | (m.special ? 128 : 0) | (m.aiPhase === 'warn' || m.aiPhase === 'out' || m.aiPhase === 'slash' ? 8 : 0) | (m.aiPhase === 'lunge' || m.dive ? 16 : 0) | (m.chillUntil > t ? 256 : 0) | (m.frozenUntil > t ? 512 : 0) | (m.burn && m.burn.until > t ? 1024 : 0) | (m.mark && m.mark.until > t ? 2048 : 0) | (m.snareUntil > t ? 4096 : 0), m.maxHp,
             ...(m.egg ? [Math.max(0, Math.ceil(m.egg.hp)), m.egg.max] : [])]);
           const boss = mobs.find((m) => m.den && m.room === room);
           const msg = { t: 'mobs', k: tick, m: list };
@@ -1613,7 +1661,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       if (!b) return typeof m.item === 'string' && toast(p, `You're out of ${ITEMS[m.item]?.name ?? 'that'}`);
       const it = ITEMS[b.id];
       if (m.t === 'equip' && gearSlotOf(b.id)) {
-        if (!weaponOk(c.cls, gearSlotOf(b.id) === 'weapon' ? b.id : null)) return toast(p, `A ${CLASSES[c.cls].name} can only wield a ${CLASSES[c.cls].weapon} (change class at the Rebirth Pool)`);
+        if (!weaponOk(c.cls, gearSlotOf(b.id) === 'weapon' ? b.id : null)) return toast(p, `${aOrAn(CLASSES[c.cls].name).replace(/^a/, 'A')} can only wield ${aOrAn(CLASSES[c.cls].weapon)} (change class at the Rebirth Pool)`);
         const gs = gearSlotOf(b.id), old = c.gear[gs], oldE = c.gearE[gs];
         c.gear[gs] = b.id;
         c.gearE[gs] = b.e ?? null;
@@ -1772,7 +1820,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       const c = p.rpg, s = p.state, cl = CLASSES[m.cls];
       if (!cl || m.cls === 'novice' || p.faintUntil) return;
       if (s.room !== VILLAGE || Math.abs(s.x - REBIRTH_X) > REBIRTH_RANGE + 40) return toast(p, 'Walk over to the Rebirth Pool first');
-      if (m.cls === c.cls) return toast(p, `You're a ${cl.name} already`);
+      if (m.cls === c.cls) return toast(p, `You're ${aOrAn(cl.name)} already`);
       if (c.lvl < CLASS_LVL) return toast(p, `Come back at Lv ${CLASS_LVL} to choose your class`);
       const cost = c.reborn ? rebirthCost(c.lvl) : 0;
       if (c.coins < cost) return toast(p, `Not enough gold: changing class costs ${cost.toLocaleString('en-US')} at your level`);

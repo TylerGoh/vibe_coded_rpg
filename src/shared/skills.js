@@ -1,5 +1,5 @@
 // Docs: docs/combat/skills.md
-import { attackFor, defenseFor, maxHpFor, reachFor, ITEMS, STAFF_BOLT_RANGE } from './rpg.js';
+import { attackFor, defenseFor, maxHpFor, reachFor, ITEMS, STAFF_BOLT_RANGE, BOW_RANGE } from './rpg.js';
 import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR_BLINK, IFR_PHANTOM, PHANTOM_CD, SLAM_CD, UPCUT_CD, CHARGE_RESET } from './sim.js';
 
 // Shared by client and server: classes, their skill trees, mana, and the hotbar (story/progression.md,
@@ -47,12 +47,24 @@ export const CLASSES = {
       { id: 'warden', name: 'Warden', blurb: 'Spirits and a totem that hold the boss, and barriers before the big hits.' },
     ],
   },
+  // S4 (story/progression.md 4): the bow class. Its normal attack is a bow shot (BOW_SHOT_*); DEX is its main stat
+  archer: {
+    name: 'Archer', weapon: 'bow', starter: 'wood_bow', stat: 'dex', color: '#a6b04a',
+    blurb: 'A bow and quick feet. Keeps its distance, kites whatever chases it, and hits hardest from far away.',
+    strong: 'steady damage from range, staying on the move', bad: 'crowds of mobs, and anything that gets up close',
+    branches: [
+      { id: 'sniper', name: 'Sniper', blurb: 'One arrow at a time: long shots, arrows that go right through, and a mark that helps the whole party.' },
+      { id: 'trapper', name: 'Trapper', blurb: 'Nets, slows and arrows from the sky: stops whatever chases you, and handles a crowd.' },
+    ],
+  },
 };
 // the classes you can choose at the Rebirth Pool, by name ("Warrior, Mage or Cleric")
 export const classNames = (join = 'or') => {
   const n = Object.entries(CLASSES).filter(([id]) => id !== 'novice').map(([, c]) => c.name);
   return n.length > 1 ? `${n.slice(0, -1).join(', ')} ${join} ${n.at(-1)}` : n[0];
 };
+// "a Mage", "an Archer"
+export const aOrAn = (w) => `${/^[aeiou]/i.test(w) ? 'an' : 'a'} ${w}`;
 export const branchOf = (id) => Object.values(CLASSES).flatMap((c) => c.branches).find((b) => b.id === id);
 
 // The trees in the K panel: the Novice tree (Novice points, kept forever), one per class, and Mobility
@@ -62,6 +74,7 @@ export const TREES = [
   { id: 'warrior', name: 'Warrior', color: CLASSES.warrior.color, blurb: CLASSES.warrior.blurb },
   { id: 'mage', name: 'Mage', color: CLASSES.mage.color, blurb: CLASSES.mage.blurb },
   { id: 'cleric', name: 'Cleric', color: CLASSES.cleric.color, blurb: CLASSES.cleric.blurb },
+  { id: 'archer', name: 'Archer', color: CLASSES.archer.color, blurb: CLASSES.archer.blurb },
   { id: 'wind', name: 'Mobility', color: '#5fc4d8', blurb: 'Dash, double jump and teleport, for every class. Some late bosses need these to dodge.' },
 ];
 
@@ -98,7 +111,11 @@ export function advanceText(cls, lvl) {
 // heal over time) · 'summon' (`what`: 'spirit' | 'wisp' | 'totem' | 'seraph': server-run helpers, SUMMONS below)
 // · 'revive' (fainted friends back up) · 'miracle' (heal everyone, revive everyone) · 'barrier' (soaks damage, or
 // one ultimate). `holy` + `smite` on a bolt: it heals the caster a share of its damage.
-const W = { cls: 'warrior', tree: 'warrior' }, M = { cls: 'mage', tree: 'mage' }, C = { cls: 'cleric', tree: 'cleric' };
+// The Archer's kinds (S4, all on ATK): 'shot' (`arrows` arrows at the first mob ahead within `range`; `far`: more
+// damage past FAR_PX) · 'pierce' (an arrow through every mob in a line ahead, up to `targets`) · 'rain' (arrows
+// falling `hits` times on every mob within `radius` of the first mob ahead) · 'mark' (Hunter's Mark: everyone's
+// hits on the first mob ahead do `boost` more for `dur`) · 'summon' with `what: 'net'` (Net Trap, server-run).
+const W = { cls: 'warrior', tree: 'warrior' }, M = { cls: 'mage', tree: 'mage' }, C = { cls: 'cleric', tree: 'cleric' }, A = { cls: 'archer', tree: 'archer' };
 export const SKILLS = {
   // ——— Novice (Novice points, Lv 1, kept forever; weak once you have a class) ———
   slime_bash: {
@@ -345,6 +362,81 @@ export const SKILLS = {
     desc: (r) => `Call a great winged spirit for 20 s. Every mob within ${SERAPH_TAUNT} px goes after it, and every second it hits every mob within ${SERAPH_R} px of it for ${pct(0.6 + 0.15 * Math.max(1, r))} of your MAGIC. It has ${pct(2 + Math.max(1, r))} of your max HP.`,
   },
 
+  // ——— Archer (bow, DEX; S4, story/progression.md 4). Every arrow is on ATK ———
+  double_shot: {
+    ...A, adv: 10, name: 'Double Shot', kind: 'shot', arrows: 2, max: 3, mp: 5, cd: 1, range: 420,
+    mult: (r) => 0.75 + 0.15 * r,
+    desc: (r) => `Two quick arrows at the first mob ahead, up to 420 px away: ${pct(0.75 + 0.15 * Math.max(1, r))} damage each.`,
+  },
+  retreat_shot: {
+    ...A, adv: 10, name: 'Retreat Shot', kind: 'chase', max: 2, how: 'Dash, then shoot back',
+    mult: (r) => [1, 1.6, 2][r],
+    desc: (r) => `Shoot while you Dash (or just after) and the arrow flies back the way you came, at whatever is chasing you, for ${pct([1, 1.6, 2][Math.max(1, r)])} of a normal shot. Run and shoot at once. Needs Dash.`,
+  },
+  keen_eye: {
+    ...A, adv: 10, name: 'Keen Eye', kind: 'passive', max: 3,
+    desc: (r) => `Your bow shots reach ${KEEN_RANGE * r} px further, and +${2 * r}% critical chance.`,
+  },
+  steady_hands: {
+    ...A, adv: 10, name: 'Steady Hands', kind: 'passive', max: 3,
+    desc: (r) => `+${STEADY * 100 * r}% attack with a bow.`,
+  },
+  evasion: {
+    ...A, adv: 10, name: 'Evasion', kind: 'passive', max: 3,
+    chance: (r) => EVADE * r,
+    desc: (r) => `A ${Math.round(EVADE * 100 * Math.max(1, r))}% chance that a hit misses you completely (you're still knocked back). Never a boss's ultimate.`,
+  },
+  // Sniper (one arrow at a time)
+  snipe: {
+    ...A, branch: 'sniper', adv: 30, name: 'Snipe', kind: 'shot', arrows: 1, far: true, max: 5, mp: 16, cd: 4, range: 640,
+    mult: (r) => 2.6 + 0.4 * r,
+    desc: (r) => `One long, hard arrow at the first mob ahead, up to 640 px away: ${pct(2.6 + 0.4 * Math.max(1, r))} damage, and ${pct(FAR_BONUS)} more if it's over ${FAR_PX} px away. Keep your distance.`,
+  },
+  piercing_arrow: {
+    ...A, branch: 'sniper', adv: 30, name: 'Piercing Arrow', kind: 'pierce', max: 5, mp: 14, cd: 3, range: 520, targets: 6,
+    mult: (r) => 0.7 + 0.12 * r,
+    desc: (r) => `An arrow that goes right through every mob in a line ahead (up to 6, 520 px): ${pct(0.7 + 0.12 * Math.max(1, r))} damage each.`,
+  },
+  deadeye: {
+    ...A, branch: 'sniper', adv: 60, name: 'Deadeye', kind: 'passive', max: 5,
+    desc: (r) => `+${3 * r}% critical chance and critical hits do +${10 * r}% more damage.`,
+  },
+  hunters_mark: {
+    ...A, branch: 'sniper', adv: 60, name: "Hunter's Mark", kind: 'mark', max: 3, mp: 20, cd: 18, dur: 12, range: 640,
+    boost: (r) => 0.1 + 0.05 * r,
+    desc: (r) => `Mark the first mob ahead (up to 640 px) for 12 s: every slime's hits on it, yours and your friends', do ${pct(0.1 + 0.05 * Math.max(1, r))} more. One mark at a time.`,
+  },
+  heartseeker: {
+    ...A, branch: 'sniper', adv: 100, name: 'Heartseeker', kind: 'pierce', far: true, max: 3, mp: 55, cd: 40, range: 960, targets: 10,
+    mult: (r) => 5 + 1.5 * r,
+    desc: (r) => `One enormous arrow straight across the room (960 px), through everything in its way: ${pct(5 + 1.5 * Math.max(1, r))} damage each, ${pct(FAR_BONUS)} more on mobs over ${FAR_PX} px away.`,
+  },
+  // Trapper (nets, slows, arrows from the sky)
+  arrow_rain: {
+    ...A, branch: 'trapper', adv: 30, name: 'Arrow Rain', kind: 'rain', max: 5, mp: 20, cd: 6, range: 450, radius: 130, hits: 3,
+    mult: (r) => 0.4 + 0.08 * r,
+    desc: (r) => `Loose a volley into the sky: it comes down round the first mob ahead (up to 450 px), hitting everything within 130 px of it 3 times for ${pct(0.4 + 0.08 * Math.max(1, r))} each.`,
+  },
+  net_trap: {
+    ...A, branch: 'trapper', adv: 30, name: 'Net Trap', kind: 'summon', what: 'net', max: 3, mp: 15, cd: 12, dur: 20,
+    snare: (r) => 2 + r,
+    desc: (r) => `Set a net on the ground where you stand for 20 s. The first mob to walk into it is caught: stuck fast and harmless for ${2 + Math.max(1, r)} s (a boss only slowed, for half that). Set it, then run: whatever chases you walks right in. One at a time.`,
+  },
+  barbed_arrows: {
+    ...A, branch: 'trapper', adv: 60, name: 'Barbed Arrows', kind: 'passive', max: 5,
+    desc: (r) => `Your arrows slow whatever they hit for ${BARB_SLOW} s, and hit slowed, chilled or netted mobs ${Math.round(BARB_BONUS * 100 * r)}% harder.`,
+  },
+  trap_mastery: {
+    ...A, branch: 'trapper', adv: 60, name: 'Trap Mastery', kind: 'passive', max: 3,
+    burst: (r) => 1.2 + 0.4 * r,
+    desc: (r) => `Your net catches ${1 + Math.max(1, r)} mobs instead of one, and bursts with every catch: ${pct(1.2 + 0.4 * Math.max(1, r))} of your attack to every mob within ${NET_BURST_R} px.`,
+  },
+  thousand_arrows: {
+    ...A, branch: 'trapper', adv: 100, name: 'Thousand Arrows', kind: 'rain', max: 3, mp: 70, cd: 60, range: 520, radius: 340, hits: 6, slow: 3,
+    mult: (r) => 0.8 + 0.2 * r,
+    desc: (r) => `The sky goes dark with arrows: everything within 340 px of the first mob ahead is hit 6 times for ${pct(0.8 + 0.2 * Math.max(1, r))} each and slowed.`,
+  },
+
   // ——— Gifts: one player's own skill, granted by the server on load (server/rpg.js), never learned or
   // taken back, outside the point counts. `gift`: the account(s) it belongs to. Shown in the Novice tab.
   challenge_gods: {
@@ -409,6 +501,24 @@ export const WISP_R = 150, WISP_TICK = 1, BOND_TWO = 3;
 // Revive: a slime that faints in a combat room where a Cleric is holding Revive (or Miracle) ready stays down
 // REVIVE_WAIT s (instead of waking in town at once), so the Cleric can get it back up
 export const REVIVE_WAIT = 8;
+// ——— the Archer (S4, story/progression.md 4) ———
+// With a bow DEX is the main stat: +0.6 ATK and BOW_DEX_HP max HP a point (STR's job for a sword; statsFor)
+// Keen Eye: +KEEN_RANGE px of bow range a rank · Steady Hands: +STEADY attack a rank · Evasion: EVADE a rank to
+// dodge a hit (server/rpg.js hurt) · Snipe / Heartseeker: FAR_BONUS more on a mob over FAR_PX away (the client
+// measures it; the server's cap allows it) · Barbed Arrows: arrows slow for BARB_SLOW s, BARB_BONUS a rank more
+// on a slowed, chilled or netted mob · Hunter's Mark: one mark per Archer, shown on the mob (wire flag 2048)
+export const KEEN_RANGE = 20, STEADY = 0.12, EVADE = 0.07, BOW_DEX_HP = 3, FAR_PX = 380, FAR_BONUS = 0.3, BARB_SLOW = 2, BARB_BONUS = 0.05;
+// Net Trap (server/summons.js): a mob within NET_R of the net (on the ground near it) is caught for snare(rank) s:
+// an ordinary mob stops dead and can't hurt anyone, a boss is slowed to NET_BOSS_SLOW for half that (wire flag
+// 4096). It catches one mob, 1 + Trap Mastery's rank with it, each catch bursting for burst(rank) × ATK on every
+// mob within NET_BURST_R; then it's spent
+export const NET_R = 46, NET_BURST_R = 110, NET_BOSS_SLOW = 0.35;
+// Arrow Rain / Thousand Arrows: the volley comes down RAIN_AT s after it's loosed, a wave every RAIN_EVERY s
+// (the client shows the hits then; src/skillfx.js draws them falling)
+export const RAIN_AT = 0.45, RAIN_EVERY = 0.22;
+// the bonuses an arrow gets on mob view / server mob v (the client's roll and the server's cap use the same
+// rules): Barbed Arrows on a slowed, chilled, frozen or netted mob · Snipe's and Heartseeker's long shot
+export const arrowBonus = (skills, sk, slowed, dist) => (1 + BARB_BONUS * rankOf(skills, 'barbed_arrows') * (slowed ? 1 : 0)) * (sk?.far && dist > FAR_PX ? 1 + FAR_BONUS : 1);
 // a heal's size: Jelly Patch's flat `amount`, else `power` × MAGIC × Holy Power (st: statsFor)
 export const healOf = (id, rank, st) => (SKILLS[id].amount ? SKILLS[id].amount(rank) : Math.round(st.magic * SKILLS[id].power(rank) * st.heal));
 // a summon's max HP and its hit (before the roll), from its skill's rank and the caster's stats
@@ -424,8 +534,8 @@ export const cooldownOf = (id, rank) => SKILLS[id].cdFor?.(rank) ?? SKILLS[id].c
 // for MOMENTUM_STILL s loses them all (server/rpg.js)
 export const MOMENTUM_MAX = 5, MOMENTUM_DUR = 8, MOMENTUM_STILL = 1;
 // The chase moves' ranks, packed for the physics (sim.js step reads state.mw): bits 0–1 Charge · 2–3 Leap
-// Slam · 4–5 Upward Cut
-export const chaseOf = (skills) => rankOf(skills, 'charge') | (rankOf(skills, 'leap_slam') << 2) | (rankOf(skills, 'upward_cut') << 4);
+// Slam · 4–5 Upward Cut · 6–7 Retreat Shot (the Archer's, S4: sim.js retreatOpen)
+export const chaseOf = (skills) => rankOf(skills, 'charge') | (rankOf(skills, 'leap_slam') << 2) | (rankOf(skills, 'upward_cut') << 4) | (rankOf(skills, 'retreat_shot') << 6);
 // The movement abilities a character has, packed for the physics (sim.js step reads state.mv):
 // bits 0–1 Dash rank · 2–3 Flash Jump · 4–5 Blink · 6–7 Phantom Step
 export const mobilityOf = (skills) => rankOf(skills, 'dash') | (rankOf(skills, 'flash_jump') << 2) | (rankOf(skills, 'blink') << 4) | (rankOf(skills, 'phantom_step') << 6);
@@ -481,7 +591,7 @@ export function cantLearn(c, id) {
   const cls = c.cls ?? 'novice';
   if (rankOf(c.skills, id) >= sk.max) return 'Maxed out';
   if (sk.cls === 'any' && cls === 'novice') return `Choose a class first (at Lv ${CLASS_LVL}, at the Rebirth Pool by Elder Mochi)`;
-  if (!skillFor(cls, id)) return `That's a ${CLASSES[sk.cls].name} skill`;
+  if (!skillFor(cls, id)) return `That's ${aOrAn(CLASSES[sk.cls].name)} skill`;
   if (c.lvl < sk.adv) return `Opens at Lv ${sk.adv}`;
   const held = heldBranch(c.skills);
   if (sk.branch && held && held !== sk.branch) return `Take your ${branchOf(held).name} points back first`;
@@ -514,8 +624,8 @@ export const maxMpFor = (lvl, skills) => 20 + lvl * 6 + 25 * rankOf(skills, 'man
 // c.ap = { str, dex, int, luk }. Damage rolls between minRoll and MAX_ROLL of ATK / MAGIC; DEX raises the floor.
 export const AP_PER_LVL = 5;
 export const AP_STATS = [
-  { id: 'str', name: 'STR', short: '+0.6 ATK, +3 HP', desc: 'Strength: +0.6 ATK and +3 max HP per point.' },
-  { id: 'dex', name: 'DEX', short: 'higher min dmg, +0.2 both', desc: 'Dexterity: raises your minimum damage (+0.1% per point, up to 105%) and +0.2 ATK and MAGIC per point.' },
+  { id: 'str', name: 'STR', short: '+0.6 ATK, +3 HP', desc: 'Strength: +0.6 ATK and +3 max HP per point (with a bow, only +0.2 ATK: archers aim with DEX).' },
+  { id: 'dex', name: 'DEX', short: 'min dmg; bow ATK', desc: `Dexterity: raises your minimum damage (+0.1% per point, up to 105%) and +0.2 ATK and MAGIC per point. With a bow it's your main stat: +0.6 ATK and +${BOW_DEX_HP} max HP per point instead.` },
   { id: 'int', name: 'INT', short: '+0.9 MAGIC, +2 MP', desc: 'Intelligence: +0.9 MAGIC and +2 max MP per point.' },
   { id: 'luk', name: 'LUK', short: '+crit chance & damage', desc: 'Luck: +0.04% critical chance (up to +20%) and +0.15% critical damage per point.' },
 ];
@@ -538,22 +648,26 @@ export function statsFor(c, buffs = {}) {
   // scroll enhancements on the worn gear (rpg.js rollScroll)
   const ge = c.gearE ?? {}, enh = (k) => (ge.weapon?.[k] ?? 0) + (ge.helmet?.[k] ?? 0);
   const staff = ITEMS[c.gear?.weapon]?.kind === 'staff' ? ITEMS[c.gear.weapon] : null; // (S1: spells grow with a staff)
+  const bow = ITEMS[c.gear?.weapon]?.kind === 'bow' ? ITEMS[c.gear.weapon] : null; // (S4: a bow shoots, and aims with DEX)
+  const aim = rankOf(c.skills, 'deadeye'), keen = rankOf(c.skills, 'keen_eye');
   const bonk = !!staff && c.cls === 'cleric'; // (S3: a Cleric bonks with its staff instead of firing a bolt)
   const str = apOf(c.ap, 'str'), dex = apOf(c.ap, 'dex'), int = apOf(c.ap, 'int'), luk = apOf(c.ap, 'luk');
   const ms = rankOf(c.skills, 'mana_shield');
   return {
-    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + 0.6 * str + 0.2 * dex) * rage * rally * might * push),
+    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + (bow ? 0.2 * str + 0.6 * dex : 0.6 * str + 0.2 * dex)) * rage * rally * might * push * (bow ? 1 + STEADY * rankOf(c.skills, 'steady_hands') : 1)),
     magic: Math.round((magicFor(c.lvl) + (staff?.magic ?? 0) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might),
     def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 5 * rankOf(c.skills, 'iron_jelly')) * rally),
-    maxHp: buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str) * (1 + 0.08 * rankOf(c.skills, 'vitality'))),
+    maxHp: buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str + (bow ? BOW_DEX_HP * dex : 0)) * (1 + 0.08 * rankOf(c.skills, 'vitality'))),
     maxMp: maxMpFor(c.lvl, c.skills) + 2 * int + (staff?.mp ?? 0),
-    reach: staff ? 0 : reachFor(c.gear?.weapon), // a sword's extra reach (swings and blade skills)
+    reach: staff || bow ? 0 : reachFor(c.gear?.weapon), // a sword's extra reach (swings and blade skills)
     boltRange: staff && !bonk ? STAFF_BOLT_RANGE + staff.reach : 0, // a staff bolt's range
+    arrowRange: bow ? BOW_RANGE + bow.reach + KEEN_RANGE * keen : 0, // a bow shot's range (S4)
+    evade: SKILLS.evasion.chance(rankOf(c.skills, 'evasion')), // the chance a hit misses (Evasion, server/rpg.js hurt)
     bonk, // the normal attack is the Cleric's staff bonk (BONK_*)
     heal: 1 + 0.08 * rankOf(c.skills, 'holy_power'), // the Cleric's heals' multiplier, and Smite's (`holy` skills) (Holy Power)
     bond: rankOf(c.skills, 'spirit_bond'), // Spirit Bond's rank (summons' HP and damage)
-    crit: 0.12 + 0.03 * mastery + Math.min(0.2, 0.0004 * luk) + (brew.crit ?? 0),
-    critMult: 1.6 + 0.1 * mastery + 0.0015 * luk,
+    crit: 0.12 + 0.03 * (mastery + aim) + 0.02 * keen + Math.min(0.2, 0.0004 * luk) + (brew.crit ?? 0),
+    critMult: 1.6 + 0.1 * (mastery + aim) + 0.0015 * luk,
     minRoll: minRollFor(c.ap),
     hpRegen: (1 + 0.25 * rankOf(c.skills, 'vitality')) * (1 + (brew.regen ?? 0)),
     ward: brew.ward ?? 0, // share of damage taken away (server/rpg.js hurt)

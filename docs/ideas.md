@@ -137,6 +137,25 @@
   the loot), the Pet Shop, phone screenshots. The root grid didn't come up in the test fight (it's random
   in phase 2), so its look has only been read, not seen. Nobody has fought the Spine at its level.
 
+## S4 (the Archer) left for later
+- **Weak points** (S5, `story/progression.md` 6): Deadeye and Hunter's Mark are built to pay off there (crits on
+  a crystal on a boss's back, a nest on a ledge); until then the Sniper's edge is distance (Snipe's
+  `FAR_BONUS`) and the mark helping friends.
+- **Net Trap catches only what walks in**: slow walkers (moss turtles) take a while to reach a net, flying mobs
+  pass over it, and a boss is only slowed. Untested with people: whether a Trapper can kite a boss into nets.
+- Hunter's Mark: a slime who walks in after it was cast sees the mark (the flag) but not its size, so its
+  rolls assume the lowest boost (the server's cap is right either way).
+- The bow on a slime's back hides behind a big helmet (the Shield-Oath horns cover most of it), as swords do.
+- Retreat Shot fires back on X / Hit while it's open, even if you meant to shoot ahead: dash first, then shoot
+  forward after the window (`CHARGE_WINDOW`). A tap aims where you tap, so phones can always choose.
+- The legacy swords with staff twins (`frost_blade` and the other pre-rebalance ones) have no bow twin, on
+  purpose (nobody owned a legacy bow). The mob-only swords without staff twins have no bow either.
+- Tested on a throwaway server with Lv 100 test Archers: the bow shot, every skill (the mark seen by a second
+  player, Retreat Shot from a dash with its hint and word, the net catching a mob, both rains), Evasion missing
+  about a fifth of the hits, a Lv 12 Novice choosing Archer at the pool (the strongest bow from its bag
+  equipped), the pool card and the K panel on a phone, bow icons in the bag. Nobody has fought a real den boss
+  as an Archer at its level, and the bow sounds were never heard (headless).
+
 ## S3 (the Cleric) left for later
 - **Cleanse** (`story/progression.md` 5): nothing puts a curse on a slime yet, so it waits for S5's curses,
   with the potion backups (a Cleansing Tonic, a Barrier Draught at the alchemy lab).

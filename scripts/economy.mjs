@@ -3,12 +3,12 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, DENS, STAFF_BOLT_MULT } from '../src/shared/rpg.js';
+import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
-import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, BONK_MULT, BONK_REACH, BONK_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap } from '../src/shared/skills.js';
+import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, BONK_MULT, BONK_REACH, BONK_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R } from '../src/shared/skills.js';
 import { SLAP_REACH, SLAP_COOLDOWN_MS, DASH_CD, PHANTOM_CD, CHARGE_RESET } from '../src/shared/sim.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
@@ -58,7 +58,7 @@ const CAMP_FIGHT_MIN = 2;
 const BOSS_CAMP_MAX = 2;
 
 const avg = ([, chance, lo, hi]) => chance * (lo + hi) / 2;
-const isGear = (id) => ['sword', 'staff', 'helmet'].includes(ITEMS[id]?.kind);
+const isGear = (id) => ['sword', 'staff', 'bow', 'helmet'].includes(ITEMS[id]?.kind);
 // What one kill is worth: gold picked up, and what the other drops sell for (gear apart: it's rare and lumpy)
 function perKill(m) {
   let gold = 0, sell = 0, gear = 0;
@@ -227,6 +227,9 @@ const BUILDS = {
   elementalist: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'fireball', 'kindling', 'meteor', 'arcane_charge', ['dash', 1], 'starfall', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   frostbinder: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'chain_lightning', 'frost_nova', 'glacial_spike', 'arcane_charge', ['dash', 1], 'absolute_zero', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   priest: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'jelly_spirit', 'heal', 'faith', 'mend', 'lantern_wisp', 'holy_power', 'revive', 'miracle', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  // the Archer (S4): its core arrows first, Dash early for Retreat Shot, Evasion for the boss fights
+  sniper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'snipe', 'piercing_arrow', 'deadeye', 'hunters_mark', 'heartseeker', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  trapper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'arrow_rain', ['net_trap', 1], 'barbed_arrows', 'trap_mastery', 'net_trap', 'thousand_arrows', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   warden: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'jelly_spirit', 'faith', 'heal', 'barrier', 'guardian_totem', 'spirit_bond', 'seraph', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
 };
 const NOVICE_ORDER = ['slime_bash', 'pebble_toss', 'jelly_patch']; // (nine points fill all three by Lv 9)
@@ -241,7 +244,7 @@ const RANGED_PX = 200; // the ranged column: a target this far away (on a ledge,
 // sword) than from range (a staff: progression.md 1b, "kills fast before it gets hit much"). The toughness
 // column puts every class under the same melee pressure from a boss on the curve at its level (the dens'
 // own ATK against curve('atk'), their median).
-const BOSS_HIT_EVERY = { warrior: 2.5, mage: 3.5, cleric: 3 }, BOSS_HIT_MULT = 1.25; // (by class: the Cleric bonks close but Smites from afar)
+const BOSS_HIT_EVERY = { warrior: 2.5, mage: 3.5, cleric: 3, archer: 3.5 }, BOSS_HIT_MULT = 1.25; // (by class: the Cleric bonks close but Smites from afar; the Archer keeps its distance)
 // The Cleric's choices (S3): heal under these shares of max HP; a spirit draws SPIRIT_DRAW of a boss's hits
 // (the Seraph SERAPH_DRAW) while it stands
 const HEAL_AT = 0.65, MEND_AT = 0.85, MIRACLE_AT = 0.45, SPIRIT_DRAW = 0.5, SERAPH_DRAW = 0.75;
@@ -252,8 +255,10 @@ const TOUGH_CAP = 600; // s: the toughness column stops counting here ("outlasts
 const POTION_AT = 0.4, SOLO_POTION_SHARE = 0.5;
 // Each branch's time to solo a den (at the den's level) within CLASS_FIT of the median of all four branches
 const CLASS_FIT = [0.6, 1.6];
-// Each class's "bad at" (progression.md 1b): its lowest column against the other classes' mean (BAD_AT)
-const BAD_AT = { warrior: 'ranged', mage: 'tough', cleric: 'crowd' };
+// Each class's "bad at" (progression.md 1b): its lowest column against the other classes' mean (BAD_AT). The
+// Archer has two ("crowds of mobs, and anything that gets up close": the toughness column is a boss up close),
+// so they must be its two lowest. And the Mage is the least tough class of all ("least HP and DEF").
+const BAD_AT = { warrior: ['ranged'], mage: ['tough'], cleric: ['crowd'], archer: ['tough', 'crowd'] };
 
 const SHEET_W = '__sheet_weapon', SHEET_H = '__sheet_helmet';
 const realWeapons = (kind) => Object.entries(ITEMS).filter(([id, it]) => it.kind === kind && !id.startsWith('__'));
@@ -262,7 +267,7 @@ const reachNear = (kind, p) => realWeapons(kind).map(([, it]) => it).sort((a, b)
 const staffMp = (() => { const r = realWeapons('staff').map(([, it]) => it.mp / it.magic).sort((a, b) => a - b); return r[r.length >> 1]; })();
 function gearAt(L, kind) {
   const p = Math.round(curve('sword', L));
-  ITEMS[SHEET_W] = kind === 'staff' ? { name: 'sheet staff', kind, magic: p, mp: Math.round(p * staffMp), reach: reachNear(kind, p) } : { name: 'sheet sword', kind, atk: p, reach: reachNear(kind, p) };
+  ITEMS[SHEET_W] = kind === 'staff' ? { name: 'sheet staff', kind, magic: p, mp: Math.round(p * staffMp), reach: reachNear(kind, p) } : { name: `sheet ${kind}`, kind, atk: p, reach: reachNear(kind, p) };
   ITEMS[SHEET_H] = { name: 'sheet helmet', kind: 'helmet', def: Math.round(curve('helmet', L)) };
 }
 function classChar(branch, L) {
@@ -279,10 +284,14 @@ function classChar(branch, L) {
 }
 const avgHit = (st) => ((st.minRoll + MAX_ROLL) / 2) * (1 + st.crit * (st.critMult - 1));
 // the chase moves: actions each one takes (a dash or a jump first), and how many targets it can catch
-const CHASE_ACTIONS = { charge: 2, leap_slam: 2, upward_cut: 1 };
-const chaseCd = (c, id) => (id === 'charge' ? (DASH_CD[rankOf(c.skills, 'dash')] / 60) * (1 - PHANTOM_CD * rankOf(c.skills, 'phantom_step')) * (1 - CHARGE_RESET[rankOf(c.skills, 'charge')]) : cooldownOf(id, rankOf(c.skills, id)));
-const DAMAGE_KINDS = new Set(['strike', 'cleave', 'spin', 'storm', 'bolt', 'fireball', 'chain', 'meteor', 'nova', 'starfall']);
-const PHYS = new Set(['strike', 'cleave', 'spin', 'storm']);
+// (the Archer's Retreat Shot, S4: a dash, then a stronger bow shot; Dash comes back at its own pace)
+const CHASE_ACTIONS = { charge: 2, leap_slam: 2, upward_cut: 1, retreat_shot: 2 };
+const dashCd = (c) => (DASH_CD[rankOf(c.skills, 'dash')] / 60) * (1 - PHANTOM_CD * rankOf(c.skills, 'phantom_step'));
+const chaseCd = (c, id) => (id === 'charge' ? dashCd(c) * (1 - CHARGE_RESET[rankOf(c.skills, 'charge')]) : id === 'retreat_shot' ? dashCd(c) : cooldownOf(id, rankOf(c.skills, id)));
+const DAMAGE_KINDS = new Set(['strike', 'cleave', 'spin', 'storm', 'bolt', 'fireball', 'chain', 'meteor', 'nova', 'starfall', 'shot', 'pierce', 'rain']);
+const PHYS = new Set(['strike', 'cleave', 'spin', 'storm', 'shot', 'pierce', 'rain']);
+const ARROWS = new Set(['shot', 'pierce', 'rain']); // (Barbed Arrows: everything after the first arrow hits a slowed mob)
+const barbed = (c) => 1 + BARB_BONUS * rankOf(c.skills, 'barbed_arrows');
 // how many of n targets standing over CROWD_W px a hit `w` px wide catches
 const caught = (n, w) => (n === 1 ? 1 : Math.min(n, Math.max(1, (n * w) / CROWD_W)));
 function hitsOf(sk, st, n) {
@@ -290,6 +299,7 @@ function hitsOf(sk, st, n) {
   return {
     strike: 1, cleave: Math.min(sk.targets, caught(n, melee)), spin: caught(n, 2 * sk.radius), storm: sk.hits * caught(n, 2 * sk.radius),
     bolt: 1, fireball: caught(n, 2 * sk.radius), chain: Math.min(sk.targets, n), meteor: caught(n, 2 * sk.radius), nova: caught(n, 2 * sk.radius), starfall: caught(n, 2 * sk.radius),
+    shot: sk.arrows, pierce: Math.min(sk.targets, n), rain: sk.hits * caught(n, 2 * sk.radius),
   }[sk.kind];
 }
 function rangeOf(sk, st) {
@@ -297,27 +307,35 @@ function rangeOf(sk, st) {
   if (['spin', 'storm', 'nova', 'starfall'].includes(sk.kind)) return sk.radius;
   return sk.range;
 }
-// one cast's expected damage on n targets (0 if it can't reach `range`)
-function castDmg(id, rank, st, n, range) {
+// one cast's expected damage on n targets (0 if it can't reach `range`). c: the character (Barbed Arrows, the net)
+function castDmg(id, rank, st, n, range, c) {
   const sk = SKILLS[id];
+  if (sk.what === 'net') { // Net Trap: only its Trap Mastery bursts do damage, on mobs that walk into it (never one on a ledge)
+    const tm = rankOf(c.skills, 'trap_mastery');
+    return tm && !range ? st.atk * SKILLS.trap_mastery.burst(tm) * avgHit(st) * Math.min(1 + tm, n) * caught(n, 2 * NET_BURST_R) : 0;
+  }
   if (rangeOf(sk, st) < range) return 0;
   const base = PHYS.has(sk.kind) ? st.atk : (sk.stat === 'best' ? Math.max(st.atk, st.magic) : st.magic) * (sk.fire ? st.fire : 1) * (sk.holy ? st.heal : 1);
-  return base * sk.mult(rank) * avgHit(st) * hitsOf(sk, st, n);
+  return base * sk.mult(rank) * avgHit(st) * hitsOf(sk, st, n) * (ARROWS.has(sk.kind) ? barbed(c) : 1);
 }
-const attackDmg = (st, range) => (st.bonk ? (SLAP_REACH + BONK_REACH >= range ? st.magic * BONK_MULT * avgHit(st) : 0) : st.boltRange ? (st.boltRange >= range ? st.magic * STAFF_BOLT_MULT * avgHit(st) : 0) : SLAP_REACH + st.reach >= range ? st.atk * avgHit(st) : 0);
+// the normal attack's expected damage at `range` (c: the character, for Barbed Arrows)
+const attackDmg = (st, range, c) => (st.bonk ? (SLAP_REACH + BONK_REACH >= range ? st.magic * BONK_MULT * avgHit(st) : 0) : st.boltRange ? (st.boltRange >= range ? st.magic * STAFF_BOLT_MULT * avgHit(st) : 0) : st.arrowRange ? (st.arrowRange >= range ? st.atk * BOW_SHOT_MULT * avgHit(st) * barbed(c) : 0) : SLAP_REACH + st.reach >= range ? st.atk * avgHit(st) : 0);
 const POTIONS = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))].filter((id) => ITEMS[id].kind === 'potion' && ITEMS[id].heal).map((id) => ITEMS[id]).sort((a, b) => a.heal - b.heal);
 // A fight: n targets, `range` px away; `hit` raw damage every BOSS_HIT_EVERY s (0: nobody hits back);
 // `hp`: stop once that much damage is done (a boss); `potions`: drink them. → { t, dealt, faint, drunk, gold }
 function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, hp: bossHp = Infinity, potions = false, until = SIM_S }) {
   const r = (id) => rankOf(c.skills, id);
-  const buff = { berserk: 0, rally: 0, manaShield: 0, bubble: 0, aegis: 0, zone: 0 }, cds = {};
+  const buff = { berserk: 0, rally: 0, manaShield: 0, bubble: 0, aegis: 0, zone: 0, mark: 0 }, cds = {};
+  let evadeAcc = 0; // Evasion (Archer): a share of the hits that miss, counted out evenly
   let momentum = 0, momentumUntil = 0, busy = 0; // busy: actions still taken by a two-action chase move
   let charges = 0, chargesUntil = 0, burnDps = 0, burnUntil = 0; // Arcane Charge; the burn on the target(s) (summed over a crowd)
   // the Cleric: its spirits / Seraph up ({ id, until, hp, def, dps, draw }), the totem, the Barrier, Mend, the wisp
   const sums = [];
   let drawAcc = 0, totem = null, barrier = 0, barrierUntil = 0, mendUntil = 0, mendAmt = 0, wispUntil = 0, wispAmt = 0;
   const statsAt = (t) => statsFor(c, { berserk: buff.berserk > t, rally: buff.rally > t ? SKILLS.rally.boost(r('rally')) : 0, manaShield: buff.manaShield > t, momentum: momentumUntil > t ? momentum : 0 });
-  const chases = Object.keys(CHASE_ACTIONS).filter((id) => r(id) && (id !== 'charge' || r('dash')));
+  const chases = Object.keys(CHASE_ACTIONS).filter((id) => r(id) && ((id !== 'charge' && id !== 'retreat_shot') || r('dash')));
+  // Hunter's Mark (Sniper): everything on the marked mob hits harder; on a crowd only one of them is marked
+  const markX = (t) => (buff.mark > t ? 1 + SKILLS.hunters_mark.boost(r('hunters_mark')) / n : 1);
   const top = statsFor(c);
   let hp = top.maxHp, mp = top.maxMp, dealt = 0, drunk = 0, gold = 0, swReady = 0, lastHurt = -99, nextHit = every, nextRegen = 1;
   const actives = Object.keys(c.skills).filter((id) => SKILLS[id].kind !== 'passive' && SKILLS[id].kind !== 'move');
@@ -331,6 +349,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
         nextHit += every;
         if (buff.aegis > at) continue;
         if (buff.bubble > at) { buff.bubble = 0; continue; }
+        if (st.evade && (evadeAcc += st.evade) >= 1) { evadeAcc -= 1; continue; } // (Evasion: it missed)
         const drawer = sums.find((q) => q.until > at && q.hp > 0);
         if (drawer && (drawAcc += drawer.draw) >= 1) { // the boss is after the spirit: this one lands on it
           drawAcc -= 1;
@@ -424,7 +443,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
       [barrier, barrierUntil] = [healOf('barrier', r('barrier'), st), t + SKILLS.barrier.dur];
       continue;
     }
-    const buffs = { berserk: ['berserk', true], rally: ['rally', true], manaShield: ['mana_shield', hit], bubble: ['jelly_bubble', hit], zone: ['sanctuary', hit], aegis: ['aegis', hit] };
+    const buffs = { berserk: ['berserk', true], rally: ['rally', true], mark: ['hunters_mark', true], manaShield: ['mana_shield', hit], bubble: ['jelly_bubble', hit], zone: ['sanctuary', hit], aegis: ['aegis', hit] };
     const b = Object.entries(buffs).find(([k, [id, want]]) => want && buff[k] <= t && ready(id, t));
     if (b) {
       const [k, [id]] = b;
@@ -432,19 +451,19 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
       buff[k] = t + durOf(id, r(id));
       continue;
     }
-    let best = null, dmg = attackDmg(st, range);
+    let best = null, dmg = attackDmg(st, range, c);
     const held = chargesUntil > t ? charges : 0;
     for (const id of actives) {
-      if (!DAMAGE_KINDS.has(SKILLS[id].kind) || !ready(id, t)) continue;
-      const d = castDmg(id, r(id), st, n, range) * (spendsArcane(id) ? arcaneMult(c.skills, held) : 1);
+      if ((!DAMAGE_KINDS.has(SKILLS[id].kind) && SKILLS[id].what !== 'net') || !ready(id, t)) continue;
+      const d = castDmg(id, r(id), st, n, range, c) * (spendsArcane(id) ? arcaneMult(c.skills, held) : 1);
       if (d > dmg) [best, dmg] = [id, d];
     }
     // a chase move, if it beats that per action it takes (n targets: Leap Slam catches the crowd)
     let chase = null;
     for (const id of chases) {
-      if ((cds[id] ?? 0) > t || range > SLAP_REACH + st.reach) continue;
-      const one = st.atk * SKILLS[id].mult(r(id)) * avgHit(st);
-      const d = id === 'leap_slam' ? one * caught(n, 2 * SKILLS[id].radius) : id === 'upward_cut' ? one + attackDmg(st, range) : one;
+      if ((cds[id] ?? 0) > t || range > (id === 'retreat_shot' ? st.arrowRange : SLAP_REACH + st.reach)) continue;
+      const one = id === 'retreat_shot' ? attackDmg(st, range, c) * SKILLS[id].mult(r(id)) : st.atk * SKILLS[id].mult(r(id)) * avgHit(st);
+      const d = id === 'leap_slam' ? one * caught(n, 2 * SKILLS[id].radius) : id === 'upward_cut' ? one + attackDmg(st, range, c) : one;
       if (d / CHASE_ACTIONS[id] > dmg) [best, chase, dmg] = [null, id, d];
     }
     if (chase) {
@@ -457,6 +476,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     else if (!best && !chase && st.boltRange && dmg && r('arcane_charge')) [charges, chargesUntil] = [Math.min(ARCANE_MAX, held + 1), t + ARCANE_DUR];
     if (best && SKILLS[best].el === 'fire') [burnDps, burnUntil] = [Math.max(burnUntil > t ? burnDps : 0, dmg * BURN_DPS), t + BURN_S];
     if (!dmg) continue;
+    dmg *= markX(t);
     dealt += dmg; // (a crowd: the sum over the mobs it caught)
     if (st.thirst) hp = Math.min(st.maxHp, hp + dmg * st.thirst);
     if (best && SKILLS[best].smite) hp = Math.min(st.maxHp, hp + dmg * SKILLS[best].smite(r(best)) * st.heal); // Smite
@@ -510,16 +530,19 @@ const COLS = ['single', 'crowd', 'ranged', 'tough'];
 const meanOf = (cls, col, L) => { const bs = branches.filter((b) => BUILDS[b].cls === cls); return bs.reduce((a, b) => a + classAt[`${b} ${L}`][col], 0) / bs.length; };
 const CLS = Object.keys(BAD_AT);
 const othersOf = (cls, col, L) => { const o = CLS.filter((k) => k !== cls); return o.reduce((a, k) => a + meanOf(k, col, L), 0) / o.length; };
-table(`CLASSES: shape, each class ÷ the others' mean (mean of each class's branches; toughness capped at ${TOUGH_CAP} s). Bad at (BAD_AT): each class's lowest column must be its bad-at (${CLS.map((k) => `${k} ${BAD_AT[k]}`).join(', ')})`, Object.fromEntries(CLASS_AT.flatMap((L) => CLS.map((cls) => [`${cls} lvl ${L}`, Object.fromEntries(COLS.map((col) => [col, (meanOf(cls, col, L) / Math.max(1e-9, othersOf(cls, col, L))).toFixed(2)]))]))));
+table(`CLASSES: shape, each class ÷ the others' mean (mean of each class's branches; toughness capped at ${TOUGH_CAP} s). Bad at (BAD_AT): each class's lowest column(s) must be its bad-at (${CLS.map((k) => `${k} ${BAD_AT[k].join(' and ')}`).join(', ')})`, Object.fromEntries(CLASS_AT.flatMap((L) => CLS.map((cls) => [`${cls} lvl ${L}`, Object.fromEntries(COLS.map((col) => [col, (meanOf(cls, col, L) / Math.max(1e-9, othersOf(cls, col, L))).toFixed(2)]))]))));
 for (const L of CLASS_AT) {
   // (crowd is only a shape once someone has an area skill: before the fork every branch's crowd column is its single one)
   const areaYet = branches.some((b) => classAt[`${b} ${L}`].crowd > classAt[`${b} ${L}`].single * 1.01);
-  for (const [cls, bad] of Object.entries(BAD_AT)) {
-    if (bad === 'crowd' && !areaYet) continue;
+  for (const [cls, all] of Object.entries(BAD_AT)) {
+    const bad = all.filter((b) => b !== 'crowd' || areaYet);
+    if (!bad.length) continue;
     const ratio = Object.fromEntries(COLS.map((col) => [col, meanOf(cls, col, L) / Math.max(1e-9, othersOf(cls, col, L))]));
-    const low = COLS.reduce((a, b) => (ratio[a] <= ratio[b] ? a : b));
-    if (low !== bad) classProblems.push(`at lvl ${L} the ${cls}'s lowest column against the others is ${low} (${ratio[low].toFixed(2)}x), not its bad-at ${bad} (${ratio[bad].toFixed(2)}x)`);
+    const low = [...COLS].sort((a, b) => ratio[a] - ratio[b]).slice(0, bad.length);
+    if (bad.some((b) => !low.includes(b))) classProblems.push(`at lvl ${L} the ${cls}'s lowest column${bad.length > 1 ? 's' : ''} against the others: ${low.map((c) => `${c} (${ratio[c].toFixed(2)}x)`).join(', ')}, not its bad-at ${bad.map((c) => `${c} (${ratio[c].toFixed(2)}x)`).join(', ')}`);
   }
+  // the Mage is the least tough of all (its own bad-at, and nobody else's is lower)
+  for (const cls of CLS) if (cls !== 'mage' && meanOf(cls, 'tough', L) < meanOf('mage', 'tough', L)) classProblems.push(`at lvl ${L} the ${cls} is less tough than the mage (${Math.round(meanOf(cls, 'tough', L))} s vs ${Math.round(meanOf('mage', 'tough', L))} s): the mage should be the least tough`);
 }
 
 // ——— checks ———
@@ -587,9 +610,9 @@ for (const [id, m] of bosses.filter(([, m]) => m.field)) {
 for (const [id, m] of bosses.filter(([, m]) => m.boss)) if (campRatio(m).exp > BOSS_CAMP_MAX) problems.push(`camping den boss ${id} for an hour gives ${campRatio(m).exp.toFixed(1)}x the EXP of farming mobs (max ${BOSS_CAMP_MAX}x)`);
 if (!(FIELD_BOSS_RESPAWN_MS >= 10 * 60_000)) problems.push('field bosses come back too often (FIELD_BOSS_RESPAWN_MS under 10 min)');
 for (const [id, it] of Object.entries(ITEMS)) {
-  if (!it.lvl || !['sword', 'staff', 'helmet'].includes(it.kind)) continue;
-  // a staff's MAGIC sits on the sword curve (S1, story/progression.md)
-  const f = (it.kind === 'sword' ? it.atk : it.kind === 'staff' ? it.magic : it.def) / curve(it.kind === 'staff' ? 'sword' : it.kind, it.lvl);
+  if (!it.lvl || !['sword', 'staff', 'bow', 'helmet'].includes(it.kind)) continue;
+  // a staff's MAGIC and a bow's ATK sit on the sword curve (S1, S4: story/progression.md)
+  const f = (it.kind === 'sword' || it.kind === 'bow' ? it.atk : it.kind === 'staff' ? it.magic : it.def) / curve(it.kind === 'staff' || it.kind === 'bow' ? 'sword' : it.kind, it.lvl);
   if (f < GEAR_FIT[0] || f > GEAR_FIT[1]) problems.push(`${id} (lvl ${it.lvl}) has ${Math.round(f * 100)}% of the frozen ${it.kind === 'staff' ? 'sword (as MAGIC)' : it.kind} curve (want ${GEAR_FIT[0] * 100}–${GEAR_FIT[1] * 100}%)`);
 }
 // A staff is its twin sword's equal: same price, MAGIC = the sword's ATK, so a drop that can be either is
@@ -601,5 +624,14 @@ for (const [id, it] of Object.entries(ITEMS)) {
   else if (tw.price !== it.price || tw.atk !== it.magic || (tw.slots ?? 0) !== (it.slots ?? 0) || (tw.lvl ?? 0) !== (it.lvl ?? 0)) problems.push(`staff ${id} doesn't match its twin ${it.twin} (price, MAGIC vs ATK, slots, lvl)`);
 }
 for (const [id, m] of bosses) if (!(m.drops ?? []).some(([d]) => STAFF_OF[d])) problems.push(`boss ${id} drops no weapon with a staff twin`);
+// and a bow is its sword's equal too (S4), and every sword with a staff twin has a bow twin, so every boss drops
+// something for each class
+for (const [id, it] of Object.entries(ITEMS)) {
+  if (it.kind !== 'bow') continue;
+  const tw = ITEMS[it.twin];
+  if (!tw || tw.kind !== 'sword') problems.push(`bow ${id} has no twin sword`);
+  else if (tw.price !== it.price || tw.atk !== it.atk || (tw.slots ?? 0) !== (it.slots ?? 0) || (tw.lvl ?? 0) !== (it.lvl ?? 0)) problems.push(`bow ${id} doesn't match its twin ${it.twin} (price, ATK, slots, lvl)`);
+}
+for (const [sword, staff] of Object.entries(STAFF_OF)) if (!BOW_OF[sword] && !ITEMS[sword].legacy) problems.push(`${sword} has a staff twin (${staff}) but no bow twin`);
 console.log(problems.length ? `\nCHECKS FAILED:\n- ${problems.join('\n- ')}` : '\nAll checks pass.');
 if (process.argv.includes('--check') && problems.length) process.exit(1);
