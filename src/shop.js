@@ -53,7 +53,7 @@ export function compareToWorn(me, id) {
   if (!slot || !me) return null;
   const it = ITEMS[id], out = [];
   let warn = '';
-  if (slot === 'weapon' && !weaponOk(me.cls, id)) warn = `${CLASSES[me.cls].name}s can't wield ${it.kind === 'staff' ? 'staves' : `${it.kind}s`} (change class at the Rebirth Pool).`;
+  if (slot === 'weapon' && !weaponOk(me.cls, id)) warn = `${CLASSES[me.cls].name}s can't wield ${it.kind === 'staff' ? 'staves' : `${it.kind}s`}.`;
   const wornId = me.gear?.[slot];
   if (wornId === id && !me.gearE?.[slot]?.u) return { head: 'You wear this already.', parts: [], warn };
   const a = gearStats(id), b = wornId ? gearStats(wornId, me.gearE?.[slot]) : gearStats(id, {});
