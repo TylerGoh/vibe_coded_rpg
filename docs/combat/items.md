@@ -121,6 +121,15 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
   are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.
 
+## Shop previews (owner, 2026-10-24)
+- Every shop and trader (they all use `Shop` in `src/shop.js`) shows each piece of gear's numbers as chips
+  under its name (`statChips`: kind, ATK / MAGIC / MP / DEF, a sword's reach or a staff's or bow's range in
+  px, the `lvl` it's made for, upgrade slots), and on the Buy tab a line comparing it with what you wear in
+  that slot (`compareToWorn`: green ups, red downs, your worn piece counted with its scroll bonuses), plus a
+  red note when your class can't wield it. The Sell tab's chips include the item's own scroll bonuses.
+- `lvl` is not a requirement (anyone can equip anything their class wields): the chip just says what level
+  it's aimed at. Potions and pet food get no chips: their descriptions already say their numbers.
+
 ## The Boutique (a shop tab)
 - The friends' signature accessories (ribbon, glasses, notes, bowtie, flute, laptop: ids `src/slime.js`
   draws) sold cheaply as cosmetics (`COSMETICS`). Owned ones are worn in any mix from the bag's Style row,

@@ -1761,6 +1761,39 @@ body.touch .skc-btns .sk-bar {
   color: #8a7a6b;
   font-size: calc(11px * var(--s));
 }
+.shop-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(3px * var(--s));
+  margin-top: calc(2px * var(--s));
+}
+.shop-stats span {
+  padding: 0 calc(6px * var(--s));
+  border-radius: 999px;
+  background: #f3e3c4;
+  color: #8a6a4a;
+  font-size: calc(11px * var(--s));
+}
+.shop-cmp,
+.shop-warn {
+  margin-top: calc(2px * var(--s));
+  color: #8a7a6b;
+  font-size: calc(11px * var(--s));
+}
+.shop-cmp .up {
+  color: #3f9a55;
+}
+.shop-cmp .down {
+  color: #d0575b;
+}
+.shop-warn {
+  color: #d0575b;
+}
+body.touch .shop-stats span,
+body.touch .shop-cmp,
+body.touch .shop-warn {
+  font-size: calc(13px * var(--s));
+}
 .shop-price {
   flex: none;
   color: #c99a2e;

@@ -3,10 +3,76 @@
 // (the Trade button in her dialog). Buy potions and gear with gold, sell loot and spare gear back for
 // SELL_RATE of the price, and (the Boutique tab, Pip's only) the friends' signature accessories, as cheap
 // cosmetics. Gold drops from every mob and boss. Rules: server/rpg.js.
+// Every row previews the item: its stats as chips, and for gear how it compares to what you wear.
 import { drawItemIcon } from './field.js';
 import { audio } from './audio.js';
 import { Slime } from './slime.js';
-import { ITEMS, SHOPS, STACKS, sellPrice, COSMETICS } from './shared/rpg.js';
+import { ITEMS, SHOPS, STACKS, sellPrice, COSMETICS, isGear, gearSlotOf, slotsOf, enhName, STAFF_BOLT_RANGE, BOW_RANGE } from './shared/rpg.js';
+import { CLASSES, weaponOk } from './shared/skills.js';
+
+const KIND_NAME = { sword: 'Sword', staff: 'Staff', bow: 'Bow', helmet: 'Helmet' };
+
+// A piece of gear's numbers, with its scroll bonuses (e) added. range: a sword's extra reach, or how far
+// a staff's bolt or a bow's arrow flies.
+export function gearStats(id, e) {
+  const it = ITEMS[id];
+  e ??= {};
+  const range = it.kind === 'staff' ? STAFF_BOLT_RANGE + (it.reach ?? 0) : it.kind === 'bow' ? BOW_RANGE + (it.reach ?? 0) : it.reach ?? 0;
+  return {
+    atk: (it.atk ?? 0) + (e.atk ?? 0),
+    magic: (it.kind === 'staff' ? it.magic ?? 0 : 0) + (e.magic ?? 0),
+    mp: it.kind === 'staff' ? it.mp ?? 0 : 0,
+    def: (it.def ?? 0) + (e.def ?? 0),
+    hp: e.hp ?? 0,
+    range,
+  };
+}
+const STAT_ROWS = [['atk', 'ATK'], ['magic', 'MAGIC'], ['mp', 'MP'], ['def', 'DEF'], ['hp', 'HP']];
+const rangeName = (kind) => (kind === 'sword' ? 'Reach' : 'Range');
+
+// The chips under a piece of gear's name: its numbers (potions and food say theirs in the description)
+export function statChips(id, e) {
+  const it = ITEMS[id], out = [];
+  if (isGear(id)) {
+    const st = gearStats(id, e);
+    out.push(KIND_NAME[it.kind]);
+    for (const [k, n] of STAT_ROWS) if (st[k]) out.push(`${n} +${st[k]}`);
+    if (it.kind !== 'helmet' && st.range) out.push(it.kind === 'sword' ? `Reach +${st.range}` : `Range ${st.range} px`);
+    if (it.lvl ?? it.aim) out.push(`Lv ${it.lvl ?? it.aim}`);
+    const left = slotsOf(id) - (e?.u ?? 0);
+    out.push(e?.u ? `${left}/${slotsOf(id)} slots left` : `${slotsOf(id)} upgrade slots`);
+    if (it.legacy) out.push('Legacy');
+  }
+  return out;
+}
+
+// How a piece of gear compares to what you wear in its slot: [text, 'up' | 'down' | ''] pieces, and a
+// warning when your class can't wield it
+export function compareToWorn(me, id) {
+  const slot = gearSlotOf(id);
+  if (!slot || !me) return null;
+  const it = ITEMS[id], out = [];
+  let warn = '';
+  if (slot === 'weapon' && !weaponOk(me.cls, id)) warn = `${CLASSES[me.cls].name}s can't wield ${it.kind === 'staff' ? 'staves' : `${it.kind}s`} (change class at the Rebirth Pool).`;
+  const wornId = me.gear?.[slot];
+  if (wornId === id && !me.gearE?.[slot]?.u) return { head: 'You wear this already.', parts: [], warn };
+  const a = gearStats(id), b = wornId ? gearStats(wornId, me.gearE?.[slot]) : gearStats(id, {});
+  if (!wornId) for (const k in b) b[k] = 0;
+  for (const [k, n] of STAT_ROWS) {
+    const d = a[k] - b[k];
+    if (d) out.push([`${n} ${d > 0 ? '+' : '−'}${Math.abs(d)}`, d > 0 ? 'up' : 'down']);
+  }
+  const wornKind = ITEMS[wornId]?.kind;
+  if (it.kind !== 'helmet') {
+    if (!wornId || wornKind === it.kind) {
+      const d = a.range - b.range;
+      if (d) out.push([`${rangeName(it.kind)} ${d > 0 ? '+' : '−'}${Math.abs(d)}`, d > 0 ? 'up' : 'down']);
+    } else out.push([`${it.kind === 'sword' ? 'swings' : it.kind === 'staff' ? 'fires bolts' : 'shoots arrows'} instead of ${wornKind === 'sword' ? 'swinging' : wornKind === 'staff' ? 'firing bolts' : 'shooting arrows'}`, '']);
+  }
+  if (!out.length) out.push(['the same numbers', '']);
+  const head = wornId ? `vs your ${enhName(wornId, me.gearE?.[slot])}:` : `Nothing worn there yet:`;
+  return { head, parts: out, warn };
+}
 
 export class Shop {
   constructor({ rpg, send, onOpenChange }) {
@@ -80,7 +146,8 @@ export class Shop {
     s.draw(g);
     return c;
   }
-  row(id, label, price, buttons) {
+  // e: the item's scroll bonuses (selling); cmp: compare it with what you wear (buying)
+  row(id, label, price, buttons, { e, cmp } = {}) {
     const r = document.createElement('div');
     r.className = 'shop-row';
     const it = ITEMS[id];
@@ -88,7 +155,37 @@ export class Shop {
     body.className = 'shop-body';
     body.innerHTML = '<b></b><p></p>';
     body.querySelector('b').textContent = label;
-    body.querySelector('p').textContent = it.desc + (it.atk ? ` ATK +${it.atk}.` : '') + (it.def ? ` DEF +${it.def}.` : '');
+    body.querySelector('p').textContent = it.desc ?? '';
+    const chips = statChips(id, e);
+    if (chips.length) {
+      const st = document.createElement('div');
+      st.className = 'shop-stats';
+      for (const c of chips) {
+        const sp = document.createElement('span');
+        sp.textContent = c;
+        st.append(sp);
+      }
+      body.append(st);
+    }
+    const c = cmp && compareToWorn(this.rpg.me, id);
+    if (c) {
+      const line = document.createElement('div');
+      line.className = 'shop-cmp';
+      line.append(c.head);
+      for (const [text, cls] of c.parts) {
+        const sp = document.createElement('span');
+        sp.textContent = text;
+        if (cls) sp.className = cls;
+        line.append(' ', sp);
+      }
+      body.append(line);
+      if (c.warn) {
+        const w = document.createElement('div');
+        w.className = 'shop-warn';
+        w.textContent = c.warn;
+        body.append(w);
+      }
+    }
     const cost = document.createElement('span');
     cost.className = 'shop-price';
     cost.textContent = `${price} gold`;
@@ -143,7 +240,7 @@ export class Shop {
         const p = ITEMS[id].price, stack = STACKS(id);
         const buttons = [['Buy', () => this.buy(id, 1), m.coins < p]];
         if (stack) buttons.push(['×5', () => this.buy(id, 5), m.coins < p * 5]);
-        this.list.append(this.row(id, ITEMS[id].name, p, buttons));
+        this.list.append(this.row(id, ITEMS[id].name, p, buttons, { cmp: true }));
       }
     } else {
       if (!m.bag.length) {
@@ -156,7 +253,7 @@ export class Shop {
         const each = sellPrice(b.id);
         const buttons = [['Sell 1', () => this.sell(slot, 1)]];
         if (b.n > 1) buttons.push([`All ${b.n}`, () => this.sell(slot, b.n)]);
-        this.list.append(this.row(b.id, `${ITEMS[b.id].name}${b.n > 1 ? ` ×${b.n}` : ''}`, each, buttons));
+        this.list.append(this.row(b.id, `${enhName(b.id, b.e)}${b.n > 1 ? ` ×${b.n}` : ''}`, each, buttons, { e: b.e }));
       });
     }
   }

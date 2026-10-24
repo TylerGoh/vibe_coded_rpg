@@ -99,7 +99,7 @@ Interleaved with the G track: S0 (close the boss EXP faucet) and S1 (staves) go 
       `docs/ideas.md` ("S4 left for later")
 - [ ] S5: bosses that need a party (Taunt, pulses, curses, barriers, weak points), loot by class (plan: `story/s5-plan.md`)
 - [ ] S6: past the cap (stat taper, mastery stars)
-- [ ] **Shop previews** (owner, 2026-10-24): see an item's stats in a shop before buying (ATK / MAGIC / DEF,
+- [x] **Shop previews** (owner, 2026-10-24; shipped 2026-10-24, `docs/combat/items.md`): see an item's stats in a shop before buying (ATK / MAGIC / DEF,
       level, slots, reach; for gear, how it compares to what you wear), on every shop and trader, phone too.
       Today you buy blind.
 
