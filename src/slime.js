@@ -267,7 +267,7 @@ export class Slime {
     const k = 1 - this.slapT / SLAP_TIME; // 0 → 1
     const UP = -2.3, AIM = -0.25;
     const ang = k < 0.25 ? UP + (AIM - UP) * (1 - (1 - k / 0.25) ** 3) : k < 0.7 ? AIM : AIM + (UP - AIM) * ((k - 0.7) / 0.3) * 0.4;
-    const px = w * 0.3, py = -h * 0.5, arm = 9;
+    const px = -w * 0.2, py = -h * 0.56, arm = 9; // from the back of its head, so the shaft stays clear of the eyes
     const hx = px + Math.cos(ang) * arm, hy = py + Math.sin(ang) * arm;
     ctx.save();
     ctx.strokeStyle = this.palette.line; // a stubby jelly arm

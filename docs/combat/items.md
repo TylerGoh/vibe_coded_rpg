@@ -31,7 +31,8 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   unchanged, so nobody lost spell power when staves came in.
 - Art: `src/staff-art.js`: `STAFFS` describes each one (shaft colours, a head shape from `HEADS`, gem and
   glow colours) and `drawStaff` draws it for the bag icon (a shortened shaft so the head shows), the back
-  and the cast pose (`drawStaffOnBack` / `drawStaffCast` in `src/slime.js`). The glow colour tints its bolt.
+  and the cast pose (`drawStaffOnBack` / `drawStaffCast` in `src/slime.js`). The glow colour tints its bolt. The cast swings from the back of the
+  head, not the front (owner: from the front it swung out of the eye).
 
 ## Bows (S4, 2026-10-24: `story/progression.md` 4)
 - Every sword with a staff twin has a **bow twin** too (`BOW_LIST`, `BOW_OF`): the bow is *made from the sword*
