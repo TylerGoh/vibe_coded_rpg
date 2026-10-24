@@ -367,7 +367,8 @@ Armor's DEF and Arcane Insight's MAGIC as long buffs. Two modelling changes:
   (Cleave → Ground Shake / Whirlwind → …, Power Strike → Shield Bash / Rending Slash → …), which dropped its sheet
   damage to about 0.75× the others' mean on both single and crowd from Lv 60: SP6 retunes the Warrior's numbers.
 - **`FIELD_BOSS_SHARE`**: a planted field counts that share of its ticks on a lone target (a boss walks out of it); a
-  pack counts every tick; a field that follows its caster (Cyclone) counts in full.
+  pack counts every tick; a field that follows its caster (Cyclone) counts in full. Owner (2026-10-25): keep it (sheet only; in the game a field hits
+  whatever stands in it).
 - **What moved** (single / crowd damage a second, before → after): Elementalist Lv 30 2,148 / 2,766 → 2,187 / 4,307,
   Lv 60 4,759 / 8,398 → 4,660 / 11,782, Lv 100 7,903 / 14,624 → 7,908 / 19,672, Lv 200 15,994 / 29,597 → 15,998 /
   39,800; Frostbinder Lv 30 2,135 / 3,550 → 2,037 / 3,716, Lv 60 4,595 / 7,228 → 4,707 / 10,528, Lv 100 7,707 /
