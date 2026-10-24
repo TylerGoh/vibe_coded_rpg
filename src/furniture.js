@@ -379,25 +379,32 @@ const DRAW = {
     circle(ctx, -14, -17, 1);
     circle(ctx, -10, -17, 1);
   },
-  window(ctx, t) {
+  // In a house the glass is see-through (house.js cuts it out of the wall, so the real sky shows); `sky` paints
+  // a pretend sky instead, for the store icon and the piece you're carrying
+  window(ctx, t, sky) {
     rr(ctx, -48, -96, 96, 96, [46, 46, 8, 8], '#ffffff');
-    const g = ctx.createLinearGradient(0, -88, 0, -8);
-    g.addColorStop(0, '#9fd8ff');
-    g.addColorStop(1, '#e2f4ff');
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.roundRect(-40, -88, 80, 80, [40, 40, 4, 4]);
-    ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    const cx = ((t * 6) % 120) - 60;
     ctx.save();
     ctx.beginPath();
     ctx.roundRect(-40, -88, 80, 80, [40, 40, 4, 4]);
     ctx.clip();
-    ellipse(ctx, cx, -56, 14, 6);
-    ellipse(ctx, cx + 10, -60, 10, 6);
-    ctx.fillStyle = '#8fd884';
-    ellipse(ctx, 0, -6, 60, 14);
+    if (sky) {
+      const g = ctx.createLinearGradient(0, -88, 0, -8);
+      g.addColorStop(0, '#9fd8ff');
+      g.addColorStop(1, '#e2f4ff');
+      ctx.fillStyle = g;
+      ctx.fillRect(-40, -88, 80, 80);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      const cx = ((t * 6) % 120) - 60;
+      ellipse(ctx, cx, -56, 14, 6);
+      ellipse(ctx, cx + 10, -60, 10, 6);
+      ctx.fillStyle = '#8fd884';
+      ellipse(ctx, 0, -6, 60, 14);
+    } else {
+      ctx.fillStyle = 'rgba(207,236,255,0.18)'; // a hint of glass, like the picture windows
+      ctx.fillRect(-40, -88, 80, 80);
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.fillRect(-32, -38, 4, 26);
+    }
     ctx.restore();
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(-2.5, -88, 5, 80);
@@ -717,7 +724,7 @@ export function drawPet(ctx, kind, x, y, facing, walking, time, seed = 0, mood =
 }
 for (const [k, def] of Object.entries(FURNITURE)) if (def.pet) DRAW[k] = (ctx, t) => drawPet(ctx, def.pet, 0, 0, 1, false, t);
 
-// arg: something a piece's drawing can take (the swing's seat angle)
+// arg: something a piece's drawing can take (the swing's seat angle; the window's pretend sky)
 export function drawFurniture(ctx, k, x, y, f, time = 0, arg) {
   const draw = DRAW[k];
   if (!draw) return;
@@ -739,7 +746,7 @@ export function furnitureIcon(k, size) {
   g.scale(dpr, dpr);
   g.translate(size / 2, size / 2 + (def.h * s) / 2);
   g.scale(s, s);
-  drawFurniture(g, k, 0, 0, false, 0);
+  drawFurniture(g, k, 0, 0, false, 0, k === 'window'); // (the window paints its pretend sky)
   return c;
 }
 

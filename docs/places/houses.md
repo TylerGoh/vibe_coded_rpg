@@ -63,6 +63,9 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
   pond, all sold in the store's garden corner) works inside too. Wall things only hang inside (`cleanLayout` and `snapPlacement` keep them there).
 - A picture window that a wall thing would cover isn't drawn (the wall stays solid behind a painting),
   so old layouts with paintings where the windows now are still look right.
+- The store's **Window** is see-through like the picture windows: `draw` cuts its glass out of the wall
+  clip too, and its art draws only the frame. The painted sky (the `window` drawing's `sky` argument) is
+  only for places with nothing behind to show: the store icon, the showroom, and the piece you're carrying.
 
 ## Owner decisions (2026-10-21): the swing is sittable, and pets
 - The swing's seat is a narrow perch (`seat` on its `FURNITURE` entry: a platform only slimes use, nothing

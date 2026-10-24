@@ -301,6 +301,8 @@ export class Houses {
     ctx.beginPath();
     ctx.rect(0, 0, inside, HOUSE_GROUND);
     for (const x of windows) ctx.roundRect(x, PANE_TOP, PANE, PANE_BOTTOM - PANE_TOP, [PANE / 2, PANE / 2, 8, 8]);
+    // the store's Windows are see-through too: their glass (furniture.js) cut out of the wall the same way
+    for (const it of layout.items) if (it.k === 'window') ctx.roundRect(it.x - 40, it.y - 88, 80, 80, [40, 40, 4, 4]);
     ctx.clip('evenodd');
     drawWallpaper(ctx, layout.wall, 0, inside, 0, HOUSE_GROUND);
     const dark = WALLPAPERS[layout.wall]?.kind === 'stars';
@@ -482,7 +484,7 @@ export class Houses {
     const { x, y } = this.where(this.ptr.x, this.ptr.y), def = FURNITURE[this.carry.k];
     ctx.save();
     ctx.globalAlpha = 0.72 + Math.sin(time * 6) * 0.12;
-    drawFurniture(ctx, this.carry.k, x, y, this.carry.f, time);
+    drawFurniture(ctx, this.carry.k, x, y, this.carry.f, time, this.carry.k === 'window'); // (a carried window shows a pretend sky: nothing's cut out yet)
     ctx.globalAlpha = 1;
     ctx.strokeStyle = '#ff8fb1';
     ctx.lineWidth = 2;

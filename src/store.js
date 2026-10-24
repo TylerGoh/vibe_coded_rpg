@@ -165,7 +165,7 @@ export class Store {
         ctx.roundRect(d.x - pw / 2 - 4, GROUND - PEDESTAL - (def.pet ? 7 : 4), pw + 8, def.pet ? 10 : 7, def.pet ? 5 : 0);
         ctx.fill();
       }
-      drawFurniture(ctx, d.k, d.x, d.y - (on ? 3 + Math.sin(time * 4) * 2 : 0), false, time);
+      drawFurniture(ctx, d.k, d.x, d.y - (on ? 3 + Math.sin(time * 4) * 2 : 0), false, time, d.k === 'window'); // (the showroom's window paints its pretend sky)
       this.drawTag(ctx, d, on);
     }
   }
