@@ -11,30 +11,27 @@ have a purpose AND are chattable with memory, narrow lore, rich personal lives (
 No quests, no hard level gates.
 
 ## Now, in this order (owner, 2026-10-24)
-1. S5, because the final bosses need its party mechanics.
-2. The final bosses for the two finished islands.
-3. Emberdeep's depth pass, ending with its own final boss.
-
-- [ ] **S5: bosses that need a party** (Taunt, pulses, curses, barriers, weak points, the interrupt), loot
-      by class, the status box, Cleanse (design: `progression.md` section 6; five pieces: `s5-plan.md`).
-  - [x] S5.1 + S5.2: the engine (shipped dark), Rally's taunt, Cleanse, the status box (live 2026-10-24)
-  - [x] S5.3: switch on the party dens (Root Warden, Sigrun) and tune them (live 2026-10-24)
-  - [ ] S5.4: the retrofit, a stage at a time. **Start here.**
-  - [x] S5.5: the Cleansing Tonic, the Barrier Draught, the loot check (live 2026-10-24)
-- [ ] **Final bosses** (owner, 2026-10-24; plan: `final-bosses.md`): one per island, very hard, about
-      30 minutes for four players at the recommended level (the boss's own level shown far higher). Far
-      deeper in: each pocket gets better, then a new deep room, a cinematic approach room, the den. Moves
-      in a designed order, written up for the owner first. After S5, ahead of Emberdeep.
-  - [ ] FB1: Greenhollow's, under the Thornheart (the Sunken Road, the Road's End)
-  - [ ] FB2: Frostpeak's, below the Blue Halls (the Old Ice, the Long Stair)
-- [ ] **Emberdeep's depth pass, E1–E5** (Lv 90–150; plan, map and settled decisions:
-      `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
-      `docs/places/branches.md`). E0 shipped.
-  - [ ] E1: the Ashwood (115–130) and the Black Sands (90–100, easy)
-  - [ ] E2: the Smoking Coast and the Drained Tubes (hard), the Hatchkeeper, Liv
-  - [ ] E3: the Brimstone Fields and the Old Foundry (hard)
-  - [ ] E4: the Caldera Rim and Brenna, Emberdeep's party den; Ignis's and Pyra's lines
-  - [ ] E5: Emberdeep's final boss (`final-bosses.md`), the pass's last phase
+1. **SP: the skill pool** (plan: `skills-plan.md`): more skills for every class, mobbing, long buffs,
+   passives that change play, staples at every advancement, casting from the K panel.
+   - [ ] SP1: under the hood (long buffs, fields, damage over time, on-kill hooks, pull, new summons), the
+         K panel's Cast button. Ships dark. **Start here.**
+   - [ ] SP2–SP5: the Warrior's, Mage's, Cleric's and Archer's new skills (side by side after SP1)
+   - [ ] SP6: the balance pass, then the owner plays
+2. **FB1: Greenhollow's final boss**, under the Thornheart (the Sunken Road, the Road's End). Plan:
+   `final-bosses.md`: very hard, about 30 minutes for four players at the recommended level (the boss's own
+   level shown far higher); each pocket gets better, then a new deep room, a cinematic approach room, the
+   den. Moves in a designed order, written up for the owner first.
+3. **S5.4 for Emberdeep**: the last of the retrofit (`s5-plan.md`; design: `progression.md` section 6).
+   S5.1–S5.3, S5.5 and S5.4's Greenhollow and Frostpeak parts are done.
+4. **FB2: Frostpeak's final boss**, below the Blue Halls (the Old Ice, the Long Stair).
+5. **Emberdeep's depth pass, E1–E4** (Lv 90–150; plan, map and settled decisions:
+   `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
+   `docs/places/branches.md`). E0 shipped.
+   - [ ] E1: the Ashwood (115–130) and the Black Sands (90–100, easy)
+   - [ ] E2: the Smoking Coast and the Drained Tubes (hard), the Hatchkeeper, Liv
+   - [ ] E3: the Brimstone Fields and the Old Foundry (hard)
+   - [ ] E4: the Caldera Rim and Brenna, Emberdeep's party den; Ignis's and Pyra's lines
+6. **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase.
 
 ## Next
 - [ ] **Atlas Phase 6: the climb** (after E4; can run alongside E5): the thermal column vista, the balloon crossing (Slag's

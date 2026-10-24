@@ -10,7 +10,7 @@ server actions in the `skills()` and `rebirth()` handlers of `server/rpg.js`.
 schedule.** All four classes are built: S2 (2026-10-23, in six pieces, plan archived in
 `story/archive/s2-plan.md`: the data and server, the K panel, the Rebirth Pool, the CLASSES tables in
 `docs/economy.md`, the Warrior's chase moves, the Mage's combos), the Cleric (S3) and the Archer (S4), each
-with its section below. Next for classes: S5's party mechanics (`story/s5-plan.md`; each class's answers are in
+with its section below. Next for classes: the bigger skill pool (`story/skills-plan.md`: new skills at every advancement, long buffs, casting from the K panel). Before that: S5's party mechanics (`story/s5-plan.md`; each class's answers are in
 `docs/combat/bosses.md`, "Every class's answers").
 
 ## Classes (S2)

@@ -1,6 +1,7 @@
 # Classes and progression: the S track
 
-**Status (2026-10-24): S0–S4, L and R shipped; S5 and S6 are next.** This is the design the class code is
+**Status (2026-10-24): S0–S4, L and R shipped; S5 is nearly done. Next: SP, the skill pool (`skills-plan.md`:
+more skills, mobbing, long buffs, staples at every advancement), then S6.** This is the design the class code is
 built on: code comments cite its section numbers (1b, 1c, 3–7, L1–L3), so keep them. The finished parts
 of the plan (the measurements that started it, L1–L3 in full, the migration, the settled decisions) are in
 `archive/progression-full.md`. How the classes work today: `docs/combat/skills.md`.
@@ -126,6 +127,8 @@ badly (potions, running, a much longer fight).
 | 4th | Lv 100 | the branch's capstone skill |
 | 5th | Lv 150 | mastery nodes: passives that change how skills behave (S6) |
 
+**Every advancement brings its own staples** (owner, 2026-10-24): a mobbing and a single-target skill per
+branch, plus long buffs and passives that change play (`skills-plan.md`).
 **No quests** (owner): an advancement opens at its level with a banner. The point schedule (owner, 2026-10-24): two points a level, capped at what's open (`spClass`,
 `spRoom`), so you can hold everything open and the hotbar is the limit.
 

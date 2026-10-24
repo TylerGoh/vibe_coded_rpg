@@ -1,0 +1,169 @@
+# SP: the skill pool (plan)
+
+**Status: plan, written 2026-10-24 (owner's ask). Nothing built.** Comes first on the roadmap, ahead of
+Greenhollow's final boss. Builds on the class design in `progression.md` (sections 1b, 1c, 3–7) and on how
+skills work today (`docs/combat/skills.md`). Read both first. Names here are working names; numbers live
+in `src/shared/skills.js` and are set by `npm run economy` (`CLASS_FIT`, `BAD_AT`), never guessed here.
+
+## The owner's ask (2026-10-24)
+- "It has very little skills." The pool is too small: most branches get one or two skills at Lv 60 and a
+  single capstone at Lv 100, and the Knight and the Cleric have no way to hit a crowd before Lv 100.
+- **Every class gets mobbing skills.** **Mages should be best at mobbing without moving around much.**
+- **Every class gets buffs and cool passives.**
+- **Every advancement brings its own staple skills**, so reaching Lv 30, 60 or 100 changes what's on
+  your hotbar, MapleStory style.
+- **The hotbar stays as it is: "I want the player to figure out how to do this."** No more slots and no
+  buff bar. Fitting more skills than slots is the player's puzzle: long buffs, the two setups (swapped
+  only from the Esc menu, unchanged), and the new casting from the K panel (below).
+- **"Let them cast directly from skills":** a skill can be cast from its card in the K panel without
+  being on the hotbar (below).
+
+## Rules for every new skill
+1. **Staples at every advancement.** Every branch, at each of Lv 30, 60 and 100, gets a **mobbing staple**
+   (hits a crowd) and a **single-target staple** (for bosses), each stronger than the tier before, so the new
+   one replaces the old on the hotbar. The basics (Lv 10) get the same pair. Where a branch already has a
+   skill that fills a slot, it stays and nothing new is added for that slot.
+2. **Each class mobs in its own way** (the "how it mobs" lines below). The Mage clears a pack from where it
+   stands: big areas at range, and fields that stay on the ground. The Warrior has to move into the pack, the
+   Archer clears in lines and volleys, and the Cleric uses summons and holy ground (slowest, never in danger).
+3. **Buffs are long** (minutes, not seconds): cast once before a fight, from the K panel if you like, so
+   they don't need a hotbar slot. Short combat buffs (Berserk, Rally) stay short; they're timing skills.
+   A long buff lasts through room changes and ends when you faint, change class or log off. Every class gets at
+   least one long buff that also helps friends nearby, so a party wants one of each class.
+4. **Passives change how you play, not only +%.** Examples: a kill refunds a cooldown, a dying mob
+   explodes, a stored hit gets released. Some plain +% passives stay where they already are; the new ones
+   should change what you do.
+5. **Reuse the existing kinds** (`strike`, `cleave`, `spin`, `storm`, `bolt`, `fireball`, `nova`, `chain`,
+   `meteor`, `starfall`, `shot`, `pierce`, `rain`, `summon`, `zone`, `buff`, `heal`, `barrier`) wherever one
+   fits. Only a few new kinds are needed: SP1 lists them.
+6. **No new hard counters.** A new skill can make a class better at its job, never the only answer to a
+   boss mechanic (`progression.md` section 6). Nothing moves your slime outside `step()`.
+7. **Identity from what you give up still holds.** With this many skills, `spRoom` grows, so the two points
+   a level no longer cover every rank at once. That's on purpose: you choose, then Reset all is free.
+
+## Casting from the K panel (owner)
+- The skill card in the K panel gets a **Cast** button next to + / − / Hotbar for every active skill you
+  hold. It sends the same `{t:'skill'}` the hotbar does (the server never checks the hotbar), so MP,
+  cooldowns, combat rooms only and every refusal work unchanged. Outside a combat room the button is greyed
+  ("Only in combat areas").
+- Desktop: double-clicking a node casts it too. Phones: the Cast button, 44 px like the others.
+- The panel stays open after casting (to cast three buffs in a row), and the node shows its cooldown sweep.
+- The point: buffs live in the tree, so the bar can be all attacks. Players work out their own setup.
+
+## The new skills, class by class
+"have" = already built and kept. **Bold** = new. Each row is one advancement. A dash means nothing new is
+needed there (or the skill is already in another column).
+
+### Warrior: how it mobs
+Into the pack: spins, slams and pulls, every one of them up close. The Knight gathers the pack (and taunts
+it) for the party; the Berserker gets inside it and carves it up. A Warrior moves the most of any class while
+mobbing, which is its "busy hands" (1c).
+
+| adv | mobbing staple | single-target staple | buff | passive |
+|---|---|---|---|---|
+| 10 basics | Cleave (have; more targets with rank) | Power Strike (have) | **War Cry**: long, +ATK for you and friends near | Iron Jelly, Jelly Thirst, Momentum (have); the chase moves (have) |
+| 30 Knight | **Ground Shake**: slams the floor; every mob around is dragged a little toward you and taunted | **Shield Bash**: a hit that stuns an ordinary mob briefly | Rally, Jelly Bubble (have) | Vitality, Second Wind (have) |
+| 60 Knight | **Shockwave**: a wave along the floor both ways, hitting everything on your platform | **Holy Lance**: a long thrust through the first two mobs | Sanctuary (have) | **Retribution**: damage you take while Rally is up is stored; your next Shield Bash lets it out |
+| 100 Knight | **Judgement**: light falls on every mob in a wide circle round you and they all turn on you | Aegis stays the capstone | **Guardian's Oath**: long, friends near take less damage and you take a share of it | **Unbroken**: +DEF for every mob attacking you |
+| 30 Berserker | Whirlwind (have) | **Rending Slash**: a hit that leaves the mob bleeding | Berserk (have) | **Bloodlust**: below half HP you hit harder and Jelly Thirst heals double |
+| 60 Berserker | Blade Storm (have) | **Execution**: huge against a mob low on HP; a kill refunds its cooldown | - | Sword Mastery (have); **Frenzy**: kills add time to Berserk |
+| 100 Berserker | **Cyclone**: for a few seconds you're a spinning blade, hitting everything you run through | Sky Splitter (have) | - | **Rampage**: Momentum stacks higher, and Whirlwind and Blade Storm add stacks too |
+
+**Hook** (proposed in 1c) goes in the Warrior's basics as a fifth chase move: Down + Dash toward a mob
+yanks you to it. For the Knight, Ground Shake does the pulling.
+
+### Mage: how it mobs
+From where it stands. Its mobbing spells land at range on the pack, or plant a field the pack has to walk
+into, so a Mage holds a spot while the others run around. That's what it pays for with the least HP.
+
+| adv | mobbing staple | single-target staple | buff | passive |
+|---|---|---|---|---|
+| 10 basics | **Arcane Burst**: a burst on the first mob ahead that hits everything near it (arcane: spends Arcane Charge, no element) | Magic Bolt (have) | **Arcane Insight**: long, +MAGIC for you and friends near | Mana Flow, Arcane Mind, Arcane Charge (have); Mana Shield (have) |
+| 30 Elementalist | Fireball (have); **Fire Wall**: a wall of fire planted ahead for a few seconds, burning everything that walks through | **Flame Lance**: a fast, hard bolt that burns | - | **Ignite**: a burning mob that dies bursts, setting the mobs near it alight |
+| 60 Elementalist | Meteor (have) | **Combustion**: sets off a mob's burn all at once | - | Kindling (have) |
+| 100 Elementalist | Starfall (have) | **Phoenix**: a firebird circles you and dives at mobs for a while | - | - |
+| 30 Frostbinder | Frost Nova, Chain Lightning (have) | **Frost Bolt**: a cheap chilling bolt, so a Frostbinder freezes on its own from Lv 30 (today it can't until Glacial Spike at 60) | **Frost Armor**: long, +DEF, and mobs that touch you are chilled | - |
+| 60 Frostbinder | **Blizzard**: a storm planted at range for several seconds, hitting and chilling everything inside it | Glacial Spike (have) | - | **Cold Snap**: a frozen mob that dies bursts into ice, chilling everything near |
+| 100 Frostbinder | Absolute Zero (have) | **Thunder Call**: one huge storm bolt that then chains (storm: it spreads burns) | - | **Static**: storm hits leave a charge; frost on a charged mob freezes it straight away |
+
+Ignite and Cold Snap make a Mage's packs chain-react, which is how it mobs better without moving. Fire Wall
+and Blizzard are its "hold this spot" fields.
+
+### Cleric: how it mobs
+Summons and holy ground. Its spirits and zones do the clearing while the Cleric heals. It's the slowest at
+clearing, but it never dies (1b). Every damage skill also heals a little, so attacking is never wasted.
+
+| adv | mobbing staple | single-target staple | buff | passive |
+|---|---|---|---|---|
+| 10 basics | **Radiance**: light around you that hurts every mob near and heals every friend near a little | Smite (have) | **Blessing**: long, +max HP and a little ATK and MAGIC for you and friends near | Faith (have); Jelly Heal, Jelly Spirit, Cleanse (have) |
+| 30 Priest | **Sacred Light**: a column of light on a group at range; heals you for each mob it hits | Smite stays | Mend, Lantern Wisp (have) | **Devotion**: overhealing turns into a small barrier |
+| 60 Priest | **Consecration**: holy ground for a while; mobs on it are hurt, friends on it healed | **Judgment**: a holy bolt that hits harder the more friends near are hurt | **Holy Symbol** (owner decision below) | Revive, Holy Power (have) |
+| 100 Priest | **Genesis**: light falls on every mob in the room | - | Miracle (have) | - |
+| 30 Warden | **Sprites**: three little spirits, each going after a different mob | - | Guardian Totem, Barrier (have) | **Warding Totem**: your totem pulses damage at mobs near it |
+| 60 Warden | - | **Stone Guardian**: a golem summon that taunts and slams the mob in front of it | **Resolve**: long, friends near take less damage while they stand near your summons | Spirit Bond (have) |
+| 100 Warden | Seraph (have) | - | - | **Host**: one more of every summon at a time |
+
+### Archer: how it mobs
+In lines and volleys, on the move. Arrows go through a row of mobs or rain on a pack at range, and the
+Archer keeps shifting to get its angle. Still worse at swarms than a Mage (1b): a Mage's fields keep hitting,
+an Archer's volleys come and go.
+
+| adv | mobbing staple | single-target staple | buff | passive |
+|---|---|---|---|---|
+| 10 basics | **Spread Shot**: a fan of three arrows, one at each of the first three mobs ahead | Double Shot (have) | **Focus**: long, +ATK and crit with a bow | Keen Eye, Steady Hands, Evasion (have); Retreat Shot (have) |
+| 30 Sniper | Piercing Arrow (have) | Snipe (have) | - | **Ricochet**: an arrow that kills jumps on to the next mob |
+| 60 Sniper | **Splitting Arrow**: bursts into a fan when it hits, catching the mobs behind | Hunter's Mark (have) | **Sharp Eyes**: long, + crit for you and friends near | Deadeye (have) |
+| 100 Sniper | Heartseeker (have) | - | - | **Eagle Eye**: a Snipe from past `FAR_PX` always crits |
+| 30 Trapper | Arrow Rain (have) | **Poison Arrow**: a hit that leaves poison ticking | - | Net Trap (have) |
+| 60 Trapper | **Blast Trap**: a trap that explodes on the pack that walks over it | - | - | Barbed Arrows, Trap Mastery (have) |
+| 100 Trapper | Thousand Arrows (have) | **Hawk**: a hawk summon that dives at whatever you're shooting | - | **Huntmaster**: your traps and your hawk hit harder on a slowed or netted mob |
+
+### Mobility
+No change. Mobility stays shared and small: movement is in `step()`, and the classes' own movement (the
+Warrior's chase moves, Hook) is where new moves go.
+
+## What's new under the hood (SP1 builds these)
+- **Long buffs**: a `buff` with a `party` radius and minutes-long `dur`, kept on the server player like
+  `*Until` today, fed to `statsFor` (so the hit caps follow), shown in the status box, cleared on faint, class
+  change and logoff. Many buffs from different players can stack (one of each kind).
+- **Fields**: `kind: 'field'`, an area on the ground that hits whatever is inside every tick for a while
+  (Fire Wall, Blizzard, Consecration, Radiance's lingering version). Server-run like burns and Mend; drawn for
+  the room.
+- **Damage over time** in general: today's burn tick (`BURN_*`) widened to bleed (Rending Slash) and poison
+  (Poison Arrow), each with its own colour of numbers. Bleed and poison don't take part in the Mage's combos.
+- **On-kill passives** (Ignite, Cold Snap, Execution, Ricochet, Frenzy): a hook where `damage()` kills a mob.
+- **Pull**: Ground Shake moves mobs (server-side mob positions, no player physics), never a boss.
+- **New summons** on the Cleric's summon code: phoenix, sprites, stone guardian, hawk, blast trap.
+- **Cast from the K panel** (above).
+- The skill tree panel gets more nodes per row: the layout must still fit at 667×375 on a phone
+  (`docs/ui/mobile.md`).
+
+## The pieces (one agent each, a dev copy each; `Agent.md`)
+| piece | what | needs |
+|---|---|---|
+| SP1 | Under the hood (above), the K panel's Cast button and its bigger rows, the status box lines. Ships dark: no new skill learnable yet. | - |
+| SP2 | Warrior skills, Hook included | SP1 |
+| SP3 | Mage skills | SP1 |
+| SP4 | Cleric skills | SP1 |
+| SP5 | Archer skills | SP1 |
+| SP6 | Balance pass: all four at once in `npm run economy`, then the owner plays | SP2–SP5 |
+
+SP2–SP5 touch different parts of `SKILLS` and their own effects. They can run side by side, but `src/shared/skills.js`
+is shared, so they merge one at a time. Each one deploys on its own: a class at a time is fine (the others
+are untouched). No skill points are lost: new ranks only add to `spRoom`.
+
+## Economy and balance (every piece)
+- **Mobbing is a faucet.** The sheet's farming assumes `KILLS_PER_MIN`; strong mobbing skills raise what
+  players really kill a minute, which is EXP and gold. Each piece checks the CLASSES tables and says how far
+  a full-pack clear moves the kill rate. If it moves a lot, `KILLS_PER_MIN` (or mob counts) is retuned rather
+  than letting levels race, and the reply says so (`docs/economy.md`).
+- `CLASS_FIT` and `BAD_AT` stay green: equal power, different shape. The Mage should top the mobbing table,
+  the Cleric be last at mobbing but first at staying alive, the Archer top single-target at range.
+- Party buffs stack across classes on purpose (a full party should feel strong), but S5's party dens and the
+  final bosses are tuned with them on.
+
+## Open decisions for the owner
+- **Holy Symbol**: MapleStory's version gives the party more EXP. That's a faucet (`progression.md`
+  principles: "close the faucet before adding rewards"). The plan's default: it gives +MAGIC and +ATK instead,
+  unless the owner wants the EXP version.
+- Names are working names: rename freely.
