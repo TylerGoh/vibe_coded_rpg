@@ -253,7 +253,7 @@ Docs: `docs/places/spine.md`, `docs/places/queensbridge.md`, `docs/combat/bosses
 - **The interrupt is tested now**: a Frostbinder with Glacial Spike then Frost Nova into Absolute Zero's warning.
 - `TEST_BOSS_HP` with a den that still counts two fighters from an earlier run: a den boss keeps `m.fighters` after
   people leave (until it resets), so a "solo" check right after a duo isn't one. Use a fresh server or another den.
-- Economy: only RETROFIT moved (`docs/economy.md`): barriers hit a no-Mage duo hardest (+26% on Glacia).
+- Economy: only RETROFIT moved (`docs/economy.md`): barriers hit a no-Mage duo hardest (+26% on Glacia, +15% on the Astral Wyrm; owner OK'd, 2026-10-24, like the armour).
 - Not tried: people, den adds' bigger waves, a Narwhal fight from behind.
 
 Docs: `docs/combat/bosses.md`, `docs/combat/stages.md` (field bosses), each boss's place doc.
