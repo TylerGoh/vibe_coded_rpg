@@ -1726,7 +1726,7 @@ export class Rpg {
     const d = document.createElement('p');
     const e = sel.e ?? {}, gear = isGear(sel.id);
     const bonus = [['atk', 'ATK'], ['magic', 'MAGIC'], ['def', 'DEF'], ['hp', 'HP']].filter(([k]) => e[k]).map(([k, n]) => `${n} +${e[k]}`).join(', ');
-    d.textContent = it.desc + (it.atk ? ` ATK +${it.atk}.` : '') + (it.kind === 'sword' ? ` Reach +${it.reach}.` : '') + (it.magic && it.kind === 'staff' ? ` MAGIC +${it.magic}, MP +${it.mp}. Fires a bolt instead of swinging (${STAFF_BOLT_RANGE + it.reach} px).` : '') + (it.kind === 'bow' ? ` Shoots arrows instead of swinging (${BOW_RANGE + it.reach} px). Archers aim with DEX.` : '') + (it.def ? ` DEF +${it.def}.` : '')
+    d.textContent = it.desc + (it.atk ? ` ATK +${it.atk}.` : '') + (it.kind === 'sword' ? ` Reach +${it.reach}.` : '') + (it.magic && it.kind === 'staff' ? ` MAGIC +${it.magic}, MP +${it.mp}. Fires a bolt instead of swinging. Range ${STAFF_BOLT_RANGE + it.reach}.` : '') + (it.kind === 'bow' ? ` Shoots arrows instead of swinging. Range ${BOW_RANGE + it.reach}. Archers aim with DEX.` : '') + (it.def ? ` DEF +${it.def}.` : '')
       + (gear ? ` Upgrade slots: ${slotsOf(sel.id) - (e.u ?? 0)} of ${slotsOf(sel.id)} left${bonus ? ` (scrolled: ${bonus})` : ''}.` : '')
       + (it.price ? ` Sells for ${sellPrice(sel.id)} gold.` : '')
       + (it.legacy ? ' Legacy: the old version, from before Frostpeak, Emberdeep and the Aether Citadel grew stronger. It works as it always did, but nothing drops it any more.' : '');

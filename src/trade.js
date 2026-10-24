@@ -18,7 +18,7 @@ export function itemDetail(x) {
   if (it.magic) parts.push(`MAGIC +${it.magic}`);
   if (it.def) parts.push(`DEF +${it.def}`);
   if (it.kind === 'sword') parts.push(`Reach +${it.reach}`);
-  if (it.kind === 'staff' || it.kind === 'bow') parts.push(`Range ${(it.kind === 'staff' ? STAFF_BOLT_RANGE : BOW_RANGE) + it.reach} px`);
+  if (it.kind === 'staff' || it.kind === 'bow') parts.push(`Range ${(it.kind === 'staff' ? STAFF_BOLT_RANGE : BOW_RANGE) + it.reach}`);
   if (it.lvl) parts.push(`Lv ${it.lvl}`);
   if (it.legacy) parts.push('Legacy');
   const bonus = [['atk', 'ATK'], ['magic', 'MAGIC'], ['def', 'DEF'], ['hp', 'HP']].filter(([k]) => e[k]).map(([k, n]) => `${n} +${e[k]}`).join(', ');

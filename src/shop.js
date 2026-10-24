@@ -36,7 +36,7 @@ export function statChips(id, e) {
     const st = gearStats(id, e);
     out.push(KIND_NAME[it.kind]);
     for (const [k, n] of STAT_ROWS) if (st[k]) out.push(`${n} +${st[k]}`);
-    if (it.kind !== 'helmet' && st.range) out.push(it.kind === 'sword' ? `Reach +${st.range}` : `Range ${st.range} px`);
+    if (it.kind !== 'helmet' && st.range) out.push(it.kind === 'sword' ? `Reach +${st.range}` : `Range ${st.range}`);
     if (it.lvl ?? it.aim) out.push(`Lv ${it.lvl ?? it.aim}`);
     const left = slotsOf(id) - (e?.u ?? 0);
     out.push(e?.u ? `${left}/${slotsOf(id)} slots left` : `${slotsOf(id)} upgrade slots`);
