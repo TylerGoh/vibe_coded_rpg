@@ -1774,23 +1774,15 @@ body.touch .skc-btns .sk-bar {
   color: #8a6a4a;
   font-size: calc(11px * var(--s));
 }
-.shop-cmp,
 .shop-warn {
   margin-top: calc(2px * var(--s));
   color: #8a7a6b;
   font-size: calc(11px * var(--s));
 }
-.shop-cmp .up {
-  color: #3f9a55;
-}
-.shop-cmp .down {
-  color: #d0575b;
-}
 .shop-warn {
   color: #d0575b;
 }
 body.touch .shop-stats span,
-body.touch .shop-cmp,
 body.touch .shop-warn {
   font-size: calc(13px * var(--s));
 }

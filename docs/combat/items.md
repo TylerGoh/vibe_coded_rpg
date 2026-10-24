@@ -124,9 +124,9 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
 ## Shop previews (owner, 2026-10-24)
 - Every shop and trader (they all use `Shop` in `src/shop.js`) shows each piece of gear's numbers as chips
   under its name (`statChips`: kind, ATK / MAGIC / MP / DEF, a sword's reach or a staff's or bow's range in
-  px, the `lvl` it's made for, upgrade slots), and on the Buy tab a line comparing it with what you wear in
-  that slot (`compareToWorn`: green ups, red downs, your worn piece counted with its scroll bonuses), plus a
-  red note when your class can't wield it. The Sell tab's chips include the item's own scroll bonuses.
+  px, the `lvl` it's made for, upgrade slots), and on the Buy tab a red note when your class can't wield it
+  (`cantWield`). A line comparing each item with what you wear shipped first and was taken out the same
+  day (owner: it made the shop confusing); don't bring it back without asking. The Sell tab's chips include the item's own scroll bonuses.
 - `lvl` is not a requirement (anyone can equip anything their class wields): the chip just says what level
   it's aimed at. Potions and pet food get no chips: their descriptions already say their numbers.
 
