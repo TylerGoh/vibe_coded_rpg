@@ -64,8 +64,13 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
 server zeroes its inputs and the client sends none), then `wakeUp()` puts it in **its town** (the last
 town it was in: `TOWNS`, `docs/world.md`; Slimeville or Icefang Hamlet) with full HP, minus a slice of a
 level's EXP. `placeAt` keeps its house door working (waking up used to shut it until the next login).
-With a Cleric holding Revive ready in the room, the faint lasts `REVIVE_WAIT` instead, so it can be got back
-up where it fell with no EXP lost (`docs/combat/skills.md`, the Cleric). Regen is slow in combat rooms (none right after a hit), fast
+In a combat room the faint doesn't end by itself (owner, 2026-10-24: so everyone gets used to Revive):
+`faintUntil` is `Infinity`, the puddle stays, and a "Wake up in town" card (`#wake`, main.js; works on touch)
+sends `{t:'wake'}` (`rpg.wake`, ignored in the first `FAINT_MS`). Until then a Cleric can get it back up where
+it fell with no EXP lost (`docs/combat/skills.md`, the Cleric). Closing the game while down wakes you up in
+town (EXP lost), so quitting isn't a free respawn; a takeover (reload) keeps you down, and `entered` re-sends
+`{t:'faint', down, quiet}` for everyone lying in the room so newcomers see the puddles (and Revive can find
+them). `{t:'woke'}` clears a puddle. A den counts as empty (the boss heals up) when nobody in it is standing. Regen is slow in combat rooms (none right after a hit), fast
 elsewhere.
 
 ## HUD and bag

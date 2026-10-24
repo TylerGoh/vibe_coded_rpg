@@ -162,6 +162,7 @@ const net = new Net(wsUrl, {
     slimes.set(id, s);
   },
   onLeave(id) {
+    if (slimes.has(id)) unsplat(slimes.get(id));
     slimes.delete(id);
     voice.close(id);
     voice.setCast(id, false);
@@ -218,14 +219,21 @@ const net = new Net(wsUrl, {
       if (s) Object.assign(s, { hp: m.hp, maxHp: m.max, hpAt: time }); // a little HP bar over them for a while
       if (isCombat(room)) rpg.hurt(s?.visible || s === mine ? s : null, m.dmg, m.id === net.id);
     } else if (m.t === 'faint') {
+      // down: knocked out in a combat room, a puddle until it wakes up in town or a Cleric revives it
+      // (quiet: it already was, we just arrived; the frame loop draws it from s.down)
       const s = m.id === net.id ? mine : slimes.get(m.id);
-      if (s && isCombat(room) && (s === mine || s.visible)) splat(s, m.id === net.id, m.wait);
-      if (m.wait && m.id === net.id) rpg.toast(`Hold on: a Cleric can revive you (${m.wait} s)`);
+      if (s) s.down = !!m.down;
+      if (s && !m.quiet && isCombat(room) && (s === mine || s.visible)) splat(s, m.id === net.id, m.down ? Infinity : 0);
+    } else if (m.t === 'woke') {
+      const s = m.id === net.id ? mine : slimes.get(m.id);
+      if (s) unsplat(s);
     } else {
       if (m.t === 'guard') return rpg.guard(m, m.id === net.id ? mine : slimes.get(m.id), m.id === net.id);
       rpg.receive(m, { mine, myId: net.id, slimeOf: (id) => (id === net.id ? mine : slimes.get(id)) });
       if (m.t === 'me') {
         if (mine) {
+          if (!m.down && mine.down) unsplat(mine); // revived (or woke up)
+          mine.down = !!m.down;
           mine.setLook(m);
           Object.assign(mine, { lvl: m.lvl, pvp: m.pvp });
           // our buffs and shields, as the server sees them (in rpg.time)
@@ -488,11 +496,17 @@ const SKILL_KIND = (id) => ({ power_strike: 'strike', sky_splitter: 'strike', cl
 // ——— fainting: the slime goes splat into a puddle of its own jelly (then wakes up in the village) ———
 const SPLAT_TIME = 1.6;
 const splats = []; // { s, x, y, at, seed, life }
-// wait: seconds it stays down for a Cleric's Revive (S3), instead of SPLAT_TIME
-function splat(s, isMe, wait) {
-  s.splatAt = time;
+// knocked out in a combat room: stay down for a Cleric's Revive, or wake up in town (EXP lost as usual)
+const wakeBox = document.getElementById('wake');
+document.getElementById('wake-go').addEventListener('click', () => net.sendNpc({ t: 'wake' }));
+// wait: Infinity while it lies knocked out in a combat room (s.down), instead of SPLAT_TIME; quiet: no
+// burst or sound (it was already down when we arrived)
+function splat(s, isMe, wait, quiet = false) {
+  dropSplats(s);
+  s.splatAt = quiet ? time - SPLAT_TIME : time;
   s.splatFor = wait || SPLAT_TIME;
-  splats.push({ s, x: s.x, y: s.y, at: time, seed: Math.random() * 100, life: s.splatFor });
+  splats.push({ s, x: s.x, y: s.y, at: s.splatAt, seed: Math.random() * 100, life: s.splatFor });
+  if (quiet) return;
   for (let i = 0; i < 16; i++) {
     particles.add({ x: s.x + rand(-14, 14), y: s.y - rand(8, 26), vx: rand(-260, 260), vy: rand(-430, -150), g: 1100, size: rand(3, 7), color: i % 3 ? s.palette.top : s.palette.bottom, life: rand(0.5, 0.9) });
   }
@@ -501,9 +515,13 @@ function splat(s, isMe, wait) {
   if (isMe) held.clear();
 }
 const splatted = (s) => s.splatAt !== undefined && time - s.splatAt < (s.splatFor ?? SPLAT_TIME);
-// a Cleric got s back up where it fell (Revive, Miracle): no more puddle
+// a Cleric got s back up where it fell (Revive, Miracle), or it woke up in town: no more puddle
 function unsplat(s) {
   s.splatAt = undefined;
+  s.down = false;
+  dropSplats(s);
+}
+function dropSplats(s) {
   for (let i = splats.length - 1; i >= 0; i--) if (splats[i].s === s) splats.splice(i, 1);
 }
 rpg.onRevived = (id) => {
@@ -519,6 +537,7 @@ function drawSplats() {
       splats.splice(i, 1);
       continue;
     }
+    if (p.s !== mine && !p.s.visible) continue; // (in another room: there again when we come back)
     const pal = p.s.palette, spread = 1 - (1 - settle) ** 3; // splats out fast, then settles
     ctx.save();
     ctx.globalAlpha = Math.min(1, (1 - k) * 4);
@@ -1262,6 +1281,9 @@ function update(realDt) {
     focusX = WORLD_W / 2 + Math.sin(time * 0.08) * (WORLD_W / 2 - W / 2); // slow pan behind the title
     preview.animate(dt, { x: 0, y: 0, vx: 0, vy: 0, grounded: true, facing: 1 });
   }
+  // knocked out in a combat room: a puddle where they lie (also for anyone already down when we arrived)
+  if (isCombat(room)) for (const s of [mine, ...slimes.values()]) if (s?.down && (s === mine ? online() : s.visible) && !splatted(s)) splat(s, s === mine, Infinity, true);
+  wakeBox.hidden = !(online() && mine.down && splatted(mine) && time - mine.splatAt > SPLAT_TIME);
   const target = clamp(focusX - W / 2, 0, roomDef(room).width + (roomDef(room).viewPad ?? 0) - W); // viewPad: the cliffs look out past their edge
   camX += (target - camX) * (joined ? Math.min(1, dt * 8) : 1);
   particles.update(dt);

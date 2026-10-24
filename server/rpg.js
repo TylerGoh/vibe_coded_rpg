@@ -13,7 +13,7 @@
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
 import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost } from '../src/shared/rpg.js';
-import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, healOf, classNames, BONK_MULT, BONK_REACH, BONK_HEAL, BONK_HEAL_R, REVIVE_WAIT, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn } from '../src/shared/skills.js';
+import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, healOf, classNames, BONK_MULT, BONK_REACH, BONK_HEAL, BONK_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
@@ -265,7 +265,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const c = p.rpg, st = stats(p);
     p.dirty = true;
     send(p.ws, {
-      t: 'me', lvl: c.lvl, exp: c.exp, next: expToNext(c.lvl), hp: Math.ceil(c.hp), maxHp: st.maxHp, mp: Math.floor(c.mp), maxMp: st.maxMp,
+      t: 'me', down: p.faintUntil === Infinity ? 1 : undefined, lvl: c.lvl, exp: c.exp, next: expToNext(c.lvl), hp: Math.ceil(c.hp), maxHp: st.maxHp, mp: Math.floor(c.mp), maxMp: st.maxMp,
       coins: c.coins, bag: c.bag, gear: c.gear, gearE: c.gearE, atk: st.atk, magic: st.magic, heal: st.heal, def: st.def, skills: c.skills, sp: spFree(c), spLeft: spLeft(c), cls: c.cls, reborn: c.reborn,
       hotbar: c.hotbar, potbar: c.potbar, alt: c.alt, set: c.set, pvp: c.pvp, crit: st.crit, critMult: st.critMult, minRoll: st.minRoll,
       ap: c.ap, apLeft: apTotal(c.lvl) - apSpent(c.ap),
@@ -330,12 +330,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     p.momentum = null;
     p.arcane = null;
     p.barrier = p.mend = null;
-    // a Cleric here holding Revive (or Miracle) ready: stay down REVIVE_WAIT s for it, instead of waking in town
-    const t = now(), wait = isCombat(p.state.room) && inRoom(p.state.room).some(([, q]) => q !== p && !q.faintUntil && q.rpg.cls === 'cleric' && ['revive', 'miracle'].some((k) => rankOf(q.rpg.skills, k) && (q.cds?.[k] ?? 0) - t < REVIVE_WAIT * 1000));
-    p.faintUntil = t + (wait ? REVIVE_WAIT * 1000 : FAINT_MS); // inputs are ignored meanwhile (index.js)
+    // in a combat room you stay down where you fell until you ask to wake up in town ({t:'wake'}), so a
+    // Cleric can come and Revive you (owner, 2026-10-24: get everyone used to that); elsewhere, a moment
+    const t = now(), down = isCombat(p.state.room);
+    p.faintUntil = down ? Infinity : t + FAINT_MS; // inputs are ignored meanwhile (index.js)
+    p.faintAt = t;
     p.faintBy = by;
     for (const m of mobs) if (m.target === p) m.target = null;
-    toRoom(p.state.room)({ t: 'faint', id, by, wait: wait ? REVIVE_WAIT : undefined });
+    toRoom(p.state.room)({ t: 'faint', id, by, down: down ? 1 : undefined });
     sendMe(p);
   }
   // Challenge the Gods ran out with you still standing: healed to full
@@ -348,8 +350,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     toast(p, 'You stared down the gods and lived. Healed to full!');
     sendMe(p);
   }
-  function wakeUp(p) {
+  function wakeUp(id, p) {
     const c = p.rpg;
+    toRoom(p.state.room)({ t: 'woke', id }); // (the puddle where you fell goes)
     const lost = Math.min(c.exp, Math.floor(expToNext(c.lvl) * 0.1));
     c.exp -= lost;
     c.hp = stats(p).maxHp;
@@ -1488,8 +1491,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
           Object.assign(m, { hp: MOBS[m.kind].hp, maxHp: MOBS[m.kind].hp, fighters: 1, hitters: new Map(), dmg: new Map(), heal: new Map(), taken: new Map(), dmgDirty: true }); // left alone: it heals up (and the damage meter starts over)
         }
         if (m.den) {
-          m.emptyFor = here.length ? 0 : m.emptyFor + dt;
-          if (m.emptyFor > 8 && (m.hp < m.maxHp || m.fighters > 1 || m.enraged)) resetBoss(m); // everyone left: it heals up
+          m.emptyFor = here.some(([, q]) => !q.faintUntil) ? 0 : m.emptyFor + dt; // (knocked-out slimes lying there don't count)
+          if (m.emptyFor > 8 && (m.hp < m.maxHp || m.fighters > 1 || m.enraged)) resetBoss(m); // everyone left (or is down): it heals up
         }
         if (here.length) stepMob(m, here, dt);
       }
@@ -1557,7 +1560,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
           toRoom(m.room)({ t: 'bossdmg', id: m.id, kind: m.kind, d: rows(m.dmg), h: m.heal.size ? rows(m.heal) : undefined, k: m.taken.size ? rows(m.taken) : undefined });
         }
       }
-      for (const p of players.values()) if (p.faintUntil && t >= p.faintUntil) wakeUp(p);
+      for (const [pid, p] of players) if (p.faintUntil && t >= p.faintUntil) wakeUp(pid, p);
       for (const [pid, p] of players) if (p.godsUntil && t >= p.godsUntil) godsEnd(pid, p);
       // Momentum: gone after MOMENTUM_STILL s standing still (or when its time runs out)
       for (const p of players.values()) {
@@ -1591,10 +1594,19 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       }
     },
 
+    // → {t:'wake'} while knocked out in a combat room: give up waiting for a Cleric and wake up in town
+    // (not in the first FAINT_MS, so a held click doesn't skip the splat). Closing the game does it too.
+    wake(id, p, quit = false) {
+      if (p.faintUntil !== Infinity || (!quit && now() - (p.faintAt ?? 0) < FAINT_MS)) return;
+      wakeUp(id, p);
+    },
+
     entered(p) {
       // a one-time message on joining (the rollback, classes arriving); news: which one, for a banner
       if (p.notice) send(p.ws, { t: 'notice', text: p.notice, news: p.news ?? undefined });
       p.notice = p.news = null;
+      // who's lying knocked out in here (you too, after a reload): drawn as puddles, and Revive can reach them
+      for (const [qid, q] of inRoom(p.state.room)) if (q.faintUntil === Infinity) send(p.ws, { t: 'faint', id: qid, down: 1, quiet: 1 });
       if (isCombat(p.state.room)) send(p.ws, lootMsg(p.state.room));
       const boss = mobs.find((m) => m.den && m.room === p.state.room && !m.dead), enter = boss && MOBS[boss.kind].lines?.enter;
       if (enter) bossSays(boss, pick(enter), p);

@@ -75,8 +75,9 @@
 //       someone, a Cleric's Barrier broke ('barrier') or soaked a whole hit ('soak')
 //   ← {t:'loot', l:[[id, item, n, x, y]]}  everything on the room's ground, whenever it changes
 //   ← {t:'hurt', id, dmg, hp, max, by?}  a mob (or `by`, a slapping friend) hit a slime (to its room)
-//   ← {t:'faint', id, by?, wait?}  a slime hit 0 HP: it splats, and wakes up in its town 1.6 s later (wait: s it stays
-//       down instead, for a Cleric's Revive) · ← {t:'got', item, n}  you picked something up
+//   ← {t:'faint', id, by?, down?, quiet?}  a slime hit 0 HP: it splats, and wakes up in its town a moment later; down: in a
+//       combat room it stays down until it sends → {t:'wake'} (or a Cleric revives it); quiet: it was already down (you
+//       just arrived) · ← {t:'woke', id}  a knocked-out slime woke up in town (its puddle goes) · ← {t:'got', item, n}  you picked something up
 //   ← {t:'gear', id, gear, lvl, up?}  to everyone, when someone's gear or level changes (join/welcome carry it too)
 //   ← {t:'toast', text}  a short notice just for you
 //   ← {t:'notice', text, news?}  a one-time message on joining (a toast and a chat line: the levelling rollback;
@@ -383,6 +384,8 @@ wss.on('connection', (ws) => {
       rpg.skills(id, p, m);
     } else if ((m.t === 'buy' || m.t === 'sell' || m.t === 'buycos') && p.joined) {
       rpg.shop(id, p, m);
+    } else if (m.t === 'wake' && p.joined) {
+      rpg.wake(id, p);
     } else if (m.t === 'way' && p.joined) {
       rpg.way(id, p, m);
     } else if (m.t === 'house-set' && p.joined) {
@@ -442,6 +445,7 @@ wss.on('connection', (ws) => {
     }
   });
   ws.on('close', () => {
+    if (p.joined) rpg.wake(id, p, true); // knocked out: closing the game wakes you up in town (EXP lost as usual)
     players.delete(id);
     if (p.joined) rpg.save(p);
     if (p.joined && online.get(p.name) === id) {
@@ -566,6 +570,7 @@ async function login(id, p, m) {
     p.rpg = old.rpg; // same character, mid-fight
     p.hurtAt = old.hurtAt;
     p.faintUntil = old.faintUntil;
+    p.faintAt = old.faintAt;
     p.faintBy = old.faintBy;
     p.hist = old.hist ?? []; // (lag compensation history: without it the next tick crashed)
     p.cds = old.cds ?? {};

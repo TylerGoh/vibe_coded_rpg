@@ -235,6 +235,41 @@ canvas {
   color: #2b4a3a;
 }
 
+/* knocked out in a combat room (main.js): wait for a Cleric's Revive, or wake up in town */
+#wake {
+  position: absolute;
+  top: calc(330px * var(--s));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: calc(10px * var(--s));
+  padding: calc(6px * var(--s)) calc(8px * var(--s)) calc(6px * var(--s)) calc(16px * var(--s));
+  border-radius: 999px;
+  background: rgba(91, 74, 107, 0.92);
+  color: #ffffff;
+  font: 700 calc(16px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  white-space: nowrap;
+  box-shadow: 0 calc(3px * var(--s)) calc(10px * var(--s)) rgba(0, 0, 0, 0.25);
+}
+
+#wake[hidden] {
+  display: none;
+}
+
+#wake button {
+  height: calc(40px * var(--s));
+  padding: 0 calc(16px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #ffd38a;
+  color: #5b4a6b;
+  font: 700 calc(16px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+  outline: none;
+}
+
 #mic[hidden],
 #cast[hidden] {
   display: none;

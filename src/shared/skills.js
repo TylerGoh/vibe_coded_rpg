@@ -330,7 +330,7 @@ export const SKILLS = {
   revive: {
     ...C, branch: 'priest', adv: 60, name: 'Revive', kind: 'revive', max: 3, mp: 40, radius: 220,
     cdFor: (r) => [0, 90, 70, 50][r], share: (r) => 0.2 + 0.1 * r,
-    desc: (r) => `Get every knocked-out friend within range 220 back up where they fell, with ${pct(0.2 + 0.1 * Math.max(1, r))} of their HP and no EXP lost. While you have it ready, friends who faint near you wait ${REVIVE_WAIT} s for you before waking up in town. Cooldown ${[0, 90, 70, 50][Math.max(1, r)]} s.`,
+    desc: (r) => `Get every knocked-out friend within range 220 back up where they fell, with ${pct(0.2 + 0.1 * Math.max(1, r))} of their HP and no EXP lost. Friends knocked out in a combat room stay down where they fell until they choose to wake up in town. Cooldown ${[0, 90, 70, 50][Math.max(1, r)]} s.`,
   },
   holy_power: {
     ...C, branch: 'priest', adv: 60, name: 'Holy Power', kind: 'passive', max: 5,
@@ -498,9 +498,6 @@ export const BONK_MULT = 0.7, BONK_REACH = 18, BONK_HEAL = 0.4, BONK_HEAL_R = 32
 export const SPIRIT_SEEK = 520, SPIRIT_SPEED = 240, SPIRIT_HIT_S = 1, SPIRIT_TAUNT = 240, SERAPH_TAUNT = 420, SERAPH_R = 150;
 export const SUMMON_TOUCH = 0.5, SUMMON_HURT_S = 0.8, BOSS_SUMMON_REACH = 140, BOSS_SUMMON_HIT = 1.3, BOSS_SUMMON_S = 1.2, ULT_SUMMON = 0.5;
 export const WISP_R = 150, WISP_TICK = 1, BOND_TWO = 3;
-// Revive: a slime that faints in a combat room where a Cleric is holding Revive (or Miracle) ready stays down
-// REVIVE_WAIT s (instead of waking in town at once), so the Cleric can get it back up
-export const REVIVE_WAIT = 8;
 // ——— the Archer (S4, story/progression.md 4) ———
 // With a bow DEX is the main stat: +0.6 ATK and BOW_DEX_HP max HP a point (STR's job for a sword; statsFor)
 // Keen Eye: +KEEN_RANGE px of bow range a rank · Steady Hands: +STEADY attack a rank · Evasion: EVADE a rank to

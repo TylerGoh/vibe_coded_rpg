@@ -229,9 +229,10 @@ and in a party its heals, shields and summons matter more than its damage. Rules
   for its `dur`, before Mana Shield; **a boss ultimate breaks it instead of knocking you out**, the "shield
   before the big hit" moment; guards `'soak'` and `'barrier'`), Spirit Bond (summons' HP and damage; two
   Jelly Spirits from `BOND_TWO`), then the Seraph.
-- **Revive**: when a slime faints in a combat room where a Cleric holds Revive or Miracle ready (cooling
-  down for less than `REVIVE_WAIT`), its faint lasts `REVIVE_WAIT` s instead of the usual moment
-  (`{t:'faint', wait}`: the puddle stays, and the fainted player is told to hold on). Revive gets every
+- **Revive**: a slime knocked out in a combat room stays down until its player chooses to wake up in town
+  (`{t:'faint', down}`; `docs/combat/core.md`, Fainting), Cleric or no Cleric. (It used to wait only when a
+  Cleric with Revive ready was in the room, and only a few seconds; the owner made staying down the default
+  so players learn to wait for one.) Revive gets every
   knocked-out slime within its radius up where it fell with `share(rank)` of its HP and no EXP lost; the
   client won't cast it with nobody down (`rpg.downNear`, from main.js's splats), and neither will the
   server. The skill echo's `revived` clears their puddles (`rpg.onRevived` → `unsplat`).

@@ -161,8 +161,6 @@
 - **Cleanse** (`story/progression.md` 5): nothing puts a curse on a slime yet, so it waits for S5's curses,
   with the potion backups (a Cleansing Tonic, a Barrier Draught at the alchemy lab).
 - **The Clerics' trader** (`[proposed]`: Auntie Clover or Elder Mochi), and boss drops by class (S5).
-- Revive: a knocked-out slime can't choose to wake up in town early while a Cleric could still revive it
-  (it's `REVIVE_WAIT` s at most). A "Wake up now" button if that annoys anyone.
 - Summons only touch combat: the spirits don't climb (they float to the mob's height), they don't dodge, and
   a boss's aimed moves go at them but its room-wide ones still hit the slimes (as intended). Untested with
   people: whether a spirit holding a boss feels right, whether the wisp's +1s are noise, and whether the
