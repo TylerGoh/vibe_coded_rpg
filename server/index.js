@@ -136,6 +136,7 @@
 //   ← {t:'furni', owned, bought?}  the furniture you own (at login, and after → {t:'furni-buy', k} in the store)
 //   farming and alchemy (docs/places/alchemy.md): the house message also carries farm: {plot id: [crop, ms left]}
 //   → {t:'plant', plot, crop} · → {t:'harvest', plot} ← {t:'harvested', item, n}  (your own garden plots)
+//   → {t:'chest', put: bag slot | take: chest slot, n?}  at the storage chest in your own house (→ me)
 //   → {t:'brew', steps, n}  at an alchemy lab ← {t:'brewed', id, item, n, ok}  to the room
 //   pets (docs/places/pets.md): the house message also carries pets: {pet id: [ms until its belly is empty, ms a
 //   full belly lasts]}; pets are bought with furni-buy in the Pet Shop · → {t:'pet-feed', id, item}  one portion
@@ -428,6 +429,8 @@ wss.on('connection', (ws) => {
       houses.harvest(p, m);
     } else if (m.t === 'pet-feed' && p.joined && Number.isInteger(m.id) && typeof m.item === 'string') {
       houses.feed(p, m);
+    } else if (m.t === 'chest' && p.joined) {
+      if (houses.atChest(p)) rpg.chest(p, m);
     } else if (m.t === 'brew' && p.joined) {
       if (houses.atLab(p)) rpg.brew(id, p, m);
     } else if (m.t === 'invite' && p.joined) {

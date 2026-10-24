@@ -6,7 +6,7 @@
 // in after a start (room ids are only for this run of the server; layouts are saved by username).
 import { DatabaseSync } from 'node:sqlite';
 import { HOUSE_BASE, HOUSE_EXIT_X, isHouse, roomDef, setHouseRoom, placeAt, STORE, TOWNS, townOf } from '../src/shared/sim.js';
-import { cleanLayout, cleanOwned, placed, houseRoom, DEFAULT_LAYOUT, HOUSE_SIZES, STARTER, FURNITURE, PET_STARVE_MS, PET_ROAM, PET_REACH, PET_MOODS, petMood } from '../src/shared/house.js';
+import { cleanLayout, cleanOwned, placed, houseRoom, DEFAULT_LAYOUT, HOUSE_SIZES, STARTER, FURNITURE, CHEST_REACH, PET_STARVE_MS, PET_ROAM, PET_REACH, PET_MOODS, petMood } from '../src/shared/house.js';
 import { CROPS, PLOT_REACH, LAB_REACH, GIFT } from '../src/shared/alchemy.js';
 import { ITEMS, PETSHOP } from '../src/shared/rpg.js';
 
@@ -199,6 +199,12 @@ export function createHouses({ dbPath, players, send, toRoom, pay, give, take })
     atLab(p) {
       const h = owners.get(p.state.room);
       return !!h?.layout.items.some((it) => it.k === 'alchemy_lab' && Math.abs(it.x - p.state.x) < LAB_REACH + 20);
+    },
+
+    // p is standing at the storage chest in their own house (only your own: it holds your things)
+    atChest(p) {
+      const h = owners.get(p.state.room);
+      return h?.user === p.name && h.layout.items.some((it) => it.k === 'chest' && Math.abs(it.x - p.state.x) < CHEST_REACH + 20);
     },
 
     // → {t:'plant', plot, crop}: plant a seed in one of your own empty plots (the seed is paid for here)

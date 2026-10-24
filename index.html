@@ -187,6 +187,15 @@
         <div id="seeds-list"></div>
         <button id="seeds-close" type="button" aria-label="Close">✕</button>
       </div>
+      <div id="chest" role="dialog" aria-label="Storage chest" hidden>
+        <h2>Storage chest</h2>
+        <div class="ch-cols">
+          <div class="ch-col"><h3>Bag <span id="chest-bag-n"></span></h3><div id="chest-bag" class="ch-grid"></div></div>
+          <div class="ch-col"><h3>Chest <span id="chest-n"></span></h3><div id="chest-box" class="ch-grid"></div></div>
+        </div>
+        <p class="ch-help">Tap something to move it to the other side. <button id="chest-one" type="button"></button></p>
+        <button id="chest-close" type="button" aria-label="Close">✕</button>
+      </div>
       <div id="petcard" role="dialog" aria-label="A pet" hidden>
         <h2 id="pet-name"></h2>
         <p id="pet-mood"></p>

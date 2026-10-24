@@ -2266,6 +2266,7 @@ export function rollScroll(scrollId, itemId, e, rnd = Math.random) {
   return { ok: true, boom: false, e: next };
 }
 export const BAG_SLOTS = 24;
+export const CHEST_SLOTS = BAG_SLOTS; // the storage chest at home holds as much as the bag (owner, 2026-10-25)
 // can this drop be picked up into bag? Coins never take a slot; a stack joins its own kind; else a free slot
 export const lootFits = (bag, item) => item === 'coin' || (STACKS(item) && bag.some((b) => b.id === item)) || bag.length < BAG_SLOTS;
 

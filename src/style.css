@@ -3603,3 +3603,101 @@ body.touch .st {
 body.touch .st-tip {
   top: calc(38px * var(--s));
 }
+
+/* ——— the storage chest at home (src/chest.js): docs/places/houses.md ——— */
+#chest[hidden] {
+  display: none;
+}
+#chest {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--s));
+  padding: calc(12px * var(--s)) calc(16px * var(--s));
+  border: calc(4px * var(--s)) solid #d9a46c;
+  border-radius: calc(18px * var(--s));
+  background: #fffdf6;
+  color: #3a3550;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  box-shadow: 0 calc(6px * var(--s)) 0 rgba(91, 74, 107, 0.2);
+  z-index: 5;
+}
+#chest h2 {
+  margin: 0;
+  font-size: calc(20px * var(--s));
+  color: #a8794f;
+}
+.ch-cols {
+  display: flex;
+  gap: calc(12px * var(--s));
+}
+.ch-col {
+  padding: calc(6px * var(--s)) calc(8px * var(--s));
+  border-radius: calc(12px * var(--s));
+  background: #f6efe4;
+}
+.ch-col h3 {
+  margin: 0 0 calc(6px * var(--s));
+  font-size: calc(15px * var(--s));
+  color: #7a5fc0;
+}
+.ch-col h3 span {
+  margin-left: calc(6px * var(--s));
+  font-size: calc(12px * var(--s));
+  color: #8a7a9b;
+}
+.ch-grid {
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  gap: calc(4px * var(--s));
+}
+.tr-slot.empty {
+  background: #faf6ef;
+  border-style: dashed;
+  cursor: default;
+}
+.ch-help {
+  margin: 0;
+  color: #8a7a9b;
+  font-size: calc(12px * var(--s));
+  text-align: center;
+}
+#chest-one {
+  margin-left: calc(6px * var(--s));
+  padding: calc(3px * var(--s)) calc(10px * var(--s));
+  border: none;
+  border-radius: calc(10px * var(--s));
+  background: #e9e3f2;
+  color: #5b4a6b;
+  font: 700 calc(12px * var(--s)) Fredoka, sans-serif;
+  cursor: pointer;
+}
+#chest-one.on {
+  background: #ffb43c;
+  color: #fff;
+}
+#chest-close {
+  position: absolute;
+  top: calc(10px * var(--s));
+  right: calc(12px * var(--s));
+  width: calc(30px * var(--s));
+  height: calc(30px * var(--s));
+  border: none;
+  border-radius: 50%;
+  background: #f1e6d6;
+  color: #7a6a8b;
+  font-size: calc(15px * var(--s));
+  cursor: pointer;
+}
+/* phones: bigger slots (from the trade window's .tr-slot rules), the whole canvas height */
+body.touch #chest {
+  top: calc(8px * var(--s));
+  transform: translateX(-50%);
+}
+body.touch #chest-one {
+  padding: calc(8px * var(--s)) calc(14px * var(--s));
+}

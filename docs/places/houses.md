@@ -2,7 +2,7 @@
 
 Files: `src/shared/house.js` (`HOUSE_SIZES`, furniture catalogue, wallpapers, floors, layout format,
 `cleanLayout`, `houseRoom`, `snapPlacement`), `src/house.js` (drawing the room and the garden, decorating,
-the Expand button), `src/furniture.js` (every furniture drawing, wallpapers, floors), `src/players.js` (the
+the Expand button), `src/furniture.js` (every furniture drawing, wallpapers, floors), `src/chest.js` (the storage chest's panel), `src/players.js` (the
 Players panel and the invite card), `server/house.js` (house rooms, saved layouts, owned furniture, buying it, invites, sending guests
 home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its shop window in the village). Physics hooks in `src/shared/sim.js` (`roomDef`, `setHouseRoom`, `HOUSE_BASE`, `HOME`).
 
@@ -73,6 +73,21 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
   clip too, and its art draws only the frame. The painted sky (the `window` drawing's `sky` argument) is
   only for places with nothing behind to show: the store icon, the showroom, and the piece you're carrying.
 
+## Owner decisions (2026-10-25): the storage chest, a second bag
+- Every house has a **storage chest** that is always placed down (owner's words): the `chest` piece in
+  `FURNITURE`, marked `fixed`. Everyone owns exactly one (`cleanOwned`), it isn't sold (no `sec`, so it's not
+  in the showroom; `npm run economy` leaves it out), and `cleanLayout` always keeps exactly one in the
+  layout, putting one at `CHEST_X` in houses that have none (so every old house got one by itself). It's
+  hidden from the decorate panel's row; you can pick it up and move it, but Put away refuses. Picking it up
+  only lifts it locally (no `house-set` until it's put down), since the server would put it straight back.
+- It holds `CHEST_SLOTS` (= `BAG_SLOTS`, "the same slots as the player"), the same entries as the bag (stacks,
+  scrolled gear with its `e`). The contents live **on the character** (`chest` in `rpg_chars`, sanitised in
+  `load()`, sent in `me`), not in the house row.
+- E at it (within `CHEST_REACH`, only in your own house: guests see it but can't open it) opens the panel:
+  bag on the left, chest on the right, tap moves a whole stack to the other side; "Moving: one at a time"
+  (or Shift-click) moves one. `{t:'chest', put | take, n?}`: `atChest` in `server/house.js` checks you're at
+  your own chest, `chest()` in `server/rpg.js` moves it (a stack joins its own kind; a full side gets a toast).
+
 ## Owner decisions (2026-10-21): the swing is sittable, and pets
 - The swing's seat is a narrow perch (`seat` on its `FURNITURE` entry: a platform only slimes use, nothing
   can be put on it). Hop on and you swing with the seat, harder than its idle sway (`swingFor` in
@@ -114,7 +129,7 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
 
 ## Decorating (R, or the Decorate button, in your own house)
 - A panel at the top: icons of the furniture you own with how many are put away (scroll sideways; the
-  mouse wheel works), Wallpaper / Floor / View cycle styles, Flip (F), Put away (Delete), Send guests home, Done (R / Esc). Click a piece in the room to pick it
+  mouse wheel works; the chest isn't there, it's always out), Wallpaper / Floor / View cycle styles, Flip (F), Put away (Delete), Send guests home, Done (R / Esc). Click a piece in the room to pick it
   up; click / tap where it goes. Floor pieces snap onto the highest furniture top at or below the pointer
   (`snapPlacement`); wall pieces hang where you point; rugs stay on the floor.
 - Walking and doors keep working while decorating (the panel isn't an "overlay", so the touch pad stays).

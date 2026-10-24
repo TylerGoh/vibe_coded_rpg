@@ -133,7 +133,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
 | [docs/places/piano.md](docs/places/piano.md) | the Music House floor piano |
 | [docs/places/museum.md](docs/places/museum.md) | the history museum and its content |
-| [docs/places/houses.md](docs/places/houses.md) | personal houses, the furniture store, the backyard, expanding, decorating, pets, the swing, the Players panel, invites |
+| [docs/places/houses.md](docs/places/houses.md) | personal houses, the furniture store, the backyard, expanding, decorating, the storage chest (second bag), pets, the swing, the Players panel, invites |
 | [docs/places/harbour.md](docs/places/harbour.md) | Greenhollow Harbour, the lighthouse, Captain Brine, the far-off islands drawn in every sky |
 | [docs/places/crossings.md](docs/places/crossings.md) | crossing rooms (the ferry's and the Lodestar's decks), the voyage clock `state.vt`, boarding (the Set sail card), route themes, the future balloon |
 | [docs/places/fjord.md](docs/places/fjord.md) | Icefang Fjord and Icefang Hamlet (Frostpeak's landing town), Skaldi, Runa and her shop, Tove, the fjord folk's look, the Lodestar's berth |

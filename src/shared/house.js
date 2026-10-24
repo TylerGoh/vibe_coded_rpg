@@ -34,7 +34,8 @@ export const WALL_TOP = 64; // below the ceiling beams: wall things hang between
 // yard has no wall) · 'floor' stands on the floor (or the grass) or on top of other furniture. top: the
 // height of its flat top, which becomes a one-way platform you can stand (and put things) on. yard: only
 // goes in the backyard, on the grass. seat: { top, w } a narrow perch only slimes use (the swing's seat:
-// nothing can be put on it). pet: a mini boss that roams the house (PETS, below).
+// nothing can be put on it). pet: a mini boss that roams the house (PETS, below). fixed: every house has
+// exactly one, always out (it can be moved, never put away, never sold): the storage chest.
 export const FURNITURE = {
   bed: { name: 'Bed', price: 8000, sec: 'Bedroom', w: 150, h: 70, layer: 'floor', top: 44 },
   sofa: { name: 'Sofa', price: 6000, sec: 'Living room', w: 140, h: 66, layer: 'floor', top: 34 },
@@ -74,7 +75,13 @@ export const FURNITURE = {
   // farming and alchemy (docs/places/alchemy.md): every house gets a couple free (GIFT in shared/alchemy.js)
   garden_plot: { name: 'Garden plot', price: 600, sec: 'Farm & lab', w: 110, h: 30, layer: 'floor', yard: true },
   alchemy_lab: { name: 'Alchemy lab', price: 3500, sec: 'Farm & lab', w: 140, h: 120, layer: 'floor' },
+  // the storage chest: your second bag (CHEST_SLOTS in rpg.js; its contents are kept with your character,
+  // server/rpg.js `chest`). Not in the store
+  chest: { name: 'Storage chest', price: 0, w: 88, h: 60, layer: 'floor', top: 56, fixed: true },
 };
+export const FIXED = Object.keys(FURNITURE).filter((k) => FURNITURE[k].fixed);
+export const CHEST_REACH = 70; // how near the chest you must be to open it
+export const CHEST_X = 285; // where a house that has no chest yet gets one
 
 // Pets: mini versions of the bosses, sold at the Pet Shop (PET_DISPLAY, below) and placed like furniture
 // (they stand on the floor, where they're put, then wander off around the house: src/house.js). Prestige
@@ -132,6 +139,7 @@ export const DEFAULT_LAYOUT = {
   size: 0, wall: 0, floor: 0, view: 0,
   items: [
     { k: 'clock', x: 160, y: 250, f: false },
+    { k: 'chest', x: CHEST_X, y: HOUSE_GROUND, f: false },
     { k: 'rug', x: 470, y: HOUSE_GROUND, f: false },
     { k: 'bed', x: 800, y: HOUSE_GROUND, f: true },
     { k: 'plushie', x: 830, y: HOUSE_GROUND - 44, f: true },
@@ -164,6 +172,7 @@ export function placed(layout) {
 export function cleanOwned(o) {
   const out = {};
   for (const [k, v] of Object.entries(o ?? {})) if (FURNITURE[k] && v > 0) out[k] = Math.min(999, Math.floor(v));
+  for (const k of FIXED) out[k] = 1; // (everyone owns exactly one chest)
   return out;
 }
 
@@ -179,13 +188,17 @@ const xRange = (def, size) => {
 // A layout from the wire (or the DB), made safe: known pieces only, inside the house (wall things on the
 // wall), at most its size's `pieces`, and (given `owned`) no more of a piece than its owner has bought.
 // Plot and pet ids are kept (one piece per id: a repeat loses it, and the server sorts it out).
+// The fixed pieces (the chest) are always there, exactly once: a layout without one gets it at CHEST_X.
 export function cleanLayout(l, owned) {
   const size = index(l?.size, HOUSE_SIZES.length), { pieces } = HOUSE_SIZES[size];
   const items = [], used = {}, ids = new Set();
-  for (const it of Array.isArray(l?.items) ? l.items : []) {
+  const given = Array.isArray(l?.items) ? l.items : [];
+  // (fixed pieces go first, so a full house still has room for them: the first one of each, or a new one)
+  const fixed = FIXED.map((k) => given.find((it) => it?.k === k) ?? { k, x: CHEST_X, y: HOUSE_GROUND, f: false });
+  for (const it of [...fixed, ...given.filter((it) => !FURNITURE[it?.k]?.fixed)]) {
     const def = FURNITURE[it?.k];
     if (!def || items.length >= pieces) continue;
-    if (owned && (used[it.k] = (used[it.k] ?? 0) + 1) > (owned[it.k] ?? 0)) continue;
+    if (owned && !def.fixed && (used[it.k] = (used[it.k] ?? 0) + 1) > (owned[it.k] ?? 0)) continue;
     const [x0, x1] = xRange(def, size);
     const out = {
       k: it.k,

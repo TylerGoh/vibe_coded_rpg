@@ -99,6 +99,7 @@ elsewhere.
   Sword; tap to select, tap again to equip/use; "Put on hotbar" for potions; Drop only in combat rooms;
   scrolls get "Use on …" (`docs/combat/items.md`). The bag's left column holds the stats
   (`docs/combat/skills.md`), and its Style row the cosmetics.
+- The storage chest at home is a second bag of `CHEST_SLOTS` (`chest` on the character): `docs/places/houses.md`.
 
 ## Characters (table `rpg_chars`)
 - One JSON blob per user. `load()` in `server/rpg.js` sanitises every field (unknown items/skills dropped,

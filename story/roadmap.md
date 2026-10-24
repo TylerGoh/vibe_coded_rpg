@@ -18,7 +18,12 @@ No quests, no hard level gates.
    - [x] SP2: the Warrior's new skills (live 2026-10-25)
    - [x] SP3: the Mage's new skills (live 2026-10-25)
    - [ ] SP4–SP5: the Cleric's and Archer's new skills, one at a time (owner: tokens). **Start here: SP4.**
-   - [ ] SP6: the balance pass, then the owner plays
+         SP5 (owner, 2026-10-25): attack speed is one of the Archer's core features, so one of its perks is
+         **holding the attack button down to keep firing** instead of spamming it (desktop and touch).
+   - [ ] SP6: the balance pass, then the owner plays. Owner (2026-10-25), for this rebalance: **every boss
+         attack does a % of the target's max HP plus a flat amount**, so being far over-levelled never makes
+         a boss harmless (today a boss hit is flat damage less DEF: `hurt()` in `server/rpg.js`). Price the
+         % against each class's HP and the healers, and keep ultimates the worst hits.
 2. **FB1: Greenhollow's final boss**, under the Thornheart (the Sunken Road, the Road's End). Plan:
    `final-bosses.md`: very hard, about 30 minutes for four players at the recommended level (the boss's own
    level shown far higher); each pocket gets better, then a new deep room, a cinematic approach room, the

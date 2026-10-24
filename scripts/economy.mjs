@@ -144,7 +144,8 @@ const sinks = [
   ...Object.values(COSMETICS).map((c) => ({ what: `boutique: ${c.name}`, price: c.price })),
   ...HOUSE_SIZES.slice(1).map((s) => ({ what: `house: ${s.name}`, price: s.price, aim: s.aim, band: 'house' })),
 ];
-const furniture = Object.entries(FURNITURE).filter(([, f]) => !f.pet).sort((a, b) => a[1].price - b[1].price);
+// (not the free chest every house has: it isn't sold)
+const furniture = Object.entries(FURNITURE).filter(([, f]) => !f.pet && !f.fixed).sort((a, b) => a[1].price - b[1].price);
 // pets (mini bosses, sold at the Pet Shop) are prestige buys priced against boss kills, not furniture
 const pets = Object.entries(FURNITURE).filter(([, f]) => f.pet).sort((a, b) => a[1].price - b[1].price);
 // and they eat: a full belly (food 1) lasts PET_STARVE_MS. Upkeep a day, fed the cheapest way:

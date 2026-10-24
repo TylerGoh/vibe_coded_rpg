@@ -711,6 +711,34 @@ const DRAW = {
     ctx.fill();
     rr(ctx, -6, -69, 20, 4, 2, '#e8e0d4');
   },
+  chest(ctx) {
+    // the storage chest: a wooden box with a rounded lid, gold bands and a heart-shaped latch
+    const GOLD = '#f0c25a', GOLD_DARK = '#c99a2e';
+    rr(ctx, -40, -6, 12, 6, 2, WOOD_DARK); // feet
+    rr(ctx, 28, -6, 12, 6, 2, WOOD_DARK);
+    rr(ctx, -42, -40, 84, 36, 6, WOOD); // the box
+    ctx.fillStyle = WOOD_DARK;
+    for (const y of [-28, -16]) ctx.fillRect(-40, y, 80, 2); // planks
+    rr(ctx, -44, -58, 88, 20, [14, 14, 4, 4], mix(WOOD, WOOD_DARK, 0.35)); // the lid
+    rr(ctx, -44, -42, 88, 5, 2, WOOD_DARK); // the lid's rim
+    for (const x of [-30, 24]) {
+      rr(ctx, x, -58, 6, 20, [3, 3, 0, 0], GOLD); // bands over the lid
+      rr(ctx, x, -37, 6, 33, 2, GOLD); // and down the box
+    }
+    rr(ctx, -42, -6, 84, 4, 2, GOLD_DARK);
+    // the latch: a little gold heart with a keyhole
+    ctx.fillStyle = GOLD;
+    ctx.beginPath();
+    ctx.moveTo(0, -26);
+    ctx.bezierCurveTo(-11, -33, -8, -45, 0, -40);
+    ctx.bezierCurveTo(8, -45, 11, -33, 0, -26);
+    ctx.fill();
+    ctx.fillStyle = INK;
+    circle(ctx, 0, -36, 2);
+    ctx.fillRect(-1, -36, 2, 5);
+    shine(ctx, -22, -53, 12, 3, 0.4);
+    shine(ctx, -26, -34, 8, 2, 0.25);
+  },
 };
 
 // Pets (FURNITURE entries with `pet`): the boss's own art, shrunk. Standing still unless src/house.js walks it.

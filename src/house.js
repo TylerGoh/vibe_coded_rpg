@@ -173,7 +173,7 @@ export class Houses {
     let spare = 0;
     for (const b of this.grid.children) {
       const k = b.dataset.k, free = (this.owned[k] ?? 0) - (use[k] ?? 0);
-      b.hidden = !this.owned[k];
+      b.hidden = !this.owned[k] || !!FURNITURE[k].fixed; // (the chest is always out: nothing to pick)
       b.disabled = free <= 0;
       b.lastChild.textContent = free;
       b.title = `${FURNITURE[k].name} · ${free} put away`;
@@ -219,6 +219,10 @@ export class Houses {
   }
   remove() {
     if (!this.carry) return;
+    if (FURNITURE[this.carry.k].fixed) {
+      this.note.textContent = `The ${FURNITURE[this.carry.k].name.toLowerCase()} always stays in your house: put it down somewhere`;
+      return audio.sfx('error');
+    }
     this.carry = null; // (a moved piece is already out of the layout)
     audio.sfx('reset', { vol: 0.6 });
     this.showNote();
@@ -259,7 +263,8 @@ export class Houses {
     if (this.carry) {
       const { x: px, y: py } = this.where(x, y);
       const id = this.carry.from?.it.id; // (a garden plot keeps its number, and so its crop)
-      const items = [...this.layout.items, { k: this.carry.k, x: px, y: py, f: this.carry.f, ...(id ? { id } : {}) }];
+      const k = this.carry.k, others = FURNITURE[k].fixed ? this.layout.items.filter((it) => it.k !== k) : this.layout.items;
+      const items = [...others, { k, x: px, y: py, f: this.carry.f, ...(id ? { id } : {}) }];
       this.carry = null;
       this.commit({ ...this.layout, items });
       audio.sfx('equip', { vol: 0.6 });
@@ -274,7 +279,9 @@ export class Houses {
       const i = this.layout.items.indexOf(it);
       const items = this.layout.items.filter((_, n) => n !== i);
       this.carry = { k: it.k, f: it.f, from: { i, it } };
-      this.commit({ ...this.layout, items });
+      // (the chest is only lifted here: the server's copy keeps it where it was until it's put down)
+      if (def.fixed) this.receive({ room: this.room, owner: this.me(), layout: { ...this.layout, items } });
+      else this.commit({ ...this.layout, items });
       audio.sfx('pickup', { vol: 0.6 });
       this.showNote();
       return;
