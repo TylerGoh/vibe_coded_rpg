@@ -235,11 +235,6 @@ canvas {
   color: #2b4a3a;
 }
 
-#update-later {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-}
-
 #mic[hidden],
 #cast[hidden] {
   display: none;

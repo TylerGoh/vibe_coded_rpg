@@ -15,7 +15,6 @@ function buildOf(text) {
 }
 
 const box = document.getElementById('update');
-let later = null; // the build the player said "Later" to: don't nag again until a newer one
 
 const RESUME = 'slimeville-resume';
 let creds = () => null;
@@ -41,15 +40,9 @@ document.getElementById('update-go').addEventListener('click', () => {
   } catch {}
   location.reload();
 });
-document.getElementById('update-later').addEventListener('click', (e) => {
-  e.currentTarget.blur(); // (so the game's keys go back to the game)
-  box.hidden = true;
-  later = box.dataset.build;
-});
 
 // Called with the welcome's `build`. Dev mode (vite's /src/ scripts) and old servers have no build: skip.
 export function checkBuild(build) {
-  if (!build || !MINE || build === MINE || build === later) return;
-  box.dataset.build = build;
+  if (!build || !MINE || build === MINE) return;
   box.hidden = false;
 }
