@@ -27,7 +27,7 @@ Order is by level. Names are the game's current ones.
   the threads stopped carrying anything out to sea. Her lines (MOBS.knotmole.lines) are a cold, lonely
   creature's grip. Freed, she lets go, and the glow runs off under the sea again: a quiet hint that the
   net links the islands.
-- **The Root Warden** (The Warden's Court, Keeper's Spine; shipped G5; Greenhollow's capstone). A Keeper
+- **The Root Warden** (The Warden's Court, Keeper's Spine; shipped G5; Greenhollow's party den). A Keeper
   guardian of grey stone, set at the end of the high road to hold a sealed gate "until we come again". The
   Keepers never came. The roots (the ones that run under all the land, west toward the village and the
   apple tree, though it never says so) grew up through every joint, and the shard lodged in its back keeps
@@ -44,7 +44,7 @@ Order is by level. Names are the game's current ones.
 - **Astral Wyrm** (Starfall Sanctum). The star-serpent sailors once steered by. It was knocked out of the
   sky in the Stopped Hour and crashed into the summit, and the stars went wrong with it. Beaten, it rises
   back to the sky, the stars return, and ships can navigate the long voyage south.
-- **Sigrun, the Queen's Shield** (The Seam, at the crack in the Queen's Bridge; Frostpeak's capstone, shipped
+- **Sigrun, the Queen's Shield** (The Seam, at the crack in the Queen's Bridge; Frostpeak's party den, shipped
   F4). Glacia's sworn guard and the captain of her guard, fjord folk frozen half to ice. Glacia froze the
   strait to hold on; Sigrun swore to hold what her queen held, and goes on freezing the crack shut every night
   though her queen has let go: the harder Glacia story, holding on to someone else's holding on. Her guards

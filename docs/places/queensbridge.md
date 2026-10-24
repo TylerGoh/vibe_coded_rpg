@@ -37,10 +37,10 @@ gates left.
   `shell` (a round shield of ice in front: hit it from behind; the Queen's guards, frozen half-solid, still on
   watch) · hoarfrost shade = `phase` (`fly` 44) · leopard seal = `blink` (down a crack, up behind you; drawn as
   a hole with whiskers while gone) · rime archer = `lob`, `style: 'javelin'` (`src/hazards.js`).
-- No elites (not a hard pocket) and no field boss: the capstone den is the danger, as on Keeper's Spine.
+- No elites (not a hard pocket) and no field boss: the party den is the danger, as on Keeper's Spine.
 
 ## Sigrun, the Queen's Shield (The Seam, den 43)
-Frostpeak's **capstone** boss (Lv 100), with a story (`story/characters/bosses.md`): Glacia's sworn guard,
+Frostpeak's **party den** boss (Lv 100; the island's second-strongest, after the final boss to come: `story/final-bosses.md`), with a story (`story/characters/bosses.md`): Glacia's sworn guard,
 fjord folk frozen half to ice, who still freezes the crack shut every night though her queen has let go.
 The harder Glacia story: holding on to someone else's holding on. Her `lines` are an oath nobody released her
 from; freed, she stops mending it ("Cross while it lasts"). No world change after a kill (like the Root

@@ -1,7 +1,7 @@
 # Emberdeep's depth plan: the south (atlas Phase 5 and the E track)
 
 **Approved by the owner 2026-10-23, with every default below** ("all these look good"). E0 shipped the same
-day (`docs/places/forgehold.md`). It covers what happens after Frostpeak's capstone (F4): atlas Phase 5 (the
+day (`docs/places/forgehold.md`). It covers what happens after Frostpeak's party den (F4): atlas Phase 5 (the
 Steam Straits, the landing and its town) and then Emberdeep's depth pass, the same way `island-depth.md`
 did Greenhollow and Frostpeak. It follows that file's owner direction and "deep" checklist; read them
 first. Places, mobs, bosses and people below are `[proposed]` until they ship; anything the owner has to
@@ -71,7 +71,7 @@ off the town (below); the town itself stays safe.
 
 ## Emberdeep's map `[proposed]`
 ```
-                               [the Caldera Rim 135-150] -- Brenna, the Last Bearer (capstone den)
+                               [the Caldera Rim 135-150] -- Brenna, the Last Bearer (party den)
                                           |  the Bearers' stair
                                [the Brimstone Fields 125-140]
                                           |  up the cone's flank            (the thermal column:
@@ -146,9 +146,9 @@ free ones below `HOUSE_BASE` after F4.
 - **The Caldera Rim** (the heart, 135–150): the volcano's rim round the crater: wind, a turquoise crater
   lake far down, the column roaring up from the vent, and the Citadel circling close overhead. Rim goats
   (passive, hop), crag rocs (`dive`), glass scorpions (`shell`), heat shimmers (`phase`), pumice puffs
-  (`split`). No elites and no field boss: the capstone is the danger (like Keeper's Spine). No trader. Keeper
+  (`split`). No elites and no field boss: the party den is the danger (like Keeper's Spine). No trader. Keeper
   stone: **the Hoist Stone**, every island's road meeting at a city on the ground, and a gear going up the
-  road. Find: **the Bearer's Seat**, where you can watch the Citadel pass. **Capstone den: the Bearer's
+  road. Find: **the Bearer's Seat**, where you can watch the Citadel pass. **Party den: the Bearer's
   Hoist**, Brenna (below).
 - **The thermal column** (vista, atlas Phase 6): the balloon's launch, by the skylift at Magma Heart's
   east end. Not built in the E track; its balloon is the visible-but-blocked thing for Phase 6.
@@ -177,7 +177,7 @@ look and a line. Move the stories into `../characters/bosses.md` when they ship.
   never leaves her. Holding on to her young (the same story as Eyvind and Liv, from the other side).
   Freed, the eggs hatch and the little ones run down to the sea. Ultimate from the landscape: the sand
   boils except in the tide-wet patches (reuse `spores`' safe circles). Minions: marine iguanas.
-- **Brenna, the Last Bearer** (capstone, the Caldera Rim, ~Lv 148–150): a forge-slime, Forgewarden Ash's
+- **Brenna, the Last Bearer** (party den, the Caldera Rim, ~Lv 148–150): a forge-slime, Forgewarden Ash's
   sister, chosen to carry the last tooth up the road to the Keepers' city. She set out the morning the
   land broke; there was no road left, so she climbed the rim, the highest place, and has held the tooth up
   ever since to the city circling past overhead, grown round it and into it, a shard in the tooth. Holding
@@ -215,7 +215,7 @@ each branch hub; none in hard pockets), a crossing theme, a folk look. Follow th
 
 ## Emberdeep phases
 Each its own session and dev copy. Order: the landing first, then the empty levels (115–130), then bottom
-up, then the capstone; then atlas Phase 6.
+up, then the party den (E4) and the final boss (E5); then atlas Phase 6.
 - [x] **E0: the south (atlas Phase 5)** (shipped 2026-10-23; the Caldera pass went after both directions were
       tested; Magma Heart's waystone came with it; the balloon's gate sits west of Pyra's den, by the column). The Lodestar sails (two `'steam'` decks, Skipper Arne); Forgehold
       with Black Sand Shore (a town: respawn, home door, waystone; Ash, Soot and her shop, Slag and his
@@ -238,13 +238,13 @@ up, then the capstone; then atlas Phase 6.
 - [ ] **E3: the Brimstone Fields** (125–140) and **the Old Foundry** (130–145, hard): the Brimstone Condor,
       Old Crucible, the Foundry's elites, Picker Ochre and her shop, the Breathing Stone, the Organ, the
       Pattern; waystone in the Fields. Lays the Rim's gate (the Bearers' stair) in the Fields.
-- [ ] **E4: the Caldera Rim** (135–150) and Brenna's den, the capstone (with lines and a `party` entry),
+- [ ] **E4: the Caldera Rim** (135–150) and Brenna's party den (with lines and a `party` entry),
       the Hoist Stone, the Bearer's Seat, the name on the memorial wall; Ignis's and Pyra's lines. Then
       Emberdeep is done and **atlas Phase 6** resumes: the column vista, the balloon (the update lifts
       the block: Slag built the pilot a forge-burner that carries the basket through the stalls), the
       Skydocks and its camp, and the skylift goes once the balloon works.
-- [ ] **E5: Emberdeep's final boss** (owner, 2026-10-24; `../final-bosses.md`): four or more players at Lv 150,
-      about 30 minutes, in a den off the Old Foundry `[default]`. The pass's last phase; atlas Phase 6 can
+- [ ] **E5: Emberdeep's final boss** (owner, 2026-10-24; `../final-bosses.md`): four or more players at the recommended Lv 150 (the boss shown far higher),
+      about 30 minutes, far past the Old Foundry `[default]` (a deep room, an approach, the den). The pass's last phase; atlas Phase 6 can
       start alongside it, since the balloon doesn't depend on it.
 
 ## When a phase ships
@@ -269,7 +269,7 @@ Kept as written for the reasoning; each `[default]` below is now the decision.
    One room keeps "you step off the boat into a town" exact; the atlas listed them separately.
 6. **Liv lives in Emberdeep** `[proposed]` and stays there (letters both ways). It closes a thread Eyvind's
    persona has carried since F1; the alternative is to leave her unfound.
-7. **Brenna, the Last Bearer** `[proposed]`: a forge-slime as the capstone (like Glacia, a person), and
+7. **Brenna, the Last Bearer** `[proposed]`: a forge-slime as the party den boss (like Glacia, a person), and
    Ash's sister. The memorial wall's name appears in her phase.
 8. **Ash and Tier 3** `[default: he deflects until per-account progress exists]`; the island's Tier 3 is
    told by Ignis's lines meanwhile. Keeper stones show (wheels, teeth, a city) but never name the Tidewheel,

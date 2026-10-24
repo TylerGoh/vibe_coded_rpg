@@ -23,7 +23,7 @@ over is in `docs/ideas.md` under the phase's name. Full plans as written: `archi
 - **G3** (2026-10-22): the Old Oak Canopy, the Hornet Queen, Ranger Acorn (`docs/places/canopy.md`).
 - **G4** (2026-10-22): Wreck Cave and the Thornheart, the Drowned Bosun, the Thorn Hart
   (`docs/places/wreck.md`, `docs/places/thornheart.md`).
-- **G5** (2026-10-23): Keeper's Spine and the Root Warden, the capstone (`docs/places/spine.md`).
+- **G5** (2026-10-23): Keeper's Spine and the Root Warden, the party den (`docs/places/spine.md`).
 - **R** (2026-10-23): the rebalance: Frostpeak 40–60, Emberdeep 90–115, the Citadel 140–170; owned gear
   became Legacy (`docs/combat/stages.md`, `docs/combat/items.md`).
 
@@ -34,7 +34,7 @@ over is in `docs/ideas.md` under the phase's name. Full plans as written: `archi
   (`docs/places/skerries.md`, `docs/places/grotto.md`).
 - **F3** (2026-10-23): the Aurora Heights and the Blue Halls, the Pale Wyrm, the Hall Troll
   (`docs/places/heights.md`, `docs/places/bluehalls.md`).
-- **F4** (2026-10-23): the Queen's Bridge and Sigrun, the capstone (`docs/places/queensbridge.md`).
+- **F4** (2026-10-23): the Queen's Bridge and Sigrun, the party den (`docs/places/queensbridge.md`).
 
 ## Classes and progression (the S track, `progression.md`)
 - **S0** (2026-10-23): over-level EXP falloff, the per-player boss reward window (`docs/combat/bosses.md`).

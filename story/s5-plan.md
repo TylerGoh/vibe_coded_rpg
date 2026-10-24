@@ -9,7 +9,7 @@ in `src/shared/rpg.js` and get tuned after people fight.
 ## The owner's rules (from progression.md, repeated because every piece leans on them)
 - **Den and field bosses stay soloable by any class**, at the boss's level: slower and riskier without the
   right class, never impossible.
-- **Capstones** (the Root Warden, Sigrun; later one per island) are built for a full mixed party and are
+- **Party dens** (the Root Warden, Sigrun; later one per island) are built for a full mixed party and are
   **extremely hard without one**. Never locked: a very strong player can still grind one down.
 - **Final bosses** (owner, 2026-10-24; `final-bosses.md`) come after S5 and are the one exception: four or
   more players, every mechanic on from the start. S5's engine should allow a boss to switch every mechanic
@@ -36,7 +36,7 @@ in `src/shared/rpg.js` and get tuned after people fight.
 ## The mechanics, as built
 One shared table, `PARTY` in `src/shared/rpg.js`: each mechanic's numbers and its `min` (how many fighters
 switch it on). One gate, `partyOn(m, mech)` in `server/rpg.js`: true if the boss lists `mech` in `party` and
-`m.fighters >= PARTY[mech].min` (capstones: `capMin`, see the gates below), and the boss has `partyLive` (see the shipping order). The client gets a bit per active
+`m.fighters >= PARTY[mech].min` (party dens: `capMin`, see the gates below), and the boss has `partyLive` (see the shipping order). The client gets a bit per active
 mechanic on the boss so it can draw it and the hints can explain it.
 
 | mechanic | what the boss does | best answer | everyone else's answer |
@@ -64,7 +64,7 @@ burn goes through `hurt()` from the boss, so it shows on the meter's damage take
 Recommended, and the owner can change them (open question 1):
 - **Den and field bosses:** every mechanic at `min: 2` fighters, except `interrupt` (always on: it's a reward,
   not a check). Alone, they fight exactly as today.
-- **Capstones:** `capMin: 1` for everything but `focus` (it means nothing alone). That's what makes them
+- **Party dens:** `capMin: 1` for everything but `focus` (it means nothing alone). That's what makes them
   extremely hard solo: a solo slime faces the pulse, the curse, the barrier and the weak point all at once,
   with only potions and patience.
 - **Bigger parties:** nothing extra past the gate; `BOSS_HP_PER_PLAYER` already scales the HP.
@@ -96,17 +96,17 @@ decisions"), but open questions 1–3 are worth asking first.
 ```
 S5.1 engine, focus/Taunt, pulse ──→ S5.2 curse/Cleanse, barrier, armour, weak point, interrupt
                                      → deploy #1 (S5.1 + S5.2 together, with no boss switched on)
-                                       then S5.3 the capstones                → deploy #2
+                                       then S5.3 the party dens                → deploy #2
                                        then S5.4 the retrofit, a stage at a time → deploys #3…
                                        S5.5 potions + loot check, alongside S5.4
 ```
 - **S5.1 first, alone.** The gate, the wire bits and the `PARTY` table are what everything else hangs on.
 - **S5.2 after S5.1**, not alongside it: both edit `bossBrain`, `applyHits`, the boss drawing in `src/rpg.js` and
   `src/shared/skills.js`.
-- **Deploy #1 ships the engine dark.** The two capstones already list `party`, so the gate also needs the
+- **Deploy #1 ships the engine dark.** The two party dens already list `party`, so the gate also needs the
   boss to be switched on (`partyLive` on its entry, added by S5.3 and S5.4). Players get Taunt and Cleanse
   (harmless without curses) and nothing else changes.
-- **S5.3** switches the capstones on and tunes them. Its own deploy, so the owner can try them.
+- **S5.3** switches the party dens on and tunes them. Its own deploy, so the owner can try them.
 - **S5.4** is the long tail: each boss gets one or two mechanics, shipped a stage at a time.
 - **S5.5** can run alongside S5.4 (different files: the alchemy recipes, items, the economy script).
 
@@ -160,7 +160,7 @@ Docs: the S5.1 ones, plus `docs/combat/core.md` (hits on mobs, the cap), the Cle
 - Test: the same test boss with each mechanic in turn, with a Mage, an Archer, a Berserker and a Cleric.
   Record the stagger and the cancelled ult as phone screenshots too.
 
-### S5.3: the capstones
+### S5.3: the party dens
 Docs: `docs/places/spine.md`, `docs/places/queensbridge.md`, `docs/combat/bosses.md`.
 - Turn the Warden's and Sigrun's `party` on (`capMin`), place their weak points (the Warden's shard high on its
   back, Sigrun's in her shield's boss), give Sigrun the front-only barrier, tune with a mixed test party of four
@@ -207,7 +207,7 @@ Docs: `docs/places/alchemy.md`, `docs/combat/items.md`, `docs/economy.md`.
 
 ## Open questions (recommended answer first)
 1. **The gates.** Mechanics at 2+ fighters on den and field bosses, everything but focus on from 1 on
-   capstones? (Recommended.) Or have the capstones soften for a solo slime too.
+   party dens? (Recommended.) Or have the party dens soften for a solo slime too.
 2. **Taunt.** A new 1-rank Knight skill? (Recommended: it doesn't strain the point budget.) Or fold it into
    Rally or Aegis.
 3. **Cleanse.** A new 1-rank skill in the Cleric's shared trunk, so both branches get it? (Recommended.) Or

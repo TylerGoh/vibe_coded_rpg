@@ -29,13 +29,13 @@ the cut trunk from this side) and go east along the Keepers' road, higher and ha
   hit it from behind), crag kite = `dive` (`fly` 62: under the 70 px notice limit), stone sentinel =
   `beam` (`style: 'warden'`, Keeper amber; slow, stays on the road), gale sprite = `phase`, rootling =
   `blink` (dives underground and comes up behind you). No elites (not a hard pocket) and no field boss: the
-  capstone den is the danger. Gear (drops only): the Mossback Helm and the Sentinel Blade (and its twin,
+  party den is the danger. Gear (drops only): the Mossback Helm and the Sentinel Blade (and its twin,
   the Sentinel Staff: the first mob-drop sword with a staff twin).
 - Waystone in the Windgap (`docs/places/waystones.md`). Music scenes `spine` (A dorian, a horn over open
   fifths and wind) and `warden` (`docs/ui/audio.md`).
 
 ## The Root Warden (The Warden's Court, den 35)
-Greenhollow's **capstone** boss (Lv 60), a big boss with a story (`story/characters/bosses.md`): a Keeper
+Greenhollow's **party den** boss (Lv 60; the island's second-strongest, after the final boss to come: `story/final-bosses.md`), a big boss with a story (`story/characters/bosses.md`): a Keeper
 guardian of grey stone the roots have grown through, still holding the sealed gate at the end of the road.
 Its `lines` are a sentry who has forgotten every word but "hold"; freed, it lets the roots have it and
 the gate stays shut, but the road is yours. No world change after a kill (like the Tidemother and the
@@ -47,7 +47,7 @@ Knotmole: only its line says so).
   keep their defaults). Its ultimate **Hold Fast** is the shared `lanes` ult drawn as roots bursting up
   through every lane but one (`wardenRoot`, used by `fxLanesWarn` / `fxLanesHit` in `src/dens.js` when the
   theme is `warden`).
-- **Built for the party mechanics** (`story/progression.md`, S5): capstones are meant to be extremely hard
+- **Built for the party mechanics** (`story/progression.md`, S5): party dens are meant to be extremely hard
   without a mixed party. `party` on its entry names what S5 switches on (focus, pulse, barrier, weakpoint,
   adds); nothing reads it yet. The art already has the weak point: the Anchor shard glowing high in its back.
 - The den: an open court at the very top of the ridge, sky all round, a broken colonnade (the ledges are

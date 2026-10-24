@@ -116,7 +116,7 @@ Gotchas already hit:
   `ironbridge` and `geyser` gates (give each an open look in `OPEN`, the F3 pattern: the draw function with an
   `open` flag) and lays the Old Foundry's gate in the Ashwood. Every new Emberdeep room needs its
   `ISLAND_OF_STAGE` row (`'ember'`) and its waystone `isle: 'ember'`; update Ash's persona (he lists the blocks).
-- F4 gotchas: the open art for the ice stair is `drawIcestair` with an `open` flag (the F3 pattern); a capstone
+- F4 gotchas: the open art for the ice stair is `drawIcestair` with an `open` flag (the F3 pattern); a party den
   with a new `wave` look needs its own mass in `fxWaveWarn` / `fxWaveGo` (`iceMass`); a staff can need a new head
   shape in `HEADS` (`shield`); Sigrun's pet pushed `PETSHOP_W` up again.
 - F3 gotchas: the open art for a gate can be the gate's own draw function with an `open` flag (`crevasse`,

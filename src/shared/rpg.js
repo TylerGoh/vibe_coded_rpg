@@ -1024,7 +1024,7 @@ MOBS.rootling = {
   ai: { kind: 'blink', every: 4.6, warn: 0.4, slashWarn: 0.5, r: 115 },
   drops: [['coin', 1, 320, 500], ['rootling_twig', 0.5, 1, 2], ['mega_elixir', 0.1, 1, 1]],
 };
-// The Root Warden (its court is at the Spine's east end): Greenhollow's capstone boss, with a story
+// The Root Warden (its court is at the Spine's east end): Greenhollow's party den boss, with a story
 // (story/characters/bosses.md). A Keeper guardian of stone the roots grew through, still holding the gate
 // at the end of the Keepers' road long after anyone could relieve it. Its ultimate, Hold Fast, is the
 // `lanes` ult as roots: they burst up through every stretch of floor but one.
@@ -1279,7 +1279,7 @@ MOBS.rime_archer = {
   ai: { kind: 'lob', range: 480, every: 2.7, keep: 170, warn: 0.6, style: 'javelin' },
   drops: [['coin', 1, 740, 1110], ['ice_arrowhead', 0.5, 1, 2], ['mega_elixir', 0.16, 1, 1], ['rimeguard_blade', 0.003, 1, 1]],
 };
-// Sigrun, the Queen's Shield (the Seam, at the bridge's crack): Frostpeak's capstone boss, with a story
+// Sigrun, the Queen's Shield (the Seam, at the bridge's crack): Frostpeak's party den boss, with a story
 // (story/characters/bosses.md). Glacia's sworn guard, fjord folk frozen half to ice, who still freezes the
 // crack shut every night though her queen has let go: holding on to someone else's holding on. Her beam is
 // the cold light off her shield (`looks`), her grid the deck heaving along the seam, and her ultimate, Close

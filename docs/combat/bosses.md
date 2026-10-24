@@ -15,13 +15,13 @@ Caldera: Ignis the Magma Tyrant, Pyra the Ember Phoenix · Citadel: The Clockwor
 Tenth den: **The Tidemother's Hoard** (room 26, Saltspray Coves, art `src/dens-coves.js`). Eleventh:
 **The Knotted Burrow** (room 30, the Mycelium Deep, art `src/dens-deep.js`; `docs/places/deep.md`).
 Twelfth: **The Warden's Court** (room 35, Keeper's Spine, art `src/dens-spine.js`; `docs/places/spine.md`),
-the Root Warden, Greenhollow's capstone. Thirteenth: **The Breathing Hole** (room 38, the Whale Skerries, art
+the Root Warden, Greenhollow's party den. Thirteenth: **The Breathing Hole** (room 38, the Whale Skerries, art
 `src/dens-skerries.js`, theme `floe`; `docs/places/skerries.md`), the Old Narwhal. Fourteenth: **The Seam**
 (room 43, the Queen's Bridge, art `src/dens-qbridge.js`, theme `oath`; `docs/places/queensbridge.md`), Sigrun,
-the Queen's Shield, Frostpeak's capstone (Lv 100); her `wave` ult is new ice racing along the floor (`iceMass`).
+the Queen's Shield, Frostpeak's party den (Lv 100); her `wave` ult is new ice racing along the floor (`iceMass`).
 Big bosses can have `lines` (enter / phase / freed) that they say in a bubble and the chat: those five have them so far. `looks` on a boss picks how the shared beam
 and grid moves are drawn (the Warden's Keeper amber and roots; the Old Narwhal's jet of sea water; Sigrun's `shield` beam and `seam` grid), and `party` names the party mechanics a
-boss is built for, for S5 to switch on (the two capstones, the Warden and Sigrun, have it; nothing reads it yet). Field bosses (no den;
+boss is built for, for S5 to switch on (the two party dens, the Warden and Sigrun, have it; nothing reads it yet). Field bosses (no den;
 `docs/combat/stages.md`) have no `lines`: F3's Pale Wyrm, which has a story, tells it through the Serpent Stone
 and the personas instead (`docs/places/heights.md`). A new den's art lives in its own file with `DEN_ART` / `ENTRANCE_ART` / `BOSS_ART`
 (merged in `dens.js`), plus its theme's row in the shared effect tables (`FXPAL`, `THEME_RGB`, the theme

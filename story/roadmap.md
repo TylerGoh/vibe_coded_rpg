@@ -17,17 +17,19 @@ No quests, no hard level gates.
 
 - [ ] **S5: bosses that need a party** (Taunt, pulses, curses, barriers, weak points, the interrupt), loot
       by class, the status box, Cleanse (design: `progression.md` section 6; five pieces: `s5-plan.md`).
-- [ ] **Final bosses** (owner, 2026-10-24; plan: `final-bosses.md`): one per island, incredibly hard,
-      needing four or more players at its level and about 30 minutes. After S5, ahead of Emberdeep.
-  - [ ] FB1: Greenhollow's, in the Thornheart
-  - [ ] FB2: Frostpeak's, in the Blue Halls
+- [ ] **Final bosses** (owner, 2026-10-24; plan: `final-bosses.md`): one per island, very hard, about
+      30 minutes for four players at the recommended level (the boss's own level shown far higher). Far
+      deeper in: each pocket gets better, then a new deep room, a cinematic approach room, the den. Moves
+      in a designed order, written up for the owner first. After S5, ahead of Emberdeep.
+  - [ ] FB1: Greenhollow's, under the Thornheart (the Sunken Road, the Road's End)
+  - [ ] FB2: Frostpeak's, below the Blue Halls (the Old Ice, the Long Stair)
 - [ ] **Emberdeep's depth pass, E1–E5** (Lv 90–150; plan, map and settled decisions:
       `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
       `docs/places/branches.md`). E0 shipped.
   - [ ] E1: the Ashwood (115–130) and the Black Sands (90–100, easy)
   - [ ] E2: the Smoking Coast and the Drained Tubes (hard), the Hatchkeeper, Liv
   - [ ] E3: the Brimstone Fields and the Old Foundry (hard)
-  - [ ] E4: the Caldera Rim and Brenna, Emberdeep's capstone; Ignis's and Pyra's lines
+  - [ ] E4: the Caldera Rim and Brenna, Emberdeep's party den; Ignis's and Pyra's lines
   - [ ] E5: Emberdeep's final boss (`final-bosses.md`), the pass's last phase
 
 ## Next

@@ -28,10 +28,12 @@ in `docs/places/branches.md` and each place's doc.
      with its level so nobody wanders in by accident;
    - **easy pockets**: calm side spots with low mobs, good for newcomers, alts and chatting.
 3. **Bosses at four sizes:** dens, **field bosses** (a big mob roaming a wilds room on a long timer,
-   announced to the room), **one capstone** at the top of the band, with a den and a story beat, built for
-   a mixed party (`../progression.md` section 6), and **one final boss** (owner, 2026-10-24): needs four or
-   more players at its level and about 30 minutes, in a den off a hard pocket. It's always **the last
-   phase** of an island's depth pass, after the capstone (`../final-bosses.md`).
+   announced to the room), **one party den** at the top of the band, with a den and a story beat, built for
+   a mixed party (`../progression.md` section 6), and **one final boss** (owner, 2026-10-24): four or more
+   players at the recommended level (the band's top; the boss's own level shown far higher) and about 30
+   minutes. It lives far deeper in than anything else, past the darkest, most closed-in hard pocket, through
+   a deep room and a cinematic approach (the owner's "trapped" mood). It's always **the last
+   phase** of an island's depth pass, after the party den (`../final-bosses.md`).
 4. **Things to find, no quests:** each branch has something off the beaten path (a hidden ledge, a rare
    mob, a readable Keeper stone, a view). Its people are chattable AI characters with lives of their own
    (and a trade where it fits), not quest givers.
@@ -39,7 +41,7 @@ in `docs/places/branches.md` and each place's doc.
 6. The usual: a town at the landing (`atlas.md`), mobile, music scenes, the economy sheet green.
 
 ## Bosses: which ones get a story
-**Big bosses get a story; small ones don't** (owner, 2026-10-20). Dens and capstones each have a
+**Big bosses get a story; small ones don't** (owner, 2026-10-20). Dens and party dens each have a
 holding-on / letting-go story, `lines` on entering, at their phase and when freed, and loot that names
 their place (`../characters/bosses.md`). **Field bosses and elites are small:** a name, a look, a one-line
 description and a short announcement. When a big boss ships, its story goes into `../characters/bosses.md`.

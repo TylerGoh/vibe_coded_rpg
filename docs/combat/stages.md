@@ -42,7 +42,7 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    Bosun) and off Bramble Woods (Lv 50–60, the Thorn Hart), elites in both (`docs/places/wreck.md`,
    `docs/places/thornheart.md`). A rooted shooter is `speed: 0`, `anchored` and `keep: 0` (the pitcher plant).
 12. **Keeper's Spine**: G5, the ridge above the Canopy (Lv 45–60), Greenhollow's last branch, with the Root
-   Warden's den at its end (`docs/places/spine.md`). No elites and no field boss: the capstone is the danger.
+   Warden's den at its end (`docs/places/spine.md`). No elites and no field boss: the party den is the danger.
 13. **The Rimeglass Glacier**: Frostpeak's depth pass F1, up the glacier's snout from Starfall Summit (Lv
    60–75), with Old Rimehorn (a field boss) and Ice-Cutter Eyvind (`docs/places/glacier.md`). It fills
    60–75, which had nothing of its own after the rebalance; Frostpeak's later phases fill 75–100.
@@ -55,7 +55,7 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    hard pocket with elites and the Hall Troll, a `lob` field boss) (`docs/places/heights.md`,
    `docs/places/bluehalls.md`). New shot styles `star` and `ice`, beam style `prism` (`src/hazards.js`).
 18. **The Queen's Bridge**: F4, Frostpeak's last branch, up the mended ice stair on Frostpine Ridge (Lv 85–100,
-   no field boss: Sigrun's den at the far end is the capstone) (`docs/places/queensbridge.md`). New shot style
+   no field boss: Sigrun's den at the far end is the party den) (`docs/places/queensbridge.md`). New shot style
    `javelin` (the rime archer's).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.

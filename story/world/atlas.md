@@ -165,7 +165,7 @@ the Citadel's are machines and echoes.
      hard, under the Glacier): icicle bats, ice worms, glass beetles, prism crawlers, elites; the Hall Troll
      (field boss). **The Queen's Bridge** (exists, 85–100, F4, up the mended ice stair on the ridge): rime
      puffins, sleet harriers, rimeguards, hoarfrost shades, leopard seals, rime archers; Sigrun, the Queen's
-     Shield (capstone den). Frostpeak's depth pass is done.
+     Shield (party den). Frostpeak's depth pass is done.
 5. Onward: the ship south leaves from the fjord's quay: the **Lodestar**, laid up (shown, not open) until
    Phase 5, because nobody will steer south while the stars are wrong.
 
@@ -242,7 +242,7 @@ The missing desert. Reached by ship from Black Sand Shore once Emberdeep's bosse
 Greenhollow's in the Thornheart, Frostpeak's in the Blue Halls, Emberdeep's in the Old Foundry `[default]`,
 and every later island's as the last phase of its depth pass.
 
-Every new **big** boss (a den, a capstone or a final boss; owner, 2026-10-20: small field bosses and elites need no
+Every new **big** boss (a den, a party den or a final boss; owner, 2026-10-20: small field bosses and elites need no
 story, just a name and a line): a creature twisted by an Anchor shard, a small holding-on or letting-go story, an
 ultimate that comes from its landscape, a line on entering / phase change / freed, and loot that names
 its island (`../delivery.md` for the register).

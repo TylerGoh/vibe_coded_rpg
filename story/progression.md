@@ -21,7 +21,7 @@ of classes.
 - **Roles have a job they do best, never a job only they can do.** No "no Cleric, no kill".
 - **Equal power, different shape** (owner: "no class should be weaker and yet they all have something
   they're bad at"). **Every class, even the Cleric, can clear bosses at its own level alone** (owner); the
-  capstones are extremely hard alone, but not impossible.
+  party dens are extremely hard alone, but not impossible.
 - **Never take away what people earned.** Levels stay; points get refunded and re-spent.
 
 ## The design
@@ -102,15 +102,15 @@ badly (potions, running, a much longer fight).
 | **Armour phase**: only heavy single hits crack the shell | Berserker | a long, slow phase |
 
 - **How hard:** dens and field bosses stay doable **alone, by any class** (owner), just slower without the
-  right classes. The **capstones** (one per island: the Root Warden, Sigrun, later Brenna) are built for a
+  right classes. The **party dens** (one per island: the Root Warden, Sigrun, later Brenna) are built for a
   full mixed party and are **extremely hard without one** (owner), but never locked.
 - **Scaling:** `BOSS_HP_PER_PLAYER` stays; a mechanic only appears once enough slimes are there, so a solo
   player isn't punished for being alone.
 - **Loot by class:** a boss's loot includes one weapon, its kind picked from the classes who fought it.
 - **Retrofit:** the older dens and field bosses each get one or two mechanics, a boss at a time. The
-  capstones already name theirs (`party` on their entries).
-- **Final bosses** (owner, 2026-10-24; after S5, `final-bosses.md`): one per island, above the capstones,
-  needing four or more players at its level and about 30 minutes. The one exception to "any class solos".
+  party dens already name theirs (`party` on their entries).
+- **Final bosses** (owner, 2026-10-24; after S5, `final-bosses.md`): one per island, above the party dens,
+  needing four or more players at the recommended level and about 30 minutes. The one exception to "any class solos".
 - **The status box** (owner, 2026-10-24): every buff and curse on you, as icons with timers.
 - Cut into five agent-sized pieces: `s5-plan.md`.
 

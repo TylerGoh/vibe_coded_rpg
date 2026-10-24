@@ -41,7 +41,7 @@ was frozen and she used a rough jetty under the ridge; the ice went out with tha
    up the ice stair on the ridge the cutters built up again. Grey sky, wind, the strait far below, the next
    island's cliffs a ghost in the east. The Queen's guards stand frozen at their posts along the rail; the
    Strait Stone (a Keeper stone, two shores carved further apart each time) at the stair's head; and at the
-   crack, **Sigrun, the Queen's Shield**, who freezes it shut every night. Frostpeak's capstone.
+   crack, **Sigrun, the Queen's Shield**, who freezes it shut every night. Frostpeak's party den.
 
 ## People
 **The fjord folk:** pale, frosted slimes who go half-solid in the cold and move slowly. They remember the

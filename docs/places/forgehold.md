@@ -70,6 +70,6 @@ personas in `server/characters.js`, the `forgehold` music scene in `src/audio.js
 ## Decisions and history
 - 2026-10-23: built (E0). The owner took every default in `story/world/emberdeep-depth.md`'s open decisions:
   the rename; no gate on the Wyrm (the gangway says "Lv 90+"); the balloon grounded by the stalling column;
-  the band to 150; one room for the town; Liv in Emberdeep (E2); Brenna the capstone (E4); Ash deflecting
+  the band to 150; one room for the town; Liv in Emberdeep (E2); Brenna the party den boss (E4); Ash deflecting
   Tier 3; Arne, Liv, Pitch and Ochre as AI characters; a plain lookout on the summit; new pets squeezed in;
   getting home by the house door; heat as flavour only.

@@ -145,13 +145,13 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/canopy.md](docs/places/canopy.md) | the Old Oak Canopy (room 31), Ranger Acorn, the Hornet Queen, wasp nests, the Lifted Stone, the cut trunk to Keeper's Spine |
 | [docs/places/wreck.md](docs/places/wreck.md) | Wreck Cave (room 32, a hard pocket off the Coves), the Brave Pippin and its log, the Drowned Bosun |
 | [docs/places/thornheart.md](docs/places/thornheart.md) | the Thornheart (room 33, a hard pocket off Bramble Woods), the Hedge Stone, the Thorn Hart |
-| [docs/places/spine.md](docs/places/spine.md) | Keeper's Spine (room 34, the ridge above the Canopy), the Road Stone, the Watch Seat, the Root Warden and its court (den 35), Greenhollow's capstone |
+| [docs/places/spine.md](docs/places/spine.md) | Keeper's Spine (room 34, the ridge above the Canopy), the Road Stone, the Watch Seat, the Root Warden and its court (den 35), Greenhollow's party den |
 | [docs/places/glacier.md](docs/places/glacier.md) | the Rimeglass Glacier (room 36, Frostpeak's first branch, Lv 60–75), Ice-Cutter Eyvind, Old Rimehorn, the Rime Stone, Ylva's Cairn |
 | [docs/places/skerries.md](docs/places/skerries.md) | the Whale Skerries (room 37, Lv 55–70, off Icefang Hamlet), Hakon the Bone-Carver, Grandmother (the whale skeleton), the Sounding Stone, the Old Narwhal and her den (38) |
 | [docs/places/grotto.md](docs/places/grotto.md) | the Narwhal Grotto (room 39, a hard pocket off the Skerries, Lv 70–80), its elites, the Tusk Hall |
 | [docs/places/heights.md](docs/places/heights.md) | the Aurora Heights (room 40, Lv 75–90, up from the Glacier's Icefall), the aurora curtains, the Serpent Stone, Liv's Reach, the Pale Wyrm (field boss) |
 | [docs/places/bluehalls.md](docs/places/bluehalls.md) | the Blue Halls (room 41, a hard pocket under the Glacier, Lv 80–90), its elites, the Cutters' Niche, the Hall Troll (field boss) |
-| [docs/places/queensbridge.md](docs/places/queensbridge.md) | the Queen's Bridge (room 42, Lv 85–100, up the ice stair on Frostpine Ridge), the Frozen Guard, the Strait Stone, the Shield's Perch, Sigrun and her den, the Seam (43), Frostpeak's capstone |
+| [docs/places/queensbridge.md](docs/places/queensbridge.md) | the Queen's Bridge (room 42, Lv 85–100, up the ice stair on Frostpine Ridge), the Frozen Guard, the Strait Stone, the Shield's Perch, Sigrun and her den, the Seam (43), Frostpeak's party den |
 | [docs/places/deep.md](docs/places/deep.md) | the Mycelium Deep (room 28), Glowroot Hollow (29, a hard pocket), Forager Truffle, the Knotmole's burrow (30), the Listening Stone |
 | [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel, within one island), attuning, the travel card |
 | [docs/places/pets.md](docs/places/pets.md) | pets' hunger, moods and dying, feeding, the Pet Shop, Auntie Clover, pet food |
