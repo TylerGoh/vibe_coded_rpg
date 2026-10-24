@@ -272,7 +272,9 @@ staying on the move; bad at crowds and at anything up close (it solos by keeping
 netting whatever chases it). Rules and numbers in `src/shared/skills.js` (`KEEN_RANGE` and the constants after
 it); bows in `docs/combat/items.md`.
 - **Looks**: the bow on its back (and the draw-and-loose pose when it shoots) is what tells friends it's an
-  Archer; no halo or sparkle (`drawBowOnBack` / `drawBowShoot` in `src/slime.js`).
+  Archer; no halo or sparkle (`drawBowOnBack` / `drawBowShoot` in `src/slime.js`). The bow is held out
+  from where a slap starts (below the eyes; owner: it used to shoot from the eye), and the arrow leaves
+  from its grip (`bowShot` in `src/rpg.js`), so move both together.
 - **The bow shot** is its normal attack (any bow holder's, a Novice's too): an arrow to the first mob ahead
   within `arrowRange` (`statsFor`: `BOW_RANGE` + the bow's reach + Keen Eye), `BOW_SHOT_MULT` of ATK, flying at
   `BOW_SHOT_SPEED` (`bowShot` / `otherArrow` in `src/rpg.js`; `shoot` in `server/rpg.js`).

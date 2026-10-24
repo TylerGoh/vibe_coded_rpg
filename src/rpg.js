@@ -356,7 +356,7 @@ export class Rpg {
     const sx = me.x, sy = me.y;
     const tx = v ? v.x : sx + dir * range * 0.85, ty = v ? v.y - MOBS[v.kind].h / 2 : sy - 20;
     const dur = Math.abs(tx - sx) / BOW_SHOT_SPEED + 0.03;
-    this.fx.spawn('arrow', { x: sx + dir * 14, y: sy - 20, tx, ty, dur, hit: !!v, tint: bowTint(m.gear.weapon) });
+    this.fx.spawn('arrow', { x: sx + dir * 30, y: sy - 13, tx, ty, dur, hit: !!v, tint: bowTint(m.gear.weapon) });
     if (!v) return [];
     const cut = this.shellCut(v, sx);
     let [dmg, crit] = this.roll(m.atk, BOW_SHOT_MULT * mult * arrowBonus(m.skills, null, this.slowed(v), 0) * this.markOn(v));
@@ -373,7 +373,7 @@ export class Rpg {
     const v = hits?.length ? this.views.get(hits[0][0]) : null;
     const tx = v ? v.x : s.x + dir * 200, ty = v ? v.y - MOBS[v.kind].h / 2 : s.y - 20;
     const dur = Math.abs(tx - s.x) / BOW_SHOT_SPEED + 0.03;
-    this.fx.spawn('arrow', { x: s.x + dir * 14, y: s.y - 20, tx, ty, dur, hit: !!v, tint: bowTint(s.gear?.weapon) });
+    this.fx.spawn('arrow', { x: s.x + dir * 30, y: s.y - 13, tx, ty, dur, hit: !!v, tint: bowTint(s.gear?.weapon) });
     return dur;
   }
   // A Retreat Shot went off (ours or anyone's; the dash draws its own dust): a word over the shooter

@@ -235,7 +235,7 @@ export class Slime {
     const draw = k < 0.1 ? k / 0.1 : k < 0.16 ? 1 - (k - 0.1) / 0.06 : 0;
     const kick = k > 0.16 && k < 0.4 ? Math.sin(((k - 0.16) / 0.24) * Math.PI) * 0.18 : 0;
     const lower = k > 0.7 ? (k - 0.7) / 0.3 : 0;
-    const px = w * 0.3, py = -h * 0.5, gx = w * 0.62, gy = -h * 0.45 + lower * 10;
+    const px = w * 0.5 - 2, py = -h * 0.28, gx = w * 0.72, gy = -h * 0.3 + lower * 8; // from where a slap starts, well below the eyes
     ctx.save();
     ctx.strokeStyle = this.palette.line; // a stubby jelly arm out to the grip
     ctx.lineWidth = 6;
