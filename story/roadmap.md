@@ -10,19 +10,28 @@ soon" sign or a stand-in door, and the update itself lifts the block. Every land
 have a purpose AND are chattable with memory, narrow lore, rich personal lives (`characters/people.md`).
 No quests, no hard level gates.
 
-## Now: two tracks, either can go next (ask the owner if unsure)
-- [ ] **Emberdeep's depth pass, E1–E4** (Lv 90–150; plan, map and settled decisions:
+## Now, in this order (owner, 2026-10-24)
+1. S5, because the final bosses need its party mechanics.
+2. The final bosses for the two finished islands.
+3. Emberdeep's depth pass, ending with its own final boss.
+
+- [ ] **S5: bosses that need a party** (Taunt, pulses, curses, barriers, weak points, the interrupt), loot
+      by class, the status box, Cleanse (design: `progression.md` section 6; five pieces: `s5-plan.md`).
+- [ ] **Final bosses** (owner, 2026-10-24; plan: `final-bosses.md`): one per island, incredibly hard,
+      needing four or more players at its level and about 30 minutes. After S5, ahead of Emberdeep.
+  - [ ] FB1: Greenhollow's, in the Thornheart
+  - [ ] FB2: Frostpeak's, in the Blue Halls
+- [ ] **Emberdeep's depth pass, E1–E5** (Lv 90–150; plan, map and settled decisions:
       `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
       `docs/places/branches.md`). E0 shipped.
   - [ ] E1: the Ashwood (115–130) and the Black Sands (90–100, easy)
   - [ ] E2: the Smoking Coast and the Drained Tubes (hard), the Hatchkeeper, Liv
   - [ ] E3: the Brimstone Fields and the Old Foundry (hard)
   - [ ] E4: the Caldera Rim and Brenna, Emberdeep's capstone; Ignis's and Pyra's lines
-- [ ] **S5: bosses that need a party** (Taunt, pulses, curses, barriers, weak points, the interrupt), loot
-      by class, the status box, Cleanse (design: `progression.md` section 6; five pieces: `s5-plan.md`).
+  - [ ] E5: Emberdeep's final boss (`final-bosses.md`), the pass's last phase
 
 ## Next
-- [ ] **Atlas Phase 6: the climb** (after E4): the thermal column vista, the balloon crossing (Slag's
+- [ ] **Atlas Phase 6: the climb** (after E4; can run alongside E5): the thermal column vista, the balloon crossing (Slag's
       forge-burner lifts the block), the Skydocks zone, the Skydocks camp as the Citadel's town, the
       Dockwarden, the Skydocks' folk look. **The skylift goes** once the balloon works, which ends the
       old back-door chain (`world/geography.md`).

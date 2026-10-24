@@ -238,7 +238,11 @@ The missing desert. Reached by ship from Black Sand Shore once Emberdeep's bosse
 | Amberdune | | Old Carapace `[proposed]` |
 | Citadel | Clockwork Colossus, Chronos | none: Chronos is the end |
 | Sunken Reach | | the other Keepers' guardians `[proposed]` |
-Every new **big** boss (a den or a capstone; owner, 2026-10-20: small field bosses and elites need no
+**Final bosses** (owner, 2026-10-24; `../final-bosses.md`): one per island, for four or more players:
+Greenhollow's in the Thornheart, Frostpeak's in the Blue Halls, Emberdeep's in the Old Foundry `[default]`,
+and every later island's as the last phase of its depth pass.
+
+Every new **big** boss (a den, a capstone or a final boss; owner, 2026-10-20: small field bosses and elites need no
 story, just a name and a line): a creature twisted by an Anchor shard, a small holding-on or letting-go story, an
 ultimate that comes from its landscape, a line on entering / phase change / freed, and loot that names
 its island (`../delivery.md` for the register).

@@ -11,6 +11,9 @@ in `src/shared/rpg.js` and get tuned after people fight.
   right class, never impossible.
 - **Capstones** (the Root Warden, Sigrun; later one per island) are built for a full mixed party and are
   **extremely hard without one**. Never locked: a very strong player can still grind one down.
+- **Final bosses** (owner, 2026-10-24; `final-bosses.md`) come after S5 and are the one exception: four or
+  more players, every mechanic on from the start. S5's engine should allow a boss to switch every mechanic
+  on regardless of headcount, with an HP floor and an enrage, but S5 builds none of them.
 - **A mechanic only shows up once enough slimes are fighting** (no Taunt check when you're alone), so a solo
   player isn't punished for being alone.
 - **Every class carries an answer to every mechanic**, even a poor one (Mobility, kiting, jumping,

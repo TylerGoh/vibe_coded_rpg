@@ -109,6 +109,8 @@ badly (potions, running, a much longer fight).
 - **Loot by class:** a boss's loot includes one weapon, its kind picked from the classes who fought it.
 - **Retrofit:** the older dens and field bosses each get one or two mechanics, a boss at a time. The
   capstones already name theirs (`party` on their entries).
+- **Final bosses** (owner, 2026-10-24; after S5, `final-bosses.md`): one per island, above the capstones,
+  needing four or more players at its level and about 30 minutes. The one exception to "any class solos".
 - **The status box** (owner, 2026-10-24): every buff and curse on you, as icons with timers.
 - Cut into five agent-sized pieces: `s5-plan.md`.
 

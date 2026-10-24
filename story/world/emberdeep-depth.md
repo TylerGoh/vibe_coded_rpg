@@ -243,6 +243,9 @@ up, then the capstone; then atlas Phase 6.
       Emberdeep is done and **atlas Phase 6** resumes: the column vista, the balloon (the update lifts
       the block: Slag built the pilot a forge-burner that carries the basket through the stalls), the
       Skydocks and its camp, and the skylift goes once the balloon works.
+- [ ] **E5: Emberdeep's final boss** (owner, 2026-10-24; `../final-bosses.md`): four or more players at Lv 150,
+      about 30 minutes, in a den off the Old Foundry `[default]`. The pass's last phase; atlas Phase 6 can
+      start alongside it, since the balloon doesn't depend on it.
 
 ## When a phase ships
 Tick it here, move it to `../done.md` (one line) and off `../roadmap.md`, add its leftovers to

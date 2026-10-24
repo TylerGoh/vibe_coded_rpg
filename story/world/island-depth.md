@@ -27,9 +27,11 @@ in `docs/places/branches.md` and each place's doc.
    - **hard pockets**: a door off a branch far above its surroundings (elites, a field boss), labelled
      with its level so nobody wanders in by accident;
    - **easy pockets**: calm side spots with low mobs, good for newcomers, alts and chatting.
-3. **Bosses at three sizes:** dens, **field bosses** (a big mob roaming a wilds room on a long timer,
-   announced to the room), and **one capstone** at the top of the band, with a den and a story beat,
-   built for a mixed party (`../progression.md` section 6).
+3. **Bosses at four sizes:** dens, **field bosses** (a big mob roaming a wilds room on a long timer,
+   announced to the room), **one capstone** at the top of the band, with a den and a story beat, built for
+   a mixed party (`../progression.md` section 6), and **one final boss** (owner, 2026-10-24): needs four or
+   more players at its level and about 30 minutes, in a den off a hard pocket. It's always **the last
+   phase** of an island's depth pass, after the capstone (`../final-bosses.md`).
 4. **Things to find, no quests:** each branch has something off the beaten path (a hidden ledge, a rare
    mob, a readable Keeper stone, a view). Its people are chattable AI characters with lives of their own
    (and a trade where it fits), not quest givers.
