@@ -1212,9 +1212,11 @@ body.touch #inv {
   display: none;
 }
 /* a Keeper stone's card, read out in the Wildwood, sits over the hotbar's spot (docs/places/cliffs.md);
-   so does a conversation with a character (the branches' traders stand in combat rooms) */
+   so does a conversation with a character (the branches' traders stand in combat rooms), and the skill tree
+   (SP1: it casts too, and the bar sat over its card) */
 #sheet:not([hidden]) ~ #hotbar,
-#npc:not([hidden]) ~ #hotbar {
+#npc:not([hidden]) ~ #hotbar,
+#skills:not([hidden]) ~ #hotbar {
   display: none;
 }
 #skills,
@@ -1268,8 +1270,8 @@ body.touch #inv {
 }
 /* the node tree (src/skilltree.js): tabs, then the tree (scrolls), then the card of the picked skill */
 #skills {
-  --ic: calc(52px * var(--s)); /* a node's round icon */
-  --node: calc(84px * var(--s)); /* a node's width (icon and name) */
+  --ic: calc(50px * var(--s)); /* a node's round icon */
+  --node: calc(76px * var(--s)); /* a node's width (icon and name): 5 fit in a branch column (SP1) */
   --gap: calc(4px * var(--s));
   --pad: calc(24px * var(--s)); /* a cell's top: the level pill sits there */
   --line: max(2px, calc(3px * var(--s)));
@@ -1450,6 +1452,12 @@ body.touch #inv {
   justify-content: center;
   gap: calc(6px * var(--s)) var(--gap);
 }
+/* a cell's lines of nodes (SP1: past PER_ROW in src/skilltree.js they wrap onto a line of their own) */
+.skt-rows {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--s));
+}
 /* the line through a row's icons */
 .skt-nodes::before {
   left: 50%;
@@ -1520,6 +1528,9 @@ body.touch #inv {
   color: #6b5a7b;
   font-size: calc(11px * var(--s));
   line-height: calc(15px * var(--s));
+}
+.skt-rank {
+  z-index: 2; /* (over the cooldown sweep) */
 }
 .skt-node.has .skt-rank {
   background: var(--tree);
@@ -1680,14 +1691,33 @@ body.touch #inv {
   background: #6fb894;
   font-size: calc(13px * var(--s));
 }
+.skc-btns .sk-cast {
+  background: #f08a6a;
+  font-size: calc(13px * var(--s));
+}
+.skc-btns .sk-cast.off {
+  max-width: calc(90px * var(--s));
+  font-size: calc(10.5px * var(--s));
+  line-height: 1.1;
+}
 .skc-btns button:disabled {
   background: #ddd5e6;
   cursor: default;
 }
+/* a skill cooling down (SP1: it can be cast from the panel): a dark sweep over its icon, shrinking as it comes back */
+.skt-ic.cooling::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  background: conic-gradient(rgba(40, 30, 60, 0.55) calc(var(--cd, 0) * 360deg), transparent 0);
+  pointer-events: none;
+}
 /* phones: bigger nodes (44 px or more on screen), and the card in the scroll after the tree */
 body.touch #skills {
-  --ic: calc(64px * var(--s));
-  --node: calc(92px * var(--s));
+  --ic: calc(64px * var(--s)); /* 44 px on screen at 667×375 */
+  --node: calc(78px * var(--s)); /* 5 to a branch column (SP1) */
   height: calc(470px * var(--s));
 }
 body.touch #skills-body {
@@ -1704,12 +1734,16 @@ body.touch .skt-name {
   font-size: calc(12.5px * var(--s));
 }
 body.touch .skc-btns button {
-  min-width: calc(62px * var(--s));
-  height: calc(62px * var(--s));
+  min-width: calc(64px * var(--s)); /* 44 px on screen at 667×375 */
+  height: calc(64px * var(--s));
   font-size: calc(20px * var(--s));
 }
-body.touch .skc-btns .sk-bar {
+body.touch .skc-btns .sk-bar,
+body.touch .skc-btns .sk-cast {
   font-size: calc(14px * var(--s));
+}
+body.touch .skc-btns .sk-cast.off {
+  font-size: calc(11px * var(--s));
 }
 .shop-btns button,
 .shop-tabs button {

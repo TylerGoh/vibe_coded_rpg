@@ -69,6 +69,10 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
   chill / freeze / burn / spread after each hit (`element()`); a fire hit the client marked as a shatter is
   capped at `SHATTER_MULT` more only if the server's mob is frozen too. A Mage spell's cap also includes
   the server's Arcane Charge count (`arcaneMult`). Burns tick on the server as the caster's hits.
+- **SP1's damage over time** (bleed, poison) tick the same way, and a skill's `dot` rides into `applyHits`.
+  `damage()` takes `src` (what made the hit: a skill, an arrow, a spell, a dot, a field, a summon, a burst) and
+  is the one place a mob dies, so the on-kill hooks (`onKill`) run there; `docs/combat/skills.md`.
+  A Ricochet's jump is client-decided like any hit, but the server takes it only off a kill it saw itself.
 - **Jelly Thirst** (Warrior): `thirst()` heals the hitter a share of the damage its slap or skill just did
   (after the server's cap), and tells the room `{t:'thirst', id, n}` for the green +HP.
 

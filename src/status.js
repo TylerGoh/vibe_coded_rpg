@@ -7,7 +7,7 @@
 import { drawSkillIcon } from './skillfx.js';
 import { drawItemIcon } from './field.js';
 import { ITEMS } from './shared/rpg.js';
-import { rankOf, MOMENTUM_MAX } from './shared/skills.js';
+import { rankOf, MOMENTUM_MAX, SKILLS, fxText } from './shared/skills.js';
 
 // What's on you now → [{ key, name, icon (a skill id, or 'item:<id>', 'focus', 'curse'), left (s, or none),
 // n (stacks / amount), debuff, cool }]. rpg: the Rpg (its `me`, meAt, momentum, charges, focusLeft);
@@ -30,6 +30,8 @@ export function statusOf(rpg, mine) {
   timed('aegis', 'aegis', 'Aegis: nothing gets through', (mine.aegisUntil ?? 0) - t);
   if ((mine.barrierUntil ?? 0) > t && m.barrier > 0) out.push({ key: 'barrier', icon: 'barrier', name: `Barrier: soaks ${m.barrier} more damage`, left: mine.barrierUntil - t, n: m.barrier });
   timed('mend', 'mend', 'Mend: healing every second', fromMe(m.mend));
+  // SP1's long buffs (yours and friends'): me.buffs = [[skill id, ms left, rank]]
+  for (const [id, ms, rank] of m.buffs ?? []) if (SKILLS[id]) timed(`buff:${id}`, id, `${SKILLS[id].name}: ${fxText(SKILLS[id].fx?.(rank))}`, fromMe(ms));
   if (m.brew && ITEMS[m.brew.id]) timed('brew', `item:${m.brew.id}`, ITEMS[m.brew.id].name, fromMe(m.brew.left));
   timed('draught', 'item:barrier_draught', 'Barrier Draught: takes the next boss pulse whole', fromMe(m.draught)); // (S5.5)
   if (m.shield) out.push({ key: 'shield', icon: 'mana_shield', name: 'Mana Shield: on (cast it again to turn it off)' });

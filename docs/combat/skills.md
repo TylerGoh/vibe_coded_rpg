@@ -3,14 +3,14 @@
 Files: `src/shared/skills.js` (all rules, `CLASSES`, `statsFor`), `src/skilltree.js` (the K panel),
 `src/skillfx.js` (icons and effects), `src/elements.js` (the Mage's combo states drawn on mobs, Hunter's Mark
 and a net on a caught mob), `src/status.js` (the status box, below), `server/summons.js` and `src/summons.js` (the Cleric's
-summons, its halo, the Mage's staff sparkle, the Archer's Net Trap), the hotbar and stats UI in `src/rpg.js`,
-server actions in the `skills()` and `rebirth()` handlers of `server/rpg.js`.
+summons, its halo, the Mage's staff sparkle, the Archer's Net Trap, SP1's new summons), `src/fields.js` (SP1's fields),
+the hotbar and stats UI in `src/rpg.js`, server actions in the `skills()` and `rebirth()` handlers of `server/rpg.js`.
 
 **The design is `story/progression.md`: read it before changing classes, skills, AP or the point
 schedule.** All four classes are built: S2 (2026-10-23, in six pieces, plan archived in
 `story/archive/s2-plan.md`: the data and server, the K panel, the Rebirth Pool, the CLASSES tables in
 `docs/economy.md`, the Warrior's chase moves, the Mage's combos), the Cleric (S3) and the Archer (S4), each
-with its section below. Next for classes: the bigger skill pool (`story/skills-plan.md`: new skills at every advancement, long buffs, casting from the K panel). Before that: S5's party mechanics (`story/s5-plan.md`; each class's answers are in
+with its section below. Next for classes: the bigger skill pool (`story/skills-plan.md`: new skills at every advancement, long buffs, casting from the K panel). Its machinery and the K panel's Cast button are built (SP1, below); SP2–SP5 add the class skills on top. Before that: S5's party mechanics (`story/s5-plan.md`; each class's answers are in
 `docs/combat/bosses.md`, "Every class's answers").
 
 ## Classes (S2)
@@ -114,7 +114,7 @@ with its section below. Next for classes: the bigger skill pool (`story/skills-p
   are piling up and to visit the Rebirth Pool by Elder Mochi. Mobility is greyed for a Novice too.
 - Clicking a node opens its **card under the tree**: name, rank, branch, level, MP / cooldown (or passive),
   what it does now and at the next rank, and why it can't take a point (`cantLearn`, worded by the panel
-  for a Novice's look-ahead), with + / − / Hotbar (`startAssign`; "Key 3" once it's there). The header
+  for a Novice's look-ahead), with + / − / Hotbar (`startAssign`; "Key 3" once it's there) / **Cast** (below). The header
   shows the points left (`me.spLeft`: Novice and class; the tabs carry a badge with what's spendable there),
   MP, and the next advancement. "Reset all" stays.
 - + learn, − take a point back (always allowed now: no skill needs another), "Reset all" refunds
@@ -123,7 +123,17 @@ with its section below. Next for classes: the bigger skill pool (`story/skills-p
   the open card and the scroll; icons are cached canvases). **The owner wants nobody stuck in a build**:
   every allocation (skills and stats) must stay reversible for free; only the class itself costs gold to
   change.
-- Phones (`body.touch`): bigger nodes (at least 44 px on screen at 667×375), big + / − / Hotbar buttons,
+- **Cast from the K panel** (SP1; owner, 2026-10-24: "let them cast directly from skills"): the card of every active
+  skill you hold has a Cast button, and on desktop a double-click on its node casts it too (`cast()` in
+  `src/skilltree.js` → `castSkill` in `src/main.js`, the hotbar key's own path: the server never checks the hotbar,
+  so MP, cooldowns and every refusal are unchanged). Outside combat rooms it's greyed, "Only in combat areas". The
+  panel stays open (cast three buffs in a row) and each node shows its cooldown sweep (`tick()`, every frame while
+  open: `--cd` on the icon). The hotbar hides while the panel is open (it sat over the card). The point: long buffs
+  live in the tree, so the bar can be all attacks; the owner wants players to work out their own setup.
+- **More nodes per row** (SP1): a branch column holds `PER_ROW.branch` (5) nodes to a line, a full-width row
+  `PER_ROW.wide` (10); more wrap onto a line of their own (each with its own connecting line). Node widths are
+  sized so 5 fit a branch column on desktop and at 667×375 on a phone (icons still 44 px there).
+- Phones (`body.touch`): bigger nodes (at least 44 px on screen at 667×375), big + / − / Hotbar / Cast buttons (44 px),
   and the card sits in the panel's scroll after the tree (tapping a node scrolls it into view); on desktop
   the tree scrolls and the card stays pinned under it. The HUD buttons (`#hudbtns`) hide while the panel is
   open, since they'd sit on its title.
@@ -286,6 +296,17 @@ and in a party its heals, shields and summons matter more than its damage. Rules
   'faded'|'broke', x, y}`. The client glides each to its newest spot. Art: a see-through mint slime ghost
   with a wispy tail, a paper lantern with a face, a three-block carved post with a green gem and a dashed
   ring on the ground, a big winged ghost with a halo.
+- **SP1's kinds** (`SUMMON_KINDS`: `hurt`, `planted`, `fly`; ids 5–9 of `SUMMON_WHATS`): the **phoenix** and the
+  **hawk** circle over their caster and dive (`flier`: there in `DIVE_MS`, the hit on arrival, then back; never a
+  mob target, never hurt); the phoenix picks the nearest mob within `PHOENIX_SEEK` and its `el` applies (fire
+  burns), the hawk what its caster last hit (`p.lastHit`, set in `damage()` by the caster's own hits) within
+  `HAWK_RANGE`, else the nearest ahead. **Sprites** are spirits, `count` at once (`summonCap`), each after a mob its
+  siblings aren't. The **stone guardian** (`guardian`) walks to the mob in front, taunts everything within its
+  radius every `GUARDIAN_TAUNT_S` (not a boss held by a focus or a Knight's taunt) and slams what's in front every
+  `every`; it's worn down like a spirit. The **blast trap** (`blast`) is set like a net; the first mob over it sets
+  it off on everything within its radius (`sumgone` with `how: 'boom'`). Every summon's hit is `summonHit`: MAGIC,
+  or the skill's `stat`. Art (`src/summons.js`) is a first look for SP2–SP5 to polish: a little firebird, a brown
+  hawk, sky-blue small spirits, a mossy block golem, a pad with a glowing rune.
 - **The damage meter** shows healing done and damage taken under the damage (`docs/combat/bosses.md`).
 
 ## The Archer (S4)
@@ -344,7 +365,8 @@ combat rooms, a row of small icons under the HP/MP panel (below the Players / Ch
 each with its time left (a number and a clock sweep) or its stacks. `statusOf(rpg, mine)` lists them; `StatusBox`
 draws the list (one HTML cell each, its icon painted once with `drawSkillIcon` / `drawItemIcon`).
 - On you today: Challenge the Gods, Berserk, Rally, Jelly Bubble, Aegis (from your slime's `*Until`, which both the
-  server's `me` and your own cast set), Barrier with what's left of it, Mend, a brewed potion, Mana Shield while
+  server's `me` and your own cast set), Barrier with what's left of it, Mend, SP1's long buffs (`me.buffs`, each with
+  its skill's icon, its time left and what it does: `fxText`), a brewed potion, Mana Shield while
   it's on (no timer), Momentum's stacks, Arcane Charge's charges, and Second Wind recharging (greyed).
 - **Debuffs** go first with a red rim: a boss's focus on you (`rpg.focusLeft()`), and a curse's stacks and time
   (S5.2, from `me.curse = { n, left }`).
@@ -353,6 +375,43 @@ draws the list (one HTML cell each, its icon painted once with `drawSkillIcon` /
   Phones: the strip sits in the free space left of the screen between the HUD buttons and the movement pad, cells
   of 32 instead of 30. The panels come later in the page and cover it.
 - A new buff or debuff: add its line to `statusOf` (a skill id for its icon, or a drawn one like the focus's).
+
+## The skill pool's machinery (SP1)
+`story/skills-plan.md`, "What's new under the hood". Built 2026-10-24 and shipped dark: no learnable skill uses it
+yet; SP2–SP5 declare their skills on it (data in `SKILLS`, rules and constants in `src/shared/skills.js` from
+`BUFF_FX` on). `TEST_SKILLS=1` on a test server gives everyone test skills for each piece (`docs/testing.md`).
+- **Long buffs**: a `buff` with `fx(rank)` (effects named in `BUFF_FX`: `atk`, `magic`, `def`, `hp`, `crit`,
+  `critDmg`, `exp`, `cut`) and a minutes-long `dur`; `party` is the radius it reaches friends in. Kept on the server
+  player as `p.buffs` (skill id → `{ until, fx, rank, by }`): one of each skill per slime, a recast refreshes it, a
+  weaker rank never replaces a stronger one, and different buffs (from anyone) stack. `buffFx` adds them up into
+  `statsFor`'s `buffs.long`, so ATK / MAGIC and the hit caps follow; `exp` raises every kill's EXP (`kill()`; a
+  faucet, `docs/economy.md`), `cut` takes a share off damage taken (`hurt()`). They last through room changes and
+  end on fainting, a rebirth (yours and friends' on you) and logging off (`load()` starts empty; nothing is saved).
+  `me.buffs` = `[[id, ms left, rank]]` for the status box. Berserk is still the old short `buff` (no `fx`).
+- **Fields** (`kind: 'field'`): `at` 'self' or 'ahead' (the client aims it at the first mob ahead within `range`;
+  the server clamps it), `shape` 'strip' (a band `radius` each way, `FIELD_TALL` high) or 'round', `mult` a tick
+  (`statOf`: ATK or MAGIC by class, or `stat`), `every`, `dur`, `el`, `heal`. Server-run (`fieldTick`, like burns):
+  each tick hits every mob inside through `damage()` as the caster's hit and heals every friend inside
+  (`healFrom`); one per skill per caster; it ends if the caster leaves the room or is knocked out. **A frost field
+  only chills** (`element(…, soft)`): ticking freezes would keep a pack frozen for ever. Wire: `{t:'fields', room,
+  f}` with the room's whole list on every change and on walking in, `{t:'fieldhit', h}` for its hits. Drawn by
+  `src/fields.js` under the mobs, a look per element (`FIELD_LOOKS`: fire, frost, holy, poison, plain).
+- **Damage over time** (`DOTS`): burn, and SP1's bleed and poison, all ticked by one loop in the server's tick as
+  the caster's hits; a skill's `dot: { kind, share }` leaves each mob it hits losing share × the hit a second
+  (`dotOn`: a fresh one keeps the stronger dps). Bleed and poison never join the Mage's combos. `{t:'burn', h, k}`
+  (k: 'bleed' / 'poison', in their own colours), mob flags 8192 / 16384 (drawn: red drops, green bubbles). The
+  client never routed `burn` before SP1 (it was missing from `RPG` in `src/net.js`), so burn numbers only show since.
+- **On-kill hooks** (`onKill` on a passive, or on an active skill for its own kills): `damage()` is the one place
+  a mob dies, and runs `onKill()` with what made the hit (`src`) and the mob's states as it died (`mobState`).
+  `burst` (a blast round the dead mob, `{t:'burst'}`; its `el` applies, so Ignite sets the pack alight and burning
+  kills set off more), `refund` (`{t:'refund', skill}`), `extendBuff` (Berserk or a long buff, never past its full
+  time), `ricochet`. Chains stop `ONKILL_DEPTH` deep. `when` and `from` filter (`onKillFrom`).
+- **Ricochet** keeps hits client-decided: the client's arrow kill (`showHit`'s `killed`) picks the next mob within
+  range and sends `{t:'skill', skill, from, hits}`; the server takes it only off a kill of `from` it saw itself
+  within `RICOCHET_MS` (`p.rico`, from `onKill`), onto a mob within range of it, capped like an arrow, up to `jumps`.
+- **Pull** (`pull` px on a hitting skill) and **taunt** (`taunt: true`): `pull()` slides every ordinary mob in reach
+  toward the caster over `PULL_MS` (`m.pull`, at the top of `stepMob`), never a boss, field boss or anchored mob,
+  never past its patrol; mob positions only. The echo carries `pulled` and `taunt` counts.
 
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js

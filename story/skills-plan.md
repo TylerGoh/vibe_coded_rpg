@@ -1,6 +1,7 @@
 # SP: the skill pool (plan)
 
-**Status: plan, written 2026-10-24 (owner's ask). Nothing built.** Comes first on the roadmap, ahead of
+**Status: SP1 built (2026-10-24, waiting for its deploy; ships dark except the K panel's Cast button). SP2–SP5
+next.** Written 2026-10-24 (owner's ask). Comes first on the roadmap, ahead of
 Greenhollow's final boss. Builds on the class design in `progression.md` (sections 1b, 1c, 3–7) and on how
 skills work today (`docs/combat/skills.md`). Read both first. Names here are working names; numbers live
 in `src/shared/skills.js` and are set by `npm run economy` (`CLASS_FIT`, `BAD_AT`), never guessed here.
@@ -147,6 +148,38 @@ Warrior's chase moves, Hook) is where new moves go.
 | SP4 | Cleric skills | SP1 |
 | SP5 | Archer skills | SP1 |
 | SP6 | Balance pass: all four at once in `npm run economy`, then the owner plays | SP2–SP5 |
+
+### SP1: built (2026-10-24, waiting for deploy)
+What landed (details: `docs/combat/skills.md`, "The skill pool's machinery (SP1)", and "Cast from the K panel"):
+- **Long buffs**: `kind: 'buff'` with `fx(rank)` (`BUFF_FX` names the effects: `atk`, `magic`, `def`, `hp`, `crit`,
+  `critDmg`, `exp`, `cut`), `party` (radius), `dur` in seconds (minutes long). Nothing else to write: the server
+  keeps them, `statsFor` folds them in, the status box shows them, faint / rebirth / logoff clear them.
+- **Fields**: `kind: 'field'` with `at`, `shape`, `radius`, `range`, `dur`, `every`, `mult`, `el`, `heal`, `look`.
+  A frost field only chills (no freeze per tick); fire burns.
+- **Damage over time**: `dot: { kind: 'bleed' | 'poison', share(rank) }` on any hitting skill.
+- **On-kill**: `onKill: { what: 'burst' | 'refund' | 'extendBuff' | 'ricochet', when?, from?, … }` on a passive (every
+  kill) or an active skill (its own kills). Ignite = burst `when: 'burning'`, `el: 'fire'`; Cold Snap = burst
+  `when: 'frozen'`, `el: 'frost'`; Execution = `refund` on the skill itself; Frenzy = `extendBuff` `buff: 'berserk'`;
+  Ricochet = `ricochet` `from: 'arrow'` (client-side part in `src/rpg.js ricochet`, already wired to bow shots and
+  arrow skills).
+- **Pull / taunt**: `pull: px` and `taunt: true` on any hitting skill (Ground Shake = a `spin` with both).
+- **Summons**: `what` 'phoenix' | 'sprite' (`count`) | 'guardian' | 'hawk' | 'blast', with `mult`, `life`, `every`,
+  `radius`, `el`, `stat`. Their art is a first look: polish it in your piece.
+- **The K panel**: Cast on every held active skill's card (double-click on desktop), cooldown sweeps, 5 nodes to a
+  branch line (more wrap), the hotbar hidden while it's open. This part is live once deployed.
+- `TEST_SKILLS=1` (test servers only) gives everyone a test skill per piece (`TEST_SKILLS` in `src/shared/skills.js`).
+What SP2–SP5 should know:
+- Skills only declare data; new `kind`s or `onKill.what`s go in `cast()` / `onKill()` in `server/rpg.js` and
+  `cast()` in `src/rpg.js` (and the echo in `skillEcho`). Give each new skill an icon in `src/skillfx.js` (`ICONS`,
+  `TREE_OF`): long buffs show it in the status box.
+- Not built, left to the pieces: Retribution's stored damage, Unbroken's DEF per attacker, Bloodlust, Devotion's
+  overheal barrier, Static, Combustion, Frost Armor's chill-on-touch, Resolve's "near your summons", Host (bump
+  `summonCap`), Eagle Eye, Huntmaster, Shield Bash's stun, Judgment's "more friends hurt", Cyclone, Genesis. Each
+  is a small rule on top of what's here.
+- Holy Symbol (SP4): an `exp` effect. Name its share as a constant and fold it into the sheet's pace
+  (`docs/economy.md`, "Long buffs"); the LONG BUFFS line in `npm run economy` lists it automatically.
+- The mob flag bits are full (16384 was the last spare): another mob state needs a wire version bump or a message.
+- Phones: the K panel fits 5 nodes per branch line at 667×375; a 6th wraps. Keep names short.
 
 SP2–SP5 touch different parts of `SKILLS` and their own effects. They can run side by side, but `src/shared/skills.js`
 is shared, so they merge one at a time. Each one deploys on its own: a class at a time is fine (the others

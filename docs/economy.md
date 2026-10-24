@@ -34,6 +34,10 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
 - **Changing class**: `rebirthCost` (S2's Rebirth Pool, not used in the game yet) against the sheet's own
   gold an hour, within `REBIRTH_FIT`.
 - **Classes** (S2.4): three tables, the CLASSES section below.
+- **Long buffs** (SP1, `story/skills-plan.md`): every long buff (`isLongBuff`) at its top rank, what it does and its
+  `exp` share. An `exp` effect is a faucet: every kill's EXP × (1 + share) for everyone it reaches (`kill()` in
+  `server/rpg.js`, through `statsFor`'s `exp`). None exists yet; SP4's Holy Symbol is the first, and names its
+  share as a constant in `src/shared/skills.js` like any faucet.
 - **Checks**: aimed sinks cost their `PRICE_BANDS` minutes of farming at their aim level, never more than
   `AIM_MAX` of everything farmed by then (early on, where levels take a couple of minutes, the low end gives
   way to `AIM_EARLY` of the savings); house sizes get dearer; furniture: every piece priced, a piece 4× the
@@ -320,6 +324,12 @@ first bosses that will curse or pulse (the Tidemother, Lv 25, in S5.4's draft), 
 farming in herbs; the real price is the royal sap, a boss drop, and `CURE_CD` keeps them a poor answer. They drop
 from nothing and sell to nobody's profit, so no faucet, sink or PROGRESS number moved. The new LOOT BY CLASS table
 lists each boss's twinned weapon; the check (`LOOT_TWIN_LVL` up) found every boss already had one.
+
+## The skill pool's machinery (SP1, 2026-10-24)
+Ships dark: long buffs, fields, bleed and poison, on-kill hooks, pulls and the new summons exist, but no skill a
+player can learn uses them yet (the test skills only appear with `TEST_SKILLS`, never live), so no faucet, sink or
+class table moved (`npm run economy` was identical before and after, plus the empty LONG BUFFS line). SP2–SP5 price
+their skills through the CLASSES tables as usual; an `exp` buff goes on the sheet as a faucet.
 
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.

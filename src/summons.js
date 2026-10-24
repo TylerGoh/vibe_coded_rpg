@@ -4,12 +4,17 @@
 // its newest spot. Their hits ({t:'sumhit'}) show like anyone's (src/rpg.js othersHits). Art: soft, pastel,
 // procedural, like the slimes. Positions: x, y = the feet (the wisp: its own middle). The Archer's Net Trap
 // (S4) is drawn here too: a rope net pegged out on the ground, flicking up when it catches something
-// ({t:'netcatch'}); the mob it caught wears the net (src/elements.js).
+// ({t:'netcatch'}); the mob it caught wears the net (src/elements.js). SP1's kinds are simple first looks that SP2–SP5
+// polish: the phoenix (a little firebird with a flame tail), sprites (small sky-blue spirits), the stone guardian (a
+// mossy block golem), the hawk (a brown bird with spread wings) and the blast trap (a round pad with a glowing rune
+// that goes off with a bang).
 import { TAU, clamp, circle, ellipse } from './util.js';
-import { SKILLS, WISP_R, SERAPH_R, NET_R } from './shared/skills.js';
+import { SKILLS, WISP_R, SERAPH_R, NET_R, SPRITE_SCALE } from './shared/skills.js';
 import { audio } from './audio.js';
 
-const WHATS = ['spirit', 'wisp', 'totem', 'seraph', 'net']; // (server/summons.js SUMMON_WHATS)
+const WHATS = ['spirit', 'wisp', 'totem', 'seraph', 'net', 'phoenix', 'sprite', 'guardian', 'hawk', 'blast']; // (server/summons.js SUMMON_WHATS)
+const UNHURT = new Set(['wisp', 'net', 'phoenix', 'hawk', 'blast']); // (no HP bar: nothing can hit them)
+const TOP = { seraph: 96, totem: 76, guardian: 70, sprite: 36 }; // (where the HP bar goes over its feet)
 const rand = (a, b) => a + Math.random() * (b - a);
 
 export class Summons {
@@ -49,6 +54,11 @@ export class Summons {
       const s = this.list.get(m.id);
       this.list.delete(m.id);
       if (m.how === 'sprung') return; // (a net that caught its last: the catch already showed)
+      if (m.how === 'boom') { // (SP1: a blast trap went off)
+        this.puffs.push({ x: s?.x ?? m.x, y: s?.y ?? m.y, what: 'boom', at: rpg.time });
+        audio.sfx('meteorHit', { pan: clamp((m.x - (mine?.x ?? m.x)) / 500, -1, 1), vol: 0.7 });
+        return;
+      }
       this.puffs.push({ x: s?.x ?? m.x, y: s?.y ?? m.y, what: s?.what ?? 'spirit', at: rpg.time, broke: m.how === 'broke' });
       if (m.how === 'broke') audio.sfx('bubblePop', { vol: 0.6 });
     } else if (m.t === 'netcatch') {
@@ -65,7 +75,7 @@ export class Summons {
   }
   // a summon just called (the caster's skill echo): a burst where it appears
   called(x, y, what) {
-    this.puffs.push({ x, y, what: what === 'net' ? 'set' : 'call', at: this.rpg.time });
+    this.puffs.push({ x, y, what: what === 'net' || what === 'blast' ? 'set' : 'call', at: this.rpg.time });
   }
   update(dt) {
     for (const s of this.list.values()) {
@@ -83,6 +93,7 @@ export class Summons {
   drawGround(ctx) {
     for (const s of this.list.values()) if (s.what === 'totem') totemRing(ctx, s);
     for (const s of this.list.values()) if (s.what === 'net') net(ctx, s, this.rpg.time);
+    for (const s of this.list.values()) if (s.what === 'blast') blastTrap(ctx, s, this.rpg.time);
   }
   draw(ctx) {
     const time = this.rpg.time;
@@ -92,8 +103,12 @@ export class Summons {
       else if (s.what === 'seraph') seraph(ctx, s);
       else if (s.what === 'wisp') wisp(ctx, s);
       else if (s.what === 'totem') totem(ctx, s);
+      else if (s.what === 'sprite') spirit(ctx, s, SPRITE_SCALE, true);
+      else if (s.what === 'phoenix') phoenix(ctx, s);
+      else if (s.what === 'hawk') hawk(ctx, s);
+      else if (s.what === 'guardian') guardian(ctx, s);
       ctx.restore();
-      if (s.what !== 'wisp' && s.what !== 'net' && s.hp < s.maxHp) hpBar(ctx, s.x - 20, s.y - (s.what === 'seraph' ? 96 : s.what === 'totem' ? 76 : 52), 40, 5, s.hp / s.maxHp);
+      if (!UNHURT.has(s.what) && s.hp < s.maxHp) hpBar(ctx, s.x - 20, s.y - (TOP[s.what] ?? 52), 40, 5, s.hp / s.maxHp);
     }
     for (const p of this.puffs) puff(ctx, p, (time - p.at) / 0.7);
   }
@@ -120,25 +135,26 @@ function glow(ctx, x, y, r, rgb, a) {
 }
 
 // The Jelly Spirit: a glowing see-through slime ghost, bobbing along with a wispy tail; it leans into each hit
-function spirit(ctx, s, scale) {
+// (sky: a sprite's sky-blue tint, SP1)
+function spirit(ctx, s, scale, sky = false) {
   const bob = Math.sin(s.t * 5) * 3, lean = s.lunge * 10 * s.dir;
   const x = s.x + lean, y = s.y - 10 + bob;
-  glow(ctx, x, y - 14 * scale, 34 * scale, '190,255,225', 0.45);
+  glow(ctx, x, y - 14 * scale, 34 * scale, sky ? '190,225,255' : '190,255,225', 0.45);
   ctx.translate(x, y);
   ctx.scale(scale * (1 + Math.sin(s.t * 9) * 0.03), scale * (1 - Math.sin(s.t * 9) * 0.03));
   ctx.globalAlpha = 0.85;
   // the tail: three soft scallops trailing behind
-  ctx.fillStyle = 'rgba(200,250,228,0.75)';
+  ctx.fillStyle = sky ? 'rgba(200,228,255,0.75)' : 'rgba(200,250,228,0.75)';
   for (let i = 0; i < 3; i++) {
     const tx = -s.dir * (8 + i * 7), ty = 2 + Math.sin(s.t * 7 + i) * 2;
     circle(ctx, tx, ty, 7 - i * 1.6);
   }
   // the body
   const g = ctx.createLinearGradient(0, -30, 0, 4);
-  g.addColorStop(0, '#f2fff8');
-  g.addColorStop(1, '#a9ecc9');
+  g.addColorStop(0, sky ? '#f2f8ff' : '#f2fff8');
+  g.addColorStop(1, sky ? '#a9d2f0' : '#a9ecc9');
   ctx.fillStyle = g;
-  ctx.strokeStyle = s.flash > 0 ? `rgba(255,120,140,${0.6 + s.flash * 0.4})` : 'rgba(70,150,115,0.7)';
+  ctx.strokeStyle = s.flash > 0 ? `rgba(255,120,140,${0.6 + s.flash * 0.4})` : sky ? 'rgba(70,120,170,0.7)' : 'rgba(70,150,115,0.7)';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(-17, 2);
@@ -376,11 +392,172 @@ function net(ctx, s, time) {
   ctx.restore();
 }
 
+// ——— SP1's summons (simple first looks; SP2–SP5 polish them) ———
+// The phoenix: a small round firebird, wings beating, a tail of flame streaming behind (it leans into a dive)
+function phoenix(ctx, s) {
+  const x = s.x, y = s.y, flap = Math.sin(s.t * 14) * 0.6, d = s.dir;
+  glow(ctx, x, y, 40, '255,170,90', 0.5);
+  for (let i = 0; i < 4; i++) { // the tail: flame tongues trailing
+    const tx = x - d * (12 + i * 8), ty = y + 2 + Math.sin(s.t * 9 + i) * 3;
+    ctx.fillStyle = i % 2 ? 'rgba(255,200,110,0.8)' : 'rgba(255,130,80,0.8)';
+    ellipse(ctx, tx, ty, 8 - i * 1.5, 4 - i * 0.6);
+  }
+  for (const side of [-1, 1]) { // wings
+    ctx.save();
+    ctx.translate(x, y - 2);
+    ctx.rotate(side * (0.4 + flap));
+    ctx.fillStyle = '#ffb25a';
+    ctx.strokeStyle = '#d0603a';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.ellipse(-d * 2, side * -9, 13, 6, side * 0.5, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+  ctx.fillStyle = '#ffd27a'; // body
+  ctx.strokeStyle = '#d0603a';
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 11, 9, 0, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#f08a3a'; // beak
+  ctx.beginPath();
+  ctx.moveTo(x + d * 10, y - 3);
+  ctx.lineTo(x + d * 17, y);
+  ctx.lineTo(x + d * 10, y + 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#5a2a1a';
+  circle(ctx, x + d * 5, y - 3, 1.7);
+  ctx.fillStyle = '#ff8a52'; // crest
+  ellipse(ctx, x - d * 2, y - 11, 3, 5, -d * 0.4);
+}
+// The hawk: a brown bird with long spread wings, gliding (wings beat faster in a dive)
+function hawk(ctx, s) {
+  const x = s.x, y = s.y, d = s.dir, flap = Math.sin(s.t * (s.lunge ? 18 : 6)) * 0.35;
+  ctx.fillStyle = 'rgba(60,40,30,0.12)';
+  ctx.strokeStyle = '#5a3c26';
+  ctx.lineWidth = 1.6;
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(side * flap);
+    ctx.fillStyle = '#b8875a';
+    ctx.beginPath();
+    ctx.moveTo(0, -2);
+    ctx.quadraticCurveTo(-d * 4, side * -16, -d * 10, side * -24);
+    ctx.quadraticCurveTo(d * 4, side * -14, d * 6, -2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+  ctx.fillStyle = '#9a6a42';
+  ctx.beginPath();
+  ctx.ellipse(x, y, 12, 6, 0, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#e8dcc8'; // head
+  ctx.beginPath();
+  ctx.arc(x + d * 10, y - 2, 5, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#f2c14e'; // beak
+  ctx.beginPath();
+  ctx.moveTo(x + d * 14, y - 3);
+  ctx.lineTo(x + d * 19, y);
+  ctx.lineTo(x + d * 14, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#2a1a10';
+  circle(ctx, x + d * 11, y - 3, 1.2);
+  ctx.fillStyle = '#7a5232'; // tail
+  ctx.beginPath();
+  ctx.moveTo(x - d * 10, y - 3);
+  ctx.lineTo(x - d * 20, y - 6);
+  ctx.lineTo(x - d * 20, y + 5);
+  ctx.lineTo(x - d * 10, y + 3);
+  ctx.closePath();
+  ctx.fill();
+}
+// The stone guardian: a squat golem of rounded grey blocks with moss on its shoulders and two glowing eyes; it
+// leans into a slam
+function guardian(ctx, s) {
+  const lean = s.lunge * 8 * s.dir, x = s.x + lean + (s.flash ? rand(-1.5, 1.5) : 0), y = s.y, d = s.dir;
+  const step = Math.sin(s.t * 6) * 2;
+  ctx.fillStyle = 'rgba(60,50,70,0.18)';
+  ellipse(ctx, x, y, 26, 5);
+  ctx.strokeStyle = s.flash > 0 ? '#e0607a' : '#5a5668';
+  ctx.lineWidth = 2;
+  const block = (bx, by, w, h, c, r = 6) => {
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    ctx.roundRect(bx - w / 2, by - h, w, h, r);
+    ctx.fill();
+    ctx.stroke();
+  };
+  block(x - 9, y + step * 0.5, 12, 14, '#a9a4b8'); // legs
+  block(x + 9, y - step * 0.5, 12, 14, '#a9a4b8');
+  block(x, y - 12, 40, 34, '#c4c0d2', 9); // body
+  block(x - d * 22, y - 18 + s.lunge * 6, 12, 26, '#b4afc4'); // arms
+  block(x + d * 24, y - 18 - s.lunge * 10, 13, 28, '#b4afc4');
+  block(x + d * 2, y - 44, 24, 18, '#d2cedd', 7); // head
+  ctx.fillStyle = '#8fd07a'; // moss
+  ellipse(ctx, x - 12, y - 46, 7, 3);
+  ellipse(ctx, x + 10, y - 45, 6, 2.6);
+  glow(ctx, x + d * 6, y - 53, 10, '150,230,255', 0.6);
+  ctx.fillStyle = '#7fe0ff'; // eyes
+  ellipse(ctx, x + d * 1, y - 53, 2, 2.6);
+  ellipse(ctx, x + d * 9, y - 53, 2, 2.6);
+}
+// The blast trap: a round pad pegged on the ground with a glowing rune that pulses faster the longer it waits
+function blastTrap(ctx, s, time) {
+  const x = s.x, y = s.y - 2, pulse = 0.5 + 0.5 * Math.sin(time * 6 + s.id);
+  ctx.save();
+  ctx.fillStyle = 'rgba(60,40,30,0.16)';
+  ellipse(ctx, x, y + 2, 30, 8);
+  ctx.fillStyle = '#7a6a5a';
+  ctx.strokeStyle = '#4a3a2e';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 24, 7, 0, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = `rgba(255,120,90,${0.5 + 0.5 * pulse})`;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 14, 4, 0, 0, TAU);
+  ctx.moveTo(x - 9, y);
+  ctx.lineTo(x + 9, y);
+  ctx.moveTo(x, y - 3.5);
+  ctx.lineTo(x, y + 3.5);
+  ctx.stroke();
+  ctx.restore();
+}
+
 // fading out (motes rising), breaking (shards and a pop), appearing (a ring of light), a net set down (a
-// puff of dust), or a net snapping up round a mob (cords flicking up and in)
+// puff of dust), or a net snapping up round a mob (cords flicking up and in); SP1: a blast trap going off (boom)
 function puff(ctx, p, k) {
   const a = 1 - k;
   ctx.save();
+  if (p.what === 'boom') {
+    ctx.fillStyle = `rgba(255,180,110,${a * 0.5})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y - 10, 20 + 90 * k, Math.PI, TAU);
+    ctx.fill();
+    ctx.strokeStyle = `rgba(255,230,170,${a})`;
+    ctx.lineWidth = 4 * a + 1;
+    ctx.stroke();
+    for (let i = 0; i < 8; i++) {
+      const ang = Math.PI + (i / 7) * Math.PI, d = 20 + 70 * k;
+      ctx.fillStyle = `rgba(120,100,90,${a})`;
+      circle(ctx, p.x + Math.cos(ang) * d, p.y - 10 + Math.sin(ang) * d * 0.8, 3);
+    }
+    ctx.restore();
+    return;
+  }
   if (p.what === 'set' || p.what === 'snap') {
     ctx.strokeStyle = `rgba(184,148,94,${a})`;
     ctx.lineWidth = 2;

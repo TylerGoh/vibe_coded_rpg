@@ -70,6 +70,12 @@ protocol is documented in the comment at the top of that file: keep it updated**
   `RPG` set); a hit on a mob may carry a 5th element (`h[4]`: aimed at an open weak point); `hurt` may carry `dot`
   and `me` a `curse`. New boss events: `curseWarn`, `curseHit`, `shieldUp`, `shieldBreak`, `shieldDrop`, `crack`,
   `weakOpen`, `weakBreak`, `stagger`, `ultCancel` (listed in the protocol comment in `server/index.js`).
+- 2026-10-24 (SP1, the skill pool's machinery): no wire version change. Two more mob flags in the same spare bits
+  (8192 bleeding, 16384 poisoned: the 7 bits are now full, so the next mob state needs a version bump or its own
+  message), `burn` grows `k`, and new low-rate JSON messages: `fields` (a room's whole list, on change and on
+  walking in; it carries its `room` so a list that arrives just before the client has switched rooms isn't wiped),
+  `fieldhit`, `burst`, `refund`; `me` grows `buffs`; a Ricochet is a `skill` with `from`. `burn` was missing from
+  `RPG` in `src/net.js`, so burns' numbers never showed until SP1 routed it.
 - Ideas not done yet: send snapshots of only the slimes in your room (plus broadcasters), or at 30 Hz
   for remote slimes; delta-encode mob updates.
 

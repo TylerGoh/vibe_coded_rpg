@@ -4,17 +4,20 @@
 // the feet and a few drifting flakes. Frozen: a crust of ice over the body, with glints and icicles. Burning:
 // small flames licking over the top and sparks rising. Cheap on purpose (docs/performance.md): flat fills
 // and strokes, no gradients or glows, a handful of shapes per mob. The Archer's (S4) too: Hunter's Mark, a red
-// target ring turning over the mob's head, and a Net Trap's net thrown over a caught mob.
+// target ring turning over the mob's head, and a Net Trap's net thrown over a caught mob. SP1's damage over time:
+// bleeding (red drops falling off it) and poisoned (green bubbles rising off it).
 import { TAU } from './util.js';
 
 // v: a mob view (x = middle, y = feet; v.chill / v.frozen / v.burning set in src/rpg.js update) · k: its MOBS entry
 export function drawMobState(ctx, v, k, time) {
-  if (!v.chill && !v.frozen && !v.burning && !v.marked && !v.netted) return;
+  if (!v.chill && !v.frozen && !v.burning && !v.marked && !v.netted && !v.bleeding && !v.poisoned) return;
   const w = k.w, h = k.h, x = v.x, y = v.y, s = v.seed ?? 0;
   ctx.save();
   if (v.frozen) drawIce(ctx, x, y, w, h, time, s, k.boss || k.field);
   else if (v.chill) drawChill(ctx, x, y, w, h, time, s);
   if (v.burning) drawFlames(ctx, x, y, w, h, time, s);
+  if (v.bleeding) drawBleed(ctx, x, y, w, h, time, s);
+  if (v.poisoned) drawPoison(ctx, x, y, w, h, time, s);
   if (v.netted) drawNet(ctx, x, y, w, h, time);
   if (v.marked) drawMark(ctx, x, y - h - 18, Math.min(18, 8 + w * 0.12), time);
   ctx.restore();
@@ -55,6 +58,36 @@ function drawNet(ctx, x, y, w, h, time) {
     ctx.fill();
   }
   ctx.restore();
+}
+
+// Bleeding (SP1): a few red drops sliding off the body and falling to the floor, over and over
+function drawBleed(ctx, x, y, w, h, time, s) {
+  ctx.fillStyle = '#e2475e';
+  for (let i = 0; i < 3; i++) {
+    const k = (time * 1.4 + i / 3 + s) % 1, px = x + (i - 1) * w * 0.25, py = y - h * 0.7 + k * h * 0.7;
+    ctx.globalAlpha = 1 - k * 0.6;
+    ctx.beginPath();
+    ctx.moveTo(px, py - 5);
+    ctx.quadraticCurveTo(px + 3.5, py + 1, px, py + 3);
+    ctx.quadraticCurveTo(px - 3.5, py + 1, px, py - 5);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+// Poisoned (SP1): green bubbles rising off it and popping
+function drawPoison(ctx, x, y, w, h, time, s) {
+  ctx.fillStyle = 'rgba(176,230,120,0.75)';
+  ctx.strokeStyle = '#6aa83e';
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < 4; i++) {
+    const k = (time * 0.9 + i / 4 + s * 0.3) % 1, px = x + Math.sin(i * 2.3 + s) * w * 0.35, py = y - h * 0.5 - k * h * 0.8;
+    ctx.globalAlpha = 1 - k;
+    ctx.beginPath();
+    ctx.arc(px, py, 2 + k * 3, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
 }
 
 // Hunter's Mark: a red ring with four ticks, turning slowly, and a dot in the middle, over the mob's head

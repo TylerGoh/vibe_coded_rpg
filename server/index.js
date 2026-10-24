@@ -52,7 +52,16 @@
 //       (skill 'leap_slam' / 'upward_cut': a chase move's hits, s = the input it landed / went off at)
 //       A fire spell's hit may be [mobId, dmg, crit, 1]: the client saw the mob frozen (a shatter); the echo's hits
 //       are [id, dmg, crit, killed, 1?] (1: shattered), and `arcane` is the Arcane Charges the spell spent
-//   ← {t:'burn', h:[[mobId, dmg, 0, killed]]}  burns ticking on mobs in your room (the Mage's combos)
+//   ← {t:'burn', h:[[mobId, dmg, 0, killed]], k?}  burns ticking on mobs in your room (the Mage's combos); k 'bleed' |
+//       'poison': SP1's other damage over time (skills.js DOTS), drawn in their own colours
+//   SP1 (the skill pool's machinery, skills.js): ← {t:'fields', room, f:[[id, skill, owner, x, y, r, round, msLeft, look]]}
+//       every field in your room, whenever that list changes and on walking in (look: FIELD_LOOKS index) ·
+//       ← {t:'fieldhit', h:[[fieldId, hits]]} a field's hits · ← {t:'burst', id, skill, x, y, r, el?, h} an on-kill
+//       burst round a dead mob · ← {t:'refund', skill} (just you) an on-kill hook gave that skill's cooldown back ·
+//       a Ricochet's jump is → {t:'skill', skill, s, hits, from} (from: the mob whose kill it jumps off; the echo
+//       carries `from` too) · the skill echo's `targets` and `dur` say who got a long buff, `field` a field's id,
+//       `pulled` / `taunt` how many mobs a pull / taunt moved · `me` has buffs [[skill id, ms left, rank]] ·
+//       mob flags 8192 bleeding, 16384 poisoned
 //   → {t:'ouch', s, mob, kind:'touch'|'charge'|'slam'|'rain', mx}  a mob hit me (the server applies the same knockback)
 //   → {t:'pickup', s}
 //   ← {t:'nomana'}  a skill you tried had too little MP
@@ -67,8 +76,8 @@
 //   → {t:'wear', id, on} · {t:'showhelm', on}  Boutique cosmetics (gear messages carry wear / showHelmet)
 //   ← {t:'mobs', k, m:[[id, kind, x, y, hp, flags, maxHp]], b?}  30 Hz to each combat room (kind: index into
 //       MOB_KINDS; flags 1 facing left · 2 walking · 4 angry · 8 telegraphing · 16 charging · 32 enraged ·
-//       64 slowed · 128 special · 256 chilled · 512 frozen · 1024 burning (binary: wire.js, version 5 for the
-//       last three); b: seconds until a den's boss is back)
+//       64 slowed · 128 special · 256 chilled · 512 frozen · 1024 burning · 2048 marked · 4096 netted · 8192 bleeding ·
+//       16384 poisoned (binary: wire.js, version 5 for those past the byte); b: seconds until a den's boss is back)
 //   ← {t:'boss', a:'warn'|'charge'|'leap'|'slam'|'rain'|'rainHit'|'summon'|'phase'|'rage'|'ultWarn'|'ultHit'|'die', id, x, y, dir,
 //       act?, dur?, marks?, r?, tx?, n? (phase), kind/name/safe/lanes/x0/speed? (ultimates)}
 //   ← {t:'guard', id, what:'pop'|'block'|'secondwind'|'barrier'|'soak'}  a Jelly Bubble / Aegis took a hit, Second Wind saved
@@ -607,7 +616,7 @@ async function login(id, p, m) {
     const town = TOWNS[state.town];
     if (!process.env.TEST_SPAWN && (p.goHome || !restorePos(acc.user, state)) && town.room !== VILLAGE) placeAt(state, town.room, town.x + Math.floor(Math.random() * 120));
   }
-  send(p.ws, { t: 'welcome', id, tick, rate: TICK_RATE, ...(speed > 1 && { speed, now: Date.now() }), ice, build: buildId(), players: [...players].filter(([, q]) => q.joined).map(([i, q]) => info(q, i)), casts: [...players].filter(([, q]) => q.joined && q.cast).map(([i]) => i) });
+  send(p.ws, { t: 'welcome', id, tick, rate: TICK_RATE, ...(speed > 1 && { speed, now: Date.now() }), ...(process.env.TEST_SKILLS && { testSkills: 1 }), ice, build: buildId(), players: [...players].filter(([, q]) => q.joined).map(([i, q]) => info(q, i)), casts: [...players].filter(([, q]) => q.joined && q.cast).map(([i]) => i) });
   broadcast({ t: 'join', ...info(p, id) }, id);
   rpg.sendMe(p);
   houses.sendOwned(p);

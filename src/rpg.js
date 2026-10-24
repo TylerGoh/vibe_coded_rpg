@@ -12,11 +12,12 @@ import { drawBoss, drawBossBar, BossFx, drawUltBanner } from './dens.js';
 import { drawHazard } from './hazards.js';
 import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, drawBarrier, drawRallyAura, drawAegisAura } from './skillfx.js';
 import { Summons } from './summons.js';
+import { Fields } from './fields.js';
 import { Party } from './party.js';
 import { StatusBox, statusOf } from './status.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, STAFF_BOLT_RANGE, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE, curseMult, heavyHit } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds } from './shared/skills.js';
+import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds, isLongBuff, DOTS, statOf } from './shared/skills.js';
 import { drawMobState } from './elements.js';
 import { staffGlow } from './staff-art.js';
 import { bowTint } from './bow-art.js';
@@ -39,6 +40,7 @@ const TILE = 150; // den floor tiles for the grid attacks
 // each skill kind's sound (id: the skill, for the ones that sound different)
 const SKILL_SOUND = Object.fromEntries(Object.entries({
   strike: (id) => (id === 'sky_splitter' ? 'skySplitter' : 'powerStrike'), cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter', mend: 'heal', miracle: 'aegis', revive: 'secondWind', barrier: 'bubble', summon: 'rally',
+  field: 'nova', // (SP1)
   shot: (id) => (id === 'snipe' ? 'snipe' : 'bowShot'), pierce: (id) => (id === 'heartseeker' ? 'snipe' : 'pierce'), rain: 'arrowRain', mark: 'mark',
 }).map(([k, v]) => [k, typeof v === 'function' ? v : () => v]));
 const kickFrom = (me, mx, knock) => ({ vx: Math.sign(me.x - mx || 1) * knock, vy: -Math.min(420, knock * 1.1) });
@@ -66,6 +68,7 @@ export class Rpg {
     this.dmg = new Map(); // boss / field boss id → { kind, d: [[name, damage], …], at }: the damage meter
     this.fx = new SkillFx();
     this.summons = new Summons(this); // the Cleric's spirits, wisps and totems (S3)
+    this.fields = new Fields(this); // SP1's fields on the ground (src/fields.js)
     this.party = new Party(this); // S5's party mechanics on bosses (src/party.js)
     this.status = new StatusBox(document.getElementById('status')); // what's on you, under the HP panel (src/status.js)
     this.downNear = () => false; // (x, y, r) → is a knocked-out slime there? (main.js: Revive's check)
@@ -138,11 +141,13 @@ export class Rpg {
       this.onAnnounce?.(m.text);
       audio.sfx('levelup');
     } else if (m.t === 'burn') {
-      // burns ticking (the Mage's combos): small orange numbers on every burning mob, anyone's
+      // burns ticking (the Mage's combos): small orange numbers on every burning mob, anyone's; SP1's bleeds and
+      // poisons (k) the same in their own colours (skills.js DOTS)
+      const color = DOTS[m.k ?? 'burn']?.color ?? '#ffa860';
       for (const [id, dmg, , killed] of m.h ?? []) {
         const v = this.views.get(id);
         if (!v || this.killed.has(id)) continue;
-        this.pop(v.x + rand(-10, 10), v.y - MOBS[v.kind].h - 8, String(dmg), '#ffa860', 14);
+        this.pop(v.x + rand(-10, 10), v.y - MOBS[v.kind].h - 8, String(dmg), color, 14);
         if (killed) this.mobDied(v, mine?.x ?? v.x);
       }
     } else if (m.t === 'thirst') {
@@ -187,6 +192,20 @@ export class Rpg {
       this.party.curse(m);
     } else if (m.t === 'summons' || m.t === 'sumhit' || m.t === 'sumhurt' || m.t === 'sumgone' || m.t === 'netcatch') {
       this.summons.receive(m, { mine });
+    } else if (m.t === 'fields') {
+      this.fields.receive(m); // (SP1)
+    } else if (m.t === 'fieldhit') {
+      for (const [, hits] of m.h ?? []) this.othersHits(hits, mine?.x ?? 0);
+    } else if (m.t === 'burst') {
+      // an on-kill burst round a dead mob (SP1: Ignite, Cold Snap): a ring in its element, and its hits
+      this.fx.spawn('nova', { x: m.x, y: m.y + 20, radius: m.r, tint: m.el === 'fire' ? 'fire' : m.el === 'frost' ? undefined : 'mana' });
+      for (const [id] of m.h ?? []) { const v = this.views.get(id); if (v && m.el) this.predictEl(v, m.el, false); }
+      this.othersHits(m.h, mine?.x ?? m.x);
+      audio.sfx('nova', { pan: panX(m.x, mine?.x ?? m.x), vol: 0.6 });
+    } else if (m.t === 'refund') {
+      // an on-kill hook gave a skill's cooldown back (SP1: Execution)
+      this.cds[m.skill] = 0;
+      if (mine) this.pop(mine.x, mine.y - 96, 'RESET!', '#9fe0ff', 16);
     } else if (m.t === 'bossdmg') {
       if (m.d.length) this.dmg.set(m.id, { kind: m.kind, d: m.d, h: m.h ?? [], k: m.k ?? [], at: this.time });
       else this.dmg.delete(m.id); // its HP was reset: the meter starts over
@@ -222,8 +241,9 @@ export class Rpg {
   shownHp(v) {
     return v.localUntil > this.time ? Math.min(v.hp, v.localHp) : v.hp;
   }
-  // Show our hit straight away: number, flash, voice; a predicted kill hides the mob until the server agrees
-  showHit(v, dmg, crit, myX, delay = 0) {
+  // Show our hit straight away: number, flash, voice; a predicted kill hides the mob until the server agrees.
+  // killed: called if this hit kills it (SP1: an arrow's Ricochet)
+  showHit(v, dmg, crit, myX, delay = 0, killed = null) {
     const k = MOBS[v.kind];
     v.hurt = 1;
     v.localHp = this.shownHp(v) - dmg;
@@ -234,7 +254,29 @@ export class Rpg {
     this.pop(v.x, v.y - k.h - 14, String(dmg), crit ? '#ff5d8f' : '#ffffff', crit ? 26 : 20, delay);
     audio.sfx(crit ? 'crit' : 'hit', { pan: panX(v.x, myX) });
     audio.sfx('mobHurt', { kind: MOBS[v.kind].base ?? v.kind, pan: panX(v.x, myX), vol: 0.8 });
-    if (v.localHp <= 0) this.mobDied(v, myX);
+    if (v.localHp <= 0 && !this.killed.has(v.id)) {
+      this.mobDied(v, myX);
+      killed?.();
+    }
+  }
+  // SP1's Ricochet (a passive whose onKill is 'ricochet'): our arrow just killed v, so it jumps on to the nearest mob
+  // within the passive's range of it. We decide that hit like any other; the server takes it only off a kill it saw
+  // itself, and caps it (server/rpg.js ricochet). depth: how many jumps already (the passive's `jumps` at most).
+  ricochet(v, depth = 0) {
+    const m = this.me;
+    const id = m && Object.keys(m.skills ?? {}).find((k) => SKILLS[k]?.kind === 'passive' && SKILLS[k].onKill?.what === 'ricochet' && m.skills[k] > 0);
+    if (!id || !isCombat(this.room)) return;
+    const ok = SKILLS[id].onKill, rank = m.skills[id];
+    if (depth >= (ok.jumps ?? 1)) return;
+    const next = this.targets().filter((q) => q !== v && !this.killed.has(q.id) && Math.abs(q.x - v.x) < ok.range + MOBS[q.kind].w / 2 && Math.abs(q.y - v.y) < ok.range).sort((a, b) => Math.abs(a.x - v.x) - Math.abs(b.x - v.x))[0];
+    if (!next) return;
+    let [dmg, crit] = this.roll(m.atk, ok.mult(rank) * arrowBonus(m.skills, null, this.slowed(next), 0) * this.markOn(next));
+    dmg = Math.max(1, Math.round(dmg * this.shellCut(next, v.x)));
+    const k = MOBS[v.kind], fy = v.y - k.h / 2, ty = next.y - MOBS[next.kind].h / 2, dur = Math.abs(next.x - v.x) / BOW_SHOT_SPEED + 0.03;
+    this.fx.spawn('arrow', { x: v.x, y: fy, tx: next.x, ty, dur, hit: true, tint: bowTint(m.gear?.weapon) });
+    this.pop(v.x, v.y - k.h - 34, 'RICOCHET', '#e6f0a8', 14);
+    this.send({ t: 'skill', skill: id, s: this.net.seq, dir: Math.sign(next.x - v.x) || 1, from: v.id, hits: [[next.id, dmg, crit]] });
+    setTimeout(() => this.showHit(next, dmg, crit, v.x, 0, () => this.ricochet(next, depth + 1)), dur * 1000);
   }
   mobDied(v, myX) {
     if (this.killed.has(v.id)) return;
@@ -357,7 +399,7 @@ export class Rpg {
     if (rankOf(m.skills, 'barbed_arrows')) v.slowLocal = this.time + dur + 1;
     setTimeout(() => {
       this.blocked(v, cut);
-      this.showHit(v, dmg, crit, sx);
+      this.showHit(v, dmg, crit, sx, 0, () => this.ricochet(v));
     }, dur * 1000);
     return [weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]];
   }
@@ -501,8 +543,9 @@ export class Rpg {
       msg.hits.push(weak ? [v.id, dmg, crit, shatter ? 1 : 0, 1] : shatter ? [v.id, dmg, crit, 1] : [v.id, dmg, crit]);
       if (sk.el) this.predictEl(v, sk.el, shatter);
       if (shatter) this.shatterFx(v, delay);
-      if (delay) setTimeout(() => this.showHit(v, dmg, crit, sx), delay * 1000);
-      else this.showHit(v, dmg, crit, sx);
+      const rico = kinds.arrow ? () => this.ricochet(v) : null; // (SP1: an arrow that kills may jump on)
+      if (delay) setTimeout(() => this.showHit(v, dmg, crit, sx, 0, rico), delay * 1000);
+      else this.showHit(v, dmg, crit, sx, 0, rico);
     };
     const sx = me.x, sy = me.y, reach = SLAP_REACH + (this.swordOf(m)?.reach ?? 0) + (sk.reach ?? 0);
     const mag = (sk.stat === 'best' ? Math.max(m.atk, m.magic) : m.magic) * (sk.fire ? m.fire ?? 1 : 1) * (sk.holy ? m.heal ?? 1 : 1);
@@ -623,7 +666,18 @@ export class Rpg {
       const s = this.cleanseTarget(me, sk.radius);
       this.fx.spawn('heal', { x: sx, y: sy, radius: 90, targets: s ? [{ x: s.x, y: s.y }] : [] });
     } else if (sk.kind === 'summon') {
-      this.summons.called(sx + (sk.what === 'totem' || sk.what === 'net' ? 0 : dir * 36), sy, sk.what);
+      this.summons.called(sx + (sk.what === 'totem' || sk.what === 'net' || sk.what === 'blast' ? 0 : dir * 36), sy, sk.what);
+    } else if (sk.kind === 'field') {
+      // SP1: planted round us, or on the first mob ahead; the server sends it to the room to draw (src/fields.js)
+      if (sk.at === 'ahead') {
+        const [v] = this.ahead(me, dir, sk.range, 0);
+        msg.tx = Math.round(v ? v.x : sx + dir * sk.range * 0.6);
+        msg.ty = Math.round(v ? v.y : sy);
+      }
+      this.fx.spawn('nova', { x: msg.tx ?? sx, y: (msg.ty ?? sy) + 10, radius: 50, tint: sk.el === 'fire' ? 'fire' : sk.el === 'frost' ? undefined : 'mana' });
+    } else if (isLongBuff(sk)) {
+      // SP1's long buffs: the status box shows them once the server's 'me' says so
+      this.fx.spawn(sk.party ? 'rally' : 'buff', { x: sx, y: sy, radius: sk.party });
     } else if (sk.kind === 'buff') {
       if (mine) mine.berserkUntil = this.time + sk.dur;
       this.fx.spawn('buff', { x: sx, y: sy });
@@ -701,7 +755,7 @@ export class Rpg {
     if (m.id === myId || !caster || caster.visible === false) return;
     const x = caster.x, y = caster.y, vol = 0.6, pan = panX(x, myX);
     if (m.arcane) this.pop(x, y - 112, `ARCANE x${m.arcane}`, '#c4cdff', 14);
-    if (sk.kind === 'buff') caster.berserkUntil = this.time + (m.dur ?? 20);
+    if (sk.kind === 'buff' && !isLongBuff(sk)) caster.berserkUntil = this.time + (m.dur ?? 20);
     if (sk.kind === 'bubble') caster.bubbleUntil = this.time + (m.dur ?? 8);
     if (sk.kind === 'gods') caster.godsUntil = this.time + (m.dur ?? 15);
     const follow = () => ({ x: caster.x, y: caster.y });
@@ -718,8 +772,13 @@ export class Rpg {
     else if (sk.kind === 'heal' || sk.kind === 'miracle') this.fx.spawn('heal', { x, y, radius: Math.min(sk.radius, 400), targets: (m.heals ?? []).map(([pid]) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'mend' || sk.kind === 'revive' || sk.kind === 'cleanse') this.fx.spawn('heal', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'barrier') this.fx.spawn('barrier', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
-    else if (sk.kind === 'summon' && m.sx !== undefined) this.summons.called(m.sx, m.sy);
-    else if (sk.kind === 'buff') this.fx.spawn('buff', { x, y });
+    else if (sk.kind === 'summon' && m.sx !== undefined) this.summons.called(m.sx, m.sy, sk.what);
+    else if (isLongBuff(sk)) this.fx.spawn(sk.party ? 'rally' : 'buff', { x, y, radius: sk.party }); // (SP1)
+    else if (sk.kind === 'field') this.fx.spawn('nova', { x: m.tx ?? x, y: (m.ty ?? y) + 10, radius: 50, tint: sk.el === 'fire' ? 'fire' : sk.el === 'frost' ? undefined : 'mana' });
+    else if (sk.onKill?.what === 'ricochet' && m.hits?.length) { // (SP1: someone's arrow jumping off a kill)
+      const v = this.views.get(m.hits[0][0]);
+      if (v) this.fx.spawn('arrow', { x: m.x, y: m.y - 20, tx: v.x, ty: v.y - MOBS[v.kind].h / 2, dur: Math.abs(v.x - m.x) / BOW_SHOT_SPEED + 0.03, hit: true, tint: bowTint(caster.gear?.weapon) });
+    } else if (sk.kind === 'buff') this.fx.spawn('buff', { x, y });
     else if (sk.kind === 'rally') this.fx.spawn('rally', { x, y, radius: sk.radius });
     else if (sk.kind === 'zone') this.fx.spawn('zone', { x, y, radius: sk.radius, dur: m.dur });
     else if (sk.kind === 'aegis') this.fx.spawn('aegis', { x, y, radius: sk.radius });
@@ -1093,6 +1152,7 @@ export class Rpg {
     this.flash = Math.max(0, (this.flash ?? 0) - dt * 3);
     this.fx.update(dt);
     this.summons.update(dt);
+    this.fields.update(dt);
     this.bossFx.update(dt);
     for (const g of this.ghosts) g.dying += dt * (MOBS[g.kind].boss ? 0.8 : 2.2);
     this.ghosts = this.ghosts.filter((g) => g.dying < 1);
@@ -1153,6 +1213,9 @@ export class Rpg {
       v.marked = !!(fl & 2048) || (v.markLocal ?? 0) > tt;
       if (!v.marked) v.markBy = null;
       v.netted = !!(fl & 4096);
+      // SP1's damage over time: 8192 bleeding · 16384 poisoned
+      v.bleeding = !!(fl & 8192);
+      v.poisoned = !!(fl & 16384);
       v.shield = mb[7];
       v.shieldMax = mb[8];
       v.t += dt;
@@ -1192,6 +1255,7 @@ export class Rpg {
     this.bossBack = 0;
     this.dmg.clear();
     this.summons.clear();
+    this.fields.clear(room);
     this.party.clear();
     this.ouchNext = null;
     this.ult = null;
@@ -1204,6 +1268,7 @@ export class Rpg {
 
   // ——— drawing, in world space ———
   drawWorld(ctx) {
+    this.fields.draw(ctx); // (SP1's fields, on the floor)
     this.summons.drawGround(ctx); // (a Guardian Totem's ring)
     for (const d of this.loot) {
       if (this.taken.has(d[0])) continue;

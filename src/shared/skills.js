@@ -115,6 +115,9 @@ export function advanceText(cls, lvl) {
 // damage past FAR_PX) · 'pierce' (an arrow through every mob in a line ahead, up to `targets`) · 'rain' (arrows
 // falling `hits` times on every mob within `radius` of the first mob ahead) · 'mark' (Hunter's Mark: everyone's
 // hits on the first mob ahead do `boost` more for `dur`) · 'summon' with `what: 'net'` (Net Trap, server-run).
+// SP1 (the skill pool's machinery, after the Archer's constants below): 'buff' with `fx` (a long buff, `party`
+// radius) · 'field' (an area that hits whatever is inside for a while) · on any hitting skill: `dot` (bleed /
+// poison), `pull`, `taunt`, `onKill` (also on passives) · new summon `what`s: phoenix, sprite, guardian, hawk, blast.
 const W = { cls: 'warrior', tree: 'warrior' }, M = { cls: 'mage', tree: 'mage' }, C = { cls: 'cleric', tree: 'cleric' }, A = { cls: 'archer', tree: 'archer' };
 export const SKILLS = {
   // ——— Novice (Novice points, Lv 1, kept forever; weak once you have a class) ———
@@ -533,11 +536,79 @@ export const RAIN_AT = 0.45, RAIN_EVERY = 0.22;
 // the bonuses an arrow gets on mob view / server mob v (the client's roll and the server's cap use the same
 // rules): Barbed Arrows on a slowed, chilled, frozen or netted mob · Snipe's and Heartseeker's long shot
 export const arrowBonus = (skills, sk, slowed, dist) => (1 + BARB_BONUS * rankOf(skills, 'barbed_arrows') * (slowed ? 1 : 0)) * (sk?.far && dist > FAR_PX ? 1 + FAR_BONUS : 1);
+// ——— SP1, the skill pool's machinery (story/skills-plan.md, "What's new under the hood"). It shipped dark: the
+// class skills that use it come in SP2–SP5; TEST_SKILLS (below) exercises it on a test server ———
+// Long buffs: kind 'buff' with `fx(rank)` (the effects, BUFF_FX) and a minutes-long `dur`; `party`: the radius it
+// reaches friends in (none: only you). Kept on the server player (p.buffs, one of each skill id: a weaker rank never
+// replaces a stronger one, a recast refreshes), fed to statsFor as buffs.long (buffFx adds them up, so the hit caps
+// follow), shown in the status box (me.buffs), cleared on fainting, a class change and logging off; room changes keep
+// them. Different buffs from different players stack. (Berserk is a `buff` with no fx: the old short kind.)
+// exp: more EXP from kills (server/rpg.js kill), a faucet: `npm run economy` lists every buff that has it.
+export const BUFF_FX = { atk: 'attack', magic: 'magic power', def: 'defence', hp: 'max HP', crit: 'critical chance', critDmg: 'critical damage', exp: 'EXP from kills', cut: 'less damage taken' };
+export const isLongBuff = (sk) => sk?.kind === 'buff' && !!sk.fx;
+// several long buffs' effects added up ({ atk: 0.2, … }; list: their fx objects)
+export function buffFx(list) {
+  const out = {};
+  for (const fx of list) for (const [k, v] of Object.entries(fx ?? {})) if (BUFF_FX[k]) out[k] = (out[k] ?? 0) + v;
+  return out;
+}
+// "+20% attack, +5% critical chance"
+export const fxText = (fx) => Object.entries(fx ?? {}).filter(([k, v]) => v && BUFF_FX[k]).map(([k, v]) => (k === 'cut' ? `${pct(v)} less damage taken` : `+${pct(v)} ${BUFF_FX[k]}`)).join(', ');
+// Fields (kind 'field'): an area on the ground that hits every mob inside it every `every` s for `dur` s, server-run like
+// burns (server/rpg.js fieldTick), through damage() as the caster's hit (the meter, EXP, loot). `at`: 'self' (round you)
+// or 'ahead' (on the first mob ahead within `range`, else out in front) · `shape`: 'strip' (a band `radius` each way
+// along the floor, FIELD_TALL high) or 'round' (a circle of `radius`) · `mult(rank)` × the caster's stat (statOf) a tick ·
+// `el`: it chills / burns like a spell (the Mage's combos) · `heal(rank)` × MAGIC × Holy Power heals every friend inside
+// each tick · `look`: how it's drawn (FIELD_LOOKS; from el / heal when unset). One per skill per caster (a recast
+// replaces it); it ends early if its caster leaves the room.
+export const FIELD_TALL = 90, FIELD_LOOKS = ['plain', 'fire', 'frost', 'holy', 'poison'];
+export const fieldLook = (sk) => sk.look ?? (sk.el === 'fire' ? 'fire' : sk.el === 'frost' ? 'frost' : sk.heal ? 'holy' : 'plain');
+// Damage over time (SP1 widened the Mage's burn): `dot: { kind: 'bleed' | 'poison', share(rank) }` on a hitting skill
+// leaves each mob it hits losing share × the hit's damage a second for DOTS[kind].s (a fresh one keeps the stronger
+// dps, like a burn), ticked by the server every DOTS[kind].tick ms as the caster's hit. Bleed and poison take no part
+// in the Mage's combos (storm spreads only burns, fire only burns). flag: the mob's wire flag (late joiners see it).
+export const BLEED_S = 5, POISON_S = 8;
+export const DOTS = {
+  burn: { s: BURN_S, tick: BURN_TICK_MS, flag: 1024, color: '#ffa860' },
+  bleed: { s: BLEED_S, tick: 500, flag: 8192, color: '#ff7a8e' },
+  poison: { s: POISON_S, tick: 1000, flag: 16384, color: '#a6e070' },
+};
+// On-kill hooks (server/rpg.js onKill, the one place damage() kills a mob): `onKill: { what, when?, from? … }` on a
+// passive runs on every kill its holder makes; on an active skill, only on kills that skill's own hits make.
+// what: 'burst' (`radius`, `mult(rank)`, `el`: a blast round the dead mob on everything near it) · 'refund' (`skill`:
+// that skill's cooldown comes back; on an active skill, its own) · 'extendBuff' (`buff`: a buff's skill id, `s(rank)`
+// more seconds, never past its full time) · 'ricochet' (the killing arrow jumps to the nearest mob within `range`
+// for `mult(rank)` × ATK; `jumps` times at most: the client decides it like any hit and the server caps it from the
+// kill it saw, for RICOCHET_MS). when: the dead mob's state ('burning' | 'frozen' | 'chilled' | 'bleeding' |
+// 'poisoned') · from: what made the killing hit ('arrow' | 'spell' | 'melee' | a skill id). A chain (a burst
+// killing a mob that bursts…) stops ONKILL_DEPTH deep.
+export const ONKILL_DEPTH = 3, RICOCHET_MS = 1500;
+export const onKillFrom = (from, src) => !from || (from === 'arrow' ? !!src?.arrow : from === 'spell' ? !!src?.spell : from === 'melee' ? !!src && !src.arrow && !src.spell : src?.skill === from);
+// Pull (`pull` px on a hitting skill; Ground Shake): every ordinary mob it reaches slides up to that far toward the
+// caster over PULL_MS (server/rpg.js stepMob: mob positions only, never a slime's; never a boss, a field boss or an
+// anchored mob). `taunt: true` on a skill: every mob it reaches turns on the caster (Rally's taunt, TAUNT_S).
+export const PULL_MS = 250;
+// SP1's summons (server/summons.js, drawn by src/summons.js; a skill declares `what`). hurt: mobs and bosses wear it
+// down · planted: it stays where it was set · fly: it floats over its caster. phoenix: circles its caster and dives at
+// a mob within PHOENIX_SEEK every `every` s (`el` burns) · sprite: `count` at once, each after a different mob ·
+// guardian: walks to the mob in front, taunts every mob within its `radius` every GUARDIAN_TAUNT_S and slams the ones
+// in front every `every` s · hawk: circles over its caster and dives at what the caster last hit (within HAWK_RANGE),
+// else the nearest mob ahead · blast: set like a net; the first mob over it sets it off, `mult` × the stat on every
+// mob within `radius`. Hits are `mult(rank)` × statOf.
+export const SUMMON_KINDS = {
+  spirit: { hurt: true }, wisp: {}, totem: { hurt: true, planted: true }, seraph: { hurt: true }, net: { planted: true },
+  phoenix: { fly: true }, sprite: { hurt: true }, guardian: { hurt: true }, hawk: { fly: true }, blast: { planted: true },
+};
+export const PHOENIX_SEEK = 360, GUARDIAN_TAUNT_S = 2, GUARDIAN_SPEED = 120, HAWK_RANGE = 520, SPRITE_SCALE = 0.55;
+// how many of summon `what` one caster can have up (Spirit Bond's two spirits; sprites come `count` at a time)
+export const summonCap = (sk, skills) => (sk.what === 'spirit' ? spiritCap(skills) : sk.count ?? 1);
+// the stat a skill hits with: `stat` ('atk' | 'magic' | 'best'), else the class's (Warrior and Archer ATK, the staff classes MAGIC)
+export const statOf = (sk, st) => (sk.stat === 'atk' ? st.atk : sk.stat === 'magic' ? st.magic : sk.stat === 'best' ? Math.max(st.atk, st.magic) : sk.cls === 'warrior' || sk.cls === 'archer' ? st.atk : st.magic);
 // a heal's size: Jelly Patch's flat `amount`, else `power` × MAGIC × Holy Power (st: statsFor)
 export const healOf = (id, rank, st) => (SKILLS[id].amount ? SKILLS[id].amount(rank) : Math.round(st.magic * SKILLS[id].power(rank) * st.heal));
 // a summon's max HP and its hit (before the roll), from its skill's rank and the caster's stats
 export const summonHp = (id, rank, st) => Math.round(st.maxHp * (SKILLS[id].life?.(rank) ?? 1) * (1 + 0.12 * st.bond));
-export const summonHit = (id, rank, st) => st.magic * (SKILLS[id].mult?.(rank) ?? 0) * (1 + 0.06 * st.bond);
+export const summonHit = (id, rank, st) => (SKILLS[id].stat ? statOf(SKILLS[id], st) : st.magic) * (SKILLS[id].mult?.(rank) ?? 0) * (1 + 0.06 * st.bond);
 export const spiritCap = (skills) => (rankOf(skills, 'spirit_bond') >= BOND_TWO ? 2 : 1);
 const secs = (ticks) => `${Math.round((ticks / 60) * 100) / 100} s`;
 function pct(m) {
@@ -648,8 +719,10 @@ export const MIN_ROLL = 0.85, MAX_ROLL = 1.15; // ±15% before DEX
 export const minRollFor = (ap) => Math.min(1.05, MIN_ROLL + 0.001 * apOf(ap, 'dex'));
 // Everything about a character's numbers in one place (c: {lvl, gear, skills}).
 // buffs: { momentum: Momentum's stacks, gods: true while Challenge the Gods is up (HP capped at 1, damage boosted), berserk: true while it's up, rally: the Rally boost (e.g. 0.2) while it's up, manaShield: true
-// while Mana Shield is switched on, brew: a brewed potion's buff ({ atk, crit, ward, regen, ... }, ITEMS) while it's up }
+// while Mana Shield is switched on, brew: a brewed potion's buff ({ atk, crit, ward, regen, ... }, ITEMS) while it's up,
+// long: the long buffs on you added up (buffFx: { atk, magic, def, hp, crit, critDmg, exp, cut }, SP1) }
 export function statsFor(c, buffs = {}) {
+  const long = buffs.long ?? {}; // (SP1's long buffs)
   const rage = buffs.berserk ? 1 + SKILLS.berserk.boost(rankOf(c.skills, 'berserk')) : 1;
   const rally = 1 + (buffs.rally ?? 0);
   const brew = buffs.brew ?? {}; // a brewed potion's buff (src/shared/alchemy.js)
@@ -666,10 +739,10 @@ export function statsFor(c, buffs = {}) {
   const str = apOf(c.ap, 'str'), dex = apOf(c.ap, 'dex'), int = apOf(c.ap, 'int'), luk = apOf(c.ap, 'luk');
   const ms = rankOf(c.skills, 'mana_shield');
   return {
-    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + (bow ? 0.2 * str + 0.6 * dex : 0.6 * str + 0.2 * dex)) * rage * rally * might * push * (bow ? 1 + STEADY * rankOf(c.skills, 'steady_hands') : 1)),
-    magic: Math.round((magicFor(c.lvl) + (staff?.magic ?? 0) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might),
-    def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 5 * rankOf(c.skills, 'iron_jelly')) * rally),
-    maxHp: buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str + (bow ? BOW_DEX_HP * dex : 0)) * (1 + 0.08 * rankOf(c.skills, 'vitality'))),
+    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + (bow ? 0.2 * str + 0.6 * dex : 0.6 * str + 0.2 * dex)) * rage * rally * might * push * (bow ? 1 + STEADY * rankOf(c.skills, 'steady_hands') : 1) * (1 + (long.atk ?? 0))),
+    magic: Math.round((magicFor(c.lvl) + (staff?.magic ?? 0) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might * (1 + (long.magic ?? 0))),
+    def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 5 * rankOf(c.skills, 'iron_jelly')) * rally * (1 + (long.def ?? 0))),
+    maxHp: buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str + (bow ? BOW_DEX_HP * dex : 0)) * (1 + 0.08 * rankOf(c.skills, 'vitality')) * (1 + (long.hp ?? 0))),
     maxMp: maxMpFor(c.lvl, c.skills) + 2 * int + (staff?.mp ?? 0),
     reach: staff || bow ? 0 : reachFor(c.gear?.weapon), // a sword's extra reach (swings and blade skills)
     boltRange: staff ? STAFF_BOLT_RANGE + staff.reach : 0, // a staff bolt's range (a Cleric's holy bolt's too)
@@ -678,8 +751,10 @@ export function statsFor(c, buffs = {}) {
     holyBolt, // the normal attack is the Cleric's holy bolt (HOLY_BOLT_*)
     heal: 1 + 0.08 * rankOf(c.skills, 'holy_power'), // the Cleric's heals' multiplier, and Smite's (`holy` skills) (Holy Power)
     bond: rankOf(c.skills, 'spirit_bond'), // Spirit Bond's rank (summons' HP and damage)
-    crit: 0.12 + 0.03 * (mastery + aim) + 0.02 * keen + Math.min(0.2, 0.0004 * luk) + (brew.crit ?? 0),
-    critMult: 1.6 + 0.1 * (mastery + aim) + 0.0015 * luk,
+    crit: 0.12 + 0.03 * (mastery + aim) + 0.02 * keen + Math.min(0.2, 0.0004 * luk) + (brew.crit ?? 0) + (long.crit ?? 0),
+    critMult: 1.6 + 0.1 * (mastery + aim) + 0.0015 * luk + (long.critDmg ?? 0),
+    exp: long.exp ?? 0, // share of extra EXP from kills (a long buff, SP1; server/rpg.js kill)
+    cut: long.cut ?? 0, // share of damage taken away (a long buff, SP1; server/rpg.js hurt)
     minRoll: minRollFor(c.ap),
     hpRegen: (1 + 0.25 * rankOf(c.skills, 'vitality')) * (1 + (brew.regen ?? 0)),
     ward: brew.ward ?? 0, // share of damage taken away (server/rpg.js hurt)
@@ -690,3 +765,36 @@ export function statsFor(c, buffs = {}) {
 }
 export const mpRegen = (skills) => mpRegenOf(rankOf(skills, 'mana_flow')); // multiplier
 export const magicFor = (lvl) => 5 + lvl * 3; // spell power from the level (a staff adds its magic; swords don't help spells)
+
+// ——— Tests only (TEST_SKILLS=1 on a throwaway server, never live: docs/testing.md) ———
+// Skills that exercise SP1's machinery before any class has one: gifts to everyone (`gift: '*'`, so they cost no
+// points, survive a rebirth and show in the Novice tab), added to SKILLS by enableTestSkills() (the server at
+// startup, a client when welcome says testSkills). With TEST_SKILLS unset nobody sees them.
+const T = { cls: 'gift', tree: 'gift', gift: '*', test: true, adv: 1, max: 1, stat: 'best' };
+const TEST_SKILLS = {
+  test_war_cry: { ...T, name: 'Test War Cry', kind: 'buff', mp: 5, cd: 2, dur: 180, party: 300, fx: () => ({ atk: 0.2, crit: 0.05 }), desc: () => 'Test: a long buff for you and friends within range 300: +20% attack, +5% critical chance for 3 min.' },
+  test_insight: { ...T, name: 'Test Insight', kind: 'buff', mp: 5, cd: 2, dur: 180, party: 300, fx: () => ({ magic: 0.2, hp: 0.1, exp: 0.1 }), desc: () => 'Test: a long buff for you and friends within range 300: +20% magic, +10% max HP, +10% EXP for 3 min.' },
+  test_fire_wall: { ...T, name: 'Test Fire Wall', kind: 'field', at: 'ahead', shape: 'strip', el: 'fire', mp: 5, cd: 3, range: 320, radius: 80, dur: 6, every: 0.5, mult: () => 0.3, desc: () => 'Test: a wall of fire ahead for 6 s, burning everything in it.' },
+  test_blizzard: { ...T, name: 'Test Blizzard', kind: 'field', at: 'ahead', shape: 'round', el: 'frost', mp: 5, cd: 3, range: 360, radius: 110, dur: 6, every: 0.7, mult: () => 0.3, desc: () => 'Test: a storm of ice planted ahead for 6 s, hitting and chilling everything in it.' },
+  test_consecrate: { ...T, name: 'Test Consecration', kind: 'field', at: 'self', shape: 'strip', mp: 5, cd: 3, radius: 140, dur: 8, every: 1, mult: () => 0.25, heal: () => 0.1, desc: () => 'Test: holy ground round you for 8 s: mobs on it are hurt, friends on it healed.' },
+  test_rend: { ...T, name: 'Test Rend', kind: 'strike', mp: 3, cd: 1, reach: 40, mult: () => 1.2, dot: { kind: 'bleed', share: () => 0.15 }, desc: () => 'Test: a hit that leaves the mob bleeding.' },
+  test_venom: { ...T, name: 'Test Venom', kind: 'bolt', mp: 3, cd: 1, range: 380, mult: () => 1, dot: { kind: 'poison', share: () => 0.1 }, desc: () => 'Test: a bolt that leaves the mob poisoned.' },
+  test_execute: { ...T, name: 'Test Execute', kind: 'strike', mp: 3, cd: 8, reach: 40, mult: () => 3, onKill: { what: 'refund' }, desc: () => 'Test: a heavy hit; a kill gives its cooldown back.' },
+  test_shake: { ...T, name: 'Test Ground Shake', kind: 'spin', mp: 3, cd: 2, radius: 170, mult: () => 0.6, pull: 90, taunt: true, desc: () => 'Test: slam the floor: every mob within range 170 is hit, dragged toward you and taunted.' },
+  test_ignite: { ...T, name: 'Test Ignite', kind: 'passive', onKill: { what: 'burst', when: 'burning', radius: 130, el: 'fire', mult: () => 0.6 }, desc: () => 'Test: a burning mob that dies bursts, setting the mobs near it alight.' },
+  test_frenzy: { ...T, name: 'Test Frenzy', kind: 'passive', onKill: { what: 'extendBuff', buff: 'test_war_cry', s: () => 5 }, desc: () => 'Test: every kill adds 5 s to Test War Cry.' },
+  test_ricochet: { ...T, name: 'Test Ricochet', kind: 'passive', onKill: { what: 'ricochet', from: 'arrow', range: 260, jumps: 2, mult: () => 0.8 }, desc: () => 'Test: an arrow that kills jumps on to the next mob (twice at most).' },
+  test_phoenix: { ...T, name: 'Test Phoenix', kind: 'summon', what: 'phoenix', el: 'fire', mp: 5, cd: 3, dur: 20, every: 1.5, mult: () => 0.6, desc: () => 'Test: a firebird circles you for 20 s and dives at mobs.' },
+  test_sprites: { ...T, name: 'Test Sprites', kind: 'summon', what: 'sprite', count: 3, mp: 5, cd: 3, dur: 20, mult: () => 0.3, life: () => 0.2, desc: () => 'Test: three little spirits for 20 s, each after a different mob.' },
+  test_guardian: { ...T, name: 'Test Stone Guardian', kind: 'summon', what: 'guardian', mp: 5, cd: 3, dur: 25, radius: 200, every: 1.5, mult: () => 0.8, life: () => 1.5, desc: () => 'Test: a stone golem for 25 s that taunts the mobs near it and slams the one in front.' },
+  test_hawk: { ...T, name: 'Test Hawk', kind: 'summon', what: 'hawk', mp: 5, cd: 3, dur: 25, every: 1.2, mult: () => 0.6, desc: () => 'Test: a hawk for 25 s that dives at whatever you last hit.' },
+  test_blast: { ...T, name: 'Test Blast Trap', kind: 'summon', what: 'blast', mp: 5, cd: 3, dur: 20, radius: 120, mult: () => 2, desc: () => 'Test: a trap that explodes on the first mob over it, hitting everything within range 120.' },
+};
+export let testSkills = false;
+export function enableTestSkills() {
+  if (testSkills) return;
+  testSkills = true;
+  Object.assign(SKILLS, TEST_SKILLS);
+}
+// is gift skill sk account `name`'s? (`gift: '*'`: everyone's, the test skills)
+export const giftFor = (sk, name) => sk.gift === '*' || [sk.gift].flat().includes(name);

@@ -11,11 +11,12 @@
 import { TICK_RATE, newState, step, unpack, applyCharge } from './shared/sim.js';
 import { decode, encodeInput, BIN_VERSION } from './shared/wire.js';
 import { installSpeed } from './shared/testspeed.js';
+import { enableTestSkills } from './shared/skills.js';
 
 const INTERP = 6; // ticks (100 ms) behind the newest snapshot for remote slimes
 const MAX_SNAPS = 60;
 const KICKED = 4001; // server close code: this account logged in somewhere else
-const RPG = new Set(['me', 'mobs', 'loot', 'hurt', 'faint', 'woke', 'gear', 'toast', 'notice', 'advance', 'thirst', 'reborn', 'got', 'skill', 'boss', 'bossdmg', 'nomana', 'shop', 'guard', 'scrolled', 'warp', 'summons', 'sumhit', 'sumhurt', 'sumgone', 'netcatch', 'party', 'curse']);
+const RPG = new Set(['me', 'mobs', 'loot', 'hurt', 'faint', 'woke', 'gear', 'toast', 'notice', 'advance', 'thirst', 'reborn', 'got', 'skill', 'boss', 'bossdmg', 'nomana', 'shop', 'guard', 'scrolled', 'warp', 'summons', 'sumhit', 'sumhurt', 'sumgone', 'netcatch', 'party', 'curse', 'burn', 'fields', 'fieldhit', 'burst', 'refund']);
 
 // A knockback: same numbers as server/rpg.js hurt(), so prediction and server agree exactly
 export function applyKick(s, kick) {
@@ -141,6 +142,7 @@ export class Net {
       this.cb.onDenied(m.reason);
     } else if (m.t === 'welcome') {
       if (m.speed) installSpeed(m.speed, m.now); // test servers only (TEST_SPEED)
+      if (m.testSkills) enableTestSkills(); // test servers only (TEST_SKILLS: SP1's test skills)
       this.id = m.id;
       this.ice = m.ice; // voice relay servers for this session (see server/turn.js)
       this.pending = [];

@@ -20,7 +20,7 @@ Files: `src/touch.js` (buttons, fullscreen), touch layout rules in `src/style.cs
   for touch, one for keyboards). A new key or button goes there.
 - HTML strips that are tappable on their own: the hotbar, the status box (`#status`, S5.1: under the HUD
   buttons on the left, above the movement pad; tap an icon for its name, `docs/combat/skills.md`), `#voicebar` (Mic, Broadcast), `#hudbtns`
-  (Players, Decorate, Chat; below the location pill, top left); Menu and Full sit left of the voicebar. Panels (bag, skills, shop, the Rebirth Pool's card) move to the top on touch (the skill tree also gets nodes of 44 px or more and its card scrolls in after the tree: `docs/combat/skills.md`); the movement pad hides while a panel
+  (Players, Decorate, Chat; below the location pill, top left); Menu and Full sit left of the voicebar. Panels (bag, skills, shop, the Rebirth Pool's card) move to the top on touch (the skill tree also gets nodes of 44 px or more, five to a branch column at 667×375, a 44 px Cast button on its card, and its card scrolls in after the tree: `docs/combat/skills.md`; the hotbar hides while it's open); the movement pad hides while a panel
   or text box is up; the feed sits above the controls.
 - Phones render at up to 2× like desktops; the Esc menu's **Graphics** setting (Auto by default) drops to
   1× on a slow device (`docs/performance.md`). The Esc menu is tight: ten buttons fill the screen.

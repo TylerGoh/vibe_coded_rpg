@@ -3,11 +3,14 @@
 // The class tab shows the basics on top, then the two branches as columns (one per branch) with a row per
 // advancement, nodes joined by lines. A Novice sees both classes' trees greyed, to look ahead. Clicking a
 // node opens its card under the tree: + spends a point, − takes one back, Hotbar puts an active skill on
-// keys 1–6. "Reset all" refunds everything for free, so nobody gets stuck with a build.
+// keys 1–6, Cast casts it from here (SP1, owner: "let them cast directly from skills"; double-click a node does
+// too on desktop), the same {t:'skill'} the hotbar sends, so the panel stays open and the node shows its cooldown.
+// "Reset all" refunds everything for free, so nobody gets stuck with a build.
 // Rules: src/shared/skills.js. On phones the card sits in the scroll after the tree (docs/ui/mobile.md).
 import { drawSkillIcon } from './skillfx.js';
 import { audio } from './audio.js';
 import { TREES, SKILLS, ACTIVE, giftsOf, CLASSES, CLASS_LVL, ADVANCEMENTS, rankOf, cantLearn, cantUnlearn, pointsIn, branchPoints, cooldownOf, branchOf, spLeft, spFree } from './shared/skills.js';
+import { isCombat } from './shared/rpg.js';
 
 const el = (tag, cls, text) => {
   const e = document.createElement(tag);
@@ -17,12 +20,19 @@ const el = (tag, cls, text) => {
 };
 const skillsOf = (tree, pred = () => true) => Object.keys(SKILLS).filter((id) => SKILLS[id].tree === tree && pred(SKILLS[id]));
 const ADV_NAMES = { 30: 'the branches', 60: '3rd advancement', 100: '4th advancement' };
+// nodes in one line of a cell: a branch column holds 5 (SP1: more skills per advancement), a full-width row 10;
+// more wrap onto another line of their own (the panel fits them at 667×375 on a phone, docs/ui/mobile.md)
+const PER_ROW = { branch: 5, wide: 10 };
 
 export class SkillTree {
-  constructor({ rpg, send, onOpenChange }) {
+  // cast(id) → true if it went off: casts like a hotbar key (main.js castSkill) · room() → the room you're in
+  constructor({ rpg, send, onOpenChange, cast, room }) {
     this.rpg = rpg;
     this.send = send;
     this.onOpenChange = onOpenChange;
+    this.castFn = cast;
+    this.roomFn = room;
+    this.nodeEls = new Map(); // skill id → its node's icon (for the cooldown sweep)
     this.el = document.getElementById('skills');
     this.tabsEl = document.getElementById('skills-tabs');
     this.body = document.getElementById('skills-body');
@@ -87,6 +97,35 @@ export class SkillTree {
     this.change(giftsOf(m.skills));
     this.rpg.toast('Skill points refunded: spend them however you like');
   }
+  // Cast id from the panel (Cast / a double-click): the panel stays open
+  cast(id) {
+    const sk = SKILLS[id];
+    if (!sk || !ACTIVE(id) || !rankOf(this.rpg.me?.skills, id)) return;
+    if (!isCombat(this.roomFn?.())) return this.rpg.toast('Skills only work in combat areas'), audio.sfx('error');
+    this.castFn?.(id);
+    this.tick();
+  }
+  // every frame while open: each node's cooldown sweep (--cd: the share of its cooldown still to go), and Cast
+  // greyed outside combat areas
+  tick() {
+    if (!this.isOpen) return;
+    for (const [key, ic] of this.nodeEls) {
+      const id = key.replace(/^card:/, ''), left = this.rpg.cooldown(id), full = cooldownOf(id, Math.max(1, rankOf(this.rpg.me?.skills, id))) || 1;
+      const k = left > 0 ? Math.min(1, left / full).toFixed(3) : '0';
+      if (ic.dataset.cd !== k) {
+        ic.dataset.cd = k;
+        ic.style.setProperty('--cd', k);
+        ic.classList.toggle('cooling', left > 0);
+      }
+    }
+    const b = this.castBtn, combat = isCombat(this.roomFn?.());
+    if (b && b.dataset.combat !== String(combat)) {
+      b.dataset.combat = String(combat);
+      b.disabled = !combat;
+      b.textContent = combat ? 'Cast' : 'Only in combat areas';
+      b.classList.toggle('off', !combat);
+    }
+  }
   select(id) {
     this.sel = id;
     this.render();
@@ -131,22 +170,29 @@ export class SkillTree {
     ic.append(this.icon(id, document.body.classList.contains('touch') ? 64 : 52), el('span', 'skt-rank', `${rank}/${sk.max}`));
     b.append(ic, el('span', 'skt-name', sk.name));
     b.onclick = () => this.select(id);
+    // desktop: a double-click casts it (SP1; phones have the card's Cast button)
+    if (ACTIVE(id) && rank && !document.body.classList.contains('touch')) b.ondblclick = () => this.cast(id);
+    if (ACTIVE(id)) this.nodeEls.set(id, ic);
     return b;
   }
-  // a row of nodes (the line through them is CSS: --n nodes)
-  nodes(m, ids) {
-    const row = el('div', 'skt-nodes');
-    row.style.setProperty('--n', ids.length);
-    for (const id of ids) row.append(this.node(m, id));
-    return row;
+  // a cell's nodes, `per` to a line (the line through each line's icons is CSS: --n nodes)
+  nodes(m, ids, per = PER_ROW.wide) {
+    const box = el('div', 'skt-rows');
+    for (let i = 0; i < ids.length; i += per) {
+      const line = ids.slice(i, i + per), row = el('div', 'skt-nodes');
+      row.style.setProperty('--n', line.length);
+      for (const id of line) row.append(this.node(m, id));
+      box.append(row);
+    }
+    return box;
   }
   // a cell: a level pill, then the nodes; shut when the level hasn't opened it yet
-  cell(m, lvl, ids, label, preview = false) {
+  cell(m, lvl, ids, label, preview = false, per = PER_ROW.wide) {
     const c = el('div', 'skt-cell');
     const open = preview || m.lvl >= lvl; // a Novice's look-ahead is greyed as a whole instead
     if (!open) c.classList.add('shut');
     c.append(el('span', 'skt-lv', open ? label ?? `Lv ${lvl}` : `opens at Lv ${lvl}`));
-    if (ids.length) c.append(this.nodes(m, ids));
+    if (ids.length) c.append(this.nodes(m, ids, per));
     else c.classList.add('empty');
     return c;
   }
@@ -156,6 +202,8 @@ export class SkillTree {
     if (!m || !this.isOpen) return;
     const cls = m.cls ?? 'novice', left = m.spLeft ?? spLeft(m), novice = cls === 'novice';
     const touch = document.body.classList.contains('touch');
+    this.nodeEls.clear();
+    this.castBtn = null;
     // header: points left, MP, the next advancement
     document.getElementById('skills-sp').textContent = novice
       ? `Novice points: ${left.novice}${m.lvl >= CLASS_LVL ? ` · class points waiting: ${left.cls}` : ''}`
@@ -217,7 +265,7 @@ export class SkillTree {
       if (gifts.length) {
         shown.push(...gifts);
         const g = el('div', 'skt-col gift');
-        const c = this.cell(m, 1, gifts, 'A gift from the gods');
+        const c = this.cell(m, 1, gifts, gifts.every((id) => SKILLS[id].test) ? 'Test skills (TEST_SKILLS: test servers only)' : 'A gift from the gods');
         c.classList.add('from', 'to');
         g.append(c);
         tree.append(g);
@@ -268,7 +316,7 @@ export class SkillTree {
         rows.forEach((lv, ri) => {
           const ids = skillsOf(k, (s) => s.branch === br.id && s.adv === lv);
           shown.push(...ids);
-          const c = this.cell(m, lv, ids, undefined, novice);
+          const c = this.cell(m, lv, ids, undefined, novice, PER_ROW.branch);
           if (ri === rows.length - 1) c.classList.add('to');
           c.style.gridColumn = String(ci + 1);
           c.style.gridRow = String(ri + 2);
@@ -317,7 +365,14 @@ export class SkillTree {
         this.rpg.startAssign('skill', id);
         this.close();
       }, !rank);
+      // Cast (SP1): every active skill you hold, from here; greyed outside combat areas (tick keeps it right)
+      if (rank) {
+        btn('Cast', 'sk-cast', () => this.cast(id), false);
+        this.castBtn = btns.lastChild;
+        this.nodeEls.set(`card:${id}`, ic);
+      }
     }
     this.cardEl.append(ic, text, btns);
+    this.tick();
   }
 }

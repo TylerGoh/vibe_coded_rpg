@@ -344,7 +344,7 @@ const piano = new Piano();
 const rpg = new Rpg({ send: (m) => net.sendNpc(m), net, onOpenChange: () => held.clear() });
 rpg.onSlot = (bar, i) => useSlot(bar, i);
 rpg.onGear = (gear) => mine && mine.setLook({ ...rpg.me, gear });
-const skillTree = new SkillTree({ rpg, send: (m) => net.sendNpc(m), onOpenChange: () => held.clear() });
+const skillTree = new SkillTree({ rpg, send: (m) => net.sendNpc(m), onOpenChange: () => held.clear(), cast: (id) => castSkill(id), room: () => room });
 const shop = new Shop({ rpg, send: (m) => net.sendNpc(m), onOpenChange: () => held.clear() });
 onTrade((keeper) => shop.open(keeper)); // a character who keeps a shop: the Trade button in their dialog (Runa)
 // Merchant Pip, behind his stall in the village (src/shop.js)
@@ -395,7 +395,13 @@ function useSlot(bar, i) {
   const id = rpg.slotContent(bar, i);
   if (!id) return rpg.toast(bar === 'pot' ? 'Empty: put potions here from the bag (I)' : 'Empty: put skills here from the skill tree (K)');
   if (bar === 'pot') return rpg.drink(id);
-  if (splatted(mine)) return;
+  castSkill(id);
+}
+// Cast skill id: a hotbar key, or the K panel's Cast button / a double-click on its node (SP1: the server never checks
+// the hotbar, so it's the same {t:'skill'} either way)
+function castSkill(id) {
+  if (!online() || splatted(mine)) return;
+  audio.unlock();
   if (SKILLS[id]?.kind === 'move') return pressMove(id);
   if (rpg.cast(id, mine, mine.facing, net.seq, mine) && ['strike', 'spin'].includes(SKILL_KIND(id))) mine.slap(mine.facing);
 }
@@ -756,12 +762,12 @@ musicButton.onclick = () => {
 // Controls: every key (or touch button), in the Esc menu instead of as labels on the HUD (owner's request)
 const CONTROLS = TOUCH
   ? [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-     ['Tap the game', 'slap · Hit attacks'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree'],
+     ['Tap the game', 'slap · Hit attacks'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree (Cast a skill from its card)'],
      ['Players', "who's online, invite, message"], ['Chat', 'chat · /w name to whisper · /r to reply'], ['Decorate', 'in your own house'],
      ['Mic · Broadcast', 'talk to slimes nearby · to everyone'], ['Menu', 'this menu']]
   : [['← → / A D', 'walk'], ['↑ / W / Space', 'jump (twice with Flash Jump)'], ['↓ / S', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
      ['Click', 'slap · attack'], ['X', 'attack'], ['Shift then X', 'Charge (Warrior) · Retreat Shot (Archer)'], ['↓ + X in the air', 'Leap Slam (Warrior)'], ['Jump + X, rising', 'Upward Cut (Warrior)'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
-     ['I · K', 'bag · skill tree'], ['P', "who's online, invite, message"], ['Enter', 'chat · /w name to whisper · /r to reply'],
+     ['I · K', 'bag · skill tree (double-click a skill, or Cast, to cast it)'], ['P', "who's online, invite, message"], ['Enter', 'chat · /w name to whisper · /r to reply'],
      ['R', 'decorate your house'], ['C · H · Q', 'course menu · raise your hand · ask Clio'], ['M · B', 'mic · broadcast to everyone'],
      ['F', 'fullscreen'], ['Esc', 'this menu']];
 const controlsList = document.getElementById('controls-list');
@@ -1219,6 +1225,7 @@ function update(realDt) {
   }
   if (online()) audio.setScene(room, STAGES[room] ? zoneAt(net.me.x, room).name : null);
   rpg.update(dt, online() ? net.me : null, room);
+  skillTree.tick(); // (the K panel's cooldown sweeps while it's open, SP1)
   if ((room === STORE || room === PETSHOP) && online()) store.update(net.me, room);
   if (online()) alchemy.update(room, net.me);
   if (online()) pets.update(room, net.me);

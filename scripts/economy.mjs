@@ -8,7 +8,7 @@ const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; /
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
-import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds } from '../src/shared/skills.js';
+import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds, isLongBuff, fxText } from '../src/shared/skills.js';
 import { SLAP_REACH, SLAP_COOLDOWN_MS, DASH_CD, PHANTOM_CD, CHARGE_RESET } from '../src/shared/sim.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
@@ -191,6 +191,15 @@ const brewCost = (r) => Object.entries(needs(r.steps)).reduce((a, [id, k]) => a 
 table('ALCHEMY: one batch of each recipe (cost = seeds for its herbs + its mob materials at sell price)', Object.fromEntries(Object.entries(RECIPES).map(([id, r]) => [id, {
   steps: r.steps.length, makes: r.makes, cost: fmt(brewCost(r)), 'output sells for': fmt(r.makes * sellPrice(id)), does: ITEMS[id].desc.replace(/^Brewed\. /, ''),
 }])));
+
+// SP1's long buffs (story/skills-plan.md): an `exp` effect is a faucet (every kill's EXP × (1 + exp) for everyone it
+// reaches, server/rpg.js kill), so each one is listed here with what it gives at its top rank. SP4's Holy Symbol is the
+// first planned; name its share as a constant in src/shared/skills.js and fold it into the levelling pace it assumes.
+const longBuffs = Object.entries(SKILLS).filter(([, sk]) => isLongBuff(sk));
+if (longBuffs.length) table('LONG BUFFS (SP1): at the top rank (exp = more EXP from every kill: a faucet)', Object.fromEntries(longBuffs.map(([id, sk]) => [id, {
+  cls: sk.cls, lvl: sk.adv, 'lasts (min)': (durOf(id, sk.max) / 60).toFixed(1), 'party radius': sk.party ?? 'just you', does: fxText(sk.fx(sk.max)), 'EXP faucet': sk.fx(sk.max).exp ? `+${Math.round(sk.fx(sk.max).exp * 100)}%` : '',
+}])));
+else console.log('\nLONG BUFFS (SP1): none yet (an `exp` effect on one is a faucet: SP4\'s Holy Symbol)');
 
 // The loot check (S5.5, story/progression.md 6: "a boss's loot includes one weapon, its kind picked from the classes
 // who fought it"): every den and field boss from LOOT_TWIN_LVL drops a sword with both a staff and a bow twin, so

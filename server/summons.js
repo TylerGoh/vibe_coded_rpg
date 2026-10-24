@@ -6,15 +6,20 @@
 // (src/summons.js) from {t:'summons'} snapshots. A summon is also a mob target: it carries the same
 // fields a player does (state.x / y / room / facing, joined, faintUntil), so the mob and boss code that
 // chases and aims at m.target needs no change. The Archer's Net Trap (S4) lives here too: planted where it was
-// set, never a target, it catches the first mob that walks into it (NET_R and the constants after it).
+// set, never a target, it catches the first mob that walks into it (NET_R and the constants after it). SP1 added the
+// skill pool's kinds (skills.js SUMMON_KINDS): the phoenix and the hawk (fliers that dive at mobs, never hurt), sprites
+// (several little spirits, each after a different mob), the stone guardian (walks, taunts, slams) and the blast trap
+// (a net that explodes).
 import { MOBS } from '../src/shared/rpg.js';
-import { SKILLS, SPIRIT_SEEK, SPIRIT_SPEED, SPIRIT_HIT_S, SPIRIT_TAUNT, SERAPH_TAUNT, SERAPH_R, SUMMON_TOUCH, SUMMON_HURT_S, BOSS_SUMMON_REACH, BOSS_SUMMON_HIT, BOSS_SUMMON_S, ULT_SUMMON, WISP_R, WISP_TICK, MAX_ROLL, spiritCap, summonHp, summonHit, NET_R, NET_BURST_R, rankOf } from '../src/shared/skills.js';
+import { SKILLS, SPIRIT_SEEK, SPIRIT_SPEED, SPIRIT_HIT_S, SPIRIT_TAUNT, SERAPH_TAUNT, SERAPH_R, SUMMON_TOUCH, SUMMON_HURT_S, BOSS_SUMMON_REACH, BOSS_SUMMON_HIT, BOSS_SUMMON_S, ULT_SUMMON, WISP_R, WISP_TICK, MAX_ROLL, summonHp, summonHit, NET_R, NET_BURST_R, rankOf, SUMMON_KINDS, summonCap, PHOENIX_SEEK, GUARDIAN_TAUNT_S, GUARDIAN_SPEED, HAWK_RANGE } from '../src/shared/skills.js';
 
-export const SUMMON_WHATS = ['spirit', 'wisp', 'totem', 'seraph', 'net']; // over the wire as an index
+export const SUMMON_WHATS = ['spirit', 'wisp', 'totem', 'seraph', 'net', 'phoenix', 'sprite', 'guardian', 'hawk', 'blast']; // over the wire as an index
+const DIVE_MS = 320; // a phoenix's or hawk's dive, there (and as long back)
 const rand = (a, b) => a + Math.random() * (b - a);
 
-// ctx: { players, mobs (the live array), toRoom, stats(p), damage(m, dmg, crit, id, p, dir, knock), heal(id, p, qid, q, amt, at) }
-export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
+// ctx: { players, mobs (the live array), toRoom, stats(p), damage(m, dmg, crit, id, p, dir, knock, src), heal(id, p, qid, q, amt, at),
+// element(m, el, dmg, id) (the Mage's combos: a phoenix's fire burns) }
+export function createSummons({ players, mobs, toRoom, stats, damage, heal, element }) {
   const list = [];
   let nextId = 1;
   const now = () => Date.now();
@@ -35,30 +40,38 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
 
   return {
     list,
-    // Call one: p (player id) cast skill `id` at `rank`. Replaces the oldest of its kind past the cap.
+    // Call one (sprites: `count` of them): p (player id) cast skill `id` at `rank`. Replaces the oldest of its kind past
+    // the cap (summonCap). → the (first) new summon
     add(id, p, skill, rank) {
-      const sk = SKILLS[skill], st = stats(p), t = now(), what = sk.what, s0 = p.state;
+      const sk = SKILLS[skill], st = stats(p), t = now(), what = sk.what, s0 = p.state, kind = SUMMON_KINDS[what] ?? {};
       const mine = list.filter((q) => q.owner === id && q.what === what);
-      const cap = what === 'spirit' ? spiritCap(p.rpg.skills) : 1;
-      while (mine.length >= cap) remove(mine.shift(), 'faded');
-      const hp = what === 'wisp' || what === 'net' ? 1 : summonHp(skill, rank, st), planted = what === 'totem' || what === 'net';
-      const s = {
-        id: nextId++, what, skill, owner: id, room: s0.room, x: s0.x + (planted ? 0 : (s0.facing < 0 ? -1 : 1) * 36), y: s0.y,
-        dir: s0.facing < 0 ? -1 : 1, hp, maxHp: hp, until: t + sk.dur * 1000, hitAt: t + 400, tauntAt: t, touchAt: 0, bossAt: new Map(),
-        hit: summonHit(skill, rank, st), crit: st.crit, critMult: st.critMult, minRoll: st.minRoll, def: Math.round(st.def * 0.5),
-        heal: what === 'wisp' ? Math.round(st.magic * sk.power(rank) * st.heal) : 0, cut: sk.cut?.(rank) ?? 0, r: sk.radius ?? 0,
-        // what the mob code sees when it's after this summon
-        summon: true, joined: true, faintUntil: 0, name: SKILLS[skill].name, state: { room: s0.room, x: 0, y: 0, facing: 1 },
-        target: null, follow: null,
-      };
-      if (what === 'net') { // (S4) how long a catch holds, how many it takes, and Trap Mastery's burst
-        const tm = rankOf(p.rpg.skills, 'trap_mastery');
-        Object.assign(s, { snare: sk.snare(rank), left: 1 + tm, burst: tm ? st.atk * SKILLS.trap_mastery.burst(tm) : 0, joined: false, hitAt: t + 300 });
+      const cap = summonCap(sk, p.rpg.skills), n = Math.min(cap, what === 'sprite' ? sk.count ?? 1 : 1);
+      while (mine.length && mine.length + n > cap) remove(mine.shift(), 'faded');
+      const hp = kind.hurt ? summonHp(skill, rank, st) : 1, dir = s0.facing < 0 ? -1 : 1;
+      let first = null;
+      for (let i = 0; i < n; i++) {
+        const s = {
+          id: nextId++, what, skill, owner: id, room: s0.room, x: s0.x + (kind.planted ? 0 : dir * (36 + i * 18)), y: s0.y,
+          dir, hp, maxHp: hp, until: t + sk.dur * 1000, hitAt: t + 400 + i * 150, tauntAt: t, touchAt: 0, bossAt: new Map(),
+          hit: summonHit(skill, rank, st), crit: st.crit, critMult: st.critMult, minRoll: st.minRoll, def: Math.round(st.def * 0.5),
+          heal: what === 'wisp' ? Math.round(st.magic * sk.power(rank) * st.heal) : 0, cut: sk.cut?.(rank) ?? 0, r: sk.radius ?? 0,
+          every: (sk.every ?? SPIRIT_HIT_S) * 1000, el: sk.el ?? null, // (SP1's kinds: how often it hits, its element)
+          // what the mob code sees when it's after this summon (never a flier or a trap: SP1)
+          summon: true, joined: !kind.fly && !kind.planted || what === 'totem', faintUntil: 0, name: SKILLS[skill].name, state: { room: s0.room, x: 0, y: 0, facing: 1 },
+          target: null, follow: null, dive: null, phase: Math.random() * 6.3,
+        };
+        if (what === 'net') { // (S4) how long a catch holds, how many it takes, and Trap Mastery's burst
+          const tm = rankOf(p.rpg.skills, 'trap_mastery');
+          Object.assign(s, { snare: sk.snare(rank), left: 1 + tm, burst: tm ? st.atk * SKILLS.trap_mastery.burst(tm) : 0, hitAt: t + 300 });
+        }
+        if (what === 'blast') Object.assign(s, { left: 1, hitAt: t + 300 }); // (SP1: it goes off once)
+        if (what === 'wisp') s.y -= 64;
+        if (kind.fly) s.y -= 80;
+        sync(s);
+        list.push(s);
+        first ??= s;
       }
-      if (what === 'wisp') s.y -= 64;
-      sync(s);
-      list.push(s);
-      return s;
+      return first;
     },
 
     // The best Guardian Totem cut for a slime at q (0: none)
@@ -70,7 +83,7 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
 
     // A boss's ultimate went off in room: every spirit and totem there takes ULT_SUMMON of its max HP
     ult(room) {
-      for (const s of [...list]) if (s.room === room && s.what !== 'wisp' && s.what !== 'net') hurt(s, s.maxHp * ULT_SUMMON);
+      for (const s of [...list]) if (s.room === room && SUMMON_KINDS[s.what]?.hurt) hurt(s, s.maxHp * ULT_SUMMON);
     },
 
     // Every summon of player id goes (it left, fainted out of the room, changed class)
@@ -86,9 +99,13 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
         if (!p?.joined || !p.rpg || p.state.room !== s.room) { remove(s, 'faded'); continue; }
         if (t >= s.until) { remove(s, 'faded'); continue; }
         if (s.what === 'wisp') wisp(s, p, t, dt);
-        else if (s.what === 'net') net(s, p, t, hits);
+        else if (s.what === 'net' || s.what === 'blast') net(s, p, t, hits);
         else if (s.what === 'totem') hurtBy(s, t);
-        else {
+        else if (s.what === 'phoenix' || s.what === 'hawk') flier(s, p, t, dt, hits);
+        else if (s.what === 'guardian') {
+          guardian(s, p, t, dt, hits);
+          if (list.includes(s)) hurtBy(s, t);
+        } else {
           spirit(s, p, t, dt, hits);
           if (list.includes(s)) hurtBy(s, t);
         }
@@ -115,9 +132,11 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
     let m = s.target;
     if (m && (m.dead || m.gone || m.room !== s.room || (m.special && !m.egg) || Math.abs(m.x - s.x) > SPIRIT_SEEK * 1.3)) m = s.target = null;
     if (!m) {
-      // the mob going after its Cleric first, else the nearest
+      // the mob going after its Cleric first, else the nearest (a sprite: one its siblings aren't after, SP1)
+      const taken = s.what === 'sprite' ? new Set(list.filter((o) => o !== s && o.owner === s.owner && o.what === 'sprite').map((o) => o.target)) : null;
       let best = null, bestD = SPIRIT_SEEK;
       for (const q of alive(s.room)) {
+        if (taken?.has(q)) continue;
         const d = Math.abs(q.x - s.x) - (q.target === p ? 200 : 0);
         if (d < bestD) [best, bestD] = [q, d];
       }
@@ -153,12 +172,12 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
     };
     const struck = seraph ? alive(s.room).filter(inReach) : m && inReach(m) ? [m] : [];
     if (!struck.length) return;
-    s.hitAt = t + SPIRIT_HIT_S * 1000;
+    s.hitAt = t + s.every;
     const out = [];
     for (const q of struck) {
       const crit = Math.random() < s.crit;
       const dmg = Math.max(1, Math.round(s.hit * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1)));
-      out.push(damage(q, dmg, crit, s.owner, p, Math.sign(q.x - s.x) || s.dir, 60));
+      out.push(damage(q, dmg, crit, s.owner, p, Math.sign(q.x - s.x) || s.dir, 60, { kind: 'summon', skill: s.skill }));
       if (!q.dead && !q.focus && !(q.tauntUntil > t)) {
         q.target = s; // (damage() pointed it at the Cleric: the spirit is what it saw)
         q.targetUntil = t + 5000;
@@ -195,8 +214,10 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
   // ——— the Net Trap (Archer, S4): on the ground where it was set; the first mob (on the ground) that walks into
   // it is caught: snareUntil (server/rpg.js stepMob: an ordinary mob stops dead and can't hurt anyone, a boss
   // is only slowed, for half as long). Trap Mastery: more catches, each bursting round the caught mob. ———
+  // SP1's blast trap is one too: what walks in sets it off (boom) instead of being caught.
   function net(s, p, t, hits) {
     if (t < s.hitAt) return; // (a moment to set it down)
+    if (s.what === 'blast') return blast(s, p, t, hits);
     const caught = [], out = [];
     for (const m of alive(s.room)) {
       const k = MOBS[m.kind];
@@ -210,7 +231,7 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
       for (const q of alive(s.room)) {
         if (Math.abs(q.x - m.x) > NET_BURST_R + MOBS[q.kind].w / 2 || Math.abs(q.y - m.y) > NET_BURST_R) continue;
         const crit = Math.random() < s.crit;
-        out.push(damage(q, Math.max(1, Math.round(s.burst * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1))), crit, s.owner, p, Math.sign(q.x - m.x) || 1, 120));
+        out.push(damage(q, Math.max(1, Math.round(s.burst * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1))), crit, s.owner, p, Math.sign(q.x - m.x) || 1, 120, { kind: 'summon', skill: s.skill }));
       }
     }
     if (!caught.length) return;
@@ -220,6 +241,115 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
       hits.get(s.room).push([s.id, out]);
     }
     if (s.left <= 0) remove(s, 'sprung');
+  }
+
+  // ——— SP1: the blast trap. The first mob on the ground within NET_R sets it off: s.hit on everything within its radius ———
+  function blast(s, p, t, hits) {
+    const near = (m, R) => Math.abs(m.x - s.x) < R + MOBS[m.kind].w / 2 && Math.abs(m.y - s.y) < Math.max(40, R * 0.6);
+    if (!alive(s.room).some((m) => !MOBS[m.kind].fly && near(m, NET_R))) return;
+    const out = [];
+    for (const q of alive(s.room)) {
+      if (!near(q, s.r)) continue;
+      const crit = Math.random() < s.crit;
+      out.push(damage(q, Math.max(1, Math.round(s.hit * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1))), crit, s.owner, p, Math.sign(q.x - s.x) || 1, 260, { kind: 'summon', skill: s.skill }));
+    }
+    if (!hits.has(s.room)) hits.set(s.room, []);
+    hits.get(s.room).push([s.id, out]);
+    remove(s, 'boom');
+  }
+
+  // ——— SP1: the phoenix and the hawk. They circle over their caster; every `every` ms one dives at a mob (the phoenix:
+  // the nearest within PHOENIX_SEEK of its caster; the hawk: what its caster last hit, else the nearest ahead within
+  // HAWK_RANGE), hits it as it gets there and flies back. Nothing can hit them. ———
+  function flier(s, p, t, dt, hits) {
+    const hawk = s.what === 'hawk', ps = p.state;
+    if (s.dive) {
+      const d = s.dive, f = (t - d.at) / DIVE_MS;
+      const m = d.m, mx = m.dead ? d.tx : m.x, my = m.dead ? d.ty : m.y - MOBS[m.kind].h / 2;
+      if (!d.hit && f >= 1) {
+        d.hit = true;
+        if (!m.dead && !m.gone && m.room === s.room) {
+          const crit = Math.random() < s.crit, dmg = Math.max(1, Math.round(s.hit * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1)));
+          if (!hits.has(s.room)) hits.set(s.room, []);
+          hits.get(s.room).push([s.id, [damage(m, dmg, crit, s.owner, p, Math.sign(m.x - s.x) || s.dir, 80, { kind: 'summon', skill: s.skill })]]);
+          if (s.el && !m.dead) element(m, s.el, dmg, s.owner);
+        }
+        d.tx = mx;
+        d.ty = my;
+      }
+      if (f < 1) {
+        s.x = d.x0 + (mx - d.x0) * f;
+        s.y = d.y0 + (my - d.y0) * f;
+        s.dir = Math.sign(mx - d.x0) || s.dir;
+        return;
+      }
+      if (f >= 2) s.dive = null;
+    }
+    // circling over the caster (and gliding back there after a dive)
+    s.phase += dt * (hawk ? 1.6 : 2.2);
+    const gx = ps.x + Math.cos(s.phase) * (hawk ? 50 : 70), gy = ps.y - (hawk ? 110 : 90) + Math.sin(s.phase * 2) * 14;
+    const k = Math.min(1, dt * (s.dive ? 6 : 4));
+    if (Math.abs(gx - s.x) > 2) s.dir = Math.sign(gx - s.x);
+    s.x += (gx - s.x) * k;
+    s.y += (gy - s.y) * k;
+    if (s.dive || t < s.hitAt) return;
+    let m = null;
+    if (hawk) {
+      const last = p.lastHit?.m;
+      if (last && !last.dead && !last.gone && last.room === s.room && t - p.lastHit.at < 6000 && Math.abs(last.x - ps.x) < HAWK_RANGE) m = last;
+      else {
+        const dir = ps.facing < 0 ? -1 : 1;
+        m = alive(s.room).filter((q) => (q.x - ps.x) * dir > -20 && Math.abs(q.x - ps.x) < HAWK_RANGE && Math.abs(q.y - ps.y) < 160).sort((a, b) => Math.abs(a.x - ps.x) - Math.abs(b.x - ps.x))[0] ?? null;
+      }
+    } else m = alive(s.room).filter((q) => Math.abs(q.x - ps.x) < PHOENIX_SEEK && Math.abs(q.y - ps.y) < 220).sort((a, b) => Math.abs(a.x - ps.x) - Math.abs(b.x - ps.x))[0] ?? null;
+    if (!m) return;
+    s.hitAt = t + s.every;
+    s.dive = { m, at: t, x0: s.x, y0: s.y, hit: false };
+  }
+
+  // ——— SP1: the stone guardian. Walks to the mob in front of its caster (the one after its caster first), taunts every
+  // mob within its radius every GUARDIAN_TAUNT_S (bosses too, unless a focus or a Knight's taunt holds them) and slams
+  // the mobs in front of it every `every` ms. ———
+  function guardian(s, p, t, dt, hits) {
+    const ps = p.state;
+    let m = s.target;
+    if (m && (m.dead || m.gone || m.room !== s.room || (m.special && !m.egg) || Math.abs(m.x - s.x) > SPIRIT_SEEK)) m = s.target = null;
+    if (!m) {
+      let best = null, bestD = SPIRIT_SEEK;
+      for (const q of alive(s.room)) {
+        if (MOBS[q.kind].fly) continue;
+        const d = Math.abs(q.x - ps.x) - (q.target === p ? 200 : 0);
+        if (d < bestD && Math.abs(q.y - ps.y) < 160) [best, bestD] = [q, d];
+      }
+      m = s.target = best;
+    }
+    const k = m && MOBS[m.kind];
+    const gx = m ? m.x - Math.sign(m.x - s.x || 1) * (k.w / 2 + 22) : ps.x - (ps.facing < 0 ? -1 : 1) * 50;
+    const dx = gx - s.x, step = GUARDIAN_SPEED * dt;
+    s.x += Math.abs(dx) < step ? dx : Math.sign(dx) * step;
+    s.y += ((m ? m.y : ps.y) - s.y) * Math.min(1, dt * 8);
+    if (m) s.dir = Math.sign(m.x - s.x) || s.dir;
+    else if (Math.abs(dx) > 4) s.dir = Math.sign(dx);
+    if (t >= s.tauntAt) {
+      s.tauntAt = t + GUARDIAN_TAUNT_S * 1000;
+      for (const q of alive(s.room)) {
+        if (Math.abs(q.x - s.x) > s.r + MOBS[q.kind].w / 2 || Math.abs(q.y - s.y) > s.r || q.focus || q.tauntUntil > t) continue;
+        q.target = s;
+        q.targetUntil = t + GUARDIAN_TAUNT_S * 1000 + 500;
+      }
+    }
+    if (t < s.hitAt || !m || Math.abs(m.x - s.x) > k.w / 2 + 40) return;
+    s.hitAt = t + s.every;
+    const out = [];
+    for (const q of alive(s.room)) {
+      const kq = MOBS[q.kind];
+      if (Math.abs(q.x - (s.x + s.dir * 30)) > kq.w / 2 + 50 || Math.abs(q.y - s.y) > kq.h + 30) continue;
+      const crit = Math.random() < s.crit;
+      out.push(damage(q, Math.max(1, Math.round(s.hit * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1))), crit, s.owner, p, s.dir, 220, { kind: 'summon', skill: s.skill }));
+    }
+    if (!out.length) return;
+    if (!hits.has(s.room)) hits.set(s.room, []);
+    hits.get(s.room).push([s.id, out]);
   }
 
   // ——— spirits and totems get worn down: touched by mobs, hit by bosses nearby ———
