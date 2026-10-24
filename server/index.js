@@ -147,6 +147,7 @@
 // against `a`; everyone else is interpolated a few ticks in the past.
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
+import { speed } from '../src/shared/testspeed.js'; // first: tests only, TEST_SPEED=N runs every clock N× fast (docs/testing.md)
 import { existsSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -606,7 +607,7 @@ async function login(id, p, m) {
     const town = TOWNS[state.town];
     if (!process.env.TEST_SPAWN && (p.goHome || !restorePos(acc.user, state)) && town.room !== VILLAGE) placeAt(state, town.room, town.x + Math.floor(Math.random() * 120));
   }
-  send(p.ws, { t: 'welcome', id, tick, rate: TICK_RATE, ice, build: buildId(), players: [...players].filter(([, q]) => q.joined).map(([i, q]) => info(q, i)), casts: [...players].filter(([, q]) => q.joined && q.cast).map(([i]) => i) });
+  send(p.ws, { t: 'welcome', id, tick, rate: TICK_RATE, ...(speed > 1 && { speed, now: Date.now() }), ice, build: buildId(), players: [...players].filter(([, q]) => q.joined).map(([i, q]) => info(q, i)), casts: [...players].filter(([, q]) => q.joined && q.cast).map(([i]) => i) });
   broadcast({ t: 'join', ...info(p, id) }, id);
   rpg.sendMe(p);
   houses.sendOwned(p);

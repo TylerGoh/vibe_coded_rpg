@@ -1,7 +1,8 @@
 # S5, split into pieces (sub-plan for agents)
 
-**Status: plan, written 2026-10-24; the owner settled its open questions the same day (below). S5.1 and S5.2 are
-built (in a dev copy, not deployed yet: they ship together as deploy #1, dark). Next: S5.3.** S5 in `progression.md` ("bosses that need a party",
+**Status (2026-10-24): S5.1 and S5.2 are built and LIVE (deploy #1, commit e1df118, shipped dark: no real
+boss has `partyLive`). Next: S5.3, not started (a first attempt was stopped before it finished and thrown
+away; start it fresh from the live tree). Test faster with `TEST_SPEED` (`docs/testing.md`).** S5 in `progression.md` ("bosses that need a party",
 section 6) is too big for one session, so it's cut into five pieces, each sized for one agent. Read
 `progression.md` sections 1b and 6 first: they hold the design and the owner's rules. This file pins down what
 that plan left open and says who does what. Numbers here are starting points: they live as named constants
@@ -125,7 +126,7 @@ S5.1 engine, focus, taunt, pulse ──→ S5.2 curse/Cleanse, barrier, armour, 
 ## The pieces
 
 ### S5.1: the engine, focus and Rally's taunt, the pulse (built 2026-10-24)
-**Built** (not deployed: it goes out with S5.2). What landed, and what S5.2 should know:
+**Built and live** (deploy #1, with S5.2). What landed, and what S5.2 should know:
 - `PARTY`, `PARTY_MECHS`, `partyBit`, `partyActive` in `src/shared/rpg.js` (`partyDen` on the Warden and Sigrun,
   `partyAll` for the final bosses); `partyOn`, `partyTick`, `inFight`, `sendParty`, `taunt` in `server/rpg.js`. No
   real boss has `partyLive`, so nothing changes for players but Rally's taunt (which pulls ordinary mobs too).
@@ -162,7 +163,7 @@ Docs: `docs/combat/bosses.md`, `docs/combat/skills.md` (the Knight), `docs/netco
   the pulse lands, Barrier soaks it, alone neither shows up. The status box shows a Knight's buffs and the focus.
 
 ### S5.2: curses and Cleanse, barrier, armour, weak points, the interrupt (built 2026-10-24)
-**Built** (not deployed: it goes out with S5.1). What landed, and what S5.3 / S5.4 should know:
+**Built and live** (deploy #1, with S5.1). What landed, and what S5.3 / S5.4 should know:
 - Numbers: `CURSE_*`, `BARRIER_*`, `ARMOUR_*`, `WEAK_*`, `STAGGER_S`, `STAGGER_DMG` in `src/shared/rpg.js`, with
   `curseMult`, `heavyHit`, `weakOf`, `weakReach` and `partyHitMult` (the one rule the client's prediction and the
   server's cap share). `hitKinds` in `src/shared/skills.js` says whether a skill's hit is magic, heavy or an arrow;

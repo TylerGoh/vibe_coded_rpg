@@ -1,5 +1,6 @@
 // Docs: docs/netcode.md, docs/ui/hints.md (main.js wires every feature; see the index in Agent.md)
 import { W, H, rand, clamp } from './util.js';
+import { speed } from './shared/testspeed.js';
 import { drawBackground, setBackgroundResolution } from './background.js';
 import { envAt } from './environment.js';
 import { Slime, paletteFor } from './slime.js';
@@ -1187,7 +1188,7 @@ function update(realDt) {
   hintTime += dt;
   // Fixed 60 Hz simulation steps, in lockstep with the server's tick.
   if (joined) {
-    acc = Math.min(acc + realDt, DT * 5);
+    acc = Math.min(acc + realDt, DT * 5 * speed); // speed: TEST_SPEED test servers only, else 1
     while (acc >= DT) {
       net.tick(keys());
       acc -= DT;
@@ -1626,7 +1627,7 @@ if (window.slimeville) window.slimeville.perf = perf;
 let last = performance.now();
 function frame(now) {
   requestAnimationFrame(frame);
-  const dt = Math.min(Math.max(0, (now - last) / 1000), 0.25);
+  const dt = Math.min(Math.max(0, (now - last) / 1000), 0.25 * speed);
   const gap = now - last;
   last = now;
   gfx.sample(gap / 1000);

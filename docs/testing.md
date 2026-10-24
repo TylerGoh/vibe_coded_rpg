@@ -13,14 +13,22 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
 - Stop it by PID after checking `readlink /proc/<pid>/cwd`. Never `pkill -f "node server/index.js"`.
 - Test-only server env vars (never set them live): `TEST_SPAWN=room:x`, `TEST_BOSS_HP=0.05` (den and field bosses), `TEST_GOD=1`,
   `TEST_GROW=60` (crops grow 60× faster), `TEST_PET_FAST=1440` (a pet's full belly lasts 2 min), `TEST_FIELD_RESPAWN_MS=15000` (field bosses come back sooner),
-  `TEST_ACCUSE_FAST=20` (botting accusations' timers 20× shorter), `TEST_PARTY=sprout_king:focus,pulse` (gives that
+  `TEST_SPEED=4` (the whole game 4× real time, below), `TEST_ACCUSE_FAST=20` (botting accusations' timers 20× shorter), `TEST_PARTY=sprout_king:focus,pulse` (gives that
   boss those S5 party mechanics and switches them on, `partyLive`; several bosses separated by `;`. Two test players
   in the den turn them on: `docs/combat/bosses.md`), `TEST_TP=1` (accepts `{t:'tp', room?, x, vt?}`: room -1 is your own house, `vt` how far into a crossing; send it from the page with
   `slimeville.net.sendNpc(…)` and wait ~200 ms for the next snapshot).
-- **Keep browser tests short.** Walking with real key presses runs in real time (the sim is a fixed 60 Hz
-  on purpose, so a "faster" test server would stop testing the real game): teleport with `TEST_TP` to
-  where the test needs to be and walk only the last few px when walking itself is what's tested. Check
-  state with `Runtime.evaluate` instead of screenshots where you can; screenshot only what needs eyes.
+- **Speed tests up with `TEST_SPEED=N`** (`src/shared/testspeed.js`): every clock on the server runs N×
+  fast (it ticks N×60 times a real second) and a client installs the same from `welcome`, so a headless
+  browser keeps up with no change to the test. The game itself doesn't change: still one 1/60 s step per
+  tick, cooldowns and boss timers in the same game-ms, so it still tests the real game, just compressed.
+  Measured: 4× and 10× both scale walking and ticks exactly. Divide your script's own real-time waits by N
+  (and hold keys N× shorter). The `#debug` fps readout reads N× low (it uses the sped-up clock). Up to ~10×
+  works on this box; past that the server or a busy browser can fall behind (ticks just stop scaling).
+  Date.now runs ahead of real time, so timestamps saved in the test DB (pets, crops) end up in the future:
+  use a copy of the DB.
+- **Keep browser tests short** anyway: teleport with `TEST_TP` to where the test needs to be and walk only
+  the last few px when walking itself is what's tested. Check state with `Runtime.evaluate` instead of
+  screenshots where you can; screenshot only what needs eyes.
 
 ## Headless browser (CDP)
 - `/usr/bin/chromium --headless=new --remote-debugging-port=…`, driven by a small Node script using
@@ -35,8 +43,10 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
   the DevTools CPU throttling command (Emulation.setCPUThrottlingRate) (`docs/performance.md`).
 - Open the game with `#debug` to get `window.slimeville` (`net`, `voice`, `characters`, `museum`, `hall`,
   `piano`, `tutor`, `courseMenu`, `rpg`, `skillTree`, `shop`, `audio`, `slimes`, `mine`, `camX`).
-- Past sessions left reusable scripts in their scratchpads (e.g. boutique.mjs, ap.mjs); copying one
-  is faster than starting over, but they are not part of the repo.
+- **`scripts/cdp.mjs`** is the shared helper: `launch({ game: port })`, `page()` per player, then `login(user,
+  mobile?)`, `tp(room, x)` (TEST_TP), `key`, `eval`, `shot` (PNGs go to `OUT=<scratch>`), `front()`
+  before typing on one of several pages. `wait(ms)` waits game ms (run the script with `SPEED=N` to match
+  `TEST_SPEED=N`); `sleep(ms)` is real time. Import it from a scratch script; don't add tests to the repo.
 
 ## What a bot can't tell you
 Balance, audio and real phones have never been checked by people: see `docs/ideas.md`.

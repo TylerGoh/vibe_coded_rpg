@@ -10,6 +10,7 @@
 // moment, so they glide smoothly even though packets arrive unevenly.
 import { TICK_RATE, newState, step, unpack, applyCharge } from './shared/sim.js';
 import { decode, encodeInput, BIN_VERSION } from './shared/wire.js';
+import { installSpeed } from './shared/testspeed.js';
 
 const INTERP = 6; // ticks (100 ms) behind the newest snapshot for remote slimes
 const MAX_SNAPS = 60;
@@ -139,6 +140,7 @@ export class Net {
       this.ws.close();
       this.cb.onDenied(m.reason);
     } else if (m.t === 'welcome') {
+      if (m.speed) installSpeed(m.speed, m.now); // test servers only (TEST_SPEED)
       this.id = m.id;
       this.ice = m.ice; // voice relay servers for this session (see server/turn.js)
       this.pending = [];
