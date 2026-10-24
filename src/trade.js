@@ -2,7 +2,7 @@
 // The trade window (both sides' offers, your bag to offer from, gold, Ready) and the card that pops up
 // when someone asks you to trade. The server decides everything (server/trade.js): this only shows its
 // state and sends your whole offer each time you change it.
-import { ITEMS, enhName, slotsOf, isGear } from './shared/rpg.js';
+import { ITEMS, enhName, slotsOf, isGear, STAFF_BOLT_RANGE, BOW_RANGE } from './shared/rpg.js';
 import { TRADE_ITEMS } from './shared/trade.js';
 import { drawItemIcon } from './field.js';
 import { audio } from './audio.js';
@@ -17,6 +17,8 @@ export function itemDetail(x) {
   if (it.atk) parts.push(`ATK +${it.atk}`);
   if (it.magic) parts.push(`MAGIC +${it.magic}`);
   if (it.def) parts.push(`DEF +${it.def}`);
+  if (it.kind === 'sword') parts.push(`Reach +${it.reach}`);
+  if (it.kind === 'staff' || it.kind === 'bow') parts.push(`Range ${(it.kind === 'staff' ? STAFF_BOLT_RANGE : BOW_RANGE) + it.reach} px`);
   if (it.lvl) parts.push(`Lv ${it.lvl}`);
   if (it.legacy) parts.push('Legacy');
   const bonus = [['atk', 'ATK'], ['magic', 'MAGIC'], ['def', 'DEF'], ['hp', 'HP']].filter(([k]) => e[k]).map(([k, n]) => `${n} +${e[k]}`).join(', ');

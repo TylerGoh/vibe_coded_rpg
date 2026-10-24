@@ -129,6 +129,9 @@ materials, so those aren't only for selling any more. Bosses drop unique swords 
   day (owner: it made the shop confusing); don't bring it back without asking. The Sell tab's chips include the item's own scroll bonuses.
 - `lvl` is not a requirement (anyone can equip anything their class wields): the chip just says what level
   it's aimed at. Potions and pet food get no chips: their descriptions already say their numbers.
+- The bag's item card and the trade window's (`itemDetail` in `src/trade.js`) say the same reach / range: a
+  sword's reach, a staff's bolt range (`STAFF_BOLT_RANGE` + its reach), a bow's arrow range (`BOW_RANGE` + its
+  reach). Staves and swords used to leave it out of the bag card.
 
 ## The Boutique (a shop tab)
 - The friends' signature accessories (ribbon, glasses, notes, bowtie, flute, laptop: ids `src/slime.js`

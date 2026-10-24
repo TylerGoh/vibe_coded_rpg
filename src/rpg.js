@@ -13,7 +13,7 @@ import { drawHazard } from './hazards.js';
 import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, drawBarrier, drawRallyAura, drawAegisAura } from './skillfx.js';
 import { Summons } from './summons.js';
 import { audio } from './audio.js';
-import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE } from './shared/rpg.js';
+import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, STAFF_BOLT_RANGE, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE } from './shared/rpg.js';
 import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, BONK_MULT, BONK_REACH, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn } from './shared/skills.js';
 import { drawMobState, drawArcanePips } from './elements.js';
 import { staffGlow } from './staff-art.js';
@@ -1726,7 +1726,7 @@ export class Rpg {
     const d = document.createElement('p');
     const e = sel.e ?? {}, gear = isGear(sel.id);
     const bonus = [['atk', 'ATK'], ['magic', 'MAGIC'], ['def', 'DEF'], ['hp', 'HP']].filter(([k]) => e[k]).map(([k, n]) => `${n} +${e[k]}`).join(', ');
-    d.textContent = it.desc + (it.atk ? ` ATK +${it.atk}.` : '') + (it.magic && it.kind === 'staff' ? ` MAGIC +${it.magic}, MP +${it.mp}. Fires a bolt instead of swinging.` : '') + (it.kind === 'bow' ? ` Shoots arrows instead of swinging (${BOW_RANGE + it.reach} px). Archers aim with DEX.` : '') + (it.def ? ` DEF +${it.def}.` : '')
+    d.textContent = it.desc + (it.atk ? ` ATK +${it.atk}.` : '') + (it.kind === 'sword' ? ` Reach +${it.reach}.` : '') + (it.magic && it.kind === 'staff' ? ` MAGIC +${it.magic}, MP +${it.mp}. Fires a bolt instead of swinging (${STAFF_BOLT_RANGE + it.reach} px).` : '') + (it.kind === 'bow' ? ` Shoots arrows instead of swinging (${BOW_RANGE + it.reach} px). Archers aim with DEX.` : '') + (it.def ? ` DEF +${it.def}.` : '')
       + (gear ? ` Upgrade slots: ${slotsOf(sel.id) - (e.u ?? 0)} of ${slotsOf(sel.id)} left${bonus ? ` (scrolled: ${bonus})` : ''}.` : '')
       + (it.price ? ` Sells for ${sellPrice(sel.id)} gold.` : '')
       + (it.legacy ? ' Legacy: the old version, from before Frostpeak, Emberdeep and the Aether Citadel grew stronger. It works as it always did, but nothing drops it any more.' : '');
