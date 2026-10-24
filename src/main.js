@@ -217,7 +217,7 @@ const net = new Net(wsUrl, {
     } else if (m.t === 'hurt') {
       const s = m.id === net.id ? mine : slimes.get(m.id);
       if (s) Object.assign(s, { hp: m.hp, maxHp: m.max, hpAt: time }); // a little HP bar over them for a while
-      if (isCombat(room)) rpg.hurt(s?.visible || s === mine ? s : null, m.dmg, m.id === net.id);
+      if (isCombat(room)) rpg.hurt(s?.visible || s === mine ? s : null, m.dmg, m.id === net.id, !!m.dot);
     } else if (m.t === 'faint') {
       // down: knocked out in a combat room, a puddle until it wakes up in town or a Cleric revives it
       // (quiet: it already was, we just arrived; the frame loop draws it from s.down)
@@ -1380,6 +1380,19 @@ function drawHints() {
     if (ITEMS[rpg.me?.gear?.weapon]?.kind === 'bow' && retreatOpen(me, -(me.facing < 0 ? -1 : 1))) acts.push({ key: 'X', label: 'Retreat Shot' }); // (the Archer's, S4)
     if (!me.grounded && !me.sl && chaseRank(me.mw, 1) && !me.sc) acts.push({ key: '↓+X', label: 'Leap Slam' });
     if (!me.grounded && !me.sl && me.vy < 0 && chaseRank(me.mw, 2) && !me.uc) acts.push({ key: 'X', label: 'Upward Cut' });
+    // a boss's focus (S5, src/party.js): on you, Dash clear; on a friend, a Knight's Rally takes it
+    const foc = rpg.party.focused(), mineR = rpg.me;
+    if (foc && foc === net.id && rankOf(mineR?.skills, 'dash')) acts.push({ key: 'Shift', label: 'get clear: the boss is after you' });
+    else if (foc && foc !== net.id && mineR && rankOf(mineR.skills, 'rally')) {
+      const slot = mineR.hotbar?.indexOf('rally') ?? -1;
+      if (slot >= 0 && rpg.cooldown('rally') <= 0 && mineR.mp >= SKILLS.rally.mp) acts.push({ key: String(slot + 1), label: "Rally: take the boss's focus" });
+    }
+    // S5.2: someone cursed in reach and Cleanse ready; a curse on you and no Cleanse: back off; a weak point open
+    // and no bow (arrows reach it anyway): jump for it
+    const cl = mineR?.hotbar?.indexOf('cleanse') ?? -1, cTo = cl >= 0 && rpg.cooldown('cleanse') <= 0 && mineR.mp >= SKILLS.cleanse.mp ? rpg.cleanseTarget(me, SKILLS.cleanse.radius) : null;
+    if (cTo) acts.push({ key: String(cl + 1), label: cTo === me ? 'Cleanse your curse' : 'Cleanse: lift your friend\'s curse' });
+    const wk = rpg.party.weakOpen();
+    if (wk && !rpg.bowOf(mineR) && me.grounded && Math.abs(wk.v.x - me.x) < 260) acts.push({ key: 'Space', label: 'jump and hit the glowing weak point' });
   }
   if (me.grounded && me.onPlat) acts.push({ key: '↓', label: room === PIANO ? 'drop off the black key' : 'drop down' });
   drawPrompts(ctx, mine.x, mine.y - mine.h - 30, acts, camX, time, TOUCH);

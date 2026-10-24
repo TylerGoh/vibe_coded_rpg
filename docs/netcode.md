@@ -61,6 +61,15 @@ protocol is documented in the comment at the top of that file: keep it updated**
   6 bits used of the byte), the slap echo's `retreat`, the skill's `mob` / echo's `mark`, and
   `{t:'netcatch', id, m, x, y}` with the summons messages. Retreat Shot changes no physics: it's read from
   the state at the shot's input (`retreatOpen`), like Charge, but with nothing to replay.
+- 2026-10-24 (S5.1, the party mechanics): no wire version change. Which mechanics are on for a boss and who its
+  focus is on go in their own low-rate JSON message, `{t:'party', id, on, f, fl}` (on change and every 2 s while
+  any is on), instead of more mob flags: eight bits don't fit the 7 spare bits of the mob record, and they change
+  rarely. The pulse is two `boss` events; Rally's echo carries `taunt`.
+- 2026-10-24 (S5.2): no wire version change. The `party` message grows `st` (the stagger), `sh` (the shield phase),
+  `wk` (the weak point) and `cu` (who's cursed, for late comers); `{t:'curse', id, n}` is new (routed through the
+  `RPG` set); a hit on a mob may carry a 5th element (`h[4]`: aimed at an open weak point); `hurt` may carry `dot`
+  and `me` a `curse`. New boss events: `curseWarn`, `curseHit`, `shieldUp`, `shieldBreak`, `shieldDrop`, `crack`,
+  `weakOpen`, `weakBreak`, `stagger`, `ultCancel` (listed in the protocol comment in `server/index.js`).
 - Ideas not done yet: send snapshots of only the slimes in your room (plus broadcasters), or at 30 Hz
   for remote slimes; delta-encode mob updates.
 
@@ -86,7 +95,7 @@ banner (`docs/ui/updates.md`), comes straight back where it stood.
 `cast` broadcast · `npc-*` AI characters · `lecture`/`hands`/`ask*` lecture hall · `vote`/`courses` ·
 `tutor*` quiz · `note` piano · `slap` · the combat set (`me`, `mobs`, `loot`, `hurt`, `faint`, `got`,
 `gear`, `toast`, `skill`, `boss`, `nomana`, `shop`, `scrolled`; the Cleric's summons `summons`, `sumhit`,
-`sumhurt`, `sumgone`, which `src/net.js` must list in its `RPG` set to route) · bag / skills / stats actions (`equip`,
+`sumhurt`, `sumgone`, and S5's `party` and `curse`, which `src/net.js` must list in its `RPG` set to route) · bag / skills / stats actions (`equip`,
 `unequip`, `use`, `drop`, `scroll`, `learn`, `unlearn`, `respec`, `hotbar`, `hotswap`, `ap`, `pvp`,
 `wear`, `showhelm`, `buy`, `sell`, `buycos`) · houses (`house`, `house-set`, `house-kick`, `invite`, `visit`). Routing for these is one `if` chain in `server/index.js`;
 a new message needs a branch there and a line in the protocol comment.

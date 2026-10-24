@@ -16,6 +16,17 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
 - In combat rooms a Warrior also sees its chase moves while each is possible right now: "X Charge"
   (dashing or just after), "↓+X Leap Slam" (in the air, ▼ Hit on touch), "X Upward Cut" (still rising). An
   Archer with a bow sees "X Retreat Shot" while dashing or just after (S4: X / Hit then shoots backward).
+- A boss's focus (S5, `docs/combat/bosses.md`): the focused slime sees "Shift get clear: the boss is after you"
+  (Dash on touch; `Shift` is in `TOUCH_NAMES`), and anyone with Rally on the hotbar, ready and with the MP sees
+  "<its key> Rally: take the boss's focus" while the focus is on a friend. The first `PARTY_HINTS` times a session
+  a toast also names the answer to a focus or a pulse (`tell` in `src/party.js`).
+- S5.2's mechanics: anyone with Cleanse on the hotbar, ready and with the MP sees "<its key> Cleanse: lift your
+  friend's curse" (or "Cleanse your curse") while someone in reach is cursed (`rpg.cleanseTarget`), and anyone
+  without a bow near a boss whose weak point is open sees "Space jump and hit the glowing weak point" (Jump on touch:
+  `Space` is in `TOUCH_NAMES`). The `tell` toasts (each `PARTY_HINTS` times a session, worded for your class) cover
+  the sigil, being cursed, a friend cursed when you have Cleanse, the barrier, the armour, the weak point and the
+  stagger; an interrupt always toasts who froze the ultimate away. Over the boss, a hit cut by a phase pops
+  "WARDED" / "ARMOURED" and one on the weak point "WEAK POINT!" (at most every 0.7 s).
 - `drawHints()` builds the list in the same order the E key acts in. **A new interaction must add its
   line there.** (The old per-object pills were removed in favour of this.)
 - Room-wide actions stay as pills top-right on desktop (H hand, C courses, Q Clio, X/I/K in combat rooms,

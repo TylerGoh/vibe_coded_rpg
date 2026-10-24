@@ -12,8 +12,8 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost } from '../src/shared/rpg.js';
-import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn } from '../src/shared/skills.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult } from '../src/shared/rpg.js';
+import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
@@ -35,6 +35,12 @@ const FIELD_BOSS_IDLE_MS = 60000; // nobody's hit it for this long: it heals up 
 const TEST_BOSS_HP = Number(process.env.TEST_BOSS_HP) || 1; // tests only: weaker bosses (dens and field bosses)
 const TEST_GOD = !!process.env.TEST_GOD; // tests only: nobody gets hurt
 const FIELD_RESPAWN_MS = Number(process.env.TEST_FIELD_RESPAWN_MS) || FIELD_BOSS_RESPAWN_MS; // (tests only: sooner)
+// tests only: TEST_PARTY=sprout_king:focus,pulse gives that boss those party mechanics and switches them on
+// (partyLive), so the S5 engine can be tried before any real boss has it (docs/testing.md)
+for (const spec of (process.env.TEST_PARTY ?? '').split(';').filter(Boolean)) {
+  const [kind, list] = spec.split(':');
+  if (MOBS[kind]) Object.assign(MOBS[kind], { party: (list ?? '').split(',').filter(Boolean), partyLive: true });
+}
 const rand = (a, b) => a + Math.random() * (b - a);
 const randInt = (a, b) => Math.floor(rand(a, b + 1));
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -109,6 +115,13 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       dmg: new Map(), dmgDirty: true,
       // and (S3) healing done and damage taken while it was fought (name → HP), for the support roles
       heal: new Map(), taken: new Map(),
+      // S5's party mechanics (partyTick): the bits switched on, focus { p, id, until }, when the next focus and
+      // pulse come, Rally's taunt
+      partyOn: 0, partySentAt: 0, focus: null, focusLast: null, focusNext: 0, pulseAt: 0, pulseHit: 0, tauntUntil: 0,
+      // S5.2: the stagger (until, or one waiting for the move it's in to end), the curse's next cast and the sigil on
+      // its way { x, at }, the shield phase { kind: 'barrier' | 'armour', from (after its warning), until, hp, max,
+      // cracks } and when the next comes, the weak point { until, fill, max } and when it next opens
+      staggerUntil: 0, staggerQueued: false, curseAt: 0, curseSigil: null, shield: null, shieldNext: 0, shieldLast: null, weak: null, weakNext: 0,
     });
   }
 
@@ -273,6 +286,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       momentum: momentumOf(p), momentumLeft: momentumOf(p) ? left(p.momentum.until) : 0, arcane: arcaneOf(p),
       berserk: left(p.berserkUntil), shield: c.shield ? 1 : 0, barrier: p.barrier && p.barrier.until > now() ? Math.ceil(p.barrier.left) : 0, barrierLeft: left(p.barrier?.until), mend: left(p.mend?.until), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), gods: left(p.godsUntil), secondWind: left(p.swReadyAt),
       brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
+      curse: p.curse ? { n: p.curse.n, left: left(p.curse.until) } : undefined, // (S5.2: a boss's curse stacks)
       ways: c.ways,
     });
   }
@@ -330,6 +344,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     p.momentum = null;
     p.arcane = null;
     p.barrier = p.mend = null;
+    if (p.curse) uncurse(id, p, true); // (a KO lifts a curse, S5.2)
     // in a combat room you stay down where you fell until you ask to wake up in town ({t:'wake'}), so a
     // Cleric can come and Revive you (owner, 2026-10-24: get everyone used to that); elsewhere, a moment
     const t = now(), down = isCombat(p.state.room);
@@ -367,17 +382,20 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // ult: a boss ultimate, which knocks you out outright, unless you're shielded (Aegis, Jelly Bubble),
   // standing in a Sanctuary (then it's 60% of your max HP), or Second Wind saves you.
   const guard = (qid, q, what) => toRoom(q.state.room)({ t: 'guard', id: qid, what });
-  // mob: the mob that did it (the damage meter's "taken" column), if it was one
-  function hurt(qid, q, raw, fromX, by, knock = 380, ult = false, mob = null) {
+  // mob: the mob that did it (the damage meter's "taken" column), if it was one. flat: raw is the damage
+  // itself, past DEF and the roll, and it can't be dodged (a boss's pulse, S5); knock 0: not knocked back.
+  // flat 'dot': a curse's burn (S5.2): flat, and it doesn't pop a Bubble, start the after-hit invulnerability or
+  // flash the screen (Aegis still blocks it, quietly)
+  function hurt(qid, q, raw, fromX, by, knock = 380, ult = false, mob = null, flat = false) {
     if (q.faintUntil || TEST_GOD) return;
-    const t = now(), st = stats(q);
-    if ((q.aegisUntil ?? 0) > t) return guard(qid, q, 'block');
-    if ((q.bubbleUntil ?? 0) > t) {
+    const t = now(), st = stats(q), dot = flat === 'dot';
+    if ((q.aegisUntil ?? 0) > t) return dot ? undefined : guard(qid, q, 'block');
+    if ((q.bubbleUntil ?? 0) > t && !dot) {
       q.bubbleUntil = 0; // the bubble takes the hit, and pops
       sendMe(q);
       return guard(qid, q, 'pop');
     }
-    if (!ult && st.evade && Math.random() < st.evade) { // Evasion (Archer, S4): it misses, but you're still knocked
+    if (!ult && !flat && st.evade && Math.random() < st.evade) { // Evasion (Archer, S4): it misses, but you're still knocked
       q.hurtAt = t; // back, as the client predicted (src/rpg.js step), so the physics stays in step
       knockBack(q, fromX, knock);
       sendMe(q);
@@ -390,7 +408,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       return guard(qid, q, 'barrier');
     }
     const zone = zones.find((z) => z.room === q.state.room && z.until > t && Math.abs(q.state.x - z.x) < z.r);
-    let dmg = ult ? (zone ? Math.round(st.maxHp * 0.6) : Math.ceil(q.rpg.hp) + 1) : Math.max(1, Math.round(raw * rand(0.85, 1.15) - st.def));
+    let dmg = ult ? (zone ? Math.round(st.maxHp * 0.6) : Math.ceil(q.rpg.hp) + 1) : flat ? Math.max(1, Math.round(raw)) : Math.max(1, Math.round(raw * rand(0.85, 1.15) - st.def));
     if (zone && !ult) dmg = Math.max(1, Math.round(dmg * (1 - zone.cut)));
     const totem = ult ? 0 : summons.cutAt(q); // a Guardian Totem near you
     if (totem) dmg = Math.max(1, Math.round(dmg * (1 - totem)));
@@ -401,9 +419,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       dmg -= soak;
       if (bar.left <= 0) q.barrier = null;
       if (dmg <= 0) {
-        q.hurtAt = t;
+        if (!dot) q.hurtAt = t;
         sendMe(q);
-        return guard(qid, q, 'soak');
+        return dot ? undefined : guard(qid, q, 'soak');
       }
       if (!q.barrier) guard(qid, q, 'barrier');
     }
@@ -412,7 +430,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       q.rpg.mp -= take;
       dmg -= take;
     }
-    q.hurtAt = t;
+    if (!dot) q.hurtAt = t;
     q.rpg.hp -= dmg;
     if (mob) credit(q.state.room, qid, q.name, 'taken', Math.min(dmg, Math.max(0, Math.ceil(q.rpg.hp + dmg))));
     const sw = rankOf(q.rpg.skills, 'second_wind');
@@ -421,9 +439,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       q.swReadyAt = t + SKILLS.second_wind.cdFor(sw) * 1000;
       guard(qid, q, 'secondwind');
     }
-    toRoom(q.state.room)(hurtMsg(qid, q, dmg, by));
+    toRoom(q.state.room)(dot ? { ...hurtMsg(qid, q, dmg, by), dot: 1 } : hurtMsg(qid, q, dmg, by));
     if (q.rpg.hp <= 0) return faint(qid, q, by);
-    knockBack(q, fromX, knock);
+    if (knock) knockBack(q, fromX, knock);
     sendMe(q);
   }
   // knocked back (and up): the client's prediction catches up from the next snapshot
@@ -545,8 +563,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       m.dmgDirty = true;
     }
     m.hp -= dmg;
-    m.target = p;
-    m.targetUntil = now() + 8000;
+    if (!m.focus && !(m.tauntUntil > now())) { // (a Knight's taunt and a boss's focus hold its eye)
+      m.target = p;
+      m.targetUntil = now() + 8000;
+    }
     if (!MOBS[m.kind].boss && !MOBS[m.kind].field && !MOBS[m.kind].fly && !MOBS[m.kind].anchored && knock) { // (anchored: a wasp nest doesn't slide)
       m.vx = dir * knock; // knocked back a little
       if (!MOBS[m.kind].hops || m.vy === 0) m.vy = -180;
@@ -570,9 +590,15 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // Apply hits the client worked out: [[mobId, dmg, crit, shatter?], …] → [[mobId, dmg, crit, killed, shattered?], …].
   // el: the spell's element (the Mage's combos, skills.js CHILL_S…): the client marks a fire hit it saw land on
   // a frozen mob (shatter), and the cap allows SHATTER_MULT for it only if the mob really is frozen here
-  function applyHits(id, p, hits, { max = 1, range, cap, dir, knock = 200, slow = 0, el = null }) {
+  // S5.2 (the party mechanics, shared/rpg.js partyHitMult): magic: a staff's or a spell's hit (a barrier lets it
+  // through, and it wears the barrier down) · heavy: a hit big enough to crack armour (heavyHit) · arrow: an
+  // arrow (it reaches a weak point from anywhere). The client marks a hit it aimed at an open weak point (h[4]);
+  // it's taken only if the spot is open here and the hitter could reach it (weakReach).
+  function applyHits(id, p, hits, { max = 1, range, cap, dir, knock = 200, slow = 0, el = null, magic = false, heavy = false, arrow = false }) {
     const out = [];
     if (!Array.isArray(hits)) return out;
+    const cursed = curseMult(p.curse?.n); // (a curse on the hitter: everything it hits, softer)
+    const cracked = new Set(); // (armour: one crack a cast)
     for (const h of hits.slice(0, max)) {
       const m = Array.isArray(h) && mobs.find((q) => q.id === h[0] && !q.dead && q.room === p.state.room);
       if (!m || Math.abs(m.x - p.state.x) > range + MOBS[m.kind].w / 2 + SLACK) continue;
@@ -582,10 +608,13 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       const shell = k.ai?.kind === 'shell' && Math.sign(p.state.x - m.x) === m.dir ? 1 - k.ai.cut : 1;
       const shatter = el === 'fire' && !!h[3] && m.frozenUntil > now() - SHATTER_GRACE_MS;
       const marked = m.mark && m.mark.until > now() - SHATTER_GRACE_MS ? 1 + m.mark.boost : 1; // Hunter's Mark (S4): everyone's hits
-      const dmg = Math.max(1, Math.min(Math.round(Number(h[1]) || 0), Math.ceil(cap * shell * marked * (shatter ? SHATTER_MULT : 1)) + 1));
+      const ps = m.partyOn ? partyHit(m) : null, weak = !!h[4] && !!ps?.weakOpen && weakReach(weakOf(k, m.x, m.y, m.dir), p.state.y, arrow, 40);
+      const pm = ps ? partyHitMult(ps, { magic, heavy: heavy || shatter, weak }) : 1;
+      const dmg = Math.max(1, Math.min(Math.round(Number(h[1]) || 0), Math.ceil(cap * shell * marked * cursed * pm * (shatter ? SHATTER_MULT : 1)) + 1));
       if (slow) m.slowUntil = now() + slow * 1000 * (MOBS[m.kind].boss ? 0.5 : 1);
       const hit = damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock);
       if (shatter) hit.push(1);
+      if (ps && !m.dead) partyHitLanded(m, dmg, { magic, heavy: (heavy || shatter) && !cracked.has(m), weak }) && cracked.add(m);
       if (el && !m.dead) element(m, el, dmg, id, shatter);
       out.push(hit);
     }
@@ -600,6 +629,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         m.chillUntil = 0;
         m.frozenUntil = t + (k.boss || k.field ? FREEZE_BOSS : FREEZE_S) * 1000;
         if (!k.boss && !k.field) m.vx = 0;
+        // S5.2's interrupt: a boss frozen while its ultimate is still warning loses the ultimate, then staggers
+        if (k.boss && m.act === 'ult' && m.phase === 'warn' && m.ult?.kind !== 'rebirth' && partyOn(m, 'interrupt')) interruptUlt(m, id);
       } else m.chillUntil = t + CHILL_S * 1000;
     } else if (el === 'fire') {
       if (shatter) m.frozenUntil = m.chillUntil = 0;
@@ -649,7 +680,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (st.arrowRange) return shoot(id, p, dir, hits, st);
     const charged = !st.boltRange && chargeOpen(p.state) && Array.isArray(hits) && hits.length > 0;
     const mult = charged ? SKILLS.charge.mult(chaseRank(p.state.mw, 0)) : 1;
-    const out = st.boltRange ? applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * STAFF_BOLT_MULT * capOf(st), dir, knock: 120 }) : applyHits(id, p, hits, { range: SLAP_REACH + st.reach, cap: st.atk * mult * capOf(st), dir, knock: charged ? 320 : 200 });
+    const out = st.boltRange ? applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * STAFF_BOLT_MULT * capOf(st), dir, knock: 120, magic: true }) : applyHits(id, p, hits, { range: SLAP_REACH + st.reach, cap: st.atk * mult * capOf(st), dir, knock: charged ? 320 : 200, heavy: heavyHit(mult) });
     // Arcane Charge (Mage): a staff bolt that hit stores a charge for the next spell
     if (st.boltRange && out.length && rankOf(p.rpg.skills, 'arcane_charge')) p.arcane = { n: Math.min(ARCANE_MAX, arcaneOf(p) + 1), until: now() + ARCANE_DUR * 1000 };
     if (charged) {
@@ -670,7 +701,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function shoot(id, p, dir, hits, st) {
     const r = chaseRank(p.state.mw, 3), retreat = r > 0 && retreatOpen(p.state, dir);
     const mult = BOW_SHOT_MULT * (retreat ? SKILLS.retreat_shot.mult(r) : 1) * barbCap(p);
-    const out = applyHits(id, p, hits, { range: st.arrowRange, cap: st.atk * mult * capOf(st), dir, knock: 100, slow: barbSlow(p) });
+    const out = applyHits(id, p, hits, { range: st.arrowRange, cap: st.atk * mult * capOf(st), dir, knock: 100, slow: barbSlow(p), arrow: true });
     out.retreat = retreat && out.length > 0;
     return out;
   }
@@ -683,7 +714,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // heals the hurt friend nearest you within HOLY_BOLT_HEAL_R (you, when nobody else is hurt)
   function holyBolt(id, p, dir, hits) {
     const st = stats(p);
-    const out = applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * HOLY_BOLT_MULT * capOf(st), dir, knock: 120 });
+    const out = applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * HOLY_BOLT_MULT * capOf(st), dir, knock: 120, magic: true });
     const amt = out.reduce((n, h) => n + h[1], 0) * HOLY_BOLT_HEAL * st.heal;
     if (amt >= 1) {
       let best = null, bestD = HOLY_BOLT_HEAL_R;
@@ -710,7 +741,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const st = stats(p), dir = s.facing < 0 ? -1 : 1;
     const cap = st.atk * sk.mult(rank) * capOf(st);
     const out = { t: 'skill', id, skill: m.skill, dir, x: s.x, y: s.y, hits: [] };
-    out.hits = m.skill === 'leap_slam' ? applyHits(id, p, m.hits, { max: 20, range: sk.radius, cap, dir, knock: 260 }) : applyHits(id, p, m.hits, { max: 8, range: 40, cap, dir, knock: 160 });
+    const heavy = heavyHit(sk.mult(rank));
+    out.hits = m.skill === 'leap_slam' ? applyHits(id, p, m.hits, { max: 20, range: sk.radius, cap, dir, knock: 260, heavy }) : applyHits(id, p, m.hits, { max: 8, range: 40, cap, dir, knock: 160, heavy });
     if (out.hits.length) momentumUp(p);
     toRoom(s.room)(out);
     thirst(id, p, out.hits);
@@ -732,6 +764,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (c.mp < sk.mp) return send(p.ws, { t: 'nomana' });
     const down = sk.kind === 'revive' || sk.kind === 'miracle' ? downNear(p, sk.radius) : [];
     if (sk.kind === 'revive' && !down.length) return toast(p, 'Nobody near you is knocked out'); // (the client checks first: src/rpg.js cast)
+    const cleansed = sk.kind === 'cleanse' ? cleanseTarget(p, sk.radius) : null;
+    if (sk.kind === 'cleanse' && !cleansed) return toast(p, 'Nothing to cleanse: nobody near you is cursed'); // (the client checks first too)
     c.mp -= sk.mp;
     p.cds[m.skill] = now() + cooldownOf(m.skill, rank) * 1000;
     const st = stats(p), dir = m.dir < 0 ? -1 : 1, t = now();
@@ -742,7 +776,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const phys = st.atk * mult, magic = (sk.stat === 'best' ? Math.max(st.atk, st.magic) : st.magic) * mult * (sk.fire ? st.fire : 1) * (sk.holy ? st.heal : 1);
     const out = { t: 'skill', id, skill: m.skill, dir, x: s.x, y: s.y, hits: [] };
     if (charges) out.arcane = charges;
-    const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, el: sk.el ?? null, ...o }));
+    // S5.2: what kind of hit it is, for a boss's barrier, armour and weak point (the client works out the same: src/rpg.js cast)
+    const kinds = hitKinds(sk, rank, st, charges, c.skills);
+    const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, el: sk.el ?? null, ...kinds, ...o }));
     if (sk.kind === 'strike') hit({ range: SLAP_REACH + st.reach + sk.reach, cap: phys, knock: 320 });
     else if (sk.kind === 'cleave') hit({ max: sk.targets, range: SLAP_REACH + st.reach + sk.reach, cap: phys, knock: 260 });
     else if (sk.kind === 'spin') hit({ max: 20, range: sk.radius, cap: phys, knock: 260 });
@@ -778,6 +814,11 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       if (sk.kind === 'miracle') out.revived = down.map(([qid, q]) => revive(qid, q, 1));
     } else if (sk.kind === 'revive') {
       out.revived = down.map(([qid, q]) => revive(qid, q, sk.share(rank)));
+    } else if (sk.kind === 'cleanse') {
+      const [qid, q] = cleansed;
+      uncurse(qid, q);
+      out.targets = [qid];
+      out.heals = [[qid, healFrom(id, p, qid, q, healOf(m.skill, rank, st), false)]];
     } else if (sk.kind === 'mend' || sk.kind === 'barrier') {
       out.dur = sk.dur;
       out.targets = [];
@@ -814,6 +855,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         out.targets.push(qid);
         if (q !== p) sendMe(q);
       }
+      if (sk.kind === 'rally') out.taunt = taunt(id, p, sk.radius) || undefined; // (S5: Rally taunts too)
     } else if (sk.kind === 'gods') {
       p.godsUntil = t + sk.dur * 1000; // HP capped at 1 (statsFor), healed to full when it ends (tick)
       c.hp = Math.min(c.hp, 1);
@@ -858,7 +900,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (m.kind !== 'touch' && m.kind !== 'charge' && !MOBS[mob.kind].boss && !MOBS[mob.kind].ai) return;
     if (ult && now() > mob.ultLiveUntil) return; // no ultimate going off right now
     const mx = Number.isFinite(m.mx) && Math.abs(m.mx - mob.x) < DEN_W ? m.mx : mob.x;
-    hurt(id, p, MOBS[mob.kind].atk * mult, mx, undefined, knock, ult, mob);
+    const focused = !ult && mob.focus?.p === p && mob.focus.until > now(); // (S5: the boss's focus hits harder)
+    hurt(id, p, MOBS[mob.kind].atk * mult * (focused ? FOCUS_ATK : 1), mx, undefined, knock, ult, mob);
   }
 
   // ——— mobs and bosses, every tick ———
@@ -877,6 +920,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       return;
     }
     const slow = frozen ? FROZEN_BOSS_SLOW : netted ? NET_BOSS_SLOW : m.slowUntil > t || m.chillUntil > t ? (k.boss ? 0.6 : 0.4) : 1;
+    if (big && (k.party || m.partyOn)) partyTick(m, k, here, t); // (S5: may point m.target at its focus)
+    // S5.2's stagger: one that waited for the boss's move to finish starts now; meanwhile it stands dazed
+    if (m.staggerQueued && (k.boss ? m.phase === 'walk' : !m.aiPhase)) stagger(m);
+    const staggered = big && m.staggerUntil > t;
     if (m.target && (t > m.targetUntil || !m.target.joined || m.target.state.room !== m.room || m.target.faintUntil)) m.target = null;
     if (!m.target && (k.aggro || m.minion)) {
       let best = null, bestD = k.boss ? Infinity : 230;
@@ -891,8 +938,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     let want = 0;
     for (let i = m.later.length - 1; i >= 0; i--) if (t >= m.later[i][0]) m.later.splice(i, 1)[0][1](); // timed follow-ups
-    const ai = !k.boss && k.ai ? mobAi(m, k, here, dt, t) : null;
-    if (k.boss) want = bossBrain(m, k, here, dt, t) * slow;
+    const ai = !k.boss && k.ai && !staggered ? mobAi(m, k, here, dt, t) : null;
+    if (staggered && !k.boss) want = 0;
+    else if (k.boss) want = bossBrain(m, k, here, dt, t) * slow;
     else if (ai !== null) want = ai * slow;
     else if (m.target) {
       const dx = m.target.state.x - m.x;
@@ -1156,6 +1204,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       bossEvent(m, 'rainHit', { marks: m.rains[i].marks });
       m.rains.splice(i, 1);
     }
+    if (m.staggerUntil > t) return 0; // (S5.2: staggered, dazed: no moves)
     const start = (act, quick) => {
       m.act = m.last = act;
       m.phase = 'warn';
@@ -1241,7 +1290,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     } else if ((m.act === 'slam' || m.act === 'leap' || m.act === 'ult') && m.timer > 0) return 0;
     else if (m.timer > 0) return 0;
     // done: chain into another attack (a combo), or walk a bit
-    if (m.act !== 'ult' && m.target && ++m.chain < COMBO_MAX[stage] && Math.random() < COMBO_CHANCE[stage]) {
+    if (m.act !== 'ult' && m.target && !m.staggerQueued && ++m.chain < COMBO_MAX[stage] && Math.random() < COMBO_CHANCE[stage]) {
       start(choose(), true);
       return 0;
     }
@@ -1445,7 +1494,302 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   }
   function resetBoss(m) {
     for (const q of mobs) if (q.minion && q.room === m.room) q.dead = q.gone = true;
+    if (m.partyOn) toRoom(m.room)({ t: 'party', id: m.id, on: 0 });
     spawn(m);
+  }
+
+  // ——— S5: bosses that need a party (PARTY in src/shared/rpg.js, story/s5-plan.md) ———
+  // partyOn(m, mech): is that mechanic switched on for this fight (the boss lists it, has partyLive, and enough
+  // slimes are fighting it)? S5.2's curse, barrier, armour, weak point and interrupt read the same gate.
+  const partyOn = (m, mech) => partyActive(MOBS[m.kind], m.fighters, mech);
+  const partyBits = (m) => PARTY_MECHS.reduce((b, mech) => (partyOn(m, mech) ? b | partyBit(mech) : b), 0);
+  // who's in the fight: everyone in a den; round a field boss, the slimes near it or who hit it lately
+  const inFight = (m, here) => (m.den ? here : here.filter(([qid, q]) => Math.abs(q.state.x - m.x) < 900 || now() - (m.hitters.get(qid) ?? 0) < FIELD_BOSS_FIGHT_MS))
+    .filter(([, q]) => !q.faintUntil);
+  // → the room: {t:'party', id, on: bits (PARTY_MECHS order), f: the focused slime's id, fl: ms of it left, and S5.2's:
+  // st: ms of the stagger left (or -1: one waiting for its move to end) · sh: [kind 'b' | 'a', ms until it's up, ms
+  // left, barrier HP left (0–1) or armour cracks] · wk: [ms left open, filled (0–1)] · cu: [[slime id, curse stacks]]}
+  function sendParty(m) {
+    const t = now(), f = m.focus, sh = m.shield, w = m.weak, ms = (x) => Math.max(0, Math.round(x - t));
+    m.partySentAt = t;
+    m.partyDirty = false;
+    const cu = inRoom(m.room).filter(([, q]) => q.curse?.n > 0).map(([qid, q]) => [qid, q.curse.n]);
+    toRoom(m.room)({
+      t: 'party', id: m.id, on: m.partyOn, f: f ? f.id : undefined, fl: f ? ms(f.until) : undefined,
+      st: m.staggerUntil > t ? ms(m.staggerUntil) : m.staggerQueued ? -1 : undefined,
+      sh: sh ? [sh.kind === 'barrier' ? 'b' : 'a', ms(sh.from), ms(sh.until), sh.kind === 'barrier' ? Math.round((Math.max(0, sh.hp) / sh.max) * 100) / 100 : sh.cracks] : undefined,
+      wk: w ? [ms(w.until), Math.round((w.fill / w.max) * 100) / 100] : undefined,
+      cu: cu.length ? cu : undefined,
+    });
+  }
+  function partyTick(m, k, here, t) {
+    const bits = m.dead ? 0 : partyBits(m);
+    let dirty = bits !== m.partyOn;
+    m.partyOn = bits;
+    // focus: one slime at a time, FOCUS_S each, FOCUS_GAP between (someone else next time if it can)
+    if (bits & partyBit('focus')) {
+      const f = m.focus;
+      if (f && (t > f.until || !f.p.joined || f.p.state.room !== m.room || f.p.faintUntil)) {
+        m.focus = null;
+        m.focusLast = f.p;
+        m.focusNext = t + FOCUS_GAP * 1000;
+        dirty = true;
+      }
+      if (!m.focus && t >= m.focusNext && m.act !== 'ult' && !m.special && !(m.staggerUntil > t)) {
+        const list = inFight(m, here), others = list.filter(([, q]) => q !== m.focusLast);
+        const pickFrom = others.length ? others : list;
+        if (pickFrom.length) {
+          const [id, p] = pick(pickFrom);
+          m.focus = { p, id, until: t + FOCUS_S * 1000 };
+          dirty = true;
+        }
+      }
+      if (m.focus) {
+        m.target = m.focus.p;
+        m.targetUntil = Math.max(m.targetUntil, t + 1000);
+      }
+    } else if (m.focus) {
+      m.focus = null;
+      dirty = true;
+    }
+    // pulse: a ring closing in for PULSE_WARN s ({t:'boss', a:'pulseWarn'}), then PULSE_HP of every fighter's max HP
+    if (bits & partyBit('pulse')) {
+      if (!m.pulseAt) m.pulseAt = t + PULSE_EVERY * 1000; // (the first a whole beat after it switches on)
+      if (!m.pulseHit && t >= m.pulseAt && m.act !== 'ult' && !m.special && !(m.staggerUntil > t)) {
+        m.pulseHit = t + PULSE_WARN * 1000;
+        bossEvent(m, 'pulseWarn', { dur: PULSE_WARN });
+      }
+      if (m.pulseHit && t >= m.pulseHit) {
+        m.pulseHit = 0;
+        m.pulseAt = t + PULSE_EVERY * 1000;
+        bossEvent(m, 'pulseHit');
+        // (S5.5's Barrier Draught hooks in here, or in hurt() on `flat`)
+        for (const [qid, q] of inFight(m, here)) hurt(qid, q, stats(q).maxHp * PULSE_HP, m.x, undefined, 0, false, m, true);
+      }
+    } else m.pulseAt = m.pulseHit = 0;
+    // S5.2: nothing new starts while the boss is busy (an ultimate, phased out, staggered)
+    const busy = m.act === 'ult' || m.special || m.staggerUntil > t;
+    if (m.staggerUntil && t >= m.staggerUntil) {
+      m.staggerUntil = 0;
+      dirty = true;
+    }
+    // curse: a sigil under the boss's target (or anyone fighting), CURSE_WARN s to step out, then a stack on everyone in it
+    if (bits & partyBit('curse')) {
+      if (!m.curseAt) m.curseAt = t + CURSE_EVERY * 600; // (the first a little sooner)
+      if (!m.curseSigil && t >= m.curseAt && !busy) {
+        const tg = m.target?.state ?? m.target ?? pick(inFight(m, here).map(([, q]) => q.state));
+        if (tg && Number.isFinite(tg.x)) {
+          const cx = Math.round(tg.x);
+          m.curseSigil = { x: cx, at: t + CURSE_WARN * 1000 };
+          bossEvent(m, 'curseWarn', { cx, r: CURSE_R, dur: CURSE_WARN });
+        }
+      }
+      if (m.curseSigil && t >= m.curseSigil.at) {
+        const cx = m.curseSigil.x;
+        m.curseSigil = null;
+        m.curseAt = t + CURSE_EVERY * 1000;
+        bossEvent(m, 'curseHit', { cx, r: CURSE_R });
+        for (const [qid, q] of inFight(m, here)) if (Math.abs(q.state.x - cx) < CURSE_R) curse(qid, q, m);
+        dirty = true;
+      }
+    } else m.curseAt = 0, m.curseSigil = null;
+    // barrier / armour: a shield phase now and then (both listed: they take turns)
+    const canB = bits & partyBit('barrier'), canA = bits & partyBit('armour');
+    if (canB || canA) {
+      const sh = m.shield;
+      if (sh && t >= sh.until) {
+        m.shield = null;
+        bossEvent(m, 'shieldDrop', { kind: sh.kind });
+        dirty = true;
+      }
+      if (!m.shieldNext) m.shieldNext = t + (canB ? BARRIER_EVERY : ARMOUR_EVERY) * 500;
+      if (!m.shield && t >= m.shieldNext && !busy) {
+        const kind = canB && canA ? (m.shieldLast === 'barrier' ? 'armour' : 'barrier') : canB ? 'barrier' : 'armour';
+        const b = kind === 'barrier', warn = b ? BARRIER_WARN : ARMOUR_WARN, max = Math.max(1, Math.round(k.hp * TEST_BOSS_HP * BARRIER_HP)); // (one slime's worth of its HP: a lone Mage can break it in a big party too)
+        m.shield = { kind, from: t + warn * 1000, until: t + (warn + (b ? BARRIER_S : ARMOUR_S)) * 1000, hp: max, max, cracks: 0 };
+        m.shieldLast = kind;
+        m.shieldNext = m.shield.until + (b ? BARRIER_EVERY : ARMOUR_EVERY) * 1000;
+        bossEvent(m, 'shieldUp', { kind, dur: warn });
+        dirty = true;
+      }
+    } else if (m.shield || m.shieldNext) {
+      dirty ||= !!m.shield;
+      m.shield = null;
+      m.shieldNext = 0;
+    }
+    // weak point: open for WEAK_OPEN_S now and then (Hunter's Mark on the boss: WEAK_MARK_S)
+    if (bits & partyBit('weakpoint')) {
+      const w = m.weak;
+      if (w && m.mark && m.mark.until > t && w.until < w.at + WEAK_MARK_S * 1000) {
+        w.until = w.at + WEAK_MARK_S * 1000;
+        dirty = true;
+      }
+      if (w && t >= w.until) {
+        m.weak = null;
+        m.weakNext = t + WEAK_EVERY * 1000;
+        dirty = true;
+      }
+      if (!m.weakNext) m.weakNext = t + WEAK_EVERY * 500;
+      if (!m.weak && t >= m.weakNext && !busy) {
+        m.weak = { at: t, until: t + WEAK_OPEN_S * 1000, fill: 0, max: Math.max(1, Math.round(k.hp * TEST_BOSS_HP * WEAK_HP)) }; // (like the barrier's)
+        bossEvent(m, 'weakOpen');
+        dirty = true;
+      }
+    } else if (m.weak || m.weakNext) {
+      dirty ||= !!m.weak;
+      m.weak = null;
+      m.weakNext = 0;
+    }
+    if (dirty || (m.partyDirty && t - m.partySentAt > 150) || (bits && t - m.partySentAt > 2000)) sendParty(m); // (and every 2 s, for anyone who just came in)
+  }
+  // S5.2: a boss's party state as the hit cap sees it, a little generous at the edges (the client's view of a phase
+  // starting or ending runs a moment behind): { stag, shield, weakOpen }
+  function partyHit(m) {
+    const t = now(), sh = m.shield;
+    return { stag: m.staggerUntil > t - 300, shield: sh && t >= sh.from + 250 ? sh.kind : null, weakOpen: !!m.weak && t < m.weak.until + 300 };
+  }
+  // a hit just landed on a boss with its party mechanics on: magic wears a barrier down, a heavy hit cracks armour,
+  // a hit on the weak point fills it. Each one, done, staggers it. → true if it cracked the armour
+  function partyHitLanded(m, dmg, { magic, heavy, weak }) {
+    const t = now(), sh = m.shield;
+    let cracked = false;
+    if (sh && t >= sh.from) {
+      if (sh.kind === 'barrier' && magic) {
+        sh.hp -= dmg;
+        m.partyDirty = true;
+        if (sh.hp <= 0) breakShield(m);
+      } else if (sh.kind === 'armour' && heavy) {
+        cracked = true;
+        sh.cracks++;
+        m.partyDirty = true;
+        bossEvent(m, 'crack', { n: sh.cracks });
+        if (sh.cracks >= ARMOUR_CRACKS) breakShield(m);
+      }
+    }
+    if (weak && m.weak) {
+      m.weak.fill += dmg;
+      m.partyDirty = true;
+      if (m.weak.fill >= m.weak.max) {
+        m.weak = null;
+        m.weakNext = t + WEAK_EVERY * 1000;
+        bossEvent(m, 'weakBreak');
+        stagger(m);
+      }
+    }
+    return cracked;
+  }
+  function breakShield(m) {
+    const kind = m.shield.kind;
+    m.shield = null;
+    bossEvent(m, 'shieldBreak', { kind });
+    stagger(m);
+  }
+  // The stagger (STAGGER_S): the boss stops dazed and takes STAGGER_DMG more. A wind-up it was in is dropped; a
+  // move already going off (or an ultimate) finishes first, then it staggers (staggerQueued)
+  function stagger(m) {
+    const t = now(), k = MOBS[m.kind];
+    if (m.dead) return;
+    if (k.boss && m.phase === 'warn' && m.act !== 'ult' && !m.special) {
+      m.act = null;
+      m.phase = 'walk';
+      m.timer = 0;
+      m.hover = k.fly ?? 0;
+    }
+    if (k.boss ? m.phase !== 'walk' : !!m.aiPhase) {
+      m.staggerQueued = true;
+      m.partyDirty = true;
+      return;
+    }
+    m.staggerQueued = false;
+    m.staggerUntil = t + STAGGER_S * 1000;
+    m.next = Math.max(m.next, 1);
+    m.vx = 0;
+    bossEvent(m, 'stagger', { dur: STAGGER_S });
+    sendParty(m);
+  }
+  // The interrupt (S5.2; owner 2026-10-24): a freeze landed (from player id) while the ultimate was still warning:
+  // it's cancelled outright ({t:'boss', a:'ultCancel'} clears everyone's banner), the next comes ULT_EVERY later as
+  // usual, and the boss staggers
+  function interruptUlt(m, id) {
+    const t = now();
+    m.ult = null;
+    m.act = null;
+    m.phase = 'walk';
+    m.timer = 0;
+    m.ultLiveUntil = 0;
+    m.hover = MOBS[m.kind].fly ?? 0;
+    m.ultAt = t + ULT_EVERY[Math.max(1, m.stage)] * 1000;
+    bossEvent(m, 'ultCancel', { by: id });
+    stagger(m);
+  }
+  // ——— S5.2: curses, on the player (p.curse { n, until, by: the boss's id, room, tick, far }; not saved) ———
+  function curse(qid, q, m) {
+    const t = now(), c = q.curse;
+    if (q.faintUntil || (q.aegisUntil ?? 0) > t) return; // (Aegis: nothing gets through)
+    q.curse = { n: Math.min(CURSE_MAX, (c?.n ?? 0) + 1), until: t + CURSE_S * 1000, by: m.id, room: m.room, tick: c?.tick ?? t + 1000, far: 0 };
+    cursed(qid, q);
+  }
+  // → the room: {t:'curse', id, n} (the wisps over a cursed slime), and its owner's status box
+  function cursed(qid, q) {
+    toRoom(q.state.room)({ t: 'curse', id: qid, n: q.curse?.n ?? 0 });
+    sendMe(q);
+  }
+  function uncurse(qid, q, quiet = false) {
+    if (!q.curse) return;
+    const room = q.curse.room;
+    q.curse = null;
+    toRoom(room)({ t: 'curse', id: qid, n: 0 });
+    if (!quiet && q.joined) sendMe(q);
+  }
+  // Cleanse's target: the nearest cursed friend within r, else p if it's cursed → [id, q] or null
+  function cleanseTarget(p, r) {
+    const list = near(p, r).filter(([, q]) => q.curse?.n > 0);
+    const others = list.filter(([, q]) => q !== p).sort(([, a], [, b]) => Math.abs(a.state.x - p.state.x) - Math.abs(b.state.x - p.state.x));
+    return others[0] ?? list.find(([, q]) => q === p) ?? null;
+  }
+  // every tick: each curse burns once a second, fades at range, and ends with its time, its boss, or leaving the room
+  function curseTick(t) {
+    for (const [qid, q] of players) {
+      const cu = q.curse;
+      if (!cu) continue;
+      const boss = mobs.find((m) => m.id === cu.by && !m.dead && !m.gone);
+      if (!q.joined || !q.rpg || t >= cu.until || q.state.room !== cu.room || !boss) {
+        uncurse(qid, q, !q.joined);
+        continue;
+      }
+      if (Math.abs(q.state.x - boss.x) > CURSE_FADE_R) {
+        if (!cu.far) cu.far = t + CURSE_FADE_S * 1000;
+        else if (t >= cu.far) {
+          cu.far = t + CURSE_FADE_S * 1000;
+          if (--cu.n <= 0) {
+            uncurse(qid, q);
+            continue;
+          }
+          cursed(qid, q);
+        }
+      } else cu.far = 0;
+      if (t >= cu.tick) {
+        cu.tick = t + 1000;
+        hurt(qid, q, stats(q).maxHp * CURSE_DOT * cu.n, q.state.x, undefined, 0, false, boss, 'dot');
+      }
+    }
+  }
+  // Rally's taunt (the Knight; S5, owner 2026-10-24): every mob within r turns on p for TAUNT_S, and a boss's
+  // focus moves to p (one without focus: its target, for as long). → how many it pulled
+  function taunt(id, p, r) {
+    const t = now();
+    let n = 0;
+    for (const m of alive(p.state.room)) {
+      if (Math.abs(m.x - p.state.x) > r + MOBS[m.kind].w / 2 || Math.abs(m.y - p.state.y) > r + MOBS[m.kind].h) continue;
+      m.target = p;
+      m.targetUntil = m.tauntUntil = t + TAUNT_S * 1000;
+      if (m.partyOn & partyBit('focus')) { // (in the gap between two focuses too)
+        m.focus = { p, id, until: t + TAUNT_S * 1000 };
+        sendParty(m);
+      }
+      n++;
+    }
+    return n;
   }
 
   // Spend gold on something outside the bag (a bigger house): → true if p had it. Saved straight away.
@@ -1510,6 +1854,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         md.next += 1000;
         healFrom(md.by, by, qid, q, md.amt);
       }
+      curseTick(t); // (S5.2: a boss's curses on players)
       // burns (the Mage's combos): a tick of damage every BURN_TICK_MS, counted for the caster (the damage meter,
       // EXP); the burn ends with its time or when the caster leaves the room. → {t:'burn', h: [[mobId, dmg, 0, killed]]}
       const burnt = new Map();

@@ -22,7 +22,7 @@ const TREE_OF = {
   arcane_charge: 'magic', // (S2.6)
   // the Cleric (S3)
   smite: 'holy', faith: 'holy', jelly_spirit: 'holy', mend: 'holy', lantern_wisp: 'holy', revive: 'holy', holy_power: 'holy',
-  miracle: 'holy', guardian_totem: 'holy', barrier: 'holy', spirit_bond: 'holy', seraph: 'holy',
+  miracle: 'holy', cleanse: 'holy', guardian_totem: 'holy', barrier: 'holy', spirit_bond: 'holy', seraph: 'holy',
   // the Archer (S4)
   double_shot: 'archer', retreat_shot: 'archer', keen_eye: 'archer', steady_hands: 'archer', evasion: 'archer', snipe: 'archer',
   piercing_arrow: 'archer', deadeye: 'archer', hunters_mark: 'archer', heartseeker: 'archer', arrow_rain: 'archer', net_trap: 'archer',
@@ -510,6 +510,31 @@ const ICONS = {
     ctx.stroke();
     ctx.fillStyle = '#ffe9a0';
     star(ctx, 0, 4, 4);
+  },
+  cleanse(ctx, dark) { // S5.2: a bright drop of light, and a dark wisp of curse breaking up beside it
+    ctx.strokeStyle = 'rgba(80,44,120,0.85)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-13, 14);
+    ctx.bezierCurveTo(-19, 5, -7, -1, -13, -10);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(80,44,120,0.7)';
+    circle(ctx, -9, -14, 2);
+    circle(ctx, -16, -16, 1.5);
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(5, -15);
+    ctx.bezierCurveTo(13, -4, 15, 2, 15, 6);
+    ctx.bezierCurveTo(15, 12, 10, 16, 5, 16);
+    ctx.bezierCurveTo(0, 16, -5, 12, -5, 6);
+    ctx.bezierCurveTo(-5, 2, -3, -4, 5, -15);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffe9a0';
+    star(ctx, 5, 6, 4.5);
   },
   jelly_spirit(ctx, dark) { // a little slime ghost
     ctx.fillStyle = 'rgba(240,255,248,0.95)';

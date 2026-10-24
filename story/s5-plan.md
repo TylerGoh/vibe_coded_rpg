@@ -1,6 +1,7 @@
 # S5, split into pieces (sub-plan for agents)
 
-**Status: plan, written 2026-10-24. Nothing built yet.** S5 in `progression.md` ("bosses that need a party",
+**Status: plan, written 2026-10-24; the owner settled its open questions the same day (below). S5.1 and S5.2 are
+built (in a dev copy, not deployed yet: they ship together as deploy #1, dark). Next: S5.3.** S5 in `progression.md` ("bosses that need a party",
 section 6) is too big for one session, so it's cut into five pieces, each sized for one agent. Read
 `progression.md` sections 1b and 6 first: they hold the design and the owner's rules. This file pins down what
 that plan left open and says who does what. Numbers here are starting points: they live as named constants
@@ -14,7 +15,7 @@ in `src/shared/rpg.js` and get tuned after people fight.
 - **Final bosses** (owner, 2026-10-24; `final-bosses.md`) come after S5 and are the one exception: four or
   more players, every mechanic on from the start. S5's engine should allow a boss to switch every mechanic
   on regardless of headcount, with an HP floor and an enrage, but S5 builds none of them.
-- **A mechanic only shows up once enough slimes are fighting** (no Taunt check when you're alone), so a solo
+- **A mechanic only shows up once enough slimes are fighting** (no taunt check when you're alone), so a solo
   player isn't punished for being alone.
 - **Every class carries an answer to every mechanic**, even a poor one (Mobility, kiting, jumping,
   potions). A mechanic that only one class can answer is a bug.
@@ -41,7 +42,7 @@ mechanic on the boss so it can draw it and the hints can explain it.
 
 | mechanic | what the boss does | best answer | everyone else's answer |
 |---|---|---|---|
-| `focus` | locks onto one slime for `FOCUS_S`: its slams and charges only go at them, and harder (`FOCUS_ATK`). A red line from the boss to them | **Taunt** (Knight, new) pulls the focus onto you | the focused slime runs and Dashes; others keep hitting |
+| `focus` | locks onto one slime for `FOCUS_S`: its slams and charges only go at them, and harder (`FOCUS_ATK`). A red line from the boss to them | **Rally** (Knight) taunts: it pulls the focus onto you | the focused slime runs and Dashes; others keep hitting |
 | `pulse` | every `PULSE_EVERY` s, after a ring telegraph, a room-wide hit of `PULSE_HP` of each slime's max HP. Can't be dodged (`noDodge`) | Cleric: Barrier and heals; Knight: Sanctuary, Bubble | potions, the **Barrier Draught** (new) |
 | `curse` | a move that marks slimes near its target with a curse stack: less damage dealt (`CURSE_DMG` a stack) and a small burn (`CURSE_DOT`), up to `CURSE_MAX` stacks | **Cleanse** (Cleric, new) | stand off at range (`CURSE_FADE_R`) and it fades one stack every `CURSE_FADE_S`; the **Cleansing Tonic** (new) |
 | `barrier` | a shield phase (`BARRIER_S`, drawn as a rune dome): physical hits only do `BARRIER_PHYS`. Magic hits wear down its own HP (`BARRIER_HP`, a share of the boss's max). Breaking it staggers the boss for `STAGGER_S` | Mage | wait it out (it drops by itself after `BARRIER_S`). Sigrun's version only covers her front (flank her) |
@@ -61,7 +62,7 @@ clears it). The client lowers its own damage by `CURSE_DMG` a stack and the serv
 burn goes through `hurt()` from the boss, so it shows on the meter's damage taken.
 
 ## The gates (who sees what)
-Recommended, and the owner can change them (open question 1):
+The owner took these as recommended (2026-10-24):
 - **Den and field bosses:** every mechanic at `min: 2` fighters, except `interrupt` (always on: it's a reward,
   not a check). Alone, they fight exactly as today.
 - **Party dens:** `capMin: 1` for everything but `focus` (it means nothing alone). That's what makes them
@@ -70,12 +71,11 @@ Recommended, and the owner can change them (open question 1):
 - **Bigger parties:** nothing extra past the gate; `BOSS_HP_PER_PLAYER` already scales the HP.
 
 ## Settled here (beyond progression.md)
-These are the recommended answers. A session can start from them (Agent.md: the owner likes "liberal
-decisions"), but open questions 1–3 are worth asking first.
-- **Taunt** is a new Knight skill (`branch: 'knight'`, `adv: 30`), **max 1 rank**, so the branch's point
-  budget (`spClass`) barely moves. Cast: the boss's focus (and every mob's target in range) moves to you for
-  `TAUNT_S`, cooldown `TAUNT_CD`. On a boss without `focus` it still pulls the boss's target for a few seconds,
-  so it's never a dead button.
+The owner's answers to the open questions (2026-10-24) are folded in here.
+- **Taunt is not a new skill: it's folded into Rally** (owner, 2026-10-24), the Knight's existing skill (adv 30,
+  cooldown 30). Casting Rally also pulls the boss's focus (and every mob's target in range) onto the caster for
+  `TAUNT_S`. On a boss without `focus` it still pulls the boss's target for as long, so it's never a dead
+  button. Built in S5.1 (`taunt()` in `server/rpg.js`).
 - **Cleanse** is a new Cleric skill in the shared trunk (no branch, `adv: 10`), **max 1 rank**, so Priests and
   Wardens both get it. Cast on the nearest cursed friend in range (or yourself): clears every curse stack and
   heals a little. Until a boss curses, the hint says "Nothing to cleanse".
@@ -89,12 +89,13 @@ decisions"), but open questions 1–3 are worth asking first.
 - **Telegraphs:** every mechanic warns before it bites (the ring before a pulse, the red line for focus, the
   dome fading in). The hints system (`docs/ui/hints.md`) names the answer the first few times, e.g. "A curse!
   A Cleric can Cleanse it, or step back to let it fade".
-- **Mobile:** Taunt and Cleanse are ordinary hotbar skills; the weak point is hit by aiming normally (a tap
+- **The interrupt** (owner, 2026-10-24): a freeze landing during `ULT_WARN` cancels the ult outright.
+- **Mobile:** Rally and Cleanse are ordinary hotbar skills; the weak point is hit by aiming normally (a tap
   aims arrows already). Nothing new to touch.
 
 ## Order and shipping
 ```
-S5.1 engine, focus/Taunt, pulse ──→ S5.2 curse/Cleanse, barrier, armour, weak point, interrupt
+S5.1 engine, focus, taunt, pulse ──→ S5.2 curse/Cleanse, barrier, armour, weak point, interrupt
                                      → deploy #1 (S5.1 + S5.2 together, with no boss switched on)
                                        then S5.3 the party dens                → deploy #2
                                        then S5.4 the retrofit, a stage at a time → deploys #3…
@@ -104,7 +105,7 @@ S5.1 engine, focus/Taunt, pulse ──→ S5.2 curse/Cleanse, barrier, armour, w
 - **S5.2 after S5.1**, not alongside it: both edit `bossBrain`, `applyHits`, the boss drawing in `src/rpg.js` and
   `src/shared/skills.js`.
 - **Deploy #1 ships the engine dark.** The two party dens already list `party`, so the gate also needs the
-  boss to be switched on (`partyLive` on its entry, added by S5.3 and S5.4). Players get Taunt and Cleanse
+  boss to be switched on (`partyLive` on its entry, added by S5.3 and S5.4). Players get Rally's taunt and Cleanse
   (harmless without curses) and nothing else changes.
 - **S5.3** switches the party dens on and tunes them. Its own deploy, so the owner can try them.
 - **S5.4** is the long tail: each boss gets one or two mechanics, shipped a stage at a time.
@@ -117,20 +118,35 @@ S5.1 engine, focus/Taunt, pulse ──→ S5.2 curse/Cleanse, barrier, armour, w
   (`docs/testing.md`). **Never build into `dist/`, never restart `rpg`, never deploy or push.** Hand back a list
   of changed files and what you tested; the main session deploys.
 - Mobile works too (`docs/ui/mobile.md`). No emoji in canvas text. Docs updated, `npm run docs:check` green,
-  `npm run economy -- --check` green (Taunt, Cleanse, the stagger and the potions all touch power).
+  `npm run economy -- --check` green (Rally's taunt, Cleanse, the stagger and the potions all touch power).
 - Test with two or more test players in the den (the gate needs them): `docs/testing.md` has how to run
   several headless players.
 
 ## The pieces
 
-### S5.1: the engine, focus and Taunt, the pulse
+### S5.1: the engine, focus and Rally's taunt, the pulse (built 2026-10-24)
+**Built** (not deployed: it goes out with S5.2). What landed, and what S5.2 should know:
+- `PARTY`, `PARTY_MECHS`, `partyBit`, `partyActive` in `src/shared/rpg.js` (`partyDen` on the Warden and Sigrun,
+  `partyAll` for the final bosses); `partyOn`, `partyTick`, `inFight`, `sendParty`, `taunt` in `server/rpg.js`. No
+  real boss has `partyLive`, so nothing changes for players but Rally's taunt (which pulls ordinary mobs too).
+- The active bits go to the client as `{t:'party'}` (JSON, on change and every 2 s), **not** in the mob flags:
+  eight bits don't fit the binary mob record. `Party` (`src/party.js`) keeps them; `rpg.party.on(mech, id)` is
+  what S5.2's drawing should ask.
+- `hurt()` got a `flat` argument (the pulse: past DEF, the roll, Evasion; `knock` 0 skips the knockback). The
+  pulse and the focus pick both wait out an ultimate's warning.
+- The status box is `src/status.js`: S5.2's curse shows as soon as `me.curse = { n, left }` is sent (its icon
+  and red rim are already there). Momentum's pips and the Arcane diamonds moved into it.
+- `TEST_PARTY=<boss>:<mechs>` switches mechanics on for tests (`docs/testing.md`).
+- Tested with two and three headless players and a phone: everything in the test line below worked. Not tried
+  on a field boss.
+
 Docs: `docs/combat/bosses.md`, `docs/combat/skills.md` (the Knight), `docs/netcode.md` (the boss wire bits),
 `docs/ui/hints.md`.
 - `PARTY` table and `partyOn` gate; the active-mechanic bits on the boss in the snapshot (next to the combo
   bits, `server/rpg.js` around the mob flags); the client reads them.
 - `focus`: who's focused (on the boss's state, sent to the room), the red line, the brain aiming only at them
   while it lasts, `FOCUS_ATK` on their hits taken.
-- **Taunt** in `src/shared/skills.js`, its cast on both sides, its icon, its hint and its word above the slime.
+- Rally's taunt (owner: no new Taunt skill): its cast on the server, its hint and its word above the slime.
 - `pulse`: the ring telegraph (a new boss event, drawn in `src/rpg.js` / `src/hazards.js`), the hit through
   `hurt()` as `noDodge`, Barrier, Bubble, Sanctuary and Aegis absorbing it as they do other hits.
 - **The status box** (owner, 2026-10-24: "buffs and nerfs probably need a box status"; lumped into S5 because
@@ -142,10 +158,31 @@ Docs: `docs/combat/bosses.md`, `docs/combat/skills.md` (the Knight), `docs/netco
   with a red rim. The server's `me` already sends most of the timers (`sendMe`). Tap / hover an icon for its
   name. Phones: it must fit beside the touch controls (`docs/ui/mobile.md`). Built here so S5.2's curse
   lands with somewhere to show.
-- Test: a test boss with `party: ['focus', 'pulse']` and two test Knights: the focus moves, Taunt pulls it,
+- Test: a test boss with `party: ['focus', 'pulse']` and two test Knights: the focus moves, Rally pulls it,
   the pulse lands, Barrier soaks it, alone neither shows up. The status box shows a Knight's buffs and the focus.
 
-### S5.2: curses and Cleanse, barrier, armour, weak points, the interrupt
+### S5.2: curses and Cleanse, barrier, armour, weak points, the interrupt (built 2026-10-24)
+**Built** (not deployed: it goes out with S5.1). What landed, and what S5.3 / S5.4 should know:
+- Numbers: `CURSE_*`, `BARRIER_*`, `ARMOUR_*`, `WEAK_*`, `STAGGER_S`, `STAGGER_DMG` in `src/shared/rpg.js`, with
+  `curseMult`, `heavyHit`, `weakOf`, `weakReach` and `partyHitMult` (the one rule the client's prediction and the
+  server's cap share). `hitKinds` in `src/shared/skills.js` says whether a skill's hit is magic, heavy or an arrow;
+  Blade Storm has `crack: true`. Cleanse is `SKILLS.cleanse` (Cleric trunk, adv 10, max 1, `kind: 'cleanse'`).
+- Server (`server/rpg.js`): `partyTick` runs the curse's sigil, the shield phases (`m.shield`) and the weak point
+  (`m.weak`); `partyHit` / `partyHitLanded` in `applyHits`; `stagger`, `interruptUlt` (from `element()`), `curse`,
+  `uncurse`, `curseTick`, `cleanseTarget`. Client: `src/party.js` (`mod`, the drawing, the events), Cleanse's cast in
+  `src/rpg.js`, the prompts in `src/main.js` `drawHints`.
+- Calls made here: `BARRIER_HP` and `WEAK_HP` are shares of the boss's one-slime HP (`k.hp`), not its party-scaled
+  max, so one Mage / Archer does it in a few seconds in any party. Heavy = a multiplier of `ARMOUR_CRACK` or more,
+  so Power Strike cracks armour for any Warrior, not only Berserkers (Berserkers have three ways). Weak points:
+  every arrow reaches them from anywhere; everything else needs its hitter up at the spot's height. The stagger
+  drops a wind-up but lets a move already going off (or an ultimate) finish first. A curse ends on a KO, leaving
+  the room or the boss dying, and Aegis blocks one. Summons and burns ignore barrier and armour.
+- For S5.3: give the Warden and Sigrun their `weak` (`{ dx, dy, r }`, shares of w / h from the feet; the default
+  sits near the top front), Sigrun's front-only barrier (not built: the barrier covers all sides now), `partyLive`.
+  The interrupt only works on a boss that lists `interrupt` in `party`: neither party den does yet.
+- Tested on the Sprout King with two headless players a mechanic (a Frostbinder, a Sniper, a Berserker, a Priest):
+  details in `docs/combat/bosses.md`. Phone screenshots of the stagger and the interrupt were checked.
+
 Docs: the S5.1 ones, plus `docs/combat/core.md` (hits on mobs, the cap), the Cleric and Mage sections of
 `docs/combat/skills.md`.
 - `curse`: the boss move that lays it, the player's `curse` state, the client damage cut and the server's
@@ -203,14 +240,11 @@ Docs: `docs/places/alchemy.md`, `docs/combat/items.md`, `docs/economy.md`.
   hooks into S5.2's curse and S5.1's pulse.
 - The loot check in `scripts/economy.mjs`: every boss and field boss Lv 10+ drops at least one twinned weapon
   (so `twinPick` can give each class its own kind). Add twins where one's missing.
-- Mark the S3 and S4 leftovers done in `docs/ideas.md` (Cleanse, weak points, the interrupt).
+- (S5.2 already marked the S3 and S4 leftovers in `docs/ideas.md`: Cleanse, weak points, the interrupt.)
 
-## Open questions (recommended answer first)
-1. **The gates.** Mechanics at 2+ fighters on den and field bosses, everything but focus on from 1 on
-   party dens? (Recommended.) Or have the party dens soften for a solo slime too.
-2. **Taunt.** A new 1-rank Knight skill? (Recommended: it doesn't strain the point budget.) Or fold it into
-   Rally or Aegis.
-3. **Cleanse.** A new 1-rank skill in the Cleric's shared trunk, so both branches get it? (Recommended.) Or
-   Priest only, folded into Mend.
-4. **The interrupt.** A freeze cancels the ult outright? (Recommended: it's rare, it needs a Frostbinder's chill
-   then freeze inside the warning.) Or only weakens it (survivable instead of a KO).
+## The open questions, answered (owner, 2026-10-24)
+1. **The gates:** as recommended (den and field bosses: every mechanic at 2 fighters, the interrupt always on;
+   party dens: `capMin` 1 for all but focus).
+2. **Taunt:** folded into Rally, not a new skill.
+3. **Cleanse:** a new 1-rank skill in the Cleric's shared trunk (S5.2 builds it).
+4. **The interrupt:** a freeze during `ULT_WARN` cancels the ult outright (S5.2 builds it).

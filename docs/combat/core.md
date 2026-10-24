@@ -51,10 +51,17 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
 - **Friendly fire:** slaps in combat rooms hurt friends only if BOTH have it on (per player, saved, default
   on; toggle in the Esc menu or the bag; a red dot by the name tag = on).
 - Defences (Bubble, Aegis, Sanctuary, Second Wind, DEF, a brewed ward, Mana Shield, the Archer's Evasion) are
-  all applied in server `hurt()`. Mana Shield takes its share of a hit off MP while there's MP (never an
+  all applied in server `hurt()`. A KO also lifts a boss's curse (S5.2). Mana Shield takes its share of a hit off MP while there's MP (never an
   ultimate's). An evaded hit (S4) still knocks you back, as the client predicted, but does no damage.
 - **Hunter's Mark** (S4): every slime's hits on a marked mob may be `boost` bigger; `applyHits` raises any
   hitter's cap while `m.mark` is up, and a netted mob, like a frozen one, can't hurt anyone by touch.
+- **A boss's party mechanics** (S5.2, `docs/combat/bosses.md`): `applyHits` takes what kind of hit it is (`magic`,
+  `heavy`, `arrow`; `hitKinds` for skills) and scales the cap by `partyHitMult` for the boss's barrier, armour,
+  open weak point and stagger, the same rule the client's `Party.mod` used for the number it shows. A hit the
+  client aimed at an open weak point carries a 5th element (`h[4] = 1`, with `h[3]` the shatter flag, 0 if
+  none); the server takes it only if the spot is open and the hitter could reach it (`weakReach`). A curse on the
+  hitter cuts every hit it lands, on any mob, by `curseMult` (the client's `roll` and the server's cap alike).
+  `hurt()` with `flat: 'dot'` is a curse's burn: flat, no Bubble pop, no invulnerability after it.
 - **Charge** (Warrior): a slap while dashing or just after (`chargeOpen`) is judged by `attack()` from the
   server's own state at that input: a higher cap and the same state edit the client predicted
   (`docs/combat/skills.md`).

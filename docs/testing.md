@@ -13,7 +13,9 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
 - Stop it by PID after checking `readlink /proc/<pid>/cwd`. Never `pkill -f "node server/index.js"`.
 - Test-only server env vars (never set them live): `TEST_SPAWN=room:x`, `TEST_BOSS_HP=0.05` (den and field bosses), `TEST_GOD=1`,
   `TEST_GROW=60` (crops grow 60× faster), `TEST_PET_FAST=1440` (a pet's full belly lasts 2 min), `TEST_FIELD_RESPAWN_MS=15000` (field bosses come back sooner),
-  `TEST_ACCUSE_FAST=20` (botting accusations' timers 20× shorter), `TEST_TP=1` (accepts `{t:'tp', room?, x, vt?}`: room -1 is your own house, `vt` how far into a crossing; send it from the page with
+  `TEST_ACCUSE_FAST=20` (botting accusations' timers 20× shorter), `TEST_PARTY=sprout_king:focus,pulse` (gives that
+  boss those S5 party mechanics and switches them on, `partyLive`; several bosses separated by `;`. Two test players
+  in the den turn them on: `docs/combat/bosses.md`), `TEST_TP=1` (accepts `{t:'tp', room?, x, vt?}`: room -1 is your own house, `vt` how far into a crossing; send it from the page with
   `slimeville.net.sendNpc(…)` and wait ~200 ms for the next snapshot).
 - **Keep browser tests short.** Walking with real key presses runs in real time (the sim is a fixed 60 Hz
   on purpose, so a "faster" test server would stop testing the real game): teleport with `TEST_TP` to

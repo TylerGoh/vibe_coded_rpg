@@ -69,14 +69,23 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 - **S1:** staff twins for the swords that only drop from mobs (`docs/combat/items.md` lists them).
 - **S2.5:** nobody has chained the Warrior's charge, hit, charge across a room, or said whether the grace
   windows (`SLAM_GRACE`, `UPCUT_GRACE`) feel right on a phone. Hook isn't built (`story/progression.md` 1c).
-- **S2.6:** the interrupt (freezing a boss inside `ULT_WARN` cancels the ultimate) waits for S5. A shatter
+- **S2.6:** the interrupt is built (S5.2) but dark until a boss lists it. A shatter
   needs an Elementalist and a Frostbinder together; if solo Mages miss it, a branch could get a weak
   spell of the other element. Untested: whether the states read in Frostpeak's pale rooms.
-- **S3:** Cleanse waits for S5's curses (with a Cleansing Tonic and a Barrier Draught at the alchemy lab).
+- **S3:** Cleanse is built (S5.2); the Cleansing Tonic and the Barrier Draught at the alchemy lab are S5.5's.
   The Clerics' trader (`[proposed]`: Auntie Clover or Elder Mochi). Summons don't climb or dodge.
   Untested: whether a spirit holding a boss feels right, whether the meter crowds a phone in a big party.
-- **S4:** weak points (S5) are where Deadeye and Hunter's Mark pay off. Net Trap catches only what walks
+- **S4:** weak points are built (S5.2, dark until a boss lists them): every arrow reaches one, the mark holds it open. Net Trap catches only what walks
   in (flyers pass over, bosses are only slowed). A slime who arrives after Hunter's Mark sees the flag but
   not its size. The bow on a slime's back hides behind big helmets. Retreat Shot fires back while its
   window (`CHARGE_WINDOW`) is open. Legacy and mob-only swords have no bow twin, on purpose. Bow sounds
   never heard.
+- **S5.1** (built, dark until a boss gets `partyLive`): the focus, the pulse and Rally's taunt were only tried
+  by headless players on a test boss, never on a field boss. Untested: `FOCUS_ATK` / `PULSE_HP` against real
+  parties, whether the status box crowds a phone with many buffs, whether Rally's taunt pulling ordinary mobs
+  annoys Knights who only wanted the buff.
+- **S5.2** (built, dark the same way): the curse, barrier, armour, weak point, interrupt and stagger were only tried
+  by headless players on the Sprout King. Untested: every number against real parties (`BARRIER_HP`, `ARMOUR_CRACK`
+  lets any Warrior's Power Strike crack armour, `WEAK_HP`, `CURSE_DOT`), whether the weak point's default spot
+  (`weakOf`) is reachable on tall bosses without Flash Jump, whether the curse's sigil reads in dark dens, and a
+  stagger on a field boss mid-lunge (it waits for the lunge to end).

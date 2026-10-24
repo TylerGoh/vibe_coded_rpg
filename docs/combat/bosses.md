@@ -21,7 +21,7 @@ the Root Warden, Greenhollow's party den. Thirteenth: **The Breathing Hole** (ro
 the Queen's Shield, Frostpeak's party den (Lv 100); her `wave` ult is new ice racing along the floor (`iceMass`).
 Big bosses can have `lines` (enter / phase / freed) that they say in a bubble and the chat: those five have them so far. `looks` on a boss picks how the shared beam
 and grid moves are drawn (the Warden's Keeper amber and roots; the Old Narwhal's jet of sea water; Sigrun's `shield` beam and `seam` grid), and `party` names the party mechanics a
-boss is built for, for S5 to switch on (the two party dens, the Warden and Sigrun, have it; nothing reads it yet). Field bosses (no den;
+boss is built for (below: "Bosses that need a party"). Field bosses (no den;
 `docs/combat/stages.md`) have no `lines`: F3's Pale Wyrm, which has a story, tells it through the Serpent Stone
 and the personas instead (`docs/places/heights.md`). A new den's art lives in its own file with `DEN_ART` / `ENTRANCE_ART` / `BOSS_ART`
 (merged in `dens.js`), plus its theme's row in the shared effect tables (`FXPAL`, `THEME_RGB`, the theme
@@ -35,10 +35,114 @@ branches of `drawBit` and `drawFallObj`).
   sweeps…), all sent through the hazards pipeline (`docs/combat/stages.md`).
 - The Mage's combos (`docs/combat/skills.md`): a frozen boss (den or field) isn't stopped, only slowed
   to `FROZEN_BOSS_SLOW` for `FREEZE_BOSS`, and its timers and moves run on; a fire spell still shatters it.
-  Burns count for their caster on the damage meter. Freezing a boss to cancel its ultimate is S5's.
+  Burns count for their caster on the damage meter. Freezing a boss while its ultimate warns cancels it on a boss
+  with the `interrupt` mechanic (S5.2, below).
 - Boss HP grows per extra slime in the den (`BOSS_HP_PER_PLAYER`), aimed at a few minutes per fight.
   Everyone leaving for a few seconds resets it; a kill respawns after `BOSS_RESPAWN_MS` (`b` in `mobs`
   is the countdown). Bosses drop their unique gear, scrolls, gold and potions. Events: `{t:'boss', a: …}`.
+
+## Bosses that need a party (S5; plan `story/s5-plan.md`)
+The design is `story/progression.md` section 6: a boss asks questions a mixed party answers best, but **only once
+enough slimes are fighting**, so a solo player fights it exactly as before. S5.1 built the engine, the focus and
+the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, the interrupt and the stagger.
+- **One table, one gate.** `PARTY` in `src/shared/rpg.js` holds each mechanic's `min` (fighters needed on a den or
+  field boss) and `capMin` (on a party den, `partyDen` on the boss: the Root Warden, Sigrun). `partyActive(k,
+  fighters, mech)` is the rule and `partyOn(m, mech)` in `server/rpg.js` asks it for a live fight (`m.fighters`, the
+  same count `BOSS_HP_PER_PLAYER` uses: a den boss's never drops mid-fight, so a friend leaving doesn't switch
+  anything off). Owner's gates (2026-10-24): den and field bosses every mechanic at 2 fighters, `interrupt` always
+  on; party dens everything from 1 but `focus`. `partyAll` on a boss (the final bosses, `story/final-bosses.md`)
+  switches every one on from the first slime; their HP floor and enrage aren't built.
+- **It ships dark.** Nothing switches on unless the boss also has `partyLive` (S5.3 gives it to the party dens,
+  S5.4 to the retrofitted bosses, a stage at a time). No real boss has it yet. Tests use `TEST_PARTY`
+  (`docs/testing.md`).
+- **The engine**: `partyTick(m, k, here, t)` runs from `stepMob` for every den and field boss with a `party`, before
+  its targeting. It works out the bits (`PARTY_MECHS` order, `partyBit`) and sends `{t:'party', id, on, f, fl}` to
+  the room when they change and every 2 s while any is on (for anyone walking in); the client (`src/party.js`,
+  `Party` on the Rpg) keeps them per boss and forgets one it hasn't heard of for 5 s. This is a JSON message, not
+  more mob flags: eight bits don't fit the binary mob record (`docs/netcode.md`). "Who's in the fight" is the
+  whole den, or round a field boss the slimes near it or who hit it lately (`inFight`).
+- **focus**: the boss locks onto one slime for `FOCUS_S` (`m.focus`, picked at random among the fighters, someone
+  else than last time if it can), then `FOCUS_GAP` s off, then again. While it lasts `partyTick` points
+  `m.target` at them every tick, so every move that aims (charges, leaps, shots) goes at them, and their hits
+  taken from it are ×`FOCUS_ATK` (`ouch`). `damage()` and the summons' taunts don't steal its eye meanwhile.
+  Drawn as a marching red dashed line from the boss to them and a turning reticle over them; they also get a
+  red-rimmed icon in the status box (`docs/combat/skills.md`).
+- **Rally's taunt** (the Knight; owner 2026-10-24: folded into Rally instead of a new Taunt skill): casting Rally
+  also pulls every mob within its range onto the caster for `TAUNT_S` (`taunt()` in `server/rpg.js`,
+  `m.tauntUntil`), and if the boss's focus is on (even between two focuses) the focus moves to the caster for
+  `TAUNT_S`. On a boss without focus it still pulls the target, so it's never a dead button. The echo's `taunt`
+  pops "TAUNT!" over the Knight.
+- **pulse**: every `PULSE_EVERY` s, `{t:'boss', a:'pulseWarn', dur: PULSE_WARN}` (rings close in on the boss,
+  "PULSE 2.1" over it), then `pulseHit`: the server itself hurts every fighter for `PULSE_HP` of their max HP
+  through `hurt()` with `flat` (no DEF, no roll, no Evasion, no knockback; no `ouch`). Aegis blocks it, a Bubble
+  pops on it, a Barrier soaks it, Sanctuary, the Guardian Totem, a brewed ward and Mana Shield cut it as they cut
+  any hit. Neither starts during an ultimate's warning. S5.5's Barrier Draught hooks in there.
+- **Hints**: the first `PARTY_HINTS` times a session, a toast names the answer (the focus on you, on a friend
+  when you have Rally, a pulse coming, worded for your class); the prompt list over your slime shows "Dash: get
+  clear" while focused and "Rally: take the boss's focus" while it's on a friend (`docs/ui/hints.md`).
+- **The hit cap** (combat stays client-decided, server-capped: `docs/combat/core.md`): barrier, armour, weak points
+  and the stagger all scale a hit through one shared rule, `partyHitMult(state, { magic, heavy, weak })`. The client
+  predicts with `Party.mod` (src/party.js) at every hit site and shows that number; `applyHits` caps with the same
+  rule from its own state (`partyHit`, a little generous at a phase's edges so a hit the client saw a moment
+  earlier isn't clipped). What kind a hit is comes from `hitKinds` (shared/skills.js) for skills, and from the
+  weapon for normal attacks (a staff bolt is magic, a bow shot an arrow, a slap or Charge heavy if its multiplier
+  reaches `ARMOUR_CRACK`). The Cleric's summons and burns go through `damage()` straight and ignore the phases.
+- **The stagger** (`STAGGER_S`, `STAGGER_DMG`): a barrier broken, armour broken, a weak point filled or an ultimate
+  interrupted. The boss stands dazed (no moves: `bossBrain` and `mobAi` return early; nothing new starts in
+  `partyTick`) and every hit on it is ×(1 + `STAGGER_DMG`). A wind-up it was in is dropped; a move already going off
+  (or an ultimate) finishes first (`staggerQueued`, sent as `st: -1`). Drawn as stars circling its head and "DAZED"
+  with the seconds; `{t:'boss', a:'stagger'}` pops "STAGGERED!". It's the shared "you did it" payoff.
+- **curse**: every `CURSE_EVERY` s a dark sigil opens on the floor under the boss's target (`curseWarn`, `CURSE_WARN` s
+  to step out), then everyone fighting within `CURSE_R` of it gets a stack (`curseHit`, up to `CURSE_MAX`; Aegis
+  blocks it). Curses live on the player (`p.curse { n, until, by, room }`, not saved; a KO, leaving the room or the
+  boss dying lifts it): each stack takes `CURSE_DMG` off the hitter's damage (`curseMult`, in the client's `roll` and
+  the server's cap alike) and burns `CURSE_DOT` of max HP a second through `hurt()` with `flat: 'dot'` (no Bubble
+  pop, no invulnerability, no flash; the meter counts it as damage taken). Standing past `CURSE_FADE_R` from the
+  boss fades a stack every `CURSE_FADE_S`; a new stack refreshes `CURSE_S`. Cleanse (the Cleric) lifts it all.
+  Shown as the sigil, dark wisps over every cursed slime (`{t:'curse', id, n}`, and `cu` in the party message for
+  late comers), and the status box's red-rimmed icon with the stacks.
+- **barrier** / **armour**: shield phases (`m.shield`); a boss with both alternates. `shieldUp` fades it in over
+  `BARRIER_WARN` / `ARMOUR_WARN`, then it holds for `BARRIER_S` / `ARMOUR_S` or until broken, and the next comes
+  `BARRIER_EVERY` / `ARMOUR_EVERY` s after it ends. The barrier (a rune dome) lets physical hits through at
+  `BARRIER_PHYS`; magic hits do full damage and wear its HP (`BARRIER_HP` of the boss's HP for one slime, not the
+  party-scaled max, so one Mage breaks it in a few seconds in any party). The armour (a shell of plates) cuts every
+  hit that isn't heavy to `ARMOUR_CUT`; a heavy hit does full damage and cracks it (one crack a cast, `crack`
+  events), and `ARMOUR_CRACKS` cracks break it. Both drop by themselves when the time runs out (`shieldDrop`), no
+  stagger. Sigrun's front-only barrier is S5.3's.
+- **weakpoint**: every `WEAK_EVERY` s a glowing crystal opens high on the boss for `WEAK_OPEN_S` (`WEAK_MARK_S` while
+  Hunter's Mark is on it). Where: `weak: { dx, dy, r }` on the boss (shares of its width and height from its feet,
+  dx toward the way it faces); `weakOf` has a default for bosses without one (S5.3 / S5.4 place each boss's). A hit
+  the client sees reach it carries `h[4] = 1` and does `WEAK_MULT`; the server takes it only while it's open and the
+  hitter could reach it (`weakReach`: any arrow, from anywhere in range; anything else needs the hitter's body
+  within `WEAK_REACH` of the spot's height: a jump, a ledge, Upward Cut, Flash Jump). Hits on it fill `WEAK_HP` of
+  the boss's one-slime HP (the ring round the crystal); full, it breaks (`weakBreak`) and the boss staggers.
+- **interrupt**: no boss move. A freeze landing while an ultimate is still warning (`element()` → `interruptUlt`)
+  cancels it outright: `{t:'boss', a:'ultCancel', by}` drops everyone's banner and its warning art, "INTERRUPTED!"
+  pops, the next one comes `ULT_EVERY` later as usual, and the boss staggers. Not Pyra's Rebirth (her egg is its own
+  answer). On from the first slime (`min: 1`), but only on a boss that lists it.
+- **Nothing makes a boss immune**: a barrier still lets `BARRIER_PHYS` through, armour `ARMOUR_CUT`, a missed weak
+  point only means a slower fight. The party message carries the state (`st`, `sh`, `wk`, `cu`: `docs/netcode.md`);
+  it's sent on change, at most every 150 ms while hits wear a phase down, and every 2 s.
+
+### Every class's answers (progression.md 1b: a mechanic only one class can answer is a bug)
+| mechanic | best | everyone else |
+|---|---|---|
+| focus | Knight's Rally takes it | the focused one Dashes and kites; others hit |
+| pulse | Cleric's Barrier and heals; Knight's Bubble, Sanctuary, Aegis | potions (S5.5: the Barrier Draught) |
+| curse | Cleric's Cleanse | step out of the sigil; stand past `CURSE_FADE_R` to fade it; S5.5's Cleansing Tonic |
+| barrier | Mage's spells (and a Cleric's holy bolts and Smite) break it | wait it out; `BARRIER_PHYS` still lands |
+| armour | Berserker (Sky Splitter, Blade Storm, Power Strike); Snipe, Heartseeker; a shatter, Meteor | wait it out; `ARMOUR_CUT` still lands |
+| weak point | Archer: every arrow reaches it | jump for it (Upward Cut, Flash Jump, a ledge); a staff bolt cast mid-jump |
+| interrupt | Frostbinder (Frost Nova, then Glacial Spike); an Elementalist with a Frostbinder friend | dodge the ultimate as always |
+- Tested (S5.1) with two and three test players on a test boss (`TEST_PARTY=sprout_king:focus,pulse`): alone nothing
+  shows; with two the focus goes on, Rally pulls it, it rotates, the pulse lands for 30%, a Barrier soaks it.
+- Tested (S5.2) on the Sprout King with two headless players each (`TEST_PARTY=sprout_king:<mech>`, `TEST_BOSS_HP`
+  raised): alone only the `interrupt` bit is on and nothing shows; a Berserker's slaps into the barrier came out
+  ~0.35×, a Frostbinder broke it in ~6 s and the boss staggered (a staggered slap ~+30%); arrows and slaps into the
+  armour ~0.4×, four Power Strikes cracked and broke it; an Archer's arrows filled the weak point in ~4 s (the mark
+  held it open 11 s); a curse landed on both, burned, softened a slap ~12%, Cleanse lifted a friend's then the
+  Cleric's own, and walking far off faded one; a Frostbinder froze the Sprout King's warning stomp away (both
+  banners gone). Not tried on a field boss yet; numbers untested with people.
 
 ## The reward window (S0, 2026-10-23)
 Bosses still respawn every `BOSS_RESPAWN_MS`, but each slime gets a den boss's full EXP only once per

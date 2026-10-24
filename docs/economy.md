@@ -241,7 +241,8 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   heal a second), the Lantern Wisp, the Barrier's soak and the Totem's cut, and its spirits: their hits on
   every column (they walk to the target), and they **draw** `SPIRIT_DRAW` of a boss's hits (the Seraph
   `SERAPH_DRAW`) onto their own HP while they stand, worn down by the boss too (`BOSS_SUMMON_HIT` every
-  `BOSS_SUMMON_S`). Both Cleric BUILDS take a rank of Smite, the Spirit and Jelly Heal first. What it says:
+  `BOSS_SUMMON_S`). Both Cleric BUILDS take a rank of Smite, the Spirit and Jelly Heal first, and Cleanse (S5.2, one
+  point, no damage: about 2% off the Cleric's damage at Lv 60, a few seconds on its solo dens). What it says:
   the Cleric's toughness is past `TOUGH_CAP` at every level and it solos every den **without a potion**; it's
   among the slowest soloists from Lv 47 (about 1.0–1.4× the median; the Knight is slower on a couple of
   dens), lowest in a crowd (0.5–0.85× the others' mean from Lv 30), 0.8–1.0× on one target, about even at

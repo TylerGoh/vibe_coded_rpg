@@ -138,6 +138,7 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
       const R = seraph ? SERAPH_TAUNT : SPIRIT_TAUNT;
       for (const q of alive(s.room)) {
         if (Math.abs(q.x - s.x) > R + MOBS[q.kind].w / 2 || Math.abs(q.y - s.y) > R) continue;
+        if (q.focus || q.tauntUntil > t) continue; // (S5: a boss's focus and a Knight's taunt hold its eye)
         if (seraph ? q.target !== s : q.target && !q.target.summon) { // (the Seraph: every mob, busy or not)
           q.target = s;
           q.targetUntil = t + 5000;
@@ -158,7 +159,7 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal }) {
       const crit = Math.random() < s.crit;
       const dmg = Math.max(1, Math.round(s.hit * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1)));
       out.push(damage(q, dmg, crit, s.owner, p, Math.sign(q.x - s.x) || s.dir, 60));
-      if (!q.dead) {
+      if (!q.dead && !q.focus && !(q.tauntUntil > t)) {
         q.target = s; // (damage() pointed it at the Cleric: the spirit is what it saw)
         q.targetUntil = t + 5000;
       }

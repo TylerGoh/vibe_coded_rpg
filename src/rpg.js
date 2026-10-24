@@ -12,10 +12,12 @@ import { drawBoss, drawBossBar, BossFx, drawUltBanner } from './dens.js';
 import { drawHazard } from './hazards.js';
 import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, drawBarrier, drawRallyAura, drawAegisAura } from './skillfx.js';
 import { Summons } from './summons.js';
+import { Party } from './party.js';
+import { StatusBox, statusOf } from './status.js';
 import { audio } from './audio.js';
-import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, STAFF_BOLT_RANGE, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn } from './shared/skills.js';
-import { drawMobState, drawArcanePips } from './elements.js';
+import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, STAFF_BOLT_RANGE, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE, curseMult, heavyHit } from './shared/rpg.js';
+import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds } from './shared/skills.js';
+import { drawMobState } from './elements.js';
 import { staffGlow } from './staff-art.js';
 import { bowTint } from './bow-art.js';
 import { SLAP_REACH, DASH_CD, BLINK_CD, PHANTOM_CD } from './shared/sim.js';
@@ -64,6 +66,8 @@ export class Rpg {
     this.dmg = new Map(); // boss / field boss id → { kind, d: [[name, damage], …], at }: the damage meter
     this.fx = new SkillFx();
     this.summons = new Summons(this); // the Cleric's spirits, wisps and totems (S3)
+    this.party = new Party(this); // S5's party mechanics on bosses (src/party.js)
+    this.status = new StatusBox(document.getElementById('status')); // what's on you, under the HP panel (src/status.js)
     this.downNear = () => false; // (x, y, r) → is a knocked-out slime there? (main.js: Revive's check)
     this.bossFx = new BossFx();
     this.hz = []; // the newer mobs' and bosses' attacks: simulated here, judged in step(), drawn by hazards.js
@@ -100,6 +104,7 @@ export class Rpg {
     if (m.t === 'me') {
       const old = this.me;
       this.me = m;
+      this.meAt = this.time; // (its timers are ms left as of now: the status box)
       this.momentum = m.momentum ? { n: m.momentum, until: this.time + (m.momentumLeft ?? 0) / 1000 } : null; // (the HUD's Momentum pips)
       // Arcane Charge: we predict our own charges (staffBolt, cast); the server's count wins once ours has
       // been quiet a moment (a 'me' sent before our last bolt arrived would otherwise take one away)
@@ -176,6 +181,10 @@ export class Rpg {
       this.skillEcho(m, slimeOf, myId, mine);
     } else if (m.t === 'boss') {
       this.bossEvent(m, mine);
+    } else if (m.t === 'party') {
+      this.party.receive(m);
+    } else if (m.t === 'curse') {
+      this.party.curse(m);
     } else if (m.t === 'summons' || m.t === 'sumhit' || m.t === 'sumhurt' || m.t === 'sumgone' || m.t === 'netcatch') {
       this.summons.receive(m, { mine });
     } else if (m.t === 'bossdmg') {
@@ -272,12 +281,12 @@ export class Rpg {
     if (this.bowOf(this.me)) return this.bowShot(me, dir, mult);
     const [v] = this.ahead(me, dir, SLAP_REACH + (this.swordOf(this.me)?.reach ?? 0));
     if (!v) return [];
-    const cut = this.shellCut(v, me.x);
+    const cut = this.shellCut(v, me.x), [pm, weak] = this.party.mod(v, { heavy: heavyHit(mult) }, me.y); // (S5.2: a boss's barrier, armour, weak point, stagger)
     let [dmg, crit] = this.roll(this.me.atk, mult * this.markOn(v));
-    dmg = Math.max(1, Math.round(dmg * cut));
+    dmg = Math.max(1, Math.round(dmg * cut * pm));
     this.blocked(v, cut);
     this.showHit(v, dmg, crit, me.x);
-    return [[v.id, dmg, crit]];
+    return [weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]];
   }
 
 
@@ -302,11 +311,11 @@ export class Rpg {
     if (!m || !rank || !isCombat(this.room)) return;
     const msg = { t: 'skill', skill: id, dir: me.facing, s: seq, hits: [] }, sx = me.x;
     for (const v of id === 'leap_slam' ? this.around(me.x, me.y, sk.radius) : this.above(me, sk.reach)) {
-      const cut = this.shellCut(v, sx);
+      const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { heavy: heavyHit(sk.mult(rank)) }, me.y);
       let [dmg, crit] = this.roll(m.atk, sk.mult(rank) * this.markOn(v));
-      dmg = Math.max(1, Math.round(dmg * cut));
+      dmg = Math.max(1, Math.round(dmg * cut * pm));
       this.blocked(v, cut);
-      msg.hits.push([v.id, dmg, crit]);
+      msg.hits.push(weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]);
       this.showHit(v, dmg, crit, sx);
     }
     if (msg.hits.length) this.send(msg);
@@ -342,15 +351,15 @@ export class Rpg {
     const dur = Math.abs(tx - sx) / BOW_SHOT_SPEED + 0.03;
     this.fx.spawn('arrow', { x: sx + dir * 30, y: sy - 13, tx, ty, dur, hit: !!v, tint: bowTint(m.gear.weapon) });
     if (!v) return [];
-    const cut = this.shellCut(v, sx);
+    const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { arrow: true }, sy);
     let [dmg, crit] = this.roll(m.atk, BOW_SHOT_MULT * mult * arrowBonus(m.skills, null, this.slowed(v), 0) * this.markOn(v));
-    dmg = Math.max(1, Math.round(dmg * cut));
+    dmg = Math.max(1, Math.round(dmg * cut * pm));
     if (rankOf(m.skills, 'barbed_arrows')) v.slowLocal = this.time + dur + 1;
     setTimeout(() => {
       this.blocked(v, cut);
       this.showHit(v, dmg, crit, sx);
     }, dur * 1000);
-    return [[v.id, dmg, crit]];
+    return [weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]];
   }
   // Someone else's arrow (drawn only: their hits come with the slap message) → when it lands
   otherArrow(s, dir, hits) {
@@ -376,14 +385,14 @@ export class Rpg {
     this.fx.spawn(holy ? 'holybolt' : 'staffbolt', { x: sx + dir * 18, y: sy - 10, tx, ty, dur, hit: !!v, tint: staffGlow(m.gear.weapon) });
     if (!v) return [];
     if (!holy && rankOf(m.skills, 'arcane_charge')) this.arcane = { n: Math.min(ARCANE_MAX, this.charges() + 1), at: this.time, until: this.time + ARCANE_DUR }; // (the server counts it too: attack)
-    const cut = this.shellCut(v, sx);
+    const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { magic: true }, sy);
     let [dmg, crit] = this.roll(m.magic, (holy ? HOLY_BOLT_MULT : STAFF_BOLT_MULT) * this.markOn(v));
-    dmg = Math.max(1, Math.round(dmg * cut));
+    dmg = Math.max(1, Math.round(dmg * cut * pm));
     setTimeout(() => {
       this.blocked(v, cut);
       this.showHit(v, dmg, crit, sx);
     }, dur * 1000);
-    return [[v.id, dmg, crit]];
+    return [weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]];
   }
   // Arcane Charge's stored charges (Mage), as we predict them
   charges() {
@@ -423,9 +432,27 @@ export class Rpg {
 
   // damage roll: minRoll (85%, raised by DEX) to 115%, crits from Sword Mastery and LUK (the server caps
   // hits at the best possible roll)
+  // (S5.2: a boss's curse on us takes CURSE_DMG a stack off every hit: curseMult, the server's cap too)
   roll(base, mult = 1) {
     const crit = Math.random() < (this.me?.crit ?? 0.12);
+    mult *= curseMult(this.me?.curse?.n);
     return [Math.max(1, Math.round(base * mult * rand(this.me?.minRoll ?? MIN_ROLL, MAX_ROLL) * (crit ? this.me?.critMult ?? 1.6 : 1))), crit ? 1 : 0];
+  }
+
+  // a boss's focus on us (S5): seconds left, 0 if none
+  focusLeft() {
+    return this.party.focusLeft();
+  }
+  // Cleanse's target (S5.2), as the server picks it: the nearest cursed friend within r, else us if we're cursed
+  cleanseTarget(me, r) {
+    let best = null, bestD = Infinity;
+    for (const [id] of this.party.curses) {
+      if (id === this.myId) continue;
+      const s = this.slimeOf(id);
+      const d = s ? Math.hypot(s.x - me.x, s.y - me.y) : Infinity;
+      if (s && !s.down && d <= r + 40 && d < bestD) [best, bestD] = [s, d];
+    }
+    return best ?? (this.me?.curse?.n > 0 || this.party.cursedN(this.myId) ? me : null);
   }
 
   // ——— skills (hotbar 1–6) ———
@@ -454,6 +481,7 @@ export class Rpg {
     if (this.cooldown(id) > 0) return false;
     if (m.mp < sk.mp) return fail('Not enough MP', 'noMana');
     if (sk.kind === 'revive' && !this.downNear(me.x, me.y, sk.radius)) return fail('Nobody near you is knocked out', 'error');
+    if (sk.kind === 'cleanse' && !this.cleanseTarget(me, sk.radius)) return fail('Nothing to cleanse: nobody near you is cursed', 'error');
     m.mp -= sk.mp; // the server's next 'me' corrects this
     this.cds[id] = this.time + cooldownOf(id, rank);
     const msg = { t: 'skill', skill: id, dir, s: seq, hits: [] };
@@ -462,13 +490,15 @@ export class Rpg {
     if (spendsArcane(id)) this.arcane = { n: 0, at: this.time, until: 0 };
     if (charges && mine) this.pop(mine.x, mine.y - 112, `ARCANE x${charges}`, '#c4cdff', 16);
     const mult = (sk.mult?.(rank) ?? 1) * arcaneMult(m.skills, charges);
+    const kinds = hitKinds(sk, rank, m, charges, m.skills); // (S5.2: magic, heavy, arrow: what a boss's mechanics make of it)
     const hit = (v, base, delay = 0, extra = 1) => {
       const cut = this.shellCut(v, sx);
       const shatter = sk.el === 'fire' && !!v.frozen; // fire on a frozen mob (the Mage's combos)
+      const [pm, weak] = this.party.mod(v, { ...kinds, heavy: kinds.heavy || shatter }, sy);
       let [dmg, crit] = this.roll(base, mult * extra * this.markOn(v) * (shatter ? SHATTER_MULT : 1));
-      dmg = Math.max(1, Math.round(dmg * cut));
+      dmg = Math.max(1, Math.round(dmg * cut * pm));
       if (!delay) this.blocked(v, cut);
-      msg.hits.push(shatter ? [v.id, dmg, crit, 1] : [v.id, dmg, crit]);
+      msg.hits.push(weak ? [v.id, dmg, crit, shatter ? 1 : 0, 1] : shatter ? [v.id, dmg, crit, 1] : [v.id, dmg, crit]);
       if (sk.el) this.predictEl(v, sk.el, shatter);
       if (shatter) this.shatterFx(v, delay);
       if (delay) setTimeout(() => this.showHit(v, dmg, crit, sx), delay * 1000);
@@ -589,6 +619,9 @@ export class Rpg {
       this.fx.spawn('barrier', { x: sx, y: sy, radius: sk.radius });
     } else if (sk.kind === 'revive') {
       this.fx.spawn('heal', { x: sx, y: sy, radius: sk.radius, targets: [{ x: sx, y: sy }] });
+    } else if (sk.kind === 'cleanse') {
+      const s = this.cleanseTarget(me, sk.radius);
+      this.fx.spawn('heal', { x: sx, y: sy, radius: 90, targets: s ? [{ x: s.x, y: s.y }] : [] });
     } else if (sk.kind === 'summon') {
       this.summons.called(sx + (sk.what === 'totem' || sk.what === 'net' ? 0 : dir * 36), sy, sk.what);
     } else if (sk.kind === 'buff') {
@@ -663,6 +696,8 @@ export class Rpg {
       for (const q of this.views.values()) if (q.markBy === m.id) Object.assign(q, { markLocal: 0, markBy: null });
       if (v) Object.assign(v, { markBoost: boost, markBy: m.id, markLocal: this.time + 0.6, marked: true });
     }
+    // Rally's taunt (S5): it pulled mobs (a boss's focus too) onto the caster
+    if (m.taunt && caster && (m.id === myId || caster.visible !== false)) this.pop(caster.x, caster.y - 96, 'TAUNT!', '#ff9a7a', m.id === myId ? 22 : 18);
     if (m.id === myId || !caster || caster.visible === false) return;
     const x = caster.x, y = caster.y, vol = 0.6, pan = panX(x, myX);
     if (m.arcane) this.pop(x, y - 112, `ARCANE x${m.arcane}`, '#c4cdff', 14);
@@ -681,7 +716,7 @@ export class Rpg {
     else if (sk.kind === 'nova') this.fx.spawn('nova', { x, y, radius: sk.radius });
     else if (sk.kind === 'starfall') this.fx.spawn('starfall', { x, y, radius: sk.radius, targets: m.hits.map(([id]) => this.views.get(id)).filter(Boolean).map((v) => ({ x: v.x, y: v.y })) });
     else if (sk.kind === 'heal' || sk.kind === 'miracle') this.fx.spawn('heal', { x, y, radius: Math.min(sk.radius, 400), targets: (m.heals ?? []).map(([pid]) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
-    else if (sk.kind === 'mend' || sk.kind === 'revive') this.fx.spawn('heal', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
+    else if (sk.kind === 'mend' || sk.kind === 'revive' || sk.kind === 'cleanse') this.fx.spawn('heal', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'barrier') this.fx.spawn('barrier', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'summon' && m.sx !== undefined) this.summons.called(m.sx, m.sy);
     else if (sk.kind === 'buff') this.fx.spawn('buff', { x, y });
@@ -763,6 +798,7 @@ export class Rpg {
     if (m.a === 'say') return this.bossSays(m);
     const theme = denAt(this.room)?.theme, myX = mine?.x ?? m.x, pan = panX(m.x, myX);
     const ground = 450, me = this.net.me, v = this.views.get(m.id), k = MOBS[v?.kind] ?? MOBS.sprout_king;
+    if (this.party.event(m, pan)) return; // (S5: the pulse; src/party.js)
     if (this.hazardEvent(m, k, theme, pan, me)) return;
     if (m.a === 'warn') {
       audio.sfx('bossWarn', { pan });
@@ -1065,6 +1101,8 @@ export class Rpg {
     this.hz = this.hz.filter((h) => this.time < h.end);
     if (room !== this.room) this.leave(room);
     this.updateHotbar(room);
+    this.party.update();
+    this.status.update(statusOf(this, this.slimeOf(this.myId)), isCombat(room) && !!this.me);
     if (!isCombat(room)) return;
     const t = this.net.renderTick();
     if (t === null || !this.snaps.length) return;
@@ -1147,6 +1185,7 @@ export class Rpg {
     this.bossBack = 0;
     this.dmg.clear();
     this.summons.clear();
+    this.party.clear();
     this.ouchNext = null;
     this.ult = null;
     this.wave = null;
@@ -1198,6 +1237,7 @@ export class Rpg {
       else if (hp < v.maxHp) bar(ctx, v.x - 24, v.y - k.h - 10, 48, 6, hp / v.maxHp, '#ff6f91');
     }
     this.summons.draw(ctx); // the Cleric's spirits, wisps and totems (S3)
+    this.party.draw(ctx); // a boss's focus line, a pulse's rings (S5)
     this.bossFx.draw(ctx);
     this.drawSays(ctx);
   }
@@ -1252,6 +1292,7 @@ export class Rpg {
   }
   drawFx(ctx) {
     for (const h of this.hz) if (h.type !== 'puddle' && h.type !== 'geyser') drawHazard(ctx, h, this.time);
+    this.party.drawOver(ctx); // a curse's wisps, over the slimes (S5.2)
     this.fx.draw(ctx);
   }
 
@@ -1293,7 +1334,6 @@ export class Rpg {
       text(ctx, `HP ${Math.ceil(m.hp)} / ${m.maxHp}`, x + 166, y + 15.5, 10.5, '#4a3550');
       bar(ctx, x + 54, y + 26, 224, 14, m.mp / m.maxMp, '#6f9cff');
       text(ctx, `MP ${Math.max(0, Math.floor(m.mp))} / ${m.maxMp}`, x + 166, y + 33.5, 10.5, '#26356b');
-      if (rankOf(m.skills, 'arcane_charge')) drawArcanePips(ctx, x + 278, y + 33, this.charges(), ARCANE_MAX, this.time); // Arcane Charge
       bar(ctx, x + 54, y + 44, 150, 11, m.exp / m.next, '#ffcf4d');
       text(ctx, `EXP ${m.exp} / ${m.next}`, x + 129, y + 50, 9.5, '#5b4a2b');
       drawItemIcon(ctx, 'coin', x + 222, y + 50, 16);
@@ -1312,23 +1352,7 @@ export class Rpg {
         ctx.fill();
         text(ctx, `${m.apLeft} AP · ${document.body.classList.contains('touch') ? 'Bag' : 'I'}`, x + 342, y + 43.5, 11, '#ffffff');
       }
-      const mo = this.momentum;
-      if (mo && mo.until > this.time) {
-        // Momentum (Warrior): a pip a stack, right of the HP panel (beside the points pills; the HTML
-        // Players button sits under the panel)
-        const mx = x + (m.sp > 0 || m.apLeft > 0 ? 396 : 296), my = y + 4;
-        ctx.fillStyle = 'rgba(255,255,255,0.86)';
-        ctx.beginPath();
-        ctx.roundRect(mx, my, 74 + MOMENTUM_MAX * 14, 22, 11);
-        ctx.fill();
-        text(ctx, 'Momentum', mx + 38, my + 11.5, 11, '#b85a48');
-        for (let i = 0; i < MOMENTUM_MAX; i++) {
-          ctx.fillStyle = i < mo.n ? '#e0806a' : 'rgba(224,128,106,0.25)';
-          ctx.beginPath();
-          ctx.arc(mx + 80 + i * 14, my + 11, 5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
+      // (Momentum's stacks and Arcane Charge's charges are in the status box now: src/status.js)
       if (this.flash > 0) {
         ctx.fillStyle = `rgba(255,60,90,${this.flash * 0.18})`;
         ctx.fillRect(0, 0, W, H);
@@ -1443,8 +1467,10 @@ export class Rpg {
   }
 
   // Someone in the room got hurt
-  hurt(s, dmg, isMe) {
+  // dot: a curse's burn (S5.2): a small violet number, no wince or flash
+  hurt(s, dmg, isMe, dot = false) {
     if (!s) return;
+    if (dot) return this.pop(s.x, s.y - 60, `-${dmg}`, '#c49ae8', isMe ? 16 : 13);
     s.wince();
     this.pop(s.x, s.y - 60, `-${dmg}`, '#ff6f6f', isMe ? 22 : 17);
     if (isMe) {

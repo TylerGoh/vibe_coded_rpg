@@ -1,8 +1,8 @@
 # Classes, skills, MP, the hotbar, Mobility and ability points
 
 Files: `src/shared/skills.js` (all rules, `CLASSES`, `statsFor`), `src/skilltree.js` (the K panel),
-`src/skillfx.js` (icons and effects), `src/elements.js` (the Mage's combo states drawn on mobs, the Arcane
-Charge pips, Hunter's Mark and a net on a caught mob), `server/summons.js` and `src/summons.js` (the Cleric's
+`src/skillfx.js` (icons and effects), `src/elements.js` (the Mage's combo states drawn on mobs, Hunter's Mark
+and a net on a caught mob), `src/status.js` (the status box, below), `server/summons.js` and `src/summons.js` (the Cleric's
 summons, its halo, the Mage's staff sparkle, the Archer's Net Trap), the hotbar and stats UI in `src/rpg.js`,
 server actions in the `skills()` and `rebirth()` handlers of `server/rpg.js`.
 
@@ -10,7 +10,8 @@ server actions in the `skills()` and `rebirth()` handlers of `server/rpg.js`.
 schedule.** All four classes are built: S2 (2026-10-23, in six pieces, plan archived in
 `story/archive/s2-plan.md`: the data and server, the K panel, the Rebirth Pool, the CLASSES tables in
 `docs/economy.md`, the Warrior's chase moves, the Mage's combos), the Cleric (S3) and the Archer (S4), each
-with its section below. Next for classes: S5's party mechanics (`story/s5-plan.md`).
+with its section below. Next for classes: S5's party mechanics (`story/s5-plan.md`; each class's answers are in
+`docs/combat/bosses.md`, "Every class's answers").
 
 ## Classes (S2)
 - `CLASSES`: `novice`, `warrior` (sword, STR), `mage` (staff, INT), `cleric` (staff, INT; S3), `archer` (bow,
@@ -63,7 +64,11 @@ with its section below. Next for classes: S5's party mechanics (`story/s5-plan.m
   ATK and MAGIC, `stat: 'best'`, so a staff Novice isn't stuck), Jelly Patch (heals only you). Nine points.
 - **Warrior**: basics at Lv 10 (Power Strike, Cleave, Iron Jelly, Jelly Thirst: hits heal you a share of
   their damage, the Warrior's solo answer); **Knight** (Jelly Bubble, Vitality, Rally, Second Wind, then
-  Sanctuary, Aegis); **Berserker** (Whirlwind, Berserk, then Sword Mastery, Blade Storm, Sky Splitter).
+  Sanctuary, Aegis; Rally also taunts, S5: every mob in its range turns on the Knight for `TAUNT_S` and a boss's
+  focus moves to them, `docs/combat/bosses.md`; owner, 2026-10-24: folded into Rally instead of a new Taunt
+  skill, so the Knight's point budget didn't move); **Berserker** (Whirlwind, Berserk, then Sword Mastery, Blade Storm, Sky Splitter).
+  Against a boss's armour (S5.2) heavy hits crack it: any hit whose multiplier reaches `ARMOUR_CRACK` (Power
+  Strike, Sky Splitter) and Blade Storm (`crack: true`, its hits are small but many); `hitKinds` decides.
 - **Mage**: basics at Lv 10 (Magic Bolt, Mana Flow, Arcane Mind, Mana Shield: a toggle (owner,
   2026-10-24; it was a 60 s buff): while it's on, a share of the damage you take comes off MP instead. Cast
   it again to turn it off; it costs no MP, `toggle` on the skill, `c.shield` on the saved character (so it
@@ -161,8 +166,8 @@ only cooldowns, in the physics state.
   cap to match. The slap echo carries `charge` for everyone's effect. Needs Dash.
 - **Momentum** (passive): each Charge, Leap Slam or Upward Cut that lands adds a stack (`MOMENTUM_MAX`), +`per`
   ATK each, in `statsFor` (`buffs.momentum`) so the caps follow. Stacks last `MOMENTUM_DUR` s from the last
-  one and all go after `MOMENTUM_STILL` s standing still (the server's tick). Shown as pips right of the HP
-  panel; `me.momentum`.
+  one and all go after `MOMENTUM_STILL` s standing still (the server's tick). Shown in the status box with
+  its stacks (it used to be pips right of the HP panel); `me.momentum`.
 - The server only takes a slam's or a cut's hits if its own physics landed that slam / fired that cut near
   that input (`p.chaseAt`, noted in index.js's input loop; `CHASE_SLACK`), and only once.
 - Effects for anyone come from state changes (main.js `moveFx`: `sl`, `uc`), like Dash's; the E-hint list
@@ -201,9 +206,12 @@ server's mob (`chillUntil`, `frozenUntil`, `burn`), set in `element()` from `app
   too) spends them all for +`per` each (`arcaneMult`). Both sides count: the client in `staffBolt` /
   `cast` (its prediction, `charges()`), the server in `attack()` / `cast()` (`p.arcane`, which sets the
   cap; `me.arcane`; fainting clears it). The echo carries `arcane` (an "ARCANE xN" pop over the caster).
-  The HUD shows `ARCANE_MAX` diamonds in the MP bar's right end, lit per charge, for anyone with a rank.
-- Not built: the **interrupt** (freezing a boss during `ULT_WARN` cancels its ultimate) waits for S5
-  (`docs/ideas.md`); the masteries (Permafrost, Wildfire) are S6's.
+  The status box shows its icon with the charges stored (it used to be diamonds in the MP bar's right end).
+- **The interrupt** (S5.2; owner, 2026-10-24): a freeze landing on a boss while its ultimate is still warning
+  cancels the ultimate outright and staggers the boss (`interruptUlt` in `server/rpg.js`, called from
+  `element()`). It's the `interrupt` party mechanic, so it needs the boss to list it (`docs/combat/bosses.md`).
+  Pyra's Rebirth is left alone (breaking her egg is its own answer). Not built: the masteries (Permafrost,
+  Wildfire) are S6's.
 
 ## The Cleric (S3)
 `story/progression.md` 1b and 5: the other staff class. It solos on sustain ("takes longer, never loses"),
@@ -240,7 +248,12 @@ and in a party its heals, shields and summons matter more than its damage. Rules
   knocked-out slime within its radius up where it fell with `share(rank)` of its HP and no EXP lost; the
   client won't cast it with nobody down (`rpg.downNear`, from main.js's splats), and neither will the
   server. The skill echo's `revived` clears their puddles (`rpg.onRevived` → `unsplat`).
-- **Cleanse** isn't built: there are no curses to lift until S5 (`docs/ideas.md`).
+- **Cleanse** (S5.2; owner, 2026-10-24: one rank, in the shared trunk at Lv 10 so Priests and Wardens both have
+  it): `kind: 'cleanse'` lifts every curse stack off the nearest cursed friend within its radius, or off you if
+  nobody else is cursed, and heals them a little (`healOf`). Both sides refuse it, before any MP or cooldown, when
+  nobody in reach is cursed ("Nothing to cleanse"; `cleanseTarget` in `server/rpg.js` and `src/rpg.js`, the client
+  from the room's curses in `Party`). Curses are a boss's party mechanic (`docs/combat/bosses.md`). Its point
+  costs the Cleric builds a little damage on the economy sheet.
 
 ### Summons (`server/summons.js`, drawn by `src/summons.js`)
 - Server-run like mobs, a `summon` kind skill with `what`: **spirit** (Jelly Spirit), **wisp** (Lantern Wisp),
@@ -305,7 +318,8 @@ it); bows in `docs/combat/items.md`.
   and sets `m.mark` (`until`, `boost`, `by`; one per Archer), and **everyone's** hits on that mob get the boost:
   `applyHits` raises every cap, and each client's rolls use `markOn(v)` (the echo's `mark` tells everyone the
   boost; mob flag 2048 says a mob is marked, for late joiners, who assume the lowest boost). Drawn as a turning
-  red target ring over the mob (`drawMark`). The party mechanic: S5's weak points will lean on it.
+  red target ring over the mob (`drawMark`). On a boss whose weak point is open it keeps the spot open for
+  `WEAK_MARK_S` instead of `WEAK_OPEN_S` (S5.2, `docs/combat/bosses.md`).
 - **Net Trap** (`summon`, `what: 'net'`): server-run with the Cleric's summons (`net` in `server/summons.js`):
   planted where you stand, never a target and never hurt; the first mob on the ground that walks within `NET_R`
   of it is caught (`m.snareUntil`): an ordinary mob stops dead and can't hurt anyone (both sides skip its
@@ -316,7 +330,25 @@ it); bows in `docs/combat/items.md`.
 - **Evasion**: in `hurt()`, after Aegis and the bubble and never an ultimate, a dodged hit does no damage but
   still knocks you back, because the client predicted that knockback at that step (the physics would rubber-
   band otherwise). Everyone sees "MISS" (`guard` `'dodge'`).
-- Not built: weak points (S5) for Deadeye and the mark to land on; `docs/ideas.md` ("S4 left for later").
+- **Weak points** (S5.2): every arrow (bow shots and the arrow skills, `arrow` in `hitKinds`) reaches an open weak
+  point from anywhere in range, where any other hit needs its hitter up at the spot's height. That's the
+  Archer's party answer (`docs/combat/bosses.md`); Deadeye's crits land there like anywhere else.
+
+## The status box (S5.1)
+Owner, 2026-10-24: "buffs and nerfs probably need a box status". `src/status.js`, `#status` in `index.html`: in
+combat rooms, a row of small icons under the HP/MP panel (below the Players / Chat buttons), one per thing on you,
+each with its time left (a number and a clock sweep) or its stacks. `statusOf(rpg, mine)` lists them; `StatusBox`
+draws the list (one HTML cell each, its icon painted once with `drawSkillIcon` / `drawItemIcon`).
+- On you today: Challenge the Gods, Berserk, Rally, Jelly Bubble, Aegis (from your slime's `*Until`, which both the
+  server's `me` and your own cast set), Barrier with what's left of it, Mend, a brewed potion, Mana Shield while
+  it's on (no timer), Momentum's stacks, Arcane Charge's charges, and Second Wind recharging (greyed).
+- **Debuffs** go first with a red rim: a boss's focus on you (`rpg.focusLeft()`), and a curse's stacks and time
+  (S5.2, from `me.curse = { n, left }`).
+- `me`'s timers are ms left when it was sent; `rpg.meAt` (when it came) turns them into time left now.
+- Tap or hover an icon for its name (a small label under the row; the tap doesn't slap the game underneath).
+  Phones: the strip sits in the free space left of the screen between the HUD buttons and the movement pad, cells
+  of 32 instead of 30. The panels come later in the page and cover it.
+- A new buff or debuff: add its line to `statusOf` (a skill id for its icon, or a drawn one like the focus's).
 
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js

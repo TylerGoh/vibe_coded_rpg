@@ -72,19 +72,19 @@ every boss drops one, weapon scrolls work on any weapon, forks Elementalist (fir
 - **Elements that combo** (built, S2.6): chill → freeze → shatter, burn → spread, visible on the mob.
 - **MP is a budget;** Arcane Charge rewards weaving cheap bolts between big spells (built).
 - **Delayed spells you lead** (Meteor lands late: cast where the boss will be).
-- **Interrupts** (S5): a Frostbinder's freeze inside a boss's `ULT_WARN` window cancels or weakens the
-  ultimate. The freeze already reaches bosses (`FREEZE_BOSS`).
+- **Interrupts** (S5.2, built): a Frostbinder's freeze inside a boss's `ULT_WARN` window cancels the ultimate
+  outright (owner, 2026-10-24) and staggers the boss.
 - **Channelled spells with a risk** `[proposed]`: strong while you hold still; moving or a hit stops them.
 - **Avoid:** mouse-aimed skillshots, cast bars on every spell, anything skilful only because it's confusing.
 
 ### 4. Bows and the Archer
 Built in S4: bows on the sword curve with a long reach, client-aimed and server-capped like every hit;
-Ranger Acorn is the archers' trader. Forks Sniper and Trapper. The Archer's job in S5: **weak points**
-(Deadeye and Hunter's Mark are built to pay off there).
+Ranger Acorn is the archers' trader. Forks Sniper and Trapper. The Archer's job in S5: **weak points** (S5.2:
+every arrow reaches one; Hunter's Mark holds it open).
 
 ### 5. The Cleric
 Built in S3: staff-based heals, shields, Revive, server-run summons (`server/summons.js`), healing and
-damage taken on the damage meter; forks Priest and Warden. Waiting for S5: **Cleanse** (needs curses).
+damage taken on the damage meter; forks Priest and Warden. **Cleanse** (S5.2): one rank in the shared trunk.
 `[proposed]`: Auntie Clover or Elder Mochi as the Clerics' trader.
 
 ### 6. Bosses that need a party (S5)
@@ -92,7 +92,7 @@ Each boss asks a few of these questions. The class in brackets answers it best; 
 badly (potions, running, a much longer fight).
 | boss mechanic | answered best by | without that class |
 |---|---|---|
-| **Crushing focus**: the boss locks onto one slime with heavy hits | Knight (Taunt holds the boss on them, they have the DEF) | the boss bounces between squishy players |
+| **Crushing focus**: the boss locks onto one slime with heavy hits | Knight (Rally taunts: it holds the boss on them, they have the DEF) | the boss bounces between squishy players |
 | **Room-wide pulses**: damage nobody can dodge, every few seconds | Cleric (heals, shields before the pulse) | everyone drinks potions on cooldown |
 | **Curses**: a stacking debuff that gets worse until removed | Cleric (Cleanse) | wait it out at range, losing damage |
 | **Magic barrier**: a phase where physical hits do little | Mage (spells break it) | a long, slow phase |

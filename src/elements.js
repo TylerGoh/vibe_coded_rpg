@@ -217,20 +217,3 @@ function tongue(ctx, x, y, r, len) {
   ctx.fill();
 }
 
-// The HUD's Arcane Charge pips, in the MP bar's right end: n of max lit (x, y: the right end, middle)
-export function drawArcanePips(ctx, x, y, n, max, time) {
-  for (let i = 0; i < max; i++) {
-    const px = x - 8 - (max - 1 - i) * 13, lit = i < n, r = lit ? 5 + 0.6 * Math.sin(time * 6 + i) : 4;
-    ctx.fillStyle = lit ? '#ffffff' : 'rgba(255,255,255,0.35)';
-    ctx.strokeStyle = lit ? '#4f5fc0' : 'rgba(79,95,192,0.45)';
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    ctx.moveTo(px, y - r);
-    ctx.lineTo(px + r * 0.75, y);
-    ctx.lineTo(px, y + r);
-    ctx.lineTo(px - r * 0.75, y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  }
-}

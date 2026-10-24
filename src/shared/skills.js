@@ -1,5 +1,5 @@
 // Docs: docs/combat/skills.md
-import { attackFor, defenseFor, maxHpFor, reachFor, ITEMS, STAFF_BOLT_RANGE, BOW_RANGE } from './rpg.js';
+import { attackFor, defenseFor, maxHpFor, reachFor, ITEMS, STAFF_BOLT_RANGE, BOW_RANGE, heavyHit } from './rpg.js';
 import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR_BLINK, IFR_PHANTOM, PHANTOM_CD, SLAM_CD, UPCUT_CD, CHARGE_RESET } from './sim.js';
 
 // Shared by client and server: classes, their skill trees, mana, and the hotbar (story/progression.md,
@@ -110,7 +110,7 @@ export function advanceText(cls, lvl) {
 // The Cleric's kinds (S3): 'heal' with `power` (× MAGIC × Holy Power; Jelly Patch's `amount` is flat) · 'mend' (a
 // heal over time) · 'summon' (`what`: 'spirit' | 'wisp' | 'totem' | 'seraph': server-run helpers, SUMMONS below)
 // · 'revive' (fainted friends back up) · 'miracle' (heal everyone, revive everyone) · 'barrier' (soaks damage, or
-// one ultimate). `holy` + `smite` on a bolt: it heals the caster a share of its damage.
+// one ultimate) · 'cleanse' (S5.2: lifts a boss's curse). `holy` + `smite` on a bolt: it heals the caster a share of its damage.
 // The Archer's kinds (S4, all on ATK): 'shot' (`arrows` arrows at the first mob ahead within `range`; `far`: more
 // damage past FAR_PX) · 'pierce' (an arrow through every mob in a line ahead, up to `targets`) · 'rain' (arrows
 // falling `hits` times on every mob within `radius` of the first mob ahead) · 'mark' (Hunter's Mark: everyone's
@@ -188,7 +188,9 @@ export const SKILLS = {
   rally: {
     ...W, branch: 'knight', adv: 30, name: 'Rally', kind: 'rally', max: 3, mp: 25, cd: 30, radius: 300, dur: 20,
     boost: (r) => 0.1 + 0.1 * r,
-    desc: (r) => `Rally every friend within range 300, you too: +${Math.round((0.1 + 0.1 * r) * 100)}% attack and defence for 20 s. Cooldown 30 s.`,
+    // it also taunts (S5, owner 2026-10-24: Taunt folded into Rally): every mob within range turns on you for
+    // TAUNT_S s (src/shared/rpg.js), and a boss's focus moves to you (server/rpg.js taunt)
+    desc: (r) => `Rally every friend within range 300, you too: +${Math.round((0.1 + 0.1 * r) * 100)}% attack and defence for 20 s. It also taunts: every enemy in range turns on you for a few seconds, and a boss's focus moves to you. Cooldown 30 s.`,
   },
   second_wind: {
     ...W, branch: 'knight', adv: 30, name: 'Second Wind', kind: 'passive', max: 3,
@@ -220,7 +222,7 @@ export const SKILLS = {
     desc: (r) => `+${3 * r}% critical chance and critical hits do +${10 * r}% more damage.`,
   },
   blade_storm: {
-    ...W, branch: 'berserker', adv: 60, name: 'Blade Storm', kind: 'storm', max: 3, mp: 30, cd: 12, radius: 130, hits: 4,
+    ...W, branch: 'berserker', adv: 60, name: 'Blade Storm', kind: 'storm', max: 3, mp: 30, cd: 12, radius: 130, hits: 4, crack: true, // (crack: it cracks a boss's armour, S5.2)
     mult: (r) => 0.8 + 0.15 * r,
     desc: (r) => `A storm of slashes: hits every mob within range 130 4 times for ${pct(0.8 + 0.15 * r)} each.`,
   },
@@ -315,6 +317,13 @@ export const SKILLS = {
   faith: {
     ...C, adv: 10, name: 'Faith', kind: 'passive', max: 3,
     desc: (r) => `+${15 * r}% magic power: your heals, Smite and spirits.`,
+  },
+  // S5.2 (owner, 2026-10-24: one rank, in the shared trunk so Priests and Wardens both have it): the answer to a
+  // boss's curse (shared/rpg.js CURSE_*). The nearest cursed friend in range, else you; refused when nobody is cursed
+  cleanse: {
+    ...C, adv: 10, name: 'Cleanse', kind: 'cleanse', max: 1, mp: 12, cd: 6, radius: 300,
+    power: () => 0.3,
+    desc: () => 'Lift every curse off the nearest cursed friend within range 300 (or off you) and heal them for 30% of your MAGIC. A curse comes from a boss fought by a party: it softens your hits and burns.',
   },
   // Priest (heals)
   mend: {
@@ -484,6 +493,14 @@ export const ARCANE_MAX = 3, ARCANE_DUR = 10;
 const SPELL_KINDS = new Set(['bolt', 'fireball', 'chain', 'meteor', 'nova', 'starfall']);
 export const spendsArcane = (id) => SKILLS[id]?.cls === 'mage' && SPELL_KINDS.has(SKILLS[id].kind);
 export const arcaneMult = (skills, n) => 1 + SKILLS.arcane_charge.per(rankOf(skills, 'arcane_charge')) * Math.min(ARCANE_MAX, n | 0);
+// What kind of hit skill sk is, for a boss's S5.2 mechanics (shared/rpg.js partyHitMult): magic (a staff class's
+// spell, or Pebble Toss on the better MAGIC: a barrier lets it through), heavy (its multiplier, with Arcane Charge,
+// reaches ARMOUR_CRACK, or it's marked `crack`: it cracks armour), arrow (an Archer's: reaches a weak point from
+// anywhere). st: { atk, magic }; charges: the Arcane charges it spends.
+export function hitKinds(sk, rank, st, charges, skills) {
+  const magic = sk.cls === 'mage' || sk.cls === 'cleric' || (sk.stat === 'best' && st.magic >= st.atk);
+  return { magic, heavy: !!sk.crack || heavyHit((sk.mult?.(rank) ?? 1) * arcaneMult(skills, charges)), arrow: sk.cls === 'archer' };
+}
 // ——— the Cleric (S3, story/progression.md 5) ———
 // The holy bolt (a Cleric's normal attack, its staff bolt): the staff bolt's range, HOLY_BOLT_MULT of MAGIC, and
 // HOLY_BOLT_HEAL of what it did heals the hurt friend nearest you (or you) within HOLY_BOLT_HEAL_R

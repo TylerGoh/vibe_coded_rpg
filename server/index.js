@@ -100,6 +100,16 @@
 //   new phase and when freed (to the den).
 //   Damage meter (bosses and field bosses): ← {t:'bossdmg', id, kind, d: [[name, damage], …], h?, k?} most first; empty
 //   when its HP was reset (respawned, or healed when left alone). h: healing done, k: damage taken (S3), same shape.
+//   Party mechanics (S5, PARTY in src/shared/rpg.js): ← {t:'party', id, on, f?, fl?}  to the room when they change and
+//   every 2 s while any is on: on = bits in PARTY_MECHS order, f = the slime the boss's focus is on, fl = ms of it
+//   left · ← {t:'boss', a:'pulseWarn', dur} then {t:'boss', a:'pulseHit'} (the server hurts everyone itself: no
+//   ouch) · the Rally echo's `taunt` = how many mobs it pulled. S5.2 adds to `party`: st (ms of a stagger left, -1:
+//   one waiting for its move), sh ([kind 'b'|'a', ms until up, ms left, barrier HP left 0–1 | armour cracks]), wk ([ms
+//   open left, filled 0–1]), cu ([[slime id, curse stacks]]) · ← {t:'curse', id, n} a slime's curse stacks (0: lifted)
+//   · boss events curseWarn {cx, r, dur} / curseHit {cx, r}, shieldUp {kind, dur} / shieldBreak / shieldDrop {kind},
+//   crack {n}, weakOpen, weakBreak, stagger {dur}, ultCancel {by} (a freeze interrupted the ultimate: drop the banner)
+//   · a hit on a mob may carry a 5th element, 1: aimed at an open weak point (h[3] is the shatter flag, 0 if none) ·
+//   `hurt` has dot: 1 for a curse's burn · `me` has curse {n, left}.
 //   The Cleric's summons (S3, server/summons.js): ← {t:'summons', s: [[id, what, owner, x, y, hp, maxHp, dir]]}
 //   ~20 Hz to rooms with any (an empty one when the last goes) · ← {t:'sumhit', h: [[summonId, hits]]} ·
 //   ← {t:'sumhurt', id, dmg} · ← {t:'sumgone', id, how: 'faded'|'broke', x, y}. A skill echo may carry

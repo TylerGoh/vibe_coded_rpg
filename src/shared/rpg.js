@@ -1028,14 +1028,14 @@ MOBS.rootling = {
 // (story/characters/bosses.md). A Keeper guardian of stone the roots grew through, still holding the gate
 // at the end of the Keepers' road long after anyone could relieve it. Its ultimate, Hold Fast, is the
 // `lanes` ult as roots: they burst up through every stretch of floor but one.
-// party: the party mechanics it's built for (story/progression.md, S5), named here so S5 can switch them
-// on; nothing reads it yet. focus: its slams lock onto one slime · pulse: the shard's light every few
+// party: the party mechanics it's built for (story/progression.md, S5; PARTY above), with `partyDen` (the
+// party den's gates); off until S5.3 gives it `partyLive`. focus: its slams lock onto one slime · pulse: the shard's light every few
 // seconds · barrier: a rune shield that turns blades · weakpoint: the shard, high on its back · adds: rootlings
 MOBS.root_warden = {
   name: 'The Root Warden', boss: true, lvl: 60, hp: 440000, atk: 200, exp: 115000, speed: 65, w: 200, h: 230, aggro: true, hops: false,
   phases: [['slam', 'beam', 'charge'], ['slam', 'beam', 'grid', 'summon', 'echo'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap']],
   ult: { name: 'Hold Fast', kind: 'lanes' }, minion: 'rootling', looks: { beam: 'warden', grid: 'root' }, // (how its beam and grid are drawn: src/hazards.js)
-  party: ['focus', 'pulse', 'barrier', 'weakpoint', 'adds'],
+  party: ['focus', 'pulse', 'barrier', 'weakpoint', 'adds'], partyDen: true,
   lines: {
     enter: ['HALT. The road is shut. No one passes until the Keepers come back.', 'Another one. They all come up the road sooner or later. None of them are Keepers.'],
     phase: [null, 'The roots have me by every joint. Good. Roots do not let go. Neither do I.', 'Hold. Hold the gate. Hold. I have forgotten every word but that one.'],
@@ -1284,14 +1284,14 @@ MOBS.rime_archer = {
 // crack shut every night though her queen has let go: holding on to someone else's holding on. Her beam is
 // the cold light off her shield (`looks`), her grid the deck heaving along the seam, and her ultimate, Close
 // the Seam, is the `wave` ult as new ice racing along the floor (src/dens.js iceMass).
-// party (story/progression.md, S5; nothing reads it yet): focus: her spear locks onto one slime · barrier:
+// party (story/progression.md, S5; PARTY above, a party den, off until S5.3 gives it `partyLive`): focus: her spear locks onto one slime · barrier:
 // her shield turns blades from the front (flank her) · pulse: the seam's cold every few seconds · weakpoint:
 // the shard, set in her shield's boss · adds: rimeguards
 MOBS.sigrun = {
   name: "Sigrun, the Queen's Shield", boss: true, lvl: 100, hp: 760000, atk: 330, exp: 260000, speed: 80, w: 150, h: 190, aggro: true, hops: false,
   phases: [['slam', 'charge', 'rain'], ['slam', 'charge', 'beam', 'rain', 'summon', 'grid'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap', 'charge']],
   ult: { name: 'Close the Seam', kind: 'wave' }, minion: 'rimeguard', looks: { beam: 'shield', grid: 'seam' }, // (how they're drawn: src/hazards.js)
-  party: ['focus', 'barrier', 'pulse', 'weakpoint', 'adds'],
+  party: ['focus', 'barrier', 'pulse', 'weakpoint', 'adds'], partyDen: true,
   lines: {
     enter: ["Halt. This is the Queen's bridge. No one crosses while I stand on it.", 'Every night it cracks, and every night I close it. Go back down. You are letting the cold out.'],
     phase: [null, 'She told me to hold it. She never told me I could stop.', 'Her hands are open now. I saw her let go. Mine are not hers to open!'],
@@ -1315,6 +1315,112 @@ export const ULT_WARN = 3; // seconds of warning
 export const SAFE_R = 75;
 export const NOVA_SAFE = 620;
 export const WAVE_SPEED = 520;
+
+// ——— S5: bosses that need a party (story/s5-plan.md, docs/combat/bosses.md) ———
+// A boss lists the mechanics it's built for in `party`; each one only shows up once enough slimes are fighting
+// it (m.fighters): `min` on a den or field boss, `capMin` on a party den (`partyDen` on the boss: the Root
+// Warden, Sigrun), every one from the first slime on a final boss (`partyAll`). Nothing switches on until the
+// boss also has `partyLive` (S5.3 / S5.4 add it, a boss at a time), so the engine can ship dark.
+// The client gets the switched-on ones as bits, in PARTY_MECHS order ({t:'party'}).
+export const PARTY_MECHS = ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'];
+export const PARTY = {
+  focus: { min: 2, capMin: 2 }, // (alone it means nothing, even in a party den)
+  pulse: { min: 2, capMin: 1 },
+  curse: { min: 2, capMin: 1 },
+  barrier: { min: 2, capMin: 1 },
+  armour: { min: 2, capMin: 1 },
+  weakpoint: { min: 2, capMin: 1 },
+  adds: { min: 2, capMin: 1 },
+  interrupt: { min: 1, capMin: 1 }, // (always on: a reward, not a check)
+};
+export const partyBit = (mech) => 1 << PARTY_MECHS.indexOf(mech);
+// is `mech` switched on for boss kind k with this many fighters?
+export function partyActive(k, fighters, mech) {
+  if (!k?.partyLive || !k.party?.includes(mech) || !PARTY[mech]) return false;
+  return fighters >= (k.partyAll ? 1 : k.partyDen ? PARTY[mech].capMin : PARTY[mech].min);
+}
+// focus: the boss locks onto one slime for FOCUS_S (a red line to them): it only chases and aims at them, and
+// their hits taken from it are ×FOCUS_ATK. FOCUS_GAP s later it picks again (someone else if it can).
+export const FOCUS_S = 10;
+export const FOCUS_GAP = 3;
+export const FOCUS_ATK = 1.5;
+// Rally's taunt (the Knight, owner 2026-10-24: folded into Rally instead of a new skill): casting it pulls
+// every mob within its range onto you for TAUNT_S, and a boss's focus too (on one without focus, its target)
+export const TAUNT_S = 6;
+// pulse: every PULSE_EVERY s, after PULSE_WARN s of a ring closing in, a room-wide hit of PULSE_HP of each
+// slime's max HP. Nobody can dodge it (no Evasion, no i-frames, no DEF); Aegis, Bubble, Barrier, Sanctuary,
+// the Guardian Totem, a brewed ward and Mana Shield take it as they take other hits.
+export const PULSE_EVERY = 14;
+export const PULSE_WARN = 2.5;
+export const PULSE_HP = 0.3;
+// how many times a session the hints name the answer to a mechanic (src/party.js)
+export const PARTY_HINTS = 3;
+// ——— S5.2 ———
+// curse: every CURSE_EVERY s a dark sigil opens under the boss's target (CURSE_WARN s to step out of it), then every
+// slime within CURSE_R of it gets a stack (up to CURSE_MAX): each stack takes CURSE_DMG off the damage you deal and
+// burns CURSE_DOT of your max HP a second. A stack lasts CURSE_S (a new one refreshes them all); standing off past
+// CURSE_FADE_R from the boss fades one every CURSE_FADE_S. Cleanse (the Cleric) clears them all.
+export const CURSE_EVERY = 16;
+export const CURSE_WARN = 1.6;
+export const CURSE_R = 170;
+export const CURSE_MAX = 4;
+export const CURSE_DMG = 0.12;
+export const CURSE_DOT = 0.008;
+export const CURSE_S = 30;
+export const CURSE_FADE_R = 520;
+export const CURSE_FADE_S = 3;
+// your damage out, cursed with n stacks (the client's roll and the server's cap both use it)
+export const curseMult = (n) => Math.max(0.2, 1 - CURSE_DMG * (n | 0));
+// barrier: every BARRIER_EVERY s a rune dome (BARRIER_WARN s fading in) for BARRIER_S: physical hits do only
+// BARRIER_PHYS; magic hits (staves, spells) do full damage and wear down its own HP, BARRIER_HP of the boss's HP for
+// one slime (not the party-scaled max: one Mage breaks it in a few seconds however big the party).
+// Broken: a stagger. Left alone it drops by itself.
+export const BARRIER_EVERY = 24;
+export const BARRIER_WARN = 1.5;
+export const BARRIER_S = 12;
+export const BARRIER_PHYS = 0.35;
+export const BARRIER_HP = 0.06;
+// armour: every ARMOUR_EVERY s a shell for ARMOUR_S: a hit whose multiplier (the skill's, over your normal hit) is
+// under ARMOUR_CRACK does ARMOUR_CUT; a heavier one (or a shatter, or a skill marked `crack`) does full damage and
+// cracks it (one crack a cast). ARMOUR_CRACKS cracks break it: a stagger.
+export const ARMOUR_EVERY = 24;
+export const ARMOUR_WARN = 1.5;
+export const ARMOUR_S = 12;
+export const ARMOUR_CUT = 0.4;
+export const ARMOUR_CRACK = 2.5;
+export const ARMOUR_CRACKS = 4;
+export const heavyHit = (mult) => mult >= ARMOUR_CRACK;
+// weak point: every WEAK_EVERY s a glowing spot high on the boss (its `weak: {dx, dy, r}`, else weakOf's default)
+// opens for WEAK_OPEN_S (WEAK_MARK_S while Hunter's Mark is on the boss). A hit on it does WEAK_MULT and counts
+// toward WEAK_HP of the boss's one-slime HP (like the barrier's); filling it staggers the boss. Arrows reach it from anywhere in range; any other
+// hit (a slap, a bolt, a spell) needs the hitter's body within WEAK_REACH of the spot's height (jump for it).
+export const WEAK_EVERY = 18;
+export const WEAK_OPEN_S = 7;
+export const WEAK_MARK_S = 11;
+export const WEAK_MULT = 1.6;
+export const WEAK_HP = 0.04;
+export const WEAK_REACH = 45;
+// where boss kind k's weak spot sits, from its feet (x, y) facing dir: {x, y, r}
+export function weakOf(k, x, y, dir) {
+  const w = k.weak ?? { dx: 0.22, dy: -0.95, r: 26 }; // (dx, dy: shares of its width / height)
+  return { x: x + w.dx * k.w * (dir < 0 ? -1 : 1), y: y + w.dy * k.h, r: w.r };
+}
+// can a hit from a slime whose feet are at y reach the spot? (arrow: any arrow can)
+export const weakReach = (spot, y, arrow, slack = 0) => arrow || Math.abs(y - 20 - spot.y) < spot.r + WEAK_REACH + slack;
+// the stagger (a barrier broken, armour broken, a weak point filled, an ultimate interrupted): the boss stops for
+// STAGGER_S and takes STAGGER_DMG more from everyone
+export const STAGGER_S = 4;
+export const STAGGER_DMG = 0.3;
+// a hit's multiplier on a boss in party state s ({ stag, shield: 'barrier' | 'armour' | null }) and of kind
+// { magic, heavy, weak } (the client's predicted number and the server's cap)
+export function partyHitMult(s, { magic = false, heavy = false, weak = false } = {}) {
+  let k = 1;
+  if (s?.stag) k *= 1 + STAGGER_DMG;
+  if (s?.shield === 'barrier' && !magic) k *= BARRIER_PHYS;
+  if (s?.shield === 'armour' && !heavy) k *= ARMOUR_CUT;
+  if (weak) k *= WEAK_MULT;
+  return k;
+}
 
 // Where mobs live: each spawn patrols its own strip (the ground, or a platform) and respawns there.
 const strip = (kind, x0, x1, y, n, room = FIELD) => Array.from({ length: n }, () => ({ kind, x0, x1, y, room }));
