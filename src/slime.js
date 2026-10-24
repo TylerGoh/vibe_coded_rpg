@@ -21,6 +21,7 @@ const NOTIF_KINDS = ['#ff5a5f', '#4fbf86', '#5b8def', '#ffb020']; // alert, mess
 const NOTIF_LIFE = 1.8;
 // Special notifications and how yr reacts to each: [chance, face, seconds]
 export const SLAP_TIME = 0.3; // seconds a slap swing takes
+const CAST_STAFF_SHORT = 0.6; // share of a staff's shaft drawn while casting (the head stays full size)
 const MOODS = { angry: [0.2, 'wince', 0.65], praise: [0.2, 'happy', 0.9], party: [0.15, 'party', 1.1] };
 function pickMood() {
   let r = Math.random();
@@ -267,7 +268,7 @@ export class Slime {
     const k = 1 - this.slapT / SLAP_TIME; // 0 → 1
     const UP = -2.3, AIM = -0.25;
     const ang = k < 0.25 ? UP + (AIM - UP) * (1 - (1 - k / 0.25) ** 3) : k < 0.7 ? AIM : AIM + (UP - AIM) * ((k - 0.7) / 0.3) * 0.4;
-    const px = -w * 0.2, py = -h * 0.56, arm = 9; // from the back of its head, so the shaft stays clear of the eyes
+    const px = w * 0.5 - 2, py = -h * 0.28, arm = 9; // from the side of its body, where a slap starts, well below the eyes
     const hx = px + Math.cos(ang) * arm, hy = py + Math.sin(ang) * arm;
     ctx.save();
     ctx.strokeStyle = this.palette.line; // a stubby jelly arm
@@ -284,8 +285,9 @@ export class Slime {
     ctx.rotate(ang + Math.PI / 2);
     ctx.scale(0.85, 0.85);
     const flash = k > 0.2 && k < 0.6 ? Math.sin(((k - 0.2) / 0.4) * Math.PI) : 0;
-    if (this.plus) drawEnhanceGlow(ctx, this.plus, this.t, STAFF_LEN[id] + 10);
-    drawStaff(ctx, id, flash, this.t);
+    const len = Math.round(STAFF_LEN[id] * CAST_STAFF_SHORT); // a shorter shaft in hand, so it doesn't swing past its face
+    if (this.plus) drawEnhanceGlow(ctx, this.plus, this.t, len + 10);
+    drawStaff(ctx, id, flash, this.t, len);
     ctx.fillStyle = this.palette.bottom; // a jelly fist round the shaft
     ctx.strokeStyle = this.palette.line;
     ctx.lineWidth = 1.4;
