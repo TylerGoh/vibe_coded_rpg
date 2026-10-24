@@ -306,6 +306,12 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   slows a duo ~20% on the Bramble Behemoth and Old Snapjaw (a partner's cracks aren't modelled: real duos break it faster),
   the Tidemother's pulse and the focus/curse bosses move ~0–9%, and the Hornet Queen's weak point speeds a duo ~7% (the
   stagger). Her called wasps add a little EXP (a `wasp` every `FIELD_ADDS_EVERY` s against an 18k-EXP boss): ignored.
+  The owner OK'd the armour's ~20% (2026-10-24).
+- **S5.4, Frostpeak's retrofit (2026-10-24).** Six more (Glacia, the Astral Wyrm, the Old Narwhal, Old Rimehorn, the
+  Hall Troll, the Pale Wyrm; `docs/combat/bosses.md`). Again only the RETROFIT table moved. The barriers cost a duo
+  with no Mage the most: Berserker + Sniper +26% on Glacia, +15% on the Wyrm (its weak point gives some back); a duo
+  with a Frostbinder is no slower (0% / -8%). The Narwhal's and the Pale Wyrm's weak points speed a duo ~6–7%;
+  Rimehorn's and the Troll's armour +9–10% for the Berserker duo, ~1% with a Knight + Frostbinder (shatters crack it).
 
 ## The potions and the loot check (S5.5, 2026-10-24)
 The Cleansing Tonic and the Barrier Draught are brews, priced like the others: a batch's ingredients (a

@@ -158,7 +158,7 @@ export class Party {
     }
     if (m.a === 'curseWarn') {
       const floor = k.boss ? 450 : m.fy ?? m.y; // (fy: a field boss's floor, S5.4)
-      this.sigils.push({ mob: m.id, x: m.cx, y: floor, r: m.r, at: t, end: t + m.dur, look: CURSES[k.looks?.curse] ?? CURSES.dark, thorn: k.looks?.curse === 'thorn', drowned: k.looks?.curse === 'drowned' });
+      this.sigils.push({ mob: m.id, x: m.cx, y: floor, r: m.r, at: t, end: t + m.dur, look: CURSES[k.looks?.curse] ?? CURSES.dark, thorn: k.looks?.curse === 'thorn', drowned: k.looks?.curse === 'drowned', pale: k.looks?.curse === 'pale' });
       audio.sfx('bossWarn', { pan, vol: 0.45 });
       this.tell('curseWarn', 'A dark sigil on the floor: step out of it before it closes, or it curses you');
       return true;
@@ -308,10 +308,12 @@ function drawFocus(ctx, v, k, s, t, me) {
 
 // The pulse on its way: rings closing in on the boss from across the room, a violet wash and "PULSE" with the
 // seconds left over it (k: 0 → 1 over the warning). S5.4: `looks.pulse` on the boss recolours it (the
-// Tidemother's tide: sea-green rings with foam on them, "TIDE")
+// Tidemother's tide: sea-green rings with foam on them, "TIDE"; the Old Narwhal's breathing hole: steel-blue rings
+// with spray on them and a plume of cold mist going up off her, "BREATH")
 const PULSES = {
   violet: { ring: '176,110,255', glow: '190,130,255', hit: '160,100,250', word: 'PULSE', fill: '#f1e4ff', edge: 'rgba(40,20,70,0.75)' },
   tide: { ring: '80,196,214', glow: '120,220,232', hit: '60,170,206', word: 'TIDE', fill: '#e2fbff', edge: 'rgba(8,48,66,0.78)', foam: true },
+  breath: { ring: '62,128,186', glow: '170,214,240', hit: '84,150,206', word: 'BREATH', fill: '#f2faff', edge: 'rgba(24,44,70,0.8)', foam: true, plume: true },
 };
 function drawPulseWarn(ctx, x, y, kind, reach, k, t, left) {
   if (k > 1) return;
@@ -336,6 +338,15 @@ function drawPulseWarn(ctx, x, y, kind, reach, k, t, left) {
     }
   }
   glow(ctx, x, y, kind.w * (0.8 + 0.4 * k), kind.w * (0.8 + 0.4 * k), P.glow, 0.4 + 0.4 * pulse * k);
+  if (P.plume) { // (the breathing hole heaving: a column of cold mist off her back, taller as it comes)
+    for (let i = 0; i < 7; i++) {
+      const ph = (t * 0.9 + i / 7) % 1, py = y - kind.h * 0.4 - ph * (50 + 90 * k);
+      ctx.fillStyle = `rgba(240,248,255,${(0.25 + 0.45 * k) * (1 - ph)})`;
+      ctx.beginPath();
+      ctx.arc(x + Math.sin(i * 2.3 + t) * (8 + 14 * ph), py, 8 + 18 * ph, 0, TAU);
+      ctx.fill();
+    }
+  }
   outlined(ctx, `${P.word} ${Math.max(0, left).toFixed(1)}`, x, y - kind.h * 0.6 - 30, 20, P.fill, P.edge);
   ctx.restore();
 }
@@ -368,11 +379,13 @@ function outlined(ctx, label, x, y, size, fill, edge) {
 // ——— S5.2 ———
 // A curse on its way: a dark violet sigil on the floor where it'll land, its ring closing as the time runs out;
 // then (hit) a burst of dark smoke going up. S5.4: `looks.curse` on the boss recolours it (the Drowned Bosun's:
-// sea-green ink with bubbles rising; the Thorn Hart's: briar green with thorns round the rim)
+// sea-green ink with bubbles rising; the Thorn Hart's: briar green with thorns round the rim; the Pale Wyrm's:
+// a pale, starless indigo with dim stars sinking into it, the pull of staying fallen)
 const CURSES = {
   dark: { fill: CURSE, rim: '150,96,210', inner: '230,200,255', star: '200,160,240', smoke: '70,36,110' },
   drowned: { fill: '34,104,100', rim: '84,184,164', inner: '206,252,236', star: '140,222,200', smoke: '20,66,70' },
   thorn: { fill: '52,84,36', rim: '120,162,70', inner: '226,240,190', star: '160,196,104', smoke: '46,62,30' },
+  pale: { fill: '58,66,112', rim: '176,190,232', inner: '236,242,255', star: '200,212,246', smoke: '44,50,90' },
 };
 function drawSigil(ctx, s, t) {
   const L = s.look ?? CURSES.dark;
@@ -434,6 +447,17 @@ function drawSigil(ctx, s, t) {
   }
   ctx.stroke();
   ctx.restore();
+  if (s.pale) { // (dim stars sinking down into it, in screen space)
+    ctx.save();
+    for (let i = 0; i < 6; i++) {
+      const ph = (t * 0.45 + i / 6) % 1, sx = s.x + Math.sin(i * 2.1) * s.r * 0.75, sy = s.y - 80 + ph * 80;
+      ctx.globalAlpha = Math.sin(ph * Math.PI) * (0.4 + 0.5 * k);
+      starPath(ctx, sx, sy, 5 - 2 * ph, 2 - ph * 0.8, t + i);
+      ctx.fillStyle = `rgb(${L.inner})`;
+      ctx.fill();
+    }
+    ctx.restore();
+  }
   if (s.drowned) { // (bubbles of ink rising off it, in screen space: not squashed)
     ctx.save();
     ctx.strokeStyle = `rgba(${L.inner},${0.35 + 0.35 * k})`;
@@ -471,13 +495,18 @@ function drawWisps(ctx, s, n, t) {
 // plates round it, with a crack a hit that cracked it
 // (S5.3: `looks.dome` on the boss tints it: the Root Warden's in Keeper amber; Sigrun's, `barrierFront`, is a curved
 // wall of ice in front of her shield instead of a dome, with runes of frost)
-// S5.4: `looks.shell` recolours the armour's plates (the Bramble Behemoth's bark, thorned; Old Snapjaw's mossy scutes)
+// S5.4: `looks.shell` recolours the armour's plates (the Bramble Behemoth's bark, thorned; Old Snapjaw's mossy scutes;
+// Old Rimehorn's hide of rime, icicles hanging off it; the Hall Troll's stacked blocks of blue ice, square-cut)
 const SHELLS = {
   stone: { edge: 'rgba(80,66,58,0.9)', face: 'rgba(196,176,150,0.95)' },
   bark: { edge: 'rgba(58,36,24,0.95)', face: 'rgba(132,92,58,0.95)', thorns: 'rgba(214,190,160,0.95)' },
   scute: { edge: 'rgba(40,58,32,0.95)', face: 'rgba(112,140,78,0.95)', moss: 'rgba(150,196,96,0.95)' },
+  rime: { edge: 'rgba(70,104,140,0.9)', face: 'rgba(214,236,252,0.95)', icicles: 'rgba(236,248,255,0.95)' },
+  block: { edge: 'rgba(40,74,120,0.95)', face: 'rgba(150,200,240,0.92)', blocks: true },
 };
-const DOMES = { keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'] };
+// S5.4: Glacia's (`queen`): ice blue, deep enough to read in her white throne room, snowflakes turning round it; the Astral Wyrm's (`star`): starlight, violet with
+// little gold stars for runes
+const DOMES = { keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'] };
 function drawShield(ctx, v, k, sh, t) {
   const fade = Math.max(0, Math.min(1, 1 - (sh.from - t) / 1.5)), end = Math.min(1, (sh.until - t) / 0.6);
   const a = fade * end, cx = v.x, cy = v.y - k.h * 0.5, rx = k.w * 0.72, ry = k.h * 0.68;
@@ -505,7 +534,22 @@ function drawShield(ctx, v, k, sh, t) {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(an);
-      if (k.looks?.dome === 'keeper') {
+      if (k.looks?.dome === 'queen') { // (a snowflake: three bars crossed, with ticks)
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let j = 0; j < 6; j++) {
+          const g = (j * TAU) / 6, ex = Math.cos(g) * 7, ey = Math.sin(g) * 7;
+          ctx.moveTo(0, 0);
+          ctx.lineTo(ex, ey);
+          ctx.moveTo(ex * 0.55 + Math.cos(g + 1) * 2.5, ey * 0.55 + Math.sin(g + 1) * 2.5);
+          ctx.lineTo(ex * 0.55, ey * 0.55);
+          ctx.lineTo(ex * 0.55 + Math.cos(g - 1) * 2.5, ey * 0.55 + Math.sin(g - 1) * 2.5);
+        }
+        ctx.stroke();
+      } else if (k.looks?.dome === 'star') {
+        starPath(ctx, 0, 0, 6.5, 2.8, 0);
+        ctx.fill();
+      } else if (k.looks?.dome === 'keeper') {
         ctx.lineWidth = 2.2;
         ctx.beginPath();
         ctx.arc(0, 0, 4.5, 0, TAU);
@@ -526,6 +570,23 @@ function drawShield(ctx, v, k, sh, t) {
     ctx.lineCap = 'round';
     for (let i = 0; i < 7; i++) {
       const a0 = Math.PI * (1.05 + i * 0.13), a1 = a0 + 0.11;
+      if (S.blocks) { // (the Hall Troll's: a cut block of ice for a plate, square to the ground)
+        const am = (a0 + a1) / 2, bx = cx + Math.cos(am) * rx * 0.92, by = cy + Math.sin(am) * ry * 0.92, bw = 22 + (i % 2) * 6;
+        ctx.fillStyle = S.face;
+        ctx.strokeStyle = S.edge;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.rect(bx - bw / 2, by - 11, bw, 22);
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(240,250,255,0.85)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(bx - bw / 2 + 4, by - 6);
+        ctx.lineTo(bx - bw / 2 + 4 + bw * 0.4, by - 6);
+        ctx.stroke();
+        continue;
+      }
       ctx.strokeStyle = S.edge;
       ctx.lineWidth = 15;
       ctx.beginPath();
@@ -542,6 +603,14 @@ function drawShield(ctx, v, k, sh, t) {
         ctx.moveTo(px - ny * 4, py + nx * 4);
         ctx.lineTo(px + nx * 16, py + ny * 16);
         ctx.lineTo(px + ny * 4, py - nx * 4);
+        ctx.fill();
+      }
+      if (S.icicles) { // (Rimehorn's rime: an icicle hanging off every plate)
+        ctx.fillStyle = S.icicles;
+        ctx.beginPath();
+        ctx.moveTo(px - 4, py + 3);
+        ctx.lineTo(px, py + 16 + (i % 3) * 4);
+        ctx.lineTo(px + 4, py + 3);
         ctx.fill();
       }
       if (S.moss) { // (Snapjaw's scutes: tufts of pond moss)
@@ -604,7 +673,8 @@ function drawFrontWall(ctx, v, k, hp, a, t) {
 }
 // The weak point: a glowing crystal (brighter under Hunter's Mark), a ring round it filling as it's hit, and the
 // seconds it stays open
-// (S5.4: `looks.weak: 'honey'`, the Hornet Queen's honey sac: a glowing honeycomb cell with a drip, not a crystal)
+// (S5.4: `looks.weak: 'honey'`, the Hornet Queen's honey sac: a glowing honeycomb cell with a drip, not a crystal;
+// `'star'`, the Astral Wyrm's and the Pale Wyrm's: a five-pointed star, slowly turning)
 function drawWeak(ctx, spot, wk, t, marked, look) {
   const pulse = 0.5 + 0.5 * Math.sin(t * 6), r = spot.r;
   ctx.save();
@@ -616,6 +686,8 @@ function drawWeak(ctx, spot, wk, t, marked, look) {
   ctx.beginPath();
   if (look === 'honey') {
     for (let i = 0; i < 6; i++) ctx[i ? 'lineTo' : 'moveTo'](Math.cos((i * TAU) / 6) * r * 0.75, Math.sin((i * TAU) / 6) * r * 0.75);
+  } else if (look === 'star') {
+    starPath(ctx, 0, 0, r * 0.9, r * 0.4, t * 0.6, true);
   } else {
     ctx.moveTo(0, -r * 0.8);
     ctx.lineTo(r * 0.5, 0);
@@ -635,6 +707,8 @@ function drawWeak(ctx, spot, wk, t, marked, look) {
     ctx.fillStyle = '#f0a830';
     ctx.beginPath();
     ctx.arc(0, r * 0.75 + f * f * 26, 2.5 + 2 * Math.min(1, f * 3), 0, TAU);
+  } else if (look === 'star') {
+    ctx.arc(0, 0, r * 0.2, 0, TAU);
   } else {
     ctx.moveTo(-r * 0.12, -r * 0.5);
     ctx.lineTo(r * 0.14, -r * 0.1);
@@ -670,6 +744,15 @@ function drawDizzy(ctx, v, k, t, left) {
   }
   outlined(ctx, `DAZED ${Math.max(0, left).toFixed(1)}`, cx, cy - 22, 15, '#fff4c8', 'rgba(80,56,20,0.7)');
   ctx.restore();
+}
+// a five-pointed star's path (ro, ri: outer and inner radius, turned by rot); open: leave it for closePath
+function starPath(ctx, x, y, ro, ri, rot, open) {
+  if (!open) ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = rot + (i * Math.PI) / 5 - Math.PI / 2, rr = i % 2 ? ri : ro;
+    ctx[i ? 'lineTo' : 'moveTo'](x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+  }
+  ctx.closePath();
 }
 function star(ctx, x, y, r, fill) {
   ctx.fillStyle = fill;

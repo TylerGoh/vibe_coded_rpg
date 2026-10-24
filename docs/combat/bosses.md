@@ -192,6 +192,33 @@ Den and field bosses, the owner's gates (every mechanic at 2 fighters, `interrup
   curses landing (stacks on the status box), the Hart's focus. Not tried: the interrupt on these three (S5.2's code),
   den adds' bigger waves (no summon came in the test window), real people.
 
+### The retrofit (S5.4): Frostpeak (built 2026-10-24)
+Same gates. The armour uses the same numbers as Greenhollow's (owner OK'd a duo ~20% slower under it, 2026-10-24).
+| boss | mechanics | drawn as |
+|---|---|---|
+| Frost Queen Glacia (den, Lv 47) | barrier (ice), interrupt | an ice-blue dome with snowflakes turning round it (`looks.dome: 'queen'`); one `lines.shield` |
+| Astral Wyrm (den, 57) | weakpoint (a star on its back), barrier, interrupt | a five-pointed star on its rear hump (`weak`, `looks.weak: 'star'`); a dome of starlight with gold stars (`looks.dome: 'star'`) |
+| The Old Narwhal (den, 70) | weakpoint (the tusk's root), pulse (the breathing hole), interrupt | the S5.2 crystal over her own shard (`weak.front`); steel-blue rings with spray and a plume of mist, "BREATH" (`looks.pulse: 'breath'`) |
+| Old Rimehorn (field, 75) | armour, focus | plates of rime with icicles hanging off them (`looks.shell: 'rime'`) |
+| The Hall Troll (field, 88) | armour, focus | square-cut blocks of blue ice (`looks.shell: 'block'`) |
+| The Pale Wyrm (field, 90) | curse, weakpoint | a pale indigo sigil with dim stars sinking into it (`looks.curse: 'pale'`); a star mid-back, in the air (`looks.weak: 'star'`) |
+- No swaps from the draft, one addition: every den boss also got `interrupt` (as in Greenhollow; Glacia's, a frost
+  queen frozen out of her own Absolute Zero, is the one the plan asked for). The Narwhal's weak point is `front`
+  (Sigrun's rule): her shard sits at the tusk's root on her face, so only a hit from in front finds it, and it's
+  low enough that a melee slime on the floor reaches it. Melee classes stand in her beam's line for it, archers
+  don't care; the economy sheet doesn't model `front` on a weak point (it reads a duo as always in front).
+- Every class's answer: the barriers (Glacia, the Wyrm) are a Mage's to break (the RETROFIT table: a Berserker +
+  Sniper duo ~26% slower on Glacia, a duo with a Mage no slower); without one, wait the dome out (`BARRIER_S`).
+  The armour (Rimehorn, the Troll): Power Strike, a shatter, Snipe. The weak points: arrows, or jump.
+- Tested with two headless players (`TEST_SPEED=10`, `TEST_GOD`): alone the bits were 0 (Rimehorn, the Troll) or
+  only `interrupt` (Glacia, the Wyrm); with two: Glacia's dome up, broken by a Frostbinder, stagger; the Wyrm's
+  star opened and broken, its dome up and broken, its Supernova frozen out; the Narwhal's BREATH warning and hit,
+  her shard broken, Close the Floes frozen out (a phone player there); Rimehorn's and the Troll's armour cracked and
+  broken, their focus; the Pale Wyrm's star broken by arrows, its curse landing (on a phone). **The interrupt was
+  tested here** (Greenhollow couldn't): a lone Frostbinder casting Glacial Spike then Frost Nova into Glacia's
+  Absolute Zero warning cancelled it ("Your freeze interrupted...", the banner gone, DAZED). Not tried: people,
+  the den adds, a Narwhal fight from behind.
+
 ## The reward window (S0, 2026-10-23)
 Bosses still respawn every `BOSS_RESPAWN_MS`, but each slime gets a den boss's full EXP only once per
 `BOSS_WINDOW_MS` (`bossAt` on the character: boss kind → when, saved, so relogging or a deploy doesn't

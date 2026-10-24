@@ -50,7 +50,9 @@ climb east, higher and harder.
 - **Old Rimehorn** (field boss, Lv 75): a mammoth older than the hamlet, shaggy red-brown with icicles in
   his coat and a chipped tusk. Small boss, no story: passive until hit, then `stomp` (rears, lands with a
   shockwave: be off the floor). Drops the Rimehorn Tusk (and its staff twin) and the Woolly Hood. His pet
-  is in the Pet Shop (`PETS`; `PETSHOP_W` went up to fit it).
+  is in the Pet Shop (`PETS`; `PETSHOP_W` went up to fit it). S5.4: with two or more fighting him, `armour` (his
+  coat freezes into plates of rime with icicles, `looks.shell: 'rime'`: crack it with heavy hits) and `focus` (he
+  picks one slime to trample: Rally pulls it): `docs/combat/bosses.md`.
 
 ## Gear (`docs/combat/items.md`)
 Eyvind's tier (`aim` 66): Ice-Cutter's Cleaver / Glacier Staff, Ice-Cutter's Cap. Mob drops: the Ramhorn

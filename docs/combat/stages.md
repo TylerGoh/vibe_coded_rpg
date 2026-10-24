@@ -89,6 +89,7 @@ new names and art (each branch's doc lists which is which).
   Queen, the Drowned Bosun, the Thorn Hart) have `party` + `partyLive`. The gate counts `fieldFighters` (slimes who
   hit it lately), so a mechanic switches on once a second slime lands a hit and stays on until it heals up alone.
   No ultimate, so no `interrupt`; `adds` on a field boss is its own call of `minion`s (`FIELD_ADDS_EVERY`).
+  Frostpeak's (Old Rimehorn, the Hall Troll, the Pale Wyrm) too, from S5.4's second part.
 - **Turnipop** (Sprout Meadow) is the first: a turnip that grew far too big and far too grumpy. It's
   passive until hit (new players walk past it), then uses `stomp`: it crouches (the shockwave's reach is
   marked), leaps and lands with a shockwave along the floor (jump it or stand on a ledge). `stompLands`

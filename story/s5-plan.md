@@ -1,8 +1,8 @@
 # S5, split into pieces (sub-plan for agents)
 
 **Status (2026-10-24): S5.1 and S5.2 are LIVE (deploy #1, e1df118, shipped dark); S5.5 (potions, loot check) and S5.3
-(the party dens switched on and tuned) are LIVE too. S5.4's Greenhollow part is built (waiting for its deploy);
-next: S5.4 for Frostpeak. Test faster with `TEST_SPEED=10` (fight
+(the party dens switched on and tuned) are LIVE too. S5.4's Greenhollow part is LIVE (9ae4d48); its Frostpeak part
+is built (waiting for its deploy); next: S5.4 for Emberdeep. Test faster with `TEST_SPEED=10` (fight
 lengths too, since the client clock fix: `docs/testing.md`).** S5 in `progression.md` ("bosses that need a party",
 section 6) is too big for one session, so it's cut into five pieces, each sized for one agent. Read
 `progression.md` sections 1b and 6 first: they hold the design and the owner's rules. This file pins down what
@@ -237,9 +237,24 @@ Docs: `docs/places/spine.md`, `docs/places/queensbridge.md`, `docs/combat/bosses
   no interrupt. Fliers' weak points are in the air (arrows or a jump), as the Pale Wyrm's will be.
 - `TEST_BOSS_HP` now also holds when a field boss's HP grows or heals (it reset to full HP before).
 - `npm run economy` has a RETROFIT table (a duo's kill time, mechanics off / on) and `fight` models armour. Alone
-  nothing moves; armour costs a duo ~20%, a weak point saves ~7%.
+  nothing moves; armour costs a duo ~20%, a weak point saves ~7%. **Settled: the owner OK'd the armour's ~20% on the
+  Behemoth and Snapjaw (2026-10-24)**; later stages use the same armour numbers.
 - Tested with two headless players on all seven (one on a phone): `docs/combat/bosses.md`. Not tried: the interrupt on
   them, the den adds' bigger waves, people.
+
+**Frostpeak built (2026-10-24, waiting for its deploy).** What landed, and what the next stage (Emberdeep) should know:
+- The six Frostpeak bosses have `party` + `partyLive` as drafted, no swaps; the three den bosses also got `interrupt`
+  (Glacia's was in the draft). Glacia has one `lines.shield` (her only line, said the first time the dome goes up).
+  The Narwhal's weak point is `front` (Sigrun's rule: it's on her face), low enough for melee from the floor.
+- Looks added to `src/party.js`'s tables: domes `queen`, `star` (`DOMES`, with their own rune shapes), shells `rime`
+  (icicles), `block` (square ice blocks), pulse `breath` (with a `plume` of mist), curse `pale`, weak `star`
+  (`starPath`). Emberdeep's cooling rock / heat / burning can add rows the same way. Pale looks vanish on the snow
+  rooms' white: check contrast in a screenshot (Glacia's dome had to go a deeper blue).
+- **The interrupt is tested now**: a Frostbinder with Glacial Spike then Frost Nova into Absolute Zero's warning.
+- `TEST_BOSS_HP` with a den that still counts two fighters from an earlier run: a den boss keeps `m.fighters` after
+  people leave (until it resets), so a "solo" check right after a duo isn't one. Use a fresh server or another den.
+- Economy: only RETROFIT moved (`docs/economy.md`): barriers hit a no-Mage duo hardest (+26% on Glacia).
+- Not tried: people, den adds' bigger waves, a Narwhal fight from behind.
 
 Docs: `docs/combat/bosses.md`, `docs/combat/stages.md` (field bosses), each boss's place doc.
 One or two mechanics each, picked to fit the boss (a draft; the agent can swap them for a better fit, and

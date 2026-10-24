@@ -617,12 +617,21 @@ export const MOBS = {
     name: 'Frost Queen Glacia', boss: true, lvl: 47, hp: 240000, atk: 150, exp: 44000, speed: 90, w: 140, h: 160, aggro: true, hops: false,
     phases: [['rain', 'charge', 'slam'], ['rain', 'charge', 'slam', 'leap', 'summon'], ['barrage', 'rain', 'leap', 'slam', 'summon', 'charge']],
     ult: { name: 'Absolute Zero', kind: 'lanes' }, minion: 'frostling',
+    // S5.4 (story/s5-plan.md, docs/combat/bosses.md): she draws a dome of ice round herself (a barrier: magic
+    // melts it; `looks.dome: 'queen'`, pale ice with snowflakes turning round it), and freezing Absolute Zero as
+    // she raises it cancels it (a frost queen beaten at her own game)
+    party: ['barrier', 'interrupt'], partyLive: true, looks: { dome: 'queen' },
+    lines: { shield: 'Stay close. Everyone stays close. The ice holds us all together, and it does not let go.' }, // (said once a fight, the first time the dome goes up)
     drops: [['frost_heart', 1, 1, 2], ['frost_blade_n', 1, 1, 1], ['glacier_helm_n', 1, 1, 1], ['coin', 1, 2250, 3370], ['elixir', 1, 2, 4], ['ice_shard', 1, 4, 8], ['scroll_s60', 1, 1, 1], ['scroll_h60', 1, 1, 1], ['scroll_s10', 0.2, 1, 1], ['scroll_h10', 0.2, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
   },
   astral_wyrm: {
     name: 'Astral Wyrm', boss: true, lvl: 57, hp: 330000, atk: 180, exp: 76000, speed: 110, w: 190, h: 150, aggro: true, hops: false,
     phases: [['rain', 'charge', 'leap'], ['barrage', 'charge', 'leap', 'slam', 'summon'], ['barrage', 'charge', 'leap', 'slam', 'summon', 'rain']],
     ult: { name: 'Supernova', kind: 'nova' }, minion: 'wisp',
+    // S5.4: the star on its back flares (the weak point, on its rear hump: arrows, or jump; `looks.weak: 'star'`),
+    // it wraps itself in a shell of starlight (a barrier, `looks.dome: 'star'`), and freezing Supernova as it
+    // gathers cancels it
+    party: ['weakpoint', 'barrier', 'interrupt'], partyLive: true, weak: { dx: -0.14, dy: -0.52, r: 22 }, looks: { weak: 'star', dome: 'star' },
     drops: [['frost_heart', 1, 2, 3], ['star_sword_n', 1, 1, 1], ['star_crown_n', 1, 1, 1], ['coin', 1, 4360, 7260], ['elixir', 1, 4, 6], ['stardust', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
   },
   // ——— Emberdeep (the legacy stage: Cinder Flats, Magma Heart) ———
@@ -1107,6 +1116,9 @@ MOBS.great_yeti = {
 MOBS.rimehorn = {
   name: 'Old Rimehorn', field: true, lvl: 75, hp: 170000, atk: 220, exp: 68000, speed: 45, w: 170, h: 150, aggro: false, hops: false,
   ai: { kind: 'stomp', every: 3.6, warn: 1, r: 300, range: 330, jump: 600 },
+  // S5.4: with two or more on him his coat freezes into a hide of rime (armour, `looks.shell: 'rime'`, icicles
+  // hanging off it) and he picks one slime to trample at a time (focus)
+  party: ['armour', 'focus'], partyLive: true, looks: { shell: 'rime' },
   desc: 'Old Rimehorn is walking the Icefall!',
   drops: [['coin', 1, 6400, 9200], ['mammoth_wool', 1, 4, 8], ['yeti_fur', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['tusk_blade', 0.25, 1, 1], ['mammoth_hood', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
@@ -1178,7 +1190,12 @@ MOBS.skate_elite = elite('ice_skate', 'Elder Skate');
 MOBS.old_narwhal = {
   name: 'The Old Narwhal', boss: true, lvl: 70, hp: 520000, atk: 222, exp: 150000, speed: 75, w: 230, h: 150, aggro: true, hops: false,
   phases: [['charge', 'slam', 'rain'], ['charge', 'slam', 'beam', 'rain', 'summon'], ['charge', 'beam', 'echo', 'rain', 'summon', 'leap', 'barrage']],
-  ult: { name: 'Close the Floes', kind: 'lanes' }, minion: 'whalebone_crab', looks: { beam: 'jet' },
+  ult: { name: 'Close the Floes', kind: 'lanes' }, minion: 'whalebone_crab',
+  // S5.4: the shard at her tusk's root glows (the weak point: `front`, only a hit from in front of her finds it,
+  // in reach from the floor, drawn as the crystal it is), the breathing hole heaves (a pulse, `looks.pulse: 'breath'`:
+  // cold spray, "BREATH"), and freezing Close the Floes as she rears cancels it
+  party: ['weakpoint', 'pulse', 'interrupt'], partyLive: true, weak: { dx: 0.4, dy: -0.54, r: 20, front: true },
+  looks: { beam: 'jet', pulse: 'breath' },
   lines: {
     enter: ['Shut. The floes are shut. Nothing leaves my water. Nothing.', 'Another little warm thing come to open the ice? Go home. Go home and STAY.'],
     phase: [null, 'They all swam south. Every one. I sang and sang and they did not turn round.', 'If the ice opens, the fish go, the seals go, YOU go. Then I am the only thing left in the sea!'],
@@ -1254,6 +1271,10 @@ MOBS.beetle_elite = elite('glass_beetle', 'Old Glass Beetle');
 MOBS.pale_wyrm = {
   name: 'The Pale Wyrm', field: true, lvl: 90, hp: 220000, atk: 262, exp: 93000, speed: 55, w: 210, h: 100, aggro: false, hops: false, fly: 80,
   ai: { kind: 'dive', every: 3.2, warn: 0.9, time: 0.55 },
+  // S5.4: the cold of falling (a curse: whoever it lands near wants to stay down; `looks.curse: 'pale'`, a pale
+  // sigil with dim stars sinking into it) and the last bright star in its coils (the weak point, mid-back, in the
+  // air: arrows or a jump; `looks.weak: 'star'`)
+  party: ['curse', 'weakpoint'], partyLive: true, weak: { dx: -0.06, dy: -0.62, r: 22 }, looks: { curse: 'pale', weak: 'star' },
   desc: 'The Pale Wyrm has stirred in the Wyrmfall.',
   drops: [['coin', 1, 8000, 11600], ['pale_scale', 1, 4, 8], ['star_spark', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['pale_star_blade', 0.25, 1, 1], ['aurora_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
@@ -1263,6 +1284,9 @@ MOBS.pale_wyrm = {
 MOBS.hall_troll = {
   name: 'The Hall Troll', field: true, lvl: 88, hp: 215000, atk: 270, exp: 89000, speed: 50, w: 150, h: 160, aggro: false, hops: false,
   ai: { kind: 'lob', range: 520, every: 2.6, keep: 180, warn: 0.75, style: 'ice' },
+  // S5.4: he stacks blocks of ice round himself (armour, `looks.shell: 'block'`) and throws at one slime at a
+  // time (focus)
+  party: ['armour', 'focus'], partyLive: true, looks: { shell: 'block' },
   desc: 'The Hall Troll is stacking ice in the Deep Blue. Hear it?',
   drops: [['coin', 1, 7800, 11300], ['troll_tooth', 1, 4, 8], ['glass_shell', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['troll_maul', 0.25, 1, 1], ['troll_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };

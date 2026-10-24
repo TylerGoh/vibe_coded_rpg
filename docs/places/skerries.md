@@ -49,6 +49,10 @@ freezing sea), summon (whalebone crabs), echo (her song cracking the ice), leap,
 the Floes** (`lanes`, drawn as ice coming down everywhere but one lane). Den theme `floe` (its rows in
 `dens.js`'s shared tables). Drops the Narwhal Tusk / Narwhal Song Staff and the Floe Crown (9 slots, like
 the Root Warden's), narwhal ivory. Her pet is in the Pet Shop (`PETS`).
+S5.4 party mechanics (`docs/combat/bosses.md`): with two or more, the shard at her tusk's root opens as a weak
+point (`weak`, `front`: only from in front of her, low enough to reach from the floor) and the breathing hole
+heaves (a `pulse`, `looks.pulse: 'breath'`: steel-blue rings, spray, a plume of mist, "BREATH"); from one slime on,
+freezing Close the Floes as she rears cancels it (`interrupt`).
 
 ## Gear (`docs/combat/items.md`)
 Hakon's tier (`aim` 60): Bone-Carver's Saber / Driftbone Staff, Sealskin Hood. Mob drops: the Whalebone Helm
