@@ -13,11 +13,12 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
 - Stop it by PID after checking `readlink /proc/<pid>/cwd`. Never `pkill -f "node server/index.js"`.
 - Test-only server env vars (never set them live): `TEST_SPAWN=room:x`, `TEST_BOSS_HP=0.05` (den and field bosses), `TEST_GOD=1`,
   `TEST_GROW=60` (crops grow 60× faster), `TEST_PET_FAST=1440` (a pet's full belly lasts 2 min), `TEST_FIELD_RESPAWN_MS=15000` (field bosses come back sooner),
-  `TEST_SPEED=4` (the whole game 4× real time, below), `TEST_ACCUSE_FAST=20` (botting accusations' timers 20× shorter), `TEST_PARTY=sprout_king:focus,pulse` (gives that
+  `TEST_SPEED=10` (the whole game 10× real time, below), `TEST_ACCUSE_FAST=20` (botting accusations' timers 20× shorter), `TEST_PARTY=sprout_king:focus,pulse` (gives that
   boss those S5 party mechanics and switches them on, `partyLive`; several bosses separated by `;`. Two test players
   in the den turn them on: `docs/combat/bosses.md`), `TEST_TP=1` (accepts `{t:'tp', room?, x, vt?}`: room -1 is your own house, `vt` how far into a crossing; send it from the page with
   `slimeville.net.sendNpc(…)` and wait ~200 ms for the next snapshot).
-- **Speed tests up with `TEST_SPEED=N`** (`src/shared/testspeed.js`): every clock on the server runs N×
+- **Speed tests up with `TEST_SPEED=N`; use `TEST_SPEED=10` by default** (owner, 2026-10-24; drop lower only
+  for a test that measurably falls behind) (`src/shared/testspeed.js`): every clock on the server runs N×
   fast (it ticks N×60 times a real second) and a client installs the same from `welcome`, so a headless
   browser keeps up with no change to the test. The game itself doesn't change: still one 1/60 s step per
   tick, cooldowns and boss timers in the same game-ms, so it still tests the real game, just compressed.

@@ -2,7 +2,7 @@
 
 **Status (2026-10-24): S5.1 and S5.2 are built and LIVE (deploy #1, commit e1df118, shipped dark: no real
 boss has `partyLive`). Next: S5.3, not started (a first attempt was stopped before it finished and thrown
-away; start it fresh from the live tree). Test faster with `TEST_SPEED` (`docs/testing.md`).** S5 in `progression.md` ("bosses that need a party",
+away; start it fresh from the live tree). Test faster with `TEST_SPEED=10` (`docs/testing.md`).** S5 in `progression.md` ("bosses that need a party",
 section 6) is too big for one session, so it's cut into five pieces, each sized for one agent. Read
 `progression.md` sections 1b and 6 first: they hold the design and the owner's rules. This file pins down what
 that plan left open and says who does what. Numbers here are starting points: they live as named constants
