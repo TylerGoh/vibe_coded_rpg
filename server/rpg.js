@@ -12,7 +12,7 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost } from '../src/shared/rpg.js';
 import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_S, BURN_DPS, BURN_TICK_MS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, healOf, classNames, BONK_MULT, BONK_REACH, BONK_HEAL, BONK_HEAL_R, REVIVE_WAIT, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen } from '../src/shared/sim.js';
@@ -1627,13 +1627,17 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       if (!isCombat(p.state.room) || t - (p.pickAt ?? 0) < 100) return;
       p.pickAt = t;
       const s = p.state;
-      let best = -1, bestD = PICKUP_RANGE + 10; // (a little slack for lag)
+      const c = p.rpg;
+      // the nearest drop that fits: a full bag still takes the coins beside an item it can't hold
+      let best = -1, bestD = PICKUP_RANGE + 10, full = false; // (a little slack for lag)
       loot.forEach((d, i) => {
         const dx = Math.abs(d.x - s.x);
-        if (d.room === s.room && dx <= bestD && Math.abs(d.y - s.y) < 60) [best, bestD] = [i, dx];
+        if (d.room !== s.room || dx > bestD || Math.abs(d.y - s.y) >= 60) return;
+        if (!lootFits(c.bag, d.item)) return void (full = true);
+        [best, bestD] = [i, dx];
       });
-      if (best < 0) return;
-      const d = loot[best], c = p.rpg;
+      if (best < 0) return full && toast(p, 'Your bag is full');
+      const d = loot[best];
       if (d.item === 'coin') c.coins += Math.round(d.n * (1 + (brewOf(c)?.gold ?? 0))); // (a brewed gold buff)
       else if (!addToBag(c, d.item, d.n, d.e)) return toast(p, 'Your bag is full');
       loot.splice(best, 1);

@@ -13,7 +13,7 @@ import { drawHazard } from './hazards.js';
 import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, drawBarrier, drawRallyAura, drawAegisAura } from './skillfx.js';
 import { Summons } from './summons.js';
 import { audio } from './audio.js';
-import { MOBS, ITEMS, BAG_SLOTS, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE } from './shared/rpg.js';
+import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE } from './shared/rpg.js';
 import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, MOMENTUM_MAX, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, BONK_MULT, BONK_REACH, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn } from './shared/skills.js';
 import { drawMobState, drawArcanePips } from './elements.js';
 import { staffGlow } from './staff-art.js';
@@ -218,6 +218,9 @@ export class Rpg {
     const k = MOBS[v.kind];
     v.hurt = 1;
     v.localHp = this.shownHp(v) - dmg;
+    // a boss's death waits for the server (its 'die' / 'fieldDown'): the server caps each hit, so a kill we
+    // predicted could leave it a sliver of HP, and it would die on screen, come back and die again
+    if (k.boss || k.field) v.localHp = Math.max(1, v.localHp);
     v.localUntil = this.time + 0.8;
     this.pop(v.x, v.y - k.h - 14, String(dmg), crit ? '#ff5d8f' : '#ffffff', crit ? 26 : 20, delay);
     audio.sfx(crit ? 'crit' : 'hit', { pan: panX(v.x, myX) });
@@ -751,13 +754,15 @@ export class Rpg {
 
   // ——— bosses ———
   // A field boss showed up in this room, or was beaten: everyone here hears (a toast and a chat line)
-  fieldBoss(m) {
+  fieldBoss(m, mine) {
     const k = MOBS[m.kind];
     if (!k) return;
     const line = m.a === 'fieldUp' ? k.desc : `${k.name} is beaten! It'll be back in about ${Math.round(FIELD_BOSS_RESPAWN_MS / 60000)} minutes.`;
     this.toast(line);
     this.onAnnounce?.(line);
     if (m.a === 'fieldUp') audio.sfx('fieldBoss');
+    const v = m.a === 'fieldDown' && this.views.get(m.id);
+    if (v) this.mobDied(v, mine?.x ?? m.x); // (our own hits never predict a boss's death)
   }
   // A big boss's line (MOBS[kind].lines: on walking in, at a new phase, when freed): a bubble over it for
   // a few seconds and a line in the chat
@@ -768,7 +773,7 @@ export class Rpg {
     this.onAnnounce?.(`${k.name}: "${m.text}"`);
   }
   bossEvent(m, mine) {
-    if (m.a === 'fieldUp' || m.a === 'fieldDown') return this.fieldBoss(m);
+    if (m.a === 'fieldUp' || m.a === 'fieldDown') return this.fieldBoss(m, mine);
     if (m.a === 'say') return this.bossSays(m);
     const theme = denAt(this.room)?.theme, myX = mine?.x ?? m.x, pan = panX(m.x, myX);
     const ground = 450, me = this.net.me, v = this.views.get(m.id), k = MOBS[v?.kind] ?? MOBS.sprout_king;
@@ -1138,7 +1143,7 @@ export class Rpg {
     let best = null, bestD = PICKUP_RANGE;
     for (const d of this.loot) {
       const dx = Math.abs(d[3] - me.x);
-      if (!this.taken.has(d[0]) && dx <= bestD && Math.abs(d[4] - me.y) < 60) [best, bestD] = [d, dx];
+      if (!this.taken.has(d[0]) && dx <= bestD && Math.abs(d[4] - me.y) < 60 && (!this.me || lootFits(this.me.bag, d[1]))) [best, bestD] = [d, dx]; // (the server takes the same one)
     }
     if (best) this.taken.set(best[0], this.time);
     this.send({ t: 'pickup', s: seq });

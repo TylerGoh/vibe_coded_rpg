@@ -2083,6 +2083,8 @@ export function rollScroll(scrollId, itemId, e, rnd = Math.random) {
   return { ok: true, boom: false, e: next };
 }
 export const BAG_SLOTS = 24;
+// can this drop be picked up into bag? Coins never take a slot; a stack joins its own kind; else a free slot
+export const lootFits = (bag, item) => item === 'coin' || (STACKS(item) && bag.some((b) => b.id === item)) || bag.length < BAG_SLOTS;
 
 // ——— gold and the shop (Merchant Pip's stall in the village) ———
 // Buying costs `price`; selling gives back SELL_RATE of it (loot materials exist mostly to be sold).

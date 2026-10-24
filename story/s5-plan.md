@@ -1,0 +1,204 @@
+# S5, split into pieces (sub-plan for agents)
+
+**Status: plan, written 2026-10-24. Nothing built yet.** S5 in `progression.md` ("bosses that need a party",
+section 6) is too big for one session, so it's cut into five pieces, each sized for one agent. Read
+`progression.md` sections 1b and 6 first: they hold the design and the owner's rules. This file pins down what
+that plan left open and says who does what. Numbers here are starting points: they live as named constants
+in `src/shared/rpg.js` and get tuned after people fight.
+
+## The owner's rules (from progression.md, repeated because every piece leans on them)
+- **Den and field bosses stay soloable by any class**, at the boss's level: slower and riskier without the
+  right class, never impossible.
+- **Capstones** (the Root Warden, Sigrun; later one per island) are built for a full mixed party and are
+  **extremely hard without one**. Never locked: a very strong player can still grind one down.
+- **A mechanic only shows up once enough slimes are fighting** (no Taunt check when you're alone), so a solo
+  player isn't punished for being alone.
+- **Every class carries an answer to every mechanic**, even a poor one (Mobility, kiting, jumping,
+  potions). A mechanic that only one class can answer is a bug.
+
+## What already exists (don't rebuild it)
+- `party` on `MOBS.root_warden` and `MOBS.sigrun` names their mechanics. Nothing reads it yet.
+- `m.fighters` (the number of slimes fighting, from `BOSS_HP_PER_PLAYER`'s scaling in `server/rpg.js`): the
+  gate counts this.
+- **The front-shell cut** (`shell` in `applyHits`: the Obsidian Crab's front takes less, and the client shows
+  the same cut) is the pattern for barriers and armour: the server caps, the client predicts the same number.
+- **Hunter's Mark** (`m.mark`, everyone's hits boosted) and **Deadeye** crits wait for weak points.
+- **The freeze reaches bosses** (`frozenUntil`, `FREEZE_BOSS`): the interrupt only needs to read it during
+  `ULT_WARN`.
+- **Loot by class is mostly done.** `twinPick` already drops the sword, staff or bow by what the fighters
+  hold (S4). What's left is checking that every boss has a twinned weapon in its drops (S5.5).
+- The Cleric's Barrier, the Knight's Bubble, Sanctuary and Aegis, and the meter's healing and damage-taken
+  rows: the pulse leans on these.
+
+## The mechanics, as built
+One shared table, `PARTY` in `src/shared/rpg.js`: each mechanic's numbers and its `min` (how many fighters
+switch it on). One gate, `partyOn(m, mech)` in `server/rpg.js`: true if the boss lists `mech` in `party` and
+`m.fighters >= PARTY[mech].min` (capstones: `capMin`, see the gates below), and the boss has `partyLive` (see the shipping order). The client gets a bit per active
+mechanic on the boss so it can draw it and the hints can explain it.
+
+| mechanic | what the boss does | best answer | everyone else's answer |
+|---|---|---|---|
+| `focus` | locks onto one slime for `FOCUS_S`: its slams and charges only go at them, and harder (`FOCUS_ATK`). A red line from the boss to them | **Taunt** (Knight, new) pulls the focus onto you | the focused slime runs and Dashes; others keep hitting |
+| `pulse` | every `PULSE_EVERY` s, after a ring telegraph, a room-wide hit of `PULSE_HP` of each slime's max HP. Can't be dodged (`noDodge`) | Cleric: Barrier and heals; Knight: Sanctuary, Bubble | potions, the **Barrier Draught** (new) |
+| `curse` | a move that marks slimes near its target with a curse stack: less damage dealt (`CURSE_DMG` a stack) and a small burn (`CURSE_DOT`), up to `CURSE_MAX` stacks | **Cleanse** (Cleric, new) | stand off at range (`CURSE_FADE_R`) and it fades one stack every `CURSE_FADE_S`; the **Cleansing Tonic** (new) |
+| `barrier` | a shield phase (`BARRIER_S`, drawn as a rune dome): physical hits only do `BARRIER_PHYS`. Magic hits wear down its own HP (`BARRIER_HP`, a share of the boss's max). Breaking it staggers the boss for `STAGGER_S` | Mage | wait it out (it drops by itself after `BARRIER_S`). Sigrun's version only covers her front (flank her) |
+| `armour` | a shell phase: hits under `ARMOUR_CRACK` of the hitter's normal hit do `ARMOUR_CUT`; big single hits crack it (`ARMOUR_CRACKS` cracks breaks it, then a stagger) | Berserker (Sky Splitter, Blade Storm), Snipe, a shatter | wait it out after `ARMOUR_S` |
+| `weakpoint` | a glowing spot high on the boss (a shard, a crystal), open for `WEAK_OPEN_S` now and then. A hit on it does `WEAK_MULT` and counts toward `WEAK_HP`; filling that staggers the boss. Hunter's Mark keeps it open longer (`WEAK_MARK_S`) | Archer (it's in arrow range from the floor), Deadeye's crits | jump and hit it (Upward Cut, Flash Jump), or a Mage bolt aimed high |
+| `adds` | its summons scale with fighters (`ADDS_PER_FIGHTER`) and come in bigger waves | Mage, Trapper | a longer fight, kiting |
+| `interrupt` | not a boss move: **freezing a boss during `ULT_WARN` cancels the ultimate**. The boss is stunned for `STAGGER_S` and the next one comes `ULT_EVERY` later as usual | Mage (Frostbinder) | dodge it as today |
+
+**How hits are checked** (combat stays client-decided and server-capped, `docs/combat/core.md`): barrier,
+armour and weak points all change the cap in `applyHits`, like the front shell. The weak point is a flag on the
+hit (`h[4]`); the server accepts it only while the spot is open and the hitter could reach it: a ranged hit
+(arrow, bolt) from anywhere in range, or a melee hit from a slime whose `y` is near the spot's height. The
+client draws the same multiplied number it sends.
+
+**Curses live on the player** (`curse: { n, until, by }` on the character's state, not saved: a relog or a KO
+clears it). The client lowers its own damage by `CURSE_DMG` a stack and the server's cap does the same. The
+burn goes through `hurt()` from the boss, so it shows on the meter's damage taken.
+
+## The gates (who sees what)
+Recommended, and the owner can change them (open question 1):
+- **Den and field bosses:** every mechanic at `min: 2` fighters, except `interrupt` (always on: it's a reward,
+  not a check). Alone, they fight exactly as today.
+- **Capstones:** `capMin: 1` for everything but `focus` (it means nothing alone). That's what makes them
+  extremely hard solo: a solo slime faces the pulse, the curse, the barrier and the weak point all at once,
+  with only potions and patience.
+- **Bigger parties:** nothing extra past the gate; `BOSS_HP_PER_PLAYER` already scales the HP.
+
+## Settled here (beyond progression.md)
+These are the recommended answers. A session can start from them (Agent.md: the owner likes "liberal
+decisions"), but open questions 1–3 are worth asking first.
+- **Taunt** is a new Knight skill (`branch: 'knight'`, `adv: 30`), **max 1 rank**, so the branch's point
+  budget (`spClass`) barely moves. Cast: the boss's focus (and every mob's target in range) moves to you for
+  `TAUNT_S`, cooldown `TAUNT_CD`. On a boss without `focus` it still pulls the boss's target for a few seconds,
+  so it's never a dead button.
+- **Cleanse** is a new Cleric skill in the shared trunk (no branch, `adv: 10`), **max 1 rank**, so Priests and
+  Wardens both get it. Cast on the nearest cursed friend in range (or yourself): clears every curse stack and
+  heals a little. Until a boss curses, the hint says "Nothing to cleanse".
+- **Potions** (alchemy lab, `docs/places/alchemy.md`): the **Cleansing Tonic** (clears curses) and the
+  **Barrier Draught** (absorbs the next pulse). Reagents from boss drops, priced by the economy sheet's method.
+  They're weaker than the class answer (one use, a cooldown shared with the other brews).
+- **The stagger** (barrier broken, armour broken, weak point filled, interrupt): the boss stops for `STAGGER_S`,
+  takes `STAGGER_DMG` more from everyone, and shows a dizzy ring. It's the shared "you did it" payoff.
+- **No new lockouts:** no mechanic makes a boss immune. A barrier still lets `BARRIER_PHYS` through, armour
+  still takes `ARMOUR_CUT`, a missed weak point only means a slower fight.
+- **Telegraphs:** every mechanic warns before it bites (the ring before a pulse, the red line for focus, the
+  dome fading in). The hints system (`docs/ui/hints.md`) names the answer the first few times, e.g. "A curse!
+  A Cleric can Cleanse it, or step back to let it fade".
+- **Mobile:** Taunt and Cleanse are ordinary hotbar skills; the weak point is hit by aiming normally (a tap
+  aims arrows already). Nothing new to touch.
+
+## Order and shipping
+```
+S5.1 engine, focus/Taunt, pulse ──→ S5.2 curse/Cleanse, barrier, armour, weak point, interrupt
+                                     → deploy #1 (S5.1 + S5.2 together, with no boss switched on)
+                                       then S5.3 the capstones                → deploy #2
+                                       then S5.4 the retrofit, a stage at a time → deploys #3…
+                                       S5.5 potions + loot check, alongside S5.4
+```
+- **S5.1 first, alone.** The gate, the wire bits and the `PARTY` table are what everything else hangs on.
+- **S5.2 after S5.1**, not alongside it: both edit `bossBrain`, `applyHits`, the boss drawing in `src/rpg.js` and
+  `src/shared/skills.js`.
+- **Deploy #1 ships the engine dark.** The two capstones already list `party`, so the gate also needs the
+  boss to be switched on (`partyLive` on its entry, added by S5.3 and S5.4). Players get Taunt and Cleanse
+  (harmless without curses) and nothing else changes.
+- **S5.3** switches the capstones on and tunes them. Its own deploy, so the owner can try them.
+- **S5.4** is the long tail: each boss gets one or two mechanics, shipped a stage at a time.
+- **S5.5** can run alongside S5.4 (different files: the alchemy recipes, items, the economy script).
+
+## Rules for every agent (repeat these in the prompt)
+- Read `Agent.md`, `story/progression.md` (sections 1b and 6), this file, and the docs listed under your piece.
+- Work in your own copy of the repo (Agent.md, "Big features"). Build into the scratchpad
+  (`npx vite build --outDir <scratch>/testdist`), test on a throwaway port with a copy of the DB
+  (`docs/testing.md`). **Never build into `dist/`, never restart `rpg`, never deploy or push.** Hand back a list
+  of changed files and what you tested; the main session deploys.
+- Mobile works too (`docs/ui/mobile.md`). No emoji in canvas text. Docs updated, `npm run docs:check` green,
+  `npm run economy -- --check` green (Taunt, Cleanse, the stagger and the potions all touch power).
+- Test with two or more test players in the den (the gate needs them): `docs/testing.md` has how to run
+  several headless players.
+
+## The pieces
+
+### S5.1: the engine, focus and Taunt, the pulse
+Docs: `docs/combat/bosses.md`, `docs/combat/skills.md` (the Knight), `docs/netcode.md` (the boss wire bits),
+`docs/ui/hints.md`.
+- `PARTY` table and `partyOn` gate; the active-mechanic bits on the boss in the snapshot (next to the combo
+  bits, `server/rpg.js` around the mob flags); the client reads them.
+- `focus`: who's focused (on the boss's state, sent to the room), the red line, the brain aiming only at them
+  while it lasts, `FOCUS_ATK` on their hits taken.
+- **Taunt** in `src/shared/skills.js`, its cast on both sides, its icon, its hint and its word above the slime.
+- `pulse`: the ring telegraph (a new boss event, drawn in `src/rpg.js` / `src/hazards.js`), the hit through
+  `hurt()` as `noDodge`, Barrier, Bubble, Sanctuary and Aegis absorbing it as they do other hits.
+- Test: a test boss with `party: ['focus', 'pulse']` and two test Knights: the focus moves, Taunt pulls it,
+  the pulse lands, Barrier soaks it, alone neither shows up.
+
+### S5.2: curses and Cleanse, barrier, armour, weak points, the interrupt
+Docs: the S5.1 ones, plus `docs/combat/core.md` (hits on mobs, the cap), the Cleric and Mage sections of
+`docs/combat/skills.md`.
+- `curse`: the boss move that lays it, the player's `curse` state, the client damage cut and the server's
+  matching cap, the burn through `hurt()`, the fade at range, a curse mark on the slime (small dark wisps).
+- **Cleanse** in `skills.js`, both casts, its icon and hint.
+- `barrier`, `armour`: the phases in the brain, the cap in `applyHits` (like `shell`), the dome and the shell
+  drawn on the boss, the stagger.
+- `weakpoint`: where the spot sits (a `weak: { dx, dy, r }` on the boss, so each boss places its own), when it
+  opens, `h[4]` on the hit and the server's check, the glow, the stagger. Hunter's Mark keeps it open.
+- `interrupt`: a freeze landing while `ULT_WARN` runs cancels the ult (a new boss event so the banner clears
+  for everyone), then the stagger.
+- Test: the same test boss with each mechanic in turn, with a Mage, an Archer, a Berserker and a Cleric.
+  Record the stagger and the cancelled ult as phone screenshots too.
+
+### S5.3: the capstones
+Docs: `docs/places/spine.md`, `docs/places/queensbridge.md`, `docs/combat/bosses.md`.
+- Turn the Warden's and Sigrun's `party` on (`capMin`), place their weak points (the Warden's shard high on its
+  back, Sigrun's in her shield's boss), give Sigrun the front-only barrier, tune with a mixed test party of four
+  at the boss's level and with one strong solo slime. Target: a mixed party wins in a few minutes; a solo slime
+  can win only by playing very well for much longer.
+- Their `lines` can mention the mechanic once (the Warden's rune shield going up), in their voice.
+
+### S5.4: the retrofit, a boss at a time
+Docs: `docs/combat/bosses.md`, `docs/combat/stages.md` (field bosses), each boss's place doc.
+One or two mechanics each, picked to fit the boss (a draft; the agent can swap them for a better fit, and
+says why). Bosses below Lv 10 get none: nobody has a class yet.
+
+| boss | Lv | mechanics |
+|---|---|---|
+| Sprout King, Mother Mushroom, Turnipop | 4–8 | none (before classes) |
+| Bramble Behemoth | 12 | `armour` (its bark) |
+| Old Snapjaw (field) | 15 | `armour` (its shell, already front-cut) |
+| The Tidemother | 25 | `adds`, `pulse` (the tide) |
+| The Knotmole | 35 | `focus`, `adds` |
+| The Hornet Queen (field) | 38 | `adds`, `weakpoint` (the nest on a ledge) |
+| The Drowned Bosun (field) | 40 | `curse` (the drowned) |
+| Frost Queen Glacia | 47 | `barrier` (ice), `interrupt` reads well here |
+| Astral Wyrm | 57 | `weakpoint` (a star on its back), `barrier` |
+| The Thorn Hart (field) | 58 | `focus`, `curse` (the thorns) |
+| The Old Narwhal | 70 | `weakpoint` (the tusk's root), `pulse` (the breathing hole) |
+| Old Rimehorn (field) | 75 | `armour`, `focus` |
+| The Hall Troll (field) | 88 | `armour`, `focus` |
+| The Pale Wyrm (field) | 90 | `curse`, `weakpoint` |
+| Ignis | 99 | `armour` (cooling rock), `pulse` (the heat) |
+| Pyra | 110 | `curse` (burning), `adds` |
+| The Clockwork Colossus | 150 | `armour`, `weakpoint` (the core) |
+| Chronos | 170 | `barrier`, `curse` (borrowed time) |
+
+- Each boss's art gets its dome / shell / spot drawn to fit it (its own art file, `src/dens*.js`).
+- Run `npm run economy` before and after: the stagger speeds kills up a little, so a boss's EXP an hour moves.
+
+### S5.5: the potions and the loot check
+Docs: `docs/places/alchemy.md`, `docs/combat/items.md`, `docs/economy.md`.
+- The Cleansing Tonic and the Barrier Draught: recipes, reagents, prices by the economy method, the buff
+  hooks into S5.2's curse and S5.1's pulse.
+- The loot check in `scripts/economy.mjs`: every boss and field boss Lv 10+ drops at least one twinned weapon
+  (so `twinPick` can give each class its own kind). Add twins where one's missing.
+- Mark the S3 and S4 leftovers done in `docs/ideas.md` (Cleanse, weak points, the interrupt).
+
+## Open questions (recommended answer first)
+1. **The gates.** Mechanics at 2+ fighters on den and field bosses, everything but focus on from 1 on
+   capstones? (Recommended.) Or have the capstones soften for a solo slime too.
+2. **Taunt.** A new 1-rank Knight skill? (Recommended: it doesn't strain the point budget.) Or fold it into
+   Rally or Aegis.
+3. **Cleanse.** A new 1-rank skill in the Cleric's shared trunk, so both branches get it? (Recommended.) Or
+   Priest only, folded into Mend.
+4. **The interrupt.** A freeze cancels the ult outright? (Recommended: it's rare, it needs a Frostbinder's chill
+   then freeze inside the warning.) Or only weakens it (survivable instead of a KO).

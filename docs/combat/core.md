@@ -15,6 +15,9 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
   (`slapHits`, `cast`, `roll` in `src/rpg.js`), shows it at once and sends the hits. The server only
   checks each mob exists within range + slack and caps damage at the best possible roll (`applyHits`,
   `capOf`). If you change how damage is rolled, keep the cap ≥ the best roll or real hits get clipped.
+  A predicted kill hides an ordinary mob at once, but **never a boss or field boss** (`showHit` keeps it at
+  1 HP): its death waits for the server's `die` / `fieldDown`. Predicting it made bosses die on screen, come
+  back with a sliver of HP when the server disagreed, and die again (owner bug, 2026-10-24).
 - **Being hit:** the client detects contact, slams, falling things and hazards in `rpg.step()` on each
   fresh fixed step and sends `ouch` with that input's seq; it predicts the knockback (`applyKick` in
   `src/net.js`) and the server applies the same knockback after the same input (see `docs/netcode.md`).
@@ -68,7 +71,8 @@ elsewhere.
 ## HUD and bag
 - HUD (combat rooms): level, HP, MP, EXP, gold, pills for unspent skill points ("· K") and ability
   points ("AP · I"). Name tags show "Lv N" there.
-- Z / Loot picks up the nearest loot (hidden locally at once). I / Bag: `BAG_SLOTS` slots + Helmet and
+- Z / Loot picks up the nearest loot that fits (hidden locally at once; `lootFits`): with a full bag it skips
+  items it can't hold, so the coins beside them still come in (owner bug, 2026-10-24). I / Bag: `BAG_SLOTS` slots + Helmet and
   Sword; tap to select, tap again to equip/use; "Put on hotbar" for potions; Drop only in combat rooms;
   scrolls get "Use on …" (`docs/combat/items.md`). The bag's left column holds the stats
   (`docs/combat/skills.md`), and its Style row the cosmetics.
