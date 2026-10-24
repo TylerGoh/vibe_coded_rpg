@@ -358,12 +358,14 @@ take their branch's new staples as they open, then War Cry and Hook; the new pas
 ## The Mage's skill pool (SP3, 2026-10-25)
 `fight` learned SP3's pieces: Combustion's × on a burning target (it spends the burn), Thunder Call's `lead` (the
 first mob's ×), the Phoenix (a summon that's never hurt and draws nothing, re-cast whenever it's down), and Frost
-Armor's DEF and Arcane Insight's MAGIC as long buffs. Two modelling changes, both Mage-only for now:
+Armor's DEF and Arcane Insight's MAGIC as long buffs. Two modelling changes:
 - **`HOTBAR_SWAPS`**: a new staple takes the hotbar slot of the one a tier before it (`skills-plan.md` Rule 1), so the
   old one stops firing on the sheet: Arcane Burst gives way to Fireball / Frost Nova at Lv 30, Magic Bolt to Flame
   Lance / Frost Bolt, Flame Lance to Combustion at Lv 60, Glacial Spike to Thunder Call at Lv 100. Without it nothing
   could be added: **the Cleric was already at 1.59× the median on Colossus** (`CLASS_FIT` 1.6), so any branch soloing
-  den bosses faster moves the median and fails the Cleric. SP2's Warrior still fires everything; SP6 decides for all.
+  den bosses faster moves the median and fails the Cleric. Owner (2026-10-25): swaps apply to every class. The Warrior's were added then
+  (Cleave → Ground Shake / Whirlwind → …, Power Strike → Shield Bash / Rending Slash → …), which dropped its sheet
+  damage to about 0.75× the others' mean on both single and crowd from Lv 60: SP6 retunes the Warrior's numbers.
 - **`FIELD_BOSS_SHARE`**: a planted field counts that share of its ticks on a lone target (a boss walks out of it); a
   pack counts every tick; a field that follows its caster (Cyclone) counts in full.
 - **What moved** (single / crowd damage a second, before → after): Elementalist Lv 30 2,148 / 2,766 → 2,187 / 4,307,

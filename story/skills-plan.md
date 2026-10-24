@@ -212,7 +212,8 @@ What landed (details: `docs/combat/skills.md`, "The Mage's skill pool (SP3)"):
   SP2 stun. Kindling now names every Elementalist fire spell.
 What SP4–SP5 should know:
 - **The economy sheet now swaps staples** (`HOTBAR_SWAPS` in `scripts/economy.mjs`, Rule 1: a new staple takes the
-  slot of the one a tier before it). Only the Mage's are listed; SP2's Warrior still fires everything. Without it no
+  slot of the one a tier before it). It applies to every class (owner, 2026-10-25): the Mage's and the Warrior's are listed, and the Warrior now sits
+  low on the sheet (about 0.75× single and crowd from Lv 60) until SP6 retunes it. Without it no
   Mage skill could be added: **the Cleric sits at the edge of `CLASS_FIT`** (1.59× the median on Colossus before SP3),
   so any class getting faster at den bosses pushes the median down and fails the Cleric. SP4's Cleric damage
   should give room; until then keep your class's den solo times where they are. List your swaps there too.

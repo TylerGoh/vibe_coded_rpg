@@ -255,7 +255,11 @@ const BUILDS = {
 // SP3: a new staple takes the hotbar slot of the one a tier before it (story/skills-plan.md, Rule 1: "the new one
 // replaces the old on the hotbar"), so the old one stops firing once the new one is held. Only the Mage's for now
 // (SP2's Warrior still fires everything it holds); SP6 decides it for every class at once.
-const HOTBAR_SWAPS = { arcane_burst: ['fireball', 'frost_nova'], magic_bolt: ['flame_lance', 'frost_bolt'], flame_lance: ['combustion'], glacial_spike: ['thunder_call'] };
+const HOTBAR_SWAPS = {
+  arcane_burst: ['fireball', 'frost_nova'], magic_bolt: ['flame_lance', 'frost_bolt'], flame_lance: ['combustion'], glacial_spike: ['thunder_call'],
+  cleave: ['ground_shake', 'whirlwind'], ground_shake: ['shockwave'], shockwave: ['judgement'], whirlwind: ['blade_storm'], blade_storm: ['cyclone'],
+  power_strike: ['shield_bash', 'rending_slash'], shield_bash: ['holy_lance'], rending_slash: ['execution'], execution: ['sky_splitter'],
+};
 const NOVICE_ORDER = ['slime_bash', 'pebble_toss', 'jelly_patch']; // (nine points fill all three by Lv 9)
 const CLASS_AT = [10, 30, 60, 100, 150, 200];
 const AP_LUK = 0.2; // share of AP in LUK (the rest in the class's main stat)
