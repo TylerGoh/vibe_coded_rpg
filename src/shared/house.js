@@ -1,12 +1,13 @@
 // Docs: docs/places/houses.md
 // Personal houses, shared by the browser and the server: house sizes (bought bigger with gold), the
 // furniture catalogue, wallpapers and floors, the layout format, and the platforms furniture makes (so you
-// can hop onto a bed or a bookshelf). A layout is { size, wall, floor, items: [{ k, x, y, f, id? }] }: size
+// can hop onto a bed or a bookshelf). A layout is { size, wall, floor, view, items: [{ k, x, y, f, id? }] }: view
+// an index into TOWNS (whose backdrop shows through the windows and over the backyard), size
 // an index into HOUSE_SIZES (only the server changes it, when you pay), k a FURNITURE id, x its centre, y its
 // bottom (world px), f flipped, id (garden plots and pets) the number the server gave it: a plot's crop is
 // kept under it (docs/places/alchemy.md), and a pet's belly (docs/places/pets.md). Items are drawn in their layer order (rugs, wall things, then the rest)
 // and, within a layer, in array order. Drawings: src/house.js.
-import { HOUSE_GROUND, ROOMS, STORE, STORE_W } from './sim.js';
+import { HOUSE_GROUND, ROOMS, STORE, STORE_W, TOWNS } from './sim.js';
 import { MOBS, PETSHOP_W } from './rpg.js';
 
 // Every house is an open-plan inside (x 0 → inside, big picture windows onto the sky) with a backyard
@@ -128,7 +129,7 @@ export const FLOORS = [
 
 // What a brand-new house looks like, so it feels like home before you decorate
 export const DEFAULT_LAYOUT = {
-  size: 0, wall: 0, floor: 0,
+  size: 0, wall: 0, floor: 0, view: 0,
   items: [
     { k: 'clock', x: 160, y: 250, f: false },
     { k: 'rug', x: 470, y: HOUSE_GROUND, f: false },
@@ -195,7 +196,7 @@ export function cleanLayout(l, owned) {
     if ((it.k === 'garden_plot' || def.pet) && Number.isInteger(it.id) && it.id > 0 && !ids.has(it.id)) ids.add((out.id = it.id));
     items.push(out);
   }
-  return { size, wall: index(l?.wall, WALLPAPERS.length), floor: index(l?.floor, FLOORS.length), items: settle(items) };
+  return { size, wall: index(l?.wall, WALLPAPERS.length), floor: index(l?.floor, FLOORS.length), view: index(l?.view, TOWNS.length), items: settle(items) };
 }
 
 // Nothing floats: a piece whose support was moved away drops onto whatever is below it (or the floor).

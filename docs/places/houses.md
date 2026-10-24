@@ -47,9 +47,15 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
 
 ## Owner decisions (2026-10-20, later): bigger, open, with a backyard, expandable for gold
 - Every house is **open plan**: the inside (x 0 → the size's `inside`) has big arched picture windows that
-  show the real village sky and hills (main.js draws `drawBackground` behind houses; the wall is clipped
-  around the windows), then an open patio straight into a **backyard** (the size's `yard`): lawn, a picket
-  fence, the sky. No door between them; you just walk out.
+  show a real town's backdrop (main.js draws it behind houses; the wall is clipped around the windows),
+  then an open patio straight into a **backyard** (the size's `yard`): lawn, a picket fence, the backdrop.
+  No door between them; you just walk out.
+- **The view** (owner, 2026-10-25): the owner picks which town the house looks out on, any of `TOWNS`
+  (the "View: …" button in the decorate panel cycles them; free, like wallpaper). It's the layout's `view`
+  (an index into `TOWNS`, kept by `cleanLayout`; old layouts default to Slimeville). It's the town's whole
+  backdrop, not just a sky: Slimeville's `drawBackground` (hills, trees), the hamlet's `drawFjordView`
+  (fjord walls, the ice bridge, floes, snow), Forgehold's `drawForgeView` (smoke, the red sun, the sea,
+  ash). A new town in `TOWNS` needs its own `…View` export and a branch in main.js's `render`.
 - Houses are wider than one screen, so the camera pans like anywhere else. Decorating works wherever you
   are: walk to pan (on phones too, the touch pad stays), click / tap where the piece goes.
 - **Pay to expand**: `HOUSE_SIZES` from the free Cottage up to the big Grand Estate; each size is wider
@@ -108,7 +114,7 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
 
 ## Decorating (R, or the Decorate button, in your own house)
 - A panel at the top: icons of the furniture you own with how many are put away (scroll sideways; the
-  mouse wheel works), Wallpaper / Floor cycle styles, Flip (F), Put away (Delete), Send guests home, Done (R / Esc). Click a piece in the room to pick it
+  mouse wheel works), Wallpaper / Floor / View cycle styles, Flip (F), Put away (Delete), Send guests home, Done (R / Esc). Click a piece in the room to pick it
   up; click / tap where it goes. Floor pieces snap onto the highest furniture top at or below the pointer
   (`snapPlacement`); wall pieces hang where you point; rugs stay on the floor.
 - Walking and doors keep working while decorating (the panel isn't an "overlay", so the touch pad stays).

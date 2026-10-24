@@ -91,6 +91,13 @@ export function drawFjord(ctx, camX, viewW, time) {
   ctx.restore();
 }
 
+// A house can look out on the hamlet (its `view`, docs/places/houses.md): the fjord's backdrop and its
+// snow, in screen space like drawBackground
+export function drawFjordView(ctx, camX, time) {
+  drawSky(ctx, camX, time);
+  drawSnow(ctx, camX, time);
+}
+
 // ——— sky, the bridge, the fjord ———
 
 function drawSky(ctx, camX, time) {

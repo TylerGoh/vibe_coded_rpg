@@ -5,7 +5,7 @@
 // Every change sends the whole layout ({t:'house-set'}); the server checks it, saves it and sends it back.
 // Expand (in the panel) pays for the next size up ({t:'house-grow'}). The panel only offers furniture you
 // own ({t:'furni'}: bought at the furniture store, src/store.js), each with how many are still put away. The house is drawn open plan: picture
-// windows show the village sky (drawn behind by main.js), and the backyard is open air. Crops growing in
+// windows show the backdrop of the town the owner picked (`view`, an index into TOWNS; drawn behind by main.js), and the backyard is open air. Crops growing in
 // garden plots come with the layout (`farm`) and are drawn here; planting and the lab: src/alchemy.js.
 // Pets wander around where they were put (petAt), less the hungrier they are, and show their mood (their
 // bellies come with the layout, `pets`; feeding them: src/pets.js). A slime on the swing's seat swings with
@@ -13,7 +13,7 @@
 import { H, TAU, circle, clamp } from './util.js';
 import { text } from './village.js';
 import { audio } from './audio.js';
-import { HOUSE_GROUND, HOUSE_EXIT_X, isHouse, setHouseRoom } from './shared/sim.js';
+import { HOUSE_GROUND, HOUSE_EXIT_X, isHouse, setHouseRoom, TOWNS } from './shared/sim.js';
 import { FURNITURE, LAYERS, WALLPAPERS, FLOORS, HOUSE_SIZES, WALL_TOP, sizeOf, houseWidth, houseRoom, snapPlacement, cleanLayout, placed, PET_ROAM, petMood } from './shared/house.js';
 import { drawFurniture, furnitureIcon, drawWallpaper, drawFloor, drawPet } from './furniture.js';
 import { petLook, drawPetMood, drawBelly } from './pet-art.js';
@@ -88,6 +88,8 @@ export class Houses {
     });
     on('deco-wall', () => this.restyle('wall', WALLPAPERS.length));
     on('deco-floor', () => this.restyle('floor', FLOORS.length));
+    this.viewBtn = document.getElementById('deco-view');
+    on('deco-view', () => this.restyle('view', TOWNS.length));
     on('deco-flip', () => this.flip());
     on('deco-remove', () => this.remove());
     on('deco-kick', () => this.send({ t: 'house-kick' }));
@@ -181,6 +183,8 @@ export class Houses {
       ? `Moving: ${FURNITURE[this.carry.k].name} · click / tap where it goes`
       : `${sizeOf(this.layout).name} · ${n} / ${sizeOf(this.layout).pieces} pieces · ${spare ? 'pick one below, or click one in the room to move it' : 'buy more at the furniture store in the village'}`;
     this.showGrow();
+    const view = `View: ${TOWNS[this.layout?.view ?? 0]?.name ?? TOWNS[0].name}`;
+    if (this.viewBtn.textContent !== view) this.viewBtn.textContent = view;
     for (const b of this.grid.children) b.classList.toggle('on', this.carry?.k === b.dataset.k && !this.carry.from);
     document.getElementById('deco-flip').disabled = document.getElementById('deco-remove').disabled = !this.carry;
   }
@@ -221,7 +225,7 @@ export class Houses {
   }
   restyle(key, n) {
     if (!this.layout) return;
-    this.commit({ ...this.layout, [key]: (this.layout[key] + 1) % n });
+    this.commit({ ...this.layout, [key]: ((this.layout[key] ?? 0) + 1) % n });
   }
   where(px, py) {
     return snapPlacement(this.carry.k, px, py, this.layout);
@@ -288,6 +292,11 @@ export class Houses {
   swingFor(room, s, time) {
     for (const it of this.houses.get(room)?.layout.items ?? []) if (it.k === 'swing' && seatOn(it, s)) return { x: it.x, y: it.y - SWING_PIVOT, a: swingAngle(it, time, true) };
     return null;
+  }
+
+  // Which town this house looks out on (an index into TOWNS; main.js draws its backdrop)
+  viewOf(room) {
+    return this.houses.get(room)?.layout.view ?? 0;
   }
 
   // ——— drawing ———

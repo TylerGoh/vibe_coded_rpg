@@ -94,6 +94,13 @@ export function drawForgehold(ctx, camX, viewW, time) {
   ctx.restore();
 }
 
+// A house can look out on Forgehold (its `view`, docs/places/houses.md): the sky, the sea and the ash,
+// in screen space like drawBackground
+export function drawForgeView(ctx, camX, time) {
+  drawSky(ctx, camX, time);
+  drawAir(ctx, camX, time);
+}
+
 // ——— the sky and the sea ———
 
 function drawSky(ctx, camX, time) {

@@ -37,8 +37,8 @@ import { Accuse } from './accuse.js';
 import { Chat } from './chat.js';
 import { WorldMap } from './worldmap.js';
 import { drawHarbour } from './harbour.js';
-import { drawFjord } from './fjord.js';
-import { drawForgehold } from './forgehold.js';
+import { drawFjord, drawFjordView } from './fjord.js';
+import { drawForgehold, drawForgeView } from './forgehold.js';
 import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel, shipName } from './crossing.js';
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
@@ -66,7 +66,7 @@ import { checkBuild, onInstall, takeResume } from './update.js';
 import { gfx } from './gfx.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
-import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, chargeOpen, retreatOpen, chaseRank, HOOK_RANGE, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X } from './shared/sim.js';
+import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, chargeOpen, retreatOpen, chaseRank, HOOK_RANGE, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X, TOWNS } from './shared/sim.js';
 
 const canvas = document.getElementById('game');
 const stage = document.getElementById('stage');
@@ -1431,7 +1431,11 @@ function drawHints() {
 
 function render() {
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
-  if (room === VILLAGE || room === FIELD || isHouse(room)) drawBackground(ctx, camX, time, ENV, roomDef(room).width); // (the Highlands and the dens paint their own sky; houses show it through their windows)
+  // (the Highlands and the dens paint their own sky; a house shows its town's backdrop, the owner's pick, through its windows)
+  const view = isHouse(room) ? (TOWNS[houses.viewOf(room)] ?? TOWNS[0]).room : room;
+  if (view === FJORD) drawFjordView(ctx, camX, time);
+  else if (view === FORGEHOLD) drawForgeView(ctx, camX, time);
+  else if (view === VILLAGE || view === FIELD) drawBackground(ctx, camX, time, ENV, roomDef(room).width);
 
   ctx.save();
   ctx.translate(-Math.round(camX * scale) / scale, 0);
