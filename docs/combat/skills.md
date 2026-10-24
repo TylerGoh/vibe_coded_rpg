@@ -224,7 +224,7 @@ server's mob (`chillUntil`, `frozenUntil`, `burn`), set in `element()` from `app
   isn't burning harder, as the spreader's burn.
 - **Fire and frost are on opposite branches**, so a shatter (and a spread) takes an Elementalist and a
   Frostbinder together: a party combo by design (2026-10-23, S2.6's call; progression.md lists the combos
-  without saying who casts them). Alone, a Frostbinder freezes (control; from Lv 60, when Glacial Spike gives it a second frost spell inside `CHILL_S`) and an Elementalist burns.
+  without saying who casts them). Alone, a Frostbinder freezes (control; from Lv 30 with Frost Bolt, SP3; Static makes it instant on a charged mob) and an Elementalist burns.
 - Shown on the mob for everyone (`drawMobState`, `src/elements.js`): frost at the feet and drifting flakes
   (chilled), a see-through crust of ice with a glint and icicles (frozen), small flames and sparks
   (burning). Wire: mob flags 256 / 512 / 1024 (`docs/netcode.md`). The client predicts its own spell's
@@ -320,8 +320,8 @@ and in a party its heals, shields and summons matter more than its damage. Rules
   radius every `GUARDIAN_TAUNT_S` (not a boss held by a focus or a Knight's taunt) and slams what's in front every
   `every`; it's worn down like a spirit. The **blast trap** (`blast`) is set like a net; the first mob over it sets
   it off on everything within its radius (`sumgone` with `how: 'boom'`). Every summon's hit is `summonHit`: MAGIC,
-  or the skill's `stat`. Art (`src/summons.js`) is a first look for SP2–SP5 to polish: a little firebird, a brown
-  hawk, sky-blue small spirits, a mossy block golem, a pad with a glowing rune.
+  or the skill's `stat`. Art (`src/summons.js`) is a first look for SP2–SP5 to polish: a golden firebird with flame wings, a
+  plumed crest and a streaming tail of tongues and embers (SP3's polish), a brown hawk, sky-blue small spirits, a mossy block golem, a pad with a glowing rune.
 - **The damage meter** shows healing done and damage taken under the damage (`docs/combat/bosses.md`).
 
 ## The Archer (S4)
@@ -458,6 +458,34 @@ guardian green, the rest coral) and its own look (`anim` on the skill → `hitFx
   extendBuff` on Berserk), **Cyclone** (a `field` with `follow`: `fieldTick` moves it to its caster every tick and
   `src/fields.js` draws it round them in the `blade` look; it never touches movement), **Rampage** (passive:
   `momentumMax`, and Whirlwind and Blade Storm landing add a stack, `momentumUp`).
+
+## The Mage's skill pool (SP3)
+`story/skills-plan.md`, the Mage table. Numbers in `SKILLS`; the few new rules and constants from `staticS` on in
+`src/shared/skills.js`. Every new skill has an icon (`ICONS`, `TREE_OF`: fire ones in the fire palette, the rest in
+mage blue) and the long buffs show in the status box. The Mage mobs **from where it stands**: big areas at range and
+fields the pack walks into, and its packs chain-react (a burning or frozen kill bursts). Looks: `FX.thunder`,
+`flamelance`, `combust`, `insight`, `frostarmor` (`src/skillfx.js`), Static's sparks (`drawStatic`, `src/elements.js`).
+- **Basics**: **Arcane Burst** (a `fireball` with `anim: 'arcane'` and no element: a violet bolt and a mana-tinted
+  burst; it spends Arcane Charge like any spell), **Arcane Insight** (a long party buff, `fx: magic`).
+- **Elementalist**: **Fire Wall** (a `field`, strip, planted on the first mob ahead; fire, so it burns and Kindling
+  counts), **Flame Lance** (a fire `bolt` with its own spear look), **Ignite** (passive, on-kill `burst` `when:
+  'burning'`, `el: 'fire'`: the pack catches and a burning kill sets off the next), **Combustion** (a `bolt` with
+  `combust(rank)`: × that on a burning mob and its burn is spent. The client reads `v.burning` and puts its burn
+  out; the server allows the × only if its own `m.burn` is up, `SHATTER_GRACE_MS` of slack, then clears it and lists
+  the mob in the echo's `combust`, which draws the blast and "COMBUST!" for everyone), **Phoenix** (SP1's flier
+  summon with `el: 'fire'`).
+- **Frostbinder**: **Frost Bolt** (a cheap frost `bolt`, short cooldown: two inside `CHILL_S` freeze, so a Frostbinder
+  freezes alone from Lv 30), **Frost Armor** (a long buff for you only, `fx: def`, plus `chills`: in `ouch`, a
+  touch or charge from a mob chills it, a soft chill, never a freeze; works under `TEST_GOD` too), **Blizzard** (a
+  round frost `field` at range: a frost field only chills, `element(…, soft)`), **Cold Snap** (passive, on-kill
+  `burst` `when: 'frozen'`, `el: 'frost'`: its blast chills, and freezes what was already chilled), **Thunder Call**
+  (a storm `chain` with `lead`: the first mob takes `lead` × the per-mob hit, `applyHits` allows that only for the
+  first hit; `anim: 'thunder'` drops a bolt from the sky before the chain; storm, so it spreads burns), **Static**
+  (passive: a storm hit charges every mob it hits for `charge(rank)` s, `m.staticUntil` on the server; frost that
+  isn't a field's soft chill freezes a charged mob at once, anyone's frost, a party combo; the freeze spends it.
+  The mob flag bits are full, so the echo's `charged` + `cs` draws it, `v.staticLocal`, sparks over the body, and
+  `predictEl` treats a charged mob like a chilled one).
+- The economy sheet: `docs/economy.md`, "The Mage's skill pool (SP3)" (its staples swap on the sheet's hotbar).
 
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js

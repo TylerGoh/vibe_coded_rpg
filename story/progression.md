@@ -72,7 +72,9 @@ every boss drops one, weapon scrolls work on any weapon, forks Elementalist (fir
 
 ### 3. How the Mage is made skilful
 - **Fragile power:** positioning is the skill (range, behind the Knight, Blink out).
-- **Elements that combo** (built, S2.6): chill → freeze → shatter, burn → spread, visible on the mob.
+- **Elements that combo** (built, S2.6): chill → freeze → shatter, burn → spread, visible on the mob. SP3 adds
+  Combustion (sets a burn off at once), Static (storm charges a mob, frost then freezes it outright), and Ignite /
+  Cold Snap (a burning / frozen mob that dies bursts), so a Mage's packs chain-react while it stands still.
 - **MP is a budget;** Arcane Charge rewards weaving cheap bolts between big spells (built).
 - **Delayed spells you lead** (Meteor lands late: cast where the boss will be).
 - **Interrupts** (S5.2, built): a Frostbinder's freeze inside a boss's `ULT_WARN` window cancels the ultimate

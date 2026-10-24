@@ -344,25 +344,63 @@ export const SKILLS = {
     per: (r) => [0, 0.04, 0.08, 0.12][r],
     desc: (r) => `Every staff bolt that hits stores a charge (up to ${ARCANE_MAX}, for ${ARCANE_DUR} s). Your next spell spends them all: +${Math.round([0, 0.04, 0.08, 0.12][Math.max(1, r)] * 100)}% damage for each. Weave cheap bolts between your big spells.`,
   },
+  // SP3 (story/skills-plan.md): the basics' mobbing staple and long party buff
+  arcane_burst: {
+    ...M, adv: 10, name: 'Arcane Burst', kind: 'fireball', anim: 'arcane', max: 3, mp: 10, cd: 5, range: 380, radius: 120,
+    mult: (r) => 0.8 + 0.15 * r,
+    desc: (r) => `A burst of raw magic on the first mob ahead (range ${SKILLS.arcane_burst.range}): ${pct(SKILLS.arcane_burst.mult(R1(r)))} magic damage to everything within range ${SKILLS.arcane_burst.radius} of it. No element: it spends Arcane Charge like any spell. Cooldown ${SKILLS.arcane_burst.cd} s.`,
+  },
+  arcane_insight: {
+    ...M, adv: 10, name: 'Arcane Insight', kind: 'buff', max: 3, mp: 20, cd: 30, dur: 240, party: 300,
+    fx: (r) => ({ magic: 0.01 * r }),
+    desc: (r) => `A clear mind that lasts: +${pct(SKILLS.arcane_insight.fx(R1(r)).magic)} magic power for you and every friend within range ${SKILLS.arcane_insight.party}, for 4 min.`,
+  },
   // Elementalist (fire)
   fireball: {
     ...M, branch: 'elementalist', adv: 30, name: 'Fireball', kind: 'fireball', fire: true, el: 'fire', max: 5, mp: 12, cd: 2.5, range: 380, radius: 70,
     mult: (r) => 1.3 + 0.2 * r,
     desc: (r) => `A ball of fire at the first mob ahead that bursts where it lands: ${pct(1.3 + 0.2 * r)} magic damage to everything within range 70.`,
   },
+  // SP3: the Elementalist plants fire and sets packs off
+  fire_wall: {
+    ...M, branch: 'elementalist', adv: 30, name: 'Fire Wall', kind: 'field', at: 'ahead', shape: 'strip', fire: true, el: 'fire', max: 3, mp: 20, cd: 10, range: 340, radius: 150, dur: 5, every: 0.5,
+    mult: (r) => 0.4 + 0.05 * r,
+    desc: (r) => `A wall of fire planted on the first mob ahead (range ${SKILLS.fire_wall.range}) for ${SKILLS.fire_wall.dur} s, ${SKILLS.fire_wall.radius * 2} wide: everything in it takes ${pct(SKILLS.fire_wall.mult(R1(r)))} magic damage every ${SKILLS.fire_wall.every} s and burns. Cooldown ${SKILLS.fire_wall.cd} s.`,
+  },
+  flame_lance: {
+    ...M, branch: 'elementalist', adv: 30, name: 'Flame Lance', kind: 'bolt', anim: 'flamelance', fire: true, el: 'fire', max: 3, mp: 12, cd: 2.5, range: 480,
+    mult: (r) => 2.1 + 0.3 * r,
+    desc: (r) => `A fast spear of fire at the first mob ahead (range ${SKILLS.flame_lance.range}): ${pct(SKILLS.flame_lance.mult(R1(r)))} magic damage, and it burns. Cooldown ${SKILLS.flame_lance.cd} s.`,
+  },
+  ignite: {
+    ...M, branch: 'elementalist', adv: 30, name: 'Ignite', kind: 'passive', max: 3,
+    onKill: { what: 'burst', when: 'burning', radius: 130, el: 'fire', mult: (r) => 0.4 + 0.2 * r },
+    desc: (r) => `A burning mob you kill bursts: ${pct(SKILLS.ignite.onKill.mult(R1(r)))} magic damage to every mob within range ${SKILLS.ignite.onKill.radius} of it, setting them alight (and if that kills them, they burst too).`,
+  },
   meteor: {
     ...M, branch: 'elementalist', adv: 60, name: 'Meteor', kind: 'meteor', fire: true, el: 'fire', max: 3, mp: 40, cd: 15, range: 450, radius: 150, delay: 0.8,
     mult: (r) => 3.5 + 0.6 * r,
     desc: (r) => `Calls a meteor down on the first mob ahead: ${pct(3.5 + 0.6 * r)} magic damage to everything within range 150.`,
   },
+  combustion: {
+    ...M, branch: 'elementalist', adv: 60, name: 'Combustion', kind: 'bolt', anim: 'combust', fire: true, max: 3, mp: 24, cd: 8, range: 450,
+    mult: (r) => 2.4 + 0.2 * r,
+    combust: (r) => 1.15 + 0.05 * r, // × on a burning mob, whose burn it uses up
+    desc: (r) => `Sets off the burn on the first mob ahead (range ${SKILLS.combustion.range}) all at once: ${pct(SKILLS.combustion.mult(R1(r)))} magic damage, ${pct(SKILLS.combustion.mult(R1(r)) * SKILLS.combustion.combust(R1(r)))} if it's burning (the burn is spent). Cooldown ${SKILLS.combustion.cd} s.`,
+  },
   kindling: {
     ...M, branch: 'elementalist', adv: 60, name: 'Kindling', kind: 'passive', max: 5,
-    desc: (r) => `Your fire spells (Fireball, Meteor, Starfall) hit ${6 * r}% harder.`,
+    desc: (r) => `Your fire spells (Fireball, Fire Wall, Flame Lance, Combustion, Meteor, Starfall) hit ${6 * r}% harder.`,
   },
   starfall: {
     ...M, branch: 'elementalist', adv: 100, name: 'Starfall', kind: 'starfall', fire: true, el: 'fire', max: 3, mp: 70, cd: 60, radius: 700,
     mult: (r) => 2.5 + 0.6 * r,
     desc: (r) => `Stars rain on every mob within range 700: ${pct(2.5 + 0.6 * r)} magic damage each.`,
+  },
+  phoenix: {
+    ...M, branch: 'elementalist', adv: 100, name: 'Phoenix', kind: 'summon', what: 'phoenix', el: 'fire', max: 3, mp: 50, cd: 60, dur: 30, every: 3,
+    mult: (r) => 0.35 + 0.15 * r,
+    desc: (r) => `A firebird circles you for ${SKILLS.phoenix.dur} s, diving at the nearest mob every ${SKILLS.phoenix.every} s: ${pct(SKILLS.phoenix.mult(R1(r)))} magic damage a dive, and it burns. Nothing can hurt it. Cooldown ${SKILLS.phoenix.cd} s.`,
   },
   // Frostbinder (ice and storm)
   frost_nova: {
@@ -375,15 +413,46 @@ export const SKILLS = {
     mult: (r) => 1.0 + 0.15 * r,
     desc: (r) => `Lightning that leaps between up to 4 mobs: ${pct(1.0 + 0.15 * r)} magic damage each.`,
   },
+  // SP3: the Frostbinder freezes on its own from Lv 30, holds a spot with Blizzard, and its storm primes the freeze
+  frost_bolt: {
+    ...M, branch: 'frostbinder', adv: 30, name: 'Frost Bolt', kind: 'bolt', ice: true, el: 'frost', max: 3, mp: 6, cd: 1.2, range: 420, slow: 2,
+    mult: (r) => 1.3 + 0.25 * r,
+    desc: (r) => `A cheap bolt of ice at the first mob ahead (range ${SKILLS.frost_bolt.range}): ${pct(SKILLS.frost_bolt.mult(R1(r)))} magic damage, and it's chilled. Two in a row freeze it. Cooldown ${SKILLS.frost_bolt.cd} s.`,
+  },
+  frost_armor: {
+    ...M, branch: 'frostbinder', adv: 30, name: 'Frost Armor', kind: 'buff', max: 3, mp: 20, cd: 30, dur: 240, chills: true,
+    fx: (r) => ({ def: 0.05 + 0.03 * r }),
+    desc: (r) => `A coat of ice that lasts 4 min: +${pct(SKILLS.frost_armor.fx(R1(r)).def)} defence, and any mob that runs into you is chilled.`,
+  },
   glacial_spike: {
     ...M, branch: 'frostbinder', adv: 60, name: 'Glacial Spike', kind: 'bolt', ice: true, el: 'frost', max: 5, mp: 16, cd: 4, range: 560, slow: 5,
     mult: (r) => 2 + 0.3 * r,
     desc: (r) => `A spike of ice at the first mob ahead (range 560): ${pct(2 + 0.3 * r)} magic damage, and it's slowed hard for 5 s.`,
   },
+  blizzard: {
+    ...M, branch: 'frostbinder', adv: 60, name: 'Blizzard', kind: 'field', at: 'ahead', shape: 'round', el: 'frost', max: 3, mp: 30, cd: 12, range: 420, radius: 150, dur: 6, every: 0.5,
+    mult: (r) => 0.55 + 0.05 * r,
+    desc: (r) => `A storm of ice planted on the first mob ahead (range ${SKILLS.blizzard.range}) for ${SKILLS.blizzard.dur} s: everything within range ${SKILLS.blizzard.radius} of it takes ${pct(SKILLS.blizzard.mult(R1(r)))} magic damage every ${SKILLS.blizzard.every} s and stays chilled. Cooldown ${SKILLS.blizzard.cd} s.`,
+  },
+  cold_snap: {
+    ...M, branch: 'frostbinder', adv: 60, name: 'Cold Snap', kind: 'passive', max: 3,
+    onKill: { what: 'burst', when: 'frozen', radius: 140, el: 'frost', mult: (r) => 0.5 + 0.2 * r },
+    desc: (r) => `A frozen mob you kill bursts into ice: ${pct(SKILLS.cold_snap.onKill.mult(R1(r)))} magic damage to every mob within range ${SKILLS.cold_snap.onKill.radius} of it, chilling them (a chilled one freezes).`,
+  },
   absolute_zero: {
     ...M, branch: 'frostbinder', adv: 100, name: 'Absolute Zero', kind: 'nova', ice: true, el: 'frost', max: 3, mp: 60, cd: 45, radius: 320, slow: 8,
     mult: (r) => 3 + 0.6 * r,
     desc: (r) => `Everything freezes: ${pct(3 + 0.6 * r)} magic damage to every mob within range 320, slowing them for 8 s.`,
+  },
+  thunder_call: {
+    ...M, branch: 'frostbinder', adv: 100, name: 'Thunder Call', kind: 'chain', anim: 'thunder', el: 'storm', max: 3, mp: 30, cd: 8, range: 480, jump: 240, targets: 5, lead: 1.5, // (lead: × on the first mob)
+    mult: (r) => 1.9 + 0.3 * r,
+    desc: (r) => `One huge bolt from the sky on the first mob ahead (range ${SKILLS.thunder_call.range}): ${pct(SKILLS.thunder_call.mult(R1(r)) * SKILLS.thunder_call.lead)} magic damage, then it leaps on through up to ${SKILLS.thunder_call.targets - 1} more for ${pct(SKILLS.thunder_call.mult(R1(r)))} each. Storm: it spreads burns. Cooldown ${SKILLS.thunder_call.cd} s.`,
+  },
+  static: {
+    ...M, branch: 'frostbinder', adv: 100, name: 'Static', kind: 'passive', max: 2,
+    charge: (r) => 4 * r, // s a charge lasts
+    desc: (r) => `Your storm spells leave every mob they hit charged for ${SKILLS.static.charge(R1(r))} s. Frost on a charged mob (anyone's) freezes it straight away.`,
   },
 
   // ——— Cleric (staff, INT; S3, story/progression.md 5). Heals scale with MAGIC × `heal` (Holy Power) ———
@@ -717,6 +786,12 @@ export const STUN_S = 1.5, RETRI_CAP = 3, RETRI_HOLD = 1, EXEC_AT = 0.3, UNBROKE
 // how many mobs a cleave or a pierce goes through at a rank (Cleave grows with rank since SP2)
 export const targetsOf = (sk, rank) => (typeof sk.targets === 'function' ? sk.targets(rank) : sk.targets);
 // Retribution's extra multiplier on a Shield Bash: what's stored, against ATK
+// ——— SP3, the Mage's skill pool (story/skills-plan.md) ———
+// Thunder Call: the first mob takes `lead` × (on a chain: applyHits' cap allows it for the first hit only). Combustion: × combust(rank) on a burning mob (the client reads v.burning, the server its own burn, with
+// SHATTER_GRACE_MS of slack), and that burn is spent. Static: storm hits leave a charge (server m.staticUntil; the
+// echo's `charged` draws it, no mob flag left); frost (not a field's soft chill) on a charged mob freezes it at once.
+// Frost Armor (`chills` on a long buff): a mob that touches you is chilled (server ouch).
+export const staticS = (skills) => SKILLS.static.charge(rankOf(skills, 'static')); // (0: no Static)
 export const retriMult = (skills, stored, atk) => (rankOf(skills, 'retribution') && stored > 0 && atk > 0 ? Math.min(RETRI_CAP, (stored * SKILLS.retribution.share(rankOf(skills, 'retribution'))) / atk) : 0);
 // The chase moves' ranks, packed for the physics (sim.js step reads state.mw): bits 0–1 Charge · 2–3 Leap
 // Slam · 4–5 Upward Cut · 6–7 Retreat Shot (the Archer's, S4: sim.js retreatOpen) · 8–9 Hook (SP2)

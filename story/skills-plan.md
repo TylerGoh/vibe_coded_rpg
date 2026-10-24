@@ -1,6 +1,6 @@
 # SP: the skill pool (plan)
 
-**Status: SP1 live; SP2 (the Warrior) built (2026-10-24, waiting for its deploy). SP3–SP5 next.** Written 2026-10-24 (owner's ask). Comes first on the roadmap, ahead of
+**Status: SP1–SP3 live (SP3, the Mage, 2026-10-25). SP4–SP5 next.** Written 2026-10-24 (owner's ask). Comes first on the roadmap, ahead of
 Greenhollow's final boss. Builds on the class design in `progression.md` (sections 1b, 1c, 3–7) and on how
 skills work today (`docs/combat/skills.md`). Read both first. Names here are working names; numbers live
 in `src/shared/skills.js` and are set by `npm run economy` (`CLASS_FIT`, `BAD_AT`), never guessed here.
@@ -148,7 +148,7 @@ Warrior's chase moves, Hook) is where new moves go.
 | SP5 | Archer skills | SP1 |
 | SP6 | Balance pass: all four at once in `npm run economy`, then the owner plays | SP2–SP5 |
 
-### SP1: built (2026-10-24, waiting for deploy)
+### SP1: live (2026-10-24)
 What landed (details: `docs/combat/skills.md`, "The skill pool's machinery (SP1)", and "Cast from the K panel"):
 - **Long buffs**: `kind: 'buff'` with `fx(rank)` (`BUFF_FX` names the effects: `atk`, `magic`, `def`, `hp`, `crit`,
   `critDmg`, `exp`, `cut`), `party` (radius), `dur` in seconds (minutes long). Nothing else to write: the server
@@ -180,7 +180,7 @@ What SP2–SP5 should know:
 - The mob flag bits are full (16384 was the last spare): another mob state needs a wire version bump or a message.
 - Phones: the K panel fits 5 nodes per branch line at 667×375; a 6th wraps. Keep names short.
 
-### SP2: built (2026-10-24, waiting for deploy)
+### SP2: live (2026-10-25)
 What landed (details: `docs/combat/skills.md`, "The Warrior's skill pool (SP2)" and the chase moves' Hook):
 - Every skill in the Warrior table, as planned. Kinds reused: `buff` (War Cry, Guardian's Oath), `spin` (Ground Shake
   with `pull` + `taunt`, Judgement with `taunt`), `strike` (Shield Bash, Rending Slash with a bleed, Execution),
@@ -199,6 +199,27 @@ What SP3–SP5 should know:
   damage rather than replacing the old one. The Warrior now leads single and crowd from Lv 100 (1.26 / 1.65× the
   others' mean). Expect the same jump for your class; keep `CLASS_FIT` green and leave the cross-class shape to SP6.
 - Long buffs held count as always on in `fight` (cast before the fight).
+
+### SP3: live (2026-10-25)
+What landed (details: `docs/combat/skills.md`, "The Mage's skill pool (SP3)"):
+- Every skill in the Mage table, as planned. Kinds reused: `fireball` (Arcane Burst, `anim: 'arcane'`, no element),
+  `buff` (Arcane Insight, party; Frost Armor, yours, with `chills`), `field` (Fire Wall, a strip; Blizzard, round),
+  `bolt` (Flame Lance, Combustion, Frost Bolt), `summon` (Phoenix, SP1's flier, its art polished), `chain` (Thunder
+  Call, `lead` × on its first mob), on-kill `burst` passives (Ignite, Cold Snap). New small rules: `combust` (×
+  on a burning mob, which spends the burn; `applyHits`), `lead` (the first hit of a chain), Static (storm hits set
+  `m.staticUntil`; frost on a charged mob freezes it at once, in `element()`), Frost Armor's chill on touch (`ouch`).
+- No wire bump: Static and Combustion ride the skill echo (`charged` + `cs`, `combust`), drawn from there like the
+  SP2 stun. Kindling now names every Elementalist fire spell.
+What SP4–SP5 should know:
+- **The economy sheet now swaps staples** (`HOTBAR_SWAPS` in `scripts/economy.mjs`, Rule 1: a new staple takes the
+  slot of the one a tier before it). Only the Mage's are listed; SP2's Warrior still fires everything. Without it no
+  Mage skill could be added: **the Cleric sits at the edge of `CLASS_FIT`** (1.59× the median on Colossus before SP3),
+  so any class getting faster at den bosses pushes the median down and fails the Cleric. SP4's Cleric damage
+  should give room; until then keep your class's den solo times where they are. List your swaps there too.
+- Planted fields count `FIELD_BOSS_SHARE` of their ticks on a lone boss (it walks out); follow fields (Cyclone)
+  count in full. A field is the cheapest way to add crowd damage without boss damage on the sheet.
+- `lead` (chain) and `combust` (any hit) are generic: a Cleric's Judgment-style "more on X" can copy `combust`'s
+  shape (client reads the state, server checks its own with slack).
 
 SP2–SP5 touch different parts of `SKILLS` and their own effects. They can run side by side, but `src/shared/skills.js`
 is shared, so they merge one at a time. Each one deploys on its own: a class at a time is fine (the others

@@ -61,7 +61,8 @@
 //       a Ricochet's jump is → {t:'skill', skill, s, hits, from} (from: the mob whose kill it jumps off; the echo
 //       carries `from` too) · the skill echo's `targets` and `dur` say who got a long buff, `field` a field's id,
 //       `pulled` / `taunt` how many mobs a pull / taunt moved · `me` has buffs [[skill id, ms left, rank]] ·
-//       mob flags 8192 bleeding, 16384 poisoned
+//       mob flags 8192 bleeding, 16384 poisoned · SP3: the skill echo's `combust` [mob ids] (burns a Combustion set
+//       off), `charged` [mob ids] + `cs` (s) (Static's charge: no mob flag left)
 //   → {t:'ouch', s, mob, kind:'touch'|'charge'|'slam'|'rain', mx}  a mob hit me (the server applies the same knockback)
 //   → {t:'pickup', s}
 //   ← {t:'nomana'}  a skill you tried had too little MP

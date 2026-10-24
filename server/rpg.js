@@ -13,7 +13,7 @@
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
 import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX } from '../src/shared/rpg.js';
-import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult } from '../src/shared/skills.js';
+import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen, applyHook, HOOK_RANGE } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
@@ -108,7 +108,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       // SP1: the other damage over time (skills.js DOTS: bleed, poison; same shape as burn) and a pull { x0, x1, at }
       bleed: null, poison: null, pull: null,
       // the Archer's (S4): netted until (Net Trap), and Hunter's Mark { until, boost, by }
-      snareUntil: 0, stunUntil: 0, mark: null,
+      snareUntil: 0, stunUntil: 0, mark: null, staticUntil: 0, // (staticUntil: Static's charge, SP3)
       // bosses: walk → warn → act, every few seconds
       phase: 'walk', next: 3, timer: 0, act: null, enraged: false, last: null, emptyFor: 0,
       stage: 0, chain: 0, ultAt: 0, ultArmed: false, ult: null, ultLiveUntil: 0, rains: [], slamR: 300,
@@ -715,12 +715,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // it's taken only if the spot is open here and the hitter could reach it (weakReach).
   // SP1: dot ({ kind, share }) leaves each mob hit bleeding / poisoned (skills.js DOTS) · src: the on-kill hooks' (damage)
   // SP2: exec (Execution's × on a mob at EXEC_AT of its HP or less; the client read the same off its bar)
-  function applyHits(id, p, hits, { max = 1, range, cap, dir, knock = 200, slow = 0, el = null, magic = false, heavy = false, arrow = false, dot = null, src = null, exec = 0 }) {
+  // SP3: combust (Combustion's × on a burning mob, whose burn it spends; boom collects their ids) · lead (Thunder
+  // Call's × on the first mob of the chain only)
+  function applyHits(id, p, hits, { max = 1, range, cap, dir, knock = 200, slow = 0, el = null, magic = false, heavy = false, arrow = false, dot = null, src = null, exec = 0, combust = 0, boom = null, lead = 1 }) {
     const out = [];
     if (!Array.isArray(hits)) return out;
     const cursed = curseMult(p.curse?.n); // (a curse on the hitter: everything it hits, softer)
     const cracked = new Set(); // (armour: one crack a cast)
-    for (const h of hits.slice(0, max)) {
+    for (const [i, h] of hits.slice(0, max).entries()) {
       const m = Array.isArray(h) && mobs.find((q) => q.id === h[0] && !q.dead && q.room === p.state.room);
       if (!m || Math.abs(m.x - p.state.x) > range + MOBS[m.kind].w / 2 + SLACK) continue;
       const k = MOBS[m.kind];
@@ -732,7 +734,12 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       const ps = m.partyOn ? partyHit(m, p.state.x) : null, weak = !!h[4] && !!ps?.weakOpen && weakReach(weakOf(k, m.x, m.y, m.dir), p.state.y, arrow, 40);
       const pm = ps ? partyHitMult(ps, { magic, heavy: heavy || shatter, weak }) : 1;
       const low = exec && m.hp <= m.maxHp * EXEC_AT * 1.05 ? exec : 1;
-      const dmg = Math.max(1, Math.min(Math.round(Number(h[1]) || 0), Math.ceil(cap * shell * marked * cursed * pm * low * (shatter ? SHATTER_MULT : 1)) + 1));
+      const comb = combust && m.burn && m.burn.until > now() - SHATTER_GRACE_MS ? combust : 1; // (SP3: Combustion)
+      if (comb > 1) { // (the burn is set off: spent)
+        m.burn = null;
+        boom?.push(m.id);
+      }
+      const dmg = Math.max(1, Math.min(Math.round(Number(h[1]) || 0), Math.ceil(cap * shell * marked * cursed * pm * low * comb * (i === 0 ? lead : 1) * (shatter ? SHATTER_MULT : 1)) + 1));
       if (slow) m.slowUntil = now() + slow * 1000 * (MOBS[m.kind].boss ? 0.5 : 1);
       const hit = damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock, src);
       if (shatter) hit.push(1);
@@ -751,8 +758,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       if (!(m.frozenUntil > t)) m.chillUntil = Math.max(m.chillUntil, t + CHILL_S * 1000);
     } else if (el === 'frost') {
       if (m.frozenUntil > t) return; // (already frozen: no refresh, so nothing stays frozen for ever)
-      if (m.chillUntil > t) {
-        m.chillUntil = 0;
+      if (m.chillUntil > t || m.staticUntil > t) { // (SP3: Static's charge freezes it straight away)
+        m.chillUntil = m.staticUntil = 0;
         m.frozenUntil = t + (k.boss || k.field ? FREEZE_BOSS : FREEZE_S) * 1000;
         if (!k.boss && !k.field) m.vx = 0;
         // S5.2's interrupt: a boss frozen while its ultimate is still warning loses the ultimate, then staggers
@@ -917,7 +924,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const kinds = hitKinds(sk, rank, st, charges, c.skills);
     // SP1: a skill's damage over time (bleed, poison), and what the on-kill hooks see of its hits
     const dot = sk.dot ? { kind: sk.dot.kind, share: sk.dot.share(rank) } : null, src = { skill: m.skill, arrow: kinds.arrow, spell: kinds.magic };
-    const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, el: sk.el ?? null, ...kinds, dot, src, exec: sk.exec?.(rank) ?? 0, ...o }));
+    const boom = []; // (SP3: the burning mobs a Combustion set off)
+    const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, el: sk.el ?? null, ...kinds, dot, src, exec: sk.exec?.(rank) ?? 0, combust: sk.combust?.(rank) ?? 0, boom, lead: sk.lead ?? 1, ...o }));
     // Retribution (SP2): a Shield Bash lets out what was stored (retriMult: the client adds the same from its 'me')
     const retri = sk.stun ? retriMult(c.skills, p.retri, st.atk) : 0;
     if (sk.stun) p.retri = 0;
@@ -1039,6 +1047,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       if (!out.stun.length) delete out.stun;
     }
     if (out.hits.length && rankOf(c.skills, 'rampage') && (m.skill === 'whirlwind' || m.skill === 'blade_storm')) momentumUp(p);
+    // SP3: Combustion's set-off burns (everyone sees the blast); Static: a storm spell charges every mob it hit
+    if (boom.length) out.combust = boom;
+    const charge = sk.el === 'storm' ? staticS(c.skills) : 0;
+    if (charge) {
+      out.charged = out.hits.map((h) => mobs.find((q) => q.id === h[0])).filter((q) => q && !q.dead && !(q.frozenUntil > t)).map((q) => ((q.staticUntil = t + charge * 1000), q.id));
+      if (out.charged.length) out.cs = charge; // (how long it lasts, for the drawing)
+      else delete out.charged;
+    }
     // SP1: a skill that drags mobs in (Ground Shake) and / or taunts them
     if (sk.pull) out.pulled = pull(p, sk.radius ?? sk.reach ?? 150, sk.pull) || undefined;
     if (sk.taunt) out.taunt = taunt(id, p, sk.radius ?? sk.reach ?? 150) || undefined;
@@ -1080,6 +1096,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const mx = Number.isFinite(m.mx) && Math.abs(m.mx - mob.x) < DEN_W ? m.mx : mob.x;
     const focused = !ult && mob.focus?.p === p && mob.focus.until > now(); // (S5: the boss's focus hits harder)
     hurt(id, p, MOBS[mob.kind].atk * mult * (focused ? FOCUS_ATK : 1), mx, undefined, knock, ult, mob);
+    // Frost Armor (SP3, `chills` on a long buff): a mob that ran into you is chilled (a soft chill: never a freeze)
+    const armor = (m.kind === 'touch' || m.kind === 'charge') && Object.entries(p.buffs ?? {}).find(([bid, b]) => SKILLS[bid]?.chills && b.until > now());
+    if (armor && !mob.dead) element(mob, 'frost', 0, armor[1].by, false, true);
   }
 
   // ——— mobs and bosses, every tick ———

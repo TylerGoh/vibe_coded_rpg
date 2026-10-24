@@ -243,14 +243,19 @@ const BUILDS = {
   // (SP2: each branch's new staples as they open, then War Cry and Hook; the new passives come in with "every passive")
   knight: { cls: 'warrior', order: ['jelly_thirst', 'power_strike', 'iron_jelly', 'cleave', 'vitality', 'rally', 'second_wind', ['dash', 1], 'charge', 'momentum', 'jelly_bubble', 'leap_slam', 'shield_bash', 'ground_shake', 'sanctuary', 'holy_lance', 'shockwave', 'aegis', 'judgement', 'guardians_oath', 'war_cry', 'hook', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   berserker: { cls: 'warrior', order: ['power_strike', 'jelly_thirst', 'berserk', 'whirlwind', ['dash', 1], 'charge', 'momentum', 'iron_jelly', 'cleave', 'rending_slash', 'leap_slam', 'sword_mastery', 'blade_storm', 'execution', 'sky_splitter', 'cyclone', 'war_cry', 'hook', 'upward_cut', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
-  elementalist: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'fireball', 'kindling', 'meteor', 'arcane_charge', ['dash', 1], 'starfall', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
-  frostbinder: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'mana_shield', 'chain_lightning', 'frost_nova', 'glacial_spike', 'arcane_charge', ['dash', 1], 'absolute_zero', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  // (SP3: Arcane Burst with the basics, each branch's new staples as they open, then Arcane Insight; the passives come with "every passive")
+  elementalist: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'arcane_burst', 'mana_shield', 'fireball', 'fire_wall', 'flame_lance', 'kindling', 'meteor', 'combustion', 'arcane_charge', ['dash', 1], 'starfall', 'phoenix', 'arcane_insight', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  frostbinder: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'arcane_burst', 'mana_shield', 'chain_lightning', 'frost_nova', 'frost_bolt', 'frost_armor', 'glacial_spike', 'blizzard', 'arcane_charge', ['dash', 1], 'absolute_zero', 'thunder_call', 'arcane_insight', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   priest: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'jelly_spirit', 'heal', 'faith', 'cleanse', 'mend', 'lantern_wisp', 'holy_power', 'revive', 'miracle', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   // the Archer (S4): its core arrows first, Dash early for Retreat Shot, Evasion for the boss fights
   sniper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'snipe', 'piercing_arrow', 'deadeye', 'hunters_mark', 'heartseeker', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   trapper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'arrow_rain', ['net_trap', 1], 'barbed_arrows', 'trap_mastery', 'net_trap', 'thousand_arrows', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   warden: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'jelly_spirit', 'faith', 'cleanse', 'heal', 'barrier', 'guardian_totem', 'spirit_bond', 'seraph', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
 };
+// SP3: a new staple takes the hotbar slot of the one a tier before it (story/skills-plan.md, Rule 1: "the new one
+// replaces the old on the hotbar"), so the old one stops firing once the new one is held. Only the Mage's for now
+// (SP2's Warrior still fires everything it holds); SP6 decides it for every class at once.
+const HOTBAR_SWAPS = { arcane_burst: ['fireball', 'frost_nova'], magic_bolt: ['flame_lance', 'frost_bolt'], flame_lance: ['combustion'], glacial_spike: ['thunder_call'] };
 const NOVICE_ORDER = ['slime_bash', 'pebble_toss', 'jelly_patch']; // (nine points fill all three by Lv 9)
 const CLASS_AT = [10, 30, 60, 100, 150, 200];
 const AP_LUK = 0.2; // share of AP in LUK (the rest in the class's main stat)
@@ -316,12 +321,15 @@ const ARROWS = new Set(['shot', 'pierce', 'rain']); // (Barbed Arrows: everythin
 const barbed = (c) => 1 + BARB_BONUS * rankOf(c.skills, 'barbed_arrows');
 // how many of n targets standing over CROWD_W px a hit `w` px wide catches
 const caught = (n, w) => (n === 1 ? 1 : Math.min(n, Math.max(1, (n * w) / CROWD_W)));
+// SP3: a planted field (not one that follows its caster, like Cyclone) on a lone target, a boss, catches it only
+// FIELD_BOSS_SHARE of its time: a boss walks, charges and leaps about its den; a pack stands in it
+const FIELD_BOSS_SHARE = 0.5;
 // (SP2: wave, Shockwave, along the floor both ways; field, a field's every tick over its whole time, in one action:
 // Cyclone carried through the pack, a Mage's walls; a strip covers 2 × radius too)
 function hitsOf(sk, st, n, rank) {
   const melee = SLAP_REACH + st.reach + (sk.reach ?? 0);
   return {
-    wave: caught(n, 2 * (sk.range ?? 0)), field: sk.kind === 'field' ? (sk.dur / (sk.every ?? 1)) * caught(n, 2 * sk.radius) : 0,
+    wave: caught(n, 2 * (sk.range ?? 0)), field: sk.kind === 'field' ? (sk.dur / (sk.every ?? 1)) * caught(n, 2 * sk.radius) * (n === 1 && !sk.follow ? FIELD_BOSS_SHARE : 1) : 0,
     strike: 1, cleave: Math.min(targetsOf(sk, rank), caught(n, melee)), spin: caught(n, 2 * sk.radius), storm: sk.hits * caught(n, 2 * sk.radius),
     bolt: 1, fireball: caught(n, 2 * sk.radius), chain: Math.min(sk.targets, n), meteor: caught(n, 2 * sk.radius), nova: caught(n, 2 * sk.radius), starfall: caught(n, 2 * sk.radius),
     shot: sk.arrows, pierce: Math.min(targetsOf(sk, rank), n), rain: sk.hits * caught(n, 2 * sk.radius),
@@ -342,7 +350,8 @@ function castDmg(id, rank, st, n, range, c) {
   }
   if (rangeOf(sk, st) < range) return 0;
   const base = sk.kind === 'field' ? statOf(sk, st) * (sk.fire ? st.fire : 1) : PHYS.has(sk.kind) ? st.atk : (sk.stat === 'best' ? Math.max(st.atk, st.magic) : st.magic) * (sk.fire ? st.fire : 1) * (sk.holy ? st.heal : 1);
-  return base * sk.mult(rank) * avgHit(st) * hitsOf(sk, st, n, rank) * (ARROWS.has(sk.kind) ? barbed(c) : 1);
+  const hits = hitsOf(sk, st, n, rank), lead = sk.lead && hits >= 1 ? (sk.lead - 1 + hits) / hits : 1; // (SP3: Thunder Call's first mob takes lead ×)
+  return base * sk.mult(rank) * avgHit(st) * hits * lead * (ARROWS.has(sk.kind) ? barbed(c) : 1);
 }
 // the normal attack's expected damage at `range` (c: the character, for Barbed Arrows)
 const attackDmg = (st, range, c) => (st.boltRange ? (st.boltRange >= range ? st.magic * (st.holyBolt ? HOLY_BOLT_MULT : STAFF_BOLT_MULT) * avgHit(st) : 0) : st.arrowRange ? (st.arrowRange >= range ? st.atk * BOW_SHOT_MULT * avgHit(st) * barbed(c) : 0) : SLAP_REACH + st.reach >= range ? st.atk * avgHit(st) : 0);
@@ -414,7 +423,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
   const top = statsFor(c, { long });
   hp = top.maxHp;
   let mp = top.maxMp, dealt = 0, drunk = 0, gold = 0, swReady = 0, lastHurt = -99, nextHit = every, nextRegen = 1;
-  const actives = Object.keys(c.skills).filter((id) => SKILLS[id].kind !== 'passive' && SKILLS[id].kind !== 'move');
+  const actives = Object.keys(c.skills).filter((id) => SKILLS[id].kind !== 'passive' && SKILLS[id].kind !== 'move' && !(HOTBAR_SWAPS[id] ?? []).some((by) => r(by))); // (HOTBAR_SWAPS: swapped out by a newer staple)
   const ready = (id, t) => r(id) && (cds[id] ?? 0) <= t && mp >= SKILLS[id].mp;
   const use = (id, t) => { mp -= SKILLS[id].mp; cds[id] = t + cooldownOf(id, r(id)); };
   for (let t = 0; t < until; t += ACTION_S) {
@@ -429,7 +438,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
         if (buff.aegis > at) continue;
         if (buff.bubble > at) { buff.bubble = 0; continue; }
         if (!pulse && st.evade && (evadeAcc += st.evade) >= 1) { evadeAcc -= 1; continue; } // (Evasion: it missed)
-        const drawer = !pulse && sums.find((q) => q.until > at && q.hp > 0);
+        const drawer = !pulse && sums.find((q) => q.until > at && q.hp > 0 && q.draw);
         if (drawer && (drawAcc += drawer.draw) >= 1) { // the boss is after the spirit: this one lands on it
           drawAcc -= 1;
           drawer.hp -= Math.max(1, hit - drawer.def);
@@ -513,6 +522,12 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
       sums.push({ id: call, until: t + SKILLS[call].dur, hp: summonHp(call, r(call), st), def: st.def * 0.5, dps: (summonHit(call, r(call), st) * avgHit(st) * n2) / SPIRIT_HIT_S, draw: call === 'seraph' ? SERAPH_DRAW : SPIRIT_DRAW });
       continue;
     }
+    // SP3: the Phoenix, whenever it's down (a flier: one mob a dive, never hurt, draws nothing)
+    if (ready('phoenix', t) && !sums.some((q) => q.id === 'phoenix' && q.until > t)) {
+      use('phoenix', t);
+      sums.push({ id: 'phoenix', until: t + SKILLS.phoenix.dur, hp: Infinity, def: 0, dps: (summonHit('phoenix', r('phoenix'), st) * avgHit(st)) / SKILLS.phoenix.every, draw: 0 });
+      continue;
+    }
     if (hit && ready('lantern_wisp', t) && wispUntil <= t) {
       use('lantern_wisp', t);
       [wispUntil, wispAmt] = [t + SKILLS.lantern_wisp.dur, healOf('lantern_wisp', r('lantern_wisp'), st)];
@@ -541,7 +556,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     for (const id of actives) {
       if ((!DAMAGE_KINDS.has(SKILLS[id].kind) && SKILLS[id].what !== 'net') || !ready(id, t)) continue;
       // (SP2: Execution on a boss in its last EXEC_AT; a Shield Bash lets Retribution's store out; a bleed's whole tick-down)
-      const sk = SKILLS[id], low = sk.exec && bossHp < Infinity && dealt >= (1 - EXEC_AT) * bossHp ? sk.exec(r(id)) : 1;
+      const sk = SKILLS[id], low = (sk.exec && bossHp < Infinity && dealt >= (1 - EXEC_AT) * bossHp ? sk.exec(r(id)) : 1) * (sk.combust && burnUntil > t ? sk.combust(r(id)) : 1); // (SP3: Combustion on a burning target)
       const one = castDmg(id, r(id), st, n, range, c) * (spendsArcane(id) ? arcaneMult(c.skills, held) : 1) * low;
       const d = one + (sk.stun && one ? st.atk * retriMult(c.skills, retri, st.atk) * avgHit(st) : 0) + (sk.dot ? one * sk.dot.share(r(id)) * BLEED_S * 0.5 : 0); // (half the bleed counted when choosing)
       if (d > dmg) [best, dmg] = [id, d];
@@ -569,6 +584,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     }
     if (best && spendsArcane(best)) charges = 0;
     else if (!best && !chase && st.boltRange && !st.holyBolt && dmg && r('arcane_charge')) [charges, chargesUntil] = [Math.min(ARCANE_MAX, held + 1), t + ARCANE_DUR];
+    if (best && SKILLS[best].combust && burnUntil > t) [burnDps, burnUntil] = [0, 0]; // (SP3: Combustion spends the burn)
     if (best && SKILLS[best].el === 'fire') [burnDps, burnUntil] = [Math.max(burnUntil > t ? burnDps : 0, dmg * BURN_DPS), t + BURN_S];
     if (!dmg) continue;
     dmg *= markX(t);

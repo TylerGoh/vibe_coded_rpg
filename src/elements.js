@@ -6,12 +6,12 @@
 // and strokes, no gradients or glows, a handful of shapes per mob. The Archer's (S4) too: Hunter's Mark, a red
 // target ring turning over the mob's head, and a Net Trap's net thrown over a caught mob. SP1's damage over time:
 // bleeding (red drops falling off it) and poisoned (green bubbles rising off it). SP2's Shield Bash: stunned, a ring
-// of little stars turning over its head.
+// of little stars turning over its head. SP3's Static: charged, small blue-white sparks jumping over the body.
 import { TAU } from './util.js';
 
 // v: a mob view (x = middle, y = feet; v.chill / v.frozen / v.burning set in src/rpg.js update) · k: its MOBS entry
 export function drawMobState(ctx, v, k, time) {
-  if (!v.chill && !v.frozen && !v.burning && !v.marked && !v.netted && !v.bleeding && !v.poisoned && !v.stunned) return;
+  if (!v.chill && !v.frozen && !v.burning && !v.marked && !v.netted && !v.bleeding && !v.poisoned && !v.stunned && !v.charged) return;
   const w = k.w, h = k.h, x = v.x, y = v.y, s = v.seed ?? 0;
   ctx.save();
   if (v.frozen) drawIce(ctx, x, y, w, h, time, s, k.boss || k.field);
@@ -22,8 +22,39 @@ export function drawMobState(ctx, v, k, time) {
   if (v.netted) drawNet(ctx, x, y, w, h, time);
   if (v.marked) drawMark(ctx, x, y - h - 18, Math.min(18, 8 + w * 0.12), time);
   if (v.stunned) drawStun(ctx, x, y - h - 8, Math.max(14, w * 0.32), time);
+  if (v.charged && !v.frozen) drawStatic(ctx, x, y, w, h, time, s);
   ctx.restore();
 }
+
+// Charged (Static, SP3): three short zigzag sparks flickering over the body, jumping to new spots several times a
+// second, and a faint blue outline crackle at the top. Flat strokes only (cheap).
+function drawStatic(ctx, x, y, w, h, time, s) {
+  const tick = Math.floor(time * 12);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  for (let i = 0; i < 3; i++) {
+    const r1 = frac(Math.sin((tick + i * 7 + s) * 12.9898) * 43758.5), r2 = frac(Math.sin((tick + i * 3 + s) * 78.233) * 12345.6);
+    const sx = x + (r1 - 0.5) * w * 0.8, sy = y - h * (0.25 + 0.65 * r2), len = 8 + w * 0.08, a = r1 * TAU;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    for (let k = 1; k <= 3; k++) {
+      const d = (len * k) / 3, j = k % 2 ? 4 : -4;
+      ctx.lineTo(sx + Math.cos(a) * d - Math.sin(a) * j, sy + Math.sin(a) * d + Math.cos(a) * j);
+    }
+    ctx.strokeStyle = 'rgba(110,150,255,0.85)';
+    ctx.lineWidth = 3.4;
+    ctx.stroke();
+    ctx.strokeStyle = '#f4f8ff';
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+  }
+  ctx.strokeStyle = `rgba(160,190,255,${0.35 + 0.25 * Math.sin(time * 30)})`;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(x, y - h * 0.55, w * 0.52, h * 0.55, 0, Math.PI * 1.1, Math.PI * 1.9);
+  ctx.stroke();
+}
+const frac = (n) => n - Math.floor(n);
 
 // Stunned (Shield Bash): three little yellow stars circling over the head on a flat ellipse
 function drawStun(ctx, x, y, r, time) {

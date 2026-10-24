@@ -22,6 +22,8 @@ const TREE_OF = {
   war_cry: 'blade', hook: 'blade', rending_slash: 'blade', bloodlust: 'blade', execution: 'blade', frenzy: 'blade', cyclone: 'blade', rampage: 'blade', // (SP2)
   ground_shake: 'guardian', shield_bash: 'guardian', shockwave: 'guardian', holy_lance: 'guardian', retribution: 'guardian', judgement: 'guardian', guardians_oath: 'guardian', unbroken: 'guardian',
   arcane_charge: 'magic', // (S2.6)
+  arcane_burst: 'magic', arcane_insight: 'magic', fire_wall: 'fire', flame_lance: 'fire', ignite: 'fire', combustion: 'fire', phoenix: 'fire', // (SP3)
+  frost_bolt: 'magic', frost_armor: 'magic', blizzard: 'magic', cold_snap: 'magic', thunder_call: 'magic', static: 'magic',
   // the Cleric (S3)
   smite: 'holy', faith: 'holy', jelly_spirit: 'holy', mend: 'holy', lantern_wisp: 'holy', revive: 'holy', holy_power: 'holy',
   miracle: 'holy', cleanse: 'holy', guardian_totem: 'holy', barrier: 'holy', spirit_bond: 'holy', seraph: 'holy',
@@ -806,6 +808,275 @@ const ICONS = {
     });
     ctx.fillStyle = '#fff6c4';
     star(ctx, 17, -14, 3.5);
+  },
+  // ——— SP3: the Mage's skill pool ———
+  arcane_burst(ctx, dark) { // a violet-white starburst inside a ring, little sparks thrown out
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.arc(0, 0, 14, 0, TAU);
+    ctx.stroke();
+    ctx.fillStyle = dark;
+    star(ctx, 0, 0, 13, 8, 0.42);
+    ctx.fillStyle = '#ffffff';
+    star(ctx, 0, 0, 10.5, 8, 0.4);
+    ctx.fillStyle = '#e6dcff';
+    circle(ctx, 0, 0, 3.5);
+    ctx.fillStyle = '#ffffff';
+    for (const [x, y, r] of [[17, -13, 3.5], [-17, 12, 3], [15, 14, 2.5]]) star(ctx, x, y, r);
+  },
+  arcane_insight(ctx, dark) { // an open eye with a star for a pupil, rays above it
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-17, 4);
+    ctx.quadraticCurveTo(0, -12, 17, 4);
+    ctx.quadraticCurveTo(0, 18, -17, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = dark;
+    circle(ctx, 0, 4, 6.5);
+    ctx.fillStyle = '#fff6c4';
+    star(ctx, 0, 4, 5, 4, 0.4);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.2;
+    for (const a of [-2.2, -1.57, -0.94]) {
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * 12, -2 + Math.sin(a) * 12);
+      ctx.lineTo(Math.cos(a) * 18, -2 + Math.sin(a) * 18);
+      ctx.stroke();
+    }
+  },
+  fire_wall(ctx, dark) { // three flames standing in a row on a line of ground
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(-18, 14);
+    ctx.lineTo(18, 14);
+    ctx.stroke();
+    for (const [x, h] of [[-11, 20], [0, 27], [11, 20]]) {
+      ctx.fillStyle = '#ffffff';
+      flame(ctx, x, 13, 11, h);
+      ctx.fillStyle = '#ffd36b';
+      flame(ctx, x, 12, 5, h * 0.5);
+    }
+  },
+  flame_lance(ctx, dark) { // a spear of fire flying up and right, flames streaming off its shaft
+    ctx.save();
+    ctx.rotate(-0.6);
+    ctx.fillStyle = 'rgba(255,230,190,0.85)';
+    for (let i = 0; i < 3; i++) ellipse(ctx, -14 + i * 6, (i % 2 ? 4 : -4), 6, 3);
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-18, -2.5);
+    ctx.lineTo(8, -2.5);
+    ctx.lineTo(8, -7);
+    ctx.lineTo(20, 0);
+    ctx.lineTo(8, 7);
+    ctx.lineTo(8, 2.5);
+    ctx.lineTo(-18, 2.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffd36b';
+    ctx.beginPath();
+    ctx.moveTo(10, -3);
+    ctx.lineTo(17, 0);
+    ctx.lineTo(10, 3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  },
+  ignite(ctx, dark) { // a flame in the middle, blast lines and small flames flung out round it
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.2;
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * TAU + 0.3;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * 11, Math.sin(a) * 11);
+      ctx.lineTo(Math.cos(a) * 17, Math.sin(a) * 17);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#ffffff';
+    flame(ctx, 0, 8, 13, 20);
+    ctx.fillStyle = '#ffd36b';
+    flame(ctx, 0, 7, 6, 10);
+    ctx.fillStyle = '#ffe2c8';
+    for (const [x, y] of [[-15, -12], [16, -10], [15, 15]]) flame(ctx, x, y + 3, 5, 8);
+    void dark;
+  },
+  combustion(ctx, dark) { // a jagged blast ring round a flame that's bursting apart
+    ctx.fillStyle = dark;
+    star(ctx, 0, 0, 19, 10, 0.62);
+    ctx.fillStyle = '#ffffff';
+    star(ctx, 0, 0, 16.5, 10, 0.6);
+    ctx.fillStyle = '#ffb070';
+    flame(ctx, 0, 8, 12, 19);
+    ctx.fillStyle = '#ffd36b';
+    flame(ctx, 0, 7, 6, 10);
+  },
+  phoenix(ctx, dark) { // a firebird with its wings raised, a flame tail below
+    ctx.fillStyle = '#ffd36b';
+    flame(ctx, 0, 20, 10, 16);
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.8;
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(side * 3, 2);
+      ctx.quadraticCurveTo(side * 12, -2, side * 19, -15);
+      ctx.quadraticCurveTo(side * 15, -6, side * 18, -4);
+      ctx.quadraticCurveTo(side * 12, 0, side * 16, 3);
+      ctx.quadraticCurveTo(side * 9, 6, side * 3, 7);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.ellipse(0, 3, 5.5, 8, 0, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, -8, 4.5, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffb070';
+    flame(ctx, 0, -11, 4, 8);
+    ctx.fillStyle = dark;
+    circle(ctx, 1.5, -8.5, 1.1);
+  },
+  frost_bolt(ctx, dark) { // a small ice orb flying right with a snowflake in it, a frosty trail
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    for (let i = 1; i <= 3; i++) circle(ctx, -4 - i * 5, 2 + (i % 2 ? -2 : 2), 5 - i);
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(5, 0, 10, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = '#7ab8f0';
+    ctx.lineWidth = 1.6;
+    snowflake(ctx, 5, 0, 7, 0.3);
+  },
+  frost_armor(ctx, dark) { // a shield of ice with a snowflake on it, a glint in the corner
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(0, -17);
+    ctx.quadraticCurveTo(9, -13, 15, -13);
+    ctx.quadraticCurveTo(15, 7, 0, 17);
+    ctx.quadraticCurveTo(-15, 7, -15, -13);
+    ctx.quadraticCurveTo(-9, -13, 0, -17);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = '#7ab8f0';
+    ctx.lineWidth = 2;
+    snowflake(ctx, 0, -1, 8.5);
+    ctx.fillStyle = '#dff4ff';
+    star(ctx, 15, -16, 3.5);
+  },
+  blizzard(ctx, dark) { // a cloud dropping snowflakes, slanting in the wind
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(-8, -6, 7, Math.PI * 0.5, Math.PI * 1.5);
+    ctx.arc(0, -11, 8, Math.PI, 0);
+    ctx.arc(9, -6, 7, Math.PI * 1.5, Math.PI * 0.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.8;
+    for (const [x, y, r] of [[-10, 9, 4.5], [2, 13, 4.5], [13, 8, 3.5]]) snowflake(ctx, x, y, r, 0.3);
+  },
+  cold_snap(ctx, dark) { // an ice crystal cracking apart, shards flying out
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, -13);
+    ctx.lineTo(8, 0);
+    ctx.lineTo(0, 13);
+    ctx.lineTo(-8, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = '#7ab8f0';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(-2, -9);
+    ctx.lineTo(2, -2);
+    ctx.lineTo(-2, 3);
+    ctx.lineTo(1, 10);
+    ctx.stroke();
+    ctx.fillStyle = '#dff4ff';
+    for (const [x, y, a] of [[-15, -10, 0.6], [15, -9, -0.6], [-14, 12, -0.5], [15, 12, 0.5]]) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(a);
+      ctx.beginPath();
+      ctx.moveTo(0, -4.5);
+      ctx.lineTo(2.5, 0);
+      ctx.lineTo(0, 4.5);
+      ctx.lineTo(-2.5, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+  },
+  thunder_call(ctx, dark) { // a dark cloud and one big lightning bolt striking down out of it
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(-9, -9, 6.5, Math.PI * 0.5, Math.PI * 1.5);
+    ctx.arc(0, -13, 7.5, Math.PI, 0);
+    ctx.arc(9, -9, 6.5, Math.PI * 1.5, Math.PI * 0.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#fff3a0';
+    ctx.beginPath();
+    ctx.moveTo(1, -4);
+    ctx.lineTo(-7, 6);
+    ctx.lineTo(-1, 6);
+    ctx.lineTo(-5, 18);
+    ctx.lineTo(8, 2);
+    ctx.lineTo(2, 2);
+    ctx.lineTo(6, -4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  },
+  static(ctx, dark) { // a round charge with little sparks jumping off it
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 8, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#c4cdff';
+    circle(ctx, -2, -2, 3);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.2;
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * TAU + 0.5, c = Math.cos(a), s = Math.sin(a);
+      ctx.beginPath();
+      ctx.moveTo(c * 11, s * 11);
+      ctx.lineTo(c * 14 - s * 3, s * 14 + c * 3);
+      ctx.lineTo(c * 16 + s * 3, s * 16 - c * 3);
+      ctx.lineTo(c * 19, s * 19);
+      ctx.stroke();
+    }
   },
   // ——— SP2: the Warrior's skill pool ———
   war_cry(ctx, dark) { // an open mouth shouting, with sound arcs fanning out
@@ -2061,6 +2332,7 @@ const LIFE = {
   dash: 0.3, blink: 0.45, flashjump: 0.35, scroll: 1.4, gods: 1.1,
   charge: 0.35, slam: 0.55, upcut: 0.4, shatter: 0.55,
   hook: 0.5, bash: 0.4, rend: 0.45, execute: 0.55, lance: 0.45, shake: 0.6, wave: 0.65, judgement: 1.0, warcry: 0.8, // (SP2)
+  thunder: 0.6, combust: 0.5, insight: 0.9, frostarmor: 0.8, // (SP3)
   barrier: 0.6, revive: 1.1, // (S3)
 };
 
@@ -2073,6 +2345,7 @@ export class SkillFx {
   // 'skysplit' | 'chain' | 'meteor' | 'starfall' | 'bubblePop' | 'rally' | 'zone' | 'aegis' | 'secondwind' |
   // 'dash' | 'blink' | 'flashjump' | 'scroll' | 'iframe' | 'staffbolt' | 'holybolt' | 'charge' | 'slam' | 'slamfall' | 'upcut' | 'shatter' |
   // SP2: 'hook' | 'bash' | 'rend' | 'execute' | 'lance' | 'shake' | 'wave' | 'judgement' | 'warcry'
+  // SP3: 'thunder' | 'flamelance' | 'combust' | 'insight' | 'frostarmor'
   // (options: see each FX entry)
   spawn(kind, o = {}) {
     const life = kind === 'bolt' ? (o.dur ?? 0.3) + 0.35
@@ -2083,6 +2356,7 @@ export class SkillFx {
       : kind === 'iframe' || kind === 'slamfall' ? (o.dur ?? 0.3)
       : kind === 'arrow' ? (o.dur ?? 0.2) + 0.3
       : kind === 'pierce' ? (o.dur ?? 0.3) + 0.45
+      : kind === 'flamelance' ? (o.dur ?? 0.3) + 0.35
       : kind === 'rain' ? RAIN_AT + (o.hits ?? 3) * RAIN_EVERY + 0.4
       : LIFE[kind];
     if (!life) return;
@@ -2107,6 +2381,147 @@ export class SkillFx {
 }
 
 const FX = {
+  // ——— SP3: the Mage's skill pool ———
+  // Thunder Call {points}: one fat bolt drops out of the sky onto the first mob (a flash, a ring on the ground), then the
+  // usual chain leaps on from it (FX.chain over the rest of the points)
+  thunder(ctx, e, k) {
+    const pts = e.o.points ?? [];
+    if (pts.length < 2) return;
+    const t = pts[1], tx = t.x, ty = t.y - 22, top = ty - 420, flick = e.seed + Math.floor(e.age / 0.05);
+    const fade = k < 0.5 ? 1 : 1 - (k - 0.5) / 0.5;
+    ctx.save();
+    ctx.globalAlpha = fade;
+    for (const [lw, col] of [[26, 'rgba(120,140,255,0.25)'], [12, '#6a7ae8'], [6, '#c4cdff'], [2.4, '#ffffff']]) {
+      ctx.strokeStyle = col;
+      ctx.lineWidth = lw;
+      ctx.beginPath();
+      zigzag(ctx, tx + (rnd(flick, 1) - 0.5) * 60, top, tx, ty, flick, 26);
+      ctx.stroke();
+    }
+    const q = Math.min(1, k / 0.35);
+    ctx.strokeStyle = `rgba(196,205,255,${1 - q})`;
+    ctx.lineWidth = 6 * (1 - q) + 1;
+    ctx.beginPath();
+    ctx.ellipse(tx, t.y, 20 + q * 70, (20 + q * 70) * 0.25, 0, 0, TAU);
+    ctx.stroke();
+    ctx.fillStyle = `rgba(255,255,255,${0.9 * (1 - q)})`;
+    circle(ctx, tx, ty, 30 * (1 - q) + 6);
+    ctx.restore();
+    if (pts.length > 2) FX.chain(ctx, { ...e, o: { points: pts.slice(1) } }, k);
+  },
+  // Flame Lance {x, y, tx, ty, dur, hit}: a long spear of fire streaking straight in, flames peeling off its shaft, a
+  // fiery splash where it lands
+  flamelance(ctx, e) {
+    const { x, y, tx, ty, hit } = e.o, dur = e.o.dur ?? 0.3, q = e.age / dur;
+    const ey = ty - 18, ang = Math.atan2(ey - y, tx - x);
+    if (q < 1) {
+      const px = x + (tx - x) * q, py = y + (ey - y) * q;
+      ctx.translate(px, py);
+      ctx.rotate(ang);
+      for (let i = 0; i < 6; i++) { // flames peeling off behind
+        const bx = -14 - i * 9, wob = Math.sin(e.age * 40 + i * 2) * 3;
+        ctx.fillStyle = i % 2 ? `rgba(255,200,110,${0.8 - i * 0.12})` : `rgba(255,120,70,${0.8 - i * 0.12})`;
+        ellipse(ctx, bx, wob, 9 - i, 4.5 - i * 0.5);
+      }
+      ctx.fillStyle = '#ffe2c0';
+      ctx.strokeStyle = '#e0603a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-34, -3);
+      ctx.lineTo(4, -3);
+      ctx.lineTo(4, -8);
+      ctx.lineTo(22, 0);
+      ctx.lineTo(4, 8);
+      ctx.lineTo(4, 3);
+      ctx.lineTo(-34, 3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      star(ctx, 22, 0, 6, 4, 0.35);
+      return;
+    }
+    if (!hit) return;
+    const b = (e.age - dur) / 0.35;
+    ctx.globalAlpha = Math.max(0, 1 - b);
+    ctx.fillStyle = '#ffb070';
+    for (let i = 0; i < 5; i++) {
+      const a = ang + Math.PI + (i - 2) * 0.45;
+      flame(ctx, tx + Math.cos(a) * b * 26, ey + Math.sin(a) * b * 26 + 8, 8 * (1 - b) + 2, 14 * (1 - b) + 3);
+    }
+    ctx.strokeStyle = '#ff8a52';
+    ctx.lineWidth = 4 * (1 - b) + 1;
+    ctx.beginPath();
+    ctx.arc(tx, ey, 6 + b * 24, 0, TAU);
+    ctx.stroke();
+  },
+  // Combustion's blast on a burning mob {x, y, r}: a hot flash, a ring of fire and flame tongues thrown out
+  combust(ctx, e, k) {
+    const { x, y } = e.o, R = (e.o.r ?? 50) * (0.4 + 1.2 * ease(k)), fade = 1 - k, cy = y - (e.o.r ?? 50) * 0.6;
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = `rgba(255,240,200,${0.8 * (1 - k)})`;
+    circle(ctx, x, cy, R * 0.55);
+    ctx.strokeStyle = '#ff8a52';
+    ctx.lineWidth = 6 * fade + 1;
+    ctx.beginPath();
+    ctx.arc(x, cy, R, 0, TAU);
+    ctx.stroke();
+    ctx.fillStyle = '#ffd36b';
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * TAU + e.seed;
+      ctx.save();
+      ctx.translate(x + Math.cos(a) * R, cy + Math.sin(a) * R);
+      ctx.rotate(a + Math.PI / 2);
+      flame(ctx, 0, 0, 8 * fade + 2, 16 * fade + 3);
+      ctx.restore();
+    }
+  },
+  // Arcane Insight {x, y, radius}: violet runes rise round the caster as a ring spreads to the radius
+  insight(ctx, e, k) {
+    const { x, y } = e.o, R = (e.o.radius ?? 300) * ease(k), fade = k < 0.6 ? 1 : 1 - (k - 0.6) / 0.4;
+    ctx.globalAlpha = fade;
+    ctx.strokeStyle = 'rgba(190,150,255,0.9)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(x, y, Math.max(1, R), Math.max(1, R * 0.16), 0, 0, TAU);
+    ctx.stroke();
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * TAU + e.age * 2, rx = x + Math.cos(a) * 34, ry = y - 20 - k * 50 + Math.sin(a) * 10;
+      ctx.fillStyle = i % 2 ? '#e6dcff' : '#ffffff';
+      star(ctx, rx, ry, 6 * (1 - k) + 2, 4, 0.35);
+    }
+    ctx.fillStyle = 'rgba(214,196,255,0.5)';
+    ellipse(ctx, x, y - 22, 28 * (1 - k) + 6, 30 * (1 - k) + 6);
+  },
+  // Frost Armor {x, y}: ice crystals close in round the caster and set into a shell, a glint across it
+  frostarmor(ctx, e, k) {
+    const { x, y } = e.o, fade = k < 0.7 ? 1 : 1 - (k - 0.7) / 0.3, d = 60 * (1 - ease(Math.min(1, k / 0.5)));
+    ctx.globalAlpha = fade;
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * TAU + 0.4, cx = x + Math.cos(a) * (30 + d), cy = y - 22 + Math.sin(a) * (24 + d * 0.6);
+      ctx.fillStyle = '#e8f6ff';
+      ctx.strokeStyle = '#7ab8f0';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - 7);
+      ctx.lineTo(cx + 4, cy);
+      ctx.lineTo(cx, cy + 7);
+      ctx.lineTo(cx - 4, cy);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+    if (k > 0.45) {
+      const g = (k - 0.45) / 0.55;
+      ctx.strokeStyle = `rgba(160,220,255,${0.9 * (1 - g)})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(x, y - 22, 32, 28, 0, 0, TAU);
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      star(ctx, x - 20 + g * 40, y - 40 + g * 10, 6 * (1 - g) + 2);
+    }
+  },
   // ——— SP2: the Warrior's skill pool ———
   // Hook {x, y, dir, len, hit, dur, follow}: a chain whipping out to len (the hook catching at its end), then the slime
   // riding it in (the chain shortening with the slime) or, a miss, snapping back

@@ -5,7 +5,7 @@
 // procedural, like the slimes. Positions: x, y = the feet (the wisp: its own middle). The Archer's Net Trap
 // (S4) is drawn here too: a rope net pegged out on the ground, flicking up when it catches something
 // ({t:'netcatch'}); the mob it caught wears the net (src/elements.js). SP1's kinds are simple first looks that SP2–SP5
-// polish: the phoenix (a little firebird with a flame tail), sprites (small sky-blue spirits), the stone guardian (a
+// polish: the phoenix (SP3 polished it: a golden firebird with flame wings, a plumed crest and a streaming tail), sprites (small sky-blue spirits), the stone guardian (a
 // mossy block golem), the hawk (a brown bird with spread wings) and the blast trap (a round pad with a glowing rune
 // that goes off with a bang).
 import { TAU, clamp, circle, ellipse } from './util.js';
@@ -393,46 +393,88 @@ function net(ctx, s, time) {
 }
 
 // ——— SP1's summons (simple first looks; SP2–SP5 polish them) ———
-// The phoenix: a small round firebird, wings beating, a tail of flame streaming behind (it leans into a dive)
+// The phoenix (SP3's polish of SP1's first look): a golden firebird with scalloped wings of flame beating, a crest of
+// three flame plumes, and a long tail of flickering tongues (red, orange, gold) streaming behind with embers falling
+// off it. It leans into a dive (lunge, set by its hits). One soft glow, the rest flat fills (docs/performance.md).
 function phoenix(ctx, s) {
-  const x = s.x, y = s.y, flap = Math.sin(s.t * 14) * 0.6, d = s.dir;
-  glow(ctx, x, y, 40, '255,170,90', 0.5);
-  for (let i = 0; i < 4; i++) { // the tail: flame tongues trailing
-    const tx = x - d * (12 + i * 8), ty = y + 2 + Math.sin(s.t * 9 + i) * 3;
-    ctx.fillStyle = i % 2 ? 'rgba(255,200,110,0.8)' : 'rgba(255,130,80,0.8)';
-    ellipse(ctx, tx, ty, 8 - i * 1.5, 4 - i * 0.6);
+  const d = s.dir, flap = Math.sin(s.t * 13), lean = s.lunge * 0.5 * d;
+  const x = s.x, y = s.y + Math.sin(s.t * 3) * 3;
+  glow(ctx, x, y, 46, '255,160,80', 0.45);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(lean);
+  // embers drifting down off the tail
+  for (let i = 0; i < 4; i++) {
+    const f = (s.t * 0.9 + i / 4) % 1;
+    ctx.fillStyle = `rgba(255,${190 - i * 20},90,${1 - f})`;
+    circle(ctx, -d * (22 + i * 9) + Math.sin(s.t * 4 + i) * 3, 6 + f * 26, 2.2 * (1 - f) + 0.6);
   }
-  for (const side of [-1, 1]) { // wings
-    ctx.save();
-    ctx.translate(x, y - 2);
-    ctx.rotate(side * (0.4 + flap));
-    ctx.fillStyle = '#ffb25a';
-    ctx.strokeStyle = '#d0603a';
-    ctx.lineWidth = 1.4;
+  // the tail: three long flame tongues, flickering
+  for (const [k, col, len, off] of [[0, '#ff6a4a', 40, -5], [1, '#ff9a4a', 34, 3], [2, '#ffd36b', 26, -1]]) {
+    const w = Math.sin(s.t * 11 + k * 2) * 4;
+    ctx.fillStyle = col;
     ctx.beginPath();
-    ctx.ellipse(-d * 2, side * -9, 13, 6, side * 0.5, 0, TAU);
+    ctx.moveTo(-d * 6, off - 4);
+    ctx.quadraticCurveTo(-d * (len * 0.5), off - 8 + w, -d * len, off + w * 1.5);
+    ctx.quadraticCurveTo(-d * (len * 0.55), off + 6 + w, -d * 6, off + 4);
+    ctx.closePath();
     ctx.fill();
-    ctx.stroke();
+  }
+  // wings: three flame feathers each, beating
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.translate(-d * 2, -3);
+    ctx.scale(1, side * (0.55 + 0.45 * flap));
+    for (const [col, sc] of [['#ff8a4a', 1], ['#ffc46b', 0.62]]) {
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(-d * 6 * sc, -14 * sc, -d * 2 * sc, -24 * sc);
+      ctx.quadraticCurveTo(-d * 3 * sc, -16 * sc, -d * 10 * sc, -21 * sc);
+      ctx.quadraticCurveTo(-d * 8 * sc, -12 * sc, -d * 16 * sc, -15 * sc);
+      ctx.quadraticCurveTo(-d * 10 * sc, -5 * sc, 0, 0);
+      ctx.closePath();
+      ctx.fill();
+    }
     ctx.restore();
   }
-  ctx.fillStyle = '#ffd27a'; // body
+  // body and chest
+  ctx.fillStyle = '#ffc04a';
   ctx.strokeStyle = '#d0603a';
-  ctx.lineWidth = 1.8;
+  ctx.lineWidth = 1.6;
   ctx.beginPath();
-  ctx.ellipse(x, y, 11, 9, 0, 0, TAU);
+  ctx.ellipse(0, 0, 12, 8.5, d * -0.2, 0, TAU);
   ctx.fill();
   ctx.stroke();
-  ctx.fillStyle = '#f08a3a'; // beak
+  ctx.fillStyle = '#ffe9a8';
+  ellipse(ctx, d * 4, 2, 6, 4.5);
+  // head: crest of three plumes, beak, eye
+  const hx = d * 10, hy = -6;
+  for (let i = 0; i < 3; i++) {
+    ctx.fillStyle = i === 1 ? '#ffd36b' : '#ff7a4a';
+    ctx.save();
+    ctx.translate(hx - d * (2 + i * 2.5), hy - 4);
+    ctx.rotate(-d * (0.5 + i * 0.35) + Math.sin(s.t * 9 + i) * 0.12);
+    ellipse(ctx, 0, -5, 2.2, 6);
+    ctx.restore();
+  }
+  ctx.fillStyle = '#ffc04a';
   ctx.beginPath();
-  ctx.moveTo(x + d * 10, y - 3);
-  ctx.lineTo(x + d * 17, y);
-  ctx.lineTo(x + d * 10, y + 2);
+  ctx.arc(hx, hy, 6, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#f08a3a';
+  ctx.beginPath();
+  ctx.moveTo(hx + d * 5, hy - 2);
+  ctx.lineTo(hx + d * 11, hy + 1);
+  ctx.lineTo(hx + d * 5, hy + 2.5);
   ctx.closePath();
   ctx.fill();
   ctx.fillStyle = '#5a2a1a';
-  circle(ctx, x + d * 5, y - 3, 1.7);
-  ctx.fillStyle = '#ff8a52'; // crest
-  ellipse(ctx, x - d * 2, y - 11, 3, 5, -d * 0.4);
+  circle(ctx, hx + d * 2, hy - 1.5, 1.6);
+  ctx.fillStyle = '#ffffff';
+  circle(ctx, hx + d * 2.5, hy - 2, 0.6);
+  ctx.restore();
 }
 // The hawk: a brown bird with long spread wings, gliding (wings beat faster in a dive)
 function hawk(ctx, s) {

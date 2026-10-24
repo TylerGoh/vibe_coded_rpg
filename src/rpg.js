@@ -39,11 +39,13 @@ const DODGEABLE_ULT = new Set(['collapse']);
 const TILE = 150; // den floor tiles for the grid attacks
 // each skill kind's sound (id: the skill, for the ones that sound different)
 const SKILL_SOUND = Object.fromEntries(Object.entries({
-  strike: (id) => (id === 'sky_splitter' ? 'skySplitter' : 'powerStrike'), cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: 'chain', meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter', mend: 'heal', miracle: 'aegis', revive: 'secondWind', barrier: 'bubble', summon: 'rally',
+  strike: (id) => (id === 'sky_splitter' ? 'skySplitter' : 'powerStrike'), cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: (id) => (id === 'thunder_call' ? 'skySplitter' : 'chain'), meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter', mend: 'heal', miracle: 'aegis', revive: 'secondWind', barrier: 'bubble', summon: 'rally',
   field: 'nova', // (SP1)
   wave: 'skySplitter', // (SP2)
   shot: (id) => (id === 'snipe' ? 'snipe' : 'bowShot'), pierce: (id) => (id === 'heartseeker' ? 'snipe' : 'pierce'), rain: 'arrowRain', mark: 'mark',
 }).map(([k, v]) => [k, typeof v === 'function' ? v : () => v]));
+// a long buff's look as it's cast (SP2's War Cry, SP3's Arcane Insight and Frost Armor; else a party ring or a glow)
+const buffLook = (id, sk) => ({ war_cry: 'warcry', arcane_insight: 'insight', frost_armor: 'frostarmor' })[id] ?? (sk.party ? 'rally' : 'buff');
 const kickFrom = (me, mx, knock) => ({ vx: Math.sign(me.x - mx || 1) * knock, vy: -Math.min(420, knock * 1.1) });
 
 export class Rpg {
@@ -446,7 +448,7 @@ export class Rpg {
   predictEl(v, el, shatter) {
     const t = this.time;
     if (el === 'frost' && !v.frozen) {
-      if (v.chill) Object.assign(v, { frozenLocal: t + 0.5, chillGone: t + 0.5, chillLocal: 0, frozen: true, chill: false });
+      if (v.chill || v.charged) Object.assign(v, { frozenLocal: t + 0.5, chillGone: t + 0.5, chillLocal: 0, staticLocal: 0, frozen: true, chill: false, charged: false }); // (SP3: Static's charge freezes too)
       else Object.assign(v, { chillLocal: t + 0.5, chill: true });
     } else if (el === 'fire') {
       if (shatter) Object.assign(v, { thawLocal: t + 0.6, frozenLocal: 0, frozen: false });
@@ -577,6 +579,7 @@ export class Rpg {
     if (sk.stun) m.retri = 0;
     const low = (v) => (sk.exec && v.maxHp && v.hp <= v.maxHp * EXEC_AT ? sk.exec(rank) : 1);
     const hit = (v, base, delay = 0, extra = 1) => {
+      if (sk.combust && v.burning) [extra, v.burnLocal] = [extra * sk.combust(rank), 0]; // (SP3: Combustion sets the burn off; the server's echo shows the blast)
       const cut = this.shellCut(v, sx);
       const shatter = sk.el === 'fire' && !!v.frozen; // fire on a frozen mob (the Mage's combos)
       const [pm, weak] = this.party.mod(v, { ...kinds, heavy: kinds.heavy || shatter }, sy, sx);
@@ -692,11 +695,11 @@ export class Rpg {
           chain.push(next);
         }
       }
-      chain.forEach((v, n) => hit(v, mag, 0.05 * n));
+      chain.forEach((v, n) => hit(v, mag, 0.05 * n, n === 0 ? sk.lead ?? 1 : 1)); // (lead: Thunder Call's first mob, SP3)
       const points = [[sx + dir * 16, sy - 24], ...chain.map((v) => [v.x, v.y - MOBS[v.kind].h / 2])];
       if (!chain.length) points.push([sx + dir * sk.range * 0.6, sy - 30]);
       msg.points = points.map(([x, y]) => [Math.round(x), Math.round(y)]);
-      this.fx.spawn('chain', { points: points.map(([x, y]) => ({ x, y })) });
+      this.fx.spawn(sk.anim === 'thunder' ? 'thunder' : 'chain', { points: points.map(([x, y]) => ({ x, y })) });
     } else if (sk.kind === 'nova') {
       for (const v of this.around(sx, sy, sk.radius, true)) {
         v.slowLocal = this.time + sk.slow;
@@ -729,7 +732,7 @@ export class Rpg {
       this.fx.spawn('nova', { x: msg.tx ?? sx, y: (msg.ty ?? sy) + 10, radius: 50, tint: sk.el === 'fire' ? 'fire' : sk.el === 'frost' ? undefined : 'mana' });
     } else if (isLongBuff(sk)) {
       // SP1's long buffs: the status box shows them once the server's 'me' says so
-      this.fx.spawn(id === 'war_cry' ? 'warcry' : sk.party ? 'rally' : 'buff', { x: sx, y: sy, radius: sk.party });
+      this.fx.spawn(buffLook(id, sk), { x: sx, y: sy, radius: sk.party });
     } else if (sk.kind === 'buff') {
       if (mine) mine.berserkUntil = this.time + sk.dur;
       this.fx.spawn('buff', { x: sx, y: sy });
@@ -761,8 +764,9 @@ export class Rpg {
   // (fire, and a burst where it lands)
   boltFx(id, sk, x, y, tx, ty, dur, hit) {
     if (sk.stat === 'best') return this.fx.spawn('staffbolt', { x: x + 8 * Math.sign(tx - x), y: y - 24, tx, ty, dur: dur * 1.4, hit, tint: '214,196,170' });
-    this.fx.spawn('bolt', { x, y: y - 22, tx, ty, dur, hit, tint: sk.fire ? '255,150,80' : sk.ice ? '160,225,255' : sk.holy ? '255,232,150' : undefined });
-    if (sk.kind === 'fireball') this.timed.push([this.time + dur, () => this.fx.spawn('nova', { x: tx, y: ty + 18, radius: sk.radius, tint: 'fire' })]);
+    if (sk.anim === 'flamelance') return this.fx.spawn('flamelance', { x, y: y - 22, tx, ty, dur, hit }); // (SP3)
+    this.fx.spawn('bolt', { x, y: y - 22, tx, ty, dur, hit, tint: sk.anim === 'combust' ? '255,110,60' : sk.fire ? '255,150,80' : sk.ice ? '160,225,255' : sk.holy ? '255,232,150' : sk.anim === 'arcane' ? '190,150,255' : undefined });
+    if (sk.kind === 'fireball') this.timed.push([this.time + dur, () => this.fx.spawn('nova', { x: tx, y: ty + 18, radius: sk.radius, tint: sk.anim === 'arcane' ? 'mana' : 'fire' })]);
   }
 
   // An arrow skill's flight (Archer, S4): Double Shot's two arrows, Snipe's long one, a piercing streak, the mark
@@ -809,6 +813,20 @@ export class Rpg {
       const v = this.views.get(mid);
       if (v) v.stunLocal = this.time + STUN_S;
     }
+    // SP3: Static's charge on the mobs a storm spell hit (no mob flag left: drawn from here, src/elements.js), and the
+    // burns a Combustion set off (a blast on each, for everyone)
+    for (const mid of m.charged ?? []) {
+      const v = this.views.get(mid);
+      if (v) v.staticLocal = this.time + (m.cs ?? 4);
+    }
+    for (const mid of m.combust ?? []) {
+      const v = this.views.get(mid);
+      if (!v) continue;
+      const delay = m.tx !== undefined ? Math.abs(m.tx - m.x) / 900 : 0;
+      v.burnLocal = 0;
+      this.timed.push([this.time + delay, () => this.fx.spawn('combust', { x: v.x, y: v.y, r: Math.max(40, MOBS[v.kind].w * 0.8) })]);
+      this.pop(v.x, v.y - MOBS[v.kind].h - 40, 'COMBUST!', '#ffb070', 18, delay);
+    }
     if (m.id === myId || !caster || caster.visible === false) return;
     const x = caster.x, y = caster.y, vol = 0.6, pan = panX(x, myX);
     if (m.arcane) this.pop(x, y - 112, `ARCANE x${m.arcane}`, '#c4cdff', 14);
@@ -822,14 +840,14 @@ export class Rpg {
     else if (sk.kind === 'bolt' || sk.kind === 'fireball') this.boltFx(m.skill, sk, x, y, m.tx, m.ty, Math.abs(m.tx - x) / 900 + 0.05, m.hits.length > 0);
     else if (sk.kind === 'shield' && m.on) this.fx.spawn('nova', { x, y, radius: 70, tint: 'mana' });
     else if (sk.kind === 'meteor') this.fx.spawn('meteor', { x: m.tx, y: 450, radius: sk.radius, delay: sk.delay });
-    else if (sk.kind === 'chain' && m.points) this.fx.spawn('chain', { points: m.points.map(([px, py]) => ({ x: px, y: py })) });
+    else if (sk.kind === 'chain' && m.points) this.fx.spawn(sk.anim === 'thunder' ? 'thunder' : 'chain', { points: m.points.map(([px, py]) => ({ x: px, y: py })) });
     else if (sk.kind === 'nova') this.fx.spawn('nova', { x, y, radius: sk.radius });
     else if (sk.kind === 'starfall') this.fx.spawn('starfall', { x, y, radius: sk.radius, targets: m.hits.map(([id]) => this.views.get(id)).filter(Boolean).map((v) => ({ x: v.x, y: v.y })) });
     else if (sk.kind === 'heal' || sk.kind === 'miracle') this.fx.spawn('heal', { x, y, radius: Math.min(sk.radius, 400), targets: (m.heals ?? []).map(([pid]) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'mend' || sk.kind === 'revive' || sk.kind === 'cleanse') this.fx.spawn('heal', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'barrier') this.fx.spawn('barrier', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'summon' && m.sx !== undefined) this.summons.called(m.sx, m.sy, sk.what);
-    else if (isLongBuff(sk)) this.fx.spawn(m.skill === 'war_cry' ? 'warcry' : sk.party ? 'rally' : 'buff', { x, y, radius: sk.party }); // (SP1)
+    else if (isLongBuff(sk)) this.fx.spawn(buffLook(m.skill, sk), { x, y, radius: sk.party }); // (SP1)
     else if (sk.kind === 'field') this.fx.spawn('nova', { x: m.tx ?? x, y: (m.ty ?? y) + 10, radius: 50, tint: sk.el === 'fire' ? 'fire' : sk.el === 'frost' ? undefined : 'mana' });
     else if (sk.onKill?.what === 'ricochet' && m.hits?.length) { // (SP1: someone's arrow jumping off a kill)
       const v = this.views.get(m.hits[0][0]);
@@ -1273,6 +1291,8 @@ export class Rpg {
       v.bleeding = !!(fl & 8192);
       v.poisoned = !!(fl & 16384);
       v.stunned = (v.stunLocal ?? 0) > tt && !MOBS[v.kind].boss && !MOBS[v.kind].field; // (Shield Bash, SP2: from the skill's echo)
+      if (v.frozen) v.staticLocal = 0; // (SP3: a freeze spends Static's charge)
+      v.charged = (v.staticLocal ?? 0) > tt; // (Static, SP3: from the storm spell's echo)
       v.shield = mb[7];
       v.shieldMax = mb[8];
       v.t += dt;

@@ -16,7 +16,8 @@ No quests, no hard level gates.
    - [x] SP1: under the hood (long buffs, fields, damage over time, on-kill hooks, pull, new summons), the
          K panel's Cast button (live 2026-10-24, acae22d; the machinery dark behind `TEST_SKILLS`)
    - [x] SP2: the Warrior's new skills (live 2026-10-25)
-   - [ ] SP3–SP5: the Mage's, Cleric's and Archer's new skills, one at a time (owner: tokens). **Start here: SP3.**
+   - [x] SP3: the Mage's new skills (live 2026-10-25)
+   - [ ] SP4–SP5: the Cleric's and Archer's new skills, one at a time (owner: tokens). **Start here: SP4.**
    - [ ] SP6: the balance pass, then the owner plays
 2. **FB1: Greenhollow's final boss**, under the Thornheart (the Sunken Road, the Road's End). Plan:
    `final-bosses.md`: very hard, about 30 minutes for four players at the recommended level (the boss's own

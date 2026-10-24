@@ -355,6 +355,30 @@ take their branch's new staples as they open, then War Cry and Hook; the new pas
   once already (first cut: Berserker 0.52× the median on Chronos, failing `CLASS_FIT`): per cast they're stronger than
   the tier before (Rule 1), with long cooldowns so they add less per second.
 
+## The Mage's skill pool (SP3, 2026-10-25)
+`fight` learned SP3's pieces: Combustion's × on a burning target (it spends the burn), Thunder Call's `lead` (the
+first mob's ×), the Phoenix (a summon that's never hurt and draws nothing, re-cast whenever it's down), and Frost
+Armor's DEF and Arcane Insight's MAGIC as long buffs. Two modelling changes, both Mage-only for now:
+- **`HOTBAR_SWAPS`**: a new staple takes the hotbar slot of the one a tier before it (`skills-plan.md` Rule 1), so the
+  old one stops firing on the sheet: Arcane Burst gives way to Fireball / Frost Nova at Lv 30, Magic Bolt to Flame
+  Lance / Frost Bolt, Flame Lance to Combustion at Lv 60, Glacial Spike to Thunder Call at Lv 100. Without it nothing
+  could be added: **the Cleric was already at 1.59× the median on Colossus** (`CLASS_FIT` 1.6), so any branch soloing
+  den bosses faster moves the median and fails the Cleric. SP2's Warrior still fires everything; SP6 decides for all.
+- **`FIELD_BOSS_SHARE`**: a planted field counts that share of its ticks on a lone target (a boss walks out of it); a
+  pack counts every tick; a field that follows its caster (Cyclone) counts in full.
+- **What moved** (single / crowd damage a second, before → after): Elementalist Lv 30 2,148 / 2,766 → 2,187 / 4,307,
+  Lv 60 4,759 / 8,398 → 4,660 / 11,782, Lv 100 7,903 / 14,624 → 7,908 / 19,672, Lv 200 15,994 / 29,597 → 15,998 /
+  39,800; Frostbinder Lv 30 2,135 / 3,550 → 2,037 / 3,716, Lv 60 4,595 / 7,228 → 4,707 / 10,528, Lv 100 7,707 /
+  12,853 → 7,610 / 20,891, Lv 200 15,597 / 26,011 → 15,397 / 42,265. Shape (Mage ÷ the others' mean): crowd 1.58 →
+  2.01 at Lv 30, 1.14 → 1.63 at 60, 0.99 → 1.46 at 100, 0.98 → 1.45 at 200: **the Mage now tops mobbing at every
+  advancement** (the Warrior: 1.15 / 1.27 / 1.38 / 1.41). Single 0.90–1.02 from Lv 60 (was 0.91–1.01), ranged ~1.3,
+  still the least tough. Den solo times from Lv 99 are unchanged within a second or two (they had no room, above);
+  Lv 12–57 dens a little faster (Arcane Burst, Fire Wall). Nothing outside the CLASSES tables: no mob, boss, gold, EXP,
+  price or curve; no EXP buff (LONG BUFFS lists Arcane Insight and Frost Armor, no faucet).
+- **Farming**: a Mage's full-pack clear from Lv 60 is ~35–60% faster by crowd damage alone, more with Ignite / Cold
+  Snap chains (kills aren't on the sheet). `KILLS_PER_MIN` is left as it is (owner: faster farming is fine); SP6
+  retunes it with all four classes in.
+
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Price it in **minutes of farming at that level** (the PROGRESS table's gold/min), by kind
