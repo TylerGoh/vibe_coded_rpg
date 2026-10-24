@@ -6,12 +6,11 @@ Charge pips, Hunter's Mark and a net on a caught mob), `server/summons.js` and `
 summons, its halo, the Mage's staff sparkle, the Archer's Net Trap), the hotbar and stats UI in `src/rpg.js`,
 server actions in the `skills()` and `rebirth()` handlers of `server/rpg.js`.
 
-**Classes are being built in pieces** (`story/s2-plan.md`; the design is `story/progression.md`, read it
-before changing classes, skills, AP or the point schedule). S2.1 (the data, the rules, the server, the
-migration), S2.2 (the node-tree K panel) and S2.3 (the Rebirth Pool: place, card, banners, Elder Mochi) are
-built, and the CLASSES tables in the economy sheet (S2.4, `docs/economy.md`) measure and tuned them; the
-Warrior's chase moves (S2.5) and the Mage's combos and Arcane Charge (S2.6), both below, too. The Cleric
-(S3, 2026-10-23) and the Archer (S4, 2026-10-24) have their own sections below.
+**The design is `story/progression.md`: read it before changing classes, skills, AP or the point
+schedule.** All four classes are built: S2 (2026-10-23, in six pieces, plan archived in
+`story/archive/s2-plan.md`: the data and server, the K panel, the Rebirth Pool, the CLASSES tables in
+`docs/economy.md`, the Warrior's chase moves, the Mage's combos), the Cleric (S3) and the Archer (S4), each
+with its section below. Next for classes: S5's party mechanics (`story/s5-plan.md`).
 
 ## Classes (S2)
 - `CLASSES`: `novice`, `warrior` (sword, STR), `mage` (staff, INT), `cleric` (staff, INT; S3), `archer` (bow,

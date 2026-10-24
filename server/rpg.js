@@ -53,7 +53,7 @@ const newChar = () => ({
   cls: 'novice', reborn: 0, // your class (CLASSES; chosen at the Rebirth Pool) and how many times you've chosen one
 });
 
-// S2, classes (story/s2-plan.md): the one-time notice for characters saved before classes existed
+// S2, classes (story/archive/s2-plan.md): the one-time notice for characters saved before classes existed
 const CLASSES_NEWS = `Classes are here! Everyone is a Novice for now: all your skill points and ability points are refunded (K and I) and your skill hotbars are empty. From Lv ${CLASS_LVL}, choose your class, ${classNames()}, at the Rebirth Pool by Elder Mochi in Slimeville: your first choice is free.`;
 
 // L3, the levelling rebalance's rollback (story/progression.md, owner 2026-10-23): a one-time move of the
@@ -1827,7 +1827,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       sendMe(p);
     },
 
-    // The Rebirth Pool in Slimeville (S2, story/s2-plan.md): {t:'rebirth', cls} chooses your class (from
+    // The Rebirth Pool in Slimeville (S2, story/archive/s2-plan.md): {t:'rebirth', cls} chooses your class (from
     // CLASS_LVL; the first choice is free) or changes it (rebirthCost(lvl) gold). Level, EXP, gold, bag, gear
     // and house all stay; every skill point and AP comes back, the skill hotbars empty and buffs end. The
     // weapon must suit the new class: a wrong one goes back in the bag (refused if the bag is full), a right

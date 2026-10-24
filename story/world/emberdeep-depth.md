@@ -244,10 +244,9 @@ up, then the capstone; then atlas Phase 6.
       the block: Slag built the pilot a forge-burner that carries the basket through the stalls), the
       Skydocks and its camp, and the skylift goes once the balloon works.
 
-## When this is approved
-Fold the map and phases into `island-depth.md` (or link this file from it), tick them in `../roadmap.md`,
-update the Emberdeep sheet and link graph in `atlas.md`, add the cast to `../characters/people.md`, and log
-the renames in `../inventory.md`.
+## When a phase ships
+Tick it here, move it to `../done.md` (one line) and off `../roadmap.md`, add its leftovers to
+`docs/ideas.md`, add new people to `../characters/people.md` and new places to `../inventory.md`.
 
 ## Decisions (settled 2026-10-23: the owner took every default)
 Kept as written for the reasoning; each `[default]` below is now the decision.

@@ -21,7 +21,7 @@ was frozen and she used a rough jetty under the ridge; the ice went out with tha
 4. **The Rimeglass Glacier** (exists, F1: `docs/places/glacier.md`): a great river of blue ice above the
    summit, where the hamlet's ice-cutters work. Ice-Cutter Eyvind's camp, a Keeper stone frozen in the ice
    (the stars on it are in the right places), Ylva's Cairn, and Old Rimehorn the mammoth. Above it, the
-   Aurora Heights; under it, the Blue Halls (both open since F3). The rest of the island's depth pass:
+   Aurora Heights; under it, the Blue Halls (both open since F3). Frostpeak is done (F0–F4, `../../done.md`); the depth method:
    `../island-depth.md`.
 5. **The Whale Skerries** (exists, F2: `docs/places/skerries.md`): black islets and shingle along the fjord's
    outer shore, out of the hamlet's west end. Hakon's whaling hut, Grandmother (a great whale's skeleton), the

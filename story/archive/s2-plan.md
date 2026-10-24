@@ -1,3 +1,5 @@
+> **Archived 2026-10-24.** S2 shipped in full on 2026-10-23. Kept as written for the reasoning behind the class trees; paths inside are relative to `story/`. The live description is `docs/combat/skills.md`.
+
 # S2, split into pieces (sub-plan for agents)
 
 **Status: done. S2.1–S2.4 built and deployed together (deploy #1) on 2026-10-23; S2.5 (deploy #2) and S2.6 (deploy #3) the same day.** S2 in `progression.md` ("the tree") is too big for one

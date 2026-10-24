@@ -59,33 +59,31 @@ Rules:
 
 ## The link graph
 ```
-                       [Frostpeak]  Lv 12-27
+                       [Frostpeak]  Lv 40-100
                 Icefang Fjord landing + Icefang Hamlet
                 → Frostpine Ridge → Starfall Summit
                         ^            |
                  the ferry           | ship through the Steam Straits
-                 (cold sea)          | (needs the stars back?  see open-questions)
+                 (cold sea)          | (the Lodestar; no gate)
                         |            v
- [Greenhollow] Lv 1-12  |       [Emberdeep]  Lv 27-50
+ [Greenhollow] Lv 1-60  |       [Emberdeep]  Lv 90-150
  Harbour - Slimeville --+       Black Sand Shore + Forgehold
  - the Wildwood - east cliffs   → Cinder Flats → Magma Heart → thermal column
                                      |
                                      | the balloon (cloud climb)
                                      v
-                          [Aether Citadel]  Lv 48-80
+                          [Aether Citadel]  Lv 140-200
                           the Skydocks → Cogwork Bastion → Chrono Spire
 
  Side islands [proposed], reached by boat once their route opens:
-   Lantern Fen (east, Lv 24-34)      opens after Frostpeak   (a quiet detour before the south)
-   Amberdune (south-west, Lv 40-55)  opens after Emberdeep   (the missing desert)
+   Lantern Fen (east)        opens after Frostpeak   (a quiet detour before the south)
+   Amberdune (south-west)    opens after Emberdeep   (the missing desert)
  Post-game [proposed]:
-   the Maelstrom rim (Lv 80+) → the Sunken Reach (under the sea, needs swim physics)
+   the Maelstrom rim (past the Citadel) → the Sunken Reach (under the sea, needs swim physics)
 ```
-**These bands are being widened** (owner, 2026-10-20): Greenhollow 1-60, Frostpeak 40-100, the later
-islands above them in turn. The numbers in the graph are today's (legacy) ones; `island-depth.md` has
-the plan, and each island's band changes when its depth pass ships.
-Level bands overlap by a level or two on purpose, so a player arriving somewhere new isn't instantly
-over- or under-matched. The bands are the zones' `lvl` in `src/shared/rpg.js`; the code is the truth.
+**Bands** (since the rebalance and the depth passes; `island-depth.md`): each island covers a wide band
+and overlaps the next by 10–20 levels, so you can leave early or stay to finish the side areas. The side
+islands' and the post-game's bands are set when their turn comes. The bands are the zones' `lvl` in `src/shared/rpg.js`; the code is the truth.
 
 ## Landscape catalogue (the art brief)
 Every landscape keeps the house style (`docs/art.md`): soft, rounded, pastel, procedural, no images. The
@@ -118,9 +116,10 @@ the room and position, never by messages (`docs/netcode.md`). Budget for that wo
 only.
 
 ## Island sheets
-**Level bands moved (the rebalance, R, 2026-10-23; `world/island-depth.md`):** Greenhollow is Lv 1–60,
-Frostpeak 40–100, Emberdeep about 90–150, the Citadel about 140–200. The bands in the sheets below are
-from before it; read each as "the same order, in the island's new band".
+**Level bands:** the sheets' headings give today's bands. The level numbers *inside* the Frostpeak,
+Emberdeep and Citadel sheets are from before the rebalance: read them as "the same order, in the island's
+band". Each island's shipped branches are in `docs/places/branches.md`, its depth plan in `island-depth.md`
+(and `emberdeep-depth.md`).
 
 Each sheet lists rooms in walking order. **Mob slots:** each wilds zone wants 3–4 kinds: one *passive*
 (free EXP, shows the landscape), one *aggressive* (chases), and one or two with a *gimmick* that comes
@@ -128,7 +127,7 @@ from the landscape (reuse an existing `ai` in `server/rpg.js` before writing a n
 near home and get older and plainer further out (`../README.md`). Mobs are the island's wildlife; only
 the Citadel's are machines and echoes.
 
-### Greenhollow (home, Lv 1–12): cozy, puns welcome
+### Greenhollow (home, Lv 1–60): cozy, puns welcome
 1. **Greenhollow Harbour** (exists, room 19 west of the village): piers, the lighthouse (lit since
    Phase 3: Granny Wicks came home), fishing boats, the ferry Puddle Jumper (running). Cast: **Captain Brine** (AI, the ferry), Pickles his
    gull. Later: sailors from other islands.
@@ -146,7 +145,7 @@ the Citadel's are machines and echoes.
    No mobs. A bench, a telescope (E to look: swings between Frostpeak, the Citadel and Emberdeep).
    The Wildwood's only east exit since the Highlands trail went (Phase 3).
 
-### Frostpeak (far north, Lv 12–27): quiet, dry humour at most
+### Frostpeak (far north, Lv 40–100): quiet, dry humour at most
 1-2. **Icefang Fjord and Icefang Hamlet** (exists, Phase 4, one room: `docs/places/fjord.md`): the
    ferry's quay, the cracked ice bridge in the sky, turf-roofed huts round a lamp-fire. A town: respawn
    and a home door. Cast (all AI characters): **Old Skaldi** (lamplighter and songs, Tier 2 as song
@@ -170,7 +169,7 @@ the Citadel's are machines and echoes.
 5. Onward: the ship south leaves from the fjord's quay: the **Lodestar**, laid up (shown, not open) until
    Phase 5, because nobody will steer south while the stars are wrong.
 
-### Lantern Fen (east side island, Lv 24–34) `[proposed]`: strange, gentle, sad
+### Lantern Fen (east side island) `[proposed]`: strange, gentle, sad
 A detour for players between Frostpeak and Emberdeep, and the theme from another angle: grief.
 1. **Reedwater landing**: a single jetty in fog.
 2. **Wickmere** (hometown): stilt houses joined by boardwalks; every window has a lantern for someone
@@ -183,21 +182,18 @@ A detour for players between Frostpeak and Emberdeep, and the theme from another
    so the fen is choked with the lights of the dead and nobody can grieve. Beaten, the lights dim one by
    one, gently. Den: *The Hall of Lamps*.
 
-### Emberdeep (far south, Lv 27–50): blunt, heavy, almost no humour
-1. **Black Sand Shore** `[proposed]`: the ship lands at a rusted iron harbour. Hot springs where slimes
-   soak, the last soft spot. Mobs only past the springs (27–30): **steam toads** (hop, leave steam puffs:
-   reuse the magma slug puddle), **scald eels** (pop up from the pools).
-2. **Forgehold** `[proposed hometown]`: cut into the caldera wall; the memorial wall of smiths' names.
-   Cast: **Forgewarden Ash** (AI, Tier 3, trusts you only after Ignis), **Auntie Soot** `[proposed]` (runs
-   the springs at the shore; the one kind voice here), **Slag** `[proposed]` (a young smith who still
-   believes the gears can be finished; sells heavy gear).
+### Emberdeep (far south, Lv 90–150): blunt, heavy, almost no humour
+1-2. **Forgehold, with Black Sand Shore as its quay** (exists, Phase 5, one room: `docs/places/forgehold.md`):
+   the Lodestar lands at a rusted iron quay; Auntie Soot's hot springs; the great forge and the memorial
+   wall cut into the caldera wall. A town: respawn and a home door. Cast (AI): **Forgewarden Ash**, **Auntie
+   Soot**, **Slag**, **Skipper Arne**. The branches, their people and bosses: `emberdeep-depth.md`.
 3. **Cinder Flats** (exists, 28–38): ember imps, magma slugs, obsidian crabs. Giant gear teeth in the ash
    `[proposed scenery]`.
 4. **Magma Heart** (exists, 38–50): cinder bats. Open slot: a **slag golem** half-made from a dropped gear.
    - Dens: Ignis, Pyra (exist).
 5. **The thermal column** `[proposed vista]`: the balloon launch, replacing the skylift.
 
-### Amberdune (south-west desert island, Lv 40–55) `[proposed]`: dry, ancient, quietly grand
+### Amberdune (south-west desert island) `[proposed]`: dry, ancient, quietly grand
 The missing desert. Reached by ship from Black Sand Shore once Emberdeep's bosses are beaten.
 1. **Saltmouth**: a dry harbour; the sea has pulled back from the old piers (the Drift, made visible).
 2. **Caravanserai** (hometown): tents and a well, people always packing to move on. Cast: **Mother
@@ -209,7 +205,7 @@ The missing desert. Reached by ship from Black Sand Shore once Emberdeep's bosse
    back, still walking toward where Pangelea's heart used to be. It won't stop, and the town is dying of
    thirst on top of it. Beaten, it lies down, and the town can finally settle. Den: *The Long Road*.
 
-### The Aether Citadel (sky, Lv 48–80): solemn, no whimsy
+### The Aether Citadel (sky, Lv 140–200): solemn, no whimsy
 1. **The Skydocks** `[proposed first zone]` (48–52): broken piers, empty mooring rings, wind. Mobs:
    **loose bolts** (swarm, like cogbits), **rigging moths** (fly). Cast: **the Dockwarden** `[proposed]`,
    a still-working porter automaton that keeps logging arrivals that never come; not an AI character,
@@ -223,7 +219,7 @@ The missing desert. Reached by ship from Black Sand Shore once Emberdeep's bosse
    up by balloon: the balloon's pilot (the trader), a Wickmere pilgrim, a forge-slime looking for Ignis's
    lost gear. The Citadel stays empty; the camp is visitors huddled at its edge.
 
-### Post-game: the Maelstrom and the Sunken Reach (Lv 80+) `[proposed]`
+### Post-game: the Maelstrom and the Sunken Reach `[proposed]`
 1. **The Maelstrom rim**: a raft-camp lashed to wreckage where the sea turns. Hometown-lite. Cast:
    **Captain Brine**, who came this far for the first time; **Pell** (after the finale, maybe here before
    he goes home to the apple tree).
@@ -277,8 +273,8 @@ the code is the truth, and this list only points at it.
 Then the `// Docs:` line, the doc update, the index row in `Agent.md` for a new area, and mobile.
 
 ## The build order (start at the village and walk outward)
-**Paused after Phase 4** (owner, 2026-10-20): islands get deep before new ones are added. Work
-Greenhollow's depth phases, then Frostpeak's, in `island-depth.md`; Phase 5 resumes after that.
+**Islands get deep before new ones are added** (owner, 2026-10-20): Greenhollow and Frostpeak are done;
+Emberdeep's depth pass (`emberdeep-depth.md`, E1–E4) comes before Phase 6.
 
 Each phase leaves the game fully playable. **Never remove a back door before its crossing works**, or an
 island becomes unreachable. Each phase is its own session; read the docs it names first.
@@ -315,7 +311,7 @@ stand-in door into an existing area.
 - [ ] **Phase 6: the climb.** The thermal column vista, the balloon crossing, the Skydocks zone, the
       Skydocks camp as the Citadel's town, and the Dockwarden. The skylift goes.
 - [ ] **Phase 7: story progress.** Per-account lore tiers feeding every AI character; boss lines
-      (`../roadmap.md` §2). Can run alongside any phase from 1 on.
+      (`../roadmap.md`, "Story delivery"). Can run alongside any phase from 1 on.
 - [ ] **Phase 8: Lantern Fen** (side island, the Wickmother).
 - [ ] **Phase 9: Amberdune** (side island, Old Carapace).
 - [ ] **Phase 10: the finale and the post-game**: the Wheel event, the Maelstrom rim, swim physics, the

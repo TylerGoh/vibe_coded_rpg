@@ -1,5 +1,5 @@
 // Docs: docs/combat/skills.md, docs/world.md
-// The Rebirth Pool in Slimeville (S2.3, story/s2-plan.md): the softly glowing spring by Elder Mochi's tree
+// The Rebirth Pool in Slimeville (S2.3, story/archive/s2-plan.md): the softly glowing spring by Elder Mochi's tree
 // where a slime chooses (from CLASS_LVL) or changes its class. Here: the pool's art (drawn by
 // src/village.js), the splash when someone comes out of it ({t:'reborn'}), its card (an HTML overlay,
 // #pool in index.html) and the news banner (#news) that points players at it. The rules are the server's

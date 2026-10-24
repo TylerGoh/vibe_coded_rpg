@@ -3,7 +3,7 @@ import { attackFor, defenseFor, maxHpFor, reachFor, ITEMS, STAFF_BOLT_RANGE, BOW
 import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR_BLINK, IFR_PHANTOM, PHANTOM_CD, SLAM_CD, UPCUT_CD, CHARGE_RESET } from './sim.js';
 
 // Shared by client and server: classes, their skill trees, mana, and the hotbar (story/progression.md,
-// story/s2-plan.md). Everyone starts as a Novice; at CLASS_LVL you choose a class at the Rebirth Pool
+// story/archive/s2-plan.md). Everyone starts as a Novice; at CLASS_LVL you choose a class at the Rebirth Pool
 // (server/rpg.js rebirth). Each class has basics, then two branches (the fork: points in one at a time),
 // opening at the advancement levels (`adv` on each skill). Mobility is shared by every class. Active
 // skills cost MP and have cooldowns; passives are always on. The server (server/rpg.js) decides every cast.

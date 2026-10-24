@@ -13,16 +13,16 @@ the world *is*. Once a story beat ships into code, the feature's doc in `docs/` 
 3. `world/geography.md`: the map, distances, travel and landscape rules. Read before touching any place.
 4. `world/atlas.md`: every landscape, how the islands link, the hometowns and casts, the mob and boss
    slots, and the build order outward from the village. **Read before adding a mob, boss, town or NPC.**
-5. `world/island-depth.md`: the current plan. Islands get deep (wide level bands, branching maps,
-   side quests) before new ones are added.
+5. `world/island-depth.md`: how an island gets deep (wide level bands, branching maps, hard and easy
+   pockets, field bosses; no quests). `world/emberdeep-depth.md` applies it to Emberdeep, the current island.
 6. `world/regions/`: one file per region (landscape, people, mood, what's there now and what should be).
 7. `world/history.md`: the timeline of the world.
 8. `characters/`: Elder Mochi, Chronos, the nine bosses, the people of each island.
 9. `arcs/main-arc.md`: the main story, act by act.
 10. `delivery.md`: how the story reaches players (NPCs, bosses, places, items) and the tone gradient.
-11. `roadmap.md`: the game changes the story asks for, in priority order. **Future sessions start here.**
-    `progression.md` is the plan for its S track (classes from weapons, wands, archers, the skill tree,
-    levelling rewards).
+11. `roadmap.md`: what to build next, open items only. **Future sessions start here.** `done.md` lists
+    what has shipped, one line a phase. `progression.md` is the class design (the S track) and `s5-plan.md`
+    cuts S5 into pieces. Finished plans live in `archive/`.
 12. `inventory.md`: what exists in the game today and how the story reinterprets it.
 13. `expansion.md`: the built-in slots for growing the story, and the rules for adding to it.
 14. `open-questions.md`: undecided ideas. Nothing in here is canon.
