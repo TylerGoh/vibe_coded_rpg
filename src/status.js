@@ -47,8 +47,15 @@ export function statusOf(rpg, mine) {
   if (arc > 0) out.push({ key: 'arcane', icon: 'arcane_charge', name: `Arcane Charge: your next spell spends ${arc}`, n: arc });
   timed('cure', 'item:cleansing_tonic', 'Cleansing Tonic and Barrier Draught: recharging', fromMe(m.cure), { cool: true });
   timed('secondwind', 'second_wind', 'Second Wind: recharging', fromMe(m.secondWind), { cool: true });
+  // the moves that live in the physics (Dash, Blink, the Warrior's chase moves) and have no hotbar slot: their
+  // cooldowns in ticks on our predicted state (owner, 2026-10-25: "the cooldowns are too vague")
+  const ph = rpg.net?.me;
+  if (ph) for (const [key, icon, name] of MOVE_CDS) timed(`cd:${key}`, icon, `${name}: recharging`, (ph[key] | 0) / 60, { cool: true });
   return out;
 }
+
+// [physics state field, skill id, name]
+const MOVE_CDS = [['sc', 'leap_slam', 'Leap Slam'], ['uc', 'upward_cut', 'Upward Cut'], ['hc', 'hook', 'Hook'], ['dc', 'dash', 'Dash'], ['bc', 'blink', 'Blink']];
 
 const fmt = (s) => (s >= 60 ? `${Math.ceil(s / 60)}m` : String(Math.ceil(s)));
 

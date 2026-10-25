@@ -403,6 +403,9 @@ draws the list (one HTML cell each, its icon painted once with `drawSkillIcon` /
   Phones: the strip sits in the free space left of the screen between the HUD buttons and the movement pad, cells
   of 32 instead of 30. The panels come later in the page and cover it.
 - SP2: Retribution's store (`me.retri`, with the amount) and Bloodlust while it's on (HP under `BLOODLUST_AT`).
+- **Move cooldowns** (owner, 2026-10-25: the Warrior's were "too vague"): the moves with no hotbar slot (Leap Slam,
+  Upward Cut, Hook, Dash, Blink) show greyed while recharging, read off our predicted physics state (`MOVE_CDS`:
+  `sc`, `uc`, `hc`, `dc`, `bc` on `net.me`, in ticks), so Charge's refund of Dash shows at once.
 - A new buff or debuff: add its line to `statusOf` (a skill id for its icon, or a drawn one like the focus's).
 
 ## The skill pool's machinery (SP1)
