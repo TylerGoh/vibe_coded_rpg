@@ -622,6 +622,17 @@ export const SKILLS = {
     chance: (r) => EVADE * r,
     desc: (r) => `A ${Math.round(EVADE * 100 * Math.max(1, r))}% chance that a hit misses you completely (you're still knocked back). Never a boss's ultimate.`,
   },
+  // SP5 (story/skills-plan.md): the basics' mobbing staple (one arrow at each of the first mobs ahead) and long buff
+  spread_shot: {
+    ...A, adv: 10, name: 'Spread Shot', kind: 'shot', arrows: 1, spread: 3, max: 3, mp: 10, cd: 4, range: 420,
+    mult: (r) => 0.8 + 0.1 * r,
+    desc: (r) => `A fan of ${SKILLS.spread_shot.spread} arrows, one at each of the first ${SKILLS.spread_shot.spread} mobs ahead (range ${SKILLS.spread_shot.range}): ${pct(SKILLS.spread_shot.mult(R1(r)))} damage each. Cooldown ${SKILLS.spread_shot.cd} s.`,
+  },
+  bow_focus: {
+    ...A, adv: 10, name: 'Focus', kind: 'buff', max: 3, mp: 15, cd: 30, dur: 240,
+    fx: (r) => ({ atk: 0.01 * r, crit: 0.01 * r }),
+    desc: (r) => `Steady your aim for 4 min: +${pct(SKILLS.bow_focus.fx(R1(r)).atk)} attack and +${pct(SKILLS.bow_focus.fx(R1(r)).crit)} critical chance. Just you.`,
+  },
   // Sniper (one arrow at a time)
   snipe: {
     ...A, branch: 'sniper', adv: 30, name: 'Snipe', kind: 'shot', arrows: 1, far: true, max: 5, mp: 16, cd: 4, range: 640,
@@ -632,6 +643,26 @@ export const SKILLS = {
     ...A, branch: 'sniper', adv: 30, name: 'Piercing Arrow', kind: 'pierce', max: 5, mp: 14, cd: 3, range: 520, targets: 6,
     mult: (r) => 0.7 + 0.12 * r,
     desc: (r) => `An arrow that goes right through every mob in a line ahead (up to 6, range 520): ${pct(0.7 + 0.12 * Math.max(1, r))} damage each.`,
+  },
+  // SP5: a kill that keeps going, the Lv 60 mobbing staple, the party's crit, and the long shot that never misses its mark
+  ricochet: {
+    ...A, branch: 'sniper', adv: 30, name: 'Ricochet', kind: 'passive', max: 3,
+    onKill: { what: 'ricochet', from: 'arrow', range: 260, jumps: 2, mult: (r) => 0.5 + 0.15 * r },
+    desc: (r) => `An arrow that kills a mob jumps on to the nearest mob within range ${SKILLS.ricochet.onKill.range} for ${pct(SKILLS.ricochet.onKill.mult(R1(r)))} of your attack, and if that kills too, once more.`,
+  },
+  splitting_arrow: {
+    ...A, branch: 'sniper', adv: 60, name: 'Splitting Arrow', kind: 'shot', arrows: 1, split: 5, max: 5, mp: 16, cd: 3, range: 520,
+    mult: (r) => 0.95 + 0.08 * r,
+    desc: (r) => `An arrow at the first mob ahead (range ${SKILLS.splitting_arrow.range}) for ${pct(SKILLS.splitting_arrow.mult(R1(r)))} damage that bursts into a fan when it hits: up to ${SKILLS.splitting_arrow.split} mobs behind it, within range ${SPLIT_R}, take ${pct(SPLIT_SHARE)} of that. Cooldown ${SKILLS.splitting_arrow.cd} s.`,
+  },
+  sharp_eyes: {
+    ...A, branch: 'sniper', adv: 60, name: 'Sharp Eyes', kind: 'buff', max: 3, mp: 25, cd: 30, dur: 240, party: 300,
+    fx: (r) => ({ crit: 0.01 * r, critDmg: 0.02 * r }),
+    desc: (r) => `For 4 min, you and every friend within range ${SKILLS.sharp_eyes.party}: +${pct(SKILLS.sharp_eyes.fx(R1(r)).crit)} critical chance and +${pct(SKILLS.sharp_eyes.fx(R1(r)).critDmg)} critical damage.`,
+  },
+  eagle_eye: {
+    ...A, branch: 'sniper', adv: 100, name: 'Eagle Eye', kind: 'passive', max: 1,
+    desc: () => `A Snipe at a mob more than ${FAR_PX} away is always a critical hit. Keep your distance.`,
   },
   deadeye: {
     ...A, branch: 'sniper', adv: 60, name: 'Deadeye', kind: 'passive', max: 5,
@@ -658,6 +689,17 @@ export const SKILLS = {
     snare: (r) => 2 + r,
     desc: (r) => `Set a net on the ground where you stand for 20 s. The first mob to walk into it is caught: stuck fast and harmless for ${2 + Math.max(1, r)} s (a boss only slowed, for half that). Set it, then run: whatever chases you walks right in. One at a time.`,
   },
+  // SP5: the Trapper's single-target staple from Lv 30 (poison), its Lv 60 mobbing trap, its hawk and its capstone passive
+  poison_arrow: {
+    ...A, branch: 'trapper', adv: 30, name: 'Poison Arrow', kind: 'shot', arrows: 1, max: 5, mp: 14, cd: 5, range: 480,
+    mult: (r) => 1.2 + 0.15 * r, dot: { kind: 'poison', share: (r) => 0.04 + 0.01 * r },
+    desc: (r) => `A venom-tipped arrow at the first mob ahead (range ${SKILLS.poison_arrow.range}): ${pct(SKILLS.poison_arrow.mult(R1(r)))} damage, then it loses ${pct(SKILLS.poison_arrow.dot.share(R1(r)))} of that every second for ${POISON_S} s. Cooldown ${SKILLS.poison_arrow.cd} s.`,
+  },
+  blast_trap: {
+    ...A, branch: 'trapper', adv: 60, name: 'Blast Trap', kind: 'summon', what: 'blast', stat: 'atk', max: 5, mp: 20, cd: 12, dur: 20, radius: 140,
+    mult: (r) => 1.4 + 0.2 * r,
+    desc: (r) => `Set a trap where you stand for ${SKILLS.blast_trap.dur} s. The first mob to walk onto it sets it off: ${pct(SKILLS.blast_trap.mult(R1(r)))} of your attack to every mob within range ${SKILLS.blast_trap.radius}. Lead the pack over it. One at a time. Cooldown ${SKILLS.blast_trap.cd} s.`,
+  },
   barbed_arrows: {
     ...A, branch: 'trapper', adv: 60, name: 'Barbed Arrows', kind: 'passive', max: 5,
     desc: (r) => `Your arrows slow whatever they hit for ${BARB_SLOW} s, and hit slowed, chilled or netted mobs ${Math.round(BARB_BONUS * 100 * r)}% harder.`,
@@ -671,6 +713,16 @@ export const SKILLS = {
     ...A, branch: 'trapper', adv: 100, name: 'Thousand Arrows', kind: 'rain', max: 3, mp: 70, cd: 60, range: 520, radius: 340, hits: 6, slow: 3,
     mult: (r) => 0.8 + 0.2 * r,
     desc: (r) => `The sky goes dark with arrows: everything within range 340 of the first mob ahead is hit 6 times for ${pct(0.8 + 0.2 * Math.max(1, r))} each and slowed.`,
+  },
+  hawk: {
+    ...A, branch: 'trapper', adv: 100, name: 'Hawk', kind: 'summon', what: 'hawk', stat: 'atk', max: 3, mp: 30, cd: 30, dur: 30, every: 1.5,
+    mult: (r) => 0.4 + 0.1 * r,
+    desc: (r) => `A hawk circles over you for ${SKILLS.hawk.dur} s and every ${SKILLS.hawk.every} s dives at whatever you last shot (else the nearest mob ahead) for ${pct(SKILLS.hawk.mult(R1(r)))} of your attack. Nothing can hit it.`,
+  },
+  huntmaster: {
+    ...A, branch: 'trapper', adv: 100, name: 'Huntmaster', kind: 'passive', max: 3,
+    bonus: (r) => 0.08 * r,
+    desc: (r) => `Your Net Trap's bursts, your Blast Trap and your hawk hit ${pct(SKILLS.huntmaster.bonus(R1(r)))} harder on a slowed, chilled, frozen or netted mob.`,
   },
 
   // ——— Gifts: one player's own skill, granted by the server on load (server/rpg.js), never learned or
@@ -757,6 +809,13 @@ export const NET_R = 46, NET_BURST_R = 110, NET_BOSS_SLOW = 0.35;
 // Arrow Rain / Thousand Arrows: the volley comes down RAIN_AT s after it's loosed, a wave every RAIN_EVERY s
 // (the client shows the hits then; src/skillfx.js draws them falling)
 export const RAIN_AT = 0.45, RAIN_EVERY = 0.22;
+// ——— SP5, the Archer's skill pool (story/skills-plan.md) ———
+// Spread Shot (`spread` on a shot): one arrow at each of the first `spread` mobs ahead. Splitting Arrow (`split` on a
+// shot): the first mob takes the hit, then up to `split` mobs behind it (further along, within SPLIT_R of it) take
+// SPLIT_SHARE of it. Eagle Eye: a `far` shot (Snipe) at a mob past FAR_PX always crits (the client rolls it; the
+// server's cap already allows a crit). Huntmaster: a trap's or the hawk's hit × (1 + bonus(rank)) on a mob that's slowed,
+// chilled, frozen or netted (server/summons.js huntX)
+export const SPLIT_R = 300, SPLIT_SHARE = 1;
 // the bonuses an arrow gets on mob view / server mob v (the client's roll and the server's cap use the same
 // rules): Barbed Arrows on a slowed, chilled, frozen or netted mob · Snipe's and Heartseeker's long shot
 export const arrowBonus = (skills, sk, slowed, dist) => (1 + BARB_BONUS * rankOf(skills, 'barbed_arrows') * (slowed ? 1 : 0)) * (sk?.far && dist > FAR_PX ? 1 + FAR_BONUS : 1);

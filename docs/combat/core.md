@@ -26,7 +26,8 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
   position history).
 
 ## Damage
-- Attack: click/tap toward a side, or X / Hit toward where you face. Reach `SLAP_REACH` plus the sword's.
+- Attack: click/tap toward a side, or X / Hit toward where you face. Reach `SLAP_REACH` plus the sword's. Holding X or
+  Hit keeps attacking every `SLAP_COOLDOWN_MS` (SP5, `docs/combat/skills.md`, the Archer).
 - **With a staff** (S1) the attack is a **staff bolt** instead: a small orb to the first mob ahead within
   `STAFF_BOLT_RANGE` plus the staff's reach (`boltRange` in `statsFor`), for `STAFF_BOLT_MULT` of MAGIC,
   flying at `STAFF_BOLT_SPEED` (`staffBolt` in `src/rpg.js`; the hit is sent at once and shown on landing).

@@ -412,6 +412,38 @@ Judgment or the Guardian made the Priest slower at dens than before).
 - Nothing else moved: no mob, boss, gold, price or curve (other classes' shape ratios shift a little because the mean
   they're measured against now has a stronger Cleric).
 
+## The Archer's skill pool (SP5, 2026-10-25)
+`fight` learned SP5's pieces: Spread Shot (`spread`: one arrow at each of the first few, `min(spread, n)` hits),
+Splitting Arrow (`split`: the first mob, then `SPLIT_SHARE` on the ones behind it within `SPLIT_R`, `caught(n, SPLIT_R)`),
+Poison Arrow (a dot like the Berserker's bleed: `fight` now reads each dot's own time, `DOTS[kind].s`, where it assumed
+`BLEED_S`), the Blast Trap (set where you stand like the Net Trap: the crowd within its radius, a lone boss
+`FIELD_BOSS_SHARE` of the time, never one on a ledge), the Hawk (a flier like the Phoenix, on ATK, never on a ledge),
+Huntmaster (`huntX`: the traps and the hawk always on a slowed mob for a Trapper with Barbed Arrows), and Focus / Sharp
+Eyes as long buffs. Both Archer BUILDS take Spread Shot with the basics, their branch's new staples as they open, then
+Sharp Eyes / the Hawk and Focus. `HOTBAR_SWAPS`: Spread Shot gives way to Piercing Arrow / Arrow Rain at Lv 30, Piercing
+Arrow to Splitting Arrow and Arrow Rain to the Blast Trap at Lv 60, Poison Arrow to the Hawk at Lv 100; **Double Shot
+stays** (the cheap filler, like Smite). Not on the sheet: Ricochet (kills) and Eagle Eye (past `FAR_PX`).
+- **What moved** (single / crowd damage a second, before → after): Sniper Lv 30 1,375 / 1,534 → 1,443 / 1,610, Lv 60
+  5,744 / 6,467 → 6,317 / 6,990, Lv 100 10,632 / 14,267 → 11,744 / 15,865, Lv 200 21,681 / 29,092 → 23,981 / 32,395;
+  Trapper Lv 30 1,390 / 1,612 → 1,432 / 1,619, Lv 60 4,574 / 8,102 → 4,993 / 7,919, Lv 100 7,647 / 14,260 → 8,494 /
+  15,428, Lv 200 15,594 / 29,079 → 17,325 / 31,466. Shape (Archer ÷ the others' mean): single 0.76 / 1.22 / 1.28 / 1.29 →
+  0.79 / 1.34 / 1.42 / 1.43 (Lv 30 / 60 / 100 / 200): **the Archer tops single-target from Lv 60**; crowd 0.55 / 0.95 /
+  1.03 / 1.04 → 0.57 / 0.97 / 1.13 / 1.14: past the Cleric (0.68–0.74) from Lv 60, under the Mage (1.64–1.95); ranged
+  1.02–1.63 → 1.07–1.72; still the least tough with the Mage. Crowd and toughness stay its two lowest (`BAD_AT`). The
+  others' ratios drop a little against the stronger mean (the Mage's crowd 1.70 → 1.64 at Lv 200, the Warrior's single
+  0.72 → 0.69).
+- **Den solo times**: the Sniper is the fastest soloist and the closest to `CLASS_FIT`'s floor: Ignis 1:12 → 1:04, Pyra
+  1:19 → 1:11 (0.62× the median), Colossus 1:47 → 1:36, Chronos 1:52 → 1:40; the Trapper Colossus 2:25 → 2:09, Chronos
+  2:32 → 2:16. The first cut failed there (the Sniper 0.52× the median on Pyra, the Trapper's crowd over the Mage's), so
+  the buffs, the Hawk, Poison Arrow, the Blast Trap and Splitting Arrow were all cut; Splitting Arrow now hits about what
+  Piercing Arrow did on one mob, its fan reaching wider. **Any more Sniper boss damage fails `CLASS_FIT`**: SP6 should
+  slow the Sniper's bossing or speed the others'. Party dens: the Sniper alone 5:10 → 4:49 on the Root Warden.
+- **Farming**: an Archer's full-pack clear (the crowd column) is ~5% faster at Lv 30, ~8% (Sniper) at Lv 60 (the
+  Trapper ~2% slower there on the sheet: its Blast Trap takes Arrow Rain's slot), ~8–11% from Lv 100, more with Ricochet
+  chains. Under the Mage's, so `KILLS_PER_MIN` (set by the class that clears fastest) stays; SP6 retunes it with all four.
+- No EXP buff (LONG BUFFS lists Focus and Sharp Eyes, no faucet). Nothing outside the CLASSES tables moved: no mob,
+  boss, gold, price or curve.
+
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.
 2. Price it in **minutes of farming at that level** (the PROGRESS table's gold/min), by kind

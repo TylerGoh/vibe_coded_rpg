@@ -17,7 +17,7 @@ import { Party } from './party.js';
 import { StatusBox, statusOf } from './status.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, STAFF_BOLT_RANGE, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE, curseMult, heavyHit } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds, isLongBuff, DOTS, statOf, targetsOf, retriMult, EXEC_AT, STUN_S, judgmentMult, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX } from './shared/skills.js';
+import { SPLIT_R, SPLIT_SHARE, FAR_PX, SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds, isLongBuff, DOTS, statOf, targetsOf, retriMult, EXEC_AT, STUN_S, judgmentMult, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX } from './shared/skills.js';
 import { drawMobState } from './elements.js';
 import { staffGlow } from './staff-art.js';
 import { bowTint } from './bow-art.js';
@@ -46,7 +46,7 @@ const SKILL_SOUND = Object.fromEntries(Object.entries({
 }).map(([k, v]) => [k, typeof v === 'function' ? v : () => v]));
 // a long buff's look as it's cast (SP2's War Cry, SP3's Arcane Insight and Frost Armor; else a party ring or a glow)
 // (SP4: the Cleric's three in one golden look, `v` picks its sign: a heart, a star, a shield)
-const buffLook = (id, sk) => ({ war_cry: 'warcry', arcane_insight: 'insight', frost_armor: 'frostarmor', blessing: 'bless', holy_symbol: 'bless', resolve: 'bless' })[id] ?? (sk.party ? 'rally' : 'buff');
+const buffLook = (id, sk) => ({ war_cry: 'warcry', arcane_insight: 'insight', frost_armor: 'frostarmor', blessing: 'bless', holy_symbol: 'bless', resolve: 'bless', bow_focus: 'focus', sharp_eyes: 'focus' })[id] ?? (sk.party ? 'rally' : 'buff');
 const BLESS_V = { blessing: 'heart', holy_symbol: 'star', resolve: 'shield' };
 const kickFrom = (me, mx, knock) => ({ vx: Math.sign(me.x - mx || 1) * knock, vy: -Math.min(420, knock * 1.1) });
 
@@ -482,8 +482,9 @@ export class Rpg {
   // damage roll: minRoll (85%, raised by DEX) to 115%, crits from Sword Mastery and LUK (the server caps
   // hits at the best possible roll)
   // (S5.2: a boss's curse on us takes CURSE_DMG a stack off every hit: curseMult, the server's cap too)
-  roll(base, mult = 1) {
-    const crit = Math.random() < (this.me?.crit ?? 0.12);
+  // sure: a crit whatever the dice say (SP5's Eagle Eye)
+  roll(base, mult = 1, sure = false) {
+    const crit = sure || Math.random() < (this.me?.crit ?? 0.12);
     mult *= curseMult(this.me?.curse?.n);
     return [Math.max(1, Math.round(base * mult * rand(this.me?.minRoll ?? MIN_ROLL, MAX_ROLL) * (crit ? this.me?.critMult ?? 1.6 : 1))), crit ? 1 : 0];
   }
@@ -585,12 +586,12 @@ export class Rpg {
     // SP4: Judgment hits harder for every hurt slime near (we count what we can see; the server caps with its own count)
     const judged = sk.judge ? Math.min(JUDGMENT_MAX, this.hurtNear(me.x, JUDGMENT_R, JUDGMENT_AT)) : 0;
     const judge = sk.judge ? judgmentMult(m.skills, judged) : 1;
-    const hit = (v, base, delay = 0, extra = 1) => {
+    const hit = (v, base, delay = 0, extra = 1, sure = false) => {
       if (sk.combust && v.burning) [extra, v.burnLocal] = [extra * sk.combust(rank), 0]; // (SP3: Combustion sets the burn off; the server's echo shows the blast)
       const cut = this.shellCut(v, sx);
       const shatter = sk.el === 'fire' && !!v.frozen; // fire on a frozen mob (the Mage's combos)
       const [pm, weak] = this.party.mod(v, { ...kinds, heavy: kinds.heavy || shatter }, sy, sx);
-      let [dmg, crit] = this.roll(base, mult * extra * judge * this.markOn(v) * (shatter ? SHATTER_MULT : 1));
+      let [dmg, crit] = this.roll(base, mult * extra * judge * this.markOn(v) * (shatter ? SHATTER_MULT : 1), sure);
       dmg = Math.max(1, Math.round(dmg * cut * pm));
       if (!delay) this.blocked(v, cut);
       msg.hits.push(weak ? [v.id, dmg, crit, shatter ? 1 : 0, 1] : shatter ? [v.id, dmg, crit, 1] : [v.id, dmg, crit]);
@@ -607,19 +608,32 @@ export class Rpg {
     const arrow = (v) => arrowBonus(m.skills, sk, this.slowed(v), Math.abs(v.x - sx));
     const barbed = rankOf(m.skills, 'barbed_arrows') ? 1 : 0;
     if (sk.kind === 'shot' || sk.kind === 'pierce') {
-      // the Archer's arrows: Double Shot / Snipe at the first mob ahead, Piercing Arrow / Heartseeker through a line
-      const line = sk.kind === 'pierce' ? this.ahead(me, dir, sk.range, 0).slice(0, sk.targets) : this.ahead(me, dir, sk.range, 0).slice(0, 1);
+      // the Archer's arrows: Double Shot / Snipe at the first mob ahead, Piercing Arrow / Heartseeker through a line,
+      // Spread Shot one each at the first few ahead (SP5)
+      const line = this.ahead(me, dir, sk.range, 0).slice(0, sk.kind === 'pierce' ? sk.targets : sk.spread ?? 1);
       const v = line[0], far = line.at(-1);
       const tx = sk.kind === 'pierce' ? sx + dir * sk.range : v ? v.x : sx + dir * sk.range, ty = v ? v.y - MOBS[v.kind].h / 2 : sy - 20;
       msg.tx = Math.round(tx);
       msg.ty = Math.round(ty);
       const speed = sk.kind === 'pierce' ? 2200 : 1600;
+      // SP5's Eagle Eye: a Snipe at a mob past FAR_PX always crits
+      const eagle = sk.far && sk.kind === 'shot' && rankOf(m.skills, 'eagle_eye') > 0;
       for (const q of line) {
-        const at = Math.abs(q.x - sx) / speed + 0.03;
+        const at = Math.abs(q.x - sx) / speed + 0.03, sure = eagle && Math.abs(q.x - sx) > FAR_PX;
         if (barbed || sk.slow) q.slowLocal = this.time + at + 1;
-        for (let n = 0; n < (sk.arrows ?? 1); n++) hit(q, m.atk, at + n * 0.12, arrow(q));
+        for (let n = 0; n < (sk.arrows ?? 1); n++) hit(q, m.atk, at + n * 0.12, arrow(q), sure);
+        if (sure) this.pop(q.x, q.y - MOBS[q.kind].h - 40, 'EAGLE EYE', '#e6f0a8', 15, at);
       }
-      this.arrowFx(id, sk, sx, sy, dir, tx, ty, !!v, m.gear?.weapon);
+      // SP5's Splitting Arrow: it bursts on the first mob into a fan that catches up to `split` mobs behind it
+      const behind = sk.split && v ? this.targets().filter((q) => q !== v && (q.x - v.x) * dir > 0 && Math.abs(q.x - v.x) < SPLIT_R + MOBS[q.kind].w / 2 && Math.abs(q.y - v.y) < SPLIT_R * 0.6).sort((a, b) => Math.abs(a.x - v.x) - Math.abs(b.x - v.x)).slice(0, sk.split) : [];
+      const at0 = v ? Math.abs(v.x - sx) / speed + 0.03 : 0;
+      for (const q of behind) {
+        const at = at0 + Math.abs(q.x - v.x) / 1400;
+        if (barbed) q.slowLocal = this.time + at + 1;
+        hit(q, m.atk, at, arrow(q) * SPLIT_SHARE);
+      }
+      if (sk.split) msg.split = behind.map((q) => [Math.round(q.x), Math.round(q.y - MOBS[q.kind].h / 2)]); // (the others' fan)
+      this.arrowFx(id, sk, sx, sy, dir, tx, ty, !!v, m.gear?.weapon, { line, split: msg.split });
       if (far) setTimeout(() => audio.sfx('arrowHit', { pan: panX(far.x, sx) }), (Math.abs(far.x - sx) / speed) * 1000);
     } else if (sk.kind === 'rain') {
       // a volley up into the sky, coming down round the first mob ahead (or out in front)
@@ -779,10 +793,20 @@ export class Rpg {
   }
 
   // An arrow skill's flight (Archer, S4): Double Shot's two arrows, Snipe's long one, a piercing streak, the mark
-  arrowFx(id, sk, x, y, dir, tx, ty, hit, weapon) {
+  // SP5: Spread Shot fans one arrow to each mob in `line` ([{x, y}] or mob views; the rest fan out empty), Splitting
+  // Arrow's `split` ([[x, y]]: the mobs behind its first one) bursts into a fan where it lands
+  arrowFx(id, sk, x, y, dir, tx, ty, hit, weapon, o = {}) {
     const tint = bowTint(weapon);
     if (sk.kind === 'pierce') return this.fx.spawn('pierce', { x: x + dir * 14, y: y - 20, tx, ty: y - 20, dur: Math.abs(tx - x) / 2200, big: id === 'heartseeker' });
+    if (sk.spread) {
+      for (let n = 0; n < sk.spread; n++) {
+        const q = o.line?.[n], ex = q ? q.x : x + dir * sk.range * (0.75 - n * 0.08), ey = q ? q.y - (q.kind ? MOBS[q.kind].h / 2 : 0) : y - 20 - (n - 1) * 46;
+        this.timed.push([this.time + n * 0.05, () => this.fx.spawn('arrow', { x: x + dir * 14, y: y - 22 + (n - 1) * 3, tx: ex, ty: ey, dur: Math.abs(ex - x) / 1600 + 0.03, hit: !!q, tint })]);
+      }
+      return;
+    }
     const dur = Math.abs(tx - x) / 1600 + 0.03;
+    if (sk.split) this.timed.push([this.time + dur, () => this.fx.spawn('split', { x: tx, y: ty, dir, to: o.split ?? [], hit, tint })]);
     for (let n = 0; n < (sk.arrows ?? 1); n++) this.timed.push([this.time + n * 0.12, () => this.fx.spawn('arrow', { x: x + dir * 14, y: y - 20, tx, ty, dur, hit, tint: sk.kind === 'mark' ? '255,120,110' : tint, big: !!sk.far })]);
   }
 
@@ -870,7 +894,7 @@ export class Rpg {
     else if (sk.kind === 'zone') this.fx.spawn('zone', { x, y, radius: sk.radius, dur: m.dur });
     else if (sk.kind === 'aegis') this.fx.spawn('aegis', { x, y, radius: sk.radius });
     else if (sk.kind === 'gods') this.fx.spawn('gods', { x, y });
-    else if (sk.kind === 'shot' || sk.kind === 'pierce' || sk.kind === 'mark') this.arrowFx(m.skill, sk, x, y, m.dir, m.tx ?? x + m.dir * 300, m.ty ?? y - 20, m.hits.length > 0 || !!m.mark, caster.gear?.weapon);
+    else if (sk.kind === 'shot' || sk.kind === 'pierce' || sk.kind === 'mark') this.arrowFx(m.skill, sk, x, y, m.dir, m.tx ?? x + m.dir * 300, m.ty ?? y - 20, m.hits.length > 0 || !!m.mark, caster.gear?.weapon, { line: sk.spread ? m.hits.map((h) => this.views.get(h[0])).filter(Boolean) : null, split: m.split }); // (SP5: Spread Shot's fan, Splitting Arrow's burst)
     else if (sk.kind === 'rain') this.fx.spawn('rain', { sx: x, sy: y, x: m.tx, y: m.ty, radius: sk.radius, hits: sk.hits, big: sk.radius > 200 });
     const sound = sk.what === 'net' ? 'netSet' : SKILL_SOUND[sk.kind]?.(m.skill);
     if (sound) audio.sfx(sound, { pan, vol });

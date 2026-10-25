@@ -8,8 +8,9 @@
 // polish: the phoenix (SP3 polished it: a golden firebird with flame wings, a plumed crest and a streaming tail), sprites (SP4
 // polished them: small sky-blue spirits with flapping petal wings, a star on a curly antenna and a trail of sparkles), the
 // stone guardian (SP4: a mossy block golem with a glowing golden rune on its chest, a little flower in the moss, eyes
-// that brighten as it winds up and a dust ring when it slams; the Warding Totem's pulse is a golden ring), the hawk (a brown bird with spread wings) and the blast trap (a round pad with a glowing rune
-// that goes off with a bang).
+// that brighten as it winds up and a dust ring when it slams; the Warding Totem's pulse is a golden ring), the hawk (SP5: a red-brown hawk with a barred cream breast, a dark cap, fingered wingtips that fold back in a dive) and the
+// blast trap (SP5: a clay pot in a ring of stakes, a rune that pulses faster as it waits, a fuse with a crawling spark;
+// it goes off with a flash, fire, smoke and shards).
 import { TAU, clamp, circle, ellipse } from './util.js';
 import { SKILLS, WISP_R, SERAPH_R, NET_R, SPRITE_SCALE } from './shared/skills.js';
 import { audio } from './audio.js';
@@ -491,53 +492,137 @@ function phoenix(ctx, s) {
   circle(ctx, hx + d * 2.5, hy - 2, 0.6);
   ctx.restore();
 }
-// The hawk: a brown bird with long spread wings, gliding (wings beat faster in a dive)
+// The hawk (SP5's polish of SP1's first look): a red-brown hawk with a cream breast barred in brown, a dark cap and
+// cheek stripe, a hooked golden beak and a bright eye. Its long wings beat with fingered tips while it circles; in a
+// dive (lunge, set by its hits) it folds them back, tips its head down and streams speed lines. Flat fills only.
+const HAWK_BACK = '#9a5f3a', HAWK_WING = '#b8794a', HAWK_DARK = '#5a3420', HAWK_BREAST = '#f4e6cc';
 function hawk(ctx, s) {
-  const x = s.x, y = s.y, d = s.dir, flap = Math.sin(s.t * (s.lunge ? 18 : 6)) * 0.35;
-  ctx.fillStyle = 'rgba(60,40,30,0.12)';
-  ctx.strokeStyle = '#5a3c26';
-  ctx.lineWidth = 1.6;
-  for (const side of [-1, 1]) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(side * flap);
-    ctx.fillStyle = '#b8875a';
+  const d = s.dir, dive = Math.max(clamp(s.lunge, 0, 1), clamp(((s.ty ?? s.y) - s.y) / 24, 0, 1)), flap = Math.sin(s.t * (dive ? 4 : 7.5));
+  const x = s.x, y = s.y + Math.sin(s.t * 2.4) * 2;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(d * dive * 0.55); // (nose down in a dive)
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  if (dive > 0.2) { // speed lines streaming off behind
+    ctx.strokeStyle = `rgba(255,255,255,${0.6 * dive})`;
+    ctx.lineWidth = 1.6;
     ctx.beginPath();
-    ctx.moveTo(0, -2);
-    ctx.quadraticCurveTo(-d * 4, side * -16, -d * 10, side * -24);
-    ctx.quadraticCurveTo(d * 4, side * -14, d * 6, -2);
+    for (const ly of [-6, 0, 6]) {
+      ctx.moveTo(-d * (22 + Math.abs(ly)), ly);
+      ctx.lineTo(-d * (40 + Math.abs(ly) * 2), ly);
+    }
+    ctx.stroke();
+  }
+  // the tail: a fan of barred feathers
+  ctx.fillStyle = HAWK_WING;
+  ctx.strokeStyle = HAWK_DARK;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(-d * 9, -3);
+  ctx.lineTo(-d * 24, -8);
+  ctx.quadraticCurveTo(-d * 27, 0, -d * 24, 8);
+  ctx.lineTo(-d * 9, 3);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = HAWK_DARK;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (const b of [15, 20]) {
+    ctx.moveTo(-d * b, -5 - (b - 15) * 0.4);
+    ctx.lineTo(-d * b, 5 + (b - 15) * 0.4);
+  }
+  ctx.stroke();
+  // the wings, seen from the side: the far one (darker, a little behind) and the near one, both beating up and down
+  // together (the downstroke dips below the body); long, with fingered tips; folded back and low in a dive
+  const span = 1 - dive * 0.5, beat = dive ? 0.45 : 0.25 + 0.75 * flap;
+  const wing = (ox, sy, col) => {
+    ctx.save();
+    ctx.translate(ox, -3);
+    ctx.scale(1, sy);
+    ctx.fillStyle = col;
+    ctx.strokeStyle = HAWK_DARK;
+    ctx.lineWidth = 1.5 / Math.max(0.3, Math.abs(sy));
+    ctx.beginPath();
+    ctx.moveTo(d * 6, 0);
+    ctx.quadraticCurveTo(d * 7, -18 * span, d * 1 - d * dive * 10, -31 * span);
+    for (let f = 0; f < 4; f++) { // the finger feathers at the tip, then the trailing edge back to the body
+      const fx = d * 1 - d * dive * 10 - d * (f + 1) * 4.2, fy = -(31 - (f + 1) * 3.5) * span;
+      ctx.lineTo(fx + d * 1.5, fy + 5 * span);
+      ctx.lineTo(fx, fy);
+    }
+    ctx.quadraticCurveTo(-d * 14, -10 * span, -d * 8, 0);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+    ctx.strokeStyle = 'rgba(90,52,32,0.5)'; // a bar across it
+    ctx.lineWidth = 1.2 / Math.max(0.3, Math.abs(sy));
+    ctx.beginPath();
+    ctx.moveTo(d * 5, -12 * span);
+    ctx.quadraticCurveTo(-d * 3, -15 * span, -d * 10, -11 * span);
+    ctx.stroke();
     ctx.restore();
+  };
+  wing(-d * 3, Math.sign(beat || 1) * Math.max(0.2, Math.abs(beat)) * 0.85, HAWK_BACK);
+  // the body: brown back, cream breast with little bars
+  ctx.fillStyle = HAWK_BACK;
+  ctx.strokeStyle = HAWK_DARK;
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 13, 7, 0, 0, TAU);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = HAWK_BREAST;
+  ctx.beginPath();
+  ctx.ellipse(d * 3, 2.5, 8, 4.5, 0, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(154,95,58,0.7)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (const bx of [-1, 2.5, 6]) {
+    ctx.moveTo(d * bx - 1.5, 2);
+    ctx.lineTo(d * bx + 1.5, 3);
   }
-  ctx.fillStyle = '#9a6a42';
+  ctx.stroke();
+  // the head: a cream face under a dark cap, a cheek stripe, a hooked beak and a bright eye
+  const hx = d * 12, hy = -4;
+  ctx.fillStyle = HAWK_BREAST;
+  ctx.strokeStyle = HAWK_DARK;
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.ellipse(x, y, 12, 6, 0, 0, TAU);
+  ctx.arc(hx, hy, 5.8, 0, TAU);
   ctx.fill();
   ctx.stroke();
-  ctx.fillStyle = '#e8dcc8'; // head
+  ctx.fillStyle = HAWK_DARK;
   ctx.beginPath();
-  ctx.arc(x + d * 10, y - 2, 5, 0, TAU);
-  ctx.fill();
-  ctx.stroke();
-  ctx.fillStyle = '#f2c14e'; // beak
-  ctx.beginPath();
-  ctx.moveTo(x + d * 14, y - 3);
-  ctx.lineTo(x + d * 19, y);
-  ctx.lineTo(x + d * 14, y);
+  ctx.arc(hx, hy, 5.8, Math.PI * 1.05, Math.PI * 1.95);
   ctx.closePath();
   ctx.fill();
+  ctx.beginPath(); // the cheek stripe
+  ctx.moveTo(hx + d * 1, hy);
+  ctx.lineTo(hx - d * 1, hy + 5);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = HAWK_DARK;
+  ctx.stroke();
+  ctx.fillStyle = '#f2c14e';
+  ctx.strokeStyle = '#a8782a';
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.moveTo(hx + d * 4.5, hy - 2);
+  ctx.quadraticCurveTo(hx + d * 11, hy - 2, hx + d * 9.5, hy + 3.5);
+  ctx.quadraticCurveTo(hx + d * 8, hy + 1, hx + d * 4.5, hy + 1.8);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#ffd24a';
+  circle(ctx, hx + d * 2, hy - 1.2, 1.9);
   ctx.fillStyle = '#2a1a10';
-  circle(ctx, x + d * 11, y - 3, 1.2);
-  ctx.fillStyle = '#7a5232'; // tail
-  ctx.beginPath();
-  ctx.moveTo(x - d * 10, y - 3);
-  ctx.lineTo(x - d * 20, y - 6);
-  ctx.lineTo(x - d * 20, y + 5);
-  ctx.lineTo(x - d * 10, y + 3);
-  ctx.closePath();
-  ctx.fill();
+  circle(ctx, hx + d * 2.3, hy - 1.2, 1.1);
+  ctx.fillStyle = '#ffffff';
+  circle(ctx, hx + d * 2.7, hy - 1.7, 0.45);
+  wing(d * 1, Math.sign(beat || 1) * Math.max(0.2, Math.abs(beat)), HAWK_WING); // (the near wing, over the body)
+  ctx.restore();
 }
 // The stone guardian (SP4's polish): a squat golem of rounded lilac-grey blocks, moss on its head and shoulder with a
 // little flower in it, a golden rune glowing on its chest, eyes that brighten as it winds up; it leans into a slam and
@@ -653,28 +738,81 @@ function sprite(ctx, s) {
   ctx.fill();
   ctx.restore();
 }
-// The blast trap: a round pad pegged on the ground with a glowing rune that pulses faster the longer it waits
+// The blast trap (SP5's polish of SP1's first look): a squat clay pot sunk in a ring of four wooden stakes, a pressure
+// plate on top with an orange burst rune that glows and pulses faster the longer it waits, and a fuse cord round the
+// rim with a spark crawling along it. It goes off with a flash, a ball of fire, smoke and flying shards (puff 'boom').
 function blastTrap(ctx, s, time) {
-  const x = s.x, y = s.y - 2, pulse = 0.5 + 0.5 * Math.sin(time * 6 + s.id);
+  const x = s.x, y = s.y - 2, wait = time - (s.born ?? time), rate = 4 + Math.min(10, wait * 0.6), pulse = 0.5 + 0.5 * Math.sin(time * rate + s.id);
   ctx.save();
-  ctx.fillStyle = 'rgba(60,40,30,0.16)';
-  ellipse(ctx, x, y + 2, 30, 8);
-  ctx.fillStyle = '#7a6a5a';
-  ctx.strokeStyle = '#4a3a2e';
-  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.fillStyle = 'rgba(60,40,30,0.18)'; // its shadow
+  ellipse(ctx, x, y + 3, 30, 7);
+  // the stakes behind
+  const stake = (sx, sy) => {
+    ctx.fillStyle = '#c8945e';
+    ctx.strokeStyle = '#6e5232';
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.moveTo(sx - 2.5, sy);
+    ctx.lineTo(sx - 2.5, sy - 9);
+    ctx.lineTo(sx, sy - 13);
+    ctx.lineTo(sx + 2.5, sy - 9);
+    ctx.lineTo(sx + 2.5, sy);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  };
+  stake(x - 15, y - 4);
+  stake(x + 15, y - 4);
+  // the pot: round clay, a darker band, sunk in the ground
+  ctx.fillStyle = '#b8705a';
+  ctx.strokeStyle = '#6a3a2a';
+  ctx.lineWidth = 1.8;
   ctx.beginPath();
-  ctx.ellipse(x, y, 24, 7, 0, 0, TAU);
+  ctx.moveTo(x - 18, y);
+  ctx.quadraticCurveTo(x - 20, y - 12, x - 13, y - 13);
+  ctx.lineTo(x + 13, y - 13);
+  ctx.quadraticCurveTo(x + 20, y - 12, x + 18, y);
+  ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  ctx.strokeStyle = `rgba(255,120,90,${0.5 + 0.5 * pulse})`;
-  ctx.lineWidth = 2;
+  ctx.fillStyle = '#8a4e3a';
+  ctx.fillRect(x - 18, y - 6, 36, 3);
+  // the pressure plate and its rune
+  ctx.fillStyle = '#7a6a5a';
+  ctx.strokeStyle = '#4a3a2e';
+  ctx.lineWidth = 1.6;
   ctx.beginPath();
-  ctx.ellipse(x, y, 14, 4, 0, 0, TAU);
-  ctx.moveTo(x - 9, y);
-  ctx.lineTo(x + 9, y);
-  ctx.moveTo(x, y - 3.5);
-  ctx.lineTo(x, y + 3.5);
+  ctx.ellipse(x, y - 13, 14, 4, 0, 0, TAU);
+  ctx.fill();
   ctx.stroke();
+  ctx.fillStyle = `rgba(255,150,80,${0.25 + 0.35 * pulse})`;
+  ellipse(ctx, x, y - 13, 10 + 3 * pulse, 3 + pulse);
+  ctx.strokeStyle = `rgba(255,${200 + 40 * pulse},140,${0.6 + 0.4 * pulse})`;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) { // a little burst: six rays
+    const a = (i / 6) * TAU;
+    ctx.moveTo(x + Math.cos(a) * 2.5, y - 13 + Math.sin(a) * 0.8);
+    ctx.lineTo(x + Math.cos(a) * 8, y - 13 + Math.sin(a) * 2.4);
+  }
+  ctx.stroke();
+  // the fuse round the rim, a spark crawling along it
+  ctx.strokeStyle = '#5a4030';
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([2, 2]);
+  ctx.beginPath();
+  ctx.ellipse(x, y - 9, 19, 5, 0, 0, Math.PI);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  const a = (time * 1.6 + s.id) % Math.PI, fx = x + Math.cos(a) * 19, fy = y - 9 + Math.sin(a) * 5;
+  ctx.fillStyle = 'rgba(255,220,140,0.5)';
+  circle(ctx, fx, fy, 3.5 + pulse);
+  ctx.fillStyle = '#fff4c4';
+  circle(ctx, fx, fy, 1.6);
+  // the stakes in front
+  stake(x - 9, y + 3);
+  stake(x + 9, y + 3);
   ctx.restore();
 }
 
@@ -683,18 +821,34 @@ function blastTrap(ctx, s, time) {
 function puff(ctx, p, k) {
   const a = 1 - k;
   ctx.save();
-  if (p.what === 'boom') {
-    ctx.fillStyle = `rgba(255,180,110,${a * 0.5})`;
+  if (p.what === 'boom') { // (SP5's polish: a white flash, a ball of fire, smoke rolling up, shards of the pot flying)
+    if (k < 0.18) {
+      ctx.fillStyle = `rgba(255,250,220,${0.8 * (1 - k / 0.18)})`;
+      circle(ctx, p.x, p.y - 14, 40 + 160 * k);
+    }
+    ctx.fillStyle = `rgba(255,180,110,${a * 0.45})`;
     ctx.beginPath();
-    ctx.arc(p.x, p.y - 10, 20 + 90 * k, Math.PI, TAU);
+    ctx.arc(p.x, p.y - 10, 20 + 120 * k, Math.PI, TAU);
     ctx.fill();
     ctx.strokeStyle = `rgba(255,230,170,${a})`;
     ctx.lineWidth = 4 * a + 1;
     ctx.stroke();
-    for (let i = 0; i < 8; i++) {
-      const ang = Math.PI + (i / 7) * Math.PI, d = 20 + 70 * k;
-      ctx.fillStyle = `rgba(120,100,90,${a})`;
-      circle(ctx, p.x + Math.cos(ang) * d, p.y - 10 + Math.sin(ang) * d * 0.8, 3);
+    for (const [dx, r0, col] of [[0, 26, '255,140,70'], [-14, 18, '255,190,90'], [14, 18, '255,210,120']]) {
+      ctx.fillStyle = `rgba(${col},${a})`;
+      circle(ctx, p.x + dx * (1 + k), p.y - 18 - 30 * k, r0 * (1 - k * 0.6));
+    }
+    for (let i = 0; i < 5; i++) { // smoke
+      ctx.fillStyle = `rgba(150,140,140,${0.5 * a})`;
+      circle(ctx, p.x + (i - 2) * 16 * (0.5 + k), p.y - 30 - 60 * k - (i % 2) * 10, 8 + 14 * k);
+    }
+    for (let i = 0; i < 10; i++) { // shards of the pot
+      const ang = Math.PI + 0.15 + (i / 9) * (Math.PI - 0.3), d = 20 + 110 * k;
+      ctx.fillStyle = i % 2 ? `rgba(184,112,90,${a})` : `rgba(255,220,140,${a})`;
+      ctx.save();
+      ctx.translate(p.x + Math.cos(ang) * d, p.y - 10 + Math.sin(ang) * d * 0.8 + 40 * k * k);
+      ctx.rotate(i + k * 8);
+      ctx.fillRect(-3, -2, 6, 4);
+      ctx.restore();
     }
     ctx.restore();
     return;

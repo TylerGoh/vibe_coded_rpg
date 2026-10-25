@@ -11,6 +11,8 @@ Files: `src/touch.js` (buttons, fullscreen), touch layout rules in `src/style.cs
   Skills = K · Dash · Blink). So **a new keyboard action works on touch by adding a button to `BUTTONS`**
   and showing it in the right room in `update()`.
 - Tap-style buttons hold their key ~120 ms so the 60 Hz sim sees it. Tapping the canvas slaps.
+- **Hit is a held button** (SP5, owner 2026-10-25): held, it keeps attacking at the swing's rate (`attackHeld` in
+  `src/main.js`, like holding X). Losing the pointer (the button hidden under a panel) lets go.
 - Combos that need two right-thumb buttons at once (the Warrior's Leap Slam: ▼ + Hit; Upward Cut: Jump +
   Hit) use a grace window in the physics instead (`SLAM_GRACE`, `UPCUT_GRACE`): tap one, then the other.
   The Archer's Retreat Shot is Dash, then Hit (Hit shoots backward on its own while it's open), so it needs

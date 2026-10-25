@@ -321,9 +321,11 @@ and in a party its heals, shields and summons matter more than its damage. Rules
   `every`; it's worn down like a spirit. The **blast trap** (`blast`) is set like a net; the first mob over it sets
   it off on everything within its radius (`sumgone` with `how: 'boom'`). Every summon's hit is `summonHit`: MAGIC,
   or the skill's `stat`. Art (`src/summons.js`) is a first look for SP2–SP5 to polish: a golden firebird with flame wings, a
-  plumed crest and a streaming tail of tongues and embers (SP3's polish), a brown hawk, sky-blue small spirits with petal wings, a star
+  plumed crest and a streaming tail of tongues and embers (SP3's polish), a red-brown hawk with a barred cream breast, a dark cap and fingered wingtips that beat up and down and fold back in a dive (SP5's polish), sky-blue small spirits with petal wings, a star
   on a curly antenna and a sparkle trail (SP4's polish), a mossy block golem with a glowing golden rune on its chest, a flower in its
-  moss, eyes that brighten as it winds up and a dust ring when it slams (SP4's polish), a pad with a glowing rune.
+  moss, eyes that brighten as it winds up and a dust ring when it slams (SP4's polish), a clay pot in a ring of stakes with a
+  burst rune that pulses faster the longer it waits and a fuse with a crawling spark, going off with a flash, fire, smoke and
+  shards (SP5's polish of the blast trap).
 - **The damage meter** shows healing done and damage taken under the damage (`docs/combat/bosses.md`).
 
 ## The Archer (S4)
@@ -338,6 +340,12 @@ it); bows in `docs/combat/items.md`.
 - **The bow shot** is its normal attack (any bow holder's, a Novice's too): an arrow to the first mob ahead
   within `arrowRange` (`statsFor`: `BOW_RANGE` + the bow's reach + Keen Eye), `BOW_SHOT_MULT` of ATK, flying at
   `BOW_SHOT_SPEED` (`bowShot` / `otherArrow` in `src/rpg.js`; `shoot` in `server/rpg.js`).
+- **Hold to keep firing** (owner, 2026-10-25: attack speed is a core Archer feature, so you hold instead of spamming):
+  holding X or the touch Hit button attacks again every `SLAP_COOLDOWN_MS` (`attackHeld` in `src/main.js`; the Hit
+  button is a held one in `src/touch.js`). It's every weapon's, not only the bow's (simpler, and harmless: holding X
+  already repeated with the keyboard's own repeat), in combat rooms only. Each one is an ordinary `slap` from
+  `slapToward`, so the server's own swing check, Retreat Shot's backward aim and the Charge all work unchanged and
+  nothing about movement leaves `step()`. A key repeat (`e.repeat`) no longer fires by itself.
 - **DEX's job** (owner's ask: DEX only raised the minimum roll before): with a bow, DEX does what STR does for a
   sword, +0.6 ATK and `BOW_DEX_HP` max HP a point, and STR only +0.2 ATK (it still gives its HP). `AP_STATS`
   says so in the bag.
@@ -520,6 +528,31 @@ Looks: `FX.sacred`, `genesis`, `judgment`, `bless` (`src/skillfx.js`), the `radi
   (passive: `summonCap` + 1 for every Cleric summon; sprites come `count` + 1 at a time).
 - No wire bump: `judged` rides the skill echo, the ward rides `me`, the totem's pulse rides `sumhit`.
 - The economy sheet: `docs/economy.md`, "The Cleric's skill pool (SP4)".
+
+## The Archer's skill pool (SP5)
+`story/skills-plan.md`, the Archer table. Numbers in `SKILLS`; the few new rules and constants from `SPLIT_R` on in
+`src/shared/skills.js`. Every new skill has an icon (`ICONS`, `TREE_OF`: all in the archer palette) and the two long
+buffs show in the status box. The Archer mobs **in lines and volleys**: Spread Shot and Splitting Arrow fan out, the
+Blast Trap goes off under the pack it leads in, and Ricochet carries a kill on. Looks: `FX.split`, `focus` (both
+buffs; Sharp Eyes adds the party ring) in `src/skillfx.js`; the hawk's and the blast trap's art in `src/summons.js`.
+Hold-to-fire (above) came with it.
+- **Basics**: **Spread Shot** (a `shot` with `spread`: one arrow at each of the first `spread` mobs ahead; the server
+  takes that many hits; others see the fan from the echo's hit list), **Focus** (id `bow_focus`, since the status box
+  already uses the icon name `focus` for a boss's focus: a long buff for you only, `fx` ATK and crit).
+- **Sniper**: **Ricochet** (passive, SP1's on-kill `ricochet` `from: 'arrow'`, two jumps), **Splitting Arrow** (a `shot`
+  with `split`: the first mob takes the hit, then up to `split` mobs behind it, further along and within `SPLIT_R`,
+  take `SPLIT_SHARE` of it; the server allows `1 + split` hits out to `range + SPLIT_R`; the client sends the fan's ends
+  as `split`, echoed for the others' `FX.split`), **Sharp Eyes** (a long party buff: crit and crit damage), **Eagle Eye**
+  (passive: a `far` `shot`, Snipe, at a mob past `FAR_PX` always crits: the client's `roll(…, sure)` and an "EAGLE EYE"
+  pop; the server's cap always allowed a crit, so nothing changes there).
+- **Trapper**: **Poison Arrow** (a `shot` with SP1's poison `dot`), **Blast Trap** (SP1's `blast` summon on ATK, `stat:
+  'atk'`: the first mob on the ground over it sets it off on everything within its radius), **Hawk** (SP1's `hawk` summon on
+  ATK: dives at what you last shot, `p.lastHit`), **Huntmaster** (passive: `huntX` in `server/summons.js`, × (1 +
+  `bonus(rank)`) on the Net Trap's bursts, the Blast Trap and the hawk when the mob is slowed, chilled, frozen or netted;
+  Barbed Arrows slows whatever you shoot, so the hawk's target nearly always is).
+- No wire bump: `split` rides the skill echo; the rest is SP1's machinery.
+- Not on the economy sheet: Ricochet (kills aren't modelled) and Eagle Eye (the sheet's ranged column is closer than
+  `FAR_PX`). The sheet: `docs/economy.md`, "The Archer's skill pool (SP5)".
 
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js

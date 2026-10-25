@@ -1,6 +1,6 @@
 # SP: the skill pool (plan)
 
-**Status: SP1–SP4 live (SP4, the Cleric, 2026-10-25). SP5 next.** Written 2026-10-24 (owner's ask). Comes first on the roadmap, ahead of
+**Status: SP1–SP5 live (SP5, the Archer, 2026-10-25). SP6 next.** Written 2026-10-24 (owner's ask). Comes first on the roadmap, ahead of
 Greenhollow's final boss. Builds on the class design in `progression.md` (sections 1b, 1c, 3–7) and on how
 skills work today (`docs/combat/skills.md`). Read both first. Names here are working names; numbers live
 in `src/shared/skills.js` and are set by `npm run economy` (`CLASS_FIT`, `BAD_AT`), never guessed here.
@@ -243,6 +243,29 @@ What SP5 should know:
 - `HOTBAR_SWAPS` for the Cleric keeps Smite (a cheap filler can't be "replaced" by a long-cooldown staple on the sheet:
   it made the Priest slower). The Archer's Double Shot is the same kind of filler; swap only staples with cooldowns.
 - `buffText(rank)` on a long buff words what `fxText` can't (Resolve); the status box and the LONG BUFFS line read it.
+
+### SP5: live (2026-10-25)
+What landed (details: `docs/combat/skills.md`, "The Archer's skill pool (SP5)" and "Hold to keep firing"):
+- Every skill in the Archer table, as planned. Kinds reused: `shot` (Spread Shot with `spread`, Splitting Arrow with
+  `split`, Poison Arrow with SP1's poison), `buff` (Focus, id `bow_focus`: `focus` is the status box's boss-focus icon;
+  Sharp Eyes, party), `summon` (SP1's blast trap and hawk, on ATK with `stat: 'atk'`, their art polished), on-kill
+  `ricochet` (Ricochet). New small rules: `split` / `SPLIT_R` / `SPLIT_SHARE`, Eagle Eye's sure crit (`roll(…, sure)`, client
+  only: the cap always allowed a crit), Huntmaster's `huntX` in `server/summons.js`.
+- **Hold to fire** (owner): holding X or the Hit button attacks every `SLAP_COOLDOWN_MS` (`attackHeld`, `src/main.js`; Hit is
+  a held button). Every weapon, not only the bow: simpler and harmless (an ordinary slap each time, nothing new in `step()`).
+- No wire bump: `split` rides the skill echo.
+What SP6 should know:
+- **The Sniper sits at `CLASS_FIT`'s floor on the late dens** (0.62× the median on Pyra; the first SP5 cut failed at 0.52×).
+  Its boss damage comes mostly from the long buffs on top of Snipe / Heartseeker / Hunter's Mark: slowing the Sniper's
+  bossing (or speeding the others') is the first lever. The Archer now leads single (1.34–1.43× from Lv 60) and sits
+  between the Cleric and the Mage on crowd (0.97–1.14×), as the shape wants.
+- `HOTBAR_SWAPS` for the Archer keeps Double Shot (the filler). Arrow Rain → Blast Trap makes the Trapper's Lv 60 crowd a
+  little lower on the sheet than before (a planted trap counts once per cooldown); in the game Arrow Rain is still held.
+- Not on the sheet: Ricochet (kills aren't modelled; neither are Ignite / Cold Snap) and Eagle Eye (`RANGED_PX` is under
+  `FAR_PX`). A kill model would show the Archer's and the Mage's chains.
+- `fight` reads each dot's own time now (`DOTS[kind].s`): poison lasts longer than a bleed.
+- Hold-to-fire is generic: if SP6 gives classes different attack speeds, `SLAP_COOLDOWN_MS` (client and the server's check
+  in `server/index.js`) is the one place to split, and the sheet's `ACTION_S` with it.
 
 SP2–SP5 touch different parts of `SKILLS` and their own effects. They can run side by side, but `src/shared/skills.js`
 is shared, so they merge one at a time. Each one deploys on its own: a class at a time is fine (the others

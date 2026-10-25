@@ -16,7 +16,7 @@ const BUTTONS = [
   ['t-courses', 'Courses', 'KeyC', false],
   ['t-hand', 'Hand', 'KeyH', false],
   ['t-ask', 'Ask Clio', 'KeyQ', false],
-  ['t-attack', 'Hit', 'KeyX', false], // the Wildwood: attack the way you're facing
+  ['t-attack', 'Hit', 'KeyX', true], // the Wildwood: attack the way you're facing; held, it keeps attacking (main.js attackHeld)
   ['t-loot', 'Loot', 'KeyZ', false],
   ['t-bag', 'Bag', 'KeyI', false],
   ['t-skills', 'Skills', 'KeyK', false],

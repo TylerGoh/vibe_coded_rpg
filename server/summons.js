@@ -38,6 +38,8 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal, elem
     if (!list.some((q) => q.room === s.room)) gone.add(s.room);
   }
   const sync = (s) => Object.assign(s.state, { x: s.x, y: s.y, facing: s.dir });
+  // SP5's Huntmaster: × on a mob that's slowed, chilled, frozen or netted (s.hunt: the bonus, 0 without it)
+  const huntX = (s, q, t) => (s.hunt && (q.slowUntil > t || q.snareUntil > t || q.chillUntil > t || q.frozenUntil > t) ? 1 + s.hunt : 1);
 
   return {
     list,
@@ -66,6 +68,9 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal, elem
           Object.assign(s, { snare: sk.snare(rank), left: 1 + tm, burst: tm ? st.atk * SKILLS.trap_mastery.burst(tm) : 0, hitAt: t + 300 });
         }
         if (what === 'blast') Object.assign(s, { left: 1, hitAt: t + 300 }); // (SP1: it goes off once)
+        // SP5's Huntmaster: an Archer's traps and hawk hit harder on a slowed, chilled, frozen or netted mob (huntX)
+        const hm = sk.cls === 'archer' ? rankOf(p.rpg.skills, 'huntmaster') : 0;
+        s.hunt = hm && (what === 'net' || what === 'blast' || what === 'hawk') ? SKILLS.huntmaster.bonus(hm) : 0;
         // SP4: a Cleric summon's hits heal (`lightHeal`); the Warding Totem pulses on the mobs in its ring
         s.light = sk.lightHeal ? sk.lightHeal(rank) * st.heal : 0;
         const ward = what === 'totem' ? rankOf(p.rpg.skills, 'warding_totem') : 0;
@@ -257,7 +262,7 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal, elem
       for (const q of alive(s.room)) {
         if (Math.abs(q.x - m.x) > NET_BURST_R + MOBS[q.kind].w / 2 || Math.abs(q.y - m.y) > NET_BURST_R) continue;
         const crit = Math.random() < s.crit;
-        out.push(damage(q, Math.max(1, Math.round(s.burst * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1))), crit, s.owner, p, Math.sign(q.x - m.x) || 1, 120, { kind: 'summon', skill: s.skill }));
+        out.push(damage(q, Math.max(1, Math.round(s.burst * huntX(s, q, t) * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1))), crit, s.owner, p, Math.sign(q.x - m.x) || 1, 120, { kind: 'summon', skill: s.skill }));
       }
     }
     if (!caught.length) return;
@@ -277,7 +282,7 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal, elem
     for (const q of alive(s.room)) {
       if (!near(q, s.r)) continue;
       const crit = Math.random() < s.crit;
-      out.push(damage(q, Math.max(1, Math.round(s.hit * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1))), crit, s.owner, p, Math.sign(q.x - s.x) || 1, 260, { kind: 'summon', skill: s.skill }));
+      out.push(damage(q, Math.max(1, Math.round(s.hit * huntX(s, q, t) * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1))), crit, s.owner, p, Math.sign(q.x - s.x) || 1, 260, { kind: 'summon', skill: s.skill }));
     }
     if (!hits.has(s.room)) hits.set(s.room, []);
     hits.get(s.room).push([s.id, out]);
@@ -295,7 +300,7 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal, elem
       if (!d.hit && f >= 1) {
         d.hit = true;
         if (!m.dead && !m.gone && m.room === s.room) {
-          const crit = Math.random() < s.crit, dmg = Math.max(1, Math.round(s.hit * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1)));
+          const crit = Math.random() < s.crit, dmg = Math.max(1, Math.round(s.hit * huntX(s, m, t) * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1)));
           if (!hits.has(s.room)) hits.set(s.room, []);
           hits.get(s.room).push([s.id, [damage(m, dmg, crit, s.owner, p, Math.sign(m.x - s.x) || s.dir, 80, { kind: 'summon', skill: s.skill })]]);
           if (s.el && !m.dead) element(m, s.el, dmg, s.owner);

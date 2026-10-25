@@ -33,6 +33,8 @@ const TREE_OF = {
   double_shot: 'archer', retreat_shot: 'archer', keen_eye: 'archer', steady_hands: 'archer', evasion: 'archer', snipe: 'archer',
   piercing_arrow: 'archer', deadeye: 'archer', hunters_mark: 'archer', heartseeker: 'archer', arrow_rain: 'archer', net_trap: 'archer',
   barbed_arrows: 'archer', trap_mastery: 'archer', thousand_arrows: 'archer',
+  spread_shot: 'archer', bow_focus: 'archer', ricochet: 'archer', splitting_arrow: 'archer', sharp_eyes: 'archer', eagle_eye: 'archer', // (SP5)
+  poison_arrow: 'archer', blast_trap: 'archer', hawk: 'archer', huntmaster: 'archer',
 };
 const PALETTE = {
   blade: [BLADE, '#ffc4b0', '#b85a48'],
@@ -485,6 +487,209 @@ const ICONS = {
   },
   thousand_arrows(ctx, dark) { // a sky full of arrows
     for (const [x, y] of [[-14, -2], [-5, 8], [4, -4], [13, 6], [-9, 16], [9, 18]]) iconArrow(ctx, dark, x, y, 13, Math.PI / 2 - 0.25, 0.6);
+  },
+  // ——— SP5: the Archer's skill pool ———
+  spread_shot(ctx, dark) { // three arrows fanning out from one bow
+    for (const rot of [-0.45, 0, 0.45]) iconArrow(ctx, dark, -10 + Math.cos(rot) * 28, Math.sin(rot) * 28, 22, rot, 0.8);
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.6;
+    circle(ctx, -14, 0, 3.4);
+    ctx.stroke();
+  },
+  bow_focus(ctx, dark) { // four brackets closing in on a red dot, an arrow lined up under it
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 5;
+    const br = () => {
+      ctx.beginPath();
+      for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+        ctx.moveTo(sx * 15, sy * 7);
+        ctx.lineTo(sx * 15, sy * 15);
+        ctx.lineTo(sx * 7, sy * 15);
+      }
+      ctx.stroke();
+    };
+    br();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.6;
+    br();
+    ctx.fillStyle = '#e8504a';
+    circle(ctx, 0, 0, 4.2);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    star(ctx, 9, -9, 4, 4, 0.35);
+  },
+  ricochet(ctx, dark) { // an arrow glancing off a struck point and flying on at an angle
+    ctx.fillStyle = '#fff2c4';
+    star(ctx, -2, 6, 8, 6, 0.4);
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(-18, -12);
+    ctx.lineTo(-4, 4);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    iconArrow(ctx, dark, 18, -12, 22, -0.7, 0.85);
+  },
+  splitting_arrow(ctx, dark) { // one arrow bursting on a mark into three small ones beyond it
+    iconArrow(ctx, dark, -2, 2, 20, 0, 0.9);
+    ctx.fillStyle = '#fff2c4';
+    star(ctx, 0, 2, 6, 6, 0.4);
+    for (const rot of [-0.6, 0, 0.6]) iconArrow(ctx, dark, 4 + Math.cos(rot) * 16, 2 + Math.sin(rot) * 16, 10, rot, 0.6);
+  },
+  sharp_eyes(ctx, dark) { // two keen eyes side by side, a glint over them
+    for (const x of [-9, 9]) {
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = dark;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(x - 9, 2);
+      ctx.quadraticCurveTo(x, -8, x + 9, 2);
+      ctx.quadraticCurveTo(x, 10, x - 9, 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#7a8a2a';
+      circle(ctx, x, 2, 3.6);
+      ctx.fillStyle = '#ffffff';
+      circle(ctx, x - 1, 1, 1.1);
+    }
+    ctx.fillStyle = '#fff2c4';
+    star(ctx, 0, -13, 6, 4, 0.3);
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+  },
+  eagle_eye(ctx, dark) { // an eagle's head in profile, its hooked beak and fierce eye, a crosshair behind
+    reticle(ctx, 9, -6, 9, 'rgba(255,255,255,0.75)', 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(-16, 16);
+    ctx.quadraticCurveTo(-18, -8, -2, -12);
+    ctx.quadraticCurveTo(8, -12, 10, -4);
+    ctx.lineTo(4, 2);
+    ctx.quadraticCurveTo(-2, 10, 2, 16);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#f2c14e'; // the hooked beak
+    ctx.beginPath();
+    ctx.moveTo(8, -6);
+    ctx.quadraticCurveTo(19, -6, 17, 6);
+    ctx.quadraticCurveTo(13, 1, 4, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#2a1a10';
+    circle(ctx, 0, -5, 2.4);
+    ctx.strokeStyle = dark; // a fierce brow
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-5, -9);
+    ctx.lineTo(4, -7);
+    ctx.stroke();
+  },
+  poison_arrow(ctx, dark) { // an arrow with green venom dripping off its head
+    iconArrow(ctx, dark, 14, -6, 30, 0.35);
+    for (const [x, y, r] of [[10, 6, 3.2], [4, 13, 2.4], [15, 15, 2]]) {
+      ctx.fillStyle = '#a6e070';
+      ctx.strokeStyle = '#4a7a2a';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(x, y - r * 1.8);
+      ctx.quadraticCurveTo(x + r, y - r * 0.2, x, y + r);
+      ctx.quadraticCurveTo(x - r, y - r * 0.2, x, y - r * 1.8);
+      ctx.fill();
+      ctx.stroke();
+    }
+  },
+  blast_trap(ctx, dark) { // a pad on the ground going off, a burst and sparks over it
+    ctx.fillStyle = '#fff2c4';
+    star(ctx, 0, -4, 15, 8, 0.45);
+    ctx.strokeStyle = '#d0603a';
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+    ctx.fillStyle = '#ffb070';
+    star(ctx, 0, -4, 8, 8, 0.5);
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ellipse(ctx, 0, 12, 15, 4.5);
+    ctx.stroke();
+    ctx.strokeStyle = '#e8504a';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.ellipse(0, 12, 8, 2.4, 0, 0, TAU);
+    ctx.stroke();
+  },
+  hawk(ctx, dark) { // a hawk diving, wings swept back
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.8;
+    for (const s of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(-2, 0);
+      ctx.quadraticCurveTo(-8, s * 10, -18, s * 16);
+      ctx.quadraticCurveTo(-6, s * 12, 6, s * 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#d8b07a';
+    ctx.beginPath();
+    ctx.ellipse(2, 0, 11, 5, 0, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    circle(ctx, 12, -1, 4.4);
+    ctx.stroke();
+    ctx.fillStyle = '#f2c14e';
+    ctx.beginPath();
+    ctx.moveTo(15, -2);
+    ctx.lineTo(20, 1);
+    ctx.lineTo(15, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#2a1a10';
+    circle(ctx, 13, -2, 1.1);
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)'; // speed lines
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    for (const y of [-6, 0, 6]) {
+      ctx.moveTo(-20, y);
+      ctx.lineTo(-14, y);
+    }
+    ctx.stroke();
+  },
+  huntmaster(ctx, dark) { // a hawk's head over a net, a red mark on the net
+    iconNet(ctx, dark, 0, 9, 13);
+    ctx.fillStyle = '#e8504a';
+    circle(ctx, 0, 9, 3);
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.ellipse(-2, -10, 9, 8, 0, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#f2c14e';
+    ctx.beginPath();
+    ctx.moveTo(6, -12);
+    ctx.quadraticCurveTo(14, -11, 12, -4);
+    ctx.quadraticCurveTo(9, -7, 5, -6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#2a1a10';
+    circle(ctx, 1, -12, 1.8);
   },
   // ——— the Cleric (S3) ———
   smite(ctx, dark) { // a falling shaft of light with a star where it strikes
@@ -2629,6 +2834,7 @@ const LIFE = {
   hook: 0.5, bash: 0.4, rend: 0.45, execute: 0.55, lance: 0.45, shake: 0.6, wave: 0.65, judgement: 1.0, warcry: 0.8, // (SP2)
   thunder: 0.6, combust: 0.5, insight: 0.9, frostarmor: 0.8, // (SP3)
   genesis: 2.4, judgment: 0.6, bless: 0.9, // (SP4; sacred: its delay + 0.6)
+  split: 0.45, focus: 0.8, // (SP5)
   barrier: 0.6, revive: 1.1, // (S3)
 };
 
@@ -2643,6 +2849,7 @@ export class SkillFx {
   // SP2: 'hook' | 'bash' | 'rend' | 'execute' | 'lance' | 'shake' | 'wave' | 'judgement' | 'warcry'
   // SP3: 'thunder' | 'flamelance' | 'combust' | 'insight' | 'frostarmor'
   // SP4: 'sacred' | 'genesis' | 'judgment' | 'bless'
+  // SP5: 'split' | 'focus'
   // (options: see each FX entry)
   spawn(kind, o = {}) {
     const life = kind === 'bolt' ? (o.dur ?? 0.3) + 0.35
@@ -2679,6 +2886,73 @@ export class SkillFx {
 }
 
 const FX = {
+  // ——— SP5: the Archer's skill pool ———
+  // Splitting Arrow's burst {x, y (where it hit), dir, to: [[x, y]] (the mobs behind it), hit, tint}: a flash where it
+  // lands and a fan of small arrows flying on, one to each mob behind (three fanned out empty if there are none)
+  split(ctx, e, k) {
+    const { x, y, dir, tint = '240,230,200' } = e.o, to = e.o.to?.length ? e.o.to : [-0.35, 0, 0.35].map((a) => [x + dir * Math.cos(a) * 150, y + Math.sin(a) * 150]);
+    if (k < 0.5) {
+      const f = k / 0.5;
+      ctx.globalAlpha = 1 - f;
+      ctx.fillStyle = '#fff2c4';
+      star(ctx, x, y, 8 + 14 * f, 6, 0.4);
+      ctx.strokeStyle = `rgba(${tint},0.9)`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    const q = Math.min(1, k / 0.7);
+    for (const [ex, ey] of to) {
+      const px = x + (ex - x) * q, py = y + (ey - y) * q, ang = Math.atan2(ey - y, ex - x);
+      ctx.save();
+      ctx.globalAlpha = q < 1 ? 1 : 1 - (k - 0.7) / 0.3;
+      ctx.strokeStyle = `rgba(${tint},0.4)`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x + (ex - x) * Math.max(0, q - 0.3), y + (ey - y) * Math.max(0, q - 0.3));
+      ctx.lineTo(px, py);
+      ctx.stroke();
+      ctx.translate(px, py);
+      ctx.rotate(ang);
+      ctx.scale(0.7, 0.7);
+      drawArrow(ctx, -26, 0, 26, tint);
+      ctx.restore();
+    }
+  },
+  // Focus / Sharp Eyes {x, y, radius}: four brackets close in on the archer and lock with a glint; with a radius (Sharp
+  // Eyes, a party buff) an olive ring spreads out to it and small eye-glints rise round the caster
+  focus(ctx, e, k) {
+    const { x, y } = e.o, fade = k < 0.7 ? 1 : 1 - (k - 0.7) / 0.3, d = 14 + 46 * (1 - ease(Math.min(1, k / 0.5))), cy = y - 22;
+    ctx.globalAlpha = fade;
+    if (e.o.radius) {
+      const R = Math.min(e.o.radius, 260) * ease(k);
+      ctx.strokeStyle = 'rgba(200,214,110,0.9)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(x, y, Math.max(1, R), Math.max(1, R * 0.16), 0, 0, TAU);
+      ctx.stroke();
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * TAU + e.age * 2;
+        ctx.fillStyle = '#ffffff';
+        star(ctx, x + Math.cos(a) * 40, cy - 20 - k * 40 + Math.sin(a) * 8, 5 * (1 - k) + 2, 4, 0.3);
+      }
+    }
+    ctx.strokeStyle = '#eef4c0';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+      ctx.moveTo(x + sx * d, cy + sy * (d - 8));
+      ctx.lineTo(x + sx * d, cy + sy * d);
+      ctx.lineTo(x + sx * (d - 8), cy + sy * d);
+    }
+    ctx.stroke();
+    if (k > 0.45) {
+      ctx.fillStyle = `rgba(232,80,74,${1 - (k - 0.45) / 0.55})`;
+      circle(ctx, x, cy, 3.5);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      star(ctx, x + 10, cy - 12, 6 * (1 - k) + 2, 4, 0.3);
+    }
+  },
   // ——— SP4: the Cleric's skill pool ———
   // Sacred Light {x, y (the floor), radius, delay}: a column of light grows down out of the sky onto the spot, then
   // flares: a ring on the floor, motes thrown up

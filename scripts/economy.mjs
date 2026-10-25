@@ -8,7 +8,7 @@ const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; /
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
-import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds, isLongBuff, fxText, buffFx, momentumMax, EXEC_AT, BLEED_S, RETRI_HOLD, retriMult, targetsOf, statOf, HOLY_SYMBOL_EXP, JUDGMENT_AT, judgmentMult, DEVOTION_CAP, SUMMON_LIGHT, WARD_PULSE_S, RESOLVE_R, summonCap } from '../src/shared/skills.js';
+import { DOTS, SPLIT_R, SPLIT_SHARE, SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds, isLongBuff, fxText, buffFx, momentumMax, EXEC_AT, BLEED_S, RETRI_HOLD, retriMult, targetsOf, statOf, HOLY_SYMBOL_EXP, JUDGMENT_AT, judgmentMult, DEVOTION_CAP, SUMMON_LIGHT, WARD_PULSE_S, RESOLVE_R, summonCap } from '../src/shared/skills.js';
 import { SLAP_REACH, SLAP_COOLDOWN_MS, DASH_CD, PHANTOM_CD, CHARGE_RESET } from '../src/shared/sim.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
@@ -258,9 +258,11 @@ const BUILDS = {
   // (SP4: Radiance with the basics, each branch's new staples as they open, then Blessing and the Priest's Holy Symbol;
   // Devotion, Warding Totem and Host come with "every passive")
   priest: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'radiance', 'jelly_spirit', 'heal', 'faith', 'cleanse', 'sacred_light', 'mend', 'lantern_wisp', 'consecration', 'judgment', 'holy_power', 'revive', 'genesis', 'miracle', 'holy_symbol', 'blessing', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
-  // the Archer (S4): its core arrows first, Dash early for Retreat Shot, Evasion for the boss fights
-  sniper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'snipe', 'piercing_arrow', 'deadeye', 'hunters_mark', 'heartseeker', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
-  trapper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'arrow_rain', ['net_trap', 1], 'barbed_arrows', 'trap_mastery', 'net_trap', 'thousand_arrows', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  // the Archer (S4): its core arrows first, Dash early for Retreat Shot, Evasion for the boss fights (SP5: Spread Shot
+  // with the basics, each branch's new staples as they open, then Focus and Sharp Eyes; Ricochet, Eagle Eye and
+  // Huntmaster come with "every passive")
+  sniper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'spread_shot', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'snipe', 'piercing_arrow', 'deadeye', 'splitting_arrow', 'hunters_mark', 'heartseeker', 'sharp_eyes', 'bow_focus', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  trapper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'spread_shot', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'arrow_rain', 'poison_arrow', ['net_trap', 1], 'barbed_arrows', 'blast_trap', 'trap_mastery', 'net_trap', 'thousand_arrows', 'hawk', 'bow_focus', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   warden: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'radiance', 'jelly_spirit', 'faith', 'cleanse', 'heal', 'sprites', 'barrier', 'guardian_totem', 'stone_guardian', 'spirit_bond', 'seraph', 'resolve', 'blessing', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
 };
 // SP3: a new staple takes the hotbar slot of the one a tier before it (story/skills-plan.md, Rule 1: "the new one
@@ -271,6 +273,7 @@ const HOTBAR_SWAPS = {
   cleave: ['ground_shake', 'whirlwind'], ground_shake: ['shockwave'], shockwave: ['judgement'], whirlwind: ['blade_storm'], blade_storm: ['cyclone'],
   power_strike: ['shield_bash', 'rending_slash'], shield_bash: ['holy_lance'], rending_slash: ['execution'], execution: ['sky_splitter'],
   radiance: ['sacred_light', 'sprites'], sacred_light: ['consecration'], // (SP4: the Cleric's; Smite stays, the filler between its big spells)
+  spread_shot: ['piercing_arrow', 'arrow_rain'], piercing_arrow: ['splitting_arrow'], arrow_rain: ['blast_trap'], poison_arrow: ['hawk'], // (SP5: the Archer's; Double Shot stays, its filler)
 };
 const NOVICE_ORDER = ['slime_bash', 'pebble_toss', 'jelly_patch']; // (nine points fill all three by Lv 9)
 const CLASS_AT = [10, 30, 60, 100, 150, 200];
@@ -338,6 +341,8 @@ const DAMAGE_KINDS = new Set(['strike', 'cleave', 'spin', 'storm', 'bolt', 'fire
 const PHYS = new Set(['strike', 'cleave', 'spin', 'storm', 'shot', 'pierce', 'rain', 'wave']);
 const ARROWS = new Set(['shot', 'pierce', 'rain']); // (Barbed Arrows: everything after the first arrow hits a slowed mob)
 const barbed = (c) => 1 + BARB_BONUS * rankOf(c.skills, 'barbed_arrows');
+// SP5's Huntmaster: traps and the hawk on a slowed mob (a Trapper with Barbed Arrows slows whatever it shoots: always)
+const huntX = (c) => (rankOf(c.skills, 'barbed_arrows') && rankOf(c.skills, 'huntmaster') ? 1 + SKILLS.huntmaster.bonus(rankOf(c.skills, 'huntmaster')) : 1);
 // how many of n targets standing over CROWD_W px a hit `w` px wide catches
 const caught = (n, w) => (n === 1 ? 1 : Math.min(n, Math.max(1, (n * w) / CROWD_W)));
 // SP3: a planted field (not one that follows its caster, like Cyclone) on a lone target, a boss, catches it only
@@ -351,7 +356,9 @@ function hitsOf(sk, st, n, rank) {
     wave: caught(n, 2 * (sk.range ?? 0)), field: sk.kind === 'field' ? (sk.dur / (sk.every ?? 1)) * caught(n, 2 * sk.radius) * (n === 1 && !sk.follow ? FIELD_BOSS_SHARE : 1) : 0,
     strike: 1, cleave: Math.min(targetsOf(sk, rank), caught(n, melee)), spin: caught(n, 2 * sk.radius), storm: sk.hits * caught(n, 2 * sk.radius),
     bolt: 1, fireball: caught(n, 2 * sk.radius), chain: Math.min(sk.targets, n), meteor: caught(n, 2 * sk.radius), nova: caught(n, 2 * sk.radius), starfall: caught(n, 2 * sk.radius),
-    shot: sk.arrows, pierce: Math.min(targetsOf(sk, rank), n), rain: sk.hits * caught(n, 2 * sk.radius),
+    // (SP5: Spread Shot, an arrow at each of the first `spread`; Splitting Arrow, its first mob then SPLIT_SHARE on the ones
+    // behind it within SPLIT_R, up to `split`)
+    shot: sk.spread ? Math.min(sk.spread, n) : sk.split ? 1 + SPLIT_SHARE * Math.min(sk.split, caught(n, SPLIT_R) - 1) : sk.arrows, pierce: Math.min(targetsOf(sk, rank), n), rain: sk.hits * caught(n, 2 * sk.radius),
   }[sk.kind];
 }
 function rangeOf(sk, st) {
@@ -365,8 +372,11 @@ function castDmg(id, rank, st, n, range, c) {
   const sk = SKILLS[id];
   if (sk.what === 'net') { // Net Trap: only its Trap Mastery bursts do damage, on mobs that walk into it (never one on a ledge)
     const tm = rankOf(c.skills, 'trap_mastery');
-    return tm && !range ? st.atk * SKILLS.trap_mastery.burst(tm) * avgHit(st) * Math.min(1 + tm, n) * caught(n, 2 * NET_BURST_R) : 0;
+    return tm && !range ? st.atk * SKILLS.trap_mastery.burst(tm) * avgHit(st) * Math.min(1 + tm, n) * caught(n, 2 * NET_BURST_R) * huntX(c) : 0;
   }
+  // SP5's Blast Trap: set where you stand, the first mob over it sets it off on everything near; a lone boss walks over it
+  // FIELD_BOSS_SHARE of the time (never one on a ledge)
+  if (sk.what === 'blast') return !range ? summonHit(id, rank, st) * avgHit(st) * (n === 1 ? FIELD_BOSS_SHARE : caught(n, 2 * sk.radius)) * huntX(c) : 0;
   if (rangeOf(sk, st) < range) return 0;
   const base = sk.kind === 'field' ? statOf(sk, st) * (sk.fire ? st.fire : 1) : PHYS.has(sk.kind) ? st.atk : (sk.stat === 'best' ? Math.max(st.atk, st.magic) : st.magic) * (sk.fire ? st.fire : 1) * (sk.holy ? st.heal : 1);
   const hits = hitsOf(sk, st, n, rank), lead = sk.lead && hits >= 1 ? (sk.lead - 1 + hits) / hits : 1; // (SP3: Thunder Call's first mob takes lead ×)
@@ -563,6 +573,13 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
       for (let i = 0; i < k; i++) sums.push({ id: 'sprites', until: t + SKILLS.sprites.dur, hp: summonHp('sprites', r('sprites'), st), def: st.def * 0.5, dps: each, draw: i ? 0 : SPIRIT_DRAW, light: SKILLS.sprites.lightHeal(r('sprites')) * st.heal });
       continue;
     }
+    // SP5: the Hawk, whenever it's down (a flier like the Phoenix, on ATK; Huntmaster on a slowed target). Planted traps
+    // and the hawk don't reach a mob on a ledge (range)
+    if (!range && ready('hawk', t) && !sums.some((q) => q.id === 'hawk' && q.until > t)) {
+      use('hawk', t);
+      sums.push({ id: 'hawk', until: t + SKILLS.hawk.dur, hp: Infinity, def: 0, dps: (summonHit('hawk', r('hawk'), st) * avgHit(st) * huntX(c)) / SKILLS.hawk.every, draw: 0 });
+      continue;
+    }
     // SP3: the Phoenix, whenever it's down (a flier: one mob a dive, never hurt, draws nothing)
     if (ready('phoenix', t) && !sums.some((q) => q.id === 'phoenix' && q.until > t)) {
       use('phoenix', t);
@@ -597,12 +614,12 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     let best = null, dmg = attackDmg(st, range, c);
     const held = chargesUntil > t ? charges : 0;
     for (const id of actives) {
-      if ((!DAMAGE_KINDS.has(SKILLS[id].kind) && SKILLS[id].what !== 'net') || !ready(id, t)) continue;
+      if ((!DAMAGE_KINDS.has(SKILLS[id].kind) && SKILLS[id].what !== 'net' && SKILLS[id].what !== 'blast') || !ready(id, t)) continue;
       // (SP2: Execution on a boss in its last EXEC_AT; a Shield Bash lets Retribution's store out; a bleed's whole tick-down)
       const sk = SKILLS[id], low = (sk.exec && bossHp < Infinity && dealt >= (1 - EXEC_AT) * bossHp ? sk.exec(r(id)) : 1) * (sk.combust && burnUntil > t ? sk.combust(r(id)) : 1) // (SP3: Combustion on a burning target)
         * (sk.judge ? judgmentMult(c.skills, hp < JUDGMENT_AT * st.maxHp ? 1 : 0) : 1); // (SP4: Judgment, alone: you're the hurt one)
       const one = castDmg(id, r(id), st, n, range, c) * (spendsArcane(id) ? arcaneMult(c.skills, held) : 1) * low;
-      const d = one + (sk.stun && one ? st.atk * retriMult(c.skills, retri, st.atk) * avgHit(st) : 0) + (sk.dot ? one * sk.dot.share(r(id)) * BLEED_S * 0.5 : 0); // (half the bleed counted when choosing)
+      const d = one + (sk.stun && one ? st.atk * retriMult(c.skills, retri, st.atk) * avgHit(st) : 0) + (sk.dot ? one * sk.dot.share(r(id)) * DOTS[sk.dot.kind].s * 0.5 : 0); // (half the bleed / poison counted when choosing)
       if (d > dmg) [best, dmg] = [id, d];
     }
     // a chase move, if it beats that per action it takes (n targets: Leap Slam catches the crowd)
@@ -621,9 +638,9 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     if (best) use(best, t);
     if (best && SKILLS[best].stun) retri = 0;
     if (best && r('rampage') && r('momentum') && (best === 'whirlwind' || best === 'blade_storm')) [momentum, momentumUntil] = [Math.min(momentumMax(c.skills), (momentumUntil > t ? momentum : 0) + 1), t + MOMENTUM_DUR]; // (Rampage)
-    if (best && SKILLS[best].dot) { // the bleed: share of the hit a second over BLEED_S (the bleed part of dmg taken back out)
-      const hitPart = dmg / (1 + SKILLS[best].dot.share(r(best)) * BLEED_S * 0.5);
-      [bleedDps, bleedUntil] = [Math.max(bleedUntil > t ? bleedDps : 0, hitPart * SKILLS[best].dot.share(r(best))), t + BLEED_S];
+    if (best && SKILLS[best].dot) { // the bleed (SP5: or poison): share of the hit a second over its DOTS time (the dot part of dmg taken back out)
+      const ds = DOTS[SKILLS[best].dot.kind].s, hitPart = dmg / (1 + SKILLS[best].dot.share(r(best)) * ds * 0.5);
+      [bleedDps, bleedUntil] = [Math.max(bleedUntil > t ? bleedDps : 0, hitPart * SKILLS[best].dot.share(r(best))), t + ds];
       dmg = hitPart;
     }
     if (best && spendsArcane(best)) charges = 0;

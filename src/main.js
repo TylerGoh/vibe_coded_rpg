@@ -771,11 +771,11 @@ musicButton.onclick = () => {
 // Controls: every key (or touch button), in the Esc menu instead of as labels on the HUD (owner's request)
 const CONTROLS = TOUCH
   ? [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-     ['Tap the game', 'slap · Hit attacks'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['▼ then Dash', 'Hook (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree (Cast a skill from its card)'],
+     ['Tap the game', 'slap · Hit attacks (hold it to keep attacking)'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['▼ then Dash', 'Hook (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree (Cast a skill from its card)'],
      ['Players', "who's online, invite, message"], ['Chat', 'chat · /w name to whisper · /r to reply'], ['Decorate', 'in your own house'],
      ['Mic · Broadcast', 'talk to slimes nearby · to everyone'], ['Menu', 'this menu']]
   : [['← → / A D', 'walk'], ['↑ / W / Space', 'jump (twice with Flash Jump)'], ['↓ / S', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-     ['Click', 'slap · attack'], ['X', 'attack'], ['Shift then X', 'Charge (Warrior) · Retreat Shot (Archer)'], ['↓ + X in the air', 'Leap Slam (Warrior)'], ['↓ + Shift', 'Hook (Warrior)'], ['Jump + X, rising', 'Upward Cut (Warrior)'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
+     ['Click', 'slap · attack'], ['X', 'attack (hold to keep attacking)'], ['Shift then X', 'Charge (Warrior) · Retreat Shot (Archer)'], ['↓ + X in the air', 'Leap Slam (Warrior)'], ['↓ + Shift', 'Hook (Warrior)'], ['Jump + X, rising', 'Upward Cut (Warrior)'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
      ['I · K', 'bag · skill tree (double-click a skill, or Cast, to cast it)'], ['P', "who's online, invite, message"], ['Enter', 'chat · /w name to whisper · /r to reply'],
      ['R', 'decorate your house'], ['C · H · Q', 'course menu · raise your hand · ask Clio'], ['M · B', 'mic · broadcast to everyone'],
      ['F', 'fullscreen'], ['Esc', 'this menu']];
@@ -859,6 +859,10 @@ function impact(x, y) {
   if (pops.length > 8) pops.shift();
 }
 let lastSlap = 0;
+// Holding X (or the Hit button) keeps attacking, a swing / shot every SLAP_COOLDOWN_MS (owner, 2026-10-25: attack speed
+// is the Archer's thing, so you hold instead of spamming). Every weapon, in combat rooms only; update() fires it. It's an
+// ordinary slap each time (the same message, the same server check), so nothing about movement changes.
+let attackHeld = false;
 // what a slap sounds like with what's in hand: a sword swings, a staff fires (its bolt), a mitten slaps
 const weaponSound = (s) => ({ sword: 'swing', staff: 'staffBolt', bow: 'bowShot' }[ITEMS[s.gear?.weapon]?.kind] ?? 'slap');
 // In the Wildwood a slap (or a sword swing, with one equipped) also hits mobs
@@ -1037,6 +1041,8 @@ addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyX' && menu.hidden && isCombat(room) && online()) {
     e.preventDefault();
+    if (e.repeat) return; // (held: update() keeps firing at the swing's own rate, not the keyboard's repeat)
+    attackHeld = true;
     slapToward(mine.facing);
     return;
   }
@@ -1176,8 +1182,14 @@ addEventListener('keydown', (e) => {
     moveSteps = 3;
   }
 });
-addEventListener('keyup', (e) => held.delete(e.code));
-addEventListener('blur', () => held.clear());
+addEventListener('keyup', (e) => {
+  held.delete(e.code);
+  if (e.code === 'KeyX') attackHeld = false;
+});
+addEventListener('blur', () => {
+  held.clear();
+  attackHeld = false;
+});
 const keys = () => {
   if (mine && splatted(mine)) return 0; // the server ignores us until we wake up anyway
   if (scope.isOpen) return 0; // standing still at the telescope
@@ -1213,6 +1225,10 @@ function update(realDt) {
       acc -= DT;
     }
     net.smooth(dt);
+    if (attackHeld) {
+      if (online() && menu.hidden && isCombat(room) && !dialogOpen()) slapToward(mine.facing); // (rate-limited inside)
+      else if (!isCombat(room)) attackHeld = false;
+    }
   }
 
   const newRoom = online() ? net.me.room : VILLAGE;
