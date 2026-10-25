@@ -286,7 +286,7 @@ export const SKILLS = {
   },
   sword_mastery: {
     ...W, branch: 'berserker', adv: 60, name: 'Sword Mastery', kind: 'passive', max: 5,
-    desc: (r) => `+${3 * r}% critical chance and critical hits do +${10 * r}% more damage.`,
+    desc: (r) => `+${Math.round(SWORD_MASTERY_ATK * 100 * r)}% attack with a sword, +${3 * r}% critical chance and critical hits do +${10 * r}% more damage.`,
   },
   blade_storm: {
     ...W, branch: 'berserker', adv: 60, name: 'Blade Storm', kind: 'storm', max: 3, mp: 30, cd: 12, radius: 130, hits: 4, crack: true, // (crack: it cracks a boss's armour, S5.2)
@@ -901,6 +901,9 @@ function pct(m) {
 export const cooldownOf = (id, rank) => SKILLS[id].cdFor?.(rank) ?? SKILLS[id].cd;
 // Momentum (Warrior): stacks from chase-move hits, each lasting MOMENTUM_DUR s from the last; standing still
 // for MOMENTUM_STILL s loses them all (server/rpg.js)
+// SP6 (the balance pass): Sword Mastery also gives SWORD_MASTERY_ATK attack a rank with a sword (the Warrior sat ~0.7x the
+// others' damage from Lv 60, where it opens; story/skills-plan.md SP6)
+export const SWORD_MASTERY_ATK = 0.07;
 export const MOMENTUM_MAX = 5, MOMENTUM_DUR = 8, MOMENTUM_STILL = 1;
 // ——— SP2, the Warrior's skill pool (story/skills-plan.md) ———
 // Rampage: Momentum's cap goes up a stack a rank (and Whirlwind / Blade Storm add stacks: server/rpg.js cast)
@@ -1062,7 +1065,7 @@ export function statsFor(c, buffs = {}) {
   const lust = rankOf(c.skills, 'bloodlust') && buffs.hp != null && buffs.hp < hpMax * BLOODLUST_AT ? SKILLS.bloodlust.boost(rankOf(c.skills, 'bloodlust')) : 0;
   const stand = 1 + SKILLS.unbroken.per(rankOf(c.skills, 'unbroken')) * Math.min(UNBROKEN_MAX, buffs.attackers ?? 0);
   return {
-    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + (bow ? 0.2 * str + 0.6 * dex : 0.6 * str + 0.2 * dex)) * rage * rally * might * push * (bow ? 1 + STEADY * rankOf(c.skills, 'steady_hands') : 1) * (1 + (long.atk ?? 0)) * (1 + lust)),
+    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + (bow ? 0.2 * str + 0.6 * dex : 0.6 * str + 0.2 * dex)) * rage * rally * might * push * (bow ? 1 + STEADY * rankOf(c.skills, 'steady_hands') : 1) * (!bow && !staff ? 1 + SWORD_MASTERY_ATK * mastery : 1) * (1 + (long.atk ?? 0)) * (1 + lust)),
     magic: Math.round((magicFor(c.lvl) + (staff?.magic ?? 0) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might * (1 + (long.magic ?? 0))),
     def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 5 * rankOf(c.skills, 'iron_jelly')) * rally * (1 + (long.def ?? 0)) * stand),
     maxHp: hpMax,

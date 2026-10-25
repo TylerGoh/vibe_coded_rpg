@@ -54,6 +54,13 @@ The owner chose responsiveness over cheat-proofing (it's a game among friends).
 - Defences (Bubble, Aegis, Sanctuary, Second Wind, DEF, a brewed ward, Mana Shield, the Archer's Evasion) are
   all applied in server `hurt()`. A KO also lifts a boss's curse (S5.2). Mana Shield takes its share of a hit off MP while there's MP (never an
   ultimate's). An evaded hit (S4) still knocks you back, as the client predicted, but does no damage.
+- **A boss's hit takes a share of your max HP** (SP6, owner 2026-10-25): `ouch` passes `pct` to `hurt()`, `bossHitPct`
+  (`BOSS_HIT_PCT` on a den or field boss, `TOP_HIT_PCT` on a top boss, none from minions or mobs) × the move's `OUCH`
+  multiplier (and `FOCUS_ATK`), added after DEF to the flat part (ATK × the multiplier × the roll, less DEF). So being far
+  over-levelled never makes a boss harmless: the flat part fades to 1, the share doesn't. Every cut after DEF (Sanctuary,
+  the totem, a ward, a long buff's cut, Resolve, a Barrier, Devotion, Mana Shield) takes the share as it takes the rest;
+  Evasion dodges the whole hit. There is no level-gap damage penalty and gear has no level requirement (owner declined
+  both): the share is the answer to over-levelling. Ultimates are still KOs.
 - **Hunter's Mark** (S4): every slime's hits on a marked mob may be `boost` bigger; `applyHits` raises any
   hitter's cap while `m.mark` is up, and a netted mob, like a frozen one, can't hurt anyone by touch.
 - **A boss's party mechanics** (S5.2, `docs/combat/bosses.md`): `applyHits` takes what kind of hit it is (`magic`,

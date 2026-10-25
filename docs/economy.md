@@ -60,15 +60,16 @@ Lv 5–20, which would have doubled early levelling.
   strong as the curve there, never much stronger.
 - **Elites** (`ELITE_*` in rpg.js) are checked against their base mob: never more gold per EXP. They don't
   count as what a player farms ("farming your own level" picks ordinary mobs).
-- **Field bosses** sit in the boss table (kind `field`) and must be worth `FIELD_BOSS_WORTH` minutes of
-  farming in gold and in EXP (dens are worth 6–20×); `FIELD_BOSS_RESPAWN_MS` must be at least 10 min.
+- **Field bosses** sit in the boss table (kind `field`). Since SP6 each one the sheet can fight is priced a minute of
+  its fight (`FIELD_PAY`, below); one under `CLASS_LVL` (Turnipop) must still be worth `FIELD_BOSS_WORTH` minutes of
+  farming in gold and in EXP. `FIELD_BOSS_RESPAWN_MS` must be at least 10 min.
 
 ## Bosses are no longer the EXP faucet (S0, 2026-10-23)
 The over-level falloff (`overlevelScale`) and the den bosses' reward window (`BOSS_WINDOW_MS`,
-`docs/combat/bosses.md`). The boss table's "camped 1 h vs mobs" column is a den boss killed every
-`BOSS_RESPAWN_MS` + `CAMP_FIGHT_MIN`, against an hour of farming mobs at its level, in EXP and in gold (loot
-sold); the check keeps the EXP under `BOSS_CAMP_MAX`. It sits around 0.4–0.9× now (gold 2–4×: boss gear
-still sells well). The Progress table doesn't change: it farms mobs at your own level.
+`docs/combat/bosses.md`). BOSS PAY's "an hour" column (since SP6; before, the boss table's "camped 1 h") is a den boss
+killed every `BOSS_RESPAWN_MS` + its sheet fight (the Novices' dens: `CAMP_FIGHT_MIN`), against an hour of farming mobs
+at its level, in EXP and in gold (loot sold); the check keeps the EXP under `BOSS_CAMP_MAX`. The Progress table
+doesn't change: it farms mobs at your own level.
 
 ## Staves (S1, 2026-10-23)
 A staff is priced exactly like its twin sword and drops in its place, never as well, so no faucet moved;
@@ -199,21 +200,23 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
 - **Time to solo each den** at the den's own level (dens under `CLASS_LVL` are the Novices' and left out):
   the real boss's HP and ATK, a hit every `BOSS_HIT_EVERY` by class (most often for a Warrior up close, least
   for a Mage, a Cleric or an Archer at range), potions drunk (the biggest shop potion that fits) and their gold, against what the kill pays.
-- **Party dens** (S5.3; `isPartyDen`: `partyDen` + `partyLive`, the Root Warden and Sigrun) are left out of the solo
-  table and checks and get their own, **PARTY DENS**: each branch alone against the boss's mechanics as a lone slime
-  meets them (pulse, barrier, weak point: `fight`'s `mech`; adds, focus and ultimates left out), its HP from
-  `bossMaxHp` (never under `PARTY_DEN_HP_FLOOR` slimes' worth), next to the same fight without them; and a mixed
-  party of `PARTY_TEAM` (each member's own run with the boss's hits shared out, the others' spells wearing the
-  barrier and the arrows filling the weak point: `help`; the Knight in front of a front-only barrier, the rest
-  behind it `PARTY_BEHIND` of the time; alone, `SOLO_BEHIND` and `WEAK_JUMP`). Checks: the party's time within
-  `PARTY_DEN_MIN` sim minutes, the solo median at least `PARTY_DEN_SOLO` × that, at least one branch can finish it
-  alone (never locked), nobody in the party faints.
+- **Top bosses** (S5.3's party dens, widened in SP6: `top` on the boss, the Root Warden, Sigrun, the Clockwork
+  Colossus, Chronos, the final bosses) are left out of the solo table and get **TOP BOSSES**: a party of `PARTY_TEAM`,
+  a lopsided one (`LOPSIDED_TEAM`) on a boss with mechanics, and each branch alone, against the mechanics as they meet
+  them (pulse, barrier, weak point, the top boss's ultimate: `fight`'s `mech`; adds and focus left out), the HP from
+  `bossMaxHp` (never under `PARTY_DEN_HP_FLOOR` slimes' worth). In a team each member runs `PARTY_SIM_S` with the
+  boss's hits shared out, the others' spells wearing the barrier, the arrows filling the weak point, the Clerics'
+  party-wide heals (`healGive`, `HEAL_GIVE` of their time) and a Knight's Sanctuary covering them (`teamHelp`); the
+  Knight in front of a front-only barrier, the rest behind it `PARTY_BEHIND` of the time; alone, `SOLO_BEHIND` and
+  `WEAK_JUMP`. The ultimate goes off every `ULT_GAP` s unless a Frostbinder is there to interrupt it, cut by the
+  team's best answer (`ultXOf`: a Knight's Sanctuary, `ULT_CLERIC` with a Cleric). Potions are drunk early when a
+  pulse or ultimate is coming (you see the warning). Checks below (SP6).
 - **RETROFIT** (S5.4): the den and field bosses given party mechanics (`partyLive`, not a party den). Alone none
   switch on, so the solo tables don't move; the table shows a duo (`RETRO_DUOS`) killing each with the mechanics off
   / on. `fight` models armour too now (non-heavy hits cut, your own heavy hits crack it; a partner's cracks aren't
   counted, so it reads a little slow). Focus, curse and adds aren't modelled. No check: it's a guide. Owner's targets (`story/s5-plan.md`): a mixed party wins in a few
   minutes; alone only by playing very well for much longer. The sim plays faster than people do (ordinary dens'
-  solo kills come out at 1.5–3 min here and are "a few minutes" in play).
+  solo kills came out at 1.5–3 min here before SP6, ~15 since). A duo still moves −8% to +26% with the mechanics on.
 - **The shape table**: each class ÷ the other classes' mean, per column (mean of each class's branches).
 - **Checks.** Every branch can solo every den: never faints, and its potions cost at most
   `SOLO_POTION_SHARE` of what the kill pays. Every branch's solo time within `CLASS_FIT` of the median of all
@@ -443,6 +446,34 @@ stays** (the cheap filler, like Smite). Not on the sheet: Ricochet (kills) and E
   chains. Under the Mage's, so `KILLS_PER_MIN` (set by the class that clears fastest) stays; SP6 retunes it with all four.
 - No EXP buff (LONG BUFFS lists Focus and Sharp Eyes, no faucet). Nothing outside the CLASSES tables moved: no mob,
   boss, gold, price or curve.
+
+## The balance pass (SP6, 2026-10-25; owner's brief: `story/roadmap.md`, `story/skills-plan.md`)
+- **Every boss hit takes a share of max HP** on top of its flat part (`bossHitPct`: `BOSS_HIT_PCT`, `TOP_HIT_PCT` on a top
+  boss, × the move's multiplier; `docs/combat/core.md`). The sheet passes it as `pct` to `fight` (× `BOSS_HIT_MULT`).
+  The toughness column leaves it out on purpose: it's the same share for every class, so it only blurs the shape.
+- **Fight lengths**, sheet minutes (it plays faster than people): an ordinary den soloed at its level, the eight
+  branches' median within `DEN_SOLO_MIN` (~15); a field boss within `FIELD_SOLO_MIN` (~4: the owner left it to judgement,
+  "longer than now, well short of a den"; FIELD BOSSES table); a top boss for `PARTY_TEAM` within `TOP_PARTY_MIN` (~45),
+  alone `TOP_SOLO` × that (possible, miserable, never locked: at least one branch finishes), a lopsided party within
+  `TOP_LOPSIDED_MIN` (70–90 wanted) and drinking at least `LOPSIDED_POTS` a member. Sigrun's lopsided time isn't checked:
+  her barrier is front-only and flanking it is everyone's answer, so a party without a healer, Mage or Frostbinder pays
+  there in potions (~1,300), not time (~37 min). Nobody in the right party faints.
+- **A boss twice your level kills you in `KILL_HITS` hits or fewer** (HITS TO KO): each branch at half the boss's level,
+  curve gear there, every passive, no buffs, potions or dodges, under its average hit. On this sheet the most is 5 (the
+  Warriors); the roadmap's older count (Warrior 7–11) came from an earlier build, and without the % share the Warriors
+  still took 7 on three field bosses.
+- **Pay** (BOSS PAY): rewards were rescaled with the fights so an hour of boss fighting pays about what it did: each den
+  and top boss's camped EXP and gold an hour back at its pre-SP6 ratio (`BOSS_PAY` keeps the EXP in band; 0.5–0.8× EXP,
+  2–6× gold), every field boss `FIELD_PAY` (~1.6) minutes of farming a minute of its fight. EXP and coins moved; gear
+  and scrolls stay one set a kill, so coins carry most of the gold (a top boss drops millions). The Bramble Behemoth's
+  coins went a little higher than that (8,000–12,600) so a solo Archer's potions stay under `SOLO_POTION_SHARE`.
+- **Mechanic shares** shrank with the HP: `BARRIER_HP`, `WEAK_HP`, `TOP_BARRIER_HP`, `TOP_WEAK_HP`, `EGG_HP` (one Mage or
+  Archer breaks them about as fast as before).
+- **Cross-class** (`SWORD_MASTERY_ATK`): the Warrior went from ~0.7× single and 0.65× crowd from Lv 60 to 0.94× single
+  and 0.88–1.04× crowd (between the Cleric and the Mage, as the shape wants). `CLASS_FIT` and `BAD_AT` green; the Sniper
+  is no longer at `CLASS_FIT`'s floor (~0.7× the median on the late dens).
+- The Novices' dens (Sprout King, Mother Mushroom) weren't lengthened: the sheet can't fight them (no class), and a
+  15-minute fight at Lv 4–8 is a question for the owner.
 
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.

@@ -588,13 +588,13 @@ export const MOBS = {
     drops: [['royal_sap', 0.8, 1, 2], ['spore_blade', 1, 1, 1], ['coin', 1, 120, 200], ['blue_jelly', 1, 1, 3], ['mana_jelly', 1, 2, 3], ['mush_helm', 0.6, 1, 1], ['scroll_s100', 1, 1, 2], ['scroll_h100', 1, 1, 2], ['scroll_s60', 0.4, 1, 1], ['scroll_h60', 0.4, 1, 1], ['scroll_s10', 0.05, 1, 1]],
   },
   bramble_behemoth: {
-    name: 'Bramble Behemoth', boss: true, lvl: 12, hp: 30000, atk: 36, exp: 2500, speed: 95, w: 170, h: 130, aggro: true, hops: false,
+    name: 'Bramble Behemoth', boss: true, lvl: 12, hp: 351000, atk: 36, exp: 4300, speed: 95, w: 170, h: 130, aggro: true, hops: false,
     phases: [['charge', 'slam'], ['charge', 'slam', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
     ult: { name: 'Thorn Tsunami', kind: 'wave' }, minion: 'bramble',
     // S5.4 (story/s5-plan.md, docs/combat/bosses.md): its bark hardens into armour (`looks.shell`: drawn as bark
     // plates, src/party.js); freezing Thorn Tsunami as it rears cancels it
     party: ['armour', 'interrupt'], partyLive: true, looks: { shell: 'bark' },
-    drops: [['royal_sap', 1, 1, 2], ['thorn_sword', 1, 1, 1], ['bramble_helm', 1, 1, 1], ['coin', 1, 250, 400], ['blue_jelly', 1, 2, 4], ['mana_jelly', 1, 2, 4], ['scroll_s100', 1, 1, 3], ['scroll_h100', 1, 1, 3], ['scroll_s60', 0.6, 1, 1], ['scroll_h60', 0.6, 1, 1], ['scroll_s10', 0.1, 1, 1], ['scroll_h10', 0.1, 1, 1]],
+    drops: [['royal_sap', 1, 1, 2], ['thorn_sword', 1, 1, 1], ['bramble_helm', 1, 1, 1], ['coin', 1, 8000, 12600], ['blue_jelly', 1, 2, 4], ['mana_jelly', 1, 2, 4], ['scroll_s100', 1, 1, 3], ['scroll_h100', 1, 1, 3], ['scroll_s60', 0.6, 1, 1], ['scroll_h60', 0.6, 1, 1], ['scroll_s10', 0.1, 1, 1], ['scroll_h10', 0.1, 1, 1]],
   },
   // ——— Frostpeak ———
   frostling: {
@@ -614,7 +614,7 @@ export const MOBS = {
     drops: [['coin', 1, 400, 710], ['stardust', 0.6, 1, 3], ['elixir', 0.1, 1, 1], ['star_crown_n', 0.008, 1, 1]],
   },
   frost_queen: {
-    name: 'Frost Queen Glacia', boss: true, lvl: 47, hp: 240000, atk: 150, exp: 44000, speed: 90, w: 140, h: 160, aggro: true, hops: false,
+    name: 'Frost Queen Glacia', boss: true, lvl: 47, hp: 2298000, atk: 150, exp: 66700, speed: 90, w: 140, h: 160, aggro: true, hops: false,
     phases: [['rain', 'charge', 'slam'], ['rain', 'charge', 'slam', 'leap', 'summon'], ['barrage', 'rain', 'leap', 'slam', 'summon', 'charge']],
     ult: { name: 'Absolute Zero', kind: 'lanes' }, minion: 'frostling',
     // S5.4 (story/s5-plan.md, docs/combat/bosses.md): she draws a dome of ice round herself (a barrier: magic
@@ -622,17 +622,17 @@ export const MOBS = {
     // she raises it cancels it (a frost queen beaten at her own game)
     party: ['barrier', 'interrupt'], partyLive: true, looks: { dome: 'queen' },
     lines: { shield: 'Stay close. Everyone stays close. The ice holds us all together, and it does not let go.' }, // (said once a fight, the first time the dome goes up)
-    drops: [['frost_heart', 1, 1, 2], ['frost_blade_n', 1, 1, 1], ['glacier_helm_n', 1, 1, 1], ['coin', 1, 2250, 3370], ['elixir', 1, 2, 4], ['ice_shard', 1, 4, 8], ['scroll_s60', 1, 1, 1], ['scroll_h60', 1, 1, 1], ['scroll_s10', 0.2, 1, 1], ['scroll_h10', 0.2, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
+    drops: [['frost_heart', 1, 1, 2], ['frost_blade_n', 1, 1, 1], ['glacier_helm_n', 1, 1, 1], ['coin', 1, 37800, 56600], ['elixir', 1, 2, 4], ['ice_shard', 1, 4, 8], ['scroll_s60', 1, 1, 1], ['scroll_h60', 1, 1, 1], ['scroll_s10', 0.2, 1, 1], ['scroll_h10', 0.2, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
   },
   astral_wyrm: {
-    name: 'Astral Wyrm', boss: true, lvl: 57, hp: 330000, atk: 180, exp: 76000, speed: 110, w: 190, h: 150, aggro: true, hops: false,
+    name: 'Astral Wyrm', boss: true, lvl: 57, hp: 2829000, atk: 180, exp: 123000, speed: 110, w: 190, h: 150, aggro: true, hops: false,
     phases: [['rain', 'charge', 'leap'], ['barrage', 'charge', 'leap', 'slam', 'summon'], ['barrage', 'charge', 'leap', 'slam', 'summon', 'rain']],
     ult: { name: 'Supernova', kind: 'nova' }, minion: 'wisp',
     // S5.4: the star on its back flares (the weak point, on its rear hump: arrows, or jump; `looks.weak: 'star'`),
     // it wraps itself in a shell of starlight (a barrier, `looks.dome: 'star'`), and freezing Supernova as it
     // gathers cancels it
     party: ['weakpoint', 'barrier', 'interrupt'], partyLive: true, weak: { dx: -0.14, dy: -0.52, r: 22 }, looks: { weak: 'star', dome: 'star' },
-    drops: [['frost_heart', 1, 2, 3], ['star_sword_n', 1, 1, 1], ['star_crown_n', 1, 1, 1], ['coin', 1, 4360, 7260], ['elixir', 1, 4, 6], ['stardust', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
+    drops: [['frost_heart', 1, 2, 3], ['star_sword_n', 1, 1, 1], ['star_crown_n', 1, 1, 1], ['coin', 1, 67300, 112000], ['elixir', 1, 4, 6], ['stardust', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
   },
   // ——— Emberdeep (the legacy stage: Cinder Flats, Magma Heart) ———
   // ai: what makes a mob more than a walker (server/rpg.js mobAi, client src/rpg.js):
@@ -662,16 +662,16 @@ export const MOBS = {
     drops: [['coin', 1, 820, 1300], ['obsidian_shard', 0.5, 1, 2], ['mega_elixir', 0.06, 1, 1], ['phoenix_blade_n', 0.002, 1, 1]],
   },
   ignis: {
-    name: 'Ignis the Magma Tyrant', boss: true, lvl: 99, hp: 680000, atk: 360, exp: 210000, speed: 85, w: 180, h: 170, aggro: true, hops: false,
+    name: 'Ignis the Magma Tyrant', boss: true, lvl: 99, hp: 6652000, atk: 360, exp: 300000, speed: 85, w: 180, h: 170, aggro: true, hops: false,
     phases: [['slam', 'fireballs', 'geysers'], ['slam', 'fireballs', 'geysers', 'charge', 'flamewall'], ['geysers', 'fireballs', 'flamewall', 'leap', 'summon', 'barrage']],
     ult: { name: 'Caldera Eruption', kind: 'magma' }, minion: 'ember_imp',
-    drops: [['phoenix_feather', 1, 1, 2], ['magma_maul_n', 1, 1, 1], ['ember_helm_n', 0.6, 1, 1], ['coin', 1, 11170, 18620], ['mega_elixir', 1, 2, 4], ['ember_core', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.4, 1, 1], ['scroll_h10', 0.4, 1, 1], ['scroll_s30', 0.25, 1, 1], ['scroll_h30', 0.25, 1, 1], ['scroll_chaos', 0.25, 1, 1]],
+    drops: [['phoenix_feather', 1, 1, 2], ['magma_maul_n', 1, 1, 1], ['ember_helm_n', 0.6, 1, 1], ['coin', 1, 128500, 214200], ['mega_elixir', 1, 2, 4], ['ember_core', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.4, 1, 1], ['scroll_h10', 0.4, 1, 1], ['scroll_s30', 0.25, 1, 1], ['scroll_h30', 0.25, 1, 1], ['scroll_chaos', 0.25, 1, 1]],
   },
   pyra: {
-    name: 'Pyra the Ember Phoenix', boss: true, lvl: 110, hp: 870000, atk: 400, exp: 290000, speed: 120, w: 170, h: 140, aggro: true, hops: false, fly: 40,
+    name: 'Pyra the Ember Phoenix', boss: true, lvl: 110, hp: 7387000, atk: 400, exp: 472000, speed: 120, w: 170, h: 140, aggro: true, hops: false, fly: 40,
     phases: [['feathers', 'dive', 'rings'], ['feathers', 'dive', 'rings', 'rain', 'summon'], ['feathers', 'dive', 'rings', 'barrage', 'spiral']],
     ult: { name: 'Rebirth', kind: 'rebirth' }, minion: 'cinder_bat',
-    drops: [['phoenix_feather', 1, 2, 3], ['phoenix_blade_n', 1, 1, 1], ['phoenix_crown_n', 0.6, 1, 1], ['coin', 1, 15730, 25170], ['mega_elixir', 1, 3, 5], ['obsidian_shard', 1, 6, 10], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.5, 1, 1], ['scroll_h10', 0.5, 1, 1], ['scroll_s30', 0.3, 1, 1], ['scroll_h30', 0.3, 1, 1], ['scroll_chaos', 0.3, 1, 1]],
+    drops: [['phoenix_feather', 1, 2, 3], ['phoenix_blade_n', 1, 1, 1], ['phoenix_crown_n', 0.6, 1, 1], ['coin', 1, 147900, 236700], ['mega_elixir', 1, 3, 5], ['obsidian_shard', 1, 6, 10], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.5, 1, 1], ['scroll_h10', 0.5, 1, 1], ['scroll_s30', 0.3, 1, 1], ['scroll_h30', 0.3, 1, 1], ['scroll_chaos', 0.3, 1, 1]],
   },
   // ——— the Aether Citadel ———
   cogling: {
@@ -699,16 +699,16 @@ export const MOBS = {
     drops: [['coin', 1, 1550, 2320], ['aether_crystal', 0.55, 1, 2], ['mega_elixir', 0.12, 1, 1], ['chrono_blade_n', 0.0015, 1, 1]],
   },
   colossus: {
-    name: 'The Clockwork Colossus', boss: true, lvl: 150, hp: 1600000, atk: 600, exp: 580000, speed: 70, w: 220, h: 200, aggro: true, hops: false,
+    name: 'The Clockwork Colossus', boss: true, top: true, lvl: 150, hp: 45474000, atk: 600, exp: 2442000, speed: 70, w: 220, h: 200, aggro: true, hops: false,
     phases: [['slam', 'gears', 'beam'], ['slam', 'gears', 'beam', 'grid', 'sweep'], ['grid', 'sweep', 'gears', 'beam', 'charge', 'summon']],
     ult: { name: 'Overclock', kind: 'overclock' }, minion: 'cogling',
-    drops: [['time_sand', 1, 1, 2], ['cog_cleaver_n', 1, 1, 1], ['aether_helm_n', 0.6, 1, 1], ['coin', 1, 29600, 46040], ['mega_elixir', 1, 4, 6], ['cog', 1, 8, 12], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+    drops: [['time_sand', 1, 1, 2], ['cog_cleaver_n', 1, 1, 1], ['aether_helm_n', 0.6, 1, 1], ['coin', 1, 1667200, 2593200], ['mega_elixir', 1, 4, 6], ['cog', 1, 8, 12], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
   },
   chronos: {
-    name: 'Chronos, Keeper of Hours', boss: true, lvl: 170, hp: 1900000, atk: 630, exp: 790000, speed: 100, w: 160, h: 190, aggro: true, hops: false, fly: 30,
+    name: 'Chronos, Keeper of Hours', boss: true, top: true, lvl: 170, hp: 52887000, atk: 630, exp: 3326000, speed: 100, w: 160, h: 190, aggro: true, hops: false, fly: 30,
     phases: [['bombs', 'sweep', 'blink', 'spiral'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid', 'summon']],
     ult: { name: 'Time Stop', kind: 'timestop' }, ults: [{ name: 'Time Stop', kind: 'timestop' }, { name: 'Collapse of Hours', kind: 'collapse' }], minion: 'chrono_wraith',
-    drops: [['time_sand', 1, 2, 3], ['chrono_blade_n', 1, 1, 1], ['hourglass_crown_n', 0.6, 1, 1], ['coin', 1, 38920, 64870], ['mega_elixir', 1, 5, 8], ['aether_crystal', 1, 8, 12], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s10', 0.8, 1, 2], ['scroll_h10', 0.8, 1, 2], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.5, 1, 2]],
+    drops: [['time_sand', 1, 2, 3], ['chrono_blade_n', 1, 1, 1], ['hourglass_crown_n', 0.6, 1, 1], ['coin', 1, 2325700, 3876400], ['mega_elixir', 1, 5, 8], ['aether_crystal', 1, 8, 12], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s10', 0.8, 1, 2], ['scroll_h10', 0.8, 1, 2], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.5, 1, 2]],
   },
   // ——— Frostpeak's later wildlife (atlas Phase 4; kept last: mob kinds go over the wire as their index) ———
   // floe seal: belly-slides along the ridge, harmless · snow owl: swoops from the pines (the cinder bat's
@@ -776,13 +776,13 @@ MOBS.gloop_snail = {
   drops: [['coin', 1, 30, 50], ['gloop', 0.6, 1, 2], ['blue_jelly', 0.15, 1, 1], ['elixir', 0.03, 1, 1], ['snail_helm', 0.004, 1, 1]],
 };
 MOBS.snapjaw = {
-  name: 'Old Snapjaw', field: true, lvl: 15, hp: 12000, atk: 40, exp: 2400, speed: 40, w: 124, h: 82, aggro: false, hops: false,
+  name: 'Old Snapjaw', field: true, lvl: 15, hp: 160000, atk: 40, exp: 6600, speed: 40, w: 124, h: 82, aggro: false, hops: false,
   ai: { kind: 'shell', cut: 0.75, every: 3, warn: 0.7, lunge: 560, time: 0.4 },
   // S5.4: with two or more on him he draws his head in and the whole shell goes hard (armour on every side, on top
   // of the front cut; `looks.shell`: mossy scutes)
   party: ['armour'], partyLive: true, looks: { shell: 'scute' },
   desc: 'Old Snapjaw has surfaced in the Millpond!',
-  drops: [['coin', 1, 600, 1000], ['gloop', 1, 4, 6], ['blue_jelly', 1, 2, 3], ['snapjaw_shell', 0.4, 1, 1], ['reed_rapier', 0.25, 1, 1], ['scroll_s100', 0.5, 1, 1], ['scroll_h100', 0.5, 1, 1], ['scroll_s60', 0.15, 1, 1], ['scroll_h60', 0.15, 1, 1]],
+  drops: [['coin', 1, 2960, 4930], ['gloop', 1, 4, 6], ['blue_jelly', 1, 2, 3], ['snapjaw_shell', 0.4, 1, 1], ['reed_rapier', 0.25, 1, 1], ['scroll_s100', 0.5, 1, 1], ['scroll_h100', 0.5, 1, 1], ['scroll_s60', 0.15, 1, 1], ['scroll_h60', 0.15, 1, 1]],
 };
 // Saltspray Coves: rock crabs (front shell) and tide jellies (they go glassy, then sting) in the pools,
 // storm gulls diving off the stacks, snapshrimp that snap water shots at you from range; the Tidemother's
@@ -811,7 +811,7 @@ MOBS.snapshrimp = {
 // (story/characters/bosses.md) and `lines`: what she says to whoever walks in, at each new phase, and when
 // she's freed (server/rpg.js bossSays, a bubble over her and a line in the chat)
 MOBS.tidemother = {
-  name: 'The Tidemother', boss: true, lvl: 25, hp: 80000, atk: 66, exp: 13000, speed: 90, w: 184, h: 150, aggro: true, hops: false,
+  name: 'The Tidemother', boss: true, lvl: 25, hp: 1143000, atk: 66, exp: 19700, speed: 90, w: 184, h: 150, aggro: true, hops: false,
   phases: [['slam', 'charge'], ['slam', 'charge', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
   ult: { name: 'Riptide', kind: 'wave' }, minion: 'rock_crab',
   // S5.4: the tide (a pulse, `looks.pulse`: sea-green rings, "TIDE"), more crabs for a party, and freezing
@@ -822,7 +822,7 @@ MOBS.tidemother = {
     phase: [null, 'You want my shells? My bottles? My lovely lost buttons? No!', 'If the tide goes out, it takes everything! I won\'t let it! I WON\'T!'],
     freed: 'Oh... it is heavy, isn\'t it. All of it. Let the tide have it, then. Let the water run clean.',
   },
-  drops: [['royal_sap', 1, 1, 2], ['tide_claw', 1, 1, 1], ['hoard_crown', 0.6, 1, 1], ['coin', 1, 1200, 2000], ['elixir', 1, 2, 4], ['crab_shell', 1, 4, 8], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.25, 1, 1], ['scroll_h10', 0.25, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
+  drops: [['royal_sap', 1, 1, 2], ['tide_claw', 1, 1, 1], ['hoard_crown', 0.6, 1, 1], ['coin', 1, 11600, 19400], ['elixir', 1, 2, 4], ['crab_shell', 1, 4, 8], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.25, 1, 1], ['scroll_h10', 0.25, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
 };
 // ——— Greenhollow's branches, G2: the Mycelium Deep and Glowroot Hollow (art: src/deep-art.js;
 // docs/places/deep.md). On the frozen curve like G1's ———
@@ -880,7 +880,7 @@ MOBS.weaver_elite = elite('thread_weaver', 'Elder Threadweaver');
 // an old blind mole who tied the warm threads in knots to keep the warmth for herself. Her Root Quake is
 // the `stomp` ult (be off the floor when it lands)
 MOBS.knotmole = {
-  name: 'The Knotmole', boss: true, lvl: 35, hp: 135000, atk: 96, exp: 26000, speed: 80, w: 190, h: 150, aggro: true, hops: false,
+  name: 'The Knotmole', boss: true, lvl: 35, hp: 1464000, atk: 96, exp: 39400, speed: 80, w: 190, h: 150, aggro: true, hops: false,
   phases: [['slam', 'charge'], ['slam', 'charge', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
   ult: { name: 'Root Quake', kind: 'stomp' }, minion: 'puffcap',
   // S5.4: she sniffs out one slime at a time (focus), more puffcaps for a party, and freezing Root Quake as she
@@ -891,7 +891,7 @@ MOBS.knotmole = {
     phase: [null, 'Tied it tight, I did. Every knot. You shan\'t undo a single one!', 'If I let go it all runs off into the dark, off under the sea, and I\'ll be cold again! COLD!'],
     freed: 'Oh, my old paws... There it goes, running off under the sea. I\'d forgotten how it hums when it moves.',
   },
-  drops: [['royal_sap', 1, 1, 2], ['burrow_claw', 1, 1, 1], ['knot_crown', 0.6, 1, 1], ['coin', 1, 3600, 5400], ['elixir', 1, 2, 4], ['mega_elixir', 1, 1, 3], ['knot_silk', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_h30', 0.1, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
+  drops: [['royal_sap', 1, 1, 2], ['burrow_claw', 1, 1, 1], ['knot_crown', 0.6, 1, 1], ['coin', 1, 23100, 34600], ['elixir', 1, 2, 4], ['mega_elixir', 1, 1, 3], ['knot_silk', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_h30', 0.1, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
 };
 
 // ——— Greenhollow's branches, G3: the Old Oak Canopy (art: src/canopy-art.js; docs/places/canopy.md). On the
@@ -936,14 +936,14 @@ MOBS.hornet = {
 // The Hornet Queen: a field boss (small: no story), a great hornet who leaves her nest in the Wasp Crowns now
 // and then and roams the boughs. Passive until hit; then she dives at you
 MOBS.hornet_queen = {
-  name: 'The Hornet Queen', field: true, lvl: 38, hp: 62000, atk: 100, exp: 18000, speed: 70, w: 118, h: 96, aggro: false, hops: false, fly: 115,
+  name: 'The Hornet Queen', field: true, lvl: 38, hp: 496000, atk: 100, exp: 46500, speed: 70, w: 118, h: 96, aggro: false, hops: false, fly: 115,
   ai: { kind: 'dive', every: 2.8, warn: 0.8, time: 0.5 },
   // S5.4: a party brings her wasps (adds: a field boss with no summon calls `minion`s every FIELD_ADDS_EVERY s,
   // server/rpg.js partyTick) and her honey sac glows (the weak point at `weak`, on her abdomen, high in the air:
   // arrows, or jump; `looks.weak`: a honeycomb cell)
   party: ['adds', 'weakpoint'], partyLive: true, minion: 'wasp', weak: { dx: -0.45, dy: -0.5, r: 20 }, looks: { weak: 'honey' },
   desc: 'The Hornet Queen has left her nest in the Wasp Crowns!',
-  drops: [['coin', 1, 2200, 3400], ['honeycomb', 1, 4, 8], ['hornet_sting', 1, 3, 5], ['elixir', 1, 2, 3], ['mega_elixir', 1, 1, 2], ['queen_stinger', 0.25, 1, 1], ['honey_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.12, 1, 1], ['scroll_h10', 0.12, 1, 1]],
+  drops: [['coin', 1, 10900, 16800], ['honeycomb', 1, 4, 8], ['hornet_sting', 1, 3, 5], ['elixir', 1, 2, 3], ['mega_elixir', 1, 1, 2], ['queen_stinger', 0.25, 1, 1], ['honey_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.12, 1, 1], ['scroll_h10', 0.12, 1, 1]],
 };
 
 // ——— Greenhollow's branches, G4: the hard pockets (art: src/wreck-art.js, src/thornheart-art.js;
@@ -977,12 +977,12 @@ MOBS.eel_elite = elite('moray_eel', 'Great Moray');
 // he wears the bosun's coat and cap and blows the whistle. Passive until hit; then he keeps his distance and
 // squirts ink
 MOBS.drowned_bosun = {
-  name: 'The Drowned Bosun', field: true, lvl: 40, hp: 66000, atk: 104, exp: 19500, speed: 55, w: 136, h: 116, aggro: false, hops: false,
+  name: 'The Drowned Bosun', field: true, lvl: 40, hp: 528000, atk: 104, exp: 48000, speed: 55, w: 136, h: 116, aggro: false, hops: false,
   ai: { kind: 'lob', range: 480, every: 2.4, keep: 170, warn: 0.7, style: 'ink' },
   // S5.4: the drowned's curse (a sea-green sigil of ink, `looks.curse`)
   party: ['curse'], partyLive: true, looks: { curse: 'drowned' },
   desc: 'The Drowned Bosun is up and about in the Wreck! Hear the whistle?',
-  drops: [['coin', 1, 2300, 3500], ['ink_sac', 1, 4, 8], ['brass_button', 1, 3, 5], ['elixir', 1, 2, 3], ['mega_elixir', 1, 1, 2], ['bosun_hook', 0.25, 1, 1], ['bosun_cap', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.12, 1, 1], ['scroll_h10', 0.12, 1, 1]],
+  drops: [['coin', 1, 10200, 15500], ['ink_sac', 1, 4, 8], ['brass_button', 1, 3, 5], ['elixir', 1, 2, 3], ['mega_elixir', 1, 1, 2], ['bosun_hook', 0.25, 1, 1], ['bosun_cap', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.12, 1, 1], ['scroll_h10', 0.12, 1, 1]],
 };
 // The Thornheart: thornbacks (boars with a thorny front: hit them from behind), thistle puffs that burst into
 // thistledown, pitcher plants rooted in place that spit thorn seeds, thorn stalkers that slip round behind
@@ -1016,13 +1016,13 @@ MOBS.stalker_elite = elite('thorn_stalker', 'Elder Thorn Stalker');
 // The Thorn Hart: a field boss (small: no story), a great white stag with antlers of living briar, who sleeps
 // against the Hedge Stone and walks the Thornheart. Passive until hit; then he rears and stamps
 MOBS.thorn_hart = {
-  name: 'The Thorn Hart', field: true, lvl: 58, hp: 115000, atk: 160, exp: 40000, speed: 60, w: 150, h: 150, aggro: false, hops: false,
+  name: 'The Thorn Hart', field: true, lvl: 58, hp: 746000, atk: 160, exp: 85300, speed: 60, w: 150, h: 150, aggro: false, hops: false,
   ai: { kind: 'stomp', every: 3.4, warn: 0.9, r: 280, range: 320, jump: 640 },
   // S5.4: he lowers his antlers at one slime at a time (focus) and the briars curse whoever stands where he
   // points (a thorny sigil, `looks.curse`)
   party: ['focus', 'curse'], partyLive: true, looks: { curse: 'thorn' },
   desc: 'The Thorn Hart is walking the Thornheart!',
-  drops: [['coin', 1, 4400, 6400], ['antler_velvet', 1, 4, 8], ['stalker_barb', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['briarheart_blade', 0.25, 1, 1], ['antler_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+  drops: [['coin', 1, 14900, 21700], ['antler_velvet', 1, 4, 8], ['stalker_barb', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['briarheart_blade', 0.25, 1, 1], ['antler_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 // ——— Greenhollow's branches, G5: Keeper's Spine (art: src/spine-art.js, src/dens-spine.js; docs/places/spine.md).
 // On the frozen curve like the others ———
@@ -1063,17 +1063,17 @@ MOBS.rootling = {
 // light every few seconds · barrier: a rune shield that turns blades · weakpoint: the Anchor shard, high on its
 // back (`weak`, drawn in src/dens-spine.js) · adds: rootlings · interrupt: freeze Hold Fast as it winds up
 MOBS.root_warden = {
-  name: 'The Root Warden', boss: true, lvl: 60, hp: 600000, atk: 200, exp: 115000, speed: 65, w: 200, h: 230, aggro: true, hops: false,
+  name: 'The Root Warden', boss: true, lvl: 60, hp: 19059000, atk: 200, exp: 541000, speed: 65, w: 200, h: 230, aggro: true, hops: false,
   phases: [['slam', 'beam', 'charge'], ['slam', 'beam', 'grid', 'summon', 'echo'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap']],
   ult: { name: 'Hold Fast', kind: 'lanes' }, minion: 'rootling', looks: { beam: 'warden', grid: 'root', dome: 'keeper' }, // (how its beam, grid and barrier are drawn: src/hazards.js, src/party.js)
-  party: ['focus', 'pulse', 'barrier', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, weak: { dx: -0.31, dy: -0.7, r: 22 },
+  party: ['focus', 'pulse', 'barrier', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, top: true, weak: { dx: -0.31, dy: -0.7, r: 22 },
   lines: {
     shield: "Ward. The ward. I remember that word too. No blade passes the Keepers' ward.", // (the first barrier of a fight)
     enter: ['HALT. The road is shut. No one passes until the Keepers come back.', 'Another one. They all come up the road sooner or later. None of them are Keepers.'],
     phase: [null, 'The roots have me by every joint. Good. Roots do not let go. Neither do I.', 'Hold. Hold the gate. Hold. I have forgotten every word but that one.'],
     freed: "...They are not coming back, are they. Then I am relieved. Let the roots have me. The gate stays shut, little ones. But the road is yours.",
   },
-  drops: [['royal_sap', 1, 2, 3], ['warden_blade', 1, 1, 1], ['warden_helm', 0.6, 1, 1], ['coin', 1, 9500, 14500], ['mega_elixir', 1, 4, 6], ['rune_chip', 1, 8, 12], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+  drops: [['royal_sap', 1, 2, 3], ['warden_blade', 1, 1, 1], ['warden_helm', 0.6, 1, 1], ['coin', 1, 380900, 581300], ['mega_elixir', 1, 4, 6], ['rune_chip', 1, 8, 12], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
 // ——— Frostpeak's depth pass, F1: the Rimeglass Glacier (art: src/glacier-art.js; docs/places/glacier.md). On
@@ -1114,13 +1114,13 @@ MOBS.great_yeti = {
 // Old Rimehorn: a field boss (small: no story), a mammoth older than the hamlet, shaggy with icicles, who walks
 // the Icefall and the fjord folk leave alone. Passive until hit; then he rears and stamps
 MOBS.rimehorn = {
-  name: 'Old Rimehorn', field: true, lvl: 75, hp: 170000, atk: 220, exp: 68000, speed: 45, w: 170, h: 150, aggro: false, hops: false,
+  name: 'Old Rimehorn', field: true, lvl: 75, hp: 1316000, atk: 220, exp: 149000, speed: 45, w: 170, h: 150, aggro: false, hops: false,
   ai: { kind: 'stomp', every: 3.6, warn: 1, r: 300, range: 330, jump: 600 },
   // S5.4: with two or more on him his coat freezes into a hide of rime (armour, `looks.shell: 'rime'`, icicles
   // hanging off it) and he picks one slime to trample at a time (focus)
   party: ['armour', 'focus'], partyLive: true, looks: { shell: 'rime' },
   desc: 'Old Rimehorn is walking the Icefall!',
-  drops: [['coin', 1, 6400, 9200], ['mammoth_wool', 1, 4, 8], ['yeti_fur', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['tusk_blade', 0.25, 1, 1], ['mammoth_hood', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+  drops: [['coin', 1, 23200, 33400], ['mammoth_wool', 1, 4, 8], ['yeti_fur', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['tusk_blade', 0.25, 1, 1], ['mammoth_hood', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 
 // ——— Frostpeak's depth pass, F2: the Whale Skerries and the Narwhal Grotto (art: src/skerries-art.js,
@@ -1188,7 +1188,7 @@ MOBS.skate_elite = elite('ice_skate', 'Elder Skate');
 // not the seals. Her ultimate, Close the Floes, is the `lanes` ult as ice coming down everywhere but one lane;
 // her beam is a jet of freezing sea (`looks`)
 MOBS.old_narwhal = {
-  name: 'The Old Narwhal', boss: true, lvl: 70, hp: 520000, atk: 222, exp: 150000, speed: 75, w: 230, h: 150, aggro: true, hops: false,
+  name: 'The Old Narwhal', boss: true, lvl: 70, hp: 4776000, atk: 222, exp: 233000, speed: 75, w: 230, h: 150, aggro: true, hops: false,
   phases: [['charge', 'slam', 'rain'], ['charge', 'slam', 'beam', 'rain', 'summon'], ['charge', 'beam', 'echo', 'rain', 'summon', 'leap', 'barrage']],
   ult: { name: 'Close the Floes', kind: 'lanes' }, minion: 'whalebone_crab',
   // S5.4: the shard at her tusk's root glows (the weak point: `front`, only a hit from in front of her finds it,
@@ -1201,7 +1201,7 @@ MOBS.old_narwhal = {
     phase: [null, 'They all swam south. Every one. I sang and sang and they did not turn round.', 'If the ice opens, the fish go, the seals go, YOU go. Then I am the only thing left in the sea!'],
     freed: '...Go on, then. Swim. All of you. I will sing you out past the skerries, the way I should have sung them.',
   },
-  drops: [['royal_sap', 1, 2, 3], ['narwhal_tusk', 1, 1, 1], ['floe_crown', 0.6, 1, 1], ['coin', 1, 11000, 16500], ['mega_elixir', 1, 4, 6], ['narwhal_ivory', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+  drops: [['royal_sap', 1, 2, 3], ['narwhal_tusk', 1, 1, 1], ['floe_crown', 0.6, 1, 1], ['coin', 1, 77700, 116600], ['mega_elixir', 1, 4, 6], ['narwhal_ivory', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
 // ——— Frostpeak's depth pass, F3: the Aurora Heights and the Blue Halls (art: src/heights-art.js,
@@ -1269,26 +1269,26 @@ MOBS.beetle_elite = elite('glass_beetle', 'Old Glass Beetle');
 // up; it would rather stay fallen. Passive until hit; then it lifts off the snow and falls on you, again and
 // again (the dive), and settles back down
 MOBS.pale_wyrm = {
-  name: 'The Pale Wyrm', field: true, lvl: 90, hp: 220000, atk: 262, exp: 93000, speed: 55, w: 210, h: 100, aggro: false, hops: false, fly: 80,
+  name: 'The Pale Wyrm', field: true, lvl: 90, hp: 1650000, atk: 262, exp: 204000, speed: 55, w: 210, h: 100, aggro: false, hops: false, fly: 80,
   ai: { kind: 'dive', every: 3.2, warn: 0.9, time: 0.55 },
   // S5.4: the cold of falling (a curse: whoever it lands near wants to stay down; `looks.curse: 'pale'`, a pale
   // sigil with dim stars sinking into it) and the last bright star in its coils (the weak point, mid-back, in the
   // air: arrows or a jump; `looks.weak: 'star'`)
   party: ['curse', 'weakpoint'], partyLive: true, weak: { dx: -0.06, dy: -0.62, r: 22 }, looks: { curse: 'pale', weak: 'star' },
   desc: 'The Pale Wyrm has stirred in the Wyrmfall.',
-  drops: [['coin', 1, 8000, 11600], ['pale_scale', 1, 4, 8], ['star_spark', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['pale_star_blade', 0.25, 1, 1], ['aurora_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+  drops: [['coin', 1, 30200, 43900], ['pale_scale', 1, 4, 8], ['star_spark', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['pale_star_blade', 0.25, 1, 1], ['aurora_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 // The Hall Troll: a field boss (small: no story), a great blue-grey troll out of the cutters' stories who lives
 // in the Deep Blue, cuts blocks of ice of its own and stacks them into walls nobody needs. Passive until hit;
 // then it keeps its distance and throws blocks of ice
 MOBS.hall_troll = {
-  name: 'The Hall Troll', field: true, lvl: 88, hp: 215000, atk: 270, exp: 89000, speed: 50, w: 150, h: 160, aggro: false, hops: false,
+  name: 'The Hall Troll', field: true, lvl: 88, hp: 1612000, atk: 270, exp: 203000, speed: 50, w: 150, h: 160, aggro: false, hops: false,
   ai: { kind: 'lob', range: 520, every: 2.6, keep: 180, warn: 0.75, style: 'ice' },
   // S5.4: he stacks blocks of ice round himself (armour, `looks.shell: 'block'`) and throws at one slime at a
   // time (focus)
   party: ['armour', 'focus'], partyLive: true, looks: { shell: 'block' },
   desc: 'The Hall Troll is stacking ice in the Deep Blue. Hear it?',
-  drops: [['coin', 1, 7800, 11300], ['troll_tooth', 1, 4, 8], ['glass_shell', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['troll_maul', 0.25, 1, 1], ['troll_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+  drops: [['coin', 1, 30200, 43700], ['troll_tooth', 1, 4, 8], ['glass_shell', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['troll_maul', 0.25, 1, 1], ['troll_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 
 // ——— Frostpeak's depth pass, F4: the Queen's Bridge (art: src/qbridge-art.js, src/dens-qbridge.js;
@@ -1337,17 +1337,17 @@ MOBS.rime_archer = {
 // cold every few seconds · weakpoint: the shard set in her shield's boss, so it's struck from in front
 // (`weak.front`) · adds: rimeguards · interrupt: freeze Close the Seam as it winds up
 MOBS.sigrun = {
-  name: "Sigrun, the Queen's Shield", boss: true, lvl: 100, hp: 1050000, atk: 330, exp: 260000, speed: 80, w: 150, h: 190, aggro: true, hops: false,
+  name: "Sigrun, the Queen's Shield", boss: true, lvl: 100, hp: 28069000, atk: 330, exp: 1213000, speed: 80, w: 150, h: 190, aggro: true, hops: false,
   phases: [['slam', 'charge', 'rain'], ['slam', 'charge', 'beam', 'rain', 'summon', 'grid'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap', 'charge']],
   ult: { name: 'Close the Seam', kind: 'wave' }, minion: 'rimeguard', looks: { beam: 'shield', grid: 'seam', dome: 'ice' }, // (how they're drawn: src/hazards.js, src/party.js)
-  party: ['focus', 'barrier', 'pulse', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, barrierFront: true, weak: { dx: 0.43, dy: -0.36, r: 20, front: true },
+  party: ['focus', 'barrier', 'pulse', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, top: true, barrierFront: true, weak: { dx: 0.43, dy: -0.36, r: 20, front: true },
   lines: {
     shield: 'My shield is up. Nothing passes it from the front. Nothing ever has.', // (the first barrier of a fight)
     enter: ["Halt. This is the Queen's bridge. No one crosses while I stand on it.", 'Every night it cracks, and every night I close it. Go back down. You are letting the cold out.'],
     phase: [null, 'She told me to hold it. She never told me I could stop.', 'Her hands are open now. I saw her let go. Mine are not hers to open!'],
     freed: '...Then let it crack. She let go, and I held on for her, and it was never mine to hold. Go on, little ones. Cross while it lasts.',
   },
-  drops: [['royal_sap', 1, 2, 3], ['oath_blade', 1, 1, 1], ['sigrun_helm', 0.6, 1, 1], ['coin', 1, 17000, 25500], ['mega_elixir', 1, 4, 6], ['seam_ice', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+  drops: [['royal_sap', 1, 2, 3], ['oath_blade', 1, 1, 1], ['sigrun_helm', 0.6, 1, 1], ['coin', 1, 893200, 1339800], ['mega_elixir', 1, 4, 6], ['seam_ice', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
@@ -1429,7 +1429,7 @@ export const BARRIER_EVERY = 24;
 export const BARRIER_WARN = 1.5;
 export const BARRIER_S = 12;
 export const BARRIER_PHYS = 0.35;
-export const BARRIER_HP = 0.06;
+export const BARRIER_HP = 0.0065; // (SP6: 0.06 before the den bosses' HP went up ~9x, so it breaks as fast as it did)
 // armour: every ARMOUR_EVERY s a shell for ARMOUR_S: a hit whose multiplier (the skill's, over your normal hit) is
 // under ARMOUR_CRACK does ARMOUR_CUT; a heavier one (or a shatter, or a skill marked `crack`) does full damage and
 // cracks it (one crack a cast). ARMOUR_CRACKS cracks break it: a stagger.
@@ -1448,7 +1448,7 @@ export const WEAK_EVERY = 18;
 export const WEAK_OPEN_S = 7;
 export const WEAK_MARK_S = 11;
 export const WEAK_MULT = 1.6;
-export const WEAK_HP = 0.04;
+export const WEAK_HP = 0.0042; // (SP6: 0.04 before the den bosses' HP went up ~9x)
 export const WEAK_REACH = 45;
 // where boss kind k's weak spot sits, from its feet (x, y) facing dir: {x, y, r}
 export function weakOf(k, x, y, dir) {
@@ -1480,12 +1480,33 @@ export const FIELD_ADDS_MAX = 4;
 // STAGGER_S and takes STAGGER_DMG more from everyone
 export const STAGGER_S = 4;
 export const STAGGER_DMG = 0.3;
-// a hit's multiplier on a boss in party state s ({ stag, shield: 'barrier' | 'armour' | null }) and of kind
-// { magic, heavy, weak } (the client's predicted number and the server's cap)
+// ——— SP6, the balance pass (owner, 2026-10-25; story/skills-plan.md) ———
+// Every boss attack (den and field bosses, not their minions) does a share of the target's max HP on top of its flat
+// hit less DEF, so being far over-levelled never makes a boss harmless: BOSS_HIT_PCT of max HP, TOP_HIT_PCT on a top
+// boss, × the move's OUCH multiplier (and FOCUS_ATK) like the flat part. It goes past DEF, but every cut in hurt()
+// (Sanctuary, the totem, a ward, Resolve, a Barrier, Mana Shield) takes it as it takes the rest. Ultimates stay KOs.
+// Top bosses (`top` on the boss: the party dens, the final bosses, the Clockwork Colossus and Chronos) are built for a
+// party of four (~45 min on the sheet), and a weak answer to their mechanics costs more there: a pulse of TOP_PULSE_HP,
+// a barrier up longer (TOP_BARRIER_S, back TOP_BARRIER_EVERY s after it ends) that lets only TOP_BARRIER_PHYS of a
+// physical hit through, and an ultimate nobody interrupted hits everyone in the den for TOP_ULT_HP of max HP even
+// where it's safe (server/rpg.js ultGoesOff). Ordinary dens keep the S5 numbers.
+export const BOSS_HIT_PCT = 0.03, TOP_HIT_PCT = 0.05;
+export const bossHitPct = (k) => (k?.top ? TOP_HIT_PCT : k?.boss || k?.field ? BOSS_HIT_PCT : 0);
+export const TOP_PULSE_HP = 0.45, TOP_BARRIER_PHYS = 0.15, TOP_BARRIER_S = 18, TOP_BARRIER_EVERY = 12, TOP_ULT_HP = 0.6;
+// a top boss's HP went up ~28x in SP6 (a den's ~9x), so its barrier's and weak point's HP shares are smaller
+// (TOP_BARRIER_HP, TOP_WEAK_HP): one Mage or Archer still breaks them in a few seconds
+export const TOP_BARRIER_HP = 0.0021, TOP_WEAK_HP = 0.0014;
+// Pyra's egg (Rebirth): EGG_HP of her max HP to break in its 10 s (0.025 before her HP went up ~8.5x in SP6)
+export const EGG_HP = 0.003;
+export const pulseHpOf = (k) => (k?.top ? TOP_PULSE_HP : PULSE_HP);
+export const barrierOf = (k) => (k?.top ? { phys: TOP_BARRIER_PHYS, s: TOP_BARRIER_S, every: TOP_BARRIER_EVERY, hp: TOP_BARRIER_HP } : { phys: BARRIER_PHYS, s: BARRIER_S, every: BARRIER_EVERY, hp: BARRIER_HP });
+export const weakHpOf = (k) => (k?.top ? TOP_WEAK_HP : WEAK_HP);
+// a hit's multiplier on a boss in party state s ({ stag, shield: 'barrier' | 'armour' | null, phys: its barrier's
+// barrierOf().phys }) and of kind { magic, heavy, weak } (the client's predicted number and the server's cap)
 export function partyHitMult(s, { magic = false, heavy = false, weak = false } = {}) {
   let k = 1;
   if (s?.stag) k *= 1 + STAGGER_DMG;
-  if (s?.shield === 'barrier' && !magic) k *= BARRIER_PHYS;
+  if (s?.shield === 'barrier' && !magic) k *= s.phys ?? BARRIER_PHYS;
   if (s?.shield === 'armour' && !heavy) k *= ARMOUR_CUT;
   if (weak) k *= WEAK_MULT;
   return k;
@@ -1835,12 +1856,13 @@ export const OVERLEVEL_FLOOR = 0.1;
 export const overlevelScale = (lvl, mobLvl) => Math.max(OVERLEVEL_FLOOR, Math.min(1, 1 - (lvl - mobLvl - OVERLEVEL_GRACE) * OVERLEVEL_STEP));
 // A boss's HP grows by this much for every extra slime in its den (and keeps the damage already done)
 export const BOSS_HP_PER_PLAYER = 0.6;
-// S5.3: a party den (`partyDen` + `partyLive`: the Root Warden, Sigrun) is built for a full party, so its HP is
-// never under PARTY_DEN_HP_FLOOR slimes' worth, even alone (like the final bosses' "four is the floor",
-// story/final-bosses.md); past that it grows as any den boss's does. Its barrier and weak point (BARRIER_HP,
+// S5.3: a party den is built for a full party, so its HP is never under PARTY_DEN_HP_FLOOR slimes' worth, even alone;
+// past that it grows as any den boss's does. SP6 (owner, 2026-10-25): the floor is every top boss's (`top`: the party
+// dens, Colossus, Chronos, the final bosses), and two slimes' worth, so a lone slime takes 2–3x a party of four's time
+// ("possible but miserable", not blocked; it was four, which made it ~4.5x). Its barrier and weak point (BARRIER_HP,
 // WEAK_HP) stay shares of its plain `hp`, so one Mage or Archer still breaks them as quickly.
-export const PARTY_DEN_HP_FLOOR = 4;
-export const bossMaxHp = (k, fighters) => k.hp * (1 + BOSS_HP_PER_PLAYER * (Math.max(fighters, k.partyDen && k.partyLive ? PARTY_DEN_HP_FLOOR : 1) - 1));
+export const PARTY_DEN_HP_FLOOR = 2;
+export const bossMaxHp = (k, fighters) => k.hp * (1 + BOSS_HP_PER_PLAYER * (Math.max(fighters, k.top || (k.partyDen && k.partyLive) ? PARTY_DEN_HP_FLOOR : 1) - 1));
 export const COMBAT_ROOMS = new Set([...Object.keys(STAGES).map(Number), ...DENS.map((d) => d.room)]);
 export const isCombat = (room) => COMBAT_ROOMS.has(room);
 export const denAt = (room) => DENS.find((d) => d.room === room);

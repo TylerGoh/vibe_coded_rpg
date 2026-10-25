@@ -11,7 +11,7 @@ import { TAU } from './util.js';
 import { text } from './village.js';
 import { glow } from './glow.js';
 import { audio } from './audio.js';
-import { MOBS, DEN_W, partyBit, PARTY_HINTS, partyHitMult, weakOf, weakReach, ARMOUR_CRACKS, barrierCovers, weakFaces } from './shared/rpg.js';
+import { MOBS, DEN_W, partyBit, PARTY_HINTS, partyHitMult, weakOf, weakReach, ARMOUR_CRACKS, barrierCovers, weakFaces, barrierOf } from './shared/rpg.js';
 import { rankOf } from './shared/skills.js';
 
 const RED = '232,64,92', CURSE = '96,52,140', DOME = '150,170,255', WEAK = '255,214,120';
@@ -115,7 +115,7 @@ export class Party {
     let sh = b.sh && t >= b.sh.from && t < b.sh.until ? b.sh.kind : null;
     if (sh === 'barrier' && !barrierCovers(kk, v.x, v.facing, x)) sh = null; // (round the back of her shield)
     const weak = !!(b.wk && b.wk.until > t) && weakFaces(kk, v.x, v.facing, x) && weakReach(weakOf(kk, v.x, v.y, v.facing), y, arrow);
-    const k = partyHitMult({ stag: b.stUntil > t, shield: sh }, { magic, heavy, weak });
+    const k = partyHitMult({ stag: b.stUntil > t, shield: sh, phys: barrierOf(kk).phys }, { magic, heavy, weak }); // (SP6: a top boss's barrier lets less through)
     // a word over it now and then: what cut the hit, or that it found the spot
     if (t - this.said > 0.7 && ((sh === 'barrier' && !magic) || (sh === 'armour' && !heavy) || weak)) {
       this.said = t;

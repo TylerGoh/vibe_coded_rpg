@@ -70,6 +70,9 @@ with its section below. Next for classes: the bigger skill pool (`story/skills-p
   SP2 filled the Warrior's pool (below, "The Warrior's skill pool"): War Cry and Hook in the basics; the Knight's
   Ground Shake, Shield Bash, Shockwave, Holy Lance, Retribution, Judgement, Guardian's Oath, Unbroken; the Berserker's
   Rending Slash, Bloodlust, Execution, Frenzy, Cyclone, Rampage.
+  SP6 (the balance pass): Sword Mastery also gives `SWORD_MASTERY_ATK` attack a rank with a sword (`statsFor`), the
+  Warrior's Steady Hands, so the Warrior sits ~0.94× the others' single-target damage from Lv 60 (was ~0.7×). Any
+  Warrior can learn it (no fork), so the Knight gets it too.
   Against a boss's armour (S5.2) heavy hits crack it: any hit whose multiplier reaches `ARMOUR_CRACK` (Power
   Strike, Sky Splitter, and SP2's Shield Bash, Holy Lance, Judgement from rank 2) and Blade Storm and Execution
   (`crack: true`); `hitKinds` decides.

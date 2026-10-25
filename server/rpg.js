@@ -12,7 +12,7 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, EGG_HP } from '../src/shared/rpg.js';
 import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS, DEVOTION_S, DEVOTION_CAP, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, judgmentMult, RESOLVE_R } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen, applyHook, HOOK_RANGE } from '../src/shared/sim.js';
@@ -442,7 +442,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // itself, past DEF and the roll, and it can't be dodged (a boss's pulse, S5); knock 0: not knocked back.
   // flat 'dot': a curse's burn (S5.2): flat, and it doesn't pop a Bubble, start the after-hit invulnerability or
   // flash the screen (Aegis still blocks it, quietly)
-  function hurt(qid, q, raw, fromX, by, knock = 380, ult = false, mob = null, flat = false) {
+  // pct (SP6): a boss's hit also takes that share of max HP, past DEF (the cuts below take it as they take the rest)
+  function hurt(qid, q, raw, fromX, by, knock = 380, ult = false, mob = null, flat = false, pct = 0) {
     if (q.faintUntil || TEST_GOD) return;
     const t = now(), st = stats(q), dot = flat === 'dot';
     if ((q.aegisUntil ?? 0) > t) return dot ? undefined : guard(qid, q, 'block');
@@ -469,7 +470,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       return guard(qid, q, 'barrier');
     }
     const zone = zones.find((z) => z.room === q.state.room && z.until > t && Math.abs(q.state.x - z.x) < z.r);
-    let dmg = ult ? (zone ? Math.round(st.maxHp * 0.6) : Math.ceil(q.rpg.hp) + 1) : flat ? Math.max(1, Math.round(raw)) : Math.max(1, Math.round(raw * rand(0.85, 1.15) - st.def));
+    let dmg = ult ? (zone ? Math.round(st.maxHp * 0.6) : Math.ceil(q.rpg.hp) + 1) : flat ? Math.max(1, Math.round(raw)) : Math.max(1, Math.round(raw * rand(0.85, 1.15) - st.def)) + Math.round(st.maxHp * pct);
     if (zone && !ult) dmg = Math.max(1, Math.round(dmg * (1 - zone.cut)));
     const totem = ult ? 0 : summons.cutAt(q); // a Guardian Totem near you
     if (totem) dmg = Math.max(1, Math.round(dmg * (1 - totem)));
@@ -1144,7 +1145,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (ult && now() > mob.ultLiveUntil) return; // no ultimate going off right now
     const mx = Number.isFinite(m.mx) && Math.abs(m.mx - mob.x) < DEN_W ? m.mx : mob.x;
     const focused = !ult && mob.focus?.p === p && mob.focus.until > now(); // (S5: the boss's focus hits harder)
-    hurt(id, p, MOBS[mob.kind].atk * mult * (focused ? FOCUS_ATK : 1), mx, undefined, knock, ult, mob);
+    const x = mult * (focused ? FOCUS_ATK : 1);
+    hurt(id, p, MOBS[mob.kind].atk * x, mx, undefined, knock, ult, mob, false, ult ? 0 : bossHitPct(MOBS[mob.kind]) * x); // (SP6: a boss's share of max HP)
     // Frost Armor (SP3, `chills` on a long buff): a mob that ran into you is chilled (a soft chill: never a freeze)
     const armor = (m.kind === 'touch' || m.kind === 'charge') && Object.entries(p.buffs ?? {}).find(([bid, b]) => SKILLS[bid]?.chills && b.until > now());
     if (armor && !mob.dead) element(mob, 'frost', 0, armor[1].by, false, true);
@@ -1714,7 +1716,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     else if (u.kind === 'rebirth') {
       // an egg: break it within the time or it bursts, knocking everyone out, and she heals
       u.dur = 10;
-      const max = Math.round(m.maxHp * 0.025);
+      const max = Math.round(m.maxHp * EGG_HP);
       m.egg = { hp: max, max };
       m.special = true;
       m.hover = 0;
@@ -1743,6 +1745,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     m.ultLiveUntil = t + lasts; // clients report their 'ult' ouches within this window
     summons.ult(m.room); // (spirits and totems take a big share of it)
+    // SP6: a top boss's ultimate that nobody interrupted hits everyone in the fight for TOP_ULT_HP of max HP, safe spot or
+    // not (flat, like a pulse: Aegis, a Bubble, a Barrier, Sanctuary and the rest take it as they take one); the KO for
+    // standing in the wrong place still comes as an 'ult' ouch
+    if (k.top && u.kind !== 'rebirth') for (const [qid, q] of inRoom(m.room)) if (!q.faintUntil) hurt(qid, q, stats(q).maxHp * TOP_ULT_HP, m.x, undefined, 0, false, m, true);
     m.timer = lasts / 1000;
     m.ultAt = t + ULT_EVERY[Math.max(1, m.stage)] * 1000;
     bossEvent(m, 'ultHit', { ...u, x: Math.round(m.x) });
@@ -1830,7 +1836,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         m.pulseAt = t + PULSE_EVERY * 1000;
         bossEvent(m, 'pulseHit');
         // (a Barrier Draught takes it in hurt(), on `flat`)
-        for (const [qid, q] of inFight(m, here)) hurt(qid, q, stats(q).maxHp * PULSE_HP, m.x, undefined, 0, false, m, true);
+        for (const [qid, q] of inFight(m, here)) hurt(qid, q, stats(q).maxHp * pulseHpOf(k), m.x, undefined, 0, false, m, true); // (SP6: a top boss's is bigger)
       }
     } else m.pulseAt = m.pulseHit = 0;
     // S5.2: nothing new starts while the boss is busy (an ultimate, phased out, staggered)
@@ -1868,13 +1874,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         bossEvent(m, 'shieldDrop', { kind: sh.kind });
         dirty = true;
       }
-      if (!m.shieldNext) m.shieldNext = t + (canB ? BARRIER_EVERY : ARMOUR_EVERY) * 500;
+      const bar = barrierOf(k); // (SP6: a top boss's barrier is up longer and lets less through)
+      if (!m.shieldNext) m.shieldNext = t + (canB ? bar.every : ARMOUR_EVERY) * 500;
       if (!m.shield && t >= m.shieldNext && !busy) {
         const kind = canB && canA ? (m.shieldLast === 'barrier' ? 'armour' : 'barrier') : canB ? 'barrier' : 'armour';
-        const b = kind === 'barrier', warn = b ? BARRIER_WARN : ARMOUR_WARN, max = Math.max(1, Math.round(k.hp * TEST_BOSS_HP * BARRIER_HP)); // (one slime's worth of its HP: a lone Mage can break it in a big party too)
-        m.shield = { kind, from: t + warn * 1000, until: t + (warn + (b ? BARRIER_S : ARMOUR_S)) * 1000, hp: max, max, cracks: 0 };
+        const b = kind === 'barrier', warn = b ? BARRIER_WARN : ARMOUR_WARN, max = Math.max(1, Math.round(k.hp * TEST_BOSS_HP * bar.hp)); // (one slime's worth of its HP: a lone Mage can break it in a big party too)
+        m.shield = { kind, from: t + warn * 1000, until: t + (warn + (b ? bar.s : ARMOUR_S)) * 1000, hp: max, max, cracks: 0 };
         m.shieldLast = kind;
-        m.shieldNext = m.shield.until + (b ? BARRIER_EVERY : ARMOUR_EVERY) * 1000;
+        m.shieldNext = m.shield.until + (b ? bar.every : ARMOUR_EVERY) * 1000;
         bossEvent(m, 'shieldUp', { kind, dur: warn });
         if (!m.saidShield) bossSays(m, k.lines?.shield); // (once a fight: S5.3's line about it)
         m.saidShield = true;
@@ -1899,7 +1906,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       }
       if (!m.weakNext) m.weakNext = t + WEAK_EVERY * 500;
       if (!m.weak && t >= m.weakNext && !busy) {
-        m.weak = { at: t, until: t + WEAK_OPEN_S * 1000, fill: 0, max: Math.max(1, Math.round(k.hp * TEST_BOSS_HP * WEAK_HP)) }; // (like the barrier's)
+        m.weak = { at: t, until: t + WEAK_OPEN_S * 1000, fill: 0, max: Math.max(1, Math.round(k.hp * TEST_BOSS_HP * weakHpOf(k))) }; // (like the barrier's)
         bossEvent(m, 'weakOpen');
         dirty = true;
       }
@@ -1937,7 +1944,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const covers = barrierCovers(k, m.x, m.dir, fromX) && !(k.barrierFront && (turned || near));
     const faces = weakFaces(k, m.x, m.dir, fromX) || turned || near;
     const up = sh && t >= sh.from + 250 ? sh.kind : null;
-    return { stag: m.staggerUntil > t - 300, shield: up === 'barrier' && !covers ? null : up, weakOpen: !!m.weak && t < m.weak.until + 300 && faces, onShield: barrierCovers(k, m.x, m.dir, fromX) };
+    return { stag: m.staggerUntil > t - 300, shield: up === 'barrier' && !covers ? null : up, phys: barrierOf(k).phys, weakOpen: !!m.weak && t < m.weak.until + 300 && faces, onShield: barrierCovers(k, m.x, m.dir, fromX) };
   }
   // a hit just landed on a boss with its party mechanics on: magic wears a barrier down, a heavy hit cracks armour,
   // a hit on the weak point fills it. Each one, done, staggers it. → true if it cracked the armour

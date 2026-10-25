@@ -1,6 +1,6 @@
 # SP: the skill pool (plan)
 
-**Status: SP1–SP5 live (SP5, the Archer, 2026-10-25). SP6 next.** Written 2026-10-24 (owner's ask). Comes first on the roadmap, ahead of
+**Status: SP1–SP6 done (SP6, the balance pass, 2026-10-25). Next: the owner plays.** Written 2026-10-24 (owner's ask). Comes first on the roadmap, ahead of
 Greenhollow's final boss. Builds on the class design in `progression.md` (sections 1b, 1c, 3–7) and on how
 skills work today (`docs/combat/skills.md`). Read both first. Names here are working names; numbers live
 in `src/shared/skills.js` and are set by `npm run economy` (`CLASS_FIT`, `BAD_AT`), never guessed here.
@@ -266,6 +266,19 @@ What SP6 should know:
 - `fight` reads each dot's own time now (`DOTS[kind].s`): poison lasts longer than a bleed.
 - Hold-to-fire is generic: if SP6 gives classes different attack speeds, `SLAP_COOLDOWN_MS` (client and the server's check
   in `server/index.js`) is the one place to split, and the sheet's `ACTION_S` with it.
+
+### SP6: done (2026-10-25)
+Owner's decisions (2026-10-25, the full list in `roadmap.md`'s SP6 item): % of max HP on every boss hit (`bossHitPct`),
+~15 min ordinary dens and ~4 min field bosses soloed on the sheet, ~45 min top bosses (`top`) for a party of four with
+weak answers costing more there, a boss twice your level KOs you in `KILL_HITS` or fewer, no level-gap penalty or gear
+level requirements, respawns unchanged and rewards scaled per minute of the fight, and the cross-class pass.
+What landed (details: `docs/economy.md`, "The balance pass"):
+- The cross-class pass: only the Warrior needed it. `SWORD_MASTERY_ATK` on Sword Mastery (opens at Lv 60, where the
+  Warrior fell behind): single 0.70 → 0.94×, crowd 0.65 → 0.88× (Lv 100+), between the Cleric's and the Mage's. The
+  Sniper is off `CLASS_FIT`'s floor because the median moved. No other class touched.
+- The sheet now models a team's healers (`healGive`), a Knight's Sanctuary for friends, the top boss's ultimate
+  (`ultXOf`) and drinking before a telegraphed hit. It still has no kill model (Ricochet, Ignite, Cold Snap) and no focus.
+- Not done: attack speeds per class (`SLAP_COOLDOWN_MS` stays one number).
 
 SP2–SP5 touch different parts of `SKILLS` and their own effects. They can run side by side, but `src/shared/skills.js`
 is shared, so they merge one at a time. Each one deploys on its own: a class at a time is fine (the others

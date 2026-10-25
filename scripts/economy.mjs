@@ -3,7 +3,7 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CUT, ARMOUR_CRACKS } from '../src/shared/rpg.js';
+import { BOSS_HIT_PCT, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, ULT_EVERY, ULT_WARN, PARTY_DEN_HP_FLOOR, MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CUT, ARMOUR_CRACKS } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
@@ -48,14 +48,22 @@ const LEGACY_MOBS = new Set(['sprout', 'mushling', 'bramble']);
 const MOB_FIT = { hp: [0.6, 1.6], atk: [0.6, 1.6], exp: [0.75, 1.35], gold: [0.7, 1.35] };
 // Gear with a `lvl` (anything new) must be about as strong as the curve there, never much stronger
 const GEAR_FIT = [0.85, 1.1];
-// A field boss kill is worth this many minutes of farming at its level (dens are worth far more)
+// A field boss kill is worth this many minutes of farming at its level (only those the sheet can't fight: under
+// CLASS_LVL; the rest are priced per minute of their fight, FIELD_PAY)
 const FIELD_BOSS_WORTH = [1.5, 8];
-// Camping a den boss (S0, the reward window): a kill every BOSS_RESPAWN_MS + CAMP_FIGHT_MIN, one full
-// reward per BOSS_WINDOW_MS and BOSS_REPEAT_SHARE for the rest. Its EXP an hour must stay within
-// BOSS_CAMP_MAX times farming mobs at the boss's level, so bosses are worth doing but not the way to level
-// (before S0, a full reward every kill: ~3x at this pace, ~10x for someone strong enough to kill it each minute)
+// Camping a den boss (S0, the reward window): a kill every BOSS_RESPAWN_MS + its fight, one full reward per
+// BOSS_WINDOW_MS and BOSS_REPEAT_SHARE for the rest. Its EXP an hour must stay under BOSS_CAMP_MAX times farming
+// mobs at the boss's level, so bosses are worth doing but not the way to level (before S0, a full reward every kill:
+// ~3x at this pace, ~10x for someone strong enough to kill it each minute). The Novices' dens (no class, so the sheet
+// can't fight them) still count CAMP_FIGHT_MIN for the fight.
+// SP6 (owner, 2026-10-25): rewards scale with the fight, priced per minute of it, so an hour of boss fighting pays
+// about what it did: camped for an hour at its sheet fight time (BOSS PAY), a den or top boss's EXP sits within
+// BOSS_PAY of farming its level for that hour (before SP6: 0.4-0.9x camped, where the window bit, ~1.5-2x rotating
+// dens; gold, the loot sold, stays where it was too: 2-6x). A field boss (respawn
+// FIELD_BOSS_RESPAWN_MS, so an hour holds few) pays FIELD_PAY minutes of farming, gold and EXP, a minute of its fight.
 const CAMP_FIGHT_MIN = 2;
 const BOSS_CAMP_MAX = 2;
+const BOSS_PAY = [0.4, 1.2], FIELD_PAY = [1, 2.5];
 
 const avg = ([, chance, lo, hi]) => chance * (lo + hi) / 2;
 const isGear = (id) => ['sword', 'staff', 'bow', 'helmet'].includes(ITEMS[id]?.kind);
@@ -101,11 +109,13 @@ const minutesWithSymbol = (L) => {
 
 const expPerMin = (L) => farmed(L)[1].exp * KILLS_PER_MIN;
 // A den boss camped for an hour, as a multiple of an hour of farming mobs at its level (gold counts the loot)
-function campRatio(m) {
-  const kills = 60 / (BOSS_RESPAWN_MS / 60_000 + CAMP_FIGHT_MIN), full = Math.min(kills, 60 / (BOSS_WINDOW_MS / 60_000));
+function campRatio(m, fight = CAMP_FIGHT_MIN) {
+  const kills = 60 / (BOSS_RESPAWN_MS / 60_000 + fight), full = Math.min(kills, 60 / (BOSS_WINDOW_MS / 60_000));
   const k = perKill(m), worth = full + (kills - full) * BOSS_REPEAT_SHARE;
   return { exp: (m.exp * worth) / (expPerMin(m.lvl) * 60), gold: ((k.value + k.gear) * worth) / (goldPerMin(m.lvl) * 60) };
 }
+// SP6: a field boss's pay a minute of its fight, in minutes of farming at its level
+const fieldPay = (m, fight) => ({ exp: m.exp / (KILLS_PER_MIN * farmed(m.lvl)[1].exp) / fight, gold: perKill(m).value / goldPerMin(m.lvl) / fight });
 const fmt = (n) => Math.round(n).toLocaleString('en-US');
 const hrs = (min) => (min < 90 ? `${Math.round(min)} min` : `${(min / 60).toFixed(1)} h`);
 const table = (title, rows) => {
@@ -119,8 +129,7 @@ table('FAUCETS: one kill of each mob (gold = coins picked up; sell = other drops
 })));
 table('FAUCETS: one boss kill (loot is shared: one set per kill, whoever picks it up; respawn BOSS_RESPAWN_MS, field bosses FIELD_BOSS_RESPAWN_MS)', Object.fromEntries(bosses.map(([id, m]) => {
   const k = perKill(m);
-  return [id, { kind: m.field ? 'field' : 'den', lvl: m.lvl, hp: m.hp, exp: m.exp, gold: fmt(k.gold), sell: fmt(k.sell), 'gear sold': fmt(k.gear), 'vs 1 min farming': `${(k.value / goldPerMin(m.lvl)).toFixed(1)}x`,
-    'camped 1 h vs mobs (exp / gold)': m.field ? '' : `${campRatio(m).exp.toFixed(1)}x / ${campRatio(m).gold.toFixed(1)}x` }];
+  return [id, { kind: m.field ? 'field' : 'den', lvl: m.lvl, hp: m.hp, exp: m.exp, gold: fmt(k.gold), sell: fmt(k.sell), 'gear sold': fmt(k.gear), 'vs 1 min farming': `${(k.value / goldPerMin(m.lvl)).toFixed(1)}x` }];
 })));
 // The pace (L1): play time to reach a level against the owner's target, LEVEL_MIN(L) minutes a level
 // (src/shared/rpg.js), never faster than the old curve; the check keeps the play time within LEVEL_PACE of it
@@ -387,24 +396,27 @@ const attackDmg = (st, range, c) => (st.boltRange ? (st.boltRange >= range ? st.
 const POTIONS = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))].filter((id) => ITEMS[id].kind === 'potion' && ITEMS[id].heal).map((id) => ITEMS[id]).sort((a, b) => a.heal - b.heal);
 // A fight: n targets, `range` px away; `hit` raw damage every BOSS_HIT_EVERY s (0: nobody hits back);
 // `hp`: stop once that much damage is done (a boss); `potions`: drink them. → { t, dealt, faint, drunk, gold }
-function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, hp: bossHp = Infinity, potions = false, until = SIM_S, mech = null }) {
+// SP6: pct, the share of max HP each boss hit takes on top (bossHitPct × BOSS_HIT_MULT, past DEF); mech.ult: a top boss's
+// uninterrupted ultimate every that many s (TOP_ULT_HP of max HP, flat like the pulse); mech.pulseHp / mech.bar: its
+// pulse and barrier (pulseHpOf, barrierOf)
+function fight(c, { n = 1, range = 0, hit = 0, pct = 0, every = BOSS_HIT_EVERY.warrior, hp: bossHp = Infinity, potions = false, until = SIM_S, mech = null }) {
   const r = (id) => rankOf(c.skills, id);
   // S5's party mechanics (PARTY DENS below): mech = { pulse, barrier, weak, hp1 (the boss's one-slime HP), behind (a
   // share of your hits from behind a front-only barrier), front (Sigrun's: front-only barrier and weak point), jump
   // (a share of your non-arrow hits that reach a high weak point), help { magic, weak } (the rest of the party's
   // damage a second on the barrier and the weak point) }; S5.4: armour (a shell phase: non-heavy hits ×ARMOUR_CUT,
   // your heavy hits crack it, one an action; the others' cracks aren't counted, so a party is a little slower here)
-  const M = mech ? { shNext: BARRIER_EVERY * 0.5, shFrom: 0, shUntil: 0, shHp: 0, wkNext: WEAK_EVERY * 0.5, wkOpen: false, wkUntil: 0, wkFill: 0, stag: 0, pulse: PULSE_EVERY + PULSE_WARN, staggers: 0, arNext: ARMOUR_EVERY * 0.5, arFrom: 0, arUntil: 0, cracks: 0, ...mech } : null;
+  const M = mech ? { bar: barrierOf({}), pulseHp: PULSE_HP, weakHp: WEAK_HP, ultX: 1, ultT: mech.ult || 0, shNext: (mech.bar ?? barrierOf({})).every * 0.5, shFrom: 0, shUntil: 0, shHp: 0, wkNext: WEAK_EVERY * 0.5, wkOpen: false, wkUntil: 0, wkFill: 0, stag: 0, pulse: PULSE_EVERY + PULSE_WARN, staggers: 0, arNext: ARMOUR_EVERY * 0.5, arFrom: 0, arUntil: 0, cracks: 0, ...mech } : null;
   const shUp = (t) => M?.barrier && t >= M.shFrom && t < M.shUntil, wkUp = (t) => M?.weak && M.wkOpen && t < M.wkUntil;
   const arUp = (t) => M?.armour && !M.barrier && t >= M.arFrom && t < M.arUntil;
   const stagger = (t) => { M.stag = t + STAGGER_S; M.staggers++; };
   const wearShield = (d, t) => { if ((M.shHp -= d) <= 0) { M.shUntil = t; stagger(t); } }; // (broken: the next still comes on time)
-  const fillWeak = (d, t) => { if ((M.wkFill += d) >= M.hp1 * WEAK_HP) { M.wkOpen = false; M.wkNext = t + WEAK_EVERY; stagger(t); } };
+  const fillWeak = (d, t) => { if ((M.wkFill += d) >= M.hp1 * M.weakHp) { M.wkOpen = false; M.wkNext = t + WEAK_EVERY; stagger(t); } };
   // the boss's phases at time t (and the party's help wearing them down since the last action)
   const mechStep = (t, dt) => {
     if (!M) return;
     if (M.barrier) {
-      if (t >= M.shNext) [M.shFrom, M.shUntil, M.shHp, M.shNext] = [M.shNext + BARRIER_WARN, M.shNext + BARRIER_WARN + BARRIER_S, M.hp1 * BARRIER_HP, M.shNext + BARRIER_WARN + BARRIER_S + BARRIER_EVERY];
+      if (t >= M.shNext) [M.shFrom, M.shUntil, M.shHp, M.shNext] = [M.shNext + BARRIER_WARN, M.shNext + BARRIER_WARN + M.bar.s, M.hp1 * M.bar.hp, M.shNext + BARRIER_WARN + M.bar.s + M.bar.every];
       if (shUp(t)) wearShield(M.help.magic * dt, t);
     }
     if (M.armour && !M.barrier && t >= M.arNext) [M.arFrom, M.arUntil, M.cracks, M.arNext] = [M.arNext + ARMOUR_WARN, M.arNext + ARMOUR_WARN + ARMOUR_S, 0, M.arNext + ARMOUR_WARN + ARMOUR_S + ARMOUR_EVERY];
@@ -420,7 +432,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     let k = M.stag > t ? 1 + STAGGER_DMG : 1;
     const facing = M.front ? 1 - M.behind : 1; // (the share of hits that land on her front: her shield)
     if (shUp(t)) {
-      if (!kinds.magic) k *= 1 - facing + facing * BARRIER_PHYS;
+      if (!kinds.magic) k *= 1 - facing + facing * M.bar.phys;
       else wearShield(d * facing, t);
     }
     if (arUp(t)) {
@@ -464,11 +476,14 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
   const use = (id, t) => { mp -= SKILLS[id].mp; cds[id] = t + cooldownOf(id, r(id)); };
   for (let t = 0; t < until; t += ACTION_S) {
     // what happened since the last action: MP (and HP) regen once a second, the boss's hits
-    while (nextRegen <= t || (hit && nextHit <= t) || (M?.pulse && M.pulse <= t)) {
-      const pulse = M?.pulse && M.pulse <= t && M.pulse <= nextRegen && !(hit && nextHit < M.pulse);
-      if (pulse || (hit && nextHit <= nextRegen)) {
-        const at = pulse ? M.pulse : nextHit, st = statsAt(at);
-        if (pulse) M.pulse += PULSE_EVERY + PULSE_WARN;
+    for (;;) {
+      const hT = hit ? nextHit : Infinity, pT = M?.pulse ? +M.pulse : Infinity, uT = M?.ultT || Infinity, at0 = Math.min(nextRegen, hT, pT, uT);
+      if (at0 > t) break;
+      const flatHit = uT === at0 ? 'ult' : pT === at0 ? 'pulse' : null, pulse = !!flatHit; // (SP6: an ultimate goes like a pulse)
+      if (pulse || hT === at0) {
+        const at = at0, st = statsAt(at);
+        if (flatHit === 'ult') M.ultT += mech.ult;
+        else if (pulse) M.pulse += PULSE_EVERY + PULSE_WARN;
         else nextHit += every;
         if (!pulse && M?.stag > at) continue; // (staggered: no moves)
         if (buff.aegis > at) continue;
@@ -480,8 +495,10 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
           drawer.hp -= Math.max(1, hit - drawer.def);
           continue;
         }
-        let d = pulse ? Math.round(st.maxHp * PULSE_HP) : Math.max(1, Math.round(hit - st.def)); // (the pulse: flat, past DEF)
+        let d = pulse ? Math.round(st.maxHp * (flatHit === 'ult' ? TOP_ULT_HP : M.pulseHp)) : Math.max(1, Math.round(hit - st.def)) + Math.round(st.maxHp * pct); // (the pulse: flat, past DEF; SP6: pct of max HP too)
+        if (flatHit === 'ult') d = Math.round(d * M.ultX); // (SP6: the team's answer, timed for it: a Knight's Sanctuary, a Cleric's Barrier)
         if (buff.zone > at) d = Math.max(1, Math.round(d * (1 - SKILLS.sanctuary.cut(r('sanctuary')))));
+        else if (M?.help?.zone && at % M.help.zone.every < M.help.zone.dur) d = Math.max(1, Math.round(d * (1 - M.help.zone.cut))); // (SP6: a Knight friend's)
         if (totem && totem.until > at && totem.hp > 0) d = Math.max(1, Math.round(d * (1 - totem.cut)));
         if (r('resolve') && (sums.some((q) => q.until > at && q.hp > 0) || (totem && totem.until > at && totem.hp > 0))) d = Math.max(1, Math.round(d * (1 - SKILLS.resolve.cut(r('resolve'))))); // (SP4: by its own summons)
         if (barrier > 0 && barrierUntil > at) { const soak = Math.min(barrier, d); barrier -= soak; d -= soak; if (d <= 0) continue; }
@@ -500,6 +517,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
         if (mendUntil > at) healUp(mendAmt, st);
         if (wispUntil > at) healUp(wispAmt / WISP_TICK, st);
         if (fieldHealUntil > at) healUp(fieldHeal, st); // (SP4: standing in your own Radiance / Consecration)
+        if (M?.help?.heal) hp = Math.min(st.maxHp, hp + M.help.heal); // (SP6: a Cleric friend's heals, HP a second)
       }
     }
     // a burn ticking since the last action (the server's BURN_TICK_MS, smoothed)
@@ -532,7 +550,9 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     }
     const st = statsAt(t);
     // this action: a potion, Jelly Patch, a buff that's down, the best hit, or the normal attack
-    if (hit && potions && hp < POTION_AT * st.maxHp) {
+    // (SP6: a pulse or a top boss's ultimate coming, drink first if it would take you under POTION_AT: you see it coming)
+    const soon = M ? Math.max(M.pulse && M.pulse - t < PULSE_WARN ? M.pulseHp : 0, M.ultT && M.ultT - t < ULT_WARN ? TOP_ULT_HP * M.ultX : 0) : 0;
+    if (hit && potions && hp < (POTION_AT + soon) * st.maxHp) {
       const p = [...POTIONS].reverse().find((q) => q.heal <= st.maxHp - hp) ?? POTIONS[0];
       hp = Math.min(st.maxHp, hp + p.heal);
       mp = Math.min(st.maxMp, mp + (p.mana ?? 0));
@@ -680,87 +700,147 @@ for (const L of CLASS_AT) for (const br of branches) {
 }
 table(`CLASSES: each branch with gear on the frozen curve (BUILDS, AP_LUK in LUK); damage a second from a ${SIM_S} s rotation (one action every ${ACTION_S} s), toughness = seconds alone under a curve boss's hits every ${BOSS_HIT_EVERY.warrior} s, no potions`, classRows);
 const medianOf = (xs) => { const ts = [...xs].sort((a, b) => a - b), h = ts.length >> 1; return ts.length % 2 ? ts[h] : (ts[h - 1] + ts[h]) / 2; };
-const isPartyDen = (m) => !!(m.partyDen && m.partyLive); // (S5.3: those are in the PARTY DENS table instead)
-const soloDens = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => m.lvl >= CLASS_LVL && !isPartyDen(m)).sort((a, b) => a[1].lvl - b[1].lvl);
+const isPartyDen = (m) => !!(m.partyDen && m.partyLive); // (S5.3: the Root Warden, Sigrun)
+// SP6 (owner, 2026-10-25; story/skills-plan.md): the top bosses (`top`: the party dens, the Clockwork Colossus, Chronos,
+// the final bosses) are measured for a party of four in TOP BOSSES below; every other den alone in the solo table. Every
+// boss hit takes bossHitPct of max HP on top of its flat part (pctOf: the average move, × BOSS_HIT_MULT like the flat).
+const isTop = (m) => !!m.top;
+const pctOf = (m) => bossHitPct(m) * BOSS_HIT_MULT;
+const bossFight = (m) => ({ hit: m.atk * BOSS_HIT_MULT, pct: pctOf(m) });
+// SP6's targets (owner, 2026-10-25), in the sheet's minutes (it plays faster than people do): an ordinary den soloed at
+// its level about 15 min (the eight branches' median within DEN_SOLO_MIN); a field boss longer than it was but well
+// short of a den (FIELD_SOLO_MIN, about 4); a top boss about 45 min for a party of four (TOP_PARTY_MIN), alone TOP_SOLO ×
+// the party's time (possible but miserable, never blocked), and a lopsided party with no answer to its mechanics
+// (LOPSIDED_TEAM: no healer, no Mage) TOP_LOPSIDED_MIN, on a lot of potions
+const DEN_SOLO_MIN = [12, 18], FIELD_SOLO_MIN = [3, 6], TOP_PARTY_MIN = [38, 55], TOP_SOLO = [2, 3.5], TOP_LOPSIDED_MIN = [60, 100];
+const LOPSIDED_TEAM = ['berserker', 'berserker', 'sniper', 'trapper'];
+// (the time is only checked on a boss whose barrier covers it all round: Sigrun's is front-only, and flanking her is
+// everyone's answer to it, so a lopsided party there pays in potions, at least LOPSIDED_POTS a member, not in time)
+const LOPSIDED_POTS = 100;
+const SOLO_UNTIL = 5 * 3600; // s: a fight the sim gives up on
+const fightMin = {}; // boss id → the sheet's minutes for its fight (dens and fields: the solo median; top: the party's), for BOSS PAY
+const soloDens = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => m.lvl >= CLASS_LVL && !isTop(m)).sort((a, b) => a[1].lvl - b[1].lvl);
 const solo = {};
 for (const [id, m] of soloDens) {
   solo[id] = {};
-  for (const br of branches) solo[id][br] = fight(classChar(br, m.lvl), { hit: m.atk * BOSS_HIT_MULT, every: BOSS_HIT_EVERY[BUILDS[br].cls], hp: m.hp, potions: true, until: 3600 });
+  for (const br of branches) solo[id][br] = fight(classChar(br, m.lvl), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls], hp: m.hp, potions: true, until: SOLO_UNTIL });
+  fightMin[id] = medianOf(branches.map((br) => solo[id][br].t)) / 60;
 }
-table(`CLASSES: time to solo each den boss at its level (potions drunk under ${POTION_AT * 100}% HP; dens under Lv ${CLASS_LVL} are the Novices')`, Object.fromEntries(soloDens.map(([id, m]) => {
-  const med = medianOf(branches.map((br) => solo[id][br].t));
-  return [id, { lvl: m.lvl, hp: fmt(m.hp), ...Object.fromEntries(branches.map((br) => { const f = solo[id][br]; return [br, f.faint ? `faints at ${mmss(f.t)}` : `${mmss(f.t)}${f.drunk ? ` (${f.drunk} pots, ${fmt(f.gold)}g)` : ''}`]; })), median: mmss(med), 'kill pays': fmt(bossWorth(id)) }];
+const soloRow = (f) => (f.faint ? `faints at ${mmss(f.t)}` : `${mmss(f.t)}${f.drunk ? ` (${f.drunk} pots, ${fmt(f.gold)}g)` : ''}`);
+table(`CLASSES: time to solo each den boss at its level (potions drunk under ${POTION_AT * 100}% HP; dens under Lv ${CLASS_LVL} are the Novices'; want the median in DEN_SOLO_MIN ${DEN_SOLO_MIN.join('–')} min)`, Object.fromEntries(soloDens.map(([id, m]) => {
+  return [id, { lvl: m.lvl, hp: fmt(m.hp), ...Object.fromEntries(branches.map((br) => [br, soloRow(solo[id][br])])), median: mmss(fightMin[id] * 60), 'kill pays': fmt(bossWorth(id)) }];
 })));
-// PARTY DENS (S5.3; story/s5-plan.md): a party den fights a lone slime with every mechanic but the focus on (PARTY
-// capMin), so it's measured apart: each branch alone against the pulse, the barrier and the weak point (the sim
-// leaves out the adds, the focus and the ultimates, which a party answers better too), and a mixed party of
-// PARTY_TEAM at the boss's level. Its HP is bossMaxHp's: a party's worth (PARTY_DEN_HP_FLOOR) even alone. In the party the boss's hits are shared out
-// (each member takes one every PARTY_TEAM.length × as often), the Mages' and Clerics' spells wear the barrier down for
-// everyone, the Archer's arrows fill the weak point, and the Knight holds a front-only barrier's focus (all hits on
-// her front) while the others flank (PARTY_BEHIND). Alone, a slime reaches a high weak point with WEAK_JUMP of its
-// non-arrow hits and gets round a front-only one with SOLO_BEHIND of them. Targets (owner): a mixed party wins in a
-// few minutes (PARTY_DEN_MIN of the sim's minutes: it plays faster than people do, and its ordinary dens' solo
-// kills, which the owner wants at a few minutes, come out at 1.5–3); alone it takes PARTY_DEN_SOLO × the party's
-// time or more, and at least one branch can still finish it (never locked).
+// SP6: field bosses alone at their level (their party mechanics need two slimes, RETROFIT below)
+const fieldBosses = bosses.filter(([, m]) => m.field && m.lvl >= CLASS_LVL).sort((a, b) => a[1].lvl - b[1].lvl);
+const fieldSolo = {};
+for (const [id, m] of fieldBosses) {
+  fieldSolo[id] = Object.fromEntries(branches.map((br) => [br, fight(classChar(br, m.lvl), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls], hp: m.hp, potions: true, until: SOLO_UNTIL })]));
+  fightMin[id] = medianOf(branches.map((br) => fieldSolo[id][br].t)) / 60;
+}
+table(`FIELD BOSSES: time to solo each at its level (want the median in FIELD_SOLO_MIN ${FIELD_SOLO_MIN.join('–')} min)`, Object.fromEntries(fieldBosses.map(([id, m]) => [id, { lvl: m.lvl, hp: fmt(m.hp), ...Object.fromEntries(branches.map((br) => [br, soloRow(fieldSolo[id][br])])), median: mmss(fightMin[id] * 60), 'kill pays': fmt(bossWorth(id)) }])));
+// TOP BOSSES (S5.3's PARTY DENS, SP6): a team's kill time. A party den fights a lone slime with every mechanic but the
+// focus on (PARTY capMin); Colossus and Chronos have none yet (their retrofit hasn't come). The sim leaves out the adds and
+// the focus; a top boss's ultimate goes off every ULT_GAP s for TOP_ULT_HP of everyone's max HP unless a Frostbinder is in
+// the team to interrupt it (on a boss with `interrupt`). Its HP is bossMaxHp's (never under PARTY_DEN_HP_FLOOR slimes'
+// worth). In a team the boss's hits are shared out (each member takes one every team-size × as often), the Mages' and
+// Clerics' spells wear the barrier down for everyone, the Archers' arrows fill the weak point, and the Knight holds a
+// front-only barrier's focus (all hits on her front) while the others flank (PARTY_BEHIND). Alone, a slime reaches a high
+// weak point with WEAK_JUMP of its non-arrow hits and gets round a front-only one with SOLO_BEHIND of them. Each member's
+// run is PARTY_SIM_S long (its damage a second, and potions scaled up to the whole fight).
 const PARTY_TEAM = ['knight', 'priest', 'frostbinder', 'sniper'];
-const WEAK_JUMP = 0.3, SOLO_BEHIND = 0.35, PARTY_BEHIND = 0.8;
-const PARTY_DEN_MIN = [1, 4], PARTY_DEN_SOLO = 3, PARTY_SIM_S = 600;
-const partyDens = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => isPartyDen(m)).sort((a, b) => a[1].lvl - b[1].lvl);
-const mechOf = (m, fighters) => ({ pulse: partyActive(m, fighters, 'pulse'), barrier: partyActive(m, fighters, 'barrier'), weak: partyActive(m, fighters, 'weakpoint'), hp1: m.hp, front: !!m.barrierFront });
-const partyRun = {};
-for (const [id, m] of partyDens) {
-  const n = PARTY_TEAM.length, hp = bossMaxHp(m, n), front = !!m.barrierFront;
-  // the help each member gets from the others: their damage a second on the barrier (spells) and on the weak point
-  const base = Object.fromEntries(PARTY_TEAM.map((br) => [br, fight(classChar(br, m.lvl), {}).dealt / SIM_S]));
-  const isMagic = (br) => ['mage', 'cleric'].includes(BUILDS[br].cls), isArrow = (br) => BUILDS[br].cls === 'archer';
+const WEAK_JUMP = 0.3, SOLO_BEHIND = 0.35, PARTY_BEHIND = 0.8, PARTY_SIM_S = 1200;
+const ULT_GAP = ULT_EVERY[1] + ULT_WARN;
+const topBosses = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => isTop(m)).sort((a, b) => a[1].lvl - b[1].lvl);
+// SP6: a top boss's ultimate (ULT_GAP) unless a Frostbinder interrupts it; ultX: what of it lands, with the team's best
+// answer timed for it (a Knight's Sanctuary, ULT_CLERIC with a Cleric's Barrier and heals)
+const ULT_CLERIC = 0.5;
+const ultXOf = (team) => Math.min(1, ...team.map((br) => (br === 'knight' ? 1 - SKILLS.sanctuary.cut(SKILLS.sanctuary.max) : BUILDS[br].cls === 'cleric' ? ULT_CLERIC : 1)));
+const mechOf = (m, fighters, team = []) => ({ pulse: partyActive(m, fighters, 'pulse'), barrier: partyActive(m, fighters, 'barrier'), weak: partyActive(m, fighters, 'weakpoint'), hp1: m.hp, front: !!m.barrierFront, pulseHp: pulseHpOf(m), bar: barrierOf(m), weakHp: weakHpOf(m), ult: m.top && !(team.includes('frostbinder') && partyActive(m, fighters, 'interrupt')) ? ULT_GAP : 0, ultX: ultXOf(team) });
+// SP6: what a team's Clerics and Knights do for the others in TOP BOSSES and RETROFIT (heals are party-wide: Jelly Heal,
+// Mend, the wisp, the Barrier, each on cooldown, HEAL_GIVE of the time spent on friends), HP a second; a Knight's
+// Sanctuary covering them on its cooldown
+const HEAL_GIVE = 0.35;
+const healGive = (br, L) => {
+  const c = classChar(br, L), st = statsFor(c), r = (id) => rankOf(c.skills, id);
+  const per = (id, k = 1) => (r(id) ? (healOf(id, r(id), st) * k) / cooldownOf(id, r(id)) : 0);
+  return HEAL_GIVE * (per('heal') + per('mend', SKILLS.mend.dur) + per('lantern_wisp', SKILLS.lantern_wisp.dur / WISP_TICK) + per('barrier'));
+};
+const zoneOf = (br, L) => { const c = classChar(br, L), k = rankOf(c.skills, 'sanctuary'); return k ? { every: cooldownOf('sanctuary', k), dur: SKILLS.sanctuary.dur, cut: SKILLS.sanctuary.cut(k) } : null; };
+const teamHelp = (others, L) => ({ heal: others.filter((o) => BUILDS[o].cls === 'cleric').reduce((a, o) => a + healGive(o, L), 0), zone: others.map((o) => zoneOf(o, L)).find(Boolean) ?? null });
+const isMagic = (br) => ['mage', 'cleric'].includes(BUILDS[br].cls), isArrow = (br) => BUILDS[br].cls === 'archer';
+const teamRun = (m, team) => {
+  const n = team.length, hp = bossMaxHp(m, n), front = !!m.barrierFront;
+  const base = Object.fromEntries(team.map((br) => [br, fight(classChar(br, m.lvl), {}).dealt / SIM_S]));
   const behindOf = (br) => (front && br !== 'knight' ? PARTY_BEHIND : 0);
   const onFront = (br) => (front ? 1 - behindOf(br) : 1);
-  const runs = PARTY_TEAM.map((br) => {
-    const others = PARTY_TEAM.filter((o) => o !== br);
-    const help = { magic: others.filter(isMagic).reduce((a, o) => a + base[o] * onFront(o), 0), weak: others.reduce((a, o) => a + base[o] * onFront(o) * (isArrow(o) ? 1 : front ? 1 : WEAK_JUMP), 0), mark: others.some((o) => rankOf(classChar(o, m.lvl).skills, 'hunters_mark')) };
-    const f = fight(classChar(br, m.lvl), { hit: m.atk * BOSS_HIT_MULT, every: BOSS_HIT_EVERY[BUILDS[br].cls] * n, potions: true, until: PARTY_SIM_S, mech: { ...mechOf(m, n), behind: behindOf(br), jump: front ? 1 : WEAK_JUMP, help } });
-    return { br, dps: f.dealt / f.t, faint: f.faint, drunk: f.drunk };
+  const runs = team.map((br, i) => {
+    const others = team.filter((o, j) => j !== i);
+    const help = { ...teamHelp(others, m.lvl), magic: others.filter(isMagic).reduce((a, o) => a + base[o] * onFront(o), 0), weak: others.reduce((a, o) => a + base[o] * onFront(o) * (isArrow(o) ? 1 : front ? 1 : WEAK_JUMP), 0), mark: others.some((o) => rankOf(classChar(o, m.lvl).skills, 'hunters_mark')) };
+    const f = fight(classChar(br, m.lvl), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls] * n, potions: true, until: PARTY_SIM_S, mech: { ...mechOf(m, n, team), behind: behindOf(br), jump: front ? 1 : WEAK_JUMP, help } });
+    return { br, dps: f.dealt / f.t, faint: f.faint, drunk: f.drunk / f.t };
   });
-  const dps = runs.reduce((a, q) => a + q.dps, 0);
-  const solo = Object.fromEntries(branches.map((br) => [br, fight(classChar(br, m.lvl), { hit: m.atk * BOSS_HIT_MULT, every: BOSS_HIT_EVERY[BUILDS[br].cls], hp: bossMaxHp(m, 1), potions: true, until: 3600, mech: { ...mechOf(m, 1), behind: SOLO_BEHIND, jump: front ? 1 : WEAK_JUMP, help: { magic: 0, weak: 0 } } })]));
-  const plain = Object.fromEntries(branches.map((br) => [br, fight(classChar(br, m.lvl), { hit: m.atk * BOSS_HIT_MULT, every: BOSS_HIT_EVERY[BUILDS[br].cls], hp: bossMaxHp(m, 1), potions: true, until: 3600 }).t]));
-  partyRun[id] = { m, hp, party: hp / dps, runs, solo, plain };
+  const t = hp / runs.reduce((a, q) => a + q.dps, 0);
+  return { hp, t, runs, pots: Math.round(runs.reduce((a, q) => a + q.drunk * t, 0)) };
+};
+const topRun = {};
+for (const [id, m] of topBosses) {
+  const party = teamRun(m, PARTY_TEAM), lop = m.partyLive ? teamRun(m, LOPSIDED_TEAM) : null;
+  const soloMech = (br) => ({ ...mechOf(m, 1, [br]), behind: SOLO_BEHIND, jump: m.barrierFront ? 1 : WEAK_JUMP, help: { magic: 0, weak: 0 } });
+  const alone = Object.fromEntries(branches.map((br) => [br, fight(classChar(br, m.lvl), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls], hp: bossMaxHp(m, 1), potions: true, until: SOLO_UNTIL, mech: soloMech(br) })]));
+  topRun[id] = { m, party, lop, alone, med: medianOf(branches.map((br) => alone[br].t)) };
+  fightMin[id] = party.t / 60;
 }
-table(`PARTY DENS: each branch alone with every mechanic but the focus on (vs the same boss without them), and a mixed party of ${PARTY_TEAM.join(', ')} (want the party in ${PARTY_DEN_MIN.join('–')} min, alone ${PARTY_DEN_SOLO}x the party's time or more)`, Object.fromEntries(partyDens.map(([id]) => {
-  const q = partyRun[id], done = branches.filter((br) => !q.solo[br].faint), med = medianOf(branches.map((br) => q.solo[br].t));
-  return [id, { lvl: q.m.lvl, ...Object.fromEntries(branches.map((br) => { const f = q.solo[br]; return [br, `${f.faint ? `faints ${mmss(f.t)}` : mmss(f.t)}${f.drunk ? ` (${f.drunk} pots)` : ''} / ${mmss(q.plain[br])}`]; })), 'alone median': `${mmss(med)}${done.length < branches.length ? ` (${branches.length - done.length} faint)` : ''}`, [`party of ${PARTY_TEAM.length}`]: `${mmss(q.party)} (${fmt(q.hp)} HP${q.runs.some((r) => r.faint) ? `, ${q.runs.filter((r) => r.faint).map((r) => r.br).join(' ')} faint` : ''})`, 'alone ÷ party': (med / q.party).toFixed(1) }];
+const partyCell = (q) => `${mmss(q.t)} (${q.pots} pots${q.runs.some((r) => r.faint) ? `; ${q.runs.filter((r) => r.faint).map((r) => r.br).join(' ')} faint` : ''})`;
+table(`TOP BOSSES: a party of ${PARTY_TEAM.join(', ')} (want TOP_PARTY_MIN ${TOP_PARTY_MIN.join('–')} min), a lopsided one of ${LOPSIDED_TEAM.join(', ')} (TOP_LOPSIDED_MIN ${TOP_LOPSIDED_MIN.join('–')}, bosses with mechanics), and each branch alone (median ÷ the party within TOP_SOLO ${TOP_SOLO.join('–')})`, Object.fromEntries(topBosses.map(([id]) => {
+  const q = topRun[id], done = branches.filter((br) => !q.alone[br].faint);
+  return [id, { lvl: q.m.lvl, [`party of ${PARTY_TEAM.length}`]: partyCell(q.party), lopsided: q.lop ? partyCell(q.lop) : '', ...Object.fromEntries(branches.map((br) => { const f = q.alone[br]; return [br, `${f.faint ? `faints ${mmss(f.t)}` : mmss(f.t)}${f.drunk ? ` (${f.drunk})` : ''}`]; })), 'alone median': `${mmss(q.med)}${done.length < branches.length ? ` (${branches.length - done.length} faint)` : ''}`, 'alone ÷ party': (q.med / q.party.t).toFixed(1), hp: fmt(q.party.hp) }];
 })));
-// RETROFIT (S5.4; story/s5-plan.md): the den and field bosses given party mechanics (`partyLive`, not a party den).
+// RETROFIT (S5.4; story/s5-plan.md): the den and field bosses given party mechanics (`partyLive`, not a top boss).
 // Alone nothing switches on, so the solo tables above don't move; this shows what they do to a duo (RETRO_DUOS, at
-// the boss's level, its hits shared out like PARTY DENS'): the kill time with them off / on. Only the pulse, barrier,
+// the boss's level, its hits shared out like TOP BOSSES'): the kill time with them off / on. Only the pulse, barrier,
 // armour, weak point and stagger are modelled (not the focus, curse or adds: a duo answers those by playing, not by DPS).
 const RETRO_DUOS = [['berserker', 'sniper'], ['knight', 'frostbinder']];
-const retro = bosses.filter(([, m]) => m.partyLive && !m.partyDen && m.lvl >= CLASS_LVL).sort((a, b) => a[1].lvl - b[1].lvl);
+const retro = bosses.filter(([, m]) => m.partyLive && !m.top && m.lvl >= CLASS_LVL).sort((a, b) => a[1].lvl - b[1].lvl);
 const duoRun = (m, duo, on) => {
   const n = duo.length, hp = bossMaxHp(m, n), base = Object.fromEntries(duo.map((br) => [br, fight(classChar(br, m.lvl), {}).dealt / SIM_S]));
-  const isMagic = (br) => ['mage', 'cleric'].includes(BUILDS[br].cls), isArrow = (br) => BUILDS[br].cls === 'archer';
   const runs = duo.map((br) => {
     const o = duo.filter((x) => x !== br);
-    const help = { magic: o.filter(isMagic).reduce((a, x) => a + base[x], 0), weak: o.reduce((a, x) => a + base[x] * (isArrow(x) ? 1 : WEAK_JUMP), 0), mark: o.some((x) => rankOf(classChar(x, m.lvl).skills, 'hunters_mark')) };
-    const mech = on ? { ...mechOf(m, n), armour: partyActive(m, n, 'armour'), behind: 0, jump: WEAK_JUMP, help } : null;
-    const f = fight(classChar(br, m.lvl), { hit: m.atk * BOSS_HIT_MULT, every: BOSS_HIT_EVERY[BUILDS[br].cls] * n, potions: true, until: PARTY_SIM_S, mech });
+    const help = { ...teamHelp(o, m.lvl), magic: o.filter(isMagic).reduce((a, x) => a + base[x], 0), weak: o.reduce((a, x) => a + base[x] * (isArrow(x) ? 1 : WEAK_JUMP), 0), mark: o.some((x) => rankOf(classChar(x, m.lvl).skills, 'hunters_mark')) };
+    const mech = on ? { ...mechOf(m, n, duo), armour: partyActive(m, n, 'armour'), behind: 0, jump: WEAK_JUMP, help } : null;
+    const f = fight(classChar(br, m.lvl), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls] * n, potions: true, until: PARTY_SIM_S, mech });
     return f.dealt / f.t;
   });
   return hp / runs.reduce((a, d) => a + d, 0);
 };
 table(`RETROFIT: den and field bosses with party mechanics (alone: none on, the solo tables hold); a duo's kill time with them off / on`, Object.fromEntries(retro.map(([id, m]) => [id, { lvl: m.lvl, field: m.field ? 'yes' : '', mechanics: m.party.join(' '), ...Object.fromEntries(RETRO_DUOS.map((duo) => { const off = duoRun(m, duo, false), on = duoRun(m, duo, true); return [duo.join(' + '), `${mmss(off)} / ${mmss(on)} (${on <= off ? '' : '+'}${Math.round((on / off - 1) * 100)}%)`]; })) }])));
+// SP6 (owner, 2026-10-25): a boss twice your level kills you in about KILL_HITS hits or fewer, so a big level gap is
+// never safe: each branch at half the boss's level (curve gear there, every passive; no buffs, potions or dodges) under
+// its average hit (BOSS_HIT_MULT of its ATK less DEF, plus pctOf of max HP)
+const KILL_HITS = 6;
+const killHits = (m, br) => { const st = statsFor(classChar(br, Math.floor(m.lvl / 2))); return Math.ceil(st.maxHp / (Math.max(1, m.atk * BOSS_HIT_MULT - st.def) + st.maxHp * pctOf(m))); };
+const killBosses = bosses.filter(([, m]) => Math.floor(m.lvl / 2) >= CLASS_LVL).sort((a, b) => a[1].lvl - b[1].lvl);
+const kills = Object.fromEntries(killBosses.map(([id, m]) => [id, Object.fromEntries(branches.map((br) => [br, killHits(m, br)]))]));
+table(`HITS TO KO at half the boss's level (want KILL_HITS ${KILL_HITS} or fewer)`, Object.fromEntries(killBosses.map(([id, m]) => [id, { lvl: m.lvl, you: Math.floor(m.lvl / 2), ...kills[id] }])));
+// SP6: what each boss's fight pays, against its sheet time (dens and fields: the solo median; top bosses: the party's)
+table(`BOSS PAY: the sheet's fight, and an hour of it vs farming (dens: camped, BOSS_PAY ${BOSS_PAY.join('–')}x EXP, BOSS_CAMP_MAX ${BOSS_CAMP_MAX}; fields: a minute of the fight, FIELD_PAY ${FIELD_PAY.join('–')})`, Object.fromEntries(bosses.filter(([id]) => fightMin[id]).sort((a, b) => a[1].lvl - b[1].lvl).map(([id, m]) => {
+  const f = fightMin[id], c = m.field ? fieldPay(m, f) : campRatio(m, f);
+  return [id, { kind: m.field ? 'field' : m.top ? 'top' : 'den', lvl: m.lvl, fight: mmss(f * 60), exp: fmt(m.exp), 'kill pays': fmt(bossWorth(id)), 'kills / h': m.field ? '' : (60 / (BOSS_RESPAWN_MS / 60_000 + f)).toFixed(1), 'exp / gold vs farming': `${c.exp.toFixed(2)}x / ${c.gold.toFixed(2)}x${m.field ? ' a min' : ' an hour'}` }];
+})));
 delete ITEMS[SHEET_W];
 delete ITEMS[SHEET_H];
 const classProblems = [];
-for (const [id] of partyDens) {
-  const q = partyRun[id], med = medianOf(branches.map((br) => q.solo[br].t));
-  if (q.party < PARTY_DEN_MIN[0] * 60 || q.party > PARTY_DEN_MIN[1] * 60) classProblems.push(`a mixed party kills party den ${id} in ${mmss(q.party)} (want PARTY_DEN_MIN ${PARTY_DEN_MIN.join('–')} min)`);
-  if (med < PARTY_DEN_SOLO * q.party) classProblems.push(`party den ${id} alone takes ${mmss(med)} (median): under PARTY_DEN_SOLO ${PARTY_DEN_SOLO}x the party's ${mmss(q.party)}`);
-  if (branches.every((br) => q.solo[br].faint)) classProblems.push(`nobody can solo party den ${id}: it must stay possible (never locked)`);
-  for (const r of q.runs) if (r.faint) classProblems.push(`the ${r.br} faints in the mixed party at party den ${id}`);
+for (const [id, m] of topBosses) {
+  const q = topRun[id], r = q.med / q.party.t;
+  if (q.party.t < TOP_PARTY_MIN[0] * 60 || q.party.t > TOP_PARTY_MIN[1] * 60) classProblems.push(`a party of ${PARTY_TEAM.length} kills top boss ${id} in ${mmss(q.party.t)} (want TOP_PARTY_MIN ${TOP_PARTY_MIN.join('–')} min)`);
+  if (r < TOP_SOLO[0] || r > TOP_SOLO[1]) classProblems.push(`top boss ${id} alone takes ${mmss(q.med)} (median), ${r.toFixed(1)}x the party's ${mmss(q.party.t)} (want TOP_SOLO ${TOP_SOLO.join('–')}x)`);
+  if (q.lop && q.lop.pots < LOPSIDED_POTS * LOPSIDED_TEAM.length) classProblems.push(`a lopsided party (${LOPSIDED_TEAM.join(' ')}) at top boss ${id} drinks only ${q.lop.pots} potions (want LOPSIDED_POTS ${LOPSIDED_POTS} a member or more)`);
+  if (q.lop && !m.barrierFront && (q.lop.t < TOP_LOPSIDED_MIN[0] * 60 || q.lop.t > TOP_LOPSIDED_MIN[1] * 60)) classProblems.push(`a lopsided party (${LOPSIDED_TEAM.join(' ')}) kills top boss ${id} in ${mmss(q.lop.t)} (want TOP_LOPSIDED_MIN ${TOP_LOPSIDED_MIN.join('–')} min)`);
+  if (branches.every((br) => q.alone[br].faint)) classProblems.push(`nobody can solo top boss ${id}: it must stay possible (never locked)`);
+  for (const r of q.party.runs) if (r.faint) classProblems.push(`the ${r.br} faints in the party at top boss ${id}`);
 }
 for (const [id, m] of soloDens) {
-  const med = medianOf(branches.map((br) => solo[id][br].t));
+  const med = fightMin[id] * 60;
+  if (med < DEN_SOLO_MIN[0] * 60 || med > DEN_SOLO_MIN[1] * 60) classProblems.push(`den boss ${id} (lvl ${m.lvl}) solos in ${mmss(med)} (median): want DEN_SOLO_MIN ${DEN_SOLO_MIN.join('–')} min`);
   for (const br of branches) {
     const f = solo[id][br];
     if (f.faint) classProblems.push(`${br} can't solo ${id} at lvl ${m.lvl}: faints at ${mmss(f.t)}`);
@@ -768,6 +848,12 @@ for (const [id, m] of soloDens) {
     if (f.t < CLASS_FIT[0] * med || f.t > CLASS_FIT[1] * med) classProblems.push(`${br} solos ${id} (lvl ${m.lvl}) in ${mmss(f.t)}: ${(f.t / med).toFixed(2)}x the median ${mmss(med)} (want CLASS_FIT ${CLASS_FIT.join('–')})`);
   }
 }
+for (const [id, m] of fieldBosses) {
+  const med = fightMin[id] * 60;
+  if (med < FIELD_SOLO_MIN[0] * 60 || med > FIELD_SOLO_MIN[1] * 60) classProblems.push(`field boss ${id} (lvl ${m.lvl}) solos in ${mmss(med)} (median): want FIELD_SOLO_MIN ${FIELD_SOLO_MIN.join('–')} min`);
+  for (const br of branches) if (fieldSolo[id][br].faint) classProblems.push(`${br} can't solo field boss ${id} at lvl ${m.lvl}: faints at ${mmss(fieldSolo[id][br].t)}`);
+}
+for (const [id, m] of killBosses) for (const br of branches) if (kills[id][br] > KILL_HITS) classProblems.push(`${id} (lvl ${m.lvl}) takes ${kills[id][br]} hits to KO a lvl ${Math.floor(m.lvl / 2)} ${br} (want KILL_HITS ${KILL_HITS} or fewer)`);
 // a class's shape: the mean of its branches; its "bad at" column must be its lowest against the other class
 const COLS = ['single', 'crowd', 'ranged', 'tough'];
 const meanOf = (cls, col, L) => { const bs = branches.filter((b) => BUILDS[b].cls === cls); return bs.reduce((a, b) => a + classAt[`${b} ${L}`][col], 0) / bs.length; };
@@ -848,11 +934,20 @@ for (const [id, m] of mobs) {
   }
 }
 for (const [id, m] of bosses.filter(([, m]) => m.field)) {
-  const worth = perKill(m).value / goldPerMin(m.lvl), expWorth = m.exp / (KILLS_PER_MIN * farmed(m.lvl)[1].exp);
-  for (const [what, w] of [['gold', worth], ['EXP', expWorth]]) if (w < FIELD_BOSS_WORTH[0] || w > FIELD_BOSS_WORTH[1]) problems.push(`field boss ${id}'s ${what} is worth ${w.toFixed(1)} min of farming (want ${FIELD_BOSS_WORTH.join('–')})`);
+  if (fightMin[id]) { // (SP6: priced a minute of its fight)
+    const p = fieldPay(m, fightMin[id]);
+    for (const what of ['gold', 'exp']) if (p[what] < FIELD_PAY[0] || p[what] > FIELD_PAY[1]) problems.push(`field boss ${id}'s ${what} pays ${p[what].toFixed(2)} min of farming a minute of its ${mmss(fightMin[id] * 60)} fight (want FIELD_PAY ${FIELD_PAY.join('–')})`);
+  } else {
+    const worth = perKill(m).value / goldPerMin(m.lvl), expWorth = m.exp / (KILLS_PER_MIN * farmed(m.lvl)[1].exp);
+    for (const [what, w] of [['gold', worth], ['EXP', expWorth]]) if (w < FIELD_BOSS_WORTH[0] || w > FIELD_BOSS_WORTH[1]) problems.push(`field boss ${id}'s ${what} is worth ${w.toFixed(1)} min of farming (want ${FIELD_BOSS_WORTH.join('–')})`);
+  }
   if (!spawned.has(id)) problems.push(`field boss ${id} never spawns`);
 }
-for (const [id, m] of bosses.filter(([, m]) => m.boss)) if (campRatio(m).exp > BOSS_CAMP_MAX) problems.push(`camping den boss ${id} for an hour gives ${campRatio(m).exp.toFixed(1)}x the EXP of farming mobs (max ${BOSS_CAMP_MAX}x)`);
+for (const [id, m] of bosses.filter(([, m]) => m.boss)) {
+  const c = campRatio(m, fightMin[id]);
+  if (c.exp > BOSS_CAMP_MAX) problems.push(`camping den boss ${id} for an hour gives ${c.exp.toFixed(1)}x the EXP of farming mobs (max ${BOSS_CAMP_MAX}x)`);
+  if (fightMin[id] && (c.exp < BOSS_PAY[0] || c.exp > BOSS_PAY[1])) problems.push(`den boss ${id} camped for an hour (a ${mmss(fightMin[id] * 60)} fight) pays ${c.exp.toFixed(2)}x farming's EXP (want BOSS_PAY ${BOSS_PAY.join('–')})`);
+}
 if (!(FIELD_BOSS_RESPAWN_MS >= 10 * 60_000)) problems.push('field bosses come back too often (FIELD_BOSS_RESPAWN_MS under 10 min)');
 for (const [id, it] of Object.entries(ITEMS)) {
   if (!it.lvl || !['sword', 'staff', 'bow', 'helmet'].includes(it.kind)) continue;

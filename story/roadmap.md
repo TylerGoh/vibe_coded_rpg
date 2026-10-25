@@ -20,48 +20,42 @@ No quests, no hard level gates.
    - [x] SP4: the Cleric's new skills (2026-10-25)
    - [x] SP5: the Archer's new skills (2026-10-25), with **holding the attack button down to keep firing**
          (owner: attack speed is one of the Archer's core features; desktop and touch, every weapon)
-   - [ ] SP6: the balance pass, then the owner plays. **Start here: SP6.** Owner (2026-10-25), for this rebalance: **every boss
-         attack does a % of the target's max HP plus a flat amount**, so being far over-levelled never makes
-         a boss harmless (today a boss hit is flat damage less DEF: `hurt()` in `server/rpg.js`). Price the
-         % against each class's HP and the healers, and keep ultimates the worst hits.
-         Owner (2026-10-25), **longer boss fights**: a den boss soloed at its level should take **about 15
-         minutes** (today 1–3 min on the sheet), and the **top bosses about 45 minutes, hard-hitting and
-         very punishing**, with the rewards scaled to match (priced per minute of the fight, as now).
-         Applies to the roadmap's future bosses too. Owner asked whether bosses shouldn't be much harder
-         without a team: today only the party dens are (`PARTY_DEN_HP_FLOOR`); an ordinary den boss is
-         soloable on purpose (`s5-plan.md`'s rules) and a party only cuts its time ~30%
-         (`BOSS_HP_PER_PLAYER`). Settle in SP6: is the 45 min a party's time or a solo's, and how much
-         harder alone.
-         Owner (2026-10-25), **class answers cost more on the top bosses**: keep S5's rule (every class has
-         an answer to every mechanic, `s5-plan.md`) but make the weak answers expensive: an unhealed pulse
-         leaves the party living on potions, an unbroken barrier roughly doubles the fight, an uncancelled
-         ultimate nearly wipes it. Aim: the right mix near 45 min, a lopsided party winning in ~70–90 min
-         on a lot of potions. Ordinary dens keep today's mild effect (a duo's time −9% to +25%).
-         Owner (2026-10-25), **a boss twice your level kills you in about 6 hits or fewer**. Checked
-         against curve gear at half the boss's level (every passive, no buffs, potions or dodges): true for
-         every class on every den except the Warrior on the Tidemother (11), the Knotmole (9) and the
-         Root Warden, the Old Narwhal and Sigrun (7–8); Mages and Clerics die in 2–4. Keep it true with
-         the % of max HP hits, and check it on the sheet.
-         Why it came up: a Lv 87 Mage in Chronos's own staff solos Chronos (Lv 170) in ~4 min, because every
-         stat and curve grows as a power of the level (`magicFor`, `maxHpFor`, `CURVE` in
-         `src/shared/curve.js`), never exponentially, so an 80-level gap at Lv 87–170 is only ~2× in power,
-         and gear has no level requirement. Settle with the owner in SP6: a level-gap damage penalty
-         against mobs far above you, and which bosses count as "capstone".
-2. **FB1: Greenhollow's final boss**, under the Thornheart (the Sunken Road, the Road's End). Plan:
-   `final-bosses.md`: very hard, about 30 minutes for four players at the recommended level (the boss's own
+   - [x] SP6: the balance pass (2026-10-25; details `docs/economy.md` "The balance pass", `docs/combat/bosses.md`
+         "Top bosses"). Next: **the owner plays**. Owner's decisions (2026-10-25), settled and built:
+         1. Every boss hit does a % of the target's max HP on top of its flat hit less DEF (`bossHitPct`:
+            `BOSS_HIT_PCT`, `TOP_HIT_PCT`), so being over-levelled never makes a boss harmless; ultimates stay KOs.
+         2. An ordinary den soloed at its level ~15 min on the sheet (`DEN_SOLO_MIN`); field bosses ~4 (`FIELD_SOLO_MIN`).
+         3. Top bosses (`top`): the party dens (Root Warden, Sigrun, Emberdeep's to come), the final bosses (FB1, FB2,
+            E5), and the Clockwork Colossus and Chronos as the end-game capstones: ~45 min for a party of four at their
+            level (`TOP_PARTY_MIN`), hard-hitting; solo possible but 2–3× longer (`TOP_SOLO`, `PARTY_DEN_HP_FLOOR` 2).
+         4. Weak answers cost more on top bosses (`TOP_PULSE_HP`, the `TOP_BARRIER_*`, `TOP_ULT_HP`): right mix ~45 min,
+            a lopsided party 70–90 on lots of potions (`TOP_LOPSIDED_MIN`, `LOPSIDED_POTS`). Ordinary dens keep S5's.
+         5. A boss twice your level kills you in about 6 hits or fewer (`KILL_HITS`, HITS TO KO on the sheet).
+         6. No level-gap damage penalty, no gear level requirements (owner declined): the % hits are the answer.
+         7. Boss respawn timers unchanged; rewards scale with the fight so an hour of bosses pays what it did (BOSS PAY).
+         8. Cross-class: the Warrior brought into line (`SWORD_MASTERY_ATK`); `CLASS_FIT`, `BAD_AT` green.
+         Left for the owner: the Novices' dens (Sprout King, Mother Mushroom) weren't lengthened; Sigrun's front-only
+         shield means a lopsided party there is slower only in potions; Colossus and Chronos have no mechanics yet.
+2. **Fewer fight hints: let players discover the mechanics** (owner, 2026-10-25): boss fights hand out too many
+   tooltips. Keep the telegraphs (warning banners, rings, sigils, the glowing weak point, INTERRUPTED!) because they
+   ARE the fight, but drop the text that names the answer: the `PARTY_HINTS` toasts (`tell` in src/party.js), the
+   'Shift get clear' / 'Rally: take the boss's focus' / 'Space jump and hit the glowing weak point' prompts and the
+   like (`docs/ui/hints.md`, `docs/combat/bosses.md` 'Hints'). Applies to every future boss too.
+3. **FB1: Greenhollow's final boss**, under the Thornheart (the Sunken Road, the Road's End). Plan:
+   `final-bosses.md`: very hard, a top boss (SP6: about 45 minutes for four players at the recommended level, `TOP_PARTY_MIN`) (the boss's own
    level shown far higher); each pocket gets better, then a new deep room, a cinematic approach room, the
    den. Moves in a designed order, written up for the owner first.
-3. **S5.4 for Emberdeep**: the last of the retrofit (`s5-plan.md`; design: `progression.md` section 6).
+4. **S5.4 for Emberdeep**: the last of the retrofit (`s5-plan.md`; design: `progression.md` section 6).
    S5.1–S5.3, S5.5 and S5.4's Greenhollow and Frostpeak parts are done.
-4. **FB2: Frostpeak's final boss**, below the Blue Halls (the Old Ice, the Long Stair).
-5. **Emberdeep's depth pass, E1–E4** (Lv 90–150; plan, map and settled decisions:
+5. **FB2: Frostpeak's final boss**, below the Blue Halls (the Old Ice, the Long Stair).
+6. **Emberdeep's depth pass, E1–E4** (Lv 90–150; plan, map and settled decisions:
    `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
    `docs/places/branches.md`). E0 shipped.
    - [ ] E1: the Ashwood (115–130) and the Black Sands (90–100, easy)
    - [ ] E2: the Smoking Coast and the Drained Tubes (hard), the Hatchkeeper, Liv
    - [ ] E3: the Brimstone Fields and the Old Foundry (hard)
    - [ ] E4: the Caldera Rim and Brenna, Emberdeep's party den; Ignis's and Pyra's lines
-6. **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase.
+7. **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase.
 
 ## Next
 - [ ] **Atlas Phase 6: the climb** (after E4; can run alongside E5): the thermal column vista, the balloon crossing (Slag's

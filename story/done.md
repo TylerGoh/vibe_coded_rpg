@@ -48,6 +48,8 @@ over is in `docs/ideas.md` under the phase's name. Full plans as written: `archi
   Holy Symbol (the first EXP buff), Genesis, Sprites, Warding Totem, Stone Guardian, Resolve, Host (`docs/combat/skills.md`).
 - **SP5** (2026-10-25): the Archer's skill pool: Spread Shot, Focus, Ricochet, Splitting Arrow, Sharp Eyes, Eagle Eye,
   Poison Arrow, Blast Trap, Hawk, Huntmaster; holding X / Hit keeps attacking (`docs/combat/skills.md`).
+- **SP6** (2026-10-25): the balance pass: % of max HP boss hits, ~15 min dens, ~45 min top bosses for four, pay scaled
+  to match, the Warrior's Sword Mastery attack (`docs/economy.md` "The balance pass", `docs/combat/bosses.md`).
 
 ## Other
 - **Trading** (2026-10-23): coins and items between players, server-checked, logged (`docs/social/trading.md`).

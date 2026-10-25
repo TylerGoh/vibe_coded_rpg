@@ -37,7 +37,10 @@ branches of `drawBit` and `drawFallObj`).
   to `FROZEN_BOSS_SLOW` for `FREEZE_BOSS`, and its timers and moves run on; a fire spell still shatters it.
   Burns count for their caster on the damage meter. Freezing a boss while its ultimate warns cancels it on a boss
   with the `interrupt` mechanic (S5.2, below).
-- Boss HP grows per extra slime in the den (`BOSS_HP_PER_PLAYER`), aimed at a few minutes per fight.
+- Boss HP grows per extra slime in the den (`BOSS_HP_PER_PLAYER`). Since SP6 (owner, 2026-10-25) a den boss soloed at
+  its level is a ~15 min fight on the economy sheet, a field boss ~4, a top boss ~45 for a party of four
+  (`docs/economy.md`, "The balance pass"); rewards grew with them. Every boss hit also takes a share of the target's max
+  HP (`bossHitPct`, `docs/combat/core.md`).
   Everyone leaving for a few seconds resets it; a kill respawns after `BOSS_RESPAWN_MS` (`b` in `mobs`
   is the countdown). Bosses drop their unique gear, scrolls, gold and potions. Events: `{t:'boss', a: …}`.
 
@@ -56,7 +59,7 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
   S5.4 gives it to the retrofitted bosses, a stage at a time). Tests use `TEST_PARTY` (`docs/testing.md`).
 - **The party dens (S5.3)**: the Root Warden and Sigrun have `partyLive` with focus, pulse, barrier, weak point,
   adds and the interrupt (added here: the Frostbinder's payoff), all but the focus on from the first slime. Their
-  HP is never under `PARTY_DEN_HP_FLOOR` slimes' worth (`bossMaxHp`, shared: spawn and the den's growth in
+  HP is never under `PARTY_DEN_HP_FLOOR` slimes' worth (since SP6 two, and for every top boss; `bossMaxHp`, shared: spawn and the den's growth in
   `bossBrain`), so a lone slime faces a party's HP and every mechanic; the barrier's and weak point's HP stay shares
   of the plain `hp`. Each has a `lines.shield`, said the first time its barrier goes up in a fight (`saidShield`).
   `looks.dome` tints the barrier (`keeper`: amber with little gears; `ice`). Tuning and tests: their place docs and
@@ -218,6 +221,27 @@ Same gates. The armour uses the same numbers as Greenhollow's (owner OK'd a duo 
   tested here** (Greenhollow couldn't): a lone Frostbinder casting Glacial Spike then Frost Nova into Glacia's
   Absolute Zero warning cancelled it ("Your freeze interrupted...", the banner gone, DAZED). Not tried: people,
   the den adds, a Narwhal fight from behind.
+
+## Top bosses (SP6, owner 2026-10-25)
+`top` on a boss: the party dens (the Root Warden, Sigrun, Emberdeep's to come), the final bosses (FB1, FB2, E5) and the
+end-game capstones, the Clockwork Colossus and Chronos. Built for a party of four (~45 min on the sheet), hard-hitting and
+punishing; alone possible but 2–3× as long (their HP floor, `PARTY_DEN_HP_FLOOR`). Every class still has an answer to
+every mechanic (S5's rule), but a weak answer costs more here than on an ordinary den (which keeps the S5 numbers):
+- they hit harder: `TOP_HIT_PCT` of max HP a hit;
+- the pulse takes `TOP_PULSE_HP` (`pulseHpOf`): unhealed, a party lives on potions;
+- the barrier is up `TOP_BARRIER_S`, back `TOP_BARRIER_EVERY` s after it ends, and lets `TOP_BARRIER_PHYS` of a physical
+  hit through (`barrierOf`; the client's `Party.mod` and the server's `partyHit` both pass its `phys` to
+  `partyHitMult`): unbroken, it roughly doubles the fight. Its HP and the weak point's are `TOP_BARRIER_HP`, `TOP_WEAK_HP`;
+- an ultimate nobody interrupted hits everyone in the den for `TOP_ULT_HP` of max HP even in the safe spot
+  (`ultGoesOff`, flat like a pulse: Aegis, a Bubble, a Barrier, Sanctuary, the totem, a ward, a Barrier Draught take it
+  as they take one); standing in the wrong place is still a KO. Not Pyra's Rebirth (she isn't top anyway). Colossus and
+  Chronos have no `interrupt` yet (their retrofit hasn't come), so theirs always land: a Knight's Sanctuary or Aegis and
+  a Cleric's Barrier are the answers.
+On the sheet a right-mix party (`PARTY_TEAM`) takes ~45 min; a lopsided one (no healer, Mage or Frostbinder) ~73 min on
+the Root Warden with ~2,300 potions. Future bosses are held to the same checks (TOP BOSSES in `npm run economy`).
+- Pyra's egg is `EGG_HP` of her max HP (her HP went up ~8.5× in SP6).
+- Untested with people; the ultimate's chip and the top numbers were seen only on the sheet (a Root Warden hit on a test
+  server took ~15% of a Lv 150's HP, DEF 0).
 
 ## The reward window (S0, 2026-10-23)
 Bosses still respawn every `BOSS_RESPAWN_MS`, but each slime gets a den boss's full EXP only once per
