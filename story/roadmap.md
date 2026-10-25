@@ -32,6 +32,16 @@ No quests, no hard level gates.
          soloable on purpose (`s5-plan.md`'s rules) and a party only cuts its time ~30%
          (`BOSS_HP_PER_PLAYER`). Settle in SP6: is the 45 min a party's time or a solo's, and how much
          harder alone.
+         Owner (2026-10-25), **class answers cost more on the top bosses**: keep S5's rule (every class has
+         an answer to every mechanic, `s5-plan.md`) but make the weak answers expensive: an unhealed pulse
+         leaves the party living on potions, an unbroken barrier roughly doubles the fight, an uncancelled
+         ultimate nearly wipes it. Aim: the right mix near 45 min, a lopsided party winning in ~70–90 min
+         on a lot of potions. Ordinary dens keep today's mild effect (a duo's time −9% to +25%).
+         Owner (2026-10-25), **a boss twice your level kills you in about 6 hits or fewer**. Checked
+         against curve gear at half the boss's level (every passive, no buffs, potions or dodges): true for
+         every class on every den except the Warrior on the Tidemother (11), the Knotmole (9) and the
+         Root Warden, the Old Narwhal and Sigrun (7–8); Mages and Clerics die in 2–4. Keep it true with
+         the % of max HP hits, and check it on the sheet.
          Why it came up: a Lv 87 Mage in Chronos's own staff solos Chronos (Lv 170) in ~4 min, because every
          stat and curve grows as a power of the level (`magicFor`, `maxHpFor`, `CURVE` in
          `src/shared/curve.js`), never exponentially, so an 80-level gap at Lv 87–170 is only ~2× in power,
