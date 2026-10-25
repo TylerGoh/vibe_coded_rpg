@@ -1,6 +1,6 @@
 # SP: the skill pool (plan)
 
-**Status: SP1–SP3 live (SP3, the Mage, 2026-10-25). SP4–SP5 next.** Written 2026-10-24 (owner's ask). Comes first on the roadmap, ahead of
+**Status: SP1–SP4 live (SP4, the Cleric, 2026-10-25). SP5 next.** Written 2026-10-24 (owner's ask). Comes first on the roadmap, ahead of
 Greenhollow's final boss. Builds on the class design in `progression.md` (sections 1b, 1c, 3–7) and on how
 skills work today (`docs/combat/skills.md`). Read both first. Names here are working names; numbers live
 in `src/shared/skills.js` and are set by `npm run economy` (`CLASS_FIT`, `BAD_AT`), never guessed here.
@@ -221,6 +221,28 @@ What SP4–SP5 should know:
   count in full. A field is the cheapest way to add crowd damage without boss damage on the sheet.
 - `lead` (chain) and `combust` (any hit) are generic: a Cleric's Judgment-style "more on X" can copy `combust`'s
   shape (client reads the state, server checks its own with slack).
+
+### SP4: live (2026-10-25)
+What landed (details: `docs/combat/skills.md`, "The Cleric's skill pool (SP4)"):
+- Every skill in the Cleric table, as planned. Kinds reused: `field` (Radiance, a `follow` aura in its own `radiance`
+  look; Consecration, a strip where you stand), `buff` (Blessing; Holy Symbol, `fx: exp`; Resolve), `meteor` (Sacred
+  Light, `anim: 'sacred'`), `bolt` (Judgment, `anim: 'judgment'`), `starfall` (Genesis, `whole`: every mob in the room),
+  `summon` (Sprites, the Stone Guardian: SP1's sprite and guardian, their art polished). New small rules: `lightHeal`
+  (every Cleric damage skill and summon heals the hurt friend nearest, the holy bolt's rule), `selfPer` (Sacred Light),
+  Devotion's ward (`q.devo`, from `healFrom`'s overheal; never an ultimate), Judgment's `judge` (`judgmentMult`: the
+  client counts the hurt it sees, the server caps with its own count), the Warding Totem's pulse (`server/summons.js`),
+  Resolve's cut near its Warden's summons (`resolveCut` in `hurt()`; `buffText` for a buff with no plain effect), Host
+  (`summonCap` + 1). Sprites with only one mob near leave the others idle by the Cleric (a mobbing staple, not a boss one).
+- No wire bump: `judged` rides the skill echo, the ward rides `me`, the totem's pulse rides `sumhit`.
+What SP5 should know:
+- `HOLY_SYMBOL_EXP` is on the sheet: PROGRESS's "with Holy Symbol" column and a check that the pace with it stays at or
+  over `LEVEL_PACE`'s floor. Another EXP buff would need the same.
+- The Cleric's sheet now sits 1.02–1.05× single, 0.68–0.75× crowd, about 1.2× the median on the late dens (was 1.45×):
+  `CLASS_FIT` has room again. The Archer is the Cleric's neighbour in the crowd column (0.95–1.04 from Lv 60): Archer
+  crowd skills that lift it well past the Cleric are fine (Rule 2), but keep the Archer under the Mage there.
+- `HOTBAR_SWAPS` for the Cleric keeps Smite (a cheap filler can't be "replaced" by a long-cooldown staple on the sheet:
+  it made the Priest slower). The Archer's Double Shot is the same kind of filler; swap only staples with cooldowns.
+- `buffText(rank)` on a long buff words what `fxText` can't (Resolve); the status box and the LONG BUFFS line read it.
 
 SP2–SP5 touch different parts of `SKILLS` and their own effects. They can run side by side, but `src/shared/skills.js`
 is shared, so they merge one at a time. Each one deploys on its own: a class at a time is fine (the others

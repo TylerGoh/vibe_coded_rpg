@@ -11,15 +11,16 @@
 // (several little spirits, each after a different mob), the stone guardian (walks, taunts, slams) and the blast trap
 // (a net that explodes).
 import { MOBS } from '../src/shared/rpg.js';
-import { SKILLS, SPIRIT_SEEK, SPIRIT_SPEED, SPIRIT_HIT_S, SPIRIT_TAUNT, SERAPH_TAUNT, SERAPH_R, SUMMON_TOUCH, SUMMON_HURT_S, BOSS_SUMMON_REACH, BOSS_SUMMON_HIT, BOSS_SUMMON_S, ULT_SUMMON, WISP_R, WISP_TICK, MAX_ROLL, summonHp, summonHit, NET_R, NET_BURST_R, rankOf, SUMMON_KINDS, summonCap, PHOENIX_SEEK, GUARDIAN_TAUNT_S, GUARDIAN_SPEED, HAWK_RANGE } from '../src/shared/skills.js';
+import { SKILLS, SPIRIT_SEEK, SPIRIT_SPEED, SPIRIT_HIT_S, SPIRIT_TAUNT, SERAPH_TAUNT, SERAPH_R, SUMMON_TOUCH, SUMMON_HURT_S, BOSS_SUMMON_REACH, BOSS_SUMMON_HIT, BOSS_SUMMON_S, ULT_SUMMON, WISP_R, WISP_TICK, MAX_ROLL, summonHp, summonHit, NET_R, NET_BURST_R, rankOf, SUMMON_KINDS, summonCap, PHOENIX_SEEK, GUARDIAN_TAUNT_S, GUARDIAN_SPEED, HAWK_RANGE, SUMMON_LIGHT, WARD_PULSE_S } from '../src/shared/skills.js';
 
 export const SUMMON_WHATS = ['spirit', 'wisp', 'totem', 'seraph', 'net', 'phoenix', 'sprite', 'guardian', 'hawk', 'blast']; // over the wire as an index
 const DIVE_MS = 320; // a phoenix's or hawk's dive, there (and as long back)
 const rand = (a, b) => a + Math.random() * (b - a);
 
 // ctx: { players, mobs (the live array), toRoom, stats(p), damage(m, dmg, crit, id, p, dir, knock, src), heal(id, p, qid, q, amt, at),
-// element(m, el, dmg, id) (the Mage's combos: a phoenix's fire burns) }
-export function createSummons({ players, mobs, toRoom, stats, damage, heal, element }) {
+// element(m, el, dmg, id) (the Mage's combos: a phoenix's fire burns), light(id, p, amt) (SP4: the holy bolt's heal, on the
+// hurt friend nearest the Cleric: sprites, the stone guardian and the Warding Totem's pulse heal with what they hit) }
+export function createSummons({ players, mobs, toRoom, stats, damage, heal, element, light = () => 0 }) {
   const list = [];
   let nextId = 1;
   const now = () => Date.now();
@@ -45,7 +46,7 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal, elem
     add(id, p, skill, rank) {
       const sk = SKILLS[skill], st = stats(p), t = now(), what = sk.what, s0 = p.state, kind = SUMMON_KINDS[what] ?? {};
       const mine = list.filter((q) => q.owner === id && q.what === what);
-      const cap = summonCap(sk, p.rpg.skills), n = Math.min(cap, what === 'sprite' ? sk.count ?? 1 : 1);
+      const cap = summonCap(sk, p.rpg.skills), n = what === 'sprite' ? cap : 1; // (sprites: a whole new set; Host adds one, SP4)
       while (mine.length && mine.length + n > cap) remove(mine.shift(), 'faded');
       const hp = kind.hurt ? summonHp(skill, rank, st) : 1, dir = s0.facing < 0 ? -1 : 1;
       let first = null;
@@ -65,6 +66,10 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal, elem
           Object.assign(s, { snare: sk.snare(rank), left: 1 + tm, burst: tm ? st.atk * SKILLS.trap_mastery.burst(tm) : 0, hitAt: t + 300 });
         }
         if (what === 'blast') Object.assign(s, { left: 1, hitAt: t + 300 }); // (SP1: it goes off once)
+        // SP4: a Cleric summon's hits heal (`lightHeal`); the Warding Totem pulses on the mobs in its ring
+        s.light = sk.lightHeal ? sk.lightHeal(rank) * st.heal : 0;
+        const ward = what === 'totem' ? rankOf(p.rpg.skills, 'warding_totem') : 0;
+        if (ward) Object.assign(s, { pulse: st.magic * SKILLS.warding_totem.mult(ward) * (1 + 0.06 * st.bond), pulseAt: t + 600, light: SUMMON_LIGHT * st.heal });
         if (what === 'wisp') s.y -= 64;
         if (kind.fly) s.y -= 80;
         sync(s);
@@ -100,7 +105,10 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal, elem
         if (t >= s.until) { remove(s, 'faded'); continue; }
         if (s.what === 'wisp') wisp(s, p, t, dt);
         else if (s.what === 'net' || s.what === 'blast') net(s, p, t, hits);
-        else if (s.what === 'totem') hurtBy(s, t);
+        else if (s.what === 'totem') {
+          if (s.pulse) pulse(s, p, t, hits);
+          hurtBy(s, t);
+        }
         else if (s.what === 'phoenix' || s.what === 'hawk') flier(s, p, t, dt, hits);
         else if (s.what === 'guardian') {
           guardian(s, p, t, dt, hits);
@@ -183,6 +191,24 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal, elem
         q.targetUntil = t + 5000;
       }
     }
+    if (s.light) light(s.owner, p, out.reduce((n, h) => n + h[1], 0) * s.light);
+    if (!hits.has(s.room)) hits.set(s.room, []);
+    hits.get(s.room).push([s.id, out]);
+  }
+
+  // ——— SP4: the Warding Totem's pulse, every WARD_PULSE_S on every mob within the totem's ring ———
+  function pulse(s, p, t, hits) {
+    if (t < s.pulseAt) return;
+    s.pulseAt = t + WARD_PULSE_S * 1000;
+    const out = [];
+    for (const q of alive(s.room)) {
+      const kq = MOBS[q.kind];
+      if (Math.abs(q.x - s.x) > s.r + kq.w / 2 || Math.abs(q.y - s.y) > 120 + kq.h / 2) continue;
+      const crit = Math.random() < s.crit;
+      out.push(damage(q, Math.max(1, Math.round(s.pulse * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1))), crit, s.owner, p, Math.sign(q.x - s.x) || 1, 60, { kind: 'summon', skill: 'warding_totem' }));
+    }
+    if (!out.length) return;
+    light(s.owner, p, out.reduce((n, h) => n + h[1], 0) * s.light);
     if (!hits.has(s.room)) hits.set(s.room, []);
     hits.get(s.room).push([s.id, out]);
   }
@@ -348,6 +374,7 @@ export function createSummons({ players, mobs, toRoom, stats, damage, heal, elem
       out.push(damage(q, Math.max(1, Math.round(s.hit * rand(s.minRoll, MAX_ROLL) * (crit ? s.critMult : 1))), crit, s.owner, p, s.dir, 220, { kind: 'summon', skill: s.skill }));
     }
     if (!out.length) return;
+    if (s.light) light(s.owner, p, out.reduce((n, h) => n + h[1], 0) * s.light);
     if (!hits.has(s.room)) hits.set(s.room, []);
     hits.get(s.room).push([s.id, out]);
   }

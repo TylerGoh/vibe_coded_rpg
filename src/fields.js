@@ -6,7 +6,8 @@
 // A strip is a glowing band along the floor with a haze rising off it; a round one an ellipse on the floor under a
 // faint dome. Each look has its own colours and bits: fire (flame tongues and embers), frost (flakes and floor
 // crystals), holy (rising motes and rays), poison (bubbles), plain (sparkles). SP2's Cyclone is a `follow` field drawn
-// round its caster wherever it goes, in the 'blade' look: no floor glow, a whirl of steel crescents.
+// round its caster wherever it goes, in the 'blade' look: no floor glow, a whirl of steel crescents. SP4's Radiance is
+// one too, in the 'radiance' look: soft golden rays turning round the Cleric, a ring of light on the floor, motes.
 import { TAU, clamp } from './util.js';
 import { FIELD_LOOKS, FIELD_TALL } from './shared/skills.js';
 
@@ -18,6 +19,7 @@ const LOOK = {
   holy: ['255,228,140', '#e8b84a', '#fff6c8'],
   poison: ['168,222,112', '#78b84a', '#e4ffc0'],
   blade: ['255,190,170', '#e0806a', '#ffffff'],
+  radiance: ['255,236,160', '#f0c860', '#fffbe6'],
 };
 
 export class Fields {
@@ -62,6 +64,7 @@ export class Fields {
       ctx.save();
       ctx.globalAlpha = a;
       if (f.look === 'blade') whirl(ctx, f, t);
+      else if (f.look === 'radiance') shine(ctx, f, t);
       else if (f.round) round(ctx, f, t);
       else strip(ctx, f, t);
       ctx.restore();
@@ -97,6 +100,39 @@ function whirl(ctx, f, t) {
     ctx.beginPath();
     ctx.arc(f.x + Math.cos(a) * d, y + Math.sin(a) * d * 0.42, 2.2, 0, TAU);
     ctx.fill();
+  }
+}
+
+// Radiance (SP4): a ring of light on the floor round the Cleric, soft golden rays turning out from its middle, motes
+// drifting up (cheap: one small gradient, flat wedges)
+function shine(ctx, f, t) {
+  const R = f.r, cx = f.x, cy = f.y - 22, pulse = 0.5 + 0.5 * Math.sin(t * 5);
+  const g = ctx.createRadialGradient(cx, cy, 6, cx, cy, R);
+  g.addColorStop(0, 'rgba(255,246,200,0.42)');
+  g.addColorStop(1, 'rgba(255,236,160,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,242,190,0.22)';
+  for (let i = 0; i < 8; i++) { // the rays, slowly turning
+    const a = t * 0.8 + (i / 8) * TAU, w = 0.11;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a) * 18, cy + Math.sin(a) * 18);
+    ctx.lineTo(cx + Math.cos(a - w) * R, cy + Math.sin(a - w) * R);
+    ctx.lineTo(cx + Math.cos(a + w) * R, cy + Math.sin(a + w) * R);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.strokeStyle = `rgba(240,200,96,${0.5 + 0.3 * pulse})`;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.ellipse(cx, f.y - 2, R * (0.92 + 0.05 * pulse), Math.max(8, R * 0.18), 0, 0, TAU);
+  ctx.stroke();
+  ctx.fillStyle = '#fffbe6';
+  for (let i = 0; i < 7; i++) {
+    const k = (t * 0.7 + i * 0.143 + f.seed) % 1, a = i * 2.3 + f.seed;
+    sparkle(ctx, cx + Math.cos(a) * R * 0.75, f.y - 6 - k * 70, 2.5 + (1 - k) * 2);
   }
 }
 

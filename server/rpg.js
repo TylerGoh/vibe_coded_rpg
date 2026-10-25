@@ -13,7 +13,7 @@
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
 import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX } from '../src/shared/rpg.js';
-import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS } from '../src/shared/skills.js';
+import { SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS, DEVOTION_S, DEVOTION_CAP, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, judgmentMult, RESOLVE_R } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen, applyHook, HOOK_RANGE } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
@@ -150,7 +150,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   const fields = [];
   let nextField = 1;
   // The Cleric's summons (S3): run like mobs (server/summons.js), their hits credited to the Cleric
-  const summons = createSummons({ players, mobs, toRoom, stats, damage, heal: (id, p, qid, q, amt) => healFrom(id, p, qid, q, amt), element: (m, el, dmg, id) => element(m, el, dmg, id, false) });
+  const summons = createSummons({ players, mobs, toRoom, stats, damage, heal: (id, p, qid, q, amt) => healFrom(id, p, qid, q, amt), element: (m, el, dmg, id) => element(m, el, dmg, id, false), light: (id, p, amt) => lightHeal(id, p, amt) });
   // The damage meter's other columns (S3): healing done (key 'heal') and damage taken ('taken'), credited to
   // every den boss and every field boss being fought in room. A heal also counts as fighting it (EXP, loot).
   function credit(room, id, name, key, amt) {
@@ -166,13 +166,45 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // skill's echo shows it), healing on the meter. → the HP healed
   function healFrom(id, p, qid, q, amt, pop = true) {
     if (!q?.rpg || q.faintUntil || !q.joined) return 0;
-    const a = Math.max(0, Math.min(stats(q).maxHp - q.rpg.hp, Math.round(amt)));
+    const maxHp = stats(q).maxHp, a = Math.max(0, Math.min(maxHp - q.rpg.hp, Math.round(amt)));
+    devotion(p, q, Math.round(amt) - a, maxHp);
     if (a < 1) return 0;
     q.rpg.hp += a;
     if (pop) toRoom(q.state.room)({ t: 'thirst', id: qid, n: a });
     sendMe(q);
     credit(q.state.room, id, p.name, 'heal', a);
     return a;
+  }
+  // Devotion (SP4): a share of what healer p's heal would overheal on q becomes a ward (q.devo), soaked after the
+  // Barrier, never an ultimate's; at most DEVOTION_CAP × q's max HP, for DEVOTION_S from the last top-up
+  function devotion(p, q, over, maxHp) {
+    const r = over > 0 && p?.rpg ? rankOf(p.rpg.skills, 'devotion') : 0;
+    if (!r) return;
+    const t = now(), had = q.devo && q.devo.until > t ? q.devo.left : 0;
+    const left = Math.min(Math.round(maxHp * DEVOTION_CAP), had + Math.round(over * SKILLS.devotion.share(r)));
+    if (left <= had) return;
+    q.devo = { left, until: t + DEVOTION_S * 1000 };
+    sendMe(q);
+  }
+  // The holy bolt's rule (S3), for every Cleric damage skill with `lightHeal` too (SP4): amt heals the hurt friend
+  // nearest p within HOLY_BOLT_HEAL_R, else p itself
+  function lightHeal(id, p, amt) {
+    if (!(amt >= 1) || !p?.rpg || p.faintUntil) return 0;
+    let best = null, bestD = HOLY_BOLT_HEAL_R;
+    for (const [qid, q] of inRoom(p.state.room)) {
+      const d = Math.abs(q.state.x - p.state.x);
+      if (q !== p && !q.faintUntil && q.rpg.hp < stats(q).maxHp && d < bestD) [best, bestD] = [[qid, q], d];
+    }
+    const [qid, q] = best ?? [id, p];
+    return healFrom(id, p, qid, q, amt);
+  }
+  // Judgment (SP4): the slimes within JUDGMENT_R of p (p too) under JUDGMENT_AT of their HP, up to JUDGMENT_MAX
+  const hurtNear = (p) => Math.min(JUDGMENT_MAX, inRoom(p.state.room).filter(([, q]) => !q.faintUntil && Math.abs(q.state.x - p.state.x) <= JUDGMENT_R + 40 && q.rpg.hp < stats(q).maxHp * JUDGMENT_AT).length);
+  // Resolve (SP4): the best cut q gets from a Resolve on it while it stands near its Warden's summons
+  function resolveCut(q) {
+    const b = q.buffs?.resolve;
+    if (!b || b.until <= now()) return 0;
+    return summons.list.some((s) => s.owner === b.by && s.room === q.state.room && Math.hypot(s.x - q.state.x, s.y - q.state.y) <= RESOLVE_R) ? SKILLS.resolve.cut(b.rank) : 0;
   }
   function load(p) {
     let c;
@@ -305,6 +337,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       berserk: left(p.berserkUntil), shield: c.shield ? 1 : 0, barrier: p.barrier && p.barrier.until > now() ? Math.ceil(p.barrier.left) : 0, barrierLeft: left(p.barrier?.until), mend: left(p.mend?.until), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), gods: left(p.godsUntil), secondWind: left(p.swReadyAt),
       brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
       curse: p.curse ? { n: p.curse.n, left: left(p.curse.until) } : undefined, // (S5.2: a boss's curse stacks)
+      devo: p.devo && p.devo.until > now() ? [Math.ceil(p.devo.left), left(p.devo.until)] : undefined, // (SP4: Devotion's ward [amount, ms left])
       draught: left(p.draughtUntil), cure: left(p.cureAt), // (S5.5: a Barrier Draught waiting for a pulse; the two potions' shared cooldown)
       ways: c.ways,
       buffs: p.buffs && longOf(p).length ? longOf(p).map(([id, b]) => [id, left(b.until), b.rank]) : undefined, // (SP1: [skill id, ms left, rank])
@@ -364,7 +397,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     p.momentum = null;
     p.arcane = null;
     p.retri = 0; // (Retribution's store, SP2)
-    p.barrier = p.mend = null;
+    p.barrier = p.mend = p.devo = null;
     p.buffs = {}; // (long buffs end too, SP1)
     p.draughtUntil = 0; // (and drops a Barrier Draught, S5.5)
     if (p.curse) uncurse(id, p, true); // (a KO lifts a curse, S5.2)
@@ -442,6 +475,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (totem) dmg = Math.max(1, Math.round(dmg * (1 - totem)));
     if (st.ward && !ult) dmg = Math.max(1, Math.round(dmg * (1 - st.ward))); // a brewed ward
     if (st.cut && !ult) dmg = Math.max(1, Math.round(dmg * (1 - Math.min(0.9, st.cut)))); // a long buff's (SP1)
+    const resolve = ult ? 0 : resolveCut(q); // (SP4: Resolve, near its Warden's summons)
+    if (resolve) dmg = Math.max(1, Math.round(dmg * (1 - resolve)));
     if (bar) { // the Barrier soaks it up first
       const soak = Math.min(bar.left, dmg);
       bar.left -= soak;
@@ -453,6 +488,18 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         return dot ? undefined : guard(qid, q, 'soak');
       }
       if (!q.barrier) guard(qid, q, 'barrier');
+    }
+    const devo = !ult && q.devo && q.devo.until > t ? q.devo : null; // Devotion's ward (SP4): after the Barrier, never an ultimate
+    if (devo) {
+      const soak = Math.min(devo.left, dmg);
+      devo.left -= soak;
+      dmg -= soak;
+      if (devo.left <= 0) q.devo = null;
+      if (dmg <= 0) {
+        if (!dot) q.hurtAt = t;
+        sendMe(q);
+        return dot ? undefined : guard(qid, q, 'soak');
+      }
     }
     // Guardian's Oath (SP2): a share of a friend's hit goes to the Knight who swore it, while they stand near (never
     // passed on again: the Knight takes it as a 'dot', so two oaths can't bounce it back and forth)
@@ -853,16 +900,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   function holyBolt(id, p, dir, hits) {
     const st = stats(p);
     const out = applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * HOLY_BOLT_MULT * capOf(st), dir, knock: 120, magic: true, src: { spell: true } });
-    const amt = out.reduce((n, h) => n + h[1], 0) * HOLY_BOLT_HEAL * st.heal;
-    if (amt >= 1) {
-      let best = null, bestD = HOLY_BOLT_HEAL_R;
-      for (const [qid, q] of inRoom(p.state.room)) {
-        const d = Math.abs(q.state.x - p.state.x);
-        if (q !== p && !q.faintUntil && q.rpg.hp < stats(q).maxHp && d < bestD) [best, bestD] = [[qid, q], d];
-      }
-      const [qid, q] = best ?? [id, p];
-      healFrom(id, p, qid, q, amt);
-    }
+    lightHeal(id, p, out.reduce((n, h) => n + h[1], 0) * HOLY_BOLT_HEAL * st.heal);
     return out;
   }
 
@@ -927,7 +965,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     // SP1: a skill's damage over time (bleed, poison), and what the on-kill hooks see of its hits
     const dot = sk.dot ? { kind: sk.dot.kind, share: sk.dot.share(rank) } : null, src = { skill: m.skill, arrow: kinds.arrow, spell: kinds.magic };
     const boom = []; // (SP3: the burning mobs a Combustion set off)
-    const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, el: sk.el ?? null, ...kinds, dot, src, exec: sk.exec?.(rank) ?? 0, combust: sk.combust?.(rank) ?? 0, boom, lead: sk.lead ?? 1, ...o }));
+    // SP4: Judgment's × for the hurt slimes near (the server's own count caps what the client claims)
+    const judged = sk.judge ? hurtNear(p) : 0;
+    const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, el: sk.el ?? null, ...kinds, dot, src, exec: sk.exec?.(rank) ?? 0, combust: sk.combust?.(rank) ?? 0, boom, lead: sk.lead ?? 1, ...o, cap: o.cap * (sk.judge ? judgmentMult(c.skills, judged) : 1) }));
+    if (judged) out.judged = judged;
     // Retribution (SP2): a Shield Bash lets out what was stored (retriMult: the client adds the same from its 'me')
     const retri = sk.stun ? retriMult(c.skills, p.retri, st.atk) : 0;
     if (sk.stun) p.retri = 0;
@@ -959,7 +1000,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         out.mark = [mob.id, sk.boost(rank), sk.dur];
       }
     } else if (sk.kind === 'nova') hit({ max: 20, range: sk.radius, cap: magic, knock: 100, slow: sk.slow });
-    else if (sk.kind === 'starfall') hit({ max: 30, range: sk.radius, cap: magic, knock: 80 });
+    else if (sk.kind === 'starfall') hit({ max: sk.whole ? 40 : 30, range: sk.whole ? ROOMS[s.room]?.width ?? sk.radius : sk.radius, cap: magic, knock: 80 }); // (SP4: Genesis, `whole`: the room)
     else if (sk.kind === 'heal' || sk.kind === 'miracle') {
       out.heals = [];
       const amt = healOf(m.skill, rank, st);
@@ -1063,6 +1104,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     toRoom(s.room)(out);
     thirst(id, p, out.hits);
     if (sk.smite && out.hits.length) healFrom(id, p, id, p, out.hits.reduce((n, h) => n + h[1], 0) * sk.smite(rank) * st.heal); // Smite
+    // SP4: every Cleric damage skill heals a little: Sacred Light heals you for each mob it hit; `lightHeal`, the holy bolt's rule
+    if (sk.selfPer && out.hits.length) healFrom(id, p, id, p, out.hits.length * st.magic * sk.selfPer(rank) * st.heal);
+    if (sk.lightHeal && out.hits.length) lightHeal(id, p, out.hits.reduce((n, h) => n + h[1], 0) * sk.lightHeal(rank) * st.heal);
     sendMe(p);
   }
   // knocked-out slimes within r of p (Revive, Miracle): [[id, q]]
@@ -2567,7 +2611,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       c.alt.hotbar = Array(HOTBAR).fill(null);
       c.shield = false;
       p.berserkUntil = p.rallyUntil = p.bubbleUntil = p.aegisUntil = p.godsUntil = 0;
-      p.barrier = p.mend = null;
+      p.barrier = p.mend = p.devo = null;
       p.buffs = {}; // (long buffs too: yours and friends', SP1)
       summons.clear(id);
       clearFields(id);

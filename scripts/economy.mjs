@@ -8,7 +8,7 @@ const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; /
 import { curve } from '../src/shared/curve.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
-import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds, isLongBuff, fxText, buffFx, momentumMax, EXEC_AT, BLEED_S, RETRI_HOLD, retriMult, targetsOf, statOf } from '../src/shared/skills.js';
+import { SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds, isLongBuff, fxText, buffFx, momentumMax, EXEC_AT, BLEED_S, RETRI_HOLD, retriMult, targetsOf, statOf, HOLY_SYMBOL_EXP, JUDGMENT_AT, judgmentMult, DEVOTION_CAP, SUMMON_LIGHT, WARD_PULSE_S, RESOLVE_R, summonCap } from '../src/shared/skills.js';
 import { SLAP_REACH, SLAP_COOLDOWN_MS, DASH_CD, PHANTOM_CD, CHARGE_RESET } from '../src/shared/sim.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
@@ -90,6 +90,14 @@ const minutesTo = (L) => {
   for (let l = 1; l < L; l++) k += expToNext(l) / farmed(l)[1].exp;
   return k / KILLS_PER_MIN;
 };
+// SP4's Holy Symbol (an `exp` long buff, HOLY_SYMBOL_EXP a rank): the pace for a slime who farms with a Priest from the
+// level it opens (every kill × (1 + its top share)). The check keeps that inside LEVEL_PACE too (HOLY_PACE_MIN)
+const HS = SKILLS.holy_symbol, HS_TOP = HS ? HS.fx(HS.max).exp : 0;
+const minutesWithSymbol = (L) => {
+  let k = 0;
+  for (let l = 1; l < L; l++) k += expToNext(l) / farmed(l)[1].exp / (l >= (HS?.adv ?? Infinity) ? 1 + HS_TOP : 1);
+  return k / KILLS_PER_MIN;
+};
 
 const expPerMin = (L) => farmed(L)[1].exp * KILLS_PER_MIN;
 // A den boss camped for an hour, as a multiple of an hour of farming mobs at its level (gold counts the loot)
@@ -120,7 +128,7 @@ const LEVEL_PACE = [0.85, 1.25];
 const targetTo = (L) => { let t = 0; for (let l = 1; l < L; l++) t += LEVEL_MIN(l); return t; };
 const PROGRESS_AT = [5, 10, 13, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 170, 200];
 table(`PROGRESS: farming your own level at ${KILLS_PER_MIN} kills/min (mobs only, no bosses)`, Object.fromEntries(PROGRESS_AT.map((L) => [`lvl ${L}`, {
-  farming: farmed(L)[0], 'gold/min': fmt(goldPerMin(L)), 'min a level': (expToNext(L) / farmed(L)[1].exp / KILLS_PER_MIN).toFixed(1), 'play time to reach': hrs(minutesTo(L)), 'target (LEVEL_MIN)': hrs(targetTo(L)), 'gold earned by then': fmt(earnedBy(L)),
+  farming: farmed(L)[0], 'gold/min': fmt(goldPerMin(L)), 'min a level': (expToNext(L) / farmed(L)[1].exp / KILLS_PER_MIN).toFixed(1), 'play time to reach': hrs(minutesTo(L)), [`with Holy Symbol (+${Math.round(HS_TOP * 100)}%)`]: hrs(minutesWithSymbol(L)), 'target (LEVEL_MIN)': hrs(targetTo(L)), 'gold earned by then': fmt(earnedBy(L)),
 }])));
 
 // The frozen curves, extended to where the later islands' bands will go (Frostpeak 40–100, Emberdeep
@@ -195,12 +203,12 @@ table('ALCHEMY: one batch of each recipe (cost = seeds for its herbs + its mob m
 
 // SP1's long buffs (story/skills-plan.md): an `exp` effect is a faucet (every kill's EXP × (1 + exp) for everyone it
 // reaches, server/rpg.js kill), so each one is listed here with what it gives at its top rank. SP4's Holy Symbol is the
-// first planned; name its share as a constant in src/shared/skills.js and fold it into the levelling pace it assumes.
+// first (HOLY_SYMBOL_EXP a rank, src/shared/skills.js), folded into the pace above (minutesWithSymbol, the PROGRESS column).
 const longBuffs = Object.entries(SKILLS).filter(([, sk]) => isLongBuff(sk));
 if (longBuffs.length) table('LONG BUFFS (SP1): at the top rank (exp = more EXP from every kill: a faucet)', Object.fromEntries(longBuffs.map(([id, sk]) => [id, {
-  cls: sk.cls, lvl: sk.adv, 'lasts (min)': (durOf(id, sk.max) / 60).toFixed(1), 'party radius': sk.party ?? 'just you', does: fxText(sk.fx(sk.max)), 'EXP faucet': sk.fx(sk.max).exp ? `+${Math.round(sk.fx(sk.max).exp * 100)}%` : '',
+  cls: sk.cls, lvl: sk.adv, 'lasts (min)': (durOf(id, sk.max) / 60).toFixed(1), 'party radius': sk.party ?? 'just you', does: sk.buffText?.(sk.max) ?? fxText(sk.fx(sk.max)), 'EXP faucet': sk.fx(sk.max).exp ? `+${Math.round(sk.fx(sk.max).exp * 100)}%` : '',
 }])));
-else console.log('\nLONG BUFFS (SP1): none yet (an `exp` effect on one is a faucet: SP4\'s Holy Symbol)');
+else console.log('\nLONG BUFFS (SP1): none');
 
 // The loot check (S5.5, story/progression.md 6: "a boss's loot includes one weapon, its kind picked from the classes
 // who fought it"): every den and field boss from LOOT_TWIN_LVL drops a sword with both a staff and a bow twin, so
@@ -247,19 +255,22 @@ const BUILDS = {
   // (SP3: Arcane Burst with the basics, each branch's new staples as they open, then Arcane Insight; the passives come with "every passive")
   elementalist: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'arcane_burst', 'mana_shield', 'fireball', 'fire_wall', 'flame_lance', 'kindling', 'meteor', 'combustion', 'arcane_charge', ['dash', 1], 'starfall', 'phoenix', 'arcane_insight', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   frostbinder: { cls: 'mage', order: ['magic_bolt', 'arcane_mind', 'arcane_burst', 'mana_shield', 'chain_lightning', 'frost_nova', 'frost_bolt', 'frost_armor', 'glacial_spike', 'blizzard', 'arcane_charge', ['dash', 1], 'absolute_zero', 'thunder_call', 'arcane_insight', 'mana_flow', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
-  priest: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'jelly_spirit', 'heal', 'faith', 'cleanse', 'mend', 'lantern_wisp', 'holy_power', 'revive', 'miracle', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  // (SP4: Radiance with the basics, each branch's new staples as they open, then Blessing and the Priest's Holy Symbol;
+  // Devotion, Warding Totem and Host come with "every passive")
+  priest: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'radiance', 'jelly_spirit', 'heal', 'faith', 'cleanse', 'sacred_light', 'mend', 'lantern_wisp', 'consecration', 'judgment', 'holy_power', 'revive', 'genesis', 'miracle', 'holy_symbol', 'blessing', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   // the Archer (S4): its core arrows first, Dash early for Retreat Shot, Evasion for the boss fights
   sniper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'snipe', 'piercing_arrow', 'deadeye', 'hunters_mark', 'heartseeker', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   trapper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'arrow_rain', ['net_trap', 1], 'barbed_arrows', 'trap_mastery', 'net_trap', 'thousand_arrows', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
-  warden: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'jelly_spirit', 'faith', 'cleanse', 'heal', 'barrier', 'guardian_totem', 'spirit_bond', 'seraph', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  warden: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'radiance', 'jelly_spirit', 'faith', 'cleanse', 'heal', 'sprites', 'barrier', 'guardian_totem', 'stone_guardian', 'spirit_bond', 'seraph', 'resolve', 'blessing', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
 };
 // SP3: a new staple takes the hotbar slot of the one a tier before it (story/skills-plan.md, Rule 1: "the new one
-// replaces the old on the hotbar"), so the old one stops firing once the new one is held. Only the Mage's for now
-// (SP2's Warrior still fires everything it holds); SP6 decides it for every class at once.
+// replaces the old on the hotbar"), so the old one stops firing once the new one is held. Every class's (owner,
+// 2026-10-25): the Mage's, the Warrior's, the Cleric's (SP4: Smite stays, the cheap filler with its self-heal).
 const HOTBAR_SWAPS = {
   arcane_burst: ['fireball', 'frost_nova'], magic_bolt: ['flame_lance', 'frost_bolt'], flame_lance: ['combustion'], glacial_spike: ['thunder_call'],
   cleave: ['ground_shake', 'whirlwind'], ground_shake: ['shockwave'], shockwave: ['judgement'], whirlwind: ['blade_storm'], blade_storm: ['cyclone'],
   power_strike: ['shield_bash', 'rending_slash'], shield_bash: ['holy_lance'], rending_slash: ['execution'], execution: ['sky_splitter'],
+  radiance: ['sacred_light', 'sprites'], sacred_light: ['consecration'], // (SP4: the Cleric's; Smite stays, the filler between its big spells)
 };
 const NOVICE_ORDER = ['slime_bash', 'pebble_toss', 'jelly_patch']; // (nine points fill all three by Lv 9)
 const CLASS_AT = [10, 30, 60, 100, 150, 200];
@@ -277,6 +288,9 @@ const BOSS_HIT_EVERY = { warrior: 2.5, mage: 3.5, cleric: 3.5, archer: 3.5 }, BO
 // The Cleric's choices (S3): heal under these shares of max HP; a spirit draws SPIRIT_DRAW of a boss's hits
 // (the Seraph SERAPH_DRAW) while it stands
 const HEAL_AT = 0.65, MEND_AT = 0.85, MIRACLE_AT = 0.45, SPIRIT_DRAW = 0.5, SERAPH_DRAW = 0.75;
+// SP4: the stone guardian taunts every GUARDIAN_TAUNT_S (a boss too): it draws GUARDIAN_DRAW of a boss's hits while it
+// stands; the Warding Totem's pulse and a planted field catch a lone boss FIELD_BOSS_SHARE of the time (below)
+const GUARDIAN_DRAW = 0.75;
 const TOUGH_CAP = 600; // s: the toughness column stops counting here ("outlasts")
 // Solo: drink the biggest shop potion that fits when HP falls under POTION_AT (an action each); a branch
 // can solo a den if it never faints and its potions cost at most SOLO_POTION_SHARE of what the kill pays
@@ -420,6 +434,13 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
   // the Cleric: its spirits / Seraph up ({ id, until, hp, def, dps, draw }), the totem, the Barrier, Mend, the wisp
   const sums = [];
   let drawAcc = 0, totem = null, barrier = 0, barrierUntil = 0, mendUntil = 0, mendAmt = 0, wispUntil = 0, wispAmt = 0;
+  // SP4: Devotion's ward (overheal kept, soaked after the Barrier), a field's heal ticking on you (Radiance, Consecration)
+  let ward = 0, fieldHealUntil = 0, fieldHeal = 0;
+  const healUp = (amt, st) => { // every Cleric heal on yourself goes through here (Devotion keeps a share of the overheal)
+    const over = hp + amt - st.maxHp;
+    hp = Math.min(st.maxHp, hp + amt);
+    if (over > 0 && r('devotion')) ward = Math.min(st.maxHp * DEVOTION_CAP, ward + over * SKILLS.devotion.share(r('devotion')));
+  };
   const statsAt = (t) => statsFor(c, { berserk: buff.berserk > t, rally: buff.rally > t ? SKILLS.rally.boost(r('rally')) : 0, manaShield: buff.manaShield > t, momentum: momentumUntil > t ? momentum : 0, long, hp, attackers: hit ? 1 : 0 }); // (hp: Bloodlust; one boss after you: Unbroken)
   const chases = Object.keys(CHASE_ACTIONS).filter((id) => r(id) && ((id !== 'charge' && id !== 'retreat_shot' && id !== 'hook') || r('dash')));
   // Hunter's Mark (Sniper): everything on the marked mob hits harder; on a crowd only one of them is marked
@@ -452,7 +473,9 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
         let d = pulse ? Math.round(st.maxHp * PULSE_HP) : Math.max(1, Math.round(hit - st.def)); // (the pulse: flat, past DEF)
         if (buff.zone > at) d = Math.max(1, Math.round(d * (1 - SKILLS.sanctuary.cut(r('sanctuary')))));
         if (totem && totem.until > at && totem.hp > 0) d = Math.max(1, Math.round(d * (1 - totem.cut)));
+        if (r('resolve') && (sums.some((q) => q.until > at && q.hp > 0) || (totem && totem.until > at && totem.hp > 0))) d = Math.max(1, Math.round(d * (1 - SKILLS.resolve.cut(r('resolve'))))); // (SP4: by its own summons)
         if (barrier > 0 && barrierUntil > at) { const soak = Math.min(barrier, d); barrier -= soak; d -= soak; if (d <= 0) continue; }
+        if (ward > 0) { const soak = Math.min(ward, d); ward -= soak; d -= soak; if (d <= 0) continue; } // (SP4: Devotion)
         if (st.manaShield) { const take = Math.min(Math.round(d * st.manaShield), Math.floor(mp)); mp -= take; d -= take; }
         if (buff.rally > at && r('retribution')) retri = Math.min(st.maxHp * RETRI_HOLD, retri + d); // (SP2: stored for the next Shield Bash)
         hp -= d;
@@ -464,8 +487,9 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
         nextRegen += 1;
         if (hp < st.maxHp && at - lastHurt >= 5) hp = Math.min(st.maxHp, hp + Math.max(1, st.maxHp * 0.01 * st.hpRegen));
         mp = Math.min(st.maxMp, mp + Math.max(1, st.maxMp * 0.02) * mpRegen(c.skills));
-        if (mendUntil > at) hp = Math.min(st.maxHp, hp + mendAmt);
-        if (wispUntil > at) hp = Math.min(st.maxHp, hp + wispAmt / WISP_TICK);
+        if (mendUntil > at) healUp(mendAmt, st);
+        if (wispUntil > at) healUp(wispAmt / WISP_TICK, st);
+        if (fieldHealUntil > at) healUp(fieldHeal, st); // (SP4: standing in your own Radiance / Consecration)
       }
     }
     // a burn ticking since the last action (the server's BURN_TICK_MS, smoothed)
@@ -482,7 +506,12 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
       const q = sums[i];
       if (q.until <= t - ACTION_S || q.hp <= 0) { sums.splice(i, 1); continue; }
       dealt += q.dps * ACTION_S;
+      if (q.light) healUp(q.dps * ACTION_S * q.light, statsAt(t)); // (SP4: sprites and the guardian heal with what they hit)
       if (hit) q.hp -= Math.max(1, (hit / BOSS_HIT_MULT) * BOSS_SUMMON_HIT - q.def) * (ACTION_S / BOSS_SUMMON_S);
+    }
+    if (totem && totem.until > t - ACTION_S && totem.hp > 0 && totem.pulse) { // (SP4: the Warding Totem's pulse)
+      dealt += totem.pulse * ACTION_S;
+      healUp(totem.pulse * ACTION_S * SUMMON_LIGHT * statsAt(t).heal, statsAt(t));
     }
     if (hit && totem && totem.until > t) totem.hp -= Math.max(1, (hit / BOSS_HIT_MULT) * BOSS_SUMMON_HIT - totem.def) * (ACTION_S / BOSS_SUMMON_S);
     if (dealt >= bossHp) return { t, dealt, faint: false, drunk, gold };
@@ -511,7 +540,7 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     const healNow = lowFor('miracle', MIRACLE_AT) ? 'miracle' : lowFor('heal', HEAL_AT) ? 'heal' : null;
     if (healNow) {
       use(healNow, t);
-      hp = Math.min(st.maxHp, hp + healOf(healNow, r(healNow), st));
+      healUp(healOf(healNow, r(healNow), st), st);
       continue;
     }
     if (lowFor('mend', MEND_AT) && mendUntil <= t) {
@@ -520,11 +549,18 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
       continue;
     }
     const spirits = (id) => sums.filter((q) => q.id === id && q.until > t && q.hp > 0).length;
-    const call = ['seraph', 'jelly_spirit'].find((id) => ready(id, t) && spirits(id) < (id === 'jelly_spirit' ? spiritCap(c.skills) : 1));
+    const call = ['seraph', 'stone_guardian', 'jelly_spirit'].find((id) => ready(id, t) && spirits(id) < summonCap(SKILLS[id], c.skills)); // (Host: one more, SP4)
     if (call) {
       use(call, t);
-      const n2 = call === 'seraph' ? caught(n, 2 * SERAPH_R) : 1;
-      sums.push({ id: call, until: t + SKILLS[call].dur, hp: summonHp(call, r(call), st), def: st.def * 0.5, dps: (summonHit(call, r(call), st) * avgHit(st) * n2) / SPIRIT_HIT_S, draw: call === 'seraph' ? SERAPH_DRAW : SPIRIT_DRAW });
+      const n2 = call === 'seraph' ? caught(n, 2 * SERAPH_R) : 1, every = SKILLS[call].every ?? SPIRIT_HIT_S;
+      sums.push({ id: call, until: t + SKILLS[call].dur, hp: summonHp(call, r(call), st), def: st.def * 0.5, dps: (summonHit(call, r(call), st) * avgHit(st) * n2) / every, draw: call === 'seraph' ? SERAPH_DRAW : call === 'stone_guardian' ? GUARDIAN_DRAW : SPIRIT_DRAW, light: (SKILLS[call].lightHeal?.(r(call)) ?? 0) * st.heal });
+      continue;
+    }
+    // SP4: Sprites, a whole set whenever they're down (each after a different mob: one on a lone target, the others idle)
+    if (ready('sprites', t) && !spirits('sprites')) {
+      use('sprites', t);
+      const k = Math.min(summonCap(SKILLS.sprites, c.skills), n), each = (summonHit('sprites', r('sprites'), st) * avgHit(st)) / SPIRIT_HIT_S;
+      for (let i = 0; i < k; i++) sums.push({ id: 'sprites', until: t + SKILLS.sprites.dur, hp: summonHp('sprites', r('sprites'), st), def: st.def * 0.5, dps: each, draw: i ? 0 : SPIRIT_DRAW, light: SKILLS.sprites.lightHeal(r('sprites')) * st.heal });
       continue;
     }
     // SP3: the Phoenix, whenever it's down (a flier: one mob a dive, never hurt, draws nothing)
@@ -538,9 +574,11 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
       [wispUntil, wispAmt] = [t + SKILLS.lantern_wisp.dur, healOf('lantern_wisp', r('lantern_wisp'), st)];
       continue;
     }
-    if (hit && ready('guardian_totem', t) && !(totem && totem.until > t && totem.hp > 0)) {
+    if ((hit || r('warding_totem')) && ready('guardian_totem', t) && !(totem && totem.until > t && totem.hp > 0)) {
       use('guardian_totem', t);
-      totem = { until: t + SKILLS.guardian_totem.dur, hp: summonHp('guardian_totem', r('guardian_totem'), st), def: st.def * 0.5, cut: SKILLS.guardian_totem.cut(r('guardian_totem')) };
+      // (SP4: the Warding Totem pulses on what's in its ring: the crowd it catches, a lone boss FIELD_BOSS_SHARE of the time)
+      const pulse = r('warding_totem') ? (st.magic * SKILLS.warding_totem.mult(r('warding_totem')) * (1 + 0.06 * st.bond) * avgHit(st) * (n === 1 ? FIELD_BOSS_SHARE : caught(n, 2 * SKILLS.guardian_totem.radius))) / WARD_PULSE_S : 0;
+      totem = { until: t + SKILLS.guardian_totem.dur, hp: summonHp('guardian_totem', r('guardian_totem'), st), def: st.def * 0.5, cut: SKILLS.guardian_totem.cut(r('guardian_totem')), pulse };
       continue;
     }
     if (hit && ready('barrier', t) && !(barrier > 0 && barrierUntil > t)) {
@@ -561,7 +599,8 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     for (const id of actives) {
       if ((!DAMAGE_KINDS.has(SKILLS[id].kind) && SKILLS[id].what !== 'net') || !ready(id, t)) continue;
       // (SP2: Execution on a boss in its last EXEC_AT; a Shield Bash lets Retribution's store out; a bleed's whole tick-down)
-      const sk = SKILLS[id], low = (sk.exec && bossHp < Infinity && dealt >= (1 - EXEC_AT) * bossHp ? sk.exec(r(id)) : 1) * (sk.combust && burnUntil > t ? sk.combust(r(id)) : 1); // (SP3: Combustion on a burning target)
+      const sk = SKILLS[id], low = (sk.exec && bossHp < Infinity && dealt >= (1 - EXEC_AT) * bossHp ? sk.exec(r(id)) : 1) * (sk.combust && burnUntil > t ? sk.combust(r(id)) : 1) // (SP3: Combustion on a burning target)
+        * (sk.judge ? judgmentMult(c.skills, hp < JUDGMENT_AT * st.maxHp ? 1 : 0) : 1); // (SP4: Judgment, alone: you're the hurt one)
       const one = castDmg(id, r(id), st, n, range, c) * (spendsArcane(id) ? arcaneMult(c.skills, held) : 1) * low;
       const d = one + (sk.stun && one ? st.atk * retriMult(c.skills, retri, st.atk) * avgHit(st) : 0) + (sk.dot ? one * sk.dot.share(r(id)) * BLEED_S * 0.5 : 0); // (half the bleed counted when choosing)
       if (d > dmg) [best, dmg] = [id, d];
@@ -596,8 +635,12 @@ function fight(c, { n = 1, range = 0, hit = 0, every = BOSS_HIT_EVERY.warrior, h
     if (M) dmg = mechHit(dmg, chase ? { arrow: chase === 'retreat_shot' } : best ? hitKinds(SKILLS[best], r(best), st, held, c.skills) : { magic: !!st.boltRange, arrow: !!st.arrowRange }, t);
     dealt += dmg; // (a crowd: the sum over the mobs it caught)
     if (st.thirst) hp = Math.min(st.maxHp, hp + dmg * st.thirst);
-    if (best && SKILLS[best].smite) hp = Math.min(st.maxHp, hp + dmg * SKILLS[best].smite(r(best)) * st.heal); // Smite
-    if (!best && !chase && st.holyBolt) hp = Math.min(st.maxHp, hp + dmg * HOLY_BOLT_HEAL * st.heal); // the holy bolt (alone: it heals you)
+    if (best && SKILLS[best].smite) healUp(dmg * SKILLS[best].smite(r(best)) * st.heal, st); // Smite
+    if (!best && !chase && st.holyBolt) healUp(dmg * HOLY_BOLT_HEAL * st.heal, st); // the holy bolt (alone: it heals you)
+    // SP4: Sacred Light heals you for each mob it hit, `lightHeal` a share of the damage (alone: on you), a field's heal ticks
+    if (best && SKILLS[best].selfPer) healUp(Math.min(n, caught(n, 2 * SKILLS[best].radius)) * st.magic * SKILLS[best].selfPer(r(best)) * st.heal, st);
+    if (best && SKILLS[best].lightHeal) healUp(dmg * SKILLS[best].lightHeal(r(best)) * st.heal, st);
+    if (best && SKILLS[best].kind === 'field' && SKILLS[best].heal) [fieldHealUntil, fieldHeal] = [t + SKILLS[best].dur, (st.magic * SKILLS[best].heal(r(best)) * st.heal) / (SKILLS[best].every ?? 1)];
     if (dealt >= bossHp) return { t: t + ACTION_S, dealt, faint: false, drunk, gold };
   }
   return { t: until, dealt, faint: false, drunk, gold, staggers: M?.staggers };
@@ -733,6 +776,8 @@ const problems = [...classProblems];
 for (const L of PROGRESS_AT.filter((L) => L >= 20)) {
   const f = minutesTo(L) / targetTo(L);
   if (f < LEVEL_PACE[0] || f > LEVEL_PACE[1]) problems.push(`reaching lvl ${L} takes ${hrs(minutesTo(L))} of farming, ${Math.round(f * 100)}% of the target pace LEVEL_MIN (want ${LEVEL_PACE[0] * 100}–${LEVEL_PACE[1] * 100}%)`);
+  const fh = minutesWithSymbol(L) / targetTo(L); // (SP4: with a Priest's Holy Symbol from its level on, never under the pace's floor)
+  if (fh < LEVEL_PACE[0]) problems.push(`with Holy Symbol (HOLY_SYMBOL_EXP) reaching lvl ${L} takes ${hrs(minutesWithSymbol(L))}, ${Math.round(fh * 100)}% of the target pace (want ${LEVEL_PACE[0] * 100}% or more)`);
 }
 // priced in minutes of farming at the aim level (PRICE_BANDS), never more than the savings by then
 const bandProblem = (what, price, aim, band) => {

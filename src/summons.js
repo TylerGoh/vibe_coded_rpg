@@ -5,8 +5,10 @@
 // procedural, like the slimes. Positions: x, y = the feet (the wisp: its own middle). The Archer's Net Trap
 // (S4) is drawn here too: a rope net pegged out on the ground, flicking up when it catches something
 // ({t:'netcatch'}); the mob it caught wears the net (src/elements.js). SP1's kinds are simple first looks that SP2–SP5
-// polish: the phoenix (SP3 polished it: a golden firebird with flame wings, a plumed crest and a streaming tail), sprites (small sky-blue spirits), the stone guardian (a
-// mossy block golem), the hawk (a brown bird with spread wings) and the blast trap (a round pad with a glowing rune
+// polish: the phoenix (SP3 polished it: a golden firebird with flame wings, a plumed crest and a streaming tail), sprites (SP4
+// polished them: small sky-blue spirits with flapping petal wings, a star on a curly antenna and a trail of sparkles), the
+// stone guardian (SP4: a mossy block golem with a glowing golden rune on its chest, a little flower in the moss, eyes
+// that brighten as it winds up and a dust ring when it slams; the Warding Totem's pulse is a golden ring), the hawk (a brown bird with spread wings) and the blast trap (a round pad with a glowing rune
 // that goes off with a bang).
 import { TAU, clamp, circle, ellipse } from './util.js';
 import { SKILLS, WISP_R, SERAPH_R, NET_R, SPRITE_SCALE } from './shared/skills.js';
@@ -14,7 +16,7 @@ import { audio } from './audio.js';
 
 const WHATS = ['spirit', 'wisp', 'totem', 'seraph', 'net', 'phoenix', 'sprite', 'guardian', 'hawk', 'blast']; // (server/summons.js SUMMON_WHATS)
 const UNHURT = new Set(['wisp', 'net', 'phoenix', 'hawk', 'blast']); // (no HP bar: nothing can hit them)
-const TOP = { seraph: 96, totem: 76, guardian: 70, sprite: 36 }; // (where the HP bar goes over its feet)
+const TOP = { seraph: 96, totem: 76, guardian: 74, sprite: 50 }; // (where the HP bar goes over its feet)
 const rand = (a, b) => a + Math.random() * (b - a);
 
 export class Summons {
@@ -43,6 +45,7 @@ export class Summons {
       for (const [id, hits] of m.h) {
         const s = this.list.get(id);
         if (s) s.lunge = 1;
+        if (s?.what === 'totem') s.pulse = 1; // (SP4: the Warding Totem's pulse)
         rpg.othersHits(hits, mine?.x ?? s?.x ?? 0);
       }
     } else if (m.t === 'sumhurt') {
@@ -85,6 +88,7 @@ export class Summons {
       s.t += dt;
       s.flash = Math.max(0, s.flash - dt * 4);
       s.lunge = Math.max(0, s.lunge - dt * 4);
+      s.pulse = Math.max(0, (s.pulse ?? 0) - dt * 2);
     }
     this.puffs = this.puffs.filter((p) => this.rpg.time - p.at < 0.7);
   }
@@ -103,7 +107,7 @@ export class Summons {
       else if (s.what === 'seraph') seraph(ctx, s);
       else if (s.what === 'wisp') wisp(ctx, s);
       else if (s.what === 'totem') totem(ctx, s);
-      else if (s.what === 'sprite') spirit(ctx, s, SPRITE_SCALE, true);
+      else if (s.what === 'sprite') sprite(ctx, s);
       else if (s.what === 'phoenix') phoenix(ctx, s);
       else if (s.what === 'hawk') hawk(ctx, s);
       else if (s.what === 'guardian') guardian(ctx, s);
@@ -289,6 +293,17 @@ function totemRing(ctx, s) {
   ctx.ellipse(s.x, s.y - 2, r, 14, 0, 0, TAU);
   ctx.fill();
   ctx.stroke();
+  if (s.pulse > 0) { // (SP4: the Warding Totem's pulse, a golden ring running out to the edge)
+    const k = 1 - s.pulse;
+    ctx.setLineDash([]);
+    ctx.strokeStyle = `rgba(255,214,110,${s.pulse})`;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.ellipse(s.x, s.y - 2, Math.max(1, r * (0.2 + 0.8 * k)), Math.max(1, 14 * (0.3 + 0.7 * k)), 0, 0, TAU);
+    ctx.stroke();
+    ctx.fillStyle = `rgba(255,240,180,${0.5 * s.pulse})`;
+    ctx.fillRect(s.x - 3, s.y - 96, 6, 60);
+  }
   ctx.restore();
 }
 function totem(ctx, s) {
@@ -524,35 +539,119 @@ function hawk(ctx, s) {
   ctx.closePath();
   ctx.fill();
 }
-// The stone guardian: a squat golem of rounded grey blocks with moss on its shoulders and two glowing eyes; it
-// leans into a slam
+// The stone guardian (SP4's polish): a squat golem of rounded lilac-grey blocks, moss on its head and shoulder with a
+// little flower in it, a golden rune glowing on its chest, eyes that brighten as it winds up; it leans into a slam and
+// a ring of dust puffs out from its fist
 function guardian(ctx, s) {
   const lean = s.lunge * 8 * s.dir, x = s.x + lean + (s.flash ? rand(-1.5, 1.5) : 0), y = s.y, d = s.dir;
-  const step = Math.sin(s.t * 6) * 2;
+  const step = Math.sin(s.t * 6) * 2, glowK = 0.5 + 0.5 * Math.sin(s.t * 3);
   ctx.fillStyle = 'rgba(60,50,70,0.18)';
-  ellipse(ctx, x, y, 26, 5);
+  ellipse(ctx, x, y, 28, 5);
   ctx.strokeStyle = s.flash > 0 ? '#e0607a' : '#5a5668';
   ctx.lineWidth = 2;
   const block = (bx, by, w, h, c, r = 6) => {
-    ctx.fillStyle = c;
+    const g = ctx.createLinearGradient(0, by - h, 0, by);
+    g.addColorStop(0, '#e2deec');
+    g.addColorStop(1, c);
+    ctx.fillStyle = g;
     ctx.beginPath();
     ctx.roundRect(bx - w / 2, by - h, w, h, r);
     ctx.fill();
     ctx.stroke();
   };
-  block(x - 9, y + step * 0.5, 12, 14, '#a9a4b8'); // legs
-  block(x + 9, y - step * 0.5, 12, 14, '#a9a4b8');
-  block(x, y - 12, 40, 34, '#c4c0d2', 9); // body
-  block(x - d * 22, y - 18 + s.lunge * 6, 12, 26, '#b4afc4'); // arms
-  block(x + d * 24, y - 18 - s.lunge * 10, 13, 28, '#b4afc4');
-  block(x + d * 2, y - 44, 24, 18, '#d2cedd', 7); // head
-  ctx.fillStyle = '#8fd07a'; // moss
-  ellipse(ctx, x - 12, y - 46, 7, 3);
-  ellipse(ctx, x + 10, y - 45, 6, 2.6);
-  glow(ctx, x + d * 6, y - 53, 10, '150,230,255', 0.6);
+  block(x - 9, y + step * 0.5, 12, 14, '#a29db2'); // legs
+  block(x + 9, y - step * 0.5, 12, 14, '#a29db2');
+  block(x - d * 22, y - 18 + s.lunge * 6, 12, 26, '#aca7bd'); // the back arm
+  block(x, y - 12, 40, 34, '#bab5c9', 9); // body
+  // cracks and pebbles in the stone
+  ctx.strokeStyle = 'rgba(90,86,104,0.45)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(x - 14, y - 38);
+  ctx.lineTo(x - 10, y - 32);
+  ctx.lineTo(x - 12, y - 27);
+  ctx.moveTo(x + 13, y - 22);
+  ctx.lineTo(x + 9, y - 17);
+  ctx.stroke();
+  // the rune on its chest: a soft golden diamond with a star in it
+  glow(ctx, x + d * 2, y - 28, 14, '255,220,130', 0.35 + 0.3 * glowK + s.lunge * 0.3);
+  ctx.fillStyle = `rgba(255,226,140,${0.75 + 0.25 * glowK})`;
+  ctx.beginPath();
+  ctx.moveTo(x + d * 2, y - 36);
+  ctx.lineTo(x + d * 2 + 6, y - 28);
+  ctx.lineTo(x + d * 2, y - 20);
+  ctx.lineTo(x + d * 2 - 6, y - 28);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  circle(ctx, x + d * 2, y - 28, 1.8);
+  ctx.strokeStyle = s.flash > 0 ? '#e0607a' : '#5a5668';
+  ctx.lineWidth = 2;
+  block(x + d * 24, y - 18 - s.lunge * 10, 13, 28, '#aca7bd'); // the slamming arm
+  block(x + d * 2, y - 44, 24, 18, '#c8c3d6', 7); // head
+  ctx.fillStyle = '#8fd07a'; // moss, a flower in it
+  ellipse(ctx, x - 6 + d * 2, y - 61, 9, 3);
+  ellipse(ctx, x - d * 20, y - 44, 6, 2.6);
+  ctx.fillStyle = '#ffd0e0';
+  for (let i = 0; i < 5; i++) circle(ctx, x - 9 + d * 2 + Math.cos(i * 1.26) * 2.2, y - 64 + Math.sin(i * 1.26) * 2.2, 1.5);
+  ctx.fillStyle = '#ffe27a';
+  circle(ctx, x - 9 + d * 2, y - 64, 1.2);
+  const eye = 0.55 + 0.25 * glowK + s.lunge * 0.4;
+  glow(ctx, x + d * 6, y - 53, 11, '150,230,255', eye);
   ctx.fillStyle = '#7fe0ff'; // eyes
   ellipse(ctx, x + d * 1, y - 53, 2, 2.6);
   ellipse(ctx, x + d * 9, y - 53, 2, 2.6);
+  if (s.lunge > 0.05) { // the slam's dust ring in front of it
+    const k = 1 - s.lunge, fx = x + d * 34;
+    ctx.strokeStyle = `rgba(200,190,170,${s.lunge})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(fx, y - 2, 10 + k * 34, 3 + k * 6, 0, 0, TAU);
+    ctx.stroke();
+    ctx.fillStyle = `rgba(220,210,190,${s.lunge * 0.8})`;
+    for (let i = 0; i < 4; i++) circle(ctx, fx + (i - 1.5) * 12 * (0.5 + k), y - 6 - k * 14 * (i % 2 ? 1 : 0.6), 3 + k * 2);
+  }
+}
+// A sprite (SP4's polish): a small sky-blue spirit with two petal wings flapping fast, a star on a curly antenna and a
+// trail of sparkles behind it (the spirit's body, scaled down)
+function sprite(ctx, s) {
+  const sc = SPRITE_SCALE, bob = Math.sin(s.t * 5) * 3, x = s.x + s.lunge * 10 * s.dir, y = s.y - 10 + bob, d = s.dir;
+  for (let i = 0; i < 4; i++) { // sparkles trailing behind
+    const k = (s.t * 2 + i * 0.25) % 1;
+    ctx.fillStyle = `rgba(214,236,255,${0.8 * (1 - k)})`;
+    circle(ctx, x - d * (12 + k * 30), y - 10 + Math.sin(s.t * 6 + i * 2) * 4, 2.4 * (1 - k) + 0.6);
+  }
+  const flap = Math.sin(s.t * 26);
+  ctx.save();
+  ctx.translate(x - d * 2, y - 18 * sc);
+  ctx.fillStyle = 'rgba(226,242,255,0.6)';
+  ctx.strokeStyle = 'rgba(120,170,220,0.7)';
+  ctx.lineWidth = 1.2;
+  for (const sd of [-1, 1]) {
+    ctx.beginPath();
+    ctx.ellipse(sd * 7, -4, 8, 3.5 + flap * 1.5, sd * (0.6 + flap * 0.35), 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.restore();
+  ctx.save();
+  spirit(ctx, s, sc, true);
+  ctx.strokeStyle = 'rgba(70,120,170,0.8)'; // the antenna, in the body's scaled space
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(d * 2, -29);
+  ctx.quadraticCurveTo(d * 4, -40, d * 10, -42);
+  ctx.stroke();
+  glow(ctx, d * 10, -42, 9, '255,240,170', 0.7);
+  ctx.fillStyle = '#fff6c8';
+  ctx.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * TAU + s.t * 3, r = i % 2 ? 2 : 5;
+    ctx[i ? 'lineTo' : 'moveTo'](d * 10 + Math.cos(a) * r, -42 + Math.sin(a) * r);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 }
 // The blast trap: a round pad pegged on the ground with a glowing rune that pulses faster the longer it waits
 function blastTrap(ctx, s, time) {

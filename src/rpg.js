@@ -17,7 +17,7 @@ import { Party } from './party.js';
 import { StatusBox, statusOf } from './status.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, STAFF_BOLT_RANGE, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE, curseMult, heavyHit } from './shared/rpg.js';
-import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds, isLongBuff, DOTS, statOf, targetsOf, retriMult, EXEC_AT, STUN_S } from './shared/skills.js';
+import { SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds, isLongBuff, DOTS, statOf, targetsOf, retriMult, EXEC_AT, STUN_S, judgmentMult, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX } from './shared/skills.js';
 import { drawMobState } from './elements.js';
 import { staffGlow } from './staff-art.js';
 import { bowTint } from './bow-art.js';
@@ -45,7 +45,9 @@ const SKILL_SOUND = Object.fromEntries(Object.entries({
   shot: (id) => (id === 'snipe' ? 'snipe' : 'bowShot'), pierce: (id) => (id === 'heartseeker' ? 'snipe' : 'pierce'), rain: 'arrowRain', mark: 'mark',
 }).map(([k, v]) => [k, typeof v === 'function' ? v : () => v]));
 // a long buff's look as it's cast (SP2's War Cry, SP3's Arcane Insight and Frost Armor; else a party ring or a glow)
-const buffLook = (id, sk) => ({ war_cry: 'warcry', arcane_insight: 'insight', frost_armor: 'frostarmor' })[id] ?? (sk.party ? 'rally' : 'buff');
+// (SP4: the Cleric's three in one golden look, `v` picks its sign: a heart, a star, a shield)
+const buffLook = (id, sk) => ({ war_cry: 'warcry', arcane_insight: 'insight', frost_armor: 'frostarmor', blessing: 'bless', holy_symbol: 'bless', resolve: 'bless' })[id] ?? (sk.party ? 'rally' : 'buff');
+const BLESS_V = { blessing: 'heart', holy_symbol: 'star', resolve: 'shield' };
 const kickFrom = (me, mx, knock) => ({ vx: Math.sign(me.x - mx || 1) * knock, vy: -Math.min(420, knock * 1.1) });
 
 export class Rpg {
@@ -80,6 +82,7 @@ export class Rpg {
     this.timed = []; // [time, fn]: follow-ups (a geyser erupting, a bomb going off…)
     this.still = null; // Chronos's Time Stop: { x0, until, mob } while we must not move
     this.slimeOf = () => null;
+    this.hurtNear = () => 0; // (x, r, at) → slimes we can see within r of x under `at` of their HP, us too (main.js: Judgment, SP4)
     this.selected = -1;
     this.assign = null; // { bar: 'skill' | 'pot', id }: choosing a hotbar slot for this
     this.el = document.getElementById('inv');
@@ -155,6 +158,7 @@ export class Rpg {
       }
     } else if (m.t === 'thirst') {
       const s = slimeOf(m.id);
+      if (s?.maxHp) s.hp = Math.min(s.maxHp, (s.hp ?? s.maxHp) + m.n); // (their HP as we last heard it: Judgment counts the hurt, SP4)
       if (s && s.visible !== false) this.pop(s.x, s.y - 64, `+${m.n}`, '#7fe0a0', 15);
     } else if (m.t === 'reborn') {
       // someone came out of the Rebirth Pool as a new class: the splash (onReborn, src/rebirth.js) and a sound
@@ -578,12 +582,15 @@ export class Rpg {
     const retri = sk.stun ? retriMult(m.skills, m.retri, m.atk) : 0;
     if (sk.stun) m.retri = 0;
     const low = (v) => (sk.exec && v.maxHp && v.hp <= v.maxHp * EXEC_AT ? sk.exec(rank) : 1);
+    // SP4: Judgment hits harder for every hurt slime near (we count what we can see; the server caps with its own count)
+    const judged = sk.judge ? Math.min(JUDGMENT_MAX, this.hurtNear(me.x, JUDGMENT_R, JUDGMENT_AT)) : 0;
+    const judge = sk.judge ? judgmentMult(m.skills, judged) : 1;
     const hit = (v, base, delay = 0, extra = 1) => {
       if (sk.combust && v.burning) [extra, v.burnLocal] = [extra * sk.combust(rank), 0]; // (SP3: Combustion sets the burn off; the server's echo shows the blast)
       const cut = this.shellCut(v, sx);
       const shatter = sk.el === 'fire' && !!v.frozen; // fire on a frozen mob (the Mage's combos)
       const [pm, weak] = this.party.mod(v, { ...kinds, heavy: kinds.heavy || shatter }, sy, sx);
-      let [dmg, crit] = this.roll(base, mult * extra * this.markOn(v) * (shatter ? SHATTER_MULT : 1));
+      let [dmg, crit] = this.roll(base, mult * extra * judge * this.markOn(v) * (shatter ? SHATTER_MULT : 1));
       dmg = Math.max(1, Math.round(dmg * cut * pm));
       if (!delay) this.blocked(v, cut);
       msg.hits.push(weak ? [v.id, dmg, crit, shatter ? 1 : 0, 1] : shatter ? [v.id, dmg, crit, 1] : [v.id, dmg, crit]);
@@ -674,13 +681,14 @@ export class Rpg {
           if (sk.slow) v.slowLocal = this.time + dur + sk.slow;
           hit(v, mag, dur);
           setTimeout(() => audio.sfx('boltHit', { pan: panX(tx, sx) }), dur * 1000);
+          if (judged && mine) this.pop(v.x, v.y - MOBS[v.kind].h - 40, `JUDGMENT x${judged}`, '#ffe08a', 16, dur);
         }
         this.boltFx(id, sk, sx, sy, tx, ty, dur, !!v);
       } else {
         const fy = v ? v.y : 450; // the blast is on the floor under the target
         for (const t of this.around(tx, fy, sk.radius, true)) hit(t, mag, sk.delay);
         setTimeout(() => audio.sfx('meteorHit', { pan: panX(tx, sx) }), sk.delay * 1000);
-        this.fx.spawn('meteor', { x: tx, y: fy, radius: sk.radius, delay: sk.delay });
+        this.fx.spawn(sk.anim === 'sacred' ? 'sacred' : 'meteor', { x: tx, y: fy, radius: sk.radius, delay: sk.delay }); // (SP4: Sacred Light's column)
       }
     } else if (sk.kind === 'chain') {
       // a bolt to the first mob ahead, then leaping to the nearest mob not yet hit
@@ -707,9 +715,9 @@ export class Rpg {
       }
       this.fx.spawn('nova', { x: sx, y: sy, radius: sk.radius });
     } else if (sk.kind === 'starfall') {
-      const hits = this.around(sx, sy, sk.radius);
-      hits.forEach((v, n) => hit(v, mag, 0.3 + 0.08 * n));
-      this.fx.spawn('starfall', { x: sx, y: sy, radius: sk.radius, targets: hits.map((v) => ({ x: v.x, y: v.y })) });
+      const hits = sk.whole ? this.targets().slice(0, 40) : this.around(sx, sy, sk.radius); // (SP4: Genesis, every mob in the room)
+      hits.forEach((v, n) => hit(v, mag, 0.3 + (sk.whole ? 0.04 : 0.08) * n));
+      this.fx.spawn(sk.anim === 'genesis' ? 'genesis' : 'starfall', { x: sx, y: sy, radius: sk.radius, targets: hits.map((v) => ({ x: v.x, y: v.y })) });
     } else if (sk.kind === 'heal' || sk.kind === 'mend' || sk.kind === 'miracle') {
       this.fx.spawn('heal', { x: sx, y: sy, radius: Math.min(sk.radius, 400), targets: [{ x: sx, y: sy }] });
     } else if (sk.kind === 'barrier') {
@@ -732,7 +740,7 @@ export class Rpg {
       this.fx.spawn('nova', { x: msg.tx ?? sx, y: (msg.ty ?? sy) + 10, radius: 50, tint: sk.el === 'fire' ? 'fire' : sk.el === 'frost' ? undefined : 'mana' });
     } else if (isLongBuff(sk)) {
       // SP1's long buffs: the status box shows them once the server's 'me' says so
-      this.fx.spawn(buffLook(id, sk), { x: sx, y: sy, radius: sk.party });
+      this.fx.spawn(buffLook(id, sk), { x: sx, y: sy, radius: sk.party, v: BLESS_V[id] });
     } else if (sk.kind === 'buff') {
       if (mine) mine.berserkUntil = this.time + sk.dur;
       this.fx.spawn('buff', { x: sx, y: sy });
@@ -765,7 +773,8 @@ export class Rpg {
   boltFx(id, sk, x, y, tx, ty, dur, hit) {
     if (sk.stat === 'best') return this.fx.spawn('staffbolt', { x: x + 8 * Math.sign(tx - x), y: y - 24, tx, ty, dur: dur * 1.4, hit, tint: '214,196,170' });
     if (sk.anim === 'flamelance') return this.fx.spawn('flamelance', { x, y: y - 22, tx, ty, dur, hit }); // (SP3)
-    this.fx.spawn('bolt', { x, y: y - 22, tx, ty, dur, hit, tint: sk.anim === 'combust' ? '255,110,60' : sk.fire ? '255,150,80' : sk.ice ? '160,225,255' : sk.holy ? '255,232,150' : sk.anim === 'arcane' ? '190,150,255' : undefined });
+    if (sk.anim === 'judgment') this.timed.push([this.time + dur, () => this.fx.spawn('judgment', { x: tx, y: ty + 20, hit })]); // (SP4: a blade of light comes down where it lands)
+    this.fx.spawn('bolt', { x, y: y - 22, tx, ty, dur, hit, tint: sk.anim === 'judgment' ? '255,214,110' : sk.anim === 'combust' ? '255,110,60' : sk.fire ? '255,150,80' : sk.ice ? '160,225,255' : sk.holy ? '255,232,150' : sk.anim === 'arcane' ? '190,150,255' : undefined });
     if (sk.kind === 'fireball') this.timed.push([this.time + dur, () => this.fx.spawn('nova', { x: tx, y: ty + 18, radius: sk.radius, tint: sk.anim === 'arcane' ? 'mana' : 'fire' })]);
   }
 
@@ -829,6 +838,10 @@ export class Rpg {
     }
     if (m.id === myId || !caster || caster.visible === false) return;
     const x = caster.x, y = caster.y, vol = 0.6, pan = panX(x, myX);
+    if (m.judged && m.hits?.length) { // (SP4: Judgment, stronger for the hurt near)
+      const v = this.views.get(m.hits[0][0]);
+      if (v) this.pop(v.x, v.y - MOBS[v.kind].h - 40, `JUDGMENT x${m.judged}`, '#ffe08a', 14, Math.abs((m.tx ?? x) - x) / 900);
+    }
     if (m.arcane) this.pop(x, y - 112, `ARCANE x${m.arcane}`, '#c4cdff', 14);
     if (sk.kind === 'buff' && !isLongBuff(sk)) caster.berserkUntil = this.time + (m.dur ?? 20);
     if (sk.kind === 'bubble') caster.bubbleUntil = this.time + (m.dur ?? 8);
@@ -839,15 +852,15 @@ export class Rpg {
     else if (sk.kind === 'storm') this.fx.spawn('storm', { x, y, radius: sk.radius, hits: sk.hits, follow });
     else if (sk.kind === 'bolt' || sk.kind === 'fireball') this.boltFx(m.skill, sk, x, y, m.tx, m.ty, Math.abs(m.tx - x) / 900 + 0.05, m.hits.length > 0);
     else if (sk.kind === 'shield' && m.on) this.fx.spawn('nova', { x, y, radius: 70, tint: 'mana' });
-    else if (sk.kind === 'meteor') this.fx.spawn('meteor', { x: m.tx, y: 450, radius: sk.radius, delay: sk.delay });
+    else if (sk.kind === 'meteor') this.fx.spawn(sk.anim === 'sacred' ? 'sacred' : 'meteor', { x: m.tx, y: sk.anim === 'sacred' ? m.ty ?? y : 450, radius: sk.radius, delay: sk.delay });
     else if (sk.kind === 'chain' && m.points) this.fx.spawn(sk.anim === 'thunder' ? 'thunder' : 'chain', { points: m.points.map(([px, py]) => ({ x: px, y: py })) });
     else if (sk.kind === 'nova') this.fx.spawn('nova', { x, y, radius: sk.radius });
-    else if (sk.kind === 'starfall') this.fx.spawn('starfall', { x, y, radius: sk.radius, targets: m.hits.map(([id]) => this.views.get(id)).filter(Boolean).map((v) => ({ x: v.x, y: v.y })) });
+    else if (sk.kind === 'starfall') this.fx.spawn(sk.anim === 'genesis' ? 'genesis' : 'starfall', { x, y, radius: sk.radius, targets: m.hits.map(([id]) => this.views.get(id)).filter(Boolean).map((v) => ({ x: v.x, y: v.y })) });
     else if (sk.kind === 'heal' || sk.kind === 'miracle') this.fx.spawn('heal', { x, y, radius: Math.min(sk.radius, 400), targets: (m.heals ?? []).map(([pid]) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'mend' || sk.kind === 'revive' || sk.kind === 'cleanse') this.fx.spawn('heal', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'barrier') this.fx.spawn('barrier', { x, y, radius: sk.radius, targets: (m.targets ?? []).map((pid) => slimeOf(pid)).filter(Boolean).map((s) => ({ x: s.x, y: s.y })) });
     else if (sk.kind === 'summon' && m.sx !== undefined) this.summons.called(m.sx, m.sy, sk.what);
-    else if (isLongBuff(sk)) this.fx.spawn(buffLook(m.skill, sk), { x, y, radius: sk.party }); // (SP1)
+    else if (isLongBuff(sk)) this.fx.spawn(buffLook(m.skill, sk), { x, y, radius: sk.party, v: BLESS_V[m.skill] }); // (SP1)
     else if (sk.kind === 'field') this.fx.spawn('nova', { x: m.tx ?? x, y: (m.ty ?? y) + 10, radius: 50, tint: sk.el === 'fire' ? 'fire' : sk.el === 'frost' ? undefined : 'mana' });
     else if (sk.onKill?.what === 'ricochet' && m.hits?.length) { // (SP1: someone's arrow jumping off a kill)
       const v = this.views.get(m.hits[0][0]);

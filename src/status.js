@@ -31,7 +31,10 @@ export function statusOf(rpg, mine) {
   if ((mine.barrierUntil ?? 0) > t && m.barrier > 0) out.push({ key: 'barrier', icon: 'barrier', name: `Barrier: soaks ${m.barrier} more damage`, left: mine.barrierUntil - t, n: m.barrier });
   timed('mend', 'mend', 'Mend: healing every second', fromMe(m.mend));
   // SP1's long buffs (yours and friends'): me.buffs = [[skill id, ms left, rank]]
-  for (const [id, ms, rank] of m.buffs ?? []) if (SKILLS[id]) timed(`buff:${id}`, id, `${SKILLS[id].name}: ${fxText(SKILLS[id].fx?.(rank))}`, fromMe(ms));
+  // (SP4: a buff whose effect isn't a plain one says it in `buffText`: Resolve)
+  for (const [id, ms, rank] of m.buffs ?? []) if (SKILLS[id]) timed(`buff:${id}`, id, `${SKILLS[id].name}: ${SKILLS[id].buffText?.(rank) ?? fxText(SKILLS[id].fx?.(rank))}`, fromMe(ms));
+  // SP4: Devotion's ward, me.devo = [amount, ms left]
+  if (m.devo?.[0] > 0) timed('devo', 'devotion', `Devotion's ward: soaks ${m.devo[0]} more damage (not an ultimate)`, fromMe(m.devo[1]), { n: m.devo[0] });
   if (m.brew && ITEMS[m.brew.id]) timed('brew', `item:${m.brew.id}`, ITEMS[m.brew.id].name, fromMe(m.brew.left));
   timed('draught', 'item:barrier_draught', 'Barrier Draught: takes the next boss pulse whole', fromMe(m.draught)); // (S5.5)
   if (m.shield) out.push({ key: 'shield', icon: 'mana_shield', name: 'Mana Shield: on (cast it again to turn it off)' });

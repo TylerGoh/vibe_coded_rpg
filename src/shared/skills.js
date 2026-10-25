@@ -482,6 +482,17 @@ export const SKILLS = {
     power: () => 0.3,
     desc: () => 'Lift every curse off the nearest cursed friend within range 300 (or off you) and heal them for 30% of your MAGIC. A curse comes from a boss fought by a party: it softens your hits and burns.',
   },
+  // SP4 (story/skills-plan.md): the basics' mobbing staple (a light that follows you) and long party buff
+  radiance: {
+    ...C, adv: 10, name: 'Radiance', kind: 'field', at: 'self', follow: true, shape: 'round', look: 'radiance', max: 3, mp: 14, cd: 12, radius: 120, dur: 4, every: 0.5,
+    mult: (r) => 0.12 + 0.03 * r, heal: (r) => 0.02 + 0.01 * r,
+    desc: (r) => `You shine for ${SKILLS.radiance.dur} s: every mob within range ${SKILLS.radiance.radius} of you takes ${pct(SKILLS.radiance.mult(R1(r)))} magic damage every ${SKILLS.radiance.every} s, and every friend in the light heals ${pct(SKILLS.radiance.heal(R1(r)))} of your MAGIC. It moves with you. Cooldown ${SKILLS.radiance.cd} s.`,
+  },
+  blessing: {
+    ...C, adv: 10, name: 'Blessing', kind: 'buff', max: 3, mp: 20, cd: 30, dur: 240, party: 300,
+    fx: (r) => ({ hp: 0.04 * r, atk: 0.01 * r, magic: 0.01 * r }),
+    desc: (r) => `A blessing that lasts: +${pct(SKILLS.blessing.fx(R1(r)).hp)} max HP and +${pct(SKILLS.blessing.fx(R1(r)).atk)} attack and magic power for you and every friend within range ${SKILLS.blessing.party}, for 4 min.`,
+  },
   // Priest (heals)
   mend: {
     ...C, branch: 'priest', adv: 30, name: 'Mend', kind: 'mend', max: 3, mp: 20, cd: 12, radius: 260, dur: 10,
@@ -493,6 +504,17 @@ export const SKILLS = {
     power: (r) => 0.08 + 0.03 * r,
     desc: (r) => `A little lantern spirit for 30 s. It floats to whichever friend near you is hurt worst (or you) and every second heals everyone within range ${WISP_R} of it for ${pct(0.08 + 0.03 * Math.max(1, r))} of your MAGIC. Nothing can hit it.`,
   },
+  // SP4: the Priest's mobbing staple at range, and overhealing that isn't wasted
+  sacred_light: {
+    ...C, branch: 'priest', adv: 30, name: 'Sacred Light', kind: 'meteor', anim: 'sacred', holy: true, max: 3, mp: 18, cd: 7, range: 420, radius: 110, delay: 0.35,
+    mult: (r) => 1.1 + 0.15 * r, selfPer: (r) => 0.03 + 0.01 * r, // (selfPer: × MAGIC healed on you for each mob it hits)
+    desc: (r) => `A column of light comes down on the first mob ahead (range ${SKILLS.sacred_light.range}): ${pct(SKILLS.sacred_light.mult(R1(r)))} magic damage to every mob within range ${SKILLS.sacred_light.radius} of it, and you heal ${pct(SKILLS.sacred_light.selfPer(R1(r)))} of your MAGIC for each mob it hits. Cooldown ${SKILLS.sacred_light.cd} s.`,
+  },
+  devotion: {
+    ...C, branch: 'priest', adv: 30, name: 'Devotion', kind: 'passive', max: 3,
+    share: (r) => 0.25 * r, // (share of the overheal that becomes a ward; DEVOTION_CAP, DEVOTION_S)
+    desc: (r) => `Healing past full isn't wasted: ${pct(SKILLS.devotion.share(R1(r)))} of what your heals would overheal becomes a ward on that friend for ${DEVOTION_S} s (at most ${pct(DEVOTION_CAP)} of their max HP). It soaks hits like a Barrier, but never a boss's ultimate.`,
+  },
   revive: {
     ...C, branch: 'priest', adv: 60, name: 'Revive', kind: 'revive', max: 3, mp: 40, radius: 220,
     cdFor: (r) => [0, 90, 70, 50][r], share: (r) => 0.2 + 0.1 * r,
@@ -500,12 +522,33 @@ export const SKILLS = {
   },
   holy_power: {
     ...C, branch: 'priest', adv: 60, name: 'Holy Power', kind: 'passive', max: 5,
-    desc: (r) => `Your heals (Jelly Heal, Mend, Miracle, the Lantern Wisp, the holy bolt's) and Smite's holy light are ${8 * r}% stronger.`,
+    desc: (r) => `Your heals (Jelly Heal, Mend, Miracle, the Lantern Wisp, the holy bolt's) and your holy light (Smite, Sacred Light, Judgment, Genesis) are ${8 * r}% stronger.`,
+  },
+  // SP4: holy ground, a bolt for the hurt, and the party's EXP buff
+  consecration: {
+    ...C, branch: 'priest', adv: 60, name: 'Consecration', kind: 'field', at: 'self', shape: 'strip', look: 'holy', max: 3, mp: 30, cd: 16, radius: 170, dur: 8, every: 0.5,
+    mult: (r) => 0.15 + 0.03 * r, heal: (r) => 0.04 + 0.01 * r,
+    desc: (r) => `Holy ground where you stand for ${SKILLS.consecration.dur} s, ${SKILLS.consecration.radius * 2} wide: every mob on it takes ${pct(SKILLS.consecration.mult(R1(r)))} magic damage every ${SKILLS.consecration.every} s, and every friend on it heals ${pct(SKILLS.consecration.heal(R1(r)))} of your MAGIC. Cooldown ${SKILLS.consecration.cd} s.`,
+  },
+  judgment: {
+    ...C, branch: 'priest', adv: 60, name: 'Judgment', kind: 'bolt', anim: 'judgment', holy: true, max: 3, mp: 22, cd: 7, range: 450,
+    mult: (r) => 1.8 + 0.2 * r, judge: (r) => 0.1 + 0.05 * r, lightHeal: () => 0.2, // (judge: + this × for each hurt slime near, JUDGMENT_*)
+    desc: (r) => `A holy bolt at the first mob ahead (range ${SKILLS.judgment.range}): ${pct(SKILLS.judgment.mult(R1(r)))} magic damage, +${pct(SKILLS.judgment.judge(R1(r)))} for every slime within range ${JUDGMENT_R} under ${pct(JUDGMENT_AT)} HP (you too, up to ${JUDGMENT_MAX}). ${pct(SKILLS.judgment.lightHeal(R1(r)))} of the damage heals the friend nearest you who's hurt (or you). Cooldown ${SKILLS.judgment.cd} s.`,
+  },
+  holy_symbol: {
+    ...C, branch: 'priest', adv: 60, name: 'Holy Symbol', kind: 'buff', max: 3, mp: 30, cd: 30, dur: 240, party: 300,
+    fx: (r) => ({ exp: HOLY_SYMBOL_EXP * r }),
+    desc: (r) => `A sign of light over the party that lasts: +${pct(SKILLS.holy_symbol.fx(R1(r)).exp)} EXP from every kill for you and every friend within range ${SKILLS.holy_symbol.party}, for 4 min.`,
   },
   miracle: {
     ...C, branch: 'priest', adv: 100, name: 'Miracle', kind: 'miracle', max: 3, mp: 80, cd: 120, radius: 600,
     power: (r) => 2 + 0.5 * r,
     desc: (r) => `Every friend within range 600, you too, heals ${pct(2 + 0.5 * Math.max(1, r))} of your MAGIC, and every knocked-out friend there gets back up with full HP. Cooldown 120 s.`,
+  },
+  genesis: { // SP4: `whole` hits every mob in the room (the client takes every mob it sees, the server the room's width)
+    ...C, branch: 'priest', adv: 100, name: 'Genesis', kind: 'starfall', whole: true, anim: 'genesis', holy: true, max: 3, mp: 70, cd: 60, radius: 2000,
+    mult: (r) => 1.6 + 0.3 * r, lightHeal: () => 0.1,
+    desc: (r) => `Light falls on every mob in the area: ${pct(SKILLS.genesis.mult(R1(r)))} magic damage each, and ${pct(SKILLS.genesis.lightHeal(R1(r)))} of it heals the friend nearest you who's hurt (or you). Cooldown ${SKILLS.genesis.cd} s.`,
   },
   // Warden (spirits, the totem, barriers)
   guardian_totem: {
@@ -518,14 +561,41 @@ export const SKILLS = {
     power: (r) => 0.6 + 0.2 * r,
     desc: (r) => `You and every friend within range 240 get a barrier for 10 s that soaks up ${pct(0.6 + 0.2 * Math.max(1, r))} of your MAGIC in damage. A boss's ultimate breaks it instead of knocking you out: cast it just before.`,
   },
+  // SP4: the Warden's mobbing staple (three little spirits) and a totem that fights back
+  sprites: {
+    ...C, branch: 'warden', adv: 30, name: 'Sprites', kind: 'summon', what: 'sprite', count: 3, max: 3, mp: 24, cd: 18, dur: 18,
+    mult: (r) => 0.16 + 0.03 * r, life: (r) => 0.25 + 0.05 * r, lightHeal: () => SUMMON_LIGHT,
+    desc: (r) => `Call ${SKILLS.sprites.count} little sky spirits for ${SKILLS.sprites.dur} s, each going after a different mob (with one mob near, the others stay by you): ${pct(SKILLS.sprites.mult(R1(r)))} of your MAGIC a hit every second, and ${pct(SUMMON_LIGHT)} of what they do heals the friend nearest you who's hurt (or you). They draw mobs off you, and have ${pct(SKILLS.sprites.life(R1(r)))} of your max HP each. Cooldown ${SKILLS.sprites.cd} s.`,
+  },
+  warding_totem: {
+    ...C, branch: 'warden', adv: 30, name: 'Warding Totem', kind: 'passive', max: 3,
+    mult: (r) => 0.15 + 0.05 * r, // (× MAGIC every WARD_PULSE_S on every mob in the totem's ring)
+    desc: (r) => `Your Guardian Totem pulses light every ${WARD_PULSE_S} s: every mob within its ring takes ${pct(SKILLS.warding_totem.mult(R1(r)))} of your MAGIC, and ${pct(SUMMON_LIGHT)} of it heals the friend nearest you who's hurt (or you).`,
+  },
   spirit_bond: {
     ...C, branch: 'warden', adv: 60, name: 'Spirit Bond', kind: 'passive', max: 5,
     desc: (r) => `Your spirits and your totem have ${12 * r}% more HP and your spirits hit ${6 * r}% harder. From rank ${BOND_TWO}: two Jelly Spirits at once.`,
+  },
+  // SP4: the Warden's boss staple (a golem that holds the boss) and a long buff for friends by your summons
+  stone_guardian: {
+    ...C, branch: 'warden', adv: 60, name: 'Stone Guardian', kind: 'summon', what: 'guardian', max: 3, mp: 35, cd: 30, dur: 25, radius: 220, every: 2,
+    mult: (r) => 0.8 + 0.2 * r, life: (r) => 1.5 + 0.5 * r, lightHeal: () => SUMMON_LIGHT,
+    desc: (r) => `Raise a stone golem for ${SKILLS.stone_guardian.dur} s. It walks to the mob in front of you, taunts every mob within range ${SKILLS.stone_guardian.radius} of it (a boss too) and slams what's in front of it every ${SKILLS.stone_guardian.every} s for ${pct(SKILLS.stone_guardian.mult(R1(r)))} of your MAGIC; ${pct(SUMMON_LIGHT)} of that heals the friend nearest you who's hurt (or you). It has ${pct(SKILLS.stone_guardian.life(R1(r)))} of your max HP. Cooldown ${SKILLS.stone_guardian.cd} s.`,
+  },
+  resolve: {
+    ...C, branch: 'warden', adv: 60, name: 'Resolve', kind: 'buff', max: 3, mp: 25, cd: 30, dur: 240, party: 300,
+    fx: () => ({}), cut: (r) => 0.06 + 0.03 * r, // (no plain effect: the cut works only near your summons, RESOLVE_R, server/rpg.js hurt)
+    buffText: (r) => `${pct(SKILLS.resolve.cut(R1(r)))} less damage taken near the Warden's summons`,
+    desc: (r) => `Steady hearts that last: you and every friend within range ${SKILLS.resolve.party} take ${pct(SKILLS.resolve.cut(R1(r)))} less damage while standing within range ${RESOLVE_R} of any of your summons (spirits, sprites, the totem, the guardian, the Seraph), for 4 min.`,
   },
   seraph: {
     ...C, branch: 'warden', adv: 100, name: 'Seraph', kind: 'summon', what: 'seraph', max: 3, mp: 70, cd: 90, dur: 20,
     mult: (r) => 0.6 + 0.15 * r, life: (r) => 2 + r,
     desc: (r) => `Call a great winged spirit for 20 s. Every mob within range ${SERAPH_TAUNT} goes after it, and every second it hits every mob within range ${SERAPH_R} of it for ${pct(0.6 + 0.15 * Math.max(1, r))} of your MAGIC. It has ${pct(2 + Math.max(1, r))} of your max HP.`,
+  },
+  host: {
+    ...C, branch: 'warden', adv: 100, name: 'Host', kind: 'passive', max: 1,
+    desc: () => 'One more of every summon at a time: two totems, two guardians, two Seraphs, four sprites, a spirit more.',
   },
 
   // ——— Archer (bow, DEX; S4, story/progression.md 4). Every arrow is on ATK ———
@@ -715,7 +785,7 @@ export const fxText = (fx) => Object.entries(fx ?? {}).filter(([k, v]) => v && B
 // `el`: it chills / burns like a spell (the Mage's combos) · `heal(rank)` × MAGIC × Holy Power heals every friend inside
 // each tick · `look`: how it's drawn (FIELD_LOOKS; from el / heal when unset). One per skill per caster (a recast
 // replaces it); it ends early if its caster leaves the room. `follow` (SP2's Cyclone): it moves with its caster.
-export const FIELD_TALL = 90, FIELD_LOOKS = ['plain', 'fire', 'frost', 'holy', 'poison', 'blade']; // (blade: SP2's Cyclone)
+export const FIELD_TALL = 90, FIELD_LOOKS = ['plain', 'fire', 'frost', 'holy', 'poison', 'blade', 'radiance']; // (blade: SP2's Cyclone; radiance: SP4's)
 export const fieldLook = (sk) => sk.look ?? (sk.el === 'fire' ? 'fire' : sk.el === 'frost' ? 'frost' : sk.heal ? 'holy' : 'plain');
 // Damage over time (SP1 widened the Mage's burn): `dot: { kind: 'bleed' | 'poison', share(rank) }` on a hitting skill
 // leaves each mob it hits losing share × the hit's damage a second for DOTS[kind].s (a fresh one keeps the stronger
@@ -754,8 +824,8 @@ export const SUMMON_KINDS = {
   phoenix: { fly: true }, sprite: { hurt: true }, guardian: { hurt: true }, hawk: { fly: true }, blast: { planted: true },
 };
 export const PHOENIX_SEEK = 360, GUARDIAN_TAUNT_S = 2, GUARDIAN_SPEED = 120, HAWK_RANGE = 520, SPRITE_SCALE = 0.55;
-// how many of summon `what` one caster can have up (Spirit Bond's two spirits; sprites come `count` at a time)
-export const summonCap = (sk, skills) => (sk.what === 'spirit' ? spiritCap(skills) : sk.count ?? 1);
+// how many of summon `what` one caster can have up (Spirit Bond's two spirits; sprites come `count` at a time; Host: one more)
+export const summonCap = (sk, skills) => (sk.what === 'spirit' ? spiritCap(skills) : sk.count ?? 1) + (sk.cls === 'cleric' ? rankOf(skills, 'host') : 0); // (SP4: Host, one more)
 // the stat a skill hits with: `stat` ('atk' | 'magic' | 'best'), else the class's (Warrior and Archer ATK, the staff classes MAGIC)
 export const statOf = (sk, st) => (sk.stat === 'atk' ? st.atk : sk.stat === 'magic' ? st.magic : sk.stat === 'best' ? Math.max(st.atk, st.magic) : sk.cls === 'warrior' || sk.cls === 'archer' ? st.atk : st.magic);
 // a heal's size: Jelly Patch's flat `amount`, else `power` × MAGIC × Holy Power (st: statsFor)
@@ -792,6 +862,20 @@ export const targetsOf = (sk, rank) => (typeof sk.targets === 'function' ? sk.ta
 // echo's `charged` draws it, no mob flag left); frost (not a field's soft chill) on a charged mob freezes it at once.
 // Frost Armor (`chills` on a long buff): a mob that touches you is chilled (server ouch).
 export const staticS = (skills) => SKILLS.static.charge(rankOf(skills, 'static')); // (0: no Static)
+// ——— SP4, the Cleric's skill pool (story/skills-plan.md) ———
+// Holy Symbol: +HOLY_SYMBOL_EXP EXP from kills a rank (a faucet: scripts/economy.mjs folds it into the pace).
+// Devotion: share(rank) of a heal's overheal becomes a ward (q.devo on the server, soaked after the Barrier, never an
+// ultimate) for DEVOTION_S s, at most DEVOTION_CAP × that slime's max HP. Judgment: + judge(rank) × for every slime
+// within JUDGMENT_R under JUDGMENT_AT of its HP (the caster too), up to JUDGMENT_MAX (the client counts what it
+// sees, the server caps with its own count). `lightHeal(rank)` on a Cleric damage skill or summon: that share of its
+// damage heals the hurt friend nearest the caster within HOLY_BOLT_HEAL_R, else the caster (the holy bolt's rule);
+// SUMMON_LIGHT for the summons and the Warding Totem's pulse (every WARD_PULSE_S on the mobs in the totem's ring).
+// `selfPer(rank)` (Sacred Light): × MAGIC healed on the caster for each mob hit. Resolve: `cut(rank)` off damage
+// taken while within RESOLVE_R of any of its Warden's summons. Host: summonCap + 1 for every summon.
+export const HOLY_SYMBOL_EXP = 0.04, DEVOTION_S = 8, DEVOTION_CAP = 0.25, JUDGMENT_R = 400, JUDGMENT_AT = 0.8, JUDGMENT_MAX = 4;
+export const SUMMON_LIGHT = 0.15, WARD_PULSE_S = 2, RESOLVE_R = 260;
+// Judgment's × given how many hurt slimes are near (n, capped)
+export const judgmentMult = (skills, n) => 1 + (SKILLS.judgment.judge(rankOf(skills, 'judgment') || 1)) * Math.max(0, Math.min(JUDGMENT_MAX, n | 0));
 export const retriMult = (skills, stored, atk) => (rankOf(skills, 'retribution') && stored > 0 && atk > 0 ? Math.min(RETRI_CAP, (stored * SKILLS.retribution.share(rankOf(skills, 'retribution'))) / atk) : 0);
 // The chase moves' ranks, packed for the physics (sim.js step reads state.mw): bits 0–1 Charge · 2–3 Leap
 // Slam · 4–5 Upward Cut · 6–7 Retreat Shot (the Archer's, S4: sim.js retreatOpen) · 8–9 Hook (SP2)

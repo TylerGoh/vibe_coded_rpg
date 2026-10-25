@@ -321,7 +321,9 @@ and in a party its heals, shields and summons matter more than its damage. Rules
   `every`; it's worn down like a spirit. The **blast trap** (`blast`) is set like a net; the first mob over it sets
   it off on everything within its radius (`sumgone` with `how: 'boom'`). Every summon's hit is `summonHit`: MAGIC,
   or the skill's `stat`. Art (`src/summons.js`) is a first look for SP2–SP5 to polish: a golden firebird with flame wings, a
-  plumed crest and a streaming tail of tongues and embers (SP3's polish), a brown hawk, sky-blue small spirits, a mossy block golem, a pad with a glowing rune.
+  plumed crest and a streaming tail of tongues and embers (SP3's polish), a brown hawk, sky-blue small spirits with petal wings, a star
+  on a curly antenna and a sparkle trail (SP4's polish), a mossy block golem with a glowing golden rune on its chest, a flower in its
+  moss, eyes that brighten as it winds up and a dust ring when it slams (SP4's polish), a pad with a glowing rune.
 - **The damage meter** shows healing done and damage taken under the damage (`docs/combat/bosses.md`).
 
 ## The Archer (S4)
@@ -486,6 +488,38 @@ fields the pack walks into, and its packs chain-react (a burning or frozen kill 
   The mob flag bits are full, so the echo's `charged` + `cs` draws it, `v.staticLocal`, sparks over the body, and
   `predictEl` treats a charged mob like a chilled one).
 - The economy sheet: `docs/economy.md`, "The Mage's skill pool (SP3)" (its staples swap on the sheet's hotbar).
+
+## The Cleric's skill pool (SP4)
+`story/skills-plan.md`, the Cleric table. Numbers in `SKILLS`; the new small rules and constants from `HOLY_SYMBOL_EXP`
+on in `src/shared/skills.js`. Every new skill has an icon (`ICONS`, `TREE_OF`: all in the holy palette) and the long
+buffs show in the status box. The Cleric mobs **with summons and holy ground**, slowest at it but never in danger, and
+**every Cleric damage skill heals a little**: a field's `heal`, Sacred Light's `selfPer` (× MAGIC on you for each mob
+hit), and `lightHeal` (a share of the damage on the hurt friend nearest you, else you: the holy bolt's rule, `lightHeal`
+in `server/rpg.js`, which the holy bolt now uses too; `SUMMON_LIGHT` for the summons and the Warding Totem's pulse).
+Looks: `FX.sacred`, `genesis`, `judgment`, `bless` (`src/skillfx.js`), the `radiance` field look (`src/fields.js`).
+- **Basics**: **Radiance** (a `field` with `follow`, round, `look: 'radiance'`: a golden aura carried with you that
+  hurts every mob in it and heals every friend in it), **Blessing** (a long party buff: max HP, ATK and MAGIC).
+- **Priest**: **Sacred Light** (a `meteor` with `anim: 'sacred'`: a column of light on the first mob ahead, `selfPer`),
+  **Devotion** (passive: in `healFrom`, `share(rank)` of a heal's overheal becomes a ward on that slime, `q.devo`, at most
+  `DEVOTION_CAP` of its max HP, for `DEVOTION_S` from the last top-up; `hurt()` soaks it after the Barrier and **never an
+  ultimate's** hit, so it isn't a new answer to one; `me.devo` shows it in the status box), **Consecration** (a `field`,
+  strip, planted where you stand: mobs on it hurt, friends on it healed), **Judgment** (a holy `bolt`, `anim:
+  'judgment'`: × `judgmentMult`, + `judge(rank)` for every slime within `JUDGMENT_R` under `JUDGMENT_AT` of its HP, you
+  too, up to `JUDGMENT_MAX`. The client counts what it sees (`rpg.hurtNear` in main.js: others' HP from `hurt` and
+  `thirst`), the server caps the hit with its own count (`hurtNear`); the echo's `judged` pops "JUDGMENT xN"; plus
+  `lightHeal`), **Holy Symbol** (a long party buff, `fx: exp`, `HOLY_SYMBOL_EXP` a rank: a faucet, `docs/economy.md`),
+  **Genesis** (a `starfall` with `whole`: every mob in the room, the client takes every mob it sees, the server allows
+  the room's width; `anim: 'genesis'`, a shaft on each; plus `lightHeal`).
+- **Warden**: **Sprites** (SP1's `sprite` summon, `count` 3, each after a different mob; with only one mob near, the
+  others stay by you, so it's a mobbing staple, not a boss one; their hits heal, `SUMMON_LIGHT`), **Warding Totem**
+  (passive: your Guardian Totem pulses every `WARD_PULSE_S` on every mob in its ring, `pulse` in `server/summons.js`,
+  drawn as a golden ring from the `sumhit`), **Stone Guardian** (SP1's `guardian` summon: taunts the mobs round it, a
+  boss too unless a focus or a Knight's taunt holds it, and slams; its hits heal), **Resolve** (a long party buff with no
+  plain effect, `fx: () => ({})`: `hurt()` takes `cut(rank)` off while the slime stands within `RESOLVE_R` of any of its
+  Warden's summons, `resolveCut`; never an ultimate; `buffText` words it in the status box and the sheet), **Host**
+  (passive: `summonCap` + 1 for every Cleric summon; sprites come `count` + 1 at a time).
+- No wire bump: `judged` rides the skill echo, the ward rides `me`, the totem's pulse rides `sumhit`.
+- The economy sheet: `docs/economy.md`, "The Cleric's skill pool (SP4)".
 
 ## Mobility runs in the physics
 Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js

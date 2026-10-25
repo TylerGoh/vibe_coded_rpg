@@ -36,8 +36,9 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
 - **Classes** (S2.4): three tables, the CLASSES section below.
 - **Long buffs** (SP1, `story/skills-plan.md`): every long buff (`isLongBuff`) at its top rank, what it does and its
   `exp` share. An `exp` effect is a faucet: every kill's EXP × (1 + share) for everyone it reaches (`kill()` in
-  `server/rpg.js`, through `statsFor`'s `exp`). None exists yet; SP4's Holy Symbol is the first, and names its
-  share as a constant in `src/shared/skills.js` like any faucet.
+  `server/rpg.js`, through `statsFor`'s `exp`). SP4's Holy Symbol is the first: `HOLY_SYMBOL_EXP` a rank (in
+  `src/shared/skills.js`), folded into the pace: PROGRESS has a "with Holy Symbol" column (farming with a Priest's
+  top rank from Lv 60 on, `minutesWithSymbol`), and the check keeps that pace at or above `LEVEL_PACE`'s floor.
 - **Checks**: aimed sinks cost their `PRICE_BANDS` minutes of farming at their aim level, never more than
   `AIM_MAX` of everything farmed by then (early on, where levels take a couple of minutes, the low end gives
   way to `AIM_EARLY` of the savings); house sizes get dearer; furniture: every piece priced, a piece 4× the
@@ -381,6 +382,35 @@ Armor's DEF and Arcane Insight's MAGIC as long buffs. Two modelling changes:
 - **Farming**: a Mage's full-pack clear from Lv 60 is ~35–60% faster by crowd damage alone, more with Ignite / Cold
   Snap chains (kills aren't on the sheet). `KILLS_PER_MIN` is left as it is (owner: faster farming is fine); SP6
   retunes it with all four classes in.
+
+## The Cleric's skill pool (SP4, 2026-10-25)
+`fight` learned SP4's pieces: Sacred Light's heal for each mob it hits, `lightHeal` (alone: on you), a field's heal
+ticking on you while it lasts (Radiance, Consecration), Devotion's ward (overheal kept, soaked after the Barrier, at
+most `DEVOTION_CAP`), Judgment (alone you're the hurt one: × for one slime under `JUDGMENT_AT`), Genesis (a `starfall`
+whose radius covers the room: every target), Sprites (a set whenever they're down: one on a lone target, `min(cap, n)`
+in a crowd, the first draws like a spirit), the Stone Guardian (`GUARDIAN_DRAW` of a boss's hits while it stands, its
+hits heal), the Warding Totem's pulse (the totem is now planted in every fight when held: the crowd in its ring, a lone
+boss `FIELD_BOSS_SHARE` of the time), Resolve's cut while any of your summons stands, and Host (`summonCap`). Both
+Cleric BUILDS take Radiance with the basics, their branch's new staples as they open, then Blessing (the Priest also
+Holy Symbol); Devotion, Warding Totem and Host come with "every passive". `HOTBAR_SWAPS`: Radiance gives way to Sacred
+Light / Sprites, Sacred Light to Consecration; **Smite stays** (the cheap filler with its self-heal: swapping it for
+Judgment or the Guardian made the Priest slower at dens than before).
+- **What moved** (single / crowd damage a second, before → after): Priest Lv 30 1,649 / 1,649 → 1,756 / 2,030, Lv 60
+  3,823 / 3,823 → 4,304 / 5,274, Lv 100 6,240 / 6,240 → 7,094 / 8,962, Lv 200 12,630 / 12,630 → 14,351 / 18,131; Warden
+  Lv 30 1,649 / 1,649 → 1,788 / 2,008, Lv 60 3,823 / 3,823 → 4,795 / 5,938, Lv 100 6,809 / 9,275 → 8,438 / 13,271, Lv 200
+  13,782 / 18,774 → 17,070 / 26,848. Shape (Cleric ÷ the others' mean): single 0.86 → 1.02–1.05, crowd 0.47–0.61 →
+  0.68–0.75, ranged 1.15 → 1.36–1.51, toughness unchanged (past `TOUGH_CAP`). **Still last-but-close at mobbing**: under
+  the Mage (1.7–2.0) and the Archer from Lv 60 (0.95–1.04; 0.55 at Lv 30); level with the Warrior (0.67–1.00), which sits
+  low on the sheet since SP3's swaps until SP6. Still first at staying alive.
+- **Den solo times** (the room SP3 asked for): the Priest 1.45× → 1.19× the median on Colossus (3:45 → 3:05), 3:50 →
+  3:12 on Chronos, 2:27 → 2:06 on the Old Narwhal; the Warden 3:21 → 2:54 on Colossus. Lv 12–35 dens within a few
+  seconds. The Root Warden's mixed party 1:34 → 1:31 (the Priest in it). The new skills were tuned down once (first cut:
+  the Cleric 1.16× single and 0.98× crowd, top of the Archer's crowd column): Judgment, Sacred Light, Consecration,
+  Radiance, Genesis, the Guardian, Sprites and the pulse all cut, and Sprites no longer gang up on a lone mob.
+- **Holy Symbol**: +`HOLY_SYMBOL_EXP` × 3 = +12% EXP at its top rank for a party with a Priest. The pace with it from Lv 60:
+  Lv 100 10.3 → 9.7 h (target 10.0 h), Lv 200 40.4 → 36.6 h (target 34.9 h): inside `LEVEL_PACE`, so the curve stands.
+- Nothing else moved: no mob, boss, gold, price or curve (other classes' shape ratios shift a little because the mean
+  they're measured against now has a stronger Cleric).
 
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.

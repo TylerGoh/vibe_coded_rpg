@@ -17,7 +17,8 @@ No quests, no hard level gates.
          K panel's Cast button (live 2026-10-24, acae22d; the machinery dark behind `TEST_SKILLS`)
    - [x] SP2: the Warrior's new skills (live 2026-10-25)
    - [x] SP3: the Mage's new skills (live 2026-10-25)
-   - [ ] SP4–SP5: the Cleric's and Archer's new skills, one at a time (owner: tokens). **Start here: SP4.**
+   - [x] SP4: the Cleric's new skills (2026-10-25)
+   - [ ] SP5: the Archer's new skills (owner: tokens, one at a time). **Start here: SP5.**
          SP5 (owner, 2026-10-25): attack speed is one of the Archer's core features, so one of its perks is
          **holding the attack button down to keep firing** instead of spamming it (desktop and touch).
    - [ ] SP6: the balance pass, then the owner plays. Owner (2026-10-25), for this rebalance: **every boss

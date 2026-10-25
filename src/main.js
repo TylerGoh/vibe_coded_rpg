@@ -541,6 +541,8 @@ rpg.onRevived = (id) => {
   const s = id === net.id ? mine : slimes.get(id);
   if (s) unsplat(s);
 };
+// Judgment's count (SP4): slimes within r of x under `at` of their HP, us too (others' HP as last heard: 'hurt' / 'thirst')
+rpg.hurtNear = (x, r, at) => (rpg.me && rpg.me.hp < rpg.me.maxHp * at ? 1 : 0) + [...slimes.values()].filter((s) => s.visible !== false && !splatted(s) && s.maxHp && s.hp < s.maxHp * at && Math.abs(s.x - x) <= r + 40).length;
 // Revive's check before casting: a knocked-out slime within r of (x, y)?
 rpg.downNear = (x, y, r) => [...slimes.values()].some((s) => s.visible !== false && splatted(s) && Math.hypot(s.x - x, s.y - y) <= r + 40);
 function drawSplats() {

@@ -44,6 +44,8 @@ over is in `docs/ideas.md` under the phase's name. Full plans as written: `archi
   chase moves, the Mage's combos (`docs/combat/skills.md`; plan: `archive/s2-plan.md`).
 - **S3** (2026-10-23): the Cleric, summons, healing on the damage meter (`docs/combat/skills.md`).
 - **S4** (2026-10-24): the Archer and bows (`docs/combat/skills.md`, `docs/combat/items.md`).
+- **SP4** (2026-10-25): the Cleric's skill pool: Radiance, Blessing, Sacred Light, Devotion, Consecration, Judgment,
+  Holy Symbol (the first EXP buff), Genesis, Sprites, Warding Totem, Stone Guardian, Resolve, Host (`docs/combat/skills.md`).
 
 ## Other
 - **Trading** (2026-10-23): coins and items between players, server-checked, logged (`docs/social/trading.md`).
