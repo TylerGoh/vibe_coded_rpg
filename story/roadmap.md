@@ -24,6 +24,14 @@ No quests, no hard level gates.
          attack does a % of the target's max HP plus a flat amount**, so being far over-levelled never makes
          a boss harmless (today a boss hit is flat damage less DEF: `hurt()` in `server/rpg.js`). Price the
          % against each class's HP and the healers, and keep ultimates the worst hits.
+         Owner (2026-10-25), **longer boss fights**: a den boss soloed at its level should take **about 15
+         minutes** (today 1–3 min on the sheet), and the capstone bosses **close to 30**, with the rewards
+         scaled to match (priced per minute of the fight, as now). Applies to the roadmap's future bosses too.
+         Why it came up: a Lv 87 Mage in Chronos's own staff solos Chronos (Lv 170) in ~4 min, because every
+         stat and curve grows as a power of the level (`magicFor`, `maxHpFor`, `CURVE` in
+         `src/shared/curve.js`), never exponentially, so an 80-level gap at Lv 87–170 is only ~2× in power,
+         and gear has no level requirement. Settle with the owner in SP6: a level-gap damage penalty
+         against mobs far above you, and which bosses count as "capstone".
 2. **FB1: Greenhollow's final boss**, under the Thornheart (the Sunken Road, the Road's End). Plan:
    `final-bosses.md`: very hard, about 30 minutes for four players at the recommended level (the boss's own
    level shown far higher); each pocket gets better, then a new deep room, a cinematic approach room, the
