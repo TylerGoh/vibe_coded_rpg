@@ -25,8 +25,13 @@ No quests, no hard level gates.
          a boss harmless (today a boss hit is flat damage less DEF: `hurt()` in `server/rpg.js`). Price the
          % against each class's HP and the healers, and keep ultimates the worst hits.
          Owner (2026-10-25), **longer boss fights**: a den boss soloed at its level should take **about 15
-         minutes** (today 1–3 min on the sheet), and the capstone bosses **close to 30**, with the rewards
-         scaled to match (priced per minute of the fight, as now). Applies to the roadmap's future bosses too.
+         minutes** (today 1–3 min on the sheet), and the **top bosses about 45 minutes, hard-hitting and
+         very punishing**, with the rewards scaled to match (priced per minute of the fight, as now).
+         Applies to the roadmap's future bosses too. Owner asked whether bosses shouldn't be much harder
+         without a team: today only the party dens are (`PARTY_DEN_HP_FLOOR`); an ordinary den boss is
+         soloable on purpose (`s5-plan.md`'s rules) and a party only cuts its time ~30%
+         (`BOSS_HP_PER_PLAYER`). Settle in SP6: is the 45 min a party's time or a solo's, and how much
+         harder alone.
          Why it came up: a Lv 87 Mage in Chronos's own staff solos Chronos (Lv 170) in ~4 min, because every
          stat and curve grows as a power of the level (`magicFor`, `maxHpFor`, `CURVE` in
          `src/shared/curve.js`), never exponentially, so an 80-level gap at Lv 87–170 is only ~2× in power,
