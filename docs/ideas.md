@@ -37,8 +37,8 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 - **G2:** a field boss for the Mycelium Deep (Glowroot Hollow's elites stand in as its danger).
 - **G3:** the Hornet Queen only dives; calling wasps out of her nest needs a summon for field bosses.
 - **G3:** a vertical camera for the Canopy: its own `step()`/camera project, never started.
-- **G4:** a room hazard for hard pockets (tide surges in Wreck Cave, thorn patches in the Thornheart)
-  would need a stage-hazard system outside the mob brains.
+- **G4:** a room hazard for hard pockets: the Thornheart's thorn patches shipped with FB1 (b) (server-tick timed,
+  `docs/places/thornheart.md`); Wreck Cave's tide surges could reuse the same pattern, not done.
 - **G5:** the Root Warden's `party` mechanics wait for S5; the root grid (random in phase 2) was never seen
   in a test fight.
 

@@ -79,6 +79,11 @@ protocol is documented in the comment at the top of that file: keep it updated**
   `RPG` set); a hit on a mob may carry a 5th element (`h[4]`: aimed at an open weak point); `hurt` may carry `dot`
   and `me` a `curse`. New boss events: `curseWarn`, `curseHit`, `shieldUp`, `shieldBreak`, `shieldDrop`, `crack`,
   `weakOpen`, `weakBreak`, `stagger`, `ultCancel` (listed in the protocol comment in `server/index.js`).
+- 2026-10-26 (FB1 (c), the final bosses): no wire version change. A final boss's heads, coils and phase go in their
+  own JSON message, `{t:'final', …}` (`server/final.js`; on change, at most every 120 ms, and every 1 s), not the mob
+  record (no spare bits left). A hit's `h[4]` may be `2 + slot` (a head or its stump: `final.part` checks the reach),
+  `party`'s `sh` may be `'w'` (both shields at once, cracks as `sh[4]`), and there are new ouch kinds (`bite`, `coil`)
+  and boss events (all in the protocol comment in `server/index.js`). `final` is in `src/net.js`'s `RPG` set.
 - 2026-10-24 (SP1, the skill pool's machinery): no wire version change. Two more mob flags in the same spare bits
   (8192 bleeding, 16384 poisoned: the 7 bits are now full, so the next mob state needs a version bump or its own
   message), `burn` grows `k`, and new low-rate JSON messages: `fields` (a room's whole list, on change and on

@@ -3,6 +3,7 @@
 // levels and combat numbers. The server runs the mobs and decides every hit, drop and pickup
 // (server/rpg.js); the client only draws them (src/rpg.js, art in src/field.js).
 import { curve } from './curve.js';
+import { LADON_PLATFORMS, LADON_BODY_X } from './final.js';
 
 export const FIELD = 5; // room id (see ROOMS in sim.js)
 export const FIELD_W = 5200; // the last stretch (where the Highlands trail used to be) is mob-free: the briar thins out toward the sea cliffs
@@ -311,8 +312,74 @@ export const THORN_PLATFORMS = [
   { x: 2860, y: 255, w: 200, kind: 'briar' },
   { x: 3260, y: 340, w: 220, kind: 'root' },
   { x: 3640, y: 255, w: 180, kind: 'briar' },
+  { x: 1095, y: 165, w: 100, kind: 'coil' }, // the Cast Coil, a briar arch high over the Maze's west end (FB1 (b)): easy to miss
   { x: 1895, y: 160, w: 100, kind: 'rose' }, // the White Rose, a briar arch high over the Maze: easy to miss
 ];
+// The Thornheart's room hazard (FB1 (b), docs/places/thornheart.md): thorn patches that grow back. Runners of
+// briar creep across the floor (PATCH_GROW), stand sharp (PATCH_UP), then die back, over and over, each on its
+// own offset in a PATCH_CYCLE. Both sides read the same clock (the server tick), so nothing goes over the wire:
+// the client draws them (src/thornheart.js) and the server hurts whoever stands on the floor in a sharp one
+// (PATCH_DOT of max HP every PATCH_HIT_EVERY ticks, a flat 'dot': no knockback, so no step() change). On the floor
+// only: a ledge or a jump is safe.
+export const THORN_PATCHES = [
+  { x: 1240, w: 130 }, { x: 1700, w: 140 }, { x: 2160, w: 120 }, { x: 2700, w: 140 }, { x: 3120, w: 150 }, { x: 3540, w: 130 },
+];
+export const PATCH_CYCLE = 600, PATCH_GROW = 120, PATCH_UP = 210, PATCH_WITHER = 60; // (ticks)
+export const PATCH_DOT = 0.04, PATCH_HIT_EVERY = 30;
+// patch i at server tick t → { k: 0..1 how far it has grown, sharp: whether it hurts }
+export function patchAt(i, t) {
+  const c = (((t + i * 223) % PATCH_CYCLE) + PATCH_CYCLE) % PATCH_CYCLE;
+  if (c < PATCH_GROW) return { k: c / PATCH_GROW, sharp: false };
+  if (c < PATCH_GROW + PATCH_UP) return { k: 1, sharp: true };
+  if (c < PATCH_GROW + PATCH_UP + PATCH_WITHER) return { k: 1 - (c - PATCH_GROW - PATCH_UP) / PATCH_WITHER, sharp: false };
+  return { k: 0, sharp: false };
+}
+// ——— FB1 (b): the way to Greenhollow's final boss (docs/places/sunkenroad.md, story/fb1-plan.md) ———
+// The Sunken Road (room 47): the old Keeper road under the briar, down through the split in the Thornheart's
+// root knot (SUNKEN_GATE_X: the update split it, no quest). A deep room past the hard pocket: hard-pocket
+// rules (a red chip, no waystone, no trader, elites throughout). You come in at the WEST end and go east, deeper:
+// the Root Stair (no mobs), the Old Road, the Lantern Reach and the Neck's Hollow, where the Severed Neck (a
+// named elite) lies across the road. The Milestone, a Keeper milestone the roots lifted high (last in
+// SUNKEN_PLATFORMS), is the hidden spot. At the far east end the road climbs out into the Road's End.
+export const SUNKEN = 47; // room id
+export const SUNKEN_W = 4400;
+export const SUNKEN_EXIT_X = 70; // back up between the roots to the Thornheart
+export const SUNKEN_GATE_X = THORN_W - 110; // the split in the Thornheart's root knot (the way in)
+export const SUNKEN_END_X = SUNKEN_W - 90; // the road climbing out at the east end, into the Road's End
+export const SUNKEN_ZONES = [
+  { name: 'The Root Stair', x0: 0, x1: 520, lvl: null }, // (no mobs)
+  { name: 'The Old Road', x0: 520, x1: 2300, lvl: '55–58' },
+  { name: 'The Lantern Reach', x0: 2300, x1: 3700, lvl: '57–60' },
+  { name: "The Neck's Hollow", x0: 3700, x1: SUNKEN_W, lvl: '60' },
+];
+export const SUNKEN_PLATFORMS = [
+  { x: 700, y: 340, w: 210, kind: 'slab' }, // paving stones the roots heaved up on end
+  { x: 1080, y: 255, w: 200, kind: 'root' },
+  { x: 1480, y: 340, w: 220, kind: 'slab' },
+  { x: 1880, y: 255, w: 200, kind: 'root' },
+  { x: 2500, y: 340, w: 220, kind: 'slab' },
+  { x: 2900, y: 255, w: 200, kind: 'root' },
+  { x: 3300, y: 340, w: 220, kind: 'slab' },
+  { x: 3880, y: 330, w: 200, kind: 'root' },
+  { x: 1935, y: 165, w: 90, kind: 'milestone' }, // the Milestone, lifted on a root over the Old Road: easy to miss
+];
+// The Road's End (room 48): the approach. No mobs, no combat: safe ground where the party gathers. Everything
+// cinematic in it is drawing and sound (src/roadsend.js, the `roadsend` music scene), never step(): the light
+// dims, the petals stop and eyes open in the dark the further east you are. LADON_MARK_X: the first slime past it
+// in an empty Road's End hears Ladon (LADON_LINE, server/rpg.js). LADON_DEN_X: the den's door (its art is always
+// drawn; the door itself comes with the den's DENS row, `denDoors(ROADSEND)` in sim.js).
+export const ROADSEND = 48; // room id
+export const ROADSEND_W = 2600;
+export const ROADSEND_EXIT_X = 70; // back down onto the Sunken Road
+export const LADON_MARK_X = 1000;
+export const LADON_DEN_X = ROADSEND_W - 240;
+export const LADON_DEN = 49; // the den's room id, kept for FB1 (c)
+export const LADON_LINE = 'Something is on the road.';
+// A final boss's two levels (story/final-bosses.md): its own far above the island's top, recommended the top
+// with FINAL_MIN_PLAYERS. finalTag(top) is the line on the door, the sign and (FB1 (c)) the title card.
+export const FINAL_LVL_OVER = 20, FINAL_MIN_PLAYERS = 4;
+export const GREEN_TOP = 60; // Greenhollow's top level
+export const finalTag = (top) => `Lv ${top + FINAL_LVL_OVER} · recommended Lv ${top}, ${FINAL_MIN_PLAYERS}+ players`;
 // ——— island depth G5 (docs/places/spine.md) ———
 // Keeper's Spine (room 34): the bare stone ridge along the top of Greenhollow, above the Old Oak Canopy, over
 // the fallen trunk (cut through now). Wind, heather and the biggest Keeper ruins on the island. You come in
@@ -540,6 +607,7 @@ export const STAGES = {
   [HEIGHTS]: { name: 'The Aurora Heights', zones: HEIGHTS_ZONES, band: '75–90', pill: 'Aurora Heights' },
   [BLUEHALLS]: { name: 'The Blue Halls', zones: BLUEHALLS_ZONES, band: '80–90', hard: true },
   [QBRIDGE]: { name: "The Queen's Bridge", zones: QBRIDGE_ZONES, band: '85–100', pill: "Queen's Bridge" },
+  [SUNKEN]: { name: 'The Sunken Road', zones: SUNKEN_ZONES, band: '55–60', hard: true, pill: 'Sunken Road' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -1024,6 +1092,65 @@ MOBS.thorn_hart = {
   desc: 'The Thorn Hart is walking the Thornheart!',
   drops: [['coin', 1, 14900, 21700], ['antler_velvet', 1, 4, 8], ['stalker_barb', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['briarheart_blade', 0.25, 1, 1], ['antler_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
+// ——— FB1 (b): the Sunken Road (art: src/sunkenroad-art.js; docs/places/sunkenroad.md). On the frozen curve,
+// elites throughout ———
+// Briarlings (Ladon's seeds, grown wild: little thorny sprouts that run at you), old road guards (Keeper stone
+// figures the briar grew through, a shield of stone and thorn in front: hit them from behind), seed-pod lanterns
+// (rooted pods that lob glowing seeds) and root creepers (they dive under the paving and come up behind you)
+MOBS.briarling = {
+  name: 'Briarling', lvl: 55, hp: 4980, atk: 158, exp: 2036, speed: 80, w: 44, h: 46, aggro: true, hops: true,
+  drops: [['coin', 1, 300, 480], ['briar_seed', 0.5, 1, 2], ['mega_elixir', 0.09, 1, 1]],
+};
+MOBS.road_guard = {
+  name: 'Old Road Guard', lvl: 57, hp: 6800, atk: 165, exp: 2186, speed: 50, w: 58, h: 74, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.4, warn: 0.6, lunge: 480, time: 0.34 },
+  drops: [['coin', 1, 310, 490], ['keeper_cobble', 0.5, 1, 2], ['mega_elixir', 0.09, 1, 1], ['roadguard_helm', 0.004, 1, 1]],
+};
+MOBS.seed_lantern = {
+  name: 'Seed-Pod Lantern', lvl: 58, hp: 5380, atk: 168, exp: 2263, speed: 0, w: 46, h: 78, aggro: true, hops: false, anchored: true,
+  ai: { kind: 'lob', range: 470, every: 2.7, keep: 0, warn: 0.6, style: 'seed' },
+  drops: [['coin', 1, 320, 500], ['glow_seed', 0.5, 1, 2], ['mega_elixir', 0.1, 1, 1]],
+};
+MOBS.root_creeper = {
+  name: 'Root Creeper', lvl: 60, hp: 5650, atk: 175, exp: 2421, speed: 80, w: 66, h: 40, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.4, warn: 0.42, slashWarn: 0.5, r: 115 },
+  drops: [['coin', 1, 335, 525], ['creeper_root', 0.5, 1, 2], ['mega_elixir', 0.1, 1, 1], ['neck_fang', 0.003, 1, 1]],
+};
+MOBS.briar_elite = elite('briarling', 'Elder Briarling');
+MOBS.guard_elite = elite('road_guard', 'Road Guard Captain');
+MOBS.lantern_elite = elite('seed_lantern', 'Great Seed Lantern');
+// Ladon, the Briar Hydra (FB1 (c), story/fb1-plan.md; docs/places/ladon.md): Greenhollow's final boss, in the Root
+// of the Road (room 49) at the end of the Sunken Road. Its body is the root knot at the back wall (it never walks:
+// `still`; touching it doesn't hurt: `noTouch`); its heads are targets of their own (`heads`: server/final.js, the
+// FINAL table in src/shared/final.js). `final`: a final boss (four written phases, fixed HP for four, the enrage, no
+// reward window). Its stats are the FINAL table's, never the Lv 80 on its tag (`finalTag`). hp, exp and drops are priced
+// on the economy sheet's FINAL BOSSES table (FB1 piece 3): the kill near 45 min for four at Lv 60, the loot split four
+// ways. `petWH`: its pet's own size (the mini Ladon is three little heads, not the knot shrunk: src/dens-ladon.js).
+MOBS.ladon = {
+  name: 'Ladon, the Briar Hydra', boss: true, top: true, final: 'ladon', heads: true, still: true, noTouch: true, denX: LADON_BODY_X,
+  lvl: 80, hp: 46000000, atk: 230, exp: 620000, speed: 0, w: 380, h: 300, aggro: true, hops: false,
+  phases: [[], [], []], minion: 'briarling', petWH: [96, 62],
+  looks: { beam: 'briar', grid: 'briar', shell: 'bark', dome: 'rose', curse: 'thorn', pulse: 'thorn' },
+  party: ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'], partyAll: true, partyLive: true,
+  weak: { dx: 0, dy: -0.18, r: 30 }, // (the shard in the first head's brow, when it lays it on the road: the Gaze)
+  lines: {
+    enter: ['Awake. Awake. Always awake. Something is on the road.'],
+    phase: ['Two for one. Two for one. Every one you take, I keep twice.', 'Closer. A hedge is for keeping. I keep.', 'I have not closed my eyes since they left. Not once. You will not be the reason.'],
+    shield: 'The roses. They planted the roses over me. Nothing gets through the roses.',
+    freed: "...They're not coming back. Then... may I sleep? Only a little. I've been awake so long.",
+  },
+  drops: [['coin', 1, 1600000, 2400000], ['ladon_fang', 1, 1, 1], ['thorn_crown', 0.5, 1, 1], ['mega_elixir', 1, 6, 9], ['royal_sap', 1, 3, 4], ['briar_seed', 1, 6, 10], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.6, 1, 2]],
+};
+// The Severed Neck: a named elite (not a boss: no den, no phases, an ordinary respawn), one of Ladon's heads cut
+// off long ago that never stopped growing: a long thorn skull on a body of its own, a stump of neck dragging
+// behind it, one white rose eye. It lies across the road in the Neck's Hollow, dives under the paving and comes
+// up behind you. Drawn with its own art (`art`), heard as a root creeper
+MOBS.severed_neck = {
+  ...elite('root_creeper', 'The Severed Neck'), art: 'severed_neck', w: 130, h: 110,
+  ai: { kind: 'blink', every: 3.8, warn: 0.5, slashWarn: 0.55, r: 140 },
+};
+MOBS.severed_neck.drops = MOBS.severed_neck.drops.map((d) => (d[0] === 'neck_fang' ? ['neck_fang', 0.03, 1, 1] : d));
+
 // ——— Greenhollow's branches, G5: Keeper's Spine (art: src/spine-art.js, src/dens-spine.js; docs/places/spine.md).
 // On the frozen curve like the others ———
 // Moss turtles have a mossy shell in front (hit them from behind), crag kites dive out of the wind, stone
@@ -1504,8 +1631,8 @@ export const weakHpOf = (k) => (k?.top ? TOP_WEAK_HP : WEAK_HP);
 export function partyHitMult(s, { magic = false, heavy = false, weak = false } = {}) {
   let k = 1;
   if (s?.stag) k *= 1 + STAGGER_DMG;
-  if (s?.shield === 'barrier' && !magic) k *= s.phys ?? BARRIER_PHYS;
-  if (s?.shield === 'armour' && !heavy) k *= ARMOUR_CUT;
+  if ((s?.shield === 'barrier' || s?.shield === 'both') && !magic) k *= s.phys ?? BARRIER_PHYS; // ('both': a final boss's
+  if ((s?.shield === 'armour' || s?.shield === 'both') && !heavy) k *= ARMOUR_CUT; // two shields at once, FB1)
   if (weak) k *= WEAK_MULT;
   return k;
 }
@@ -1533,6 +1660,7 @@ const onGrPlat = onRoomPlat(GROTTO_PLATFORMS, GROTTO);
 const onAhPlat = onRoomPlat(HEIGHTS_PLATFORMS, HEIGHTS);
 const onBhPlat = onRoomPlat(BLUEHALLS_PLATFORMS, BLUEHALLS);
 const onQbPlat = onRoomPlat(QBRIDGE_PLATFORMS, QBRIDGE);
+const onSuPlat = onRoomPlat(SUNKEN_PLATFORMS, SUNKEN);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -1690,6 +1818,23 @@ export const SPAWNS = [
   ...strip('thornback_elite', 900, 2100, FIELD_GROUND, 1, THORNHEART),
   ...strip('stalker_elite', 3000, 3900, FIELD_GROUND, 1, THORNHEART),
   { kind: 'thorn_hart', x0: 2450, x1: 3850, y: FIELD_GROUND, room: THORNHEART },
+  // the Sunken Road (the Root Stair, x < 520, has none; nothing past 4150: the road up to the Road's End)
+  ...strip('briarling', 600, 1450, FIELD_GROUND, 4, SUNKEN),
+  ...onSuPlat('briarling', 0, 1),
+  ...onSuPlat('briarling', 2, 1),
+  ...strip('road_guard', 1250, 2250, FIELD_GROUND, 4, SUNKEN),
+  ...onSuPlat('road_guard', 1, 1),
+  ...onSuPlat('road_guard', 3, 1),
+  ...strip('seed_lantern', 2400, 3350, FIELD_GROUND, 3, SUNKEN),
+  ...onSuPlat('seed_lantern', 4, 1),
+  ...onSuPlat('seed_lantern', 5, 1),
+  ...strip('root_creeper', 2650, 3650, FIELD_GROUND, 3, SUNKEN),
+  ...onSuPlat('root_creeper', 6, 1),
+  ...onSuPlat('root_creeper', 7, 1),
+  ...strip('briar_elite', 800, 1500, FIELD_GROUND, 1, SUNKEN),
+  ...strip('guard_elite', 1700, 2250, FIELD_GROUND, 1, SUNKEN),
+  ...strip('lantern_elite', 2700, 3300, FIELD_GROUND, 1, SUNKEN),
+  { kind: 'severed_neck', x0: 3780, x1: 4150, y: FIELD_GROUND, room: SUNKEN },
   // Keeper's Spine (the Windgap, x < 900, has none; sentinels stay on the road: their beam runs along it;
   // nothing near the Root Warden's gatehouse at WARDEN_DEN_X)
   ...strip('moss_turtle', 1000, 1750, FIELD_GROUND, 4, SPINE),
@@ -1832,6 +1977,7 @@ export const DENS = [
   { room: 35, boss: 'root_warden', name: "The Warden's Court", from: SPINE, entranceX: WARDEN_DEN_X, theme: 'warden' }, // (art: src/dens-spine.js)
   { room: 38, boss: 'old_narwhal', name: 'The Breathing Hole', from: SKERRIES, entranceX: NARWHAL_DEN_X, theme: 'floe' }, // (art: src/dens-skerries.js)
   { room: 43, boss: 'sigrun', name: 'The Seam', from: QBRIDGE, entranceX: SIGRUN_DEN_X, theme: 'oath' }, // (art: src/dens-qbridge.js)
+  { room: LADON_DEN, boss: 'ladon', name: 'The Root of the Road', from: ROADSEND, fromName: "the Road's End", entranceX: LADON_DEN_X, theme: 'hydra', platforms: LADON_PLATFORMS, final: true }, // (art: src/dens-ladon.js; the door's art: src/roadsend.js)
 ];
 export const DEN_EXIT_X = 80;
 export const DEN_PLATFORMS = [
@@ -1862,7 +2008,8 @@ export const BOSS_HP_PER_PLAYER = 0.6;
 // ("possible but miserable", not blocked; it was four, which made it ~4.5x). Its barrier and weak point (BARRIER_HP,
 // WEAK_HP) stay shares of its plain `hp`, so one Mage or Archer still breaks them as quickly.
 export const PARTY_DEN_HP_FLOOR = 2;
-export const bossMaxHp = (k, fighters) => k.hp * (1 + BOSS_HP_PER_PLAYER * (Math.max(fighters, k.top || (k.partyDen && k.partyLive) ? PARTY_DEN_HP_FLOOR : 1) - 1));
+// A final boss (`final`, FB1): always a party of four's HP, whoever comes (owner, 2026-10-26: no growth, no floor)
+export const bossMaxHp = (k, fighters) => k.final ? k.hp : k.hp * (1 + BOSS_HP_PER_PLAYER * (Math.max(fighters, k.top || (k.partyDen && k.partyLive) ? PARTY_DEN_HP_FLOOR : 1) - 1));
 export const COMBAT_ROOMS = new Set([...Object.keys(STAGES).map(Number), ...DENS.map((d) => d.room)]);
 export const isCombat = (room) => COMBAT_ROOMS.has(room);
 export const denAt = (room) => DENS.find((d) => d.room === room);
@@ -1999,6 +2146,13 @@ export const ITEMS = {
   stalker_claw: { name: "Stalker's Claw", price: 145000, lvl: 57, kind: 'sword', atk: 107, reach: 52, desc: 'A curved black blade like a great thorn. It strikes from where you aren\'t looking.' },
   briarheart_blade: { name: 'Briarheart Blade', price: 156000, lvl: 59, kind: 'sword', atk: 110, reach: 56, desc: 'A sword of living briar wood, grown, not forged. A white rose buds on the guard and never opens.' },
   antler_crown: { name: 'Hart\'s Antler Crown', price: 120000, lvl: 59, kind: 'helmet', def: 49, desc: 'A crown of shed briar antlers, soft with green velvet, white roses at the tips.' },
+  // ——— FB1 (b): the Sunken Road (art: src/sunkenroad-art.js). No trader: drops only ———
+  briar_seed: { name: 'Briar Seed', price: 460, kind: 'loot', desc: 'A hard black seed with a white fleck like an eye. Put it down and it rolls toward the east.' },
+  keeper_cobble: { name: 'Keeper Cobble', price: 480, kind: 'loot', desc: 'A worn paving stone off the old road, grooved by wheels nobody remembers.' },
+  glow_seed: { name: 'Glowing Seed', price: 500, kind: 'loot', desc: 'A seed-pod lantern\'s seed, still warm and softly green. Good for reading by.' },
+  creeper_root: { name: 'Creeper Root', price: 520, kind: 'loot', desc: 'A length of root creeper, knotted and cold. It curls up when you hold it.' },
+  roadguard_helm: { name: "Road Guard's Helm", price: 116000, lvl: 58, kind: 'helmet', def: 49, desc: 'A Keeper guard\'s stone helm with a briar grown through the crest. Still on duty.' },
+  neck_fang: { name: 'Neckthorn Fang', price: 162000, lvl: 60, kind: 'sword', atk: 112, reach: 56, desc: 'A great hooked thorn off the Severed Neck\'s jaw, made into a blade. It bites back.' },
   // ——— G5: Keeper's Spine (art: src/spine-art.js). No trader: drops only ———
   turtle_moss: { name: 'Turtle Moss', price: 400, kind: 'loot', desc: "A springy green tuft off a moss turtle's shell. There's a tiny snail living in it." },
   kite_feather: { name: 'Kite Feather', price: 420, kind: 'loot', desc: 'A long barred flight feather. Hold it up and it tugs toward the wind.' },
@@ -2008,6 +2162,10 @@ export const ITEMS = {
   mossback_helm: { name: 'Mossback Helm', price: 76000, lvl: 47, kind: 'helmet', def: 41, desc: "An old turtle shell gone green with moss, worn as a helmet. Very calm. Very slow to take off." },
   sentinel_blade: { name: 'Sentinel Blade', price: 126000, lvl: 53, kind: 'sword', atk: 102, reach: 52, desc: 'A long grey blade of Keeper stone, a gear carved at the hilt. It was made to stand guard, and it still does.' },
   warden_blade: { name: "Warden's Greatblade", price: 175000, lvl: 62, slots: 9, kind: 'sword', atk: 114, reach: 58, desc: "The Root Warden's stone blade, roots grown all the way through it. It held a gate for longer than anyone remembers." },
+  // Ladon's set (FB1 piece 3, docs/places/ladon.md): Greenhollow's best, a step above the Warden's (lvl 70 on the frozen
+  // curve). One weapon a kill, picked by the classes who fought (twinPick): the Fang, the Unsleeping Staff (Mage), the
+  // White Rose Rod (Cleric: `cls`, CLERIC_STAFF_OF), the Sinew Bow; and a chance of the Crown of Thorns
+  ladon_fang: { name: "Ladon's Fang", price: 221000, lvl: 70, slots: 9, kind: 'sword', atk: 124, reach: 62, desc: "A tooth from the Briar Hydra's jaw, black-green and hooked like a thorn. It has never once been still." },
   // the Rimeglass Glacier (F1)
   hare_tuft: { name: 'Snow Hare Tuft', price: 480, kind: 'loot', desc: 'A puff of white winter fur, softer than it has any right to be. The fjord folk line mittens with it.' },
   petrel_down: { name: 'Petrel Down', price: 500, kind: 'loot', desc: 'A handful of grey-white down from a snow petrel. It smells of the sea, even up here.' },
@@ -2076,6 +2234,7 @@ export const ITEMS = {
   oath_blade: { name: 'Shield-Oath Spear', price: 477000, lvl: 102, slots: 9, kind: 'sword', atk: 160, reach: 66, desc: "Sigrun's spear, its head a long leaf of blue ice that she sharpens on the bridge every night. It has never once been lowered." },
   sigrun_helm: { name: "Sigrun's Helm", price: 364000, lvl: 102, slots: 9, kind: 'helmet', def: 75, desc: 'A tall winged helm of rimed silver and clear ice, a crown worked small on the brow: not hers, her queen\'s.' },
   warden_helm: { name: 'Wardenstone Helm', price: 134000, lvl: 62, slots: 9, kind: 'helmet', def: 51, desc: "A Keeper guardian's stone helm with a crown of living roots. Wear it and you stand up very straight." },
+  thorn_crown: { name: 'The Crown of Thorns', price: 170000, lvl: 70, slots: 9, kind: 'helmet', def: 56, desc: "A ring of the first head's thorns, a white rose woven in at the front. It stays awake so you can sleep." },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
   // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen
@@ -2146,6 +2305,8 @@ export const ITEMS = {
   bosun_staff: { name: 'Bosun\'s Lantern Pole', price: 74000, lvl: 41, kind: 'staff', magic: 85, mp: 51, reach: 52, twin: 'bosun_hook', desc: 'The Bosun\'s ship lantern on an oak pole, still lit with a cold green flame after all these years.' },
   sentinel_staff: { name: 'Sentinel Staff', price: 126000, lvl: 53, kind: 'staff', magic: 102, mp: 61, reach: 54, twin: 'sentinel_blade', desc: "A Keeper sentinel's grey stone rod, its amber eye-stone set in the head. It looks where you're looking." },
   warden_staff: { name: "Warden's Rootstaff", price: 175000, lvl: 62, slots: 9, kind: 'staff', magic: 114, mp: 68, reach: 58, twin: 'warden_blade', desc: 'A Keeper staff of grey stone wound with roots, the Warden\'s amber light in its crook. It has been waiting a long time.' },
+  unsleeping_staff: { name: 'The Unsleeping Staff', price: 221000, lvl: 70, slots: 9, kind: 'staff', magic: 124, mp: 74, reach: 62, twin: 'ladon_fang', desc: "A woven thorn skull on a cane of black briar, two white rose eyes wide open. It's watching. It always is." },
+  white_rose_rod: { name: 'The White Rose Rod', price: 221000, lvl: 70, slots: 9, kind: 'staff', magic: 124, mp: 74, reach: 62, twin: 'ladon_fang', cls: 'cleric', desc: 'A briar rod with every thorn smoothed away and one white rose open at the top. The roses planted to keep it, kept.' },
   glacier_staff: { name: 'Glacier Staff', price: 80000, lvl: 64, aim: 66, kind: 'staff', magic: 117, mp: 70, reach: 52, twin: 'cutter_cleaver', desc: 'A blackened driftwood staff with a lump of blue glacier ice in its head that never melts. Eyvind cut the ice; Skaldi carved the wood.' },
   howl_staff: { name: 'Howling Staff', price: 209000, lvl: 68, kind: 'staff', magic: 121, mp: 72, reach: 54, twin: 'rimefang', desc: 'A grey staff bound in rime wolf pelt, a white fang at its tip. Its bolts howl on the way out.' },
   tusk_staff: { name: 'Rimehorn Staff', price: 262000, lvl: 76, kind: 'staff', magic: 130, mp: 78, reach: 60, twin: 'tusk_blade', desc: "A curved staff of old mammoth ivory wound with red-brown wool, frost flowers growing up it as you cast." },
@@ -2166,6 +2327,7 @@ export const ITEMS = {
   rimeguard_staff: { name: 'Rimeguard Staff', price: 449000, lvl: 99, kind: 'staff', magic: 156, mp: 94, reach: 60, twin: 'rimeguard_blade', desc: 'A guard\'s pike cut down to a staff, the Queen\'s crown on its silver ferrule. Its bolts fly straight, as if on watch.' },
   oath_staff: { name: 'Shield-Oath Staff', price: 477000, lvl: 102, slots: 9, kind: 'staff', magic: 160, mp: 96, reach: 66, twin: 'oath_blade', desc: "Sigrun's spear-shaft with a round boss of ice for a head, like a little shield. Its bolts hold where they land." },
   hart_staff: { name: 'Hart\'s Antler Staff', price: 156000, lvl: 59, kind: 'staff', magic: 110, mp: 66, reach: 56, twin: 'briarheart_blade', desc: 'A shed antler of the Thorn Hart on a briar shaft. A white rose buds between the tines and never opens.' },
+  neck_staff: { name: 'Neckthorn Staff', price: 162000, lvl: 60, kind: 'staff', magic: 112, mp: 67, reach: 56, twin: 'neck_fang', desc: 'A black briar staff with a hooked thorn and one white rose at its head. The rose turns to face whatever you aim at.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Weapon Scroll 100%', price: 300, kind: 'scroll', slot: 'weapon', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a weapon (a staff gets them the other way round).' },
   scroll_s60: { name: 'Weapon Scroll 60%', price: 1500, kind: 'scroll', slot: 'weapon', rate: 0.6, atk: 3, magic: 2, desc: '60% chance: +3 ATK and +2 MAGIC on a weapon (a staff gets them the other way round).' },
@@ -2203,8 +2365,10 @@ const BOW_LIST = [
   ['honey_bow', 'queen_stinger', "Hornet Queen's Bow", 'Black and amber limbs with comb at the grip, strung with silk. Its arrows hum like wasps.'],
   ['bosun_bow', 'bosun_hook', "Bosun's Spar Bow", "Bent from the Brave Pippin's oak spars, a cold green lantern-flame in the grip."],
   ['hart_bow', 'briarheart_blade', "Hart's Antler Bow", "Two curves of the Thorn Hart's antler, joined at the grip and strung with briar."],
+  ['neck_bow', 'neck_fang', 'Neckthorn Bow', 'Two hooked thorns off the Severed Neck, joined at the grip and strung with root.'],
   ['sentinel_bow', 'sentinel_blade', 'Sentinel Bow', "Grey Keeper stone that bends when it shouldn't, an amber eye-stone in the grip. It looks where you're aiming."],
   ['warden_bow', 'warden_blade', "Warden's Rootbow", "Grey stone limbs wound with roots, the Warden's amber light in the grip. Old, patient and very strong."],
+  ['hydra_bow', 'ladon_fang', "The Hydra's Sinew Bow", 'Two curves of briar neck strung with green sinew, a white rose eye open in the grip. Three heads, one string.'],
   ['glacier_bow', 'cutter_cleaver', 'Glacier Bow', 'Blackened driftwood with glacier ice set in the tips. Eyvind cut the ice; Skaldi bent the wood.'],
   ['howl_bow', 'rimefang', 'Howling Bow', 'Grey wood wrapped in rime wolf pelt, a fang on each tip. Its arrows howl on the way out.'],
   ['tusk_bow', 'tusk_blade', 'Rimehorn Bow', 'A curve of old mammoth ivory wound with red-brown wool. Frost flowers grow up it as you draw.'],
@@ -2237,7 +2401,10 @@ export const weaponKind = (id) => (isWeapon(id) ? ITEMS[id].kind : null);
 // The rebalance (R, story/world/island-depth.md): an item with `art` is drawn as that item (a scaled
 // copy, `<id>_n`, looks exactly like its legacy original). Every art lookup by id goes through artOf.
 export const artOf = (id) => ITEMS[id]?.art ?? id;
-export const STAFF_OF = Object.fromEntries(Object.entries(ITEMS).filter(([, it]) => it.kind === 'staff' && it.twin).map(([id, it]) => [it.twin, id]));
+export const STAFF_OF = Object.fromEntries(Object.entries(ITEMS).filter(([, it]) => it.kind === 'staff' && it.twin && !it.cls).map(([id, it]) => [it.twin, id]));
+// a Cleric's own staff twin (`cls: 'cleric'`, FB1 piece 3: Ladon's White Rose Rod): where both exist, twinPick gives the
+// Clerics who fought the rod and the Mages the staff (S5's loot by class)
+export const CLERIC_STAFF_OF = Object.fromEntries(Object.entries(ITEMS).filter(([, it]) => it.kind === 'staff' && it.twin && it.cls === 'cleric').map(([id, it]) => [it.twin, id]));
 // and its bow twin (S4): a drop can be any of the three (server/rpg.js twinPick)
 export const BOW_OF = Object.fromEntries(Object.entries(ITEMS).filter(([, it]) => it.kind === 'bow' && it.twin).map(([id, it]) => [it.twin, id]));
 export const STAFF_OFFKIND = 0.2;

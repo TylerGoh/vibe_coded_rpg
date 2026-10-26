@@ -40,6 +40,7 @@ export const STAFFS = {
   honey_staff: { len: 62, shaft: ['#4a3e3a', '#2a2220'], w: 2.6, head: 'comb', gem: '#ffc44a', gem2: '#ffe59a', glow: '255,200,90', band: '#e6a83a' },
   bosun_staff: { len: 64, shaft: ['#9a7a5a', '#5e4630'], w: 2.8, head: 'lantern', gem: '#8affc0', gem2: '#d6b25a', glow: '140,255,190' },
   hart_staff: { len: 66, shaft: ['#7a6a54', '#4a3e30'], w: 2.8, head: 'antler', gem: '#fff4f6', gem2: '#e8d6b4', glow: '255,240,245' },
+  neck_staff: { len: 66, shaft: ['#2e3a26', '#141e10'], w: 2.8, head: 'roots', gem: '#fbfff6', gem2: '#c8f0a0', glow: '240,255,235' },
   sentinel_staff: { len: 64, shaft: ['#c4c0d0', '#8a8698'], w: 2.8, head: 'eyestone', gem: '#ffcf7a', gem2: '#a8a4b4', glow: '255,205,120' },
   glacier_staff: { len: 62, shaft: ['#7a6a5c', '#4a3e34'], w: 2.8, head: 'crystal', gem: '#bfe6ff', gem2: '#7fbfe8', glow: '170,225,255' },
   howl_staff: { len: 64, shaft: ['#c8d0dc', '#7a8494'], w: 2.8, head: 'flake', gem: '#e8f4ff', gem2: '#ffffff', glow: '200,235,255' },
@@ -55,6 +56,8 @@ export const STAFFS = {
   rimeguard_staff: { len: 64, shaft: ['#e0e4ee', '#8a90a8'], w: 2.8, head: 'crystal', gem: '#e2f0fc', gem2: '#8ab8e0', glow: '200,230,255' },
   oath_staff: { len: 70, shaft: ['#c8b498', '#6a5a44'], w: 3, head: 'shield', gem: '#e2f0fc', gem2: '#3e6294', glow: '190,226,255' },
   warden_staff: { len: 68, shaft: ['#b0acc0', '#76728a'], w: 3.2, head: 'rootcrook', gem: '#ffcf7a', gem2: '#7aa05e', glow: '255,200,110' },
+  unsleeping_staff: { len: 70, shaft: ['#34482c', '#141e10'], w: 3, head: 'thornskull', gem: '#fbfff6', gem2: '#4e7a3e', glow: '220,255,200' }, // (Ladon's: src/ladon-art.js has the rest)
+  white_rose_rod: { len: 68, shaft: ['#4e6a3e', '#22301e'], w: 2.8, head: 'whiterose', gem: '#fbf6f0', gem2: '#7aa05e', glow: '250,246,232' },
   bellows_rod: { len: 62, shaft: ['#8a8490', '#4e4a56'], w: 2.8, head: 'ring', gem: '#ff8a3c', gem2: '#5e5a66', glow: '255,150,80' },
 };
 export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));
@@ -532,6 +535,72 @@ const HEADS = {
     ctx.stroke();
     ctx.fillStyle = s.gem2;
     ellipse(ctx, 14, y - 16, 3.4, 2, 0.5);
+    ctx.fill();
+  },
+  // Ladon's Unsleeping Staff: a little woven thorn skull, its two white rose eyes wide open (brighter as it casts)
+  thornskull(ctx, s, y, t, glow) {
+    ctx.fillStyle = s.gem2;
+    for (const d of [-1, 1]) {
+      ctx.beginPath();
+      ctx.ellipse(d * 8, y - 6, 5, 2.2, d * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = s.shaft[1];
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.moveTo(-7, y - 4);
+    ctx.quadraticCurveTo(-8, y - 17, 0, y - 18);
+    ctx.quadraticCurveTo(8, y - 17, 7, y - 4);
+    ctx.quadraticCurveTo(0, y + 3, -7, y - 4);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = s.shaft[0];
+    ctx.lineWidth = 1.2;
+    for (const k of [-11, -7]) {
+      ctx.beginPath();
+      ctx.moveTo(-6, y + k);
+      ctx.lineTo(6, y + k - 2);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#e8e0cc';
+    for (const x of [-3, 0, 3]) {
+      ctx.beginPath();
+      ctx.moveTo(x - 1.2, y - 3);
+      ctx.lineTo(x, y + 0.5);
+      ctx.lineTo(x + 1.2, y - 3);
+      ctx.fill();
+    }
+    const blink = !glow && t % 5 < 0.12; // (it almost never does)
+    for (const d of [-1, 1]) {
+      ctx.fillStyle = s.gem;
+      if (blink) ctx.fillRect(d * 3.2 - 2, y - 10.5, 4, 1);
+      else gem(ctx, d * 3.2, y - 10, 2.2 + glow * 0.6, s.gem, false);
+    }
+  },
+  // the White Rose Rod: one white rose wide open on the rod's tip, two leaves under it
+  whiterose(ctx, s, y, t, glow) {
+    ctx.fillStyle = s.gem2;
+    for (const d of [-1, 1]) {
+      ctx.beginPath();
+      ctx.ellipse(d * 6, y - 1, 5.5, 2.4, d * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.strokeStyle = 'rgba(200,180,186,0.9)';
+    ctx.lineWidth = 0.9;
+    ctx.fillStyle = s.gem;
+    const r = 7.5 + glow * 0.8;
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2 - Math.PI / 2 + Math.sin(t * 0.8) * 0.05;
+      circle(ctx, Math.cos(a) * r * 0.55, y - 9 + Math.sin(a) * r * 0.55, r * 0.56);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#efe6dc';
+    circle(ctx, 0, y - 9, r * 0.36);
+    ctx.fill();
+    ctx.fillStyle = '#efd88a';
+    circle(ctx, 0, y - 9, r * 0.16);
     ctx.fill();
   },
   // Sigrun's: a little round shield of clear ice on the shaft's head, a silver boss in it, a pale pennant

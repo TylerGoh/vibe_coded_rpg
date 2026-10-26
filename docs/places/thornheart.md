@@ -16,6 +16,18 @@ east, deeper and harder.
   the high ridge (Keeper's Spine, where the Root Warden holds the road's sealed gate: `docs/places/spine.md`,
   whose Road Stone agrees with it).
 - **The White Rose**, a briar arch high over the Maze (last in `THORN_PLATFORMS`), is the off-the-path spot.
+  FB1 (b) added a second find: **the Cast Coil**, a briar arch over the Maze's west end with the empty, papery
+  cast of something long and thorny coiled on it like a shed snakeskin (`drawCoil`). Nobody says what shed it.
+- **The split knot (FB1 (b))**: the root knot has split at its east end, a dark way down between the roots
+  (`SUNKEN_GATE_X`, `OPEN.rootsplit` in `src/branch-gates.js`) to the Sunken Road (`docs/places/sunkenroad.md`).
+  The update itself split it: no quest.
+- **Thorn patches (FB1 (b), the pocket's room hazard)**: `THORN_PATCHES` on the floor of the Maze and the heart.
+  Each grows (`PATCH_GROW`: runners creep in, a dark bruise of soil under them), stands sharp (`PATCH_UP`), then
+  dies back, on its own offset in `PATCH_CYCLE`. `patchAt(i, tick)` reads the server tick on both sides, so
+  nothing goes over the wire: the client draws from `net.renderTick()` (`drawPatch`), and the server
+  (`tick` in `server/rpg.js`) hurts anyone on the floor in a sharp one, `PATCH_DOT` of max HP every
+  `PATCH_HIT_EVERY` ticks, as a flat `'dot'` (no knockback, so no `step()` change and nothing to predict). A
+  ledge or a jump is safe. The patches don't care about mobs.
 - A hard pocket: no trader, no waystone, a red "Lv 50–60" chip on the door, red-trimmed signs, elites. Mobs
   reuse legacy brains: thornback = `shell` (a mask of thorns in front: hit it from behind), thistle puff =
   `split` into three thistledown (minions: small EXP and gold), pitcher plant = `lob` with `style: 'thorn'`

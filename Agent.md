@@ -144,7 +144,9 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/coves.md](docs/places/coves.md) | Saltspray Coves (room 25), Beachcomber Moss, the Tidemother's den (26), boss `lines` |
 | [docs/places/canopy.md](docs/places/canopy.md) | the Old Oak Canopy (room 31), Ranger Acorn, the Hornet Queen, wasp nests, the Lifted Stone, the cut trunk to Keeper's Spine |
 | [docs/places/wreck.md](docs/places/wreck.md) | Wreck Cave (room 32, a hard pocket off the Coves), the Brave Pippin and its log, the Drowned Bosun |
-| [docs/places/thornheart.md](docs/places/thornheart.md) | the Thornheart (room 33, a hard pocket off Bramble Woods), the Hedge Stone, the Thorn Hart |
+| [docs/places/thornheart.md](docs/places/thornheart.md) | the Thornheart (room 33, a hard pocket off Bramble Woods), the Hedge Stone, the Thorn Hart, the split root knot, the Cast Coil, its thorn patches (a room hazard) |
+| [docs/places/ladon.md](docs/places/ladon.md) | Ladon, the Briar Hydra (Greenhollow's final boss) and its den, the Root of the Road (room 49): its loops, heads, coils, title card, look, music, rewards (the class weapons, the Crown of Thorns, the mini Ladon) |
+| [docs/places/sunkenroad.md](docs/places/sunkenroad.md) | the Sunken Road (room 47, FB1's deep room off the Thornheart), its mobs and the Severed Neck, the Road's End (room 48, the approach to Ladon's den: eyes, heartbeats, Ladon's line, the den door and its sign) |
 | [docs/places/spine.md](docs/places/spine.md) | Keeper's Spine (room 34, the ridge above the Canopy), the Road Stone, the Watch Seat, the Root Warden and its court (den 35), Greenhollow's party den |
 | [docs/places/glacier.md](docs/places/glacier.md) | the Rimeglass Glacier (room 36, Frostpeak's first branch, Lv 60–75), Ice-Cutter Eyvind, Old Rimehorn, the Rime Stone, Ylva's Cairn |
 | [docs/places/skerries.md](docs/places/skerries.md) | the Whale Skerries (room 37, Lv 55–70, off Icefang Hamlet), Hakon the Bone-Carver, Grandmother (the whale skeleton), the Sounding Stone, the Old Narwhal and her den (38) |

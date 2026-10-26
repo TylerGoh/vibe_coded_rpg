@@ -27,7 +27,9 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Glowroot Hollow | 29 `GLOWROOT` | back up into the Deep (west end); a hard pocket |
 | The Old Oak Canopy | 31 `CANOPY` | down the rope ladder to Bramble Woods (west end); through the cut trunk up to Keeper's Spine (east end) (`docs/places/canopy.md`) |
 | Wreck Cave | 32 `WRECK` | back out to the Coves (east end); a hard pocket (`docs/places/wreck.md`) |
-| The Thornheart | 33 `THORNHEART` | back out to Bramble Woods (west end); a hard pocket (`docs/places/thornheart.md`) |
+| The Thornheart | 33 `THORNHEART` | back out to Bramble Woods (west end) · down through the split knot to the Sunken Road (east end); a hard pocket (`docs/places/thornheart.md`) |
+| The Sunken Road | 47 `SUNKEN` | back up to the Thornheart (west end) · up the road to the Road's End (east end); a deep room on hard-pocket rules (`docs/places/sunkenroad.md`) |
+| The Road's End | 48 `ROADSEND` | back down to the Sunken Road (west end) · Ladon's den (room 49, `LADON_DEN`, once FB1 (c) adds its `DENS` row) at `LADON_DEN_X`; no mobs, not a combat room (`docs/places/sunkenroad.md`) |
 | Keeper's Spine | 34 `SPINE` | back down through the trunk to the Canopy (west end) · the Root Warden's den (east end) (`docs/places/spine.md`) |
 | The Rimeglass Glacier | 36 `GLACIER` | back down the snout to Starfall Summit (west end) · down the crevasse to the Blue Halls · up the Icefall to the Aurora Heights (east end); Frostpeak's first branch (`docs/places/glacier.md`) |
 | The Whale Skerries | 37 `SKERRIES` | the shore path back to Icefang Hamlet (east end) · the Narwhal Grotto and the Old Narwhal's den (room 38) at the west end (`docs/places/skerries.md`) |

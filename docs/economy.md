@@ -19,6 +19,8 @@ owner's intent; the code holds the numbers. `npm run economy -- --check` exits 1
   `aim` level: **minutes of farming at that level** (the key number for pricing since L2) against its band
   in `PRICE_BANDS`. Furniture has its own table: price, size, first affordable level, and minutes of
   farming at three levels, plus what one of every piece costs.
+- **Final bosses** (FB1): FINAL BOSSES, a party of four at the recommended level, every three of them against the
+  enrage, and a member's pay an hour (below, "FB1 piece 3").
 - **Pets** (mini bosses for houses, `PETS`): aimed at their boss's level (`PRICE_BANDS` pet band, about 20
   minutes of farming there), never under the floor `PET_MIN`, never cheaper than an earlier boss's pet; the
   table also shows each one in kills of its own boss. Kept out of the furniture checks. Pets
@@ -447,6 +449,35 @@ stays** (the cheap filler, like Smite). Not on the sheet: Ricochet (kills) and E
 - No EXP buff (LONG BUFFS lists Focus and Sharp Eyes, no faucet). Nothing outside the CLASSES tables moved: no mob,
   boss, gold, price or curve.
 
+## FB1 (b): the Sunken Road (2026-10-26)
+Four mobs on the curve at Lv 55–60 (`docs/places/sunkenroad.md`: briarling, old road guard at 130% HP for its
+shell like the thornback, seed-pod lantern, root creeper), three elites and the Severed Neck (an elite of the root
+creeper, checked as one). Two gear drops priced on the curve: the Road Guard's Helm (`helmetPrice` at
+Lv 58) and the Neckthorn Fang with its staff and bow twins (`swordPrice` at Lv 60). "Farming your own level" at 60
+now picks the root creeper (Lv 60) over the Lv 58 thorn stalker: "gold earned by" Lv 60 ~561.6k → ~556.7k and every
+later level ~5.7k lower; play time unchanged. No trader, no field boss, no pet: nothing else moved. The Road's End
+has no mobs. The thorn patches cost HP only.
+
+## FB1 piece 3: Ladon, the first final boss (2026-10-26)
+- **FINAL BOSSES** (a new table and checks): a final boss is fought at its recommended level (`fightLvl`: the tag's Lv
+  less `FINAL_LVL_OVER`, Lv 60 for Ladon) in TOP BOSSES too, not at the Lv 80 on its tag. Checked: `PARTY_TEAM` kills it
+  within `FINAL_PARTY_MIN` (the owner's ~45 min), every three of them take longer than `FINAL_ENRAGE_MIN` (a party
+  that's too small runs out of time: the weakest three, no Knight, ~56 min), the enrage comes after the four's kill,
+  and a member's pay an hour sits in `FINAL_PAY` (BOSS_PAY's EXP band, gold 2–6×) against farming at Lv 60. Pay is
+  **per member**: everyone who fought gets the full EXP and the one set of loot is split `PARTY_TEAM` ways (no reward
+  window, so `campRatio`'s window doesn't apply; the den check skips final bosses). The heads aren't modelled (cutting
+  them takes `HEAD_CHUNK` a head off), so a party that cuts them beats the sheet.
+- **Ladon's numbers**: HP 60M placeholder → 46M (45:28 for four at Lv 60); EXP 900k → 620k (0.92× farming's EXP an hour
+  for each member; the Root Warden is 0.74×); coins 400–600k → 1.6–2.4M with more potions, sap, seeds and scrolls (a
+  member's quarter of the loot ~534k: 2.97× farming's gold an hour; the Warden, whose loot isn't split, 3.07×). The
+  lopsided party 61:34, alone it stays very long (fixed HP for four, not checked).
+- **Gear** on the frozen curve at Lv 70 (a step over the Warden's Lv 62): Ladon's Fang (124 ATK, `swordPrice`, 221k)
+  with its staff, rod (`CLERIC_STAFF_OF`) and bow twins at the same price, and the Crown of Thorns (56 DEF,
+  `helmetPrice`, 170k) at a 50% chance. LOOT BY CLASS lists the rod.
+- **The mini Ladon**: 120k, about 21 minutes of farming at Lv 80, between Old Rimehorn's (108k, Lv 75) and the Hall
+  Troll's (131k, Lv 88). `PETSHOP_W` still fits.
+- Nothing else moved: the faucets, PROGRESS and every other table are as they were.
+
 ## The balance pass (SP6, 2026-10-25; owner's brief: `story/roadmap.md`, `story/skills-plan.md`)
 - **Every boss hit takes a share of max HP** on top of its flat part (`bossHitPct`: `BOSS_HIT_PCT`, `TOP_HIT_PCT` on a top
   boss, × the move's multiplier; `docs/combat/core.md`). The sheet passes it as `pct` to `fight` (× `BOSS_HIT_MULT`).
@@ -454,7 +485,8 @@ stays** (the cheap filler, like Smite). Not on the sheet: Ricochet (kills) and E
 - **Fight lengths**, sheet minutes (it plays faster than people): an ordinary den soloed at its level, the eight
   branches' median within `DEN_SOLO_MIN` (~15); a field boss within `FIELD_SOLO_MIN` (~4: the owner left it to judgement,
   "longer than now, well short of a den"; FIELD BOSSES table); a top boss for `PARTY_TEAM` within `TOP_PARTY_MIN` (~45),
-  alone `TOP_SOLO` × that (possible, miserable, never locked: at least one branch finishes), a lopsided party within
+  alone `TOP_SOLO` × that (possible, miserable, never locked: at least one branch finishes; not checked on a final boss,
+  whose HP is fixed for four: owner 2026-10-26, so alone is meant to be very long), a lopsided party within
   `TOP_LOPSIDED_MIN` (70–90 wanted) and drinking at least `LOPSIDED_POTS` a member. Sigrun's lopsided time isn't checked:
   her barrier is front-only and flanking it is everyone's answer, so a party without a healer, Mage or Frostbinder pays
   there in potions (~1,300), not time (~37 min). Nobody in the right party faints.

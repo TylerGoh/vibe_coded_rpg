@@ -12,6 +12,7 @@ import { text } from './village.js';
 import { glow } from './glow.js';
 import { audio } from './audio.js';
 import { MOBS, DEN_W, partyBit, partyHitMult, weakOf, weakReach, ARMOUR_CRACKS, barrierCovers, weakFaces, barrierOf } from './shared/rpg.js';
+import { THROAT_MULT, LADON_SLOTS } from './shared/final.js';
 
 const RED = '232,64,92', CURSE = '96,52,140', DOME = '150,170,255', WEAK = '255,214,120';
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
@@ -42,7 +43,7 @@ export class Party {
     this.bosses.set(m.id, {
       on: m.on, focus, until: focus ? t + (m.fl ?? 0) / 1000 : 0, at: performance.now(),
       stUntil: m.st > 0 ? t + m.st / 1000 : 0, stQueued: m.st === -1,
-      sh: m.sh ? { kind: m.sh[0] === 'b' ? 'barrier' : 'armour', from: t + m.sh[1] / 1000, until: t + m.sh[2] / 1000, v: m.sh[3] } : null,
+      sh: m.sh ? { kind: m.sh[0] === 'b' ? 'barrier' : m.sh[0] === 'w' ? 'both' : 'armour', from: t + m.sh[1] / 1000, until: t + m.sh[2] / 1000, v: m.sh[3], c: m.sh[4] } : null, // ('w': both at once, FB1)
       wk: m.wk ? { until: t + m.wk[0] / 1000, fill: m.wk[1] } : null,
     });
     this.last.set(m.id, focus);
@@ -85,15 +86,24 @@ export class Party {
     const kk = MOBS[v.kind], t = this.rpg.time;
     let sh = b.sh && t >= b.sh.from && t < b.sh.until ? b.sh.kind : null;
     if (sh === 'barrier' && !barrierCovers(kk, v.x, v.facing, x)) sh = null; // (round the back of her shield)
-    const weak = !!(b.wk && b.wk.until > t) && weakFaces(kk, v.x, v.facing, x) && weakReach(weakOf(kk, v.x, v.y, v.facing), y, arrow);
-    const k = partyHitMult({ stag: b.stUntil > t, shield: sh, phys: barrierOf(kk).phys }, { magic, heavy, weak }); // (SP6: a top boss's barrier lets less through)
+    let weak = !!(b.wk && b.wk.until > t) && weakFaces(kk, v.x, v.facing, x) && weakReach(weakOf(kk, v.x, v.y, v.facing), y, arrow);
+    // FB1: a final boss's heads (src/ladon.js picked the part this hit is on: v.part): a head, its stump or the Gaze's
+    // shard are outside the bark and the roses; a glowing throat does THROAT_MULT. The code goes out as h[4]
+    const pt = kk.heads ? v.part ?? 'body' : null, off = !!pt && pt !== 'body';
+    if (pt) weak = !!pt.weak && !!(b.wk && b.wk.until > t);
+    if (off) sh = null;
+    const k = partyHitMult({ stag: b.stUntil > t, shield: sh, phys: barrierOf(kk).phys }, { magic, heavy, weak }) * (pt?.throat ? THROAT_MULT : 1); // (SP6: a top boss's barrier lets less through)
     // a word over it now and then: what cut the hit, or that it found the spot
-    if (t - this.said > 0.7 && ((sh === 'barrier' && !magic) || (sh === 'armour' && !heavy) || weak)) {
+    const warded = (sh === 'barrier' || sh === 'both') && !magic, armoured = (sh === 'armour' || sh === 'both') && !heavy;
+    if (t - this.said > 0.7 && (warded || armoured || weak || pt?.throat)) {
       this.said = t;
-      if (weak) this.rpg.pop(v.x, v.y - kk.h - 46, 'WEAK POINT!', '#ffe08a', 17);
-      else this.rpg.pop(v.x, v.y - kk.h - 30, sh === 'barrier' ? 'WARDED' : 'ARMOURED', '#b8c4ff', 14);
-      if (!weak) audio.sfx('shellBlock', { vol: 0.5 });
+      const at = pt?.x !== undefined ? pt : { x: v.x, y: v.y - kk.h - 30 };
+      if (weak) this.rpg.pop(at.x, at.y - 16, 'WEAK POINT!', '#ffe08a', 17);
+      else if (pt?.throat) this.rpg.pop(at.x, at.y - 30, 'THROAT!', '#d8ffb0', 17);
+      else this.rpg.pop(v.x, v.y - kk.h - 30, warded ? 'WARDED' : 'ARMOURED', '#b8c4ff', 14);
+      if (!weak && !pt?.throat) audio.sfx('shellBlock', { vol: 0.5 });
     }
+    if (pt) return [k, weak ? 1 : pt.slot !== undefined ? 2 + pt.slot : 0]; // (h[4]: 1 the shard, 2 + slot a head or stump)
     return [k, weak];
   }
   // the focus landed on slime id: a warning sound if it's us (the red line and reticle say the rest)
@@ -138,7 +148,8 @@ export class Party {
       if (v) r.fx.spawn('shatter', { x: v.x, y: v.y - k.h / 2, r: Math.max(40, k.w * 0.75) });
       r.pop(m.x, head - 22, m.kind === 'barrier' ? 'BARRIER BROKEN!' : 'ARMOUR BROKEN!', '#e8ecff', 20);
       audio.sfx('eggBreak', { pan });
-      if (b) b.sh = null;
+      if (b?.sh?.kind === 'both') b.sh.kind = m.kind === 'barrier' ? 'armour' : 'barrier'; // (the other one holds, FB1)
+      else if (b) b.sh = null;
       return true;
     }
     if (m.a === 'shieldDrop') {
@@ -195,7 +206,12 @@ export class Party {
       const v = r.views.get(id);
       if (!v || r.killed.has(id)) continue;
       const k = MOBS[v.kind];
-      if (b.sh && t < b.sh.until && t > b.sh.from - 1.6) drawShield(ctx, v, k, b.sh, t);
+      if (b.sh && t < b.sh.until && t > b.sh.from - 1.6) {
+        if (b.sh.kind === 'both') { // (FB1: the bark under the roses)
+          drawShield(ctx, v, k, { ...b.sh, kind: 'armour', v: b.sh.c }, t);
+          drawShield(ctx, v, k, { ...b.sh, kind: 'barrier' }, t);
+        } else drawShield(ctx, v, k, b.sh, t);
+      }
       if (b.wk && b.wk.until > t) drawWeak(ctx, weakOf(k, v.x, v.y, v.facing), b.wk, t, !!v.marked, k.looks?.weak);
       if (b.stUntil > t) drawDizzy(ctx, v, k, t, b.stUntil - t);
       if (!b.focus || b.until <= t) continue;
@@ -224,7 +240,7 @@ export class Party {
 // The focus: a red dashed line from the boss's eyes to its slime, marching toward them, and a turning reticle
 // over the slime (brighter when it's you)
 function drawFocus(ctx, v, k, s, t, me) {
-  const x0 = v.x, y0 = v.y - k.h * 0.55, x1 = s.x, y1 = s.y - 22;
+  const x0 = k.heads ? LADON_SLOTS[0].x : v.x, y0 = k.heads ? 150 : v.y - k.h * 0.55, x1 = s.x, y1 = s.y - 22; // (FB1: Ladon's Watch comes from the eyes in the dark)
   const pulse = 0.5 + 0.5 * Math.sin(t * 7);
   ctx.save();
   ctx.lineCap = 'round';
@@ -269,6 +285,7 @@ const PULSES = {
   violet: { ring: '176,110,255', glow: '190,130,255', hit: '160,100,250', word: 'PULSE', fill: '#f1e4ff', edge: 'rgba(40,20,70,0.75)' },
   tide: { ring: '80,196,214', glow: '120,220,232', hit: '60,170,206', word: 'TIDE', fill: '#e2fbff', edge: 'rgba(8,48,66,0.78)', foam: true },
   breath: { ring: '62,128,186', glow: '170,214,240', hit: '84,150,206', word: 'BREATH', fill: '#f2faff', edge: 'rgba(24,44,70,0.8)', foam: true, plume: true },
+  thorn: { ring: '120,190,80', glow: '170,230,120', hit: '96,160,60', word: 'BREATH', fill: '#eaffd8', edge: 'rgba(24,40,16,0.82)' }, // Ladon's green hiss of thorn dust (FB1)
 };
 function drawPulseWarn(ctx, x, y, kind, reach, k, t, left) {
   if (k > 1) return;
@@ -461,7 +478,7 @@ const SHELLS = {
 };
 // S5.4: Glacia's (`queen`): ice blue, deep enough to read in her white throne room, snowflakes turning round it; the Astral Wyrm's (`star`): starlight, violet with
 // little gold stars for runes
-const DOMES = { keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'] };
+const DOMES = { rose: ['250,244,240', '255,255,255', '246,226,236'], keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'] };
 function drawShield(ctx, v, k, sh, t) {
   const fade = Math.max(0, Math.min(1, 1 - (sh.from - t) / 1.5)), end = Math.min(1, (sh.until - t) / 0.6);
   const a = fade * end, cx = v.x, cy = v.y - k.h * 0.5, rx = k.w * 0.72, ry = k.h * 0.68;
@@ -501,6 +518,17 @@ function drawShield(ctx, v, k, sh, t) {
           ctx.lineTo(ex * 0.55 + Math.cos(g - 1) * 2.5, ey * 0.55 + Math.sin(g - 1) * 2.5);
         }
         ctx.stroke();
+      } else if (k.looks?.dome === 'rose') { // (FB1: Ladon's white roses, five petals round a pale heart)
+        for (let j = 0; j < 5; j++) {
+          const g = (j * TAU) / 5;
+          ctx.beginPath();
+          ctx.arc(Math.cos(g) * 3.6, Math.sin(g) * 3.6, 3.4, 0, TAU);
+          ctx.fill();
+        }
+        ctx.fillStyle = 'rgba(236,220,170,0.9)';
+        ctx.beginPath();
+        ctx.arc(0, 0, 2, 0, TAU);
+        ctx.fill();
       } else if (k.looks?.dome === 'star') {
         starPath(ctx, 0, 0, 6.5, 2.8, 0);
         ctx.fill();

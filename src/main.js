@@ -18,7 +18,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
+import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
 import { drawHighlands, drawSummitLookout } from './highlands.js';
 import { drawCaldera } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
@@ -53,6 +53,8 @@ import { drawGlowroot } from './glowroot.js';
 import { drawCanopy } from './canopy.js';
 import { drawWreck } from './wreck.js';
 import { drawThornheart } from './thornheart.js';
+import { drawSunkenRoad } from './sunkenroad.js';
+import { drawRoadsEnd, drawRoadsEndFront, roadsDepth, say as roadsSay } from './roadsend.js';
 import { drawSpine } from './spine.js';
 import { drawGlacier } from './glacier.js';
 import { drawSkerries } from './skerries.js';
@@ -201,6 +203,12 @@ const net = new Net(wsUrl, {
   },
   // the Wildwood (src/rpg.js): stats, mobs, loot, gear and level changes
   onRpg(m) {
+    if (m.t === 'boss' && m.a === 'voice') {
+      // a voice out of the dark, not a mob's (Ladon's one line in the Road's End: docs/places/sunkenroad.md)
+      if (room === ROADSEND) roadsSay(m.text, time);
+      chat.announce(`${m.who}: "${m.text}"`);
+      return;
+    }
     if (m.t === 'me') queueMicrotask(() => (trade.refresh(), chest.refresh())); // the bag changed while trading / at the chest
     if (m.t === 'warp') {
       // someone vanished from (or appeared at) a waystone in our room
@@ -1276,6 +1284,7 @@ function update(realDt) {
     if (online()) audio.sfx('door');
   }
   if (online()) audio.setScene(room, STAGES[room] ? zoneAt(net.me.x, room).name : null);
+  audio.setDepth(online() && room === ROADSEND ? roadsDepth(net.me.x) : 0); // (the Road's End's heartbeats)
   rpg.update(dt, online() ? net.me : null, room);
   skillTree.tick(); // (the K panel's cooldown sweeps while it's open, SP1)
   if ((room === STORE || room === PETSHOP) && online()) store.update(net.me, room);
@@ -1486,7 +1495,8 @@ function render() {
     else if (room === GLOWROOT) drawGlowroot(ctx, camX, W, time);
     else if (room === CANOPY) drawCanopy(ctx, camX, W, time);
     else if (room === WRECK) drawWreck(ctx, camX, W, time);
-    else if (room === THORNHEART) drawThornheart(ctx, camX, W, time);
+    else if (room === THORNHEART) drawThornheart(ctx, camX, W, time, net.renderTick());
+    else if (room === SUNKEN) drawSunkenRoad(ctx, camX, W, time);
     else if (room === SPINE) drawSpine(ctx, camX, W, time);
     else if (room === GLACIER) drawGlacier(ctx, camX, W, time);
     else if (room === SKERRIES) drawSkerries(ctx, camX, W, time);
@@ -1510,6 +1520,7 @@ function render() {
   else if (room === FJORD) drawFjord(ctx, camX, W, time);
   else if (room === FORGEHOLD) drawForgehold(ctx, camX, W, time);
   else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
+  else if (room === ROADSEND) drawRoadsEnd(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (roomDef(room)?.crossing) drawCrossing(ctx, room, camX, W, time, online() ? net.me : null);
   else drawVillage(ctx, camX, W, time);
   if (room === VILLAGE && Math.abs(SHOP_X - camX - W / 2) < W / 2 + 80) {
@@ -1545,6 +1556,7 @@ function render() {
   for (const s of all) nameTag(s, false);
   if (meShown) nameTag(mine, true);
   if (roomDef(room)?.crossing) drawCrossingFront(ctx, room, camX, W, time, online() ? net.me : null); // the near water, over the hull's foot
+  if (room === ROADSEND) drawRoadsEndFront(ctx, camX, W, time, online() ? net.me : null); // the dark closing in, the petals, Ladon's line
   rpg.drawFx(ctx); // skill effects (and Dash / Blink anywhere)
   if (isCombat(room)) for (const s of all) if (s.hpAt !== undefined && time - s.hpAt < 5) bar(ctx, s.x - 22, s.y - s.h - 14, 44, 6, s.hp / s.maxHp, '#ff6f91');
   for (const s of all) drawTalk(s);
@@ -1608,6 +1620,7 @@ function render() {
     else if (status === 'online' && room === FJORD) drawPill(16, 14, 300, `Icefang Hamlet · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === FORGEHOLD) drawPill(16, 14, 300, `Forgehold · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CLIFFS) drawPill(16, 14, 300, `The East Cliffs · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === ROADSEND) drawPill(16, 14, 300, `The Road's End · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && crossingAt(room, net.me)) {
       // aboard: where she's bound, how long till she's in, and a little track of the voyage
       const cr = crossingAt(room, net.me);

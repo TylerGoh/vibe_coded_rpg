@@ -18,7 +18,8 @@ one shared corner feed).
   in range to talk.
 - When a place opens, update the personas that can see it, or they keep describing the block: Moss knows
   Wreck Cave's water is down and what lives in it, Acorn (who watches Bramble Woods from the treetops) knows
-  the tunnel through the thorns and the Thorn Hart (G4), and that the trunk to Keeper's Spine is cut through (G5).
+  the tunnel through the thorns and the Thorn Hart (G4), and that the trunk to Keeper's Spine is cut through (G5), and (FB1 (b)) that the Thornheart's root knot has split
+  open onto a road underneath, which he won't go down (he notices the roses all face east).
   F1: Skaldi, Runa and Tove know the Rimeglass Glacier and Eyvind (Tove lists its creatures and levels;
   Skaldi knows Ylva's Cairn), and Eyvind knows the two blocked ways on (the Blue Halls, the Aurora Heights).
   F2: Skaldi, Runa and Tove know the Skerries (the slide dug through), Hakon and the Old Narwhal; Runa's

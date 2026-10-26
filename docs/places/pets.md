@@ -54,6 +54,13 @@ Pets themselves (mini bosses placed like furniture, their prices): `docs/places/
   over it, and opens the card on E (after the garden plot / lab check, so a pet wandering past the lab
   doesn't steal E). The card closes when you walk well away from it.
 
+## Pets with art of their own
+Most pets are their boss's art shrunk by `PET_SCALE` (`drawPet` in `src/furniture.js`). A boss whose art doesn't shrink
+into a pet gets its own drawing and size: `petWH` on the mob sets the furniture size, and `drawPet` hands it to the
+drawing. The first is the **mini Ladon** (FB1 piece 3: `drawLadonPet` in `src/ladon-art.js`): three little heads on one
+knot, the middle one crowned, and every few seconds the outer two turn on each other and snap while the middle one
+looks away.
+
 ## Testing
 - `TEST_PET_FAST=1440` makes a full belly last 2 minutes (test servers only, never live).
 

@@ -93,11 +93,11 @@ export const PET_SCALE = 0.4; // of the boss's own size
 export const PETS = {
   sprout_king: 20000, turnipop: 20000, mother_mushroom: 20000, bramble_behemoth: 20000, snapjaw: 20000, tidemother: 22000, knotmole: 38000,
   hornet_queen: 46000, drowned_bosun: 47000, frost_queen: 48000, astral_wyrm: 82000, thorn_hart: 83000, root_warden: 84000, old_narwhal: 97000,
-  rimehorn: 108000, hall_troll: 131000, pale_wyrm: 132000, ignis: 150000, sigrun: 151000, pyra: 155000, colossus: 248000, chronos: 270000,
+  rimehorn: 108000, ladon: 120000, hall_troll: 131000, pale_wyrm: 132000, ignis: 150000, sigrun: 151000, pyra: 155000, colossus: 248000, chronos: 270000,
 };
 for (const [kind, price] of Object.entries(PETS)) {
   const m = MOBS[kind];
-  FURNITURE[`pet_${kind}`] = { name: `Mini ${m.name.replace(/^The /, '').split(/,| the /)[0]}`, price, sec: 'Pets', w: Math.round(m.w * PET_SCALE), h: Math.round(m.h * PET_SCALE), layer: 'floor', pet: kind };
+  FURNITURE[`pet_${kind}`] = { name: `Mini ${m.name.replace(/^The /, '').split(/,| the /)[0]}`, price, sec: 'Pets', w: m.petWH?.[0] ?? Math.round(m.w * PET_SCALE), h: m.petWH?.[1] ?? Math.round(m.h * PET_SCALE), layer: 'floor', pet: kind }; // (petWH: a pet with art of its own, not the boss shrunk)
 }
 export const LAYERS = ['rug', 'wall', 'floor'];
 

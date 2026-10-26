@@ -6,7 +6,8 @@
 // footbridge, mended with new planks, the shore path to the Coves, its rockfall rolled aside, the hollow
 // stump into the Mycelium Deep, its roots cut back, the glowing crack down into Glowroot Hollow, and the
 // Old Oak Canopy's rope ladder, restrung, Wreck Cave's mouth with the water gone down, and the Thornheart's
-// wall of thorns, cut back into a tunnel, and the fallen trunk in the Canopy, sawn through to Keeper's Spine.
+// wall of thorns, cut back into a tunnel, and the fallen trunk in the Canopy, sawn through to Keeper's Spine,
+// and (FB1 (b)) the split in the Thornheart's root knot, a dark way down between the roots to the Sunken Road.
 // Frostpeak's (its depth pass, F0): the ice
 // stair onto the Queen's Bridge broken off on Frostpine Ridge, and in the Rimeglass Glacier the crevasse with
 // the cutters' ladder smashed at the bottom (the Blue Halls) and the icefall with its steps sheared away (the
@@ -54,7 +55,7 @@ export function drawEntries(ctx, room, ground, L, R, time) {
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, fumes: -130, balloon: -190 };
+const SIGN_AT = { rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, fumes: -130, balloon: -190 };
 const SCALE = { bridge: 1.5, thorns: 1.15, balloon: 0.82 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -1761,5 +1762,62 @@ function drawBalloon(ctx, time) {
 }
 
 const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon };
+// The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
+// going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
+// white rose petal or two drifting into it. The update itself split it: no quest
+function drawRootSplit(ctx, time) {
+  const pulse = 0.5 + 0.5 * Math.sin(time * 0.9);
+  const dg = ctx.createRadialGradient(0, -40, 4, 0, -60, 120);
+  dg.addColorStop(0, `rgba(170,240,150,${0.18 + 0.1 * pulse})`);
+  dg.addColorStop(1, 'rgba(170,240,150,0)');
+  ctx.fillStyle = dg;
+  ctx.fillRect(-120, -190, 240, 200);
+  // the slot between the roots
+  ctx.fillStyle = '#0c080e';
+  ctx.beginPath();
+  ctx.moveTo(-34, 6);
+  ctx.bezierCurveTo(-44, -60, -26, -130, -6, -176);
+  ctx.bezierCurveTo(14, -130, 40, -60, 36, 6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = `rgba(150,220,130,${0.25 + 0.15 * pulse})`;
+  ctx.beginPath();
+  ctx.ellipse(0, -6, 18, 7, 0, 0, TAU);
+  ctx.fill();
+  // the two roots, bent apart
+  ctx.lineCap = 'round';
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < 3; i++) {
+      ctx.strokeStyle = i % 2 ? '#5e3a50' : '#4a2c42';
+      ctx.lineWidth = 20 - i * 5;
+      ctx.beginPath();
+      ctx.moveTo(side * (46 + i * 12), 8);
+      ctx.bezierCurveTo(side * (62 + i * 10), -70, side * (40 + i * 6), -140, side * (10 + i * 4), -190 + i * 10);
+      ctx.stroke();
+    }
+    // torn bark, pale along the split
+    ctx.strokeStyle = '#d8c0a0';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(side * 36, 0);
+    ctx.bezierCurveTo(side * 48, -60, side * 30, -130, side * 6, -172);
+    ctx.stroke();
+    ctx.fillStyle = '#e9c6d4';
+    for (let k = 0; k < 4; k++) {
+      const y = -30 - k * 38, x = side * (52 - k * 8);
+      ctx.beginPath();
+      ctx.moveTo(x, y - 3);
+      ctx.lineTo(x + side * 10, y - 6);
+      ctx.lineTo(x, y + 3);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+  // a petal drifting down into it
+  const py = -150 + ((time * 22) % 150), px = Math.sin(time * 1.3) * 8;
+  ctx.fillStyle = `rgba(251,246,244,${0.8 * (1 - (py + 150) / 150)})`;
+  ellipse(ctx, px, py, 3, 1.8, time);
+}
+
 const OPEN = { icestair: (ctx, time, g) => drawIcestair(ctx, time, g, true), snout: drawSnout, crevasse: (ctx, time, g) => drawCrevasse(ctx, time, g, true), icefall: (ctx, time, g) => drawIcefall(ctx, time, g, true), snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
-  flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true) };
+  flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true), rootsplit: drawRootSplit };

@@ -14,6 +14,7 @@ import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, draw
 import { Summons } from './summons.js';
 import { Fields } from './fields.js';
 import { Party } from './party.js';
+import { Final } from './ladon.js';
 import { StatusBox, statusOf } from './status.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, STAFF_BOLT_RANGE, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE, curseMult, heavyHit } from './shared/rpg.js';
@@ -27,7 +28,7 @@ const MOB_KINDS = Object.keys(MOBS); // same order as the server's
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const panX = (x, me) => clamp((x - me) / 500, -1, 1);
 // knockbacks: same numbers as server/rpg.js OUCH + hurt()
-const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 240, burn: 150, geyser: 380, sweep: 380, beam: 300, zap: 260, bomb: 420, slash: 380, pulse: 360 };
+const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 240, burn: 150, geyser: 380, sweep: 380, beam: 300, zap: 260, bomb: 420, slash: 380, pulse: 360, bite: 420, coil: 360 }; // (bite, coil: Ladon's, FB1)
 // ultimates Dash / Blink i-frames can get you through (the rest want you somewhere safe)
 const DODGEABLE_ULT = new Set(['collapse']);
 const TILE = 150; // den floor tiles for the grid attacks
@@ -69,6 +70,8 @@ export class Rpg {
     this.summons = new Summons(this); // the Cleric's spirits, wisps and totems (S3)
     this.fields = new Fields(this); // SP1's fields on the ground (src/fields.js)
     this.party = new Party(this); // S5's party mechanics on bosses (src/party.js)
+    this.final = new Final(this); // FB1: a final boss's heads, coils and title card (src/ladon.js)
+    this.aimArrow = false; // (the hit being aimed is an arrow: any arrow reaches any head in range)
     this.status = new StatusBox(document.getElementById('status')); // what's on you, under the HP panel (src/status.js)
     this.downNear = () => false; // (x, y, r) → is a knocked-out slime there? (main.js: Revive's check)
     this.bossFx = new BossFx();
@@ -189,6 +192,8 @@ export class Rpg {
       this.bossEvent(m, mine);
     } else if (m.t === 'party') {
       this.party.receive(m);
+    } else if (m.t === 'final') {
+      this.final.receive(m);
     } else if (m.t === 'curse') {
       this.party.curse(m);
     } else if (m.t === 'summons' || m.t === 'sumhit' || m.t === 'sumhurt' || m.t === 'sumgone' || m.t === 'netcatch') {
@@ -252,7 +257,8 @@ export class Rpg {
     // predicted could leave it a sliver of HP, and it would die on screen, come back and die again
     if (k.boss || k.field) v.localHp = Math.max(1, v.localHp);
     v.localUntil = this.time + 0.8;
-    this.pop(v.x, v.y - k.h - 14, String(dmg), crit ? '#ff5d8f' : '#ffffff', crit ? 26 : 20, delay);
+    const at = v.part?.x !== undefined ? v.part : null; // (FB1: a hit on one of a final boss's heads pops there)
+    this.pop(at ? at.x : v.x, at ? at.y - 34 : v.y - k.h - 14, String(dmg), crit ? '#ff5d8f' : '#ffffff', crit ? 26 : 20, delay);
     audio.sfx(crit ? 'crit' : 'hit', { pan: panX(v.x, myX) });
     audio.sfx('mobHurt', { kind: MOBS[v.kind].base ?? v.kind, pan: panX(v.x, myX), vol: 0.8 });
     if (v.localHp <= 0 && !this.killed.has(v.id)) {
@@ -299,6 +305,11 @@ export class Rpg {
     const out = [];
     for (const v of this.targets()) {
       const k = MOBS[v.kind], d = (v.x - me.x) * dir;
+      if (k.heads) { // (FB1: a final boss's heads, stumps, shard or body, whichever is in reach: src/ladon.js)
+        v.part = this.final.reach(v, me.x, me.y, dir, reach, back, this.aimArrow);
+        if (v.part) out.push([v, v.part === 'body' ? Math.max(0, Math.abs(d) - k.w / 2) : Math.abs(v.part.x - me.x)]);
+        continue;
+      }
       if (d < -back - k.w / 2 || d > reach + k.w / 2) continue;
       if (Math.abs((v.y - k.h / 2) - (me.y - 20)) > 40 + k.h / 2) continue;
       out.push([v, Math.abs(d)]);
@@ -320,6 +331,8 @@ export class Rpg {
   // (the server allows it from its own state: server/rpg.js attack)
   slapHits(me, dir, mult = 1) {
     if (!this.me || !isCombat(this.room)) return [];
+    this.aimArrow = !!this.bowOf(this.me);
+    this.aimMagic = !!this.staffOf(this.me);
     if (this.staffOf(this.me)) return this.staffBolt(me, dir);
     if (this.bowOf(this.me)) return this.bowShot(me, dir, mult);
     const [v] = this.ahead(me, dir, SLAP_REACH + (this.swordOf(this.me)?.reach ?? 0));
@@ -329,7 +342,7 @@ export class Rpg {
     dmg = Math.max(1, Math.round(dmg * cut * pm));
     this.blocked(v, cut);
     this.showHit(v, dmg, crit, me.x);
-    return [weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]];
+    return [weak ? [v.id, dmg, crit, 0, +weak] : [v.id, dmg, crit]];
   }
 
 
@@ -350,6 +363,7 @@ export class Rpg {
   // (sim.js step did the moving; main.js moveFx draws them). Hits are predicted here and sent as a skill,
   // capped by the server (server/rpg.js chase). No MP, no hotbar.
   chase(id, me, seq) {
+    this.aimArrow = this.aimMagic = false;
     const sk = SKILLS[id], m = this.me, rank = rankOf(m?.skills, id);
     if (!m || !rank || !isCombat(this.room)) return;
     const msg = { t: 'skill', skill: id, dir: me.facing, s: seq, hits: [] }, sx = me.x;
@@ -358,7 +372,7 @@ export class Rpg {
       let [dmg, crit] = this.roll(m.atk, sk.mult(rank) * this.markOn(v));
       dmg = Math.max(1, Math.round(dmg * cut * pm));
       this.blocked(v, cut);
-      msg.hits.push(weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]);
+      msg.hits.push(weak ? [v.id, dmg, crit, 0, +weak] : [v.id, dmg, crit]);
       this.showHit(v, dmg, crit, sx);
     }
     if (msg.hits.length) this.afterInput(() => this.send(msg)); // (after this step's input: see hook)
@@ -390,7 +404,8 @@ export class Rpg {
     const m = this.me, range = statsFor(m).arrowRange;
     const [v] = this.ahead(me, dir, range, 0);
     const sx = me.x, sy = me.y;
-    const tx = v ? v.x : sx + dir * range * 0.85, ty = v ? v.y - MOBS[v.kind].h / 2 : sy - 20;
+    const at = v?.part?.x !== undefined ? v.part : null; // (FB1: at the head it's aimed at)
+    const tx = at ? at.x : v ? v.x : sx + dir * range * 0.85, ty = at ? at.y : v ? v.y - MOBS[v.kind].h / 2 : sy - 20;
     const dur = Math.abs(tx - sx) / BOW_SHOT_SPEED + 0.03;
     this.fx.spawn('arrow', { x: sx + dir * 30, y: sy - 13, tx, ty, dur, hit: !!v, tint: bowTint(m.gear.weapon) });
     if (!v) return [];
@@ -402,7 +417,7 @@ export class Rpg {
       this.blocked(v, cut);
       this.showHit(v, dmg, crit, sx, 0, () => this.ricochet(v));
     }, dur * 1000);
-    return [weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]];
+    return [weak ? [v.id, dmg, crit, 0, +weak] : [v.id, dmg, crit]];
   }
   // Someone else's arrow (drawn only: their hits come with the slap message) → when it lands
   otherArrow(s, dir, hits) {
@@ -435,7 +450,7 @@ export class Rpg {
       this.blocked(v, cut);
       this.showHit(v, dmg, crit, sx);
     }, dur * 1000);
-    return [weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]];
+    return [weak ? [v.id, dmg, crit, 0, +weak] : [v.id, dmg, crit]];
   }
   // Arcane Charge's stored charges (Mage), as we predict them
   charges() {
@@ -507,6 +522,7 @@ export class Rpg {
   around(x, y, radius, round = false) {
     return this.targets().filter((v) => {
       const k = MOBS[v.kind];
+      if (k.heads) return !!(v.part = this.final.reachAround(v, x, y, radius)); // (FB1: src/ladon.js)
       return round ? Math.hypot(v.x - x, v.y - k.h / 2 - (y - 20)) < radius + k.w / 2 : Math.abs(v.x - x) < radius + k.w / 2 && Math.abs((v.y - k.h / 2) - (y - 20)) < 50 + k.h / 2;
     });
   }
@@ -525,7 +541,7 @@ export class Rpg {
       const sk = SKILLS.hook, cut = this.shellCut(v, me.x), [pm, weak] = this.party.mod(v, { heavy: heavyHit(sk.mult(rank)) }, me.y, me.x);
       let [dmg, crit] = this.roll(m.atk, sk.mult(rank) * this.markOn(v));
       dmg = Math.max(1, Math.round(dmg * cut * pm));
-      msg.hits.push(weak ? [v.id, dmg, crit, 0, 1] : [v.id, dmg, crit]);
+      msg.hits.push(weak ? [v.id, dmg, crit, 0, +weak] : [v.id, dmg, crit]);
       setTimeout(() => this.showHit(v, dmg, crit, v.x - dir * 30), (msg.d / TICK_RATE) * 1000);
     }
     this.fx.spawn('hook', { x: me.x, y: me.y, dir, len: v ? Math.abs(v.x - me.x) - MOBS[v.kind].w / 2 : HOOK_RANGE * 0.7, hit: !!v, dur: v ? msg.d / TICK_RATE : 0, follow: () => this.slimeOf(this.myId) });
@@ -573,6 +589,8 @@ export class Rpg {
     if (charges && mine) this.pop(mine.x, mine.y - 112, `ARCANE x${charges}`, '#c4cdff', 16);
     const mult = (sk.mult?.(rank) ?? 1) * arcaneMult(m.skills, charges);
     const kinds = hitKinds(sk, rank, m, charges, m.skills); // (S5.2: magic, heavy, arrow: what a boss's mechanics make of it)
+    this.aimArrow = !!kinds.arrow;
+    this.aimMagic = !!kinds.magic;
     // SP2: Retribution's store comes out with a Shield Bash (the server adds the same: retriMult); Execution on a low mob
     const retri = sk.stun ? retriMult(m.skills, m.retri, m.atk) : 0;
     if (sk.stun) m.retri = 0;
@@ -588,7 +606,7 @@ export class Rpg {
       let [dmg, crit] = this.roll(base, mult * extra * judge * this.markOn(v) * (shatter ? SHATTER_MULT : 1), sure);
       dmg = Math.max(1, Math.round(dmg * cut * pm));
       if (!delay) this.blocked(v, cut);
-      msg.hits.push(weak ? [v.id, dmg, crit, shatter ? 1 : 0, 1] : shatter ? [v.id, dmg, crit, 1] : [v.id, dmg, crit]);
+      msg.hits.push(weak ? [v.id, dmg, crit, shatter ? 1 : 0, +weak] : shatter ? [v.id, dmg, crit, 1] : [v.id, dmg, crit]); // (+weak: 1 the weak point, 2 + slot a final boss's head)
       if (sk.el) this.predictEl(v, sk.el, shatter);
       if (shatter) this.shatterFx(v, delay);
       const rico = kinds.arrow ? () => this.ricochet(v) : null; // (SP1: an arrow that kills may jump on)
@@ -969,6 +987,7 @@ export class Rpg {
     if (m.a === 'say') return this.bossSays(m);
     const theme = denAt(this.room)?.theme, myX = mine?.x ?? m.x, pan = panX(m.x, myX);
     const ground = 450, me = this.net.me, v = this.views.get(m.id), k = MOBS[v?.kind] ?? MOBS.sprout_king;
+    if (this.final.event(m, pan, me)) return; // (FB1: a final boss's own moves; src/ladon.js)
     if (this.party.event(m, pan)) return; // (S5: the pulse; src/party.js)
     if (this.hazardEvent(m, k, theme, pan, me)) return;
     if (m.a === 'warn') {
@@ -1137,6 +1156,7 @@ export class Rpg {
   // the newer ultimates going off → true if handled
   newUlt(m, me) {
     const now = this.time, mob = m.id;
+    if (this.final.ult(m, me)) return true; // (FB1: Hundred Heads, Strangle)
     if (m.kind === 'magma') {
       // lava everywhere but the one ledge that holds
       const p = DEN_PLATFORMS[m.safe];
@@ -1221,7 +1241,7 @@ export class Rpg {
         this.still = null;
       }
     }
-    if (!this.ouchNext) this.ouchNext = this.hazardHits(me);
+    if (!this.ouchNext) this.ouchNext = this.hazardHits(me) ?? this.final.hits(me); // (FB1: the coils)
     // Dash / Blink i-frames: untouchable (except the ultimates that want you somewhere safe)
     if (me.ifr > 0 && !this.ouchNext?.noDodge) {
       this.ouchNext = null;
@@ -1238,7 +1258,7 @@ export class Rpg {
     if (!ouch) {
       for (const v of this.targets()) {
         const k = MOBS[v.kind];
-        if (Math.abs(me.x - v.x) > k.w / 2 + 12 || me.y < v.y - k.h - 4 || me.y > v.y + 30) continue;
+        if (k.noTouch || Math.abs(me.x - v.x) > k.w / 2 + 12 || me.y < v.y - k.h - 4 || me.y > v.y + 30) continue; // (noTouch: Ladon's body is the back wall)
         if ((v.frozen || v.netted || v.stunned) && !k.boss && !k.field) continue; // frozen solid, netted or stunned: harmless (the server agrees: ouch)
         ouch = { mob: v.id, kind: v.charging ? 'charge' : 'touch', mx: v.x };
         break;
@@ -1259,7 +1279,7 @@ export class Rpg {
     this.summons.update(dt);
     this.fields.update(dt);
     this.bossFx.update(dt);
-    for (const g of this.ghosts) g.dying += dt * (MOBS[g.kind].boss ? 0.8 : 2.2);
+    for (const g of this.ghosts) g.dying += dt * (MOBS[g.kind].final ? 0.15 : MOBS[g.kind].boss ? 0.8 : 2.2); // (a final boss sinks slowly: its heads go down one by one, src/ladon.js)
     this.ghosts = this.ghosts.filter((g) => g.dying < 1);
     for (const [id, t] of this.killed) if (this.time - t > 3) this.killed.delete(id);
     for (const [id, t] of this.taken) if (this.time - t > 2) this.taken.delete(id);
@@ -1274,6 +1294,7 @@ export class Rpg {
     if (room !== this.room) this.leave(room);
     this.updateHotbar(room);
     this.party.update();
+    this.final.update(dt);
     this.status.update(statusOf(this, this.slimeOf(this.myId)), isCombat(room) && !!this.me);
     if (!isCombat(room)) return;
     const t = this.net.renderTick();
@@ -1333,7 +1354,10 @@ export class Rpg {
     // a kill we predicted that the server didn't agree with (the mob's still there after a while): show it again
     for (const [id, at] of this.killed) if (seen.has(id) && this.time - at > 1.2 && this.views.get(id).hp > 0) this.killed.delete(id);
     this.nearLoot = me && this.loot.some((d) => !this.taken.has(d[0]) && Math.abs(d[3] - me.x) <= PICKUP_RANGE && Math.abs(d[4] - me.y) < 60);
-    audio.setIntensity?.(this.boss()?.enraged ? 1 : 0);
+    // a boss track pushes harder while its boss is enraged; a final boss's (FB1: Ladon's) in its last phase (0.7), and all
+    // the way once the enrage comes
+    const top = this.boss(), fin = this.final.st;
+    audio.setIntensity?.(fin && top?.id === fin.id ? (fin.enr ? 1 : fin.ph >= 3 ? 0.7 : 0) : top?.enraged ? 1 : 0);
   }
   boss() {
     for (const v of this.views.values()) if (MOBS[v.kind].boss && !this.killed.has(v.id)) return v;
@@ -1365,6 +1389,7 @@ export class Rpg {
     this.summons.clear();
     this.fields.clear(room);
     this.party.clear();
+    this.final.clear();
     this.ouchNext = null;
     this.ult = null;
     this.wave = null;
@@ -1416,6 +1441,7 @@ export class Rpg {
       if (k.field) bar(ctx, v.x - 50, v.y - k.h - 16, 100, 8, hp / v.maxHp, '#ff6f91');
       else if (hp < v.maxHp) bar(ctx, v.x - 24, v.y - k.h - 10, 48, 6, hp / v.maxHp, '#ff6f91');
     }
+    this.final.draw(ctx); // (FB1: a final boss's necks, heads, stumps and coils)
     this.summons.draw(ctx); // the Cleric's spirits, wisps and totems (S3)
     this.party.draw(ctx); // a boss's focus line, a pulse's rings (S5)
     this.bossFx.draw(ctx);
@@ -1583,6 +1609,7 @@ export class Rpg {
       text(ctx, left.toFixed(1), W / 2, H * 0.42 + 40, 22, '#ffe28a');
     }
     this.drawMeter(ctx, den);
+    this.final.drawHud(ctx, H); // (FB1: the title card on walking into a final boss's den)
     let row = 0;
     const top = den ? (this.boss()?.shield !== undefined ? 210 : 172) : 128; // under the boss bar (and the egg's) in a den
     for (const t of this.toasts) {

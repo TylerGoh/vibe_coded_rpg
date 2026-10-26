@@ -2,10 +2,11 @@
 // Music, ambience and sound effects, all synthesised with Web Audio (no audio files).
 //
 //   audio.unlock()            from a user gesture: creates / resumes the AudioContext (safe to repeat)
-//   audio.setScene(room, zone) room id 0..30 or a house (100+), zone = a zone name in a stage room (else null); only acts on change
+//   audio.setScene(room, zone) room id (ROOM_KEYS) or a house (100+), zone = a zone name in a stage room (else null); only acts on change
 //   audio.sfx(name, {pan, vol}) one-shot effects (unknown names are ignored)
 //   audio.setMusic(on) / audio.musicOn   music + ambience on/off (sfx stay on), remembered in localStorage
 //   audio.setMuted(on)        everything off (e.g. while logged out)
+//   audio.setDepth(v)         0..1 how deep into the Road's End you are (its heartbeats; 0 everywhere else)
 //
 // Each scene is a small "song": a step sequencer (song.play is called once per step) plus optional noise
 // beds and random ambience (birds, drips, crickets). A lookahead scheduler (setTimeout ~25 ms) books
@@ -63,6 +64,7 @@ export class Engine {
 
     this.players = [];
     this.intensity = 0; // 0..1: boss tracks add layers when it's high (an enraged boss)
+    this.depth = 0; // 0..1: how deep into the Road's End (its heartbeats)
     this.last = new Map(); // sfx name → last play time
   }
 
@@ -1121,6 +1123,63 @@ const SONGS = {
     },
   },
 
+  // ——— FB1 (b) (docs/places/sunkenroad.md) ———
+  // The Sunken Road: the Thornheart's music gone underground. The same stern E phrygian an octave down and
+  // slower, a low drone instead of strings, the heartbeat deeper and closer, roots creaking, and single notes
+  // dripping in the dark where the harp's petals were
+  sunkenroad: {
+    bpm: 70, spb: 8, key: 52, scale: PHRYGIAN, gain: 0.8, send: 0.6, loop: 8,
+    chords: [[1, 3, 5], [2, 4, 6], [1, 3, 5], [7, 9, 11], [6, 8, 10], [2, 4, 6], [4, 6, 8], [1, 3, 5]],
+    mel: melody(
+      '5 - - . . . 3 .', '2 - - - . . . .', '3 . . 5 6 - - .', '7 - - - . . . .',
+      '8 - - . 6 . 5 .', '6 - - - . . . .', '4 . 3 . 2 - - .', '1 - - - - - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 150, 0.016);
+      p.eng.bed(p, 'bandpass', 1800, 0.003, 0.6); // something rustling in the roots
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar);
+      if (s === 0) {
+        pad(p, ch, t, p.stepDur * 8, 0.01, { type: 'sawtooth', a: 1.2, cutoff: 500, unison: 4, rel: 1.4 });
+        e.voice(p.c, t, p.f(ch[0], -2), { type: 'triangle', vol: 0.09, a: 0.5, hold: p.stepDur * 7, rel: 1, cutoff: 260 });
+      }
+      if (s === 0 || s === 4) e.kick(p.c, t, s ? 0.14 : 0.22, 60, 32, 0.16); // the heartbeat, closer down here
+      if (s === 1) e.kick(p.c, t, 0.12, 56, 30, 0.14);
+      const m = p.mel(bar, s);
+      if (m && pass % 2 === 0) e.voice(p.c, t, p.f(m.d, 1), { type: 'sine', vol: 0.04, a: 0.12, hold: m.len * 0.7, rel: 0.6, partials: [[2, 0.15]] });
+      if (s % 4 === 3 && chance(0.3)) e.voice(chance(0.5) ? p.l : p.r, t, p.f(ch[(s + bar) % 3], 2), { ...GLOCK, vol: 0.016, tau: 0.6 }); // a drip
+      if (s === 2 && bar % 4 === 1) e.noiseHit(p.c, t, { type: 'lowpass', f: 160, sweep: 300, sweepT: 1, vol: 0.04, a: 0.3, hold: 0.3, tau: 0.7 }); // a root creaking
+    },
+  },
+  // The Road's End: no tune at all. A held low note, and heartbeats: one at first, then (with the depth the
+  // client gives it, audio.setDepth: how far toward the den you are) more and more of them, each out of time
+  // with the others, louder and slower the deeper you go. A few high notes like falling petals at the way in,
+  // gone by the middle
+  roadsend: {
+    bpm: 60, spb: 8, key: 40, scale: PHRYGIAN, gain: 0.85, send: 0.7, loop: 4,
+    chords: [[1, 5, 8], [1, 5, 8], [2, 5, 8], [1, 5, 8]],
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 120, 0.02);
+    },
+    play(p, bar, s, t) {
+      const e = p.eng, d = e.depth ?? 0, n = p.n, ch = p.chord(bar);
+      if (s === 0) e.voice(p.c, t, p.f(ch[0], -1), { type: 'triangle', vol: 0.06 + 0.05 * d, a: 1.2, hold: p.stepDur * 7, rel: 1.2, cutoff: 220 });
+      // the first heart: steady, slowing from every 8 steps to every 12 as you go deeper
+      const per = d < 0.5 ? 8 : 12, v = 0.14 + 0.16 * d;
+      if (n % per === 0) e.kick(p.c, t, v, 64 - 14 * d, 30, 0.16 + 0.06 * d);
+      if (n % per === 1) e.kick(p.c, t, v * 0.7, 58 - 12 * d, 28, 0.14);
+      // the others, each on its own period, so they never line up
+      for (const [from, every, at, pan] of [[0.2, 11, 3, p.l], [0.45, 13, 6, p.r], [0.7, 17, 9, p.l], [0.88, 19, 2, p.r]]) {
+        if (d < from) continue;
+        const k = Math.min(1, (d - from) / 0.2), vv = (0.07 + 0.12 * d) * k;
+        if (n % every === at) e.kick(pan, t, vv, 56, 26, 0.18);
+        if (n % every === at + 1) e.kick(pan, t, vv * 0.7, 52, 26, 0.16);
+      }
+      if (d < 0.4 && s % 2 === 1 && chance(0.12 * (1 - d / 0.4))) e.voice(chance(0.5) ? p.l : p.r, t, p.f(ch[(n >> 1) % 3], 3), { ...GLOCK, vol: 0.014, tau: 0.5 }); // petals
+    },
+  },
+
   // Keeper's Spine: wide open and windswept, A dorian, a slow 4/4 with a long horn-like melody over open
   // fifths, a wind bed that rises and falls, a far-off bell now and then and a kite's cry
   spine: {
@@ -1379,6 +1438,44 @@ const SONGS = {
       if (s === 8 || (hot && s === 0)) for (const d of ch) e.voice(p.c, t, p.f(d, -1), { type: 'sawtooth', vol: 0.018, a: 0.03, hold: 0.3, rel: 0.25, cutoff: 1100, unison: 6 }); // low brass
       const m = p.mel(bar, s);
       if (m && pass % 4 !== 3) e.voice(p.c, t, p.f(m.d), { type: 'sawtooth', vol: 0.035, a: 0.04, hold: Math.max(0.05, m.len * 0.8), rel: 0.15, cutoff: 1500, unison: 5 });
+    },
+  },
+
+  // Ladon's den, the Root of the Road (FB1 piece 3): every heart the Road's End only hinted at, each on its own period
+  // so they never line up, under a low E phrygian drone, a creeping bowed line, the creak of canes and now and then a
+  // white rose's glint. The last phase (intensity over 0.5) quickens every heart and brings in a war drum, hats and low
+  // brass; the enrage (intensity over 0.9) doubles every heartbeat and drags the drone a semitone sharp, grinding
+  ladon: {
+    bpm: 84, spb: 16, key: 40, scale: PHRYGIAN, gain: 0.65, send: 0.45, loop: 8,
+    chords: [[1, 5, 8], [1, 5, 8], [2, 4, 6], [1, 5, 8], [6, 8, 10], [2, 4, 6], [7, 9, 11], [1, 5, 8]],
+    mel: melody(
+      '1 - - - 2 - 1 -', '. . . . . . . .', '2 - 3 - 2 - - -', '1 - - - . . . .',
+      '6 - - - 5 - 6 -', '5 - 4 - 2 - . .', '7 - 6 - 5 - 2 -', '1 - - - - - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 110, 0.022);
+      p.eng.bed(p, 'bandpass', 600, 0.004, 0.4); // air moving through the canes
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, n = p.n, ch = p.chord(bar), hot = e.intensity > 0.5, rage = e.intensity > 0.9;
+      if (s === 0) pad(p, ch, t, p.stepDur * 16, 0.011, { type: 'sawtooth', a: 0.9, cutoff: 480, unison: 8, rel: 0.8 });
+      if (s === 0) e.voice(p.c, t, p.f(ch[0], -2) * (rage ? 1.0595 : 1), { type: 'triangle', vol: 0.085, a: 0.6, hold: p.stepDur * 14, rel: 0.9, cutoff: 190 }); // the drone
+      // the hearts: [period in steps, offset, pan, volume, pitch]; a lub-dub each, never in step with each other
+      for (const [per0, at, pan, v, f] of [[16, 0, p.c, 0.2, 62], [11, 4, p.l, 0.11, 56], [13, 7, p.r, 0.11, 54], [7, 2, p.l, 0.08, 50], [9, 5, p.r, 0.08, 52]]) {
+        const per = hot ? per0 - 3 : per0, k = n % per;
+        if (k === at % per) e.kick(pan, t, v * (hot ? 1.2 : 1), f, 28, 0.16);
+        if (k === (at + 1) % per) e.kick(pan, t, v * 0.7, f - 6, 26, 0.14);
+        if (rage && k === (at + 3) % per) e.kick(pan, t, v * 0.6, f + 4, 28, 0.12);
+      }
+      if (s % 4 === 2 && chance(0.3)) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'bandpass', f: 380 + Math.random() * 520, vol: 0.022, tau: 0.3 }); // canes creaking
+      const m = p.mel(bar, s);
+      if (m) e.voice(p.c, t, p.f(m.d, -1), { type: 'sawtooth', vol: 0.042, a: 0.12, hold: Math.max(0.05, m.len * 0.8), rel: 0.3, cutoff: 640, unison: 5 }); // the bowed line
+      if (!hot && s === 10 && pass % 2 === 0) e.voice(p.r, t, p.f(ch[1], 2), { ...GLOCK, vol: 0.012, tau: 0.7 }); // a rose's glint
+      if (hot) {
+        if (s === 0 || s === 8 || (rage && s % 4 === 0)) e.kick(p.c, t, 0.24, 92, 36, 0.14); // the war drum
+        if (s % 2 === 1) hat(p, t, rage ? 0.012 : 0.008);
+        if (s === 12) for (const d of ch) e.voice(p.c, t, p.f(d, -1), { type: 'sawtooth', vol: 0.02, a: 0.04, hold: 0.35, rel: 0.25, cutoff: 1000, unison: 6 }); // low brass
+      }
     },
   },
 
@@ -2689,7 +2786,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits']; // (18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon']; // (49: Ladon's den, its own track; 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -2700,7 +2797,7 @@ const sceneKey = (room, zone) => {
 };
 
 let ac = null, eng = null, current = null, timer = 0;
-let scene = null, sceneArgs = null, muted = false, musicOn = true, intensity = 0;
+let scene = null, sceneArgs = null, muted = false, musicOn = true, intensity = 0, depth = 0;
 try {
   musicOn = localStorage.getItem('slimeville-music') !== 'off';
 } catch {}
@@ -2734,6 +2831,7 @@ export const audio = {
         ac = new AC();
         eng = new Engine(ac);
         eng.intensity = intensity;
+        eng.depth = depth;
         if (muted) eng.master.gain.value = 0;
         const b = ac.createBufferSource(); // iOS: playing something inside the gesture unlocks output
         b.buffer = ac.createBuffer(1, 1, ac.sampleRate);
@@ -2768,6 +2866,12 @@ export const audio = {
       localStorage.setItem('slimeville-music', musicOn ? 'on' : 'off');
     } catch {}
     refresh();
+  },
+
+  // 0..1: how deep into the Road's End you are (src/roadsend.js roadsDepth): its heartbeats multiply and slow
+  setDepth(v) {
+    depth = Math.max(0, Math.min(1, Number(v) || 0));
+    if (eng) eng.depth = depth;
   },
 
   // 0..1: pushes a boss track harder (extra drums and doubled lead) while the boss is enraged
@@ -2805,7 +2909,8 @@ Object.assign(MOB_HURT, { dragonfly: MOB_HURT.cinder_bat, gloop_snail: MOB_HURT.
   lanternfish: MOB_HURT.wisp, ice_eel: MOB_HURT.magma_slug, brine_slug: MOB_HURT.magma_slug, ice_skate: MOB_HURT.aether_knight,
   ptarmigan: MOB_HURT.frostling, snow_fox: MOB_HURT.aether_knight, rime_eagle: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, aurora_jelly: MOB_HURT.wisp, musk_ox: MOB_HURT.obsidian_crab, lost_star: MOB_HURT.wisp, pale_wyrm: MOB_HURT.astral_wyrm ?? MOB_HURT.golem,
   icicle_bat: MOB_HURT.cinder_bat, ice_worm: MOB_HURT.magma_slug, glass_beetle: MOB_HURT.obsidian_crab, prism_crawler: MOB_HURT.obsidian_crab, hall_troll: MOB_HURT.golem,
-  rime_puffin: MOB_HURT.frostling, sleet_harrier: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, rimeguard: MOB_HURT.aether_knight, hoarfrost_shade: MOB_HURT.wisp, leopard_seal: MOB_HURT.yeti, rime_archer: MOB_HURT.aether_knight, sigrun: MOB_HURT.colossus ?? MOB_HURT.golem });
+  rime_puffin: MOB_HURT.frostling, sleet_harrier: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, rimeguard: MOB_HURT.aether_knight, hoarfrost_shade: MOB_HURT.wisp, leopard_seal: MOB_HURT.yeti, rime_archer: MOB_HURT.aether_knight, sigrun: MOB_HURT.colossus ?? MOB_HURT.golem,
+  briarling: MOB_HURT.mushling, road_guard: MOB_HURT.golem, seed_lantern: MOB_HURT.mushling, root_creeper: MOB_HURT.aether_knight });
 Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEATH.magma_slug, rock_crab: MOB_DEATH.obsidian_crab, snapshrimp: MOB_DEATH.obsidian_crab,
   puffcap: MOB_DEATH.mushling, cave_bat: MOB_DEATH.cinder_bat, puffball: MOB_DEATH.mushling, root_beetle: MOB_DEATH.obsidian_crab, glowworm: MOB_DEATH.magma_slug, glow_moth: MOB_DEATH.wisp,
   oak_squirrel: MOB_DEATH.mushling, tent_caterpillar: MOB_DEATH.magma_slug, tawny_owl: MOB_DEATH.cinder_bat, wasp_nest: MOB_DEATH.mushling, hornet: MOB_DEATH.cinder_bat,
@@ -2816,4 +2921,5 @@ Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEA
   lanternfish: MOB_DEATH.wisp, ice_eel: MOB_DEATH.magma_slug, brine_slug: MOB_DEATH.magma_slug,
   ptarmigan: MOB_DEATH.frostling, rime_eagle: MOB_DEATH.cinder_bat, aurora_jelly: MOB_DEATH.wisp, musk_ox: MOB_DEATH.obsidian_crab, lost_star: MOB_DEATH.wisp, pale_wyrm: MOB_DEATH.astral_wyrm ?? MOB_DEATH.colossus,
   icicle_bat: MOB_DEATH.cinder_bat, ice_worm: MOB_DEATH.magma_slug, glass_beetle: MOB_DEATH.obsidian_crab, prism_crawler: MOB_DEATH.obsidian_crab, hall_troll: MOB_DEATH.yeti,
-  rime_puffin: MOB_DEATH.frostling, sleet_harrier: MOB_DEATH.cinder_bat, hoarfrost_shade: MOB_DEATH.wisp, leopard_seal: MOB_DEATH.yeti, sigrun: MOB_DEATH.colossus });
+  rime_puffin: MOB_DEATH.frostling, sleet_harrier: MOB_DEATH.cinder_bat, hoarfrost_shade: MOB_DEATH.wisp, leopard_seal: MOB_DEATH.yeti, sigrun: MOB_DEATH.colossus,
+  briarling: MOB_DEATH.mushling, road_guard: MOB_DEATH.golem, seed_lantern: MOB_DEATH.mushling, root_creeper: MOB_DEATH.magma_slug });

@@ -37,6 +37,12 @@ staff and a bow twin, so `twinPick` can give each class its own kind (checked by
   starts (the side of the body, below the eyes) with a shortened shaft (`CAST_STAFF_SHORT`; the head
   stays full size). Owner: from the face it swung out of the eye; from the back of the head it looked weird.
 
+- **A Cleric's own staff** (FB1 piece 3): a staff with `cls: 'cleric'` and a `twin` is the Cleric's version of that
+  sword's staff (`CLERIC_STAFF_OF`; `STAFF_OF` leaves it out). Where a sword has both, `twinPick` gives a Cleric who
+  fought the rod and a Mage the staff (S5's loot by class: a fighter's class, not just the kind they hold). Same price,
+  MAGIC, slots and `lvl` as the sword (checked like any staff). The only one so far: Ladon's White Rose Rod, beside the
+  Unsleeping Staff (`docs/places/ladon.md`).
+
 ## Bows (S4, 2026-10-24: `story/progression.md` 4)
 - Every sword with a staff twin has a **bow twin** too (`BOW_LIST`, `BOW_OF`): the bow is *made from the sword*
   in code (same price, `lvl`, `aim`, slots, ATK and reach), so they can't drift apart; the economy script checks

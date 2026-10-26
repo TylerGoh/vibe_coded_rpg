@@ -16,7 +16,7 @@ import { enableTestSkills } from './shared/skills.js';
 const INTERP = 6; // ticks (100 ms) behind the newest snapshot for remote slimes
 const MAX_SNAPS = 60;
 const KICKED = 4001; // server close code: this account logged in somewhere else
-const RPG = new Set(['me', 'mobs', 'loot', 'hurt', 'faint', 'woke', 'gear', 'toast', 'notice', 'advance', 'thirst', 'reborn', 'got', 'skill', 'boss', 'bossdmg', 'nomana', 'shop', 'guard', 'scrolled', 'warp', 'summons', 'sumhit', 'sumhurt', 'sumgone', 'netcatch', 'party', 'curse', 'burn', 'fields', 'fieldhit', 'burst', 'refund']);
+const RPG = new Set(['final', 'me', 'mobs', 'loot', 'hurt', 'faint', 'woke', 'gear', 'toast', 'notice', 'advance', 'thirst', 'reborn', 'got', 'skill', 'boss', 'bossdmg', 'nomana', 'shop', 'guard', 'scrolled', 'warp', 'summons', 'sumhit', 'sumhurt', 'sumgone', 'netcatch', 'party', 'curse', 'burn', 'fields', 'fieldhit', 'burst', 'refund']);
 
 // A knockback: same numbers as server/rpg.js hurt(), so prediction and server agree exactly
 export function applyKick(s, kick) {

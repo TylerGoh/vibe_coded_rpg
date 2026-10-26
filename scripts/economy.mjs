@@ -3,9 +3,10 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { BOSS_HIT_PCT, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, ULT_EVERY, ULT_WARN, PARTY_DEN_HP_FLOOR, MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CUT, ARMOUR_CRACKS } from '../src/shared/rpg.js';
+import { FINAL_LVL_OVER, BOSS_HIT_PCT, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, ULT_EVERY, ULT_WARN, PARTY_DEN_HP_FLOOR, MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CUT, ARMOUR_CRACKS } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { curve } from '../src/shared/curve.js';
+import { FINAL_ENRAGE_MIN } from '../src/shared/final.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
 import { DOTS, SPLIT_R, SPLIT_SHARE, SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds, isLongBuff, fxText, buffFx, momentumMax, EXEC_AT, BLEED_S, RETRI_HOLD, retriMult, targetsOf, statOf, HOLY_SYMBOL_EXP, JUDGMENT_AT, judgmentMult, DEVOTION_CAP, SUMMON_LIGHT, WARD_PULSE_S, RESOLVE_R, summonCap } from '../src/shared/skills.js';
@@ -225,7 +226,7 @@ else console.log('\nLONG BUFFS (SP1): none');
 const LOOT_TWIN_LVL = 10;
 const weaponDrops = (m) => (m.drops ?? []).filter(([d]) => STAFF_OF[d] && BOW_OF[d]);
 table(`LOOT BY CLASS: each boss's twinned weapon (sword / staff / bow; checked from Lv ${LOOT_TWIN_LVL})`, Object.fromEntries(bosses.map(([id, m]) => [id, {
-  lvl: m.lvl, kind: m.boss ? 'den' : 'field', weapon: weaponDrops(m).map(([d, ch]) => `${d} / ${STAFF_OF[d]} / ${BOW_OF[d]} (${Math.round(ch * 100)}%)`).join(', ') || 'none',
+  lvl: m.lvl, kind: m.boss ? 'den' : 'field', weapon: weaponDrops(m).map(([d, ch]) => `${d} / ${STAFF_OF[d]}${CLERIC_STAFF_OF[d] ? ` / ${CLERIC_STAFF_OF[d]} (Cleric)` : ''} / ${BOW_OF[d]} (${Math.round(ch * 100)}%)`).join(', ') || 'none',
 }])));
 
 // ——— CLASSES (S2.4, story/progression.md 1b: "equal power, different shape") ———
@@ -768,33 +769,56 @@ const healGive = (br, L) => {
 const zoneOf = (br, L) => { const c = classChar(br, L), k = rankOf(c.skills, 'sanctuary'); return k ? { every: cooldownOf('sanctuary', k), dur: SKILLS.sanctuary.dur, cut: SKILLS.sanctuary.cut(k) } : null; };
 const teamHelp = (others, L) => ({ heal: others.filter((o) => BUILDS[o].cls === 'cleric').reduce((a, o) => a + healGive(o, L), 0), zone: others.map((o) => zoneOf(o, L)).find(Boolean) ?? null });
 const isMagic = (br) => ['mage', 'cleric'].includes(BUILDS[br].cls), isArrow = (br) => BUILDS[br].cls === 'archer';
-const teamRun = (m, team) => {
+const teamRun = (m, team, L = m.lvl) => {
   const n = team.length, hp = bossMaxHp(m, n), front = !!m.barrierFront;
-  const base = Object.fromEntries(team.map((br) => [br, fight(classChar(br, m.lvl), {}).dealt / SIM_S]));
+  const base = Object.fromEntries(team.map((br) => [br, fight(classChar(br, L), {}).dealt / SIM_S]));
   const behindOf = (br) => (front && br !== 'knight' ? PARTY_BEHIND : 0);
   const onFront = (br) => (front ? 1 - behindOf(br) : 1);
   const runs = team.map((br, i) => {
     const others = team.filter((o, j) => j !== i);
-    const help = { ...teamHelp(others, m.lvl), magic: others.filter(isMagic).reduce((a, o) => a + base[o] * onFront(o), 0), weak: others.reduce((a, o) => a + base[o] * onFront(o) * (isArrow(o) ? 1 : front ? 1 : WEAK_JUMP), 0), mark: others.some((o) => rankOf(classChar(o, m.lvl).skills, 'hunters_mark')) };
-    const f = fight(classChar(br, m.lvl), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls] * n, potions: true, until: PARTY_SIM_S, mech: { ...mechOf(m, n, team), behind: behindOf(br), jump: front ? 1 : WEAK_JUMP, help } });
+    const help = { ...teamHelp(others, L), magic: others.filter(isMagic).reduce((a, o) => a + base[o] * onFront(o), 0), weak: others.reduce((a, o) => a + base[o] * onFront(o) * (isArrow(o) ? 1 : front ? 1 : WEAK_JUMP), 0), mark: others.some((o) => rankOf(classChar(o, L).skills, 'hunters_mark')) };
+    const f = fight(classChar(br, L), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls] * n, potions: true, until: PARTY_SIM_S, mech: { ...mechOf(m, n, team), behind: behindOf(br), jump: front ? 1 : WEAK_JUMP, help } });
     return { br, dps: f.dealt / f.t, faint: f.faint, drunk: f.drunk / f.t };
   });
   const t = hp / runs.reduce((a, q) => a + q.dps, 0);
   return { hp, t, runs, pots: Math.round(runs.reduce((a, q) => a + q.drunk * t, 0)) };
 };
 const topRun = {};
+// FB1 piece 3: a final boss is fought at its recommended level (its tag's Lv less FINAL_LVL_OVER: Greenhollow's top,
+// GREEN_TOP), not at the Lv on its name tag
+const fightLvl = (m) => (m.final ? m.lvl - FINAL_LVL_OVER : m.lvl);
 for (const [id, m] of topBosses) {
-  const party = teamRun(m, PARTY_TEAM), lop = m.partyLive ? teamRun(m, LOPSIDED_TEAM) : null;
+  const L = fightLvl(m), party = teamRun(m, PARTY_TEAM, L), lop = m.partyLive ? teamRun(m, LOPSIDED_TEAM, L) : null;
   const soloMech = (br) => ({ ...mechOf(m, 1, [br]), behind: SOLO_BEHIND, jump: m.barrierFront ? 1 : WEAK_JUMP, help: { magic: 0, weak: 0 } });
-  const alone = Object.fromEntries(branches.map((br) => [br, fight(classChar(br, m.lvl), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls], hp: bossMaxHp(m, 1), potions: true, until: SOLO_UNTIL, mech: soloMech(br) })]));
+  const alone = Object.fromEntries(branches.map((br) => [br, fight(classChar(br, L), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls], hp: bossMaxHp(m, 1), potions: true, until: SOLO_UNTIL, mech: soloMech(br) })]));
   topRun[id] = { m, party, lop, alone, med: medianOf(branches.map((br) => alone[br].t)) };
   fightMin[id] = party.t / 60;
 }
 const partyCell = (q) => `${mmss(q.t)} (${q.pots} pots${q.runs.some((r) => r.faint) ? `; ${q.runs.filter((r) => r.faint).map((r) => r.br).join(' ')} faint` : ''})`;
 table(`TOP BOSSES: a party of ${PARTY_TEAM.join(', ')} (want TOP_PARTY_MIN ${TOP_PARTY_MIN.join('–')} min), a lopsided one of ${LOPSIDED_TEAM.join(', ')} (TOP_LOPSIDED_MIN ${TOP_LOPSIDED_MIN.join('–')}, bosses with mechanics), and each branch alone (median ÷ the party within TOP_SOLO ${TOP_SOLO.join('–')})`, Object.fromEntries(topBosses.map(([id]) => {
   const q = topRun[id], done = branches.filter((br) => !q.alone[br].faint);
-  return [id, { lvl: q.m.lvl, [`party of ${PARTY_TEAM.length}`]: partyCell(q.party), lopsided: q.lop ? partyCell(q.lop) : '', ...Object.fromEntries(branches.map((br) => { const f = q.alone[br]; return [br, `${f.faint ? `faints ${mmss(f.t)}` : mmss(f.t)}${f.drunk ? ` (${f.drunk})` : ''}`]; })), 'alone median': `${mmss(q.med)}${done.length < branches.length ? ` (${branches.length - done.length} faint)` : ''}`, 'alone ÷ party': (q.med / q.party.t).toFixed(1), hp: fmt(q.party.hp) }];
+  return [id, { lvl: fightLvl(q.m), [`party of ${PARTY_TEAM.length}`]: partyCell(q.party), lopsided: q.lop ? partyCell(q.lop) : '', ...Object.fromEntries(branches.map((br) => { const f = q.alone[br]; return [br, `${f.faint ? `faints ${mmss(f.t)}` : mmss(f.t)}${f.drunk ? ` (${f.drunk})` : ''}`]; })), 'alone median': `${mmss(q.med)}${done.length < branches.length ? ` (${branches.length - done.length} faint)` : ''}`, 'alone ÷ party': (q.med / q.party.t).toFixed(1), hp: fmt(q.party.hp) }];
 })));
+// FINAL BOSSES (FB1 piece 3; story/fb1-plan.md, docs/places/ladon.md): fixed HP for four (owner, 2026-10-26), fought at
+// the recommended level (fightLvl). A party of four (PARTY_TEAM) within FINAL_PARTY_MIN (the ~45 min the owner asked for:
+// TOP_PARTY_MIN's middle); every three of them must NOT finish before the enrage (FINAL_ENRAGE_MIN, src/shared/final.js:
+// a party that's too small runs out of time). Its pay is for each member (everyone who fought gets the full EXP; the one
+// set of loot is split PARTY_TEAM ways), an hour of it against an hour of farming at the recommended level: no reward
+// window, so every kill pays in full (FINAL_PAY, BOSS_PAY's EXP band; gold 2-6x like the dens'). The heads (cutting them
+// takes HEAD_CHUNK a head off) aren't modelled: a party that cuts them is faster than the sheet.
+const FINAL_PARTY_MIN = [41, 49], FINAL_PAY = { exp: BOSS_PAY, gold: [2, 6] };
+const finals = topBosses.filter(([, m]) => m.final);
+const finalRow = {};
+for (const [id, m] of finals) {
+  const L = fightLvl(m), q = topRun[id];
+  const threes = PARTY_TEAM.map((out) => PARTY_TEAM.filter((br) => br !== out)).map((team) => ({ team, ...teamRun(m, team, L) }));
+  const kills = 60 / (BOSS_RESPAWN_MS / 60_000 + q.party.t / 60), worth = bossWorth(id) / PARTY_TEAM.length;
+  finalRow[id] = { m, L, q, threes, pay: { exp: (m.exp * kills) / (expPerMin(L) * 60), gold: (worth * kills) / (goldPerMin(L) * 60) }, worth };
+}
+table(`FINAL BOSSES: fixed HP for four, at the recommended level; a party of ${PARTY_TEAM.length} within FINAL_PARTY_MIN ${FINAL_PARTY_MIN.join('–')} min, every three of them past FINAL_ENRAGE_MIN ${FINAL_ENRAGE_MIN}; pay a member, an hour vs farming there (EXP ${FINAL_PAY.exp.join('–')}x, gold ${FINAL_PAY.gold.join('–')}x)`, Object.fromEntries(Object.entries(finalRow).map(([id, f]) => [id, {
+  'fought at': `lvl ${f.L}`, hp: fmt(f.q.party.hp), [`party of ${PARTY_TEAM.length}`]: partyCell(f.q.party), ...Object.fromEntries(f.threes.map((r) => [`no ${PARTY_TEAM.find((br) => !r.team.includes(br))}`, mmss(r.t)])),
+  exp: fmt(f.m.exp), 'loot a member': fmt(f.worth), 'exp / gold vs farming': `${f.pay.exp.toFixed(2)}x / ${f.pay.gold.toFixed(2)}x an hour`,
+}])));
 // RETROFIT (S5.4; story/s5-plan.md): the den and field bosses given party mechanics (`partyLive`, not a top boss).
 // Alone nothing switches on, so the solo tables above don't move; this shows what they do to a duo (RETRO_DUOS, at
 // the boss's level, its hits shared out like TOP BOSSES'): the kill time with them off / on. Only the pulse, barrier,
@@ -823,7 +847,7 @@ const kills = Object.fromEntries(killBosses.map(([id, m]) => [id, Object.fromEnt
 table(`HITS TO KO at half the boss's level (want KILL_HITS ${KILL_HITS} or fewer)`, Object.fromEntries(killBosses.map(([id, m]) => [id, { lvl: m.lvl, you: Math.floor(m.lvl / 2), ...kills[id] }])));
 // SP6: what each boss's fight pays, against its sheet time (dens and fields: the solo median; top bosses: the party's)
 table(`BOSS PAY: the sheet's fight, and an hour of it vs farming (dens: camped, BOSS_PAY ${BOSS_PAY.join('–')}x EXP, BOSS_CAMP_MAX ${BOSS_CAMP_MAX}; fields: a minute of the fight, FIELD_PAY ${FIELD_PAY.join('–')})`, Object.fromEntries(bosses.filter(([id]) => fightMin[id]).sort((a, b) => a[1].lvl - b[1].lvl).map(([id, m]) => {
-  const f = fightMin[id], c = m.field ? fieldPay(m, f) : campRatio(m, f);
+  const f = fightMin[id], c = m.field ? fieldPay(m, f) : m.final ? finalRow[id].pay : campRatio(m, f);
   return [id, { kind: m.field ? 'field' : m.top ? 'top' : 'den', lvl: m.lvl, fight: mmss(f * 60), exp: fmt(m.exp), 'kill pays': fmt(bossWorth(id)), 'kills / h': m.field ? '' : (60 / (BOSS_RESPAWN_MS / 60_000 + f)).toFixed(1), 'exp / gold vs farming': `${c.exp.toFixed(2)}x / ${c.gold.toFixed(2)}x${m.field ? ' a min' : ' an hour'}` }];
 })));
 delete ITEMS[SHEET_W];
@@ -832,11 +856,17 @@ const classProblems = [];
 for (const [id, m] of topBosses) {
   const q = topRun[id], r = q.med / q.party.t;
   if (q.party.t < TOP_PARTY_MIN[0] * 60 || q.party.t > TOP_PARTY_MIN[1] * 60) classProblems.push(`a party of ${PARTY_TEAM.length} kills top boss ${id} in ${mmss(q.party.t)} (want TOP_PARTY_MIN ${TOP_PARTY_MIN.join('–')} min)`);
-  if (r < TOP_SOLO[0] || r > TOP_SOLO[1]) classProblems.push(`top boss ${id} alone takes ${mmss(q.med)} (median), ${r.toFixed(1)}x the party's ${mmss(q.party.t)} (want TOP_SOLO ${TOP_SOLO.join('–')}x)`);
+  if (!m.final && (r < TOP_SOLO[0] || r > TOP_SOLO[1])) classProblems.push(`top boss ${id} alone takes ${mmss(q.med)} (median), ${r.toFixed(1)}x the party's ${mmss(q.party.t)} (want TOP_SOLO ${TOP_SOLO.join('–')}x)`);
   if (q.lop && q.lop.pots < LOPSIDED_POTS * LOPSIDED_TEAM.length) classProblems.push(`a lopsided party (${LOPSIDED_TEAM.join(' ')}) at top boss ${id} drinks only ${q.lop.pots} potions (want LOPSIDED_POTS ${LOPSIDED_POTS} a member or more)`);
   if (q.lop && !m.barrierFront && (q.lop.t < TOP_LOPSIDED_MIN[0] * 60 || q.lop.t > TOP_LOPSIDED_MIN[1] * 60)) classProblems.push(`a lopsided party (${LOPSIDED_TEAM.join(' ')}) kills top boss ${id} in ${mmss(q.lop.t)} (want TOP_LOPSIDED_MIN ${TOP_LOPSIDED_MIN.join('–')} min)`);
   if (branches.every((br) => q.alone[br].faint)) classProblems.push(`nobody can solo top boss ${id}: it must stay possible (never locked)`);
   for (const r of q.party.runs) if (r.faint) classProblems.push(`the ${r.br} faints in the party at top boss ${id}`);
+}
+for (const [id, f] of Object.entries(finalRow)) {
+  if (f.q.party.t < FINAL_PARTY_MIN[0] * 60 || f.q.party.t > FINAL_PARTY_MIN[1] * 60) classProblems.push(`a party of ${PARTY_TEAM.length} kills final boss ${id} in ${mmss(f.q.party.t)} at lvl ${f.L} (want FINAL_PARTY_MIN ${FINAL_PARTY_MIN.join('–')} min)`);
+  for (const r of f.threes) if (r.t <= FINAL_ENRAGE_MIN * 60) classProblems.push(`three (${r.team.join(' ')}) kill final boss ${id} in ${mmss(r.t)}, before the enrage (FINAL_ENRAGE_MIN ${FINAL_ENRAGE_MIN})`);
+  if (FINAL_ENRAGE_MIN * 60 <= f.q.party.t) classProblems.push(`final boss ${id} enrages (FINAL_ENRAGE_MIN ${FINAL_ENRAGE_MIN}) before a party of ${PARTY_TEAM.length} kills it (${mmss(f.q.party.t)})`);
+  for (const k of ['exp', 'gold']) if (f.pay[k] < FINAL_PAY[k][0] || f.pay[k] > FINAL_PAY[k][1]) classProblems.push(`final boss ${id} pays a member ${f.pay[k].toFixed(2)}x farming's ${k} an hour at lvl ${f.L} (want FINAL_PAY ${FINAL_PAY[k].join('–')})`);
 }
 for (const [id, m] of soloDens) {
   const med = fightMin[id] * 60;
@@ -943,7 +973,7 @@ for (const [id, m] of bosses.filter(([, m]) => m.field)) {
   }
   if (!spawned.has(id)) problems.push(`field boss ${id} never spawns`);
 }
-for (const [id, m] of bosses.filter(([, m]) => m.boss)) {
+for (const [id, m] of bosses.filter(([, m]) => m.boss && !m.final)) { // (a final boss: FINAL_PAY, FINAL BOSSES)
   const c = campRatio(m, fightMin[id]);
   if (c.exp > BOSS_CAMP_MAX) problems.push(`camping den boss ${id} for an hour gives ${c.exp.toFixed(1)}x the EXP of farming mobs (max ${BOSS_CAMP_MAX}x)`);
   if (fightMin[id] && (c.exp < BOSS_PAY[0] || c.exp > BOSS_PAY[1])) problems.push(`den boss ${id} camped for an hour (a ${mmss(fightMin[id] * 60)} fight) pays ${c.exp.toFixed(2)}x farming's EXP (want BOSS_PAY ${BOSS_PAY.join('–')})`);

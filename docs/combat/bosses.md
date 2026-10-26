@@ -54,7 +54,7 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
   same count `BOSS_HP_PER_PLAYER` uses: a den boss's never drops mid-fight, so a friend leaving doesn't switch
   anything off). Owner's gates (2026-10-24): den and field bosses every mechanic at 2 fighters, `interrupt` always
   on; party dens everything from 1 but `focus`. `partyAll` on a boss (the final bosses, `story/final-bosses.md`)
-  switches every one on from the first slime; their HP floor and enrage aren't built.
+  switches every one on from the first slime (the final bosses: below, "Final bosses").
 - **It ships dark.** Nothing switches on unless the boss also has `partyLive` (S5.3 gave it to the party dens,
   S5.4 gives it to the retrofitted bosses, a stage at a time). Tests use `TEST_PARTY` (`docs/testing.md`).
 - **The party dens (S5.3)**: the Root Warden and Sigrun have `partyLive` with focus, pulse, barrier, weak point,
@@ -241,6 +241,43 @@ the Root Warden with ~2,300 potions. Future bosses are held to the same checks (
 - Pyra's egg is `EGG_HP` of her max HP (her HP went up ~8.5× in SP6).
 - Untested with people; the ultimate's chip and the top numbers were seen only on the sheet (a Root Warden hit on a test
   server took ~15% of a Lv 150's HP, DEF 0).
+
+## Final bosses (FB1 (c), 2026-10-26; `story/final-bosses.md`, Ladon: `docs/places/ladon.md`)
+A boss with `final` (a key into `FINAL`, `src/shared/final.js`) runs `server/final.js` instead of `bossBrain`. Generic
+on purpose, so FB2 and E5 add a FINAL row, their heads' slots (if any) and their looks, not a new engine.
+- **Owner's rules**: HP fixed for four (`bossMaxHp` returns `k.hp`: no `BOSS_HP_PER_PLAYER`, no floor), no reward
+  window (`kill` pays every kill in full), every S5 mechanic on from the first slime (`partyAll`), Lv on the tag from
+  `finalTag`, stats from the FINAL table. The economy sheet doesn't hold a final boss to `TOP_SOLO`.
+- **Four phases** (`FINAL[row].at`, `finalPhase`: PHASE_AT's FINAL row), each a **written loop** run in order for ever
+  (`loops`: a move, `name:2` every other loop, `shield` bark and ward by turns, `ult`), a short opening after each move
+  (`FINAL_GAP_S`, where a queued stagger lands). Ultimates come on a timer in phases 1–3 (`ultEvery`, the first below
+  `ULT_FIRST`), alternate from `alternateFrom`, and warn `FINAL_ULT_WARN`; a freeze in the wind-up interrupts them as
+  on any boss (`interruptUlt`), and one nobody interrupts hits for `TOP_ULT_HP` (`top`). `startUlt` takes the forced
+  ultimate; new kinds `heads` (safe gaps, `u.gaps`) and `strangle` (only the high arch: `LADON_HIGH`), judged on the
+  client in `src/ladon.js`.
+- **The loop drives S5's engine**: `partyTick` starts no focus, pulse, shield or weak point by itself for a final boss
+  (its timers sit at Infinity); the loop's moves do: `watch` sets the focus for `WATCH_S` (Rally still takes it),
+  `breath` sets `pulseAt` (`m.pulseN` counts the landings), `bark` / `ward` / `both` call `shieldUp`, `gaze` opens
+  the weak point (`GAZE_WEAK` × its HP; filling it staggers `GAZE_STAGGER_S`). The curse keeps its own timer from
+  phase 2. **Both shields at once** (`'both'`, `'w'` on the wire): magic wears the roses, heavy hits crack the bark,
+  each one broken staggers and the other holds for its time (`breakShield(m, part)`, `partyHitMult`).
+- **The heads** (`heads` on the boss): several targets on one boss, each with a ring (`HEAD_RING` of the plain hp).
+  The client picks the part a hit is on (`Final.reach` / `reachAround`, from the Rpg's `ahead` / `around`, stored as
+  `v.part`; a head in reach comes before the body) and sends `h[4] = 2 + slot`; `final.part` re-checks the reach
+  (`headReach`: any arrow in range, any spell on a stump, anything else at the head's height) or falls back to the
+  body, and `final.hitHead` fills the ring. Hits on a head skip the body's shields; a hit on a turned head's far side
+  during a Coil (`throatOpen`) does `THROAT_MULT` and fills `THROAT_FILL` × as fast. Full: `HEAD_CHUNK` of max HP off
+  the boss, `HEAD_ADDS` minions, a stump that regrows as two after `REGROW_S` (cap `HEAD_MAX`) unless a fire hit
+  seals it (a fire spell, a burn, holy light: `fire` in `applyHits`). A new phase pushes every stump through again
+  and tops up to its `heads` count. Heads act in turn (`nextHead`) and the acting one's eyes light first (`act`).
+- **The coils** (phase 3 on): a hazard from both ends (`inCoils`, ouch `coil`: it hurts, it never blocks), a
+  `COIL_STEP` in on each Breath landing, one back on each head cut or stagger, at most `COIL_STEPS`.
+- **The enrage** at `FINAL_ENRAGE_MIN` of fight (`TEST_ENRAGE_MIN` in tests): stumps regrow at once and can't be
+  sealed, the coils close to the middle over `COIL_ENRAGE_S`, an extra Breath every `ENRAGE_BREATH_S`, `finalRage`.
+- State goes out as `{t:'final'}` (`docs/netcode.md`); everyone leaving resets the fight (`resetBoss`, `m.fin`).
+- **Pay and art** (FB1 piece 3): numbers from the economy sheet's FINAL BOSSES (`docs/economy.md`), one weapon a kill by
+  class (`twinPick`, a Cleric's rod: `docs/combat/items.md`); its track's intensity follows the phase and the enrage, and
+  its death is slow (a final boss's ghost fades slowly while `src/ladon.js` sinks the heads). Ladon's look: `docs/places/ladon.md`.
 
 ## The reward window (S0, 2026-10-23)
 Bosses still respawn every `BOSS_RESPAWN_MS`, but each slime gets a den boss's full EXP only once per

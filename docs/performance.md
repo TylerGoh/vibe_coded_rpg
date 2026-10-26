@@ -41,6 +41,9 @@ rules that keep art cheap. Files: `src/fastcanvas.js`, `src/glow.js`, `src/gfx.j
 Village 12 → 18 → 36 · Wildwood 6 → 11 → 20 · Caldera 6 → 8 → 14 · Hour Sanctum 6 → 10 → 17 ·
 Mycelium Deep 9 → 14 → 23 · Harbour 18 → 39 → 58. Unthrottled, every room holds 60.
 
+- **Ladon's den is baked** (FB1 piece 3, `src/dens-ladon.js`): the den's static layer and the boss's knot are drawn
+  once at the screen's resolution (read off `ctx.getTransform()`) and copied 1:1 with smoothing off; only what moves is
+  drawn live. A pattern to copy for the rooms in "Next" below.
 - The Mage's combo states (`src/elements.js`) are flat fills and strokes, a handful of shapes per mob that
   has one, no gradients or glows. Keep it that way: a Starfall can set a whole screen of mobs burning.
 

@@ -12,12 +12,13 @@ import { DEN_ART as DEEP_DENS, ENTRANCE_ART as DEEP_ENTRANCES, BOSS_ART as DEEP_
 import { DEN_ART as SPINE_DENS, ENTRANCE_ART as SPINE_ENTRANCES, BOSS_ART as SPINE_BOSSES, wardenRoot } from './dens-spine.js';
 import { DEN_ART as SKERRIES_DENS, ENTRANCE_ART as SKERRIES_ENTRANCES, BOSS_ART as SKERRIES_BOSSES } from './dens-skerries.js';
 import { DEN_ART as QBRIDGE_DENS, ENTRANCE_ART as QBRIDGE_ENTRANCES, BOSS_ART as QBRIDGE_BOSSES } from './dens-qbridge.js';
+import { DEN_ART as LADON_DENS, BOSS_ART as LADON_BOSSES, FX2 as LADON_FX } from './dens-ladon.js';
 import { glow as radialGlow } from './glow.js';
 // the third and fourth stages' dens, bosses and boss effects live in their own files (same contracts as here)
-const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS };
+const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS, ...LADON_DENS };
 const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES, ...SPINE_ENTRANCES, ...SKERRIES_ENTRANCES, ...QBRIDGE_ENTRANCES };
-const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES, ...QBRIDGE_BOSSES };
-const FX2 = { ...CALDERA_FX, ...CITADEL_FX };
+const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES, ...QBRIDGE_BOSSES, ...LADON_BOSSES };
+const FX2 = { ...CALDERA_FX, ...CITADEL_FX, ...LADON_FX };
 
 const GROUND = FIELD_GROUND; // den floors sit at the same height as the field
 const INK = '#5b4a6b';
@@ -2343,10 +2344,11 @@ const FXPAL = {
   tide: { debris: ['#fff1e0', '#ffd6c9', '#9fe0d8', '#8fd0ff'], dust: '210,235,240', crack: '#2a5e66', warn: '255,96,110', jelly: ['#9fe0d8', '#ffd6c9', '#8fd0ff', '#fff1e0'] },
   knot: { debris: ['#6a5048', '#8a6a5a', '#aaf0d8', '#5a4440'], dust: '160,130,130', crack: '#2a1e2c', warn: '255,96,110', jelly: ['#aaf0d8', '#c9a6e6', '#ffb0c0', '#efe4d0'] },
   warden: { debris: ['#a8a4b4', '#8a8698', '#ffcf7a', '#7aa05e'], dust: '200,196,210', crack: '#4e4a5e', warn: '255,96,110', jelly: ['#ffcf7a', '#a8a4b4', '#9ac478', '#f4ecdc'] },
+  hydra: { debris: ['#22301e', '#4e6a3e', '#e4dcc4', '#fbf6f0'], dust: '120,140,100', crack: '#1a1612', warn: '255,96,110', jelly: ['#7aa05e', '#34482c', '#fbf6f0', '#c8f0a0'] }, // (Ladon's den, FB1)
   floe: { debris: ['#f4f8fc', '#cfe6f4', '#8ab8d8', '#f4ecd8'], dust: '220,236,248', crack: '#2e5a7e', warn: '255,96,120', jelly: ['#cfe6f4', '#f4f8fc', '#8ab8d8', '#f4ecd8'] },
   oath: { debris: ['#f4f8ff', '#e2f0fc', '#b4d4f0', '#d8dce8'], dust: '226,238,252', crack: '#3e6294', warn: '255,96,120', jelly: ['#e2f0fc', '#d8dce8', '#8ab8e0', '#f4f8ff'] },
 };
-const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250', oath: '190,226,255' };
+const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250', oath: '190,226,255', hydra: '170,230,120' };
 const DUR = {
   slamWarn: 1, shockwave: 0.55, chargeWarn: 0.8, rainWarn: 1, rainHit: 0.45, summon: 0.9, roar: 0.8, bossDie: 1.6,
   leap: 1.1, phase: 1.5,
@@ -4292,7 +4294,7 @@ function fxPhase(ctx, e, k) {
   ctx.font = "700 34px Fredoka, 'Trebuchet MS', sans-serif";
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  const label = `PHASE ${n >= 3 ? 'III' : 'II'}`;
+  const label = `PHASE ${['II', 'II', 'II', 'III', 'IV'][n] ?? 'III'}`; // (IV: a final boss's last, FB1)
   ctx.lineWidth = 7;
   ctx.lineJoin = 'round';
   ctx.strokeStyle = n >= 3 ? '#a8303a' : '#6a3a8a';

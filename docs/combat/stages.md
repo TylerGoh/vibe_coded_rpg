@@ -57,6 +57,10 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
 18. **The Queen's Bridge**: F4, Frostpeak's last branch, up the mended ice stair on Frostpine Ridge (Lv 85–100,
    no field boss: Sigrun's den at the far end is the party den) (`docs/places/queensbridge.md`). New shot style
    `javelin` (the rime archer's).
+19. **The Sunken Road**: FB1 (b), Greenhollow's deep room under the Thornheart (Lv 55–60, hard-pocket rules, elites
+   and the Severed Neck, a named elite with its own `art`), and past it the Road's End, the mob-free approach to
+   Ladon's den (`docs/places/sunkenroad.md`). New shot style `seed`. The Thornheart got the first room hazard,
+   thorn patches timed on the server tick (`docs/places/thornheart.md`).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob
@@ -74,7 +78,8 @@ new names and art (each branch's doc lists which is which).
 - **Elites** are separate `MOBS` entries made by `elite(base, name)` from an ordinary mob: the `ELITE_*`
   multipliers (HP, attack, EXP, coins, other drops' chances, level, size), `elite: true` and `base`. Nothing
   new on the wire: the client draws the base mob's art bigger, with a glow (`drawEliteGlow`,
-  `src/fieldboss-art.js`), a golden name tag, and its base mob's sounds. They belong in hard pockets;
+  `src/fieldboss-art.js`), a golden name tag, and its base mob's sounds. A named elite can carry its own `art`
+  key (the Severed Neck), which `drawMob` draws instead of the base mob's. They belong in hard pockets;
   the first ones (the Elder Bramblehog) are in Bramble Woods as a proof.
 - **Field bosses** (`field: true`, not `boss`) roam an ordinary strip of a wilds room and come back only
   every `FIELD_BOSS_RESPAWN_MS`. When one comes back the room gets `boss`/`fieldUp` (a toast, a horn and a

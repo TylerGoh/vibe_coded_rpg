@@ -5,9 +5,11 @@
 // itself, where every cane on the island grows out of one great root knot wrapped round the Hedge Stone (a
 // Keeper stone: src/ruins.js) and the Thorn Hart roams. Under a roof of woven canes, with daylight only
 // through the gaps: plum and moss-green, pale thorns, white roses only near the heart. Platforms: fallen
-// logs, woven briar arches, raised roots, and the White Rose arch (the hidden spot).
+// logs, woven briar arches, raised roots, the Cast Coil and the White Rose arch (the Maze's two finds). FB1 (b):
+// the knot has split at its east end (the way down to the Sunken Road: drawn by OPEN.rootsplit in
+// src/branch-gates.js), and thorn patches grow back across the floor (THORN_PATCHES, drawn from the server tick).
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
-import { THORN_W, THORN_EXIT_X, THORN_ZONES, THORN_PLATFORMS, FIELD_GROUND } from './shared/rpg.js';
+import { THORN_W, THORN_EXIT_X, THORN_ZONES, THORN_PLATFORMS, FIELD_GROUND, THORN_PATCHES, patchAt } from './shared/rpg.js';
 import { glow as softGlow } from './glow.js';
 
 const GROUND = FIELD_GROUND;
@@ -62,7 +64,7 @@ const petals = (() => {
 })();
 
 // Everything behind the slimes. camX is the left edge of the view.
-export function drawThornheart(ctx, camX, viewW, time) {
+export function drawThornheart(ctx, camX, viewW, time, tick = null) {
   ctx.save();
   ctx.translate(camX, 0);
   drawBack(ctx, camX, time);
@@ -77,9 +79,11 @@ export function drawThornheart(ctx, camX, viewW, time) {
     if (!visible(p.x - 60, p.x + p.w + 60, L, R)) continue;
     if (p.kind === 'log') drawLog(ctx, p);
     else if (p.kind === 'root') drawRootStep(ctx, p);
+    else if (p.kind === 'coil') drawCoil(ctx, p, time);
     else drawArch(ctx, p, time, p.kind === 'rose');
   }
   drawFloor(ctx, l, r, time);
+  if (tick !== null) THORN_PATCHES.forEach((pt, i) => visible(pt.x - pt.w, pt.x + pt.w, L, R) && drawPatch(ctx, pt, patchAt(i, Math.floor(tick)), time));
   THORN_ZONES.forEach((z, i) => {
     if (!z.lvl) return;
     const sx = z.x0 + 70;
@@ -431,4 +435,83 @@ function drawPetals(ctx, camX, time) {
     ctx.fillStyle = `rgba(251,240,246,${0.45 + 0.25 * Math.sin(time * 2 + m.p)})`;
     ellipse(ctx, x, y, m.s, m.s * 0.6, time + m.p);
   }
+}
+
+// The Cast Coil (the Maze's second find, FB1 (b)): a briar arch high over the Maze's west end, and lying on it
+// the empty cast of something long and thorny, coiled like a shed snakeskin: woven, hollow, pale with age.
+// Nobody says what shed it
+function drawCoil(ctx, p, time) {
+  drawArch(ctx, p, time, false);
+  const cx = p.x + p.w / 2, cy = p.y - 9;
+  ctx.save();
+  ctx.lineCap = 'round';
+  // three loops of a hollow, papery cast, thinning to a tail
+  for (let i = 0; i < 3; i++) {
+    const rx = 26 - i * 6, ry = 8 - i * 1.5, ox = (i - 1) * 6;
+    ctx.strokeStyle = 'rgba(232,220,200,0.9)';
+    ctx.lineWidth = 7 - i * 1.6;
+    ctx.beginPath();
+    ctx.ellipse(cx + ox, cy - i * 5, rx, ry, 0, 0, TAU);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(150,120,110,0.6)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  // its thorns, shed with it: little pale hooks all along
+  ctx.fillStyle = '#efe4d8';
+  for (let i = 0; i < 9; i++) {
+    const a = (i / 9) * TAU;
+    thorn(ctx, cx + Math.cos(a) * 26, cy + Math.sin(a) * 8, a - Math.PI / 2, 5, 1.6);
+  }
+  // the end of it: the cast of a long head, its empty eye
+  ctx.fillStyle = 'rgba(232,220,200,0.95)';
+  ctx.beginPath();
+  ctx.moveTo(cx + 22, cy - 6);
+  ctx.quadraticCurveTo(cx + 40, cy - 12, cx + 48, cy - 4);
+  ctx.quadraticCurveTo(cx + 38, cy + 2, cx + 22, cy + 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#2d2a3e';
+  ellipse(ctx, cx + 34, cy - 5, 2, 1.4);
+  glow(ctx, cx, cy, 50, 26, '255,250,235', 0.22 + 0.06 * Math.sin(time * 1.4));
+  ctx.restore();
+}
+
+// A thorn patch (THORN_PATCHES, FB1 (b)): runners creep in from both sides as it grows (k), stand up sharp and
+// pale-tipped while it hurts (sharp), then brown and sink back
+function drawPatch(ctx, pt, { k, sharp }, time) {
+  if (k <= 0.01) return;
+  const n = Math.max(3, Math.round(pt.w / 16)), x0 = pt.x - pt.w / 2;
+  ctx.save();
+  ctx.lineCap = 'round';
+  // a bruise of dark soil where it's coming up
+  ctx.fillStyle = `rgba(60,20,40,${0.35 * k})`;
+  ellipse(ctx, pt.x, GROUND + 4, (pt.w / 2) * k + 8, 6);
+  ctx.strokeStyle = sharp ? '#5e3a50' : '#6a4a52';
+  ctx.lineWidth = 4;
+  // the runner along the floor, grown in from both ends
+  const reach = (pt.w / 2) * k;
+  ctx.beginPath();
+  ctx.moveTo(pt.x - reach, GROUND + 3);
+  for (let i = 0; i <= 8; i++) {
+    const x = pt.x - reach + (reach * 2 * i) / 8;
+    ctx.lineTo(x, GROUND + 2 - Math.sin(i * 1.7 + pt.x) * 2);
+  }
+  ctx.stroke();
+  for (let i = 0; i < n; i++) {
+    const x = x0 + (i + 0.5) * (pt.w / n);
+    if (Math.abs(x - pt.x) > reach) continue;
+    const h = (sharp ? 24 + ((i * 7) % 5) * 3 : 18 * k) + Math.sin(time * 3 + i) * (sharp ? 1 : 0);
+    const lean = ((i % 2) - 0.5) * 0.5;
+    ctx.strokeStyle = sharp ? '#5e3a50' : '#7a5a5e';
+    ctx.lineWidth = 3.4;
+    ctx.beginPath();
+    ctx.moveTo(x, GROUND + 2);
+    ctx.quadraticCurveTo(x + lean * 6, GROUND - h * 0.6, x + lean * 10, GROUND - h);
+    ctx.stroke();
+    ctx.fillStyle = sharp ? '#f4e0ea' : '#c8a8b4';
+    thorn(ctx, x + lean * 10, GROUND - h, -Math.PI / 2 + lean, 9, 2.8);
+    if (sharp && i % 2) thorn(ctx, x + lean * 4, GROUND - h * 0.5, lean > 0 ? -0.3 : Math.PI + 0.3, 6, 1.8);
+  }
+  ctx.restore();
 }

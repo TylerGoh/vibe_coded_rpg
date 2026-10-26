@@ -12,9 +12,11 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, EGG_HP } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, EGG_HP, FIELD_GROUND, THORNHEART, THORN_PATCHES, patchAt, PATCH_DOT, PATCH_HIT_EVERY, ROADSEND, LADON_MARK_X, LADON_LINE } from '../src/shared/rpg.js';
 import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS, DEVOTION_S, DEVOTION_CAP, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, judgmentMult, RESOLVE_R } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
+import { createFinal } from './final.js';
+import { THROAT_MULT, THROAT_FILL, GAZE_STAGGER_S } from '../src/shared/final.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen, applyHook, HOOK_RANGE } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs, CURE_CD, DRAUGHT_S } from '../src/shared/alchemy.js';
@@ -100,13 +102,28 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   const mobs = SPAWNS.map((sp) => spawn({ id: nextMob++, sp: { ...sp, room: sp.room ?? FIELD } }));
   for (const d of DENS) mobs.push(spawn({ id: nextMob++, sp: { kind: d.boss, x0: 200, x1: DEN_W - 200, y: ROOMS[d.room].ground, room: d.room }, den: d }));
   const loot = []; // { id, room, item, n, x, y, at }
+  // FB1 (c): the final bosses' brain (server/final.js), with what it needs from here (all called lazily)
+  const final = createFinal({
+    now: () => now(), MOBS, TEST_BOSS_HP, ULT_FIRST, PULSE_WARN, weakOf, weakHpOf,
+    toRoom: (r) => toRoom(r), bossEvent: (...a) => bossEvent(...a), bossSays: (...a) => bossSays(...a), sendParty: (m) => sendParty(m),
+    damage: (...a) => damage(...a), hurt: (...a) => hurt(...a), stats: (q) => stats(q), later: (...a) => later(...a),
+    addsCap: (m) => addsCap(m), minionsIn: (r) => minionsIn(r), shieldUp: (...a) => shieldUp(...a),
+    startUlt: (...a) => startUlt(...a), ultGoesOff: (...a) => ultGoesOff(...a),
+    addMinion: (m, x) => {
+      const q = spawn({ id: nextMob++, sp: { kind: MOBS[m.kind].minion, x0: 60, x1: DEN_W - 60, y: m.sp.y, room: m.room }, minion: true });
+      q.x = x;
+      q.vy = -300;
+      mobs.push(q);
+    },
+  });
+  let roadsEndSaid = false; // (the Road's End: Ladon has spoken since it last emptied)
   const inRoom = (room) => [...players.entries()].filter(([, q]) => q.joined && q.rpg && q.state.room === room);
   const now = () => Date.now();
 
   function spawn(m) {
     const k = MOBS[m.sp.kind], hp = Math.round(k.boss || k.field ? bossMaxHp(k, 1) * TEST_BOSS_HP : k.hp); // (a party den: a party's worth from the start)
     return Object.assign(m, {
-      kind: m.sp.kind, room: m.sp.room, x: m.den ? DEN_W * 0.7 : rand(m.sp.x0, m.sp.x1), y: m.sp.y, vx: 0, vy: 0, dir: -1, walk: 0, hp, maxHp: hp, fighters: 1,
+      kind: m.sp.kind, room: m.sp.room, x: m.den ? k.denX ?? DEN_W * 0.7 : rand(m.sp.x0, m.sp.x1), y: m.sp.y, vx: 0, vy: 0, dir: -1, walk: 0, hp, maxHp: hp, fighters: 1,
       wander: rand(0.5, 2), target: null, targetUntil: 0, dead: false, respawnAt: 0, hitters: new Map(), hist: [], slowUntil: 0,
       // the Mage's combos (S2.6, skills.js CHILL_S…): chilled / frozen until, a burn { until, dps, by, next }
       chillUntil: 0, frozenUntil: 0, burn: null,
@@ -134,6 +151,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       // S5.3: when it last turned round (the front-only barrier's grace), whether it's said its barrier line, and how
       // long its target has been behind its front-only barrier
       dirWas: -1, dirAt: 0, saidShield: false, behindSince: 0,
+      // FB1: a final boss's state (server/final.js; made on its first tick) and how many pulses have landed
+      fin: null, pulseN: 0,
     });
   }
 
@@ -601,9 +620,12 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // A dropping sword with a staff twin (STAFF_OF) and a bow twin (BOW_OF, S4): which one falls. The weapon kind
   // a random fighter is holding, so everyone sees drops they can use; STAFF_OFFKIND of the time one of the
   // others, so every kind turns up.
+  // S5's loot by class: the kind a random fighter holds (a Cleric's staff → the Cleric's own rod where the sword has one,
+  // CLERIC_STAFF_OF: Ladon's set), STAFF_OFFKIND of the time another kind
   function twinPick(m, sword) {
-    const of = { sword, staff: STAFF_OF[sword], bow: BOW_OF[sword] }, kinds = Object.keys(of).filter((k) => of[k]);
-    const held = [...m.hitters.keys()].map((qid) => ITEMS[players.get(qid)?.rpg?.gear.weapon]?.kind).filter((k) => kinds.includes(k));
+    const of = { sword, staff: STAFF_OF[sword], bow: BOW_OF[sword], rod: CLERIC_STAFF_OF[sword] }, kinds = Object.keys(of).filter((k) => of[k]);
+    const kindOf = (r) => { const k = ITEMS[r?.gear.weapon]?.kind; return k === 'staff' && r.cls === 'cleric' && of.rod ? 'rod' : k; };
+    const held = [...m.hitters.keys()].map((qid) => kindOf(players.get(qid)?.rpg)).filter((k) => kinds.includes(k));
     let kind = held.length ? held[Math.floor(Math.random() * held.length)] : kinds[Math.floor(Math.random() * kinds.length)];
     if (Math.random() < STAFF_OFFKIND) { const other = kinds.filter((k) => k !== kind); kind = other[Math.floor(Math.random() * other.length)] ?? kind; }
     return of[kind];
@@ -622,7 +644,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       const q = players.get(qid);
       if (!q?.joined || q.state.room !== m.room || t - at >= (k.boss || k.field ? 600_000 : 20000)) continue;
       let scale = expFalloff(q.rpg.lvl, k) * (1 + (brewOf(q.rpg)?.exp ?? 0)) * (1 + stats(q).exp); // (a brewed EXP buff; a long buff's, SP1)
-      if (k.boss) {
+      if (k.final) fresh = true; // (FB1: no reward window on a final boss, owner 2026-10-26: every kill pays in full)
+      else if (k.boss) {
         const last = q.rpg.bossAt[m.kind] ?? 0;
         if (t - last >= BOSS_WINDOW_MS) {
           q.rpg.bossAt[m.kind] = t;
@@ -637,7 +660,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       gainExp(qid, q, Math.round(k.exp * scale));
     }
     const odds = k.boss && !fresh ? BOSS_REPEAT_SHARE : 1;
-    const drops = k.drops.filter(([, chance]) => Math.random() < chance * odds).map((d) => (STAFF_OF[d[0]] || BOW_OF[d[0]] ? [twinPick(m, d[0]), ...d.slice(1)] : d));
+    const drops = k.drops.filter(([, chance]) => Math.random() < chance * odds).map((d) => (STAFF_OF[d[0]] || BOW_OF[d[0]] || CLERIC_STAFF_OF[d[0]] ? [twinPick(m, d[0]), ...d.slice(1)] : d));
     drops.forEach(([item, , lo, hi], i) => dropLoot(m.room, item, randInt(lo, hi), m.x + (i - (drops.length - 1) / 2) * (k.boss || k.field ? 34 : 22) + rand(-6, 6), ROOMS[m.room].ground > m.y ? m.y : ROOMS[m.room].ground));
     if (k.field) toRoom(m.room)({ t: 'boss', a: 'fieldDown', id: m.id, kind: m.kind, x: m.x, y: m.y });
     if (k.field) for (const q of ownMinions(m)) q.dead = q.gone = true; // (S5.4: the adds it called flee)
@@ -789,22 +812,27 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // SP2: exec (Execution's × on a mob at EXEC_AT of its HP or less; the client read the same off its bar)
   // SP3: combust (Combustion's × on a burning mob, whose burn it spends; boom collects their ids) · lead (Thunder
   // Call's × on the first mob of the chain only)
-  function applyHits(id, p, hits, { max = 1, range, cap, dir, knock = 200, slow = 0, el = null, magic = false, heavy = false, arrow = false, dot = null, src = null, exec = 0, combust = 0, boom = null, lead = 1 }) {
+  function applyHits(id, p, hits, { max = 1, range, cap, dir, knock = 200, slow = 0, el = null, magic = false, heavy = false, arrow = false, dot = null, src = null, exec = 0, combust = 0, boom = null, lead = 1, fire = false }) {
     const out = [];
     if (!Array.isArray(hits)) return out;
     const cursed = curseMult(p.curse?.n); // (a curse on the hitter: everything it hits, softer)
     const cracked = new Set(); // (armour: one crack a cast)
     for (const [i, h] of hits.slice(0, max).entries()) {
       const m = Array.isArray(h) && mobs.find((q) => q.id === h[0] && !q.dead && q.room === p.state.room);
-      if (!m || Math.abs(m.x - p.state.x) > range + MOBS[m.kind].w / 2 + SLACK) continue;
+      if (!m) continue;
       const k = MOBS[m.kind];
+      // FB1: a final boss's heads are targets of their own (h[4]: 1 the shard, 2 + slot a head or its stump); final.part
+      // checks the reach (any arrow in range; anything else at the head's height) → a part, 'body', or nothing
+      const pt = k.heads ? final.part(m, p, h[4] | 0, arrow, range, magic || fire || el === 'fire') : null, off = !!pt && pt !== 'body';
+      if (k.heads ? !pt : Math.abs(m.x - p.state.x) > range + k.w / 2 + SLACK) continue;
       if (m.special && !m.egg) continue; // phased out / mid-teleport: can't be hit
       // an Obsidian Crab's front shell takes most of a hit from the front (the client shows the same cut)
       const shell = k.ai?.kind === 'shell' && Math.sign(p.state.x - m.x) === m.dir ? 1 - k.ai.cut : 1;
       const shatter = el === 'fire' && !!h[3] && m.frozenUntil > now() - SHATTER_GRACE_MS;
       const marked = m.mark && m.mark.until > now() - SHATTER_GRACE_MS ? 1 + m.mark.boost : 1; // Hunter's Mark (S4): everyone's hits
-      const ps = m.partyOn ? partyHit(m, p.state.x) : null, weak = !!h[4] && !!ps?.weakOpen && weakReach(weakOf(k, m.x, m.y, m.dir), p.state.y, arrow, 40);
-      const pm = ps ? partyHitMult(ps, { magic, heavy: heavy || shatter, weak }) : 1;
+      const ps0 = m.partyOn ? partyHit(m, p.state.x) : null, ps = off && ps0 ? { ...ps0, shield: null } : ps0; // (a head is outside the bark and the roses)
+      const weak = k.heads ? !!pt?.weak && !!ps?.weakOpen : !!h[4] && !!ps?.weakOpen && weakReach(weakOf(k, m.x, m.y, m.dir), p.state.y, arrow, 40);
+      const pm = (ps ? partyHitMult(ps, { magic, heavy: heavy || shatter, weak }) : 1) * (pt?.throat ? THROAT_MULT : 1);
       const low = exec && m.hp <= m.maxHp * EXEC_AT * 1.05 ? exec : 1;
       const comb = combust && m.burn && m.burn.until > now() - SHATTER_GRACE_MS ? combust : 1; // (SP3: Combustion)
       if (comb > 1) { // (the burn is set off: spent)
@@ -815,7 +843,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       if (slow) m.slowUntil = now() + slow * 1000 * (MOBS[m.kind].boss ? 0.5 : 1);
       const hit = damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock, src);
       if (shatter) hit.push(1);
-      if (ps && !m.dead) partyHitLanded(m, dmg, { magic, heavy: (heavy || shatter) && !cracked.has(m), weak, onShield: ps.onShield }) && cracked.add(m);
+      if ((pt?.head || pt?.stump) && !m.dead) final.hitHead(m, pt, dmg, id, p, { fire: fire || el === 'fire' || dot?.kind === 'burn', throatFill: THROAT_FILL }); // (fire seals a stump)
+      if (ps && !m.dead) partyHitLanded(m, dmg, { magic: magic && !off, heavy: (heavy || shatter) && !cracked.has(m) && !off, weak, onShield: ps.onShield && !off }) && cracked.add(m);
       if (el && !m.dead) element(m, el, dmg, id, shatter);
       if (dot && !m.dead) dotOn(m, dot.kind, dmg * dot.share, id);
       out.push(hit);
@@ -922,7 +951,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   // heals the hurt friend nearest you within HOLY_BOLT_HEAL_R (you, when nobody else is hurt)
   function holyBolt(id, p, dir, hits) {
     const st = stats(p);
-    const out = applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * HOLY_BOLT_MULT * capOf(st), dir, knock: 120, magic: true, src: { spell: true } });
+    const out = applyHits(id, p, hits, { range: st.boltRange, cap: st.magic * HOLY_BOLT_MULT * capOf(st), dir, knock: 120, magic: true, fire: true, src: { spell: true } }); // (fire: holy light seals a stump, FB1)
     lightHeal(id, p, out.reduce((n, h) => n + h[1], 0) * HOLY_BOLT_HEAL * st.heal);
     return out;
   }
@@ -990,7 +1019,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const boom = []; // (SP3: the burning mobs a Combustion set off)
     // SP4: Judgment's × for the hurt slimes near (the server's own count caps what the client claims)
     const judged = sk.judge ? hurtNear(p) : 0;
-    const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, el: sk.el ?? null, ...kinds, dot, src, exec: sk.exec?.(rank) ?? 0, combust: sk.combust?.(rank) ?? 0, boom, lead: sk.lead ?? 1, ...o, cap: o.cap * (sk.judge ? judgmentMult(c.skills, judged) : 1) }));
+    const hit = (o) => (out.hits = applyHits(id, p, m.hits, { dir, el: sk.el ?? null, ...kinds, fire: !!sk.holy, dot, src, exec: sk.exec?.(rank) ?? 0, combust: sk.combust?.(rank) ?? 0, boom, lead: sk.lead ?? 1, ...o, cap: o.cap * (sk.judge ? judgmentMult(c.skills, judged) : 1) }));
     if (judged) out.judged = judged;
     // Retribution (SP2): a Shield Bash lets out what was stored (retriMult: the client adds the same from its 'me')
     const retri = sk.stun ? retriMult(c.skills, p.retri, st.atk) : 0;
@@ -1154,6 +1183,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     // the newer mobs' and bosses' attacks (src/rpg.js decides the hits)
     shot: [1.1, 240], burn: [0.6, 150], geyser: [1.3, 380], sweep: [1.3, 380], beam: [1.4, 300], zap: [1.2, 260],
     bomb: [1.5, 420], slash: [1.3, 380], pulse: [1.2, 360],
+    // FB1: Ladon's Bite (a head striking the floor) and the phase 3 coils (a wall of necks: it hurts, it doesn't block)
+    bite: [1.5, 420], coil: [0.7, 360],
   };
   function ouch(id, p, m) {
     const mob = mobs.find((q) => q.id === m.mob && !q.dead && q.room === p.state.room);
@@ -1161,7 +1192,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (!mob || !mult || p.faintUntil) return;
     const ult = m.kind === 'ult';
     if (!ult && now() - p.hurtAt < HURT_INVULN_MS - 250) return; // (an ultimate ignores the invulnerability)
-    if (m.kind === 'touch' && Math.abs(mob.x - p.state.x) > MOBS[mob.kind].w / 2 + SLACK) return;
+    if (m.kind === 'touch' && (Math.abs(mob.x - p.state.x) > MOBS[mob.kind].w / 2 + SLACK || MOBS[mob.kind].noTouch)) return; // (noTouch: Ladon's body is the back wall)
     if ((m.kind === 'touch' || m.kind === 'charge') && (mob.frozenUntil > now() || mob.snareUntil > now() || mob.stunUntil > now()) && !MOBS[mob.kind].boss && !MOBS[mob.kind].field) return; // frozen solid, netted or stunned: harmless
     if (m.kind !== 'touch' && m.kind !== 'charge' && !MOBS[mob.kind].boss && !MOBS[mob.kind].ai) return;
     if (ult && now() > mob.ultLiveUntil) return; // no ultimate going off right now
@@ -1218,7 +1249,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     for (let i = m.later.length - 1; i >= 0; i--) if (t >= m.later[i][0]) m.later.splice(i, 1)[0][1](); // timed follow-ups
     const ai = !k.boss && k.ai && !staggered ? mobAi(m, k, here, dt, t) : null;
     if (staggered && !k.boss) want = 0;
-    else if (k.boss) want = bossBrain(m, k, here, dt, t) * slow;
+    else if (k.final) {
+      m.fighters = Math.max(m.fighters, here.length); // (a final boss's HP never grows: FB1; the count is for its adds)
+      want = final.tick(m, k, here, dt, t);
+    } else if (k.boss) want = bossBrain(m, k, here, dt, t) * slow;
     else if (ai !== null) want = ai * slow;
     else if (m.target) {
       const dx = m.target.state.x - m.x;
@@ -1719,9 +1753,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     bossEvent(m, 'eggBreak');
   }
   // The ultimate: ULT_WARN seconds of warning (with where's safe), then it goes off
-  function startUlt(m, k, t) {
-    const which = k.ults ? k.ults[m.ultN++ % k.ults.length] : k.ult; // Chronos alternates
-    const u = { kind: which.kind, name: which.name, dur: ULT_WARN };
+  function startUlt(m, k, t, forced = null) {
+    const which = forced ?? (k.ults ? k.ults[m.ultN++ % k.ults.length] : k.ult); // Chronos alternates; a final boss picks its own (server/final.js)
+    const u = { ...which, dur: which.dur ?? ULT_WARN };
     if (u.kind === 'spores') {
       const a = rand(180, DEN_W / 2 - 150);
       u.safe = [Math.round(a), Math.round(Math.min(DEN_W - 180, a + rand(450, 750)))];
@@ -1810,7 +1844,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     toRoom(m.room)({
       t: 'party', id: m.id, on: m.partyOn, f: f ? f.id : undefined, fl: f ? ms(f.until) : undefined,
       st: m.staggerUntil > t ? ms(m.staggerUntil) : m.staggerQueued ? -1 : undefined,
-      sh: sh ? [sh.kind === 'barrier' ? 'b' : 'a', ms(sh.from), ms(sh.until), sh.kind === 'barrier' ? Math.round((Math.max(0, sh.hp) / sh.max) * 100) / 100 : sh.cracks] : undefined,
+      sh: sh ? [sh.kind === 'barrier' ? 'b' : sh.kind === 'both' ? 'w' : 'a', ms(sh.from), ms(sh.until), sh.kind !== 'armour' ? Math.round((Math.max(0, sh.hp) / sh.max) * 100) / 100 : sh.cracks, sh.kind === 'both' ? sh.cracks : undefined] : undefined, // ('w': both, FB1, with the cracks last)
       wk: w ? [ms(w.until), Math.round((w.fill / w.max) * 100) / 100] : undefined,
       cu: cu.length ? cu : undefined,
     });
@@ -1829,7 +1863,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         m.focusNext = t + FOCUS_GAP * 1000;
         dirty = true;
       }
-      if (!m.focus && t >= m.focusNext && m.act !== 'ult' && !m.special && !(m.staggerUntil > t)) {
+      if (!m.focus && t >= m.focusNext && !k.final && m.act !== 'ult' && !m.special && !(m.staggerUntil > t)) { // (a final boss's loop has its own: the Watch, server/final.js)
         const list = inFight(m, here), others = list.filter(([, q]) => q !== m.focusLast);
         const pickFrom = others.length ? others : list;
         if (pickFrom.length) {
@@ -1848,14 +1882,15 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     // pulse: a ring closing in for PULSE_WARN s ({t:'boss', a:'pulseWarn'}), then PULSE_HP of every fighter's max HP
     if (bits & partyBit('pulse')) {
-      if (!m.pulseAt) m.pulseAt = t + PULSE_EVERY * 1000; // (the first a whole beat after it switches on)
+      if (!m.pulseAt) m.pulseAt = k.final ? Infinity : t + PULSE_EVERY * 1000; // (the first a whole beat after it switches on; a final boss's when its loop says: the Breath)
       if (!m.pulseHit && t >= m.pulseAt && m.act !== 'ult' && !m.special && !(m.staggerUntil > t)) {
         m.pulseHit = t + PULSE_WARN * 1000;
         bossEvent(m, 'pulseWarn', { dur: PULSE_WARN });
       }
       if (m.pulseHit && t >= m.pulseHit) {
         m.pulseHit = 0;
-        m.pulseAt = t + PULSE_EVERY * 1000;
+        m.pulseAt = k.final ? Infinity : t + PULSE_EVERY * 1000;
+        m.pulseN++; // (FB1: the phase 3 coils step in on each)
         bossEvent(m, 'pulseHit');
         // (a Barrier Draught takes it in hurt(), on `flat`)
         for (const [qid, q] of inFight(m, here)) hurt(qid, q, stats(q).maxHp * pulseHpOf(k), m.x, undefined, 0, false, m, true); // (SP6: a top boss's is bigger)
@@ -1870,7 +1905,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     // curse: a sigil under the boss's target (or anyone fighting), CURSE_WARN s to step out, then a stack on everyone in it
     if (bits & partyBit('curse')) {
       if (!m.curseAt) m.curseAt = t + CURSE_EVERY * 600; // (the first a little sooner)
-      if (!m.curseSigil && t >= m.curseAt && !busy) {
+      if (!m.curseSigil && t >= m.curseAt && !busy && !(k.final && (m.fin?.ph ?? 0) < 1)) { // (Ladon's thorns join in phase 2)
         const tg = m.target?.state ?? m.target ?? pick(inFight(m, here).map(([, q]) => q.state));
         if (tg && Number.isFinite(tg.x)) {
           const cx = Math.round(tg.x);
@@ -1898,15 +1933,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       }
       const bar = barrierOf(k); // (SP6: a top boss's barrier is up longer and lets less through)
       if (!m.shieldNext) m.shieldNext = t + (canB ? bar.every : ARMOUR_EVERY) * 500;
-      if (!m.shield && t >= m.shieldNext && !busy) {
-        const kind = canB && canA ? (m.shieldLast === 'barrier' ? 'armour' : 'barrier') : canB ? 'barrier' : 'armour';
-        const b = kind === 'barrier', warn = b ? BARRIER_WARN : ARMOUR_WARN, max = Math.max(1, Math.round(k.hp * TEST_BOSS_HP * bar.hp)); // (one slime's worth of its HP: a lone Mage can break it in a big party too)
-        m.shield = { kind, from: t + warn * 1000, until: t + (warn + (b ? bar.s : ARMOUR_S)) * 1000, hp: max, max, cracks: 0 };
-        m.shieldLast = kind;
-        m.shieldNext = m.shield.until + (b ? bar.every : ARMOUR_EVERY) * 1000;
-        bossEvent(m, 'shieldUp', { kind, dur: warn });
-        if (!m.saidShield) bossSays(m, k.lines?.shield); // (once a fight: S5.3's line about it)
-        m.saidShield = true;
+      if (!m.shield && t >= m.shieldNext && !busy && !k.final) { // (a final boss's loop raises its own: server/final.js)
+        shieldUp(m, k, canB && canA ? (m.shieldLast === 'barrier' ? 'armour' : 'barrier') : canB ? 'barrier' : 'armour', t);
         dirty = true;
       }
     } else if (m.shield || m.shieldNext) {
@@ -1927,7 +1955,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         dirty = true;
       }
       if (!m.weakNext) m.weakNext = t + WEAK_EVERY * 500;
-      if (!m.weak && t >= m.weakNext && !busy) {
+      if (!m.weak && t >= m.weakNext && !busy && !k.final) { // (a final boss's opens in its Gaze)
         m.weak = { at: t, until: t + WEAK_OPEN_S * 1000, fill: 0, max: Math.max(1, Math.round(k.hp * TEST_BOSS_HP * weakHpOf(k))) }; // (like the barrier's)
         bossEvent(m, 'weakOpen');
         dirty = true;
@@ -1955,6 +1983,18 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     } else m.addsAt = 0;
     if (dirty || (m.partyDirty && t - m.partySentAt > 150) || (bits && t - m.partySentAt > 2000)) sendParty(m); // (and every 2 s, for anyone who just came in)
   }
+  // a shield phase starts: kind 'barrier' | 'armour', or 'both' (FB1: a final boss's two at once, the roses over the
+  // bark: magic wears the roses, heavy hits crack the bark, and each broken staggers it)
+  function shieldUp(m, k, kind, t) {
+    const bar = barrierOf(k), b = kind !== 'armour', warn = b ? BARRIER_WARN : ARMOUR_WARN, max = Math.max(1, Math.round(k.hp * TEST_BOSS_HP * bar.hp)); // (one slime's worth of its HP: a lone Mage can break it in a big party too)
+    m.shield = { kind, from: t + warn * 1000, until: t + (warn + (b ? bar.s : ARMOUR_S)) * 1000, hp: max, max, cracks: 0 };
+    m.shieldLast = kind;
+    m.shieldNext = m.shield.until + (b ? bar.every : ARMOUR_EVERY) * 1000;
+    bossEvent(m, 'shieldUp', { kind, dur: warn });
+    if (b && !m.saidShield) bossSays(m, k.lines?.shield); // (once a fight: S5.3's line about it)
+    m.saidShield ||= b;
+    sendParty(m);
+  }
   // S5.2: a boss's party state as the hit cap sees it for a hit from fromX, a little generous at the edges (the
   // client's view of a phase starting or ending, or of the boss turning round, runs a moment behind): { stag, shield,
   // weakOpen, onShield (the hit struck the barrier: it wears it down) }. S5.3: a front-only barrier (Sigrun's) only
@@ -1974,16 +2014,17 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const t = now(), sh = m.shield;
     let cracked = false;
     if (sh && t >= sh.from) {
-      if (sh.kind === 'barrier' && magic && onShield) {
+      const both = sh.kind === 'both';
+      if ((sh.kind === 'barrier' || both) && magic && onShield) {
         sh.hp -= dmg;
         m.partyDirty = true;
-        if (sh.hp <= 0) breakShield(m);
-      } else if (sh.kind === 'armour' && heavy) {
+        if (sh.hp <= 0) breakShield(m, 'barrier');
+      } else if ((sh.kind === 'armour' || both) && heavy) {
         cracked = true;
         sh.cracks++;
         m.partyDirty = true;
         bossEvent(m, 'crack', { n: sh.cracks });
-        if (sh.cracks >= ARMOUR_CRACKS) breakShield(m);
+        if (sh.cracks >= ARMOUR_CRACKS) breakShield(m, 'armour');
       }
     }
     if (weak && m.weak) {
@@ -1993,20 +2034,25 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         m.weak = null;
         m.weakNext = t + WEAK_EVERY * 1000;
         bossEvent(m, 'weakBreak');
-        stagger(m);
+        stagger(m, MOBS[m.kind].final ? GAZE_STAGGER_S : STAGGER_S); // (FB1: the Gaze's shard staggers longer than anything)
       }
     }
     return cracked;
   }
-  function breakShield(m) {
+  function breakShield(m, part) {
     const kind = m.shield.kind;
+    if (kind === 'both') { // (FB1: one of the two broke; the other holds on for its time)
+      m.shield.kind = part === 'barrier' ? 'armour' : 'barrier';
+      bossEvent(m, 'shieldBreak', { kind: part });
+      return stagger(m);
+    }
     m.shield = null;
     bossEvent(m, 'shieldBreak', { kind });
     stagger(m);
   }
   // The stagger (STAGGER_S): the boss stops dazed and takes STAGGER_DMG more. A wind-up it was in is dropped; a
   // move already going off (or an ultimate) finishes first, then it staggers (staggerQueued)
-  function stagger(m) {
+  function stagger(m, secs = STAGGER_S) {
     const t = now(), k = MOBS[m.kind];
     if (m.dead) return;
     if (k.boss && m.phase === 'warn' && m.act !== 'ult' && !m.special) {
@@ -2017,14 +2063,16 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     if (k.boss ? m.phase !== 'walk' : !!m.aiPhase) {
       m.staggerQueued = true;
+      m.staggerS = Math.max(m.staggerS ?? 0, secs); // (a queued Gaze stagger keeps its length)
       m.partyDirty = true;
       return;
     }
     m.staggerQueued = false;
-    m.staggerUntil = t + STAGGER_S * 1000;
+    m.staggerUntil = t + (m.staggerS ?? secs) * 1000;
+    m.staggerS = undefined;
     m.next = Math.max(m.next, 1);
     m.vx = 0;
-    bossEvent(m, 'stagger', { dur: STAGGER_S });
+    bossEvent(m, 'stagger', { dur: (m.staggerUntil - t) / 1000 });
     sendParty(m);
   }
   // The interrupt (S5.2; owner 2026-10-24): a freeze landed (from player id) while the ultimate was still warning:
@@ -2230,11 +2278,28 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         }
         if (m.den) {
           m.emptyFor = here.some(([, q]) => !q.faintUntil) ? 0 : m.emptyFor + dt; // (knocked-out slimes lying there don't count)
-          if (m.emptyFor > 8 && (m.hp < m.maxHp || m.fighters > 1 || m.enraged)) resetBoss(m); // everyone left (or is down): it heals up
+          if (m.emptyFor > 8 && (m.hp < m.maxHp || m.fighters > 1 || m.enraged || m.fin)) resetBoss(m); // (m.fin: a final boss's fight has started: its loop and enrage clock start over) // everyone left (or is down): it heals up
         }
         if (here.length) stepMob(m, here, dt);
       }
       for (let i = mobs.length - 1; i >= 0; i--) if (mobs[i].gone) mobs.splice(i, 1);
+      if (tick % PATCH_HIT_EVERY === 0) {
+        // the Thornheart's thorn patches (THORN_PATCHES): sharp ones hurt whoever stands on the floor in them, as a
+        // flat 'dot' (no knockback, so the client's prediction never needs to know)
+        for (const [qid, q] of inRoom(THORNHEART)) {
+          if (q.faintUntil || q.state.y < FIELD_GROUND - 1 || q.state.onPlat) continue;
+          const i = THORN_PATCHES.findIndex((pt, j) => Math.abs(q.state.x - pt.x) < pt.w / 2 && patchAt(j, tick).sharp);
+          if (i >= 0) hurt(qid, q, stats(q).maxHp * PATCH_DOT, q.state.x, undefined, 0, false, null, 'dot');
+        }
+        // the Road's End (FB1 (b)): the first slime past LADON_MARK_X in an empty approach hears Ladon, once until it
+        // empties again
+        const here = inRoom(ROADSEND);
+        if (!here.length) roadsEndSaid = false;
+        else if (!roadsEndSaid && here.some(([, q]) => q.state.x > LADON_MARK_X)) {
+          roadsEndSaid = true;
+          toRoom(ROADSEND)({ t: 'boss', a: 'voice', who: 'Ladon', text: LADON_LINE });
+        }
+      }
       summons.tick(dt, tick); // the Cleric's spirits, wisps and totems (server/summons.js)
       // Mend (Cleric): a heal every second while it lasts, from its caster (gone if the caster left)
       for (const [qid, q] of players) {

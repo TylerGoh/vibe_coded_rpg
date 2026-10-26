@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -29,6 +29,8 @@ export const GREENHOLLOW = [
   { id: 'canopy', name: 'Old Oak Canopy', band: '25–40', at: [535, 125], from: 'woods', rooms: [CANOPY], entry: { room: FIELD, x: CANOPY_GATE_X, kind: 'ladder' } },
   { id: 'spine', name: "Keeper's Spine", band: '45–60', at: [535, 55], from: 'canopy', rooms: [SPINE], entry: { room: CANOPY, x: SPINE_GATE_X, kind: 'trunk' } },
   { id: 'thornheart', name: 'Thornheart', band: '50–60', hard: true, at: [650, 285], from: 'woods', rooms: [THORNHEART], entry: { room: FIELD, x: THORN_GATE_X, kind: 'thorns' } },
+  // FB1 (b): the deep room past the Thornheart and the approach to Ladon's den (one node: the Road's End is its end)
+  { id: 'sunkenroad', name: 'Sunken Road', band: '55–60', hard: true, at: [650, 350], from: 'thornheart', rooms: [SUNKEN, ROADSEND], entry: { room: THORNHEART, x: SUNKEN_GATE_X, kind: 'rootsplit' } },
 ];
 // Frostpeak (its depth pass, F0 on): the hamlet, the ridge and summit (the stage's two zones), and the
 // branches. Says are under ~90 characters (the toast doesn't wrap)

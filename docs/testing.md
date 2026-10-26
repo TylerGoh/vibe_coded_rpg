@@ -12,7 +12,8 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
   the `data` column: lvl, gear, skills, hotbar…) before logging in.
 - Stop it by PID after checking `readlink /proc/<pid>/cwd`. Never `pkill -f "node server/index.js"`.
 - Test-only server env vars (never set them live): `TEST_SPAWN=room:x`, `TEST_BOSS_HP=0.05` (den and field bosses), `TEST_GOD=1`,
-  `TEST_GROW=60` (crops grow 60× faster), `TEST_PET_FAST=1440` (a pet's full belly lasts 2 min), `TEST_FIELD_RESPAWN_MS=15000` (field bosses come back sooner),
+  `TEST_GROW=60` (crops grow 60× faster), `TEST_ENRAGE_MIN=7` (a final boss enrages after 7 game minutes instead of
+  `FINAL_ENRAGE_MIN`), `TEST_PET_FAST=1440` (a pet's full belly lasts 2 min), `TEST_FIELD_RESPAWN_MS=15000` (field bosses come back sooner),
   `TEST_SPEED=10` (the whole game 10× real time, below), `TEST_ACCUSE_FAST=20` (botting accusations' timers 20× shorter), `TEST_PARTY=sprout_king:focus,pulse` (gives that
   boss those S5 party mechanics and switches them on, `partyLive`; several bosses separated by `;`. Two test players
   in the den turn them on: `docs/combat/bosses.md`), `TEST_TP=1` (accepts `{t:'tp', room?, x, vt?}`: room -1 is your own house, `vt` how far into a crossing; send it from the page with

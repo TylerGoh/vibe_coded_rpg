@@ -1,7 +1,7 @@
 # FB1: Greenhollow's final boss, on paper (for the owner to approve)
 
-**Status: second draft 2026-10-26, with the owner's answers; waiting on the owner's OK of the move set. No
-code.** Step (a) of FB1 in `final-bosses.md`: the boss, its move set and its phase order, before anything is
+**Status: approved by the owner 2026-10-26 (heads OK, seven at most, two ultimates) and built the same day
+(`docs/places/ladon.md`, `docs/places/sunkenroad.md`): the code is the truth where they differ.** Step (a) of FB1 in `final-bosses.md`: the boss, its move set and its phase order, before anything is
 built. Numbers are aims, not code: the economy sheet sets the real ones.
 
 ## Owner's answers (2026-10-26)
@@ -219,6 +219,4 @@ the mini Root Warden.
 - Two sessions: (b) the way there, then (c) the den and the boss.
 
 ## Questions for the owner
-1. **The heads** (cut, two grow back unless burned): the core of the fight. OK as written?
-2. **Seven heads at most**, three at the start: too many on screen for a phone, or about right?
-3. **Two ultimates**, alternating from phase 3: OK?
+All answered 2026-10-26: the heads as written, seven at most, two ultimates.

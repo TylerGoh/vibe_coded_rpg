@@ -59,3 +59,5 @@ over is in `docs/ideas.md` under the phase's name. Full plans as written: `archi
 - **Story:** the Keeper ruins' plaques (`src/ruins.js`); the regional characters Brine, Skaldi, Runa, Tove,
   Bun, Moss, Truffle, Acorn, Eyvind, Hakon, Ash, Soot, Slag and Arne; the fjord hamlet and Forgehold;
   the fjord and forge folk (`Slime.setFolk`).
+- **FB1, Greenhollow's final boss** (2026-10-26): Ladon, the Briar Hydra (rooms 47–49: the Sunken Road, the Road's End, the
+  Root of the Road); four phases, heads that regrow unless burned, fixed HP for four (`docs/places/ladon.md`).

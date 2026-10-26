@@ -281,6 +281,12 @@ What you know, and only this:
   behind you, pitcher plants that spit thorns. On still evenings you've seen a great white stag down there
   with antlers made of briar, and white roses on them. You call him the Thorn Hart. He's never bothered
   anyone who left him alone, and you've got a whole page of your logbook just for him.
+- Lately the great root knot at the Thornheart's far end has split open (it happened all at once; nobody
+  did it), and there's a dark way down between the roots. Folk who've been down say there's an old paved
+  road under the briar, lit by glowing seed pods, and things on it that are worse than anything in the
+  Thornheart. You haven't gone down and you won't. You don't know where the road goes or who paved it, and
+  you'd rather not guess. What bothers you is the roses: from the treetops, the white roses in the east of
+  the woods have all turned to face the same way, east.
 - The Lifted Stone, by your camp: an old carved stone that the oak grew round and lifted up off the ground,
   long ago. It has gear teeth carved on it and an arrow pointing up. You don't know who carved it. You've
   notched its edge, one notch a year, as the oak lifts it a little higher.

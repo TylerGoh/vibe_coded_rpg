@@ -109,6 +109,8 @@
 //   Inputs: k also has DASH (32) and BLINK (64); snapshots carry each slime's mobility state (sim.js pack).
 //   Big bosses talk (MOBS[kind].lines): ← {t:'boss', a:'say', id, kind, text}  on walking in (just to you), at a
 //   new phase and when freed (to the den).
+//   A voice out of the dark (no mob): ← {t:'boss', a:'voice', who, text}  Ladon's one line in the Road's End, to the room
+//   (docs/places/sunkenroad.md).
 //   Damage meter (bosses and field bosses): ← {t:'bossdmg', id, kind, d: [[name, damage], …], h?, k?} most first; empty
 //   when its HP was reset (respawned, or healed when left alone). h: healing done, k: damage taken (S3), same shape.
 //   Party mechanics (S5, PARTY in src/shared/rpg.js): ← {t:'party', id, on, f?, fl?}  to the room when they change and
@@ -121,6 +123,12 @@
 //   crack {n}, weakOpen, weakBreak, stagger {dur}, ultCancel {by} (a freeze interrupted the ultimate: drop the banner)
 //   · a hit on a mob may carry a 5th element, 1: aimed at an open weak point (h[3] is the shatter flag, 0 if none) ·
 //   `hurt` has dot: 1 for a curse's burn · `me` has curse {n, left}.
+//   Final bosses (FB1, server/final.js): ← {t:'final', id, ph, act, cw, enr, cu, hd: [[slot, state, ring %, ms, x]]}
+//   on change (at most every 120 ms) and every 1 s while someone's in the den · `party`'s sh kind may be 'w' (both
+//   shields, with the cracks as a 5th element) · a hit's h[4] may be 2 + slot (aimed at that head or its stump) ·
+//   ouch kinds bite and coil · boss events watch {to}, bite {slot, tx, dur}, biteHit {slot, tx}, coil {dur},
+//   coilStep {n, dir}, headFall {slot, hx, hy}, regrow {slot, also}, seal {slot}, gaze {dur}, finalRage; ultWarn /
+//   ultHit kinds heads {gaps} and strangle.
 //   The Cleric's summons (S3, server/summons.js): ← {t:'summons', s: [[id, what, owner, x, y, hp, maxHp, dir]]}
 //   ~20 Hz to rooms with any (an empty one when the last goes) · ← {t:'sumhit', h: [[summonId, hits]]} ·
 //   ← {t:'sumhurt', id, dmg} · ← {t:'sumgone', id, how: 'faded'|'broke', x, y}. A skill echo may carry

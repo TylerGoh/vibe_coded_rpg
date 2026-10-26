@@ -1,6 +1,7 @@
 // Docs: docs/places/houses.md
 // Drawings of every piece of house furniture (FURNITURE in src/shared/house.js), wallpapers and floors.
 // Each piece is drawn from its bottom centre (x, y), facing right; f flips it. Soft pastel shapes, no images.
+import { drawLadonPet } from './ladon-art.js';
 import { TAU, circle, ellipse, mix } from './util.js';
 import { FURNITURE, WALLPAPERS, FLOORS, PET_SCALE } from './shared/house.js';
 import { MOBS } from './shared/rpg.js';
@@ -750,7 +751,8 @@ export function drawPet(ctx, kind, x, y, facing, walking, time, seed = 0, mood =
   if (look.sat < 1) ctx.filter = `saturate(${look.sat})`; // (browsers without canvas filters just skip it)
   ctx.scale(PET_SCALE * (1 + look.squash * 0.5), PET_SCALE * (1 - look.squash));
   const m = { kind, x: 0, y: 0, facing, walking, vy: 0, seed };
-  if (MOBS[kind].boss) drawBoss(ctx, m, time);
+  if (kind === 'ladon') { ctx.scale(1 / PET_SCALE, 1 / PET_SCALE); drawLadonPet(ctx, 0, 0, facing, walking, time, seed); } // (its own art: src/ladon-art.js)
+  else if (MOBS[kind].boss) drawBoss(ctx, m, time);
   else drawMob(ctx, m, time);
   ctx.restore();
 }
