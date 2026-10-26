@@ -22,7 +22,7 @@ the world *is*. Once a story beat ships into code, the feature's doc in `docs/` 
 10. `delivery.md`: how the story reaches players (NPCs, bosses, places, items) and the tone gradient.
 11. `roadmap.md`: what to build next, open items only. **Future sessions start here.** `done.md` lists
     what has shipped, one line a phase. `progression.md` is the class design (the S track) and `s5-plan.md`
-    cuts S5 into pieces; `skills-plan.md` grows the skill pool; `final-bosses.md` plans each island's four-player final boss. Finished plans live
+    cuts S5 into pieces; `skills-plan.md` grows the skill pool; `final-bosses.md` plans each island's four-player final boss (`fb1-plan.md`: Greenhollow's, on paper). Finished plans live
     in `archive/`.
 12. `inventory.md`: what exists in the game today and how the story reinterprets it.
 13. `expansion.md`: the built-in slots for growing the story, and the rules for adding to it.

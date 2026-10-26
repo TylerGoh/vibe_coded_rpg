@@ -42,7 +42,8 @@ No quests, no hard level gates.
 3. **FB1: Greenhollow's final boss**, under the Thornheart (the Sunken Road, the Road's End). Plan:
    `final-bosses.md`: very hard, a top boss (SP6: about 45 minutes for four players at the recommended level, `TOP_PARTY_MIN`) (the boss's own
    level shown far higher); each pocket gets better, then a new deep room, a cinematic approach room, the
-   den. Moves in a designed order, written up for the owner first.
+   den. Moves in a designed order, written up for the owner first: **done, `fb1-plan.md` (2026-10-26), waiting
+   on the owner's answers** before any code.
 4. **S5.4 for Emberdeep**: the last of the retrofit (`s5-plan.md`; design: `progression.md` section 6).
    S5.1–S5.3, S5.5 and S5.4's Greenhollow and Frostpeak parts are done.
 5. **FB2: Frostpeak's final boss**, below the Blue Halls (the Old Ice, the Long Stair).

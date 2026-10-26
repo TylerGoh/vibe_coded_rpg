@@ -129,7 +129,8 @@ phases (`world/emberdeep-depth.md`).
 ## Phases
 Each its own session (or two) and dev copy. Before building: read `progression.md` section 6,
 `s5-plan.md`, `docs/combat/bosses.md`, `docs/places/branches.md` and the pocket's doc.
-- [ ] **FB1: Greenhollow's final boss**: (a) the move set and phase order on paper for the owner;
+- [ ] **FB1: Greenhollow's final boss**: (a) the move set and phase order on paper for the owner (written
+      2026-10-26: `fb1-plan.md`, waiting on the owner);
       (b) the Thornheart's pass, the Sunken Road, the Road's End; (c) the den and the boss, the FINAL table.
 - [ ] **FB2: Frostpeak's final boss**: the same, through the Blue Halls, the Old Ice and the Long Stair.
 - Then each new island's depth pass ends with its own (Emberdeep's is E5).
