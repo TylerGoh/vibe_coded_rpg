@@ -109,6 +109,17 @@ Reloads keep them too: when a slime disconnects (not while splatted, not when a 
 its spot goes into the same map for `RELOAD_KEEP_MS` (`posOf`), so a reload, e.g. Install on the new-patch
 banner (`docs/ui/updates.md`), comes straight back where it stood.
 
+## Restarts keep bosses
+Owner's ask (2026-10-26): a deploy mid-fight mustn't heal the boss. On SIGTERM the server also writes a boss file (`BOSS_FILE`)
+next to the DB (`rpg.saveBosses`): every den boss and field boss that's hurt, being fought or dead, with its HP,
+max HP, fighters, damage meter, who hit it (by name, since player ids change), a field boss's x, a dead one's
+respawn time and a final boss's enrage clock (`enrLeft`). At startup `rpg.restoreBosses` puts them back if the file
+is younger than `POS_KEEP_MS`. The fight's clocks pause while the server is down (hit times shift by the downtime).
+Each hitter is a placeholder (`'~' + name`) until that slime logs back in (`entered`), so the party still gets the
+kill's EXP and loot. An empty den waits `RESTORE_GRACE_S` before healing a restored boss, so people have time to
+reconnect. What starts over: the move it was in, shields, adds, a final boss's heads (its phase follows from HP).
+`reset-positions` skips this too.
+
 ## Protocol cheat sheet
 `hello`/`welcome`/`denied` login · `in` inputs · `s` snapshots · `join`/`leave` · `rtc` voice signalling ·
 `chat`/`chat-log`/`chat-error` text chat ·

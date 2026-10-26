@@ -232,7 +232,8 @@ export function createFinal(d) {
     const f = (m.fin ??= init(m, k)), row = FINAL[f.row];
     if (!f.start) {
       f.start = t;
-      f.enrAt = t + ENRAGE_MS;
+      f.enrAt = t + (m.enrLeft ?? ENRAGE_MS); // (m.enrLeft: its enrage clock from before a restart, server/rpg.js restoreBosses)
+      m.enrLeft = undefined;
       f.at = t + 2500; // (a breath before the first move: the title card)
     }
     const ph = finalPhase(row, m.hp / m.maxHp);

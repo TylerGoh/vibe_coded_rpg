@@ -318,8 +318,9 @@ const POS_FILE = join(dirname(accounts.path), 'positions.json');
 const POS_RESET = join(dirname(accounts.path), 'reset-positions');
 const POS_KEEP_MS = 15 * 60_000;
 const savedPos = new Map();
+const posReset = existsSync(POS_RESET);
 try {
-  if (existsSync(POS_RESET)) unlinkSync(POS_RESET);
+  if (posReset) unlinkSync(POS_RESET);
   else if (existsSync(POS_FILE)) {
     const { at, pos } = JSON.parse(readFileSync(POS_FILE, 'utf8'));
     if (Date.now() - at < POS_KEEP_MS) for (const [user, v] of Object.entries(pos)) savedPos.set(user, v);
@@ -327,6 +328,18 @@ try {
   if (existsSync(POS_FILE)) unlinkSync(POS_FILE);
 } catch (e) {
   console.error('could not read saved positions', e);
+}
+// The bosses too (HP, damage meter, who's fighting, respawn timers: rpg.saveBosses), so a deploy mid-fight doesn't
+// heal them. Same keep time; a game-breaking deploy (reset-positions) starts them fresh as well.
+const BOSS_FILE = join(dirname(accounts.path), 'bosses.json');
+try {
+  if (existsSync(BOSS_FILE)) {
+    const { at, bosses } = JSON.parse(readFileSync(BOSS_FILE, 'utf8'));
+    if (!posReset && Date.now() - at < POS_KEEP_MS) console.log(`bosses restored: ${rpg.restoreBosses(bosses, Date.now() - at)}`);
+    unlinkSync(BOSS_FILE);
+  }
+} catch (e) {
+  console.error('could not read saved bosses', e);
 }
 // Where a slime stands, in the saved form restorePos reads.
 function posOf(p) {
@@ -646,6 +659,11 @@ for (const sig of ['SIGTERM', 'SIGINT']) {
   process.on(sig, () => {
     for (const p of players.values()) if (p.joined) rpg.save(p);
     savePositions();
+    try {
+      writeFileSync(BOSS_FILE, JSON.stringify({ at: Date.now(), bosses: rpg.saveBosses() }));
+    } catch (e) {
+      console.error('could not save bosses', e);
+    }
     process.exit(0);
   });
 }

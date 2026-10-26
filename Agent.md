@@ -48,7 +48,7 @@ touches (see the index at the bottom) before changing code. Every source file na
   `node server/index.js`. **Deploy = `systemctl --user restart rpg`** (rebuilds). Logs:
   `journalctl --user -u rpg` (the startup log says whether TURN and DeepSeek are on). Restarting drops
   everyone for a few seconds; clients reconnect where they stood (owner: small deploys mustn't reset
-  positions; `savePositions` in `server/index.js`). For a game-breaking change, create an empty
+  positions; `savePositions` in `server/index.js`; bosses keep their HP too, `docs/netcode.md`). For a game-breaking change, create an empty
   `reset-positions` file next to the accounts DB before restarting and everyone starts at spawn. Unit changes: `install -m 644 deploy/rpg.service
   ~/.config/systemd/user/` + `daemon-reload`.
 - Git: `~/rpg` is a repo, remote `origin` = github.com:TylerGoh/vibe_coded_rpg (branch `main`). **Always

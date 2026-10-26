@@ -37,6 +37,7 @@ const DAYS_KEPT = 60; // play time per day: how many days are kept on the charac
 const dayOf = (t) => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const FIELD_BOSS_FIGHT_MS = 20000; // a field boss counts the slimes who hit it this recently as its fighters
 const FIELD_BOSS_IDLE_MS = 60000; // nobody's hit it for this long: it heals up and forgets its fighters
+const RESTORE_GRACE_S = 90; // after a restart, how long a restored den boss waits for its fighters before an empty den heals it
 const TEST_BOSS_HP = Number(process.env.TEST_BOSS_HP) || 1; // tests only: weaker bosses (dens and field bosses)
 const TEST_GOD = !!process.env.TEST_GOD; // tests only: nobody gets hurt
 const FIELD_RESPAWN_MS = Number(process.env.TEST_FIELD_RESPAWN_MS) || FIELD_BOSS_RESPAWN_MS; // (tests only: sooner)
@@ -152,7 +153,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       // long its target has been behind its front-only barrier
       dirWas: -1, dirAt: 0, saidShield: false, behindSince: 0,
       // FB1: a final boss's state (server/final.js; made on its first tick) and how many pulses have landed
-      fin: null, pulseN: 0,
+      fin: null, pulseN: 0, enrLeft: undefined,
     });
   }
 
@@ -2418,7 +2419,55 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       wakeUp(id, p);
     },
 
+    // ——— bosses across a restart (a deploy): saved on shutdown, put back on startup (server/index.js, bosses.json) ———
+    // Every boss and field boss that's hurt, being fought or dead: its HP, fighters, damage meter, who hit it (by
+    // name: ids change on a restart; a slime gets its credit back as it logs in, `entered`), where a field boss
+    // stood, when a dead one comes back, and a final boss's enrage clock. The rest of a fight (the move it was in,
+    // shields, adds, a final boss's heads) starts over; the phase follows from HP.
+    saveBosses() {
+      const t = now(), out = [];
+      for (const m of mobs) {
+        const k = MOBS[m.kind];
+        if (m.gone || m.minion || !(k.boss || k.field) || !(m.dead || m.hp < m.maxHp || m.fighters > 1)) continue;
+        const name = (qid) => (typeof qid === 'string' ? qid.slice(1) : players.get(qid)?.name);
+        out.push({
+          kind: m.kind, room: m.room, x: Math.round(m.x), dead: m.dead, respawnAt: m.respawnAt, hp: m.hp, maxHp: m.maxHp, fighters: m.fighters, enraged: m.enraged,
+          hitters: [...m.hitters].map(([qid, at]) => [name(qid), at]).filter(([n]) => n),
+          dmg: [...m.dmg], heal: [...m.heal], taken: [...m.taken],
+          enrLeft: m.fin?.start ? (m.fin.enr ? 0 : Math.max(0, m.fin.enrAt - t)) : undefined,
+        });
+      }
+      return out;
+    },
+    // list: saveBosses()'s, saved `down` ms ago (the fight's clocks don't run while the server is down)
+    restoreBosses(list, down) {
+      const used = new Set();
+      for (const b of list ?? []) {
+        const m = mobs.find((q) => !used.has(q) && !q.minion && q.kind === b.kind && q.room === b.room);
+        if (!m) continue;
+        used.add(m);
+        if (b.dead) {
+          Object.assign(m, { dead: true, respawnAt: Number(b.respawnAt) || 0 });
+          continue;
+        }
+        const maxHp = Math.max(1, Number(b.maxHp) || m.maxHp), hp = Math.max(1, Math.min(maxHp, Number(b.hp) || maxHp));
+        Object.assign(m, { hp, maxHp, fighters: Math.max(1, b.fighters | 0), dmg: new Map(b.dmg), heal: new Map(b.heal), taken: new Map(b.taken), dmgDirty: true });
+        m.hitters = new Map(b.hitters.map(([n, at]) => ['~' + n, at + down])); // (placeholders until each logs back in)
+        if (MOBS[m.kind].field) m.x = Number(b.x) || m.x;
+        if (m.den) m.emptyFor = -RESTORE_GRACE_S; // (everyone has a while to reconnect before an empty den heals it up)
+        if (b.enrLeft !== undefined) m.enrLeft = b.enrLeft;
+        if (b.enraged && !MOBS[m.kind].final) m.enraged = true;
+      }
+      return used.size;
+    },
+
     entered(p) {
+      // a slime back after a restart: the bosses it was fighting know it again (restoreBosses' placeholders)
+      const key = '~' + p.name, id = [...players].find(([, q]) => q === p)?.[0];
+      if (id !== undefined) for (const m of mobs) if (m.hitters.has(key)) {
+        m.hitters.set(id, m.hitters.get(key));
+        m.hitters.delete(key);
+      }
       // a one-time message on joining (the rollback, classes arriving); news: which one, for a banner
       if (p.notice) send(p.ws, { t: 'notice', text: p.notice, news: p.news ?? undefined });
       p.notice = p.news = null;
