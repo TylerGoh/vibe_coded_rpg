@@ -54,10 +54,13 @@ Menacing but in the soft procedural style; no image assets, no text but the SAFE
   white eyes in the dark** behind the canes, opening and closing out of time (`darkEyes`). The wall roses wither when
   it enrages. **The high arch is drawn in front of the body** (`drawHighArch`, from `src/ladon.js`): the knot used to
   hide it, and it's Strangle's only safe place.
-- **The body**: the root knot, baked too (`BODY_*`, copied 1:1 unless a hit or its death squashes it), with thick necks
-  rising out of it into the roof and a thorn-toothed hollow in the middle. Live: several hearts glowing deep in it,
-  each beating at its own rate, the throats' green in the hollow, buds on it that open as small white eyes. Red once
-  enraged.
+- **The body**: a hunched beast of woven briar crouched facing the road (owner, 2026-10-26: the first try, a round
+  knot of canes with a mouth in it, read as "just a giant circle"). Haunches and a tail behind; a chest that narrows
+  down between the legs, split open with thorn ribs across it and plated belly under it; two sprawled forelegs with
+  thorn claws on the road; spined shoulder humps, the necks fanning up out of the dip between them (rimmed so they
+  stand off the den's canes). Its outline (`torsoPath`) is also the hit flash's. Baked in two layers (`BODY_*`,
+  `drawBodyBack` / `drawBodyFront`, copied 1:1 unless a hit or its death squashes it) so the live hearts glow between
+  the ribs, each beating at its own rate; buds on it open as small white eyes. Red once enraged.
 - **The heads** (`drawHead`, side heads at `HEAD_S`, the first at twice that, necks `NECK_W`): long dragon skulls of
   woven thorn with a pale rim so they read on the dark, a jaw of thorn teeth that hangs open (wide when it rears to
   bite, open with a Coil, a little when it acts), leaf frills, a white rose eye. **The acting head's eye lights first**,

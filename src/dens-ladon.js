@@ -268,97 +268,274 @@ function drawArch(ctx, p, i) {
 
 export const DEN_ART = { hydra: drawDenHydra };
 
-// ——— Ladon's body: the great root knot at the back wall (feet at 0, 0; w × h), the necks going up out of it into the
-// roof, a thorn-toothed hollow in the middle with the green of its throats deep inside. The knot itself is baked
-// (BODY_*) and copied; the hearts' glows, the hollow and the buds' eyes are live ———
+// ——— Ladon's body: a hunched beast of woven briar crouched at the back wall, facing the road (feet at 0, 0; drawn at
+// MOBS.ladon's w × h, in px): haunches and a tail behind, a barrel chest whose ribs are thorn canes with the hearts
+// glowing between them, two sprawled forelegs gripping the road with thorn claws, a spined ridge over the shoulders and
+// the necks fanning up out of them into the roof. Baked in two layers (BODY_*: the back with the dark of the chest, the
+// front with the ribs, legs and shoulders) so the hearts' light sits between them; the glows and the buds' eyes are
+// live. (It used to be a round knot of canes with a mouth in it, which read as a big ball, not a beast.) ———
 const BODY_L = -300, BODY_T = -470, BODY_R = 300, BODY_B = 14;
-const bodyBake = { res: 0, c: null };
-const knotRnd = mulberry32(7741);
-const knotCanes = Array.from({ length: 14 }, (_, i) => ({ a: (i / 14) * Math.PI + knotRnd() * 0.2, b: knotRnd(), c: knotRnd(), w: 14 + knotRnd() * 14 }));
-const buds = [[-128, -118], [112, -96], [-62, -214], [70, -232], [-160, -60], [150, -170], [10, -262]];
-function drawKnot(ctx, w, h) {
-  // the necks out of it: up into the dark of the roof (behind the knot)
-  ctx.globalAlpha = 0.9;
-  for (const [x0, cx, x1, wd] of [[-90, -150, -230, 44], [-40, -60, -60, 50], [40, 70, 90, 46], [100, 170, 250, 40], [0, 10, 0, 56]]) cane(ctx, x0, -h * 0.55, cx, -h * 1.05, x1, -h * 1.58, wd, Math.abs(x0));
-  ctx.globalAlpha = 1;
-  // the mass
-  ctx.fillStyle = '#0e140c';
-  ctx.beginPath();
-  ctx.ellipse(0, -h * 0.42, w * 0.52, h * 0.45, 0, 0, TAU);
-  ctx.fill();
-  // canes twisted round each other into a mound, back to front
-  for (const k of knotCanes) {
-    const r = w * (0.36 + k.b * 0.16), x0 = -Math.cos(k.a) * r, y0 = -h * (0.04 + k.c * 0.14) - Math.sin(k.a) * h * 0.12;
-    const x1 = Math.cos(k.a + 0.9) * r * 0.85, y1 = -h * (0.2 + k.b * 0.55);
-    cane(ctx, x0, y0, (x0 + x1) * 0.2 + (k.c - 0.5) * w * 0.4, -h * (0.55 + 0.35 * k.b), x1, y1, k.w, Math.round(k.a * 10));
-  }
-  // the hollow where the necks meet: a dark mouth ringed with thorn teeth pointing in
-  ctx.fillStyle = '#050704';
-  ellipse(ctx, 0, -h * 0.5, w * 0.16, h * 0.14);
-  ctx.fillStyle = THORN;
-  for (let i = 0; i < 12; i++) {
-    const a = (i / 12) * TAU, ex = Math.cos(a) * w * 0.16, ey = -h * 0.5 + Math.sin(a) * h * 0.14;
+const bodyBake = { res: 0, back: null, front: null };
+const RIM = 'rgba(150,190,120,0.5)';
+const buds = [[-124, -196], [112, -206], [-188, -150], [190, -170], [-226, -60], [232, -76], [-112, -110]];
+const hearts = [[-26, -176, 2.2, 0], [28, -152, 2.9, 1.3], [-12, -122, 1.7, 2.1]];
+// the torso's outline (its hit flash and frost use it too)
+function torsoPath(ctx, sx = 1, sy = 1) {
+  const P = (x, y) => [x * sx, y * sy];
+  ctx.moveTo(...P(-84, -2));
+  ctx.bezierCurveTo(...P(-104, -60), ...P(-150, -110), ...P(-162, -172));
+  ctx.bezierCurveTo(...P(-170, -218), ...P(-128, -252), ...P(-88, -246));
+  ctx.bezierCurveTo(...P(-56, -242), ...P(-36, -226), ...P(0, -228));
+  ctx.bezierCurveTo(...P(36, -226), ...P(56, -242), ...P(88, -246));
+  ctx.bezierCurveTo(...P(128, -252), ...P(170, -218), ...P(162, -172));
+  ctx.bezierCurveTo(...P(150, -110), ...P(104, -60), ...P(84, -2));
+  ctx.quadraticCurveTo(...P(0, 8), ...P(-84, -2));
+}
+// a thick limb: a stroked path in three tones with a pale rim on its upper edge
+function limb(ctx, pts, w) {
+  const path = () => {
     ctx.beginPath();
-    ctx.moveTo(ex + Math.cos(a + 1.6) * 5, ey + Math.sin(a + 1.6) * 5);
-    ctx.lineTo(ex - Math.cos(a) * 15, ey - Math.sin(a) * 13);
-    ctx.lineTo(ex + Math.cos(a - 1.6) * 5, ey + Math.sin(a - 1.6) * 5);
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    ctx.bezierCurveTo(pts[1][0], pts[1][1], pts[2][0], pts[2][1], pts[3][0], pts[3][1]);
+  };
+  ctx.lineCap = 'round';
+  // a shadow on the body under it, so it stands off the torso
+  ctx.save();
+  ctx.translate(0, 7);
+  path();
+  ctx.strokeStyle = 'rgba(4,6,3,0.55)';
+  ctx.lineWidth = w + 8;
+  ctx.stroke();
+  ctx.restore();
+  path();
+  ctx.strokeStyle = RIM;
+  ctx.lineWidth = w + 4;
+  ctx.stroke();
+  ctx.strokeStyle = BRIAR;
+  ctx.lineWidth = w;
+  ctx.stroke();
+  ctx.strokeStyle = BRIAR_M;
+  ctx.lineWidth = w * 0.6;
+  ctx.stroke();
+  // the canes it's twisted from: thin light strands spiralling along it
+  ctx.strokeStyle = 'rgba(120,160,96,0.4)';
+  ctx.lineWidth = 2.5;
+  for (const o of [-0.28, 0.05, 0.3]) {
+    ctx.beginPath();
+    for (let i = 0; i <= 16; i++) {
+      const k = i / 16, u = 1 - k;
+      const x = u * u * u * pts[0][0] + 3 * u * u * k * pts[1][0] + 3 * u * k * k * pts[2][0] + k * k * k * pts[3][0];
+      const y = u * u * u * pts[0][1] + 3 * u * u * k * pts[1][1] + 3 * u * k * k * pts[2][1] + k * k * k * pts[3][1];
+      const off = Math.sin(k * 9 + o * 7) * w * 0.3 + o * w;
+      i ? ctx.lineTo(x + off * 0.5, y + off * 0.5) : ctx.moveTo(x + off * 0.5, y + off * 0.5);
+    }
+    ctx.stroke();
+  }
+}
+// a thorn: a pale curved spike from (x, y) along angle a, length l, base width b
+function spike(ctx, x, y, a, l, b, bend = 0.25) {
+  const nx = -Math.sin(a), ny = Math.cos(a), tx = x + Math.cos(a) * l, ty = y + Math.sin(a) * l;
+  ctx.beginPath();
+  ctx.moveTo(x + nx * b, y + ny * b);
+  ctx.quadraticCurveTo(x + Math.cos(a) * l * 0.5 + nx * l * bend, y + Math.sin(a) * l * 0.5 + ny * l * bend, tx, ty);
+  ctx.quadraticCurveTo(x + Math.cos(a) * l * 0.4 - nx * b * 0.3, y + Math.sin(a) * l * 0.4 - ny * b * 0.3, x - nx * b, y - ny * b);
+  ctx.closePath();
+  ctx.fillStyle = THORN;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(40,50,30,0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+// a claw: three thorn talons spread over the road from a foot at (x, 0), facing side sd
+function claw(ctx, x, sd) {
+  ctx.fillStyle = BRIAR;
+  ellipse(ctx, x, -10, 30, 14);
+  ctx.fillStyle = BRIAR_M;
+  ellipse(ctx, x, -13, 22, 9);
+  for (const [dx, a, l] of [[-18, 0.35, 26], [0, 0.15, 32], [18, -0.05, 26]]) {
+    const ang = sd > 0 ? a : Math.PI - a;
+    spike(ctx, x + dx * sd * 0.9 + sd * 6, -6, ang + (sd > 0 ? 0.25 : -0.25), l, 6, sd * -0.35);
+  }
+}
+// scales: rounded overlapping bark plates over a patch, rows from the top down
+function scales(ctx, cx, cy, cols, rows, s, tilt) {
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols - (r % 2); c++) {
+    const x = cx + (c - (cols - 1 - (r % 2)) / 2) * s * 1.5, y = cy + r * s * 1.05 + Math.abs(c - (cols - 1) / 2) * tilt;
+    ctx.beginPath();
+    ctx.moveTo(x - s, y - s * 0.35);
+    ctx.quadraticCurveTo(x, y - s * 0.6, x + s, y - s * 0.35);
+    ctx.quadraticCurveTo(x + s * 0.7, y + s * 0.7, x, y + s * 0.8);
+    ctx.quadraticCurveTo(x - s * 0.7, y + s * 0.7, x - s, y - s * 0.35);
+    ctx.fillStyle = r % 2 ? BRIAR_M : BRIAR_L;
+    ctx.fill();
+    ctx.strokeStyle = BRIAR;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(200,230,170,0.25)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.6, y - s * 0.25);
+    ctx.quadraticCurveTo(x, y - s * 0.42, x + s * 0.6, y - s * 0.25);
+    ctx.stroke();
+  }
+}
+function drawBodyBack(ctx) {
+  // the necks out of its shoulders: up into the dark of the roof, the middle one the first head's
+  const neck = (x0, y0, cx, cy, x1, y1, wd, seed) => {
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = RIM;
+    ctx.lineWidth = wd + 5;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.quadraticCurveTo(cx, cy, x1, y1);
+    ctx.stroke();
+    cane(ctx, x0, y0, cx, cy, x1, y1, wd, seed);
+  };
+  for (const [x0, cx, x1, wd] of [[-100, -200, -280, 42], [-50, -96, -140, 48], [50, 104, 150, 48], [100, 206, 280, 42]]) neck(x0, -222, cx, -330, x1, -480, wd, Math.abs(x0));
+  neck(0, -226, 16, -360, 0, -480, 60, 7);
+  // the tail: out behind the right haunch, along the road and curling up at its tip
+  cane(ctx, 130, -40, 240, -6, 286, -40, 30, 11);
+  cane(ctx, 284, -36, 300, -80, 262, -96, 16, 12);
+  // haunches, crouched behind the chest
+  for (const sd of [-1, 1]) {
+    ctx.fillStyle = RIM;
+    ellipse(ctx, sd * 168, -56, 84, 60);
+    ctx.fillStyle = BRIAR;
+    ellipse(ctx, sd * 168, -56, 81, 57);
+    ctx.fillStyle = BRIAR_M;
+    ellipse(ctx, sd * 176, -68, 56, 34);
+    scales(ctx, sd * 172, -98, 4, 2, 12, 3);
+  }
+  // the torso, with a pale rim so it reads on the dark wall
+  ctx.beginPath();
+  torsoPath(ctx);
+  ctx.strokeStyle = RIM;
+  ctx.lineWidth = 5;
+  ctx.stroke();
+  ctx.fillStyle = vgrad(ctx, 'torso', -256, 0, [[0, BRIAR_M], [0.55, BRIAR], [1, '#141c12']]);
+  ctx.fill();
+  // the split in its chest, where the hearts are: dark inside, a ragged pale lip
+  ctx.beginPath();
+  ctx.moveTo(0, -214);
+  ctx.bezierCurveTo(-74, -200, -78, -118, 0, -96);
+  ctx.bezierCurveTo(78, -118, 74, -200, 0, -214);
+  ctx.strokeStyle = 'rgba(190,220,160,0.45)';
+  ctx.lineWidth = 6;
+  ctx.stroke();
+  ctx.fillStyle = '#060805';
+  ctx.fill();
+}
+function drawBodyFront(ctx) {
+  // the ribs: three thorn canes a side bowed down off the breastbone over the split, wide gaps for the hearts' light
+  for (let i = 0; i < 3; i++) {
+    const y = -194 + i * 30, half = 58 - Math.abs(i - 0.8) * 12;
+    for (const sd of [-1, 1]) {
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(sd * 6, y);
+      ctx.quadraticCurveTo(sd * half * 0.8, y - 8, sd * (half + 10), y + 24);
+      ctx.strokeStyle = BRIAR;
+      ctx.lineWidth = 11;
+      ctx.stroke();
+      ctx.strokeStyle = BRIAR_L;
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(210,235,180,0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      spike(ctx, sd * half * 0.62, y - 2, Math.PI / 2 + sd * 0.5, 9, 3, 0);
+    }
+  }
+  cane(ctx, 0, -214, 3, -160, 0, -104, 14, 3, false);
+  // the belly: pale plates, one under another, narrowing down between the legs
+  for (let i = 0; i < 4; i++) {
+    const y = -88 + i * 21, hw = 70 - i * 9;
+    ctx.fillStyle = BRIAR;
+    ctx.beginPath();
+    ctx.ellipse(0, y + 2, hw + 3, 13, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = i % 2 ? '#5c7a48' : '#688a52';
+    ctx.beginPath();
+    ctx.ellipse(0, y, hw, 10, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(220,240,190,0.28)';
+    ctx.beginPath();
+    ctx.ellipse(0, y - 4, hw * 0.75, 3, 0, 0, TAU);
     ctx.fill();
   }
-  // roots into the road, and leaves caught in it
-  for (const sd of [-1, 1]) {
-    cane(ctx, sd * w * 0.3, -h * 0.1, sd * w * 0.55, -h * 0.02, sd * w * 0.72, 4, 20, sd > 0 ? 3 : 4, false);
-    cane(ctx, sd * w * 0.18, -h * 0.05, sd * w * 0.3, 2, sd * w * 0.44, 8, 12, 5, false);
+  // the shoulders: bark scales, a collar of twisted canes where the necks go in, and a ridge of spines
+  for (const sd of [-1, 1]) scales(ctx, sd * 116, -226, 3, 3, 14, 4);
+  for (let i = 0; i < 3; i++) cane(ctx, -78, -232 + (i % 2) * 6, 0, -214 + i * 5, 78, -232 + ((i + 1) % 2) * 6, 12, i, false);
+  for (const sd of [-1, 1]) for (let i = 0; i <= 6; i++) {
+    const k = i / 6, a = -Math.PI / 2 + sd * (-0.5 + k * 1.7), x = sd * 116 + Math.cos(a) * 52, y = -200 + Math.sin(a) * 48;
+    spike(ctx, x, y, a, 16 + 10 * Math.sin(k * Math.PI), 6);
   }
+  // the forelegs: from the shoulders out to bent elbows, then down to the road, sprawled like a lizard's
+  for (const sd of [-1, 1]) {
+    limb(ctx, [[sd * 112, -186], [sd * 170, -196], [sd * 214, -150], [sd * 196, -96]], 44);
+    limb(ctx, [[sd * 196, -100], [sd * 186, -64], [sd * 172, -36], [sd * 166, -10]], 38);
+    for (const [k, l] of [[0.3, 16], [0.6, 20]]) spike(ctx, sd * (150 + 60 * k), -200 + 50 * k * k, -Math.PI / 2 + sd * (0.3 + k), l, 5);
+    spike(ctx, sd * 214, -110, sd > 0 ? 0.2 : Math.PI - 0.2, 20, 6); // (the elbow's spur)
+    claw(ctx, sd * 168, sd);
+  }
+  // white roses grown on it, and leaves
+  for (const [x, y, r] of [[-150, -246, 9], [138, -244, 8], [200, -128, 7], [-96, -30, 7]]) rose(ctx, x, y, r, 1, 1);
   ctx.fillStyle = '#3e5a30';
-  for (const [x, y, a] of [[-110, -200, 0.6], [120, -150, -0.4], [-40, -270, 0.2], [60, -60, -0.8], [-150, -120, 1.1]]) ellipse(ctx, x, y, 14, 5, a);
+  for (const [x, y, a] of [[-164, -236, 0.6], [152, -236, -0.4], [210, -118, -0.9], [-82, -24, 0.4], [92, -20, -0.6]]) ellipse(ctx, x, y, 13, 5, a);
   // closed buds: they open as eyes (live)
   for (const [x, y] of buds) {
+    ctx.fillStyle = BRIAR;
+    ellipse(ctx, x, y, 9, 7);
     ctx.fillStyle = BRIAR_L;
-    ellipse(ctx, x, y, 7, 5);
+    ellipse(ctx, x, y - 1, 7, 5);
   }
+}
+function bakeLayer(old, res, draw) {
+  const c = old ?? document.createElement('canvas');
+  c.width = Math.ceil((BODY_R - BODY_L) * res);
+  c.height = Math.ceil((BODY_B - BODY_T) * res);
+  const g = c.getContext('2d');
+  g.setTransform(res, 0, 0, res, -BODY_L * res, -BODY_T * res);
+  draw(g);
+  return c;
 }
 function drawLadonBody(ctx, w, h, st, m) {
   const { t, enr, dying } = st, spec = MOBS.ladon, glowRgb = enr ? '255,110,90' : GREEN;
   const tr = ctx.getTransform(), res = Math.round(Math.abs(tr.a) * 1000) / 1000, flat = Math.abs(tr.b) < 1e-6 && Math.abs(tr.c) < 1e-6 && Math.abs(Math.abs(tr.a) - tr.d) < 1e-6;
-  if (bodyBake.res !== res) {
-    const c = bodyBake.c ?? document.createElement('canvas');
-    c.width = Math.ceil((BODY_R - BODY_L) * res);
-    c.height = Math.ceil((BODY_B - BODY_T) * res);
-    const g = c.getContext('2d');
-    g.setTransform(res, 0, 0, res, -BODY_L * res, -BODY_T * res);
-    drawKnot(g, spec.w, spec.h);
-    Object.assign(bodyBake, { res, c });
-  }
-  glow(ctx, 0, -h * 0.45, w * 0.75, h * 0.62, glowRgb, 0.16 + 0.05 * Math.sin(t * 2.2));
-  const img = bodyBake.c;
-  if (flat && Math.abs(w - spec.w) < 0.5 && Math.abs(h - spec.h) < 0.5) {
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(img, Math.round(tr.e + BODY_L * res), Math.round(tr.f + BODY_T * res));
-    ctx.restore();
-  } else ctx.drawImage(img, BODY_L * (w / spec.w), BODY_T * (h / spec.h), (BODY_R - BODY_L) * (w / spec.w), (BODY_B - BODY_T) * (h / spec.h)); // (squashed by a hit or its death)
-  // the hearts: several, beating out of time, deep in the knot; the throats' green in the hollow
-  if (dying < 0.5) {
-    const sx = w / spec.w, sy = h / spec.h;
-    for (const [hx, hy, f, ph] of [[-70, -150, 2.2, 0], [80, -190, 2.9, 1.3], [10, -95, 1.7, 2.1]]) {
+  if (bodyBake.res !== res) Object.assign(bodyBake, { res, back: bakeLayer(bodyBake.back, res, drawBodyBack), front: bakeLayer(bodyBake.front, res, drawBodyFront) });
+  const sx = w / spec.w, sy = h / spec.h, live = dying < 0.5;
+  const blit = (img) => {
+    if (flat && Math.abs(w - spec.w) < 0.5 && Math.abs(h - spec.h) < 0.5) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, Math.round(tr.e + BODY_L * res), Math.round(tr.f + BODY_T * res));
+      ctx.restore();
+    } else ctx.drawImage(img, BODY_L * sx, BODY_T * sy, (BODY_R - BODY_L) * sx, (BODY_B - BODY_T) * sy); // (squashed by a hit or its death)
+  };
+  glow(ctx, 0, -h * 0.45, w * 0.8, h * 0.6, glowRgb, 0.14 + 0.05 * Math.sin(t * 2.2));
+  blit(bodyBake.back);
+  // the hearts: several, beating out of time, in the dark between the ribs
+  if (live) {
+    glow(ctx, 0, -156 * sy, 60 * sx, 64 * sy, glowRgb, 0.35 + 0.1 * Math.sin(t * 2.2));
+    for (const [hx, hy, f, ph] of hearts) {
       const beat = Math.pow(Math.max(0, Math.sin(t * f + ph)), 6);
-      glow(ctx, hx * sx, hy * sy, 34 * sx, 30 * sy, glowRgb, 0.12 + 0.4 * beat);
+      glow(ctx, hx * sx, hy * sy, 30 * sx, 26 * sy, glowRgb, 0.4 + 0.6 * beat);
+      ctx.fillStyle = enr ? `rgba(255,170,140,${0.5 + 0.45 * beat})` : `rgba(214,255,170,${0.5 + 0.45 * beat})`;
+      ellipse(ctx, hx * sx, hy * sy, (10 + 4 * beat) * sx, (9 + 4 * beat) * sy);
     }
-    glow(ctx, 0, -h * 0.5, w * 0.2, h * 0.16, glowRgb, 0.45 + 0.2 * Math.sin(t * 2.2));
-    ctx.fillStyle = enr ? 'rgba(255,170,140,0.55)' : 'rgba(214,255,170,0.5)';
-    ellipse(ctx, 0, -h * 0.47, w * 0.05, h * 0.035);
-    // the buds open now and then: small white eyes all over it
-    buds.forEach(([bx, by], i) => {
-      const k = (t * 0.6 + i * 1.7) % 6, open = k < 1.6 ? Math.sin((k / 1.6) * Math.PI) : 0;
-      if (open > 0.05) {
-        glow(ctx, bx * sx, by * sy, 12, 10, enr ? '255,150,130' : WHITE, 0.5 * open);
-        ctx.fillStyle = enr ? '#ffe2da' : '#ffffff';
-        ellipse(ctx, bx * sx, by * sy, 4.2, 3 * open);
-      }
-    });
   }
-  return () => ctx.ellipse(0, -h * 0.42, w * 0.5, h * 0.44, 0, 0, TAU);
+  blit(bodyBake.front);
+  // the buds open now and then: small white eyes all over it
+  if (live) buds.forEach(([bx, by], i) => {
+    const k = (t * 0.6 + i * 1.7) % 6, open = k < 1.6 ? Math.sin((k / 1.6) * Math.PI) : 0;
+    if (open > 0.05) {
+      glow(ctx, bx * sx, by * sy, 12, 10, enr ? '255,150,130' : WHITE, 0.5 * open);
+      ctx.fillStyle = enr ? '#ffe2da' : '#ffffff';
+      ellipse(ctx, bx * sx, by * sy, 4.6, 3.4 * open);
+    }
+  });
+  return () => torsoPath(ctx, sx, sy);
 }
 export const BOSS_ART = { ladon: drawLadonBody };
 
