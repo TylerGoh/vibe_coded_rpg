@@ -7,7 +7,7 @@
 // for a final boss it starts none of them by itself: the loop does (watch, breath, bark / ward / both, gaze).
 // → the room: {t:'final', id, ph, hd: [[slot, state, ring filled 0–100, ms left in that state, x]], act: the slot
 // that's acting (-1: none), cw: the coils' reach from each end (px), enr: 1 once enraged, cu: the Coil's ms left}
-import { FINAL, finalPhase, FINAL_ENRAGE_MIN, COIL_ENRAGE_S, ENRAGE_BREATH_S, FINAL_ULT_WARN, FINAL_GAP_S, LADON_SLOTS, HEAD_MAX, HEAD_RING, HEAD_CHUNK, HEAD_ADDS, REGROW_S, WATCH_S, BITE_WARN, BITE_STUCK_S, LASH_WARN, LASH_FLOOR, LASH_ARCH, COIL_S, GAZE_S, GAZE_HP, GAZE_WEAK, COIL_STEP, COIL_STEPS, HUNDRED_GAPS, HUNDRED_GAP_W, FIN_W, headSpot, headReach, headTarget, throatOpen, isStump } from '../src/shared/final.js';
+import { FINAL, finalPhase, FINAL_ENRAGE_MIN, COIL_ENRAGE_S, ENRAGE_BREATH_S, FINAL_ULT_WARN, FINAL_GAP_S, LADON_SLOTS, HEAD_MAX, HEAD_RING, HEAD_CHUNK, HEAD_ADDS, REGROW_S, WATCH_S, BITE_WARN, BITE_REST_S, BITE_STUCK_S, LASH_WARN, LASH_FLOOR, LASH_ARCH, COIL_S, GAZE_S, GAZE_HP, GAZE_WEAK, COIL_STEP, COIL_STEPS, HUNDRED_GAPS, HUNDRED_GAP_W, FIN_W, headSpot, headReach, headTarget, throatOpen, isStump } from '../src/shared/final.js';
 
 const ENRAGE_MS = (Number(process.env.TEST_ENRAGE_MIN) || FINAL_ENRAGE_MIN) * 60_000; // (tests only: sooner)
 const SLACK = 60;
@@ -141,7 +141,7 @@ export function createFinal(d) {
         f.dirty = true;
         d.bossEvent(m, 'biteHit', { slot: h.slot, tx });
       });
-      return warn + 0.35;
+      return warn + 0.35 + BITE_REST_S[ph] * (f.enr ? 0.7 : 1);
     }
     if (name === 'lash') {
       const h = nextHead(f), s = LADON_SLOTS[h?.slot ?? 1], dir = s.rx < FIN_W / 2 ? 1 : -1, low = Math.random() < 0.5;

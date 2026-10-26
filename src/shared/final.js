@@ -80,7 +80,9 @@ export const HEAD_RING = 0.0012, HEAD_CHUNK = 0.012, HEAD_ADDS = 2, REGROW_S = 2
 export const WATCH_S = 30;
 // Bite: the acting head rears back BITE_WARN[phase] s (its eyes lit, the spot marked on the floor), strikes the
 // floor within BITE_R of the mark, and sticks there BITE_STUCK_S (melee's opening)
-export const BITE_WARN = [1.2, 1.0, 0.95, 0.9], BITE_R = 64, BITE_STUCK_S = 3.2;
+// Owner, 2026-10-26: Bite to Bite was ~2.3–3 s, too fast; doubled. The warning is twice what it was, and BITE_REST_S
+// after the strike (on top of the usual FINAL_GAP_S) makes the whole Bite → next Bite exactly twice the old time.
+export const BITE_WARN = [2.4, 2.0, 1.9, 1.8], BITE_REST_S = [1.75, 1.55, 1.35, 1.25], BITE_R = 64, BITE_STUCK_S = 3.2;
 // ...and on its way down it hits everything in its path (owner, 2026-10-26): anyone whose body is within BITE_PATH_R of
 // the line from where the head rears to where it lands (on an arch too). Judged on the client like the rest of a Bite.
 export const BITE_PATH_R = 40;

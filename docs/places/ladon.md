@@ -41,6 +41,9 @@ it's enraged.
 - **The Bite hits everything in its path** (owner, 2026-10-26): not just the floor within `BITE_R` of the mark but
   anyone within `BITE_PATH_R` of the line from where the head rears down to the mark, up on an arch too
   (`onBitePath`, judged on the client like the rest of a Bite). The warning shows that path as a red band.
+- **Bite pacing** (owner, 2026-10-26: doubled): Bite to Bite is the warning `BITE_WARN`, the strike, `BITE_REST_S` and
+  the usual `FINAL_GAP_S`: about 6 s in phase 1, 5 s in phase 2, 4.6 s in phase 3 (measured at TEST_SPEED=10). Phase 4
+  has no Bites.
 - **Briarlings** (the Sunken Road's `briarling`, as `minion`) spring up wherever a head falls.
 
 ## Every class's answer
@@ -88,12 +91,14 @@ Menacing but in the soft procedural style; no image assets, no text but the SAFE
   brow on the road and closes its eyes. Gone after `FREED_S`.
 
 ## Its music
-`ladon` (`src/audio.js`, slot 49): the Road's End's hearts, all of them, each on its own period so they never line up,
-under an E phrygian drone, a creeping bowed line and creaking canes. Owner, 2026-10-26: "where is the music": it was
-written two octaves too low (a drone near 20 Hz, the line near 40–80 Hz), silent on laptop and phone speakers. Keep
-every voice but the hearts at E2 (82 Hz) or above. Its intensity comes from the fight
-(`src/rpg.js`): 0.7 in the last phase (the hearts quicken; a war drum, hats and low brass), 1 once enraged (every
-heartbeat doubles and the drone goes a semitone sharp).
+`ladon` (`src/audio.js`, slot 49): dark EDM in E phrygian (owner, 2026-10-26: "more flare, a bit of EDM", with
+`~/game`'s last stage as the reference). The kick is a heartbeat (lub-dub) on the floor, an off-beat pumping bass, claps
+on 2 and 4, a saw arp over a supersaw pad, the bowed melody as a detuned lead. Every 8 bars a two-bar break: only the
+hearts, each on its own period as in the Road's End, a riser and a snare roll, then a crash into the drop. Its intensity
+comes from the fight (`src/rpg.js`): 0.7 in the last phase (16th hats and arp, the lead doubled up an octave, brass
+stabs), 1 once enraged (a wobble bass, the heartbeat doubled, the pad a semitone sharp). The first version was written
+two octaves too low (a drone near 20 Hz) and was silent on laptop and phone speakers: keep everything at E2 (82 Hz) or
+above.
 
 ## Rewards (FB1 piece 3; items only, no reward window)
 One weapon a kill, picked by who fought (S5's loot by class, `twinPick`): **Ladon's Fang** (Warrior), **the Unsleeping

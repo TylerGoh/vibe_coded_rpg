@@ -1441,41 +1441,72 @@ const SONGS = {
     },
   },
 
-  // Ladon's den, the Root of the Road (FB1 piece 3): every heart the Road's End only hinted at, each on its own period
-  // so they never line up, under a low E phrygian drone, a creeping bowed line, the creak of canes and now and then a
-  // white rose's glint. The last phase (intensity over 0.5) quickens every heart and brings in a war drum, hats and low
-  // brass; the enrage (intensity over 0.9) doubles every heartbeat and drags the drone a semitone sharp, grinding
+  // Ladon's den, the Root of the Road (FB1 piece 3): dark EDM in E phrygian (owner, 2026-10-26: "more flare, a bit of
+  // EDM", after ~/game's last stage). The kick is a heartbeat (a lub-dub on the floor), an off-beat bass pumps against
+  // it, claps on 2 and 4, a saw arp over a supersaw pad, the bowed line now a detuned lead. Every 8 bars, two bars of
+  // break (only the hearts, out of time as in the Road's End, a riser and a snare roll), then a crash into the drop.
+  // The last phase (intensity over 0.5): 16th hats and arp, the lead doubled an octave up, brass stabs. The enrage
+  // (over 0.9): a wobble bass, the heartbeat doubled, the pad dragged a semitone sharp. Nothing below E2: laptop and
+  // phone speakers lose it.
   ladon: {
-    bpm: 84, spb: 16, key: 40, scale: PHRYGIAN, gain: 0.85, send: 0.45, loop: 8,
+    bpm: 128, spb: 16, key: 40, scale: PHRYGIAN, gain: 0.8, send: 0.32, loop: 8,
     chords: [[1, 5, 8], [1, 5, 8], [2, 4, 6], [1, 5, 8], [6, 8, 10], [2, 4, 6], [7, 9, 11], [1, 5, 8]],
     mel: melody(
-      '1 - - - 2 - 1 -', '. . . . . . . .', '2 - 3 - 2 - - -', '1 - - - . . . .',
+      '1 - - - 2 - 1 -', '5 - 4 - 2 - . .', '2 - 3 - 2 - - -', '1 - - - . . . .',
       '6 - - - 5 - 6 -', '5 - 4 - 2 - . .', '7 - 6 - 5 - 2 -', '1 - - - - - . .',
     ),
     setup(p) {
-      p.eng.bed(p, 'lowpass', 110, 0.022);
-      p.eng.bed(p, 'bandpass', 600, 0.004, 0.4); // air moving through the canes
+      p.eng.bed(p, 'bandpass', 600, 0.003, 0.4); // air moving through the canes
     },
     play(p, bar, s, t, pass) {
       const e = p.eng, n = p.n, ch = p.chord(bar), hot = e.intensity > 0.5, rage = e.intensity > 0.9;
-      if (s === 0) pad(p, ch, t, p.stepDur * 16, 0.014, { type: 'sawtooth', a: 0.9, cutoff: 1000, unison: 8, rel: 0.8 });
-      if (s === 0) e.voice(p.c, t, p.f(ch[0], 0) * (rage ? 1.0595 : 1), { type: 'sawtooth', vol: 0.05, a: 0.6, hold: p.stepDur * 14, rel: 0.9, cutoff: 420, unison: 4 }); // the drone (E2 up: anything lower is lost on laptop and phone speakers)
-      // the hearts: [period in steps, offset, pan, volume, pitch]; a lub-dub each, never in step with each other
-      for (const [per0, at, pan, v, f] of [[16, 0, p.c, 0.22, 78], [11, 4, p.l, 0.13, 72], [13, 7, p.r, 0.13, 70], [7, 2, p.l, 0.1, 66], [9, 5, p.r, 0.1, 68]]) {
-        const per = hot ? per0 - 3 : per0, k = n % per;
-        if (k === at % per) e.kick(pan, t, v * (hot ? 1.2 : 1), f, 28, 0.16);
-        if (k === (at + 1) % per) e.kick(pan, t, v * 0.7, f - 6, 26, 0.14);
-        if (rage && k === (at + 3) % per) e.kick(pan, t, v * 0.6, f + 4, 28, 0.12);
+      const brk = bar % 8 >= 6, sharp = rage ? 1.0595 : 1, root = p.f(ch[0], 0);
+      // the pad: a dark supersaw, ducked off the beat like a sidechain (a short swell after each kick)
+      if (s % 4 === 1) for (const d of ch) e.voice(p.c, t, p.f(d, 1) * sharp, { type: 'sawtooth', vol: brk ? 0.007 : 0.009, a: 0.06, hold: p.stepDur * 2, rel: 0.12, cutoff: brk ? 700 : 1500, unison: 9 });
+      if (brk) {
+        // the break: the hearts alone, each on its own period, a riser and a snare roll into the drop
+        for (const [per, at, pan, v, f] of [[16, 0, p.c, 0.2, 78], [11, 4, p.l, 0.12, 72], [13, 7, p.r, 0.12, 70], [7, 2, p.l, 0.09, 66]]) {
+          const k = n % per;
+          if (k === at % per) e.kick(pan, t, v, f + 40, f, 0.14);
+          if (k === (at + 1) % per) e.kick(pan, t, v * 0.7, f + 30, f - 6, 0.12);
+        }
+        if (bar % 8 === 6 && s === 0) e.noiseHit(p.c, t, { f: 300, sweep: 7000, sweepT: p.stepDur * 32, q: 1.6, vol: 0.045, a: p.stepDur * 31, tau: 0.03 }); // the riser
+        if (bar % 8 === 7 && (s % 4 === 0 || (s >= 8 && s % 2 === 0) || s >= 12)) snare(p, t, 0.03 + 0.05 * (s / 16));
+        if (bar % 8 === 6 && s === 0) e.voice(p.c, t, p.f(1, 0), { type: 'sawtooth', vol: 0.05, a: 0.02, hold: p.stepDur * 28, rel: 0.4, cutoff: 500, unison: 6, vib: 6, vibRate: 0.5 }); // a held low groan
+      } else {
+        // the drop: crash on its first beat
+        if (bar % 8 === 0 && s === 0) e.noiseHit(p.c, t, { type: 'highpass', f: 5000, vol: 0.06, tau: 0.45 });
+        // the heartbeat kick: lub on every beat, its dub a 16th later on beats 1 and 3 (and every beat enraged)
+        if (s % 4 === 0) e.kick(p.c, t, 0.26, 150, 46, 0.1);
+        if ((s % 8 === 1 || (rage && s % 4 === 1))) e.kick(p.c, t, 0.13, 120, 44, 0.08);
+        // claps on 2 and 4
+        if (s === 4 || s === 12) {
+          e.noiseHit(p.c, t, { f: 1500, q: 0.9, vol: 0.075, tau: 0.06 });
+          e.noiseHit(p.c, t + 0.012, { f: 1100, q: 0.9, vol: 0.05, tau: 0.08 });
+        }
+        // hats: open on the off-beat, closed 16ths in the last phase
+        if (s % 4 === 2) e.noiseHit(p.r, t, { type: 'highpass', f: 6500, vol: 0.03, tau: 0.06 });
+        else if (hot) hat(p, t, s % 2 ? 0.014 : 0.009);
+        // the off-beat bass: root then its octave, pumping against the kick
+        if (s % 4 === 2) e.voice(p.c, t, root * (s % 8 === 6 ? 2 : 1), { type: 'sawtooth', vol: 0.075, a: 0.004, tau: 0.09, cutoff: 900, q: 4 });
+        // the enrage: a wobble under it all, a filtered saw stuttering on every 16th
+        if (rage) e.voice(p.c, t, root, { type: 'sawtooth', vol: 0.045, a: 0.003, tau: 0.04, cutoff: s % 4 < 2 ? 1400 : 350, q: 6, unison: 10 });
+        // the arp: the chord up and down in saw plucks, 8ths (16ths in the last phase), side to side
+        if (hot || s % 2 === 0) {
+          const i = [0, 1, 2, 3, 2, 1][(n >> (hot ? 0 : 1)) % 6], d = i < 3 ? ch[i] : ch[0] + 7;
+          e.voice(s % 4 < 2 ? p.l : p.r, t, p.f(d, 2), { type: 'sawtooth', vol: 0.016, a: 0.002, tau: 0.07, cutoff: 3200 });
+        }
+        // the lead: the bowed line on detuned saws, doubled an octave up in the last phase
+        const m = p.mel(bar, s);
+        if (m) {
+          const hold = Math.max(0.05, m.len * 0.85);
+          e.voice(p.c, t, p.f(m.d, 1), { type: 'sawtooth', vol: 0.034, a: 0.02, hold, rel: 0.2, cutoff: 2200, unison: 12, vib: 8, vibRate: 5.5 });
+          if (hot) e.voice(p.c, t, p.f(m.d, 2), { type: 'square', vol: 0.014, a: 0.02, hold, rel: 0.2, cutoff: 3000, vib: 10, vibRate: 5.5 });
+        }
+        if (hot && (s === 0 || s === 6) && bar % 2 === 1) for (const d of ch) e.voice(p.c, t, p.f(d, 0), { type: 'sawtooth', vol: 0.02, a: 0.01, hold: 0.12, rel: 0.12, cutoff: 1600, unison: 6 }); // brass stabs
+        if (s === 10 && pass % 2 === 0 && bar % 4 === 3) e.voice(p.r, t, p.f(ch[1], 3), { ...GLOCK, vol: 0.02, tau: 0.7 }); // a rose's glint
       }
-      if (s % 4 === 2 && chance(0.3)) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'bandpass', f: 380 + Math.random() * 520, vol: 0.022, tau: 0.3 }); // canes creaking
-      const m = p.mel(bar, s);
-      if (m) e.voice(p.c, t, p.f(m.d, 1), { type: 'sawtooth', vol: 0.04, a: 0.12, hold: Math.max(0.05, m.len * 0.8), rel: 0.3, cutoff: 1500, unison: 5, vib: 4, vibRate: 5 }); // the bowed line
-      if (!hot && s === 10 && pass % 2 === 0) e.voice(p.r, t, p.f(ch[1], 3), { ...GLOCK, vol: 0.02, tau: 0.7 }); // a rose's glint
-      if (hot) {
-        if (s === 0 || s === 8 || (rage && s % 4 === 0)) e.kick(p.c, t, 0.24, 92, 36, 0.14); // the war drum
-        if (s % 2 === 1) hat(p, t, rage ? 0.012 : 0.008);
-        if (s === 12) for (const d of ch) e.voice(p.c, t, p.f(d, 0), { type: 'sawtooth', vol: 0.022, a: 0.04, hold: 0.35, rel: 0.25, cutoff: 1300, unison: 6 }); // low brass
-      }
+      if (s % 8 === 6 && chance(0.2)) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'bandpass', f: 380 + Math.random() * 520, vol: 0.018, tau: 0.3 }); // canes creaking
     },
   },
 
