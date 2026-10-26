@@ -249,13 +249,22 @@
         <button id="gfx" type="button">Graphics: auto</button>
         <button id="pvp" type="button">Friendly fire: on</button>
         <button id="hbswap" type="button">Hotbar: swap setup</button>
-        <button id="controls-open" type="button">Controls</button>
+        <div class="menu-row">
+          <button id="controls-open" type="button">Controls</button>
+          <button id="playtime-open" type="button">Play time</button>
+        </div>
         <button id="map-open" type="button">World map</button>
         <button id="logout" type="button">Log out</button>
         <div id="voice-status" aria-live="polite"></div>
         <div id="controls" hidden>
           <dl id="controls-list"></dl>
           <button id="controls-back" type="button">Back</button>
+        </div>
+        <div id="playtime" hidden>
+          <div id="pt-summary"></div>
+          <div id="pt-days"></div>
+          <div id="pt-note">The bar's darker part is active time: a key pressed in the last minute. Days start at midnight Singapore time.</div>
+          <button id="playtime-back" type="button">Back</button>
         </div>
         <div id="worldmap" hidden>
           <canvas id="worldmap-canvas" aria-label="A chart of the Glass Sea"></canvas>

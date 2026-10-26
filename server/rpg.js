@@ -30,6 +30,9 @@ const MAX_REWIND = 30; // ticks (0.5 s): never rewind further than this
 const FAINT_MS = 1600;
 const ACTIVE_WINDOW_MS = 60_000; // play time counts as active while you've pressed a key this recently
 const CLOCK_GAP_MS = 30_000; // never count more than this between two clock ticks (a stalled server)
+const DAYS_KEPT = 60; // play time per day: how many days are kept on the character (the Esc menu's Play time page)
+// the server's local date (Singapore time on the live box) as 'YYYY-MM-DD': a day of play time
+const dayOf = (t) => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const FIELD_BOSS_FIGHT_MS = 20000; // a field boss counts the slimes who hit it this recently as its fighters
 const FIELD_BOSS_IDLE_MS = 60000; // nobody's hit it for this long: it heals up and forgets its fighters
 const TEST_BOSS_HP = Number(process.env.TEST_BOSS_HP) || 1; // tests only: weaker bosses (dens and field bosses)
@@ -58,6 +61,7 @@ const newChar = () => ({
   ways: [], // the waystones you've attuned to (src/shared/waystones.js)
   bossAt: {}, // den boss kind → when you last got its full reward (BOSS_WINDOW_MS)
   played: 0, active: 0, // ms logged in, and ms of that with a key pressed in the last ACTIVE_WINDOW_MS (clock)
+  days: {}, // play time per day: { 'YYYY-MM-DD': [ms played, ms active] }, the last DAYS_KEPT days (clock)
   lb: 1, // the levelling rebalance's rollback has been looked at (ROLLBACK; new characters never need it)
   cls: 'novice', reborn: 0, // your class (CLASSES; chosen at the Rebirth Pool) and how many times you've chosen one
 });
@@ -246,6 +250,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     r.ways = [...new Set((Array.isArray(r.ways) ? r.ways : []).filter(wayById))];
     r.bossAt = Object.fromEntries(Object.entries(r.bossAt ?? {}).filter(([k, at]) => MOBS[k]?.boss && Number.isFinite(at) && at <= now() && now() - at < BOSS_WINDOW_MS));
     for (const k of ['played', 'active']) r[k] = Number.isFinite(r[k]) && r[k] > 0 ? Math.floor(r[k]) : 0;
+    r.days = Object.fromEntries(Object.entries(r.days && typeof r.days === 'object' ? r.days : {})
+      .filter(([d, v]) => /^\d{4}-\d\d-\d\d$/.test(d) && Array.isArray(v)).sort(([a], [b]) => (a < b ? 1 : -1)).slice(0, DAYS_KEPT)
+      .map(([d, v]) => [d, [0, 1].map((i) => (Number.isFinite(v[i]) && v[i] > 0 ? Math.floor(v[i]) : 0))]));
     cleanBot(r); // accused of botting (server/accuse.js)
     if (c && !c.lb) { // (a saved character from before the rollback: fresh ones start with lb)
       const to = ROLLBACK[p.name] ? rollbackLevel(ROLLBACK[p.name], r.active) : r.lvl;
@@ -307,16 +314,31 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     const t = now(), dt = Math.min(CLOCK_GAP_MS, Math.max(0, t - (p.clockAt ?? t)));
     p.clockAt = t;
     if (!dt) return;
+    const on = t - (p.keysAt ?? 0) < ACTIVE_WINDOW_MS;
     p.rpg.played += dt;
-    if (t - (p.keysAt ?? 0) < ACTIVE_WINDOW_MS) p.rpg.active += dt;
+    if (on) p.rpg.active += dt;
+    const days = p.rpg.days, day = dayOf(t); // (a tick across midnight counts on the new day: at most SAVE_EVERY_MS)
+    if (!days[day]) {
+      days[day] = [0, 0];
+      const old = Object.keys(days).sort().slice(0, -DAYS_KEPT);
+      for (const d of old) delete days[d];
+    }
+    days[day][0] += dt;
+    if (on) days[day][1] += dt;
     p.dirty = true;
+  }
+  // The Esc menu's Play time page: totals and the last days (counted up to now)
+  function playtime(p) {
+    clock(p);
+    const { played, active, days } = p.rpg;
+    send(p.ws, { t: 'playtime', played, active, today: dayOf(now()), days: Object.entries(days).sort(([a], [b]) => (a < b ? 1 : -1)).map(([d, v]) => [d, ...v]) });
   }
   function save(p) {
     if (p.rpg && p.joined) clock(p);
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn, gods, shield } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, lb, cls, reborn, gods, shield }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -2176,6 +2198,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   return {
     load,
     save,
+    playtime,
     pay,
     look,
     sendMe,

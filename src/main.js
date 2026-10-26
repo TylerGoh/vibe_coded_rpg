@@ -37,6 +37,7 @@ import { Trade } from './trade.js';
 import { Accuse } from './accuse.js';
 import { Chat } from './chat.js';
 import { WorldMap } from './worldmap.js';
+import { PlayTime } from './playtime.js';
 import { drawHarbour } from './harbour.js';
 import { drawFjord, drawFjordView } from './fjord.js';
 import { drawForgehold, drawForgeView } from './forgehold.js';
@@ -263,6 +264,10 @@ const net = new Net(wsUrl, {
   // a Hook just fired (SP2): its mob, its hit, and how many ticks the yank takes (always sent: the server cuts it the same)
   onHook(me, seq) {
     return rpg.hook(me, seq);
+  },
+  // the Esc menu's Play time page (src/playtime.js)
+  onPlaytime(m) {
+    if (!document.getElementById('playtime').hidden) playTime.show(m);
   },
   // personal houses: a house's layout, or someone inviting us over
   onHouse(m) {
@@ -691,6 +696,7 @@ function toggleMenu(open = menu.hidden) {
   menu.hidden = !open;
   showControls(false);
   showMap(false);
+  showPlayTime(false);
   held.clear(); // no walking while the menu is up
   if (open) {
     document.getElementById('resume').focus();
@@ -795,6 +801,22 @@ document.getElementById('controls-open').onclick = () => showControls(true);
 document.getElementById('controls-back').onclick = () => {
   showControls(false);
   document.getElementById('controls-open').focus();
+};
+// Play time: today, the last days and all time, asked of the server as the page opens (src/playtime.js)
+const playTime = new PlayTime(document.getElementById('playtime'));
+function showPlayTime(on) {
+  menu.classList.toggle('ptview', on);
+  document.getElementById('playtime').hidden = !on;
+  if (on) {
+    playTime.loading();
+    net.sendNpc({ t: 'playtime' });
+    document.getElementById('playtime-back').focus();
+  }
+}
+document.getElementById('playtime-open').onclick = () => showPlayTime(true);
+document.getElementById('playtime-back').onclick = () => {
+  showPlayTime(false);
+  document.getElementById('playtime-open').focus();
 };
 // World map: a teaser chart of the Glass Sea (src/worldmap.js), drawn only while its page is open
 const worldMap = new WorldMap(document.getElementById('worldmap-canvas'));

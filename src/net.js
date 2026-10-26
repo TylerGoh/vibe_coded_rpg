@@ -26,9 +26,9 @@ export function applyKick(s, kick) {
 }
 
 export class Net {
-  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild }) {
+  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime }) {
     this.url = url;
-    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild };
+    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime };
     this.id = null;
     this.me = newState(); // predicted state
     this.pending = []; // [seq, keys, kick?, charge?, hook?] not yet acknowledged
@@ -116,6 +116,8 @@ export class Net {
       this.cb.onHouse(m); // personal houses (src/house.js, src/players.js), farming and alchemy (src/alchemy.js)
     } else if (m.t === 'chat' || m.t === 'chat-log' || m.t === 'chat-error') {
       this.cb.onChat(m); // text chat and private messages (src/chat.js)
+    } else if (m.t === 'playtime') {
+      this.cb.onPlaytime?.(m); // the Esc menu's Play time page (src/playtime.js)
     } else if (m.t === 'slap') {
       this.cb.onSlap(m);
     } else if (m.t === 'lecture' || m.t === 'hands' || m.t === 'ask-error') {

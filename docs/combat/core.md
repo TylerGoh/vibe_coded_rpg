@@ -117,6 +117,8 @@ elsewhere.
 - **Play time** (owner, 2026-10-23, for balancing how long levels take): `played` (ms logged in) and
   `active` (the part of it with a key pressed in the last `ACTIVE_WINDOW_MS`), counted by `clock()` on every
   save. Recorded from 2026-10-23 only: older characters started at 0. Read them straight from the DB.
+  `days` splits them per day (from 2026-10-26; players see it on the Esc menu's Play time page,
+  `docs/ui/playtime.md`).
 - **Levels** (L1, `story/progression.md`): `expToNext` in `src/shared/rpg.js` is built so a level takes
   about `LEVEL_MIN` minutes of farming at your own level (slowing as you go: ~10 min at Lv 100, ~20 at
   Lv 200), never faster than the old curve. `docs/economy.md` checks the pace. Fainting costs a tenth of a

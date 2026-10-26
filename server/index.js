@@ -39,6 +39,7 @@
 //   ← {t:'hands', users}  whose hands are up, in order · ← {t:'ask-error', text}  just to the asker
 // Piano room: ← {t:'note', id, n}  to everyone in it, whenever a slime lands on a key (MIDI note n).
 //   The lander's own client already played it from prediction and ignores its echo.
+// Play time (the Esc menu): → {t:'playtime'}  ← {t:'playtime', played, active, today, days:[[date, played, active]]} (ms)
 // Slapping: → {t:'slap', dir}  ← {t:'slap', id, dir, hits:[ids], npc?, quip?, mob?}  to everyone in that room.
 //   Hits are judged here from the server's positions; npc is 'mochi' / 'prof' if one got slapped.
 // The combat rooms (the stages and their dens, COMBAT_ROOMS): server/rpg.js, src/shared/rpg.js, src/shared/skills.js.
@@ -406,6 +407,8 @@ wss.on('connection', (ws) => {
       rpg.skills(id, p, m);
     } else if ((m.t === 'buy' || m.t === 'sell' || m.t === 'buycos') && p.joined) {
       rpg.shop(id, p, m);
+    } else if (m.t === 'playtime' && p.joined) {
+      rpg.playtime(p);
     } else if (m.t === 'wake' && p.joined) {
       rpg.wake(id, p);
     } else if (m.t === 'way' && p.joined) {

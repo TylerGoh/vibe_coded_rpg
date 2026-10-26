@@ -160,6 +160,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/ui/updates.md](docs/ui/updates.md) | the new-patch banner (Install without a hard refresh), build ids in `welcome` |
 | [docs/ui/hints.md](docs/ui/hints.md) | the on-screen prompts above your slime, any new interaction |
 | [docs/ui/world-map.md](docs/ui/world-map.md) | the World map page in the Esc menu |
+| [docs/ui/playtime.md](docs/ui/playtime.md) | the Play time page in the Esc menu (play time per day and overall) |
 | [docs/ui/audio.md](docs/ui/audio.md) | music, ambience, sound effects |
 | [docs/performance.md](docs/performance.md) | frame rate, lag on old laptops, the Graphics setting, big gradients and glows, caching art, WebGL/3D questions |
 | [docs/ideas.md](docs/ideas.md) | what's untested and what's been asked for but not done |
