@@ -7,7 +7,7 @@
 // for a final boss it starts none of them by itself: the loop does (watch, breath, bark / ward / both, gaze).
 // → the room: {t:'final', id, ph, hd: [[slot, state, ring filled 0–100, ms left in that state, x]], act: the slot
 // that's acting (-1: none), cw: the coils' reach from each end (px), enr: 1 once enraged, cu: the Coil's ms left}
-import { FINAL, finalPhase, FINAL_ENRAGE_MIN, COIL_ENRAGE_S, ENRAGE_BREATH_S, FINAL_ULT_WARN, FINAL_GAP_S, LADON_SLOTS, HEAD_MAX, HEAD_RING, HEAD_CHUNK, HEAD_ADDS, REGROW_S, WATCH_S, BITE_WARN, BITE_REST_S, BITE_STUCK_S, LASH_WARN, LASH_FLOOR, LASH_ARCH, COIL_S, GAZE_S, GAZE_HP, GAZE_WEAK, COIL_STEP, COIL_STEPS, HUNDRED_GAPS, HUNDRED_GAP_W, FIN_W, headSpot, headReach, headTarget, throatOpen, isStump } from '../src/shared/final.js';
+import { FINAL, finalPhase, FINAL_ENRAGE_MIN, COIL_ENRAGE_S, ENRAGE_BREATH_S, FINAL_ULT_WARN, FINAL_GAP_S, LADON_SLOTS, HEAD_MAX, HEAD_RING, HEAD_CHUNK, HEAD_ADDS, REGROW_S, SEALED_REGROW_S, WATCH_S, BITE_WARN, BITE_REST_S, BITE_STUCK_S, LASH_WARN, LASH_FLOOR, LASH_ARCH, COIL_S, GAZE_S, GAZE_HP, GAZE_WEAK, COIL_STEP, COIL_STEPS, HUNDRED_GAPS, HUNDRED_GAP_W, FIN_W, headSpot, headReach, headTarget, throatOpen, isStump } from '../src/shared/final.js';
 
 const ENRAGE_MS = (Number(process.env.TEST_ENRAGE_MIN) || FINAL_ENRAGE_MIN) * 60_000; // (tests only: sooner)
 const SLACK = 60;
@@ -91,11 +91,11 @@ export function createFinal(d) {
     for (let i = 0; i < Math.min(HEAD_ADDS, room); i++) d.addMinion(m, Math.max(120, Math.min(FIN_W - 120, spot.x + rand(-60, 60))));
     coilStep(m, -1);
   }
-  // a stump grows back as two heads (one if there's no room)
+  // a stump grows back as two heads (one if there's no room; a sealed one always as one)
   function regrow(m, k, h, t) {
-    const f = m.fin;
+    const f = m.fin, sealed = h.st === 'sealed';
     Object.assign(h, { st: 'up', fill: 0, max: ring(k), until: 0 });
-    const extra = sides(f).length < cap(f) ? freeSlot(f) : undefined;
+    const extra = !sealed && sides(f).length < cap(f) ? freeSlot(f) : undefined;
     if (extra !== undefined) f.heads.push(head(k, extra));
     f.dirty = true;
     d.bossEvent(m, 'regrow', { slot: h.slot, also: extra });
@@ -243,7 +243,7 @@ export function createFinal(d) {
     // the heads' own timers
     for (const h of f.heads) {
       if (h.st === 'bite' && t >= h.until) [h.st, h.x, f.dirty] = ['up', LADON_SLOTS[h.slot].x, true];
-      if (h.st === 'stump' && t >= h.until) regrow(m, k, h, t);
+      if (isStump(h.st) && t >= h.until) regrow(m, k, h, t);
       if (h.st === 'gaze' && t >= h.until) {
         [h.st, f.dirty] = ['up', true];
         if (f.act === 0) f.act = -1;
@@ -344,7 +344,7 @@ export function createFinal(d) {
     const f = m.fin, k = d.MOBS[m.kind], t = now();
     if (pt.stump) {
       if (fire && !f.enr && pt.stump.st === 'stump') {
-        pt.stump.st = 'sealed';
+        Object.assign(pt.stump, { st: 'sealed', until: t + SEALED_REGROW_S * 1000 });
         f.dirty = true;
         d.bossEvent(m, 'seal', { slot: pt.stump.slot });
       }

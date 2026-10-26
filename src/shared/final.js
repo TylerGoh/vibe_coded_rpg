@@ -74,8 +74,9 @@ export const GAZE_Y = 400; // the first head's brow on the road during the Gaze 
 // A head's ring: HEAD_RING of the boss's plain hp (like a weak point's, so it fills as fast in any party). Full, the
 // head falls: HEAD_CHUNK of max HP off the boss, HEAD_ADDS briarlings, a stump that regrows as two after REGROW_S
 // (swelling for the last SWELL_S) unless a fire hit seals it (a fire spell, a burn, holy light: Smite, the holy
-// bolts). A sealed stump pushes through again at the next phase.
-export const HEAD_RING = 0.0012, HEAD_CHUNK = 0.012, HEAD_ADDS = 2, REGROW_S = 28, SWELL_S = 8;
+// bolts). A sealed stump grows back as ONE head after SEALED_REGROW_S (owner, 2026-10-26: burned ones come back too),
+// or at the next phase if that comes first.
+export const HEAD_RING = 0.0012, HEAD_CHUNK = 0.012, HEAD_ADDS = 2, REGROW_S = 28, SWELL_S = 8, SEALED_REGROW_S = 50;
 // Watch: the first head's eyes settle on one slime for WATCH_S (the focus; Rally takes it)
 export const WATCH_S = 30;
 // Bite: the acting head rears back BITE_WARN[phase] s (its eyes lit, the spot marked on the floor), strikes the

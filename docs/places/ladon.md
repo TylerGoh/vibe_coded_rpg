@@ -50,7 +50,8 @@ it's enraged.
 ## Every class's answer
 As in the plan's table (`story/fb1-plan.md`): arrows, spells and bolts cut any head in range at any height (owner,
 2026-10-26: a Cleric's bolts all flew into the body; before, only arrows reached the hanging heads); a Mage's fire or a
-Cleric's holy light seals a stump; melee cuts heads
+Cleric's holy light seals a stump (a cut stump regrows as two after `REGROW_S`; a sealed one as one after
+`SEALED_REGROW_S`, owner 2026-10-26: burned ones come back too; every stump comes back at a new phase or the enrage); melee cuts heads
 stuck after a Bite, or jumps / climbs the arches for the hanging ones; the Knight's Rally takes the Watch (tested); a
 Frostbinder freezes either ultimate's wind-up (tested); the shields and the pulse answer as on any S5 boss.
 
