@@ -6,7 +6,7 @@
 
 ## The owner's ask (2026-10-24)
 - **Every island gets a final boss**, its strongest by far. Very hard: it needs **at least four players at
-  the recommended level** (the boss's own level shown far higher) and takes them **about 30 minutes**.
+  the recommended level** (the boss's own level shown far higher) and takes them **about 30 minutes** (SP6 made it ~45: `TOP_PARTY_MIN`, owner OK'd for FB1 2026-10-26).
 - **Its moves take real design time:** each final boss has its own move set and order, worked out
   in detail, not a few picks from the shared boss moves.
 - **Far deeper in** than anything else on the island. Greenhollow's is reached through the Thornheart and
@@ -27,7 +27,7 @@
 | field boss | the Thorn Hart, the Hall Troll | anyone, solo | a minute or two |
 | den boss | the Tidemother, the Old Narwhal | any class solo; faster in a group | a few minutes |
 | party den | the Root Warden, Sigrun, (Brenna) | a mixed party; extremely hard solo, never locked | a few minutes for a party |
-| **final boss** | (new, one per island) | **four or more at the recommended level; under four is not meant to win** | **about 30 minutes for four** |
+| **final boss** | (new, one per island) | **four or more at the recommended level; under four is not meant to win** | **about 45 minutes for four** |
 
 **The owner's exception** to "every boss can be soloed" (`progression.md` principles): only final bosses.
 
@@ -75,21 +75,21 @@ Every final boss sits at the end of the same three steps, past the island's hard
   while the Knight holds the boss), and **set pieces where the room itself changes** (the floor cracking,
   walls of thorns closing in, a phase fought on a different strip of the den). **The first session of each
   final boss writes its move set and phase order on paper for the owner to approve before any code.**
-- **Three or four phases** across the 30 minutes, each changing what the party must do, each with a
+- **Three or four phases** across the 45 minutes, each changing what the party must do, each with a
   line; the last is the hardest.
 - **Every S5 mechanic on from the start** (no headcount gate): focus, pulses, curses, barrier, weak
   points, adds, armour, an ultimate to interrupt. A party missing a role struggles badly; every mechanic
   still has a poor answer for any class (the S5 rule).
-- **Four is the floor:** HP scales with players (`BOSS_HP_PER_PLAYER`) but never below four players' worth
-  (`FINAL_MIN_PLAYERS`), so two strong players can't shrink it.
-- **An enrage** at `FINAL_ENRAGE_MIN` (a little past 30 minutes): much stronger, shown in the room, so a
+- **Fixed HP for four** (owner, 2026-10-26; replaces "four is the floor"): a final boss's HP doesn't change
+  with the headcount (no `BOSS_HP_PER_PLAYER`); it's always tuned for a party of four.
+- **An enrage** at `FINAL_ENRAGE_MIN` (a little past 45 minutes): much stronger, shown in the room, so a
   party that's too weak runs out of time instead of winning slowly.
 - **Fainting:** today's combat-room rule (down until a Cleric's Revive or the town); you can walk back in.
 - **Rewards: items only** (owner, 2026-10-24: no unique cosmetic or title): the island's best gear, one
-  piece per class (S5's loot by class). A long per-player reward window (`FINAL_WINDOW_MS`).
-  Priced through `npm run economy` like any den: a 30-minute kill split four ways.
+  piece per class (S5's loot by class). No reward window (owner, 2026-10-26: the rewards aren't worth locking); every kill pays in full.
+  Priced through `npm run economy` like any den: a 45-minute kill split four ways.
 - **The economy sheet** gains a FINAL table: a mixed party of four (one of each class) at its level wins
-  near 30 minutes (`FINAL_KILL_MIN`, checked within a band); three can't before the enrage.
+  near 45 minutes (`FINAL_KILL_MIN`, checked within a band); three can't before the enrage.
 - **Mobile:** every telegraph readable and every answer reachable on a phone; the title card and the
   meter fit a phone with four or more names.
 
@@ -104,7 +104,7 @@ The Hedge Stone says the briar was planted "to keep the road". The final boss is
 - **The approach: the Road's End**: the road climbs out into a hollow walled in white roses. The roses
   turn to follow you, the petals stop falling, and the Thornheart's heartbeat (its music already has one)
   gets louder and slower with every step. Through the canes ahead, something huge breathes.
-- **The boss** (name and story to write, `characters/bosses.md`; a creature twisted by a shard, holding on
+- **The boss**: Ladon, the Briar Hydra (owner, 2026-10-26; move set in `fb1-plan.md`; was: a creature twisted by a shard, holding on
   to the road it was told to keep): cozy island, so a quiet menace, but the fight isn't gentle.
 
 ## Frostpeak: below the Blue Halls (FB2) `[proposed]`
@@ -135,5 +135,5 @@ Each its own session (or two) and dev copy. Before building: read `progression.m
 - [ ] **FB2: Frostpeak's final boss**: the same, through the Blue Halls, the Old Ice and the Long Stair.
 - Then each new island's depth pass ends with its own (Emberdeep's is E5).
 
-## Open questions for the owner (default first)
-1. The reward window: a day, or a week?
+## Open questions for the owner
+None open. (The reward window: none, owner 2026-10-26.)
