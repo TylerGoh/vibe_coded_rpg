@@ -65,7 +65,7 @@ Lv 5–20, which would have doubled early levelling.
   farming in gold and in EXP. `FIELD_BOSS_RESPAWN_MS` must be at least 10 min.
 
 ## Bosses are no longer the EXP faucet (S0, 2026-10-23)
-The over-level falloff (`overlevelScale`) and the den bosses' reward window (`BOSS_WINDOW_MS`,
+The over-level falloff (`overlevelScale`; top bosses exempt since 2026-10-26, `expFalloff`: the sheet never priced the falloff, so no number moved) and the den bosses' reward window (`BOSS_WINDOW_MS`,
 `docs/combat/bosses.md`). BOSS PAY's "an hour" column (since SP6; before, the boss table's "camped 1 h") is a den boss
 killed every `BOSS_RESPAWN_MS` + its sheet fight (the Novices' dens: `CAMP_FIGHT_MIN`), against an hour of farming mobs
 at its level, in EXP and in gold (loot sold); the check keeps the EXP under `BOSS_CAMP_MAX`. The Progress table

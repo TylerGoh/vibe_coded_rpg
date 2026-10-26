@@ -2,8 +2,8 @@
 // S5's party mechanics on the client (story/s5-plan.md; rules in server/rpg.js partyTick, numbers in PARTY and
 // the constants after it in src/shared/rpg.js). The server says which mechanics are on for each boss
 // ({t:'party'}: bits in PARTY_MECHS order, who the focus is on, and S5.2's stagger, shield phase, weak point and
-// who's cursed); this draws them, predicts what they do to our hits (mod) and names the answer the first few
-// times (PARTY_HINTS). S5.1: the focus (a red line and a reticle) and the pulse (rings closing in, a flash).
+// who's cursed); this draws them and predicts what they do to our hits (mod). It never names the answer (owner,
+// 2026-10-26: players discover the mechanics; telegraphs and pops only). S5.1: the focus (a red line and a reticle) and the pulse (rings closing in, a flash).
 // S5.2: the curse (a sigil on the floor, then dark wisps over the cursed), the barrier (a rune dome), the armour
 // (a shell of plates that cracks), the weak point (a glowing crystal high on the boss), the stagger (stars round
 // its head) and the interrupt (an ultimate frozen out: the banner goes).
@@ -11,8 +11,7 @@ import { TAU } from './util.js';
 import { text } from './village.js';
 import { glow } from './glow.js';
 import { audio } from './audio.js';
-import { MOBS, DEN_W, partyBit, PARTY_HINTS, partyHitMult, weakOf, weakReach, ARMOUR_CRACKS, barrierCovers, weakFaces, barrierOf } from './shared/rpg.js';
-import { rankOf } from './shared/skills.js';
+import { MOBS, DEN_W, partyBit, partyHitMult, weakOf, weakReach, ARMOUR_CRACKS, barrierCovers, weakFaces, barrierOf } from './shared/rpg.js';
 
 const RED = '232,64,92', CURSE = '96,52,140', DOME = '150,170,255', WEAK = '255,214,120';
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
@@ -24,7 +23,6 @@ export class Party {
     this.pulses = []; // { mob, warnAt, at } a pulse on its way; { mob, hitAt } one going off
     this.sigils = []; // a curse on its way: { mob, x, y, r, at, end } (rpg.time); hit: the burst
     this.curses = new Map(); // slime id → curse stacks (anyone in the room)
-    this.told = {}; // hint → how many times this session
     this.last = new Map(); // boss id → who its focus was last on (so a repeat of the same isn't news)
     this.said = 0; // when we last popped "BARRIER" / "ARMOUR" over a cut hit (rpg.time)
   }
@@ -57,10 +55,6 @@ export class Party {
     else this.curses.delete(m.id);
     const s = r.slimeOf(m.id);
     if (!m.n && had && s && (m.id === r.myId || s.visible !== false)) r.pop(s.x, s.y - 80, 'CURSE LIFTED', '#e4d4ff', m.id === r.myId ? 18 : 15);
-    if (m.id === r.myId && m.n > had) {
-      const cleric = rankOf(r.me?.skills, 'cleanse');
-      this.tell('cursed', cleric ? 'You are cursed: your hits are softer and it burns. Cleanse it (or step well back to let it fade)' : 'You are cursed: your hits are softer and it burns. A Cleric can Cleanse it, a Cleansing Tonic lifts it, or step well back to let it fade');
-    } else if (m.n > had && rankOf(r.me?.skills, 'cleanse')) this.tell('cursedFriend', 'A friend is cursed (the dark wisps): Cleanse lifts it');
   }
   // → is mechanic `mech` on for boss `id` (or any boss here)?
   on(mech, id) {
@@ -78,32 +72,9 @@ export class Party {
   focusLeft() {
     return this.focusOn(this.rpg.myId);
   }
-  // who the focus is on (a slime id), if anyone
-  focused() {
-    for (const b of this.bosses.values()) if (b.focus && b.until > this.rpg.time) return b.focus;
-    return null;
-  }
   // slime id's curse stacks
   cursedN(id) {
     return this.curses.get(id) ?? 0;
-  }
-  // an open weak point here: { v, spot } of the nearest boss with one, or null
-  weakOpen() {
-    const r = this.rpg;
-    for (const [id, b] of this.bosses) {
-      const v = r.views.get(id);
-      if (v && b.wk && b.wk.until > r.time) return { v, spot: weakOf(MOBS[v.kind], v.x, v.y, v.facing) };
-    }
-    return null;
-  }
-  // S5.3: the view of a boss here whose front-only barrier (Sigrun's shield) is up, or null
-  frontShield() {
-    const r = this.rpg, t = r.time;
-    for (const [id, b] of this.bosses) {
-      const v = r.views.get(id);
-      if (v && MOBS[v.kind].barrierFront && b.sh?.kind === 'barrier' && t >= b.sh.from && t < b.sh.until) return v;
-    }
-    return null;
   }
   // S5.2: what boss v's mechanics do to our hit of kinds { magic, heavy, arrow } from a slime whose feet are at
   // (x, y) → [multiplier, weak] (weak: it's on the weak point: the hit carries h[4]). The server caps it the same
@@ -125,28 +96,19 @@ export class Party {
     }
     return [k, weak];
   }
-  tell(key, line) {
-    if ((this.told[key] = (this.told[key] ?? 0) + 1) <= PARTY_HINTS) this.rpg.toast(line);
-  }
+  // the focus landed on slime id: a warning sound if it's us (the red line and reticle say the rest)
   focusMoved(id) {
-    const r = this.rpg;
-    if (id === r.myId) {
-      audio.sfx('bossWarn', { vol: 0.5 });
-      this.tell('focusMe', 'The boss has locked onto you! Keep moving and Dash clear of its hits');
-    } else if (rankOf(r.me?.skills, 'rally')) this.tell('focusRally', "The boss is after a friend: your Rally pulls its focus onto you");
-    else this.tell('focusOther', 'The boss has locked onto a friend (the red line): hit it while it chases them');
+    if (id === this.rpg.myId) audio.sfx('bossWarn', { vol: 0.5 });
   }
   // boss events → true if handled: 'pulseWarn' {dur}, 'pulseHit', S5.2's 'curseWarn' {cx, r, dur}, 'curseHit',
   // 'shieldUp' {kind, dur}, 'shieldBreak' / 'shieldDrop' {kind}, 'crack' {n}, 'weakOpen', 'weakBreak',
   // 'stagger' {dur}, 'ultCancel' {by}
   event(m, pan) {
-    const r = this.rpg, t = r.time, me = r.me, cls = me?.cls, v = r.views.get(m.id), k = MOBS[v?.kind] ?? MOBS.sprout_king;
+    const r = this.rpg, t = r.time, v = r.views.get(m.id), k = MOBS[v?.kind] ?? MOBS.sprout_king;
     const b = this.bosses.get(m.id), head = (v?.y ?? m.y) - k.h;
     if (m.a === 'pulseWarn') {
       this.pulses.push({ mob: m.id, warnAt: t, at: t + m.dur });
       audio.sfx('phaseOut', { pan, vol: 0.7 });
-      const cleric = cls === 'cleric', knight = rankOf(me?.skills, 'jelly_bubble') || rankOf(me?.skills, 'sanctuary');
-      this.tell('pulse', cleric ? 'A pulse is coming that nobody can dodge: Barrier and heals now!' : knight ? 'A pulse is coming that nobody can dodge: Bubble or Sanctuary takes it' : 'A pulse is coming that nobody can dodge: top up your HP, or drink a Barrier Draught first (a Cleric\'s Barrier soaks it)');
       return true;
     }
     if (m.a === 'pulseHit') {
@@ -160,7 +122,6 @@ export class Party {
       const floor = k.boss ? 450 : m.fy ?? m.y; // (fy: a field boss's floor, S5.4)
       this.sigils.push({ mob: m.id, x: m.cx, y: floor, r: m.r, at: t, end: t + m.dur, look: CURSES[k.looks?.curse] ?? CURSES.dark, thorn: k.looks?.curse === 'thorn', drowned: k.looks?.curse === 'drowned', pale: k.looks?.curse === 'pale' });
       audio.sfx('bossWarn', { pan, vol: 0.45 });
-      this.tell('curseWarn', 'A dark sigil on the floor: step out of it before it closes, or it curses you');
       return true;
     }
     if (m.a === 'curseHit') {
@@ -171,9 +132,6 @@ export class Party {
     }
     if (m.a === 'shieldUp') {
       audio.sfx(m.kind === 'barrier' ? 'bubble' : 'shellBlock', { pan });
-      if (m.kind === 'barrier' && k.barrierFront) this.tell('barrierFront', cls === 'mage' || cls === 'cleric' ? 'Her shield is up! Hits from in front barely land: get round behind her, or break it with your spells to stagger her' : 'Her shield is up! Hits from in front barely land: get round behind her (she turns slowly), or let a Mage break it');
-      else if (m.kind === 'barrier') this.tell('barrier', cls === 'mage' || cls === 'cleric' ? 'A rune barrier! Blades barely scratch it, but your spells break it: break it to stagger the boss' : 'A rune barrier! Your hits do little through it: a Mage\'s spells break it, or wait it out');
-      else this.tell('armour', rankOf(me?.skills, 'sky_splitter') || rankOf(me?.skills, 'blade_storm') || rankOf(me?.skills, 'snipe') ? 'Armour! Small hits glance off: your heavy hits crack it' : 'Armour! Small hits glance off: heavy hits (Sky Splitter, Blade Storm, Snipe, a shatter) crack it, or wait it out');
       return true;
     }
     if (m.a === 'shieldBreak') {
@@ -194,8 +152,6 @@ export class Party {
     }
     if (m.a === 'weakOpen') {
       audio.sfx('mark', { pan, vol: 0.6 });
-      if (k.weak?.front) this.tell('weakFront', 'A weak point is glowing in her shield: hit it from in front (arrows too), and fill the ring to stagger her');
-      else this.tell('weak', cls === 'archer' ? 'A weak point is glowing on the boss: your arrows reach it from anywhere (Hunter\'s Mark keeps it open)' : 'A weak point is glowing high on the boss: jump and hit it (arrows reach it from anywhere)');
       return true;
     }
     if (m.a === 'weakBreak') {
@@ -208,7 +164,6 @@ export class Party {
       if (b) Object.assign(b, { stUntil: t + m.dur, stQueued: false });
       r.pop(m.x, head - 64, 'STAGGERED!', '#ffe9a0', 26);
       audio.sfx('bossRoar', { pan, vol: 0.6 });
-      this.tell('stagger', 'Staggered! It takes more damage for a few seconds: everyone hit it now');
       return true;
     }
     if (m.a === 'ultCancel') {

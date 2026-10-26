@@ -64,7 +64,8 @@ Every final boss sits at the end of the same three steps, past the island's hard
     level. The boss's own level is a label for its size, and its stats come from the table, not from the
     frozen curve at that level.
   - Combat has no penalty for fighting above your level (only EXP falls off for fighting below it,
-    `overlevelScale`), so the high number changes nothing by itself. Its EXP and gold come from the
+    `overlevelScale`, and never for a top boss, which a final boss is: `expFalloff`), so the high number
+    changes nothing by itself. Its EXP and gold come from the
     economy sheet's pricing of a 30-minute kill split four ways, never from the curve at Lv 80 or 120,
     or one kill would hand out several levels.
   - Mobile: the door chip and the title card fit on a phone (`docs/ui/hints.md`).

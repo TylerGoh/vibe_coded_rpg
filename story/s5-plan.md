@@ -89,8 +89,8 @@ The owner's answers to the open questions (2026-10-24) are folded in here.
 - **No new lockouts:** no mechanic makes a boss immune. A barrier still lets `BARRIER_PHYS` through, armour
   still takes `ARMOUR_CUT`, a missed weak point only means a slower fight.
 - **Telegraphs:** every mechanic warns before it bites (the ring before a pulse, the red line for focus, the
-  dome fading in). The hints system (`docs/ui/hints.md`) names the answer the first few times, e.g. "A curse!
-  A Cleric can Cleanse it, or step back to let it fade".
+  dome fading in). (Shipped with hints naming the answer the first few times; removed 2026-10-26, owner:
+  let players discover the mechanics, `docs/ui/hints.md`.)
 - **The interrupt** (owner, 2026-10-24): a freeze landing during `ULT_WARN` cancels the ult outright.
 - **Mobile:** Rally and Cleanse are ordinary hotbar skills; the weak point is hit by aiming normally (a tap
   aims arrows already). Nothing new to touch.

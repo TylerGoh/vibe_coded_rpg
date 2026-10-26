@@ -18,22 +18,14 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
   "↓+Shift Hook" ("▼ Dash" on touch; SP2) while Hook and Dash are ready and a mob stands ahead within Hook's
   range but out of a sword's reach (`HOOK_RANGE`, `rpg.ahead`). An
   Archer with a bow sees "X Retreat Shot" while dashing or just after (S4: X / Hit then shoots backward).
-- A boss's focus (S5, `docs/combat/bosses.md`): the focused slime sees "Shift get clear: the boss is after you"
-  (Dash on touch; `Shift` is in `TOUCH_NAMES`), and anyone with Rally on the hotbar, ready and with the MP sees
-  "<its key> Rally: take the boss's focus" while the focus is on a friend. The first `PARTY_HINTS` times a session
-  a toast also names the answer to a focus or a pulse (`tell` in `src/party.js`).
-- S5.2's mechanics: anyone with Cleanse on the hotbar, ready and with the MP sees "<its key> Cleanse: lift your
-  friend's curse" (or "Cleanse your curse") while someone in reach is cursed (`rpg.cleanseTarget`), and anyone
-  without a bow near a boss whose weak point is open sees "Space jump and hit the glowing weak point" (Jump on touch:
-  `Space` is in `TOUCH_NAMES`). Cursed, with no Cleanse to cast but a Cleansing Tonic on the potion bar and off
-  `CURE_CD`, you see "<its key> drink a Cleansing Tonic" (S5.5). The `tell` toasts (each `PARTY_HINTS` times a session, worded for your class) cover
-  the sigil, being cursed, a friend cursed when you have Cleanse, the barrier, the armour, the weak point and the
-  stagger; an interrupt always toasts who froze the ultimate away. Over the boss, a hit cut by a phase pops
-  "WARDED" / "ARMOURED" and one on the weak point "WEAK POINT!" (at most every 0.7 s).
-- S5.3's party dens: while Sigrun's front-only shield is up and you stand on its side (not a Mage), "Shift get round
-  behind her shield" (`←→` without Dash; `rpg.party.frontShield()`); the jump prompt only shows for a weak point too
-  high to hit from the floor (hers is in her shield). Her shield and weak point have their own toasts
-  (`barrierFront`, `weakFront`).
+- **No prompts or toasts for boss mechanics** (owner, 2026-10-26: "let players discover it"). The focus, pulse,
+  curse, barrier, armour, weak point and stagger are shown only by their telegraphs (`src/party.js`: the red line,
+  closing rings, sigils, domes, the glowing weak point) and short pops over the boss (WARDED, ARMOURED, WEAK POINT!,
+  STAGGERED!, INTERRUPTED!, CURSE LIFTED). Ultimate banners name the boss and the move, never what to do; boss
+  hazards send no hint line (the clock bomb only says it's on you). Until then, S5 had listed the answer here
+  ("Shift get clear", "Rally: take the boss's focus", "Cleanse: lift your friend's curse", "jump and hit the
+  glowing weak point", "drink a Cleansing Tonic", "get round behind her shield") and toasted it the first few times
+  a session. **Every future boss follows this:** telegraphs yes, text naming the answer no.
 - `drawHints()` builds the list in the same order the E key acts in. **A new interaction must add its
   line there.** (The old per-object pills were removed in favour of this.)
 - Room-wide actions stay as pills top-right on desktop (H hand, C courses, Q Clio, X/I/K in combat rooms,

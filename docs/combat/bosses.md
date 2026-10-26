@@ -97,9 +97,8 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
   pops on it, a Barrier soaks it, Sanctuary, the Guardian Totem, a brewed ward and Mana Shield cut it as they cut
   any hit. Neither starts during an ultimate's warning. A Barrier Draught (S5.5, `docs/places/alchemy.md`) takes
   it whole before any of those, in `hurt()` on `flat === true`.
-- **Hints**: the first `PARTY_HINTS` times a session, a toast names the answer (the focus on you, on a friend
-  when you have Rally, a pulse coming, worded for your class); the prompt list over your slime shows "Dash: get
-  clear" while focused and "Rally: take the boss's focus" while it's on a friend (`docs/ui/hints.md`).
+- **No hints** (owner, 2026-10-26): nothing names a mechanic's answer; the telegraphs and pops are the whole
+  explanation (`docs/ui/hints.md`). Keep it that way for new bosses.
 - **The hit cap** (combat stays client-decided, server-capped: `docs/combat/core.md`): barrier, armour, weak points
   and the stagger all scale a hit through one shared rule, `partyHitMult(state, { magic, heavy, weak })`. The client
   predicts with `Party.mod` (src/party.js) at every hit site and shows that number; `applyHits` caps with the same
@@ -270,8 +269,9 @@ don't need it (`FIELD_BOSS_RESPAWN_MS` is longer than the window).
   final standings until the boss is back.
 
 ## Ultimates: one-hit KOs, on purpose (the owner wanted real stakes)
-First below `ULT_FIRST`, then every `ULT_EVERY` s, after a `ULT_WARN` warning banner with the safe spots
-drawn. The **client** decides whether you were safe and sends an `ult` ouch; the server KOs unless Aegis,
+First below `ULT_FIRST`, then every `ULT_EVERY` s, after a `ULT_WARN` warning banner (`drawUltBanner`: the boss and
+the move's name, no line saying what to do: owner, 2026-10-26; it draws over the boss bar) with the safe spots
+drawn. Likewise Pyra's egg bar reads only "EGG n / max" and Time Stop only "TIME STOP" and its countdown. The **client** decides whether you were safe and sends an `ult` ouch; the server KOs unless Aegis,
 Bubble, Sanctuary or Second Wind save you.
 - stomp: be off the floor · spores: stand in a safe circle · wave: jump the rolling wave · lanes: stand in
   the safe lane · nova: be `NOVA_SAFE` px away

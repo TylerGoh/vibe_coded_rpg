@@ -50,6 +50,8 @@ over is in `docs/ideas.md` under the phase's name. Full plans as written: `archi
   Poison Arrow, Blast Trap, Hawk, Huntmaster; holding X / Hit keeps attacking (`docs/combat/skills.md`).
 - **SP6** (2026-10-25): the balance pass: % of max HP boss hits, ~15 min dens, ~45 min top bosses for four, pay scaled
   to match, the Warrior's Sword Mastery attack (`docs/economy.md` "The balance pass", `docs/combat/bosses.md`).
+- **Fewer fight hints** (2026-10-26): boss mechanics explained only by telegraphs, no answer text; top bosses
+  give full EXP at any level gap (`docs/ui/hints.md`).
 
 ## Other
 - **Trading** (2026-10-23): coins and items between players, server-checked, logged (`docs/social/trading.md`).

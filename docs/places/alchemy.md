@@ -71,8 +71,8 @@ prompts, the buff on the HUD), `src/alchemy-art.js` (crops, herb and potion icon
   share their own). `CURE_CD` is longer than a pulse's or a curse's beat, so they cover every other one at best.
 - The Barrier Draught isn't a brewed buff: it doesn't replace your Brew of Might. It, and the cooldown, show in
   the status box (`src/status.js`); neither is saved, and a KO drops a waiting draught. The tonic refuses (and isn't
-  used up) when you aren't cursed or it's cooling down. Cursed with a tonic on the potion bar and no Cleanse to
-  cast, you see "<its key> drink a Cleansing Tonic".
+  used up) when you aren't cursed or it's cooling down. No prompt suggests it (boss fights name no answers,
+  `docs/ui/hints.md`).
 
 ## Plots and their crops
 - Each plot in a layout carries an `id` the server gives it (`tag` in `server/house.js`); crops are kept

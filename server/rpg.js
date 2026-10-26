@@ -12,7 +12,7 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, overlevelScale, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, EGG_HP } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, EGG_HP } from '../src/shared/rpg.js';
 import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS, DEVOTION_S, DEVOTION_CAP, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, judgmentMult, RESOLVE_R } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen, applyHook, HOOK_RANGE } from '../src/shared/sim.js';
@@ -592,21 +592,21 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     m.dead = true;
     m.respawnAt = now() + (k.boss ? BOSS_RESPAWN_MS : k.field ? FIELD_RESPAWN_MS : MOB_RESPAWN_MS);
     // everyone who hit it in the last 20 s (a boss or field boss: the whole fight) gets the EXP: it's a co-op
-    // village. Less if you're far above its level (overlevelScale), and a den boss gives its full reward
+    // village. Less if you're far above its level (expFalloff; not for a top boss), and a den boss gives its full reward
     // once per BOSS_WINDOW_MS per slime (story/progression.md, S0)
     const t = now();
     let fresh = false; // someone here has this boss's window open: the loot rolls at full chance
     for (const [qid, at] of m.hitters) {
       const q = players.get(qid);
       if (!q?.joined || q.state.room !== m.room || t - at >= (k.boss || k.field ? 600_000 : 20000)) continue;
-      let scale = overlevelScale(q.rpg.lvl, k.lvl) * (1 + (brewOf(q.rpg)?.exp ?? 0)) * (1 + stats(q).exp); // (a brewed EXP buff; a long buff's, SP1)
+      let scale = expFalloff(q.rpg.lvl, k) * (1 + (brewOf(q.rpg)?.exp ?? 0)) * (1 + stats(q).exp); // (a brewed EXP buff; a long buff's, SP1)
       if (k.boss) {
         const last = q.rpg.bossAt[m.kind] ?? 0;
         if (t - last >= BOSS_WINDOW_MS) {
           q.rpg.bossAt[m.kind] = t;
           q.dirty = true;
           fresh = true;
-          toast(q, `Full reward from ${k.name}! Its next full reward for you is in ${BOSS_WINDOW_MS / 60_000} min${q.rpg.lvl - k.lvl > OVERLEVEL_GRACE ? ` (less EXP: you're far above its level)` : ''}`);
+          toast(q, `Full reward from ${k.name}! Its next full reward for you is in ${BOSS_WINDOW_MS / 60_000} min${!k.top && q.rpg.lvl - k.lvl > OVERLEVEL_GRACE ? ` (less EXP: you're far above its level)` : ''}`);
         } else {
           scale *= BOSS_REPEAT_SHARE;
           toast(q, `You had ${k.name}'s full reward lately: ${Math.round(BOSS_REPEAT_SHARE * 100)}% EXP and rarer loot for ${Math.ceil((last + BOSS_WINDOW_MS - t) / 60_000)} more min`);
@@ -1654,14 +1654,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       // a TALL beam / void wall across the whole den: too tall to jump. Dash through it (i-frames) or Blink past.
       const dir = Math.random() < 0.5 ? 1 : -1;
       const fronts = [{ x0: dir > 0 ? 0 : DEN_W, dir, speed: 700, h: 450, tall: true, style: m.kind === 'chronos' ? 'void' : 'laser', delay: 1.3 }];
-      bossEvent(m, 'sweep', { fronts, hint: 'Dash or Blink through it!' });
+      bossEvent(m, 'sweep', { fronts });
       m.timer = 1.6;
     } else if (a === 'bombs') {
       // clock bombs on slimes: they go off around whoever carries them. Spread out, and Dash at the last moment
       const ids = here.filter(([, q]) => !q.faintUntil).map(([qid]) => qid);
       const pickN = stage === 0 ? Math.min(2, ids.length) : ids.length;
       const marked = ids.sort(() => Math.random() - 0.5).slice(0, pickN);
-      bossEvent(m, 'bombs', { ids: marked, warn: 3, r: 140, hint: 'Spread out! Dash just as it goes off!' });
+      bossEvent(m, 'bombs', { ids: marked, warn: 3, r: 140 });
       m.timer = 0.8;
     } else if (a === 'blink') {
       // teleports next to its target and slams the floor around itself

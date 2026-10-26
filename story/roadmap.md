@@ -36,11 +36,9 @@ No quests, no hard level gates.
          8. Cross-class: the Warrior brought into line (`SWORD_MASTERY_ATK`); `CLASS_FIT`, `BAD_AT` green.
          Left for the owner: the Novices' dens (Sprout King, Mother Mushroom) weren't lengthened; Sigrun's front-only
          shield means a lopsided party there is slower only in potions; Colossus and Chronos have no mechanics yet.
-2. **Fewer fight hints: let players discover the mechanics** (owner, 2026-10-25): boss fights hand out too many
-   tooltips. Keep the telegraphs (warning banners, rings, sigils, the glowing weak point, INTERRUPTED!) because they
-   ARE the fight, but drop the text that names the answer: the `PARTY_HINTS` toasts (`tell` in src/party.js), the
-   'Shift get clear' / 'Rally: take the boss's focus' / 'Space jump and hit the glowing weak point' prompts and the
-   like (`docs/ui/hints.md`, `docs/combat/bosses.md` 'Hints'). Applies to every future boss too.
+2. [x] **Fewer fight hints** (2026-10-26): every boss-answer prompt and toast gone, ultimate banners without the
+   answer line, hazard hints gone; telegraphs and pops kept (`docs/ui/hints.md`). Also: top bosses give full EXP
+   at any level gap (`expFalloff`, owner).
 3. **FB1: Greenhollow's final boss**, under the Thornheart (the Sunken Road, the Road's End). Plan:
    `final-bosses.md`: very hard, a top boss (SP6: about 45 minutes for four players at the recommended level, `TOP_PARTY_MIN`) (the boss's own
    level shown far higher); each pocket gets better, then a new deep room, a cinematic approach room, the

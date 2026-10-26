@@ -1403,8 +1403,6 @@ export const TAUNT_S = 6;
 export const PULSE_EVERY = 14;
 export const PULSE_WARN = 2.5;
 export const PULSE_HP = 0.3;
-// how many times a session the hints name the answer to a mechanic (src/party.js)
-export const PARTY_HINTS = 3;
 // ——— S5.2 ———
 // curse: every CURSE_EVERY s a dark sigil opens under the boss's target (CURSE_WARN s to step out of it), then every
 // slime within CURSE_R of it gets a stack (up to CURSE_MAX): each stack takes CURSE_DMG off the damage you deal and
@@ -1854,6 +1852,8 @@ export const OVERLEVEL_GRACE = 10;
 export const OVERLEVEL_STEP = 0.05;
 export const OVERLEVEL_FLOOR = 0.1;
 export const overlevelScale = (lvl, mobLvl) => Math.max(OVERLEVEL_FLOOR, Math.min(1, 1 - (lvl - mobLvl - OVERLEVEL_GRACE) * OVERLEVEL_STEP));
+// a kill's falloff for a slime of level lvl: top bosses (`top`) have none (owner, 2026-10-26)
+export const expFalloff = (lvl, k) => (k.top ? 1 : overlevelScale(lvl, k.lvl));
 // A boss's HP grows by this much for every extra slime in its den (and keeps the damage already done)
 export const BOSS_HP_PER_PLAYER = 0.6;
 // S5.3: a party den is built for a full party, so its HP is never under PARTY_DEN_HP_FLOOR slimes' worth, even alone;

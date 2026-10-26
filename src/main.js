@@ -1421,25 +1421,7 @@ function drawHints() {
     if (!me.grounded && !me.sl && chaseRank(me.mw, 1) && !me.sc) acts.push({ key: '↓+X', label: 'Leap Slam' });
     if (!me.grounded && !me.sl && me.vy < 0 && chaseRank(me.mw, 2) && !me.uc) acts.push({ key: 'X', label: 'Upward Cut' });
     if (chaseRank(me.mw, 4) && !me.hc && !me.hk && rankOf(rpg.me?.skills, 'dash') && rpg.ahead(me, me.facing < 0 ? -1 : 1, HOOK_RANGE, 0).some((v) => Math.abs(v.x - me.x) > 110)) acts.push({ key: TOUCH ? '▼ Dash' : '↓+Shift', label: 'Hook' }); // (SP2: a mob out of reach ahead)
-    // a boss's focus (S5, src/party.js): on you, Dash clear; on a friend, a Knight's Rally takes it
-    const foc = rpg.party.focused(), mineR = rpg.me;
-    if (foc && foc === net.id && rankOf(mineR?.skills, 'dash')) acts.push({ key: 'Shift', label: 'get clear: the boss is after you' });
-    else if (foc && foc !== net.id && mineR && rankOf(mineR.skills, 'rally')) {
-      const slot = mineR.hotbar?.indexOf('rally') ?? -1;
-      if (slot >= 0 && rpg.cooldown('rally') <= 0 && mineR.mp >= SKILLS.rally.mp) acts.push({ key: String(slot + 1), label: "Rally: take the boss's focus" });
-    }
-    // S5.2: someone cursed in reach and Cleanse ready; a curse on you and no Cleanse: back off; a weak point open
-    // and no bow (arrows reach it anyway): jump for it
-    const cl = mineR?.hotbar?.indexOf('cleanse') ?? -1, cTo = cl >= 0 && rpg.cooldown('cleanse') <= 0 && mineR.mp >= SKILLS.cleanse.mp ? rpg.cleanseTarget(me, SKILLS.cleanse.radius) : null;
-    if (cTo) acts.push({ key: String(cl + 1), label: cTo === me ? 'Cleanse your curse' : 'Cleanse: lift your friend\'s curse' });
-    // S5.5: cursed, no Cleanse of your own to cast, a Cleansing Tonic on the potion bar and off cooldown
-    const tonic = mineR?.potbar?.indexOf('cleansing_tonic') ?? -1;
-    if (!cTo && mineR?.curse?.n > 0 && tonic >= 0 && rpg.cureLeft() <= 0 && mineR.bag.some((b) => b.id === 'cleansing_tonic')) acts.push({ key: String(HOTBAR + tonic + 1), label: 'drink a Cleansing Tonic' });
-    const wk = rpg.party.weakOpen(), wkHigh = wk && wk.v.y - wk.spot.y > 110; // (Sigrun's sits in her shield, low enough to hit from the floor)
-    if (wk && wkHigh && !rpg.bowOf(mineR) && me.grounded && Math.abs(wk.v.x - me.x) < 260) acts.push({ key: 'Space', label: 'jump and hit the glowing weak point' });
-    // S5.3: a front-only barrier (Sigrun's shield) facing you: get round behind it (a Mage's spells break it instead)
-    const fs = rpg.party.frontShield();
-    if (fs && Math.abs(fs.x - me.x) < 420 && Math.sign(me.x - fs.x) === fs.facing && mineR?.cls !== 'mage') acts.push({ key: rankOf(mineR?.skills, 'dash') ? 'Shift' : '←→', label: 'get round behind her shield' });
+    // (no boss-mechanic prompts: players discover the answers, owner 2026-10-26)
   }
   if (me.grounded && me.onPlat) acts.push({ key: '↓', label: room === PIANO ? 'drop off the black key' : 'drop down' });
   drawPrompts(ctx, mine.x, mine.y - mine.h - 30, acts, camX, time, TOUCH);

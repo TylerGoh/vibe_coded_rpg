@@ -4816,10 +4816,10 @@ function fxNovaHit(ctx, e, k) {
 
 // ——— ultimate warning banner (screen space) ———
 
-// k: share of the warning time left (1 → 0)
-export function drawUltBanner(ctx, bossName, ultName, hint, k, time) {
+// k: share of the warning time left (1 → 0). No line saying what to do: players learn each ultimate (owner, 2026-10-26)
+export function drawUltBanner(ctx, bossName, ultName, k, time) {
   k = clamp(k, 0, 1);
-  const cx = 480, cy = 150, w = 540, h = 108;
+  const cx = 480, cy = 150, w = 540, h = 90;
   const pop = 1 + 0.18 * clamp((k - 0.92) / 0.08, 0, 1);
   const pulse = 0.5 + 0.5 * Math.sin(time * (8 + (1 - k) * 10));
   ctx.save();
@@ -4861,7 +4861,6 @@ export function drawUltBanner(ctx, bossName, ultName, hint, k, time) {
   ctx.fillStyle = '#fffaf0';
   ctx.fillText(ultName, 0, -h / 2 + 56);
   ctx.restore();
-  text(ctx, hint, 0, -h / 2 + 81, 15, mix('#ffe08a', '#ffffff', pulse * 0.4));
   // time left
   const bw = w - 80, by = h / 2 - 12;
   ctx.fillStyle = 'rgba(0,0,0,0.4)';

@@ -28,12 +28,6 @@ const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const panX = (x, me) => clamp((x - me) / 500, -1, 1);
 // knockbacks: same numbers as server/rpg.js OUCH + hurt()
 const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 240, burn: 150, geyser: 380, sweep: 380, beam: 300, zap: 260, bomb: 420, slash: 380, pulse: 360 };
-// what to do about each boss ultimate (shown on the warning banner)
-const ULT_HINT = {
-  stomp: 'Get off the floor: onto a ledge!', spores: 'Stand inside a clear circle!', wave: 'Jump over the wave!', lanes: 'Get into the safe lane!', nova: 'Run far away from it!',
-  magma: 'Stand on the ledge that holds!', rebirth: 'Break the egg before it hatches!', overclock: 'Safe tiles 1 → 2 → 3: Dash and Blink between them!',
-  timestop: "When time stops, DON'T MOVE!", collapse: 'Dash or Blink through a wall of void!',
-};
 // ultimates Dash / Blink i-frames can get you through (the rest want you somewhere safe)
 const DODGEABLE_ULT = new Set(['collapse']);
 const TILE = 150; // den floor tiles for the grid attacks
@@ -1010,7 +1004,7 @@ export class Rpg {
       this.toast('The boss is enraged!');
     } else if (m.a === 'ultWarn') {
       // the big one: a banner, the safe spots, and ULT_WARN seconds to get there
-      this.ult = { ...m, boss: k.name, hint: ULT_HINT[m.kind] ?? 'Get somewhere safe!', at: this.time };
+      this.ult = { ...m, boss: k.name, at: this.time }; // (no answer line: players learn each ultimate, owner 2026-10-26)
       this.bossFx.spawn(`${m.kind}Warn`, { ...m, y: ground, theme });
       audio.sfx('ultWarn');
     } else if (m.a === 'ultHit') {
@@ -1545,10 +1539,6 @@ export class Rpg {
       }
     }
     const den = denAt(this.room);
-    if (this.ult && den) {
-      const k = clamp(1 - (this.time - this.ult.at) / this.ult.dur, 0, 1);
-      drawUltBanner(ctx, this.ult.boss, this.ult.name, this.ult.hint, k, this.time);
-    }
     if (den) {
       const b = this.boss();
       if (b) {
@@ -1558,14 +1548,14 @@ export class Rpg {
         drawBossBar(ctx, k.name, k.lvl, Math.max(0, this.shownHp(b)), b.maxHp, b.enraged, this.time);
         ctx.restore();
         if (b.shield !== undefined) {
-          // Pyra's Rebirth egg: break it before the timer runs out
+          // Pyra's Rebirth egg's shell (no text saying to break it: players discover it)
           const x = W / 2 - 160, y = 170;
           ctx.fillStyle = 'rgba(255,255,255,0.88)';
           ctx.beginPath();
           ctx.roundRect(x - 8, y - 6, 336, 30, 15);
           ctx.fill();
           bar(ctx, x, y, 320, 18, b.shield / b.shieldMax, '#ffb347');
-          text(ctx, `EGG ${b.shield} / ${b.shieldMax}: BREAK IT!`, x + 160, y + 9.5, 11, '#6b3a10');
+          text(ctx, `EGG ${b.shield} / ${b.shieldMax}`, x + 160, y + 9.5, 11, '#6b3a10');
         }
       } else if (this.bossBack > 0) {
         const label = `${MOBS[den.boss].name} returns in ${this.bossBack}s`;
@@ -1578,14 +1568,18 @@ export class Rpg {
         text(ctx, label, W / 2, 73, 15, '#5b4a6b');
       }
     }
+    if (this.ult && den) { // (over the boss bar, which would hide its first line)
+      const k = clamp(1 - (this.time - this.ult.at) / this.ult.dur, 0, 1);
+      drawUltBanner(ctx, this.ult.boss, this.ult.name, k, this.time);
+    }
     if (this.still) {
       const left = Math.max(0, this.still.until - this.time);
       ctx.font = `700 34px ${FONT}`;
       ctx.lineWidth = 6;
       ctx.strokeStyle = 'rgba(30,30,60,0.8)';
       ctx.textAlign = 'center';
-      ctx.strokeText("TIME STOP: DON'T MOVE", W / 2, H * 0.42);
-      text(ctx, "TIME STOP: DON'T MOVE", W / 2, H * 0.42, 34, '#dfe8ff');
+      ctx.strokeText('TIME STOP', W / 2, H * 0.42);
+      text(ctx, 'TIME STOP', W / 2, H * 0.42, 34, '#dfe8ff');
       text(ctx, left.toFixed(1), W / 2, H * 0.42 + 40, 22, '#ffe28a');
     }
     this.drawMeter(ctx, den);
