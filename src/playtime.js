@@ -1,8 +1,8 @@
 // Docs: docs/ui/playtime.md
-// The Play time page of the Esc menu: how long you've played in all, and each of the last days as a bar.
+// The Play time page of the Esc menu: your lifetime play time, and each of the last 7 days as a bar.
 // Asks the server when it opens ({t:'playtime'}, server/rpg.js playtime) and draws the answer.
 
-const DAYS_SHOWN = 14;
+const DAYS_SHOWN = 7;
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -30,14 +30,12 @@ export class PlayTime {
   // m: {played, active, today, days: [[date, played, active]]} (ms; dates in the server's time zone)
   show(m) {
     const byDay = new Map(m.days.map(([d, p, a]) => [d, [p, a]]));
-    const [todayP = 0] = byDay.get(m.today) ?? [];
     const week = [];
     for (let i = 0, t = dateOf(m.today); i < DAYS_SHOWN; i++, t.setDate(t.getDate() - 1)) week.push(isoOf(t));
-    const last7 = week.slice(0, 7).reduce((n, d) => n + (byDay.get(d)?.[0] ?? 0), 0);
+    const last7 = week.reduce((n, d) => n + (byDay.get(d)?.[0] ?? 0), 0);
     this.summary.replaceChildren(
-      stat('Today', hm(todayP)),
       stat('Last 7 days', hm(last7)),
-      stat('All time', hm(m.played), `${hm(m.active)} of it active`),
+      stat('Lifetime', hm(m.played), `${hm(m.active)} of it active`),
     );
     const most = Math.max(60_000, ...week.map((d) => byDay.get(d)?.[0] ?? 0));
     this.list.replaceChildren(...week.map((d) => {
