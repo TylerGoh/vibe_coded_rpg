@@ -8,7 +8,7 @@
 import { W, clamp } from './util.js';
 import { audio } from './audio.js';
 import { MOBS, LADON_DEN, finalTag, GREEN_TOP, weakOf } from './shared/rpg.js';
-import { FIN_W, FIN_FLOOR, LADON_SLOTS, LADON_PLATFORMS, LADON_HIGH, headSpot, headTarget, throatOpen, isStump, inCoils, HEAD_R, HEAD_REACH, BITE_R, SWELL_S } from './shared/final.js';
+import { FIN_W, FIN_FLOOR, LADON_SLOTS, LADON_PLATFORMS, LADON_HIGH, headSpot, headTarget, throatOpen, isStump, inCoils, HEAD_R, HEAD_REACH, BITE_R, SWELL_S, onBitePath, BITE_PATH_R } from './shared/final.js';
 import { drawHead, drawStump, drawRing, drawCoilWall, drawEyes, drawHighArch, cane, glow, setLadonLook } from './dens-ladon.js';
 
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
@@ -126,7 +126,7 @@ export class Final {
       audio.sfx('bossWarn', { pan, vol: m.to === r.myId ? 0.7 : 0.35 });
       this.watchAt = t;
     } else if (m.a === 'bite') {
-      this.marks.push({ x: m.tx, at: t, end: t + m.dur });
+      this.marks.push({ x: m.tx, at: t, end: t + m.dur, slot: m.slot, from: headSpot({ slot: m.slot, st: 'rear' }) });
       this.lit.set(m.slot, t);
       audio.sfx('bossWarn', { pan, vol: 0.5 });
     } else if (m.a === 'biteHit') {
@@ -134,8 +134,8 @@ export class Final {
       this.lit.delete(m.slot);
       r.bossFx.spawn('shockwave', { x: m.tx, y: FIN_FLOOR, radius: BITE_R + 16, theme: 'hydra' });
       audio.sfx('bossSlam', { pan, vol: 0.8 });
-      // on the floor at the mark (not up on an arch): it got us
-      if (me && me.y > FIN_FLOOR - 50 && Math.abs(me.x - m.tx) < BITE_R) r.ouchNext = { mob: m.id, kind: 'bite', mx: m.tx };
+      // on the floor at the mark, or anywhere along the head's way down to it (an arch in its path too): it got us
+      if (me && ((me.y > FIN_FLOOR - 50 && Math.abs(me.x - m.tx) < BITE_R) || onBitePath(m.slot, m.tx, me.x, me.y))) r.ouchNext = { mob: m.id, kind: 'bite', mx: m.tx };
     } else if (m.a === 'coil') {
       audio.sfx('phaseOut', { pan, vol: 0.5 });
     } else if (m.a === 'coilStep') {
@@ -252,6 +252,23 @@ export class Final {
       ctx.strokeStyle = `rgba(255,120,120,${0.5 + 0.4 * pulse})`;
       ctx.lineWidth = 3;
       ctx.stroke();
+      // the head's way down: a band from where it rears to the mark (it hits everything on it)
+      if (q.from) {
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = `rgba(255,90,100,${0.08 + 0.14 * k})`;
+        ctx.lineWidth = BITE_PATH_R * 2;
+        ctx.beginPath();
+        ctx.moveTo(q.from.x, q.from.y);
+        ctx.lineTo(q.x, FIN_FLOOR - 30);
+        ctx.stroke();
+        ctx.setLineDash([10, 12]);
+        ctx.lineDashOffset = -t * 60;
+        ctx.strokeStyle = `rgba(255,140,140,${0.3 + 0.4 * pulse})`;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.restore();
+      }
     }
     // the first head, until it comes out: a pair of eyes in the dark over the body (a glint of the shard above them)
     const first = st.heads.find((h) => h.slot === 0);

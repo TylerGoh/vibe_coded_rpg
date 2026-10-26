@@ -38,6 +38,9 @@ it's enraged.
 - **Its looks** on the shared moves: Lash is the `beam` style `briar`, Thorn Rows the `grid` style `briar`
   (`src/hazards.js`), Breath the pulse look `thorn` (green, "BREATH"), the ward the dome `rose` (white roses), the bark
   the shell `bark`, the curse `thorn` (`src/party.js`). Thorn Storm uses the `thorn` shot style.
+- **The Bite hits everything in its path** (owner, 2026-10-26): not just the floor within `BITE_R` of the mark but
+  anyone within `BITE_PATH_R` of the line from where the head rears down to the mark, up on an arch too
+  (`onBitePath`, judged on the client like the rest of a Bite). The warning shows that path as a red band.
 - **Briarlings** (the Sunken Road's `briarling`, as `minion`) spring up wherever a head falls.
 
 ## Every class's answer
@@ -60,7 +63,8 @@ Menacing but in the soft procedural style; no image assets, no text but the SAFE
   thorn claws on the road; spined shoulder humps, the necks fanning up out of the dip between them (rimmed so they
   stand off the den's canes). Its outline (`torsoPath`) is also the hit flash's. Baked in two layers (`BODY_*`,
   `drawBodyBack` / `drawBodyFront`, copied 1:1 unless a hit or its death squashes it) so the live hearts glow between
-  the ribs, each beating at its own rate; buds on it open as small white eyes. Red once enraged.
+  the ribs, each beating at its own rate; buds on it open as small white eyes. Red once enraged. It barely reacts to hits (owner: the squash made it look weird): a rooted boss (`still`) gets no
+  squash, shove or turning round in `drawBoss` (`src/dens.js`), only a faint flash and a smaller wind-up.
 - **The heads** (`drawHead`, side heads at `HEAD_S`, the first at twice that, necks `NECK_W`): long dragon skulls of
   woven thorn with a pale rim so they read on the dark, a jaw of thorn teeth that hangs open (wide when it rears to
   bite, open with a Coil, a little when it acts), leaf frills, a white rose eye. **The acting head's eye lights first**,
@@ -85,7 +89,9 @@ Menacing but in the soft procedural style; no image assets, no text but the SAFE
 
 ## Its music
 `ladon` (`src/audio.js`, slot 49): the Road's End's hearts, all of them, each on its own period so they never line up,
-under a low E phrygian drone, a creeping bowed line and creaking canes. Its intensity comes from the fight
+under an E phrygian drone, a creeping bowed line and creaking canes. Owner, 2026-10-26: "where is the music": it was
+written two octaves too low (a drone near 20 Hz, the line near 40–80 Hz), silent on laptop and phone speakers. Keep
+every voice but the hearts at E2 (82 Hz) or above. Its intensity comes from the fight
 (`src/rpg.js`): 0.7 in the last phase (the hearts quicken; a war drum, hats and low brass), 1 once enraged (every
 heartbeat doubles and the drone goes a semitone sharp).
 

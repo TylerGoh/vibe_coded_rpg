@@ -1576,11 +1576,14 @@ const rageCol = (c, enr, k = 0.3) => (enr ? mix(c, '#ff4a3a', k) : c);
 export function drawBoss(ctx, m, time) {
   const spec = MOBS[m.kind];
   if (!spec) return;
-  const dying = clamp(m.dying ?? 0, 0, 1), hurt = clamp(m.hurt ?? 0, 0, 1);
+  // a rooted boss (spec.still: Ladon's body, a hill of briar) barely reacts: no squash, shove or turning round on a
+  // hit, a faint flash, a smaller wind-up (owner, 2026-10-26: the squash made it look weird)
+  const rooted = !!spec.still;
+  const dying = clamp(m.dying ?? 0, 0, 1), hurt = rooted ? 0 : clamp(m.hurt ?? 0, 0, 1), flash = clamp(m.hurt ?? 0, 0, 1) * (rooted ? 0.25 : 1);
   const alive = dying < 0.02;
   const slow = !!m.slow, warn = !!m.warn && alive, charging = !!m.charging && alive, enr = !!m.enraged;
   const rate = slow ? 0.4 : enr ? 1.4 : 1;
-  const t = (m.t ?? time) * rate, seed = m.seed ?? 0, facing = m.facing < 0 ? -1 : 1;
+  const t = (m.t ?? time) * rate, seed = m.seed ?? 0, facing = rooted || m.facing >= 0 ? 1 : -1;
   const vy = m.vy ?? 0;
   let sx = 1, sy = 1;
   const airborne = Math.abs(vy) > 1;
@@ -1589,11 +1592,11 @@ export function drawBoss(ctx, m, time) {
     sx -= air * 0.3;
     sy += air * 0.4;
   } else {
-    const k = Math.sin(t * (m.walking ? 9 : 2.4) + seed) * (m.walking ? 0.04 : 0.025);
+    const k = Math.sin(t * (m.walking ? 9 : 2.4) + seed) * (m.walking ? 0.04 : rooted ? 0.01 : 0.025);
     sx += k;
     sy -= k;
   }
-  if (warn) {
+  if (warn && !rooted) {
     const k = 0.5 + 0.5 * Math.sin(time * 16);
     sx += 0.08 + 0.03 * k;
     sy -= 0.1 + 0.03 * k;
@@ -1611,7 +1614,7 @@ export function drawBoss(ctx, m, time) {
 
   ctx.save();
   let ox = -facing * hurt * 8;
-  if (warn) ox += Math.sin(time * 70) * 2.4;
+  if (warn) ox += Math.sin(time * 70) * (rooted ? 0.8 : 2.4);
   else if (enr && alive) ox += Math.sin(time * 41) * 0.8;
   ctx.translate(m.x + ox, m.y);
   // shadow
@@ -1644,8 +1647,8 @@ export function drawBoss(ctx, m, time) {
     ctx.restore();
   }
   if (slow && dying < 0.5) drawFrost(ctx, sil, w, h, t, seed);
-  if (hurt > 0.01) {
-    ctx.fillStyle = `rgba(255,${Math.round(150 + 105 * hurt)},${Math.round(160 + 95 * hurt)},${0.7 * hurt})`;
+  if (flash > 0.01) {
+    ctx.fillStyle = `rgba(255,${Math.round(150 + 105 * flash)},${Math.round(160 + 95 * flash)},${0.7 * flash})`;
     ctx.beginPath();
     sil();
     ctx.fill();

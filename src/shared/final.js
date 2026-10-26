@@ -81,6 +81,14 @@ export const WATCH_S = 30;
 // Bite: the acting head rears back BITE_WARN[phase] s (its eyes lit, the spot marked on the floor), strikes the
 // floor within BITE_R of the mark, and sticks there BITE_STUCK_S (melee's opening)
 export const BITE_WARN = [1.2, 1.0, 0.95, 0.9], BITE_R = 64, BITE_STUCK_S = 3.2;
+// ...and on its way down it hits everything in its path (owner, 2026-10-26): anyone whose body is within BITE_PATH_R of
+// the line from where the head rears to where it lands (on an arch too). Judged on the client like the rest of a Bite.
+export const BITE_PATH_R = 40;
+export function onBitePath(slot, tx, x, feetY) {
+  const a = headSpot({ slot, st: 'rear' }), b = { x: tx, y: HEAD_FLOOR_Y }, px = x, py = feetY - 18; // (the slime's middle)
+  const dx = b.x - a.x, dy = b.y - a.y, k = Math.max(0, Math.min(1, ((px - a.x) * dx + (py - a.y) * dy) / (dx * dx + dy * dy || 1)));
+  return Math.hypot(px - (a.x + dx * k), py - (a.y + dy * k)) < BITE_PATH_R;
+}
 // Lash: a neck sweeps the den at floor or arch height (LASH_FLOOR / LASH_ARCH, feet y bands), LASH_WARN s warning
 export const LASH_WARN = 1.3, LASH_FLOOR = [404, 452], LASH_ARCH = [290, 366];
 // Coil: COIL_S s with every head turned to the watched slime; a hit on a head's far side (its glowing throat) does

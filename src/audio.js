@@ -1446,7 +1446,7 @@ const SONGS = {
   // white rose's glint. The last phase (intensity over 0.5) quickens every heart and brings in a war drum, hats and low
   // brass; the enrage (intensity over 0.9) doubles every heartbeat and drags the drone a semitone sharp, grinding
   ladon: {
-    bpm: 84, spb: 16, key: 40, scale: PHRYGIAN, gain: 0.65, send: 0.45, loop: 8,
+    bpm: 84, spb: 16, key: 40, scale: PHRYGIAN, gain: 0.85, send: 0.45, loop: 8,
     chords: [[1, 5, 8], [1, 5, 8], [2, 4, 6], [1, 5, 8], [6, 8, 10], [2, 4, 6], [7, 9, 11], [1, 5, 8]],
     mel: melody(
       '1 - - - 2 - 1 -', '. . . . . . . .', '2 - 3 - 2 - - -', '1 - - - . . . .',
@@ -1458,10 +1458,10 @@ const SONGS = {
     },
     play(p, bar, s, t, pass) {
       const e = p.eng, n = p.n, ch = p.chord(bar), hot = e.intensity > 0.5, rage = e.intensity > 0.9;
-      if (s === 0) pad(p, ch, t, p.stepDur * 16, 0.011, { type: 'sawtooth', a: 0.9, cutoff: 480, unison: 8, rel: 0.8 });
-      if (s === 0) e.voice(p.c, t, p.f(ch[0], -2) * (rage ? 1.0595 : 1), { type: 'triangle', vol: 0.085, a: 0.6, hold: p.stepDur * 14, rel: 0.9, cutoff: 190 }); // the drone
+      if (s === 0) pad(p, ch, t, p.stepDur * 16, 0.014, { type: 'sawtooth', a: 0.9, cutoff: 1000, unison: 8, rel: 0.8 });
+      if (s === 0) e.voice(p.c, t, p.f(ch[0], 0) * (rage ? 1.0595 : 1), { type: 'sawtooth', vol: 0.05, a: 0.6, hold: p.stepDur * 14, rel: 0.9, cutoff: 420, unison: 4 }); // the drone (E2 up: anything lower is lost on laptop and phone speakers)
       // the hearts: [period in steps, offset, pan, volume, pitch]; a lub-dub each, never in step with each other
-      for (const [per0, at, pan, v, f] of [[16, 0, p.c, 0.2, 62], [11, 4, p.l, 0.11, 56], [13, 7, p.r, 0.11, 54], [7, 2, p.l, 0.08, 50], [9, 5, p.r, 0.08, 52]]) {
+      for (const [per0, at, pan, v, f] of [[16, 0, p.c, 0.22, 78], [11, 4, p.l, 0.13, 72], [13, 7, p.r, 0.13, 70], [7, 2, p.l, 0.1, 66], [9, 5, p.r, 0.1, 68]]) {
         const per = hot ? per0 - 3 : per0, k = n % per;
         if (k === at % per) e.kick(pan, t, v * (hot ? 1.2 : 1), f, 28, 0.16);
         if (k === (at + 1) % per) e.kick(pan, t, v * 0.7, f - 6, 26, 0.14);
@@ -1469,12 +1469,12 @@ const SONGS = {
       }
       if (s % 4 === 2 && chance(0.3)) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'bandpass', f: 380 + Math.random() * 520, vol: 0.022, tau: 0.3 }); // canes creaking
       const m = p.mel(bar, s);
-      if (m) e.voice(p.c, t, p.f(m.d, -1), { type: 'sawtooth', vol: 0.042, a: 0.12, hold: Math.max(0.05, m.len * 0.8), rel: 0.3, cutoff: 640, unison: 5 }); // the bowed line
-      if (!hot && s === 10 && pass % 2 === 0) e.voice(p.r, t, p.f(ch[1], 2), { ...GLOCK, vol: 0.012, tau: 0.7 }); // a rose's glint
+      if (m) e.voice(p.c, t, p.f(m.d, 1), { type: 'sawtooth', vol: 0.04, a: 0.12, hold: Math.max(0.05, m.len * 0.8), rel: 0.3, cutoff: 1500, unison: 5, vib: 4, vibRate: 5 }); // the bowed line
+      if (!hot && s === 10 && pass % 2 === 0) e.voice(p.r, t, p.f(ch[1], 3), { ...GLOCK, vol: 0.02, tau: 0.7 }); // a rose's glint
       if (hot) {
         if (s === 0 || s === 8 || (rage && s % 4 === 0)) e.kick(p.c, t, 0.24, 92, 36, 0.14); // the war drum
         if (s % 2 === 1) hat(p, t, rage ? 0.012 : 0.008);
-        if (s === 12) for (const d of ch) e.voice(p.c, t, p.f(d, -1), { type: 'sawtooth', vol: 0.02, a: 0.04, hold: 0.35, rel: 0.25, cutoff: 1000, unison: 6 }); // low brass
+        if (s === 12) for (const d of ch) e.voice(p.c, t, p.f(d, 0), { type: 'sawtooth', vol: 0.022, a: 0.04, hold: 0.35, rel: 0.25, cutoff: 1300, unison: 6 }); // low brass
       }
     },
   },
