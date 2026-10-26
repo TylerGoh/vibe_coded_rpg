@@ -1121,13 +1121,13 @@ MOBS.guard_elite = elite('road_guard', 'Road Guard Captain');
 MOBS.lantern_elite = elite('seed_lantern', 'Great Seed Lantern');
 // Ladon, the Briar Hydra (FB1 (c), story/fb1-plan.md; docs/places/ladon.md): Greenhollow's final boss, in the Root
 // of the Road (room 49) at the end of the Sunken Road. Its body is the root knot at the back wall (it never walks:
-// `still`; touching it doesn't hurt: `noTouch`); its heads are targets of their own (`heads`: server/final.js, the
+// `still`; its thorns hurt on the floor near its middle, `touchW` × `touchH`, not up on the arches: owner 2026-10-26); its heads are targets of their own (`heads`: server/final.js, the
 // FINAL table in src/shared/final.js). `final`: a final boss (four written phases, fixed HP for four, the enrage, no
 // reward window). Its stats are the FINAL table's, never the Lv 80 on its tag (`finalTag`). hp, exp and drops are priced
 // on the economy sheet's FINAL BOSSES table (FB1 piece 3): the kill near 45 min for four at Lv 60, the loot split four
 // ways. `petWH`: its pet's own size (the mini Ladon is three little heads, not the knot shrunk: src/dens-ladon.js).
 MOBS.ladon = {
-  name: 'Ladon, the Briar Hydra', boss: true, top: true, final: 'ladon', heads: true, still: true, noTouch: true, denX: LADON_BODY_X,
+  name: 'Ladon, the Briar Hydra', boss: true, top: true, final: 'ladon', heads: true, still: true, touchW: 260, touchH: 70, denX: LADON_BODY_X,
   lvl: 80, hp: 46000000, atk: 230, exp: 620000, speed: 0, w: 380, h: 300, aggro: true, hops: false,
   phases: [[], [], []], minion: 'briarling', petWH: [96, 62],
   looks: { beam: 'briar', grid: 'briar', shell: 'bark', dome: 'rose', curse: 'thorn', pulse: 'thorn' },

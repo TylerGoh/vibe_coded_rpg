@@ -330,7 +330,7 @@ export function createFinal(d) {
     }
     if (f && code >= 2) {
       const h = f.heads.find((q) => q.slot === code - 2);
-      if (h && headTarget(h) && headReach(headSpot(h), x, y, range, arrow || (magic && h.st === 'stump'), SLACK)) {
+      if (h && headTarget(h) && headReach(headSpot(h), x, y, range, arrow || magic, SLACK)) {
         if (h.st === 'stump') return { stump: h };
         const w = watched(m);
         return { head: h, throat: f.coilUntil > now() - 300 && !!w && throatOpen(h, w.state.x, x) };

@@ -762,6 +762,20 @@ pvpButton.onclick = () => {
   showPvp();
 };
 rpg.onPvp = showPvp;
+// the damage meter on boss fights: on / off, remembered on this device (owner: it can be clutter)
+const meterButton = document.getElementById('meter');
+const showMeter = () => (meterButton.textContent = `Damage meter: ${rpg.meterOn ? 'on' : 'off'}`);
+try {
+  rpg.meterOn = localStorage.getItem('slimeville-meter') !== 'off';
+} catch {}
+showMeter();
+meterButton.onclick = () => {
+  rpg.meterOn = !rpg.meterOn;
+  try {
+    localStorage.setItem('slimeville-meter', rpg.meterOn ? 'on' : 'off');
+  } catch {}
+  showMeter();
+};
 // the two hotbar setups: swapped only from here, on purpose (no hotkey: it's part of the skill ceiling)
 const hbSwapButton = document.getElementById('hbswap');
 hbSwapButton.onclick = () => {

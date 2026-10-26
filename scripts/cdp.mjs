@@ -26,6 +26,18 @@ export async function launch({ game = 3010, cdp = 9460 } = {}) {
   const dir = join(OUT, `chrome-${cdp}`);
   mkdirSync(dir, { recursive: true });
   const proc = spawn('/usr/bin/chromium', ['--headless=new', `--remote-debugging-port=${cdp}`, '--no-first-run', '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--user-data-dir=${dir}`, '--window-size=960,540', 'about:blank'], { stdio: 'ignore' });
+  // never leave a headless Chromium running (owner, 2026-10-26): it dies with this script, even on a crash or Ctrl-C
+  const kill = () => {
+    try {
+      proc.kill('SIGKILL');
+    } catch {}
+  };
+  process.on('exit', kill);
+  for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => process.exit(130));
+  process.on('uncaughtException', (e) => {
+    console.error(e);
+    process.exit(1);
+  });
   for (let i = 0; i < 50; i++) {
     try {
       await fetch(`http://127.0.0.1:${cdp}/json/version`);

@@ -5,7 +5,7 @@ reach it down the Sunken Road and through the Road's End (`docs/places/sunkenroa
 table, heads, coils, enrage) is `docs/combat/bosses.md`, "Final bosses".
 
 ## Where things are
-- Data: `MOBS.ladon` and its `DENS` row in `src/shared/rpg.js` (`final: 'ladon'`, `heads`, `still`, `noTouch`, `denX`,
+- Data: `MOBS.ladon` and its `DENS` row in `src/shared/rpg.js` (`final: 'ladon'`, `heads`, `still`, `touchW`, `touchH`, `denX`,
   `partyAll`, `partyLive`, `top`, `lines`, `looks`); its FINAL row, the heads' slots (`LADON_SLOTS`), the arena's
   ledges (`LADON_PLATFORMS`, `LADON_HIGH`) and every tuning constant in `src/shared/final.js`.
 - Brain: `server/final.js` (the loops, the heads, the coils, the enrage), hooked into `server/rpg.js` (`stepMob`,
@@ -21,7 +21,8 @@ The old Keeper road along the floor (paving pushed up by roots, an old root alon
 hanging from the roof of necks; the road goes on west into the dark (art only: the quiet Tier 1 hint). Two low root
 arches each side and one high one in the middle that just fits four (`LADON_PLATFORMS`: a new room's own ledges; the
 den rooms use `DENS[].platforms`). The body, a great root knot, is the boss mob at the middle of the back wall
-(`LADON_BODY_X`); it never walks and touching it doesn't hurt. White roses on the walls; petals drift down, thorns once
+(`LADON_BODY_X`); it never walks. Its thorns hurt (owner, 2026-10-26: getting too close should): a touch within
+`touchW` of its middle and `touchH` of the floor, never up on the arches (the high arch over it is Strangle's safe place). White roses on the walls; petals drift down, thorns once
 it's enraged.
 
 ## The fight (what's built; the numbers live in `src/shared/final.js`)
@@ -47,8 +48,9 @@ it's enraged.
 - **Briarlings** (the Sunken Road's `briarling`, as `minion`) spring up wherever a head falls.
 
 ## Every class's answer
-As in the plan's table (`story/fb1-plan.md`): arrows cut any head; a Mage's fire or a Cleric's holy light seals a
-stump (any spell or bolt reaches a stump at any height, so the fire answer is never a jumping puzzle); melee cuts heads
+As in the plan's table (`story/fb1-plan.md`): arrows, spells and bolts cut any head in range at any height (owner,
+2026-10-26: a Cleric's bolts all flew into the body; before, only arrows reached the hanging heads); a Mage's fire or a
+Cleric's holy light seals a stump; melee cuts heads
 stuck after a Bite, or jumps / climbs the arches for the hanging ones; the Knight's Rally takes the Watch (tested); a
 Frostbinder freezes either ultimate's wind-up (tested); the shields and the pulse answer as on any S5 boss.
 

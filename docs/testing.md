@@ -43,6 +43,9 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
   screenshots where you can; screenshot only what needs eyes.
 
 ## Headless browser (CDP)
+- **Always close Chromium when done** (owner, 2026-10-26). `launch()` in `scripts/cdp.mjs` kills its browser when the
+  script exits (normally, on a crash or on Ctrl-C), so end scripts with `process.exit(0)`. Check `pgrep -c chromium`
+  is 0 afterwards.
 - `/usr/bin/chromium --headless=new --remote-debugging-port=…`, driven by a small Node script using
   `node_modules/ws`: `Input.dispatchKeyEvent` for keys, `Runtime.evaluate` to read state,
   `Page.captureScreenshot` to look (then Read the PNG). Log in by filling `#name` / `#pass` and clicking `#go`.

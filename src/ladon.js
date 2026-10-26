@@ -86,7 +86,7 @@ export class Final {
     for (const h of this.st?.heads ?? []) {
       if (!headTarget(h)) continue;
       const s = headSpot(h), d = ahead(s.x, s.r);
-      const far = arrow || (h.st === 'stump' && this.rpg.aimMagic); // (a spell or bolt reaches a stump: the fire answer)
+      const far = arrow || this.rpg.aimMagic; // (an arrow, spell or bolt reaches any head in range, owner 2026-10-26: a Cleric's bolts all went to the body)
       if (d < 0 || (!far && Math.abs(y - 20 - s.y) > s.r + HEAD_REACH) || d >= bestD) continue;
       [best, bestD] = [{ slot: h.slot, x: s.x, y: s.y, throat: coil && throatOpen(h, wx, x) }, d];
     }

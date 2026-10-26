@@ -65,6 +65,8 @@ touches (see the index at the bottom) before changing code. Every source file na
 - **Never test on the live server (3002).** Run a throwaway server on another port with its own DB and
   `DIST=<scratch>/testdist`, built with `npx vite build --outDir <scratch>/testdist`. Building into
   `dist/` changes the LIVE site, which serves `dist/` from disk.
+- **Close every headless Chromium when a test ends** (owner). `scripts/cdp.mjs` kills the one it launched when the
+  script exits; anything launched another way, kill it yourself, and check `pgrep -c chromium` is 0 before you finish.
 - Stop test servers by PID (check `readlink /proc/<pid>/cwd`). `pkill -f "node server/index.js"` also kills
   the live service and Slime Hop (`~/game`, port 3000).
 

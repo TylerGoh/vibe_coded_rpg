@@ -294,6 +294,8 @@ don't need it (`FIELD_BOSS_RESPAWN_MS` is longer than the window).
   `server/rpg.js`, by name; overkill doesn't count) and sends it to the room as `{t:'bossdmg'}` while it
   changes. The client draws it on the right, under the boss bar (`drawMeter` in `src/rpg.js`): the top
   five with their share, and you always.
+- **It can be hidden** (owner, 2026-10-26: clutter): the Esc menu's "Damage meter: on / off" (`meterOn` on the Rpg,
+  remembered per device in localStorage, `src/main.js`).
 - **Healing done and damage taken** (S3, for the Cleric and the Knight): under the damage, once anyone has
   some, the top three of each (`heal` and `taken` on the mob, sent as `h` and `k` on `bossdmg`). `credit()` in
   `server/rpg.js` adds to every den boss in the room and every field boss being fought there: a heal from

@@ -66,6 +66,7 @@ export class Rpg {
     this.room = null;
     this.bossBack = 0; // seconds until this den's boss returns (0: it's here)
     this.dmg = new Map(); // boss / field boss id → { kind, d: [[name, damage], …], at }: the damage meter
+    this.meterOn = true; // (the Esc menu's Damage meter button: src/main.js)
     this.fx = new SkillFx();
     this.summons = new Summons(this); // the Cleric's spirits, wisps and totems (S3)
     this.fields = new Fields(this); // SP1's fields on the ground (src/fields.js)
@@ -1258,7 +1259,7 @@ export class Rpg {
     if (!ouch) {
       for (const v of this.targets()) {
         const k = MOBS[v.kind];
-        if (k.noTouch || Math.abs(me.x - v.x) > k.w / 2 + 12 || me.y < v.y - k.h - 4 || me.y > v.y + 30) continue; // (noTouch: Ladon's body is the back wall)
+        if (Math.abs(me.x - v.x) > (k.touchW ?? k.w) / 2 + 12 || me.y < v.y - (k.touchH ?? k.h) - 4 || me.y > v.y + 30) continue; // (touchW / touchH: a smaller hurt box than the art, Ladon's body)
         if ((v.frozen || v.netted || v.stunned) && !k.boss && !k.field) continue; // frozen solid, netted or stunned: harmless (the server agrees: ouch)
         ouch = { mob: v.id, kind: v.charging ? 'charge' : 'touch', mx: v.x };
         break;
@@ -1608,7 +1609,7 @@ export class Rpg {
       text(ctx, 'TIME STOP', W / 2, H * 0.42, 34, '#dfe8ff');
       text(ctx, left.toFixed(1), W / 2, H * 0.42 + 40, 22, '#ffe28a');
     }
-    this.drawMeter(ctx, den);
+    if (this.meterOn) this.drawMeter(ctx, den);
     this.final.drawHud(ctx, H); // (FB1: the title card on walking into a final boss's den)
     let row = 0;
     const top = den ? (this.boss()?.shield !== undefined ? 210 : 172) : 128; // under the boss bar (and the egg's) in a den

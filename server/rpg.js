@@ -1193,7 +1193,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (!mob || !mult || p.faintUntil) return;
     const ult = m.kind === 'ult';
     if (!ult && now() - p.hurtAt < HURT_INVULN_MS - 250) return; // (an ultimate ignores the invulnerability)
-    if (m.kind === 'touch' && (Math.abs(mob.x - p.state.x) > MOBS[mob.kind].w / 2 + SLACK || MOBS[mob.kind].noTouch)) return; // (noTouch: Ladon's body is the back wall)
+    if (m.kind === 'touch' && Math.abs(mob.x - p.state.x) > (MOBS[mob.kind].touchW ?? MOBS[mob.kind].w) / 2 + SLACK) return; // (touchW: Ladon's body hurts only near its middle)
     if ((m.kind === 'touch' || m.kind === 'charge') && (mob.frozenUntil > now() || mob.snareUntil > now() || mob.stunUntil > now()) && !MOBS[mob.kind].boss && !MOBS[mob.kind].field) return; // frozen solid, netted or stunned: harmless
     if (m.kind !== 'touch' && m.kind !== 'charge' && !MOBS[mob.kind].boss && !MOBS[mob.kind].ai) return;
     if (ult && now() > mob.ultLiveUntil) return; // no ultimate going off right now
