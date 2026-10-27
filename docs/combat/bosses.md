@@ -221,6 +221,34 @@ Same gates. The armour uses the same numbers as Greenhollow's (owner OK'd a duo 
   Absolute Zero warning cancelled it ("Your freeze interrupted...", the banner gone, DAZED). Not tried: people,
   the den adds, a Narwhal fight from behind.
 
+### The retrofit (S5.4): Emberdeep (built 2026-10-27)
+Same gates (every mechanic at 2 fighters, `interrupt` from 1; the Colossus and Chronos are `top` but not party dens, so
+alone they fight as before too). The armour and barrier use the shared numbers (`TOP_BARRIER_*` on the two top bosses).
+| boss | mechanics | drawn as |
+|---|---|---|
+| Ignis the Magma Tyrant (den, Lv 99) | armour (cooling rock), pulse (the heat), interrupt | basalt plates with a glowing seam down each (`looks.shell: 'cinder'`); ember rings with heat shimmer going up, "HEAT" (`looks.pulse: 'heat'`) |
+| Pyra the Ember Phoenix (den, 110) | curse (burning), adds | a charred sigil with a red-hot rim and sparks flying up (`looks.curse: 'ember'`); her cinder bats in bigger flocks |
+| The Clockwork Colossus (den, `top`, 150) | armour, weakpoint (the core), pulse (steam), interrupt | riveted plates of dark bronze (`looks.shell: 'brass'`); its clock-gear heart opens as a spinning cyan gear (`weak.front`, `looks.weak: 'core'`); white steam rings and a plume off its stacks, "STEAM" (`looks.pulse: 'steam'`) |
+| Chronos, Keeper of Hours (den, `top`, 170) | barrier, curse (borrowed time), interrupt | a gold dome with hour marks and two clock hands turning inside (`looks.dome: 'hours'`); a dial of gold light on the floor, its hand sweeping round (`looks.curse: 'hours'`) |
+- **Swaps and additions:** Pyra has no `interrupt` (Rebirth's egg is its own answer; `interruptUlt` skips it). The
+  Colossus got a **pulse** on top of the draft's armour + weak point: a top boss is meant to punish a party with no
+  healer (owner's SP6 rule 4), and armour and a weak point are exactly the lopsided team's own answers (Berserkers,
+  Archers), so without it a no-healer party beat it as fast as the right mix. Ignis, the Colossus and Chronos got
+  `interrupt` like every den with a freezable ult; for the two top bosses that's also a way out of `TOP_ULT_HP`'s chip
+  (the Frostbinder's). Pyra's adds only show in her middle stage (`summon` is only in her stage-2 moves).
+- The Colossus's core sits on its chest (`front`, the Narwhal's rule): low enough that a slap from the floor finds it,
+  so a melee party breaks it as well as arrows do, from in front.
+- No `lines`: Ignis and Pyra get theirs with E4 (`story/roadmap.md`), and Chronos's voice is the story's to give.
+- Contrast (screenshots): brass plates vanished into the Grand Foundry's brass walls, so the Colossus's are dark bronze;
+  Pyra's sigil is dark on her sunset-orange roost; Chronos's sigil is gold light on his violet floor.
+- Tested with two and three headless players (`TEST_SPEED=10`, `TEST_GOD`, a phone player in each): alone the bits were
+  only `interrupt` (Colossus); with two: Ignis's armour cracked and broken by Power Strikes (stagger) and its HEAT
+  pulses; Pyra's curse stacking to 4 on both, her bat waves of 3 with 6 standing at once (`TEST_BOSS_HP=0.1`); the
+  Colossus's armour broken, its core filled and broken, STEAM pulses, and **Overclock frozen out twice** by a
+  Frostbinder (Glacial Spike then Frost Nova, `TEST_BOSS_HP=0.003`), each a stagger; Chronos's dome up and worn down
+  (a cursed bot Frostbinder didn't break it inside its `TOP_BARRIER_S`: four curse stacks halve your damage, which is
+  Cleanse's job) and his curse stacking. Not tried: Ignis's and Chronos's interrupts, people.
+
 ## Top bosses (SP6, owner 2026-10-25)
 `top` on a boss: the party dens (the Root Warden, Sigrun, Emberdeep's to come), the final bosses (FB1, FB2, E5) and the
 end-game capstones, the Clockwork Colossus and Chronos. Built for a party of four (~45 min on the sheet), hard-hitting and
@@ -233,9 +261,9 @@ every mechanic (S5's rule), but a weak answer costs more here than on an ordinar
   `partyHitMult`): unbroken, it roughly doubles the fight. Its HP and the weak point's are `TOP_BARRIER_HP`, `TOP_WEAK_HP`;
 - an ultimate nobody interrupted hits everyone in the den for `TOP_ULT_HP` of max HP even in the safe spot
   (`ultGoesOff`, flat like a pulse: Aegis, a Bubble, a Barrier, Sanctuary, the totem, a ward, a Barrier Draught take it
-  as they take one); standing in the wrong place is still a KO. Not Pyra's Rebirth (she isn't top anyway). Colossus and
-  Chronos have no `interrupt` yet (their retrofit hasn't come), so theirs always land: a Knight's Sanctuary or Aegis and
-  a Cleric's Barrier are the answers.
+  as they take one); standing in the wrong place is still a KO. Not Pyra's Rebirth (she isn't top anyway). Since S5.4
+  the Colossus and Chronos have `interrupt` too: a Frostbinder freezes theirs away; otherwise a Knight's Sanctuary or
+  Aegis and a Cleric's Barrier are the answers.
 On the sheet a right-mix party (`PARTY_TEAM`) takes ~45 min; a lopsided one (no healer, Mage or Frostbinder) ~73 min on
 the Root Warden with ~2,300 potions. Future bosses are held to the same checks (TOP BOSSES in `npm run economy`).
 - Pyra's egg is `EGG_HP` of her max HP (her HP went up ~8.5× in SP6).

@@ -733,12 +733,21 @@ export const MOBS = {
     name: 'Ignis the Magma Tyrant', boss: true, lvl: 99, hp: 6652000, atk: 360, exp: 300000, speed: 85, w: 180, h: 170, aggro: true, hops: false,
     phases: [['slam', 'fireballs', 'geysers'], ['slam', 'fireballs', 'geysers', 'charge', 'flamewall'], ['geysers', 'fireballs', 'flamewall', 'leap', 'summon', 'barrage']],
     ult: { name: 'Caldera Eruption', kind: 'magma' }, minion: 'ember_imp',
+    // S5.4 (story/s5-plan.md, docs/combat/bosses.md): his magma skin cools into a crust of black rock (armour,
+    // `looks.shell: 'cinder'`: basalt plates with the heat still glowing in their seams), the heat of the forge
+    // swells off him till the whole den breathes it (a pulse, `looks.pulse: 'heat'`: ember rings, a shimmer going up,
+    // "HEAT"), and freezing Caldera Eruption as it wells up cancels it
+    party: ['armour', 'pulse', 'interrupt'], partyLive: true, looks: { shell: 'cinder', pulse: 'heat' },
     drops: [['phoenix_feather', 1, 1, 2], ['magma_maul_n', 1, 1, 1], ['ember_helm_n', 0.6, 1, 1], ['coin', 1, 128500, 214200], ['mega_elixir', 1, 2, 4], ['ember_core', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.4, 1, 1], ['scroll_h10', 0.4, 1, 1], ['scroll_s30', 0.25, 1, 1], ['scroll_h30', 0.25, 1, 1], ['scroll_chaos', 0.25, 1, 1]],
   },
   pyra: {
     name: 'Pyra the Ember Phoenix', boss: true, lvl: 110, hp: 7387000, atk: 400, exp: 472000, speed: 120, w: 170, h: 140, aggro: true, hops: false, fly: 40,
     phases: [['feathers', 'dive', 'rings'], ['feathers', 'dive', 'rings', 'rain', 'summon'], ['feathers', 'dive', 'rings', 'barrage', 'spiral']],
     ult: { name: 'Rebirth', kind: 'rebirth' }, minion: 'cinder_bat',
+    // S5.4: whoever she dives near catches fire that won't go out (a curse, `looks.curse: 'ember'`: a ring of embers
+    // with sparks flying up off it) and her cinder bats come in bigger flocks (adds). No interrupt: Rebirth's egg is
+    // its own answer (interruptUlt skips it)
+    party: ['curse', 'adds'], partyLive: true, looks: { curse: 'ember' },
     drops: [['phoenix_feather', 1, 2, 3], ['phoenix_blade_n', 1, 1, 1], ['phoenix_crown_n', 0.6, 1, 1], ['coin', 1, 147900, 236700], ['mega_elixir', 1, 3, 5], ['obsidian_shard', 1, 6, 10], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.5, 1, 1], ['scroll_h10', 0.5, 1, 1], ['scroll_s30', 0.3, 1, 1], ['scroll_h30', 0.3, 1, 1], ['scroll_chaos', 0.3, 1, 1]],
   },
   // ——— the Aether Citadel ———
@@ -770,12 +779,23 @@ export const MOBS = {
     name: 'The Clockwork Colossus', boss: true, top: true, lvl: 150, hp: 45474000, atk: 600, exp: 2442000, speed: 70, w: 220, h: 200, aggro: true, hops: false,
     phases: [['slam', 'gears', 'beam'], ['slam', 'gears', 'beam', 'grid', 'sweep'], ['grid', 'sweep', 'gears', 'beam', 'charge', 'summon']],
     ult: { name: 'Overclock', kind: 'overclock' }, minion: 'cogling',
+    // S5.4: it bolts plates over its body (armour, `looks.shell: 'brass'`, dark bronze, riveted), its clock-gear heart
+    // opens (the weak point, the core on its chest: `front`, only a hit from in front finds it, low enough for a
+    // slap from the floor; `looks.weak: 'core'`, a glowing cyan gear), its boiler blows off across the den (a pulse,
+    // `looks.pulse: 'steam'`: added to the draft so a party with no healer pays for it, as on every top boss), and
+    // freezing Overclock as it winds up cancels it
+    party: ['armour', 'weakpoint', 'pulse', 'interrupt'], partyLive: true, weak: { dx: -0.02, dy: -0.35, r: 24, front: true }, looks: { shell: 'brass', weak: 'core', pulse: 'steam' },
     drops: [['time_sand', 1, 1, 2], ['cog_cleaver_n', 1, 1, 1], ['aether_helm_n', 0.6, 1, 1], ['coin', 1, 1667200, 2593200], ['mega_elixir', 1, 4, 6], ['cog', 1, 8, 12], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
   },
   chronos: {
     name: 'Chronos, Keeper of Hours', boss: true, top: true, lvl: 170, hp: 52887000, atk: 630, exp: 3326000, speed: 100, w: 160, h: 190, aggro: true, hops: false, fly: 30,
     phases: [['bombs', 'sweep', 'blink', 'spiral'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid', 'summon']],
     ult: { name: 'Time Stop', kind: 'timestop' }, ults: [{ name: 'Time Stop', kind: 'timestop' }, { name: 'Collapse of Hours', kind: 'collapse' }], minion: 'chrono_wraith',
+    // S5.4: he winds the hours round himself (a barrier, `looks.dome: 'hours'`: a gold clock face of a dome with
+    // hour marks turning round it), lends whoever he marks time they'll have to pay back (a curse, `looks.curse:
+    // 'hours'`: a clock dial on the floor, its hand sweeping round), and freezing either ultimate as it gathers
+    // cancels it
+    party: ['barrier', 'curse', 'interrupt'], partyLive: true, looks: { dome: 'hours', curse: 'hours' },
     drops: [['time_sand', 1, 2, 3], ['chrono_blade_n', 1, 1, 1], ['hourglass_crown_n', 0.6, 1, 1], ['coin', 1, 2325700, 3876400], ['mega_elixir', 1, 5, 8], ['aether_crystal', 1, 8, 12], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s10', 0.8, 1, 2], ['scroll_h10', 0.8, 1, 2], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.5, 1, 2]],
   },
   // ——— Frostpeak's later wildlife (atlas Phase 4; kept last: mob kinds go over the wire as their index) ———

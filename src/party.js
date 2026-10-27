@@ -130,7 +130,7 @@ export class Party {
     }
     if (m.a === 'curseWarn') {
       const floor = k.boss ? 450 : m.fy ?? m.y; // (fy: a field boss's floor, S5.4)
-      this.sigils.push({ mob: m.id, x: m.cx, y: floor, r: m.r, at: t, end: t + m.dur, look: CURSES[k.looks?.curse] ?? CURSES.dark, thorn: k.looks?.curse === 'thorn', drowned: k.looks?.curse === 'drowned', pale: k.looks?.curse === 'pale' });
+      this.sigils.push({ mob: m.id, x: m.cx, y: floor, r: m.r, at: t, end: t + m.dur, look: CURSES[k.looks?.curse] ?? CURSES.dark, thorn: k.looks?.curse === 'thorn', drowned: k.looks?.curse === 'drowned', pale: k.looks?.curse === 'pale', ember: k.looks?.curse === 'ember', clock: k.looks?.curse === 'hours' });
       audio.sfx('bossWarn', { pan, vol: 0.45 });
       return true;
     }
@@ -280,8 +280,12 @@ function drawFocus(ctx, v, k, s, t, me) {
 // The pulse on its way: rings closing in on the boss from across the room, a violet wash and "PULSE" with the
 // seconds left over it (k: 0 → 1 over the warning). S5.4: `looks.pulse` on the boss recolours it (the
 // Tidemother's tide: sea-green rings with foam on them, "TIDE"; the Old Narwhal's breathing hole: steel-blue rings
-// with spray on them and a plume of cold mist going up off her, "BREATH")
+// with spray on them and a plume of cold mist going up off her, "BREATH"; Ignis's heat: ember-orange rings with a
+// shimmer of heat wavering up off him, "HEAT"; the Clockwork Colossus's boiler blowing off: white steam rings and a
+// plume of it off its smokestacks, "STEAM")
 const PULSES = {
+  heat: { ring: '255,118,40', glow: '255,150,60', hit: '255,96,30', word: 'HEAT', fill: '#fff1d6', edge: 'rgba(70,18,4,0.85)', shimmer: true },
+  steam: { ring: '214,224,230', glow: '236,242,246', hit: '196,208,218', word: 'STEAM', fill: '#ffffff', edge: 'rgba(70,44,30,0.85)', foam: true, plume: true },
   violet: { ring: '176,110,255', glow: '190,130,255', hit: '160,100,250', word: 'PULSE', fill: '#f1e4ff', edge: 'rgba(40,20,70,0.75)' },
   tide: { ring: '80,196,214', glow: '120,220,232', hit: '60,170,206', word: 'TIDE', fill: '#e2fbff', edge: 'rgba(8,48,66,0.78)', foam: true },
   breath: { ring: '62,128,186', glow: '170,214,240', hit: '84,150,206', word: 'BREATH', fill: '#f2faff', edge: 'rgba(24,44,70,0.8)', foam: true, plume: true },
@@ -310,6 +314,17 @@ function drawPulseWarn(ctx, x, y, kind, reach, k, t, left) {
     }
   }
   glow(ctx, x, y, kind.w * (0.8 + 0.4 * k), kind.w * (0.8 + 0.4 * k), P.glow, 0.4 + 0.4 * pulse * k);
+  if (P.shimmer) { // (Ignis's heat: wavy lines wavering up off him, taller and brighter as it comes)
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 6; i++) {
+      const ph = (t * 0.8 + i / 6) % 1, bx = x + (i / 5 - 0.5) * kind.w * 0.9, by = y + kind.h * 0.3 - ph * (90 + 110 * k);
+      ctx.strokeStyle = `rgba(255,${190 - 60 * ph | 0},110,${(0.25 + 0.5 * k) * Math.sin(ph * Math.PI)})`;
+      ctx.beginPath();
+      for (let j = 0; j <= 8; j++) ctx[j ? 'lineTo' : 'moveTo'](bx + Math.sin(j * 1.3 + t * 7 + i) * 6, by - j * 7);
+      ctx.stroke();
+    }
+  }
   if (P.plume) { // (the breathing hole heaving: a column of cold mist off her back, taller as it comes)
     for (let i = 0; i < 7; i++) {
       const ph = (t * 0.9 + i / 7) % 1, py = y - kind.h * 0.4 - ph * (50 + 90 * k);
@@ -358,6 +373,11 @@ const CURSES = {
   drowned: { fill: '34,104,100', rim: '84,184,164', inner: '206,252,236', star: '140,222,200', smoke: '20,66,70' },
   thorn: { fill: '52,84,36', rim: '120,162,70', inner: '226,240,190', star: '160,196,104', smoke: '46,62,30' },
   pale: { fill: '58,66,112', rim: '176,190,232', inner: '236,242,255', star: '200,212,246', smoke: '44,50,90' },
+  // Pyra's (`ember`): a charred ring with a red-hot rim, sparks flying up off it (dark, to read on her sunset-orange
+  // roost); Chronos's (`hours`): borrowed time, a clock dial of gold light on his violet floor, its hand sweeping
+  // round as the time runs out (drawn instead of the star)
+  ember: { fill: '46,10,4', rim: '255,206,84', inner: '255,246,200', star: '255,150,50', smoke: '50,22,12' },
+  hours: { fill: '255,206,110', rim: '255,226,140', inner: '255,255,236', star: '255,236,170', smoke: '196,158,84' },
 };
 function drawSigil(ctx, s, t) {
   const L = s.look ?? CURSES.dark;
@@ -409,16 +429,49 @@ function drawSigil(ctx, s, t) {
   ctx.beginPath();
   ctx.arc(0, 0, s.r * (1 - k * 0.92), 0, TAU);
   ctx.stroke();
-  ctx.rotate(t * 0.8);
-  ctx.strokeStyle = `rgba(${L.star},${0.45 + 0.3 * k})`;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  for (let i = 0; i <= 5; i++) {
-    const a = (i * 2 * TAU) / 5 - Math.PI / 2;
-    ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * s.r * 0.7, Math.sin(a) * s.r * 0.7);
+  if (s.clock) { // (Chronos's: twelve hour marks and a hand sweeping round once over the warning)
+    ctx.strokeStyle = `rgba(${L.star},${0.55 + 0.35 * k})`;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    for (let i = 0; i < 12; i++) {
+      const a = (i * TAU) / 12, r0 = s.r * (i % 3 ? 0.8 : 0.7);
+      ctx.moveTo(Math.cos(a) * r0, Math.sin(a) * r0);
+      ctx.lineTo(Math.cos(a) * s.r * 0.92, Math.sin(a) * s.r * 0.92);
+    }
+    ctx.stroke();
+    const ha = -Math.PI / 2 + k * TAU;
+    ctx.strokeStyle = `rgba(${L.inner},${0.7 + 0.3 * k})`;
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(Math.cos(ha) * s.r * 0.66, Math.sin(ha) * s.r * 0.66);
+    ctx.stroke();
+    ctx.restore();
+  } else {
+    ctx.rotate(t * 0.8);
+    ctx.strokeStyle = `rgba(${L.star},${0.45 + 0.3 * k})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let i = 0; i <= 5; i++) {
+      const a = (i * 2 * TAU) / 5 - Math.PI / 2;
+      ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * s.r * 0.7, Math.sin(a) * s.r * 0.7);
+    }
+    ctx.stroke();
+    ctx.restore();
   }
-  ctx.stroke();
-  ctx.restore();
+  if (s.ember) { // (sparks flying up off it, in screen space, wavering)
+    ctx.save();
+    for (let i = 0; i < 10; i++) {
+      const ph = (t * 0.9 + i / 10) % 1, sx = s.x + Math.sin(i * 2.9) * s.r * 0.85 + Math.sin(t * 4 + i) * 5, sy = s.y - ph * 90;
+      ctx.globalAlpha = Math.sin(ph * Math.PI) * (0.5 + 0.5 * k);
+      ctx.fillStyle = i % 2 ? `rgb(${L.inner})` : `rgb(${L.rim})`;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 3 - 1.5 * ph, 0, TAU);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
   if (s.pale) { // (dim stars sinking down into it, in screen space)
     ctx.save();
     for (let i = 0; i < 6; i++) {
@@ -475,10 +528,16 @@ const SHELLS = {
   scute: { edge: 'rgba(40,58,32,0.95)', face: 'rgba(112,140,78,0.95)', moss: 'rgba(150,196,96,0.95)' },
   rime: { edge: 'rgba(70,104,140,0.9)', face: 'rgba(214,236,252,0.95)', icicles: 'rgba(236,248,255,0.95)' },
   block: { edge: 'rgba(40,74,120,0.95)', face: 'rgba(150,200,240,0.92)', blocks: true },
+  // Ignis's (`cinder`): his magma cooled to black basalt, the heat still glowing orange in a seam down every plate;
+  // the Clockwork Colossus's (`brass`): bolted plates of dark bronze (brass would vanish in its brass foundry) with a
+  // bright rivet at each end
+  cinder: { edge: 'rgba(20,14,12,0.96)', face: 'rgba(78,64,58,0.96)', seam: 'rgba(255,136,44,0.95)' },
+  brass: { edge: 'rgba(44,22,10,0.96)', face: 'rgba(140,76,38,0.96)', rivets: 'rgba(255,230,150,0.98)' },
 };
 // S5.4: Glacia's (`queen`): ice blue, deep enough to read in her white throne room, snowflakes turning round it; the Astral Wyrm's (`star`): starlight, violet with
-// little gold stars for runes
-const DOMES = { rose: ['250,244,240', '255,255,255', '246,226,236'], keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'] };
+// little gold stars for runes; Chronos's (`hours`): a dome of wound-up hours, gold, an hour mark for every rune and a
+// clock hand sweeping round inside it
+const DOMES = { hours: ['255,200,100', '255,226,150', '255,240,200'], rose: ['250,244,240', '255,255,255', '246,226,236'], keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'] };
 function drawShield(ctx, v, k, sh, t) {
   const fade = Math.max(0, Math.min(1, 1 - (sh.from - t) / 1.5)), end = Math.min(1, (sh.until - t) / 0.6);
   const a = fade * end, cx = v.x, cy = v.y - k.h * 0.5, rx = k.w * 0.72, ry = k.h * 0.68;
@@ -529,6 +588,8 @@ function drawShield(ctx, v, k, sh, t) {
         ctx.beginPath();
         ctx.arc(0, 0, 2, 0, TAU);
         ctx.fill();
+      } else if (k.looks?.dome === 'hours') { // (an hour mark, a long one every third)
+        ctx.fillRect(-(i % 3 ? 5 : 9), -2, i % 3 ? 10 : 18, 4); // (along the radius)
       } else if (k.looks?.dome === 'star') {
         starPath(ctx, 0, 0, 6.5, 2.8, 0);
         ctx.fill();
@@ -546,6 +607,18 @@ function drawShield(ctx, v, k, sh, t) {
         ctx.fillRect(-5, -1.5, 10, 3);
       }
       ctx.restore();
+    }
+    if (k.looks?.dome === 'hours') { // (two clock hands turning inside it, the long one fast)
+      ctx.strokeStyle = `rgba(${rune},${0.45 + 0.4 * hp})`;
+      ctx.lineCap = 'round';
+      for (const [len, sp, lw] of [[0.8, 1.6, 4], [0.5, 0.25, 6]]) {
+        const an = -Math.PI / 2 + t * sp;
+        ctx.lineWidth = lw;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(an) * rx * len, cy + Math.sin(an) * ry * len);
+        ctx.stroke();
+      }
     }
   } else {
     const cracks = typeof sh.v === 'number' ? sh.v : 0, S = SHELLS[k.looks?.shell] ?? SHELLS.stone;
@@ -587,6 +660,23 @@ function drawShield(ctx, v, k, sh, t) {
         ctx.lineTo(px + nx * 16, py + ny * 16);
         ctx.lineTo(px + ny * 4, py - nx * 4);
         ctx.fill();
+      }
+      if (S.seam) { // (Ignis's cooling rock: a glowing seam along the plate, flickering)
+        ctx.strokeStyle = S.seam;
+        ctx.lineWidth = 2.5;
+        ctx.globalAlpha = a * (0.75 + 0.25 * Math.sin(t * 5 + i * 1.7));
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx * 0.92, ry * 0.92, 0, a0 + 0.02, a1 - 0.02);
+        ctx.stroke();
+        ctx.globalAlpha = a;
+      }
+      if (S.rivets) { // (the Colossus's brass: a rivet at each end of the plate)
+        ctx.fillStyle = S.rivets;
+        for (const an of [a0 + 0.015, a1 - 0.015]) {
+          ctx.beginPath();
+          ctx.arc(cx + Math.cos(an) * rx * 0.92, cy + Math.sin(an) * ry * 0.92, 2.2, 0, TAU);
+          ctx.fill();
+        }
       }
       if (S.icicles) { // (Rimehorn's rime: an icicle hanging off every plate)
         ctx.fillStyle = S.icicles;
@@ -657,17 +747,23 @@ function drawFrontWall(ctx, v, k, hp, a, t) {
 // The weak point: a glowing crystal (brighter under Hunter's Mark), a ring round it filling as it's hit, and the
 // seconds it stays open
 // (S5.4: `looks.weak: 'honey'`, the Hornet Queen's honey sac: a glowing honeycomb cell with a drip, not a crystal;
-// `'star'`, the Astral Wyrm's and the Pale Wyrm's: a five-pointed star, slowly turning)
+// `'star'`, the Astral Wyrm's and the Pale Wyrm's: a five-pointed star, slowly turning; `'core'`, the Clockwork
+// Colossus's opened heart: a cyan gear spinning fast, glowing like its heart does)
 function drawWeak(ctx, spot, wk, t, marked, look) {
-  const pulse = 0.5 + 0.5 * Math.sin(t * 6), r = spot.r;
+  const pulse = 0.5 + 0.5 * Math.sin(t * 6), r = spot.r, core = look === 'core';
   ctx.save();
-  glow(ctx, spot.x, spot.y, r * 2.4, r * 2.4, WEAK, (marked ? 0.75 : 0.5) + 0.3 * pulse);
+  glow(ctx, spot.x, spot.y, r * 2.4, r * 2.4, core ? '120,246,236' : WEAK, (marked ? 0.75 : 0.5) + 0.3 * pulse);
   ctx.translate(spot.x, spot.y);
-  ctx.fillStyle = marked ? '#fff2c4' : '#ffe08a';
-  ctx.strokeStyle = '#b8782a';
+  ctx.fillStyle = core ? (marked ? '#eafffc' : '#9ef6ee') : marked ? '#fff2c4' : '#ffe08a';
+  ctx.strokeStyle = core ? '#1f6f74' : '#b8782a';
   ctx.lineWidth = 2.4;
   ctx.beginPath();
-  if (look === 'honey') {
+  if (core) {
+    for (let i = 0; i < 20; i++) { // (ten teeth)
+      const a = t * 3 + (i * TAU) / 20, rr = r * (i % 2 ? 0.66 : 0.86);
+      ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * rr, Math.sin(a) * rr);
+    }
+  } else if (look === 'honey') {
     for (let i = 0; i < 6; i++) ctx[i ? 'lineTo' : 'moveTo'](Math.cos((i * TAU) / 6) * r * 0.75, Math.sin((i * TAU) / 6) * r * 0.75);
   } else if (look === 'star') {
     starPath(ctx, 0, 0, r * 0.9, r * 0.4, t * 0.6, true);
@@ -690,8 +786,8 @@ function drawWeak(ctx, spot, wk, t, marked, look) {
     ctx.fillStyle = '#f0a830';
     ctx.beginPath();
     ctx.arc(0, r * 0.75 + f * f * 26, 2.5 + 2 * Math.min(1, f * 3), 0, TAU);
-  } else if (look === 'star') {
-    ctx.arc(0, 0, r * 0.2, 0, TAU);
+  } else if (look === 'star' || core) {
+    ctx.arc(0, 0, r * (core ? 0.28 : 0.2), 0, TAU);
   } else {
     ctx.moveTo(-r * 0.12, -r * 0.5);
     ctx.lineTo(r * 0.14, -r * 0.1);

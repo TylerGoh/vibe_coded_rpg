@@ -205,14 +205,17 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
 - **Top bosses** (S5.3's party dens, widened in SP6: `top` on the boss, the Root Warden, Sigrun, the Clockwork
   Colossus, Chronos, the final bosses) are left out of the solo table and get **TOP BOSSES**: a party of `PARTY_TEAM`,
   a lopsided one (`LOPSIDED_TEAM`) on a boss with mechanics, and each branch alone, against the mechanics as they meet
-  them (pulse, barrier, weak point, the top boss's ultimate: `fight`'s `mech`; adds and focus left out), the HP from
+  them (pulse, barrier, armour, weak point, the top boss's ultimate: `fight`'s `mech`; adds, focus and curse left out), the HP from
   `bossMaxHp` (never under `PARTY_DEN_HP_FLOOR` slimes' worth). In a team each member runs `PARTY_SIM_S` with the
   boss's hits shared out, the others' spells wearing the barrier, the arrows filling the weak point, the Clerics'
   party-wide heals (`healGive`, `HEAL_GIVE` of their time) and a Knight's Sanctuary covering them (`teamHelp`); the
   Knight in front of a front-only barrier, the rest behind it `PARTY_BEHIND` of the time; alone, `SOLO_BEHIND` and
   `WEAK_JUMP`. The ultimate goes off every `ULT_GAP` s unless a Frostbinder is there to interrupt it, cut by the
   team's best answer (`ultXOf`: a Knight's Sanctuary, `ULT_CLERIC` with a Cleric). Potions are drunk early when a
-  pulse or ultimate is coming (you see the warning). Checks below (SP6).
+  pulse or ultimate is coming (you see the warning). Checks below (SP6). The lopsided party's time
+  (`TOP_LOPSIDED_MIN`) is only checked on a boss with a barrier all round: it has no Mage, so that's what slows it.
+  On Sigrun (front-only) and the Colossus (no barrier: its armour and weak point are the lopsided team's own
+  Berserkers' and Archers' answers) it pays in potions instead (`LOPSIDED_POTS`).
 - **RETROFIT** (S5.4): the den and field bosses given party mechanics (`partyLive`, not a party den). Alone none
   switch on, so the solo tables don't move; the table shows a duo (`RETRO_DUOS`) killing each with the mechanics off
   / on. `fight` models armour too now (non-heavy hits cut, your own heavy hits crack it; a partner's cracks aren't
@@ -322,6 +325,16 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   with no Mage the most: Berserker + Sniper +26% on Glacia, +15% on the Wyrm (its weak point gives some back); a duo
   with a Frostbinder is no slower (0% / -8%). The Narwhal's and the Pale Wyrm's weak points speed a duo ~6–7%;
   Rimehorn's and the Troll's armour +9–10% for the Berserker duo, ~1% with a Knight + Frostbinder (shatters crack it).
+- **S5.4, Emberdeep's retrofit (2026-10-27).** Ignis and Pyra (RETROFIT) and the two top bosses, the Colossus and
+  Chronos (TOP BOSSES; `docs/combat/bosses.md`). No solo row, faucet or pay band moved beyond these. RETROFIT: Ignis's
+  armour + heat pulse +20% for Berserker + Sniper, +11% for Knight + Frostbinder (in line with the armour the owner
+  OK'd); Pyra's curse and adds aren't modelled (0%). TOP BOSSES, party of four: the Colossus 44:46 → 47:08 (its armour,
+  now modelled in TOP BOSSES too, outweighs the weak point and the interrupted Overclock), Chronos 45:41 → 46:58 (a
+  Frostbinder interrupts his ultimates, the barrier costs a little); both inside `TOP_PARTY_MIN`. Lopsided: Chronos
+  74:14 on 1,826 potions (in `TOP_LOPSIDED_MIN`); the Colossus 43:56 on 1,970 potions with the Sniper and Trapper
+  fainting (no barrier: it pays in potions, so the time check now skips it, like Sigrun's). Their BOSS PAY moved a
+  hair with the longer fights (0.81× → 0.77× EXP an hour on the Colossus, 0.79× → 0.77× on Chronos; gold 4.8× → 4.6×,
+  6.3× → 6.1×), inside the band. Alone nothing switches on (min 2), so TOP_SOLO's rows are as they were.
 
 ## The potions and the loot check (S5.5, 2026-10-24)
 The Cleansing Tonic and the Barrier Draught are brews, priced like the others: a batch's ingredients (a

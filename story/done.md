@@ -52,6 +52,8 @@ over is in `docs/ideas.md` under the phase's name. Full plans as written: `archi
   to match, the Warrior's Sword Mastery attack (`docs/economy.md` "The balance pass", `docs/combat/bosses.md`).
 - **Fewer fight hints** (2026-10-26): boss mechanics explained only by telegraphs, no answer text; top bosses
   give full EXP at any level gap (`docs/ui/hints.md`).
+- **S5.4 Emberdeep** (2026-10-27): party mechanics on Ignis, Pyra, the Clockwork Colossus and Chronos, the last of the
+  retrofit (`docs/combat/bosses.md`).
 
 ## Other
 - **Trading** (2026-10-23): coins and items between players, server-checked, logged (`docs/social/trading.md`).

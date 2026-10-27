@@ -716,7 +716,9 @@ const bossFight = (m) => ({ hit: m.atk * BOSS_HIT_MULT, pct: pctOf(m) });
 const DEN_SOLO_MIN = [12, 18], FIELD_SOLO_MIN = [3, 6], TOP_PARTY_MIN = [38, 55], TOP_SOLO = [2, 3.5], TOP_LOPSIDED_MIN = [60, 100];
 const LOPSIDED_TEAM = ['berserker', 'berserker', 'sniper', 'trapper'];
 // (the time is only checked on a boss whose barrier covers it all round: Sigrun's is front-only, and flanking her is
-// everyone's answer to it, so a lopsided party there pays in potions, at least LOPSIDED_POTS a member, not in time)
+// everyone's answer to it, so a lopsided party there pays in potions, at least LOPSIDED_POTS a member, not in time;
+// S5.4: so does one with no barrier at all, the Clockwork Colossus: its armour and weak point are a Berserker's and an
+// Archer's, the lopsided team's own answers, and it's the pulse with no healer that costs them)
 const LOPSIDED_POTS = 100;
 const SOLO_UNTIL = 5 * 3600; // s: a fight the sim gives up on
 const fightMin = {}; // boss id → the sheet's minutes for its fight (dens and fields: the solo median; top: the party's), for BOSS PAY
@@ -756,7 +758,7 @@ const topBosses = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => isTo
 // answer timed for it (a Knight's Sanctuary, ULT_CLERIC with a Cleric's Barrier and heals)
 const ULT_CLERIC = 0.5;
 const ultXOf = (team) => Math.min(1, ...team.map((br) => (br === 'knight' ? 1 - SKILLS.sanctuary.cut(SKILLS.sanctuary.max) : BUILDS[br].cls === 'cleric' ? ULT_CLERIC : 1)));
-const mechOf = (m, fighters, team = []) => ({ pulse: partyActive(m, fighters, 'pulse'), barrier: partyActive(m, fighters, 'barrier'), weak: partyActive(m, fighters, 'weakpoint'), hp1: m.hp, front: !!m.barrierFront, pulseHp: pulseHpOf(m), bar: barrierOf(m), weakHp: weakHpOf(m), ult: m.top && !(team.includes('frostbinder') && partyActive(m, fighters, 'interrupt')) ? ULT_GAP : 0, ultX: ultXOf(team) });
+const mechOf = (m, fighters, team = []) => ({ pulse: partyActive(m, fighters, 'pulse'), barrier: partyActive(m, fighters, 'barrier'), armour: partyActive(m, fighters, 'armour'), weak: partyActive(m, fighters, 'weakpoint'), hp1: m.hp, front: !!m.barrierFront, pulseHp: pulseHpOf(m), bar: barrierOf(m), weakHp: weakHpOf(m), ult: m.top && !(team.includes('frostbinder') && partyActive(m, fighters, 'interrupt')) ? ULT_GAP : 0, ultX: ultXOf(team) });
 // SP6: what a team's Clerics and Knights do for the others in TOP BOSSES and RETROFIT (heals are party-wide: Jelly Heal,
 // Mend, the wisp, the Barrier, each on cooldown, HEAL_GIVE of the time spent on friends), HP a second; a Knight's
 // Sanctuary covering them on its cooldown
@@ -830,7 +832,7 @@ const duoRun = (m, duo, on) => {
   const runs = duo.map((br) => {
     const o = duo.filter((x) => x !== br);
     const help = { ...teamHelp(o, m.lvl), magic: o.filter(isMagic).reduce((a, x) => a + base[x], 0), weak: o.reduce((a, x) => a + base[x] * (isArrow(x) ? 1 : WEAK_JUMP), 0), mark: o.some((x) => rankOf(classChar(x, m.lvl).skills, 'hunters_mark')) };
-    const mech = on ? { ...mechOf(m, n, duo), armour: partyActive(m, n, 'armour'), behind: 0, jump: WEAK_JUMP, help } : null;
+    const mech = on ? { ...mechOf(m, n, duo), behind: 0, jump: WEAK_JUMP, help } : null;
     const f = fight(classChar(br, m.lvl), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls] * n, potions: true, until: PARTY_SIM_S, mech });
     return f.dealt / f.t;
   });
@@ -858,7 +860,7 @@ for (const [id, m] of topBosses) {
   if (q.party.t < TOP_PARTY_MIN[0] * 60 || q.party.t > TOP_PARTY_MIN[1] * 60) classProblems.push(`a party of ${PARTY_TEAM.length} kills top boss ${id} in ${mmss(q.party.t)} (want TOP_PARTY_MIN ${TOP_PARTY_MIN.join('–')} min)`);
   if (!m.final && (r < TOP_SOLO[0] || r > TOP_SOLO[1])) classProblems.push(`top boss ${id} alone takes ${mmss(q.med)} (median), ${r.toFixed(1)}x the party's ${mmss(q.party.t)} (want TOP_SOLO ${TOP_SOLO.join('–')}x)`);
   if (q.lop && q.lop.pots < LOPSIDED_POTS * LOPSIDED_TEAM.length) classProblems.push(`a lopsided party (${LOPSIDED_TEAM.join(' ')}) at top boss ${id} drinks only ${q.lop.pots} potions (want LOPSIDED_POTS ${LOPSIDED_POTS} a member or more)`);
-  if (q.lop && !m.barrierFront && (q.lop.t < TOP_LOPSIDED_MIN[0] * 60 || q.lop.t > TOP_LOPSIDED_MIN[1] * 60)) classProblems.push(`a lopsided party (${LOPSIDED_TEAM.join(' ')}) kills top boss ${id} in ${mmss(q.lop.t)} (want TOP_LOPSIDED_MIN ${TOP_LOPSIDED_MIN.join('–')} min)`);
+  if (q.lop && m.party?.includes('barrier') && !m.barrierFront && (q.lop.t < TOP_LOPSIDED_MIN[0] * 60 || q.lop.t > TOP_LOPSIDED_MIN[1] * 60)) classProblems.push(`a lopsided party (${LOPSIDED_TEAM.join(' ')}) kills top boss ${id} in ${mmss(q.lop.t)} (want TOP_LOPSIDED_MIN ${TOP_LOPSIDED_MIN.join('–')} min)`);
   if (branches.every((br) => q.alone[br].faint)) classProblems.push(`nobody can solo top boss ${id}: it must stay possible (never locked)`);
   for (const r of q.party.runs) if (r.faint) classProblems.push(`the ${r.br} faints in the party at top boss ${id}`);
 }

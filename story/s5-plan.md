@@ -256,6 +256,19 @@ Docs: `docs/places/spine.md`, `docs/places/queensbridge.md`, `docs/combat/bosses
 - Economy: only RETROFIT moved (`docs/economy.md`): barriers hit a no-Mage duo hardest (+26% on Glacia, +15% on the Astral Wyrm; owner OK'd, 2026-10-24, like the armour).
 - Not tried: people, den adds' bigger waves, a Narwhal fight from behind.
 
+**Emberdeep built (2026-10-27, waiting for its deploy).** The last of the retrofit:
+- Ignis: armour + pulse + `interrupt` (`looks.shell: 'cinder'`, `looks.pulse: 'heat'`). Pyra: curse + adds, no interrupt
+  (Rebirth's egg; `looks.curse: 'ember'`). The Colossus: armour + weak point + **pulse (added)** + `interrupt`; its core is
+  `front` on its chest (`looks.shell: 'brass'` in dark bronze, `weak: 'core'`, `pulse: 'steam'`). Chronos: barrier + curse +
+  `interrupt` (`looks.dome: 'hours'`, `looks.curse: 'hours'`). No `lines` (Ignis's and Pyra's come with E4).
+- Why the Colossus's pulse: as a top boss, a lopsided party (`LOPSIDED_TEAM`: two Berserkers, a Sniper, a Trapper) had
+  exactly the answers to armour + weak point and beat it as fast as the right mix. With the steam pulse it pays in
+  potions (1,970, two faint). The economy sheet now models armour in TOP BOSSES too, and checks a lopsided party's
+  time only where a barrier covers the boss all round (Sigrun and the Colossus pay in potions instead).
+- Economy (`docs/economy.md`): Ignis's armour + pulse costs a no-Mage duo +20% (like the OK'd armour); party of four on
+  the Colossus 47 min, Chronos 47 min; lopsided Chronos 74 min. Interrupt tested on the Colossus (Overclock frozen out
+  twice). Not tried: people, Ignis's and Chronos's interrupts.
+
 Docs: `docs/combat/bosses.md`, `docs/combat/stages.md` (field bosses), each boss's place doc.
 One or two mechanics each, picked to fit the boss (a draft; the agent can swap them for a better fit, and
 says why). Bosses below Lv 10 get none: nobody has a class yet.

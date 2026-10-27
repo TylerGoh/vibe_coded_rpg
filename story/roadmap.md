@@ -35,15 +35,15 @@ No quests, no hard level gates.
          7. Boss respawn timers unchanged; rewards scale with the fight so an hour of bosses pays what it did (BOSS PAY).
          8. Cross-class: the Warrior brought into line (`SWORD_MASTERY_ATK`); `CLASS_FIT`, `BAD_AT` green.
          Left for the owner: the Novices' dens (Sprout King, Mother Mushroom) weren't lengthened; Sigrun's front-only
-         shield means a lopsided party there is slower only in potions; Colossus and Chronos have no mechanics yet.
+         shield means a lopsided party there is slower only in potions (so does the Colossus's, since S5.4).
 2. [x] **Fewer fight hints** (2026-10-26): every boss-answer prompt and toast gone, ultimate banners without the
    answer line, hazard hints gone; telegraphs and pops kept (`docs/ui/hints.md`). Also: top bosses give full EXP
    at any level gap (`expFalloff`, owner).
 3. [x] **FB1: Greenhollow's final boss** (2026-10-26): Ladon, the Briar Hydra, under the Thornheart (the Sunken Road,
    the Road's End, the Root of the Road). Design `fb1-plan.md`, docs `docs/places/ladon.md`, `sunkenroad.md`. Next:
    **the owner plays** it with friends (untested with people; the 45 minutes only on the sheet).
-4. **S5.4 for Emberdeep**: the last of the retrofit (`s5-plan.md`; design: `progression.md` section 6).
-   S5.1–S5.3, S5.5 and S5.4's Greenhollow and Frostpeak parts are done.
+4. [x] **S5.4 for Emberdeep** (2026-10-27): the last of the retrofit (`s5-plan.md`): Ignis, Pyra, the Clockwork
+   Colossus (with a steam pulse added) and Chronos have their party mechanics. Next: **the owner plays** them in a party.
 5. **FB2: Frostpeak's final boss**, below the Blue Halls (the Old Ice, the Long Stair).
 6. **Emberdeep's depth pass, E1–E4** (Lv 90–150; plan, map and settled decisions:
    `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
