@@ -45,7 +45,7 @@ No quests, no hard level gates.
 4. [x] **S5.4 for Emberdeep** (2026-10-27): the last of the retrofit (`s5-plan.md`): Ignis, Pyra, the Clockwork
    Colossus (with a steam pulse added) and Chronos have their party mechanics. Next: **the owner plays** them in a party.
 5. **FB2: Frostpeak's final boss**, below the Blue Halls (the Old Ice, the Long Stair). (a) on paper 2026-10-27:
-   Fenrir, the Bound Wolf (`fb2-plan.md`), **waiting on the owner's answers**; then (b) the way there, (c) the den.
+   Fenrir, the Bound Wolf (`fb2-plan.md`), approved; then (b) the way there, (c) the den.
 6. **Emberdeep's depth pass, E1–E4** (Lv 90–150; plan, map and settled decisions:
    `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
    `docs/places/branches.md`). E0 shipped.

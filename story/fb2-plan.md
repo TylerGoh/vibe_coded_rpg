@@ -1,6 +1,6 @@
 # FB2: Frostpeak's final boss, on paper (for the owner to approve)
 
-**Status: written 2026-10-27, waiting on the owner.** Step (a) of FB2 in `final-bosses.md`: the boss, its move
+**Status: approved by the owner 2026-10-27 (the dark hurts, Skoll and Hati, no bites in phase 4).** Step (a) of FB2 in `final-bosses.md`: the boss, its move
 set and its phase order, before anything is built. Numbers are aims, not code: the economy sheet sets the real
 ones. Built on FB1's engine (`docs/combat/bosses.md` "Final bosses", `src/shared/final.js`, `server/final.js`):
 a FINAL row, written loops, the enrage, fixed HP for four, no reward window. What's new is marked *new*.
@@ -9,6 +9,7 @@ a FINAL row, written loops, the enrage, fixed HP for four, no reward window. Wha
 - **The boss: Fenrir, the Bound Wolf** (picked from Fenrir, Ymir, Nidhogg and a draugr-king): a huge wolf
   bound at the glacier's bed. Its mechanic is the fetters: they set how far it reaches, it snaps one a phase,
   and the party can freeze an anchor tight again. It swallows the lanterns, and fire or holy light relights them.
+- **The dark hurts a little**; **Skoll and Hati** as named lantern-hunters; **no bites in phase 4**.
 - Carried over from FB1 (owner, 2026-10-26): ~45 min for a mixed party of four at the recommended level, four
   phases, no physics changes (every set piece hurts, nothing blocks), fixed HP, no reward window.
 
@@ -228,8 +229,5 @@ Fenrir** in the Pet Shop: a fluffy pup with a ribbon collar that chews the end o
 - Two sessions, as FB1: (b) the way there, then (c) the den and the boss.
 
 ## Questions for the owner
-1. **The dark**: it hurts a little to stand outside the lanterns' light, and the den gets darker as they go
-   out. OK, or should the dark only look dark (no damage)?
-2. **Skoll and Hati** as two named lantern-hunting wolves in phases 3–4, or simpler: just more of the pack?
-3. **No bites in phase 4** (it won't open its jaws because it's holding the last fetter): it fights with
-   paws, pounces and its voice. OK?
+All answered 2026-10-27: the dark hurts a little (relighting matters), Skoll and Hati as written, no bites
+in phase 4.
