@@ -110,7 +110,7 @@
 //   Big bosses talk (MOBS[kind].lines): ← {t:'boss', a:'say', id, kind, text}  on walking in (just to you), at a
 //   new phase and when freed (to the den).
 //   A voice out of the dark (no mob): ← {t:'boss', a:'voice', who, text}  Ladon's one line in the Road's End, to the room
-//   (docs/places/sunkenroad.md).
+//   (docs/places/sunkenroad.md); Fenrir's in the Long Stair (docs/places/oldice.md).
 //   Damage meter (bosses and field bosses): ← {t:'bossdmg', id, kind, d: [[name, damage], …], h?, k?} most first; empty
 //   when its HP was reset (respawned, or healed when left alone). h: healing done, k: damage taken (S3), same shape.
 //   Party mechanics (S5, PARTY in src/shared/rpg.js): ← {t:'party', id, on, f?, fl?}  to the room when they change and

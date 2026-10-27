@@ -192,6 +192,11 @@ Hood* (a hat with ears). Gold and EXP from the economy sheet: a 45-minute kill s
 Fenrir** in the Pet Shop: a fluffy pup with a ribbon collar that chews the end of its own ribbon.
 
 ## On the way there (part (b), summarised; designed in full when it's built)
+**Status: (b) built 2026-10-27** (`docs/places/oldice.md`): the fallen wall, the cutters' record and thin ice in
+the Blue Halls; the Old Ice (room 50; the plan's "rime wolves" are *black-ice wolves*, `black_wolf`, since the
+Glacier's Lv 67 mob already has the name: (c)'s pack reuses them); the Long Stair (room 51) with Fenrir's line and
+the door, which cracks but holds (a gate on the map, "the ice holds") until (c) adds the den's `DENS` row (room 52,
+`FENRIR_DEN`, "The Wolf's Hold").
 - **The Blue Halls get better:** one of the Hall Troll's walls in the Deep Blue has fallen over (the update
   does it) and there was a way down behind it all along. Also: **the cutters' record**, a second find, carved
   in the ice by the old ladder down: a tally of days, then "We heard it breathe. We heard the chain. We

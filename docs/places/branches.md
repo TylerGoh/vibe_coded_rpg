@@ -66,7 +66,7 @@ island shows what's coming.
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 50 after FB1 (b); ids 27, 31–49 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End and Ladon's den (49, kept for FB1 (c))), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 53 after FB2 (b); ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, kept for FB2 (c))), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last; `onRoomPlat` helper names must be new: F2 first clashed with
   Willowmere's `onWPlat`), a `STAGES` row (`band`, `pill` if the name is long, `hard` for
@@ -113,6 +113,9 @@ Gotchas already hit:
 - **Greenhollow's way to its final boss** (FB1 (b), `docs/places/sunkenroad.md`): the `sunkenroad` node under the
   Thornheart (two rooms, entry `rootsplit`). A deep room and an approach follow the branch checklist above, except
   the approach is no stage at all (no `STAGES` row: not a combat room).
+- **Frostpeak's way to its final boss** (FB2 (b), `docs/places/oldice.md`): the `oldice` node under the Blue Halls
+  (two rooms, entry `fallenwall`), and under it the `wolfhold` node, a gate on the Long Stair (`wolfdoor`, drawn by the
+  room, `sign: false`) until FB2 (c) adds the den's `DENS` row and deletes the node.
 - **Greenhollow is done** (G0–G5) and **Frostpeak is done** (F0–F4). **Emberdeep's E0 shipped** (atlas Phase 5:
   the Lodestar, Forgehold, the map and every gate). Next is E1: the Ashwood (115–130) and the Black Sands
   (90–100, easy), plan in `story/world/emberdeep-depth.md` (the owner approved every default). E1 lifts the

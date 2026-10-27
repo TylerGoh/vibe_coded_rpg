@@ -43,6 +43,7 @@ export const BOWS = {
   bosun_bow: { len: 29, wood: ['#9a7a5a', '#5e4630'], w: 3.6, tip: 'cap', c: '#d6b25a', grip: '#3a4a3a', gem: '#8affc0', string: '#d8d0b0', glow: '140,255,190' },
   hart_bow: { len: 30, wood: ['#e8d6b4', '#a8946a'], w: 3.4, tip: 'antler', c: '#e8d6b4', grip: '#7a3a3a', gem: '#fff4f6', string: '#c8a088', glow: '255,240,245' },
   neck_bow: { len: 31, wood: ['#3e5434', '#141e10'], w: 3.4, tip: 'fang', c: '#d8ccd2', grip: '#c8b494', string: '#c8b494', glow: '240,255,235' },
+  gatehound_bow: { len: 31, wood: ['#2a3448', '#0e121c'], w: 3.4, tip: 'fang', c: '#e8f2ff', grip: '#141a28', string: '#fff3c8', glow: '255,236,170' },
   sentinel_bow: { len: 30, wood: ['#c4c0d0', '#8a8698'], w: 3.6, tip: 'cap', c: '#a8a4b4', grip: '#6a6678', gem: '#ffcf7a', string: '#e8e4f0', glow: '255,205,120' },
   warden_bow: { len: 32, wood: ['#b0acc0', '#76728a'], w: 3.8, tip: 'curl', grip: '#5a7a4a', gem: '#ffcf7a', string: '#d8e8c8', glow: '255,200,110' },
   hydra_bow: { len: 34, wood: ['#34482c', '#141e10'], w: 4, tip: 'fang', c: '#e8e0cc', grip: '#4e7a3e', gem: '#fbfff6', string: '#a8d888', glow: '210,255,190', curve: 0.6 }, // (Ladon's)

@@ -580,6 +580,15 @@ What you know, and only this:
   light along the floor (jump it), and some bigger than they should be. Deep in, the Hall Troll from the
   old cutters' stories, which turned out to be real: it cuts blocks and stacks walls, for nothing. It
   throws ice. Leave it alone if you can.
+- New this season: at the far end of the Deep Blue one of the troll's walls has fallen over, and behind it there
+  was a hole going down with an old ladder in it, older than yours, grey with rime. You've heard it, not seen it:
+  you haven't gone down and you won't. Whoever has says it goes to the bottom of the glacier, black ice, an old
+  cutters' camp left as if they ran, and things down there harder than anything in the Halls ("ninety and up,
+  and stay together"). You don't know who cut that ladder. If anyone asks about writing carved in the ice by the
+  hole, you go quiet. You've heard what it says. Your grandfather's crew went down further than anyone, the old
+  folk said, and came back up one winter early and never talked about why. You never say it was them, and you
+  never say his crew wrote it; at most: "Some crews come back early. You don't ask them why." Then you change
+  the subject to the weather.
 - The ice stair up onto the Queen's bridge, on the ridge by the Frozen Throne. It broke when the bridge
   cracked; this year you and the cutters cut fresh blocks and built the gap up again, with a rope rail on
   pegs (Runa's rope again) and the red flag at the foot. Out on the bridge, for the strongest travellers,

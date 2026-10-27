@@ -4,7 +4,7 @@
 // routes and fog where the charts run out, plus a bouncing "you are here" slime. Tapping an island that has
 // one (ISLAND_MAPS) opens its own map: its places as a graph, shipped ones solid, blocked ones dashed
 // (src/shared/branches.js). It sends nothing to the server.
-import { FJORD, FORGEHOLD, HIGHLANDS, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, CALDERA, CITADEL, DENS } from './shared/rpg.js';
+import { FJORD, FORGEHOLD, HIGHLANDS, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, OLDICE, LONGSTAIR, CALDERA, CITADEL, DENS } from './shared/rpg.js';
 import { roomDef } from './shared/sim.js';
 import { ISLAND_MAPS, nodeAt, shipped } from './shared/branches.js';
 import { TOUCH } from './touch.js';
@@ -15,7 +15,7 @@ const INK = '#5b4a6b';
 
 // Which island a room is on. Everything not listed (the village, its buildings, houses, the Wildwood) is home.
 // Aboard a crossing you're out on its route: 'sea' (the ferry's) or 'straits' (the Lodestar's).
-const ISLAND_OF_STAGE = { [FORGEHOLD]: 'ember', [HIGHLANDS]: 'frost', [FJORD]: 'frost', [GLACIER]: 'frost', [SKERRIES]: 'frost', [GROTTO]: 'frost', [HEIGHTS]: 'frost', [BLUEHALLS]: 'frost', [QBRIDGE]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel' };
+const ISLAND_OF_STAGE = { [FORGEHOLD]: 'ember', [HIGHLANDS]: 'frost', [FJORD]: 'frost', [GLACIER]: 'frost', [SKERRIES]: 'frost', [GROTTO]: 'frost', [HEIGHTS]: 'frost', [BLUEHALLS]: 'frost', [QBRIDGE]: 'frost', [OLDICE]: 'frost', [LONGSTAIR]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel' };
 export function islandOf(room) {
   if (roomDef(room)?.crossing) return roomDef(room).crossing.route === 'steam' ? 'straits' : 'sea';
   const den = DENS.find((d) => d.room === room);

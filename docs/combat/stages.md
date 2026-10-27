@@ -61,6 +61,10 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    and the Severed Neck, a named elite with its own `art`), and past it the Road's End, the mob-free approach to
    Ladon's den (`docs/places/sunkenroad.md`). New shot style `seed`. The Thornheart got the first room hazard,
    thorn patches timed on the server tick (`docs/places/thornheart.md`).
+20. **The Old Ice**: FB2 (b), Frostpeak's deep room under the Blue Halls (Lv 90–100, hard-pocket rules, elites and
+   Garm, a named elite with its own `art`), and past it the Long Stair, the mob-free approach to Fenrir's den
+   (`docs/places/oldice.md`). The black-ice wolf charges with the `shell` brain's lunge and `cut: 0`. The Blue Halls
+   got a room hazard, thin ice that gives under whoever stands on it (`docs/places/bluehalls.md`).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

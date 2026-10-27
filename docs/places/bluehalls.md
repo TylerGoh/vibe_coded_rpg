@@ -19,6 +19,20 @@ ladder's foot, and go east, deeper.
   only hints.
 - No waystone (hard pockets have none), no character.
 
+## FB2 (b): the way down (`docs/places/oldice.md`)
+- **The fallen wall:** the troll's last wall at the Deep Blue's east end has fallen over (the update did it, no
+  quest; `walls` in `src/bluehalls.js` leaves it out), and behind it is the way down to the Old Ice at
+  `OLDICE_GATE_X`, the cutters' old ladder in a slot in the ice (`OPEN.fallenwall`, red-trimmed sign).
+- **The cutters' record**, the second find after the Niche: a patch of the wall west of the way down scraped smooth
+  (`RECORD_X`, clear of the shelves: it first sat behind one), a tally of days cut in fives, then three lines: "We
+  heard it breathe. We heard the chain. We stopped." Eyvind's grandfather's crew; nothing in the game says so, and
+  Eyvind only hints.
+- **Thin ice** (the Blue Halls' room hazard, like the Thornheart's thorn patches): pale glassy patches over dark
+  water in the floor (`THIN_ICE`). Stand on one and it cracks; after `THIN_ICE_HOLD` ticks it gives and hurts,
+  `THIN_ICE_DOT` of max HP every `PATCH_HIT_EVERY` ticks as a flat 'dot' (no knockback: no `step()` change), until you
+  step off, onto a ledge or jump. The server counts each slime's time on the ice (`q.thinIce`); the client draws the
+  cracks from the slimes it sees (`onFloor` in `src/main.js`), so nothing goes over the wire.
+
 ## Mobs (on the frozen curve; elites only here)
 - icicle bat = `dive` (`fly` 60) · ice worm = `blink` (tunnels; drawn as a ripple of ice chips while gone) ·
   glass beetle = `shell` (wing cases of clear ice worn forward) · prism crawler = `beam`, `style: 'prism'`

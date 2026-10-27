@@ -471,6 +471,15 @@ now picks the root creeper (Lv 60) over the Lv 58 thorn stalker: "gold earned by
 later level ~5.7k lower; play time unchanged. No trader, no field boss, no pet: nothing else moved. The Road's End
 has no mobs. The thorn patches cost HP only.
 
+## FB2 (b): the Old Ice (2026-10-27)
+Four mobs on the curve at Lv 91–98 (`docs/places/oldice.md`: gnawer, rime raven at 93% HP for a flier like the sleet
+harrier, chain-warden at ~119% HP for its shell like the rimeguard, black-ice wolf), three elites and Garm (an elite of
+the black-ice wolf, checked as one). Two gear drops priced on the curve, between the Blue Halls' (Lv 87–89) and
+Sigrun's (Lv 102): the Chain-Warden's Helm (`helmetPrice` at Lv 95) and the Gatehound Fang with its staff and bow
+twins (`swordPrice` at Lv 97). Nothing else moved: "farming your own level" still picks the Queen's Bridge's mobs (the
+black-ice wolf ties the rime archer at Lv 98 and doesn't take its place), so gold earned and play time are unchanged.
+No trader, no field boss, no pet. The Long Stair has no mobs. Thin ice costs HP only.
+
 ## FB1 piece 3: Ladon, the first final boss (2026-10-26)
 - **FINAL BOSSES** (a new table and checks): a final boss is fought at its recommended level (`fightLvl`: the tag's Lv
   less `FINAL_LVL_OVER`, Lv 60 for Ladon) in TOP BOSSES too, not at the Lv 80 on its tag. Checked: `PARTY_TEAM` kills it

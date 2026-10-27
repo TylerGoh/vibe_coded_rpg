@@ -33,6 +33,10 @@ one shared corner feed).
   creatures and won't go near Sigrun ("she watched us build that stair"). Skaldi knew Sigrun as a girl and has
   one line for the bridge ("Two shores, one road. Hold, and hold, and let it go."); Runa's great-uncle is one of
   the frozen guards; Tove knows the bridge by its creatures.
+  FB2 (b): Eyvind has heard (not seen) that a troll wall at the Deep Blue's end fell over onto a ladder going
+  down, older than his, to black ice and a camp left in a hurry; he won't go down. On the writing carved by the
+  hole he goes quiet: his grandfather's crew came back up early one winter and never said why, but he never says
+  it was them ("Some crews come back early. You don't ask them why.").
   E0 (atlas Phase 5): the Lodestar sails and the Caldera pass is gone. Brine is thrilled for Arne and says the
   only way south is his ship; Skaldi lit every quay lamp; Runa is glad and cross (her tarp); Eyvind sent his box
   of letters south with Arne and has no answer yet; Tove wants to go. In Forgehold, Ash lists every shut way

@@ -41,6 +41,7 @@ export const STAFFS = {
   bosun_staff: { len: 64, shaft: ['#9a7a5a', '#5e4630'], w: 2.8, head: 'lantern', gem: '#8affc0', gem2: '#d6b25a', glow: '140,255,190' },
   hart_staff: { len: 66, shaft: ['#7a6a54', '#4a3e30'], w: 2.8, head: 'antler', gem: '#fff4f6', gem2: '#e8d6b4', glow: '255,240,245' },
   neck_staff: { len: 66, shaft: ['#2e3a26', '#141e10'], w: 2.8, head: 'roots', gem: '#fbfff6', gem2: '#c8f0a0', glow: '240,255,235' },
+  gatehound_staff: { len: 66, shaft: ['#2a3448', '#0e121c'], w: 2.8, head: 'crystal', gem: '#dfeeff', gem2: '#4a6aa8', glow: '200,230,255' },
   sentinel_staff: { len: 64, shaft: ['#c4c0d0', '#8a8698'], w: 2.8, head: 'eyestone', gem: '#ffcf7a', gem2: '#a8a4b4', glow: '255,205,120' },
   glacier_staff: { len: 62, shaft: ['#7a6a5c', '#4a3e34'], w: 2.8, head: 'crystal', gem: '#bfe6ff', gem2: '#7fbfe8', glow: '170,225,255' },
   howl_staff: { len: 64, shaft: ['#c8d0dc', '#7a8494'], w: 2.8, head: 'flake', gem: '#e8f4ff', gem2: '#ffffff', glow: '200,235,255' },

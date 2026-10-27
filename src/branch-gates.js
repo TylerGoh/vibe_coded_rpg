@@ -7,7 +7,10 @@
 // stump into the Mycelium Deep, its roots cut back, the glowing crack down into Glowroot Hollow, and the
 // Old Oak Canopy's rope ladder, restrung, Wreck Cave's mouth with the water gone down, and the Thornheart's
 // wall of thorns, cut back into a tunnel, and the fallen trunk in the Canopy, sawn through to Keeper's Spine,
-// and (FB1 (b)) the split in the Thornheart's root knot, a dark way down between the roots to the Sunken Road.
+// and (FB1 (b)) the split in the Thornheart's root knot, a dark way down between the roots to the Sunken Road,
+// and (FB2 (b)) the Hall Troll's wall fallen over at the Blue Halls' east end, the cutters' old ladder down to the
+// Old Ice behind it. Fenrir's door at the foot of the Long Stair is a gate with no art here (`wolfdoor`: the
+// Long Stair draws it, src/longstair.js, and its own sign).
 // Frostpeak's (its depth pass, F0): the ice
 // stair onto the Queen's Bridge broken off on Frostpine Ridge, and in the Rimeglass Glacier the crevasse with
 // the cutters' ladder smashed at the bottom (the Blue Halls) and the icefall with its steps sheared away (the
@@ -34,7 +37,7 @@ export function drawGates(ctx, room, ground, L, R, time, near) {
     ctx.scale(SCALE[g.kind] ?? 1, SCALE[g.kind] ?? 1);
     DRAW[g.kind](ctx, time, g);
     ctx.restore();
-    sign(ctx, SIGN_AT[g.kind], g.name, g.hard, near === g);
+    if (g.sign !== false) sign(ctx, SIGN_AT[g.kind], g.name, g.hard, near === g); // (a gate whose room draws its own sign: Fenrir's door)
     ctx.restore();
   }
 }
@@ -55,7 +58,7 @@ export function drawEntries(ctx, room, ground, L, R, time) {
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, fumes: -130, balloon: -190 };
+const SIGN_AT = { fallenwall: -178, rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, fumes: -130, balloon: -190 };
 const SCALE = { bridge: 1.5, thorns: 1.15, balloon: 0.82 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -1761,7 +1764,7 @@ function drawBalloon(ctx, time) {
   ctx.stroke();
 }
 
-const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon };
+const DRAW = { wolfdoor: () => {}, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon };
 // The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
 // going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
 // white rose petal or two drifting into it. The update itself split it: no quest
@@ -1819,5 +1822,84 @@ function drawRootSplit(ctx, time) {
   ellipse(ctx, px, py, 3, 1.8, time);
 }
 
-const OPEN = { icestair: (ctx, time, g) => drawIcestair(ctx, time, g, true), snout: drawSnout, crevasse: (ctx, time, g) => drawCrevasse(ctx, time, g, true), icefall: (ctx, time, g) => drawIcefall(ctx, time, g, true), snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
+// The Hall Troll's wall at the Blue Halls' east end, fallen over (FB2 (b)): the blocks lie tumbled on the floor to
+// the west, and in the back wall where it stood there's a dark slot going down, the top of the cutters' old ladder
+// sticking up out of it, rimed grey, a cold blue glow far below (the Old Ice). The update itself knocked it over:
+// no quest
+const FALLEN = [[-58, -2, 0.25], [-96, -1, -0.12], [-132, 0, 0.5], [-74, -30, 0.9], [-112, -27, -0.35], [44, -1, -0.2]];
+function drawFallenWall(ctx, time) {
+  const pulse = 0.5 + 0.5 * Math.sin(time * 0.7);
+  // the slot behind where the wall stood
+  const dg = ctx.createRadialGradient(0, -20, 4, 0, -50, 110);
+  dg.addColorStop(0, `rgba(120,170,255,${0.2 + 0.08 * pulse})`);
+  dg.addColorStop(1, 'rgba(120,170,255,0)');
+  ctx.fillStyle = dg;
+  ctx.fillRect(-110, -180, 220, 190);
+  ctx.fillStyle = '#030816';
+  ctx.beginPath();
+  ctx.moveTo(-42, 4);
+  ctx.lineTo(-46, -70);
+  ctx.lineTo(-34, -120);
+  ctx.lineTo(-18, -168);
+  ctx.lineTo(6, -150);
+  ctx.lineTo(24, -172);
+  ctx.lineTo(40, -110);
+  ctx.lineTo(46, -40);
+  ctx.lineTo(44, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(168,212,250,0.55)'; // the clean break where the wall stood against the ice
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = `rgba(130,180,255,${0.22 + 0.12 * pulse})`;
+  ctx.beginPath();
+  ctx.ellipse(0, -4, 26, 7, 0, 0, TAU);
+  ctx.fill();
+  // the top of the old ladder, poking up out of the dark: grey wood, rimed
+  for (const sx of [-16, 16]) {
+    ctx.fillStyle = '#6a6460';
+    ctx.strokeStyle = '#2e2a2a';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.roundRect(sx - 3, -64, 6, 70, 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(230,244,255,0.8)';
+    ctx.fillRect(sx - 3, -64, 6, 3);
+  }
+  for (let y = -52; y < 0; y += 14) {
+    ctx.fillStyle = '#5a5450';
+    ctx.fillRect(-14, y, 28, 4);
+    ctx.fillStyle = 'rgba(230,244,255,0.5)';
+    ctx.fillRect(-14, y, 28, 1.2);
+  }
+  // the wall's stub, still standing, and its blocks tumbled to the west
+  for (const [bx, by, a] of FALLEN) {
+    ctx.save();
+    ctx.translate(bx, by - 15);
+    ctx.rotate(a);
+    ctx.fillStyle = a > 0.4 ? '#3e78c0' : '#4682c8';
+    ctx.strokeStyle = '#0e2a5a';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.roundRect(-19, -14, 38, 29, 3);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(168,212,250,0.5)';
+    ctx.fillRect(-15, -10, 10, 3);
+    ctx.strokeStyle = 'rgba(14,42,90,0.5)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(2, -8);
+    ctx.lineTo(10, 2);
+    ctx.lineTo(6, 10);
+    ctx.stroke();
+    ctx.restore();
+  }
+  // chips of ice scattered round
+  ctx.fillStyle = 'rgba(190,225,255,0.85)';
+  for (const [cx, cy, r] of [[-40, -2, 3], [-150, -1, 2.4], [-20, -1, 2], [62, -1, 2.6], [-118, -3, 1.8]]) ellipse(ctx, cx, cy, r * 1.6, r, cx);
+}
+
+const OPEN = { fallenwall: drawFallenWall, icestair: (ctx, time, g) => drawIcestair(ctx, time, g, true), snout: drawSnout, crevasse: (ctx, time, g) => drawCrevasse(ctx, time, g, true), icefall: (ctx, time, g) => drawIcefall(ctx, time, g, true), snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
   flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true), rootsplit: drawRootSplit };

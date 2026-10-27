@@ -154,8 +154,9 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/skerries.md](docs/places/skerries.md) | the Whale Skerries (room 37, Lv 55–70, off Icefang Hamlet), Hakon the Bone-Carver, Grandmother (the whale skeleton), the Sounding Stone, the Old Narwhal and her den (38) |
 | [docs/places/grotto.md](docs/places/grotto.md) | the Narwhal Grotto (room 39, a hard pocket off the Skerries, Lv 70–80), its elites, the Tusk Hall |
 | [docs/places/heights.md](docs/places/heights.md) | the Aurora Heights (room 40, Lv 75–90, up from the Glacier's Icefall), the aurora curtains, the Serpent Stone, Liv's Reach, the Pale Wyrm (field boss) |
-| [docs/places/bluehalls.md](docs/places/bluehalls.md) | the Blue Halls (room 41, a hard pocket under the Glacier, Lv 80–90), its elites, the Cutters' Niche, the Hall Troll (field boss) |
+| [docs/places/bluehalls.md](docs/places/bluehalls.md) | the Blue Halls (room 41, a hard pocket under the Glacier, Lv 80–90), its elites, the Cutters' Niche, the Hall Troll (field boss), the fallen wall, the cutters' record, thin ice (a room hazard) |
 | [docs/places/queensbridge.md](docs/places/queensbridge.md) | the Queen's Bridge (room 42, Lv 85–100, up the ice stair on Frostpine Ridge), the Frozen Guard, the Strait Stone, the Shield's Perch, Sigrun and her den, the Seam (43), Frostpeak's party den |
+| [docs/places/oldice.md](docs/places/oldice.md) | the Old Ice (room 50, FB2's deep room under the Blue Halls: its mobs, the black-ice wolf, Garm), the Long Stair (room 51, the approach to Fenrir's den: the wolf in the ice, Fenrir's line, the door that holds until FB2 (c), its sign) |
 | [docs/places/deep.md](docs/places/deep.md) | the Mycelium Deep (room 28), Glowroot Hollow (29, a hard pocket), Forager Truffle, the Knotmole's burrow (30), the Listening Stone |
 | [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel, within one island), attuning, the travel card |
 | [docs/places/pets.md](docs/places/pets.md) | pets' hunger, moods and dying, feeding, the Pet Shop, Auntie Clover, pet food |

@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, FENRIR_DEN_X, FENRIR_DEN_NAME } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -44,6 +44,13 @@ export const FROSTPEAK = [
   { id: 'skerries', name: 'Whale Skerries', band: '55–70', at: [100, 290], from: 'hamlet', rooms: [SKERRIES], entry: { room: FJORD, x: SKERRIES_GATE_X, kind: 'snowslide' } },
   { id: 'grotto', name: 'Narwhal Grotto', band: '70–80', hard: true, at: [100, 350], from: 'skerries', rooms: [GROTTO], entry: { room: SKERRIES, x: GROTTO_GATE_X, kind: 'grotto' } },
   { id: 'bridge', name: "The Queen's Bridge", band: '85–100', at: [360, 300], from: 'ridge', rooms: [QBRIDGE], entry: { room: HIGHLANDS, x: BRIDGE_GATE_X, kind: 'icestair' } },
+  // FB2 (b): the deep room under the Blue Halls and the approach to Fenrir's den (one node: the Long Stair is its end),
+  // and the den's door at the stair's foot, its ice cracked but holding until FB2 (c) gives the den its DENS row
+  // (then this gate goes: the door comes with the row, like Ladon's). `sign: false`: the Long Stair draws the door's
+  // own sign (src/longstair.js)
+  { id: 'oldice', name: 'The Old Ice', band: '90–100', hard: true, at: [625, 225], from: 'bluehalls', rooms: [OLDICE, LONGSTAIR], entry: { room: BLUEHALLS, x: OLDICE_GATE_X, kind: 'fallenwall' } },
+  { id: 'wolfhold', name: FENRIR_DEN_NAME, at: [625, 310], from: 'oldice', block: 'the ice holds',
+    gate: { room: LONGSTAIR, x: FENRIR_DEN_X, kind: 'wolfdoor', sign: false, look: 'look at the ice', says: 'The ice over the door has cracked, but it holds. Something behind it is breathing.' } },
 ];
 // Emberdeep (atlas Phase 5, E0 on: story/world/emberdeep-depth.md): Forgehold, the legacy stage's two zones,
 // and every branch's gate laid before any of them ships. The balloon by the thermal column is atlas Phase 6

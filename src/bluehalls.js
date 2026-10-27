@@ -1,4 +1,4 @@
-// Docs: docs/places/bluehalls.md
+// Docs: docs/places/bluehalls.md, docs/places/oldice.md
 // The Blue Halls (room BLUEHALLS, a hard pocket; data in src/shared/rpg.js): ice caves inside the Rimeglass
 // Glacier, under the Crevasse Field, down the cutters' mended ladder. Deep blue everywhere: walls of old
 // glacier ice with stones and strings of air bubbles frozen in them, thin blades of daylight coming down
@@ -8,13 +8,17 @@
 // stacked walls of ice blocks it cut for itself, for nothing. The Cutters' Niche, high in the first hall's
 // wall (last in BLUEHALLS_PLATFORMS), with generations of cutters' names scratched round an old pick frozen
 // into the ice, is the hidden spot.
+// FB2 (b) (docs/places/oldice.md): one of the troll's walls at the east end has fallen over, showing the way down
+// to the Old Ice (drawn by OPEN.fallenwall in src/branch-gates.js); beside it the cutters' record is carved in the
+// ice (drawRecord); and thin ice in the floor (THIN_ICE) cracks under whoever stands on it (drawThinIce).
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
-import { BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_ZONES, BLUEHALLS_PLATFORMS, FIELD_GROUND } from './shared/rpg.js';
+import { BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_ZONES, BLUEHALLS_PLATFORMS, FIELD_GROUND, OLDICE_GATE_X, THIN_ICE, THIN_ICE_HOLD } from './shared/rpg.js';
 import { glow as radialGlow } from './glow.js';
 
 const GROUND = FIELD_GROUND;
 const DEEP_X = BLUEHALLS_ZONES[2].x0;
 const NICHE = BLUEHALLS_PLATFORMS.at(-1);
+const RECORD_X = OLDICE_GATE_X - 500; // the cutters' record, carved in the ice west of the way down (clear of the shelves)
 const ICE = '#4e8ad0', ICE_D = '#1e4a8a', ICE_L = '#a8d4fa', ICE_LINE = '#0e2a5a';
 const WOOD = '#8a6a48', WOOD_D = '#4e3a2c';
 const visible = (x0, x1, L, R) => x1 > L && x0 < R;
@@ -77,7 +81,7 @@ const walls = (() => {
   const r = mulberry32(4151);
   const out = [];
   for (let x = DEEP_X + 200; x < BLUEHALLS_W - 200; x += 500 + r() * 300) out.push({ x, n: 3 + Math.floor(r() * 3), rows: 2 + Math.floor(r() * 3) });
-  return out;
+  return out.filter((w) => w.x + w.n * 40 < RECORD_X - 90); // (the last one fell over: the way down to the Old Ice)
 })();
 const drips = (() => {
   const r = mulberry32(4161);
@@ -90,7 +94,7 @@ const motes = (() => {
 const FALL_X = 1420; // the frozen waterfall in the first hall
 
 // Everything behind the slimes. camX is the left edge of the view.
-export function drawBlueHalls(ctx, camX, viewW, time) {
+export function drawBlueHalls(ctx, camX, viewW, time, feet = []) {
   const L = camX - 160, R = camX + viewW + 160;
   ctx.save();
   ctx.fillStyle = vgrad(ctx, 'back', 0, GROUND, [[0, '#06122e'], [0.5, '#0e2a5e'], [1, '#1e4a8a']]);
@@ -100,6 +104,7 @@ export function drawBlueHalls(ctx, camX, viewW, time) {
   if (visible(FALL_X - 80, FALL_X + 120, L, R)) drawWaterfall(ctx, FALL_X, time);
   for (const c of columns) if (visible(c.x - c.w, c.x + c.w, L, R)) drawColumn(ctx, c);
   for (const w of walls) if (visible(w.x - 20, w.x + w.n * 40 + 20, L, R)) drawTrollWall(ctx, w);
+  if (visible(RECORD_X - 110, RECORD_X + 110, L, R)) drawRecord(ctx, RECORD_X, time);
   for (const p of BLUEHALLS_PLATFORMS) {
     if (!visible(p.x - 60, p.x + p.w + 60, L, R)) continue;
     if (p.kind === 'shelf') drawShelf(ctx, p, time);
@@ -108,6 +113,8 @@ export function drawBlueHalls(ctx, camX, viewW, time) {
   drawRoof(ctx, L, R, time);
   if (visible(-80, 620, L, R)) drawLadderFoot(ctx, time);
   drawFloor(ctx, Math.max(0, L), Math.min(BLUEHALLS_W, R), time);
+  thinIceTick(feet, time);
+  THIN_ICE.forEach((p, i) => visible(p.x - p.w, p.x + p.w, L, R) && drawThinIce(ctx, p, crack[i], time));
   BLUEHALLS_ZONES.forEach((z, i) => {
     if (!z.lvl) return;
     const sx = z.x0 + 80;
@@ -527,4 +534,126 @@ function drawExitSign(ctx, x, time) {
   ctx.stroke();
   text(ctx, 'Up to the Glacier', -2, 1, 11, '#5b4a6b');
   ctx.restore();
+}
+
+// ——— FB2 (b) ———
+// The cutters' record (the second find, after the Niche): a patch of the wall scraped smooth, a tally of days
+// cut into it in fives, and under it three lines in the same hand. Whose crew it was, nobody here says
+const TALLY = 37; // (days)
+const RECORD_LINES = ['We heard it breathe.', 'We heard the chain.', 'We stopped.'];
+function drawRecord(ctx, x, time) {
+  const top = GROUND - 270, w = 196, h = 150;
+  ctx.fillStyle = 'rgba(120,170,230,0.28)';
+  ctx.strokeStyle = 'rgba(168,212,250,0.35)';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.roundRect(x - w / 2, top, w, h, 14);
+  ctx.fill();
+  ctx.stroke();
+  // the tally: strokes in fives, a slash through each five, row after row, the last row short
+  ctx.lineCap = 'round';
+  let n = 0;
+  for (let row = 0; n < TALLY; row++) {
+    for (let g = 0; g < 4 && n < TALLY; g++) {
+      const gx = x - w / 2 + 16 + g * 44, gy = top + 14 + row * 20, k = Math.min(5, TALLY - n);
+      ctx.strokeStyle = 'rgba(14,42,90,0.75)';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      for (let j = 0; j < Math.min(4, k); j++) {
+        ctx.moveTo(gx + j * 6, gy);
+        ctx.lineTo(gx + j * 6 + (j % 2 ? 1 : -1), gy + 13);
+      }
+      if (k === 5) {
+        ctx.moveTo(gx - 3, gy + 11);
+        ctx.lineTo(gx + 22, gy + 2);
+      }
+      ctx.stroke();
+      n += k;
+    }
+  }
+  // the three lines, cut deep: a dark groove with a pale lip under it
+  ctx.font = `700 13px Fredoka, 'Trebuchet MS', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  RECORD_LINES.forEach((ln, i) => {
+    const y = top + 92 + i * 18;
+    ctx.fillStyle = 'rgba(200,230,255,0.45)';
+    ctx.fillText(ln, x + 0.8, y + 1);
+    ctx.fillStyle = 'rgba(10,30,70,0.9)';
+    ctx.fillText(ln, x, y);
+  });
+  // a glint crossing the smoothed ice now and then
+  const g = (time * 0.12) % 1;
+  if (g < 0.3) {
+    ctx.fillStyle = `rgba(255,255,255,${0.25 * Math.sin((g / 0.3) * Math.PI)})`;
+    ctx.fillRect(x - w / 2 + (g / 0.3) * w, top + 4, 3, h - 8);
+  }
+}
+
+// Thin ice (THIN_ICE): how cracked each patch looks, 0..1. It cracks while a slime stands on it (reaching 1, and
+// giving, after THIN_ICE_HOLD ticks, as the server counts) and freezes over again when it's left alone. Drawn from
+// the slimes this client sees, so nothing goes over the wire
+const crack = new Float32Array(THIN_ICE.length);
+let thinT = null;
+function thinIceTick(feet, time) {
+  const dt = thinT === null ? 0 : Math.max(0, Math.min(0.1, time - thinT));
+  thinT = time;
+  THIN_ICE.forEach((p, i) => {
+    const on = feet.some((x) => Math.abs(x - p.x) < p.w / 2);
+    crack[i] = Math.max(0, Math.min(1, crack[i] + (on ? (dt * 60) / THIN_ICE_HOLD : -dt * 0.4)));
+  });
+}
+const SPOKES = Array.from({ length: 9 }, (_, i) => ({ a: (i / 9) * Math.PI + 0.15 * Math.sin(i * 7.1), len: 0.55 + 0.45 * Math.abs(Math.sin(i * 3.3)) }));
+function drawThinIce(ctx, p, c, time) {
+  const x = p.x, hw = p.w / 2, y = GROUND;
+  // dark water under a pale glassy skin
+  ctx.fillStyle = 'rgba(6,20,52,0.8)';
+  ellipse(ctx, x, y + 7, hw, 12);
+  ctx.fillStyle = `rgba(190,228,255,${0.6 - 0.3 * c})`;
+  ellipse(ctx, x, y + 5, hw - 5, 8);
+  ctx.strokeStyle = 'rgba(235,248,255,0.55)'; // its rim, where the sound floor ends
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 7, hw, 12, 0, Math.PI, TAU);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(235,248,255,0.7)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(x - hw * 0.6, y + 2);
+  ctx.lineTo(x - hw * 0.2, y + 2);
+  ctx.moveTo(x + hw * 0.1, y + 6);
+  ctx.lineTo(x + hw * 0.4, y + 6);
+  ctx.stroke();
+  // a few bubbles trapped under it: the tell before anyone steps on it
+  ctx.fillStyle = 'rgba(220,240,255,0.6)';
+  for (let i = 0; i < 4; i++) circle(ctx, x - hw * 0.5 + i * hw * 0.33, y + 7 + Math.sin(time * 2 + i) * 1, 1.4);
+  if (c <= 0.02) return;
+  // cracks spreading from where it's taking the weight
+  ctx.strokeStyle = `rgba(245,252,255,${0.5 + 0.5 * c})`;
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  for (const s of SPOKES) {
+    const L = hw * s.len * Math.min(1, c * 1.4);
+    ctx.moveTo(x, y + 4);
+    ctx.lineTo(x + Math.cos(s.a) * L, y + 5 + Math.sin(s.a) * 11 * Math.min(1, c * 1.4) - 1);
+  }
+  ctx.stroke();
+  if (c < 1) return;
+  // given way: a dark hole, tipped shards round it, the water sloshing
+  ctx.fillStyle = '#04102a';
+  ellipse(ctx, x, y + 5, hw * 0.55, 5);
+  ctx.fillStyle = 'rgba(200,232,255,0.9)';
+  ctx.strokeStyle = ICE_LINE;
+  ctx.lineWidth = 1;
+  for (const d of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(x + d * hw * 0.45, y + 6);
+    ctx.lineTo(x + d * hw * 0.3, y - 6 + Math.sin(time * 5 + d) * 1.5);
+    ctx.lineTo(x + d * hw * 0.15, y + 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.fillStyle = `rgba(120,170,230,${0.35 + 0.2 * Math.sin(time * 6)})`;
+  ellipse(ctx, x, y + 5, hw * 0.3, 2);
 }

@@ -35,7 +35,9 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | The Whale Skerries | 37 `SKERRIES` | the shore path back to Icefang Hamlet (east end) · the Narwhal Grotto and the Old Narwhal's den (room 38) at the west end (`docs/places/skerries.md`) |
 | The Narwhal Grotto | 39 `GROTTO` | back out to the Skerries (west end); a hard pocket (`docs/places/grotto.md`) |
 | The Aurora Heights | 40 `HEIGHTS` | back down the steps to the Glacier's Icefall (west end) (`docs/places/heights.md`) |
-| The Blue Halls | 41 `BLUEHALLS` | back up the ladder to the Glacier's Crevasse Field (west end); a hard pocket (`docs/places/bluehalls.md`) |
+| The Blue Halls | 41 `BLUEHALLS` | back up the ladder to the Glacier's Crevasse Field (west end) · down the old ladder behind the fallen wall to the Old Ice (east end); a hard pocket (`docs/places/bluehalls.md`) |
+| The Old Ice | 50 `OLDICE` | back up to the Blue Halls (west end) · down the stair to the Long Stair (east end); a deep room on hard-pocket rules (`docs/places/oldice.md`) |
+| The Long Stair | 51 `LONGSTAIR` | back up to the Old Ice (west end) · Fenrir's den (room 52, `FENRIR_DEN`, once FB2 (c) adds its `DENS` row; until then the ice over the door holds) at `FENRIR_DEN_X`; no mobs, not a combat room (`docs/places/oldice.md`) |
 | The Queen's Bridge | 42 `QBRIDGE` | back down the ice stair to Frostpine Ridge (west end) · Sigrun's den, the Seam (room 43), at the east end (`docs/places/queensbridge.md`) |
 | Pet Shop | 27 `PETSHOP` | exit (`docs/places/pets.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |

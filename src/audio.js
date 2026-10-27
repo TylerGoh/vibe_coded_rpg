@@ -6,7 +6,7 @@
 //   audio.sfx(name, {pan, vol}) one-shot effects (unknown names are ignored)
 //   audio.setMusic(on) / audio.musicOn   music + ambience on/off (sfx stay on), remembered in localStorage
 //   audio.setMuted(on)        everything off (e.g. while logged out)
-//   audio.setDepth(v)         0..1 how deep into the Road's End you are (its heartbeats; 0 everywhere else)
+//   audio.setDepth(v)         0..1 how deep into the Road's End (its heartbeats) or down the Long Stair (its hum and chain) you are; 0 everywhere else
 //
 // Each scene is a small "song": a step sequencer (song.play is called once per step) plus optional noise
 // beds and random ambience (birds, drips, crickets). A lookahead scheduler (setTimeout ~25 ms) books
@@ -390,6 +390,10 @@ function pad(p, chord, t, len, vol, o = {}) {
   }
 }
 
+// a chain clinking once, somewhere (FB2 (b): the Old Ice, the Long Stair): two dull metal taps a moment apart
+const chainClink = (p, dest, t, vol) => {
+  for (const [dt, f] of [[0, 1180], [0.07, 1010]]) p.eng.voice(dest, t + dt, f * (0.97 + Math.random() * 0.06), { type: 'triangle', vol, a: 0.001, tau: 0.09, partials: [[2.7, 0.35], [5.1, 0.12]] });
+};
 const hat = (p, t, vol = 0.025, dest = p.r) => p.eng.noiseHit(dest, t, { type: 'highpass', f: 7000, vol, tau: 0.018 });
 const shaker = (p, t, vol = 0.03, dest = p.l) => p.eng.noiseHit(dest, t, { f: 5500, q: 1.2, vol, a: 0.008, tau: 0.025 });
 const snare = (p, t, vol = 0.07) => {
@@ -1177,6 +1181,61 @@ const SONGS = {
         if (n % every === at + 1) e.kick(pan, t, vv * 0.7, 52, 26, 0.16);
       }
       if (d < 0.4 && s % 2 === 1 && chance(0.12 * (1 - d / 0.4))) e.voice(chance(0.5) ? p.l : p.r, t, p.f(ch[(n >> 1) % 3], 3), { ...GLOCK, vol: 0.014, tau: 0.5 }); // petals
+    },
+  },
+
+  // ——— FB2 (b) (docs/places/oldice.md) ———
+  // The Old Ice: the Blue Halls' music gone down to the glacier's bed. The same F# minor a fifth lower and slower,
+  // a deep hollow drone, the glacier's creak heavier and closer, glassy notes ringing further apart, and now and
+  // then far off a chain clinks once
+  oldice: {
+    bpm: 58, spb: 8, key: 47, scale: MINOR, gain: 0.78, send: 0.7, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5], [2, 4, 6], [4, 6, 8], [5, 7, 9]],
+    mel: melody(
+      '5 - - - . . . .', '3 - - - 2 - . .', '6 - - - . . 5 -', '2 - - - . . . .',
+      '5 - - - 4 - 3 -', '6 - - - . . . .', '4 - 3 - 2 - . .', '1 - - - - - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 90, 0.02);
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar);
+      if (s === 0) {
+        pad(p, ch, t, p.stepDur * 8, 0.01, { type: 'sawtooth', a: 1.8, cutoff: 420, unison: 4, rel: 1.8 });
+        e.voice(p.c, t, p.f(ch[0], -2), { type: 'triangle', vol: 0.1, a: 0.8, hold: p.stepDur * 7, rel: 1.4, cutoff: 220 });
+      }
+      if (s === 3 && bar % 2 === 1) e.voice(bar % 4 === 1 ? p.l : p.r, t, p.f(ch[(bar + s) % 3], 2), { ...GLOCK, vol: 0.018, tau: 1.2 }); // ice ringing
+      const m = p.mel(bar, s);
+      if (m && pass % 2 === 0) e.voice(p.c, t, p.f(m.d, 0), { type: 'sine', vol: 0.045, a: 0.15, hold: m.len * 0.8, rel: 0.8, partials: [[2, 0.18]] });
+      if (s === 0 && bar % 2 === 0) e.noiseHit(p.c, t, { type: 'lowpass', f: 110, sweep: 220, sweepT: 1.4, vol: 0.06, a: 0.5, hold: 0.5, tau: 1 }); // the bed creaking
+      if (s === 5 && bar % 8 === 7 && chance(0.7)) chainClink(p, p.r, t, 0.012); // far off
+    },
+  },
+  // The Long Stair: the music falls away to the ice's hum. A held low note that beats slowly against a second one
+  // (the hum), the Old Ice's tune at the way in thinning to nothing by the middle (with the depth the client gives
+  // it, audio.setDepth: how far down the stair you are), a slow breath (filtered noise swelling and falling), and
+  // a chain clinking somewhere under it, nearer and more often the deeper you go
+  longstair: {
+    bpm: 56, spb: 8, key: 42, scale: MINOR, gain: 0.85, send: 0.75, loop: 4,
+    chords: [[1, 5, 8], [1, 5, 8], [6, 8, 10], [1, 5, 8]],
+    mel: melody('5 - - - . . . .', '3 - - - 2 - . .', '4 - - - . . . .', '1 - - - - - . .'),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 100, 0.02);
+    },
+    play(p, bar, s, t) {
+      const e = p.eng, d = e.depth ?? 0, n = p.n, ch = p.chord(bar);
+      if (s === 0) {
+        // the hum: two low notes a few cents apart, beating slowly, louder deeper
+        e.voice(p.c, t, p.f(1, -1), { type: 'sine', vol: 0.07 + 0.06 * d, a: 1.5, hold: p.stepDur * 7, rel: 1.5, partials: [[2, 0.2]] });
+        e.voice(p.c, t, p.f(1, -1) * 1.006, { type: 'sine', vol: 0.05 + 0.05 * d, a: 1.5, hold: p.stepDur * 7, rel: 1.5 });
+      }
+      // what's left of the tune, gone by the middle of the stair
+      const m = p.mel(bar, s);
+      if (m && d < 0.5 && chance(1 - d * 2)) e.voice(p.c, t, p.f(m.d, 0), { type: 'sine', vol: 0.04 * (1 - d * 2), a: 0.2, hold: m.len * 0.8, rel: 0.8 });
+      if (s === 0 && bar % 2 === 0 && d > 0.15) e.noiseHit(p.c, t, { type: 'lowpass', f: 180, sweep: 120, sweepT: 2.4, vol: 0.03 + 0.05 * d, a: 1.2, hold: 0.6, tau: 1.4 }); // its breath
+      // the chain: rare at the top, near and often at the bottom
+      if (s % 2 === 1 && chance(0.02 + 0.12 * d)) chainClink(p, chance(0.5) ? p.l : p.r, t, 0.01 + 0.02 * d);
+      if (d < 0.3 && s === 6 && n % 16 === 6) e.voice(p.r, t, p.f(ch[2], 2), { ...GLOCK, vol: 0.012, tau: 1 }); // the last of the ice ringing
     },
   },
 
@@ -2817,7 +2876,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon']; // (49: Ladon's den, its own track; 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair']; // (49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52, Fenrir's den, comes with FB2 (c); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -2941,7 +3000,8 @@ Object.assign(MOB_HURT, { dragonfly: MOB_HURT.cinder_bat, gloop_snail: MOB_HURT.
   ptarmigan: MOB_HURT.frostling, snow_fox: MOB_HURT.aether_knight, rime_eagle: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, aurora_jelly: MOB_HURT.wisp, musk_ox: MOB_HURT.obsidian_crab, lost_star: MOB_HURT.wisp, pale_wyrm: MOB_HURT.astral_wyrm ?? MOB_HURT.golem,
   icicle_bat: MOB_HURT.cinder_bat, ice_worm: MOB_HURT.magma_slug, glass_beetle: MOB_HURT.obsidian_crab, prism_crawler: MOB_HURT.obsidian_crab, hall_troll: MOB_HURT.golem,
   rime_puffin: MOB_HURT.frostling, sleet_harrier: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, rimeguard: MOB_HURT.aether_knight, hoarfrost_shade: MOB_HURT.wisp, leopard_seal: MOB_HURT.yeti, rime_archer: MOB_HURT.aether_knight, sigrun: MOB_HURT.colossus ?? MOB_HURT.golem,
-  briarling: MOB_HURT.mushling, road_guard: MOB_HURT.golem, seed_lantern: MOB_HURT.mushling, root_creeper: MOB_HURT.aether_knight });
+  briarling: MOB_HURT.mushling, road_guard: MOB_HURT.golem, seed_lantern: MOB_HURT.mushling, root_creeper: MOB_HURT.aether_knight,
+  gnawer: MOB_HURT.mushling, rime_raven: MOB_HURT.snow_owl ?? MOB_HURT.cinder_bat, chain_warden: MOB_HURT.golem, black_wolf: MOB_HURT.aether_knight, garm: MOB_HURT.yeti });
 Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEATH.magma_slug, rock_crab: MOB_DEATH.obsidian_crab, snapshrimp: MOB_DEATH.obsidian_crab,
   puffcap: MOB_DEATH.mushling, cave_bat: MOB_DEATH.cinder_bat, puffball: MOB_DEATH.mushling, root_beetle: MOB_DEATH.obsidian_crab, glowworm: MOB_DEATH.magma_slug, glow_moth: MOB_DEATH.wisp,
   oak_squirrel: MOB_DEATH.mushling, tent_caterpillar: MOB_DEATH.magma_slug, tawny_owl: MOB_DEATH.cinder_bat, wasp_nest: MOB_DEATH.mushling, hornet: MOB_DEATH.cinder_bat,
@@ -2953,4 +3013,5 @@ Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEA
   ptarmigan: MOB_DEATH.frostling, rime_eagle: MOB_DEATH.cinder_bat, aurora_jelly: MOB_DEATH.wisp, musk_ox: MOB_DEATH.obsidian_crab, lost_star: MOB_DEATH.wisp, pale_wyrm: MOB_DEATH.astral_wyrm ?? MOB_DEATH.colossus,
   icicle_bat: MOB_DEATH.cinder_bat, ice_worm: MOB_DEATH.magma_slug, glass_beetle: MOB_DEATH.obsidian_crab, prism_crawler: MOB_DEATH.obsidian_crab, hall_troll: MOB_DEATH.yeti,
   rime_puffin: MOB_DEATH.frostling, sleet_harrier: MOB_DEATH.cinder_bat, hoarfrost_shade: MOB_DEATH.wisp, leopard_seal: MOB_DEATH.yeti, sigrun: MOB_DEATH.colossus,
-  briarling: MOB_DEATH.mushling, road_guard: MOB_DEATH.golem, seed_lantern: MOB_DEATH.mushling, root_creeper: MOB_DEATH.magma_slug });
+  briarling: MOB_DEATH.mushling, road_guard: MOB_DEATH.golem, seed_lantern: MOB_DEATH.mushling, root_creeper: MOB_DEATH.magma_slug,
+  gnawer: MOB_DEATH.mushling, rime_raven: MOB_DEATH.cinder_bat, chain_warden: MOB_DEATH.golem, garm: MOB_DEATH.yeti });

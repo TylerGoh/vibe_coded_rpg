@@ -379,6 +379,7 @@ export const LADON_LINE = 'Something is on the road.';
 // with FINAL_MIN_PLAYERS. finalTag(top) is the line on the door, the sign and (FB1 (c)) the title card.
 export const FINAL_LVL_OVER = 20, FINAL_MIN_PLAYERS = 4;
 export const GREEN_TOP = 60; // Greenhollow's top level
+export const FROST_TOP = 100; // Frostpeak's top level (FB2: Fenrir's door and sign)
 export const finalTag = (top) => `Lv ${top + FINAL_LVL_OVER} · recommended Lv ${top}, ${FINAL_MIN_PLAYERS}+ players`;
 // ——— island depth G5 (docs/places/spine.md) ———
 // Keeper's Spine (room 34): the bare stone ridge along the top of Greenhollow, above the Old Oak Canopy, over
@@ -585,6 +586,61 @@ export const QBRIDGE_PLATFORMS = [
   { x: 4440, y: 255, w: 210, kind: 'slab' },
   { x: 3000, y: 160, w: 100, kind: 'perch' }, // the Shield's Perch, a lookout on the tallest arch: easy to miss
 ];
+// ——— FB2 (b): the way to Frostpeak's final boss (docs/places/oldice.md, story/fb2-plan.md) ———
+// The Blue Halls get a room hazard: thin ice (THIN_ICE, in the floor of the halls). Stand on a patch and it
+// cracks; stay on it THIN_ICE_HOLD ticks and it gives under you and hurts (THIN_ICE_DOT of max HP every
+// PATCH_HIT_EVERY ticks, a flat 'dot' like the Thornheart's thorn patches: no knockback, so no step() change).
+// Step off and it holds again. On the floor only: a ledge or a jump is safe. The server counts how long each
+// slime has stood on one (server/rpg.js); the client draws the cracks from the slimes it sees (src/bluehalls.js).
+export const THIN_ICE = [
+  { x: 1830, w: 120 }, { x: 2660, w: 130 }, { x: 3130, w: 120 }, { x: 3540, w: 140 }, { x: 3860, w: 110 },
+];
+export const THIN_ICE_HOLD = 60, THIN_ICE_DOT = 0.05; // (ticks standing on it before it gives; share of max HP a hit)
+// The Old Ice (room 50): the glacier's bed, the oldest black-blue ice, under the Blue Halls. One of the Hall
+// Troll's walls at the Deep Blue's east end has fallen over (OLDICE_GATE_X: the update did it, no quest) and
+// there was a way down behind it all along, the cutters' old ladder. A deep room past the hard pocket:
+// hard-pocket rules (a red chip, no waystone, no trader, elites throughout). You come in at the WEST end and go
+// east, deeper: the Cutters' Last Camp (no mobs: the camp they left in a hurry), the Black Ice, the Frozen Wall
+// (things frozen in it older than the hamlet) and the Gate, where Garm (a named elite) is chained at the head of
+// the Long Stair. The Old Lamp, a Keeper lamp post frozen high in the wall (last in OLDICE_PLATFORMS), is the
+// hidden spot. At the far east end the stair goes down into the Long Stair.
+export const OLDICE = 50; // room id
+export const OLDICE_W = 4400;
+export const OLDICE_EXIT_X = 70; // back up the old ladder to the Blue Halls
+export const OLDICE_GATE_X = BLUEHALLS_W - 110; // the fallen wall in the Deep Blue (the way in)
+export const OLDICE_END_X = OLDICE_W - 90; // the head of the Long Stair, at the east end
+export const OLDICE_ZONES = [
+  { name: "The Cutters' Last Camp", x0: 0, x1: 520, lvl: null }, // (no mobs)
+  { name: 'The Black Ice', x0: 520, x1: 2300, lvl: '90–95' },
+  { name: 'The Frozen Wall', x0: 2300, x1: 3700, lvl: '95–98' },
+  { name: 'The Gate', x0: 3700, x1: OLDICE_W, lvl: '98–100' },
+];
+export const OLDICE_PLATFORMS = [
+  { x: 700, y: 340, w: 210, kind: 'floe' }, // slabs of black ice tipped up out of the bed
+  { x: 1080, y: 255, w: 200, kind: 'floe' },
+  { x: 1480, y: 340, w: 220, kind: 'floe' },
+  { x: 1880, y: 255, w: 200, kind: 'floe' },
+  { x: 2500, y: 340, w: 220, kind: 'floe' },
+  { x: 2900, y: 255, w: 200, kind: 'floe' },
+  { x: 3300, y: 340, w: 220, kind: 'floe' },
+  { x: 3880, y: 330, w: 200, kind: 'floe' },
+  { x: 2955, y: 165, w: 90, kind: 'lamp' }, // the Old Lamp, a Keeper lamp post frozen high in the wall: easy to miss
+];
+// The Long Stair (room 51): the approach. No mobs, no combat, no STAGES row: safe ground where the party gathers.
+// A stair the cutters cut down into clear ice and never finished. Everything cinematic in it is drawing and sound
+// (src/longstair.js, the `longstair` music scene), never step(): the wolf's shape grows in the ice wall beside
+// you, its breath frosts the ice from the other side, the lanterns go out below you and the ice frosts over the
+// stair behind you, the further east you are. FENRIR_MARK_X: the first slime past it in an empty Long Stair hears
+// Fenrir (FENRIR_LINE, server/rpg.js). FENRIR_DEN_X: the den's door (its art is always drawn; until the den's
+// DENS row exists, FB2 (c), the ice over it holds: a gate in FROSTPEAK, src/shared/branches.js).
+export const LONGSTAIR = 51; // room id
+export const LONGSTAIR_W = 2600;
+export const LONGSTAIR_EXIT_X = 70; // back up the stair into the Old Ice
+export const FENRIR_MARK_X = 1000;
+export const FENRIR_DEN_X = LONGSTAIR_W - 240;
+export const FENRIR_DEN = 52; // the den's room id, kept for FB2 (c)
+export const FENRIR_DEN_NAME = "The Wolf's Hold";
+export const FENRIR_LINE = 'Is it the end? ...No. Not yet. Go back up.';
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -608,6 +664,7 @@ export const STAGES = {
   [BLUEHALLS]: { name: 'The Blue Halls', zones: BLUEHALLS_ZONES, band: '80–90', hard: true },
   [QBRIDGE]: { name: "The Queen's Bridge", zones: QBRIDGE_ZONES, band: '85–100', pill: "Queen's Bridge" },
   [SUNKEN]: { name: 'The Sunken Road', zones: SUNKEN_ZONES, band: '55–60', hard: true, pill: 'Sunken Road' },
+  [OLDICE]: { name: 'The Old Ice', zones: OLDICE_ZONES, band: '90–100', hard: true },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -1496,6 +1553,45 @@ MOBS.sigrun = {
   },
   drops: [['royal_sap', 1, 2, 3], ['oath_blade', 1, 1, 1], ['sigrun_helm', 0.6, 1, 1], ['coin', 1, 893200, 1339800], ['mega_elixir', 1, 4, 6], ['seam_ice', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
+// ——— FB2 (b): the Old Ice (art: src/oldice-art.js; docs/places/oldice.md). On the frozen curve, elites throughout ———
+// Gnawers (pale ice rats that tunnel through the bed and come up behind you), rime ravens (black birds with
+// frost on their wings that drop out of the dark), chain-wardens (Keeper stone figures holding lengths of old
+// glowing fetter ribbon across their front: hit them from behind) and black-ice wolves (the pack: they charge
+// you, the shell brain's lunge with no shell, `cut: 0`). (The Glacier's Lv 67 rime wolf already had the name, so
+// the deep ones are black-ice wolves; FB2 (c)'s pack reuses them.) The wolf's things share one tell: pale
+// blue-white eyes with no pupils.
+MOBS.gnawer = {
+  name: 'Gnawer', lvl: 91, hp: 10600, atk: 291, exp: 5450, speed: 80, w: 52, h: 34, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.4, warn: 0.42, slashWarn: 0.5, r: 115 },
+  drops: [['coin', 1, 665, 1000], ['gnawer_tooth', 0.5, 1, 2], ['mega_elixir', 0.14, 1, 1]],
+};
+MOBS.rime_raven = {
+  name: 'Rime Raven', lvl: 93, hp: 10200, atk: 298, exp: 5655, speed: 110, w: 56, h: 36, aggro: true, hops: false, fly: 60,
+  ai: { kind: 'dive', every: 3.3, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 690, 1035], ['raven_quill', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1]],
+};
+MOBS.chain_warden = {
+  name: 'Chain-Warden', lvl: 95, hp: 13400, atk: 306, exp: 5863, speed: 45, w: 56, h: 74, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.3, warn: 0.6, lunge: 500, time: 0.34 },
+  drops: [['coin', 1, 710, 1065], ['fetter_scrap', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1], ['warden_helm', 0.004, 1, 1]],
+};
+MOBS.black_wolf = {
+  name: 'Black-Ice Wolf', lvl: 98, hp: 11800, atk: 317, exp: 6182, speed: 95, w: 68, h: 46, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0, every: 2.8, warn: 0.5, lunge: 620, time: 0.4 },
+  drops: [['coin', 1, 740, 1110], ['blackice_pelt', 0.5, 1, 2], ['mega_elixir', 0.16, 1, 1], ['gatehound_fang', 0.003, 1, 1]],
+};
+MOBS.gnawer_elite = elite('gnawer', 'Gnawer Queen');
+MOBS.warden_elite = elite('chain_warden', 'Elder Chain-Warden');
+MOBS.wolf_elite = elite('black_wolf', 'Black-Ice Packleader');
+// Garm, the Hound at the Gate: a named elite (not a boss: no den, no phases, an ordinary respawn), as in the myth
+// the hound that howls at the head of the way down. A great black-ice hound with a broken length of old chain on
+// its collar, its chest rimed red-white; it lies across the head of the Long Stair and charges whoever comes near.
+// Drawn with its own art (`art`), heard as a black-ice wolf
+MOBS.garm = {
+  ...elite('black_wolf', 'Garm, the Hound at the Gate'), art: 'garm', w: 140, h: 100,
+  ai: { kind: 'shell', cut: 0, every: 2.4, warn: 0.6, lunge: 700, time: 0.45 },
+};
+MOBS.garm.drops = MOBS.garm.drops.map((d) => (d[0] === 'gatehound_fang' ? ['gatehound_fang', 0.03, 1, 1] : d));
 
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
@@ -1681,6 +1777,7 @@ const onAhPlat = onRoomPlat(HEIGHTS_PLATFORMS, HEIGHTS);
 const onBhPlat = onRoomPlat(BLUEHALLS_PLATFORMS, BLUEHALLS);
 const onQbPlat = onRoomPlat(QBRIDGE_PLATFORMS, QBRIDGE);
 const onSuPlat = onRoomPlat(SUNKEN_PLATFORMS, SUNKEN);
+const onOiPlat = onRoomPlat(OLDICE_PLATFORMS, OLDICE);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -1855,6 +1952,23 @@ export const SPAWNS = [
   ...strip('guard_elite', 1700, 2250, FIELD_GROUND, 1, SUNKEN),
   ...strip('lantern_elite', 2700, 3300, FIELD_GROUND, 1, SUNKEN),
   { kind: 'severed_neck', x0: 3780, x1: 4150, y: FIELD_GROUND, room: SUNKEN },
+  // the Old Ice (the Cutters' Last Camp, x < 520, has none; nothing past 4150: the head of the Long Stair)
+  ...strip('gnawer', 600, 1450, FIELD_GROUND, 4, OLDICE),
+  ...onOiPlat('gnawer', 0, 1),
+  ...onOiPlat('gnawer', 2, 1),
+  ...strip('rime_raven', 1250, 2250, FIELD_GROUND, 3, OLDICE),
+  ...onOiPlat('rime_raven', 1, 1),
+  ...onOiPlat('rime_raven', 3, 1),
+  ...strip('chain_warden', 2400, 3350, FIELD_GROUND, 4, OLDICE),
+  ...onOiPlat('chain_warden', 4, 1),
+  ...onOiPlat('chain_warden', 6, 1),
+  ...strip('black_wolf', 2650, 3650, FIELD_GROUND, 4, OLDICE),
+  ...onOiPlat('black_wolf', 5, 1),
+  ...onOiPlat('black_wolf', 7, 1),
+  ...strip('gnawer_elite', 800, 1500, FIELD_GROUND, 1, OLDICE),
+  ...strip('warden_elite', 2500, 3200, FIELD_GROUND, 1, OLDICE),
+  ...strip('wolf_elite', 3000, 3600, FIELD_GROUND, 1, OLDICE),
+  { kind: 'garm', x0: 3780, x1: 4150, y: FIELD_GROUND, room: OLDICE },
   // Keeper's Spine (the Windgap, x < 900, has none; sentinels stay on the road: their beam runs along it;
   // nothing near the Root Warden's gatehouse at WARDEN_DEN_X)
   ...strip('moss_turtle', 1000, 1750, FIELD_GROUND, 4, SPINE),
@@ -2173,6 +2287,13 @@ export const ITEMS = {
   creeper_root: { name: 'Creeper Root', price: 520, kind: 'loot', desc: 'A length of root creeper, knotted and cold. It curls up when you hold it.' },
   roadguard_helm: { name: "Road Guard's Helm", price: 116000, lvl: 58, kind: 'helmet', def: 49, desc: 'A Keeper guard\'s stone helm with a briar grown through the crest. Still on duty.' },
   neck_fang: { name: 'Neckthorn Fang', price: 162000, lvl: 60, kind: 'sword', atk: 112, reach: 56, desc: 'A great hooked thorn off the Severed Neck\'s jaw, made into a blade. It bites back.' },
+  // ——— FB2 (b): the Old Ice (art: src/oldice-art.js). No trader: drops only ———
+  gnawer_tooth: { name: 'Gnawer Tooth', price: 720, kind: 'loot', desc: 'A long yellow incisor, worn flat at the tip from chewing through ice older than anyone.' },
+  raven_quill: { name: 'Rime Raven Quill', price: 740, kind: 'loot', desc: 'A black flight feather with frost along its edge that never melts off. It points down when you let it go.' },
+  fetter_scrap: { name: 'Fetter Scrap', price: 770, kind: 'loot', desc: 'A scrap of old ribbon, finer than silk and stronger than chain. It still glows a little, and it is warm.' },
+  blackice_pelt: { name: 'Black-Ice Pelt', price: 800, kind: 'loot', desc: 'A strip of near-black fur, every hair cased in ice. It smells of nothing at all.' },
+  warden_helm: { name: "Chain-Warden's Helm", price: 315000, lvl: 95, kind: 'helmet', def: 71, desc: 'A Keeper warden\'s stone helm, a loop of glowing ribbon still wound round its brow. It hums when you are near the deep ice.' },
+  gatehound_fang: { name: 'Gatehound Fang', price: 430000, lvl: 97, kind: 'sword', atk: 154, reach: 60, desc: 'A black-ice fang the length of your arm, off a hound that guarded a gate. Breathe on it and it frosts.' },
   // ——— G5: Keeper's Spine (art: src/spine-art.js). No trader: drops only ———
   turtle_moss: { name: 'Turtle Moss', price: 400, kind: 'loot', desc: "A springy green tuft off a moss turtle's shell. There's a tiny snail living in it." },
   kite_feather: { name: 'Kite Feather', price: 420, kind: 'loot', desc: 'A long barred flight feather. Hold it up and it tugs toward the wind.' },
@@ -2348,6 +2469,7 @@ export const ITEMS = {
   oath_staff: { name: 'Shield-Oath Staff', price: 477000, lvl: 102, slots: 9, kind: 'staff', magic: 160, mp: 96, reach: 66, twin: 'oath_blade', desc: "Sigrun's spear-shaft with a round boss of ice for a head, like a little shield. Its bolts hold where they land." },
   hart_staff: { name: 'Hart\'s Antler Staff', price: 156000, lvl: 59, kind: 'staff', magic: 110, mp: 66, reach: 56, twin: 'briarheart_blade', desc: 'A shed antler of the Thorn Hart on a briar shaft. A white rose buds between the tines and never opens.' },
   neck_staff: { name: 'Neckthorn Staff', price: 162000, lvl: 60, kind: 'staff', magic: 112, mp: 67, reach: 56, twin: 'neck_fang', desc: 'A black briar staff with a hooked thorn and one white rose at its head. The rose turns to face whatever you aim at.' },
+  gatehound_staff: { name: 'Gatehound Staff', price: 430000, lvl: 97, kind: 'staff', magic: 154, mp: 92, reach: 60, twin: 'gatehound_fang', desc: 'A rod of black ice with a hound\'s fang at its head and a link of old chain round the grip. Its bolts come out howling, very far off.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Weapon Scroll 100%', price: 300, kind: 'scroll', slot: 'weapon', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a weapon (a staff gets them the other way round).' },
   scroll_s60: { name: 'Weapon Scroll 60%', price: 1500, kind: 'scroll', slot: 'weapon', rate: 0.6, atk: 3, magic: 2, desc: '60% chance: +3 ATK and +2 MAGIC on a weapon (a staff gets them the other way round).' },
@@ -2402,6 +2524,7 @@ const BOW_LIST = [
   ['troll_bow', 'troll_maul', 'Troll-Ice Bow', "A bent pine trunk with a lump of the troll's blue ice wedged in the grip. Very heavy. Very strong."],
   ['rimeguard_bow', 'rimeguard_blade', 'Rimeguard Bow', "A guard's longbow, the Queen's crown on its silver grip. Its arrows fly straight, as if on watch."],
   ['oath_bow', 'oath_blade', 'Shield-Oath Bow', 'A war bow with a little shield on its grip and an oath carved down its back. It has never broken one.'],
+  ['gatehound_bow', 'gatehound_fang', 'Gatehound Bow', 'Two black-ice fangs joined at a grip bound in pelt, strung with a strand of old glowing ribbon.'],
   ['spring_bow', 'slag_maul', 'Ironspring Bow', 'Two leaf-springs off an old forge bellows, riveted together and strung with wire. Forged for a wheel that never got it.'],
 ];
 for (const [id, twin, name, desc] of BOW_LIST) {
