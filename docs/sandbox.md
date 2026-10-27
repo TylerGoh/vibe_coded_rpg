@@ -91,6 +91,11 @@ it (`systemctl --user stop rpg-dev.service`): the next visit starts it with the 
 `systemctl --user reset-failed rpg-dev.service`. Unit changes: `install` them again and `daemon-reload`.
 Note: `npm run dev` (Vite's dev server) also wants port 3003; stop the socket or pass `--port` while using it.
 
+## Past mistakes
+- The first release shipped with the panel dead (O did nothing, no Sandbox button): `Net` in `src/net.js` keeps only the
+  callbacks its constructor names, and `onSandbox` wasn't in that list, so the welcome flag and every `sbx-state` /
+  `sbx-dps` were dropped. A new `on…` callback for `Net` goes in both of its lists.
+
 ## Not done / ideas
 - No switch to force a boss's party mechanics on for one slime (`TEST_PARTY` does it on a test server); no field bosses
   on the Bosses tab; dummies don't fight back with anything but a stomp.

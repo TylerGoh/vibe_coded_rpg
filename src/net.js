@@ -26,9 +26,9 @@ export function applyKick(s, kick) {
 }
 
 export class Net {
-  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime }) {
+  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime, onSandbox }) {
     this.url = url;
-    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime };
+    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime, onSandbox };
     this.id = null;
     this.me = newState(); // predicted state
     this.pending = []; // [seq, keys, kick?, charge?, hook?] not yet acknowledged
