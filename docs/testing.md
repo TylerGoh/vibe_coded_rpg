@@ -1,5 +1,10 @@
 # Testing
 
+**Owner, 2026-10-27: no headless bot playtests unless asked.** They cost a lot for little. The default check is a
+build into the scratchpad, `node --check`, `npm run economy -- --check`, `npm run docs:check`, reading the code, and
+napkin math for balance (each class's DPS from the skills it would actually use, then time to kill). The tools
+below are for when the owner asks for a playtest. One test server at a time, stopped right after (`Agent.md`).
+
 ## A throwaway server (never the live one on 3002)
 ```
 (set -a; . ~/.config/rpg/deepseek.env; set +a; \

@@ -62,6 +62,9 @@ touches (see the index at the bottom) before changing code. Every source file na
   changed files back (diff first: only your files should differ), then restart.
 
 ## Testing (details: `docs/testing.md`)
+- **No headless bot playtests unless the owner asks** (owner, 2026-10-27: costly, low value). Check with a build
+  into the scratchpad, `node --check`, `npm run economy -- --check`, `npm run docs:check` and reading the code; check
+  balance with napkin math (each class's DPS from the skills it would use, then time to kill). Say what wasn't playtested.
 - **Never test on the live server (3002).** Run a throwaway server on another port with its own DB and
   `DIST=<scratch>/testdist`, built with `npx vite build --outDir <scratch>/testdist`. Building into
   `dist/` changes the LIVE site, which serves `dist/` from disk.
