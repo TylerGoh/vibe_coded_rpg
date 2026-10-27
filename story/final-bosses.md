@@ -1,6 +1,6 @@
 # Final bosses: one per island, very hard, deep in (plan)
 
-**Status: plan, written 2026-10-24 (owner). FB1 built 2026-10-26 (`fb1-plan.md`, `docs/places/ladon.md`); FB2, E5 not.** Builds on S5's party mechanics
+**Status: plan, written 2026-10-24 (owner). FB1 built 2026-10-26 (`fb1-plan.md`, `docs/places/ladon.md`); FB2 on paper 2026-10-27 (`fb2-plan.md`: Fenrir, the Bound Wolf, waiting on the owner); E5 not.** Builds on S5's party mechanics
 (`progression.md` section 6, `s5-plan.md`). Order (owner, 2026-10-24): after the skill pool
 (`skills-plan.md`), Greenhollow's first, then S5.4 for Emberdeep, then Frostpeak's, then Emberdeep's E1.
 
@@ -119,7 +119,8 @@ What the old ice-cutters stopped digging toward.
 - **The approach: the Long Stair**: a stair the cutters cut down into clear ice and never finished. On the
   way down, the shape of the boss shows through the ice wall beside you, bigger with each landing. Lanterns
   out one by one, the music down to the ice's own hum; at the bottom the ice of the door cracks open on its own.
-- **The boss** (name and story to write; melancholy, cold, almost no humour, Frostpeak's register).
+- **The boss**: Fenrir, the Bound Wolf (owner, 2026-10-27; move set in `fb2-plan.md`): bound at the glacier's bed by
+  the Keepers "until the end", holding the last fetter in its own teeth. Melancholy, cold, almost no humour.
 
 ## Emberdeep (E5, after E4) `[default]`
 The same three steps past the Old Foundry (or the Drained Tubes, whichever is darker and more closed in
@@ -132,7 +133,8 @@ Each its own session (or two) and dev copy. Before building: read `progression.m
 - [x] **FB1: Greenhollow's final boss** (live 2026-10-26, Ladon): (a) the move set and phase order on paper for the owner (written
       2026-10-26: `fb1-plan.md`, waiting on the owner);
       (b) the Thornheart's pass, the Sunken Road, the Road's End; (c) the den and the boss, the FINAL table.
-- [ ] **FB2: Frostpeak's final boss**: the same, through the Blue Halls, the Old Ice and the Long Stair.
+- [ ] **FB2: Frostpeak's final boss**: the same, through the Blue Halls, the Old Ice and the Long Stair. (a) on paper
+      2026-10-27 (`fb2-plan.md`, Fenrir), waiting on the owner; then (b) the way there, (c) the den and the boss.
 - Then each new island's depth pass ends with its own (Emberdeep's is E5).
 
 ## Open questions for the owner
