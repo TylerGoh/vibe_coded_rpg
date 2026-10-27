@@ -344,8 +344,9 @@ it); bows in `docs/combat/items.md`.
   within `arrowRange` (`statsFor`: `BOW_RANGE` + the bow's reach + Keen Eye), `BOW_SHOT_MULT` of ATK, flying at
   `BOW_SHOT_SPEED` (`bowShot` / `otherArrow` in `src/rpg.js`; `shoot` in `server/rpg.js`).
 - **Hold to keep firing** (owner, 2026-10-25: attack speed is a core Archer feature, so you hold instead of spamming):
-  holding X or the touch Hit button attacks again every `SLAP_COOLDOWN_MS` (`attackHeld` in `src/main.js`; the Hit
-  button is a held one in `src/touch.js`). It's every weapon's, not only the bow's (simpler, and harmless: holding X
+  holding X, the touch Hit button or the mouse button on the canvas attacks again every `SLAP_COOLDOWN_MS`
+  (`attackHeld` / `clickHeld` in `src/main.js`; a held click keeps aiming at the cursor as it moves; the Hit button is a
+  held one in `src/touch.js`). The click hold came later (owner, 2026-10-27: holding X spammed but holding a click didn't). It's every weapon's, not only the bow's (simpler, and harmless: holding X
   already repeated with the keyboard's own repeat), in combat rooms only. Each one is an ordinary `slap` from
   `slapToward`, so the server's own swing check, Retreat Shot's backward aim and the Charge all work unchanged and
   nothing about movement leaves `step()`. A key repeat (`e.repeat`) no longer fires by itself.

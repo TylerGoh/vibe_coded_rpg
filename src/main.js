@@ -919,6 +919,7 @@ let lastSlap = 0;
 // is the Archer's thing, so you hold instead of spamming). Every weapon, in combat rooms only; update() fires it. It's an
 // ordinary slap each time (the same message, the same server check), so nothing about movement changes.
 let attackHeld = false;
+let clickHeld = null; // the mouse button held down on the canvas (combat rooms): { x } its last clientX, aimed at each repeat
 // what a slap sounds like with what's in hand: a sword swings, a staff fires (its bolt), a mitten slaps
 const weaponSound = (s) => ({ sword: 'swing', staff: 'staffBolt', bow: 'bowShot' }[ITEMS[s.gear?.weapon]?.kind] ?? 'slap');
 // In the Wildwood a slap (or a sword swing, with one equipped) also hits mobs
@@ -959,9 +960,17 @@ canvas.addEventListener('pointerdown', (e) => {
   if (scope.isOpen) return scope.tap((e.clientX - r.left) / r.width); // looking through the telescope
   const worldX = camX + ((e.clientX - r.left) / r.width) * W;
   if (houses.editing) return houses.pointer('down', worldX, ((e.clientY - r.top) / r.height) * H); // decorating: put down / pick up
+  if (isCombat(room)) clickHeld = { x: e.clientX }; // held: update() keeps firing toward the cursor, like holding X
   slapToward(Math.sign(worldX - mine.x) || mine.facing, true);
 });
+// where a held click aims, in world x (the camera moves while you hold)
+const clickAimX = () => {
+  const r = canvas.getBoundingClientRect();
+  return camX + ((clickHeld.x - r.left) / r.width) * W;
+};
+for (const ev of ['pointerup', 'pointercancel']) addEventListener(ev, () => (clickHeld = null));
 canvas.addEventListener('pointermove', (e) => {
+  if (clickHeld) clickHeld.x = e.clientX;
   if (!houses.editing) return;
   const r = canvas.getBoundingClientRect();
   houses.pointer('move', camX + ((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H);
@@ -1251,6 +1260,7 @@ addEventListener('keyup', (e) => {
 addEventListener('blur', () => {
   held.clear();
   attackHeld = false;
+  clickHeld = null;
 });
 const keys = () => {
   if (mine && splatted(mine)) return 0; // the server ignores us until we wake up anyway
@@ -1290,6 +1300,10 @@ function update(realDt) {
     if (attackHeld) {
       if (online() && menu.hidden && isCombat(room) && !dialogOpen()) slapToward(mine.facing); // (rate-limited inside)
       else if (!isCombat(room)) attackHeld = false;
+    }
+    if (clickHeld) {
+      if (online() && menu.hidden && isCombat(room) && !dialogOpen()) slapToward(Math.sign(clickAimX() - mine.x) || mine.facing, true); // (rate-limited inside)
+      else clickHeld = null;
     }
   }
 
