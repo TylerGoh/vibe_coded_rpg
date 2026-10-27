@@ -77,6 +77,15 @@ Order is by level. Names are the game's current ones.
   of the Wheel, but the Wheel doesn't turn, so she is stuck burning at the threshold. Her *Rebirth*
   ultimate is a broken, desperate attempt to finish the cycle. Beaten, she shows players the way up the
   thermal column, because only the Wheel can set her free.
+- **The Hatchkeeper** (The Buried Clutch, the Smoking Coast; shipped E2). A great black marine iguana, older
+  than anyone. Her first clutch hatched long ago and ran down to the sea, every one, and the sea had grown wide
+  and did not give them back. With a shard lodged under her crest she keeps every clutch since buried in sand
+  the lava keeps hot, warm forever, so it never hatches and never leaves her. Holding on to her young: Eyvind and
+  Liv's story told from the other side (Liv sits up with the nest some nights, out of reach, and knows it). Her
+  lines (MOBS.hatchkeeper.lines) are a mother's hush turned to a grip. Ultimate from the landscape: Boiling Sand,
+  the whole beach boiling but the tide-wet patches. Freed, she hears them tapping and lets them go: the eggs hatch
+  and the little ones run down to the sea. She buries a new clutch each time she comes back (only Liv says so).
+  Tier 0 only; nothing in her den shows the Wheel.
 
 ## The Aether Citadel (solemn)
 - **The Clockwork Colossus** (The Grand Foundry). The Wheel's guardian body, still following its last

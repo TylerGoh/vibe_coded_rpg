@@ -66,15 +66,25 @@ island shows what's coming.
 - **Shipped (E1, the Ashwood):** `docs/places/ashwood.md`: the charcoal road's iron bridge hauled back up (`ironbridge`
   drawn open by `drawIronBridge`'s `open` flag); the node has `rooms` and an `entry` in Cinder Flats. The Old Foundry
   lost `past` and got its gate at the Ashwood's west end (`adit`, `FOUNDRY_GATE_X`: the mine adit bricked up by the
-  forge folk themselves). Emberdeep's gates left: the lava tongue (the Coast), the adit (the Foundry), the fumes (the
+  forge folk themselves). Emberdeep's gates left after E1: the lava tongue (the Coast), the adit (the Foundry), the fumes (the
   Brimstone Fields) and the balloon (Phase 6).
+- **Shipped (E2, the Smoking Coast):** `docs/places/coast.md`: the gully's lava tongue crusted hard, steps cut down it
+  (`lavatongue` drawn open by `drawLavaTongue`'s `open` flag); the node has `rooms` and an `entry` in Cinder Flats. The
+  Drained Tubes lost `past` and got their gate in the Coast's sea cliff (`tubemouth`, `TUBES_GATE_X`: steam roaring out
+  of the old lava tube, the sea got in below); `drawTubeMouth` already has its `open` look and `OPEN.tubemouth` is
+  registered, so shipping the Tubes is data only. The Hatchkeeper's den (room 57, `HATCH_DEN`) opens at `HATCH_DEN_X`
+  (E2's second piece; its door comes with its `DENS` row through `denDoors(COAST)`). Emberdeep's gates left: the tube mouth (the Tubes), the adit
+  (the Foundry), the fumes (the Brimstone Fields) and the balloon (Phase 6).
+- **Shipped (E2, the Drained Tubes):** `docs/places/tubes.md`: the tube drained, the steam gone (`tubemouth` drawn open);
+  the node has `rooms` and an `entry` in the Coast. No waystone (a hard pocket). E2 done. Emberdeep's gates left: the adit
+  (the Foundry), the fumes (the Brimstone Fields) and the balloon (Phase 6).
 - The island map (`docs/ui/world-map.md`) reads the same list: shipped places solid with their levels,
   the rest dashed with a short `block` reason. Keep both in step: a node's `block` should match its gate.
 
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 56 after E1's Ashwood (55) and Black Sands (54); 53 is the dev sandbox's Training Yard; ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, the Wolf's Hold)), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 59 after E2's Smoking Coast (56), the Hatchkeeper's den (57) and the Drained Tubes (58), E1's Ashwood (55) and Black Sands (54); 53 is the dev sandbox's Training Yard; ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, the Wolf's Hold)), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last; `onRoomPlat` helper names must be new: F2 first clashed with
   Willowmere's `onWPlat`), a `STAGES` row (`band`, `pill` if the name is long, `hard` for
@@ -128,7 +138,8 @@ Gotchas already hit:
   the Lodestar, Forgehold, the map and every gate). E1 shipped: the Black Sands (`docs/places/blacksands.md`) and the Ashwood
   (`docs/places/ashwood.md`), plan in `story/world/emberdeep-depth.md` (the owner approved every default); both gates
   lifted with open looks in `OPEN` (the F3 pattern: the draw function with an `open` flag) and the Old Foundry's gate laid
-  in the Ashwood (E3 unbricks it the same way). Every new Emberdeep room needs its
+  in the Ashwood (E3 unbricks it the same way). **E2 is done** (the Smoking Coast, the Hatchkeeper's den, the Drained
+  Tubes: `docs/places/coast.md`, `docs/places/tubes.md`); **E3 is next** (the Old Foundry and the Brimstone Fields). Every new Emberdeep room needs its
   `ISLAND_OF_STAGE` row (`'ember'`) and its waystone `isle: 'ember'`; update Ash's persona (he lists the blocks).
 - F4 gotchas: the open art for the ice stair is `drawIcestair` with an `open` flag (the F3 pattern); a party den
   with a new `wave` look needs its own mass in `fxWaveWarn` / `fxWaveGo` (`iceMass`); a staff can need a new head

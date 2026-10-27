@@ -1002,6 +1002,7 @@ const BEAM = {
   shield: { glow: '200,232,255', outer: 'rgba(180,220,252,0.9)', mid: '#ffffff', aim: '255,96,120' }, // the cold light off Sigrun's shield
   briar: { glow: '170,230,120', outer: 'rgba(52,72,44,0.95)', mid: '#c8f0a0', aim: '255,96,110' }, // Ladon's Lash: a neck sweeping the den (FB1)
   rime: { glow: '220,236,255', outer: 'rgba(200,226,255,0.9)', mid: '#ffffff', aim: '255,96,120' }, // Fenrir's Frost Breath (FB2)
+  brine: { glow: '255,214,190', outer: 'rgba(236,232,224,0.9)', mid: '#ffffff', aim: '255,96,110' }, // the Hatchkeeper's snort of hot brine and salt (E2)
 };
 function drawBeam(ctx, h, now) {
   const B = BEAM[h.style] || BEAM.sentry;

@@ -5,7 +5,7 @@
 // (TOWNS in sim.js): a waystone is for getting back out, not for waking up. One in Slimeville, one at each
 // branch's entrance hub and one on Keeper's Spine (story/world/island-depth.md); none in the hard pockets.
 // The stones only reach stones on their own island (isle): islands are reached by their crossings.
-import { VILLAGE, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, CANOPY, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, ASHWOOD } from './sim.js';
+import { VILLAGE, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, CANOPY, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, ASHWOOD, COAST } from './sim.js';
 import { CALDERA } from './rpg.js';
 
 // x: the stone, on its room's ground (where you arrive is a little beside it, ARRIVE_DX) · isle: its island
@@ -25,6 +25,7 @@ export const WAYSTONES = [
   { id: 'forgehold', name: 'Forgehold', room: FORGEHOLD, x: 1960, isle: 'ember' }, // (by the great forge, where you wake up)
   { id: 'magmaheart', name: 'Magma Heart', room: CALDERA, x: 2250, isle: 'ember' }, // (just past the Molten Forge's mouth)
   { id: 'ashwood', name: 'The Ashwood', room: ASHWOOD, x: 5080, isle: 'ember' }, // (in Collier's Clearing, past the Kiln Stone)
+  { id: 'coast', name: 'The Smoking Coast', room: COAST, x: 4330, isle: 'ember' }, // (on the Glass Beach, before Liv's shelter)
 ];
 export const isleOf = (w) => w.isle ?? 'green';
 export const sameIsle = (a, b) => isleOf(a) === isleOf(b);

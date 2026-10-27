@@ -58,13 +58,17 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 
 ## Emberdeep (E0) left for later
 - Nobody has sat through a real 90-second Lodestar voyage with friends: check it doesn't drag.
-- Liv arrives in E2: until then Soot holds Arne's letters for her.
 - E0's optionals, for E1 or later: the Black Sands' hot-spring herb, the gear teeth in the Cinder Flats'
   ash, the slag golem in Magma Heart.
 - Ash's Tier 3 waits for per-account story progress.
 - E1's Ashwood is untested in play (no bot tests): Greyback's `log` throws at a party, the Green Tree's jump from
   the great trunk, Pitch's shop on a phone. Players holding the old Queen's Bridge `seal_whisker` now hold the Skerries'
   cheaper one (the id clash fix); nobody has complained.
+- E2's Smoking Coast is untested in play (no bot tests): the jump from the tallest stack's shoulder up to Liv's Lookout,
+  how many pumice crumbs a busy Pillow Shelf throws at once, the `thinned` look on a dark screen, Liv's shop on a phone.
+- E2's Hatchkeeper and Drained Tubes are untested in play: Boiling Sand's tide-wet patches with a party, the jump from
+  the ledge up to the Skylight, a lava drip on that ledge (maybe too mean), Hundredfoot's burning trail in a crowd.
+  The mini Hatchkeeper and mini Hundredfoot are only their bosses' art shrunk (no pet art of their own, `petWH`).
 - Getting home is two sailings: if it annoys people, a direct Forgehold to Greenhollow sailing waits for
   the "routes reconnect" idea in `story/world/geography.md`.
 

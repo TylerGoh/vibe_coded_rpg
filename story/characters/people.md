@@ -64,6 +64,11 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
 - **Collier Pitch** (the Ashwood, E1, **exists**): forge folk; the last charcoal-burner, whose family burned the
   forest for the foundry; trades. Burns only deadwood now, counts fern seedlings in a ledger, knows where the
   Green Tree is and won't quite say. Dry, slow, sad. Tier 0 plus the Ashwood.
+- **Liv** (the Smoking Coast, E2, **exists**): fjord folk thinned nearly clear by seven years of heat; Ice-Cutter
+  Eyvind's daughter, Arne's deckhand left behind on the last voyage. Cuts and trades black glass, one clean stroke
+  like her father with ice; stays, afraid the cold would set her solid; letters go both ways on the Lodestar. Keeps
+  the other red mitten, sits up with the Hatchkeeper's nest, copied Skaldi's birds in glass on her lookout. Tier 0
+  plus the Coast.
 - **The Last Echo** (the Citadel): a Keeper echo stuck repeating, who becomes briefly lucid when players
   bring Mochi's name. Holds Tier 4.
 - **Pell** (post-game, by the apple tree): see `mochi-and-chronos.md`.

@@ -19,6 +19,10 @@ the Root Warden, Greenhollow's party den. Thirteenth: **The Breathing Hole** (ro
 `src/dens-skerries.js`, theme `floe`; `docs/places/skerries.md`), the Old Narwhal. Fourteenth: **The Seam**
 (room 43, the Queen's Bridge, art `src/dens-qbridge.js`, theme `oath`; `docs/places/queensbridge.md`), Sigrun,
 the Queen's Shield, Frostpeak's party den (Lv 100); her `wave` ult is new ice racing along the floor (`iceMass`).
+E2 added **The Buried Clutch** (room 57, the Smoking Coast, art `src/dens-hatch.js`, theme `hatch`;
+`docs/places/coast.md`), the Hatchkeeper (Lv 115): her `spores` ult is drawn as boiling sand with tide-wet safe
+patches through `ULT_LOOKS` (a den's own look for a shared ult, by theme, checked first in `drawUltFx`), and her
+freeing is a longer `bossDie` for her theme (`drawHatchFreed`: the eggs hatch and the little ones run to the sea).
 Big bosses can have `lines` (enter / phase / freed) that they say in a bubble and the chat: those five have them so far. `looks` on a boss picks how the shared beam
 and grid moves are drawn (the Warden's Keeper amber and roots; the Old Narwhal's jet of sea water; Sigrun's `shield` beam and `seam` grid), and `party` names the party mechanics a
 boss is built for (below: "Bosses that need a party"). Field bosses (no den;
@@ -230,6 +234,8 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | Pyra the Ember Phoenix (den, 110) | curse (burning), adds | a charred sigil with a red-hot rim and sparks flying up (`looks.curse: 'ember'`); her cinder bats in bigger flocks |
 | The Clockwork Colossus (den, `top`, 150) | armour, weakpoint (the core), pulse (steam), interrupt | riveted plates of dark bronze (`looks.shell: 'brass'`); its clock-gear heart opens as a spinning cyan gear (`weak.front`, `looks.weak: 'core'`); white steam rings and a plume off its stacks, "STEAM" (`looks.pulse: 'steam'`) |
 | The Bellower (field, 100; E1) | armour, focus | Ignis's basalt plates with a glowing seam (`looks.shell: 'cinder'`): the black sand on its back baked hard |
+| The Hatchkeeper (den, 115; E2) | weakpoint (the shard under her crest), pulse (the nest's heat), interrupt | the S5.2 crystal over her neck; Ignis's ember rings, "HEAT" (`looks.pulse: 'heat'`) |
+| Hundredfoot (field, 125; E2) | armour, pulse (the heat) | Ignis's basalt plates (`looks.shell: 'cinder'`): its clinker closing up; Ignis's ember rings, "HEAT" (`looks.pulse: 'heat'`) |
 | Greyback (field, 130; E1) | focus, curse (smouldering) | Pyra's charred sigil (`looks.curse: 'ember'`): his burning logs leave you smouldering |
 | Chronos, Keeper of Hours (den, `top`, 170) | barrier, curse (borrowed time), interrupt | a gold dome with hour marks and two clock hands turning inside (`looks.dome: 'hours'`); a dial of gold light on the floor, its hand sweeping round (`looks.curse: 'hours'`) |
 - **Swaps and additions:** Pyra has no `interrupt` (Rebirth's egg is its own answer; `interruptUlt` skips it). The

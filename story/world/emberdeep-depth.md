@@ -172,7 +172,7 @@ their own corner, and a life of their own.
 ## Bosses: which ones get a story
 Owner's rule (`island-depth.md`): big bosses get a story and `lines`; field bosses and elites get a name, a
 look and a line. Move the stories into `../characters/bosses.md` when they ship.
-- **The Hatchkeeper** (den, the Smoking Coast, ~Lv 115): a great black marine iguana. With a shard under
+- **The Hatchkeeper** (den, the Smoking Coast, ~Lv 115; shipped E2, story moved to `../characters/bosses.md`): a great black marine iguana. With a shard under
   her crest she keeps her clutch buried in sand the lava keeps hot, warm forever, so it never hatches and
   never leaves her. Holding on to her young (the same story as Eyvind and Liv, from the other side).
   Freed, the eggs hatch and the little ones run down to the sea. Ultimate from the landscape: the sand
@@ -233,9 +233,11 @@ up, then the party den (E4) and the final boss (E5); then atlas Phase 6.
       Pitch, the Kiln Stone, the Turning Stone, the Green Tree, the Kettle; waystone in the Ashwood. Lifts
       the bridge and the geyser; lays the Old Foundry's gate (the bricked-up adit) in the Ashwood.
       Shipped 2026-10-27 (the Black Sands room 54, the Ashwood room 55); the hot-spring herb skipped (`docs/ideas.md`).
-- [ ] **E2: the Smoking Coast** (100–115) and **the Drained Tubes** (115–125, hard), the Hatchkeeper's den
+- [x] **E2: the Smoking Coast** (100–115) and **the Drained Tubes** (115–125, hard), the Hatchkeeper's den
       (with lines), Liv and her shop, Hundredfoot, the Tubes' elites, the Landing Stone, Liv's Lookout,
       the Skylight; waystone on the Coast. Eyvind's, Skaldi's, Soot's and Arne's personas learn Liv's news.
+      Shipped 2026-10-28 (the Coast room 56, the Hatchkeeper's den 57, the Tubes room 58; `docs/places/coast.md`,
+      `docs/places/tubes.md`); the mini Hatchkeeper and mini Hundredfoot are their art shrunk (`docs/ideas.md`).
 - [ ] **E3: the Brimstone Fields** (125–140) and **the Old Foundry** (130–145, hard): the Brimstone Condor,
       Old Crucible, the Foundry's elites, Picker Ochre and her shop, the Breathing Stone, the Organ, the
       Pattern; waystone in the Fields. Lays the Rim's gate (the Bearers' stair) in the Fields.

@@ -69,6 +69,12 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    field boss) (`docs/places/blacksands.md`). New puddle style `steam` (the steam toad's trail).
 22. **The Ashwood**: E1, Emberdeep's branch up the charcoal road north of Cinder Flats (Lv 115–130, Greyback, a `lob`
    field boss, and Collier Pitch) (`docs/places/ashwood.md`). New shot style `log` (Greyback's burning log).
+23. **The Smoking Coast**: E2, Emberdeep's branch down the gully south of Cinder Flats (Lv 100–115, Liv; no field
+   boss: the Hatchkeeper's den comes with E2) (`docs/places/coast.md`). Pumice crabs `split` into pumice crumbs (kept
+   small); no new brains or styles.
+24. **The Drained Tubes**: E2's third piece, a hard pocket down the old lava tube in the Coast's sea cliff (Lv
+   115–125, elites of the clinker beetle and the tube adder, Hundredfoot, a `trail` field boss leaving burning lava)
+   (`docs/places/tubes.md`). The lava drip is a rooted `lob` like the pitcher plant; no new brains or styles.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

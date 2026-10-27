@@ -14,12 +14,15 @@ import { DEN_ART as SKERRIES_DENS, ENTRANCE_ART as SKERRIES_ENTRANCES, BOSS_ART 
 import { DEN_ART as QBRIDGE_DENS, ENTRANCE_ART as QBRIDGE_ENTRANCES, BOSS_ART as QBRIDGE_BOSSES } from './dens-qbridge.js';
 import { DEN_ART as LADON_DENS, BOSS_ART as LADON_BOSSES, FX2 as LADON_FX } from './dens-ladon.js';
 import { DEN_ART as FENRIR_DENS, BOSS_ART as FENRIR_BOSSES, FX2 as FENRIR_FX } from './dens-fenrir.js';
+import { DEN_ART as HATCH_DENS, ENTRANCE_ART as HATCH_ENTRANCES, BOSS_ART as HATCH_BOSSES, ULT_LOOKS as HATCH_ULT_LOOKS, HATCH_FREED_S, drawHatchFreed } from './dens-hatch.js';
 import { glow as radialGlow } from './glow.js';
 // the third and fourth stages' dens, bosses and boss effects live in their own files (same contracts as here)
-const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS, ...LADON_DENS, ...FENRIR_DENS };
-const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES, ...SPINE_ENTRANCES, ...SKERRIES_ENTRANCES, ...QBRIDGE_ENTRANCES };
-const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES, ...QBRIDGE_BOSSES, ...LADON_BOSSES, ...FENRIR_BOSSES };
+const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS, ...LADON_DENS, ...FENRIR_DENS, ...HATCH_DENS };
+const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES, ...SPINE_ENTRANCES, ...SKERRIES_ENTRANCES, ...QBRIDGE_ENTRANCES, ...HATCH_ENTRANCES };
+const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES, ...QBRIDGE_BOSSES, ...LADON_BOSSES, ...FENRIR_BOSSES, ...HATCH_BOSSES };
 const FX2 = { ...CALDERA_FX, ...CITADEL_FX, ...LADON_FX, ...FENRIR_FX };
+// a den's own look for a shared ultimate, by theme (the Hatchkeeper's Boiling Sand is the spores ult as boiling sand)
+const ULT_LOOKS = { ...HATCH_ULT_LOOKS };
 
 const GROUND = FIELD_GROUND; // den floors sit at the same height as the field
 const INK = '#5b4a6b';
@@ -2352,8 +2355,9 @@ const FXPAL = {
   hydra: { debris: ['#22301e', '#4e6a3e', '#e4dcc4', '#fbf6f0'], dust: '120,140,100', crack: '#1a1612', warn: '255,96,110', jelly: ['#7aa05e', '#34482c', '#fbf6f0', '#c8f0a0'] }, // (Ladon's den, FB1)
   floe: { debris: ['#f4f8fc', '#cfe6f4', '#8ab8d8', '#f4ecd8'], dust: '220,236,248', crack: '#2e5a7e', warn: '255,96,120', jelly: ['#cfe6f4', '#f4f8fc', '#8ab8d8', '#f4ecd8'] },
   oath: { debris: ['#f4f8ff', '#e2f0fc', '#b4d4f0', '#d8dce8'], dust: '226,238,252', crack: '#3e6294', warn: '255,96,120', jelly: ['#e2f0fc', '#d8dce8', '#8ab8e0', '#f4f8ff'] },
+  hatch: { debris: ['#2e2a32', '#4a4450', '#ff8a4a', '#eeeae4'], dust: '150,130,126', crack: '#ff7a3a', warn: '255,96,110', jelly: ['#3a3440', '#e8dcc4', '#ff9a5a', '#9adce8'] }, // (the Hatchkeeper's den, E2)
 };
-const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250', oath: '190,226,255', hydra: '170,230,120', wolf: '200,226,255' };
+const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250', oath: '190,226,255', hydra: '170,230,120', wolf: '200,226,255', hatch: '255,160,110' };
 const DUR = {
   slamWarn: 1, shockwave: 0.55, chargeWarn: 0.8, rainWarn: 1, rainHit: 0.45, summon: 0.9, roar: 0.8, bossDie: 1.6,
   leap: 1.1, phase: 1.5,
@@ -2382,6 +2386,7 @@ export class BossFx {
     if (!(kind in DUR)) return;
     const theme = FXPAL[o.theme] ? o.theme : 'sprout';
     let dur = o.dur ?? DUR[kind];
+    if (kind === 'bossDie' && theme === 'hatch') dur = HATCH_FREED_S; // (freed: the eggs hatch and the little ones run to the sea)
     if (kind === 'waveGo') {
       const x0 = o.x0 ?? 0, dir = o.dir < 0 ? -1 : 1, speed = Math.max(50, o.speed ?? 520);
       dur = (dir > 0 ? DEN_W + 260 - x0 : x0 + 260) / speed;
@@ -2442,7 +2447,10 @@ export class BossFx {
         case 'rainHit': fxRainHit(ctx, e, k); break;
         case 'summon': fxSummon(ctx, e, k); break;
         case 'roar': fxRoar(ctx, e, k); break;
-        case 'bossDie': fxBossDie(ctx, e, k); break;
+        case 'bossDie':
+          fxBossDie(ctx, e, Math.min(1, e.t / DUR.bossDie));
+          if (e.theme === 'hatch') drawHatchFreed(ctx, e);
+          break;
         default: drawUltFx(ctx, e, k);
       }
       ctx.restore();
@@ -2509,6 +2517,23 @@ function drawBit(ctx, theme, x, y, rot, s, c) {
       circle(ctx, 0, 0, 2.6);
     } else {
       ctx.fillStyle = c;
+      ctx.beginPath();
+      ctx.moveTo(-5, 2);
+      ctx.lineTo(-2, -4);
+      ctx.lineTo(4, -3);
+      ctx.lineTo(5, 3);
+      ctx.closePath();
+      ctx.fill();
+    }
+  } else if (theme === 'hatch') {
+    // a chip of black basalt, a hot ember, or a fleck of salt
+    if (c === '#ff8a4a') {
+      glow(ctx, 0, 0, 9, 9, '255,150,90', 0.6);
+      ctx.fillStyle = c;
+      circle(ctx, 0, 0, 2.6);
+    } else if (c === '#eeeae4') {
+      circle(ctx, 0, 0, 2);
+    } else {
       ctx.beginPath();
       ctx.moveTo(-5, 2);
       ctx.lineTo(-2, -4);
@@ -2842,6 +2867,31 @@ function drawFallObj(ctx, theme, x, y, s, rot, time) {
       ctx.lineTo(4 + Math.cos(a) * 7, 2 + Math.sin(a) * 7);
     }
     ctx.stroke();
+  } else if (theme === 'hatch') {
+    // a lump of hot black rock spat up out of the sand, red in its cracks, trailing steam
+    ctx.fillStyle = 'rgba(240,234,230,0.4)';
+    circle(ctx, -4, -18, 7);
+    circle(ctx, 2, -28, 5);
+    ctx.fillStyle = '#2e2a32';
+    ctx.strokeStyle = '#141018';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-13, 3);
+    ctx.quadraticCurveTo(-14, -10, -2, -12);
+    ctx.quadraticCurveTo(12, -12, 13, 0);
+    ctx.quadraticCurveTo(12, 11, 0, 11);
+    ctx.quadraticCurveTo(-12, 11, -13, 3);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = `rgba(255,130,60,${0.7 + 0.3 * Math.sin(time * 9)})`;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(-8, -2);
+    ctx.lineTo(-1, 2);
+    ctx.lineTo(3, -6);
+    ctx.moveTo(-1, 2);
+    ctx.lineTo(6, 6);
+    ctx.stroke();
   } else if (theme === 'knot') {
     // a clod of earth shaken loose from the roof, a root and a glowing thread trailing from it
     ctx.fillStyle = '#6a5048';
@@ -2977,7 +3027,7 @@ function fxSummon(ctx, e, k) {
   const open = Math.sin(Math.PI * Math.min(1, k * 1.15));
   const rx = 40 * open, ry = 12 * open;
   glow(ctx, x, y - 20, 60 * open + 1, 50 * open + 1, rgb, 0.6);
-  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30', tide: '#1e4a58', knot: '#2a1e2c', warden: '#4e4a5e', floe: '#1e3e5a', oath: '#2e4e78' }[theme] ?? '#1c1020';
+  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30', tide: '#1e4a58', knot: '#2a1e2c', warden: '#4e4a5e', floe: '#1e3e5a', oath: '#2e4e78', hatch: '#1a1416' }[theme] ?? '#1c1020';
   ellipse(ctx, x, y + 2, rx + 0.1, ry + 0.1);
   ctx.strokeStyle = `rgba(${rgb},0.9)`;
   ctx.lineWidth = 3;
@@ -3004,7 +3054,7 @@ function fxSummon(ctx, e, k) {
 
 function fxRoar(ctx, e, k) {
   const { x, y, theme } = e;
-  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255', tide: '140,220,240', knot: '170,250,225', warden: '255,200,110', floe: '190,225,250', oath: '190,226,255' }[theme] ?? '255,140,80';
+  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255', tide: '140,220,240', knot: '170,250,225', warden: '255,200,110', floe: '190,225,250', oath: '190,226,255', hatch: '255,150,90' }[theme] ?? '255,140,80';
   for (let i = 0; i < 3; i++) {
     const j = clamp(k * 1.4 - i * 0.18, 0, 1);
     if (j <= 0 || j >= 1) continue;
@@ -4183,6 +4233,8 @@ function initUltFx(e, r) {
 }
 
 function drawUltFx(ctx, e, k) {
+  const own = ULT_LOOKS[e.theme]?.[e.kind];
+  if (own) return own(ctx, e, k);
   switch (e.kind) {
     case 'leap': return fxLeap(ctx, e, k);
     case 'phase': return fxPhase(ctx, e, k);

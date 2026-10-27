@@ -38,7 +38,7 @@ climb east, higher and harder.
   and trades (`SHOPS.eyvind`): potions, the Ice-Cutter's Cleaver, the Glacier Staff and the Ice-Cutter's
   Cap, aimed at Lv 66. Narrow lore (Tier 0 plus the glacier). His life: his daughter Liv sailed south on
   the Lodestar's last voyage and hasn't come home; he wrote her a letter a month for when ships sailed again,
-  and since atlas Phase 5 the whole box has gone south with Arne (no answer yet; Liv is found in E2).
+  and since atlas Phase 5 the whole box has gone south with Arne (since E2 her answer has come back: she's alive on the Smoking Coast and stays, `docs/places/coast.md`).
   Skaldi, Runa and Tove's personas know him and the glacier.
 
 ## Mobs (on the frozen curve; legacy brains)

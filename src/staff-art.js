@@ -70,6 +70,13 @@ export const STAFFS = {
   deadwood_staff: { len: 64, shaft: ['#4a4248', '#24202a'], w: 3, head: 'twig', gem: '#ff8a4a', gem2: '#3a3238', glow: '255,140,80' },
   foxember_staff: { len: 64, shaft: ['#8a8490', '#4e4a56'], w: 2.8, head: 'ember', gem: '#5a5058', gem2: '#ff6a3a', glow: '255,120,70' },
   brand_staff: { len: 70, shaft: ['#3a3236', '#1a1618'], w: 3.4, head: 'ember', gem: '#2a2426', gem2: '#ffa050', glow: '255,160,90' },
+  // the Smoking Coast (E2, docs/places/coast.md)
+  quench_staff: { len: 64, shaft: ['#7a7884', '#3e3c48'], w: 2.8, head: 'crystal', gem: '#1e1c26', gem2: '#9adce8', glow: '170,225,240' },
+  scaldbarb_staff: { len: 66, shaft: ['#8a8490', '#4a4652'], w: 2.8, head: 'crystal', gem: '#2a2430', gem2: '#f0f0f0', glow: '235,240,245' },
+  // the Drained Tubes (E2, docs/places/tubes.md)
+  adderglass_staff: { len: 64, shaft: ['#8a8490', '#4a4652'], w: 2.8, head: 'crystal', gem: '#1e1a22', gem2: '#ff6a4a', glow: '255,120,90' },
+  hundred_staff: { len: 70, shaft: ['#3e383e', '#1c181e'], w: 3.2, head: 'ember', gem: '#2a2428', gem2: '#ff8a3a', glow: '255,140,70' }, // (Hundredfoot's: jointed segments)
+  nestfire_staff: { len: 68, shaft: ['#6a6470', '#2e2a32'], w: 3, head: 'ember', gem: '#1e1c26', gem2: '#ff9a5a', glow: '255,160,110' }, // (the Hatchkeeper's: a black-glass egg, an ember inside)
 };
 export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));
 export const staffGlow = (id) => STAFFS[artOf(id)]?.glow ?? '190,200,255';

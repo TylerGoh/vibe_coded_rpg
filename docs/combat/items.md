@@ -136,6 +136,14 @@ staff and a bow twin, so `twinPick` can give each class its own kind (checked by
   Pitch** (`SHOPS.pitch`: the basic potions, the **Collier's Axe** with its **Deadwood Staff** and **Charcoal Bow**,
   and the **Collier's Hood**, aimed at Lv 122) and its drops in `src/ashwood-art.js` (`ASH_*`): Emberfang / Fox-Ember
   Staff, the Ironbark Helm, Greyback's Brand / Smoulder Staff and the Greyback Helm (`docs/places/ashwood.md`).
+  E2's Smoking Coast adds **Liv** (`SHOPS.liv`: the basic potions, the **Glasscutter's Blade** with its **Quenchglass
+  Staff** and **Glasscutter's Bow**, and the **Smoked-Glass Visor**, aimed at Lv 108) and its drops in
+  `src/coast-art.js` (`COAST_*`): the Pillow-Lava Helm and Scaldbarb / Scaldbarb Staff, and the Hatchkeeper's den's
+  **Black Crest Blade** / **Nestfire Staff** / **Black Crest Bow** and **Clutchkeeper Helm** (Lv 116, 9 slots) with
+  her Hatchling Eggshells (`docs/places/coast.md`). E2's Drained Tubes (no trader) drop, from `src/tubes-art.js`
+  (`TUBES_*`), the Clinker Helm and Adderglass / Adderglass Staff / Adderglass Bow at their mobs' levels, and
+  Hundredfoot's **Hundredfoot Saw** / **Hundredfoot Staff** / **Hundredfoot Bow** and **Hundredfoot Helm** (Lv 127, a
+  step over) (`docs/places/tubes.md`).
   Emberdeep's gear names: basalt, black glass, iron, slag,
   charcoal, sulphur, ember, never ice, fur, shell or leaf.
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an

@@ -182,6 +182,35 @@ Same pass, an id clash fixed: the Queen's Bridge's leopard seal whisker shared `
 seal, and the later entry (760) replaced the ice seal's (470): the ice seal's kill read 122% of the curve's gold. Now
 `leopard_whisker`; the ice seal is back at 105%, and "gold earned by" Lv 60–100 is ~4k lower.
 
+## Emberdeep's depth pass, E2: the Smoking Coast (2026-10-28)
+The Smoking Coast (`docs/places/coast.md`) put five mobs on the curve at Lv 101–113 (marine iguana ~92% HP for a
+passive mob, ashfoot booby 93%, rock lobster 124% like the other `shell` mobs, pumice crab 96%, steam ray 94%; EXP 100%,
+gold 102–103%). The pumice crab's crumbs (`split`) are small, about an eighth of the crab's EXP each, and unchecked by
+the script. "Farming your own level" from 101 to 115 now picks them over Magma Heart's legacy mobs, which pay a little
+less per EXP: **gold earned by** Lv 120 ~4.37M → ~4.41M, Lv 150 ~9.01M → ~9.06M, Lv 200 ~22.30M → ~22.35M; **play
+time** to Lv 120 14.1 h → 14.0 h, to Lv 150 21.6 h → 21.4 h (target 20.4 h), to Lv 200 38.2 h → 38.1 h. Side effect:
+camping Pyra (Lv 110) reads 0.66× / 3.79× an hour of farming (was 0.71× / 4.54×) and her pet ~18 min at her level
+(was 22), both still in band. **Liv**'s tier, aimed at Lv 108 (`lvl` 104 on the gear curve): the Glasscutter's Blade
+(and its staff and bow twins) 168k, ~21 min at the aim, the Smoked-Glass Visor 132k, ~16 min. Gear drops on the curve
+at their mob's level: the Pillow-Lava Helm (`helmetPrice` at Lv 107), Scaldbarb with its twins (`swordPrice` at Lv
+113). No field boss, so no new pet; the Hatchkeeper's den (E2's second piece) brings the Coast's big reward and a pet
+to fit between Pyra's and the Colossus's.
+**The Hatchkeeper** (E2's second piece, den 57, Lv 115): an ordinary den modelled on the Old Narwhal's and Pyra's, HP
+set so the sheet solos her in a median ~15:20 (knight 16:40, berserker 13:02, elementalist 14:54, frostbinder 15:46,
+priest 19:45, sniper 10:28, trapper 14:03, warden 18:18; DEN_SOLO_MIN). Her EXP camps at 0.67× / 4.06× an hour of
+farming (Pyra 0.66×, under `BOSS_CAMP_MAX`); a kill pays ~583k (~24× a minute of farming, like the other dens): coins
+~198k and Hatchling Eggshells (a few minutes of farming), the Black Crest Blade and its twins (Lv 116, 640k) and the
+Clutchkeeper Helm (Lv 116, 470k), all within `GEAR_FIT`. Her pet is 160k, between Pyra's and Fenrir's (~18 min at
+her level). Den kills aren't in "farming your own level", so gold earned by and play time didn't move.
+**The Drained Tubes** (E2's third piece, `docs/places/tubes.md`, a hard pocket): four mobs on the curve at Lv 116–124
+(clinker beetle 124% HP like the other `shell` mobs, tube adder 95%, lava drip 90% for a rooted shooter, cinder moth
+95%; EXP 100%, gold 103–104%) and two elites from `elite()`. "Farming your own level" barely moved (the Ashwood's mobs
+already sat at these levels): gold earned by Lv 150 ~9.0564M → ~9.0570M, Lv 200 ~22.3486M → ~22.3492M; play time
+unchanged. **Hundredfoot** (field, Lv 125, modelled on Greyback): the sheet solos it in a median ~4:20
+(`FIELD_SOLO_MIN`), and a kill pays 1.50× / 1.52× a minute of its fight in farming gold / EXP (`FIELD_PAY`). Gear on the
+curve: the Clinker Helm (`helmetPrice` at Lv 117), Adderglass and twins (`swordPrice` at Lv 119), Hundredfoot's Saw and
+twins and Helm at Lv 127. Its pet is 178k, between Fenrir's (Lv 120) and Greyback's (Lv 130), ~18 min at its level.
+
 ## The levelling rebalance, L1 and L2 (2026-10-23, `story/progression.md`)
 **L1, the pace.** `expToNext` = the larger of the old curve and `LEVEL_MIN(L)` minutes of `KILLS_PER_MIN` kills
 of the frozen curve's EXP at L (owner's curve "A": `0.5·L^0.65` minutes up to Lv 100, then `L/10`). Mobs and

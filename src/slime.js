@@ -15,6 +15,7 @@ import { drawRangerDress } from './canopy-art.js';
 import { drawIcecutterDress } from './glacier-art.js';
 import { drawBonecarverDress } from './skerries-art.js';
 import { drawCollierDress } from './ashwood-art.js';
+import { THIN_PALETTE, drawThinFolk, drawGlasscutterDress } from './coast-art.js';
 import { drawPetkeeperDress } from './pet-art.js';
 
 // yr's laptop notifications: icon colours, and how long each one floats
@@ -111,12 +112,14 @@ export class Slime {
 
   // Another island's people (story/characters/people.md): 'fjord' = Frostpeak's fjord folk, pale and
   // frosted, half-solid in the cold, with a slow wobble; 'forge' = Emberdeep's forge folk, dark, dense and
-  // ember-flecked, just as stiff (lively: a child or a youngster, who still bounces)
+  // ember-flecked, just as stiff (lively: a child or a youngster, who still bounces); 'thinned' = fjord folk thinned
+  // nearly clear by years of heat (Liv, docs/places/coast.md): see-through, a cool glint or two, the same slow wobble
   setFolk(folk, lively = false) {
     this.folk = folk;
     this.lively = lively;
     if (folk === 'fjord') this.palette = FOLK_PALETTE(this.hue);
     if (folk === 'forge') this.palette = FORGE_PALETTE(this.hue);
+    if (folk === 'thinned') this.palette = THIN_PALETTE(this.hue);
   }
 
   setName(name) {
@@ -497,6 +500,7 @@ export class Slime {
       bodyPath(ctx, w, h);
       ctx.clip();
       if (this.folk === 'fjord') drawFolk(ctx, w, h, this.t);
+      else if (this.folk === 'thinned') drawThinFolk(ctx, w, h, this.t);
       else drawForgeFolk(ctx, w, h, this.t);
       ctx.restore();
     }
@@ -1002,6 +1006,7 @@ export class Slime {
     if (this.has('icecutter')) drawIcecutterDress(ctx, w, h, fx, this.t); // the Rimeglass Glacier's Ice-Cutter Eyvind
     if (this.has('bonecarver')) drawBonecarverDress(ctx, w, h, fx, this.t); // the Whale Skerries' Hakon
     if (this.has('collier')) drawCollierDress(ctx, w, h, fx, this.t); // the Ashwood's Collier Pitch
+    if (this.has('glasscutter')) drawGlasscutterDress(ctx, w, h, fx, this.t); // the Smoking Coast's Liv
     if (this.has('petkeeper')) drawPetkeeperDress(ctx, w, h, fx, this.t, bodyPath); // the Pet Shop's Auntie Clover
     if (this.has('captain')) {
       // Captain Brine: a salt-white beard, a navy captain's cap with a gold anchor badge, and a brass spyglass

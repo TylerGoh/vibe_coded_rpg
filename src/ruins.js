@@ -1,4 +1,4 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md, docs/places/blacksands.md, docs/places/ashwood.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md, docs/places/blacksands.md, docs/places/ashwood.md, docs/places/coast.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
@@ -8,13 +8,14 @@
 // Stone at the top of the steps on the Aurora Heights and the Strait Stone at the head of the ice stair onto the
 // Queen's Bridge, which may say a little more: Frostpeak's tier is canon Tier 2; on Emberdeep, the Turning Stone on
 // the Black Sands' beach path, which shows its tier without naming anything: a dial, islands, going round, and the Kiln Stone in
-// the Ashwood's clearing: trees, fire, iron, a toothed wheel). Wreck Cave has the one reading here that isn't a stone: the
+// the Ashwood's clearing: trees, fire, iron, a toothed wheel, and the Landing Stone on the Smoking Coast's Glass Beach: a
+// loading quay, gear-teeth on barges, a tally with its last mark half cut). Wreck Cave has the one reading here that isn't a stone: the
 // wrecked ship's logbook (`wing` and `when` change the card's header lines). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X, COAST, COAST_STONE_X } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -128,6 +129,12 @@ export const RUIN_STONES = [
     legible: ['...FROM THE GREEN...', '...TO THE FIRE, TO THE IRON, TO THE WHEEL...', 'Under the stand of trees, apart from the rest, one small sapling is cut, and no arrow leads away from it.'],
     note: 'A page torn from a ledger is weighted under a pebble at its foot: a column of small numbers, in a slow hand, each a little bigger than the one above.',
   },
+  {
+    room: COAST, place: 'the Smoking Coast', x: COAST_STONE_X, shape: 'landing', name: 'the Landing Stone', title: 'The Landing Stone',
+    look: "A squat Keeper stone at the top of the beach, worn smooth on one side where ropes once ran over it: a quay's mooring stone, though the quay is long gone under new black rock. Its face shows a quay, and barges lying along it, each loaded with great toothed blocks stacked like loaves. A line of the barges is cut heading out to sea.",
+    legible: ['...LOADED. LOADED. LOADED...', 'Down the side runs a tally: rows of short strokes, five and five and five. The last stroke is only half cut, as if the hand stopped in the middle of it.', 'The last barge in the line has no teeth on it.'],
+    note: 'A rope of plaited black fibre is tied round the stone, newer than anything else on the beach, and a small iron ring hangs off it. Someone moors something here.',
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -157,7 +164,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone, landing: drawLandingStone })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -1316,4 +1323,103 @@ function drawKilnStone(ctx, time, glow) {
     }
     ctx.stroke();
   }
+}
+
+// The Landing Stone (the Smoking Coast, E2): a squat mooring stone, rope-worn on one side; on its face a quay with
+// barges along it, each loaded with toothed blocks, the last barge empty; a tally down the side, its last stroke
+// half cut. A newer black-fibre rope round it with an iron ring (Liv moors her raft here)
+function drawLandingStone(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(40,25,60,0.18)';
+  ellipse(ctx, 0, 0, 78, 8);
+  slab(ctx, -66, -92, 132, 94, 16);
+  // the rope-worn groove over its shoulder
+  ctx.fillStyle = STONE_DARK;
+  ctx.beginPath();
+  ctx.moveTo(40, -92);
+  ctx.quadraticCurveTo(58, -88, 66, -66);
+  ctx.lineTo(62, -60);
+  ctx.quadraticCurveTo(54, -80, 36, -86);
+  ctx.closePath();
+  ctx.fill();
+  const ink = glow ? '#c9a24a' : CARVE;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
+  ctx.lineWidth = 1.6;
+  ctx.lineCap = 'round';
+  // the quay: a long line with bollards
+  ctx.beginPath();
+  ctx.moveTo(-54, -34);
+  ctx.lineTo(28, -34);
+  for (const bx of [-46, -20, 6]) {
+    ctx.moveTo(bx, -34);
+    ctx.lineTo(bx, -39);
+  }
+  ctx.stroke();
+  // barges along it, toothed blocks stacked on all but the last
+  const barge = (x, y, loaded) => {
+    ctx.beginPath();
+    ctx.moveTo(x - 11, y);
+    ctx.lineTo(x + 11, y);
+    ctx.lineTo(x + 8, y + 5);
+    ctx.lineTo(x - 8, y + 5);
+    ctx.closePath();
+    ctx.stroke();
+    if (!loaded) return;
+    for (const [dx, dy] of [[-5, -4], [3, -4], [-1, -9]]) {
+      ctx.beginPath();
+      ctx.moveTo(x + dx - 3, y + dy + 4);
+      ctx.lineTo(x + dx - 2, y + dy);
+      ctx.lineTo(x + dx, y + dy + 1.5);
+      ctx.lineTo(x + dx + 2, y + dy);
+      ctx.lineTo(x + dx + 3, y + dy + 4);
+      ctx.stroke();
+    }
+  };
+  barge(-40, -28, true);
+  barge(-14, -28, true);
+  barge(12, -28, true);
+  // a line of them heading out to sea, smaller, the last one empty
+  barge(-30, -62, true);
+  barge(-6, -66, true);
+  barge(18, -70, false);
+  ctx.lineWidth = 1;
+  ctx.beginPath(); // waves under them
+  for (let x = -50; x < 34; x += 8) {
+    ctx.moveTo(x, -52 - (x + 50) * 0.08);
+    ctx.quadraticCurveTo(x + 2, -55 - (x + 50) * 0.08, x + 4, -52 - (x + 50) * 0.08);
+  }
+  ctx.stroke();
+  // the tally down the side: fives, and the last stroke half cut
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  for (let row = 0; row < 6; row++) {
+    const y = -80 + row * 11;
+    const n = row < 5 ? 5 : 3;
+    for (let k = 0; k < n; k++) {
+      const x = 40 + k * 3.4;
+      const half = row === 5 && k === n - 1;
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y + (half ? 3.5 : 7));
+    }
+    if (row < 5) {
+      ctx.moveTo(38, y + 6);
+      ctx.lineTo(56, y + 1);
+    }
+  }
+  ctx.stroke();
+  scratches(ctx, -50, -16, 70, 1, 97, glow);
+  // salt crust round its foot, and the new black-fibre rope with its iron ring
+  ctx.fillStyle = 'rgba(240,236,228,0.6)';
+  for (const [x, r] of [[-60, 6], [-40, 4], [52, 5], [64, 4]]) ellipse(ctx, x, -2, r * 2, 2.5);
+  ctx.strokeStyle = '#2a2428';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-66, -52);
+  ctx.quadraticCurveTo(0, -44, 66, -54);
+  ctx.stroke();
+  ctx.strokeStyle = '#7a7480';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(-58, -42 + Math.sin(time * 1.3) * 0.8, 5, 0, TAU);
+  ctx.stroke();
 }

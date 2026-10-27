@@ -67,6 +67,13 @@ export const BOWS = {
   // the Ashwood (E1, docs/places/ashwood.md)
   charcoal_bow: { len: 30, wood: ['#4a4248', '#24202a'], w: 3.6, tip: 'nock', grip: '#6a5040', gem: '#ff8a4a', string: '#d8ccb8', glow: '255,150,90' },
   emberfang_bow: { len: 30, wood: ['#8a8490', '#4e4a56'], w: 3.2, tip: 'ember', c: '#ff6a3a', grip: '#7a7270', string: '#d8c8b8', glow: '255,120,70', curve: 0.42 },
+  // the Smoking Coast (E2, docs/places/coast.md)
+  glasscutter_bow: { len: 30, wood: ['#7a7884', '#3e3c48'], w: 3.2, tip: 'fang', c: '#1e1c26', grip: '#5a4a40', gem: '#9adce8', string: '#d8ccbc', glow: '170,225,240' },
+  scaldbarb_bow: { len: 31, wood: ['#8a8490', '#4a4652'], w: 3.4, tip: 'fang', c: '#2a2430', grip: '#6a5a50', gem: '#f0f0f0', string: '#d0c8c0', glow: '235,240,245', curve: 0.44 },
+  crest_bow: { len: 33, wood: ['#3a3440', '#1a161e'], w: 3.6, tip: 'fang', c: '#8a8290', grip: '#6a3a30', gem: '#ffb07a', string: '#d8ccbc', glow: '255,160,110' }, // (the Hatchkeeper's: her crest's spines)
+  // the Drained Tubes (E2, docs/places/tubes.md)
+  adderglass_bow: { len: 30, wood: ['#2a2430', '#141018'], w: 3.2, tip: 'fang', c: '#1e1a22', grip: '#6a3a30', gem: '#ff6a4a', string: '#d8c8b8', glow: '255,120,90', curve: 0.44 },
+  hundred_bow: { len: 32, wood: ['#3e383e', '#1c181e'], w: 4, tip: 'rivet', c: '#5a5258', grip: '#7a4a30', gem: '#ff8a3a', string: '#c8b8a8', glow: '255,140,70', curve: 0.4 },
   greyback_bow: { len: 32, wood: ['#3a3236', '#1a1618'], w: 4, tip: 'fang', c: '#2a2426', grip: '#7a7478', gem: '#ffa050', string: '#c8b8a8', glow: '255,160,90', curve: 0.38 },
   bellower_bow: { len: 31, wood: ['#5a5058', '#2e2830'], w: 3.8, tip: 'rivet', c: '#a8a0a8', grip: '#3a3038', gem: '#ffb46a', string: '#c8b8a8', glow: '255,170,110', curve: 0.36 },
 };

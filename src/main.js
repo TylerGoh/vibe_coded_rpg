@@ -18,7 +18,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
+import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
 import { drawHighlands, drawSummitLookout } from './highlands.js';
 import { drawCaldera } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
@@ -66,6 +66,8 @@ import { drawBlueHalls } from './bluehalls.js';
 import { drawQueensBridge } from './qbridge.js';
 import { drawBlackSands } from './blacksands.js';
 import { drawAshwood } from './ashwood.js';
+import { drawCoast } from './coast.js';
+import { drawTubes } from './tubes.js';
 import { wayAt, wayById, sameIsle } from './shared/waystones.js';
 import { drawWaystones, wayPrompt, wayBeacons, WayCard, shimmer } from './waystones.js';
 import { PoolCard, NewsBanner, newsFor, nearPool, poolSplash } from './rebirth.js';
@@ -1563,6 +1565,8 @@ function render() {
     else if (room === QBRIDGE) drawQueensBridge(ctx, camX, W, time);
     else if (room === BLACKSANDS) drawBlackSands(ctx, camX, W, time);
     else if (room === ASHWOOD) drawAshwood(ctx, camX, W, time);
+    else if (room === COAST) drawCoast(ctx, camX, W, time);
+    else if (room === TUBES) drawTubes(ctx, camX, W, time);
     else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
       if (near(SUMMIT_LOOKOUT_X)) drawSummitLookout(ctx, SUMMIT_LOOKOUT_X, ROOMS[HIGHLANDS].ground, time);

@@ -35,7 +35,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 4500; // (the plinths need about 4400 since the mini Greyback (E1): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 4860; // (the plinths need about 4740 since the mini Hundredfoot (E2): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -69,7 +69,7 @@ export const CALDERA_EXIT_X = 70; // back down the road to Forgehold
 export const SUMMIT_LOOKOUT_X = 3950; // where the pass used to go down, at Starfall Summit's east end
 // Emberdeep's branches' blocked ways in (EMBERDEEP in branches.js; docs/places/branches.md), in Cinder Flats
 // and Magma Heart, and the grounded balloon by the thermal column (atlas Phase 6)
-export const COAST_GATE_X = 1190; // the gully south to the Smoking Coast (a fresh lava tongue across it)
+export const COAST_GATE_X = 1190; // the gully south to the Smoking Coast (its lava tongue crusted hard and stepped in E2)
 export const ASHWOOD_GATE_X = 1690; // the old charcoal road north to the Ashwood (its iron bridge hauled back up in E1)
 export const BRIMSTONE_GATE_X = 3270; // up the cone's flank to the Brimstone Fields (the vent field fuming)
 export const BALLOON_X = 3745; // the balloon in its cradle, deflated
@@ -704,6 +704,71 @@ export const ASH_PLATFORMS = [
   { x: 4560, y: 334, w: 150, kind: 'hut' }, // Pitch's turf hut roof
   { x: 1985, y: 168, w: 100, kind: 'greentree' }, // the Green Tree, in a hollow high over the Charcoal Stands: easy to miss
 ];
+// ——— Emberdeep's depth pass, E2: the Smoking Coast (docs/places/coast.md) ———
+// The Smoking Coast (room 56): where the lava still runs into the sea, down the gully south off Cinder Flats
+// (COAST_GATE_X, where the lava tongue crusted over). Pillow lava, steam walls, new black land being made (the one
+// place in the game where land grows), warm surf. You come in at the EAST end (COAST_EXIT_X) and walk west toward
+// the lava: the Glass Beach (no mobs: Liv's shelter, a waystone, the Landing Stone), the Warm Surf, the Pillow
+// Shelf and the Lava Front, where the flows meet the sea. Reserved for E2's later pieces: the Hatchkeeper's den
+// mouth near the far west end (HATCH_DEN_X, the nesting sand; her den, room HATCH_DEN, shipped as E2's second
+// piece) and the old lava-tube mouth in the sea cliff to the Drained Tubes (TUBES_GATE_X, a gate in branches.js
+// until the Tubes ship). Liv's Lookout, on top of the tallest sea stack in the Pillow Shelf (last in
+// COAST_PLATFORMS), is the find.
+export const COAST = 56; // room id
+export const COAST_W = 5400;
+export const COAST_EXIT_X = COAST_W - 70; // back up the gully to Cinder Flats
+export const LIV_X = 4520; // Liv, at her glass-cutting shelter (she trades: SHOPS)
+export const COAST_STONE_X = 4930; // the Landing Stone
+export const HATCH_DEN_X = 330; // the Hatchkeeper's nesting sand at the far west end: the way into her den
+export const HATCH_DEN = 57; // her den's room id (E2's second piece: The Buried Clutch, a DENS row; docs/places/coast.md)
+export const TUBES_GATE_X = 1090; // the old lava-tube mouth in the sea cliff, to the Drained Tubes (a gate until they ship)
+export const COAST_ZONES = [
+  { name: 'The Lava Front', x0: 0, x1: 1500, lvl: '110–115' },
+  { name: 'The Pillow Shelf', x0: 1500, x1: 2900, lvl: '105–110' },
+  { name: 'The Warm Surf', x0: 2900, x1: 4200, lvl: '100–105' },
+  { name: 'The Glass Beach', x0: 4200, x1: COAST_W, lvl: null }, // (no mobs)
+];
+export const COAST_PLATFORMS = [
+  { x: 560, y: 338, w: 190, kind: 'flow' },
+  { x: 850, y: 254, w: 170, kind: 'flow' },
+  { x: 1270, y: 340, w: 180, kind: 'pillow' },
+  { x: 1620, y: 342, w: 190, kind: 'pillow' },
+  { x: 1980, y: 258, w: 160, kind: 'stack' },
+  { x: 2310, y: 340, w: 200, kind: 'pillow' },
+  { x: 2590, y: 256, w: 150, kind: 'stack' }, // a shoulder of the tallest stack: the way up to Liv's Lookout
+  { x: 3060, y: 342, w: 200, kind: 'pillow' },
+  { x: 3460, y: 262, w: 180, kind: 'stack' },
+  { x: 3820, y: 340, w: 190, kind: 'pillow' },
+  { x: 4600, y: 334, w: 150, kind: 'shelter' }, // Liv's shelter roof
+  { x: 2700, y: 168, w: 96, kind: 'lookout' }, // Liv's Lookout, on top of the tallest stack: easy to miss
+];
+// ——— Emberdeep's depth pass, E2 (piece 3): the Drained Tubes (docs/places/tubes.md) ———
+// The Drained Tubes (room 58, a hard pocket): old lava tubes, long cold, running down into the Coast's old sea cliff
+// through the tube mouth at TUBES_GATE_X (the steam that roared out of it until E2 drained away). Glassy walls, roof
+// skylights, lava still dripping from the roof in places and setting where it lands. You come in at the EAST end
+// (TUBES_EXIT_X, at the foot of the old steps down) and go west, deeper: the Tube Mouth (no mobs), the Glass
+// Galleries and the Deep Tube, where Hundredfoot runs. The Skylight, a ledge high under a hole in the roof with the
+// island's thermal column in view (last in TUBES_PLATFORMS), is the find. No waystone (a hard pocket), no trader.
+export const TUBES = 58; // room id
+export const TUBES_W = 4400;
+export const TUBES_EXIT_X = TUBES_W - 70; // back up the old steps to the Smoking Coast
+export const TUBES_ZONES = [
+  { name: 'The Deep Tube', x0: 0, x1: 1800, lvl: '120–125' },
+  { name: 'The Glass Galleries', x0: 1800, x1: 3800, lvl: '115–120' },
+  { name: 'The Tube Mouth', x0: 3800, x1: TUBES_W, lvl: null }, // (no mobs)
+];
+export const TUBES_PLATFORMS = [
+  { x: 260, y: 340, w: 200, kind: 'ledge' },
+  { x: 640, y: 256, w: 190, kind: 'ledge' },
+  { x: 1000, y: 340, w: 210, kind: 'ledge' },
+  { x: 1380, y: 256, w: 210, kind: 'ledge' }, // under the roof-hole: the way up to the Skylight
+  { x: 1980, y: 340, w: 210, kind: 'ledge' },
+  { x: 2380, y: 256, w: 200, kind: 'ledge' },
+  { x: 2780, y: 340, w: 210, kind: 'ledge' },
+  { x: 3180, y: 256, w: 200, kind: 'ledge' },
+  { x: 3520, y: 340, w: 190, kind: 'ledge' },
+  { x: 1440, y: 166, w: 96, kind: 'skylight' }, // the Skylight, high under a hole in the roof: easy to miss
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -730,6 +795,8 @@ export const STAGES = {
   [OLDICE]: { name: 'The Old Ice', zones: OLDICE_ZONES, band: '90–100', hard: true },
   [BLACKSANDS]: { name: 'The Black Sands', zones: SANDS_ZONES, band: '90–100', pill: 'Black Sands' },
   [ASHWOOD]: { name: 'The Ashwood', zones: ASH_ZONES, band: '115–130' },
+  [COAST]: { name: 'The Smoking Coast', zones: COAST_ZONES, band: '100–115', pill: 'Smoking Coast' },
+  [TUBES]: { name: 'The Drained Tubes', zones: TUBES_ZONES, band: '115–125', hard: true, pill: 'Drained Tubes' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -1773,6 +1840,103 @@ MOBS.greyback = {
   drops: [['coin', 1, 50800, 73800], ['greyback_claw', 1, 4, 8], ['char_tusk', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['greyback_brand', 0.25, 1, 1], ['greyback_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 
+// ——— Emberdeep's depth pass, E2: the Smoking Coast (art: src/coast-art.js; docs/places/coast.md). On the frozen
+// curve ———
+// Marine iguanas bask on the warm rock (harmless), ashfoot boobies hang over the surf and stoop, rock lobsters turn
+// a plated front and claws to you, pumice crabs crumble into little crabs when they break, and steam rays glide
+// low through the steam, fade into it and pulse out of it
+MOBS.marine_iguana = {
+  name: 'Marine Iguana', lvl: 101, hp: 11300, atk: 328, exp: 6507, speed: 40, w: 72, h: 34, aggro: false, hops: false,
+  drops: [['coin', 1, 740, 1100], ['iguana_spine', 0.55, 1, 2], ['mega_elixir', 0.14, 1, 1]],
+};
+MOBS.ashfoot_booby = {
+  name: 'Ashfoot Booby', lvl: 104, hp: 12000, atk: 340, exp: 6839, speed: 115, w: 60, h: 42, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.3, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 780, 1170], ['ashfoot_feather', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1]],
+};
+MOBS.rock_lobster = {
+  name: 'Rock Lobster', lvl: 107, hp: 16600, atk: 351, exp: 7177, speed: 50, w: 74, h: 44, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.55, lunge: 540, time: 0.32 },
+  drops: [['coin', 1, 800, 1210], ['lobster_claw', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1], ['pillow_helm', 0.004, 1, 1]],
+};
+MOBS.pumice_crab = {
+  name: 'Pumice Crab', lvl: 110, hp: 13400, atk: 363, exp: 7523, speed: 70, w: 58, h: 42, aggro: true, hops: false,
+  ai: { kind: 'split', into: 'pumice_crumb', n: 2 },
+  drops: [['coin', 1, 840, 1250], ['pumice', 0.5, 1, 2], ['mega_elixir', 0.16, 1, 1]],
+};
+// (split minions aren't checked by the economy script: kept small, like the pufflings)
+MOBS.pumice_crumb = {
+  name: 'Pumice Crumb', lvl: 106, hp: 1600, atk: 344, exp: 900, speed: 150, w: 26, h: 22, aggro: true, hops: true,
+  drops: [['coin', 1, 70, 130]],
+};
+MOBS.steam_ray = {
+  name: 'Steam Ray', lvl: 113, hp: 13600, atk: 374, exp: 7875, speed: 75, w: 76, h: 40, aggro: true, hops: false, fly: 36,
+  ai: { kind: 'phase', every: 6.1, dur: 1.9, r: 180 },
+  drops: [['coin', 1, 860, 1290], ['ray_barb', 0.5, 1, 2], ['mega_elixir', 0.16, 1, 1], ['scaldbarb', 0.003, 1, 1]],
+};
+
+// The Hatchkeeper (E2; her den, The Buried Clutch, opens off the Coast's nesting sand at HATCH_DEN_X). A big boss
+// with a story (story/characters/bosses.md): a great black marine iguana, older than anyone, who with a shard
+// under her crest keeps her clutch buried in sand the lava keeps hot, warm forever, so it never hatches and never
+// leaves her. Her ultimate, Boiling Sand, is the `spores` ult drawn as the sand boiling everywhere but the
+// tide-wet patches (src/dens-hatch.js); her beam is a snort of hot brine (`looks.beam: 'brine'`), her geysers the
+// hot sand spitting lava up. Freed, the eggs hatch and the little ones run down to the sea (the den's bossDie)
+MOBS.hatchkeeper = {
+  name: 'The Hatchkeeper', boss: true, lvl: 115, hp: 7900000, atk: 412, exp: 520000, speed: 80, w: 260, h: 130, aggro: true, hops: false,
+  phases: [['charge', 'slam', 'rain'], ['charge', 'slam', 'beam', 'geysers', 'rain', 'summon'], ['charge', 'beam', 'geysers', 'rain', 'summon', 'leap', 'barrage']],
+  ult: { name: 'Boiling Sand', kind: 'spores' }, minion: 'marine_iguana',
+  // S5.4: the shard under her crest glints (the weak point, the S5.2 crystal: over her neck, in reach from the
+  // floor), the nest heaves with heat (a pulse, Ignis's `heat` look), and freezing Boiling Sand as it wells up
+  // cancels it
+  party: ['weakpoint', 'pulse', 'interrupt'], partyLive: true, weak: { dx: 0.3, dy: -0.62, r: 20 },
+  looks: { beam: 'brine', pulse: 'heat' },
+  lines: {
+    enter: ['Hush. Hush. They are sleeping. They are warm. Nothing comes near my sand.', 'Another little cold thing come to dig up my eggs? They stay warm. They stay HERE.'],
+    phase: [null, 'Mine went to the sea, once. Every one. The sea is wide and it does not give them back.', 'Warm forever. Never hatched, never gone. If they hatch they RUN, and I am only a stone on the beach!'],
+    freed: '...Listen. Tapping. Oh, they are tapping. Go on, then, little ones. Run. The sea is that way. Run.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['crest_blade', 1, 1, 1], ['clutch_helm', 0.6, 1, 1], ['coin', 1, 158000, 238000], ['mega_elixir', 1, 4, 6], ['hatch_shell', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
+
+// ——— Emberdeep's depth pass, E2 (piece 3): the Drained Tubes (art: src/tubes-art.js; docs/places/tubes.md). On the
+// frozen curve; elites only here ———
+// Clinker beetles turn a shell of rough clinker to the front (hit them from behind), tube adders slip into cracks in
+// the glassy wall and come out behind you, lava drips (a drop of lava from the roof that set where it landed and
+// still glows) sit rooted and spit gobbets of lava, and cinder moths fade into the dark and pulse out of it
+MOBS.clinker_beetle = {
+  name: 'Clinker Beetle', lvl: 116, hp: 18700, atk: 386, exp: 8234, speed: 50, w: 70, h: 46, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.55, lunge: 540, time: 0.32 },
+  drops: [['coin', 1, 895, 1345], ['clinker_scute', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1], ['clinker_helm', 0.004, 1, 1]],
+};
+MOBS.tube_adder = {
+  name: 'Tube Adder', lvl: 118, hp: 14700, atk: 394, exp: 8476, speed: 90, w: 72, h: 30, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.4, warn: 0.42, slashWarn: 0.5, r: 118 },
+  drops: [['coin', 1, 920, 1372], ['adder_scale', 0.5, 1, 2], ['mega_elixir', 0.16, 1, 1], ['adderglass', 0.003, 1, 1]],
+};
+MOBS.lava_drip = {
+  name: 'Lava Drip', lvl: 121, hp: 14500, atk: 405, exp: 8846, speed: 0, w: 44, h: 72, aggro: true, hops: false, anchored: true,
+  ai: { kind: 'lob', range: 460, every: 2.6, keep: 0, warn: 0.55 }, // (no style: a gobbet of lava, the ember shot)
+  drops: [['coin', 1, 950, 1416], ['drip_glass', 0.5, 1, 2], ['mega_elixir', 0.16, 1, 1]],
+};
+MOBS.cinder_moth = {
+  name: 'Cinder Moth', lvl: 124, hp: 15700, atk: 417, exp: 9222, speed: 70, w: 54, h: 46, aggro: true, hops: false, fly: 40,
+  ai: { kind: 'phase', every: 6.2, dur: 1.9, r: 180 },
+  drops: [['coin', 1, 980, 1470], ['cinder_dust', 0.5, 1, 2], ['mega_elixir', 0.17, 1, 1]],
+};
+MOBS.adder_elite = elite('tube_adder', 'Great Tube Adder');
+MOBS.clinker_elite = elite('clinker_beetle', 'Old Clinker Beetle');
+// Hundredfoot: a field boss (small: no story), a tube centipede as long as a cart, plated in clinker, its legs
+// glowing at the joints, that runs the Deep Tube end to end and leaves the floor burning behind it. Passive until hit
+MOBS.hundredfoot = {
+  name: 'Hundredfoot', field: true, lvl: 125, hp: 2450000, atk: 400, exp: 362000, speed: 70, w: 230, h: 66, aggro: false, hops: false,
+  ai: { kind: 'trail', every: 0.7, life: 4.5, w: 64 }, // (no style: burning lava, like the magma slug's)
+  // S5.4: with two or more on it, its clinker plates close up (armour, `looks.shell: 'cinder'`) and the heat in the
+  // tube builds round it till it breaks (a pulse, Ignis's `heat` look)
+  party: ['armour', 'pulse'], partyLive: true, looks: { shell: 'cinder', pulse: 'heat' },
+  desc: 'Hundredfoot is running in the Deep Tube. Feel the floor?',
+  drops: [['coin', 1, 48300, 70100], ['hundred_plate', 1, 4, 8], ['clinker_scute', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['hundred_saw', 0.25, 1, 1], ['hundred_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -1960,6 +2124,8 @@ const onSuPlat = onRoomPlat(SUNKEN_PLATFORMS, SUNKEN);
 const onOiPlat = onRoomPlat(OLDICE_PLATFORMS, OLDICE);
 const onBsPlat = onRoomPlat(SANDS_PLATFORMS, BLACKSANDS);
 const onAwPlat = onRoomPlat(ASH_PLATFORMS, ASHWOOD);
+const onCoPlat = onRoomPlat(COAST_PLATFORMS, COAST);
+const onTuPlat = onRoomPlat(TUBES_PLATFORMS, TUBES);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -2299,6 +2465,37 @@ export const SPAWNS = [
   ...onAwPlat('smoke_wisp', 1, 1),
   ...onAwPlat('ironbark_beetle', 0, 1),
   { kind: 'greyback', x0: 350, x1: 1300, y: FIELD_GROUND, room: ASHWOOD },
+  // Emberdeep's depth pass, E2: the Smoking Coast, entered from the east (the Glass Beach has no mobs)
+  ...strip('marine_iguana', 2950, 4150, FIELD_GROUND, 4, COAST),
+  ...onCoPlat('marine_iguana', 7, 1),
+  ...onCoPlat('marine_iguana', 9, 1),
+  ...strip('ashfoot_booby', 2950, 4150, FIELD_GROUND, 3, COAST),
+  ...strip('rock_lobster', 1550, 2850, FIELD_GROUND, 3, COAST),
+  ...strip('pumice_crab', 1550, 2850, FIELD_GROUND, 3, COAST),
+  ...onCoPlat('rock_lobster', 3, 1),
+  ...onCoPlat('pumice_crab', 5, 1),
+  ...onCoPlat('rock_lobster', 4, 1),
+  ...strip('steam_ray', 450, 1450, FIELD_GROUND, 3, COAST),
+  ...strip('pumice_crab', 450, 1450, FIELD_GROUND, 2, COAST),
+  ...strip('rock_lobster', 450, 1450, FIELD_GROUND, 1, COAST),
+  ...onCoPlat('pumice_crab', 0, 1),
+  ...onCoPlat('steam_ray', 2, 1),
+  // the Drained Tubes, entered from the east (the Tube Mouth has none)
+  ...strip('clinker_beetle', 1900, 3700, FIELD_GROUND, 3, TUBES),
+  ...strip('tube_adder', 1900, 3700, FIELD_GROUND, 3, TUBES),
+  ...onTuPlat('clinker_beetle', 4, 1),
+  ...onTuPlat('tube_adder', 5, 1),
+  ...onTuPlat('clinker_beetle', 6, 1),
+  ...onTuPlat('tube_adder', 7, 1),
+  { kind: 'adder_elite', x0: 2000, x1: 2900, y: FIELD_GROUND, room: TUBES },
+  ...strip('lava_drip', 150, 1700, FIELD_GROUND, 3, TUBES),
+  ...strip('cinder_moth', 150, 1700, FIELD_GROUND, 3, TUBES),
+  ...onTuPlat('lava_drip', 1, 1),
+  ...onTuPlat('lava_drip', 3, 1),
+  ...onTuPlat('cinder_moth', 0, 1),
+  ...onTuPlat('cinder_moth', 2, 1),
+  { kind: 'clinker_elite', x0: 300, x1: 1200, y: FIELD_GROUND, room: TUBES },
+  { kind: 'hundredfoot', x0: 200, x1: 1600, y: FIELD_GROUND, room: TUBES },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -2324,6 +2521,7 @@ export const DENS = [
   { room: 38, boss: 'old_narwhal', name: 'The Breathing Hole', from: SKERRIES, entranceX: NARWHAL_DEN_X, theme: 'floe' }, // (art: src/dens-skerries.js)
   { room: 43, boss: 'sigrun', name: 'The Seam', from: QBRIDGE, entranceX: SIGRUN_DEN_X, theme: 'oath' }, // (art: src/dens-qbridge.js)
   { room: LADON_DEN, boss: 'ladon', name: 'The Root of the Road', from: ROADSEND, fromName: "the Road's End", entranceX: LADON_DEN_X, theme: 'hydra', platforms: LADON_PLATFORMS, final: true }, // (art: src/dens-ladon.js; the door's art: src/roadsend.js)
+  { room: HATCH_DEN, boss: 'hatchkeeper', name: 'The Buried Clutch', from: COAST, entranceX: HATCH_DEN_X, theme: 'hatch' }, // (E2; art: src/dens-hatch.js)
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
 ];
 export const DEN_EXIT_X = 80;
@@ -2616,7 +2814,30 @@ export const ITEMS = {
   emberfang: { name: 'Emberfang', price: 675000, lvl: 121, kind: 'sword', atk: 179, reach: 60, desc: "A narrow iron blade quenched red along its edge, an ember fox's brush bound at the pommel. It glows when it's hungry." },
   ironbark_helm: { name: 'Ironbark Helm', price: 531000, lvl: 123, kind: 'helmet', def: 86, desc: 'An iron helm shingled with ironbark beetle shell, black and grained like a burnt tree. Forged for a wheel that never got it.' },
   greyback_brand: { name: "Greyback's Brand", price: 806000, lvl: 132, kind: 'sword', atk: 191, reach: 66, desc: 'A charred log bound in iron bands, one end still smouldering. Greyback threw it at someone. Throw it back.' },
+  // Emberdeep's depth pass E2: the Smoking Coast (docs/places/coast.md)
+  iguana_spine: { name: 'Iguana Crest Spine', price: 820, kind: 'loot', desc: "A pale spine off a marine iguana's crest, crusted with salt. They sneeze the salt out; this one kept some." },
+  ashfoot_feather: { name: 'Ashfoot Feather', price: 860, kind: 'loot', desc: 'A long white feather with a grey tip, from a booby whose feet are the colour of old ash. It smells of fish and steam.' },
+  lobster_claw: { name: 'Rock Lobster Claw', price: 900, kind: 'loot', desc: 'A heavy red-black claw, warm from the shallows. The forge folk crack them open with tongs and call it a feast.' },
+  pumice: { name: 'Pumice Stone', price: 940, kind: 'loot', desc: 'A grey stone full of holes, light as bread. It floats. Liv says the sea makes it out of the fire, and nobody argues.' },
+  ray_barb: { name: 'Steam Ray Barb', price: 980, kind: 'loot', desc: "The barb off a steam ray's tail, black and serrated. It hisses when it gets wet." },
+  glasscutter_blade: { name: "Glasscutter's Blade", price: 168000, lvl: 104, aim: 108, kind: 'sword', atk: 162, reach: 58, desc: 'One long flake of black glass set in an iron back, cut the way a northern ice-cutter cuts a block: one clean stroke. Liv made it.' },
+  smoked_visor: { name: 'Smoked-Glass Visor', price: 132000, lvl: 104, aim: 108, kind: 'helmet', def: 76, desc: 'An iron brow band with a visor of smoked black glass, for looking at the lava without going blind. It fogs up in the surf.' },
+  hatch_shell: { name: 'Hatchling Eggshell', price: 1150, kind: 'loot', desc: 'A curl of leathery black-and-cream eggshell, still warm. Something small kicked its way out of it and ran for the sea.' },
+  crest_blade: { name: 'Black Crest Blade', price: 640000, lvl: 116, slots: 9, kind: 'sword', atk: 178, reach: 64, desc: "A long saw-backed blade of black basalt, cut from the spines along the Hatchkeeper's crest. It is always warm, like sand at night." },
+  clutch_helm: { name: 'Clutchkeeper Helm', price: 470000, lvl: 116, slots: 9, kind: 'helmet', def: 84, desc: 'A low iron helm with a row of basalt spines down the crown, black glass set where an iguana keeps its eyes. Forged for a wheel that never got it.' },
+  pillow_helm: { name: 'Pillow-Lava Helm', price: 401000, lvl: 107, kind: 'helmet', def: 78, desc: 'A round helm of pillow lava, the shape the sea gave it, rimmed in iron. Forged for a wheel that never got it.' },
+  scaldbarb: { name: 'Scaldbarb', price: 587000, lvl: 113, kind: 'sword', atk: 171, reach: 60, desc: "A narrow iron blade with a steam ray's barb for its point. It hisses through the air and leaves a thread of steam." },
   greyback_helm: { name: 'Greyback Helm', price: 613000, lvl: 132, kind: 'helmet', def: 92, desc: "A heavy iron helm with a bear's brow and two round ears hammered into it, grey with soot that won't scrub off." },
+  // Emberdeep's depth pass E2 (piece 3): the Drained Tubes (docs/places/tubes.md)
+  clinker_scute: { name: 'Clinker Scute', price: 1040, kind: 'loot', desc: "A plate off a clinker beetle's back, rough and black as furnace slag. It rings like iron when you drop it." },
+  adder_scale: { name: 'Tube Adder Scale', price: 1080, kind: 'loot', desc: 'A long glassy scale, black with a red sheen, shed in a crack of the tube wall. It is warm on one side only.' },
+  drip_glass: { name: 'Drip Glass', price: 1110, kind: 'loot', desc: 'A tear of black glass, the shape a drop of lava takes when it falls from the roof and sets. A red glint is still inside.' },
+  cinder_dust: { name: 'Cinder Moth Dust', price: 1160, kind: 'loot', desc: "A pinch of warm grey dust off a cinder moth's wings. Blow on it and it glows, just for a moment." },
+  hundred_plate: { name: 'Hundredfoot Plate', price: 1180, kind: 'loot', desc: "One of Hundredfoot's clinker plates, curved like a roof tile, a scorched leg-joint still hinged to it." },
+  clinker_helm: { name: 'Clinker Helm', price: 480000, lvl: 117, kind: 'helmet', def: 84, desc: "An iron helm shingled with clinker beetle scutes, rough and black as slag. Forged for a wheel that never got it." },
+  adderglass: { name: 'Adderglass', price: 652000, lvl: 119, kind: 'sword', atk: 178, reach: 60, desc: 'A thin black-glass blade with a red sheen down it like an adder\'s back, on an iron grip. It strikes from where you are not looking.' },
+  hundred_saw: { name: 'Hundredfoot Saw', price: 745000, lvl: 127, kind: 'sword', atk: 186, reach: 66, desc: "A long iron blade toothed with Hundredfoot's own legs, one per notch, still glowing at the joints. It runs hot." },
+  hundred_helm: { name: 'Hundredfoot Helm', price: 566000, lvl: 127, kind: 'helmet', def: 89, desc: 'A long iron helm plated in clinker segments down the back, two short feelers at the brow. Forged for a wheel that never got it.' },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
   // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen
@@ -2716,6 +2937,11 @@ export const ITEMS = {
   bellower_staff: { name: "Bellower's Staff", price: 477000, lvl: 102, kind: 'staff', magic: 160, mp: 96, reach: 64, twin: 'bellower_maul', desc: 'A charred iron staff with a lump of vent-baked basalt at its head. Its bolts land with a boom and a puff of steam.' },
   deadwood_staff: { name: 'Deadwood Staff', price: 190000, lvl: 118, aim: 122, kind: 'staff', magic: 177, mp: 106, reach: 56, twin: 'collier_axe', desc: 'A crooked branch of the old forest, burned to charcoal and hard as iron, a coal glowing in its fork. Pitch picked it up; he never cuts.' },
   foxember_staff: { name: 'Fox-Ember Staff', price: 675000, lvl: 121, kind: 'staff', magic: 179, mp: 107, reach: 60, twin: 'emberfang', desc: "An iron rod with an ember fox's brush bound under its head and a red spark that flits from end to end like a fox." },
+  quench_staff: { name: 'Quenchglass Staff', price: 168000, lvl: 104, aim: 108, kind: 'staff', magic: 162, mp: 97, reach: 58, twin: 'glasscutter_blade', desc: 'An iron rod with a knob of black glass at its head, quenched in the surf while it still glowed. Its bolts come out hissing.' },
+  nestfire_staff: { name: 'Nestfire Staff', price: 640000, lvl: 116, slots: 9, kind: 'staff', magic: 178, mp: 107, reach: 64, twin: 'crest_blade', desc: 'An iron staff with a black-glass egg at its head, an ember turning slowly inside it. It never hatches. It is warm all the same.' },
+  scaldbarb_staff: { name: 'Scaldbarb Staff', price: 587000, lvl: 113, kind: 'staff', magic: 171, mp: 103, reach: 60, twin: 'scaldbarb', desc: "A long iron staff with a steam ray's barb at its head, wrapped in eel-skin. A curl of steam always hangs off the tip." },
+  adderglass_staff: { name: 'Adderglass Staff', price: 652000, lvl: 119, kind: 'staff', magic: 178, mp: 107, reach: 60, twin: 'adderglass', desc: "An iron staff coiled with a tube adder's shed skin, a fang of black glass at its head. Its bolts come at a slant." },
+  hundred_staff: { name: 'Hundredfoot Staff', price: 745000, lvl: 127, kind: 'staff', magic: 186, mp: 111, reach: 66, twin: 'hundred_saw', desc: "A jointed iron staff made of Hundredfoot's segments, glowing at every joint. It shifts in your hand, very slightly, as if walking." },
   brand_staff: { name: 'Smoulder Staff', price: 806000, lvl: 132, kind: 'staff', magic: 191, mp: 114, reach: 66, twin: 'greyback_brand', desc: "One of Greyback's logs, banded with iron, smouldering at the head. Its bolts come out trailing sparks and smelling of pine." },
   gatehound_staff: { name: 'Gatehound Staff', price: 430000, lvl: 97, kind: 'staff', magic: 154, mp: 92, reach: 60, twin: 'gatehound_fang', desc: 'A rod of black ice with a hound\'s fang at its head and a link of old chain round the grip. Its bolts come out howling, very far off.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
@@ -2778,6 +3004,11 @@ const BOW_LIST = [
   ['bellower_bow', 'bellower_maul', "Bellower's Bow", 'A heavy iron bow with a toadstone in the grip, strung with scald-eel sinew. Every arrow goes off with a little boom.'],
   ['charcoal_bow', 'collier_axe', 'Charcoal Bow', "Charred deadwood, hard as horn, strung with waxed cord. Pitch won't cut a living tree for a bow, so he found a dead one."],
   ['emberfang_bow', 'emberfang', 'Emberfang Bow', "Iron limbs quenched red at the tips, an ember fox's brush round the grip. Its arrows leave a thin line of glow."],
+  ['glasscutter_bow', 'glasscutter_blade', "Glasscutter's Bow", 'Iron limbs with black-glass nocks, strung with gut. Liv knaps the arrowheads on the beach, one clean stroke each.'],
+  ['crest_bow', 'crest_blade', 'Black Crest Bow', "A long black bow with basalt spines down its back like a sleeping iguana's crest. It is always warm in the hand."],
+  ['scaldbarb_bow', 'scaldbarb', 'Scaldbarb Bow', "A low, wide iron bow like a ray's wings, a barb at each tip. Its arrows leave a thread of steam."],
+  ['adderglass_bow', 'adderglass', 'Adderglass Bow', 'Black-glass limbs with a red sheen, strung with adder gut. Its arrows bend, a little, toward whatever is hiding.'],
+  ['hundred_bow', 'hundred_saw', 'Hundredfoot Bow', "A bow of Hundredfoot's jointed plates, the legs folded along its back. It creaks like a hundred knees when you draw."],
   ['greyback_bow', 'greyback_brand', "Greyback's Bow", 'A great bow bent from a charred sapling and banded with iron, a bear claw at the grip. It smells of smoke when you draw.'],
   ['spring_bow', 'slag_maul', 'Ironspring Bow', 'Two leaf-springs off an old forge bellows, riveted together and strung with wire. Forged for a wheel that never got it.'],
 ];
@@ -2881,6 +3112,8 @@ export const SHOPS = {
   slag: { name: "Slag's Stack", room: FORGEHOLD, x: SLAG_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'slag_maul', 'bellows_rod', 'spring_bow', 'smith_cap'] },
   // the Ashwood (E1): Collier Pitch's gear and potions at his clamp
   pitch: { name: "Pitch's Clamp", room: ASHWOOD, x: PITCH_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'collier_axe', 'deadwood_staff', 'charcoal_bow', 'collier_hood'] },
+  // the Smoking Coast (E2): Liv's black-glass gear and potions at her shelter
+  liv: { name: "Liv's Shelter", room: COAST, x: LIV_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'glasscutter_blade', 'quench_staff', 'glasscutter_bow', 'smoked_visor'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));

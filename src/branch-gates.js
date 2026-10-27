@@ -21,7 +21,9 @@
 // the Skerries' sea cliff (F2), the crevasse with a new ladder down into the Blue Halls and the icefall with
 // new steps cut up to the Aurora Heights (F3), and on Emberdeep the geyser on Forgehold's beach path gone quiet,
 // stones laid across it, to the Black Sands (E1), and the charcoal road's iron bridge hauled back up onto its
-// stones, to the Ashwood (E1). The Ashwood's own gate: the Old Foundry's mine adit, bricked up by the forge folk.
+// stones, to the Ashwood (E1), and the gully's lava tongue crusted hard, steps cut down it, to the Smoking Coast (E2).
+// The Ashwood's own gate: the Old Foundry's mine adit, bricked up by the forge folk. The Coast's old lava tube in its
+// sea cliff, steam roaring out of it until it drained (E2), open to the Drained Tubes (OPEN.tubemouth: old steps down).
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, circle, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';
@@ -59,7 +61,7 @@ export function drawEntries(ctx, room, ground, L, R, time) {
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { fallenwall: -178, rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, adit: 92, fumes: -130, balloon: -190 };
+const SIGN_AT = { fallenwall: -178, rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, adit: 92, fumes: -130, balloon: -190, tubemouth: 130 };
 const SCALE = { bridge: 1.5, thorns: 1.15, balloon: 0.82 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -1593,7 +1595,9 @@ function drawGeyserQuiet(ctx, time) {
 
 // The Smoking Coast, down a gully south off Cinder Flats: a fresh lava tongue has run down it, crusting over
 // black with red still showing in the cracks. The gully's walls frame it; steam lifts off.
-function drawLavaTongue(ctx, time) {
+// open (E2, the update itself lifted it): the tongue has crusted hard and gone cold grey-black, steps cut down it,
+// an iron hand-chain pegged along one side, a last wisp of warmth off the top
+function drawLavaTongue(ctx, time, _g, open = false) {
   ctx.fillStyle = '#5a3e4c'; // the gully's walls
   for (const s of [-1, 1]) {
     ctx.beginPath();
@@ -1615,6 +1619,7 @@ function drawLavaTongue(ctx, time) {
   ctx.quadraticCurveTo(56, -70, 40, -138);
   ctx.closePath();
   ctx.fill();
+  if (open) return lavaTongueCold(ctx, time);
   const pulse = 0.6 + 0.3 * Math.sin(time * 2.2);
   ctx.strokeStyle = `rgba(255,${110 + Math.round(40 * pulse)},60,${pulse})`;
   ctx.lineWidth = 2.4;
@@ -1637,6 +1642,123 @@ function drawLavaTongue(ctx, time) {
     const k = (time * 0.25 + i / 5) % 1;
     ctx.fillStyle = `rgba(240,232,232,${0.4 * Math.sin(k * Math.PI)})`;
     circle(ctx, -40 + i * 20 + Math.sin(k * 4 + i) * 6, -20 - k * 120, 10 + k * 16);
+  }
+}
+
+function lavaTongueCold(ctx, time) {
+  ctx.strokeStyle = '#4a3e46'; // ropy wrinkles in the cold crust
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  const r = mulberry32(5103);
+  for (let i = 0; i < 7; i++) {
+    const y = -124 + i * 18, half = 26 + i * 8;
+    ctx.moveTo(-half * 0.8, y + 4);
+    ctx.quadraticCurveTo((r() - 0.5) * 20, y - 4, half * 0.8, y + 4);
+  }
+  ctx.stroke();
+  // steps cut down the middle, pale where the crust was chipped
+  for (let i = 0; i < 8; i++) {
+    const y = -128 + i * 17, w = 22 + i * 3;
+    ctx.fillStyle = '#5e5260';
+    ctx.fillRect(-w / 2, y, w, 5);
+    ctx.fillStyle = 'rgba(200,190,200,0.35)';
+    ctx.fillRect(-w / 2, y, w, 1.5);
+  }
+  // an iron hand-chain pegged down one side
+  ctx.strokeStyle = '#7a7480';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  const pegs = [[-34, -132], [-44, -96], [-56, -60], [-70, -24], [-82, 2]];
+  for (let i = 0; i < pegs.length - 1; i++) {
+    const [x0, y0] = pegs[i], [x1, y1] = pegs[i + 1];
+    ctx.moveTo(x0, y0 - 10);
+    ctx.quadraticCurveTo((x0 + x1) / 2 + 3, (y0 + y1) / 2 - 2, x1, y1 - 10);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#4a4450';
+  for (const [x, y] of pegs) ctx.fillRect(x - 1.5, y - 12, 3, 12);
+  // a last wisp of warmth
+  for (let i = 0; i < 2; i++) {
+    const k = (time * 0.18 + i / 2) % 1;
+    ctx.fillStyle = `rgba(240,232,232,${0.22 * Math.sin(k * Math.PI)})`;
+    circle(ctx, -10 + i * 24, -110 - k * 70, 8 + k * 12);
+  }
+}
+
+// The Drained Tubes, in the Smoking Coast's sea cliff: the round mouth of an old lava tube, glassy-lipped, running
+// down into the cliff. Shut (E2's gate): the sea got in somewhere below and is boiling off, so steam roars out of it
+// in a white wall and the shallows at its lip hiss. open (when the Tubes ship): drained, dark and cold inside, its
+// glassy walls catching the light, old rock steps going down, a drip now and then
+function drawTubeMouth(ctx, time, _g, open = false) {
+  ctx.fillStyle = '#2e2830'; // the sea cliff's face
+  ctx.beginPath();
+  ctx.moveTo(-120, 4);
+  ctx.lineTo(-112, -150);
+  ctx.quadraticCurveTo(-60, -190, 0, -184);
+  ctx.quadraticCurveTo(70, -192, 112, -146);
+  ctx.lineTo(120, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#3e3640'; // columns in the old rock
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (const x of [-96, -74, 76, 98]) {
+    ctx.moveTo(x, -150);
+    ctx.lineTo(x + 3, 0);
+  }
+  ctx.stroke();
+  // the tube's mouth, a round hole with a glassy black lip
+  ctx.fillStyle = '#121014';
+  ctx.beginPath();
+  ctx.ellipse(0, -52, 52, 56, 0, Math.PI, 0);
+  ctx.lineTo(52, 4);
+  ctx.lineTo(-52, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#5a5468';
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.ellipse(0, -52, 54, 58, 0, Math.PI, 0);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(190,210,230,0.45)'; // the glassy shine on the lip
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.ellipse(0, -52, 52, 56, 0, Math.PI * 1.15, Math.PI * 1.45);
+  ctx.stroke();
+  if (open) {
+    // drained: old steps going down into the dark, the walls catching a little light, a drip
+    for (let i = 0; i < 4; i++) {
+      ctx.fillStyle = `rgba(90,82,96,${0.9 - i * 0.2})`;
+      ctx.fillRect(-30 + i * 6, -8 - i * 9, 60 - i * 12, 5);
+    }
+    ctx.strokeStyle = 'rgba(160,170,200,0.25)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-40, -40);
+    ctx.quadraticCurveTo(-30, -80, 0, -96);
+    ctx.stroke();
+    const k = (time * 0.6) % 1;
+    ctx.fillStyle = `rgba(200,220,240,${0.7 * (1 - k)})`;
+    circle(ctx, 18, -100 + k * 90, 1.6);
+    return;
+  }
+  // shut: steam roaring out in a white wall, the shallows hissing at its lip
+  for (let i = 0; i < 12; i++) {
+    const k = (time * 0.55 + i / 12) % 1;
+    ctx.fillStyle = `rgba(245,242,240,${0.55 * Math.sin(k * Math.PI)})`;
+    circle(ctx, Math.sin(i * 2.3 + time) * 26 + (i % 2 ? 1 : -1) * k * 30, -40 - k * 170, 18 + k * 34);
+  }
+  ctx.fillStyle = 'rgba(250,250,250,0.6)';
+  ctx.beginPath();
+  ctx.ellipse(0, -30, 46, 34 + Math.sin(time * 7) * 2, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(120,170,170,0.7)'; // seawater at the lip, boiling
+  ctx.fillRect(-52, -4, 104, 8);
+  for (let i = 0; i < 7; i++) {
+    const k = (time * 2 + i * 0.37) % 1;
+    ctx.fillStyle = `rgba(255,255,255,${0.8 * (1 - k)})`;
+    circle(ctx, -44 + i * 14, -2 - k * 6, 1.5 + k * 2);
   }
 }
 
@@ -1946,7 +2068,7 @@ function drawBalloon(ctx, time) {
   ctx.stroke();
 }
 
-const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit };
+const DRAW = { tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit };
 // The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
 // going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
 // white rose petal or two drifting into it. The update itself split it: no quest
@@ -2084,4 +2206,5 @@ function drawFallenWall(ctx, time) {
 }
 
 const OPEN = { fallenwall: drawFallenWall, icestair: (ctx, time, g) => drawIcestair(ctx, time, g, true), snout: drawSnout, crevasse: (ctx, time, g) => drawCrevasse(ctx, time, g, true), icefall: (ctx, time, g) => drawIcefall(ctx, time, g, true), snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
-  flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true), rootsplit: drawRootSplit, geyser: (ctx, time, g) => drawGeyser(ctx, time, g, true), ironbridge: (ctx, time, g) => drawIronBridge(ctx, time, g, true) };
+  flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true), rootsplit: drawRootSplit, geyser: (ctx, time, g) => drawGeyser(ctx, time, g, true), ironbridge: (ctx, time, g) => drawIronBridge(ctx, time, g, true),
+  lavatongue: (ctx, time, g) => drawLavaTongue(ctx, time, g, true), tubemouth: (ctx, time, g) => drawTubeMouth(ctx, time, g, true) };

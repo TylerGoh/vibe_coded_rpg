@@ -45,7 +45,20 @@ one shared corner feed).
   coast" (Liv, E2). When an Emberdeep branch opens, update Ash (and Soot, Slag, Arne where they'd know); E1 did it for the Black
   Sands (Ash lists its dangers, Soot says the path's open, Slag laid the stones), and for the Ashwood (Ash lists its
   dangers and says of the Old Foundry's adit only "We bricked it up ourselves. It stays bricked."; Slag riveted the
-  bridge's new plates and once got fern seed from Pitch; Soot says Pitch comes down for eggs again).
+  bridge's new plates and once got fern seed from Pitch; Soot says Pitch comes down for eggs again). E2 (the Smoking
+  Coast) brought Liv's news north and south: Eyvind's letter came back (she's alive, thinned by the heat, stays; he
+  asks a finder once whether she looks well and has the other mitten), Skaldi (she wrote him about her glass birds),
+  Runa, Arne ("Not your fault, skipper"), Soot (passes letters both ways, knitted her the thinnest scarf), Slag (asks
+  her about snow; pegged the gully's chain), Ash (the Coast's dangers, the tube's steam as the shut way). E2's third piece (the Drained Tubes) took the tube off
+  Ash's shut ways (he lists what's down there) and told Liv it drained, as she said it would.
+  **Liv** (`liv`, E2, `docs/places/coast.md`): Eyvind's daughter, fjord folk thinned nearly clear (`folk:
+  'thinned'`); cuts black glass, one clean stroke. Plain and quiet like her father, warmer underneath. Tier 0 plus the
+  Coast, the old tube (it drained, as she said; she went as far as the first skylight and came out: too far from the
+  sea), the nesting sand she sits up with, the
+  Landing Stone and Forgehold's people; hints at Liv's Lookout. Won't go home (afraid the cold would set her solid);
+  no quest. Since her den shipped (E2's second piece) she knows the nesting iguana as the Hatchkeeper, saw a freeing
+  once (the eggs hatched and ran for the sea; by morning a new clutch) and gives no fighting advice; Ash names her
+  level. Hints at the Drained Tubes' Skylight (she'd like to hear what you saw from it).
   **Collier Pitch** (`pitch`, E1): the last charcoal-burner, dry, slow and sad; Tier 0 plus the Ashwood, Greyback,
   the bridge, the adit he helped brick up (he sends you to Ash), the Kiln Stone (his family's story, it bothers him),
   and the Green Tree, which he hints at and won't place.

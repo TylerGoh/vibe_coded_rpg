@@ -61,7 +61,9 @@ drawing. The first is the **mini Ladon** (FB1 piece 3: `drawLadonPet` in `src/la
 knot, the middle one crowned, and every few seconds the outer two turn on each other and snap while the middle one
 looks away. The second is the **mini Fenrir** (FB2 (c2): `drawFenrirPet` in `src/fenrir-art.js`): a fluffy grey-white pup
 in a ribbon collar of pale light; every few seconds it turns, catches the loose end of its ribbon and chews it, eyes shut
-and tail going. Its plinth is why `PETSHOP_W` went up (the shop warns at startup if the plinths don't fit).
+and tail going. Its plinth is why `PETSHOP_W` went up (the shop warns at startup if the plinths don't fit); E2's mini
+Hatchkeeper (her art shrunk, priced between Pyra's and Fenrir's) raised it again, and so did the mini Hundredfoot
+(E2's Drained Tubes field boss, priced between Fenrir's and Greyback's by level).
 
 ## Testing
 - `TEST_PET_FAST=1440` makes a full belly last 2 minutes (test servers only, never live).

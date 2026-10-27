@@ -66,7 +66,8 @@ No quests, no hard level gates.
    `docs/places/branches.md`). E0 shipped.
    - [x] E1: the Ashwood (115–130) and the Black Sands (90–100, easy) (2026-10-27; rooms 55 and 54,
          `docs/places/ashwood.md`, `blacksands.md`). Next: **the owner plays** them.
-   - [ ] E2: the Smoking Coast and the Drained Tubes (hard), the Hatchkeeper, Liv
+   - [x] E2: the Smoking Coast and the Drained Tubes (hard), the Hatchkeeper, Liv (2026-10-28; rooms 56, 57 and 58,
+         `docs/places/coast.md`, `tubes.md`). Next: **the owner plays** them.
    - [ ] E3: the Brimstone Fields and the Old Foundry (hard)
    - [ ] E4: the Caldera Rim and Brenna, Emberdeep's party den; Ignis's and Pyra's lines
 7. **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase.
