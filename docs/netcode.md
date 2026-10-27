@@ -84,6 +84,9 @@ protocol is documented in the comment at the top of that file: keep it updated**
   record (no spare bits left). A hit's `h[4]` may be `2 + slot` (a head or its stump: `final.part` checks the reach),
   `party`'s `sh` may be `'w'` (both shields at once, cracks as `sh[4]`), and there are new ouch kinds (`bite`, `coil`)
   and boss events (all in the protocol comment in `server/index.js`). `final` is in `src/net.js`'s `RPG` set.
+- 2026-10-27 (FB2 (c), Fenrir): no wire version change. `{t:'final'}` now says whose it is (`fb`: 'ladon' | 'fenrir';
+  `src/finals.js` routes it); Fenrir's carries `rc`, `po`, `an`, `ln` instead of the heads (`server/fenrir.js`). Its
+  `h[4] = 2 + slot` is an anchor (0–3) or a lantern (4–9), and its own boss events are in the protocol comment.
 - 2026-10-24 (SP1, the skill pool's machinery): no wire version change. Two more mob flags in the same spare bits
   (8192 bleeding, 16384 poisoned: the 7 bits are now full, so the next mob state needs a version bump or its own
   message), `burn` grows `k`, and new low-rate JSON messages: `fields` (a room's whole list, on change and on

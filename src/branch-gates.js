@@ -9,8 +9,7 @@
 // wall of thorns, cut back into a tunnel, and the fallen trunk in the Canopy, sawn through to Keeper's Spine,
 // and (FB1 (b)) the split in the Thornheart's root knot, a dark way down between the roots to the Sunken Road,
 // and (FB2 (b)) the Hall Troll's wall fallen over at the Blue Halls' east end, the cutters' old ladder down to the
-// Old Ice behind it. Fenrir's door at the foot of the Long Stair is a gate with no art here (`wolfdoor`: the
-// Long Stair draws it, src/longstair.js, and its own sign).
+// Old Ice behind it (Fenrir's door at the foot of the Long Stair is drawn by src/longstair.js).
 // Frostpeak's (its depth pass, F0): the ice
 // stair onto the Queen's Bridge broken off on Frostpine Ridge, and in the Rimeglass Glacier the crevasse with
 // the cutters' ladder smashed at the bottom (the Blue Halls) and the icefall with its steps sheared away (the
@@ -1764,7 +1763,7 @@ function drawBalloon(ctx, time) {
   ctx.stroke();
 }
 
-const DRAW = { wolfdoor: () => {}, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon };
+const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon };
 // The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
 // going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
 // white rose petal or two drifting into it. The update itself split it: no quest

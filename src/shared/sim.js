@@ -417,7 +417,7 @@ ROOMS[ROADSEND] = {
 // rooms 50 and 51 (FB2 (b), docs/places/oldice.md): the Old Ice, down the cutters' old ladder behind the Hall
 // Troll's fallen wall at the Blue Halls' east end, entered at its WEST end, and at its far east end the Long
 // Stair, the approach to Fenrir's den (room 52, FB2 (c): its door comes with its DENS row, through denDoors;
-// until then the ice over it holds, a gate in FROSTPEAK)
+// FB2 (c) added the row, so the ice over it breaks open)
 ROOMS[OLDICE] = {
   name: 'The Old Ice', width: OLDICE_W, ground: FIELD_GROUND, platforms: OLDICE_PLATFORMS,
   doors: [

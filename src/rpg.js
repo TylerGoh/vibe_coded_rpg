@@ -14,7 +14,7 @@ import { SkillFx, drawSkillIcon, drawGodsAura, drawBerserkAura, drawBubble, draw
 import { Summons } from './summons.js';
 import { Fields } from './fields.js';
 import { Party } from './party.js';
-import { Final } from './ladon.js';
+import { Finals } from './finals.js';
 import { StatusBox, statusOf } from './status.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, STAFF_BOLT_RANGE, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE, curseMult, heavyHit } from './shared/rpg.js';
@@ -71,7 +71,7 @@ export class Rpg {
     this.summons = new Summons(this); // the Cleric's spirits, wisps and totems (S3)
     this.fields = new Fields(this); // SP1's fields on the ground (src/fields.js)
     this.party = new Party(this); // S5's party mechanics on bosses (src/party.js)
-    this.final = new Final(this); // FB1: a final boss's heads, coils and title card (src/ladon.js)
+    this.final = new Finals(this); // FB1: a final boss's heads, coils and title card (src/ladon.js); FB2: Fenrir's (src/fenrir.js), routed by src/finals.js
     this.aimArrow = false; // (the hit being aimed is an arrow: any arrow reaches any head in range)
     this.status = new StatusBox(document.getElementById('status')); // what's on you, under the HP panel (src/status.js)
     this.downNear = () => false; // (x, y, r) → is a knocked-out slime there? (main.js: Revive's check)
@@ -253,11 +253,13 @@ export class Rpg {
   showHit(v, dmg, crit, myX, delay = 0, killed = null) {
     const k = MOBS[v.kind];
     v.hurt = 1;
-    v.localHp = this.shownHp(v) - dmg;
-    // a boss's death waits for the server (its 'die' / 'fieldDown'): the server caps each hit, so a kill we
-    // predicted could leave it a sliver of HP, and it would die on screen, come back and die again
-    if (k.boss || k.field) v.localHp = Math.max(1, v.localHp);
-    v.localUntil = this.time + 0.8;
+    if (!v.part?.prop) { // (FB2: a hit on one of Fenrir's anchors or lanterns leaves the wolf whole)
+      v.localHp = this.shownHp(v) - dmg;
+      // a boss's death waits for the server (its 'die' / 'fieldDown'): the server caps each hit, so a kill we
+      // predicted could leave it a sliver of HP, and it would die on screen, come back and die again
+      if (k.boss || k.field) v.localHp = Math.max(1, v.localHp);
+      v.localUntil = this.time + 0.8;
+    }
     const at = v.part?.x !== undefined ? v.part : null; // (FB1: a hit on one of a final boss's heads pops there)
     this.pop(at ? at.x : v.x, at ? at.y - 34 : v.y - k.h - 14, String(dmg), crit ? '#ff5d8f' : '#ffffff', crit ? 26 : 20, delay);
     audio.sfx(crit ? 'crit' : 'hit', { pan: panX(v.x, myX) });
@@ -1424,7 +1426,7 @@ export class Rpg {
       const k = MOBS[v.kind];
       if (k.boss || this.killed.has(v.id)) continue; // the boss has its bar at the top of the screen
       // field bosses and elites get a bigger, golden-rimmed tag; a field boss always shows its HP
-      const big = k.field || k.elite, size = big ? 13 : 11, th = big ? 20 : 16;
+      const big = k.field || k.elite || k.son, size = big ? 13 : 11, th = big ? 20 : 16; // (FB2: Skoll and Hati are named too)
       ctx.font = `700 ${size}px ${FONT}`;
       const label = `${k.field ? 'Field boss: ' : ''}${k.name} Lv ${k.lvl}`;
       const w = ctx.measureText(label).width + (big ? 18 : 12);
@@ -1439,7 +1441,7 @@ export class Rpg {
       }
       text(ctx, label, v.x, v.y + 6 + th / 2 + 0.5, size, '#ffffff');
       const hp = this.shownHp(v);
-      if (k.field) bar(ctx, v.x - 50, v.y - k.h - 16, 100, 8, hp / v.maxHp, '#ff6f91');
+      if (k.field || k.son) bar(ctx, v.x - 50, v.y - k.h - 16, 100, 8, hp / v.maxHp, '#ff6f91');
       else if (hp < v.maxHp) bar(ctx, v.x - 24, v.y - k.h - 10, 48, 6, hp / v.maxHp, '#ff6f91');
     }
     this.final.draw(ctx); // (FB1: a final boss's necks, heads, stumps and coils)

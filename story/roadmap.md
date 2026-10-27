@@ -46,7 +46,8 @@ No quests, no hard level gates.
    Colossus (with a steam pulse added) and Chronos have their party mechanics. Next: **the owner plays** them in a party.
 5. **FB2: Frostpeak's final boss**, below the Blue Halls (the Old Ice, the Long Stair). (a) on paper 2026-10-27:
    Fenrir, the Bound Wolf (`fb2-plan.md`), approved. (b) live 2026-10-27: the Blue Halls' fallen
-   wall, the Old Ice (50), the Long Stair (51), the door holding (`docs/places/oldice.md`). Next: (c) the den (52) and the fight.
+   wall, the Old Ice (50), the Long Stair (51), the door holding (`docs/places/oldice.md`). (c1) live 2026-10-27: the Wolf's Hold (52) and the
+   whole fight (`docs/places/fenrir.md`). Next: (c2) its art polish, music, rewards (the `oath_blade` stand-in) and the mini Fenrir.
 6. **Emberdeep's depth pass, E1–E4** (Lv 90–150; plan, map and settled decisions:
    `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
    `docs/places/branches.md`). E0 shipped.

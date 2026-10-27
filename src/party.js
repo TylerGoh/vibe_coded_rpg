@@ -290,6 +290,7 @@ const PULSES = {
   tide: { ring: '80,196,214', glow: '120,220,232', hit: '60,170,206', word: 'TIDE', fill: '#e2fbff', edge: 'rgba(8,48,66,0.78)', foam: true },
   breath: { ring: '62,128,186', glow: '170,214,240', hit: '84,150,206', word: 'BREATH', fill: '#f2faff', edge: 'rgba(24,44,70,0.8)', foam: true, plume: true },
   thorn: { ring: '120,190,80', glow: '170,230,120', hit: '96,160,60', word: 'BREATH', fill: '#eaffd8', edge: 'rgba(24,40,16,0.82)' }, // Ladon's green hiss of thorn dust (FB1)
+  howl: { ring: '190,214,250', glow: '220,234,255', hit: '160,190,240', word: 'HOWL', fill: '#f4f8ff', edge: 'rgba(16,24,48,0.85)' }, // Fenrir's Howl (FB2)
 };
 function drawPulseWarn(ctx, x, y, kind, reach, k, t, left) {
   if (k > 1) return;
@@ -378,6 +379,7 @@ const CURSES = {
   // round as the time runs out (drawn instead of the star)
   ember: { fill: '46,10,4', rim: '255,206,84', inner: '255,246,200', star: '255,150,50', smoke: '50,22,12' },
   hours: { fill: '255,206,110', rim: '255,226,140', inner: '255,255,236', star: '255,236,170', smoke: '196,158,84' },
+  paw: { fill: '120,170,230', rim: '220,240,255', inner: '250,252,255', star: '200,226,255', smoke: '80,110,160' }, // Fenrir's frost paw print (FB2)
 };
 function drawSigil(ctx, s, t) {
   const L = s.look ?? CURSES.dark;
@@ -537,7 +539,7 @@ const SHELLS = {
 // S5.4: Glacia's (`queen`): ice blue, deep enough to read in her white throne room, snowflakes turning round it; the Astral Wyrm's (`star`): starlight, violet with
 // little gold stars for runes; Chronos's (`hours`): a dome of wound-up hours, gold, an hour mark for every rune and a
 // clock hand sweeping round inside it
-const DOMES = { hours: ['255,200,100', '255,226,150', '255,240,200'], rose: ['250,244,240', '255,255,255', '246,226,236'], keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'] };
+const DOMES = { fetter: ['226,236,255', '255,255,255', '240,246,255'], hours: ['255,200,100', '255,226,150', '255,240,200'], rose: ['250,244,240', '255,255,255', '246,226,236'], keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'] };
 function drawShield(ctx, v, k, sh, t) {
   const fade = Math.max(0, Math.min(1, 1 - (sh.from - t) / 1.5)), end = Math.min(1, (sh.until - t) / 0.6);
   const a = fade * end, cx = v.x, cy = v.y - k.h * 0.5, rx = k.w * 0.72, ry = k.h * 0.68;

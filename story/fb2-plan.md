@@ -232,6 +232,10 @@ the door, which cracks but holds (a gate on the map, "the ice holds") until (c) 
   and the dark, the sons, the den; the Old Ice and its mobs, Garm, the Long Stair and the shape in the ice,
   the Blue Halls' fallen wall, record and thin ice. Music: the stair's hum and chain, Fenrir's own track.
 - Two sessions, as FB1: (b) the way there, then (c) the den and the boss.
+- **Status: (c1) built 2026-10-27** (`docs/places/fenrir.md`): the Wolf's Hold (room 52), the door open, Fenrir's whole
+  fight on the final-boss engine (its own brain, `server/fenrir.js`), the reach and anchors, the lanterns and the dark,
+  Skoll and Hati, the pack, both ultimates, the enrage, freed; placeholder art, music and pay. (c2), still to do: the
+  polished art, its music track, the rewards and the mini Fenrir.
 
 ## Questions for the owner
 All answered 2026-10-27: the dark hurts a little (relighting matters), Skoll and Hati as written, no bites

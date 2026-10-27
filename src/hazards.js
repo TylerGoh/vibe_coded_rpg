@@ -943,6 +943,7 @@ const BEAM = {
   prism: { glow: '130,170,255', outer: 'rgba(110,150,255,0.85)', mid: '#e0ecff', aim: '255,110,140' }, // the prism crawler's blue light
   shield: { glow: '200,232,255', outer: 'rgba(180,220,252,0.9)', mid: '#ffffff', aim: '255,96,120' }, // the cold light off Sigrun's shield
   briar: { glow: '170,230,120', outer: 'rgba(52,72,44,0.95)', mid: '#c8f0a0', aim: '255,96,110' }, // Ladon's Lash: a neck sweeping the den (FB1)
+  rime: { glow: '220,236,255', outer: 'rgba(200,226,255,0.9)', mid: '#ffffff', aim: '255,96,120' }, // Fenrir's Frost Breath (FB2)
 };
 function drawBeam(ctx, h, now) {
   const B = BEAM[h.style] || BEAM.sentry;

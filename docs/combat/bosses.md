@@ -271,8 +271,17 @@ the Root Warden with ~2,300 potions. Future bosses are held to the same checks (
   server took ~15% of a Lv 150's HP, DEF 0).
 
 ## Final bosses (FB1 (c), 2026-10-26; `story/final-bosses.md`, Ladon: `docs/places/ladon.md`)
-A boss with `final` (a key into `FINAL`, `src/shared/final.js`) runs `server/final.js` instead of `bossBrain`. Generic
-on purpose, so FB2 and E5 add a FINAL row, their heads' slots (if any) and their looks, not a new engine.
+A boss with `final` (a key into `FINAL`, `src/shared/final.js`) runs a final-boss brain instead of `bossBrain`. FB2
+generalised FB1's engine: each FINAL row names its `brain` and `createFinal` (`server/final.js`) routes `tick`, `part`,
+`hitHead`, `send` to it (`hydra`: Ladon's heads and coils, in that file; `wolf`: Fenrir's fetters, lanterns and sons,
+`server/fenrir.js`, `docs/places/fenrir.md`), plus `son` for an add with `son` (stepMob). On the client `src/finals.js`
+routes to one object per boss with the same face (`src/ladon.js`, `src/fenrir.js`): the `final` message by its `fb`, a
+hit by the boss's kind, events, ultimates and drawing by room. What every brain shares: the loop runner (phases,
+`name:2`, `shield`, `ult` with `alternateFrom`), the enrage clock, the S5 hookup below, and other targets on the boss
+(`heads` on the mob: `h[4] = 2 + slot`, re-checked with `headReach`). A target can be a **prop** (`{ prop }` from
+`part`, Fenrir's anchors and lanterns): `applyHits` then fills its ring but doesn't damage the boss or touch its
+shields, elements and dots (the hit still counts as fighting it), and the client doesn't predict the boss's HP down.
+E5 adds a FINAL row and, if it needs one, a brain with that face.
 - **Owner's rules**: HP fixed for four (`bossMaxHp` returns `k.hp`: no `BOSS_HP_PER_PLAYER`, no floor), no reward
   window (`kill` pays every kill in full), every S5 mechanic on from the first slime (`partyAll`), Lv on the tag from
   `finalTag`, stats from the FINAL table. The economy sheet doesn't hold a final boss to `TOP_SOLO`.

@@ -4,6 +4,7 @@
 // (server/rpg.js); the client only draws them (src/rpg.js, art in src/field.js).
 import { curve } from './curve.js';
 import { LADON_PLATFORMS, LADON_BODY_X } from './final.js';
+import { FENRIR_PLATFORMS, FEN_MID } from './fenrir.js';
 
 export const FIELD = 5; // room id (see ROOMS in sim.js)
 export const FIELD_W = 5200; // the last stretch (where the Highlands trail used to be) is mob-free: the briar thins out toward the sea cliffs
@@ -631,14 +632,14 @@ export const OLDICE_PLATFORMS = [
 // (src/longstair.js, the `longstair` music scene), never step(): the wolf's shape grows in the ice wall beside
 // you, its breath frosts the ice from the other side, the lanterns go out below you and the ice frosts over the
 // stair behind you, the further east you are. FENRIR_MARK_X: the first slime past it in an empty Long Stair hears
-// Fenrir (FENRIR_LINE, server/rpg.js). FENRIR_DEN_X: the den's door (its art is always drawn; until the den's
-// DENS row exists, FB2 (c), the ice over it holds: a gate in FROSTPEAK, src/shared/branches.js).
+// Fenrir (FENRIR_LINE, server/rpg.js). FENRIR_DEN_X: the den's door (its art is always drawn; with the den's DENS
+// row, FB2 (c), the ice over it breaks open by itself as you come near).
 export const LONGSTAIR = 51; // room id
 export const LONGSTAIR_W = 2600;
 export const LONGSTAIR_EXIT_X = 70; // back up the stair into the Old Ice
 export const FENRIR_MARK_X = 1000;
 export const FENRIR_DEN_X = LONGSTAIR_W - 240;
-export const FENRIR_DEN = 52; // the den's room id, kept for FB2 (c)
+export const FENRIR_DEN = 52; // the den's room id (FB2 (c): the Wolf's Hold, its DENS row)
 export const FENRIR_DEN_NAME = "The Wolf's Hold";
 export const FENRIR_LINE = 'Is it the end? ...No. Not yet. Go back up.';
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
@@ -1592,6 +1593,37 @@ MOBS.garm = {
   ai: { kind: 'shell', cut: 0, every: 2.4, warn: 0.6, lunge: 700, time: 0.45 },
 };
 MOBS.garm.drops = MOBS.garm.drops.map((d) => (d[0] === 'gatehound_fang' ? ['gatehound_fang', 0.03, 1, 1] : d));
+// Fenrir, the Bound Wolf (FB2 (c), story/fb2-plan.md; docs/places/fenrir.md): Frostpeak's final boss, in the Wolf's Hold
+// (room 52) at the foot of the Long Stair. A wolf the size of the den's back wall, bound to its middle by fetters: unlike
+// Ladon it walks, but only inside its reach (server/fenrir.js; its own constants in src/shared/fenrir.js, its FINAL row
+// in src/shared/final.js). `heads`: it has targets besides its body (the four anchors and six lanterns, h[4] = 2 + slot;
+// the collar's shard while it rears is the weak point). `final`, `top`, `partyAll`, `partyLive` as Ladon's: fixed HP for
+// four, the enrage, no reward window; its stats are the FINAL table's, never the Lv 120 on its tag. hp, exp and gold
+// from the economy sheet's FINAL BOSSES (a party of four at Lv 100 near 45 min); FB2 (c) piece 2 adds its rewards.
+MOBS.fenrir = {
+  name: 'Fenrir, the Bound Wolf', boss: true, top: true, final: 'fenrir', heads: true, touchW: 220, denX: FEN_MID,
+  lvl: 120, hp: 80000000, atk: 360, exp: 1500000, speed: 70, w: 330, h: 220, aggro: true, hops: false,
+  phases: [[], [], []], minion: 'black_wolf',
+  looks: { beam: 'rime', shell: 'rime', dome: 'fetter', curse: 'paw', pulse: 'howl' },
+  party: ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'], partyAll: true, partyLive: true,
+  weak: { dx: 0.25, dy: -0.68, r: 30, front: true }, // (the shard in the lock of its collar, held high while it rears)
+  lines: {
+    enter: ['Chain. Still chain. ...Is it the end? They said they would come at the end.'],
+    phase: ["The end came, didn't it. I felt it in the ice. And nobody came down the stair.", 'My sons hunt the light. Let them. It is colder without. You stop needing to see.', 'This one I hold myself. If I let go, there is nothing left to stop me. Nothing.'],
+    shield: 'They bound me in this. Sound of a footfall. Breath of a fish. Nothing breaks it. I tried.',
+    freed: '...Nobody is coming. Then nobody needs me bound. I will stay here. I only wanted someone to tell me.',
+  },
+  // (oath_blade: a stand-in for its own class weapons, which come with FB2 (c) piece 2: twinPick gives every class its kind)
+  drops: [['coin', 1, 2800000, 4200000], ['oath_blade', 1, 1, 1], ['mega_elixir', 1, 6, 9], ['royal_sap', 1, 3, 4], ['blackice_pelt', 1, 6, 10], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.6, 1, 2]],
+};
+// Skoll and Hati, Fenrir's sons (phase 3 on): big shadow wolves that hunt the lanterns, not the slimes (`son`: their
+// own brain, son() in server/fenrir.js). Named, with their own HP bars; killed, each comes back after SONS_BACK_S.
+const son = (name, art) => ({
+  name, son: true, art, base: 'black_wolf', lvl: 100, hp: 360000, atk: 330, exp: 30000, speed: 175, w: 120, h: 80, aggro: true, hops: false,
+  drops: [['coin', 1, 3000, 4500]],
+});
+MOBS.skoll = son('Skoll', 'skoll');
+MOBS.hati = son('Hati', 'hati');
 
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
@@ -2112,6 +2144,7 @@ export const DENS = [
   { room: 38, boss: 'old_narwhal', name: 'The Breathing Hole', from: SKERRIES, entranceX: NARWHAL_DEN_X, theme: 'floe' }, // (art: src/dens-skerries.js)
   { room: 43, boss: 'sigrun', name: 'The Seam', from: QBRIDGE, entranceX: SIGRUN_DEN_X, theme: 'oath' }, // (art: src/dens-qbridge.js)
   { room: LADON_DEN, boss: 'ladon', name: 'The Root of the Road', from: ROADSEND, fromName: "the Road's End", entranceX: LADON_DEN_X, theme: 'hydra', platforms: LADON_PLATFORMS, final: true }, // (art: src/dens-ladon.js; the door's art: src/roadsend.js)
+  { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
 ];
 export const DEN_EXIT_X = 80;
 export const DEN_PLATFORMS = [

@@ -10,7 +10,7 @@ was a way down all along: a slot in the ice with the cutters' old ladder in it (
 `src/branch-gates.js`, a red-trimmed "The Old Ice" sign). Owner's rule: the update itself knocked it over, no quest
 or event. The Blue Halls' side (the cutters' record, thin ice) is in `docs/places/bluehalls.md`. On the island map
 it's one node, `oldice`, under the Blue Halls (`FROSTPEAK` in `src/shared/branches.js`; both rooms are its `rooms`),
-and under it the den's node, `wolfhold`, blocked ("the ice holds").
+and (until FB2 (c)) under it the den's node, `wolfhold`, blocked ("the ice holds").
 
 ## The Old Ice (Lv 90–100, a deep room on hard-pocket rules)
 - Data: `OLDICE_*` and the spawns in `src/shared/rpg.js`, the room in `src/shared/sim.js`. Art: `src/oldice.js`
@@ -67,15 +67,12 @@ in, never be shut in.
   `finalTag(FROST_TOP)` (both levels, from `FINAL_LVL_OVER` and `FINAL_MIN_PLAYERS`) and a live count,
   "3 here, 4+ recommended": a count, never a lock.
 
-## Until FB2 (c): the door holds
-FB1 shipped (b) and (c) together, so Ladon's door always had its `DENS` row. Fenrir's den isn't built yet, so the
-door is a gate (the phases rule: shown, blocked by an in-world reason): the `wolfhold` node in `FROSTPEAK` has a
-`gate` at `FENRIR_DEN_X` (kind `wolfdoor`: no art in `src/branch-gates.js` and `sign: false`, since the Long Stair
-draws the door and its own sign). E there says the ice has cracked but holds, something behind it breathing; the
-cracks only go so far and frost over again (`FENRIR_DOOR_OPEN` is false while there's no `DENS` row).
-**FB2 (c):** add the den's `DENS` row (`from: LONGSTAIR`, `fromName`, `entranceX: FENRIR_DEN_X`, room `FENRIR_DEN`)
-and delete the `wolfhold` node; the door then comes through `denDoors(LONGSTAIR)` and the ice breaks open by itself.
-Give the den its `ROOM_KEYS` slot (52) in `src/audio.js`.
+## The door opens (FB2 (c))
+Until FB2 (c) the door was a gate (the phases rule: shown, blocked by an in-world reason): a `wolfhold` node in
+`FROSTPEAK`, the ice cracked but holding. FB2 (c) added the den's `DENS` row (`from: LONGSTAIR`, `fromName`,
+`entranceX: FENRIR_DEN_X`, room `FENRIR_DEN`) and deleted the node: the door comes through `denDoors(LONGSTAIR)`, and
+`FENRIR_DOOR_OPEN` (true once the row exists) lets the ice break open by itself as you come near. No quest, no event.
+The den and the fight: `docs/places/fenrir.md`.
 
 ## Decisions and history
 - 2026-10-27: built in FB2 (b). Names new here: the Cutters' Last Camp, the Black Ice, the Frozen Wall, the Gate,

@@ -1,4 +1,4 @@
-// Docs: docs/combat/bosses.md, docs/places/ladon.md
+// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md
 // The final bosses' machinery (FB1 (c), story/fb1-plan.md; the pattern in story/final-bosses.md), shared by client
 // and server: the FINAL table (each final boss's phases, its written loops, its heads), the heads' geometry (where
 // each head hangs, bites, lowers; where its stump is), the coils, and the arena's ledges. The brain is
@@ -25,9 +25,11 @@ export const LADON_BODY_X = FIN_W / 2; // the root knot at the back wall (the bo
 // phase's start (stumps and sealed stumps all push through again). first: the phase the first head comes out of
 // the dark. ultEvery: s between ultimates in phases 1–3 (the first below ULT_FIRST; in phase 4 the loop holds
 // them). loops: each phase's written loop, run in order for ever: a move name, 'name:2' (every other loop), 'shield'
-// (bark and ward by turns), 'ult' (Hundred Heads / Strangle by turns from phase 3).
+// (bark and ward by turns), 'ult' (the two ultimates by turns from phase 3). brain: which brain runs it
+// (server/final.js: 'hydra', Ladon's heads and coils; server/fenrir.js: 'wolf', Fenrir's fetters and lanterns; FB2).
 export const FINAL = {
   ladon: {
+    brain: 'hydra',
     at: [0.75, 0.5, 0.25],
     heads: [3, 5, 6, 6],
     first: 3,
@@ -39,6 +41,21 @@ export const FINAL = {
       ['watch', 'coil', 'bite', 'bite', 'rows', 'breath', 'ward:2'],
       ['breath', 'watch', 'coil', 'bite', 'bite', 'bite', 'shield', 'lash'],
       ['ult', 'watch', 'gaze', 'breath', 'storm', 'coil', 'both'],
+    ],
+  },
+  // Fenrir, the Bound Wolf (FB2 (c), story/fb2-plan.md; its own constants: src/shared/fenrir.js). 'rime': Rime Coat
+  // (the armour), 'ward': Fetter Ward (the barrier), 'howl': the pulse, 'ice': Falling Ice, 'rear': Rearing (the shard)
+  fenrir: {
+    brain: 'wolf',
+    at: [0.75, 0.5, 0.25],
+    ultEvery: [80, 65, 55, 0],
+    ults: [{ name: 'Swallow the Light', kind: 'swallow' }, { name: 'Fimbulwinter', kind: 'fimbul' }],
+    alternateFrom: 2,
+    loops: [
+      ['watch', 'lunge', 'claw', 'claw', 'strain', 'rime:2'],
+      ['watch', 'lunge', 'strain', 'howl', 'breath', 'ward:2'],
+      ['howl', 'watch', 'lunge', 'strain', 'claw', 'claw', 'shield', 'breath'],
+      ['ult', 'watch', 'pounce', 'howl', 'ice', 'rear', 'both'],
     ],
   },
 };

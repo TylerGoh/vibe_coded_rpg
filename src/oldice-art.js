@@ -294,7 +294,7 @@ function drawChainWarden(ctx, w, h, t, seed, m, dying) {
 
 // A wolf (the black-ice wolf, and Garm on the same bones): near-black fur cased in ice, rimed white along the back,
 // pale eyes with no pupils. m.warn: it crouches, hackles up, about to charge · m.charging: stretched out in its run
-function wolf(ctx, w, h, t, seed, m, dying, o) {
+export function wolf(ctx, w, h, t, seed, m, dying, o) {
   const live = dying < 0.05, warn = !!m.warn && live, run = !!m.charging && live;
   const gait = (m.walking || run) && live ? t * (run ? 22 : 13) + seed : 0;
   const crouch = warn ? h * 0.08 : 0, stretch = run ? 1.12 : 1;

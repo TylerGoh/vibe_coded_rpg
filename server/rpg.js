@@ -17,6 +17,7 @@ import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, ap
 import { createSummons } from './summons.js';
 import { createFinal } from './final.js';
 import { THROAT_MULT, THROAT_FILL, GAZE_STAGGER_S } from '../src/shared/final.js';
+import { SON_KNOCK } from '../src/shared/fenrir.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen, applyHook, HOOK_RANGE } from '../src/shared/sim.js';
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs, CURE_CD, DRAUGHT_S } from '../src/shared/alchemy.js';
@@ -103,13 +104,23 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
   const mobs = SPAWNS.map((sp) => spawn({ id: nextMob++, sp: { ...sp, room: sp.room ?? FIELD } }));
   for (const d of DENS) mobs.push(spawn({ id: nextMob++, sp: { kind: d.boss, x0: 200, x1: DEN_W - 200, y: ROOMS[d.room].ground, room: d.room }, den: d }));
   const loot = []; // { id, room, item, n, x, y, at }
-  // FB1 (c): the final bosses' brain (server/final.js), with what it needs from here (all called lazily)
+  // FB1 (c): the final bosses' brains (server/final.js: Ladon's; server/fenrir.js: Fenrir's, FB2), with what they need
+  // from here (all called lazily)
   const final = createFinal({
     now: () => now(), MOBS, TEST_BOSS_HP, ULT_FIRST, PULSE_WARN, weakOf, weakHpOf,
     toRoom: (r) => toRoom(r), bossEvent: (...a) => bossEvent(...a), bossSays: (...a) => bossSays(...a), sendParty: (m) => sendParty(m),
     damage: (...a) => damage(...a), hurt: (...a) => hurt(...a), stats: (q) => stats(q), later: (...a) => later(...a),
     addsCap: (m) => addsCap(m), minionsIn: (r) => minionsIn(r), shieldUp: (...a) => shieldUp(...a),
-    startUlt: (...a) => startUlt(...a), ultGoesOff: (...a) => ultGoesOff(...a),
+    startUlt: (...a) => startUlt(...a), ultGoesOff: (...a) => ultGoesOff(...a), stagger: (...a) => stagger(...a),
+    mobById: (id) => (id ? mobs.find((q) => q.id === id) : undefined), alive: (id) => mobs.some((q) => q.id === id && !q.dead),
+    minionsOf: (m, kind) => mobs.filter((q) => q.minion && !q.dead && q.room === m.room && q.kind === kind).length,
+    // a named add of its own (FB2: Skoll and Hati): a minion of kind `kind`, at x
+    addAdd: (m, kind, x) => {
+      const q = spawn({ id: nextMob++, sp: { kind, x0: 60, x1: DEN_W - 60, y: m.sp.y, room: m.room }, minion: true, by: m.id });
+      q.x = x;
+      mobs.push(q);
+      return q;
+    },
     addMinion: (m, x) => {
       const q = spawn({ id: nextMob++, sp: { kind: MOBS[m.kind].minion, x0: 60, x1: DEN_W - 60, y: m.sp.y, room: m.room }, minion: true });
       q.x = x;
@@ -712,6 +723,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     }
     if (!MOBS[m.kind].boss && !MOBS[m.kind].field && !MOBS[m.kind].fly && !MOBS[m.kind].anchored && knock) { // (anchored: a wasp nest doesn't slide)
       m.vx = dir * knock; // knocked back a little
+      if (knock >= SON_KNOCK) m.knockAt = now(); // (a real knockback: it stops Skoll or Hati swallowing a lantern, FB2)
       if (!MOBS[m.kind].hops || m.vy === 0) m.vy = -180;
     }
     if (p && (!src?.kind || src.kind === 'ricochet')) p.lastHit = { m, at: now() }; // (what you last hit yourself: a hawk dives at it, SP1)
@@ -826,6 +838,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       // FB1: a final boss's heads are targets of their own (h[4]: 1 the shard, 2 + slot a head or its stump); final.part
       // checks the reach (any arrow in range; anything else at the head's height) → a part, 'body', or nothing
       const pt = k.heads ? final.part(m, p, h[4] | 0, arrow, range, magic || fire || el === 'fire') : null, off = !!pt && pt !== 'body';
+      const prop = pt?.prop !== undefined; // (FB2: one of Fenrir's anchors or lanterns: it takes the hit, not the wolf)
       if (k.heads ? !pt : Math.abs(m.x - p.state.x) > range + k.w / 2 + SLACK) continue;
       if (m.special && !m.egg) continue; // phased out / mid-teleport: can't be hit
       // an Obsidian Crab's front shell takes most of a hit from the front (the client shows the same cut)
@@ -842,13 +855,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
         boom?.push(m.id);
       }
       const dmg = Math.max(1, Math.min(Math.round(Number(h[1]) || 0), Math.ceil(cap * shell * marked * cursed * pm * low * comb * (i === 0 ? lead : 1) * (shatter ? SHATTER_MULT : 1)) + 1));
-      if (slow) m.slowUntil = now() + slow * 1000 * (MOBS[m.kind].boss ? 0.5 : 1);
-      const hit = damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock, src);
+      if (slow && !prop) m.slowUntil = now() + slow * 1000 * (MOBS[m.kind].boss ? 0.5 : 1);
+      if (prop) m.hitters.set(id, now()); // (relighting or setting an anchor is fighting it: the EXP and the loot roll)
+      const hit = prop ? [m.id, dmg, h[2] ? 1 : 0, 0] : damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock, src);
       if (shatter) hit.push(1);
-      if ((pt?.head || pt?.stump) && !m.dead) final.hitHead(m, pt, dmg, id, p, { fire: fire || el === 'fire' || dot?.kind === 'burn', throatFill: THROAT_FILL }); // (fire seals a stump)
-      if (ps && !m.dead) partyHitLanded(m, dmg, { magic: magic && !off, heavy: (heavy || shatter) && !cracked.has(m) && !off, weak, onShield: ps.onShield && !off }) && cracked.add(m);
-      if (el && !m.dead) element(m, el, dmg, id, shatter);
-      if (dot && !m.dead) dotOn(m, dot.kind, dmg * dot.share, id);
+      if ((pt?.head || pt?.stump || prop) && !m.dead) final.hitHead(m, pt, dmg, id, p, { fire: fire || el === 'fire' || dot?.kind === 'burn', throatFill: THROAT_FILL }); // (fire seals a stump, relights a lantern)
+      if (ps && !m.dead && !prop) partyHitLanded(m, dmg, { magic: magic && !off, heavy: (heavy || shatter) && !cracked.has(m) && !off, weak, onShield: ps.onShield && !off }) && cracked.add(m);
+      if (el && !m.dead && !prop) element(m, el, dmg, id, shatter);
+      if (dot && !m.dead && !prop) dotOn(m, dot.kind, dmg * dot.share, id);
       out.push(hit);
     }
     return out;
@@ -1254,7 +1268,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     else if (k.final) {
       m.fighters = Math.max(m.fighters, here.length); // (a final boss's HP never grows: FB1; the count is for its adds)
       want = final.tick(m, k, here, dt, t);
-    } else if (k.boss) want = bossBrain(m, k, here, dt, t) * slow;
+    } else if (k.son) want = final.son(m, k, here, dt, t) * slow; // (FB2: Skoll and Hati hunt the lanterns, server/fenrir.js)
+    else if (k.boss) want = bossBrain(m, k, here, dt, t) * slow;
     else if (ai !== null) want = ai * slow;
     else if (m.target) {
       const dx = m.target.state.x - m.x;

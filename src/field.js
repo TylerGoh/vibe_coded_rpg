@@ -10,6 +10,7 @@ import { CALDERA_MOB_ART } from './caldera.js';
 import { CITADEL_MOB_ART } from './citadel.js';
 import { FJORD_MOB_ART, drawBoneHarpoon, drawFurHood } from './fjord-art.js';
 import { FIELD_BOSS_ART, drawEliteGlow } from './fieldboss-art.js';
+import { SON_ART } from './dens-fenrir.js';
 import { WILLOW_MOB_ART, WILLOW_ICONS, drawReedRapier, drawLilyHat, drawMillerCap, drawSnailHelm, drawSnapjawShell } from './willowmere-art.js';
 import { COVES_MOB_ART, COVES_ICONS, drawDriftCutlass, drawCoralSaber, drawTideClaw, drawConchHelm, drawHoardCrown } from './coves-art.js';
 import { DEEP_MOB_ART, DEEP_ICONS, DEEP_SWORDS, DEEP_SWORD_LEN, DEEP_HELMETS } from './deep-art.js';
@@ -28,7 +29,7 @@ import { QBRIDGE_MOB_ART, QBRIDGE_ICONS, QBRIDGE_SWORDS, QBRIDGE_SWORD_LEN, QBRI
 import { FORGE_ICONS, FORGE_SWORDS, FORGE_SWORD_LEN, FORGE_HELMETS } from './forgehold-art.js';
 import { drawStaff, STAFF_LEN } from './staff-art.js';
 import { drawBow, BOW_LEN } from './bow-art.js';
-const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...FIELD_BOSS_ART, ...WILLOW_MOB_ART, ...COVES_MOB_ART, ...DEEP_MOB_ART, ...CANOPY_MOB_ART, ...WRECK_MOB_ART, ...THORN_MOB_ART, ...SPINE_MOB_ART, ...GLACIER_MOB_ART, ...SKERRIES_MOB_ART, ...HEIGHTS_MOB_ART, ...BLUEHALLS_MOB_ART, ...QBRIDGE_MOB_ART, ...SUNKEN_MOB_ART, ...OLDICE_MOB_ART };
+const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...FIELD_BOSS_ART, ...WILLOW_MOB_ART, ...COVES_MOB_ART, ...DEEP_MOB_ART, ...CANOPY_MOB_ART, ...WRECK_MOB_ART, ...THORN_MOB_ART, ...SPINE_MOB_ART, ...GLACIER_MOB_ART, ...SKERRIES_MOB_ART, ...HEIGHTS_MOB_ART, ...BLUEHALLS_MOB_ART, ...QBRIDGE_MOB_ART, ...SUNKEN_MOB_ART, ...OLDICE_MOB_ART, ...SON_ART };
 // Greenhollow's branches' gear and materials (src/willowmere-art.js, src/coves-art.js, src/deep-art.js, src/canopy-art.js,
 // src/wreck-art.js, src/thornheart-art.js, src/spine-art.js, src/glacier-art.js, src/skerries-art.js, src/heights-art.js,
 // src/bluehalls-art.js, src/qbridge-art.js, src/sunkenroad-art.js, src/oldice-art.js)

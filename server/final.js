@@ -1,12 +1,13 @@
-// Docs: docs/combat/bosses.md, docs/places/ladon.md
+// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md
 // The final bosses' brain (FB1 (c); data in FINAL, src/shared/final.js): four phases, each a written loop of moves
 // run in order (never a random pick), the heads (several targets on one boss, each with a ring; cut, two regrow
 // unless fire seals the stump), the phase 3 coils (a server-timed hazard: it hurts, it never blocks), the enrage.
 // server/rpg.js runs it instead of bossBrain for a boss with `final` (stepMob), and asks it about hits on a head
 // (applyHits → part / hitHead). S5's engine (partyTick) still runs the focus, pulse, curse, shields and weak point;
 // for a final boss it starts none of them by itself: the loop does (watch, breath, bark / ward / both, gaze).
-// → the room: {t:'final', id, ph, hd: [[slot, state, ring filled 0–100, ms left in that state, x]], act: the slot
+// → the room: {t:'final', fb: 'ladon', id, ph, hd: [[slot, state, ring filled 0–100, ms left in that state, x]], act: the slot
 // that's acting (-1: none), cw: the coils' reach from each end (px), enr: 1 once enraged, cu: the Coil's ms left}
+import { createWolf } from './fenrir.js';
 import { FINAL, finalPhase, FINAL_ENRAGE_MIN, COIL_ENRAGE_S, ENRAGE_BREATH_S, FINAL_ULT_WARN, FINAL_GAP_S, LADON_SLOTS, HEAD_MAX, HEAD_RING, HEAD_CHUNK, HEAD_ADDS, REGROW_S, SEALED_REGROW_S, WATCH_S, BITE_WARN, BITE_REST_S, BITE_STUCK_S, LASH_WARN, LASH_FLOOR, LASH_ARCH, COIL_S, GAZE_S, GAZE_HP, GAZE_WEAK, COIL_STEP, COIL_STEPS, HUNDRED_GAPS, HUNDRED_GAP_W, FIN_W, headSpot, headReach, headTarget, throatOpen, isStump } from '../src/shared/final.js';
 
 const ENRAGE_MS = (Number(process.env.TEST_ENRAGE_MIN) || FINAL_ENRAGE_MIN) * 60_000; // (tests only: sooner)
@@ -14,8 +15,24 @@ const SLACK = 60;
 const rand = (a, b) => a + Math.random() * (b - a);
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 
-// d: what it needs from server/rpg.js's closure (all lazy, called at tick time)
+// The engine (FB2 generalised it): each FINAL row names its brain ('hydra': this file's, Ladon's heads and coils;
+// 'wolf': server/fenrir.js, Fenrir's fetters, lanterns and sons). They share one face, which server/rpg.js calls for any
+// boss with `final`: tick (instead of bossBrain), part / hitHead (hits on its other targets: h[4] = 2 + slot), send, and
+// son (stepMob, for an add with `son`: Skoll and Hati).
 export function createFinal(d) {
+  const brains = { hydra: createHydra(d), wolf: createWolf(d) };
+  const of = (m) => brains[FINAL[d.MOBS[m.kind].final]?.brain ?? 'hydra'];
+  return {
+    tick: (m, ...a) => of(m).tick(m, ...a),
+    part: (m, ...a) => of(m).part(m, ...a),
+    hitHead: (m, ...a) => of(m).hitHead(m, ...a),
+    send: (m) => of(m).send(m),
+    son: (...a) => brains.wolf.son(...a),
+  };
+}
+
+// d: what it needs from server/rpg.js's closure (all lazy, called at tick time)
+function createHydra(d) {
   const { now } = d;
   const ring = (k) => Math.max(1, Math.round(k.hp * d.TEST_BOSS_HP * HEAD_RING));
   const head = (k, slot, st = 'up') => ({ slot, st, fill: 0, max: ring(k), until: 0, x: LADON_SLOTS[slot].x });
@@ -38,7 +55,7 @@ export function createFinal(d) {
     f.sentAt = t;
     f.dirty = false;
     d.toRoom(m.room)({
-      t: 'final', id: m.id, ph: f.ph, act: f.act, cw: Math.round(f.cw), enr: f.enr ? 1 : 0, cu: f.coilUntil > t ? Math.round(f.coilUntil - t) : 0,
+      t: 'final', fb: 'ladon', id: m.id, ph: f.ph, act: f.act, cw: Math.round(f.cw), enr: f.enr ? 1 : 0, cu: f.coilUntil > t ? Math.round(f.coilUntil - t) : 0,
       hd: f.heads.map((h) => [h.slot, h.st, Math.round((h.fill / h.max) * 100), Math.max(0, Math.round(h.until - t)), Math.round(h.x)]),
     });
   }
