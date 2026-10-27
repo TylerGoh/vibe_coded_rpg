@@ -48,6 +48,14 @@ No quests, no hard level gates.
    Fenrir, the Bound Wolf (`fb2-plan.md`), approved. (b) live 2026-10-27: the Blue Halls' fallen
    wall, the Old Ice (50), the Long Stair (51), the door holding (`docs/places/oldice.md`). (c1) live 2026-10-27: the Wolf's Hold (52) and the
    whole fight (`docs/places/fenrir.md`). Next: (c2) its art polish, music, rewards (the `oath_blade` stand-in) and the mini Fenrir.
+5b. **The dev sandbox at `/rpg_dev`** (owner, 2026-10-27; right after FB2 (c2), before E1). Why: friends say some
+   classes don't *feel* right, and bots can't judge feel, so the owner wants to test by hand with a quick loop.
+   Owner's answers: its **own server process** running a dev copy at `/rpg_dev` (nginx change with the owner's sudo;
+   RAM is tight, so consider starting it on demand), **open to the owner and friends** (any account), and not the
+   full game: **instant character swap** (class, advancement, level, skills, ability points, gear from a panel),
+   **training dummies with a DPS readout** (single, a pack, one that hits back; per-skill breakdown, a timer), and
+   **bosses on demand** (any boss, any phase). The buff bar and every "feel" element (hit pops, sounds, shakes) as
+   in the game. Not wanted: live number sliders.
 6. **Emberdeep's depth pass, E1–E4** (Lv 90–150; plan, map and settled decisions:
    `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
    `docs/places/branches.md`). E0 shipped.
