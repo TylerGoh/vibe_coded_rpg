@@ -123,6 +123,7 @@ const SHOT = {
   star: { glow: '200,230,255', core: '#ffffff', mid: '#e8f4ff', rim: '#8ab0d8' }, // the lost star's spark
   ice: { glow: '140,190,255', core: '#e8f6ff', mid: '#8ec4f0', rim: '#2e5a8a' }, // the Hall Troll's block of ice
   seed: { glow: '190,255,150', core: '#fbffe8', mid: '#c8f0a0', rim: '#3e5a30' }, // the seed-pod lantern's glowing seed
+  log: { glow: '255,130,60', core: '#ffd27a', mid: '#3a3034', rim: '#1e1a1e' }, // Greyback's burning log (the Ashwood)
 };
 function drawShot(ctx, h, now) {
   const p = h.pos;
@@ -357,6 +358,35 @@ function drawShot(ctx, h, now) {
     ctx.fill();
     ctx.fillStyle = 'rgba(46,90,138,0.35)';
     ctx.fillRect(s2 * 0.1, s2 * 0.1, s2 * 0.8, s2 * 0.8);
+  } else if (h.style === 'log') {
+    // a charred log end over end, its ends burning, sparks flying off it
+    ctx.translate(p.x, p.y);
+    ctx.rotate(now * 6);
+    const L = r * 1.9, T = r * 0.62;
+    ctx.fillStyle = st.mid;
+    ctx.strokeStyle = st.rim;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.roundRect(-L, -T, L * 2, T * 2, T);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,140,60,0.8)'; // cracks glowing in the char
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(-L * 0.6, -T * 0.3);
+    ctx.lineTo(-L * 0.2, T * 0.2);
+    ctx.lineTo(L * 0.2, -T * 0.2);
+    ctx.moveTo(L * 0.3, T * 0.4);
+    ctx.lineTo(L * 0.6, -T * 0.1);
+    ctx.stroke();
+    for (const e of [-1, 1]) {
+      ctx.fillStyle = st.core;
+      disc(ctx, e * L, 0, T * 0.9);
+      ctx.fillStyle = '#ff7a3a';
+      disc(ctx, e * (L + T * 0.5), Math.sin(now * 18 + e) * 2, T * 0.6);
+    }
+    ctx.fillStyle = st.core;
+    for (let i = 0; i < 3; i++) disc(ctx, Math.cos(i * 2.3 + now * 4) * L * 1.2, Math.sin(i * 2.3 + now * 4) * L * 1.2, 1.5);
   } else if (h.style === 'snow') {
     // a big packed snowball, turning, shedding a few flakes
     ctx.translate(p.x, p.y);
@@ -419,9 +449,11 @@ function drawShot(ctx, h, now) {
 // ---- puddle -----------------------------------------------------------------------------------------
 // style: none = burning lava (the magma slug) · 'goo' = a sticky lilac puddle of snail gloop · 'glow' = a
 // tangle of sticky glowing thread (the threadweaver's) · 'silk' = a sticky white web of caterpillar silk ·
-// 'brine' = a slick of freezing brine, salt crystals growing in it (the brine slug's)
+// 'brine' = a slick of freezing brine, salt crystals growing in it (the brine slug's) · 'steam' = a scalded wet
+// patch with puffs of steam boiling up off it (the steam toad's, the Black Sands)
 function drawPuddle(ctx, h, now) {
   if (h.style === 'brine') return drawBrine(ctx, h, now);
+  if (h.style === 'steam') return drawSteamPuff(ctx, h, now);
   if (h.style === 'goo') return drawGoo(ctx, h, now);
   if (h.style === 'silk') return drawSilk(ctx, h, now);
   if (h.style === 'glow') return drawGlowThread(ctx, h, now);
@@ -490,6 +522,32 @@ function drawBrine(ctx, h, now) {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawSteamPuff(ctx, h, now) {
+  const start = h.warnAt ?? h.at, end = h.end ?? h.at + 5, age = now - start;
+  const a = clamp01(age / 0.25) * clamp01((end - now) / Math.min(1.2, (end - start) * 0.4));
+  if (a <= 0) return;
+  const x = h.x, y = h.y ?? GROUND, rx = (h.w || 60) / 2, grow = 0.6 + 0.4 * easeOut(clamp01(age / 0.4)), seed = x * 0.37;
+  ctx.save();
+  ctx.globalAlpha = a;
+  glow(ctx, x, y - 6, rx * 1.2, 20, '255,236,220', 0.35);
+  ctx.fillStyle = '#b8a8a0'; // the scalded patch
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, rx * grow, 5, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(240,232,226,0.8)';
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx * grow * 0.7, 3, 0, 0, TAU);
+  ctx.fill();
+  // puffs of steam boiling up
+  for (let i = 0; i < 5; i++) {
+    const ph = (now * (0.8 + hash(seed + i) * 0.5) + hash(seed + i * 3)) % 1;
+    const bx = x + (hash(seed + i * 5) - 0.5) * rx * 1.5 * grow;
+    ctx.fillStyle = `rgba(252,250,248,${0.75 * Math.sin(ph * Math.PI)})`;
+    disc(ctx, bx + Math.sin(now * 2 + i) * 3, y - 4 - ph * 30, 5 + ph * 9);
   }
   ctx.restore();
 }

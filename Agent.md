@@ -139,7 +139,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/economy.md](docs/economy.md) | ANY gold / EXP / price / drop / scaling change: the balance sheet, `npm run economy` |
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |
 | [docs/social/chat.md](docs/social/chat.md) | the chatbox, public chat, private messages, chat speech bubbles |
-| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, the branches' traders (Bun, Moss, Truffle, Acorn, Eyvind, Hakon), Skipper Arne, Forgehold's three (Ash, Soot, Slag), Auntie Clover, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
+| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, the branches' traders (Bun, Moss, Truffle, Acorn, Eyvind, Hakon, Pitch), Skipper Arne, Forgehold's three (Ash, Soot, Slag), Auntie Clover, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
 | [docs/social/trading.md](docs/social/trading.md) | trading coins and items between players, the trade log |
 | [docs/social/accuse.md](docs/social/accuse.md) | accusing someone of botting, the canvas deny button, the EXP skim |
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
@@ -167,6 +167,8 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/heights.md](docs/places/heights.md) | the Aurora Heights (room 40, Lv 75–90, up from the Glacier's Icefall), the aurora curtains, the Serpent Stone, Liv's Reach, the Pale Wyrm (field boss) |
 | [docs/places/bluehalls.md](docs/places/bluehalls.md) | the Blue Halls (room 41, a hard pocket under the Glacier, Lv 80–90), its elites, the Cutters' Niche, the Hall Troll (field boss), the fallen wall, the cutters' record, thin ice (a room hazard) |
 | [docs/places/queensbridge.md](docs/places/queensbridge.md) | the Queen's Bridge (room 42, Lv 85–100, up the ice stair on Frostpine Ridge), the Frozen Guard, the Strait Stone, the Shield's Perch, Sigrun and her den, the Seam (43), Frostpeak's party den |
+| [docs/places/blacksands.md](docs/places/blacksands.md) | the Black Sands (room 54, Lv 90–100, an easy pocket off Forgehold's west end), the Bellower, the Kettle, the Turning Stone, the quiet geyser |
+| [docs/places/ashwood.md](docs/places/ashwood.md) | the Ashwood (room 55, Lv 115–130, up the charcoal road north of Cinder Flats), Collier Pitch, Greyback, the Kiln Stone, the Green Tree, the mended iron bridge, the Old Foundry's bricked-up adit (its gate) |
 | [docs/places/oldice.md](docs/places/oldice.md) | the Old Ice (room 50, FB2's deep room under the Blue Halls: its mobs, the black-ice wolf, Garm), the Long Stair (room 51, the approach to Fenrir's den: the wolf in the ice, Fenrir's line, the door, its sign) |
 | [docs/places/deep.md](docs/places/deep.md) | the Mycelium Deep (room 28), Glowroot Hollow (29, a hard pocket), Forager Truffle, the Knotmole's burrow (30), the Listening Stone |
 | [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel, within one island), attuning, the travel card |

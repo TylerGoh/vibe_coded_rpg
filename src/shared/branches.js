@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -55,14 +55,15 @@ export const EMBERDEEP = [
   { id: 'forgehold', name: 'Forgehold', at: [205, 215], rooms: [FORGEHOLD], town: true },
   { id: 'flats', name: 'Cinder Flats', band: '90–100', at: [355, 215], from: 'forgehold', zone: 0, zr: CALDERA },
   { id: 'heart', name: 'Magma Heart', band: '100–115', at: [505, 215], from: 'flats', zone: 1, zr: CALDERA },
-  { id: 'sands', name: 'Black Sands', band: '90–100', at: [76, 215], from: 'forgehold', block: 'a new geyser',
-    gate: { room: FORGEHOLD, x: SANDS_GATE_X, kind: 'geyser', look: 'look at the geyser', says: 'A new geyser has broken out right across the beach path. It scalds every few seconds.' } },
+  // E1: the geyser across the beach path has gone quiet (the update itself lifted it)
+  { id: 'sands', name: 'Black Sands', band: '90–100', at: [76, 215], from: 'forgehold', rooms: [BLACKSANDS], entry: { room: FORGEHOLD, x: SANDS_GATE_X, kind: 'geyser' } },
   { id: 'coast', name: 'Smoking Coast', band: '100–115', at: [355, 295], from: 'flats', block: 'a lava tongue',
     gate: { room: CALDERA, x: COAST_GATE_X, kind: 'lavatongue', look: 'look down the gully', says: 'Fresh lava has run down the gully to the coast. Still crusting over, red underneath.' } },
   { id: 'tubes', name: 'Drained Tubes', band: '115–125', hard: true, at: [205, 300], from: 'coast', past: true, block: 'past the Coast' },
-  { id: 'ashwood', name: 'The Ashwood', band: '115–130', at: [355, 135], from: 'flats', block: 'the bridge fell in',
-    gate: { room: CALDERA, x: ASHWOOD_GATE_X, kind: 'ironbridge', look: 'look at the fallen bridge', says: "The charcoal road's iron bridge fell into the lava channel. Ash trees on the far side." } },
-  { id: 'foundry', name: 'Old Foundry', band: '130–145', hard: true, at: [205, 135], from: 'ashwood', past: true, block: 'past the Ashwood' },
+  // E1: the charcoal road's iron bridge hauled back up onto its abutments (the update itself lifted it)
+  { id: 'ashwood', name: 'The Ashwood', band: '115–130', at: [355, 135], from: 'flats', rooms: [ASHWOOD], entry: { room: CALDERA, x: ASHWOOD_GATE_X, kind: 'ironbridge' } },
+  { id: 'foundry', name: 'Old Foundry', band: '130–145', hard: true, at: [205, 135], from: 'ashwood', block: 'bricked up',
+    gate: { room: ASHWOOD, x: FOUNDRY_GATE_X, kind: 'adit', look: 'look at the bricked-up adit', says: 'The old adit is bricked up from this side. Forge bricks, good mortar. Someone meant it.' } },
   { id: 'brimstone', name: 'Brimstone Fields', band: '125–140', at: [505, 135], from: 'heart', block: 'the vents are fuming',
     gate: { room: CALDERA, x: BRIMSTONE_GATE_X, kind: 'fumes', look: 'look up the flank', says: 'The vent field across the path is fuming yellow. Nobody can breathe that air today.' } },
   { id: 'rim', name: 'Caldera Rim', band: '135–150', at: [505, 58], from: 'brimstone', past: true, block: 'past the Fields' },

@@ -36,7 +36,7 @@ gates left.
 - rime puffin (passive, hops) · sleet harrier = `dive` (`fly` 62: under the 70 px notice limit) · rimeguard =
   `shell` (a round shield of ice in front: hit it from behind; the Queen's guards, frozen half-solid, still on
   watch) · hoarfrost shade = `phase` (`fly` 44) · leopard seal = `blink` (down a crack, up behind you; drawn as
-  a hole with whiskers while gone) · rime archer = `lob`, `style: 'javelin'` (`src/hazards.js`).
+  a hole with whiskers while gone; its whisker is `leopard_whisker`, renamed in E1 from a clash with the Skerries' `seal_whisker`) · rime archer = `lob`, `style: 'javelin'` (`src/hazards.js`).
 - No elites (not a hard pocket) and no field boss: the party den is the danger, as on Keeper's Spine.
 
 ## Sigrun, the Queen's Shield (The Seam, den 43)

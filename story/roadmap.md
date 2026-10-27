@@ -60,11 +60,12 @@ No quests, no hard level gates.
    **Built 2026-10-27** (`docs/sandbox.md`): its own on-demand server (`rpg-dev.socket`, port 3003, exits when idle)
    running the `~/rpg-dev` worktree (`dev` branch), logins copied read-only from live, the Training Yard (room 53),
    the panel (character swap, dummies incl. one that hits back, DPS readout, bosses at any phase, god mode / full MP /
-   no cooldowns). Next: the owner installs nginx's `/rpg_dev/` block, then **the owner and friends play** it.
+   no cooldowns). Stopped 2026-10-27 (owner; the socket still starts it on a visit). Next: the owner installs nginx's `/rpg_dev/` block, then **the owner and friends play** it.
 6. **Emberdeep's depth pass, E1–E4** (Lv 90–150; plan, map and settled decisions:
    `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
    `docs/places/branches.md`). E0 shipped.
-   - [ ] E1: the Ashwood (115–130) and the Black Sands (90–100, easy)
+   - [x] E1: the Ashwood (115–130) and the Black Sands (90–100, easy) (2026-10-27; rooms 55 and 54,
+         `docs/places/ashwood.md`, `blacksands.md`). Next: **the owner plays** them.
    - [ ] E2: the Smoking Coast and the Drained Tubes (hard), the Hatchkeeper, Liv
    - [ ] E3: the Brimstone Fields and the Old Foundry (hard)
    - [ ] E4: the Caldera Rim and Brenna, Emberdeep's party den; Ignis's and Pyra's lines

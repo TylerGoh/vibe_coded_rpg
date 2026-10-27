@@ -19,7 +19,9 @@
 // the thermal column (atlas Phase 6). Open: the ice stair built up again to the Queen's Bridge (F4), the glacier's own way in, its snout on Starfall Summit with steps cut up it (F1), the
 // snow slide over the hamlet's shore path dug through to the Whale Skerries and the Narwhal Grotto's mouth in
 // the Skerries' sea cliff (F2), the crevasse with a new ladder down into the Blue Halls and the icefall with
-// new steps cut up to the Aurora Heights (F3).
+// new steps cut up to the Aurora Heights (F3), and on Emberdeep the geyser on Forgehold's beach path gone quiet,
+// stones laid across it, to the Black Sands (E1), and the charcoal road's iron bridge hauled back up onto its
+// stones, to the Ashwood (E1). The Ashwood's own gate: the Old Foundry's mine adit, bricked up by the forge folk.
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, circle, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';
@@ -57,7 +59,7 @@ export function drawEntries(ctx, room, ground, L, R, time) {
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { fallenwall: -178, rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, fumes: -130, balloon: -190 };
+const SIGN_AT = { fallenwall: -178, rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, adit: 92, fumes: -130, balloon: -190 };
 const SCALE = { bridge: 1.5, thorns: 1.15, balloon: 0.82 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -1483,7 +1485,10 @@ function drawSnout(ctx, time) {
 // ——— Emberdeep (atlas Phase 5, E0: story/world/emberdeep-depth.md) ———
 // The Black Sands, off Forgehold's west end: a new geyser has broken out right across the beach path. A
 // scalded ring in the black sand, a bubbling pool, and every few seconds a column of boiling water.
-function drawGeyser(ctx, time) {
+// open (E1, the update itself lifted it): the geyser has gone quiet, its pool crusted over with only a wisp of
+// steam, flat stones laid across it, the rope and its stakes pulled up and left lying by the path
+function drawGeyser(ctx, time, g, open = false) {
+  if (open) return drawGeyserQuiet(ctx, time);
   ctx.fillStyle = '#c8b8a4'; // the scalded ring
   ctx.beginPath();
   ctx.ellipse(0, 2, 74, 9, 0, 0, TAU);
@@ -1544,6 +1549,48 @@ function drawGeyser(ctx, time) {
   for (const t of [0.25, 0.5, 0.75]) ctx.fillRect(-70 + t * 140 - 2, -36 + Math.sin(t * Math.PI) * 9, 4, 8);
 }
 
+function drawGeyserQuiet(ctx, time) {
+  ctx.fillStyle = '#8a7a74'; // the old scalded ring, gone grey
+  ctx.beginPath();
+  ctx.ellipse(0, 2, 74, 9, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#a8988a';
+  ctx.beginPath();
+  ctx.ellipse(0, 1, 46, 5, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(242,212,90,0.55)'; // a sulphur crust over the old hole
+  ellipse(ctx, -6, 0, 22, 3.5);
+  // a wisp of steam, nothing more
+  for (let i = 0; i < 3; i++) {
+    const k = (time * 0.15 + i / 3) % 1;
+    ctx.fillStyle = `rgba(250,248,246,${0.3 * Math.sin(k * Math.PI)})`;
+    circle(ctx, Math.sin(i * 2.3 + time * 0.4) * 10, -10 - k * 70, 8 + k * 12);
+  }
+  // the path's stones, and new flat ones laid across where it was
+  ctx.fillStyle = '#6a5a62';
+  for (const dx of [-112, -92, -60, -30, 0, 30, 60, 90, 110]) ellipse(ctx, dx, 3, 10, 3.6);
+  ctx.fillStyle = 'rgba(255,240,230,0.25)';
+  for (const dx of [-60, -30, 0, 30, 60]) ellipse(ctx, dx - 3, 1.5, 5, 1.4);
+  // the rope and its stakes, pulled up and left lying by the path, a red rag still knotted on
+  ctx.strokeStyle = '#4a3e46';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-96, -2);
+  ctx.lineTo(-58, -8);
+  ctx.moveTo(62, -6);
+  ctx.lineTo(100, -1);
+  ctx.stroke();
+  ctx.strokeStyle = '#c9b8aa';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-60, -7);
+  ctx.bezierCurveTo(-30, -2, -20, 6, 10, 5);
+  ctx.bezierCurveTo(30, 4, 40, -4, 62, -5);
+  ctx.stroke();
+  ctx.fillStyle = '#d0485a';
+  ctx.fillRect(-26, 0, 4, 7);
+}
+
 // The Smoking Coast, down a gully south off Cinder Flats: a fresh lava tongue has run down it, crusting over
 // black with red still showing in the cracks. The gully's walls frame it; steam lifts off.
 function drawLavaTongue(ctx, time) {
@@ -1595,7 +1642,9 @@ function drawLavaTongue(ctx, time) {
 
 // The Ashwood, up the old charcoal road north out of Cinder Flats: its iron bridge over a lava channel has
 // fallen in, one end still on the near bank, the truss sagging into the glow. Ash trees on the far side.
-function drawIronBridge(ctx, time) {
+// open (E1, the update itself lifted it): the smiths hauled the truss out on chains and set it back on its
+// stones, bright new plates riveted over the bent places (Slag's), the chains still hanging off the posts
+function drawIronBridge(ctx, time, _g, open = false) {
   ctx.fillStyle = '#6a6062'; // the ash trees beyond, grey and bare
   for (const [x, h] of [[30, 120], [62, 150], [96, 110], [128, 140]]) {
     ctx.fillRect(x - 3, -h, 6, h - 30);
@@ -1626,6 +1675,7 @@ function drawIronBridge(ctx, time) {
   ctx.beginPath();
   ctx.roundRect(-100, -24, 34, 28, 4);
   ctx.fill();
+  if (open) return ironBridgeUp(ctx, time);
   ctx.strokeStyle = '#3a3438';
   ctx.lineWidth = 4;
   ctx.lineCap = 'round';
@@ -1655,6 +1705,139 @@ function drawIronBridge(ctx, time) {
     ctx.fillStyle = `rgba(255,190,120,${Math.sin(k * Math.PI) * 0.7})`;
     circle(ctx, -20 + i * 22 + Math.sin(k * 6) * 4, -14 - k * 60, 1.6);
   }
+}
+
+function ironBridgeUp(ctx, time) {
+  ctx.fillStyle = '#4a3e46'; // the far abutment
+  ctx.beginPath();
+  ctx.roundRect(66, -24, 34, 28, 4);
+  ctx.fill();
+  // the deck, level again from stone to stone, and the truss over it
+  ctx.fillStyle = '#3a3438';
+  ctx.fillRect(-74, -28, 148, 6);
+  ctx.strokeStyle = '#3a3438';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-74, -48);
+  ctx.lineTo(74, -48);
+  ctx.moveTo(-74, -26);
+  ctx.lineTo(-74, -48);
+  ctx.moveTo(74, -26);
+  ctx.lineTo(74, -48);
+  ctx.stroke();
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const x0 = -74 + i * 24.7;
+    ctx.moveTo(x0, -26);
+    ctx.lineTo(x0 + 24.7, -48);
+    ctx.moveTo(x0 + 24.7, -26);
+    ctx.lineTo(x0 + 24.7, -48);
+  }
+  ctx.stroke();
+  // Slag's new plates over the bent places, bright, with rivets
+  for (const [x, w] of [[-34, 20], [12, 24]]) {
+    ctx.fillStyle = '#9a96a2';
+    ctx.fillRect(x, -30, w, 9);
+    ctx.fillStyle = '#d8d4dc';
+    for (let k = 3; k < w; k += 6) circle(ctx, x + k, -25.5, 1.1);
+  }
+  // the chains it was hauled up on, still hanging off the posts
+  ctx.strokeStyle = '#5e5a64';
+  ctx.lineWidth = 2;
+  for (const s of [-1, 1]) {
+    ctx.fillStyle = '#4a3e46';
+    ctx.fillRect(s * 88 - 3, -66, 6, 42);
+    ctx.beginPath();
+    ctx.moveTo(s * 88, -62);
+    ctx.quadraticCurveTo(s * 60, -36 + Math.sin(time * 1.2 + s) * 1.5, s * 50, -48);
+    ctx.stroke();
+  }
+  // heat shimmering up off the channel through the deck
+  for (let i = 0; i < 3; i++) {
+    const k = (time * 0.3 + i / 3) % 1;
+    ctx.fillStyle = `rgba(255,190,120,${Math.sin(k * Math.PI) * 0.5})`;
+    circle(ctx, -30 + i * 30 + Math.sin(k * 6) * 4, -30 - k * 50, 1.4);
+  }
+}
+
+// The Old Foundry, up the Ashwood's slope at its west end: an old mine adit into the foundry's workings, a timbered
+// mouth in the black rock with a rail running out of it, bricked up by the forge folk themselves: neat forge bricks,
+// good mortar, a rusted lamp hook over it, no sign but the one the gate gets. Cold air leaks round one brick.
+function drawAdit(ctx, time) {
+  ctx.fillStyle = '#2e2830'; // the slope's rock face
+  ctx.beginPath();
+  ctx.moveTo(-120, 0);
+  ctx.lineTo(-104, -120);
+  ctx.quadraticCurveTo(-40, -168, 30, -150);
+  ctx.quadraticCurveTo(96, -132, 112, -60);
+  ctx.lineTo(120, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#3e3640';
+  ctx.beginPath();
+  ctx.moveTo(-100, -110);
+  ctx.quadraticCurveTo(-40, -156, 20, -142);
+  ctx.lineTo(10, -132);
+  ctx.quadraticCurveTo(-40, -142, -90, -102);
+  ctx.closePath();
+  ctx.fill();
+  // the bricks filling the mouth
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(-44, -96, 88, 96, [30, 30, 0, 0]);
+  ctx.clip();
+  ctx.fillStyle = '#8a5a48';
+  ctx.fillRect(-44, -96, 88, 96);
+  ctx.strokeStyle = '#c8b8a8';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  for (let r = 0; r < 12; r++) {
+    const y = -r * 8;
+    ctx.moveTo(-44, y);
+    ctx.lineTo(44, y);
+    for (let x = -44 + (r % 2) * 9; x < 44; x += 18) {
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y - 8);
+    }
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(30,20,20,0.25)'; // soot up the bricks
+  ctx.fillRect(-44, -96, 88, 30);
+  ctx.restore();
+  // the timber frame round the mouth
+  ctx.fillStyle = '#4a3a34';
+  ctx.fillRect(-52, -100, 10, 100);
+  ctx.fillRect(42, -100, 10, 100);
+  ctx.fillRect(-58, -108, 116, 12);
+  ctx.fillStyle = 'rgba(20,14,14,0.4)';
+  ctx.fillRect(-58, -98, 116, 3);
+  // the rail running out of it, cut off at the bricks
+  ctx.strokeStyle = '#6a646e';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-30, 0);
+  ctx.lineTo(-30, -2);
+  ctx.moveTo(-34, 1);
+  ctx.lineTo(70, 1);
+  ctx.moveTo(-34, -3);
+  ctx.lineTo(70, -3);
+  ctx.stroke();
+  ctx.fillStyle = '#4a3a34';
+  for (let x = -30; x < 70; x += 14) ctx.fillRect(x, -1, 8, 3);
+  // the rusted lamp hook, no lamp
+  ctx.strokeStyle = '#7a5040';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, -108);
+  ctx.lineTo(0, -122);
+  ctx.arc(4, -122, 4, Math.PI, 0);
+  ctx.stroke();
+  // cold air leaking round one brick, a thin wisp
+  const k = (time * 0.4) % 1;
+  ctx.fillStyle = `rgba(220,226,236,${0.35 * Math.sin(k * Math.PI)})`;
+  circle(ctx, 18 + k * 10, -56 - k * 26, 3 + k * 4);
 }
 
 // The Brimstone Fields, up the cone's flank from Magma Heart: the path climbs into a field of vents crusted
@@ -1763,7 +1946,7 @@ function drawBalloon(ctx, time) {
   ctx.stroke();
 }
 
-const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon };
+const DRAW = { bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit };
 // The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
 // going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
 // white rose petal or two drifting into it. The update itself split it: no quest
@@ -1901,4 +2084,4 @@ function drawFallenWall(ctx, time) {
 }
 
 const OPEN = { fallenwall: drawFallenWall, icestair: (ctx, time, g) => drawIcestair(ctx, time, g, true), snout: drawSnout, crevasse: (ctx, time, g) => drawCrevasse(ctx, time, g, true), icefall: (ctx, time, g) => drawIcefall(ctx, time, g, true), snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
-  flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true), rootsplit: drawRootSplit };
+  flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true), rootsplit: drawRootSplit, geyser: (ctx, time, g) => drawGeyser(ctx, time, g, true), ironbridge: (ctx, time, g) => drawIronBridge(ctx, time, g, true) };

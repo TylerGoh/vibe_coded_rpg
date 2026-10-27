@@ -12,8 +12,8 @@ personas in `server/characters.js`, the `forgehold` music scene in `src/audio.js
 `docs/places/crossings.md`. The island's map and its gates: `docs/places/branches.md`.
 
 ## What it is
-- **Room 44, a town and a safe room** (no mobs). West to east: the beach path out to the Black Sands, blocked
-  by a new geyser (a gate, `SANDS_GATE_X`); Black Sand Shore's rusted iron quay where the Lodestar ties up
+- **Room 44, a town and a safe room** (no mobs). West to east: the beach path out to the Black Sands (its door
+  at `SANDS_GATE_X`; E0's geyser across it went quiet in E1, stones laid over it: `docs/places/blacksands.md`); Black Sand Shore's rusted iron quay where the Lodestar ties up
   (her gangway, `FORGE_DOCK_X`, boards `STEAM_S` after the "Set sail?" card); **Auntie Soot's springs**, a
   bathhouse of stacked stone over steaming pools; then the town cut into the caldera's outer wall: ledges
   joined by chains and iron stairs, the iron door that is **everyone's own front door** (`FORGE_HOME_X`), the
@@ -21,7 +21,7 @@ personas in `server/characters.js`, the `forgehold` music scene in `src/audio.js
   (`FORGE_WALL_X`), **Slag's stack of gear-teeth**, and the road up into Cinder Flats (`FORGE_EXIT_X`, into
   the legacy stage's west end at `CALDERA_EXIT_X`).
 - One room, with the shore as its waterfront (owner's default: you step off the boat into a town). The
-  atlas listed Black Sand Shore and Forgehold separately; the Black Sands proper is a branch (E1).
+  atlas listed Black Sand Shore and Forgehold separately; the Black Sands proper is a branch (E1, room 54).
 - Climbable (`FORGE_PLATFORMS`; the drawing reads them): iron crates on the quay, the bathhouse roof, three
   ledges in the wall, the forge's hood, and Slag's stack.
 - The sky: an ash-hazed dusk, warm green sea, the other islands far off to the north (`drawDistantIslands`
@@ -41,13 +41,16 @@ personas in `server/characters.js`, the `forgehold` music scene in `src/audio.js
   dangerous inland (Tove's job, done grimly): the four legacy mobs, Ignis and Pyra, and every shut way out.
   He holds Tier 3 in the long run but **deflects** until per-account story progress exists: "Go and ask the
   old smith in the Forge. Then come back." (a character's refusal, not a gate). His sister Brenna is the blank
-  space; he gives that slowly ("It's spoken for." the first time). Keep his mob list in step with Emberdeep's.
+  space; he gives that slowly ("It's spoken for." the first time). Keep his mob list in step with Emberdeep's
+  (E1: the Black Sands and the Ashwood are open in it; of the Old Foundry's bricked-up adit he says only that the
+  forge folk bricked it themselves and it stays bricked: `docs/places/ashwood.md`).
 - **Auntie Soot** (`soot`, `shop: 'soot'`): the springs, the one kind voice. Sells the basic potions and her
   **Spring-Boiled Egg** (`spring_egg`, a plain heal). Holds Arne's sack of letters for "the northern girl out
   on the coast" (Liv, before her branch opens in E2), and is knitting her something.
 - **Slag** (`slag`, `shop: 'slag'`, lively): Ash's apprentice; sells the basic potions and the island's first
   gear tier, aimed at its start: the **Slag Maul**, its staff twin the **Bellows Rod**, and the **Smith's Iron
-  Cap** (`docs/combat/items.md`, `docs/economy.md`). Never seen snow; afraid of the sea.
+  Cap** (`docs/combat/items.md`, `docs/economy.md`). Never seen snow; afraid of the sea. Laid the Black Sands' stones
+  and riveted the Ashwood bridge's new plates (E1).
 - **Their look** (the forge folk): `folk: 'forge'` makes `Slime.setFolk` paint them dark and dense with ember
   flecks and a warm glow low down (`FORGE_PALETTE`, `drawForgeFolk`), with the same stiff wobble as the
   fjord folk (`lively` still bounces). Mid-dark, not black, so the face reads. Their clothes are the

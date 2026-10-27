@@ -229,6 +229,8 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | Ignis the Magma Tyrant (den, Lv 99) | armour (cooling rock), pulse (the heat), interrupt | basalt plates with a glowing seam down each (`looks.shell: 'cinder'`); ember rings with heat shimmer going up, "HEAT" (`looks.pulse: 'heat'`) |
 | Pyra the Ember Phoenix (den, 110) | curse (burning), adds | a charred sigil with a red-hot rim and sparks flying up (`looks.curse: 'ember'`); her cinder bats in bigger flocks |
 | The Clockwork Colossus (den, `top`, 150) | armour, weakpoint (the core), pulse (steam), interrupt | riveted plates of dark bronze (`looks.shell: 'brass'`); its clock-gear heart opens as a spinning cyan gear (`weak.front`, `looks.weak: 'core'`); white steam rings and a plume off its stacks, "STEAM" (`looks.pulse: 'steam'`) |
+| The Bellower (field, 100; E1) | armour, focus | Ignis's basalt plates with a glowing seam (`looks.shell: 'cinder'`): the black sand on its back baked hard |
+| Greyback (field, 130; E1) | focus, curse (smouldering) | Pyra's charred sigil (`looks.curse: 'ember'`): his burning logs leave you smouldering |
 | Chronos, Keeper of Hours (den, `top`, 170) | barrier, curse (borrowed time), interrupt | a gold dome with hour marks and two clock hands turning inside (`looks.dome: 'hours'`); a dial of gold light on the floor, its hand sweeping round (`looks.curse: 'hours'`) |
 - **Swaps and additions:** Pyra has no `interrupt` (Rebirth's egg is its own answer; `interruptUlt` skips it). The
   Colossus got a **pulse** on top of the draft's armour + weak point: a top boss is meant to punish a party with no

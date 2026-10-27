@@ -14,6 +14,7 @@ import { drawForagerDress } from './deep-art.js';
 import { drawRangerDress } from './canopy-art.js';
 import { drawIcecutterDress } from './glacier-art.js';
 import { drawBonecarverDress } from './skerries-art.js';
+import { drawCollierDress } from './ashwood-art.js';
 import { drawPetkeeperDress } from './pet-art.js';
 
 // yr's laptop notifications: icon colours, and how long each one floats
@@ -1000,6 +1001,7 @@ export class Slime {
     if (this.has('ranger')) drawRangerDress(ctx, w, h, fx, this.t); // the Old Oak Canopy's Ranger Acorn
     if (this.has('icecutter')) drawIcecutterDress(ctx, w, h, fx, this.t); // the Rimeglass Glacier's Ice-Cutter Eyvind
     if (this.has('bonecarver')) drawBonecarverDress(ctx, w, h, fx, this.t); // the Whale Skerries' Hakon
+    if (this.has('collier')) drawCollierDress(ctx, w, h, fx, this.t); // the Ashwood's Collier Pitch
     if (this.has('petkeeper')) drawPetkeeperDress(ctx, w, h, fx, this.t, bodyPath); // the Pet Shop's Auntie Clover
     if (this.has('captain')) {
       // Captain Brine: a salt-white beard, a navy captain's cap with a gold anchor badge, and a brass spyglass

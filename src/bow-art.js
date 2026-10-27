@@ -62,6 +62,13 @@ export const BOWS = {
   oath_bow: { len: 33, wood: ['#c8b498', '#6a5a44'], w: 3.6, tip: 'cap', c: '#c8ccd8', grip: '#3e6294', gem: '#e2f0fc', string: '#e8e0d0', glow: '190,226,255', shield: true },
   moonchaser_bow: { len: 35, wood: ['#3a4a6a', '#141c30'], w: 3.8, tip: 'moon', c: '#eef4ff', grip: '#d8e2f2', gem: '#f4f8ff', string: '#cfe0ff', glow: '220,232,255', curve: 0.55 }, // (Fenrir's: Hati's, a crescent moon on each tip)
   spring_bow: { len: 30, wood: ['#8a8490', '#4e4a56'], w: 4, tip: 'rivet', c: '#c8c4cc', grip: '#3a3640', gem: '#ff8a3c', string: '#b8b4bc', glow: '255,150,80', curve: 0.38 },
+  // the Black Sands (E1, docs/places/blacksands.md)
+  blackglass_bow: { len: 30, wood: ['#6a6470', '#36323c'], w: 3.2, tip: 'fang', c: '#2e2a38', grip: '#4a3a30', gem: '#8ad0c0', string: '#d8c8b8', glow: '160,230,215' },
+  // the Ashwood (E1, docs/places/ashwood.md)
+  charcoal_bow: { len: 30, wood: ['#4a4248', '#24202a'], w: 3.6, tip: 'nock', grip: '#6a5040', gem: '#ff8a4a', string: '#d8ccb8', glow: '255,150,90' },
+  emberfang_bow: { len: 30, wood: ['#8a8490', '#4e4a56'], w: 3.2, tip: 'ember', c: '#ff6a3a', grip: '#7a7270', string: '#d8c8b8', glow: '255,120,70', curve: 0.42 },
+  greyback_bow: { len: 32, wood: ['#3a3236', '#1a1618'], w: 4, tip: 'fang', c: '#2a2426', grip: '#7a7478', gem: '#ffa050', string: '#c8b8a8', glow: '255,160,90', curve: 0.38 },
+  bellower_bow: { len: 31, wood: ['#5a5058', '#2e2830'], w: 3.8, tip: 'rivet', c: '#a8a0a8', grip: '#3a3038', gem: '#ffb46a', string: '#c8b8a8', glow: '255,170,110', curve: 0.36 },
 };
 export const BOW_LEN = Object.fromEntries(Object.entries(BOWS).map(([id, b]) => [id, b.len]));
 export const bowTint = (id) => BOWS[artOf(id)]?.glow ?? '240,230,200';

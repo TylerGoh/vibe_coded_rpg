@@ -229,9 +229,10 @@ up, then the party den (E4) and the final boss (E5); then atlas Phase 6.
       under them." Personas: Runa (Arne sailed), Eyvind (his letters went south; no answer yet), Skaldi,
       Brine and Tove (the pass is gone, the Lodestar sails). Music scenes for the deck and the town. If
       it runs long, the map and gates move to the start of E1.
-- [ ] **E1: the Ashwood** (115–130) and **the Black Sands** (90–100, easy): Greyback, the Bellower, Collier
+- [x] **E1: the Ashwood** (115–130) and **the Black Sands** (90–100, easy): Greyback, the Bellower, Collier
       Pitch, the Kiln Stone, the Turning Stone, the Green Tree, the Kettle; waystone in the Ashwood. Lifts
       the bridge and the geyser; lays the Old Foundry's gate (the bricked-up adit) in the Ashwood.
+      Shipped 2026-10-27 (the Black Sands room 54, the Ashwood room 55); the hot-spring herb skipped (`docs/ideas.md`).
 - [ ] **E2: the Smoking Coast** (100–115) and **the Drained Tubes** (115–125, hard), the Hatchkeeper's den
       (with lines), Liv and her shop, Hundredfoot, the Tubes' elites, the Landing Stone, Liv's Lookout,
       the Skylight; waystone on the Coast. Eyvind's, Skaldi's, Soot's and Arne's personas learn Liv's news.

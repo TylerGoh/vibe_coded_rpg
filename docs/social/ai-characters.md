@@ -13,7 +13,7 @@ one shared corner feed).
   `docs/places/glacier.md`), the Whale Skerries' Hakon the Bone-Carver (fjord folk, trades;
   `docs/places/skerries.md`), the Lodestar's Skipper Arne (fjord folk, at her wheel on both decks, like
   Brine; `docs/places/crossings.md`), Forgehold's Forgewarden Ash, Auntie Soot and Slag (forge folk; Soot and
-  Slag trade; `docs/places/forgehold.md`), and
+  Slag trade; `docs/places/forgehold.md`), the Ashwood's Collier Pitch (forge folk, trades; `docs/places/ashwood.md`), and
   the Pet Shop's Auntie Clover (sells pet food, preaches feeding; `docs/places/pets.md`). Press E
   in range to talk.
 - When a place opens, update the personas that can see it, or they keep describing the block: Moss knows
@@ -42,7 +42,13 @@ one shared corner feed).
   of letters south with Arne and has no answer yet; Tove wants to go. In Forgehold, Ash lists every shut way
   out by its in-world block and deflects Tier 3 ("Go and ask the old smith in the Forge. Then come back."),
   and only tells of Brenna on a second asking. Soot holds Arne's letters for "the northern girl out on the
-  coast" (Liv, E2). When an Emberdeep branch opens, update Ash (and Soot, Slag, Arne where they'd know).
+  coast" (Liv, E2). When an Emberdeep branch opens, update Ash (and Soot, Slag, Arne where they'd know); E1 did it for the Black
+  Sands (Ash lists its dangers, Soot says the path's open, Slag laid the stones), and for the Ashwood (Ash lists its
+  dangers and says of the Old Foundry's adit only "We bricked it up ourselves. It stays bricked."; Slag riveted the
+  bridge's new plates and once got fern seed from Pitch; Soot says Pitch comes down for eggs again).
+  **Collier Pitch** (`pitch`, E1): the last charcoal-burner, dry, slow and sad; Tier 0 plus the Ashwood, Greyback,
+  the bridge, the adit he helped brick up (he sends you to Ash), the Kiln Stone (his family's story, it bothers him),
+  and the Green Tree, which he hints at and won't place.
 - **Elder Mochi tends the Rebirth Pool** (S2.3, `docs/combat/skills.md`): he knows what it does, that the
   first choice is free and later changes cost about an hour's gold at your level, and only Warrior, Mage,
   Cleric and Archer (the Cleric added with S3, the Archer with S4, pointing archers at Ranger Acorn; add each

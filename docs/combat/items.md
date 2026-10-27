@@ -130,7 +130,13 @@ staff and a bow twin, so `twinPick` can give each class its own kind (checked by
   **Bellows Rod** and the **Smith's Iron Cap**, aimed at Lv 92, the island's start; register "forged for a
   wheel that never got it"), art in `src/forgehold-art.js` (`FORGE_*`; the rod is a row in `STAFFS`), and
   **Auntie Soot** (`SHOPS.soot`: the basic potions and her **Spring-Boiled Egg**, `spring_egg`, a plain heal
-  between the elixirs; `docs/places/forgehold.md`). Emberdeep's gear names: basalt, black glass, iron, slag,
+  between the elixirs; `docs/places/forgehold.md`). E1's Black Sands (no trader) adds its gear in
+  `src/blacksands-art.js` (`SANDS_*`): the Basalt Helm, the Black Glass Cutlass / Black Glass Staff, and the
+  Bellower's Maul / Bellower's Staff and Toadstone Helm (`docs/places/blacksands.md`). E1's Ashwood adds **Collier
+  Pitch** (`SHOPS.pitch`: the basic potions, the **Collier's Axe** with its **Deadwood Staff** and **Charcoal Bow**,
+  and the **Collier's Hood**, aimed at Lv 122) and its drops in `src/ashwood-art.js` (`ASH_*`): Emberfang / Fox-Ember
+  Staff, the Ironbark Helm, Greyback's Brand / Smoulder Staff and the Greyback Helm (`docs/places/ashwood.md`).
+  Emberdeep's gear names: basalt, black glass, iron, slag,
   charcoal, sulphur, ember, never ice, fur, shell or leaf.
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these

@@ -62,6 +62,9 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 - E0's optionals, for E1 or later: the Black Sands' hot-spring herb, the gear teeth in the Cinder Flats'
   ash, the slag golem in Magma Heart.
 - Ash's Tier 3 waits for per-account story progress.
+- E1's Ashwood is untested in play (no bot tests): Greyback's `log` throws at a party, the Green Tree's jump from
+  the great trunk, Pitch's shop on a phone. Players holding the old Queen's Bridge `seal_whisker` now hold the Skerries'
+  cheaper one (the id clash fix); nobody has complained.
 - Getting home is two sailings: if it annoys people, a direct Forgehold to Greenhollow sailing waits for
   the "routes reconnect" idea in `story/world/geography.md`.
 

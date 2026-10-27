@@ -65,6 +65,10 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    Garm, a named elite with its own `art`), and past it the Long Stair, the mob-free approach to Fenrir's den
    (`docs/places/oldice.md`). The black-ice wolf charges with the `shell` brain's lunge and `cut: 0`. The Blue Halls
    got a room hazard, thin ice that gives under whoever stands on it (`docs/places/bluehalls.md`).
+21. **The Black Sands**: E1, Emberdeep's easy pocket off Forgehold's west end (Lv 90–100, the Bellower, a `stomp`
+   field boss) (`docs/places/blacksands.md`). New puddle style `steam` (the steam toad's trail).
+22. **The Ashwood**: E1, Emberdeep's branch up the charcoal road north of Cinder Flats (Lv 115–130, Greyback, a `lob`
+   field boss, and Collier Pitch) (`docs/places/ashwood.md`). New shot style `log` (Greyback's burning log).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

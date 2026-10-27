@@ -149,6 +149,39 @@ at 156k (66% of gold earned by Lv 92), the Smith's Iron Cap at 123k (52%). **Aun
 potions and the Spring-Boiled Egg (500 HP for 600: a little better per gold than an elixir's HP, no MP), not
 aimed. Trading lets boss farmers fund friends to these sooner (see Trading above).
 
+## Emberdeep's depth pass, E1: the Black Sands (2026-10-27)
+The Black Sands (`docs/places/blacksands.md`) put four mobs on the curve at Lv 91–97 (black-sand crab at ~92% HP for a
+passive mob, steam toad, scald eel, frigatebird at ~93% HP for a flier; EXP and gold 100–106%). Nothing else moved:
+"farming your own level" still picks the Queen's Bridge's mobs (the crab ties the rimeguard at Lv 91 and doesn't take
+its place; nothing new above Lv 98), so gold earned and play time are unchanged. No trader, so nothing new is aimed.
+Two gear drops on the curve: the Basalt Helm (`helmetPrice` at Lv 93) and the Black Glass Cutlass with its staff and
+bow twins (`swordPrice` at Lv 97). **The Bellower** (field boss, Lv 100): HP 1.86M (a 4:09 sheet solo, the other field
+bosses' ~4:05), EXP 248k, coins 36.5–53k: `FIELD_PAY` 1.61× / 1.62× a minute (EXP / gold), like Rimehorn's, the Troll's
+and the Pale Wyrm's 1.61× / 1.60×. Its gear a step over at Lv 102 (the Bellower's Maul at `swordPrice`, the Toadstone
+Helm at `helmetPrice`), the same tier as Sigrun's. Its pet is 152k, between Sigrun's (151k, Lv 100) and Pyra's (155k,
+Lv 110); `PETSHOP_W` 4200 → 4350 to fit its plinth.
+
+## Emberdeep's depth pass, E1: the Ashwood (2026-10-27)
+The Ashwood (`docs/places/ashwood.md`) put five mobs on the curve at Lv 116–126 (ash moth ~91% HP for a passive flier,
+char boar 105%, ember fox 95%, ironbark beetle 124% like the other `shell` mobs, smoke wisp 94%; EXP 100%, gold
+103–104%). They are the first mobs between Pyra's Lv 110 and the Citadel, so "farming your own level" from 116 to 149
+now picks them instead of Magma Heart's: Lv 120 farms the char boar (9.3k gold/min, was the cinder bat's 7.1k; 12.3 min
+a level, was 15.1). **Gold earned by** went *up* a little, not down as the plan guessed (the Magma Heart mobs pay less
+per EXP than the curve): Lv 120 ~4.34M → ~4.37M, Lv 150 ~8.81M → ~9.01M, Lv 200 ~22.1M → ~22.3M. **Play time** to Lv 150
+fell 23.7 h → 21.6 h (target 20.4 h), to Lv 200 40.4 h → 38.2 h (target 34.9 h): the gap the old under-levelled farming
+left is mostly closed. The rebirth price at Lv 120 now matches the sheet's hour (0.99, was 1.30).
+**Collier Pitch**'s tier, aimed at Lv 122: the Collier's Axe (and its staff and bow twins) 190k, ~20 min at the aim, the
+Collier's Hood 150k, ~16 min. Gear drops on the curve at their mob's level: Emberfang (with twins, `swordPrice` at Lv
+121), the Ironbark Helm (`helmetPrice` at Lv 123). **Greyback** (field boss, Lv 130): HP 2.7M (a 4:36 sheet solo, the
+median of the classes; the other field bosses ~4:05–4:09), EXP 388k, coins 50.8–73.8k: `FIELD_PAY` 1.48× / 1.49× a
+minute. Its gear a step over at Lv 132 (Greyback's Brand at `swordPrice`, the Greyback Helm at `helmetPrice`). Its pet
+is 190k (~19 min at Lv 130), between Fenrir's (165k, Lv 120) and the Colossus's (248k); `PETSHOP_W` 4350 → 4500.
+`HOUSE_SIZES` re-checked: the Grand Estate (aim 120) is now ~22 min of farming at its aim (was 30), still inside the
+house band; nothing to change. Fenrir's pet reads 18 min at Lv 120 (was 23).
+Same pass, an id clash fixed: the Queen's Bridge's leopard seal whisker shared `seal_whisker` with the Skerries' ice
+seal, and the later entry (760) replaced the ice seal's (470): the ice seal's kill read 122% of the curve's gold. Now
+`leopard_whisker`; the ice seal is back at 105%, and "gold earned by" Lv 60–100 is ~4k lower.
+
 ## The levelling rebalance, L1 and L2 (2026-10-23, `story/progression.md`)
 **L1, the pace.** `expToNext` = the larger of the old curve and `LEVEL_MIN(L)` minutes of `KILLS_PER_MIN` kills
 of the frozen curve's EXP at L (owner's curve "A": `0.5·L^0.65` minutes up to Lv 100, then `L/10`). Mobs and

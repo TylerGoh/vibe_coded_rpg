@@ -909,4 +909,4 @@ function iconSeamIce(ctx) {
   ctx.lineTo(10, -3);
   ctx.stroke();
 }
-export const QBRIDGE_ICONS = { puffin_beak: iconPuffinBeak, harrier_talon: iconHarrierTalon, rime_buckle: iconRimeBuckle, bottled_hoarfrost: iconBottledHoarfrost, seal_whisker: iconSealWhisker, ice_arrowhead: iconIceArrowhead, seam_ice: iconSeamIce };
+export const QBRIDGE_ICONS = { puffin_beak: iconPuffinBeak, harrier_talon: iconHarrierTalon, rime_buckle: iconRimeBuckle, bottled_hoarfrost: iconBottledHoarfrost, leopard_whisker: iconSealWhisker, ice_arrowhead: iconIceArrowhead, seam_ice: iconSeamIce };

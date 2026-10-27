@@ -60,13 +60,21 @@ island shows what's coming.
   is atlas Phase 6's block, not a branch, drawn and mapped the same way. Mind the den mouths' boss signs: the
   bridge and the balloon first overlapped Ignis's and Pyra's and moved west (the balloon is drawn smaller,
   `SCALE`).
+- **Shipped (E1, the Black Sands):** `docs/places/blacksands.md`: the geyser gone quiet, stones laid across
+  (`geyser` drawn open by `drawGeyser`'s `open` flag); the node has `rooms` and an `entry` in Forgehold. No waystone
+  (the plan's choice: it's next to town).
+- **Shipped (E1, the Ashwood):** `docs/places/ashwood.md`: the charcoal road's iron bridge hauled back up (`ironbridge`
+  drawn open by `drawIronBridge`'s `open` flag); the node has `rooms` and an `entry` in Cinder Flats. The Old Foundry
+  lost `past` and got its gate at the Ashwood's west end (`adit`, `FOUNDRY_GATE_X`: the mine adit bricked up by the
+  forge folk themselves). Emberdeep's gates left: the lava tongue (the Coast), the adit (the Foundry), the fumes (the
+  Brimstone Fields) and the balloon (Phase 6).
 - The island map (`docs/ui/world-map.md`) reads the same list: shipped places solid with their levels,
   the rest dashed with a short `block` reason. Keep both in step: a node's `block` should match its gate.
 
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 53 after FB2 (c); ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, the Wolf's Hold)), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 56 after E1's Ashwood (55) and Black Sands (54); 53 is the dev sandbox's Training Yard; ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, the Wolf's Hold)), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last; `onRoomPlat` helper names must be new: F2 first clashed with
   Willowmere's `onWPlat`), a `STAGES` row (`band`, `pill` if the name is long, `hard` for
@@ -117,10 +125,10 @@ Gotchas already hit:
   (two rooms, entry `fallenwall`). Until FB2 (c) a `wolfhold` node gated the den's door ("the ice holds"); (c) added the
   den's `DENS` row and deleted the node, so the door comes through `denDoors` like Ladon's (`docs/places/fenrir.md`).
 - **Greenhollow is done** (G0–G5) and **Frostpeak is done** (F0–F4). **Emberdeep's E0 shipped** (atlas Phase 5:
-  the Lodestar, Forgehold, the map and every gate). Next is E1: the Ashwood (115–130) and the Black Sands
-  (90–100, easy), plan in `story/world/emberdeep-depth.md` (the owner approved every default). E1 lifts the
-  `ironbridge` and `geyser` gates (give each an open look in `OPEN`, the F3 pattern: the draw function with an
-  `open` flag) and lays the Old Foundry's gate in the Ashwood. Every new Emberdeep room needs its
+  the Lodestar, Forgehold, the map and every gate). E1 shipped: the Black Sands (`docs/places/blacksands.md`) and the Ashwood
+  (`docs/places/ashwood.md`), plan in `story/world/emberdeep-depth.md` (the owner approved every default); both gates
+  lifted with open looks in `OPEN` (the F3 pattern: the draw function with an `open` flag) and the Old Foundry's gate laid
+  in the Ashwood (E3 unbricks it the same way). Every new Emberdeep room needs its
   `ISLAND_OF_STAGE` row (`'ember'`) and its waystone `isle: 'ember'`; update Ash's persona (he lists the blocks).
 - F4 gotchas: the open art for the ice stair is `drawIcestair` with an `open` flag (the F3 pattern); a party den
   with a new `wave` look needs its own mass in `fxWaveWarn` / `fxWaveGo` (`iceMass`); a staff can need a new head

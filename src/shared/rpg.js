@@ -35,7 +35,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 4200; // (the plinths need about 4110 since the mini Fenrir: src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 4500; // (the plinths need about 4400 since the mini Greyback (E1): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -70,7 +70,7 @@ export const SUMMIT_LOOKOUT_X = 3950; // where the pass used to go down, at Star
 // Emberdeep's branches' blocked ways in (EMBERDEEP in branches.js; docs/places/branches.md), in Cinder Flats
 // and Magma Heart, and the grounded balloon by the thermal column (atlas Phase 6)
 export const COAST_GATE_X = 1190; // the gully south to the Smoking Coast (a fresh lava tongue across it)
-export const ASHWOOD_GATE_X = 1690; // the old charcoal road north to the Ashwood (its iron bridge fallen in)
+export const ASHWOOD_GATE_X = 1690; // the old charcoal road north to the Ashwood (its iron bridge hauled back up in E1)
 export const BRIMSTONE_GATE_X = 3270; // up the cone's flank to the Brimstone Fields (the vent field fuming)
 export const BALLOON_X = 3745; // the balloon in its cradle, deflated
 // Forgehold (room 44, atlas Phase 5, docs/places/forgehold.md): Emberdeep's landing and its town, a safe room.
@@ -643,6 +643,67 @@ export const FENRIR_DEN_X = LONGSTAIR_W - 240;
 export const FENRIR_DEN = 52; // the den's room id (FB2 (c): the Wolf's Hold, its DENS row)
 export const FENRIR_DEN_NAME = "The Wolf's Hold";
 export const FENRIR_LINE = 'Is it the end? ...No. Not yet. Go back up.';
+// ——— Emberdeep's depth pass, E1 (docs/places/blacksands.md) ———
+// The Black Sands (room 54, an easy pocket): the beach west of Forgehold's quay, out along the beach path past
+// the springs (SANDS_GATE_X in Forgehold, where the geyser was). You come in at the EAST end (SANDS_EXIT_X) and
+// walk west, deeper: the Beach Path (no mobs: the Turning Stone), the Warm Shallows, the Stacks (sea stacks
+// standing in the shallows) and the Bellowing Vent, the biggest vent on the beach, where the Bellower squats.
+// The Kettle, a hidden pool on top of the tallest sea stack (last in SANDS_PLATFORMS), is the find.
+export const BLACKSANDS = 54; // room id
+export const SANDS_W = 4600;
+export const SANDS_EXIT_X = SANDS_W - 70; // the beach path back to Forgehold
+export const SANDS_STONE_X = 4180; // the Turning Stone
+export const SANDS_VENT_X = 700; // the Bellowing Vent (drawing; the Bellower roams round it)
+export const SANDS_ZONES = [
+  { name: 'The Bellowing Vent', x0: 0, x1: 1300, lvl: '96–100' },
+  { name: 'The Stacks', x0: 1300, x1: 2650, lvl: '94–97' },
+  { name: 'The Warm Shallows', x0: 2650, x1: 3900, lvl: '90–94' },
+  { name: 'The Beach Path', x0: 3900, x1: SANDS_W, lvl: null }, // (no mobs)
+];
+export const SANDS_PLATFORMS = [
+  { x: 380, y: 335, w: 190, kind: 'basalt' },
+  { x: 980, y: 340, w: 200, kind: 'basalt' },
+  { x: 1500, y: 345, w: 180, kind: 'stack' },
+  { x: 2000, y: 258, w: 170, kind: 'stack' },
+  { x: 2380, y: 340, w: 180, kind: 'stack' },
+  { x: 2900, y: 345, w: 210, kind: 'basalt' },
+  { x: 3360, y: 330, w: 200, kind: 'basalt' },
+  { x: 1890, y: 170, w: 104, kind: 'kettle' }, // the Kettle, on the tallest stack: easy to miss
+];
+// ——— Emberdeep's depth pass, E1: the Ashwood (docs/places/ashwood.md) ———
+// The Ashwood (room 55): the windward outer slope north of Cinder Flats, the old forest that was cut and burned for
+// charcoal to feed the foundry, up the old charcoal road (ASHWOOD_GATE_X in Cinder Flats, where the iron bridge fell
+// in and now stands again). You come in at the EAST end (ASH_EXIT_X) and climb west, higher and harder: Collier's
+// Clearing (no mobs: Collier Pitch, a waystone, the Kiln Stone), the Fern Slope, the Charcoal Stands and the Burnt
+// Crown, where Greyback roams; at the very west end the old mine adit to the Old Foundry, bricked up by the forge
+// folk themselves (FOUNDRY_GATE_X, a gate). The Green Tree, in a hidden hollow high over the Charcoal Stands (last in
+// ASH_PLATFORMS), is the find.
+export const ASHWOOD = 55; // room id
+export const ASH_W = 5400;
+export const ASH_EXIT_X = ASH_W - 70; // back down the charcoal road to Cinder Flats
+export const PITCH_X = 4470; // Collier Pitch, at his clamp (he trades: SHOPS)
+export const ASH_STONE_X = 4840; // the Kiln Stone
+export const FOUNDRY_GATE_X = 190; // the old mine adit to the Old Foundry (bricked up: a gate, EMBERDEEP in branches.js)
+export const ASH_ZONES = [
+  { name: 'The Burnt Crown', x0: 0, x1: 1400, lvl: '126–130' },
+  { name: 'The Charcoal Stands', x0: 1400, x1: 2800, lvl: '121–126' },
+  { name: 'The Fern Slope', x0: 2800, x1: 4100, lvl: '115–121' },
+  { name: "Collier's Clearing", x0: 4100, x1: ASH_W, lvl: null }, // (no mobs)
+];
+export const ASH_PLATFORMS = [
+  { x: 380, y: 336, w: 200, kind: 'ledge' },
+  { x: 880, y: 252, w: 190, kind: 'ledge' },
+  { x: 1170, y: 340, w: 180, kind: 'log' },
+  { x: 1560, y: 340, w: 200, kind: 'log' },
+  { x: 1900, y: 256, w: 170, kind: 'stump' }, // a great burnt trunk, broken off: the way up to the Green Tree
+  { x: 2270, y: 340, w: 200, kind: 'log' },
+  { x: 2580, y: 254, w: 180, kind: 'ledge' },
+  { x: 3000, y: 340, w: 210, kind: 'log' },
+  { x: 3420, y: 262, w: 190, kind: 'ledge' },
+  { x: 3760, y: 340, w: 180, kind: 'log' },
+  { x: 4560, y: 334, w: 150, kind: 'hut' }, // Pitch's turf hut roof
+  { x: 1985, y: 168, w: 100, kind: 'greentree' }, // the Green Tree, in a hollow high over the Charcoal Stands: easy to miss
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -667,6 +728,8 @@ export const STAGES = {
   [QBRIDGE]: { name: "The Queen's Bridge", zones: QBRIDGE_ZONES, band: '85–100', pill: "Queen's Bridge" },
   [SUNKEN]: { name: 'The Sunken Road', zones: SUNKEN_ZONES, band: '55–60', hard: true, pill: 'Sunken Road' },
   [OLDICE]: { name: 'The Old Ice', zones: OLDICE_ZONES, band: '90–100', hard: true },
+  [BLACKSANDS]: { name: 'The Black Sands', zones: SANDS_ZONES, band: '90–100', pill: 'Black Sands' },
+  [ASHWOOD]: { name: 'The Ashwood', zones: ASH_ZONES, band: '115–130' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -1525,7 +1588,7 @@ MOBS.hoarfrost_shade = {
 MOBS.leopard_seal = {
   name: 'Leopard Seal', lvl: 95, hp: 11100, atk: 306, exp: 5863, speed: 85, w: 76, h: 36, aggro: true, hops: false,
   ai: { kind: 'blink', every: 4.4, warn: 0.45, slashWarn: 0.5, r: 120 },
-  drops: [['coin', 1, 710, 1065], ['seal_whisker', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1]],
+  drops: [['coin', 1, 710, 1065], ['leopard_whisker', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1]],
 };
 MOBS.rime_archer = {
   name: 'Rime Archer', lvl: 98, hp: 11500, atk: 317, exp: 6182, speed: 40, w: 48, h: 58, aggro: true, hops: false,
@@ -1634,6 +1697,81 @@ MOBS.hati = son('Hati', 'hati');
 const dummy = { lvl: 1, hp: DUMMY_HP, exp: 0, speed: 0, aggro: false, hops: false, anchored: true, dummy: true, drops: [] };
 MOBS.dummy = { ...dummy, name: 'Training Dummy', atk: 0, w: 46, h: 92, noTouch: true };
 MOBS.dummy_spar = { ...dummy, name: 'Sparring Dummy', atk: 1, w: 54, h: 100, aggro: true, hitPct: SPAR_HIT_PCT, ai: { kind: 'stomp', every: 3.2, warn: 0.9, r: 220, range: 280, jump: 480 } };
+
+// ——— Emberdeep's depth pass, E1: the Black Sands (art: src/blacksands-art.js; docs/places/blacksands.md). On the
+// frozen curve ———
+// Black-sand crabs scuttle about the shallows (harmless), steam toads waddle along leaving puffs of scalding steam
+// behind them, scald eels duck into the hot pools and come up in a ring of boiling water, and frigatebirds hang
+// over the stacks and stoop
+MOBS.sand_crab = {
+  name: 'Black-Sand Crab', lvl: 91, hp: 9700, atk: 291, exp: 5450, speed: 70, w: 50, h: 34, aggro: false, hops: false,
+  drops: [['coin', 1, 665, 1000], ['sand_claw', 0.55, 1, 2], ['mega_elixir', 0.14, 1, 1], ['basalt_helm', 0.004, 1, 1]],
+};
+MOBS.steam_toad = {
+  name: 'Steam Toad', lvl: 93, hp: 10900, atk: 298, exp: 5655, speed: 55, w: 56, h: 44, aggro: true, hops: true,
+  ai: { kind: 'trail', every: 0.85, life: 4, w: 56, style: 'steam' },
+  drops: [['coin', 1, 690, 1035], ['toad_wart', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1]],
+};
+MOBS.scald_eel = {
+  name: 'Scald Eel', lvl: 95, hp: 11000, atk: 306, exp: 5863, speed: 75, w: 74, h: 34, aggro: true, hops: false,
+  ai: { kind: 'phase', every: 6, dur: 1.9, r: 180 },
+  drops: [['coin', 1, 710, 1065], ['scald_skin', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1]],
+};
+MOBS.frigatebird = {
+  name: 'Frigatebird', lvl: 97, hp: 10800, atk: 313, exp: 6075, speed: 115, w: 66, h: 40, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.3, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 725, 1090], ['frigate_plume', 0.5, 1, 2], ['mega_elixir', 0.16, 1, 1], ['blackglass_cutlass', 0.003, 1, 1]],
+};
+// The Bellower: a field boss (small: no story), a steam toad the size of a hut squatting on the Bellowing Vent,
+// black sand caked on its back. Passive until hit; then it heaves itself up and comes down with a shockwave
+MOBS.bellower = {
+  name: 'The Bellower', field: true, lvl: 100, hp: 1860000, atk: 300, exp: 248000, speed: 40, w: 190, h: 140, aggro: false, hops: false,
+  ai: { kind: 'stomp', every: 3.4, warn: 1, r: 320, range: 340, jump: 560 },
+  // S5.4: with two or more on it, the black sand on its back bakes into a crust of basalt (armour, `looks.shell:
+  // 'cinder'`, Ignis's plates) and it picks one slime to flatten at a time (focus)
+  party: ['armour', 'focus'], partyLive: true, looks: { shell: 'cinder' },
+  desc: 'The Bellower is booming on the Black Sands. The whole beach can hear it.',
+  drops: [['coin', 1, 36500, 53000], ['bellow_stone', 1, 4, 8], ['toad_wart', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['bellower_maul', 0.25, 1, 1], ['toadstone_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+
+// ——— Emberdeep's depth pass, E1: the Ashwood (art: src/ashwood-art.js; docs/places/ashwood.md). On the frozen curve ———
+// Ash moths flutter low over the ferns (harmless), char boars root in the hot ash and charge on sight, ember foxes
+// vanish into the ash and come up behind you, ironbark beetles turn a shell like charred bark to the front, and smoke
+// wisps fade into the smoke and pulse out of it
+MOBS.ash_moth = {
+  name: 'Ash Moth', lvl: 116, hp: 13700, atk: 386, exp: 8234, speed: 60, w: 50, h: 40, aggro: false, hops: false, fly: 26,
+  drops: [['coin', 1, 900, 1340], ['moth_wing', 0.55, 1, 2], ['mega_elixir', 0.15, 1, 1]],
+};
+MOBS.char_boar = {
+  name: 'Char Boar', lvl: 118, hp: 16200, atk: 394, exp: 8476, speed: 100, w: 64, h: 46, aggro: true, hops: false,
+  drops: [['coin', 1, 920, 1372], ['char_tusk', 0.5, 1, 2], ['mega_elixir', 0.16, 1, 1]],
+};
+MOBS.ember_fox = {
+  name: 'Ember Fox', lvl: 121, hp: 15200, atk: 405, exp: 8846, speed: 95, w: 58, h: 40, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.3, warn: 0.42, slashWarn: 0.5, r: 118 },
+  drops: [['coin', 1, 950, 1416], ['ember_brush', 0.5, 1, 2], ['mega_elixir', 0.16, 1, 1], ['emberfang', 0.003, 1, 1]],
+};
+MOBS.ironbark_beetle = {
+  name: 'Ironbark Beetle', lvl: 123, hp: 20400, atk: 413, exp: 9096, speed: 50, w: 72, h: 48, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.55, lunge: 540, time: 0.32 },
+  drops: [['coin', 1, 965, 1450], ['ironbark_chip', 0.5, 1, 2], ['mega_elixir', 0.17, 1, 1], ['ironbark_helm', 0.004, 1, 1]],
+};
+MOBS.smoke_wisp = {
+  name: 'Smoke Wisp', lvl: 126, hp: 16000, atk: 425, exp: 9476, speed: 70, w: 46, h: 56, aggro: true, hops: false, fly: 44,
+  ai: { kind: 'phase', every: 6.3, dur: 1.9, r: 180 },
+  drops: [['coin', 1, 995, 1495], ['bottled_smoke', 0.5, 1, 2], ['mega_elixir', 0.17, 1, 1]],
+};
+// Greyback: a field boss (small: no story), an old ash-grey bear, scorched bald in patches, who walks the Burnt Crown
+// and throws burning logs. Passive until hit
+MOBS.greyback = {
+  name: 'Greyback', field: true, lvl: 130, hp: 2700000, atk: 408, exp: 388000, speed: 45, w: 180, h: 160, aggro: false, hops: false,
+  ai: { kind: 'lob', range: 540, every: 2.6, keep: 190, warn: 0.75, style: 'log' },
+  // S5.4: with two or more on him he picks one slime to throw at (focus), and his logs leave whoever they land
+  // near smouldering (a curse, `looks.curse: 'ember'`)
+  party: ['focus', 'curse'], partyLive: true, looks: { curse: 'ember' },
+  desc: 'Greyback is up on the Burnt Crown, throwing logs. Keep your head down.',
+  drops: [['coin', 1, 50800, 73800], ['greyback_claw', 1, 4, 8], ['char_tusk', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['greyback_brand', 0.25, 1, 1], ['greyback_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
 
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
@@ -1820,6 +1958,8 @@ const onBhPlat = onRoomPlat(BLUEHALLS_PLATFORMS, BLUEHALLS);
 const onQbPlat = onRoomPlat(QBRIDGE_PLATFORMS, QBRIDGE);
 const onSuPlat = onRoomPlat(SUNKEN_PLATFORMS, SUNKEN);
 const onOiPlat = onRoomPlat(OLDICE_PLATFORMS, OLDICE);
+const onBsPlat = onRoomPlat(SANDS_PLATFORMS, BLACKSANDS);
+const onAwPlat = onRoomPlat(ASH_PLATFORMS, ASHWOOD);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -2129,6 +2269,36 @@ export const SPAWNS = [
   ...onQbPlat('rime_archer', 6, 1),
   ...onQbPlat('leopard_seal', 6, 1),
   ...onQbPlat('rime_archer', 7, 1),
+  // Emberdeep's depth pass, E1: the Black Sands, entered from the east (the Beach Path has no mobs)
+  ...strip('sand_crab', 2750, 3850, FIELD_GROUND, 4, BLACKSANDS),
+  ...onBsPlat('sand_crab', 6, 1),
+  ...strip('steam_toad', 2750, 3850, FIELD_GROUND, 3, BLACKSANDS),
+  ...onBsPlat('steam_toad', 5, 1),
+  ...strip('scald_eel', 1350, 2600, FIELD_GROUND, 3, BLACKSANDS),
+  ...onBsPlat('sand_crab', 4, 1),
+  ...strip('frigatebird', 1350, 2600, FIELD_GROUND, 3, BLACKSANDS),
+  ...onBsPlat('steam_toad', 2, 1),
+  ...strip('frigatebird', 150, 1250, FIELD_GROUND, 2, BLACKSANDS),
+  ...strip('steam_toad', 150, 1250, FIELD_GROUND, 2, BLACKSANDS),
+  ...strip('scald_eel', 150, 1250, FIELD_GROUND, 1, BLACKSANDS),
+  { kind: 'bellower', x0: 300, x1: 1150, y: FIELD_GROUND, room: BLACKSANDS },
+  // Emberdeep's depth pass, E1: the Ashwood, entered from the east (Collier's Clearing has no mobs)
+  ...strip('ash_moth', 2850, 4050, FIELD_GROUND, 4, ASHWOOD),
+  ...onAwPlat('ash_moth', 8, 1),
+  ...strip('char_boar', 2850, 4050, FIELD_GROUND, 3, ASHWOOD),
+  ...onAwPlat('char_boar', 7, 1),
+  ...onAwPlat('char_boar', 9, 1),
+  ...strip('ember_fox', 1450, 2750, FIELD_GROUND, 3, ASHWOOD),
+  ...strip('ironbark_beetle', 1450, 2750, FIELD_GROUND, 3, ASHWOOD),
+  ...onAwPlat('ember_fox', 5, 1),
+  ...onAwPlat('ironbark_beetle', 3, 1),
+  ...onAwPlat('ember_fox', 6, 1),
+  ...strip('smoke_wisp', 150, 1350, FIELD_GROUND, 3, ASHWOOD),
+  ...strip('ironbark_beetle', 150, 1350, FIELD_GROUND, 2, ASHWOOD),
+  ...strip('ember_fox', 150, 1350, FIELD_GROUND, 1, ASHWOOD),
+  ...onAwPlat('smoke_wisp', 1, 1),
+  ...onAwPlat('ironbark_beetle', 0, 1),
+  { kind: 'greyback', x0: 350, x1: 1300, y: FIELD_GROUND, room: ASHWOOD },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -2415,7 +2585,7 @@ export const ITEMS = {
   harrier_talon: { name: 'Sleet Harrier Talon', price: 690, kind: 'loot', desc: 'A hooked grey talon with ice in the curl of it. It has held on to things in a gale.' },
   rime_buckle: { name: 'Frozen Buckle', price: 720, kind: 'loot', desc: 'A guard\'s belt buckle in old silver, the Queen\'s crown on it, frozen solid to a scrap of leather.' },
   bottled_hoarfrost: { name: 'Bottled Hoarfrost', price: 740, kind: 'loot', desc: 'A little of a hoarfrost shade in a stoppered bottle. The glass grows feathers of frost on the inside.' },
-  seal_whisker: { name: 'Leopard Seal Whisker', price: 760, kind: 'loot', desc: 'A long stiff whisker, pale and beaded. It twitches when the ice under you creaks.' },
+  leopard_whisker: { name: 'Leopard Seal Whisker', price: 760, kind: 'loot', desc: 'A long stiff whisker, pale and beaded. It twitches when the ice under you creaks.' },
   ice_arrowhead: { name: 'Ice Arrowhead', price: 790, kind: 'loot', desc: 'The head of a rime archer\'s javelin, clear blue and sharp as the day it was frozen.' },
   seam_ice: { name: 'Seam Ice', price: 860, kind: 'loot', desc: 'A chip of the ice Sigrun freezes into the crack every night. It is the coldest thing you have ever held, and it does not melt.' },
   rimeguard_helm: { name: 'Rimeguard Helm', price: 295000, lvl: 92, kind: 'helmet', def: 69, desc: 'A guard\'s round helm of silver gone white with rime, the Queen\'s crown on the brow. It is warmer inside than it looks.' },
@@ -2424,6 +2594,29 @@ export const ITEMS = {
   sigrun_helm: { name: "Sigrun's Helm", price: 364000, lvl: 102, slots: 9, kind: 'helmet', def: 75, desc: 'A tall winged helm of rimed silver and clear ice, a crown worked small on the brow: not hers, her queen\'s.' },
   warden_helm: { name: 'Wardenstone Helm', price: 134000, lvl: 62, slots: 9, kind: 'helmet', def: 51, desc: "A Keeper guardian's stone helm with a crown of living roots. Wear it and you stand up very straight." },
   thorn_crown: { name: 'The Crown of Thorns', price: 170000, lvl: 70, slots: 9, kind: 'helmet', def: 56, desc: "A ring of the first head's thorns, a white rose woven in at the front. It stays awake so you can sleep." },
+  // Emberdeep's depth pass E1: the Black Sands (docs/places/blacksands.md)
+  sand_claw: { name: 'Black-Sand Claw', price: 700, kind: 'loot', desc: 'A crab claw black as wet basalt, flecked with glittering sand that never quite washes off.' },
+  toad_wart: { name: 'Sulphur Wart', price: 730, kind: 'loot', desc: "A yellow wart off a steam toad's back, warm and faintly smelling of eggs. Auntie Soot says it's lucky. She is being kind." },
+  scald_skin: { name: 'Scald Eel Skin', price: 750, kind: 'loot', desc: 'A long strip of slick red-brown skin that stays hot to the touch for days. The forge folk make oven mitts of it.' },
+  frigate_plume: { name: 'Frigatebird Plume', price: 780, kind: 'loot', desc: 'A long black feather with a green sheen, smelling of smoke. They pinch fish off the others and never get wet.' },
+  bellow_stone: { name: 'Toadstone', price: 860, kind: 'loot', desc: "A lump of black glass off the Bellower's back, baked there by the vent. Hold it to your ear and it booms, very faintly." },
+  basalt_helm: { name: 'Basalt Helm', price: 302000, lvl: 93, kind: 'helmet', def: 70, desc: 'A round helm hammered from the iron cap of a mooring post, a crab-shaped crest of black basalt on top. Forged for a wheel that never got it.' },
+  blackglass_cutlass: { name: 'Black Glass Cutlass', price: 430000, lvl: 97, kind: 'sword', atk: 154, reach: 60, desc: 'A curved blade knapped from one long flake of black glass, on an iron grip. It is sharper than anything the forges make, and knows it.' },
+  bellower_maul: { name: "Bellower's Maul", price: 477000, lvl: 102, kind: 'sword', atk: 160, reach: 64, desc: 'A great head of vent-baked basalt on an iron haft, still warm. It booms when it lands. Forged for a wheel that never got it.' },
+  toadstone_helm: { name: 'Toadstone Helm', price: 364000, lvl: 102, kind: 'helmet', def: 75, desc: "An iron helm with a toadstone of black glass set in the brow, off the Bellower's own back. It is always a little warm, like a hand on your head." },
+  // Emberdeep's depth pass E1: the Ashwood (docs/places/ashwood.md)
+  moth_wing: { name: 'Ash Moth Wing', price: 1000, kind: 'loot', desc: 'A soft grey wing dusted with ash. Blow the ash off and the pattern underneath is two eyes, staring.' },
+  char_tusk: { name: 'Charred Tusk', price: 1050, kind: 'loot', desc: "A char boar's tusk, blackened from rooting in hot ash. It still smells of a bonfire." },
+  ember_brush: { name: 'Ember Brush', price: 1100, kind: 'loot', desc: "The tip of an ember fox's tail, grey fluff with a red glow at the very end that won't go out." },
+  ironbark_chip: { name: 'Ironbark Chip', price: 1130, kind: 'loot', desc: 'A flake of beetle shell, black and grained like charred bark and as hard as iron. Smiths use them for wedges.' },
+  bottled_smoke: { name: 'Bottled Smoke', price: 1170, kind: 'loot', desc: "A stoppered jar of grey smoke that never settles. Pitch says it's what the old forest breathes out now." },
+  greyback_claw: { name: "Greyback's Claw", price: 1150, kind: 'loot', desc: 'A black claw as long as your hand, scorched at the tip, a splinter of bark still caught in the crook of it.' },
+  collier_axe: { name: "Collier's Axe", price: 190000, lvl: 118, aim: 122, kind: 'sword', atk: 177, reach: 56, desc: "A long-hafted felling axe with a head as black as charcoal. Pitch only ever swings it at wood that's already dead." },
+  collier_hood: { name: "Collier's Hood", price: 150000, lvl: 118, aim: 122, kind: 'helmet', def: 84, desc: 'A sooty leather hood with an iron brim and a smoke-cloth to pull over your mouth. It smells of every fire it has sat up with.' },
+  emberfang: { name: 'Emberfang', price: 675000, lvl: 121, kind: 'sword', atk: 179, reach: 60, desc: "A narrow iron blade quenched red along its edge, an ember fox's brush bound at the pommel. It glows when it's hungry." },
+  ironbark_helm: { name: 'Ironbark Helm', price: 531000, lvl: 123, kind: 'helmet', def: 86, desc: 'An iron helm shingled with ironbark beetle shell, black and grained like a burnt tree. Forged for a wheel that never got it.' },
+  greyback_brand: { name: "Greyback's Brand", price: 806000, lvl: 132, kind: 'sword', atk: 191, reach: 66, desc: 'A charred log bound in iron bands, one end still smouldering. Greyback threw it at someone. Throw it back.' },
+  greyback_helm: { name: 'Greyback Helm', price: 613000, lvl: 132, kind: 'helmet', def: 92, desc: "A heavy iron helm with a bear's brow and two round ears hammered into it, grey with soot that won't scrub off." },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
   // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen
@@ -2519,6 +2712,11 @@ export const ITEMS = {
   oath_staff: { name: 'Shield-Oath Staff', price: 477000, lvl: 102, slots: 9, kind: 'staff', magic: 160, mp: 96, reach: 66, twin: 'oath_blade', desc: "Sigrun's spear-shaft with a round boss of ice for a head, like a little shield. Its bolts hold where they land." },
   hart_staff: { name: 'Hart\'s Antler Staff', price: 156000, lvl: 59, kind: 'staff', magic: 110, mp: 66, reach: 56, twin: 'briarheart_blade', desc: 'A shed antler of the Thorn Hart on a briar shaft. A white rose buds between the tines and never opens.' },
   neck_staff: { name: 'Neckthorn Staff', price: 162000, lvl: 60, kind: 'staff', magic: 112, mp: 67, reach: 56, twin: 'neck_fang', desc: 'A black briar staff with a hooked thorn and one white rose at its head. The rose turns to face whatever you aim at.' },
+  blackglass_staff: { name: 'Black Glass Staff', price: 430000, lvl: 97, kind: 'staff', magic: 154, mp: 92, reach: 60, twin: 'blackglass_cutlass', desc: 'An iron rod with a long flake of black glass bound at its head. Its bolts come out sharp-edged and smoking.' },
+  bellower_staff: { name: "Bellower's Staff", price: 477000, lvl: 102, kind: 'staff', magic: 160, mp: 96, reach: 64, twin: 'bellower_maul', desc: 'A charred iron staff with a lump of vent-baked basalt at its head. Its bolts land with a boom and a puff of steam.' },
+  deadwood_staff: { name: 'Deadwood Staff', price: 190000, lvl: 118, aim: 122, kind: 'staff', magic: 177, mp: 106, reach: 56, twin: 'collier_axe', desc: 'A crooked branch of the old forest, burned to charcoal and hard as iron, a coal glowing in its fork. Pitch picked it up; he never cuts.' },
+  foxember_staff: { name: 'Fox-Ember Staff', price: 675000, lvl: 121, kind: 'staff', magic: 179, mp: 107, reach: 60, twin: 'emberfang', desc: "An iron rod with an ember fox's brush bound under its head and a red spark that flits from end to end like a fox." },
+  brand_staff: { name: 'Smoulder Staff', price: 806000, lvl: 132, kind: 'staff', magic: 191, mp: 114, reach: 66, twin: 'greyback_brand', desc: "One of Greyback's logs, banded with iron, smouldering at the head. Its bolts come out trailing sparks and smelling of pine." },
   gatehound_staff: { name: 'Gatehound Staff', price: 430000, lvl: 97, kind: 'staff', magic: 154, mp: 92, reach: 60, twin: 'gatehound_fang', desc: 'A rod of black ice with a hound\'s fang at its head and a link of old chain round the grip. Its bolts come out howling, very far off.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Weapon Scroll 100%', price: 300, kind: 'scroll', slot: 'weapon', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a weapon (a staff gets them the other way round).' },
@@ -2576,6 +2774,11 @@ const BOW_LIST = [
   ['oath_bow', 'oath_blade', 'Shield-Oath Bow', 'A war bow with a little shield on its grip and an oath carved down its back. It has never broken one.'],
   ['moonchaser_bow', 'pledge_hand', 'The Moon-Chaser Bow', "Hati's: a night-blue bow with a crescent moon on each tip, strung with silver. Its arrows run after what they are loosed at, and never tire."],
   ['gatehound_bow', 'gatehound_fang', 'Gatehound Bow', 'Two black-ice fangs joined at a grip bound in pelt, strung with a strand of old glowing ribbon.'],
+  ['blackglass_bow', 'blackglass_cutlass', 'Black Glass Bow', 'Iron limbs tipped with black glass, strung with eel-gut. Its arrowheads are knapped, not forged.'],
+  ['bellower_bow', 'bellower_maul', "Bellower's Bow", 'A heavy iron bow with a toadstone in the grip, strung with scald-eel sinew. Every arrow goes off with a little boom.'],
+  ['charcoal_bow', 'collier_axe', 'Charcoal Bow', "Charred deadwood, hard as horn, strung with waxed cord. Pitch won't cut a living tree for a bow, so he found a dead one."],
+  ['emberfang_bow', 'emberfang', 'Emberfang Bow', "Iron limbs quenched red at the tips, an ember fox's brush round the grip. Its arrows leave a thin line of glow."],
+  ['greyback_bow', 'greyback_brand', "Greyback's Bow", 'A great bow bent from a charred sapling and banded with iron, a bear claw at the grip. It smells of smoke when you draw.'],
   ['spring_bow', 'slag_maul', 'Ironspring Bow', 'Two leaf-springs off an old forge bellows, riveted together and strung with wire. Forged for a wheel that never got it.'],
 ];
 for (const [id, twin, name, desc] of BOW_LIST) {
@@ -2676,6 +2879,8 @@ export const SHOPS = {
   // Forgehold (atlas Phase 5): Auntie Soot's potions and eggs at the springs, Slag's forge gear
   soot: { name: "Auntie Soot's Springs", room: FORGEHOLD, x: SOOT_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'spring_egg'] },
   slag: { name: "Slag's Stack", room: FORGEHOLD, x: SLAG_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'slag_maul', 'bellows_rod', 'spring_bow', 'smith_cap'] },
+  // the Ashwood (E1): Collier Pitch's gear and potions at his clamp
+  pitch: { name: "Pitch's Clamp", room: ASHWOOD, x: PITCH_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'collier_axe', 'deadwood_staff', 'charcoal_bow', 'collier_hood'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));

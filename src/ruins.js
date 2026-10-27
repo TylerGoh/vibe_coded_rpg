@@ -1,4 +1,4 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md, docs/places/blacksands.md, docs/places/ashwood.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
@@ -6,13 +6,15 @@
 // Canopy, the Hedge Stone in the Thornheart, the Road Stone on Keeper's Spine; on Frostpeak, the Rime Stone
 // in the Rimeglass Glacier's Cutters' Camp, the Sounding Stone by the Whale Skerries' whaling hut and the Serpent
 // Stone at the top of the steps on the Aurora Heights and the Strait Stone at the head of the ice stair onto the
-// Queen's Bridge, which may say a little more: Frostpeak's tier is canon Tier 2). Wreck Cave has the one reading here that isn't a stone: the
+// Queen's Bridge, which may say a little more: Frostpeak's tier is canon Tier 2; on Emberdeep, the Turning Stone on
+// the Black Sands' beach path, which shows its tier without naming anything: a dial, islands, going round, and the Kiln Stone in
+// the Ashwood's clearing: trees, fire, iron, a toothed wheel). Wreck Cave has the one reading here that isn't a stone: the
 // wrecked ship's logbook (`wing` and `when` change the card's header lines). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -114,6 +116,18 @@ export const RUIN_STONES = [
     legible: ['TWO SHORES. ONE ROAD.', 'Lower down the two shores are carved again, a little further apart, with a row of small waves between them. Lower still, further apart again. The bottom of the stone is under the ice.'],
     note: "On the ice over the stone, much newer, someone has carved a little crown, and under it a round shield. Neither is a Keeper's mark.",
   },
+  {
+    room: BLACKSANDS, place: 'the Black Sands', x: SANDS_STONE_X, shape: 'turning', name: 'the Turning Stone', title: 'The Turning Stone',
+    look: "A round Keeper stone stood on its edge like a millstone, on a plinth of black rock above the tide line. Its face is cut as a dial. Round the rim, islands are drawn in a ring: at the top they sit so close they nearly touch, one road running through them all; going round, each is a little further from the next, until at the bottom they are scattered wide with nothing between them but carved waves. Then the ring climbs back up, and they draw together again.",
+    legible: ['...ROUND, AND ROUND AGAIN...', '...AND BACK TO THE TOP...', 'Little arrows are cut all the way round the rim, every one pointing the same way. A gear sits in the middle, with one long tooth reaching up to the top of the dial.'],
+    note: 'In the sand at its foot someone has laid a ring of pebbles, close together on one side and spread apart on the other. The tide takes them every night. Every morning they are back.',
+  },
+  {
+    room: ASHWOOD, place: 'the Ashwood', x: ASH_STONE_X, shape: 'kiln', name: 'the Kiln Stone', title: 'The Kiln Stone',
+    look: 'A long, low Keeper stone half sunk in the ash at the edge of the clearing, soot packed into every groove. Four pictures are cut along its face in a row: a stand of trees; the same trees in flames; a bar of metal on an anvil; and a wheel with teeth. A little arrow leads from each to the next.',
+    legible: ['...FROM THE GREEN...', '...TO THE FIRE, TO THE IRON, TO THE WHEEL...', 'Under the stand of trees, apart from the rest, one small sapling is cut, and no arrow leads away from it.'],
+    note: 'A page torn from a ledger is weighted under a pebble at its foot: a column of small numbers, in a slow hand, each a little bigger than the one above.',
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -143,7 +157,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -1104,4 +1118,202 @@ function drawStraitStone(ctx, time, glow) {
   ctx.stroke();
   ctx.fillStyle = 'rgba(244,248,252,0.95)';
   ellipse(ctx, 0, -150, 30, 5);
+}
+
+// The Turning Stone (the Black Sands): a round stone on its edge on a plinth of black rock, cut as a dial: islands
+// in a ring round the rim, close together at the top with a road through them, scattered at the bottom with
+// waves between, little arrows all round pointing the same way, a gear in the middle with one long tooth
+// reaching to the top. Its slow shimmer goes round with the arrows (drawing only: the stone itself doesn't move)
+function drawTurningStone(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(40,25,60,0.18)';
+  ellipse(ctx, 0, 0, 52, 7);
+  ctx.fillStyle = '#3e3844'; // the plinth of black rock
+  ctx.beginPath();
+  ctx.roundRect(-44, -26, 88, 28, 8);
+  ctx.fill();
+  ctx.fillStyle = '#5e5664';
+  ctx.beginPath();
+  ctx.roundRect(-40, -26, 80, 6, 3);
+  ctx.fill();
+  const cy = -84, R = 56;
+  ctx.fillStyle = STONE_DARK;
+  ctx.beginPath();
+  ctx.arc(0, cy + 3, R, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = STONE;
+  ctx.beginPath();
+  ctx.arc(0, cy, R, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = STONE_LIGHT;
+  ctx.beginPath();
+  ctx.arc(-R * 0.35, cy - R * 0.35, R * 0.3, 0, TAU);
+  ctx.fill();
+  const ink = glow ? '#c9a24a' : CARVE;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.arc(0, cy, R - 6, 0, TAU);
+  ctx.stroke();
+  // the islands round the rim: angle 0 at the top; the gap between them grows going round to the bottom
+  const isl = [];
+  let a = -0.5;
+  for (let i = 0; i < 12; i++) {
+    isl.push(a);
+    const toBottom = 1 - Math.abs(((a % TAU) + TAU) % TAU - Math.PI) / Math.PI; // 0 at the top, 1 at the bottom
+    a += 0.26 + 0.5 * toBottom;
+  }
+  const at = (ang, r) => [Math.sin(ang) * r, cy - Math.cos(ang) * r];
+  for (const ang of isl) {
+    const [x, y] = at(ang, R - 16);
+    ellipse(ctx, x, y, 5, 3.4, ang);
+  }
+  // the road through the close ones at the top
+  ctx.beginPath();
+  ctx.arc(0, cy, R - 16, -Math.PI / 2 - 0.5, -Math.PI / 2 + 0.5);
+  ctx.stroke();
+  // waves between the scattered ones at the bottom
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (const ang of [2.5, 3.0, 3.5, 3.95]) {
+    const [x, y] = at(ang, R - 16);
+    ctx.moveTo(x - 4, y);
+    ctx.quadraticCurveTo(x - 2, y - 2.5, x, y);
+    ctx.quadraticCurveTo(x + 2, y + 2.5, x + 4, y);
+  }
+  ctx.stroke();
+  // little arrows all round the rim, every one pointing the same way (clockwise)
+  for (let i = 0; i < 16; i++) {
+    const ang = (i / 16) * TAU, [x, y] = at(ang, R - 3);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(ang);
+    ctx.beginPath();
+    ctx.moveTo(-3, -1.5);
+    ctx.lineTo(3, 0);
+    ctx.lineTo(-3, 1.5);
+    ctx.stroke();
+    ctx.restore();
+  }
+  // the gear in the middle, one long tooth reaching up to the top
+  carvedGear(ctx, 0, cy, 9, 8, glow);
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, cy - 13);
+  ctx.lineTo(0, cy - R + 22);
+  ctx.stroke();
+  // a slow shimmer going round with the arrows
+  const sh = (time * 0.15) % 1 * TAU, [sx, sy] = at(sh, R - 6);
+  ctx.fillStyle = `rgba(255,236,170,${glow ? 0.55 : 0.25})`;
+  circle(ctx, sx, sy, 5);
+  // the pebbles at its foot: close on one side, spread on the other
+  ctx.fillStyle = '#8a7a84';
+  for (const px of [-30, -24, -18, -13, 2, 14, 28, 44]) ellipse(ctx, px, 2, 3, 2);
+}
+
+// The Kiln Stone (the Ashwood): a long low slab half sunk in the ash, four pictures in a row joined by arrows (trees,
+// the trees burning, a bar on an anvil, a toothed wheel), one small sapling apart under the trees; ash on top, soot
+// in the grooves, ferns coming up at its foot and a ledger page under a pebble
+function drawKilnStone(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(40,25,60,0.18)';
+  ellipse(ctx, 0, 0, 96, 8);
+  ctx.save();
+  ctx.rotate(-0.02);
+  slab(ctx, -86, -74, 172, 76, 10);
+  const ink = glow ? '#c9a24a' : CARVE;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
+  ctx.lineWidth = 1.6;
+  ctx.lineCap = 'round';
+  const cy = -42;
+  // 1: a stand of trees
+  const tree = (x, y, s) => {
+    ctx.beginPath();
+    ctx.moveTo(x, y + 10 * s);
+    ctx.lineTo(x, y);
+    ctx.moveTo(x - 6 * s, y + 2 * s);
+    ctx.lineTo(x, y - 10 * s);
+    ctx.lineTo(x + 6 * s, y + 2 * s);
+    ctx.closePath();
+    ctx.stroke();
+  };
+  for (const dx of [-72, -64, -56]) tree(dx, cy - 4, 1);
+  tree(-64, cy + 24, 0.5); // the sapling apart, no arrow from it
+  // 2: the same trees, burning
+  for (const dx of [-30, -22, -14]) {
+    tree(dx, cy - 4, 1);
+    ctx.beginPath();
+    ctx.moveTo(dx - 3, cy - 14);
+    ctx.quadraticCurveTo(dx - 1, cy - 22, dx + 1, cy - 26);
+    ctx.quadraticCurveTo(dx + 2, cy - 20, dx + 3, cy - 14);
+    ctx.stroke();
+  }
+  // 3: a bar of metal on an anvil
+  ctx.beginPath();
+  ctx.moveTo(10, cy + 8);
+  ctx.lineTo(30, cy + 8);
+  ctx.lineTo(26, cy + 2);
+  ctx.lineTo(34, cy - 2);
+  ctx.lineTo(6, cy - 2);
+  ctx.lineTo(14, cy + 2);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.roundRect(10, cy - 9, 20, 5, 2);
+  ctx.stroke();
+  // 4: a wheel with teeth
+  carvedGear(ctx, 62, cy, 9, 9, glow);
+  // the arrows between them
+  ctx.lineWidth = 1.4;
+  for (const ax of [-48, -6, 40]) {
+    ctx.beginPath();
+    ctx.moveTo(ax - 5, cy);
+    ctx.lineTo(ax + 4, cy);
+    ctx.moveTo(ax + 1, cy - 3);
+    ctx.lineTo(ax + 4, cy);
+    ctx.lineTo(ax + 1, cy + 3);
+    ctx.stroke();
+  }
+  scratches(ctx, -10, -18, 80, 1, 91, glow);
+  // ash settled along the top
+  ctx.fillStyle = 'rgba(176,168,174,0.9)';
+  ctx.beginPath();
+  ctx.roundRect(-84, -78, 168, 7, 4);
+  ctx.fill();
+  ctx.restore();
+  // the ledger page under a pebble
+  ctx.fillStyle = '#e8dcc4';
+  ctx.save();
+  ctx.translate(70, -3);
+  ctx.rotate(0.12);
+  ctx.fillRect(-9, -5, 18, 10);
+  ctx.strokeStyle = 'rgba(80,60,60,0.6)';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  for (let k = -3; k <= 3; k += 2) {
+    ctx.moveTo(-6, k);
+    ctx.lineTo(5, k);
+  }
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#5e5664';
+  ellipse(ctx, 72, -6, 4, 3);
+  // ferns coming up at its foot
+  const sway = Math.sin(time * 1.1) * 1.5;
+  ctx.strokeStyle = '#6aa05a';
+  ctx.lineWidth = 1.6;
+  for (const [fx, h, d] of [[-92, 22, -1], [-80, 16, 1], [88, 18, 1]]) {
+    ctx.beginPath();
+    ctx.moveTo(fx, 0);
+    ctx.quadraticCurveTo(fx + d * 6, -h * 0.6, fx + d * 10 + sway, -h);
+    for (let k = 0.3; k < 1; k += 0.2) {
+      const px = fx + d * 10 * k * k + sway * k, py = -h * k;
+      ctx.moveTo(px, py);
+      ctx.lineTo(px - 4, py - 3);
+      ctx.moveTo(px, py);
+      ctx.lineTo(px + 4, py - 3);
+    }
+    ctx.stroke();
+  }
 }

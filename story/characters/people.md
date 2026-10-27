@@ -61,6 +61,9 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
 - **Skipper Arne** (the Lodestar, **exists**): fjord folk, Runa's cousin; the crossing south. Seven years laid up
   and ashamed of it; sailed home without his deckhand Liv on the last voyage; carried Eyvind's letters south;
   reads the weather off his bad knee; sleeps on deck in the heat. Tier 0 plus the southern passage.
+- **Collier Pitch** (the Ashwood, E1, **exists**): forge folk; the last charcoal-burner, whose family burned the
+  forest for the foundry; trades. Burns only deadwood now, counts fern seedlings in a ledger, knows where the
+  Green Tree is and won't quite say. Dry, slow, sad. Tier 0 plus the Ashwood.
 - **The Last Echo** (the Citadel): a Keeper echo stuck repeating, who becomes briefly lucid when players
   bring Mochi's name. Holds Tier 4.
 - **Pell** (post-game, by the apple tree): see `mochi-and-chronos.md`.

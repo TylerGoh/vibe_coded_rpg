@@ -64,3 +64,4 @@ over is in `docs/ideas.md` under the phase's name. Full plans as written: `archi
 - **FB1, Greenhollow's final boss** (2026-10-26): Ladon, the Briar Hydra (rooms 47–49: the Sunken Road, the Road's End, the
   Root of the Road); four phases, heads that regrow unless burned, fixed HP for four (`docs/places/ladon.md`).
 - FB2 (2026-10-27): Fenrir, the Bound Wolf, Frostpeak's final boss: the Blue Halls' fallen wall, the Old Ice (50), the Long Stair (51), the Wolf's Hold (52) (`fb2-plan.md`, `docs/places/fenrir.md`).
+- E1 (2026-10-27): the Black Sands (54: the Bellower, the Kettle, the Turning Stone) and the Ashwood (55: Greyback, Collier Pitch and his shop, the Kiln Stone, the Green Tree, a waystone, the Old Foundry's bricked-up adit) (`docs/places/blacksands.md`, `ashwood.md`).
