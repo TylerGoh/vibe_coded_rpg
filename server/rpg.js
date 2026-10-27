@@ -93,7 +93,9 @@ export function rollbackLevel(base, activeMs) {
 }
 
 // players: the server's id → player map. send(ws, msg). toRoom(room)(msg). broadcast(msg).
-export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
+// hooks: the dev sandbox's (server/sandbox.js, docs/sandbox.md; empty on the live server): onDamage(m, dmg, id, p, src) for its
+// DPS readout, god(p) (god mode: never faint), respawn(p) (→ { room, x, name }: where you wake up)
+export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {} }) {
   const db = new DatabaseSync(dbPath);
   db.exec(`CREATE TABLE IF NOT EXISTS rpg_chars (user TEXT PRIMARY KEY, data TEXT NOT NULL, updated_at INTEGER NOT NULL)`);
   const loadRow = db.prepare('SELECT data FROM rpg_chars WHERE user = ?');
@@ -482,7 +484,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     c.exp -= lost;
     c.hp = stats(p).maxHp;
     p.faintUntil = 0;
-    const town = TOWNS[p.state.town | 0] ?? TOWNS[0];
+    const town = hooks.respawn?.(p) ?? TOWNS[p.state.town | 0] ?? TOWNS[0]; // (the sandbox: its Training Yard)
     placeAt(p.state, town.room, town.x + randInt(0, 120)); // (keeps your house door working, which it didn't before)
     moves(p);
     toast(p, `${p.faintBy ? `${p.faintBy} knocked you out!` : 'You fainted!'} You woke up in ${town.name}${lost ? ` (lost ${lost} EXP)` : ''}`);
@@ -585,6 +587,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       q.swReadyAt = t + SKILLS.second_wind.cdFor(sw) * 1000;
       guard(qid, q, 'secondwind');
     }
+    if (q.rpg.hp <= 0 && hooks.god?.(q)) q.rpg.hp = st.maxHp; // (the sandbox's god mode: the hit lands, you don't go down)
     toRoom(q.state.room)(dot ? { ...hurtMsg(qid, q, dmg, by), dot: 1 } : hurtMsg(qid, q, dmg, by));
     if (q.rpg.hp <= 0) return faint(qid, q, by);
     if (knock) knockBack(q, fromX, knock);
@@ -716,7 +719,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
       m.dmg.set(p.name, (m.dmg.get(p.name) ?? 0) + Math.min(dmg, Math.max(0, m.hp))); // (overkill doesn't count)
       m.dmgDirty = true;
     }
+    hooks.onDamage?.(m, Math.min(dmg, Math.max(0, m.hp)), id, p, src);
     m.hp -= dmg;
+    if (MOBS[m.kind].dummy) m.hp = Math.max(1, Math.round(m.maxHp * (m.dummyHp ?? 1))); // (the sandbox's dummies: never die)
     if (!m.focus && !(m.tauntUntil > now())) { // (a Knight's taunt and a boss's focus hold its eye)
       m.target = p;
       m.targetUntil = now() + 8000;
@@ -1208,6 +1213,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     if (!mob || !mult || p.faintUntil) return;
     const ult = m.kind === 'ult';
     if (!ult && now() - p.hurtAt < HURT_INVULN_MS - 250) return; // (an ultimate ignores the invulnerability)
+    if (m.kind === 'touch' && MOBS[mob.kind].noTouch) return; // (a training dummy, docs/sandbox.md)
     if (m.kind === 'touch' && Math.abs(mob.x - p.state.x) > (MOBS[mob.kind].touchW ?? MOBS[mob.kind].w) / 2 + SLACK) return; // (touchW: Ladon's body hurts only near its middle)
     if ((m.kind === 'touch' || m.kind === 'charge') && (mob.frozenUntil > now() || mob.snareUntil > now() || mob.stunUntil > now()) && !MOBS[mob.kind].boss && !MOBS[mob.kind].field) return; // frozen solid, netted or stunned: harmless
     if (m.kind !== 'touch' && m.kind !== 'charge' && !MOBS[mob.kind].boss && !MOBS[mob.kind].ai) return;
@@ -2264,6 +2270,41 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast }) {
     load,
     save,
     playtime,
+    // the dev sandbox's way in (server/sandbox.js, docs/sandbox.md): only a SANDBOX server's sandbox module calls these
+    sandbox: {
+      mobs: () => mobs,
+      // a mob of kind at x in room (a training dummy): it stays where it's put (x0 = x1)
+      addMob(kind, room, x) {
+        const m = spawn({ id: nextMob++, sp: { kind, x0: x, x1: x, y: ROOMS[room].ground, room } });
+        mobs.push(m);
+        return m;
+      },
+      resetBoss: (m) => resetBoss(m),
+      stats: (p) => stats(p),
+      // after a character swap: every buff, summon, field, cooldown and Mana Shield gone (as rebirth does), the
+      // physics' move ranks redone, HP and MP full, and everyone told
+      refresh(id, p) {
+        p.rpg.shield = false;
+        p.berserkUntil = p.rallyUntil = p.bubbleUntil = p.aegisUntil = p.godsUntil = 0;
+        p.barrier = p.mend = p.devo = null;
+        p.momentum = p.arcane = null;
+        p.retri = 0;
+        p.buffs = {};
+        summons.clear(id);
+        clearFields(id);
+        p.cds = {};
+        moves(p);
+        const st = stats(p);
+        p.rpg.hp = st.maxHp;
+        p.rpg.mp = st.maxMp;
+        p.dirty = true;
+        showLook(id, p);
+        sendMe(p);
+      },
+      toast: (p, text) => toast(p, text),
+      sendMe: (p) => sendMe(p),
+      addToBag: (c, id, n) => addToBag(c, id, n),
+    },
     pay,
     look,
     sendMe,

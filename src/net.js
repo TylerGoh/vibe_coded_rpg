@@ -116,6 +116,8 @@ export class Net {
       this.cb.onHouse(m); // personal houses (src/house.js, src/players.js), farming and alchemy (src/alchemy.js)
     } else if (m.t === 'chat' || m.t === 'chat-log' || m.t === 'chat-error') {
       this.cb.onChat(m); // text chat and private messages (src/chat.js)
+    } else if (m.t === 'sbx-state' || m.t === 'sbx-dps') {
+      this.cb.onSandbox?.(m); // the dev sandbox's panel and DPS readout (src/sandbox.js; only a SANDBOX server sends these)
     } else if (m.t === 'playtime') {
       this.cb.onPlaytime?.(m); // the Esc menu's Play time page (src/playtime.js)
     } else if (m.t === 'slap') {
@@ -156,6 +158,7 @@ export class Net {
       this.cb.onStatus('online');
       this.cb.onBuild(m.build); // a newer patch is live? (src/update.js)
       for (const id of m.casts ?? []) this.cb.onCast(id, true);
+      if (m.sandbox) this.cb.onSandbox?.({ t: 'sbx-on' }); // (the dev sandbox: docs/sandbox.md)
     } else if (m.t === 'join') {
       this.addPlayer(m);
     } else if (m.t === 'leave') {

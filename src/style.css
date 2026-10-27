@@ -3816,3 +3816,233 @@ body.touch #chest {
 body.touch #chest-one {
   padding: calc(8px * var(--s)) calc(14px * var(--s));
 }
+
+/* ——— the dev sandbox (src/sandbox.js, docs/sandbox.md): its panel, its button and the DPS readout ——— */
+#sbx[hidden],
+#sbx-dps[hidden],
+#sbxbtn[hidden] {
+  display: none;
+}
+#sbxbtn {
+  height: calc(30px * var(--s));
+  padding: 0 calc(14px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #c9b6ff;
+  color: #3a3550;
+  font: 700 calc(14px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+  outline: none;
+}
+#sbx:not([hidden]) ~ #hudbtns {
+  display: none;
+}
+#sbx {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(640px * var(--s));
+  max-height: calc(500px * var(--s));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: calc(12px * var(--s)) calc(16px * var(--s));
+  border: calc(4px * var(--s)) solid #c9b6ff;
+  border-radius: calc(18px * var(--s));
+  background: #fffdf6;
+  color: #3a3550;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  box-shadow: 0 calc(6px * var(--s)) 0 rgba(91, 74, 107, 0.2);
+  animation: pool-in 0.35s ease-out;
+}
+#sbx h2 {
+  margin: 0 calc(40px * var(--s)) calc(6px * var(--s)) 0;
+  font-size: calc(20px * var(--s));
+  color: #7a5fc0;
+}
+#sbx h2 span {
+  margin-left: calc(8px * var(--s));
+  font-size: calc(12px * var(--s));
+  color: #b0763a;
+}
+#sbx-close {
+  position: absolute;
+  top: calc(10px * var(--s));
+  right: calc(12px * var(--s));
+  width: calc(32px * var(--s));
+  height: calc(32px * var(--s));
+  border: none;
+  border-radius: 50%;
+  background: #efe8ff;
+  color: #7a6a8b;
+  font-size: calc(16px * var(--s));
+  cursor: pointer;
+}
+#sbx-tabs,
+.sbx-seg,
+.sbx-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(6px * var(--s));
+}
+#sbx-tabs {
+  margin-bottom: calc(8px * var(--s));
+}
+#sbx button,
+.sbx-select,
+.sbx-num {
+  height: calc(28px * var(--s));
+  padding: 0 calc(12px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: #efe8ff;
+  color: #5b4a6b;
+  font: 700 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+#sbx-tabs button.on {
+  background: #7a5fc0;
+  color: #fff;
+}
+#sbx .sbx-seg button.on {
+  background: var(--c, #ff8fb1);
+  color: #fff;
+}
+#sbx .sbx-go {
+  background: #4fbf86;
+  color: #fff;
+}
+#sbx .sbx-off {
+  background: #ffd9e3;
+  color: #c0567a;
+}
+.sbx-select {
+  max-width: calc(440px * var(--s));
+  padding: 0 calc(8px * var(--s));
+  border-radius: calc(10px * var(--s));
+}
+.sbx-num {
+  width: calc(70px * var(--s));
+  border-radius: calc(10px * var(--s));
+  cursor: text;
+}
+#sbx-body {
+  overflow-y: auto;
+  min-height: 0;
+}
+.sbx-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(6px * var(--s));
+  margin: calc(6px * var(--s)) 0;
+}
+.sbx-label {
+  width: calc(88px * var(--s));
+  color: #8a7a9b;
+}
+.sbx-about {
+  color: #8a7a9b;
+  font-size: calc(12px * var(--s));
+}
+.sbx-note {
+  margin: calc(8px * var(--s)) 0 0;
+  color: #8a7a9b;
+  font-size: calc(12px * var(--s));
+}
+.sbx-bosses {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: calc(6px * var(--s));
+  margin: calc(6px * var(--s)) 0;
+}
+#sbx .sbx-boss {
+  height: auto;
+  padding: calc(5px * var(--s)) calc(8px * var(--s));
+  border-radius: calc(12px * var(--s));
+  background: #fff3f7;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+.sbx-boss span {
+  color: #8a7a9b;
+  font-size: calc(11px * var(--s));
+}
+/* the readout: under the status box on the left (the boss's damage meter is on the right) */
+#sbx-dps {
+  position: absolute;
+  top: calc(244px * var(--s));
+  left: calc(16px * var(--s));
+  width: calc(210px * var(--s));
+  box-sizing: border-box;
+  padding: calc(7px * var(--s)) calc(9px * var(--s));
+  border-radius: calc(12px * var(--s));
+  background: rgba(45, 32, 60, 0.78);
+  color: #fffaf0;
+  font: 700 calc(11px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+}
+.sbx-dps-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sbx-dps-top b {
+  font-size: calc(16px * var(--s));
+  color: #ffd34d;
+}
+.sbx-dps-top button {
+  height: calc(22px * var(--s));
+  padding: 0 calc(10px * var(--s));
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #5b4a6b;
+  font: 700 calc(11px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+  cursor: pointer;
+}
+.sbx-dps-sub {
+  margin: calc(2px * var(--s)) 0 calc(4px * var(--s));
+  color: rgba(255, 255, 255, 0.75);
+}
+.sbx-row {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: calc(6px * var(--s));
+  margin-top: calc(3px * var(--s));
+  padding: calc(1px * var(--s)) calc(5px * var(--s));
+  border-radius: calc(5px * var(--s));
+  background: linear-gradient(90deg, rgba(255, 143, 177, 0.6) var(--w), rgba(0, 0, 0, 0.3) var(--w));
+  white-space: nowrap;
+  overflow: hidden;
+}
+.sbx-row span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* phones: the panel at the top, the whole height, 44 px targets; the readout a little smaller */
+body.touch #sbx {
+  top: calc(8px * var(--s));
+  transform: translateX(-50%);
+  width: calc(900px * var(--s));
+  max-height: calc(524px * var(--s));
+  animation-name: invite-in;
+}
+body.touch #sbx button,
+body.touch .sbx-select,
+body.touch .sbx-num {
+  height: calc(44px * var(--s));
+  font-size: calc(16px * var(--s));
+}
+body.touch #sbx .sbx-boss {
+  height: auto;
+  min-height: calc(44px * var(--s));
+}
+body.touch #sbx-close {
+  width: calc(44px * var(--s));
+}
+body.touch .sbx-dps-top button {
+  height: calc(34px * var(--s));
+}

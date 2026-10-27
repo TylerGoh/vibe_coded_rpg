@@ -1,6 +1,8 @@
 // Docs: docs/netcode.md (the protocol is documented below)
 // Production server: serves the built game (dist/) at /rpg/ and the multiplayer WebSocket at /rpg/ws,
 // on loopback. nginx proxies tylergoh.com/rpg/ to it. Run with: npm start (builds first) or npm run serve.
+// The dev sandbox (docs/sandbox.md) is this same server with SANDBOX=1, RPG_BASE=/rpg_dev/ (the client built with the same
+// RPG_BASE), its own PORT, DB and DIST, and the listening socket handed over by systemd (LISTEN_FDS) when it has one.
 //
 // The server is authoritative. Each client sends one input per 1/60 s step:
 //   → {t:'hello', user, pass, hue, bin}  once, to log in (accounts: server/accounts.js)
@@ -168,6 +170,8 @@
 //   → {t:'chat', text, to?}   ← {t:'chat', id, at, from, to?, text}  public: to everyone · private: to both of you
 //   ← {t:'chat-log', lines:[…same shape]}  at login: recent public lines and your private ones (incl. while offline)
 //   ← {t:'chat-error', text}  just to the sender (no such slime, too fast…)
+// The dev sandbox (SANDBOX=1 only: server/sandbox.js, docs/sandbox.md; refused everywhere else): welcome carries `sandbox: 1`;
+//   → {t:'sbx', a, …}  the panel's actions  ← {t:'sbx-state'} · ← {t:'sbx-dps'}  (the full list is in server/sandbox.js)
 // One login per account: logging in again elsewhere takes over, and the old connection is
 // closed with code 4001 (the client then stops reconnecting and says why). Clients predict their own slime and reconcile
 // against `a`; everyone else is interpolated a few ticks in the past.
@@ -195,13 +199,16 @@ import { isCombat } from '../src/shared/rpg.js';
 import { CHARACTERS } from './characters.js';
 import { openAccounts } from './accounts.js';
 import { getIceServers, turnConfigured } from './turn.js';
+import { createSandbox, IDLE_EXIT_MIN } from './sandbox.js';
+import { ARENA, ARENA_SPAWN_X } from '../src/shared/sandbox.js';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const DIST = process.env.DIST ? resolve(process.env.DIST) : join(ROOT, 'dist'); // tests point this at a scratch build
 const HOST = '127.0.0.1';
 const PORT = Number(process.env.PORT) || 3002;
-const BASE = '/rpg/';
-const WS_PATH = '/rpg/ws';
+const BASE = `/${(process.env.RPG_BASE || '/rpg/').replace(/^\/+|\/+$/g, '')}/`; // (the sandbox: /rpg_dev/; the client is built with the same RPG_BASE)
+const WS_PATH = `${BASE}ws`;
+const SANDBOX = !!process.env.SANDBOX; // the dev sandbox (docs/sandbox.md): never set on the live server
 
 const MAX_PLAYERS = 60;
 const KICKED = 4001; // close code: this account logged in somewhere else
@@ -308,7 +315,9 @@ function broadcast(msg, except) {
   const data = JSON.stringify(msg);
   for (const [id, p] of players) if (id !== except && p.joined) send(p.ws, data);
 }
-const rpg = createRpg({ dbPath: accounts.path, players, send, toRoom, broadcast });
+const hooks = {}; // (the sandbox's, filled in by createSandbox; empty on the live server)
+const rpg = createRpg({ dbPath: accounts.path, players, send, toRoom, broadcast, hooks });
+const sandbox = SANDBOX ? createSandbox({ rpg, hooks, players, send, dbPath: accounts.path, livePath: process.env.LIVE_DB }) : null;
 const chat = createChat({ dbPath: accounts.path, players, send, users: () => accounts.list().map((a) => a.user) });
 const accuse = createAccuse({ players, send });
 setInterval(() => accuse.tick(), 1000).unref(); // accusations run out (deny deadlines, penalties)
@@ -490,6 +499,8 @@ wss.on('connection', (ws) => {
       }
     } else if (m.t === 'rtc' && p.joined) {
       relayRtc(id, p, m);
+    } else if (m.t === 'sbx' && p.joined && sandbox) {
+      sandbox.receive(id, p, m); // the dev sandbox's panel (refused unless SANDBOX is set)
     } else if (m.t === 'hello' && !p.joined && !p.loggingIn) {
       p.loggingIn = true;
       login(id, p, m).catch((e) => {
@@ -605,6 +616,7 @@ async function talkToNpc(p, m) {
 }
 
 async function login(id, p, m) {
+  sandbox?.syncAccount(m.user); // (the sandbox: the account comes over from the live DB, read-only)
   const acc = await accounts.login(m.user, m.pass, m.hue);
   if (p.ws.readyState !== p.ws.OPEN) return; // they left while we checked the password
   if (!acc) {
@@ -644,13 +656,15 @@ async function login(id, p, m) {
   state.home = houses.homeOf(acc.user);
   if (old) p.invites = old.invites;
   if (!p.rpg) rpg.load(p);
-  if (!old) {
+  sandbox?.login(p, old);
+  if (!old && sandbox) placeAt(state, ARENA, ARENA_SPAWN_X + Math.floor(Math.random() * 120)); // (the sandbox: always the Training Yard)
+  else if (!old) {
     // your town (docs/world.md): you start there, unless your spot from before a restart (or a reload) was kept
     state.town = p.rpg.town;
     const town = TOWNS[state.town];
     if (!process.env.TEST_SPAWN && (p.goHome || !restorePos(acc.user, state)) && town.room !== VILLAGE) placeAt(state, town.room, town.x + Math.floor(Math.random() * 120));
   }
-  send(p.ws, { t: 'welcome', id, tick, rate: TICK_RATE, ...(speed > 1 && { speed, now: Date.now() }), ...(process.env.TEST_SKILLS && { testSkills: 1 }), ice, build: buildId(), players: [...players].filter(([, q]) => q.joined).map(([i, q]) => info(q, i)), casts: [...players].filter(([, q]) => q.joined && q.cast).map(([i]) => i) });
+  send(p.ws, { t: 'welcome', id, tick, rate: TICK_RATE, ...(speed > 1 && { speed, now: Date.now() }), ...(process.env.TEST_SKILLS && { testSkills: 1 }), ...(sandbox && { sandbox: 1 }), ice, build: buildId(), players: [...players].filter(([, q]) => q.joined).map(([i, q]) => info(q, i)), casts: [...players].filter(([, q]) => q.joined && q.cast).map(([i]) => i) });
   broadcast({ t: 'join', ...info(p, id) }, id);
   rpg.sendMe(p);
   houses.sendOwned(p);
@@ -658,20 +672,32 @@ async function login(id, p, m) {
   rpg.entered(p);
   houses.entered(p);
   accuse.entered(p);
+  sandbox?.entered(p);
 }
 
 // Save everyone's character before a restart (deploys restart the service)
-for (const sig of ['SIGTERM', 'SIGINT']) {
-  process.on(sig, () => {
-    for (const p of players.values()) if (p.joined) rpg.save(p);
-    savePositions();
-    try {
-      writeFileSync(BOSS_FILE, JSON.stringify({ at: Date.now(), bosses: rpg.saveBosses() }));
-    } catch (e) {
-      console.error('could not save bosses', e);
+function shutdown() {
+  for (const p of players.values()) if (p.joined) rpg.save(p);
+  savePositions();
+  try {
+    writeFileSync(BOSS_FILE, JSON.stringify({ at: Date.now(), bosses: rpg.saveBosses() }));
+  } catch (e) {
+    console.error('could not save bosses', e);
+  }
+  process.exit(0);
+}
+for (const sig of ['SIGTERM', 'SIGINT']) process.on(sig, shutdown);
+// The sandbox saves RAM: with nobody connected for IDLE_EXIT_MIN it exits, and systemd's socket (deploy/rpg-dev.socket)
+// starts it again on the next visit
+if (SANDBOX) {
+  let busyAt = Date.now();
+  setInterval(() => {
+    if (players.size) busyAt = Date.now();
+    else if (Date.now() - busyAt > IDLE_EXIT_MIN * 60_000) {
+      console.log(`sandbox: nobody here for ${IDLE_EXIT_MIN} min, exiting`);
+      shutdown();
     }
-    process.exit(0);
-  });
+  }, 30_000).unref();
 }
 
 // Drop connections that stopped answering pings (e.g. a phone that went to sleep).
@@ -706,7 +732,10 @@ function runActions(id, p, all) {
   while (p.actions.length && (all || (p.actions[0].s >>> 0) <= p.ack)) {
     const m = p.actions.shift();
     if (m.t === 'slap') slap(id, p, m);
-    else if (m.t === 'skill') rpg.cast(id, p, m);
+    else if (m.t === 'skill') {
+      sandbox?.beforeCast(p); // (the sandbox's no-cooldowns and full-MP toggles)
+      rpg.cast(id, p, m);
+    }
     else if (m.t === 'ouch') rpg.ouch(id, p, m);
     else if (m.t === 'pickup') rpg.pickup(p);
   }
@@ -787,8 +816,10 @@ function loop() {
 }
 loop();
 
-server.listen(PORT, HOST, () => {
-  console.log(`Slime village on http://${HOST}:${PORT}${BASE} (ws ${WS_PATH})`);
+// systemd's socket activation (the sandbox: deploy/rpg-dev.socket) hands the listening socket over as fd 3
+const fromSystemd = Number(process.env.LISTEN_FDS) >= 1 && Number(process.env.LISTEN_PID) === process.pid;
+server.listen(fromSystemd ? { fd: 3 } : { port: PORT, host: HOST }, () => {
+  console.log(`Slime village on ${fromSystemd ? 'the socket from systemd' : `http://${HOST}:${PORT}`}${BASE} (ws ${WS_PATH})${SANDBOX ? ' · the DEV SANDBOX' : ''}`);
   console.log(turnConfigured() ? 'Voice: Cloudflare TURN relay enabled' : 'Voice: STUN only (no TURN_KEY_ID / TURN_KEY_API_TOKEN)');
   console.log(npcConfigured() ? 'Elder Mochi: DeepSeek enabled' : 'Elder Mochi: asleep (no DEEPSEEK_API_KEY)');
   getIceServers(); // fetch the first credentials now, so a bad key shows up in the log straight away

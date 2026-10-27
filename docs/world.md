@@ -42,6 +42,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Pet Shop | 27 `PETSHOP` | exit (`docs/places/pets.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17, 26, 30, 35 | exit, back to the stage it's in (`DENS[].from`) |
+| The Training Yard | 53 `ARENA` | no doors: only the dev sandbox's server puts anyone there, and its panel is the way out (`docs/sandbox.md`); a combat room |
 | Personal houses | `HOUSE_BASE` and up, one per account | out to your town (`docs/places/houses.md`) |
 
 Look rooms up with `roomDef(room)`, not `ROOMS[room]`: houses aren't in `ROOMS`.

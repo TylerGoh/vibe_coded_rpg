@@ -1,0 +1,12 @@
+# Slimeville's dev sandbox (docs/sandbox.md): systemd holds 127.0.0.1:3003 and starts rpg-dev.service on the first
+# connection, so the sandbox costs no RAM while nobody uses it (the server exits by itself when idle: IDLE_EXIT_MIN).
+# Install: install -m 644 deploy/rpg-dev.socket deploy/rpg-dev.service ~/.config/systemd/user/
+#          systemctl --user daemon-reload && systemctl --user enable --now rpg-dev.socket
+[Unit]
+Description=Slimeville dev sandbox socket (/rpg_dev on 127.0.0.1:3003, starts rpg-dev.service on demand)
+
+[Socket]
+ListenStream=127.0.0.1:3003
+
+[Install]
+WantedBy=sockets.target

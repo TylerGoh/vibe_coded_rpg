@@ -1,0 +1,21 @@
+# Slimeville's dev sandbox (docs/sandbox.md): the game's server with SANDBOX=1, started by rpg-dev.socket on demand.
+# It runs the code in ~/rpg-dev (a git worktree on the `dev` branch), builds its client into ~/.cache/rpg-dev/dist only
+# when that code changed (scripts/sandbox-build.mjs), keeps its own DB, reads the live accounts DB only to copy a login,
+# and exits after IDLE_EXIT_MIN with nobody connected. Not enabled by itself: the socket starts it.
+# Pick up new code: systemctl --user restart rpg-dev.service (or stop it: the next visit starts it, rebuilt).
+[Unit]
+Description=Slimeville dev sandbox (on demand at /rpg_dev, 127.0.0.1:3003)
+Requires=rpg-dev.socket
+After=rpg-dev.socket
+
+[Service]
+Type=simple
+WorkingDirectory=%h/rpg-dev
+Environment=SANDBOX=1 RPG_BASE=/rpg_dev/ PORT=3003
+Environment=DB=%h/.local/share/rpg-dev/sandbox.sqlite DIST=%h/.cache/rpg-dev/dist LIVE_DB=%h/rpg/data/accounts.sqlite
+# (no TURN or DeepSeek keys: voice is STUN only and the characters sleep, so the sandbox spends nothing)
+ExecStartPre=/usr/bin/node scripts/sandbox-build.mjs
+ExecStart=/usr/bin/node server/index.js
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=300

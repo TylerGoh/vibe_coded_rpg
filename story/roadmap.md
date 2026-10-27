@@ -49,7 +49,7 @@ No quests, no hard level gates.
    wall, the Old Ice (50), the Long Stair (51), the door holding (`docs/places/oldice.md`). (c1) live 2026-10-27: the Wolf's Hold (52) and the
    whole fight (`docs/places/fenrir.md`). (c2) live 2026-10-27: its art, its track, the
    four class weapons, the Wolf-Pelt Hood, the mini Fenrir. **FB2 done.** Next: **the owner plays** it with friends.
-5b. **The dev sandbox at `/rpg_dev`** (owner, 2026-10-27; right after FB2 (c2), before E1). Why: friends say some
+5b. [x] **The dev sandbox at `/rpg_dev`** (owner, 2026-10-27; right after FB2 (c2), before E1). Why: friends say some
    classes don't *feel* right, and bots can't judge feel, so the owner wants to test by hand with a quick loop.
    Owner's answers: its **own server process** running a dev copy at `/rpg_dev` (nginx change with the owner's sudo;
    RAM is tight, so consider starting it on demand), **open to the owner and friends** (any account), and not the
@@ -57,6 +57,10 @@ No quests, no hard level gates.
    **training dummies with a DPS readout** (single, a pack, one that hits back; per-skill breakdown, a timer), and
    **bosses on demand** (any boss, any phase). The buff bar and every "feel" element (hit pops, sounds, shakes) as
    in the game. Not wanted: live number sliders.
+   **Built 2026-10-27** (`docs/sandbox.md`): its own on-demand server (`rpg-dev.socket`, port 3003, exits when idle)
+   running the `~/rpg-dev` worktree (`dev` branch), logins copied read-only from live, the Training Yard (room 53),
+   the panel (character swap, dummies incl. one that hits back, DPS readout, bosses at any phase, god mode / full MP /
+   no cooldowns). Next: the owner installs nginx's `/rpg_dev/` block, then **the owner and friends play** it.
 6. **Emberdeep's depth pass, E1–E4** (Lv 90–150; plan, map and settled decisions:
    `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
    `docs/places/branches.md`). E0 shipped.

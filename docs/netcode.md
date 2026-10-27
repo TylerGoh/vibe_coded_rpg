@@ -131,8 +131,14 @@ reconnect. What starts over: the move it was in, shields, adds, a final boss's h
 `gear`, `toast`, `skill`, `boss`, `nomana`, `shop`, `scrolled`; the Cleric's summons `summons`, `sumhit`,
 `sumhurt`, `sumgone`, and S5's `party` and `curse`, which `src/net.js` must list in its `RPG` set to route) · bag / skills / stats actions (`equip`,
 `unequip`, `use`, `drop`, `scroll`, `learn`, `unlearn`, `respec`, `hotbar`, `hotswap`, `ap`, `pvp`,
-`wear`, `showhelm`, `buy`, `sell`, `buycos`) · houses (`house`, `house-set`, `house-kick`, `invite`, `visit`). Routing for these is one `if` chain in `server/index.js`;
+`wear`, `showhelm`, `buy`, `sell`, `buycos`) · houses (`house`, `house-set`, `house-kick`, `invite`, `visit`) · the dev sandbox's `sbx`,
+`sbx-state`, `sbx-dps` (refused unless the server runs with `SANDBOX`: `docs/sandbox.md`). Routing for these is one `if` chain in `server/index.js`;
 a new message needs a branch there and a line in the protocol comment.
+
+## One server code, two bases
+The server serves under `RPG_BASE` (default `/rpg/`, WebSocket at its `ws`) and the client is built with the same
+`RPG_BASE` as Vite's `base` (`vite.config.js`); the client derives its WebSocket URL from `import.meta.env.BASE_URL`.
+The dev sandbox runs both with `/rpg_dev/` and takes its listening socket from systemd (`LISTEN_FDS`) (`docs/sandbox.md`).
 
 ## `src/main.js`
 Owns the keyboard handler (panels first, then room-specific keys, then the Esc menu), the Esc menu

@@ -84,6 +84,7 @@
         </form>
       </div>
       <div id="status" aria-label="Buffs and debuffs on you" hidden></div>
+      <div id="sbx-dps" aria-label="Your damage per second (dev sandbox)" hidden></div>
       <div id="inv" role="dialog" aria-label="Inventory" hidden>
         <h2>Bag <span id="inv-coins"></span></h2>
         <button id="inv-pvp" type="button">Friendly fire: on</button>
@@ -133,10 +134,17 @@
         <div class="invite-btns"><button id="news-ok" type="button">Got it</button></div>
       </div>
       <div id="hotbar" hidden></div>
+      <div id="sbx" role="dialog" aria-label="Sandbox" hidden>
+        <h2>Sandbox <span>dev only: nothing here touches the real game</span></h2>
+        <div id="sbx-tabs"></div>
+        <div id="sbx-body"></div>
+        <button id="sbx-close" type="button" aria-label="Close">✕</button>
+      </div>
       <div id="hudbtns">
         <button id="who" type="button" hidden>Players</button>
         <button id="decorate" type="button" hidden>Decorate</button>
         <button id="chatbtn" type="button" hidden>Chat</button>
+        <button id="sbxbtn" type="button" hidden>Sandbox</button>
       </div>
       <div id="chat" role="dialog" aria-label="Chat" hidden>
         <div id="chat-tabs"></div>

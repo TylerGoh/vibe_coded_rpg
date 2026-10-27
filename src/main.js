@@ -70,6 +70,9 @@ import { PoolCard, NewsBanner, newsFor, nearPool, poolSplash } from './rebirth.j
 import { fastGradients } from './fastcanvas.js';
 import { checkBuild, onInstall, takeResume } from './update.js';
 import { gfx } from './gfx.js';
+import { Sandbox } from './sandbox.js';
+import { drawArena } from './sandbox-art.js';
+import { ARENA } from './shared/sandbox.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
 import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, chargeOpen, retreatOpen, chaseRank, HOOK_RANGE, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X, TOWNS } from './shared/sim.js';
@@ -276,6 +279,11 @@ const net = new Net(wsUrl, {
   onHook(me, seq) {
     return rpg.hook(me, seq);
   },
+  // the dev sandbox (src/sandbox.js, docs/sandbox.md): its welcome flag, its state and the DPS readout
+  onSandbox(m) {
+    if (m.t === 'sbx-on') sandbox.enable();
+    else sandbox.receive(m);
+  },
   // the Esc menu's Play time page (src/playtime.js)
   onPlaytime(m) {
     if (!document.getElementById('playtime').hidden) playTime.show(m);
@@ -468,6 +476,7 @@ let warpedIn = -9; // when the server last moved us by waystone (the shimmer wai
 // The Rebirth Pool (src/rebirth.js, docs/combat/skills.md): E at it opens its card; {t:'reborn'} splashes out
 // of it; the classes notice and the advancements show as a banner pointing at it
 const pool = new PoolCard((m) => net.sendNpc(m));
+const sandbox = new Sandbox({ send: (m) => net.sendNpc(m), rpg, online: () => online() }); // (the dev sandbox only: docs/sandbox.md)
 const news = new NewsBanner();
 rpg.onNews = (m) => {
   const n = newsFor(m);
@@ -945,7 +954,7 @@ canvas.addEventListener('pointerdown', (e) => {
     const r = canvas.getBoundingClientRect();
     if (accuse.tap(((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H)) return; // "Not a bot!"
   }
-  if (!online() || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || e.button > 0) return;
+  if (!online() || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || sandbox.isOpen || e.button > 0) return;
   const r = canvas.getBoundingClientRect();
   if (scope.isOpen) return scope.tap((e.clientX - r.left) / r.width); // looking through the telescope
   const worldX = camX + ((e.clientX - r.left) / r.width) * W;
@@ -1013,7 +1022,7 @@ addEventListener('keydown', (e) => {
     return;
   }
   // the bag (I), the skill tree (K) and the shop: their key or Esc closes them (the rest is clicks / taps)
-  for (const [panel, code] of [[rpg, 'KeyI'], [skillTree, 'KeyK'], [shop, 'KeyE'], [players, 'KeyP'], [alchemy, 'KeyE'], [pets, 'KeyE'], [chest, 'KeyE']]) {
+  for (const [panel, code] of [[rpg, 'KeyI'], [skillTree, 'KeyK'], [shop, 'KeyE'], [players, 'KeyP'], [alchemy, 'KeyE'], [pets, 'KeyE'], [chest, 'KeyE'], [sandbox, 'KeyO']]) {
     if (!panel.isOpen) continue;
     if (e.code === 'Escape' || (e.code === code && !e.repeat)) {
       e.preventDefault();
@@ -1041,6 +1050,12 @@ addEventListener('keydown', (e) => {
   if (e.code === 'KeyP' && !e.repeat && menu.hidden && online()) {
     e.preventDefault();
     players.open();
+    return;
+  }
+  if (e.code === 'KeyO' && !e.repeat && menu.hidden && online() && sandbox.on) {
+    e.preventDefault();
+    held.clear();
+    sandbox.open(); // the dev sandbox's panel (src/sandbox.js)
     return;
   }
   if (e.code === 'KeyR' && !e.repeat && menu.hidden && online() && houses.isMine(room)) {
@@ -1338,6 +1353,7 @@ function update(realDt) {
   chat.update(dt);
   chat.button.hidden = !online() || !TOUCH; // phones only: keyboards open the chat with Enter (owner's call)
   whoButton.hidden = !online();
+  sandbox.frame(room); // (its button and DPS readout: the dev sandbox only)
   hudButtons.classList.toggle('combat', isCombat(room)); // below the HP / MP panel there
   news.el.classList.toggle('combat', isCombat(room)); // (the news banner too)
   decoButton.hidden = !online() || !houses.isMine(room) || houses.editing;
@@ -1349,7 +1365,7 @@ function update(realDt) {
     field: isCombat(room),
     dash: !!rankOf(rpg.me?.skills, 'dash'),
     blink: !!rankOf(rpg.me?.skills, 'blink'),
-    overlay: dialogOpen() || pool.isOpen || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
+    overlay: dialogOpen() || pool.isOpen || sandbox.isOpen || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
   });
   if (room === PIANO) piano.update(dt);
   if (room === HALL) hall.update(dt, [...slimes.values()].filter((s) => s.visible).length + 1);
@@ -1443,7 +1459,7 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 const BEACON_RANGE = 420;
 const DOOR_BAND_Y = 160; // how high over the ground a door's level chip sits (under the beacon)
 function drawHints() {
-  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || pool.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || houses.editing) return;
+  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || pool.isOpen || sandbox.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || houses.editing) return;
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);
@@ -1548,6 +1564,7 @@ function render() {
   else if (room === LONGSTAIR) drawLongStair(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === ROADSEND) drawRoadsEnd(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (roomDef(room)?.crossing) drawCrossing(ctx, room, camX, W, time, online() ? net.me : null);
+  else if (room === ARENA) drawArena(ctx, camX, W, time); // (the dev sandbox's Training Yard: docs/sandbox.md)
   else drawVillage(ctx, camX, W, time);
   if (room === VILLAGE && Math.abs(SHOP_X - camX - W / 2) < W / 2 + 80) {
     merchant.draw(ctx);

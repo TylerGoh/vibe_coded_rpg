@@ -1264,6 +1264,7 @@ export class Rpg {
         const k = MOBS[v.kind];
         if (Math.abs(me.x - v.x) > (k.touchW ?? k.w) / 2 + 12 || me.y < v.y - (k.touchH ?? k.h) - 4 || me.y > v.y + 30) continue; // (touchW / touchH: a smaller hurt box than the art, Ladon's body)
         if ((v.frozen || v.netted || v.stunned) && !k.boss && !k.field) continue; // frozen solid, netted or stunned: harmless (the server agrees: ouch)
+        if (k.noTouch) continue; // (a training dummy: docs/sandbox.md)
         ouch = { mob: v.id, kind: v.charging ? 'charge' : 'touch', mx: v.x };
         break;
       }

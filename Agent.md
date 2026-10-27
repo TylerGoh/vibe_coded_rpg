@@ -51,6 +51,9 @@ touches (see the index at the bottom) before changing code. Every source file na
   positions; `savePositions` in `server/index.js`; bosses keep their HP too, `docs/netcode.md`). For a game-breaking change, create an empty
   `reset-positions` file next to the accounts DB before restarting and everyone starts at spawn. Unit changes: `install -m 644 deploy/rpg.service
   ~/.config/systemd/user/` + `daemon-reload`.
+- The dev sandbox at https://tylergoh.com/rpg_dev/ (owner's hand-test tool: any class, dummies, bosses on demand) is
+  a second, on-demand server (`rpg-dev.socket` / `rpg-dev.service`, port 3003) running `~/rpg-dev`, a worktree on
+  the `dev` branch: `docs/sandbox.md`. It never touches the live DB beyond reading logins.
 - Git: `~/rpg` is a repo, remote `origin` = github.com:TylerGoh/vibe_coded_rpg (branch `main`). **Always
   commit and push after every deploy** without asking (owner's standing instruction: it's a low-stakes
   project). `.gitignore` keeps out `data/` (accounts DB), `dist/` and `node_modules/`; never commit secrets.
@@ -125,6 +128,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/world.md](docs/world.md) | rooms, doors, map layout, platforms, the village, room ids, towns (respawn, home doors) |
 | [docs/netcode.md](docs/netcode.md) | `step()`, prediction, snapshots, the protocol, `server/index.js`, `src/net.js`, `src/main.js` wiring |
 | [docs/accounts.md](docs/accounts.md) | login, accounts, test accounts, takeover |
+| [docs/sandbox.md](docs/sandbox.md) | the dev sandbox at /rpg_dev (its server, units, worktree, the Training Yard, the panel, dummies, the DPS readout, `SANDBOX`) |
 | [docs/testing.md](docs/testing.md) | running a test server, headless browser tests, test env vars, `#debug` |
 | [docs/art.md](docs/art.md) | slime art, accessories, scenery, the art style |
 | [docs/combat/core.md](docs/combat/core.md) | attacking, damage, HP/EXP, fainting, friendly fire, the bag, saving characters |

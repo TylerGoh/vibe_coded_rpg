@@ -5,6 +5,7 @@
 import { curve } from './curve.js';
 import { LADON_PLATFORMS, LADON_BODY_X } from './final.js';
 import { FENRIR_PLATFORMS, FEN_MID } from './fenrir.js';
+import { ARENA, DUMMY_HP, SPAR_HIT_PCT } from './sandbox.js';
 
 export const FIELD = 5; // room id (see ROOMS in sim.js)
 export const FIELD_W = 5200; // the last stretch (where the Highlands trail used to be) is mob-free: the briar thins out toward the sea cliffs
@@ -1625,6 +1626,14 @@ const son = (name, art) => ({
 });
 MOBS.skoll = son('Skoll', 'skoll');
 MOBS.hati = son('Hati', 'hati');
+// The dev sandbox's training dummies (docs/sandbox.md): only a SANDBOX server spawns them, in the Training Yard. `dummy`:
+// it never dies and its HP stays at its setting (server/rpg.js damage), no EXP, no drops; `noTouch`: walking into it
+// doesn't hurt. The sparring one hits back: it stomps (a shockwave along the floor: jump it) and touching it hurts,
+// `hitPct` of your max HP a hit (bossHitPct), so it matters at any level. (Last in MOBS: the wire sends a mob's kind as
+// its index here, so new kinds go at the end.)
+const dummy = { lvl: 1, hp: DUMMY_HP, exp: 0, speed: 0, aggro: false, hops: false, anchored: true, dummy: true, drops: [] };
+MOBS.dummy = { ...dummy, name: 'Training Dummy', atk: 0, w: 46, h: 92, noTouch: true };
+MOBS.dummy_spar = { ...dummy, name: 'Sparring Dummy', atk: 1, w: 54, h: 100, aggro: true, hitPct: SPAR_HIT_PCT, ai: { kind: 'stomp', every: 3.2, warn: 0.9, r: 220, range: 280, jump: 480 } };
 
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
@@ -1765,7 +1774,7 @@ export const STAGGER_DMG = 0.3;
 // physical hit through, and an ultimate nobody interrupted hits everyone in the den for TOP_ULT_HP of max HP even
 // where it's safe (server/rpg.js ultGoesOff). Ordinary dens keep the S5 numbers.
 export const BOSS_HIT_PCT = 0.03, TOP_HIT_PCT = 0.05;
-export const bossHitPct = (k) => (k?.top ? TOP_HIT_PCT : k?.boss || k?.field ? BOSS_HIT_PCT : 0);
+export const bossHitPct = (k) => (k?.top ? TOP_HIT_PCT : k?.boss || k?.field ? BOSS_HIT_PCT : k?.hitPct ?? 0); // (hitPct: the sandbox's sparring dummy)
 export const TOP_PULSE_HP = 0.45, TOP_BARRIER_PHYS = 0.15, TOP_BARRIER_S = 18, TOP_BARRIER_EVERY = 12, TOP_ULT_HP = 0.6;
 // a top boss's HP went up ~28x in SP6 (a den's ~9x), so its barrier's and weak point's HP shares are smaller
 // (TOP_BARRIER_HP, TOP_WEAK_HP): one Mage or Archer still breaks them in a few seconds
@@ -2178,7 +2187,7 @@ export const BOSS_HP_PER_PLAYER = 0.6;
 export const PARTY_DEN_HP_FLOOR = 2;
 // A final boss (`final`, FB1): always a party of four's HP, whoever comes (owner, 2026-10-26: no growth, no floor)
 export const bossMaxHp = (k, fighters) => k.final ? k.hp : k.hp * (1 + BOSS_HP_PER_PLAYER * (Math.max(fighters, k.top || (k.partyDen && k.partyLive) ? PARTY_DEN_HP_FLOOR : 1) - 1));
-export const COMBAT_ROOMS = new Set([...Object.keys(STAGES).map(Number), ...DENS.map((d) => d.room)]);
+export const COMBAT_ROOMS = new Set([...Object.keys(STAGES).map(Number), ...DENS.map((d) => d.room), ARENA]); // (ARENA: the dev sandbox's Training Yard, docs/sandbox.md)
 export const isCombat = (room) => COMBAT_ROOMS.has(room);
 export const denAt = (room) => DENS.find((d) => d.room === room);
 
