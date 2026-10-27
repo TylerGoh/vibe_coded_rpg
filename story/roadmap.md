@@ -44,10 +44,11 @@ No quests, no hard level gates.
    **the owner plays** it with friends (untested with people; the 45 minutes only on the sheet).
 4. [x] **S5.4 for Emberdeep** (2026-10-27): the last of the retrofit (`s5-plan.md`): Ignis, Pyra, the Clockwork
    Colossus (with a steam pulse added) and Chronos have their party mechanics. Next: **the owner plays** them in a party.
-5. **FB2: Frostpeak's final boss**, below the Blue Halls (the Old Ice, the Long Stair). (a) on paper 2026-10-27:
+5. [x] **FB2: Frostpeak's final boss**, below the Blue Halls (the Old Ice, the Long Stair). (a) on paper 2026-10-27:
    Fenrir, the Bound Wolf (`fb2-plan.md`), approved. (b) live 2026-10-27: the Blue Halls' fallen
    wall, the Old Ice (50), the Long Stair (51), the door holding (`docs/places/oldice.md`). (c1) live 2026-10-27: the Wolf's Hold (52) and the
-   whole fight (`docs/places/fenrir.md`). Next: (c2) its art polish, music, rewards (the `oath_blade` stand-in) and the mini Fenrir.
+   whole fight (`docs/places/fenrir.md`). (c2) live 2026-10-27: its art, its track, the
+   four class weapons, the Wolf-Pelt Hood, the mini Fenrir. **FB2 done.** Next: **the owner plays** it with friends.
 5b. **The dev sandbox at `/rpg_dev`** (owner, 2026-10-27; right after FB2 (c2), before E1). Why: friends say some
    classes don't *feel* right, and bots can't judge feel, so the owner wants to test by hand with a quick loop.
    Owner's answers: its **own server process** running a dev copy at `/rpg_dev` (nginx change with the owner's sudo;

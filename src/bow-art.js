@@ -60,6 +60,7 @@ export const BOWS = {
   troll_bow: { len: 33, wood: ['#8a6a48', '#5a4434'], w: 4.4, tip: 'gem', c: '#8ec4f0', c2: '#2e5a8a', grip: '#4a3828', string: '#c8b898', glow: '140,190,255' },
   rimeguard_bow: { len: 31, wood: ['#e0e4ee', '#8a90a8'], w: 3.2, tip: 'cap', c: '#c8ccd8', grip: '#3e5a8a', gem: '#e2f0fc', string: '#f0f4ff', glow: '200,230,255' },
   oath_bow: { len: 33, wood: ['#c8b498', '#6a5a44'], w: 3.6, tip: 'cap', c: '#c8ccd8', grip: '#3e6294', gem: '#e2f0fc', string: '#e8e0d0', glow: '190,226,255', shield: true },
+  moonchaser_bow: { len: 35, wood: ['#3a4a6a', '#141c30'], w: 3.8, tip: 'moon', c: '#eef4ff', grip: '#d8e2f2', gem: '#f4f8ff', string: '#cfe0ff', glow: '220,232,255', curve: 0.55 }, // (Fenrir's: Hati's, a crescent moon on each tip)
   spring_bow: { len: 30, wood: ['#8a8490', '#4e4a56'], w: 4, tip: 'rivet', c: '#c8c4cc', grip: '#3a3640', gem: '#ff8a3c', string: '#b8b4bc', glow: '255,150,80', curve: 0.38 },
 };
 export const BOW_LEN = Object.fromEntries(Object.entries(BOWS).map(([id, b]) => [id, b.len]));
@@ -299,6 +300,18 @@ const TIPS = {
     ctx.fillStyle = b.c;
     circle(ctx, x, y + side * 2, 1.8);
     ctx.fill();
+  },
+  moon(ctx, b, x, y, side) { // a crescent moon (the Moon-Chaser Bow: Hati's)
+    const cy = y + side * 4;
+    ctx.fillStyle = b.c;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.arc(x, cy, 4.6, -Math.PI / 2 - 0.9, Math.PI / 2 + 0.9);
+    ctx.arc(x + 2.2, cy, 3.8, Math.PI / 2 + 1.1, -Math.PI / 2 - 1.1, true);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
   },
   rivet(ctx, b, x, y) { // an iron rivet
     ctx.fillStyle = b.c;

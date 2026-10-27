@@ -234,8 +234,10 @@ the door, which cracks but holds (a gate on the map, "the ice holds") until (c) 
 - Two sessions, as FB1: (b) the way there, then (c) the den and the boss.
 - **Status: (c1) built 2026-10-27** (`docs/places/fenrir.md`): the Wolf's Hold (room 52), the door open, Fenrir's whole
   fight on the final-boss engine (its own brain, `server/fenrir.js`), the reach and anchors, the lanterns and the dark,
-  Skoll and Hati, the pack, both ultimates, the enrage, freed; placeholder art, music and pay. (c2), still to do: the
-  polished art, its music track, the rewards and the mini Fenrir.
+  Skoll and Hati, the pack, both ultimates, the enrage, freed; placeholder art, music and pay.
+- **Status: (c2) built 2026-10-27** (`docs/places/fenrir.md`): the wolf's art and poses, the fetters, anchors, lanterns,
+  Skoll and Hati and the frost paw curse; its own music track; the four class weapons and the Wolf-Pelt Hood; the mini
+  Fenrir in the Pet Shop. FB2 is done but for playtesting with people.
 
 ## Questions for the owner
 All answered 2026-10-27: the dark hurts a little (relighting matters), Skoll and Hati as written, no bites

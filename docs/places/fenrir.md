@@ -15,7 +15,9 @@ brain; Ladon (`docs/places/ladon.md`) is the other one.
 - Client: `src/fenrir.js` (`FenrirFinal`: the `final` message, which target a hit is on, the moves it judges itself,
   the title card, the dark, lanterns, fetters, frost lines and marks, its eyes over the dark, freed), routed by
   `src/finals.js`; `src/dens-fenrir.js` (theme `wolf`: the baked den, the wolf and its poses, Skoll and Hati, the dark
-  layer, both ultimates' effects). Music: slot 52 in `src/audio.js` is Sigrun's track until its own comes (piece 2).
+  layer, the lanterns, fetters and the anchors' cracks, both ultimates' effects); the frost paw curse is a look in
+  `src/party.js` (`paw`). Its rewards and pet: `src/fenrir-art.js`, rows in `src/staff-art.js` / `src/bow-art.js`.
+  Music: `fenrir` in `src/audio.js` (slot 52).
 
 ## The den
 The bottom of the glacier: black-blue layered ice with things older than the hamlet frozen in it (ribs, a tree, a Keeper
@@ -84,13 +86,73 @@ and both land; Rime Coat, Fetter Ward and both at once; Pounce, Falling Ice, Rea
 line. **Not bot-tested** (owner stopped bot testing): the dark's damage (TEST_GOD hid it), the enrage, the Rearing shard
 filling (no Archer stood in front), Ladon's regression after the engine split, the den on a phone (the phone page ended a
 run back in Slimeville, cause not found). Two mid-fight screenshots came out washed pale (probably Fimbulwinter's hit
-effect, which lasts the warning's length); worth a look in piece 2.
+effect); c2 toned it down (Its look, below).
 
-## Not done yet (FB2 (c) piece 2)
-Polished art (the wolf's poses, the sons, the paw sigil, the den), its own music track (slot 52), the rewards (the four
-class weapons, the Wolf-Pelt Hood; it drops Sigrun's `oath_blade` as a stand-in so `twinPick` works) and the mini
-Fenrir pet. Numbers untested with people.
+## Its look (FB2 (c2))
+Menacing in the soft procedural style; no text in the canvas but the SAFE tags and OUT.
+- **The wolf** (`drawFenrir`) is a skeleton, not a set of drawings: a hip and a shoulder (the body's axis between them,
+  the torso outline built along it), jointed legs (hip, stifle, hock, paw; elbow, wrist, paw: outlined bones, round
+  paws), a thick neck under a rimed ruff, the Keeper collar of dark stone blocks with the lock and shard at its throat,
+  and the head (a heavy brow slanting down over pale pupil-less eyes in a dark mask, black lips, a fang that shows even
+  shut, snarl creases when it bares its teeth, ears laid back when it means it). Every pose in `POSES` sets the same
+  numbers (crouch, brace, rear, lie, rest, paw, ear, tongue, tail...), eased each frame, so it moves between poses
+  instead of swapping. c1's forelegs came out of the body's middle and looked off: they now hang from under the chest.
+- **Poses**: lying is a snowdrift with eyes (head on its paws, eyes half open, snow on its back that slides off as it
+  gets up); standing; crouched for the Watch (hackles up); the Lunge in the air, then panting with its tongue out;
+  the Claw with a forepaw raised and claws out; Strain hauled back on braced legs; the Howl with its head thrown back;
+  Rearing (the rear pose puts the collar's shard on `MOBS.fenrir.weak`'s spot: move one, move the other); staggered;
+  freed lies down with its head on its paws and its eyes shut.
+- **The fetters** (`drawFetter`): ribbons of pale light that twist as they run (their width swells and pinches) with a
+  shimmer travelling along them, hot and straight while straining. In phase 4 the last one's frayed end hangs out of its
+  jaws, shining (`look.muzzle` is where the ribbon from its anchor meets it).
+- **The anchors**: Keeper stones (a carved frame, a stone ring for the fetter, one impossible thing carved on each:
+  the cat's footfall, the roots of a mountain, the fish's breath, the beard) baked with the den. A Strain's crack
+  (`drawAnchorCrack`) runs up the stone and branches as its time runs out, light leaking out of it and chips falling;
+  a snapped one (`drawAnchorSplit`) is split down the middle with a slab fallen at its foot.
+- **The lanterns** (`drawLantern`): a cutters' lamp in a Keeper cage on a carved post; lit it throws a warm pool on the
+  floor, dark it's cold iron with frost on the glass, relighting an ember grows in it. The dark itself is unchanged
+  from c1 (one low-resolution layer, rebuilt only when the light changes).
+- **Skoll and Hati** (`SON_ART`): shadow wolves with a haze of the dark round them and smoke streaming off behind.
+  Skoll hunts the sun: long and lean, a flared mane with a gold rim, gold slit eyes, sparks off its tail. Hati hunts
+  the moon: heavier, a short broad head, a pale crescent on its brow, round moon-white eyes, a silver rim and mist.
+- **The curse** (`looks.curse: 'paw'`, `src/party.js`): a real frost paw print (pad, four toes, claw marks) in the
+  ring, ice crystals standing round its rim; its own shape, not a recoloured star.
+- **Fimbulwinter** washed the screen pale in c1 (a full-den fill for the whole hit): the warning now has no fill, only a
+  cold haze rising off the windward end and thin snow; the hit flashes low and briefly, then the gale streams through.
+- **The den** keeps c1's bake and adds the wolf's old claw marks raked into the back wall, a floor scraped deepest
+  round the middle, frost in the stone hand's palm.
+
+## Its music
+`fenrir` (`src/audio.js`, slot 52): slow, cold and sad, F# minor, seeded with the Long Stair's hum (its two beating
+notes, an octave up so speakers carry them). A glassy pad, footfall drums on 1 and 3, and a wolf's howl for the lead:
+every note slides up into its pitch, with a slow wide vibrato. It layers in by phase: `src/rpg.js` sets a final boss's
+intensity `PHASE_INTENSITY` a step per phase before the last (0.7) and the enrage (1); Ladon's track only listens above
+0.5, so it's unchanged. Phase 2: chains clink off the beat and rattle every other bar, a bass walks under it. Phase 3:
+Skoll and Hati answer the howl from either side, the drums gallop. Phase 4: the drums pound every beat, low brass, the
+howl doubled an octave up, ice cracking. The enrage is the light going out: the pad drops away, the drums go to every
+eighth, the chains rattle every beat and a semitone grinds against the hum. Nothing below E2 (Ladon's lesson).
+
+## Rewards (FB2 (c2); items only, no reward window)
+One weapon a kill, picked by who fought (`twinPick`): **the Pledge-Hand** (Warrior: a broad pale blade held at the root
+by a fist of Keeper stone), **the Gleipnir Staff** (Mage: the fetter's ribbon wound up a grey rod and tied off at the
+top, its end streaming), **the Lantern Rod** (Cleric: `cls: 'cleric'`, a Keeper crook with a lit cutters' lantern),
+**the Moon-Chaser Bow** (Archer: Hati's, night-blue with a crescent on each tip), one twin set (`pledge_hand`) at Lv 110
+on the frozen curve, a step above Sigrun's Lv 102; and **the Wolf-Pelt Hood** (a helmet, Lv 110: the pelt with its ears
+up and its shut-eyed face on your brow) on a shared chance. Coins, potions, royal sap, black-ice pelts, fetter scraps
+and scrolls besides. The **mini Fenrir** is in the Pet Shop (`PETS`, its own art and size: `petWH`), dearer than the
+mini Ladon and Pyra's, below the Colossus's. Numbers: `docs/economy.md`, "FB2 (c2)".
+
+## Tested (c2, 2026-10-27: no bots, no test server, owner's rule)
+Only offline: the client builds, the server files pass `node --check`, the economy sheet is green, and every pose, the
+sons, the fetters, lanterns, glyphs, the paw sigil, the four weapons, the hood and the pet were drawn on a standalone
+page in headless Chromium and looked at; the track was rendered offline at each intensity (levels near Ladon's).
+**Not tried**: any of it in the game (the wolf moving between poses during a real fight, the fetters meeting the
+collar and teeth, the cracks and splits on the real stones, the dark over the new art, the frame time on a slow
+laptop or a phone), the music on real speakers, a kill dropping each class's weapon and the hood, the pet in a house,
+and the numbers with people.
 
 ## Decisions and history
 - 2026-10-27: built in FB2 (c) piece 1. The plan's "Glacier's Bed" keeps (b)'s room name, the Wolf's Hold. Hits on
   anchors and lanterns don't damage the wolf (the choice costs damage time).
+- 2026-10-27: FB2 (c2), the polish: its art, music, rewards and pet (above). c1's stand-in drop (Sigrun's
+  `oath_blade`) is gone.

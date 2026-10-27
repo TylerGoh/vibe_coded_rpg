@@ -18,7 +18,8 @@ const ellipse = (ctx, x, y, rx, ry, rot = 0) => {
 const LINE = '#3a3350';
 
 // len: the shaft from the grip to the head · shaft: [light, dark] · w: half-width at the grip ·
-// head: the shape on top (HEADS) · gem / gem2: its colours · glow: 'r,g,b' of the light round the head and of the bolt
+// head: the shape on top (HEADS) · gem / gem2: its colours · glow: 'r,g,b' of the light round the head and of the bolt ·
+// ribbon: 'r,g,b' of a ribbon of light wound up the shaft (Fenrir's Gleipnir Staff)
 export const STAFFS = {
   wood_staff: { len: 44, shaft: ['#c99a68', '#8c6440'], w: 2.6, head: 'twig', gem: '#ffe9a0', glow: '255,236,170' },
   iron_staff: { len: 50, shaft: ['#a07a58', '#6e5038'], w: 2.6, head: 'ring', gem: '#7fb4ff', gem2: '#c9ced9', glow: '150,190,255' },
@@ -59,6 +60,8 @@ export const STAFFS = {
   warden_staff: { len: 68, shaft: ['#b0acc0', '#76728a'], w: 3.2, head: 'rootcrook', gem: '#ffcf7a', gem2: '#7aa05e', glow: '255,200,110' },
   unsleeping_staff: { len: 70, shaft: ['#34482c', '#141e10'], w: 3, head: 'thornskull', gem: '#fbfff6', gem2: '#4e7a3e', glow: '220,255,200' }, // (Ladon's: src/ladon-art.js has the rest)
   white_rose_rod: { len: 68, shaft: ['#4e6a3e', '#22301e'], w: 2.8, head: 'whiterose', gem: '#fbf6f0', gem2: '#7aa05e', glow: '250,246,232' },
+  gleipnir_staff: { len: 72, shaft: ['#5a6476', '#262c3a'], w: 3, head: 'gleipnir', gem: '#f4f8ff', gem2: '#8aa0c8', glow: '226,236,255', ribbon: '226,236,255' }, // (Fenrir's: src/fenrir-art.js has the rest)
+  lantern_rod: { len: 70, shaft: ['#7a8090', '#3a404c'], w: 2.9, head: 'lantern', gem: '#ffe2a0', gem2: '#3a404c', glow: '255,220,150' },
   bellows_rod: { len: 62, shaft: ['#8a8490', '#4e4a56'], w: 2.8, head: 'ring', gem: '#ff8a3c', gem2: '#5e5a66', glow: '255,150,80' },
 };
 export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));
@@ -604,6 +607,69 @@ const HEADS = {
     circle(ctx, 0, y - 9, r * 0.16);
     ctx.fill();
   },
+  // Fenrir's Gleipnir Staff: the fetter's ribbon wound up the shaft (drawStaff, `ribbon`) and tied off at the top in a
+  // loop of light, its frayed end streaming loose
+  gleipnir(ctx, s, y, t, glow) {
+    ctx.strokeStyle = `rgba(${s.ribbon},0.95)`;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.ellipse(-3, y - 6, 4, 6, -0.5, 0, Math.PI * 2);
+    ctx.ellipse(3, y - 6, 4, 6, 0.5, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(0, y - 2);
+    for (let i = 1; i <= 8; i++) ctx.lineTo(i * 2.2, y - 2 - i * 1.6 + Math.sin(t * 5 + i * 0.9) * (1 + i * 0.35));
+    ctx.stroke();
+    ctx.lineWidth = 0.8;
+    for (const d of [-1.5, 1.5]) {
+      ctx.beginPath();
+      ctx.moveTo(17.6, y - 14.8 + Math.sin(t * 5 + 7.2) * 3.8);
+      ctx.lineTo(20 + d, y - 17 + d + Math.sin(t * 5 + 8) * 4);
+      ctx.stroke();
+    }
+    gem(ctx, 0, y - 1, 2.2 + glow * 0.6, s.gem, false);
+  },
+  // the Lantern Rod: a Keeper crook at the top with a little cutters' lantern hanging from it, lit
+  lantern(ctx, s, y, t, glow) {
+    ctx.strokeStyle = s.shaft[1];
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 3);
+    ctx.quadraticCurveTo(1, y - 14, 9, y - 13);
+    ctx.quadraticCurveTo(14, y - 12, 13, y - 7);
+    ctx.stroke();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(13, y - 7);
+    ctx.lineTo(13, y - 3);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(13, 0);
+    halo(ctx, s, y + 4, 8 + glow * 4, 0.6 + glow * 0.3);
+    ctx.fillStyle = s.gem2;
+    ctx.beginPath();
+    ctx.moveTo(-4.5, y - 1);
+    ctx.lineTo(0, y - 4);
+    ctx.lineTo(4.5, y - 1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = s.gem;
+    ctx.beginPath();
+    ctx.roundRect(-3.5, y - 1, 7, 9, 1.5);
+    ctx.fill();
+    ctx.strokeStyle = s.gem2;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.fillStyle = '#fff8e0';
+    ctx.beginPath();
+    ctx.ellipse(0, y + 4, 1.3, 2.4 * (1 + 0.15 * Math.sin(t * 12)), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = s.gem2;
+    ctx.fillRect(-4, y + 8, 8, 2);
+    ctx.restore();
+  },
   // Sigrun's: a little round shield of clear ice on the shaft's head, a silver boss in it, a pale pennant
   shield(ctx, s, y) {
     ctx.fillStyle = s.gem;
@@ -660,6 +726,17 @@ export function drawStaff(ctx, id, glow = 0, t = 0, len = 0) {
   ctx.strokeStyle = LINE;
   ctx.lineWidth = 1;
   ctx.stroke();
+  if (s.ribbon) { // (the Gleipnir Staff: a ribbon of light wound up the shaft, the turns behind it fainter)
+    for (let i = 0; i < 9; i++) {
+      const y0 = 4 - (i / 9) * (L - 2), y1 = y0 - L / 18;
+      ctx.strokeStyle = `rgba(${s.ribbon},${i % 2 ? 0.35 : 0.95})`;
+      ctx.lineWidth = i % 2 ? 1.2 : 1.8;
+      ctx.beginPath();
+      ctx.moveTo(i % 2 ? w : -w - 0.6, i % 2 ? y1 : y0);
+      ctx.lineTo(i % 2 ? -w : w + 0.6, i % 2 ? y1 - L / 18 : y1);
+      ctx.stroke();
+    }
+  }
   HEADS[s.head](ctx, s, -L - 2, t, glow);
   ctx.restore();
 }

@@ -34,7 +34,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 4000;
+export const PETSHOP_W = 4200; // (the plinths need about 4110 since the mini Fenrir: src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -1574,7 +1574,7 @@ MOBS.rime_raven = {
 MOBS.chain_warden = {
   name: 'Chain-Warden', lvl: 95, hp: 13400, atk: 306, exp: 5863, speed: 45, w: 56, h: 74, aggro: true, hops: false,
   ai: { kind: 'shell', cut: 0.75, every: 3.3, warn: 0.6, lunge: 500, time: 0.34 },
-  drops: [['coin', 1, 710, 1065], ['fetter_scrap', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1], ['warden_helm', 0.004, 1, 1]],
+  drops: [['coin', 1, 710, 1065], ['fetter_scrap', 0.5, 1, 2], ['mega_elixir', 0.15, 1, 1], ['chainwarden_helm', 0.004, 1, 1]],
 };
 MOBS.black_wolf = {
   name: 'Black-Ice Wolf', lvl: 98, hp: 11800, atk: 317, exp: 6182, speed: 95, w: 68, h: 46, aggro: true, hops: false,
@@ -1599,11 +1599,12 @@ MOBS.garm.drops = MOBS.garm.drops.map((d) => (d[0] === 'gatehound_fang' ? ['gate
 // in src/shared/final.js). `heads`: it has targets besides its body (the four anchors and six lanterns, h[4] = 2 + slot;
 // the collar's shard while it rears is the weak point). `final`, `top`, `partyAll`, `partyLive` as Ladon's: fixed HP for
 // four, the enrage, no reward window; its stats are the FINAL table's, never the Lv 120 on its tag. hp, exp and gold
-// from the economy sheet's FINAL BOSSES (a party of four at Lv 100 near 45 min); FB2 (c) piece 2 adds its rewards.
+// from the economy sheet's FINAL BOSSES (a party of four at Lv 100 near 45 min); its rewards came with FB2 (c2). `petWH`:
+// its pet's own size (the mini Fenrir is a pup, not the wolf shrunk: src/fenrir-art.js).
 MOBS.fenrir = {
   name: 'Fenrir, the Bound Wolf', boss: true, top: true, final: 'fenrir', heads: true, touchW: 220, denX: FEN_MID,
   lvl: 120, hp: 80000000, atk: 360, exp: 1500000, speed: 70, w: 330, h: 220, aggro: true, hops: false,
-  phases: [[], [], []], minion: 'black_wolf',
+  phases: [[], [], []], minion: 'black_wolf', petWH: [74, 56],
   looks: { beam: 'rime', shell: 'rime', dome: 'fetter', curse: 'paw', pulse: 'howl' },
   party: ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'], partyAll: true, partyLive: true,
   weak: { dx: 0.25, dy: -0.68, r: 30, front: true }, // (the shard in the lock of its collar, held high while it rears)
@@ -1613,8 +1614,8 @@ MOBS.fenrir = {
     shield: 'They bound me in this. Sound of a footfall. Breath of a fish. Nothing breaks it. I tried.',
     freed: '...Nobody is coming. Then nobody needs me bound. I will stay here. I only wanted someone to tell me.',
   },
-  // (oath_blade: a stand-in for its own class weapons, which come with FB2 (c) piece 2: twinPick gives every class its kind)
-  drops: [['coin', 1, 2800000, 4200000], ['oath_blade', 1, 1, 1], ['mega_elixir', 1, 6, 9], ['royal_sap', 1, 3, 4], ['blackice_pelt', 1, 6, 10], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.6, 1, 2]],
+  // (FB2 (c2): one of its four class weapons a kill, twinPick choosing by who fought; the Wolf-Pelt Hood on a shared chance)
+  drops: [['coin', 1, 2800000, 4200000], ['pledge_hand', 1, 1, 1], ['wolfpelt_hood', 0.5, 1, 1], ['mega_elixir', 1, 6, 9], ['royal_sap', 1, 3, 4], ['blackice_pelt', 1, 6, 10], ['fetter_scrap', 1, 4, 6], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.6, 1, 2]],
 };
 // Skoll and Hati, Fenrir's sons (phase 3 on): big shadow wolves that hunt the lanterns, not the slimes (`son`: their
 // own brain, son() in server/fenrir.js). Named, with their own HP bars; killed, each comes back after SONS_BACK_S.
@@ -2325,7 +2326,7 @@ export const ITEMS = {
   raven_quill: { name: 'Rime Raven Quill', price: 740, kind: 'loot', desc: 'A black flight feather with frost along its edge that never melts off. It points down when you let it go.' },
   fetter_scrap: { name: 'Fetter Scrap', price: 770, kind: 'loot', desc: 'A scrap of old ribbon, finer than silk and stronger than chain. It still glows a little, and it is warm.' },
   blackice_pelt: { name: 'Black-Ice Pelt', price: 800, kind: 'loot', desc: 'A strip of near-black fur, every hair cased in ice. It smells of nothing at all.' },
-  warden_helm: { name: "Chain-Warden's Helm", price: 315000, lvl: 95, kind: 'helmet', def: 71, desc: 'A Keeper warden\'s stone helm, a loop of glowing ribbon still wound round its brow. It hums when you are near the deep ice.' },
+  chainwarden_helm: { name: "Chain-Warden's Helm", price: 315000, lvl: 95, kind: 'helmet', def: 71, desc: 'A Keeper warden\'s stone helm, a loop of glowing ribbon still wound round its brow. It hums when you are near the deep ice.' },
   gatehound_fang: { name: 'Gatehound Fang', price: 430000, lvl: 97, kind: 'sword', atk: 154, reach: 60, desc: 'A black-ice fang the length of your arm, off a hound that guarded a gate. Breathe on it and it frosts.' },
   // ——— G5: Keeper's Spine (art: src/spine-art.js). No trader: drops only ———
   turtle_moss: { name: 'Turtle Moss', price: 400, kind: 'loot', desc: "A springy green tuft off a moss turtle's shell. There's a tiny snail living in it." },
@@ -2340,6 +2341,11 @@ export const ITEMS = {
   // curve). One weapon a kill, picked by the classes who fought (twinPick): the Fang, the Unsleeping Staff (Mage), the
   // White Rose Rod (Cleric: `cls`, CLERIC_STAFF_OF), the Sinew Bow; and a chance of the Crown of Thorns
   ladon_fang: { name: "Ladon's Fang", price: 221000, lvl: 70, slots: 9, kind: 'sword', atk: 124, reach: 62, desc: "A tooth from the Briar Hydra's jaw, black-green and hooked like a thorn. It has never once been still." },
+  // Fenrir's set (FB2 (c2), docs/places/fenrir.md): Frostpeak's best, a step above Sigrun's (lvl 110 on the frozen curve,
+  // swordPrice / helmetPrice there). One weapon a kill, picked by the classes who fought (twinPick): the Pledge-Hand, the
+  // Gleipnir Staff (Mage), the Lantern Rod (Cleric: `cls`, CLERIC_STAFF_OF), the Moon-Chaser Bow; and a chance of the Hood
+  pledge_hand: { name: 'The Pledge-Hand', price: 556000, lvl: 110, slots: 9, kind: 'sword', atk: 168, reach: 68, desc: 'A broad pale blade held at the root by a fist of Keeper stone. They left a hand as a pledge. This one does not let go.' },
+  wolfpelt_hood: { name: 'The Wolf-Pelt Hood', price: 424000, lvl: 110, slots: 9, kind: 'helmet', def: 80, desc: 'A grey-white pelt gone to rime at every tip, the ears still up, its eyes shut on your brow. It is warm, and it was lonely.' },
   // the Rimeglass Glacier (F1)
   hare_tuft: { name: 'Snow Hare Tuft', price: 480, kind: 'loot', desc: 'A puff of white winter fur, softer than it has any right to be. The fjord folk line mittens with it.' },
   petrel_down: { name: 'Petrel Down', price: 500, kind: 'loot', desc: 'A handful of grey-white down from a snow petrel. It smells of the sea, even up here.' },
@@ -2481,6 +2487,8 @@ export const ITEMS = {
   warden_staff: { name: "Warden's Rootstaff", price: 175000, lvl: 62, slots: 9, kind: 'staff', magic: 114, mp: 68, reach: 58, twin: 'warden_blade', desc: 'A Keeper staff of grey stone wound with roots, the Warden\'s amber light in its crook. It has been waiting a long time.' },
   unsleeping_staff: { name: 'The Unsleeping Staff', price: 221000, lvl: 70, slots: 9, kind: 'staff', magic: 124, mp: 74, reach: 62, twin: 'ladon_fang', desc: "A woven thorn skull on a cane of black briar, two white rose eyes wide open. It's watching. It always is." },
   white_rose_rod: { name: 'The White Rose Rod', price: 221000, lvl: 70, slots: 9, kind: 'staff', magic: 124, mp: 74, reach: 62, twin: 'ladon_fang', cls: 'cleric', desc: 'A briar rod with every thorn smoothed away and one white rose open at the top. The roses planted to keep it, kept.' },
+  gleipnir_staff: { name: 'The Gleipnir Staff', price: 556000, lvl: 110, slots: 9, kind: 'staff', magic: 168, mp: 101, reach: 68, twin: 'pledge_hand', desc: 'A grey rod with a ribbon of pale light wound all the way up it, tied off at the top. Sound of a footfall, breath of a fish. It holds.' },
+  lantern_rod: { name: 'The Lantern Rod', price: 556000, lvl: 110, slots: 9, kind: 'staff', magic: 168, mp: 101, reach: 68, twin: 'pledge_hand', cls: 'cleric', desc: 'A Keeper crook with one of the cutters\' lanterns hung from it, lit. Somebody has to keep the light where it is darkest.' },
   glacier_staff: { name: 'Glacier Staff', price: 80000, lvl: 64, aim: 66, kind: 'staff', magic: 117, mp: 70, reach: 52, twin: 'cutter_cleaver', desc: 'A blackened driftwood staff with a lump of blue glacier ice in its head that never melts. Eyvind cut the ice; Skaldi carved the wood.' },
   howl_staff: { name: 'Howling Staff', price: 209000, lvl: 68, kind: 'staff', magic: 121, mp: 72, reach: 54, twin: 'rimefang', desc: 'A grey staff bound in rime wolf pelt, a white fang at its tip. Its bolts howl on the way out.' },
   tusk_staff: { name: 'Rimehorn Staff', price: 262000, lvl: 76, kind: 'staff', magic: 130, mp: 78, reach: 60, twin: 'tusk_blade', desc: "A curved staff of old mammoth ivory wound with red-brown wool, frost flowers growing up it as you cast." },
@@ -2557,6 +2565,7 @@ const BOW_LIST = [
   ['troll_bow', 'troll_maul', 'Troll-Ice Bow', "A bent pine trunk with a lump of the troll's blue ice wedged in the grip. Very heavy. Very strong."],
   ['rimeguard_bow', 'rimeguard_blade', 'Rimeguard Bow', "A guard's longbow, the Queen's crown on its silver grip. Its arrows fly straight, as if on watch."],
   ['oath_bow', 'oath_blade', 'Shield-Oath Bow', 'A war bow with a little shield on its grip and an oath carved down its back. It has never broken one.'],
+  ['moonchaser_bow', 'pledge_hand', 'The Moon-Chaser Bow', "Hati's: a night-blue bow with a crescent moon on each tip, strung with silver. Its arrows run after what they are loosed at, and never tire."],
   ['gatehound_bow', 'gatehound_fang', 'Gatehound Bow', 'Two black-ice fangs joined at a grip bound in pelt, strung with a strand of old glowing ribbon.'],
   ['spring_bow', 'slag_maul', 'Ironspring Bow', 'Two leaf-springs off an old forge bellows, riveted together and strung with wire. Forged for a wheel that never got it.'],
 ];

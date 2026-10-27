@@ -515,7 +515,7 @@ function drawWardenHelm(ctx, w, h, t = 0) {
   ctx.quadraticCurveTo(-rx * 1.25, by + 6 + sw, -rx * 1.1, by + 14 + sw);
   ctx.stroke();
 }
-export const OLDICE_HELMETS = { warden_helm: drawWardenHelm };
+export const OLDICE_HELMETS = { chainwarden_helm: drawWardenHelm };
 
 // ——— materials' icons (40 × 40, centred) ———
 function iconGnawerTooth(ctx) {

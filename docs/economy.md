@@ -471,6 +471,19 @@ now picks the root creeper (Lv 60) over the Lv 58 thorn stalker: "gold earned by
 later level ~5.7k lower; play time unchanged. No trader, no field boss, no pet: nothing else moved. The Road's End
 has no mobs. The thorn patches cost HP only.
 
+## FB2 (c2): Fenrir's rewards and pet (2026-10-27)
+- **Gear** on the frozen curve at Lv 110 (a step over Sigrun's Lv 102, as Ladon's Lv 70 was over the Warden's): the
+  Pledge-Hand (168 ATK, `swordPrice`, 556k) with its staff, rod (`CLERIC_STAFF_OF`) and bow twins at the same price, and
+  the Wolf-Pelt Hood (80 DEF, `helmetPrice`, 424k) at a 50% chance; fetter scraps join its materials. They replace c1's
+  stand-in, Sigrun's Lv 102 set. A member's quarter of the loot 926,635 → 956,120 (2.59× → 2.68× farming's gold an
+  hour, inside `FINAL_PAY`); EXP unchanged. LOOT BY CLASS lists the rod.
+- **The mini Fenrir**: 165k, about 23 minutes of farming at Lv 120 (the pet band), above Pyra's (155k, Lv 110) and
+  below the Colossus's (248k). `PETSHOP_W` 4000 → 4200 to fit its plinth.
+- **A fix**: the Old Ice's Chain-Warden's Helm shared the key `warden_helm` with the Root Warden's Wardenstone Helm, so
+  it never existed (chain-wardens dropped the Lv 62 helm). Renamed `chainwarden_helm`: a chain-warden's kill is worth
+  214 → 504, its elite's 429 → 1,008 (the rare helm now at its own price). Farming your own level doesn't pick them, so
+  gold earned and play time are unchanged. Nothing else moved.
+
 ## FB2 (b): the Old Ice (2026-10-27)
 Four mobs on the curve at Lv 91–98 (`docs/places/oldice.md`: gnawer, rime raven at 93% HP for a flier like the sleet
 harrier, chain-warden at ~119% HP for its shell like the rimeguard, black-ice wolf), three elites and Garm (an elite of

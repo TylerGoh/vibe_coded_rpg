@@ -32,6 +32,7 @@ const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 24
 // ultimates Dash / Blink i-frames can get you through (the rest want you somewhere safe)
 const DODGEABLE_ULT = new Set(['collapse']);
 const TILE = 150; // den floor tiles for the grid attacks
+const PHASE_INTENSITY = 0.15; // a final boss track's intensity a phase before its last (Fenrir's layers its music in by phase: src/audio.js)
 // each skill kind's sound (id: the skill, for the ones that sound different)
 const SKILL_SOUND = Object.fromEntries(Object.entries({
   strike: (id) => (id === 'sky_splitter' ? 'skySplitter' : 'powerStrike'), cleave: 'cleave', spin: 'whirlwind', storm: 'bladeStorm', bolt: 'bolt', chain: (id) => (id === 'thunder_call' ? 'skySplitter' : 'chain'), meteor: 'meteor', nova: 'nova', starfall: 'starfall', heal: 'heal', buff: 'buff', bubble: 'bubble', fireball: 'bolt', shield: 'bubble', rally: 'rally', zone: 'sanctuary', aegis: 'aegis', gods: 'skySplitter', mend: 'heal', miracle: 'aegis', revive: 'secondWind', barrier: 'bubble', summon: 'rally',
@@ -1358,9 +1359,9 @@ export class Rpg {
     for (const [id, at] of this.killed) if (seen.has(id) && this.time - at > 1.2 && this.views.get(id).hp > 0) this.killed.delete(id);
     this.nearLoot = me && this.loot.some((d) => !this.taken.has(d[0]) && Math.abs(d[3] - me.x) <= PICKUP_RANGE && Math.abs(d[4] - me.y) < 60);
     // a boss track pushes harder while its boss is enraged; a final boss's (FB1: Ladon's) in its last phase (0.7), and all
-    // the way once the enrage comes
+    // the way once the enrage comes. Phases 2 and 3 give PHASE_INTENSITY a step (only Fenrir's track listens below 0.5)
     const top = this.boss(), fin = this.final.st;
-    audio.setIntensity?.(fin && top?.id === fin.id ? (fin.enr ? 1 : fin.ph >= 3 ? 0.7 : 0) : top?.enraged ? 1 : 0);
+    audio.setIntensity?.(fin && top?.id === fin.id ? (fin.enr ? 1 : fin.ph >= 3 ? 0.7 : fin.ph * PHASE_INTENSITY) : top?.enraged ? 1 : 0);
   }
   boss() {
     for (const v of this.views.values()) if (MOBS[v.kind].boss && !this.killed.has(v.id)) return v;

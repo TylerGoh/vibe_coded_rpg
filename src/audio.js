@@ -1569,6 +1569,66 @@ const SONGS = {
     },
   },
 
+  // Fenrir's den, the Wolf's Hold (FB2 (c2)): cold, slow and sad, F# minor, its seed the Long Stair's hum (two notes beating,
+  // here an octave up so it's heard), a glassy pad, footfall drums on 1 and 3, and the lead a wolf's howl (each note
+  // sliding up into its pitch, a slow wide vibrato). It layers in by phase (src/rpg.js gives a final boss's phase as the
+  // intensity, PHASE_INTENSITY a step): phase 2 the chains clink and a bass walks under it; phase 3 its sons answer the
+  // howl from either side and the drums gallop; phase 4 (0.7) the drums pound every beat, low brass, the howl doubled
+  // up an octave, ice cracking; the enrage (1) is the light going out: the drums every eighth, the pad drops away, a semitone
+  // grinding against the hum, the chains rattling every beat. Nothing below E2 (82 Hz): laptop and phone speakers lose it.
+  fenrir: {
+    bpm: 72, spb: 8, key: 42, scale: MINOR, gain: 0.6, send: 0.5, loop: 8,
+    chords: [[1, 3, 5], [1, 3, 5], [6, 8, 10], [7, 9, 11], [1, 3, 5], [4, 6, 8], [6, 8, 10], [5, 7, 9]],
+    mel: melody(
+      '5 - - - - - 4 3', '1 - - - - - . .', '5 - - - 6 - 5 -', '3 - - - - - . .',
+      '8 - - - - - 7 6', '5 - - - - - . .', '4 - 3 - 2 - - -', '1 - - - - - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'bandpass', 700, 0.004, 0.4); // the cold air moving down the stair
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), I = e.intensity;
+      const chains = I > 0.1, sons = I > 0.25, hot = I > 0.5, rage = I > 0.9;
+      if (s === 0) {
+        // the hum: the Long Stair's two beating notes, an octave up (F#2); enraged, a semitone grinding against them
+        e.voice(p.c, t, p.f(1, 0), { type: 'sine', vol: rage ? 0.085 : 0.07, a: 1.2, hold: p.stepDur * 7, rel: 1.2, partials: [[2, 0.3], [3, 0.08]] });
+        e.voice(p.c, t, p.f(1, 0) * 1.006, { type: 'sine', vol: 0.05, a: 1.2, hold: p.stepDur * 7, rel: 1.2 });
+        if (rage) e.voice(p.c, t, p.f(1, 0) * 1.0595, { type: 'triangle', vol: 0.04, a: 0.8, hold: p.stepDur * 7, rel: 1, cutoff: 600 });
+        // the pad: glassy, slow to swell (gone once the light is)
+        if (!rage) pad(p, ch, t, p.stepDur * 8, hot ? 0.011 : 0.009, { oct: 1, a: 1.2, rel: 1.2, cutoff: 1700, unison: 7 });
+      }
+      // its footfalls: deep drums on 1 and 3; a gallop from phase 3; every eighth in the last phase
+      const foot = s === 0 || s === 4 || (sons && s === 3) || (hot && s % 2 === 0) || (rage && s % 2 === 1);
+      if (foot) {
+        const accent = s === 0 || s === 4;
+        e.kick(p.c, t, accent ? 0.26 : 0.15, 170, 84, accent ? 0.16 : 0.1);
+        if (accent) e.noiseHit(p.c, t, { type: 'bandpass', f: 160, q: 0.8, vol: 0.05, tau: 0.12 });
+      }
+      // phase 2 on: chains (a clink off the beat, a rattle every other bar); a bass walking under it
+      if (chains) {
+        if (s === 3 || s === 7) chainClink(p, s === 3 ? p.l : p.r, t, 0.012 + 0.006 * (I > 0.5));
+        if ((bar % 2 === 1 && s === 6) || (rage && s % 2 === 0)) for (let i = 0; i < 3; i++) chainClink(p, i % 2 ? p.l : p.r, t + i * 0.06, 0.012);
+        if (s % 4 === 0) e.voice(p.c, t, p.f(ch[0], 0), { type: 'sawtooth', vol: 0.05, a: 0.02, hold: p.stepDur * 3, rel: 0.25, cutoff: 480 });
+      }
+      // its breath: a slow cold swell every other bar
+      if (s === 0 && bar % 2 === 1) e.noiseHit(p.c, t, { type: 'lowpass', f: 650, sweep: 300, sweepT: 2, vol: 0.03 + 0.02 * I, a: 0.9, hold: 0.4, tau: 1.1 });
+      // the howl (the lead): every note slides up into its pitch, a slow wide vibrato; doubled an octave up in the last phase
+      const m = p.mel(bar, s);
+      if (m && pass % 4 !== 3) {
+        const hold = Math.max(0.1, m.len * 0.85), bend = rage ? 1.03 : 1;
+        e.voice(p.c, t, p.f(m.d, 1) * bend, { type: 'sine', vol: 0.055, a: 0.22, hold, rel: 0.7, glide: 0.72, glideT: 0.38, vib: 14, vibRate: 4.2, partials: [[2, 0.28], [3, 0.09]] });
+        if (hot) e.voice(p.c, t, p.f(m.d, 2) * bend, { type: 'triangle', vol: 0.016, a: 0.25, hold, rel: 0.6, glide: 0.7, glideT: 0.4, vib: 18, vibRate: 4.2, cutoff: 2600 });
+      }
+      // phase 3 on: Skoll and Hati answer from either side, higher and thinner
+      if (sons && s === 4 && bar % 2 === 1) e.voice(bar % 4 === 1 ? p.l : p.r, t, p.f(ch[2], 2), { type: 'sine', vol: 0.022, a: 0.3, hold: p.stepDur * 3, rel: 0.6, glide: 0.62, glideT: 0.5, vib: 20, vibRate: 5.5, partials: [[2, 0.15]] });
+      // the last phase: low brass under the downbeat, ice cracking
+      if (hot && s === 0 && bar % 2 === 0) for (const d of ch) e.voice(p.c, t, p.f(d, 0), { type: 'sawtooth', vol: 0.016, a: 0.06, hold: p.stepDur * 2, rel: 0.4, cutoff: 900, unison: 6 });
+      if (hot && s === 5 && chance(0.35)) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'bandpass', f: 1600 + Math.random() * 1400, vol: 0.025, tau: 0.15 });
+      // glints of ice, now and then (not in the dark)
+      if (!rage && s === 6 && bar % 4 === 2) e.voice(p.r, t, p.f(ch[1], 2), { ...GLOCK, vol: 0.016, tau: 1.1 });
+    },
+  },
+
   // The Knotted Burrow: a stubborn 6/8 in C minor, low plucked strings, the thump of digging paws, and a
   // tangle of a melody that keeps looping back on itself
   knotmole: {
@@ -2876,7 +2936,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'sigrun']; // (49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, FB2 (c), on Sigrun's track until its own comes (FB2 (c) piece 2); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir']; // (49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)

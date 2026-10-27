@@ -25,6 +25,7 @@ import { BLUEHALLS_MOB_ART, BLUEHALLS_ICONS, BLUEHALLS_SWORDS, BLUEHALLS_SWORD_L
 import { SUNKEN_MOB_ART, SUNKEN_ICONS, SUNKEN_SWORDS, SUNKEN_SWORD_LEN, SUNKEN_HELMETS } from './sunkenroad-art.js';
 import { OLDICE_MOB_ART, OLDICE_ICONS, OLDICE_SWORDS, OLDICE_SWORD_LEN, OLDICE_HELMETS } from './oldice-art.js';
 import { LADON_SWORDS, LADON_SWORD_LEN, LADON_HELMETS } from './ladon-art.js';
+import { FENRIR_SWORDS, FENRIR_SWORD_LEN, FENRIR_HELMETS } from './fenrir-art.js';
 import { QBRIDGE_MOB_ART, QBRIDGE_ICONS, QBRIDGE_SWORDS, QBRIDGE_SWORD_LEN, QBRIDGE_HELMETS } from './qbridge-art.js';
 import { FORGE_ICONS, FORGE_SWORDS, FORGE_SWORD_LEN, FORGE_HELMETS } from './forgehold-art.js';
 import { drawStaff, STAFF_LEN } from './staff-art.js';
@@ -33,8 +34,8 @@ const MOB_ART = { ...CALDERA_MOB_ART, ...CITADEL_MOB_ART, ...FJORD_MOB_ART, ...F
 // Greenhollow's branches' gear and materials (src/willowmere-art.js, src/coves-art.js, src/deep-art.js, src/canopy-art.js,
 // src/wreck-art.js, src/thornheart-art.js, src/spine-art.js, src/glacier-art.js, src/skerries-art.js, src/heights-art.js,
 // src/bluehalls-art.js, src/qbridge-art.js, src/sunkenroad-art.js, src/oldice-art.js)
-const BRANCH_SWORDS = { reed_rapier: drawReedRapier, drift_cutlass: drawDriftCutlass, coral_saber: drawCoralSaber, tide_claw: drawTideClaw, ...DEEP_SWORDS, ...CANOPY_SWORDS, ...WRECK_SWORDS, ...THORN_SWORDS, ...SPINE_SWORDS, ...GLACIER_SWORDS, ...SKERRIES_SWORDS, ...HEIGHTS_SWORDS, ...BLUEHALLS_SWORDS, ...QBRIDGE_SWORDS, ...FORGE_SWORDS, ...SUNKEN_SWORDS, ...OLDICE_SWORDS, ...LADON_SWORDS };
-const BRANCH_HELMETS = { lily_hat: drawLilyHat, miller_cap: drawMillerCap, snail_helm: drawSnailHelm, snapjaw_shell: drawSnapjawShell, conch_helm: drawConchHelm, hoard_crown: drawHoardCrown, ...DEEP_HELMETS, ...CANOPY_HELMETS, ...WRECK_HELMETS, ...THORN_HELMETS, ...SPINE_HELMETS, ...GLACIER_HELMETS, ...SKERRIES_HELMETS, ...HEIGHTS_HELMETS, ...BLUEHALLS_HELMETS, ...QBRIDGE_HELMETS, ...FORGE_HELMETS, ...SUNKEN_HELMETS, ...OLDICE_HELMETS, ...LADON_HELMETS };
+const BRANCH_SWORDS = { reed_rapier: drawReedRapier, drift_cutlass: drawDriftCutlass, coral_saber: drawCoralSaber, tide_claw: drawTideClaw, ...DEEP_SWORDS, ...CANOPY_SWORDS, ...WRECK_SWORDS, ...THORN_SWORDS, ...SPINE_SWORDS, ...GLACIER_SWORDS, ...SKERRIES_SWORDS, ...HEIGHTS_SWORDS, ...BLUEHALLS_SWORDS, ...QBRIDGE_SWORDS, ...FORGE_SWORDS, ...SUNKEN_SWORDS, ...OLDICE_SWORDS, ...LADON_SWORDS, ...FENRIR_SWORDS };
+const BRANCH_HELMETS = { lily_hat: drawLilyHat, miller_cap: drawMillerCap, snail_helm: drawSnailHelm, snapjaw_shell: drawSnapjawShell, conch_helm: drawConchHelm, hoard_crown: drawHoardCrown, ...DEEP_HELMETS, ...CANOPY_HELMETS, ...WRECK_HELMETS, ...THORN_HELMETS, ...SPINE_HELMETS, ...GLACIER_HELMETS, ...SKERRIES_HELMETS, ...HEIGHTS_HELMETS, ...BLUEHALLS_HELMETS, ...QBRIDGE_HELMETS, ...FORGE_HELMETS, ...SUNKEN_HELMETS, ...OLDICE_HELMETS, ...LADON_HELMETS, ...FENRIR_HELMETS };
 import { PET_ICONS } from './pet-art.js';
 const BRANCH_ICONS = { ...WILLOW_ICONS, ...COVES_ICONS, ...DEEP_ICONS, ...CANOPY_ICONS, ...WRECK_ICONS, ...THORN_ICONS, ...SPINE_ICONS, ...GLACIER_ICONS, ...SKERRIES_ICONS, ...HEIGHTS_ICONS, ...BLUEHALLS_ICONS, ...QBRIDGE_ICONS, ...FORGE_ICONS, ...PET_ICONS, ...SUNKEN_ICONS, ...OLDICE_ICONS }; // (and pet food)
 
@@ -1810,7 +1811,7 @@ function drawGolem(ctx, w, h, t, seed, m, dying) {
 
 // Blade length (from the hand) for each sword, longer for more reach
 export const SWORD_LEN = { wood_sword: 30, iron_sword: 38, spore_blade: 42, crystal_sword: 46, bone_harpoon: 50, frost_blade: 52, thorn_sword: 54, star_sword: 58,
-  magma_maul: 60, phoenix_blade: 62, cog_cleaver: 64, chrono_blade: 66, reed_rapier: 44, drift_cutlass: 50, coral_saber: 54, tide_claw: 58, ...DEEP_SWORD_LEN, ...CANOPY_SWORD_LEN, ...WRECK_SWORD_LEN, ...THORN_SWORD_LEN, ...SPINE_SWORD_LEN, ...GLACIER_SWORD_LEN, ...SKERRIES_SWORD_LEN, ...HEIGHTS_SWORD_LEN, ...BLUEHALLS_SWORD_LEN, ...QBRIDGE_SWORD_LEN , ...FORGE_SWORD_LEN, ...SUNKEN_SWORD_LEN, ...OLDICE_SWORD_LEN, ...LADON_SWORD_LEN };
+  magma_maul: 60, phoenix_blade: 62, cog_cleaver: 64, chrono_blade: 66, reed_rapier: 44, drift_cutlass: 50, coral_saber: 54, tide_claw: 58, ...DEEP_SWORD_LEN, ...CANOPY_SWORD_LEN, ...WRECK_SWORD_LEN, ...THORN_SWORD_LEN, ...SPINE_SWORD_LEN, ...GLACIER_SWORD_LEN, ...SKERRIES_SWORD_LEN, ...HEIGHTS_SWORD_LEN, ...BLUEHALLS_SWORD_LEN, ...QBRIDGE_SWORD_LEN , ...FORGE_SWORD_LEN, ...SUNKEN_SWORD_LEN, ...OLDICE_SWORD_LEN, ...LADON_SWORD_LEN, ...FENRIR_SWORD_LEN };
 const HELMETS = ['leaf_cap', 'mush_helm', 'iron_helm', 'fur_hood', 'king_crown', 'bramble_helm', 'glacier_helm', 'star_crown',
   'ember_helm', 'phoenix_crown', 'aether_helm', 'hourglass_crown', ...Object.keys(BRANCH_HELMETS)];
 const HELM_ICON_FIT = { ember_helm: [0.72, 1], phoenix_crown: [0.74, 2], aether_helm: [0.8, 1], hourglass_crown: [0.78, 5] };

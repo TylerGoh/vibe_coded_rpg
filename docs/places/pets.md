@@ -59,7 +59,9 @@ Most pets are their boss's art shrunk by `PET_SCALE` (`drawPet` in `src/furnitur
 into a pet gets its own drawing and size: `petWH` on the mob sets the furniture size, and `drawPet` hands it to the
 drawing. The first is the **mini Ladon** (FB1 piece 3: `drawLadonPet` in `src/ladon-art.js`): three little heads on one
 knot, the middle one crowned, and every few seconds the outer two turn on each other and snap while the middle one
-looks away.
+looks away. The second is the **mini Fenrir** (FB2 (c2): `drawFenrirPet` in `src/fenrir-art.js`): a fluffy grey-white pup
+in a ribbon collar of pale light; every few seconds it turns, catches the loose end of its ribbon and chews it, eyes shut
+and tail going. Its plinth is why `PETSHOP_W` went up (the shop warns at startup if the plinths don't fit).
 
 ## Testing
 - `TEST_PET_FAST=1440` makes a full belly last 2 minutes (test servers only, never live).

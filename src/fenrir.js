@@ -10,10 +10,10 @@ import { audio } from './audio.js';
 import { MOBS, FENRIR_DEN, finalTag, FROST_TOP, weakOf } from './shared/rpg.js';
 import { FIN_W, FIN_FLOOR, HEAD_REACH } from './shared/final.js';
 import {
-  FEN_MID, ANCHORS, ANCHOR_R, LANTERN_X, LANTERN_Y, LANTERN_SLOT, LUNGE_R, CLAW_H, POUNCE_R, LIGHT_R, TEETH, fenSpot, inLee, ledgeAt,
+  FEN_MID, ANCHORS, ANCHOR_R, LANTERN_X, LANTERN_Y, LANTERN_SLOT, LUNGE_R, CLAW_H, POUNCE_R, LIGHT_R, TEETH, STRAIN_S, fenSpot, inLee, ledgeAt,
 } from './shared/fenrir.js';
 import { drawRing } from './dens-ladon.js';
-import { drawDark, drawLantern, drawFetter, drawFrostLine, drawGlyph, setFenrirLook, stepFenrirLook, fenrirLook, glow } from './dens-fenrir.js';
+import { drawDark, drawLantern, drawFetter, drawFrostLine, drawGlyph, drawAnchorCrack, drawAnchorSplit, setFenrirLook, stepFenrirLook, fenrirLook, glow } from './dens-fenrir.js';
 
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const CARD_S = 5; // the title card's seconds (you can move all the while)
@@ -269,30 +269,13 @@ export class FenrirFinal {
     // the anchors: the carving glows on a held one; a cracking one's ring; a split one
     ANCHORS.forEach((A, i) => {
       const a = st?.an[i], snapped = a?.st === 's';
-      if (snapped) {
-        ctx.strokeStyle = 'rgba(2,4,10,0.9)';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(A.x - 4, A.y - 40);
-        ctx.lineTo(A.x + 6, A.y - 6);
-        ctx.lineTo(A.x - 5, A.y + 14);
-        ctx.lineTo(A.x + 3, A.y + 44);
-        ctx.stroke();
-        return;
-      }
+      if (snapped) return drawAnchorSplit(ctx, i);
       const hot = a?.st === 'c', pulse = 0.5 + 0.5 * Math.sin(t * (hot ? 10 : 2) + i);
       glow(ctx, A.x, A.y, 40, 40, hot ? '255,200,170' : '200,224,255', (hot ? 0.45 : 0.15) + 0.15 * pulse);
       drawGlyph(ctx, GLYPHS[i], A.x, A.y, hot ? `rgba(255,236,220,${0.7 + 0.3 * pulse})` : 'rgba(220,236,255,0.75)', 1);
       if (hot) {
         // the crack running up the stone as its time runs out
-        const left = clamp((a.until - t) / 7, 0, 1);
-        ctx.strokeStyle = 'rgba(10,14,24,0.9)';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(A.x, A.y + 40);
-        ctx.lineTo(A.x - 6, A.y + 40 - 80 * (1 - left) * 0.5);
-        ctx.lineTo(A.x + 4, A.y + 40 - 80 * (1 - left));
-        ctx.stroke();
+        drawAnchorCrack(ctx, i, 1 - clamp((a.until - t) / STRAIN_S, 0, 1), t);
         const hurt = clamp(1 - (t - (this.hurt.get(i) ?? -9)) / HURT_S, 0, 1);
         drawRing(ctx, A.x, A.y, ANCHOR_R, a.fill, t, hurt > 0);
       }

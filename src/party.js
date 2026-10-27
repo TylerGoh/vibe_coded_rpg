@@ -130,7 +130,7 @@ export class Party {
     }
     if (m.a === 'curseWarn') {
       const floor = k.boss ? 450 : m.fy ?? m.y; // (fy: a field boss's floor, S5.4)
-      this.sigils.push({ mob: m.id, x: m.cx, y: floor, r: m.r, at: t, end: t + m.dur, look: CURSES[k.looks?.curse] ?? CURSES.dark, thorn: k.looks?.curse === 'thorn', drowned: k.looks?.curse === 'drowned', pale: k.looks?.curse === 'pale', ember: k.looks?.curse === 'ember', clock: k.looks?.curse === 'hours' });
+      this.sigils.push({ mob: m.id, x: m.cx, y: floor, r: m.r, at: t, end: t + m.dur, look: CURSES[k.looks?.curse] ?? CURSES.dark, thorn: k.looks?.curse === 'thorn', drowned: k.looks?.curse === 'drowned', pale: k.looks?.curse === 'pale', ember: k.looks?.curse === 'ember', clock: k.looks?.curse === 'hours', paw: k.looks?.curse === 'paw' });
       audio.sfx('bossWarn', { pan, vol: 0.45 });
       return true;
     }
@@ -368,7 +368,8 @@ function outlined(ctx, label, x, y, size, fill, edge) {
 // A curse on its way: a dark violet sigil on the floor where it'll land, its ring closing as the time runs out;
 // then (hit) a burst of dark smoke going up. S5.4: `looks.curse` on the boss recolours it (the Drowned Bosun's:
 // sea-green ink with bubbles rising; the Thorn Hart's: briar green with thorns round the rim; the Pale Wyrm's:
-// a pale, starless indigo with dim stars sinking into it, the pull of staying fallen)
+// a pale, starless indigo with dim stars sinking into it, the pull of staying fallen; Fenrir's (`paw`): a frost paw print with
+// ice crystals round the rim, FB2 (c2))
 const CURSES = {
   dark: { fill: CURSE, rim: '150,96,210', inner: '230,200,255', star: '200,160,240', smoke: '70,36,110' },
   drowned: { fill: '34,104,100', rim: '84,184,164', inner: '206,252,236', star: '140,222,200', smoke: '20,66,70' },
@@ -449,6 +450,38 @@ function drawSigil(ctx, s, t) {
     ctx.moveTo(0, 0);
     ctx.lineTo(Math.cos(ha) * s.r * 0.66, Math.sin(ha) * s.r * 0.66);
     ctx.stroke();
+    ctx.restore();
+  } else if (s.paw) { // (Fenrir's: a frost paw print pressed into the floor, ice crystals standing round the rim)
+    ctx.fillStyle = `rgba(${L.rim},${0.6 + 0.3 * k})`;
+    for (let i = 0; i < 14; i++) {
+      const an = (i * TAU) / 14 + 0.2, cx = Math.cos(an) * s.r, cy = Math.sin(an) * s.r, nx = Math.cos(an), ny = Math.sin(an), l = (i % 2 ? 10 : 18) + 8 * k;
+      ctx.beginPath();
+      ctx.moveTo(cx - ny * 5, cy + nx * 5);
+      ctx.lineTo(cx + nx * l, cy + ny * l);
+      ctx.lineTo(cx + ny * 5, cy - nx * 5);
+      ctx.fill();
+    }
+    ctx.scale(1, 1.7); // (the print itself, foreshortened less than the ring so its toes read)
+    const R = s.r * 0.62, ink = `rgba(${L.inner},${0.55 + 0.4 * k})`;
+    ctx.fillStyle = ink;
+    ctx.beginPath(); // the main pad: three lobes along its back edge
+    ctx.moveTo(-R * 0.55, R * 0.25);
+    ctx.quadraticCurveTo(-R * 0.6, -R * 0.3, 0, -R * 0.28);
+    ctx.quadraticCurveTo(R * 0.6, -R * 0.3, R * 0.55, R * 0.25);
+    ctx.quadraticCurveTo(R * 0.45, R * 0.55, R * 0.2, R * 0.42);
+    ctx.quadraticCurveTo(0, R * 0.62, -R * 0.2, R * 0.42);
+    ctx.quadraticCurveTo(-R * 0.45, R * 0.55, -R * 0.55, R * 0.25);
+    ctx.fill();
+    for (const [tx, ty, rot] of [[-0.62, -0.62, -0.35], [-0.22, -0.88, -0.1], [0.22, -0.88, 0.1], [0.62, -0.62, 0.35]]) {
+      ctx.beginPath(); // a toe, and its claw mark ahead of it
+      ctx.ellipse(tx * R, ty * R, R * 0.17, R * 0.23, rot, 0, TAU);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(tx * R * 1.15 - R * 0.04, ty * R * 1.28);
+      ctx.lineTo(tx * R * 1.3, ty * R * 1.5);
+      ctx.lineTo(tx * R * 1.15 + R * 0.04, ty * R * 1.28);
+      ctx.fill();
+    }
     ctx.restore();
   } else {
     ctx.rotate(t * 0.8);
