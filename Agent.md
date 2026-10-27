@@ -67,6 +67,9 @@ touches (see the index at the bottom) before changing code. Every source file na
   `dist/` changes the LIVE site, which serves `dist/` from disk.
 - **Close every headless Chromium when a test ends** (owner). `scripts/cdp.mjs` kills the one it launched when the
   script exits; anything launched another way, kill it yourself, and check `pgrep -c chromium` is 0 before you finish.
+- **One test server at a time, never left running** (owner: RAM is tight). Stop it right after each test, and
+  before finishing kill any stray game test server (`pgrep -af "server/index.js"`), other sessions' too; keep only
+  the live one (cwd `~/rpg`, port 3002) and Slime Hop (cwd `~/game`).
 - Stop test servers by PID (check `readlink /proc/<pid>/cwd`). `pkill -f "node server/index.js"` also kills
   the live service and Slime Hop (`~/game`, port 3000).
 
