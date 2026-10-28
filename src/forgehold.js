@@ -5,7 +5,7 @@
 // door, FORGE_DOCK_X), Auntie Soot's springs (a bathhouse of stacked stone over steaming pools), then the town
 // cut into the caldera's outer wall: ledges joined by chains and iron stairs (FORGE_PLATFORMS), the iron door
 // that is everyone's own front door (FORGE_HOME_X), the great forge with its hood (you wake by it), the
-// memorial wall with its one blank space near the top, Slag's stack of gear-teeth, and the road up into
+// memorial wall with Brenna's name near the top (the space left blank for her until E4b), Slag's stack of gear-teeth, and the road up into
 // Cinder Flats. Behind: an ash-hazed dusk, warm green sea, the other islands far off to the north and the
 // island's own smoke column. This room paints its own sky.
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
@@ -496,8 +496,10 @@ function drawForge(ctx, time) {
 }
 
 // The memorial wall: a slab of black glass-smooth stone, row on row of smiths' names carved small (strokes,
-// not readable text), a nail hammered in beside every name, candles at its foot, and near the top one
-// space left blank, with a frame round it (Ash's sister: he won't carve a name for someone who isn't dead)
+// not readable text), a nail hammered in beside every name, candles at its foot, and near the top, in the framed
+// space that stood blank for years (Ash's sister: he wouldn't carve a name for someone who wasn't dead), her name:
+// BRENNA, the one name on the wall cut deep enough to read, freshly, with a new nail and a sprig of his mint tucked
+// behind it (E4b: Ash carved it himself the night Ochre came down and told him the tooth was set down on the Seat)
 function drawMemorial(ctx, time) {
   const x0 = FORGE_WALL_X - 106, x1 = FORGE_WALL_X + 106, top = plat('ledge', 2).y + 30, b = GROUND - 8;
   ctx.fillStyle = '#26202a';
@@ -525,10 +527,16 @@ function drawMemorial(ctx, time) {
       circle(ctx, x + len + 5, y, 1.6);
     }
   }
-  // the blank space near the top, framed
+  // the space near the top, framed, with her name in it now (E4b), cut fresh and pale
   ctx.strokeStyle = 'rgba(255,200,140,0.35)';
   ctx.lineWidth = 1.5;
   ctx.strokeRect(FORGE_WALL_X - 26, top + 24, 52, 14);
+  text(ctx, 'BRENNA', FORGE_WALL_X - 3, top + 31.5, 9, 'rgba(236,222,214,0.9)');
+  ctx.fillStyle = '#c8c2cc'; // the new nail, still bright
+  circle(ctx, FORGE_WALL_X + 31, top + 31, 1.8);
+  ctx.fillStyle = '#6aa05a'; // a sprig of Ash's mint behind it
+  ellipse(ctx, FORGE_WALL_X + 35, top + 26, 2.2, 3.6, 0.5);
+  ellipse(ctx, FORGE_WALL_X + 38, top + 29, 2, 3.2, 1.1);
   // candles at its foot
   for (let i = 0; i < 5; i++) {
     const cx = x0 + 30 + i * 38, fl = 0.7 + 0.3 * Math.sin(time * 6 + i * 2);

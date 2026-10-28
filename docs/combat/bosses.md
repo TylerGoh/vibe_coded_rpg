@@ -23,8 +23,13 @@ E2 added **The Buried Clutch** (room 57, the Smoking Coast, art `src/dens-hatch.
 `docs/places/coast.md`), the Hatchkeeper (Lv 115): her `spores` ult is drawn as boiling sand with tide-wet safe
 patches through `ULT_LOOKS` (a den's own look for a shared ult, by theme, checked first in `drawUltFx`), and her
 freeing is a longer `bossDie` for her theme (`drawHatchFreed`: the eggs hatch and the little ones run to the sea).
-Big bosses can have `lines` (enter / phase / freed) that they say in a bubble and the chat: those five have them so far. `looks` on a boss picks how the shared beam
-and grid moves are drawn (the Warden's Keeper amber and roots; the Old Narwhal's jet of sea water; Sigrun's `shield` beam and `seam` grid), and `party` names the party mechanics a
+E4b added **The Bearer's Hoist** (room 62, `BRENNA_DEN`, the Caldera Rim, art `src/dens-rim.js`, theme `hoist`;
+`docs/places/rim.md`), Brenna, the Last Bearer, Emberdeep's party den (Lv 149): her `wave` ult, Last Delivery, is the
+tooth rolled end to end of the den (`HOIST_ULT` through `ULT_LOOKS`, `toothMass`; jump it) and her freeing a longer
+`bossDie` (`drawBrennaFreed`: she lowers the tooth and sets it down).
+Big bosses can have `lines` (enter / phase / freed) that they say in a bubble and the chat; since E4b Ignis and Pyra
+have theirs too (Ignis's freed line is where Emberdeep says its Tier 3 in words: the Tidewheel, the Keeper of Hours). `looks` on a boss picks how the shared beam
+and grid moves are drawn (the Warden's Keeper amber and roots; the Old Narwhal's jet of sea water; Sigrun's `shield` beam and `seam` grid; Brenna's `tooth` beam, `rimrock` grid, `ash` pulse and `ember` front wall), and `party` names the party mechanics a
 boss is built for (below: "Bosses that need a party"). Field bosses (no den;
 `docs/combat/stages.md`) have no `lines`: F3's Pale Wyrm, which has a story, tells it through the Serpent Stone
 and the personas instead (`docs/places/heights.md`). A new den's art lives in its own file with `DEN_ART` / `ENTRANCE_ART` / `BOSS_ART`
@@ -61,7 +66,7 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
   switches every one on from the first slime (the final bosses: below, "Final bosses").
 - **It ships dark.** Nothing switches on unless the boss also has `partyLive` (S5.3 gave it to the party dens,
   S5.4 gives it to the retrofitted bosses, a stage at a time). Tests use `TEST_PARTY` (`docs/testing.md`).
-- **The party dens (S5.3)**: the Root Warden and Sigrun have `partyLive` with focus, pulse, barrier, weak point,
+- **The party dens (S5.3)**: the Root Warden and Sigrun (and since E4b Brenna) have `partyLive` with focus, pulse, barrier, weak point,
   adds and the interrupt (added here: the Frostbinder's payoff), all but the focus on from the first slime. Their
   HP is never under `PARTY_DEN_HP_FLOOR` slimes' worth (since SP6 two, and for every top boss; `bossMaxHp`, shared: spawn and the den's growth in
   `bossBrain`), so a lone slime faces a party's HP and every mechanic; the barrier's and weak point's HP stay shares
@@ -76,6 +81,10 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
   `bossBrain` and turns to its target only `BARRIER_TURN_S` after they got behind it (`behindSince`), so a party
   flanks while whoever has the focus holds the front, and a lone slime dodges round and hits before it turns. Drawn
   as a curved wall of ice off its front (`drawFrontWall`).
+- **A weak point behind (E4b, Brenna)**: `weak.back` is the other way round from `weak.front`: only a hit from BEHIND
+  finds it (`weakFaces`). Brenna's barrier is the tooth swung down in front of her (`barrierFront`) and her weak point
+  the buckle where the straps cross on her back, low enough for a slap from the floor, so the flankers break both
+  while the focused slime holds her front. The sheet models it (`weakBack` in `fight`: only the hits from behind reach it).
 - **adds (S5.3)**: a summon brings `ADDS_PER_FIGHTER` more minions for each slime past the first, and one more may
   stand at once for each, up to `ADDS_MAX` (`addsCap`); alone a wave is what it always was.
 - **The engine**: `partyTick(m, k, here, t)` runs from `stepMob` for every den and field boss with a `party`, before
@@ -240,6 +249,7 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | Old Crucible (field, 145; E3b) | armour, curse (smouldering) | Ignis's basalt plates (`looks.shell: 'cinder'`): the slag on its skin setting; Pyra's charred sigil (`looks.curse: 'ember'`): its splashes of metal |
 | Greyback (field, 130; E1) | focus, curse (smouldering) | Pyra's charred sigil (`looks.curse: 'ember'`): his burning logs leave you smouldering |
 | Chronos, Keeper of Hours (den, `top`, 170) | barrier, curse (borrowed time), interrupt | a gold dome with hour marks and two clock hands turning inside (`looks.dome: 'hours'`); a dial of gold light on the floor, its hand sweeping round (`looks.curse: 'hours'`) |
+| Brenna, the Last Bearer (party den, `top`, 149; E4b, not a retrofit: built with them, the party den gates) | focus, barrier (the tooth swung down in front: `barrierFront`), pulse (ash), weakpoint (the strap buckle, `weak.back`), adds (crag rocs), interrupt | Sigrun's front wall in warm iron-ember (`looks.dome: 'ember'`); grey rings with ash in them, "ASH" (`looks.pulse: 'ash'`); the S5.2 crystal on her back |
 - **Swaps and additions:** Pyra has no `interrupt` (Rebirth's egg is its own answer; `interruptUlt` skips it). The
   Colossus got a **pulse** on top of the draft's armour + weak point: a top boss is meant to punish a party with no
   healer (owner's SP6 rule 4), and armour and a weak point are exactly the lopsided team's own answers (Berserkers,
@@ -248,7 +258,8 @@ alone they fight as before too). The armour and barrier use the shared numbers (
   (the Frostbinder's). Pyra's adds only show in her middle stage (`summon` is only in her stage-2 moves).
 - The Colossus's core sits on its chest (`front`, the Narwhal's rule): low enough that a slap from the floor finds it,
   so a melee party breaks it as well as arrows do, from in front.
-- No `lines`: Ignis and Pyra get theirs with E4 (`story/roadmap.md`), and Chronos's voice is the story's to give.
+- `lines`: Ignis and Pyra got theirs with E4b (from their stories in `story/characters/bosses.md`; Ignis's freed line
+  names the Tidewheel and the Keeper of Hours: Emberdeep's Tier 3, said by him alone); Chronos's voice is the story's to give.
 - Contrast (screenshots): brass plates vanished into the Grand Foundry's brass walls, so the Colossus's are dark bronze;
   Pyra's sigil is dark on her sunset-orange roost; Chronos's sigil is gold light on his violet floor.
 - Tested with two and three headless players (`TEST_SPEED=10`, `TEST_GOD`, a phone player in each): alone the bits were
@@ -260,7 +271,7 @@ alone they fight as before too). The armour and barrier use the shared numbers (
   Cleanse's job) and his curse stacking. Not tried: Ignis's and Chronos's interrupts, people.
 
 ## Top bosses (SP6, owner 2026-10-25)
-`top` on a boss: the party dens (the Root Warden, Sigrun, Emberdeep's to come), the final bosses (FB1, FB2, E5) and the
+`top` on a boss: the party dens (the Root Warden, Sigrun, Brenna), the final bosses (FB1, FB2, E5) and the
 end-game capstones, the Clockwork Colossus and Chronos. Built for a party of four (~45 min on the sheet), hard-hitting and
 punishing; alone possible but 2–3× as long (their HP floor, `PARTY_DEN_HP_FLOOR`). Every class still has an answer to
 every mechanic (S5's rule), but a weak answer costs more here than on an ordinary den (which keeps the S5 numbers):

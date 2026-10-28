@@ -70,11 +70,13 @@ No quests, no hard level gates.
          `docs/places/coast.md`, `tubes.md`). Next: **the owner plays** them.
    - [x] E3: the Brimstone Fields and the Old Foundry (hard), the Brimstone Condor, Old Crucible, Picker Ochre (2026-10-28;
          rooms 59 and 60, `docs/places/brimstone.md`, `foundry.md`). Next: **the owner plays** them.
-   - [ ] E4: the Caldera Rim and Brenna, Emberdeep's party den; Ignis's and Pyra's lines
+   - [x] E4: the Caldera Rim and Brenna, Emberdeep's party den; Ignis's and Pyra's lines (2026-10-28; rooms 61 and 62,
+         `docs/places/rim.md`). Emberdeep's depth pass is done but its final boss. Next: **the owner plays** them, then
+         E5 and atlas Phase 6 (below).
 7. **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase.
 
 ## Next
-- [ ] **Atlas Phase 6: the climb** (after E4; can run alongside E5): the thermal column vista, the balloon crossing (Slag's
+- [ ] **Atlas Phase 6: the climb** (E4 shipped: this is next; can run alongside E5): the thermal column vista, the balloon crossing (Slag's
       forge-burner lifts the block), the Skydocks zone, the Skydocks camp as the Citadel's town, the
       Dockwarden, the Skydocks' folk look. **The skylift goes** once the balloon works, which ends the
       old back-door chain (`world/geography.md`).

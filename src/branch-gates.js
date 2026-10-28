@@ -27,7 +27,7 @@
 // stacked beside it, a lamp lit). The Coast's old lava tube in its
 // sea cliff, steam roaring out of it until it drained (E2), open to the Drained Tubes (OPEN.tubemouth: old steps down).
 // The Brimstone Fields' gate (E3a): the Bearers' stair up toward the Caldera Rim, its hand-chains rusted through and
-// its top steps fallen (`bearerstair`; drawBearerStair has its `open` look ready for E4: new chains, the steps rebuilt).
+// its top steps fallen (`bearerstair`), open since E4a (OPEN.bearerstair: new chains, the fallen steps rebuilt in iron).
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, circle, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';

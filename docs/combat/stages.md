@@ -82,6 +82,9 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    the soot hound, Old Crucible, a `lob` field boss living in the big casting pit) (`docs/places/foundry.md`). Slag
    golems `split` into slaglings (kept small); two new drawing styles: the `molten` shot (the crucible newt's and Old
    Crucible's) and the bellows toad's `bellows` beam (`src/hazards.js`).
+27. **The Caldera Rim**: E4a, Emberdeep's heart up the Bearers' stair from the Fields (Lv 135–150; no trader, elites or
+   field boss: Brenna's party den, E4b, is the danger) (`docs/places/rim.md`). Rim goats (passive), pumice puffs
+   (`split` into pumice bits, kept small), glass scorpions (`shell`), heat shimmers (`phase`), crag rocs (`dive`).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

@@ -23,7 +23,7 @@ direction.
   platform, her stack of full baskets and spare yoke, a water butt; the Breathing Stone; the waystone; the sign back
   to Magma Heart), **the Yellow Crust** (hoppers, acid slugs), **the Acid Pools** (vent crabs, fume wisps) and **the
   High Vents** (sulphur kites, chimney spitters, the Condor, the Organ), with **the Bearers' stair** at the very west
-  end (`RIM_GATE_X`, the Caldera Rim's gate, below).
+  end (`RIM_GATE_X`, the Caldera Rim's way up since E4a, below).
 - **The Organ**, the find (last in `BRIM_PLATFORMS`, `organ`): a cluster of open-topped sulphur chimneys round the
   tallest, which has a ledge on top, reached from its shoulder (the `chimney` platform before it in the list). When
   the wind gusts, rings of sound lift off the pipes' mouths (and the music plays the chord). A worn sitting place, kite
@@ -34,8 +34,11 @@ direction.
   only: never the Tidewheel, the Stopped Hour, Chronos or Pell. Ochre talks to it some mornings.
 - **Waystone** `brimstone` in the camp past the stone (`isle: 'ember'`, `src/shared/waystones.js`).
 
-## The Caldera Rim's gate (the Bearers' stair)
-The Rim lost `past` and got its gate here (`EMBERDEEP` in `src/shared/branches.js`, kind `bearerstair`, drawn by
+## The Bearers' stair (the Caldera Rim's way up; lifted in E4a)
+**E4a opened it** (`docs/places/rim.md`): Slag forged new hand-chains, Ochre hung them, the fallen top steps were rebuilt
+in iron. The `rim` node has `rooms` and an `entry` here (`bearerstair`, drawn open), and `ROOMS[BRIMSTONE]` has the door up
+at `RIM_GATE_X` (its Lv chip from `STAGES`). Ochre's, Ash's, Soot's and Slag's personas say so. How it was laid (E3a):
+the Rim lost `past` and got its gate here (`EMBERDEEP` in `src/shared/branches.js`, kind `bearerstair`, drawn by
 `drawBearerStair` in `src/branch-gates.js`, sign at `SIGN_AT.bearerstair`): old steps cut steeply up a rock rib toward
 the rim, iron stanchions and hand-chains along them; the fumes ate the iron, the chains rusted through and hang slack,
 and the top steps fell away with them. E says so (`says`, under the toast's ~90 characters). `drawBearerStair` already

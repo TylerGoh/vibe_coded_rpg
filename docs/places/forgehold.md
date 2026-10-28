@@ -27,7 +27,11 @@ personas in `server/characters.js`, the `forgehold` music scene in `src/audio.js
 - The sky: an ash-hazed dusk, warm green sea, the other islands far off to the north (`drawDistantIslands`
   from `'ember'`), the island's own smoke column leaning over the wall. Ash drifts down; embers rise.
 - **The memorial wall**: smiths' names carved small (strokes, not text) with a nail beside each, candles at its
-  foot, and one blank space near the top, framed. It is Ash's sister Brenna's; it gets her name in E4.
+  foot, and near the top one framed space that stood blank for years: Ash's sister Brenna's. **Since E4b her name is in
+  it** (`drawMemorial`): BRENNA, the one name on the wall cut deep enough to read (real text, on purpose), a new
+  bright nail beside it and a sprig of Ash's mint tucked behind. A permanent world change shipped with her den, not
+  per kill (`docs/places/rim.md`). In-world Ash carved it himself the night Ochre came down and told him the tooth was
+  set down on the Bearer's Seat; Soot sat up with him. Keep the personas consistent with that.
 
 ## A town (owner's rule: every island's landing has one)
 - In `TOWNS`: being here makes it **your town** (`state.town`): you wake by the forge after fainting (in
@@ -40,8 +44,9 @@ personas in `server/characters.js`, the `forgehold` music scene in `src/audio.js
 - **Forgewarden Ash** (`ash`): keeps the great forge and the memorial wall; the plain-spoken guide to what's
   dangerous inland (Tove's job, done grimly): the four legacy mobs, Ignis and Pyra, and every shut way out.
   He holds Tier 3 in the long run but **deflects** until per-account story progress exists: "Go and ask the
-  old smith in the Forge. Then come back." (a character's refusal, not a gate). His sister Brenna is the blank
-  space; he gives that slowly ("It's spoken for." the first time). Keep his mob list in step with Emberdeep's
+  old smith in the Forge. Then come back." (a character's refusal, not a gate). His sister Brenna is the
+  newest name on the wall (E4b; before that the blank space, "It's spoken for."); he gives it slowly ("My sister. She
+  put it down." the first time) and never says what she carried it for. Keep his mob list in step with Emberdeep's
   (E1: the Black Sands and the Ashwood are open in it; of the Old Foundry's bricked-up adit he says only that the
   forge folk bricked it themselves and it stays bricked: `docs/places/ashwood.md`; E2: the Smoking Coast is open,
   its old tube's steam is the shut way, and he says Liv's edges are better than his: `docs/places/coast.md`; E3a: the

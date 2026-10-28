@@ -243,6 +243,34 @@ Crucible Helm at `helmetPrice`). Its pet is 226k (~20 min at Lv 145), between th
 Colossus's (248k, Lv 150), leaving 226–248k for the Rim's party den (E4); `PETSHOP_W` 5000 → 5150. `HOUSE_SIZES`: nothing
 aimed between 130 and 145, nothing to change.
 
+## Emberdeep's depth pass, E4a: the Caldera Rim (2026-10-28)
+The Caldera Rim (`docs/places/rim.md`, the heart room) puts five mobs on the curve at Lv 137–148 (rim goat 92% HP,
+pumice puff 93% (a `split` mob), glass scorpion 124% like the other `shell` mobs, heat shimmer 94%, crag roc 93%; EXP
+100%, gold 103–106%: coins and materials scaled from the Fields' by the gold curve); the pumice bit is a split minion,
+kept small (Lv 138, 560 EXP, 55–105 coins: unchecked by the sheet). No trader, no elites, no field boss (E4b's den is the
+danger). They are the only mobs past Lv 145 on Emberdeep, but the sheet's best farm at Lv 150 stays the Citadel's sentry,
+so little moved: **gold earned by** Lv 150 ~8.955M → ~8.946M, Lv 170 ~13.273M → ~13.263M, Lv 200 ~22.248M → ~22.238M;
+**play time** to Lv 150 20.9 h → 20.8 h; the Condor's and Old Crucible's farming-worth ratios dipped (6.8× → 6.6×,
+7.1× → 6.7×; `FIELD_PAY` still green). Gear on the curve a little under the band's top: the Glassback Helm
+(`helmetPrice` at Lv 141), Cragbeak and its twins (`swordPrice` at Lv 146). `HOUSE_SIZES`: nothing to change.
+
+## Emberdeep's depth pass, E4b: Brenna's den (2026-10-28)
+**Brenna, the Last Bearer** (`docs/places/rim.md`, Lv 149, `top`, a party den like Sigrun) is sized by the TOP BOSSES
+table, not guessed: HP 44.5M (her one-slime `hp`; `bossMaxHp` at four is 124.6M) puts a party of four (knight, priest,
+frostbinder, sniper) at ~46:51 (`TOP_PARTY_MIN` 38–55; Sigrun 46:55, the Colossus 47:08), the lopsided party at ~39:40
+(front-only barrier, so only its potions count, as on Sigrun), and alone a median ~113 min, 2.4× the party (`TOP_SOLO`
+2–3.5): knight 166, berserker 136, elementalist 98, frostbinder 101, priest 132, warden 125. **Both Archer branches
+faint alone at 16:48** on the sheet whatever her ATK (tried 540–596): a pulse, her ultimate and a hit land in the same
+half second (the sheet's fixed schedules); not a check failure (nobody-can-solo is), noted in `docs/ideas.md`. ATK 580
+(Sigrun's ratio to the curve ~1.02×, the Colossus's ~1.15×: between). EXP 2.4M and coins 1.64–2.55M, between
+Sigrun's and the Colossus's by level: BOSS PAY 0.76× EXP / 4.62× gold an hour of farming (`BOSS_PAY`, under
+`BOSS_CAMP_MAX`). Gear a step over the Rim's (Lv 151 at `swordPrice` / `helmetPrice`, 10 slots like the Colossus's):
+the Bearer's Edge / Staff / Bow and the Bearer's Cap; the Bearer's Strap (1,520). Her pet is 237k (~19 min at Lv 149),
+between Old Crucible's (226k) and the Colossus's (248k); `PETSHOP_W` 5150 → 5300 (the plinths need ~5190). The sheet's
+`fight` learned `weakBack` (her weak point only from behind: the flankers' hits reach it, the Knight's in front don't).
+Elsewhere only the toughness column moved (the dens' median ATK: frostbinder Lv 60 25 → 23 s) and a 0.01 in the shape
+table; farming, play time and gold earned by are unchanged (no mobs). Ignis's and Pyra's `lines` change no numbers.
+
 ## The levelling rebalance, L1 and L2 (2026-10-23, `story/progression.md`)
 **L1, the pace.** `expToNext` = the larger of the old curve and `LEVEL_MIN(L)` minutes of `KILLS_PER_MIN` kills
 of the frozen curve's EXP at L (owner's curve "A": `0.5·L^0.65` minutes up to Lv 100, then `L/10`). Mobs and

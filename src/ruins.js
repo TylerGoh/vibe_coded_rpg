@@ -1,4 +1,4 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md, docs/places/blacksands.md, docs/places/ashwood.md, docs/places/coast.md, docs/places/brimstone.md, docs/places/foundry.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md, docs/places/blacksands.md, docs/places/ashwood.md, docs/places/coast.md, docs/places/brimstone.md, docs/places/rim.md, docs/places/foundry.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
@@ -10,13 +10,14 @@
 // the Black Sands' beach path, which shows its tier without naming anything: a dial, islands, going round, and the Kiln Stone in
 // the Ashwood's clearing: trees, fire, iron, a toothed wheel, and the Landing Stone on the Smoking Coast's Glass Beach: a
 // loading quay, gear-teeth on barges, a tally with its last mark half cut, and the Breathing Stone in the Brimstone Fields'
-// camp: the mountain breathing in and out, and the islands coming close and drifting off with it). Wreck Cave has a reading here that isn't a stone: the
+// camp: the mountain breathing in and out, and the islands coming close and drifting off with it, and the Hoist Stone at the
+// Caldera Rim's stair head: every island's road meeting at a city on the ground, a gear-tooth going up the road). Wreck Cave has a reading here that isn't a stone: the
 // wrecked ship's logbook; the Old Foundry's tally board is the other (`wing` and `when` change the card's header lines). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X, COAST, COAST_STONE_X, BRIMSTONE, BRIM_STONE_X, FOUNDRY, FOUNDRY_TALLY_X } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X, COAST, COAST_STONE_X, BRIMSTONE, BRIM_STONE_X, FOUNDRY, FOUNDRY_TALLY_X, RIM, RIM_STONE_X } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -143,6 +144,12 @@ export const RUIN_STONES = [
     note: 'Someone has worn a smooth patch on the ground in front of it, the size of a slime sitting. A few yellow kite feathers are tucked into a crack in its side.',
   },
   {
+    room: RIM, place: 'the Caldera Rim', x: RIM_STONE_X, shape: 'hoist', name: 'the Hoist Stone', title: 'The Hoist Stone',
+    look: "A tall Keeper stone at the head of the stair, scoured smooth on its windward side, black grit packed into every line. Its face shows three islands close together, a road running in from each shore, and the roads meeting in the middle at a city standing on the ground: walls, towers, and a great toothed wheel at its heart.",
+    legible: ['...EVERY ROAD... TO THE CITY...', 'The road from the fire island is cut deepest. Up it, small, a figure goes with a toothed block lashed to its back, toward the city.', 'Above the city, far rougher and much later, someone has scratched the same city again with no ground under it.'],
+    note: 'Two grooves are worn into the rock at its foot, a load\'s width apart, as if something heavy was set down here and lifted again, many times.',
+  },
+  {
     // the Old Foundry's tally board (E3b, docs/places/foundry.md): a reading, not a Keeper stone (wing / when, like the log)
     room: FOUNDRY, place: 'the Old Foundry', x: FOUNDRY_TALLY_X, shape: 'tally', name: 'the tally board', title: 'The Tally Board',
     wing: 'the Old Foundry · by the big casting pit', when: 'Chalk on charred planks · read by the glow of the pit',
@@ -183,7 +190,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone, landing: drawLandingStone, breathing: drawBreathingStone, tally: drawTally })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone, landing: drawLandingStone, breathing: drawBreathingStone, tally: drawTally, hoist: drawHoistStone })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -1517,6 +1524,103 @@ function drawBreathingStone(ctx, time, glow) {
   const k = (time * 0.25) % 1;
   ctx.fillStyle = `rgba(226,214,120,${0.35 * Math.sin(k * Math.PI)})`;
   circle(ctx, 78 + Math.sin(time) * 3, -10 - k * 60, 4 + k * 10);
+}
+
+// The Hoist Stone (the Caldera Rim, E4a): a tall stone scoured by the wind, black grit in its lines. Three islands, a road
+// in from each, meeting at a city on the ground with a toothed wheel at its heart; a small figure going up the deepest
+// road with a tooth on its back; above, scratched rougher, the city again with no ground under it. Strap grooves at its foot
+function drawHoistStone(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(40,25,60,0.18)';
+  ellipse(ctx, 0, 0, 82, 8);
+  slab(ctx, -72, -136, 144, 138, 14);
+  ctx.fillStyle = 'rgba(42,34,40,0.35)'; // black grit packed against its foot
+  ellipse(ctx, -46, -2, 30, 5);
+  ellipse(ctx, 40, -1, 26, 4);
+  const ink = glow ? '#c9a24a' : CARVE;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
+  ctx.lineWidth = 1.6;
+  ctx.lineCap = 'round';
+  const isle = (x, y, r) => {
+    ctx.beginPath();
+    ctx.ellipse(x, y, r, r * 0.45, 0, Math.PI, 0);
+    ctx.stroke();
+  };
+  // three islands, close, and a road in from each to the middle
+  isle(-48, -22, 14);
+  isle(48, -22, 14);
+  isle(0, -10, 12);
+  ctx.beginPath();
+  ctx.moveTo(-40, -26);
+  ctx.quadraticCurveTo(-26, -40, -10, -52);
+  ctx.moveTo(40, -26);
+  ctx.quadraticCurveTo(26, -40, 10, -52);
+  ctx.stroke();
+  ctx.lineWidth = 2.6; // the fire island's road (the middle one) cut deepest
+  ctx.beginPath();
+  ctx.moveTo(0, -16);
+  ctx.lineTo(0, -52);
+  ctx.stroke();
+  ctx.lineWidth = 1.6;
+  // the city on the ground where they meet: walls, two towers, a toothed wheel in its heart
+  ctx.beginPath();
+  ctx.moveTo(-26, -54);
+  ctx.lineTo(26, -54);
+  ctx.moveTo(-24, -54);
+  ctx.lineTo(-24, -72);
+  ctx.lineTo(-18, -78);
+  ctx.lineTo(-12, -72);
+  ctx.lineTo(-12, -54);
+  ctx.moveTo(12, -54);
+  ctx.lineTo(12, -72);
+  ctx.lineTo(18, -78);
+  ctx.lineTo(24, -72);
+  ctx.lineTo(24, -54);
+  ctx.stroke();
+  carvedGear(ctx, 0, -66, 6, 8, glow);
+  // the small figure going up the deep road, a toothed block lashed on its back
+  const fy = -32;
+  ctx.beginPath();
+  ctx.arc(-4, fy, 3.2, 0, TAU);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-1, fy - 6);
+  ctx.lineTo(7, fy - 6);
+  ctx.lineTo(7, fy + 1);
+  ctx.lineTo(-1, fy + 1);
+  ctx.closePath();
+  ctx.moveTo(1, fy - 6);
+  ctx.lineTo(2, fy - 9);
+  ctx.moveTo(5, fy - 6);
+  ctx.lineTo(4, fy - 9);
+  ctx.stroke();
+  // above, rougher and later: the same city with no ground under it
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  const sx = (x, y) => [x + Math.sin(x * 3.1 + y) * 0.8, y + Math.cos(x * 1.7) * 0.8];
+  for (const pts of [[[-18, -100], [18, -100]], [[-16, -100], [-16, -112], [-12, -116], [-8, -112], [-8, -100]], [[8, -100], [8, -112], [12, -116], [16, -112], [16, -100]]]) {
+    pts.forEach(([x, y], i) => (i ? ctx.lineTo(...sx(x, y)) : ctx.moveTo(...sx(x, y))));
+  }
+  ctx.moveTo(-14, -96); // a few scratches under it: nothing holding it up
+  ctx.lineTo(-10, -92);
+  ctx.moveTo(10, -96);
+  ctx.lineTo(14, -92);
+  ctx.stroke();
+  // the strap grooves worn into the rock at its foot
+  ctx.strokeStyle = 'rgba(42,34,40,0.45)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-88, 1);
+  ctx.lineTo(-62, 1);
+  ctx.moveTo(62, 1);
+  ctx.lineTo(88, 1);
+  ctx.stroke();
+  // grit blowing off its top edge in the wind
+  for (let i = 0; i < 3; i++) {
+    const k = (time * 0.5 + i / 3) % 1;
+    ctx.fillStyle = `rgba(60,52,58,${0.4 * (1 - k)})`;
+    circle(ctx, -60 - k * 50, -130 + k * 20 + i * 4, 1.4);
+  }
 }
 
 // The Old Foundry's tally board (E3b): charred planks on an iron post, the old smith's mark burnt in at the top (a

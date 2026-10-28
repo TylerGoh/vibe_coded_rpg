@@ -403,7 +403,7 @@ const POTIONS = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))].filte
 function fight(c, { n = 1, range = 0, hit = 0, pct = 0, every = BOSS_HIT_EVERY.warrior, hp: bossHp = Infinity, potions = false, until = SIM_S, mech = null }) {
   const r = (id) => rankOf(c.skills, id);
   // S5's party mechanics (PARTY DENS below): mech = { pulse, barrier, weak, hp1 (the boss's one-slime HP), behind (a
-  // share of your hits from behind a front-only barrier), front (Sigrun's: front-only barrier and weak point), jump
+  // share of your hits from behind a front-only barrier), front (Sigrun's: front-only barrier and weak point), weakBack (Brenna's: the weak point only from behind), jump
   // (a share of your non-arrow hits that reach a high weak point), help { magic, weak } (the rest of the party's
   // damage a second on the barrier and the weak point) }; S5.4: armour (a shell phase: non-heavy hits ×ARMOUR_CUT,
   // your heavy hits crack it, one an action; the others' cracks aren't counted, so a party is a little slower here)
@@ -441,7 +441,7 @@ function fight(c, { n = 1, range = 0, hit = 0, pct = 0, every = BOSS_HIT_EVERY.w
       else if (++M.cracks >= ARMOUR_CRACKS) { M.arUntil = t; stagger(t); }
     }
     if (wkUp(t)) {
-      const reach = facing * (kinds.arrow ? 1 : M.jump);
+      const reach = (M.weakBack ? M.behind : facing) * (kinds.arrow ? 1 : M.jump); // (E4b: Brenna's straps are on her back)
       k *= 1 + (WEAK_MULT - 1) * reach;
       fillWeak(d * k * reach, t);
     }
@@ -758,7 +758,7 @@ const topBosses = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => isTo
 // answer timed for it (a Knight's Sanctuary, ULT_CLERIC with a Cleric's Barrier and heals)
 const ULT_CLERIC = 0.5;
 const ultXOf = (team) => Math.min(1, ...team.map((br) => (br === 'knight' ? 1 - SKILLS.sanctuary.cut(SKILLS.sanctuary.max) : BUILDS[br].cls === 'cleric' ? ULT_CLERIC : 1)));
-const mechOf = (m, fighters, team = []) => ({ pulse: partyActive(m, fighters, 'pulse'), barrier: partyActive(m, fighters, 'barrier'), armour: partyActive(m, fighters, 'armour'), weak: partyActive(m, fighters, 'weakpoint'), hp1: m.hp, front: !!m.barrierFront, pulseHp: pulseHpOf(m), bar: barrierOf(m), weakHp: weakHpOf(m), ult: m.top && !(team.includes('frostbinder') && partyActive(m, fighters, 'interrupt')) ? ULT_GAP : 0, ultX: ultXOf(team) });
+const mechOf = (m, fighters, team = []) => ({ pulse: partyActive(m, fighters, 'pulse'), barrier: partyActive(m, fighters, 'barrier'), armour: partyActive(m, fighters, 'armour'), weak: partyActive(m, fighters, 'weakpoint'), hp1: m.hp, front: !!m.barrierFront, weakBack: !!m.weak?.back, pulseHp: pulseHpOf(m), bar: barrierOf(m), weakHp: weakHpOf(m), ult: m.top && !(team.includes('frostbinder') && partyActive(m, fighters, 'interrupt')) ? ULT_GAP : 0, ultX: ultXOf(team) });
 // SP6: what a team's Clerics and Knights do for the others in TOP BOSSES and RETROFIT (heals are party-wide: Jelly Heal,
 // Mend, the wisp, the Barrier, each on cooldown, HEAL_GIVE of the time spent on friends), HP a second; a Knight's
 // Sanctuary covering them on its cooldown
@@ -778,8 +778,8 @@ const teamRun = (m, team, L = m.lvl) => {
   const onFront = (br) => (front ? 1 - behindOf(br) : 1);
   const runs = team.map((br, i) => {
     const others = team.filter((o, j) => j !== i);
-    const help = { ...teamHelp(others, L), magic: others.filter(isMagic).reduce((a, o) => a + base[o] * onFront(o), 0), weak: others.reduce((a, o) => a + base[o] * onFront(o) * (isArrow(o) ? 1 : front ? 1 : WEAK_JUMP), 0), mark: others.some((o) => rankOf(classChar(o, L).skills, 'hunters_mark')) };
-    const f = fight(classChar(br, L), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls] * n, potions: true, until: PARTY_SIM_S, mech: { ...mechOf(m, n, team), behind: behindOf(br), jump: front ? 1 : WEAK_JUMP, help } });
+    const help = { ...teamHelp(others, L), magic: others.filter(isMagic).reduce((a, o) => a + base[o] * onFront(o), 0), weak: others.reduce((a, o) => a + base[o] * (m.weak?.back ? behindOf(o) : onFront(o)) * (isArrow(o) ? 1 : front || m.weak?.back ? 1 : WEAK_JUMP), 0), mark: others.some((o) => rankOf(classChar(o, L).skills, 'hunters_mark')) };
+    const f = fight(classChar(br, L), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls] * n, potions: true, until: PARTY_SIM_S, mech: { ...mechOf(m, n, team), behind: behindOf(br), jump: front || m.weak?.back ? 1 : WEAK_JUMP, help } });
     return { br, dps: f.dealt / f.t, faint: f.faint, drunk: f.drunk / f.t };
   });
   const t = hp / runs.reduce((a, q) => a + q.dps, 0);
@@ -791,7 +791,7 @@ const topRun = {};
 const fightLvl = (m) => (m.final ? m.lvl - FINAL_LVL_OVER : m.lvl);
 for (const [id, m] of topBosses) {
   const L = fightLvl(m), party = teamRun(m, PARTY_TEAM, L), lop = m.partyLive ? teamRun(m, LOPSIDED_TEAM, L) : null;
-  const soloMech = (br) => ({ ...mechOf(m, 1, [br]), behind: SOLO_BEHIND, jump: m.barrierFront ? 1 : WEAK_JUMP, help: { magic: 0, weak: 0 } });
+  const soloMech = (br) => ({ ...mechOf(m, 1, [br]), behind: SOLO_BEHIND, jump: m.barrierFront || m.weak?.back ? 1 : WEAK_JUMP, help: { magic: 0, weak: 0 } });
   const alone = Object.fromEntries(branches.map((br) => [br, fight(classChar(br, L), { ...bossFight(m), every: BOSS_HIT_EVERY[BUILDS[br].cls], hp: bossMaxHp(m, 1), potions: true, until: SOLO_UNTIL, mech: soloMech(br) })]));
   topRun[id] = { m, party, lop, alone, med: medianOf(branches.map((br) => alone[br].t)) };
   fightMin[id] = party.t / 60;

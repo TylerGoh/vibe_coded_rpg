@@ -65,7 +65,8 @@ and tail going. Its plinth is why `PETSHOP_W` went up (the shop warns at startup
 Hatchkeeper (her art shrunk, priced between Pyra's and Fenrir's) raised it again, and so did the mini Hundredfoot
 (E2's Drained Tubes field boss, priced between Fenrir's and Greyback's by level), and the mini Brimstone Condor (E3a,
 between Greyback's and the Colossus's, leaving room under the Colossus for the Old Foundry's and the Rim's), and the mini
-Old Crucible (E3b's Old Foundry field boss, its art shrunk, between the Condor's and the Colossus's).
+Old Crucible (E3b's Old Foundry field boss, its art shrunk, between the Condor's and the Colossus's), and the mini
+Brenna (E4b's party den boss, her art shrunk, tooth and all, between Old Crucible's and the Colossus's).
 
 ## Testing
 - `TEST_PET_FAST=1440` makes a full belly last 2 minutes (test servers only, never live).

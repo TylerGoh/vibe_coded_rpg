@@ -72,11 +72,15 @@ Order is by level. Names are the game's current ones.
 ## Emberdeep (harsh)
 - **Ignis the Magma Tyrant** (The Molten Forge). The master smith who forged the Tidewheel's gears. He
   has been consumed by guilt that his tooth snapped, so he forges and smashes gears endlessly. The anger
-  is grief. Beaten, he gives the hard truth (Tier 3) in his last coherent words.
+  is grief. Beaten, he gives the hard truth (Tier 3) in his last coherent words. His lines (E4b, MOBS.ignis.lines): every
+  tooth he pours comes out wrong, "Get one right and it turns. It has to turn!"; freed, he names the Tidewheel and the
+  Keeper of Hours who stopped it, and says nothing he pours will turn it now. The only place Emberdeep says it in words.
 - **Pyra the Ember Phoenix** (Phoenix Roost). The bird of the cycle. She dies and is reborn at every turn
   of the Wheel, but the Wheel doesn't turn, so she is stuck burning at the threshold. Her *Rebirth*
   ultimate is a broken, desperate attempt to finish the cycle. Beaten, she shows players the way up the
-  thermal column, because only the Wheel can set her free.
+  thermal column, because only the Wheel can set her free. Her lines (E4b, MOBS.pyra.lines): "Is it the turning? Is it the
+  turning at last?"; freed, she says she marks each turn of the Wheel, dying and rising, and can't finish while it
+  stands still, and points up the column.
 - **The Hatchkeeper** (The Buried Clutch, the Smoking Coast; shipped E2). A great black marine iguana, older
   than anyone. Her first clutch hatched long ago and ran down to the sea, every one, and the sea had grown wide
   and did not give them back. With a shard lodged under her crest she keeps every clutch since buried in sand
@@ -86,6 +90,16 @@ Order is by level. Names are the game's current ones.
   the whole beach boiling but the tide-wet patches. Freed, she hears them tapping and lets them go: the eggs hatch
   and the little ones run down to the sea. She buries a new clutch each time she comes back (only Liv says so).
   Tier 0 only; nothing in her den shows the Wheel.
+- **Brenna, the Last Bearer** (the Bearer's Hoist, the Caldera Rim's party den; shipped E4b). A forge-slime,
+  Forgewarden Ash's sister, chosen to carry the last gear-tooth up the road to the Keepers' city. She set out the
+  morning the land broke; there was no road left, so she climbed the rim, the highest place, and has held the tooth
+  up ever since to the city circling past overhead, grown round it and into it, a shard in the tooth. Holding on to a
+  duty nobody can take delivery of. Her lines (MOBS.brenna.lines) are a question wearing down: "Is it time? Has
+  someone come for it?" through "Not yet." to "Not yet. Not yet. Not yet."; freed, "Nobody is coming down for it.
+  Then I can put it down. There. Tell my brother I carried it as far as there was road." She sets it down on the rim;
+  it stays there, on the Bearer's Seat, and the same update put her name in the memorial wall's blank space (Ash
+  carved it himself, the night Ochre told him). Ultimate: Last Delivery, the tooth rolled end to end of her den (jump
+  it). Tier 3 by showing only: a tooth, a wheel, a city; the words stay Ignis's.
 
 ## The Aether Citadel (solemn)
 - **The Clockwork Colossus** (The Grand Foundry). The Wheel's guardian body, still following its last

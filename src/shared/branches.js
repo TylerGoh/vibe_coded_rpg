@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, FOUNDRY } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -67,8 +67,8 @@ export const EMBERDEEP = [
   { id: 'foundry', name: 'Old Foundry', band: '130–145', hard: true, at: [205, 135], from: 'ashwood', rooms: [FOUNDRY], entry: { room: ASHWOOD, x: FOUNDRY_GATE_X, kind: 'adit' } },
   // E3a: the wind on the flank turned, the fumes blow off the path now, and someone cairned it (the update itself lifted it)
   { id: 'brimstone', name: 'Brimstone Fields', band: '125–140', at: [505, 135], from: 'heart', rooms: [BRIMSTONE], entry: { room: CALDERA, x: BRIMSTONE_GATE_X, kind: 'fumes' } },
-  { id: 'rim', name: 'Caldera Rim', band: '135–150', at: [505, 58], from: 'brimstone', block: 'the chains rusted through',
-    gate: { room: BRIMSTONE, x: RIM_GATE_X, kind: 'bearerstair', look: 'look up the Bearers\' stair', says: 'The stair\'s hand-chains have rusted through, and the top steps went with them.' } },
+  // E4a: the Bearers' stair rechained, its fallen top steps rebuilt in iron (the update itself lifted it)
+  { id: 'rim', name: 'Caldera Rim', band: '135–150', at: [505, 58], from: 'brimstone', rooms: [RIM], entry: { room: BRIMSTONE, x: RIM_GATE_X, kind: 'bearerstair' } },
   { id: 'column', name: 'The Balloon', at: [640, 215], from: 'heart', block: 'the column stalls',
     gate: { room: CALDERA, x: BALLOON_X, kind: 'balloon', look: 'look at the balloon', says: 'The column keeps stalling. Nobody goes up in a wind that drops out under them.' } },
 ];

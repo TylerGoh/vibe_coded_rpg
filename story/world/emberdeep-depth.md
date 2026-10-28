@@ -177,7 +177,7 @@ look and a line. Move the stories into `../characters/bosses.md` when they ship.
   never leaves her. Holding on to her young (the same story as Eyvind and Liv, from the other side).
   Freed, the eggs hatch and the little ones run down to the sea. Ultimate from the landscape: the sand
   boils except in the tide-wet patches (reuse `spores`' safe circles). Minions: marine iguanas.
-- **Brenna, the Last Bearer** (party den, the Caldera Rim, ~Lv 148–150): a forge-slime, Forgewarden Ash's
+- **Brenna, the Last Bearer** (party den, the Caldera Rim, ~Lv 148–150; shipped E4b at Lv 149, story moved to `../characters/bosses.md`): a forge-slime, Forgewarden Ash's
   sister, chosen to carry the last tooth up the road to the Keepers' city. She set out the morning the
   land broke; there was no road left, so she climbed the rim, the highest place, and has held the tooth up
   ever since to the city circling past overhead, grown round it and into it, a shard in the tooth. Holding
@@ -187,7 +187,7 @@ look and a line. Move the stories into `../characters/bosses.md` when they ship.
   the den (reuse `wave`: jump it) `[proposed]`; built with a `party` entry for S5 (a weak point on the
   straps). Tier 3 by showing only: a tooth, a wheel, a city; the words (Tidewheel, Stopped Hour) stay
   Ignis's. Ash's persona learns that something with her shape stands on the rim; he won't go up.
-- **Ignis and Pyra get `lines`** in the E track (their stories are already in `bosses.md`). Ignis's freed
+- **Ignis and Pyra get `lines`** in the E track (shipped E4b) (their stories are already in `bosses.md`). Ignis's freed
   line carries Tier 3 in his own words; that is how the island delivers its truth.
 - Small: **the Bellower**, **Hundredfoot**, **Greyback**, **Old Crucible**, **the Brimstone Condor**.
 
@@ -242,11 +242,16 @@ up, then the party den (E4) and the final boss (E5); then atlas Phase 6.
       Old Crucible, the Foundry's elites, Picker Ochre and her shop, the Breathing Stone, the Organ, the
       Pattern; waystone in the Fields. Lays the Rim's gate (the Bearers' stair) in the Fields.
       Shipped 2026-10-28 (the Fields room 59, the Foundry room 60; `docs/places/brimstone.md`, `docs/places/foundry.md`).
-- [ ] **E4: the Caldera Rim** (135–150) and Brenna's party den (with lines and a `party` entry),
+- [x] **E4: the Caldera Rim** (135–150) and Brenna's party den (with lines and a `party` entry),
       the Hoist Stone, the Bearer's Seat, the name on the memorial wall; Ignis's and Pyra's lines. Then
       Emberdeep is done and **atlas Phase 6** resumes: the column vista, the balloon (the update lifts
       the block: Slag built the pilot a forge-burner that carries the basket through the stalls), the
       Skydocks and its camp, and the skylift goes once the balloon works.
+      E4a shipped 2026-10-28: the Caldera Rim (room 61, `docs/places/rim.md`: the stair rechained by Slag and Ochre,
+      the Hoist Stone, the Bearer's Seat with room left for the tooth, a waystone; personas learn the stair is open).
+      E4b shipped 2026-10-28: Brenna's den (room 62, the Bearer's Hoist, at `BRENNA_DEN_X`: her lines, `party` entry with
+      a weak point on the straps behind her, `weak.back`), the tooth set down on the Seat, her name on the wall (Ash
+      carved it), Ignis's and Pyra's lines. Story moved to `../characters/bosses.md`. E4 is done.
 - [ ] **E5: Emberdeep's final boss** (owner, 2026-10-24; `../final-bosses.md`): four or more players at the recommended Lv 150 (the boss shown far higher),
       about 30 minutes, far past the Old Foundry `[default]` (a deep room, an approach, the den). The pass's last phase; atlas Phase 6 can
       start alongside it, since the balloon doesn't depend on it.

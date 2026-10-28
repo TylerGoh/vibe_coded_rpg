@@ -1036,6 +1036,7 @@ const BEAM = {
   rime: { glow: '220,236,255', outer: 'rgba(200,226,255,0.9)', mid: '#ffffff', aim: '255,96,120' }, // Fenrir's Frost Breath (FB2)
   brine: { glow: '255,214,190', outer: 'rgba(236,232,224,0.9)', mid: '#ffffff', aim: '255,96,110' }, // the Hatchkeeper's snort of hot brine and salt (E2)
   bellows: { glow: '255,170,110', outer: 'rgba(255,190,140,0.6)', mid: '#ffe8d0', aim: '255,96,110' }, // the bellows toad's low blast of hot air (the Old Foundry)
+  tooth: { glow: '214,232,255', outer: 'rgba(200,214,240,0.88)', mid: '#ffffff', aim: '255,96,110' }, // Brenna: the shard's cold light thrown off the tooth's face (E4b)
 };
 function drawBeam(ctx, h, now) {
   const B = BEAM[h.style] || BEAM.sentry;
@@ -1115,6 +1116,7 @@ const GRID = {
   root: { rgb: '255,205,120', bolt: '#fff0c8', rim: '#6a4c36', fill: '140,110,70', edge: '#7aa05e' }, // the Root Warden: roots heaving the floor, amber light in the cracks
   seam: { rgb: '190,230,255', bolt: '#ffffff', rim: '#3e6294', fill: '120,170,220', edge: '#e2f0fc' }, // Sigrun: the deck heaving along the seam, cold light in the cracks
   briar: { rgb: '170,230,120', bolt: '#e4dcc4', rim: '#22301e', fill: '52,72,44', edge: '#7aa05e' }, // Ladon's Thorn Rows: necks bursting up out of the road (FB1)
+  rimrock: { rgb: '255,150,80', bolt: '#ffe8c8', rim: '#221e22', fill: '90,80,84', edge: '#ff8a4a' }, // Brenna: the rim's basalt cracking under the tooth's weight, the vent's glow in the cracks (E4b)
 };
 const STRIP = 30; // the floor strip of a low grid zap
 function drawGrid(ctx, h, now) {

@@ -88,13 +88,18 @@ island shows what's coming.
   mouth, a lamp lit on the hook (`adit` drawn open by `drawAdit`'s `open` flag); the node has `rooms` and an `entry` in the
   Ashwood. No waystone (a hard pocket). E3 done. Emberdeep's gates left: the Bearers' stair (the Rim, E4) and the balloon
   (Phase 6).
+- **Shipped (E4a, the Caldera Rim):** `docs/places/rim.md`: Slag forged new hand-chains, Ochre hung them, the fallen top
+  steps rebuilt in iron (`bearerstair` drawn open); the node has `rooms` and an `entry` in the Fields, and the door pair is
+  in `ROOMS[BRIMSTONE]` / `ROOMS[RIM]`. A waystone at the Stair Head (a heart room, like the Queen's Bridge). Brenna's den
+  (E4b) is reserved: room 62, its mouth at `BRENNA_DEN_X` (the old hoist frame); `ROOMS[RIM]` already spreads
+  `denDoors(RIM)`. Emberdeep's only gate left is the balloon (Phase 6).
 - The island map (`docs/ui/world-map.md`) reads the same list: shipped places solid with their levels,
   the rest dashed with a short `block` reason. Keep both in step: a node's `block` should match its gate.
 
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 61 after E3b's Old Foundry (60), E3a's Brimstone Fields (59), E2's Smoking Coast (56), the Hatchkeeper's den (57) and the Drained Tubes (58), E1's Ashwood (55) and Black Sands (54); 53 is the dev sandbox's Training Yard; ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, the Wolf's Hold)), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 63 after E4a's Caldera Rim (61) and the Bearer's Hoist it keeps (62, E4b), E3b's Old Foundry (60), E3a's Brimstone Fields (59), E2's Smoking Coast (56), the Hatchkeeper's den (57) and the Drained Tubes (58), E1's Ashwood (55) and Black Sands (54); 53 is the dev sandbox's Training Yard; ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, the Wolf's Hold)), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last; `onRoomPlat` helper names must be new: F2 first clashed with
   Willowmere's `onWPlat`), a `STAGES` row (`band`, `pill` if the name is long, `hard` for
@@ -150,8 +155,8 @@ Gotchas already hit:
   lifted with open looks in `OPEN` (the F3 pattern: the draw function with an `open` flag) and the Old Foundry's gate laid
   in the Ashwood (E3 unbricks it the same way). **E2 is done** (the Smoking Coast, the Hatchkeeper's den, the Drained
   Tubes: `docs/places/coast.md`, `docs/places/tubes.md`); E3a shipped the Brimstone Fields (`docs/places/brimstone.md`,
-  the Rim's gate laid there) and E3b the Old Foundry (`docs/places/foundry.md`, the adit unbricked): **E4 is next** (the
-  Caldera Rim, its gate the Bearers' stair in the Fields). Every new Emberdeep room needs its
+  the Rim's gate laid there) and E3b the Old Foundry (`docs/places/foundry.md`, the adit unbricked); E4a shipped the
+  Caldera Rim (`docs/places/rim.md`, the stair rechained): **E4b is next** (Brenna's den, room 62 at `BRENNA_DEN_X`). Every new Emberdeep room needs its
   `ISLAND_OF_STAGE` row (`'ember'`) and its waystone `isle: 'ember'`; update Ash's persona (he lists the blocks).
 - F4 gotchas: the open art for the ice stair is `drawIcestair` with an `open` flag (the F3 pattern); a party den
   with a new `wave` look needs its own mass in `fxWaveWarn` / `fxWaveGo` (`iceMass`); a staff can need a new head

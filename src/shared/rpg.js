@@ -35,7 +35,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 5150; // (the plinths need about 5060 since the mini Old Crucible (E3b): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 5300; // (the plinths need about 5190 since the mini Brenna (E4b): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -834,6 +834,40 @@ export const FOUNDRY_PLATFORMS = [
   { x: 4120, y: 340, w: 190, kind: 'cart' },
   { x: 1030, y: 166, w: 104, kind: 'pattern' }, // the Pattern, in the pattern loft over the Casting Floor: easy to miss
 ];
+// ——— Emberdeep's depth pass, E4a: the Caldera Rim (docs/places/rim.md) ———
+// The Caldera Rim (room 61, the island's heart, like Keeper's Spine and the Queen's Bridge): the volcano's rim round
+// the crater, up the Bearers' stair from the top (west) end of the Brimstone Fields (RIM_GATE_X there, its chains
+// rusted through until E4a rechained it). Wind, a turquoise crater lake far down, the column roaring up out of the
+// vent, and the Aether Citadel circling close overhead. You come in at the EAST end (RIM_EXIT_X, the stair head) and
+// go west along the rim, higher and harder: the Stair Head (no mobs: the Hoist Stone, a waystone), the Windward Lip,
+// the Glass Slopes and the High Rim, which ends at the rim's highest point and the old hoist frame there
+// (BRENNA_DEN_X: the Bearer's Hoist, the party den, room BRENNA_DEN, E4b). The Bearer's Seat, a hidden ledge over the
+// High Rim (last in RIM_PLATFORMS), is the find. No trader, no elites, no field boss: the den is the danger.
+export const RIM = 61; // room id
+export const BRENNA_DEN = 62; // the Bearer's Hoist, Brenna's den off the rim's highest point (E4b; docs/places/rim.md)
+export const RIM_W = 5600;
+export const RIM_EXIT_X = RIM_W - 70; // back down the Bearers' stair to the Brimstone Fields
+export const RIM_STONE_X = 4800; // the Hoist Stone
+export const BRENNA_DEN_X = 300; // the rim's highest point: the old hoist frame, where the Bearer's Hoist (E4b) opens
+export const RIM_ZONES = [
+  { name: 'The High Rim', x0: 0, x1: 1700, lvl: '145–150' },
+  { name: 'The Glass Slopes', x0: 1700, x1: 3200, lvl: '141–145' },
+  { name: 'The Windward Lip', x0: 3200, x1: 4500, lvl: '137–141' },
+  { name: 'The Stair Head', x0: 4500, x1: RIM_W, lvl: null }, // (no mobs)
+];
+export const RIM_PLATFORMS = [
+  { x: 760, y: 340, w: 190, kind: 'basalt' },
+  { x: 1080, y: 256, w: 170, kind: 'spur' }, // the spur under the Bearer's Seat: the way up
+  { x: 1460, y: 340, w: 190, kind: 'basalt' },
+  { x: 1880, y: 340, w: 200, kind: 'glass' },
+  { x: 2240, y: 258, w: 170, kind: 'spur' },
+  { x: 2600, y: 340, w: 200, kind: 'glass' },
+  { x: 2940, y: 262, w: 170, kind: 'spur' },
+  { x: 3380, y: 340, w: 200, kind: 'basalt' },
+  { x: 3760, y: 262, w: 180, kind: 'spur' },
+  { x: 4140, y: 340, w: 190, kind: 'basalt' },
+  { x: 1170, y: 168, w: 132, kind: 'seat' }, // the Bearer's Seat, on top of the spur's crag: easy to miss (its left half holds the tooth Brenna set down, E4b)
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -864,6 +898,7 @@ export const STAGES = {
   [TUBES]: { name: 'The Drained Tubes', zones: TUBES_ZONES, band: '115–125', hard: true, pill: 'Drained Tubes' },
   [BRIMSTONE]: { name: 'The Brimstone Fields', zones: BRIM_ZONES, band: '125–140', pill: 'Brimstone Fields' },
   [FOUNDRY]: { name: 'The Old Foundry', zones: FOUNDRY_ZONES, band: '130–145', hard: true, pill: 'Old Foundry' },
+  [RIM]: { name: 'The Caldera Rim', zones: RIM_ZONES, band: '135–150', pill: 'Caldera Rim' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -994,6 +1029,14 @@ export const MOBS = {
     // swells off him till the whole den breathes it (a pulse, `looks.pulse: 'heat'`: ember rings, a shimmer going up,
     // "HEAT"), and freezing Caldera Eruption as it wells up cancels it
     party: ['armour', 'pulse', 'interrupt'], partyLive: true, looks: { shell: 'cinder', pulse: 'heat' },
+    // E4b (story/characters/bosses.md): the master smith, mad with guilt that his tooth snapped, forging and smashing
+    // gears for ever. Freed, he tells the island's truth (Tier 3, story/canon.md) in his own words: the only place
+    // Emberdeep names the Wheel (Ash deflects, the stones only show)
+    lines: {
+      enter: ['Out of my forge! Every tooth I pour comes out wrong. Every one!', 'Come to watch the old smith fail again? Then WATCH.'],
+      phase: [null, 'I made them to last for ever. For ever! And one of mine snapped.', 'Smash it. Pour it again. Get one right and it turns. It has to turn!'],
+      freed: '...It was never my tooth. We forged every gear of the Tidewheel, and it turned the land together and apart, as it was meant to. The Keeper of Hours stopped it, to keep the land together. It jammed. Nothing I pour will turn it now.',
+    },
     drops: [['phoenix_feather', 1, 1, 2], ['magma_maul_n', 1, 1, 1], ['ember_helm_n', 0.6, 1, 1], ['coin', 1, 128500, 214200], ['mega_elixir', 1, 2, 4], ['ember_core', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.4, 1, 1], ['scroll_h10', 0.4, 1, 1], ['scroll_s30', 0.25, 1, 1], ['scroll_h30', 0.25, 1, 1], ['scroll_chaos', 0.25, 1, 1]],
   },
   pyra: {
@@ -1004,6 +1047,13 @@ export const MOBS = {
     // with sparks flying up off it) and her cinder bats come in bigger flocks (adds). No interrupt: Rebirth's egg is
     // its own answer (interruptUlt skips it)
     party: ['curse', 'adds'], partyLive: true, looks: { curse: 'ember' },
+    // E4b: the bird of the cycle, stuck burning at the threshold because the Wheel doesn't turn; freed, she says what
+    // she is for (Tier 3 in her words) and points up the column
+    lines: {
+      enter: ['Is it the turning? Is it the turning at last? Then burn with me!', 'Too soon. It is always too soon. I burn, and nothing turns.'],
+      phase: [null, 'Every turning I die, and every turning I rise. The turning does not come. I am stuck in the fire.', 'Again. AGAIN. If I rise hard enough, perhaps the Wheel turns with me!'],
+      freed: '...Not yet, then. I mark each turn of the Wheel, little ones: I die, and I rise. But it stands still, and I cannot finish. Up the column, where the city is. Only the turning sets me free.',
+    },
     drops: [['phoenix_feather', 1, 2, 3], ['phoenix_blade_n', 1, 1, 1], ['phoenix_crown_n', 0.6, 1, 1], ['coin', 1, 147900, 236700], ['mega_elixir', 1, 3, 5], ['obsidian_shard', 1, 6, 10], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.5, 1, 1], ['scroll_h10', 0.5, 1, 1], ['scroll_s30', 0.3, 1, 1], ['scroll_h30', 0.3, 1, 1], ['scroll_chaos', 0.3, 1, 1]],
   },
   // ——— the Aether Citadel ———
@@ -2101,6 +2151,66 @@ MOBS.old_crucible = {
   drops: [['coin', 1, 59500, 86000], ['crucible_scale', 1, 4, 8], ['newt_skin', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['crucible_blade', 0.25, 1, 1], ['crucible_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 
+// ——— Emberdeep's depth pass, E4a: the Caldera Rim (art: src/rim-art.js; docs/places/rim.md). On the frozen curve; no
+// elites, no field boss ———
+// Rim goats skip along the lip (harmless), pumice puffs are light grey lumps of froth that break into bits, glass
+// scorpions carry a black-glass back and claws in front, heat shimmers are the air itself gone wrong (they fade out
+// and come back hot), and crag rocs hang in the wind over the High Rim and fold up and fall
+MOBS.rim_goat = {
+  name: 'Rim Goat', lvl: 137, hp: 17650, atk: 469, exp: 10925, speed: 62, w: 56, h: 50, aggro: false, hops: true,
+  drops: [['coin', 1, 1106, 1662], ['rim_horn', 0.55, 1, 2], ['mega_elixir', 0.18, 1, 1]],
+};
+MOBS.pumice_puff = {
+  name: 'Pumice Puff', lvl: 140, hp: 18400, atk: 481, exp: 11335, speed: 45, w: 62, h: 56, aggro: true, hops: false,
+  ai: { kind: 'split', into: 'pumice_bit', n: 2 },
+  drops: [['coin', 1, 1137, 1709], ['puff_pumice', 0.5, 1, 2], ['mega_elixir', 0.18, 1, 1]],
+};
+// (a split minion: the economy sheet doesn't check these, so its EXP and gold stay small, like the pufflings)
+MOBS.pumice_bit = {
+  name: 'Pumice Bit', lvl: 138, hp: 1900, atk: 400, exp: 560, speed: 160, w: 26, h: 24, aggro: true, hops: true,
+  drops: [['coin', 1, 55, 105]],
+};
+MOBS.glass_scorpion = {
+  name: 'Glass Scorpion', lvl: 142, hp: 25060, atk: 489, exp: 11612, speed: 52, w: 74, h: 44, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.55, lunge: 540, time: 0.32 },
+  drops: [['coin', 1, 1157, 1739], ['scorpion_glass', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1], ['glassback_helm', 0.004, 1, 1]],
+};
+MOBS.heat_shimmer = {
+  name: 'Heat Shimmer', lvl: 145, hp: 19590, atk: 501, exp: 12032, speed: 72, w: 50, h: 60, aggro: true, hops: false, fly: 44,
+  ai: { kind: 'phase', every: 6.2, dur: 1.9, r: 180 },
+  drops: [['coin', 1, 1188, 1786], ['shimmer_bead', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
+};
+MOBS.crag_roc = {
+  name: 'Crag Roc', lvl: 148, hp: 19960, atk: 513, exp: 12458, speed: 115, w: 76, h: 44, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.2, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 1220, 1833], ['roc_feather', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1], ['cragbeak', 0.003, 1, 1]],
+};
+// Brenna, the Last Bearer (E4b; her den, the Bearer's Hoist, opens at the old hoist frame, BRENNA_DEN_X): Emberdeep's
+// party den boss, with a story (story/characters/bosses.md). A forge-slime, Forgewarden Ash's sister, chosen to carry
+// the last gear-tooth up the road to the city; the morning the land broke there was no road left, so she climbed to the
+// rim's highest point and has held it up to the city going over ever since, grown round it and into it, a shard in
+// the tooth. Holding on to a duty nobody can take delivery of. Her ultimate, Last Delivery, is the `wave` ult as the
+// tooth rolled end to end of the den (jump it; src/dens-rim.js toothMass); her beam the shard's light thrown off the
+// tooth's face (`looks.beam: 'tooth'`), her grid the rim rock cracking (`looks.grid: 'rimrock'`), her pulse the column's
+// ash blown over the rim (`looks.pulse: 'ash'`).
+// party (S5; PARTY above, a party den, `partyLive`): focus: she leans the tooth's weight toward one slime · barrier:
+// the tooth swung down in front of her (`barrierFront`, like Sigrun's shield: flank her) · pulse: the ash · weakpoint:
+// the buckle where the straps cross on her back (`weak.back`: only a hit from BEHIND her finds it, the other way round
+// from Sigrun's) · adds: crag rocs off the hoist frame · interrupt: freeze Last Delivery as she heaves the tooth up
+MOBS.brenna = {
+  name: 'Brenna, the Last Bearer', boss: true, lvl: 149, hp: 44500000, atk: 580, exp: 2400000, speed: 70, w: 160, h: 196, aggro: true, hops: false,
+  phases: [['slam', 'charge', 'rain'], ['slam', 'charge', 'beam', 'rain', 'summon', 'grid'], ['grid', 'beam', 'geysers', 'slam', 'summon', 'barrage', 'leap', 'charge']],
+  ult: { name: 'Last Delivery', kind: 'wave' }, minion: 'crag_roc', looks: { beam: 'tooth', grid: 'rimrock', dome: 'ember', pulse: 'ash' }, // (how they're drawn: src/hazards.js, src/party.js)
+  party: ['focus', 'barrier', 'pulse', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, top: true, barrierFront: true, weak: { dx: -0.4, dy: -0.36, r: 20, back: true },
+  lines: {
+    shield: 'Not on the ground. It never touches the ground. Not once, not in all this time.', // (the first barrier of a fight)
+    enter: ['Is it time? Has someone come for it?', 'Is it you? Did they send you up the road for it? Is it time?'],
+    phase: [null, 'No. You came for it, but you are not the ones it goes to. Not yet.', 'Not yet. Not yet. Not yet.'],
+    freed: '...Nobody is coming down for it. Then I can put it down. There. Tell my brother I carried it as far as there was road.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['bearer_blade', 1, 1, 1], ['bearer_helm', 0.6, 1, 1], ['coin', 1, 1640000, 2550000], ['mega_elixir', 1, 4, 6], ['bearer_strap', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -2214,7 +2324,7 @@ export const weakReach = (spot, y, arrow, slack = 0) => arrow || Math.abs(y - 20
 // lone slime has to dodge round her and hit before she turns.
 export const inFront = (bx, dir, fromX) => Math.sign(fromX - bx) === dir;
 export const barrierCovers = (k, bx, dir, fromX) => !k.barrierFront || inFront(bx, dir, fromX);
-export const weakFaces = (k, bx, dir, fromX) => !k.weak?.front || inFront(bx, dir, fromX);
+export const weakFaces = (k, bx, dir, fromX) => (k.weak?.back ? !inFront(bx, dir, fromX) : !k.weak?.front || inFront(bx, dir, fromX)); // (E4b: `weak.back`, Brenna's straps: only from behind)
 export const BARRIER_TURN_S = 1.2;
 // adds (S5.3): a boss with `adds` switched on summons ADDS_PER_FIGHTER more minions a wave for every slime
 // fighting it past the first (rounded), and lets one more stand at once for each, up to ADDS_MAX (alone: a wave
@@ -2292,6 +2402,7 @@ const onCoPlat = onRoomPlat(COAST_PLATFORMS, COAST);
 const onTuPlat = onRoomPlat(TUBES_PLATFORMS, TUBES);
 const onFoPlat = onRoomPlat(FOUNDRY_PLATFORMS, FOUNDRY);
 const onBfPlat = onRoomPlat(BRIM_PLATFORMS, BRIMSTONE);
+const onRmPlat = onRoomPlat(RIM_PLATFORMS, RIM);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -2701,6 +2812,24 @@ export const SPAWNS = [
   ...onFoPlat('soot_hound', 1, 1), // (the bellows toads stay on the floor: their blast runs along it)
   { kind: 'hound_elite', x0: 300, x1: 1500, y: FIELD_GROUND, room: FOUNDRY },
   { kind: 'old_crucible', x0: 400, x1: 1200, y: FIELD_GROUND, room: FOUNDRY },
+  // Emberdeep's depth pass, E4a: the Caldera Rim, entered from the east (the Stair Head has none; nothing by the hoist
+  // frame at BRENNA_DEN_X, where E4b's den opens)
+  ...strip('rim_goat', 3250, 4400, FIELD_GROUND, 4, RIM),
+  ...onRmPlat('rim_goat', 7, 1),
+  ...onRmPlat('rim_goat', 9, 1),
+  ...strip('pumice_puff', 3250, 4400, FIELD_GROUND, 3, RIM),
+  ...onRmPlat('pumice_puff', 8, 1),
+  ...strip('glass_scorpion', 1750, 3150, FIELD_GROUND, 3, RIM),
+  ...strip('heat_shimmer', 1750, 3150, FIELD_GROUND, 3, RIM),
+  ...onRmPlat('glass_scorpion', 3, 1),
+  ...onRmPlat('heat_shimmer', 4, 1),
+  ...onRmPlat('glass_scorpion', 5, 1),
+  ...onRmPlat('heat_shimmer', 6, 1),
+  ...strip('crag_roc', 650, 1650, FIELD_GROUND, 3, RIM),
+  ...strip('heat_shimmer', 650, 1650, FIELD_GROUND, 2, RIM),
+  ...strip('glass_scorpion', 650, 1650, FIELD_GROUND, 1, RIM),
+  ...onRmPlat('crag_roc', 2, 1),
+  ...onRmPlat('heat_shimmer', 1, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -2727,6 +2856,7 @@ export const DENS = [
   { room: 43, boss: 'sigrun', name: 'The Seam', from: QBRIDGE, entranceX: SIGRUN_DEN_X, theme: 'oath' }, // (art: src/dens-qbridge.js)
   { room: LADON_DEN, boss: 'ladon', name: 'The Root of the Road', from: ROADSEND, fromName: "the Road's End", entranceX: LADON_DEN_X, theme: 'hydra', platforms: LADON_PLATFORMS, final: true }, // (art: src/dens-ladon.js; the door's art: src/roadsend.js)
   { room: HATCH_DEN, boss: 'hatchkeeper', name: 'The Buried Clutch', from: COAST, entranceX: HATCH_DEN_X, theme: 'hatch' }, // (E2; art: src/dens-hatch.js)
+  { room: BRENNA_DEN, boss: 'brenna', name: "The Bearer's Hoist", from: RIM, entranceX: BRENNA_DEN_X, theme: 'hoist' }, // (E4b; art: src/dens-rim.js)
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
 ];
 export const DEN_EXIT_X = 80;
@@ -3068,6 +3198,18 @@ export const ITEMS = {
   sootfang: { name: 'Sootfang', price: 896000, lvl: 139, kind: 'sword', atk: 198, reach: 60, desc: 'A short black iron blade with a hooked tip like a hound\'s tooth, sooty however often you wipe it. It comes in low and fast.' },
   crucible_blade: { name: 'Crucible Blade', price: 1004000, lvl: 147, kind: 'sword', atk: 205, reach: 66, desc: "A long iron blade poured in one go from the pit Old Crucible keeps hot, a salamander's tail curled round its guard. Forged for a wheel that never got it." },
   crucible_helm: { name: 'Crucible Helm', price: 762000, lvl: 147, kind: 'helmet', def: 100, desc: 'A heavy iron helm crusted with cooled slag, cracked to show a glow underneath, a salamander\'s crest down the back.' },
+  // Emberdeep's depth pass E4a: the Caldera Rim (docs/places/rim.md)
+  rim_horn: { name: 'Rim Goat Horn', price: 1310, kind: 'loot', desc: "A ridged black horn curled once round, the tip worn blunt on rock. The wind up there whistles through the hollow end." },
+  puff_pumice: { name: 'Puff Pumice', price: 1345, kind: 'loot', desc: 'A lump of grey froth gone hard, so light it floats. It was part of a pumice puff a moment ago.' },
+  scorpion_glass: { name: 'Scorpion Glass', price: 1370, kind: 'loot', desc: "A plate of black glass off a glass scorpion's back, sharp along one edge. Hold it up and the crater shows in it, small." },
+  shimmer_bead: { name: 'Shimmer Bead', price: 1405, kind: 'loot', desc: 'A bead of clear glass that forms where a heat shimmer hung too long, still too hot to hold for more than a breath.' },
+  roc_feather: { name: 'Crag Roc Feather', price: 1445, kind: 'loot', desc: "A great dark flight feather, its shaft as thick as your finger, grey with the rim's dust. The wind tugs at it even indoors." },
+  glassback_helm: { name: 'Glassback Helm', price: 700000, lvl: 141, kind: 'helmet', def: 97, desc: "An iron helm plated in a glass scorpion's black scutes, a curled sting for a crest. Forged for a wheel that never got it." },
+  cragbeak: { name: 'Cragbeak', price: 990000, lvl: 146, kind: 'sword', atk: 204, reach: 64, desc: "A heavy black-iron blade hooked at the end like a roc's beak, its edge chipped where it hit rock. It comes down out of the wind." },
+  // E4b: Brenna's (the Bearer's Hoist, docs/places/rim.md): a step over the Rim's mob gear
+  bearer_strap: { name: "Bearer's Strap", price: 1520, kind: 'loot', desc: 'A length of the old carrying strap, leather gone hard as iron, worn shiny on one side where it lay over a shoulder for longer than anyone has been alive.' },
+  bearer_blade: { name: "Bearer's Edge", price: 1060000, lvl: 151, slots: 10, kind: 'sword', atk: 209, reach: 66, desc: 'A long straight blade of dark forge iron with a notch cut in its spine the shape of a gear-tooth. It is heavier than it looks, and it does not mind.' },
+  bearer_helm: { name: "Bearer's Cap", price: 805000, lvl: 151, slots: 10, kind: 'helmet', def: 103, desc: 'A plain round cap of dark iron, buckled under the chin, its crown worn flat and bright where something very heavy rested on it.' },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
   // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen
@@ -3178,6 +3320,8 @@ export const ITEMS = {
   pinion_staff: { name: 'Pinion Staff', price: 935000, lvl: 142, kind: 'staff', magic: 201, mp: 121, reach: 66, twin: 'condor_pinion', desc: 'A long iron staff with a fan of slag-iron feathers at its head, singed at the tips. A hot wind follows its bolts.' },
   sootfang_staff: { name: 'Sootfang Staff', price: 896000, lvl: 139, kind: 'staff', magic: 198, mp: 119, reach: 60, twin: 'sootfang', desc: "A black iron rod with a hound's fang at its head, soot smoking off it. Its bolts run low and fast." },
   crucible_staff: { name: 'Crucible Staff', price: 1004000, lvl: 147, kind: 'staff', magic: 205, mp: 123, reach: 66, twin: 'crucible_blade', desc: 'A long iron staff with a little crucible at its head, a bead of molten metal glowing in it that never spills.' },
+  cragbeak_staff: { name: 'Cragbeak Staff', price: 990000, lvl: 146, kind: 'staff', magic: 204, mp: 122, reach: 64, twin: 'cragbeak', desc: "A long iron staff with a roc's hooked beak at its head, a bead of shimmer glass in its jaw. Its bolts fall like the bird does." },
+  bearer_staff: { name: "Bearer's Staff", price: 1060000, lvl: 151, slots: 10, kind: 'staff', magic: 209, mp: 125, reach: 66, twin: 'bearer_blade', desc: 'An iron staff with a little toothed block lashed to its head by a strap, a shard of light caught in it. It has to be carried upright.' },
   gatehound_staff: { name: 'Gatehound Staff', price: 430000, lvl: 97, kind: 'staff', magic: 154, mp: 92, reach: 60, twin: 'gatehound_fang', desc: 'A rod of black ice with a hound\'s fang at its head and a link of old chain round the grip. Its bolts come out howling, very far off.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Weapon Scroll 100%', price: 300, kind: 'scroll', slot: 'weapon', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a weapon (a staff gets them the other way round).' },
@@ -3250,6 +3394,8 @@ const BOW_LIST = [
   ['condor_bow', 'condor_pinion', 'Condor Bow', 'A great bow of slag iron with condor quills fletched along both limbs. It is wide as the bird, and as patient.'],
   ['sootfang_bow', 'sootfang', 'Sootfang Bow', 'A short black bow of sooty iron with a fang at each tip. Its arrows fly low, like a hound running.'],
   ['crucible_bow', 'crucible_blade', 'Crucible Bow', "Two cast-iron limbs off one mould, a salamander's tail curling round the grip. It's warm to draw, and warmer after."],
+  ['cragbeak_bow', 'cragbeak', 'Cragbeak Bow', "A great black-iron bow with a roc's flight feathers bound along both limbs, a hooked beak at each tip. Draw it into the wind."],
+  ['bearer_bow', 'bearer_blade', "Bearer's Bow", 'Two old carrying straps of iron-hard leather, bent and riveted, a buckle at the grip. Draw it and it creaks like something taking a weight.'],
   ['spring_bow', 'slag_maul', 'Ironspring Bow', 'Two leaf-springs off an old forge bellows, riveted together and strung with wire. Forged for a wheel that never got it.'],
 ];
 for (const [id, twin, name, desc] of BOW_LIST) {

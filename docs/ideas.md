@@ -77,6 +77,17 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   rush (maybe too mean together on the Casting Floor), Old Crucible's `molten` lobs and `curse` with a party, reading
   the tally board with mobs about, the dark hall on a phone. The mini Old Crucible is its art shrunk. No gate is laid
   yet for Emberdeep's final boss (E5: past the Foundry or the Tubes, `story/final-bosses.md`).
+- E4a's Caldera Rim is untested in play (no bot tests): the jump from the spur up to the Bearer's Seat, the crag rocs'
+  `dive` with heat shimmers about on the High Rim (maybe too mean together), the pumice bits in a crowd, how big the
+  Citadel looks crossing the sky (and whether its few-minute loop reads as circling), the crater and column behind the
+  path on a phone. (E4b drew the den's cleft in front of the old hoist frame; whether they read well together is untested.)
+- E4b's Brenna is untested in play: whether a party finds the buckle on her back (`weak.back`, the first weak point
+  that only opens from behind) without a hint, the tooth-down front wall on a phone, Last Delivery's tooth as a thing
+  to jump (its tumbling is drawn to the shared wave's 66 px), the crag roc adds in a den, her freed animation over her
+  fading sprite, the tooth on the Seat's left half (drawn only: you can stand "in" it) and the readable name on the
+  memorial wall at its small size. On the sheet a lone Archer faints at 16:48 when a pulse, the ultimate and a hit
+  land in the same half second (both branches, at any ATK tried); Sigrun's and the Colossus's Archers survive it. If
+  players find her unsoloable as an Archer, look there. The mini Brenna is her art shrunk, tooth and all.
 - Getting home is two sailings: if it annoys people, a direct Forgehold to Greenhollow sailing waits for
   the "routes reconnect" idea in `story/world/geography.md`.
 

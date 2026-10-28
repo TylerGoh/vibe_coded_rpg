@@ -83,6 +83,9 @@ export const BOWS = {
   sootfang_bow: { len: 30, wood: ['#3a3436', '#1a1618'], w: 3.2, tip: 'fang', c: '#d8d0c8', grip: '#4a3a34', gem: '#ff5a40', string: '#c8b8a8', glow: '255,100,80', curve: 0.44 },
   crucible_bow: { len: 33, wood: ['#5a5460', '#2e2a32'], w: 4, tip: 'rivet', c: '#e8701e', grip: '#1e1618', gem: '#ffb040', string: '#c8b8a8', glow: '255,150,60', curve: 0.38 },
   bellower_bow: { len: 31, wood: ['#5a5058', '#2e2830'], w: 3.8, tip: 'rivet', c: '#a8a0a8', grip: '#3a3038', gem: '#ffb46a', string: '#c8b8a8', glow: '255,170,110', curve: 0.36 },
+  // the Caldera Rim (E4a, docs/places/rim.md)
+  cragbeak_bow: { len: 34, wood: ['#3a3438', '#1c181e'], w: 4, tip: 'feather', c: '#4a4248', c2: '#c8c0b8', grip: '#5a4a40', gem: '#c8d0f0', string: '#c8bca8', glow: '230,236,255', curve: 0.38 },
+  bearer_bow: { len: 34, wood: ['#5a4234', '#2e2018'], w: 4.4, tip: 'rivet', c: '#6e6870', grip: '#34303a', gem: '#e8f2ff', string: '#c8bca8', glow: '214,232,255', curve: 0.38 }, // (Brenna's, E4b: two old carrying straps, riveted, a buckle at the grip)
 };
 export const BOW_LEN = Object.fromEntries(Object.entries(BOWS).map(([id, b]) => [id, b.len]));
 export const bowTint = (id) => BOWS[artOf(id)]?.glow ?? '240,230,200';

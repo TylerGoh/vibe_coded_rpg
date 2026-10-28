@@ -56,6 +56,19 @@ one shared corner feed).
   E3b (the Old Foundry, `docs/places/foundry.md`) took the adit off Ash's shut ways: he had the bricks taken down
   ("Someone ought to see it. It isn't going to be me."), lists what's down there, and won't say why it was shut or
   talk about the tally board; Pitch helped stack the bricks and hung a lamp on the hook, and hasn't been in.
+  E4a (the Caldera Rim, `docs/places/rim.md`) took the Bearers' stair off the shut list: Slag forged the new chains (Ash
+  let him and watched without a word; Slag wants to see the Citadel close), Ochre hung them; Ash lists the Rim's dangers,
+  won't go up or say why, and told Ochre to leave alone what stands by the old hoist; Soot doesn't ask Ash about the
+  rim. Nobody named Brenna's shape or the tooth until E4b.
+  E4b (Brenna's den, the Bearer's Hoist): Ochre saw what stood by the hoist (a forge-slime, Ash's shape, a tooth held
+  up at the city) and told Ash; later she told him the tooth was set down on the flat crag (the Bearer's Seat) and
+  nobody stood by the hoist, and **Ash carved his sister's name on the memorial wall himself that night** (Soot sat
+  up with him; the mint sprig is his), matching `drawMemorial` (`docs/places/forgehold.md`). Ash still won't go up,
+  tells people to go as four, thanks a traveller who freed her in as few words as he can and only asks what she said
+  if they bring it up; "My sister. She put it down." is his first answer about the name; he never says what the tooth
+  was for. Soot let him win at stones that night; Slag sharpened the chisel and wants to see the finished tooth on the
+  rim; Ochre has seen something standing by the hoist again some days since (the den respawns) and doesn't go close.
+  Ignis and Pyra are den bosses, not personas: their E4b `lines` are in `docs/combat/bosses.md`.
   **Liv** (`liv`, E2, `docs/places/coast.md`): Eyvind's daughter, fjord folk thinned nearly clear (`folk:
   'thinned'`); cuts black glass, one clean stroke. Plain and quiet like her father, warmer underneath. Tier 0 plus the
   Coast, the old tube (it drained, as she said; she went as far as the first skylight and came out: too far from the
@@ -70,7 +83,9 @@ one shared corner feed).
   **Picker Ochre** (`ochre`, E3a, `docs/places/brimstone.md`): forge folk; carries sulphur down to the forges on a
   yoke, lost her sense of smell, goes by her canary Saffron, sings to the vents; the plainest-spoken person on the
   island. Tier 0 plus the Fields, the Condor, the Bearers' stair (she doesn't know who the Bearers were), the
-  Breathing Stone and Forgehold's people; hints at the Organ.
+  Breathing Stone and Forgehold's people; hints at the Organ. Since E4a she hung the stair's new chains, knows the
+  Caldera Rim's mobs, hints at the Bearer's Seat, and went close enough to the old hoist to see something standing
+  still, and came back.
 - **Elder Mochi tends the Rebirth Pool** (S2.3, `docs/combat/skills.md`): he knows what it does, that the
   first choice is free and later changes cost about an hour's gold at your level, and only Warrior, Mage,
   Cleric and Archer (the Cleric added with S3, the Archer with S4, pointing archers at Ranger Acorn; add each

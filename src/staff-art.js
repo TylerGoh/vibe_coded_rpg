@@ -84,6 +84,9 @@ export const STAFFS = {
   // the Old Foundry (E3b, docs/places/foundry.md)
   sootfang_staff: { len: 64, shaft: ['#3a3436', '#1a1618'], w: 2.8, head: 'crystal', gem: '#1e1a1c', gem2: '#ff5a40', glow: '255,100,80' }, // (a hound's fang, smoking)
   crucible_staff: { len: 70, shaft: ['#5a5460', '#2e2a32'], w: 3.2, head: 'ember', gem: '#2a2426', gem2: '#ffb040', glow: '255,150,60' }, // (Old Crucible's: a little crucible of molten metal)
+  // the Caldera Rim (E4a, docs/places/rim.md)
+  cragbeak_staff: { len: 68, shaft: ['#3a3438', '#1c181e'], w: 3, head: 'feather', gem: '#2a2428', gem2: '#6a6a84', glow: '230,236,255' }, // (a roc's beak, a shimmer bead in its jaw)
+  bearer_staff: { len: 70, shaft: ['#5a4a40', '#2e2420'], w: 3.2, head: 'gear', gem: '#6e6870', gem2: '#e8f2ff', glow: '214,232,255' }, // (Brenna's, E4b: a little toothed block strapped on, a shard of light in it)
 };
 export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));
 export const staffGlow = (id) => STAFFS[artOf(id)]?.glow ?? '190,200,255';

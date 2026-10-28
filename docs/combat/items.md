@@ -150,7 +150,12 @@ staff and a bow twin, so `twinPick` can give each class its own kind (checked by
   Helm** (Lv 142, a step over) (`docs/places/brimstone.md`). E3b's Old Foundry (no trader) drops, from
   `src/foundry-art.js` (`FOUNDRY_*`), the Scrap-Iron Helm and Sootfang / Sootfang Staff / Sootfang Bow at their mobs'
   levels, and Old Crucible's **Crucible Blade** / **Crucible Staff** / **Crucible Bow** and **Crucible Helm** (Lv 147, a
-  step over) (`docs/places/foundry.md`).
+  step over) (`docs/places/foundry.md`). E4a's Caldera Rim (no trader, no field boss) drops, from `src/rim-art.js`
+  (`RIM_*`), the Glassback Helm (Lv 141) and Cragbeak / Cragbeak Staff / Cragbeak Bow (Lv 146), a little under the
+  band's top (`docs/places/rim.md`). E4b's Brenna drops the **Bearer's Edge** / **Bearer's Staff** / **Bearer's Bow**
+  (one of the three by class, `twinPick`) and the **Bearer's Cap** (Lv 151, a step over, 10 slots like the Colossus's;
+  the sword and cap in `src/rim-art.js`, the staff and bow rows in `src/staff-art.js` / `src/bow-art.js`), and the
+  Bearer's Strap (material).
   Emberdeep's gear names: basalt, black glass, iron, slag,
   charcoal, sulphur, ember, never ice, fur, shell or leaf.
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an

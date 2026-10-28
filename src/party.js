@@ -291,6 +291,7 @@ const PULSES = {
   breath: { ring: '62,128,186', glow: '170,214,240', hit: '84,150,206', word: 'BREATH', fill: '#f2faff', edge: 'rgba(24,44,70,0.8)', foam: true, plume: true },
   thorn: { ring: '120,190,80', glow: '170,230,120', hit: '96,160,60', word: 'BREATH', fill: '#eaffd8', edge: 'rgba(24,40,16,0.82)' }, // Ladon's green hiss of thorn dust (FB1)
   howl: { ring: '190,214,250', glow: '220,234,255', hit: '160,190,240', word: 'HOWL', fill: '#f4f8ff', edge: 'rgba(16,24,48,0.85)' }, // Fenrir's Howl (FB2)
+  ash: { ring: '176,168,166', glow: '214,206,200', hit: '150,140,138', word: 'ASH', fill: '#f4eeea', edge: 'rgba(40,30,30,0.85)', foam: true }, // Brenna's den: the column's ash blown over the rim (E4b)
 };
 function drawPulseWarn(ctx, x, y, kind, reach, k, t, left) {
   if (k > 1) return;
@@ -572,7 +573,7 @@ const SHELLS = {
 // S5.4: Glacia's (`queen`): ice blue, deep enough to read in her white throne room, snowflakes turning round it; the Astral Wyrm's (`star`): starlight, violet with
 // little gold stars for runes; Chronos's (`hours`): a dome of wound-up hours, gold, an hour mark for every rune and a
 // clock hand sweeping round inside it
-const DOMES = { fetter: ['226,236,255', '255,255,255', '240,246,255'], hours: ['255,200,100', '255,226,150', '255,240,200'], rose: ['250,244,240', '255,255,255', '246,226,236'], keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'] };
+const DOMES = { fetter: ['226,236,255', '255,255,255', '240,246,255'], hours: ['255,200,100', '255,226,150', '255,240,200'], rose: ['250,244,240', '255,255,255', '246,226,236'], keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'], ember: ['255,150,90', '255,206,150', '255,230,200'] }; // (ember: Brenna's, the tooth swung down in front of her, E4b)
 function drawShield(ctx, v, k, sh, t) {
   const fade = Math.max(0, Math.min(1, 1 - (sh.from - t) / 1.5)), end = Math.min(1, (sh.until - t) / 0.6);
   const a = fade * end, cx = v.x, cy = v.y - k.h * 0.5, rx = k.w * 0.72, ry = k.h * 0.68;
