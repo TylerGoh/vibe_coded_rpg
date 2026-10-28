@@ -236,6 +236,8 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | The Bellower (field, 100; E1) | armour, focus | Ignis's basalt plates with a glowing seam (`looks.shell: 'cinder'`): the black sand on its back baked hard |
 | The Hatchkeeper (den, 115; E2) | weakpoint (the shard under her crest), pulse (the nest's heat), interrupt | the S5.2 crystal over her neck; Ignis's ember rings, "HEAT" (`looks.pulse: 'heat'`) |
 | Hundredfoot (field, 125; E2) | armour, pulse (the heat) | Ignis's basalt plates (`looks.shell: 'cinder'`): its clinker closing up; Ignis's ember rings, "HEAT" (`looks.pulse: 'heat'`) |
+| The Brimstone Condor (field, 140; E3a) | focus, pulse (a gust of fumes) | the Colossus's steam rings (`looks.pulse: 'steam'`): its wingbeats whipping up the fumes |
+| Old Crucible (field, 145; E3b) | armour, curse (smouldering) | Ignis's basalt plates (`looks.shell: 'cinder'`): the slag on its skin setting; Pyra's charred sigil (`looks.curse: 'ember'`): its splashes of metal |
 | Greyback (field, 130; E1) | focus, curse (smouldering) | Pyra's charred sigil (`looks.curse: 'ember'`): his burning logs leave you smouldering |
 | Chronos, Keeper of Hours (den, `top`, 170) | barrier, curse (borrowed time), interrupt | a gold dome with hour marks and two clock hands turning inside (`looks.dome: 'hours'`); a dial of gold light on the floor, its hand sweeping round (`looks.curse: 'hours'`) |
 - **Swaps and additions:** Pyra has no `interrupt` (Rebirth's egg is its own answer; `interruptUlt` skips it). The

@@ -68,7 +68,8 @@ No quests, no hard level gates.
          `docs/places/ashwood.md`, `blacksands.md`). Next: **the owner plays** them.
    - [x] E2: the Smoking Coast and the Drained Tubes (hard), the Hatchkeeper, Liv (2026-10-28; rooms 56, 57 and 58,
          `docs/places/coast.md`, `tubes.md`). Next: **the owner plays** them.
-   - [ ] E3: the Brimstone Fields and the Old Foundry (hard)
+   - [x] E3: the Brimstone Fields and the Old Foundry (hard), the Brimstone Condor, Old Crucible, Picker Ochre (2026-10-28;
+         rooms 59 and 60, `docs/places/brimstone.md`, `foundry.md`). Next: **the owner plays** them.
    - [ ] E4: the Caldera Rim and Brenna, Emberdeep's party den; Ignis's and Pyra's lines
 7. **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase.
 

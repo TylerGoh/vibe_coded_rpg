@@ -75,6 +75,13 @@ export const BOWS = {
   adderglass_bow: { len: 30, wood: ['#2a2430', '#141018'], w: 3.2, tip: 'fang', c: '#1e1a22', grip: '#6a3a30', gem: '#ff6a4a', string: '#d8c8b8', glow: '255,120,90', curve: 0.44 },
   hundred_bow: { len: 32, wood: ['#3e383e', '#1c181e'], w: 4, tip: 'rivet', c: '#5a5258', grip: '#7a4a30', gem: '#ff8a3a', string: '#c8b8a8', glow: '255,140,70', curve: 0.4 },
   greyback_bow: { len: 32, wood: ['#3a3236', '#1a1618'], w: 4, tip: 'fang', c: '#2a2426', grip: '#7a7478', gem: '#ffa050', string: '#c8b8a8', glow: '255,160,90', curve: 0.38 },
+  // the Brimstone Fields (E3a, docs/places/brimstone.md)
+  picker_bow: { len: 30, wood: ['#8a8490', '#4e4a56'], w: 3.2, tip: 'rivet', c: '#6a5a40', grip: '#8a6a48', gem: '#ffe060', string: '#e8dcb8', glow: '255,230,110' }, // (two basket hoops)
+  kitetalon_bow: { len: 30, wood: ['#9a8a5a', '#5a4e30'], w: 3.2, tip: 'fang', c: '#2a2426', grip: '#6a4a30', gem: '#ffd040', string: '#d8ccb0', glow: '255,220,100', curve: 0.46 },
+  condor_bow: { len: 34, wood: ['#4a4448', '#24202a'], w: 4, tip: 'feather', c: '#7a7278', c2: '#c8c0b8', grip: '#6a5a48', gem: '#ffd060', string: '#c8bca8', glow: '255,214,120', curve: 0.36 },
+  // the Old Foundry (E3b, docs/places/foundry.md)
+  sootfang_bow: { len: 30, wood: ['#3a3436', '#1a1618'], w: 3.2, tip: 'fang', c: '#d8d0c8', grip: '#4a3a34', gem: '#ff5a40', string: '#c8b8a8', glow: '255,100,80', curve: 0.44 },
+  crucible_bow: { len: 33, wood: ['#5a5460', '#2e2a32'], w: 4, tip: 'rivet', c: '#e8701e', grip: '#1e1618', gem: '#ffb040', string: '#c8b8a8', glow: '255,150,60', curve: 0.38 },
   bellower_bow: { len: 31, wood: ['#5a5058', '#2e2830'], w: 3.8, tip: 'rivet', c: '#a8a0a8', grip: '#3a3038', gem: '#ffb46a', string: '#c8b8a8', glow: '255,170,110', curve: 0.36 },
 };
 export const BOW_LEN = Object.fromEntries(Object.entries(BOWS).map(([id, b]) => [id, b.len]));

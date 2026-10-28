@@ -44,15 +44,19 @@ personas in `server/characters.js`, the `forgehold` music scene in `src/audio.js
   space; he gives that slowly ("It's spoken for." the first time). Keep his mob list in step with Emberdeep's
   (E1: the Black Sands and the Ashwood are open in it; of the Old Foundry's bricked-up adit he says only that the
   forge folk bricked it themselves and it stays bricked: `docs/places/ashwood.md`; E2: the Smoking Coast is open,
-  its old tube's steam is the shut way, and he says Liv's edges are better than his: `docs/places/coast.md`).
+  its old tube's steam is the shut way, and he says Liv's edges are better than his: `docs/places/coast.md`; E3a: the
+  Brimstone Fields are open (he likes Picker Ochre, who carries his sulphur), and he won't go near the Bearers' stair
+  at their top or say why: `docs/places/brimstone.md`; E3b: he had the adit's bricks taken down himself, lists the
+  Old Foundry's dangers and won't say why it was shut: `docs/places/foundry.md`; the balloon stays in his shut-ways list).
 - **Auntie Soot** (`soot`, `shop: 'soot'`): the springs, the one kind voice. Sells the basic potions and her
   **Spring-Boiled Egg** (`spring_egg`, a plain heal). Holds Arne's sack of letters for "the northern girl out
   on the coast"; since E2 (`docs/places/coast.md`) she has met Liv, passes letters both ways for her and the
-  Lodestar, and knitted her the thinnest scarf she could spin.
+  Lodestar, and knitted her the thinnest scarf she could spin. Makes Picker Ochre (E3a) sit in the springs till the
+  yellow comes off.
 - **Slag** (`slag`, `shop: 'slag'`, lively): Ash's apprentice; sells the basic potions and the island's first
   gear tier, aimed at its start: the **Slag Maul**, its staff twin the **Bellows Rod**, and the **Smith's Iron
   Cap** (`docs/combat/items.md`, `docs/economy.md`). Never seen snow; afraid of the sea. Laid the Black Sands' stones
-  and riveted the Ashwood bridge's new plates (E1); pegged the Coast gully's hand-chain and asks Liv about snow (E2).
+  and riveted the Ashwood bridge's new plates (E1); pegged the Coast gully's hand-chain and asks Liv about snow (E2); asked Picker Ochre what the vents smell like (E3a).
 - **Their look** (the forge folk): `folk: 'forge'` makes `Slime.setFolk` paint them dark and dense with ember
   flecks and a warm glow low down (`FORGE_PALETTE`, `drawForgeFolk`), with the same stiff wobble as the
   fjord folk (`lively` still bounces). Mid-dark, not black, so the face reads. Their clothes are the

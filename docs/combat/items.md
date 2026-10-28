@@ -143,7 +143,14 @@ staff and a bow twin, so `twinPick` can give each class its own kind (checked by
   her Hatchling Eggshells (`docs/places/coast.md`). E2's Drained Tubes (no trader) drop, from `src/tubes-art.js`
   (`TUBES_*`), the Clinker Helm and Adderglass / Adderglass Staff / Adderglass Bow at their mobs' levels, and
   Hundredfoot's **Hundredfoot Saw** / **Hundredfoot Staff** / **Hundredfoot Bow** and **Hundredfoot Helm** (Lv 127, a
-  step over) (`docs/places/tubes.md`).
+  step over) (`docs/places/tubes.md`). E3a's Brimstone Fields add **Picker Ochre** (`SHOPS.ochre`: the basic potions,
+  the **Brimstone Pick** with its **Picker's Staff** and **Picker's Bow**, and the **Picker's Fume Mask**, aimed at Lv
+  135) and, from `src/brimstone-art.js` (`BRIM_*`), the Fumarole Helm and Kitetalon / Kitetalon Staff / Kitetalon Bow
+  at their mobs' levels, and the Brimstone Condor's **Condor Pinion** / **Pinion Staff** / **Condor Bow** and **Condor
+  Helm** (Lv 142, a step over) (`docs/places/brimstone.md`). E3b's Old Foundry (no trader) drops, from
+  `src/foundry-art.js` (`FOUNDRY_*`), the Scrap-Iron Helm and Sootfang / Sootfang Staff / Sootfang Bow at their mobs'
+  levels, and Old Crucible's **Crucible Blade** / **Crucible Staff** / **Crucible Bow** and **Crucible Helm** (Lv 147, a
+  step over) (`docs/places/foundry.md`).
   Emberdeep's gear names: basalt, black glass, iron, slag,
   charcoal, sulphur, ember, never ice, fur, shell or leaf.
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an

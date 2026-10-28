@@ -1,4 +1,4 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md, docs/places/blacksands.md, docs/places/ashwood.md, docs/places/coast.md
+// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md, docs/places/blacksands.md, docs/places/ashwood.md, docs/places/coast.md, docs/places/brimstone.md, docs/places/foundry.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
@@ -9,13 +9,14 @@
 // Queen's Bridge, which may say a little more: Frostpeak's tier is canon Tier 2; on Emberdeep, the Turning Stone on
 // the Black Sands' beach path, which shows its tier without naming anything: a dial, islands, going round, and the Kiln Stone in
 // the Ashwood's clearing: trees, fire, iron, a toothed wheel, and the Landing Stone on the Smoking Coast's Glass Beach: a
-// loading quay, gear-teeth on barges, a tally with its last mark half cut). Wreck Cave has the one reading here that isn't a stone: the
-// wrecked ship's logbook (`wing` and `when` change the card's header lines). The text opens
+// loading quay, gear-teeth on barges, a tally with its last mark half cut, and the Breathing Stone in the Brimstone Fields'
+// camp: the mountain breathing in and out, and the islands coming close and drifting off with it). Wreck Cave has a reading here that isn't a stone: the
+// wrecked ship's logbook; the Old Foundry's tally board is the other (`wing` and `when` change the card's header lines). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X, COAST, COAST_STONE_X } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X, COAST, COAST_STONE_X, BRIMSTONE, BRIM_STONE_X, FOUNDRY, FOUNDRY_TALLY_X } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -135,6 +136,24 @@ export const RUIN_STONES = [
     legible: ['...LOADED. LOADED. LOADED...', 'Down the side runs a tally: rows of short strokes, five and five and five. The last stroke is only half cut, as if the hand stopped in the middle of it.', 'The last barge in the line has no teeth on it.'],
     note: 'A rope of plaited black fibre is tied round the stone, newer than anything else on the beach, and a small iron ring hangs off it. Someone moors something here.',
   },
+  {
+    room: BRIMSTONE, place: 'the Brimstone Fields', x: BRIM_STONE_X, shape: 'breathing', name: 'the Breathing Stone', title: 'The Breathing Stone',
+    look: 'A tall Keeper stone crusted yellow at its foot, where a thin thread of fume comes out of the ground beside it. Its face is carved twice. On the left, a mountain with lines drawn going into its peak, and islands close round it, nearly touching. On the right, the same mountain with the lines coming out, and the islands pushed far off, small, with waves between.',
+    legible: ['...IN... AND OUT... AND IN...', 'Between the two mountains a little gear is cut, with an arrow going round it, from the right-hand picture back to the left.', 'Lower down, the left-hand picture is carved again, deeper than the rest, as if it was gone over many times.'],
+    note: 'Someone has worn a smooth patch on the ground in front of it, the size of a slime sitting. A few yellow kite feathers are tucked into a crack in its side.',
+  },
+  {
+    // the Old Foundry's tally board (E3b, docs/places/foundry.md): a reading, not a Keeper stone (wing / when, like the log)
+    room: FOUNDRY, place: 'the Old Foundry', x: FOUNDRY_TALLY_X, shape: 'tally', name: 'the tally board', title: 'The Tally Board',
+    wing: 'the Old Foundry · by the big casting pit', when: 'Chalk on charred planks · read by the glow of the pit',
+    look: "A board of charred planks nailed up on an iron post by the biggest casting pit, where the whole floor could see it. Burnt into the top is a mark you have seen on the moulds and the ladles all down the hall: a hammer over a flame. Under it, row after row of chalk strokes, five and five and five, one stroke for every tooth that came out of the pit and went up the rail.",
+    legible: [
+      'POURED. TRUED. SENT UP.',
+      'Row after row, every row full. The strokes are steady and close, the same broad hand all the way down, for years of rows.',
+      'The last row is not full. Under it, on its own, one line pressed so hard the chalk broke in the middle of it: ONE SHORT.',
+    ],
+    note: 'Every row of chalk is grey with old dust except the last line. Somebody has wiped that one clean, and not long ago.',
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -164,7 +183,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone, landing: drawLandingStone })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone, landing: drawLandingStone, breathing: drawBreathingStone, tally: drawTally })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -1422,4 +1441,141 @@ function drawLandingStone(ctx, time, glow) {
   ctx.beginPath();
   ctx.arc(-58, -42 + Math.sin(time * 1.3) * 0.8, 5, 0, TAU);
   ctx.stroke();
+}
+
+// The Breathing Stone (the Brimstone Fields, E3a): a tall stone crusted yellow at its foot, a thread of fume beside it.
+// Carved twice: the mountain breathing in (lines into its peak, the islands drawn close) and breathing out (lines out,
+// the islands pushed far off, waves between); a gear between with an arrow going back round to the first
+function drawBreathingStone(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(40,25,60,0.18)';
+  ellipse(ctx, 0, 0, 80, 8);
+  slab(ctx, -70, -120, 140, 122, 14);
+  ctx.fillStyle = 'rgba(216,192,90,0.7)'; // sulphur crust round its foot
+  ellipse(ctx, -40, -2, 26, 6);
+  ellipse(ctx, 30, -1, 34, 5);
+  const ink = glow ? '#c9a24a' : CARVE;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
+  ctx.lineWidth = 1.6;
+  ctx.lineCap = 'round';
+  const mountain = (x, y) => {
+    ctx.beginPath();
+    ctx.moveTo(x - 18, y);
+    ctx.lineTo(x - 4, y - 22);
+    ctx.lineTo(x + 4, y - 22);
+    ctx.lineTo(x + 18, y);
+    ctx.stroke();
+  };
+  const isle = (x, y, r) => {
+    ctx.beginPath();
+    ctx.ellipse(x, y, r, r * 0.45, 0, Math.PI, 0);
+    ctx.stroke();
+  };
+  // breathing in: lines going into the peak, the islands close round it
+  mountain(-34, -60);
+  ctx.beginPath();
+  for (const dx of [-8, 0, 8]) {
+    ctx.moveTo(-34 + dx * 1.8, -100);
+    ctx.lineTo(-34 + dx * 0.4, -86);
+  }
+  ctx.stroke();
+  for (const [dx, r] of [[-26, 5], [26, 5], [-18, 3.5], [18, 3.5]]) isle(-34 + dx, -58, r);
+  // breathing out: lines out of the peak, the islands far off, waves between
+  mountain(34, -60);
+  ctx.beginPath();
+  for (const dx of [-8, 0, 8]) {
+    ctx.moveTo(34 + dx * 0.4, -86);
+    ctx.lineTo(34 + dx * 1.8, -102);
+  }
+  ctx.stroke();
+  for (const [dx, r] of [[-30, 3], [30, 3]]) isle(34 + dx, -76, r);
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (const x of [8, 14, 54, 60]) {
+    ctx.moveTo(x, -66);
+    ctx.quadraticCurveTo(x + 2, -69, x + 4, -66);
+  }
+  ctx.stroke();
+  // the gear between, and the arrow round from the right back to the left
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.arc(0, -36, 6, 0, TAU);
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * TAU;
+    ctx.moveTo(Math.cos(a) * 6, -36 + Math.sin(a) * 6);
+    ctx.lineTo(Math.cos(a) * 9, -36 + Math.sin(a) * 9);
+  }
+  ctx.moveTo(34, -40);
+  ctx.quadraticCurveTo(30, -18, 0, -18);
+  ctx.quadraticCurveTo(-30, -18, -34, -38);
+  ctx.moveTo(-34, -38);
+  ctx.lineTo(-38, -32);
+  ctx.moveTo(-34, -38);
+  ctx.lineTo(-29, -33);
+  ctx.stroke();
+  // the thread of fume beside it
+  const k = (time * 0.25) % 1;
+  ctx.fillStyle = `rgba(226,214,120,${0.35 * Math.sin(k * Math.PI)})`;
+  circle(ctx, 78 + Math.sin(time) * 3, -10 - k * 60, 4 + k * 10);
+}
+
+// The Old Foundry's tally board (E3b): charred planks on an iron post, the old smith's mark burnt in at the top (a
+// hammer over a flame), rows of chalk tallies, the last row short and one line on its own under it
+function drawTally(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(20,12,12,0.3)';
+  ellipse(ctx, 0, 0, 50, 6);
+  ctx.fillStyle = '#4e4a56'; // the post
+  ctx.fillRect(-4, -150, 8, 150);
+  ctx.fillStyle = '#2e2a32';
+  ctx.fillRect(-14, -4, 28, 4);
+  // the planks
+  for (let i = 0; i < 4; i++) {
+    ctx.fillStyle = i % 2 ? '#3a2c26' : '#33261f';
+    ctx.fillRect(-56, -150 + i * 22, 112, 21);
+  }
+  ctx.strokeStyle = '#1a120e';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(-56, -150, 112, 88);
+  ctx.fillStyle = '#8a8490'; // nails
+  for (const [x, y] of [[-50, -144], [50, -144], [-50, -68], [50, -68]]) circle(ctx, x, y, 1.6);
+  // the mark, burnt in: a hammer over a flame
+  ctx.fillStyle = '#120a08';
+  ctx.beginPath();
+  ctx.moveTo(0, -122);
+  ctx.quadraticCurveTo(-6, -128, -1, -136);
+  ctx.quadraticCurveTo(0, -131, 2, -133);
+  ctx.quadraticCurveTo(6, -128, 0, -122);
+  ctx.fill();
+  ctx.fillRect(-1, -146, 2, 9);
+  ctx.fillRect(-5, -147, 10, 3);
+  // the chalk tallies: full rows, the last one short, and a line on its own
+  const chalk = glow ? '#fff4d0' : 'rgba(220,214,204,0.75)';
+  ctx.strokeStyle = chalk;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let row = 0; row < 5; row++) {
+    const y = -114 + row * 9, groups = row === 4 ? 2 : 6;
+    for (let g = 0; g < groups; g++) {
+      const gx = -48 + g * 16;
+      const n = row === 4 && g === groups - 1 ? 3 : 4;
+      for (let k = 0; k < n; k++) {
+        ctx.moveTo(gx + k * 3, y);
+        ctx.lineTo(gx + k * 3, y + 6);
+      }
+      if (n === 4) {
+        ctx.moveTo(gx - 1, y + 5);
+        ctx.lineTo(gx + 11, y + 1);
+      }
+    }
+  }
+  ctx.stroke();
+  ctx.lineWidth = 2; // the last line, pressed hard, the chalk snapped halfway
+  ctx.beginPath();
+  ctx.moveTo(-30, -70);
+  ctx.lineTo(-4, -70);
+  ctx.moveTo(1, -70);
+  ctx.lineTo(28, -70);
+  ctx.stroke();
+  ctx.fillStyle = chalk;
+  circle(ctx, -1.5, -69, 1.2);
 }

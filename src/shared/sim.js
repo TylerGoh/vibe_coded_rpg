@@ -15,7 +15,7 @@ export const DT = 1 / TICK_RATE;
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_PLATFORMS, FORGEHOLD, FORGE_W, FORGE_DOCK_X, FORGE_HOME_X, FORGE_SPAWN_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X, ASH_X, SLAG_X, FJORD_LODESTAR_X, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X, SUNKEN, SUNKEN_W, SUNKEN_EXIT_X, SUNKEN_GATE_X, SUNKEN_END_X, SUNKEN_PLATFORMS, ROADSEND, ROADSEND_W, ROADSEND_EXIT_X, OLDICE, OLDICE_W, OLDICE_EXIT_X, OLDICE_GATE_X, OLDICE_END_X, OLDICE_PLATFORMS, LONGSTAIR, LONGSTAIR_W, LONGSTAIR_EXIT_X, BLACKSANDS, SANDS_W, SANDS_EXIT_X, SANDS_PLATFORMS, SANDS_GATE_X, ASHWOOD, ASH_W, ASH_EXIT_X, ASH_PLATFORMS, ASHWOOD_GATE_X, PITCH_X, COAST, COAST_W, COAST_EXIT_X, COAST_PLATFORMS, COAST_GATE_X, LIV_X, TUBES, TUBES_W, TUBES_EXIT_X, TUBES_PLATFORMS, TUBES_GATE_X } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_PLATFORMS, FORGEHOLD, FORGE_W, FORGE_DOCK_X, FORGE_HOME_X, FORGE_SPAWN_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X, ASH_X, SLAG_X, FJORD_LODESTAR_X, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X, SUNKEN, SUNKEN_W, SUNKEN_EXIT_X, SUNKEN_GATE_X, SUNKEN_END_X, SUNKEN_PLATFORMS, ROADSEND, ROADSEND_W, ROADSEND_EXIT_X, OLDICE, OLDICE_W, OLDICE_EXIT_X, OLDICE_GATE_X, OLDICE_END_X, OLDICE_PLATFORMS, LONGSTAIR, LONGSTAIR_W, LONGSTAIR_EXIT_X, BLACKSANDS, SANDS_W, SANDS_EXIT_X, SANDS_PLATFORMS, SANDS_GATE_X, ASHWOOD, ASH_W, ASH_EXIT_X, ASH_PLATFORMS, ASHWOOD_GATE_X, PITCH_X, COAST, COAST_W, COAST_EXIT_X, COAST_PLATFORMS, COAST_GATE_X, LIV_X, TUBES, TUBES_W, TUBES_EXIT_X, TUBES_PLATFORMS, TUBES_GATE_X, BRIMSTONE, BRIM_W, BRIM_EXIT_X, BRIM_PLATFORMS, BRIMSTONE_GATE_X, OCHRE_X, FOUNDRY, FOUNDRY_W, FOUNDRY_EXIT_X, FOUNDRY_PLATFORMS, FOUNDRY_GATE_X } from './rpg.js';
 import { ARENA, ARENA_W, ARENA_PLATFORMS } from './sandbox.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
@@ -23,7 +23,7 @@ export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/pla
 export const CLIFFS = 20; // Greenhollow's east cliffs, past the end of the Wildwood (docs/places/cliffs.md)
 export const FERRY_N = 21, FERRY_S = 22; // the ferry's deck, out to Frostpeak and back home (docs/places/crossings.md)
 export const STEAM_N = 45, STEAM_S = 46; // the Lodestar's deck, south through the Steam Straits to Emberdeep and back north
-export { FIELD, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, BLACKSANDS, ASHWOOD, COAST, TUBES };
+export { FIELD, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY };
 
 export const PLATFORMS = [
   { x: 360, y: 335, w: 190, kind: 'island' },
@@ -224,6 +224,7 @@ ROOMS[CALDERA] = {
     { x: CITADEL_DOOR_X, w: 80, to: CITADEL, toX: CITADEL_EXIT_X, label: 'ride the skylift to the Aether Citadel' },
     { x: ASHWOOD_GATE_X, w: 80, to: ASHWOOD, toX: ASH_EXIT_X, label: 'cross the iron bridge up the charcoal road to the Ashwood' },
     { x: COAST_GATE_X, w: 80, to: COAST, toX: COAST_EXIT_X, label: 'climb down the gully over the old lava to the Smoking Coast' },
+    { x: BRIMSTONE_GATE_X, w: 80, to: BRIMSTONE, toX: BRIM_EXIT_X, label: 'climb the cairned path up the flank to the Brimstone Fields' },
     ...denDoors(CALDERA),
   ],
 };
@@ -334,11 +335,20 @@ ROOMS[BLACKSANDS] = {
   doors: [{ x: SANDS_EXIT_X, w: 80, to: FORGEHOLD, toX: SANDS_GATE_X, label: 'back along the beach path to Forgehold' }],
 };
 // room 55 (Emberdeep's depth pass E1, docs/places/ashwood.md): the Ashwood, up the old charcoal road north out of
-// Cinder Flats (its iron bridge hauled back up), entered at its EAST end. The Old Foundry's adit at its west end is
-// a gate (EMBERDEEP in branches.js)
+// Cinder Flats (its iron bridge hauled back up), entered at its EAST end. The Old Foundry's adit at its west end
+// (bricked up until E3b, the bricks taken down and stacked beside it) goes into the Old Foundry
 ROOMS[ASHWOOD] = {
   name: 'The Ashwood', width: ASH_W, ground: FIELD_GROUND, platforms: ASH_PLATFORMS,
-  doors: [{ x: ASH_EXIT_X, w: 80, to: CALDERA, toX: ASHWOOD_GATE_X, label: 'back down the charcoal road to Cinder Flats (mobs!)' }],
+  doors: [
+    { x: ASH_EXIT_X, w: 80, to: CALDERA, toX: ASHWOOD_GATE_X, label: 'back down the charcoal road to Cinder Flats (mobs!)' },
+    { x: FOUNDRY_GATE_X, w: 80, to: FOUNDRY, toX: FOUNDRY_EXIT_X, label: 'go into the old adit to the Old Foundry (hard!)' },
+  ],
+};
+// room 60 (Emberdeep's depth pass E3b, docs/places/foundry.md): the Old Foundry, a hard pocket in the mountain at the
+// end of the Ashwood's old mine adit, entered at its EAST end
+ROOMS[FOUNDRY] = {
+  name: 'The Old Foundry', width: FOUNDRY_W, ground: FIELD_GROUND, platforms: FOUNDRY_PLATFORMS,
+  doors: [{ x: FOUNDRY_EXIT_X, w: 80, to: ASHWOOD, toX: FOUNDRY_GATE_X, label: 'back out up the adit to the Ashwood (mobs!)' }],
 };
 // room 56 (Emberdeep's depth pass E2, docs/places/coast.md): the Smoking Coast, down the gully south off Cinder Flats
 // (its lava tongue crusted hard), entered at its EAST end. The old tube mouth in its sea cliff (drained since E2's
@@ -356,6 +366,13 @@ ROOMS[COAST] = {
 ROOMS[TUBES] = {
   name: 'The Drained Tubes', width: TUBES_W, ground: FIELD_GROUND, platforms: TUBES_PLATFORMS,
   doors: [{ x: TUBES_EXIT_X, w: 80, to: COAST, toX: TUBES_GATE_X, label: 'climb back up the old steps to the Smoking Coast (mobs!)' }],
+};
+// room 59 (Emberdeep's depth pass E3a, docs/places/brimstone.md): the Brimstone Fields, up the cone's flank from Magma
+// Heart (the vent field's fumes blown off the path), entered at its EAST end. The Bearers' stair at its west end (the
+// Caldera Rim's way in) is a gate, not a door, until the Rim ships
+ROOMS[BRIMSTONE] = {
+  name: 'The Brimstone Fields', width: BRIM_W, ground: FIELD_GROUND, platforms: BRIM_PLATFORMS,
+  doors: [{ x: BRIM_EXIT_X, w: 80, to: CALDERA, toX: BRIMSTONE_GATE_X, label: 'climb back down the flank to Magma Heart (mobs!)' }],
 };
 // rooms 37 and 39 (Frostpeak's depth pass F2): the Whale Skerries, out of the hamlet's west end along the shore
 // path (the snow slide dug through), entered at its EAST end (docs/places/skerries.md), and the Narwhal Grotto,
@@ -823,6 +840,8 @@ export const NPCS = [
   { id: 'slag', name: 'Slag', short: 'Slag', room: FORGEHOLD, x: SLAG_X, hue: 28, range: 120, size: 0.95, accessory: 'apprentice', folk: 'forge', lively: true, faces: -1, blurb: "Ash's apprentice, who trades forge gear by his stack of gear-teeth", shop: 'slag', hello: 'Are you from the north? Is there snow? Trade is the button. (Everyone can hear you.)' },
   // the Smoking Coast's glass-cutter (Emberdeep's depth pass E2): fjord folk, thinned nearly clear by the heat
   { id: 'liv', name: 'Liv', short: 'Liv', room: COAST, x: LIV_X, hue: 192, range: 120, size: 1.05, accessory: 'glasscutter', folk: 'thinned', faces: -1, blurb: "Ice-Cutter Eyvind's daughter, who cuts black glass on the Smoking Coast and trades at her shelter", shop: 'liv', hello: 'Mind the edges, they cut. Buying or talking? Trade is the button. (Everyone can hear you.)' },
+  // the Brimstone Fields' sulphur-picker (Emberdeep's depth pass E3a): forge folk, a yoke and two baskets, a canary
+  { id: 'ochre', name: 'Picker Ochre', short: 'Ochre', room: BRIMSTONE, x: OCHRE_X, hue: 40, range: 120, size: 1.05, accessory: 'picker', folk: 'forge', faces: -1, blurb: 'the sulphur-picker who carries brimstone down to the forges, and trades at her lean-to in the Brimstone Fields', shop: 'ochre', hello: "Buying, selling or talking? Trade's the button. Say it plain. (Everyone can hear you.)" },
   // the Ashwood's collier (Emberdeep's depth pass E1)
   { id: 'pitch', name: 'Collier Pitch', short: 'Pitch', room: ASHWOOD, x: PITCH_X, hue: 22, range: 120, size: 1.1, accessory: 'collier', folk: 'forge', faces: -1, blurb: 'the last charcoal-burner, who trades at his clamp in the Ashwood', shop: 'pitch', hello: 'Mind the ferns. Buying or talking? Trade is the button. (Everyone can hear you.)' },
   // Greenhollow's branches (island depth G1): each has a character who trades and is worth a chat
@@ -859,6 +878,7 @@ export const SLAP_QUIPS = {
   ash: ['Hm.', 'I have been hit by a hammer. That was not a hammer.', 'Done?', 'Go and hit some slag.'],
   soot: ['Oh! Mind the eggs!', 'Manners, dear. Even here.', 'Into the cold pool with you.', 'Ash would never.'],
   liv: ['Careful. I break easier than I used to.', 'You do that up north, they slap back.', 'Mind the glass.', 'I felt that. Barely. That is the trouble.'],
+  ochre: ['Ow. Plain enough.', "Don't do that by the baskets.", 'Saffron saw that.', "That's not how you say hello up here."],
   pitch: ['Hm. That was slow of me.', 'Mind the seedlings.', 'I have been burned worse. By better.', 'Do that near the clamp and we both go up.'],
   slag: ['Ow! Was that a northern greeting?', 'Hey! I was filing!', 'Is that how you do it where there is snow?', "I'm telling Ash."],
   skaldi: ['Hm.', 'The cold has done worse.', 'Mind the fire, child.', 'That was unkind. Sit down.'],

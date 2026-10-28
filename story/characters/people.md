@@ -69,6 +69,9 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
   like her father with ice; stays, afraid the cold would set her solid; letters go both ways on the Lodestar. Keeps
   the other red mitten, sits up with the Hatchkeeper's nest, copied Skaldi's birds in glass on her lookout. Tier 0
   plus the Coast.
+- **Picker Ochre** (the Brimstone Fields, E3a, **exists**): forge folk; carries sulphur down to Forgehold's forges in
+  two baskets on a yoke; lost her sense of smell to the fumes, keeps a canary called Saffron (her third) who warns
+  her of bad air, sings to the vents; the plainest-spoken person on the island; trades. Tier 0 plus the Fields.
 - **The Last Echo** (the Citadel): a Keeper echo stuck repeating, who becomes briefly lucid when players
   bring Mochi's name. Holds Tier 4.
 - **Pell** (post-game, by the apple tree): see `mochi-and-chronos.md`.

@@ -35,7 +35,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 4860; // (the plinths need about 4740 since the mini Hundredfoot (E2): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 5150; // (the plinths need about 5060 since the mini Old Crucible (E3b): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -71,7 +71,7 @@ export const SUMMIT_LOOKOUT_X = 3950; // where the pass used to go down, at Star
 // and Magma Heart, and the grounded balloon by the thermal column (atlas Phase 6)
 export const COAST_GATE_X = 1190; // the gully south to the Smoking Coast (its lava tongue crusted hard and stepped in E2)
 export const ASHWOOD_GATE_X = 1690; // the old charcoal road north to the Ashwood (its iron bridge hauled back up in E1)
-export const BRIMSTONE_GATE_X = 3270; // up the cone's flank to the Brimstone Fields (the vent field fuming)
+export const BRIMSTONE_GATE_X = 3270; // up the cone's flank to the Brimstone Fields (the vent field fumed across the path until E3a: the wind turned)
 export const BALLOON_X = 3745; // the balloon in its cradle, deflated
 // Forgehold (room 44, atlas Phase 5, docs/places/forgehold.md): Emberdeep's landing and its town, a safe room.
 // West to east: the beach path out to the Black Sands (a geyser broke out across it), Black Sand Shore's
@@ -676,14 +676,14 @@ export const SANDS_PLATFORMS = [
 // in and now stands again). You come in at the EAST end (ASH_EXIT_X) and climb west, higher and harder: Collier's
 // Clearing (no mobs: Collier Pitch, a waystone, the Kiln Stone), the Fern Slope, the Charcoal Stands and the Burnt
 // Crown, where Greyback roams; at the very west end the old mine adit to the Old Foundry, bricked up by the forge
-// folk themselves (FOUNDRY_GATE_X, a gate). The Green Tree, in a hidden hollow high over the Charcoal Stands (last in
+// folk themselves until E3b, when they took the bricks down again (FOUNDRY_GATE_X, now the door). The Green Tree, in a hidden hollow high over the Charcoal Stands (last in
 // ASH_PLATFORMS), is the find.
 export const ASHWOOD = 55; // room id
 export const ASH_W = 5400;
 export const ASH_EXIT_X = ASH_W - 70; // back down the charcoal road to Cinder Flats
 export const PITCH_X = 4470; // Collier Pitch, at his clamp (he trades: SHOPS)
 export const ASH_STONE_X = 4840; // the Kiln Stone
-export const FOUNDRY_GATE_X = 190; // the old mine adit to the Old Foundry (bricked up: a gate, EMBERDEEP in branches.js)
+export const FOUNDRY_GATE_X = 190; // the old mine adit to the Old Foundry (bricked up until E3b, now open: its door is in ROOMS[ASHWOOD])
 export const ASH_ZONES = [
   { name: 'The Burnt Crown', x0: 0, x1: 1400, lvl: '126–130' },
   { name: 'The Charcoal Stands', x0: 1400, x1: 2800, lvl: '121–126' },
@@ -769,6 +769,71 @@ export const TUBES_PLATFORMS = [
   { x: 3520, y: 340, w: 190, kind: 'ledge' },
   { x: 1440, y: 166, w: 96, kind: 'skylight' }, // the Skylight, high under a hole in the roof: easy to miss
 ];
+// ——— Emberdeep's depth pass, E3a: the Brimstone Fields (docs/places/brimstone.md) ———
+// The Brimstone Fields (room 59): the volcano's cone above Magma Heart, up its flank (BRIMSTONE_GATE_X in the Caldera
+// room, where the vent field fumed across the path until the wind turned). Yellow crusts, fumaroles, acid pools,
+// sulphur chimneys. You come in at the EAST end (BRIM_EXIT_X) and climb west, higher and harder: the Picker's Camp
+// (no mobs: Picker Ochre's lean-to, a waystone, the Breathing Stone), the Yellow Crust, the Acid Pools and the High
+// Vents, where the Brimstone Condor wheels; at the very west end the Bearers' stair up to the Caldera Rim, its chains
+// rusted through (RIM_GATE_X, a gate in branches.js until the Rim ships). The Organ, a ledge on top of the
+// whistling chimneys over the High Vents (last in BRIM_PLATFORMS), is the find.
+export const BRIMSTONE = 59; // room id
+export const BRIM_W = 5400;
+export const BRIM_EXIT_X = BRIM_W - 70; // back down the flank to Magma Heart
+export const OCHRE_X = 4500; // Picker Ochre, at her lean-to (she trades: SHOPS)
+export const BRIM_STONE_X = 4860; // the Breathing Stone
+export const RIM_GATE_X = 200; // the Bearers' stair up to the Caldera Rim (its chains rusted through: a gate, EMBERDEEP in branches.js)
+export const BRIM_ZONES = [
+  { name: 'The High Vents', x0: 0, x1: 1500, lvl: '136–140' },
+  { name: 'The Acid Pools', x0: 1500, x1: 2900, lvl: '131–136' },
+  { name: 'The Yellow Crust', x0: 2900, x1: 4200, lvl: '127–131' },
+  { name: "The Picker's Camp", x0: 4200, x1: BRIM_W, lvl: null }, // (no mobs)
+];
+export const BRIM_PLATFORMS = [
+  { x: 440, y: 338, w: 190, kind: 'crust' },
+  { x: 790, y: 256, w: 170, kind: 'chimney' }, // the shoulder of the Organ's tallest chimney: the way up
+  { x: 1160, y: 340, w: 190, kind: 'crust' },
+  { x: 1600, y: 340, w: 200, kind: 'crust' },
+  { x: 1960, y: 258, w: 170, kind: 'chimney' },
+  { x: 2300, y: 340, w: 200, kind: 'crust' },
+  { x: 2620, y: 256, w: 170, kind: 'chimney' },
+  { x: 3040, y: 342, w: 200, kind: 'crust' },
+  { x: 3440, y: 262, w: 180, kind: 'chimney' },
+  { x: 3800, y: 340, w: 190, kind: 'crust' },
+  { x: 4600, y: 334, w: 150, kind: 'hut' }, // Ochre's lean-to roof
+  { x: 880, y: 168, w: 100, kind: 'organ' }, // the Organ, on top of the whistling chimneys: easy to miss
+];
+// ——— Emberdeep's depth pass, E3b: the Old Foundry (docs/places/foundry.md) ———
+// The Old Foundry (room 60, a hard pocket): where the forge folk cast the great gear-teeth, deep in the mountain at
+// the end of the Ashwood's old mine adit (FOUNDRY_GATE_X, bricked up by the forge folk until E3b took the bricks
+// down). A great cold hall: casting pits, rails, slag heaps, cold moulds, a gantry crane overhead. You come in at the
+// EAST end (FOUNDRY_EXIT_X, the adit's mouth) and go west, deeper and older: the Adit (no mobs), the Rail Yard, the
+// Slag Heaps and the Casting Floor, where Old Crucible lives in the biggest pit with the half-cast tooth. The tally
+// board stands by that pit (FOUNDRY_TALLY_X, a reading: src/ruins.js); the Pattern, up in the pattern loft over the
+// Casting Floor (last in FOUNDRY_PLATFORMS), is the find. No waystone (a hard pocket), no trader.
+export const FOUNDRY = 60; // room id
+export const FOUNDRY_W = 5000;
+export const FOUNDRY_EXIT_X = FOUNDRY_W - 70; // back out up the adit to the Ashwood
+export const FOUNDRY_PIT_X = 760; // the biggest casting pit (its middle), the half-cast tooth in it, Old Crucible's
+export const FOUNDRY_TALLY_X = 1480; // the foreman's tally board, by the big pit
+export const FOUNDRY_ZONES = [
+  { name: 'The Casting Floor', x0: 0, x1: 1700, lvl: '140–145' },
+  { name: 'The Slag Heaps', x0: 1700, x1: 3200, lvl: '135–140' },
+  { name: 'The Rail Yard', x0: 3200, x1: 4400, lvl: '130–135' },
+  { name: 'The Adit', x0: 4400, x1: FOUNDRY_W, lvl: null }, // (no mobs)
+];
+export const FOUNDRY_PLATFORMS = [
+  { x: 180, y: 300, w: 180, kind: 'gantry' },
+  { x: 1120, y: 256, w: 190, kind: 'gantry' }, // the crane's end girder, under the pattern loft: the way up to the Pattern
+  { x: 1900, y: 340, w: 200, kind: 'heap' },
+  { x: 2240, y: 258, w: 180, kind: 'gantry' },
+  { x: 2600, y: 340, w: 200, kind: 'heap' },
+  { x: 2960, y: 256, w: 180, kind: 'gantry' },
+  { x: 3420, y: 340, w: 200, kind: 'cart' },
+  { x: 3780, y: 258, w: 180, kind: 'gantry' },
+  { x: 4120, y: 340, w: 190, kind: 'cart' },
+  { x: 1030, y: 166, w: 104, kind: 'pattern' }, // the Pattern, in the pattern loft over the Casting Floor: easy to miss
+];
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -797,6 +862,8 @@ export const STAGES = {
   [ASHWOOD]: { name: 'The Ashwood', zones: ASH_ZONES, band: '115–130' },
   [COAST]: { name: 'The Smoking Coast', zones: COAST_ZONES, band: '100–115', pill: 'Smoking Coast' },
   [TUBES]: { name: 'The Drained Tubes', zones: TUBES_ZONES, band: '115–125', hard: true, pill: 'Drained Tubes' },
+  [BRIMSTONE]: { name: 'The Brimstone Fields', zones: BRIM_ZONES, band: '125–140', pill: 'Brimstone Fields' },
+  [FOUNDRY]: { name: 'The Old Foundry', zones: FOUNDRY_ZONES, band: '130–145', hard: true, pill: 'Old Foundry' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -1937,6 +2004,103 @@ MOBS.hundredfoot = {
   drops: [['coin', 1, 48300, 70100], ['hundred_plate', 1, 4, 8], ['clinker_scute', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['hundred_saw', 0.25, 1, 1], ['hundred_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 
+// ——— Emberdeep's depth pass, E3a: the Brimstone Fields (art: src/brimstone-art.js; docs/places/brimstone.md). On the
+// frozen curve ———
+// Brimstone hoppers spring about the yellow crust (harmless), acid slugs leave a smoking trail of acid behind them,
+// vent crabs turn a crusted shell and claws to you, fume wisps fade into the fumes and pulse out of them, sulphur
+// kites hang over the vents and stoop, and chimney spitters (rooted in the crust like the lava drips) swell and spit
+// a glob of burning sulphur
+MOBS.brimstone_hopper = {
+  name: 'Brimstone Hopper', lvl: 127, hp: 15800, atk: 429, exp: 9605, speed: 60, w: 54, h: 40, aggro: false, hops: true,
+  drops: [['coin', 1, 1005, 1510], ['hopper_leg', 0.55, 1, 2], ['mega_elixir', 0.17, 1, 1]],
+};
+MOBS.acid_slug = {
+  name: 'Acid Slug', lvl: 129, hp: 17000, atk: 437, exp: 9863, speed: 40, w: 64, h: 36, aggro: true, hops: false,
+  ai: { kind: 'trail', every: 0.8, life: 4.5, w: 60, style: 'acid' },
+  drops: [['coin', 1, 1025, 1540], ['slug_acid', 0.5, 1, 2], ['mega_elixir', 0.17, 1, 1]],
+};
+MOBS.vent_crab = {
+  name: 'Vent Crab', lvl: 132, hp: 22600, atk: 449, exp: 10256, speed: 50, w: 70, h: 46, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.55, lunge: 540, time: 0.32 },
+  drops: [['coin', 1, 1050, 1575], ['vent_carapace', 0.5, 1, 2], ['mega_elixir', 0.17, 1, 1], ['fumarole_helm', 0.004, 1, 1]],
+};
+MOBS.fume_wisp = {
+  name: 'Fume Wisp', lvl: 134, hp: 17500, atk: 457, exp: 10522, speed: 70, w: 48, h: 58, aggro: true, hops: false, fly: 44,
+  ai: { kind: 'phase', every: 6.3, dur: 1.9, r: 180 },
+  drops: [['coin', 1, 1065, 1600], ['fume_crystal', 0.5, 1, 2], ['mega_elixir', 0.18, 1, 1]],
+};
+MOBS.sulphur_kite = {
+  name: 'Sulphur Kite', lvl: 136, hp: 17700, atk: 465, exp: 10790, speed: 115, w: 68, h: 40, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.3, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 1080, 1625], ['kite_plume', 0.5, 1, 2], ['mega_elixir', 0.18, 1, 1], ['kitetalon', 0.003, 1, 1]],
+};
+MOBS.chimney_spitter = {
+  name: 'Chimney Spitter', lvl: 138, hp: 17500, atk: 472, exp: 11061, speed: 0, w: 46, h: 76, aggro: true, hops: false, anchored: true,
+  ai: { kind: 'lob', range: 460, every: 2.6, keep: 0, warn: 0.55, style: 'sulphur' },
+  drops: [['coin', 1, 1100, 1650], ['spitter_sulphur', 0.5, 1, 2], ['mega_elixir', 0.18, 1, 1]],
+};
+// The Brimstone Condor: a field boss (small: no story), a great bald vulture as yellow-crusted as the vents it rides,
+// its wings ragged at the tips, a ruff of grey down; it wheels on the fumes over the High Vents and drops on whatever
+// moves. Passive until hit; then it climbs and falls on you, again and again (the dive)
+MOBS.brimstone_condor = {
+  name: 'The Brimstone Condor', field: true, lvl: 140, hp: 2850000, atk: 443, exp: 440000, speed: 70, w: 210, h: 110, aggro: false, hops: false, fly: 90,
+  ai: { kind: 'dive', every: 3.0, warn: 0.85, time: 0.55 },
+  // S5.4: with two or more on it, it picks one slime to fall on at a time (focus), and its wingbeats whip the fumes
+  // into a gust that builds round it till it breaks (a pulse, `looks.pulse: 'steam'`)
+  party: ['focus', 'pulse'], partyLive: true, looks: { pulse: 'steam' },
+  desc: 'The Brimstone Condor is riding the fumes over the High Vents. Watch the sky.',
+  drops: [['coin', 1, 56000, 81000], ['condor_quill', 1, 4, 8], ['kite_plume', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['condor_pinion', 0.25, 1, 1], ['condor_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+
+// ——— Emberdeep's depth pass, E3b: the Old Foundry (art: src/foundry-art.js; docs/places/foundry.md). On the frozen
+// curve; elites only here ———
+// Iron ants carry a plate of scrap iron in front of them (hit them from behind), slag golems are heaps of slag that
+// walk and break into slaglings when you break them, crucible newts lob gobbets of molten metal, soot hounds run at
+// anything that moves, and bellows toads puff up and let out a low blast of hot air along the floor
+MOBS.iron_ant = {
+  name: 'Iron Ant', lvl: 131, hp: 22300, atk: 445, exp: 10125, speed: 50, w: 70, h: 44, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.55, lunge: 540, time: 0.32 },
+  drops: [['coin', 1, 1040, 1560], ['ant_iron', 0.5, 1, 2], ['mega_elixir', 0.17, 1, 1], ['scrap_helm', 0.004, 1, 1]],
+};
+MOBS.slag_golem = {
+  name: 'Slag Golem', lvl: 133, hp: 18400, atk: 453, exp: 10389, speed: 45, w: 64, h: 70, aggro: true, hops: false,
+  ai: { kind: 'split', into: 'slagling', n: 2 },
+  drops: [['coin', 1, 1060, 1590], ['slag_lump', 0.5, 1, 2], ['mega_elixir', 0.17, 1, 1]],
+};
+// (a split minion: the economy sheet doesn't check these, so its EXP and gold stay small, like the pufflings)
+MOBS.slagling = {
+  name: 'Slagling', lvl: 130, hp: 1800, atk: 380, exp: 520, speed: 160, w: 26, h: 24, aggro: true, hops: true,
+  drops: [['coin', 1, 50, 100]],
+};
+MOBS.crucible_newt = {
+  name: 'Crucible Newt', lvl: 136, hp: 18000, atk: 465, exp: 10790, speed: 60, w: 70, h: 34, aggro: true, hops: false,
+  ai: { kind: 'lob', range: 460, every: 2.7, keep: 160, warn: 0.55, style: 'molten' },
+  drops: [['coin', 1, 1080, 1625], ['newt_skin', 0.5, 1, 2], ['mega_elixir', 0.18, 1, 1]],
+};
+MOBS.soot_hound = {
+  name: 'Soot Hound', lvl: 139, hp: 20000, atk: 477, exp: 11198, speed: 115, w: 66, h: 48, aggro: true, hops: false,
+  drops: [['coin', 1, 1110, 1665], ['soot_pelt', 0.5, 1, 2], ['mega_elixir', 0.18, 1, 1], ['sootfang', 0.003, 1, 1]],
+};
+MOBS.bellows_toad = {
+  name: 'Bellows Toad', lvl: 142, hp: 19200, atk: 489, exp: 11612, speed: 50, w: 64, h: 50, aggro: true, hops: false,
+  ai: { kind: 'beam', range: 520, every: 4.2, warn: 1, dur: 0.45, y0: 420, y1: 450, style: 'bellows' },
+  drops: [['coin', 1, 1140, 1710], ['bellows_hide', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
+};
+MOBS.golem_elite = elite('slag_golem', 'Great Slag Golem');
+MOBS.hound_elite = elite('soot_hound', 'Old Soot Hound');
+// Old Crucible: a field boss (small: no story), a fire salamander as long as a cart, black and orange, its skin
+// crusted with cooled slag that cracks to show the glow underneath, living in the biggest casting pit round the
+// half-cast tooth and keeping the pit hot. Passive until hit; then it scoops up molten metal and lobs it
+MOBS.old_crucible = {
+  name: 'Old Crucible', field: true, lvl: 145, hp: 3000000, atk: 455, exp: 467000, speed: 40, w: 240, h: 90, aggro: false, hops: false,
+  ai: { kind: 'lob', range: 540, every: 2.6, keep: 190, warn: 0.75, style: 'molten' },
+  // S5.4: with two or more on it, the slag on its skin sets into a crust (armour, Ignis's basalt plates,
+  // `looks.shell: 'cinder'`), and its splashes leave whoever they land near smouldering (a curse, `looks.curse: 'ember'`)
+  party: ['armour', 'curse'], partyLive: true, looks: { shell: 'cinder', curse: 'ember' },
+  desc: 'Old Crucible is awake in the casting pit. Mind the pour.',
+  drops: [['coin', 1, 59500, 86000], ['crucible_scale', 1, 4, 8], ['newt_skin', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['crucible_blade', 0.25, 1, 1], ['crucible_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -2126,6 +2290,8 @@ const onBsPlat = onRoomPlat(SANDS_PLATFORMS, BLACKSANDS);
 const onAwPlat = onRoomPlat(ASH_PLATFORMS, ASHWOOD);
 const onCoPlat = onRoomPlat(COAST_PLATFORMS, COAST);
 const onTuPlat = onRoomPlat(TUBES_PLATFORMS, TUBES);
+const onFoPlat = onRoomPlat(FOUNDRY_PLATFORMS, FOUNDRY);
+const onBfPlat = onRoomPlat(BRIM_PLATFORMS, BRIMSTONE);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -2496,6 +2662,45 @@ export const SPAWNS = [
   ...onTuPlat('cinder_moth', 2, 1),
   { kind: 'clinker_elite', x0: 300, x1: 1200, y: FIELD_GROUND, room: TUBES },
   { kind: 'hundredfoot', x0: 200, x1: 1600, y: FIELD_GROUND, room: TUBES },
+  // Emberdeep's depth pass, E3a: the Brimstone Fields, entered from the east (the Picker's Camp has no mobs)
+  ...strip('brimstone_hopper', 2950, 4150, FIELD_GROUND, 4, BRIMSTONE),
+  ...onBfPlat('brimstone_hopper', 7, 1),
+  ...onBfPlat('brimstone_hopper', 9, 1),
+  ...strip('acid_slug', 2950, 4150, FIELD_GROUND, 3, BRIMSTONE),
+  ...onBfPlat('acid_slug', 8, 1),
+  ...strip('vent_crab', 1550, 2850, FIELD_GROUND, 3, BRIMSTONE),
+  ...strip('fume_wisp', 1550, 2850, FIELD_GROUND, 3, BRIMSTONE),
+  ...onBfPlat('vent_crab', 3, 1),
+  ...onBfPlat('fume_wisp', 4, 1),
+  ...onBfPlat('vent_crab', 5, 1),
+  ...onBfPlat('fume_wisp', 6, 1),
+  ...strip('sulphur_kite', 350, 1450, FIELD_GROUND, 3, BRIMSTONE),
+  ...strip('chimney_spitter', 350, 1450, FIELD_GROUND, 2, BRIMSTONE),
+  ...strip('fume_wisp', 350, 1450, FIELD_GROUND, 1, BRIMSTONE),
+  ...onBfPlat('chimney_spitter', 0, 1),
+  ...onBfPlat('chimney_spitter', 2, 1),
+  ...onBfPlat('sulphur_kite', 1, 1),
+  { kind: 'brimstone_condor', x0: 400, x1: 1350, y: FIELD_GROUND, room: BRIMSTONE },
+  // Emberdeep's depth pass, E3b: the Old Foundry, entered from the east (the Adit has none)
+  ...strip('iron_ant', 3250, 4350, FIELD_GROUND, 3, FOUNDRY),
+  ...strip('slag_golem', 3250, 4350, FIELD_GROUND, 3, FOUNDRY),
+  ...onFoPlat('iron_ant', 6, 1),
+  ...onFoPlat('slag_golem', 8, 1),
+  ...onFoPlat('iron_ant', 7, 1),
+  ...strip('crucible_newt', 1750, 3150, FIELD_GROUND, 3, FOUNDRY),
+  ...strip('soot_hound', 1750, 3150, FIELD_GROUND, 3, FOUNDRY),
+  ...onFoPlat('crucible_newt', 2, 1),
+  ...onFoPlat('soot_hound', 3, 1),
+  ...onFoPlat('crucible_newt', 4, 1),
+  ...onFoPlat('soot_hound', 5, 1),
+  { kind: 'golem_elite', x0: 3400, x1: 4200, y: FIELD_GROUND, room: FOUNDRY },
+  ...strip('bellows_toad', 150, 1650, FIELD_GROUND, 3, FOUNDRY),
+  ...strip('soot_hound', 150, 1650, FIELD_GROUND, 2, FOUNDRY),
+  ...strip('crucible_newt', 150, 1650, FIELD_GROUND, 1, FOUNDRY),
+  ...onFoPlat('crucible_newt', 0, 1),
+  ...onFoPlat('soot_hound', 1, 1), // (the bellows toads stay on the floor: their blast runs along it)
+  { kind: 'hound_elite', x0: 300, x1: 1500, y: FIELD_GROUND, room: FOUNDRY },
+  { kind: 'old_crucible', x0: 400, x1: 1200, y: FIELD_GROUND, room: FOUNDRY },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -2838,6 +3043,31 @@ export const ITEMS = {
   adderglass: { name: 'Adderglass', price: 652000, lvl: 119, kind: 'sword', atk: 178, reach: 60, desc: 'A thin black-glass blade with a red sheen down it like an adder\'s back, on an iron grip. It strikes from where you are not looking.' },
   hundred_saw: { name: 'Hundredfoot Saw', price: 745000, lvl: 127, kind: 'sword', atk: 186, reach: 66, desc: "A long iron blade toothed with Hundredfoot's own legs, one per notch, still glowing at the joints. It runs hot." },
   hundred_helm: { name: 'Hundredfoot Helm', price: 566000, lvl: 127, kind: 'helmet', def: 89, desc: 'A long iron helm plated in clinker segments down the back, two short feelers at the brow. Forged for a wheel that never got it.' },
+  // Emberdeep's depth pass E3a: the Brimstone Fields (docs/places/brimstone.md)
+  hopper_leg: { name: 'Brimstone Hopper Leg', price: 1190, kind: 'loot', desc: "A long jointed hind leg, yellow with sulphur dust. It still kicks if you flick the knee. Don't." },
+  slug_acid: { name: 'Jar of Slug Acid', price: 1210, kind: 'loot', desc: 'A stoppered clay jar of the clear stuff an acid slug leaves behind. It ate through the first jar. This is the second.' },
+  vent_carapace: { name: 'Vent Crab Carapace', price: 1240, kind: 'loot', desc: "A crab's back plate crusted with yellow sulphur crystals. It is warm, and it smells of a struck match." },
+  fume_crystal: { name: 'Fume Crystal', price: 1260, kind: 'loot', desc: 'A cluster of needle-fine yellow crystals that grow where a fume wisp lingered. They crumble if you breathe on them.' },
+  kite_plume: { name: 'Sulphur Kite Plume', price: 1280, kind: 'loot', desc: 'A forked tail feather, rust and yellow, with a smell of the vents it rode. Picker Ochre sticks them in her hat.' },
+  spitter_sulphur: { name: "Spitter's Sulphur", price: 1300, kind: 'loot', desc: 'A glob of sulphur a chimney spitter coughed up, set hard and glassy yellow. The forges in town burn it.' },
+  condor_quill: { name: 'Condor Quill', price: 1320, kind: 'loot', desc: "A flight feather as long as your arm, its tip singed ragged by the vents. The forge folk use them to sweep the hearth." },
+  brimstone_pick: { name: 'Brimstone Pick', price: 215000, lvl: 131, aim: 135, kind: 'sword', atk: 190, reach: 56, desc: "A short iron pick with a long chisel point, its haft worn pale where a hand has held it for years. Ochre picks sulphur with one just like it." },
+  fume_mask: { name: "Picker's Fume Mask", price: 170000, lvl: 131, aim: 135, kind: 'helmet', def: 92, desc: 'A leather hood with a pad of wet cloth over the mouth and two smoked-glass eyes. It does not stop the smell. Nothing does.' },
+  fumarole_helm: { name: 'Fumarole Helm', price: 613000, lvl: 132, kind: 'helmet', def: 92, desc: "An iron helm crusted over with a vent crab's sulphur crystals, yellow on black. It steams a little in the rain. Forged for a wheel that never got it." },
+  kitetalon: { name: 'Kitetalon', price: 857000, lvl: 136, kind: 'sword', atk: 195, reach: 60, desc: "A hooked iron blade shaped like a kite's talon, its edge stained yellow. It comes down the way the bird does." },
+  condor_pinion: { name: 'Condor Pinion', price: 935000, lvl: 142, kind: 'sword', atk: 201, reach: 66, desc: "A long blade beaten from slag iron in the shape of a condor's flight feather, the vanes cut into its edge. Forged for a wheel that never got it." },
+  condor_helm: { name: 'Condor Helm', price: 710000, lvl: 142, kind: 'helmet', def: 98, desc: 'A bald iron helm with a ruff of grey down round its rim and a hooked beak for a brow. It looks down on everyone.' },
+  // Emberdeep's depth pass E3b: the Old Foundry (docs/places/foundry.md)
+  ant_iron: { name: 'Ant-Carried Iron', price: 1235, kind: 'loot', desc: "A curl of scrap iron an iron ant was carrying home, bitten to shape. Nobody knows what the ants build with it." },
+  slag_lump: { name: 'Slag Lump', price: 1250, kind: 'loot', desc: 'A fist of black glassy slag off a slag golem, still faintly warm in the middle. It used to be part of something that walked.' },
+  newt_skin: { name: 'Crucible Newt Skin', price: 1270, kind: 'loot', desc: 'A shed newt skin, orange and black, gone stiff as leather. Smiths line their gloves with it: it will not burn.' },
+  soot_pelt: { name: 'Soot Hound Pelt', price: 1295, kind: 'loot', desc: 'A wiry black pelt so full of soot it leaves a print of your hand on anything you touch after.' },
+  bellows_hide: { name: 'Bellows Toad Hide', price: 1315, kind: 'loot', desc: "A loose, pleated toad hide that folds up like the leather of a forge bellows. Slag says it's the best bellows leather there is." },
+  crucible_scale: { name: 'Crucible Scale', price: 1360, kind: 'loot', desc: "A plate of cooled slag off Old Crucible's back, black on top and glowing orange where it broke." },
+  scrap_helm: { name: 'Scrap-Iron Helm', price: 604000, lvl: 131, kind: 'helmet', def: 92, desc: "An iron helm riveted together from the scrap an iron ant carries, every plate a different shape. Forged for a wheel that never got it." },
+  sootfang: { name: 'Sootfang', price: 896000, lvl: 139, kind: 'sword', atk: 198, reach: 60, desc: 'A short black iron blade with a hooked tip like a hound\'s tooth, sooty however often you wipe it. It comes in low and fast.' },
+  crucible_blade: { name: 'Crucible Blade', price: 1004000, lvl: 147, kind: 'sword', atk: 205, reach: 66, desc: "A long iron blade poured in one go from the pit Old Crucible keeps hot, a salamander's tail curled round its guard. Forged for a wheel that never got it." },
+  crucible_helm: { name: 'Crucible Helm', price: 762000, lvl: 147, kind: 'helmet', def: 100, desc: 'A heavy iron helm crusted with cooled slag, cracked to show a glow underneath, a salamander\'s crest down the back.' },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
   // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen
@@ -2943,6 +3173,11 @@ export const ITEMS = {
   adderglass_staff: { name: 'Adderglass Staff', price: 652000, lvl: 119, kind: 'staff', magic: 178, mp: 107, reach: 60, twin: 'adderglass', desc: "An iron staff coiled with a tube adder's shed skin, a fang of black glass at its head. Its bolts come at a slant." },
   hundred_staff: { name: 'Hundredfoot Staff', price: 745000, lvl: 127, kind: 'staff', magic: 186, mp: 111, reach: 66, twin: 'hundred_saw', desc: "A jointed iron staff made of Hundredfoot's segments, glowing at every joint. It shifts in your hand, very slightly, as if walking." },
   brand_staff: { name: 'Smoulder Staff', price: 806000, lvl: 132, kind: 'staff', magic: 191, mp: 114, reach: 66, twin: 'greyback_brand', desc: "One of Greyback's logs, banded with iron, smouldering at the head. Its bolts come out trailing sparks and smelling of pine." },
+  pick_staff: { name: "Picker's Staff", price: 215000, lvl: 131, aim: 135, kind: 'staff', magic: 190, mp: 114, reach: 56, twin: 'brimstone_pick', desc: 'An old yoke pole cut down to a staff, a lump of clear yellow sulphur bound to its head with wire. It hums when the vents breathe.' },
+  kitetalon_staff: { name: 'Kitetalon Staff', price: 857000, lvl: 136, kind: 'staff', magic: 195, mp: 117, reach: 60, twin: 'kitetalon', desc: "An iron staff hooked at the head like a kite's foot, clutching a yellow crystal. Its bolts stoop on whatever they're aimed at." },
+  pinion_staff: { name: 'Pinion Staff', price: 935000, lvl: 142, kind: 'staff', magic: 201, mp: 121, reach: 66, twin: 'condor_pinion', desc: 'A long iron staff with a fan of slag-iron feathers at its head, singed at the tips. A hot wind follows its bolts.' },
+  sootfang_staff: { name: 'Sootfang Staff', price: 896000, lvl: 139, kind: 'staff', magic: 198, mp: 119, reach: 60, twin: 'sootfang', desc: "A black iron rod with a hound's fang at its head, soot smoking off it. Its bolts run low and fast." },
+  crucible_staff: { name: 'Crucible Staff', price: 1004000, lvl: 147, kind: 'staff', magic: 205, mp: 123, reach: 66, twin: 'crucible_blade', desc: 'A long iron staff with a little crucible at its head, a bead of molten metal glowing in it that never spills.' },
   gatehound_staff: { name: 'Gatehound Staff', price: 430000, lvl: 97, kind: 'staff', magic: 154, mp: 92, reach: 60, twin: 'gatehound_fang', desc: 'A rod of black ice with a hound\'s fang at its head and a link of old chain round the grip. Its bolts come out howling, very far off.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
   scroll_s100: { name: 'Weapon Scroll 100%', price: 300, kind: 'scroll', slot: 'weapon', rate: 1, atk: 1, magic: 1, desc: 'Always works: +1 ATK and +1 MAGIC on a weapon (a staff gets them the other way round).' },
@@ -3010,6 +3245,11 @@ const BOW_LIST = [
   ['adderglass_bow', 'adderglass', 'Adderglass Bow', 'Black-glass limbs with a red sheen, strung with adder gut. Its arrows bend, a little, toward whatever is hiding.'],
   ['hundred_bow', 'hundred_saw', 'Hundredfoot Bow', "A bow of Hundredfoot's jointed plates, the legs folded along its back. It creaks like a hundred knees when you draw."],
   ['greyback_bow', 'greyback_brand', "Greyback's Bow", 'A great bow bent from a charred sapling and banded with iron, a bear claw at the grip. It smells of smoke when you draw.'],
+  ['picker_bow', 'brimstone_pick', "Picker's Bow", "Two iron hoops off an old sulphur basket, straightened, riveted and strung with waxed cord. Ochre says it's the best use those hoops were ever put to."],
+  ['kitetalon_bow', 'kitetalon', 'Kitetalon Bow', 'A short, sharply curved bow of yellow-stained iron, a talon at each tip. Its arrows stoop.'],
+  ['condor_bow', 'condor_pinion', 'Condor Bow', 'A great bow of slag iron with condor quills fletched along both limbs. It is wide as the bird, and as patient.'],
+  ['sootfang_bow', 'sootfang', 'Sootfang Bow', 'A short black bow of sooty iron with a fang at each tip. Its arrows fly low, like a hound running.'],
+  ['crucible_bow', 'crucible_blade', 'Crucible Bow', "Two cast-iron limbs off one mould, a salamander's tail curling round the grip. It's warm to draw, and warmer after."],
   ['spring_bow', 'slag_maul', 'Ironspring Bow', 'Two leaf-springs off an old forge bellows, riveted together and strung with wire. Forged for a wheel that never got it.'],
 ];
 for (const [id, twin, name, desc] of BOW_LIST) {
@@ -3114,6 +3354,8 @@ export const SHOPS = {
   pitch: { name: "Pitch's Clamp", room: ASHWOOD, x: PITCH_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'collier_axe', 'deadwood_staff', 'charcoal_bow', 'collier_hood'] },
   // the Smoking Coast (E2): Liv's black-glass gear and potions at her shelter
   liv: { name: "Liv's Shelter", room: COAST, x: LIV_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'glasscutter_blade', 'quench_staff', 'glasscutter_bow', 'smoked_visor'] },
+  // the Brimstone Fields (E3a): Picker Ochre's sulphur-picker's gear and potions at her lean-to
+  ochre: { name: "Ochre's Lean-to", room: BRIMSTONE, x: OCHRE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'brimstone_pick', 'pick_staff', 'picker_bow', 'fume_mask'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));

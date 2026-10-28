@@ -75,6 +75,13 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
 24. **The Drained Tubes**: E2's third piece, a hard pocket down the old lava tube in the Coast's sea cliff (Lv
    115–125, elites of the clinker beetle and the tube adder, Hundredfoot, a `trail` field boss leaving burning lava)
    (`docs/places/tubes.md`). The lava drip is a rooted `lob` like the pitcher plant; no new brains or styles.
+25. **The Brimstone Fields**: E3a, Emberdeep's branch up the cone's flank from Magma Heart (Lv 125–140, Picker Ochre,
+   the Brimstone Condor, a `dive` field boss) (`docs/places/brimstone.md`). The chimney spitter is a rooted `lob`;
+   two new drawing styles: the acid slug's `acid` puddle and the spitter's `sulphur` shot (`src/hazards.js`).
+26. **The Old Foundry**: E3b, a hard pocket down the Ashwood's old mine adit (Lv 130–145, elites of the slag golem and
+   the soot hound, Old Crucible, a `lob` field boss living in the big casting pit) (`docs/places/foundry.md`). Slag
+   golems `split` into slaglings (kept small); two new drawing styles: the `molten` shot (the crucible newt's and Old
+   Crucible's) and the bellows toad's `bellows` beam (`src/hazards.js`).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

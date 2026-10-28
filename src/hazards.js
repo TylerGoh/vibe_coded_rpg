@@ -124,6 +124,8 @@ const SHOT = {
   ice: { glow: '140,190,255', core: '#e8f6ff', mid: '#8ec4f0', rim: '#2e5a8a' }, // the Hall Troll's block of ice
   seed: { glow: '190,255,150', core: '#fbffe8', mid: '#c8f0a0', rim: '#3e5a30' }, // the seed-pod lantern's glowing seed
   log: { glow: '255,130,60', core: '#ffd27a', mid: '#3a3034', rim: '#1e1a1e' }, // Greyback's burning log (the Ashwood)
+  sulphur: { glow: '240,220,90', core: '#fffbd0', mid: '#ffe04a', rim: '#b08a1e' }, // the chimney spitter's glob of burning sulphur (the Brimstone Fields)
+  molten: { glow: '255,150,60', core: '#fff6d0', mid: '#ffb040', rim: '#c84a1e' }, // molten metal: the crucible newt's and Old Crucible's (the Old Foundry)
 };
 function drawShot(ctx, h, now) {
   const p = h.pos;
@@ -450,10 +452,12 @@ function drawShot(ctx, h, now) {
 // style: none = burning lava (the magma slug) · 'goo' = a sticky lilac puddle of snail gloop · 'glow' = a
 // tangle of sticky glowing thread (the threadweaver's) · 'silk' = a sticky white web of caterpillar silk ·
 // 'brine' = a slick of freezing brine, salt crystals growing in it (the brine slug's) · 'steam' = a scalded wet
-// patch with puffs of steam boiling up off it (the steam toad's, the Black Sands)
+// patch with puffs of steam boiling up off it (the steam toad's, the Black Sands) · 'acid' = a pale green-yellow
+// pool of acid, smoking and pitting the crust (the acid slug's, the Brimstone Fields)
 function drawPuddle(ctx, h, now) {
   if (h.style === 'brine') return drawBrine(ctx, h, now);
   if (h.style === 'steam') return drawSteamPuff(ctx, h, now);
+  if (h.style === 'acid') return drawAcid(ctx, h, now);
   if (h.style === 'goo') return drawGoo(ctx, h, now);
   if (h.style === 'silk') return drawSilk(ctx, h, now);
   if (h.style === 'glow') return drawGlowThread(ctx, h, now);
@@ -548,6 +552,34 @@ function drawSteamPuff(ctx, h, now) {
     const bx = x + (hash(seed + i * 5) - 0.5) * rx * 1.5 * grow;
     ctx.fillStyle = `rgba(252,250,248,${0.75 * Math.sin(ph * Math.PI)})`;
     disc(ctx, bx + Math.sin(now * 2 + i) * 3, y - 4 - ph * 30, 5 + ph * 9);
+  }
+  ctx.restore();
+}
+
+function drawAcid(ctx, h, now) {
+  const start = h.warnAt ?? h.at, end = h.end ?? h.at + 5, age = now - start;
+  const a = clamp01(age / 0.25) * clamp01((end - now) / Math.min(1.2, (end - start) * 0.4));
+  if (a <= 0) return;
+  const x = h.x, y = h.y ?? GROUND, rx = (h.w || 60) / 2, grow = 0.6 + 0.4 * easeOut(clamp01(age / 0.4)), seed = x * 0.37;
+  ctx.save();
+  ctx.globalAlpha = a;
+  glow(ctx, x, y - 4, rx * 1.2, 18, '210,240,110', 0.4);
+  ctx.fillStyle = '#8aa83a'; // the pool, eating into the crust
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, rx * grow, 6, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#d8f07a';
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx * grow * 0.8, 3.6, 0, 0, TAU);
+  ctx.fill();
+  // bubbles popping and thin fumes curling up
+  for (let i = 0; i < 5; i++) {
+    const ph = (now * (0.9 + hash(seed + i) * 0.6) + hash(seed + i * 3)) % 1;
+    const bx = x + (hash(seed + i * 5) - 0.5) * rx * 1.4 * grow;
+    ctx.fillStyle = `rgba(240,255,170,${0.9 * (1 - ph)})`;
+    disc(ctx, bx, y - 1, 1.6 + ph * 1.6);
+    ctx.fillStyle = `rgba(226,236,170,${0.45 * Math.sin(ph * Math.PI)})`;
+    disc(ctx, bx + Math.sin(now * 2 + i) * 4, y - 6 - ph * 24, 3 + ph * 6);
   }
   ctx.restore();
 }
@@ -1003,6 +1035,7 @@ const BEAM = {
   briar: { glow: '170,230,120', outer: 'rgba(52,72,44,0.95)', mid: '#c8f0a0', aim: '255,96,110' }, // Ladon's Lash: a neck sweeping the den (FB1)
   rime: { glow: '220,236,255', outer: 'rgba(200,226,255,0.9)', mid: '#ffffff', aim: '255,96,120' }, // Fenrir's Frost Breath (FB2)
   brine: { glow: '255,214,190', outer: 'rgba(236,232,224,0.9)', mid: '#ffffff', aim: '255,96,110' }, // the Hatchkeeper's snort of hot brine and salt (E2)
+  bellows: { glow: '255,170,110', outer: 'rgba(255,190,140,0.6)', mid: '#ffe8d0', aim: '255,96,110' }, // the bellows toad's low blast of hot air (the Old Foundry)
 };
 function drawBeam(ctx, h, now) {
   const B = BEAM[h.style] || BEAM.sentry;

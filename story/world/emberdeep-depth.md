@@ -238,9 +238,10 @@ up, then the party den (E4) and the final boss (E5); then atlas Phase 6.
       the Skylight; waystone on the Coast. Eyvind's, Skaldi's, Soot's and Arne's personas learn Liv's news.
       Shipped 2026-10-28 (the Coast room 56, the Hatchkeeper's den 57, the Tubes room 58; `docs/places/coast.md`,
       `docs/places/tubes.md`); the mini Hatchkeeper and mini Hundredfoot are their art shrunk (`docs/ideas.md`).
-- [ ] **E3: the Brimstone Fields** (125–140) and **the Old Foundry** (130–145, hard): the Brimstone Condor,
+- [x] **E3: the Brimstone Fields** (125–140) and **the Old Foundry** (130–145, hard): the Brimstone Condor,
       Old Crucible, the Foundry's elites, Picker Ochre and her shop, the Breathing Stone, the Organ, the
       Pattern; waystone in the Fields. Lays the Rim's gate (the Bearers' stair) in the Fields.
+      Shipped 2026-10-28 (the Fields room 59, the Foundry room 60; `docs/places/brimstone.md`, `docs/places/foundry.md`).
 - [ ] **E4: the Caldera Rim** (135–150) and Brenna's party den (with lines and a `party` entry),
       the Hoist Stone, the Bearer's Seat, the name on the memorial wall; Ignis's and Pyra's lines. Then
       Emberdeep is done and **atlas Phase 6** resumes: the column vista, the balloon (the update lifts

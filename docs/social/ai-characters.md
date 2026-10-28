@@ -50,7 +50,12 @@ one shared corner feed).
   asks a finder once whether she looks well and has the other mitten), Skaldi (she wrote him about her glass birds),
   Runa, Arne ("Not your fault, skipper"), Soot (passes letters both ways, knitted her the thinnest scarf), Slag (asks
   her about snow; pegged the gully's chain), Ash (the Coast's dangers, the tube's steam as the shut way). E2's third piece (the Drained Tubes) took the tube off
-  Ash's shut ways (he lists what's down there) and told Liv it drained, as she said it would.
+  Ash's shut ways (he lists what's down there) and told Liv it drained, as she said it would. E3a (the Brimstone
+  Fields) took the fumes off Ash's shut ways (he lists the Fields' dangers, likes Ochre, won't go near the Bearers'
+  stair), and Soot and Slag learned Ochre exists (Soot soaks the yellow off her; Slag asked what the vents smell like).
+  E3b (the Old Foundry, `docs/places/foundry.md`) took the adit off Ash's shut ways: he had the bricks taken down
+  ("Someone ought to see it. It isn't going to be me."), lists what's down there, and won't say why it was shut or
+  talk about the tally board; Pitch helped stack the bricks and hung a lamp on the hook, and hasn't been in.
   **Liv** (`liv`, E2, `docs/places/coast.md`): Eyvind's daughter, fjord folk thinned nearly clear (`folk:
   'thinned'`); cuts black glass, one clean stroke. Plain and quiet like her father, warmer underneath. Tier 0 plus the
   Coast, the old tube (it drained, as she said; she went as far as the first skylight and came out: too far from the
@@ -60,8 +65,12 @@ one shared corner feed).
   once (the eggs hatched and ran for the sea; by morning a new clutch) and gives no fighting advice; Ash names her
   level. Hints at the Drained Tubes' Skylight (she'd like to hear what you saw from it).
   **Collier Pitch** (`pitch`, E1): the last charcoal-burner, dry, slow and sad; Tier 0 plus the Ashwood, Greyback,
-  the bridge, the adit he helped brick up (he sends you to Ash), the Kiln Stone (his family's story, it bothers him),
+  the bridge, the adit he helped brick up and, in E3b, unbrick (he sends you to Ash for why), the Kiln Stone (his family's story, it bothers him),
   and the Green Tree, which he hints at and won't place.
+  **Picker Ochre** (`ochre`, E3a, `docs/places/brimstone.md`): forge folk; carries sulphur down to the forges on a
+  yoke, lost her sense of smell, goes by her canary Saffron, sings to the vents; the plainest-spoken person on the
+  island. Tier 0 plus the Fields, the Condor, the Bearers' stair (she doesn't know who the Bearers were), the
+  Breathing Stone and Forgehold's people; hints at the Organ.
 - **Elder Mochi tends the Rebirth Pool** (S2.3, `docs/combat/skills.md`): he knows what it does, that the
   first choice is free and later changes cost about an hour's gold at your level, and only Warrior, Mage,
   Cleric and Archer (the Cleric added with S3, the Archer with S4, pointing archers at Ranger Acorn; add each

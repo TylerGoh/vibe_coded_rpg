@@ -211,6 +211,38 @@ unchanged. **Hundredfoot** (field, Lv 125, modelled on Greyback): the sheet solo
 curve: the Clinker Helm (`helmetPrice` at Lv 117), Adderglass and twins (`swordPrice` at Lv 119), Hundredfoot's Saw and
 twins and Helm at Lv 127. Its pet is 178k, between Fenrir's (Lv 120) and Greyback's (Lv 130), ~18 min at its level.
 
+## Emberdeep's depth pass, E3a: the Brimstone Fields (2026-10-28)
+The Brimstone Fields (`docs/places/brimstone.md`) put six mobs on the curve at Lv 127–138 (brimstone hopper ~92% HP for a
+passive mob, acid slug 97%, vent crab 124% like the other `shell` mobs, fume wisp 94%, sulphur kite 93%, chimney spitter
+90% for a rooted shooter; EXP 100%, gold 102–106%). They are the first mobs between the Ashwood's Lv 126 and the Citadel,
+so "farming your own level" from 127 to 149 picks them, and they pay a little less gold per EXP than the Ashwood's did
+there: **gold earned by** Lv 150 ~9.06M → ~8.97M, Lv 170 ~13.37M → ~13.28M, Lv 200 ~22.35M → ~22.26M (the plan's "pull
+it back down a little"); **play time** to Lv 150 21.4 h → 21.0 h (target 20.4 h), to Lv 200 38.1 h → 37.7 h; Lv 120 and
+below unchanged. **Picker Ochre**'s tier, aimed at Lv 135 (`lvl` 131 on the gear curve): the Brimstone Pick (and its
+staff and bow twins) 215k, ~20 min at the aim, the Picker's Fume Mask 170k, ~16 min. Gear drops on the curve at their
+mob's level: the Fumarole Helm (`helmetPrice` at Lv 132), Kitetalon with its twins (`swordPrice` at Lv 136). **The
+Brimstone Condor** (field, Lv 140, modelled on Greyback): HP 2.85M, the sheet solos it in a median ~4:32
+(`FIELD_SOLO_MIN`), and a kill pays 1.46× / 1.51× a minute of its fight in farming gold / EXP (`FIELD_PAY`); EXP 440k,
+coins 56–81k. Its gear a step over at Lv 142 (Condor Pinion and twins at `swordPrice`, the Condor Helm at
+`helmetPrice`). Its pet is 210k (~19 min at Lv 140), between Greyback's (190k, Lv 130) and the Colossus's (248k, Lv 150),
+leaving room under the Colossus for the Old Foundry's and the Rim's pets; `PETSHOP_W` 4860 → 5000. `HOUSE_SIZES`
+re-checked: nothing aimed between 125 and 140 moved (the Grand Estate, aim 120, still ~22 min).
+
+## Emberdeep's depth pass, E3b: the Old Foundry (2026-10-28)
+The Old Foundry (`docs/places/foundry.md`, a hard pocket) puts five mobs on the curve at Lv 131–142 (iron ant 124% HP
+like the other `shell` mobs, slag golem 100% (a `split` mob, like the cogling), crucible newt 95%, soot hound 102% (a
+plain chaser), bellows toad 95%; EXP 100%, gold 101–103%) and two elites from `elite()`; the slagling is a split
+minion, kept small (Lv 130, 520 EXP, 50–100 coins: unchecked by the sheet). They sit at the Brimstone Fields' levels and
+pay a touch less gold per EXP, so "farming your own level" barely moved: **gold earned by** Lv 150 ~8.966M → ~8.955M,
+Lv 170 ~13.284M → ~13.273M, Lv 200 ~22.259M → ~22.248M; **play time** to Lv 150 21.0 h → 20.9 h, to Lv 200 37.7 h →
+37.6 h. No trader. Gear on the curve at its mob's level: the Scrap-Iron Helm (`helmetPrice` at Lv 131), Sootfang and its
+twins (`swordPrice` at Lv 139). **Old Crucible** (field, Lv 145, modelled on Greyback and the Condor): HP 3.0M, the sheet
+solos it in a median ~4:36 (`FIELD_SOLO_MIN`), a kill pays 1.55× / 1.55× a minute of its fight in farming gold / EXP
+(`FIELD_PAY`); EXP 467k, coins 59.5–86k. Its gear a step over at Lv 147 (the Crucible Blade and twins at `swordPrice`, the
+Crucible Helm at `helmetPrice`). Its pet is 226k (~20 min at Lv 145), between the Condor's (210k, Lv 140) and the
+Colossus's (248k, Lv 150), leaving 226–248k for the Rim's party den (E4); `PETSHOP_W` 5000 → 5150. `HOUSE_SIZES`: nothing
+aimed between 130 and 145, nothing to change.
+
 ## The levelling rebalance, L1 and L2 (2026-10-23, `story/progression.md`)
 **L1, the pace.** `expToNext` = the larger of the old curve and `LEVEL_MIN(L)` minutes of `KILLS_PER_MIN` kills
 of the frozen curve's EXP at L (owner's curve "A": `0.5·L^0.65` minutes up to Lv 100, then `L/10`). Mobs and

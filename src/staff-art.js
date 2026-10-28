@@ -77,6 +77,13 @@ export const STAFFS = {
   adderglass_staff: { len: 64, shaft: ['#8a8490', '#4a4652'], w: 2.8, head: 'crystal', gem: '#1e1a22', gem2: '#ff6a4a', glow: '255,120,90' },
   hundred_staff: { len: 70, shaft: ['#3e383e', '#1c181e'], w: 3.2, head: 'ember', gem: '#2a2428', gem2: '#ff8a3a', glow: '255,140,70' }, // (Hundredfoot's: jointed segments)
   nestfire_staff: { len: 68, shaft: ['#6a6470', '#2e2a32'], w: 3, head: 'ember', gem: '#1e1c26', gem2: '#ff9a5a', glow: '255,160,110' }, // (the Hatchkeeper's: a black-glass egg, an ember inside)
+  // the Brimstone Fields (E3a, docs/places/brimstone.md)
+  pick_staff: { len: 64, shaft: ['#8a6a48', '#5a4430'], w: 3, head: 'crystal', gem: '#c8a020', gem2: '#fff07a', glow: '255,230,110' }, // (Ochre's: an old yoke pole, a lump of sulphur)
+  kitetalon_staff: { len: 66, shaft: ['#8a8490', '#4e4a56'], w: 2.8, head: 'crystal', gem: '#a8781e', gem2: '#ffe060', glow: '255,220,100' },
+  pinion_staff: { len: 70, shaft: ['#4a4448', '#24202a'], w: 3.2, head: 'feather', gem: '#6a6268', gem2: '#9a9298', glow: '255,214,120' }, // (the Condor's: slag-iron feathers)
+  // the Old Foundry (E3b, docs/places/foundry.md)
+  sootfang_staff: { len: 64, shaft: ['#3a3436', '#1a1618'], w: 2.8, head: 'crystal', gem: '#1e1a1c', gem2: '#ff5a40', glow: '255,100,80' }, // (a hound's fang, smoking)
+  crucible_staff: { len: 70, shaft: ['#5a5460', '#2e2a32'], w: 3.2, head: 'ember', gem: '#2a2426', gem2: '#ffb040', glow: '255,150,60' }, // (Old Crucible's: a little crucible of molten metal)
 };
 export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));
 export const staffGlow = (id) => STAFFS[artOf(id)]?.glow ?? '190,200,255';

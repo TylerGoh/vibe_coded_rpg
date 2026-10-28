@@ -24,7 +24,7 @@ west end. Don't "fix" the direction.
   charcoal clamps, a pile of deadwood, the Kiln Stone, the waystone, the sign back to Cinder Flats), **the Fern
   Slope** (fallen trunks, rock ledges; moths and boars), **the Charcoal Stands** (the great burnt trunk, broken off
   high, a `stump` platform; foxes and beetles) and **the Burnt Crown**, the bare top of the slope (wisps, beetles,
-  Greyback), with the Old Foundry's bricked-up adit at the very west end.
+  Greyback), with the Old Foundry's old mine adit at the very west end (bricked up until E3b, now open).
 - **The Green Tree**, the find (last in `ASH_PLATFORMS`, `greentree`): a hollow in the rock high over the Charcoal
   Stands, reached from the great burnt trunk's top. The last living tree of the old forest: small, thick,
   stubborn, in full green leaf, roots gripping the rock, ferns round it and a dented tin cup left for watering. Pitch
@@ -40,8 +40,10 @@ west end. Don't "fix" the direction.
   mine adit in the slope's rock face, a rail running out of it, **bricked up by the forge folk themselves** (neat
   forge bricks, good mortar, a rusted lamp hook, cold air leaking round one brick). E: "The old adit is bricked up
   from this side. Forge bricks, good mortar. Someone meant it." The Foundry lost `past`; its map `block` is "bricked
-  up". Ash says "We bricked it up ourselves. It stays bricked." and no more; Pitch carried bricks and sends you to Ash.
-  When E3 opens the Foundry, the update unbricks it (an open look for `adit` in `OPEN`), and those two personas change.
+  up". Ash said "We bricked it up ourselves. It stays bricked." and no more; Pitch carried bricks and sent you to Ash.
+  **Opened in E3b** (`docs/places/foundry.md`): Ash had the bricks taken down; they're stacked beside the mouth and
+  Pitch hung a lamp on the hook (`OPEN.adit`, `drawAdit` with its `open` flag). The node has `rooms` and an `entry`, the
+  door is in `ROOMS[ASHWOOD]`, and both personas changed (Ash lists what's down there; Pitch helped stack the bricks).
 - **Waystone** `ashwood` in the clearing (`isle: 'ember'`, `src/shared/waystones.js`).
 
 ## Collier Pitch (AI trader, `docs/social/ai-characters.md`)

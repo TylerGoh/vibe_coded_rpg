@@ -69,6 +69,14 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 - E2's Hatchkeeper and Drained Tubes are untested in play: Boiling Sand's tide-wet patches with a party, the jump from
   the ledge up to the Skylight, a lava drip on that ledge (maybe too mean), Hundredfoot's burning trail in a crowd.
   The mini Hatchkeeper and mini Hundredfoot are only their bosses' art shrunk (no pet art of their own, `petWH`).
+- E3a's Brimstone Fields are untested in play (no bot tests): the jump from the tall chimney's shoulder up to the Organ,
+  the Condor's `dive` from `fly` 90 at a party, two chimney spitters on the High Vents' ledges (maybe too mean), the
+  acid puddles' look over yellow crust, Ochre's yoke and hat on a phone. The mini Brimstone Condor is its art shrunk.
+- E3b's Old Foundry is untested in play (no bot tests): the jump from the crane's end girder up to the Pattern's loft,
+  the slag golems' slaglings in a crowd (and the Great Slag Golem's), the bellows toads' blast next to the soot hounds'
+  rush (maybe too mean together on the Casting Floor), Old Crucible's `molten` lobs and `curse` with a party, reading
+  the tally board with mobs about, the dark hall on a phone. The mini Old Crucible is its art shrunk. No gate is laid
+  yet for Emberdeep's final boss (E5: past the Foundry or the Tubes, `story/final-bosses.md`).
 - Getting home is two sailings: if it annoys people, a direct Forgehold to Greenhollow sailing waits for
   the "routes reconnect" idea in `story/world/geography.md`.
 

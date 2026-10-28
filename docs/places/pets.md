@@ -63,7 +63,9 @@ looks away. The second is the **mini Fenrir** (FB2 (c2): `drawFenrirPet` in `src
 in a ribbon collar of pale light; every few seconds it turns, catches the loose end of its ribbon and chews it, eyes shut
 and tail going. Its plinth is why `PETSHOP_W` went up (the shop warns at startup if the plinths don't fit); E2's mini
 Hatchkeeper (her art shrunk, priced between Pyra's and Fenrir's) raised it again, and so did the mini Hundredfoot
-(E2's Drained Tubes field boss, priced between Fenrir's and Greyback's by level).
+(E2's Drained Tubes field boss, priced between Fenrir's and Greyback's by level), and the mini Brimstone Condor (E3a,
+between Greyback's and the Colossus's, leaving room under the Colossus for the Old Foundry's and the Rim's), and the mini
+Old Crucible (E3b's Old Foundry field boss, its art shrunk, between the Condor's and the Colossus's).
 
 ## Testing
 - `TEST_PET_FAST=1440` makes a full belly last 2 minutes (test servers only, never live).
