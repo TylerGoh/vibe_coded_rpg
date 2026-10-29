@@ -73,7 +73,9 @@ No quests, no hard level gates.
    - [x] E4: the Caldera Rim and Brenna, Emberdeep's party den; Ignis's and Pyra's lines (2026-10-28; rooms 61 and 62,
          `docs/places/rim.md`). Emberdeep's depth pass is done but its final boss. Next: **the owner plays** them, then
          E5 and atlas Phase 6 (below).
-7. **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase.
+7. **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase. (a) on paper 2026-10-29:
+   Typhon, the Buried Fire, under the Old Foundry (`e5-plan.md`), approved with every default
+   (the owner may polish it). Next: (b) the way there (the Foundry's fallen pit, the Under-Flues, the Long Flue).
 
 ## Next
 - [ ] **Atlas Phase 6: the climb** (E4 shipped: this is next; can run alongside E5): the thermal column vista, the balloon crossing (Slag's

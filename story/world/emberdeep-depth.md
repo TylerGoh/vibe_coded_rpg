@@ -255,6 +255,7 @@ up, then the party den (E4) and the final boss (E5); then atlas Phase 6.
 - [ ] **E5: Emberdeep's final boss** (owner, 2026-10-24; `../final-bosses.md`): four or more players at the recommended Lv 150 (the boss shown far higher),
       about 30 minutes, far past the Old Foundry `[default]` (a deep room, an approach, the den). The pass's last phase; atlas Phase 6 can
       start alongside it, since the balloon doesn't depend on it.
+      (a) on paper 2026-10-29, approved: Typhon, the Buried Fire, under the Old Foundry (`../e5-plan.md`).
 
 ## When a phase ships
 Tick it here, move it to `../done.md` (one line) and off `../roadmap.md`, add its leftovers to
