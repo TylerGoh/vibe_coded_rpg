@@ -4,14 +4,17 @@
 // Training Yard, takes you to any boss at any phase, and has god mode, full MP and no cooldowns. The readout (#sbx-dps)
 // shows your damage per second, the total, a timer and a per-skill breakdown, from the server's count. Everything that
 // makes a fight feel like one (hit pops, sounds, shakes, the buff bar, the hotbar) is the game's own, untouched.
-import { ITEMS, DENS, MOBS, PHASE_AT, isCombat } from './shared/rpg.js';
-import { SKILLS, CLASSES } from './shared/skills.js';
+import { ITEMS, DENS, MOBS, PHASE_AT, isCombat, GREEN_TOP, FROST_TOP, EMBER_TOP } from './shared/rpg.js';
+import { SKILLS, CLASSES, weaponOk } from './shared/skills.js';
 import { FINAL } from './shared/final.js';
-import { ARENA, DUMMY_HP_SHARES, SANDBOX_LEVELS, SANDBOX_MAX_LVL } from './shared/sandbox.js';
+import { ARENA, DUMMY_HP_SHARES, SANDBOX_LEVELS, SANDBOX_MAX_LVL, SANDBOX_HEADLINERS, SANDBOX_PARTY } from './shared/sandbox.js';
 
 const LEVEL_NAMES = { 10: '1st', 30: '2nd', 60: '3rd', 100: '4th', 200: 'cap' };
 const WEAPON_KINDS = { warrior: ['sword'], mage: ['staff'], cleric: ['staff'], archer: ['bow'], novice: ['sword', 'staff', 'bow'] };
 const NEAR_DEATH = 0.05; // the last phase button: the boss at 5%
+const LAST_HOLD = 0.001; // the phase lock in a boss's last phase: it never dies
+// the level the Bosses tab's class swap gives you for each island's headliner (its recommended level)
+const ISLAND_LVL = { Greenhollow: GREEN_TOP, Frostpeak: FROST_TOP, Emberdeep: EMBER_TOP };
 
 const el = (tag, props = {}, kids = []) => {
   const e = Object.assign(document.createElement(tag), props);
@@ -27,11 +30,32 @@ function nameOf(key) {
   const base = { attack: 'Attack', bolt: 'Staff bolt', arrow: 'Bow shot' }[b] ?? SKILLS[b]?.name ?? b;
   return a ? `${base} (${a})` : base;
 }
+// the HP shares where a boss's phases 2, 3 (and a final boss's 4) start
+const phasesOf = (kind) => (MOBS[kind].final ? FINAL[MOBS[kind].final].at : PHASE_AT.slice(1));
 // the HP share that starts a boss in phase i (0-based; past its last phase: its last), or near death
 function phaseHp(kind, i) {
   if (i === 'end') return NEAR_DEATH;
-  const k = MOBS[kind], at = k.final ? FINAL[k.final].at : PHASE_AT.slice(1);
+  const at = phasesOf(kind);
   return i === 0 ? 1 : at[Math.min(i, at.length) - 1] - 0.01;
+}
+// the phase lock for phase i: the share where the next phase would start (its last phase, or near death: never dies)
+function holdHp(kind, i) {
+  const at = phasesOf(kind);
+  return i === 'end' || i >= at.length ? LAST_HOLD : at[i];
+}
+// a boss's ultimates, in the order the server's index uses
+function ultsOf(kind) {
+  const k = MOBS[kind];
+  return k.final ? FINAL[k.final].ults : k.ults ?? (k.ult ? [k.ult] : []);
+}
+// the best gear of a kind up to a level (the Bosses tab's class swap)
+function bestUpTo(lvl, ok, score) {
+  let best = null;
+  for (const [id, it] of Object.entries(ITEMS)) {
+    if (!ok(id, it) || (it.lvl ?? 1) > lvl) continue;
+    if (!best || (it.lvl ?? 1) > (best[1].lvl ?? 1) || ((it.lvl ?? 1) === (best[1].lvl ?? 1) && score(it) > score(best[1]))) best = [id, it];
+  }
+  return best?.[0] ?? null;
 }
 
 export class Sandbox {
@@ -48,6 +72,10 @@ export class Sandbox {
     this.showDps = localStorage.getItem('slimeville-sbx-dps') !== 'off';
     this.pick = { cls: 'warrior', lvl: 30, skills: 'max', ap: 'main', weapon: '', helmet: '' };
     this.phase = 0;
+    this.hold = false; // the phase lock, sent with Fight and changed mid-fight
+    this.party = true; // a boss's party mechanics as for SANDBOX_PARTY slimes
+    this.room = -1;
+    this.others = false; // "Other dens" folded open
     this.panel = document.getElementById('sbx');
     this.body = document.getElementById('sbx-body');
     this.tabs = document.getElementById('sbx-tabs');
@@ -111,6 +139,10 @@ export class Sandbox {
   // once a frame (src/main.js): the button and the readout follow where you are
   frame(room) {
     const live = this.on && this.online();
+    if (room !== this.room) {
+      this.room = room;
+      if (this.isOpen && this.tab === 'boss') this.render(); // (the "This fight" box follows you in and out of dens)
+    }
     this.button.hidden = !live;
     this.readout.hidden = !(live && this.showDps && isCombat(room) && (room === ARENA || this.dps?.total > 0));
     if (!live && this.isOpen) this.close();
@@ -197,21 +229,60 @@ export class Sandbox {
 
   tab_boss() {
     const tag = (k) => (k.final ? 'final boss' : k.top ? 'top boss' : 'den');
-    return [
+    const fight = (kind) => {
+      this.send({ t: 'sbx', a: 'boss', kind, hp: phaseHp(kind, this.phase), hold: this.hold ? holdHp(kind, this.phase) : 0, party: this.party });
+      this.close();
+    };
+    const here = DENS.find((d) => d.room === this.room);
+    const card = (d, island) => {
+      const k = MOBS[d.boss], n = ultsOf(d.boss).length;
+      return el('button', { type: 'button', className: `sbx-boss${island ? ' sbx-head' : ''}`, onclick: () => fight(d.boss) }, [
+        island && el('i', { textContent: island }),
+        el('b', { textContent: k.name }),
+        el('span', { textContent: `Lv ${k.lvl} · ${tag(k)} · ${phasesOf(d.boss).length + 1} phases · ${n} ultimate${n === 1 ? '' : 's'}` }),
+      ]);
+    };
+    const heads = SANDBOX_HEADLINERS.map((h) => [DENS.find((d) => d.boss === h.boss), h.island]).filter(([d]) => d);
+    const rest = DENS.filter((d) => !SANDBOX_HEADLINERS.some((h) => h.boss === d.boss));
+    const out = [
       this.row('Start at', this.seg([[0, 'Phase 1'], [1, 'Phase 2'], [2, 'Phase 3'], [3, 'Phase 4 (finals)'], ['end', 'Near death']], this.phase, (v) => { this.phase = v; this.render(); })),
-      el('div', { className: 'sbx-bosses' }, DENS.map((d) => {
-        const k = MOBS[d.boss];
-        return el('button', { type: 'button', className: 'sbx-boss', onclick: () => {
-          this.send({ t: 'sbx', a: 'boss', kind: d.boss, hp: phaseHp(d.boss, this.phase) });
-          this.close();
-        } }, [el('b', { textContent: k.name }), el('span', { textContent: `Lv ${k.lvl} · ${tag(k)}` })]);
-      })),
+      this.row('Hold phase', this.seg([[true, 'On'], [false, 'Off']], this.hold, (v) => { this.hold = v; this.render(); }), el('span', { className: 'sbx-about', textContent: "its HP stops short of the next phase (in the last: it can't die)" })),
+      this.row('Party mechs', this.seg([[true, `As for ${SANDBOX_PARTY}`], [false, 'As in the game']], this.party, (v) => { this.party = v; this.render(); }), el('span', { className: 'sbx-about', textContent: 'final bosses always have them' })),
+    ];
+    // in a den: this fight's own controls
+    if (here) {
+      const kind = here.boss, k = MOBS[kind], island = SANDBOX_HEADLINERS.find((h) => h.boss === kind)?.island;
+      const lvl = ISLAND_LVL[island] ?? k.lvl;
+      const asClass = (cls) => {
+        const weapon = bestUpTo(lvl, (id, it) => it.kind === CLASSES[cls].weapon && weaponOk(cls, id), (it) => (it.atk ?? 0) + (it.magic ?? 0));
+        const helmet = bestUpTo(lvl, (id, it) => it.kind === 'helmet', (it) => it.def ?? 0);
+        this.send({ t: 'sbx', a: 'char', cls, lvl, skills: 'max', ap: 'main', ...(weapon && { weapon }), ...(helmet && { helmet }) });
+      };
+      out.push(el('div', { className: 'sbx-fight' }, [
+        el('b', { textContent: `This fight: ${k.name}` }),
+        this.row('Ultimate now', el('div', { className: 'sbx-btns' }, ultsOf(kind).map((u, i) => this.act(u.name, { a: 'ult', kind, which: i })))),
+        this.row('Restart at', el('div', { className: 'sbx-btns' }, [...phasesOf(kind).map((_, i) => i), phasesOf(kind).length].map((i) => el('button', { type: 'button', className: 'sbx-act', textContent: `Phase ${i + 1}`, onclick: () => {
+          this.phase = i;
+          this.send({ t: 'sbx', a: 'boss', kind, hp: phaseHp(kind, i), hold: this.hold ? holdHp(kind, i) : 0, party: this.party });
+        } })))),
+        this.row('Hold / party', el('div', { className: 'sbx-btns' }, [
+          el('button', { type: 'button', className: 'sbx-act', textContent: 'Apply the switches above now', onclick: () => this.send({ t: 'sbx', a: 'bossopt', kind, hold: this.hold ? holdHp(kind, this.phase) : 0, party: this.party }) }),
+        ])),
+        this.row(`Be a Lv ${lvl}`, this.seg(Object.keys(CLASSES).filter((c) => c !== 'novice').map((c) => [c, CLASSES[c].name]), this.rpg.me?.cls, (c) => asClass(c), (v) => CLASSES[v].color),
+          el('span', { className: 'sbx-about', textContent: 'max skills, all in the main stat, the best gear up to that level' })),
+      ]));
+    }
+    out.push(
+      el('div', { className: 'sbx-bosses' }, heads.map(([d, island]) => card(d, island))),
+      el('button', { type: 'button', className: 'sbx-act sbx-fold', textContent: `${this.others ? 'Hide' : 'Show'} the other dens (${rest.length})`, onclick: () => { this.others = !this.others; this.render(); } }),
+      this.others && el('div', { className: 'sbx-bosses' }, rest.map((d) => card(d))),
       el('div', { className: 'sbx-btns' }, [el('button', { type: 'button', className: 'sbx-act', textContent: 'Back to the yard', onclick: () => {
         this.send({ t: 'sbx', a: 'yard' });
         this.close();
       } })]),
-      el('p', { className: 'sbx-note', textContent: 'Fight takes you into its den with the boss fresh at that phase. Leave (or go back to the yard) and it heals up after a few seconds, as in the game. Everyone in the sandbox shares the dens.' }),
-    ];
+      el('p', { className: 'sbx-note', textContent: 'Fight takes you into its den with the boss fresh at that phase. Ultimate now fires once the boss finishes what it is doing. God mode (Toggles) keeps you up through an ultimate: the hit still shows. Leave and it heals after a few seconds, as in the game. Everyone in the sandbox shares the dens.' }),
+    );
+    return out.filter(Boolean);
   }
 
   tab_opts() {

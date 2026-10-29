@@ -9,7 +9,11 @@
 //   → {t:'sbx', a:'pots'}                 stock SANDBOX_POTS of each of SANDBOX_POTIONS, the first three on the potion bar
 //   → {t:'sbx', a:'dummy', kind: 'one'|'pack'|'spar'|'clear'}   training dummies in the Training Yard
 //   → {t:'sbx', a:'dummyhp', share}       every dummy's HP setting (one of DUMMY_HP_SHARES)
-//   → {t:'sbx', a:'boss', kind, hp}       into that boss's den, the boss fresh at hp (a share of its max HP: its phase)
+//   → {t:'sbx', a:'boss', kind, hp, hold?, party?}   into that boss's den, the boss fresh at hp (a share of its max HP:
+//       its phase). hold: the share its HP stops at (the phase lock: it never reaches the next phase, never dies; 0:
+//       off) · party: its party mechanics on as for SANDBOX_PARTY slimes
+//   → {t:'sbx', a:'bossopt', kind, hold?, party?}   the same two, changed mid-fight
+//   → {t:'sbx', a:'ult', kind, which}     that boss's ultimate (an index into its ults; null: its next) as soon as it's free
 //   → {t:'sbx', a:'yard'}                 back to the Training Yard
 //   → {t:'sbx', a:'toggle', what: 'god'|'mp'|'nocd', on}
 //   → {t:'sbx', a:'meter'}                the DPS readout starts over
@@ -21,6 +25,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { ITEMS, DENS, DEN_EXIT_X, MOBS, isWeapon } from '../src/shared/rpg.js';
+import { FINAL } from '../src/shared/final.js';
 import { SKILLS, CLASSES, ACTIVE, HOTBAR, AP_STATS, apTotal, apSpent, cantLearn, cleanSkills, giftsOf, rankOf, skillFor, weaponOk } from '../src/shared/skills.js';
 import { placeAt } from '../src/shared/sim.js';
 import { ARENA, ARENA_W, ARENA_SPAWN_X, DUMMY_HP_SHARES, DUMMY_MAX, DUMMY_PACK, DUMMY_GAP, METER_EVERY_MS, SANDBOX_MAX_LVL, MAIN_STAT, SANDBOX_POTIONS, SANDBOX_POTS } from '../src/shared/sandbox.js';
@@ -92,6 +97,9 @@ export function createSandbox({ rpg, hooks, players, send, dbPath, livePath }) {
   };
   hooks.god = (p) => !!p.sbx?.god;
   hooks.respawn = () => ({ room: ARENA, x: ARENA_SPAWN_X, name: 'the Training Yard' });
+  // the Bosses tab's switches live on the boss (everyone in its den shares the fight); resetBoss keeps them
+  hooks.hpFloor = (m) => (m.sbxHold ? Math.max(1, Math.ceil(m.maxHp * m.sbxHold) + 1) : 0);
+  hooks.party = (m) => !!m.sbxParty;
 
   setInterval(() => {
     for (const p of players.values()) {
@@ -205,13 +213,33 @@ export function createSandbox({ rpg, hooks, players, send, dbPath, livePath }) {
   }
 
   // ——— bosses on demand: its den, the boss started fresh at the HP share that picks its phase ———
+  const denBoss = (kind) => {
+    const d = DENS.find((x) => x.boss === kind);
+    return d && sb.mobs().find((q) => q.den === d);
+  };
+  function bossOpts(b, m) {
+    if (m.hold !== undefined) b.sbxHold = clamp(Number(m.hold) || 0, 0, 0.99);
+    if (m.party !== undefined) b.sbxParty = !!m.party;
+  }
   function boss(p, m) {
-    const d = DENS.find((x) => x.boss === m.kind), b = d && sb.mobs().find((q) => q.den === d);
+    const b = denBoss(m.kind);
     if (!b) return;
     if (p.faintUntil) return sb.toast(p, 'Wake up first');
     sb.resetBoss(b);
+    bossOpts(b, m);
     b.hp = Math.max(1, Math.round(b.maxHp * clamp(Number(m.hp) || 1, 0.01, 1)));
-    placeAt(p.state, d.room, DEN_EXIT_X + 160);
+    placeAt(p.state, b.den.room, DEN_EXIT_X + 160);
+  }
+  // Ultimate now: armed and due; it goes off when the boss is next free (a move or a stagger finishing first)
+  function ultNow(p, m) {
+    const b = denBoss(m.kind), k = b && MOBS[b.kind];
+    if (!b || b.dead) return;
+    if (p.state.room !== b.room) return sb.toast(p, 'Go into its den first');
+    const list = k.final ? FINAL[k.final].ults : k.ults ?? (k.ult ? [k.ult] : []);
+    if (!list.length) return sb.toast(p, `${k.name} has no ultimate`);
+    const which = Number.isInteger(m.which) && list[m.which] ? m.which : null;
+    sb.ultNow(b, which);
+    sb.toast(p, `${list[which ?? 0].name}: as soon as it's free`);
   }
 
   function receive(id, p, m) {
@@ -221,6 +249,10 @@ export function createSandbox({ rpg, hooks, players, send, dbPath, livePath }) {
     else if (m.a === 'dummy') dummy(p, m.kind);
     else if (m.a === 'dummyhp') dummyHp(Number(m.share));
     else if (m.a === 'boss') boss(p, m);
+    else if (m.a === 'bossopt') {
+      const b = denBoss(m.kind);
+      if (b) bossOpts(b, m);
+    } else if (m.a === 'ult') ultNow(p, m);
     else if (m.a === 'yard') {
       if (p.faintUntil) return sb.toast(p, 'Wake up first');
       placeAt(p.state, ARENA, ARENA_SPAWN_X);

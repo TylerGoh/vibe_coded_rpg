@@ -12,6 +12,7 @@
 // step, so nothing snaps back. Slaps on friends are still judged here, against where the slapper saw
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
+import { SANDBOX_PARTY } from '../src/shared/sandbox.js';
 import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, EGG_HP, FIELD_GROUND, THORNHEART, THORN_PATCHES, patchAt, PATCH_DOT, PATCH_HIT_EVERY, ROADSEND, LADON_MARK_X, LADON_LINE, BLUEHALLS, THIN_ICE, THIN_ICE_HOLD, THIN_ICE_DOT, LONGSTAIR, FENRIR_MARK_X, FENRIR_LINE, FOUNDRY, HOT_GRATES, grateAt, GRATE_DOT, LONGFLUE, TYPHON_MARK_X, TYPHON_LINE } from '../src/shared/rpg.js';
 import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS, DEVOTION_S, DEVOTION_CAP, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, judgmentMult, RESOLVE_R } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
@@ -94,7 +95,8 @@ export function rollbackLevel(base, activeMs) {
 
 // players: the server's id → player map. send(ws, msg). toRoom(room)(msg). broadcast(msg).
 // hooks: the dev sandbox's (server/sandbox.js, docs/sandbox.md; empty on the live server): onDamage(m, dmg, id, p, src) for its
-// DPS readout, god(p) (god mode: never faint), respawn(p) (→ { room, x, name }: where you wake up)
+// DPS readout, god(p) (god mode: never faint), respawn(p) (→ { room, x, name }: where you wake up), hpFloor(m) (a boss
+// held in its phase: its HP never drops below this), party(m) (a boss's party mechanics as for a full party)
 export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {} }) {
   const db = new DatabaseSync(dbPath);
   db.exec(`CREATE TABLE IF NOT EXISTS rpg_chars (user TEXT PRIMARY KEY, data TEXT NOT NULL, updated_at INTEGER NOT NULL)`);
@@ -151,7 +153,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       phase: 'walk', next: 3, timer: 0, act: null, enraged: false, last: null, emptyFor: 0,
       stage: 0, chain: 0, ultAt: 0, ultArmed: false, ult: null, ultLiveUntil: 0, rains: [], slamR: 300,
       // the newer mobs' tricks (mobAi) and bosses: special = phased / mid-teleport / Pyra's egg
-      aiCd: rand(1, k.ai?.every ?? 3), aiPhase: null, aiTimer: 0, special: false, egg: null, ultN: 0,
+      aiCd: rand(1, k.ai?.every ?? 3), aiPhase: null, aiTimer: 0, special: false, egg: null, ultN: 0, forceUlt: null,
       hover: k.fly ?? 0, hoverCur: k.fly ?? 0, dive: null, later: [],
       // bosses and field bosses: damage dealt by each slime (name → HP) since its HP was last full
       dmg: new Map(), dmgDirty: true,
@@ -722,6 +724,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     }
     hooks.onDamage?.(m, Math.min(dmg, Math.max(0, m.hp)), id, p, src);
     m.hp -= dmg;
+    const floor = hooks.hpFloor?.(m);
+    if (floor) m.hp = Math.max(m.hp, floor); // (the sandbox's phase lock)
     if (MOBS[m.kind].dummy) m.hp = Math.max(1, Math.round(m.maxHp * (m.dummyHp ?? 1))); // (the sandbox's dummies: never die)
     if (!m.focus && !(m.tauntUntil > now())) { // (a Knight's taunt and a boss's focus hold its eye)
       m.target = p;
@@ -1778,7 +1782,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   }
   // The ultimate: ULT_WARN seconds of warning (with where's safe), then it goes off
   function startUlt(m, k, t, forced = null) {
-    const which = forced ?? (k.ults ? k.ults[m.ultN++ % k.ults.length] : k.ult); // Chronos alternates; a final boss picks its own (server/final.js)
+    const pin = m.forceUlt;
+    m.forceUlt = null;
+    const which = forced ?? ((pin != null && k.ults?.[pin]) || (k.ults ? k.ults[m.ultN++ % k.ults.length] : k.ult)); // Chronos alternates; a final boss picks its own (server/final.js)
     const u = { ...which, dur: which.dur ?? ULT_WARN };
     if (u.kind === 'spores') {
       const a = rand(180, DEN_W / 2 - 150);
@@ -1852,7 +1858,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   // ——— S5: bosses that need a party (PARTY in src/shared/rpg.js, story/s5-plan.md) ———
   // partyOn(m, mech): is that mechanic switched on for this fight (the boss lists it, has partyLive, and enough
   // slimes are fighting it)? S5.2's curse, barrier, armour, weak point and interrupt read the same gate.
-  const partyOn = (m, mech) => partyActive(MOBS[m.kind], m.fighters, mech);
+  const partyOn = (m, mech) => partyActive(MOBS[m.kind], hooks.party?.(m) ? Math.max(m.fighters, SANDBOX_PARTY) : m.fighters, mech);
   const partyBits = (m) => PARTY_MECHS.reduce((b, mech) => (partyOn(m, mech) ? b | partyBit(mech) : b), 0);
   // who's in the fight: everyone in a den; round a field boss, the slimes near it or who hit it lately
   const inFight = (m, here) => (m.den ? here : here.filter(([qid, q]) => Math.abs(q.state.x - m.x) < 900 || now() - (m.hitters.get(qid) ?? 0) < FIELD_BOSS_FIGHT_MS))
@@ -2281,6 +2287,19 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         return m;
       },
       resetBoss: (m) => resetBoss(m),
+      // an ultimate as soon as the boss is free (which: an index into its ults, or the next): a final boss's loop takes
+      // it next (server/final.js, server/fenrir.js read m.forceUlt), any other boss on its next move
+      ultNow(m, which) {
+        m.ultArmed = true;
+        m.forceUlt = which;
+        if (m.fin) {
+          m.fin.nextUlt = 0;
+          if (m.fin.gap && m.fin.at !== Infinity) m.fin.at = Math.min(m.fin.at, now());
+        } else {
+          m.ultAt = 0;
+          if (m.phase === 'walk') m.next = Math.min(m.next, 0.3);
+        }
+      },
       stats: (p) => stats(p),
       // after a character swap: every buff, summon, field, cooldown and Mana Shield gone (as rebirth does), the
       // physics' move ranks redone, HP and MP full, and everyone told

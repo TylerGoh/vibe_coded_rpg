@@ -4,7 +4,8 @@ Files: `server/sandbox.js` (its messages, the login copy, dummies, bosses, toggl
 `src/shared/sandbox.js` (the Training Yard's room `ARENA` and every sandbox number), `src/sandbox.js` (the panel and
 the readout), `src/sandbox-art.js` (the yard and the dummies), `scripts/sandbox-build.mjs` (the build-if-changed step),
 `deploy/rpg-dev.service` and its socket unit `deploy/rpg-dev.socket`, the `/rpg_dev/` block in
-`deploy/nginx-owntracks.conf`. Hooks into the game: `hooks` in `createRpg` (`server/rpg.js`), the `sbx` branch and
+`deploy/nginx-owntracks.conf`. Hooks into the game: `hooks` in `createRpg` (`server/rpg.js`: `onDamage`, `god`, `respawn`, `hpFloor`, `party`; and
+`m.forceUlt`, read by `startUlt` and the final bosses' loops), the `sbx` branch and
 `SANDBOX` in `server/index.js`, `onSandbox` in `src/net.js` / `src/main.js`.
 
 ## What it is, and why (owner, 2026-10-27; `story/roadmap.md` 5b)
@@ -50,11 +51,25 @@ The sandbox only adds a room, two mob kinds, a panel and a readout; it never cha
     jump the shockwave; touching it hurts too; `SPAR_HIT_PCT` of your max HP a hit, like a boss's share, so it matters
     at any level), up to `DUMMY_MAX`; Clear. Dummies never die and give nothing (`dummy` on their `MOBS` rows, kept up
     in `damage()`); their HP stays at the yard's setting (`DUMMY_HP_SHARES`), for skills that care about a target's HP.
-  - *Bosses*: every `DENS` row (the dens, the party dens, the final bosses), started at phase 1–4 or near death:
+  - *Bosses* (reworked 2026-10-29, owner: "jump me into boss fights… I only need the biggest boss of each region"):
+    each island's headliner up top (`SANDBOX_HEADLINERS`: Ladon, Fenrir, and Brenna for Emberdeep until Typhon ships in
+    E5 (c); add him there then), every other `DENS` row folded under "Other dens". Start at phase 1–4 or near death:
     Fight resets that boss (`resetBoss`), sets its HP to the share that phase starts at (`PHASE_AT`, a final boss's
-    `FINAL` row), and puts you in its den. Everything else is the game's: leave and it heals after a few seconds; party
-    mechanics need the party sizes they need in the game. Back to the yard from anywhere. Everyone in the sandbox
-    shares the dens, as in the game.
+    `FINAL` row), and puts you in its den. Two switches go with Fight:
+    - *Hold phase*: `sbxHold` on the boss, read by `hooks.hpFloor` in `damage()`: its HP stops just above the next
+      phase's share, so it stays in the phase you're testing; in its last phase it can't die (`LAST_HOLD`).
+    - *Party mechs*: `sbxParty` on the boss, read by `hooks.party` in `partyOn`: its party mechanics come on as for
+      `SANDBOX_PARTY` slimes, so one slime sees Brenna's focus, barrier, pulse, weak point and adds. On by default.
+      Final bosses have them anyway (`partyAll`).
+    In a den the tab adds *This fight*: **Ultimate now**, one button for each of the boss's ultimates (`sb.ultNow`
+    sets `m.forceUlt`; the boss uses that one the next time it's free: `startUlt` for den bosses; the loop in
+    `server/final.js` / `server/fenrir.js` for final bosses, even in phase 4, where the loop otherwise runs them
+    itself), Restart at any phase without leaving, the two switches applied mid-fight (`bossopt`), and **Be a Lv N**
+    (any class at once: max skills, every point in the main stat, the best weapon and helmet up to that level; N is
+    the island's recommended level, `GREEN_TOP` / `FROST_TOP` / `EMBER_TOP`, or the boss's own level for other dens).
+    Everything else is the game's: leave and it heals after a few seconds, the switches stay on the boss until changed.
+    Everyone in the sandbox shares the dens, as in the game. With god mode on, an ultimate still hits you (the
+    number shows) but you stay up.
   - *Toggles* (yours, until you log out): god mode (hits land, numbers and knockback show, you never go down:
     `hooks.god` in `hurt()`), full MP (topped up before each cast and between casts), no cooldowns (server and client).
 - **The DPS readout** (`#sbx-dps`, left side under the status box; the boss's damage meter stays on the right): your
@@ -97,5 +112,4 @@ Note: `npm run dev` (Vite's dev server) also wants port 3003; stop the socket or
   `sbx-dps` were dropped. A new `on…` callback for `Net` goes in both of its lists.
 
 ## Not done / ideas
-- No switch to force a boss's party mechanics on for one slime (`TEST_PARTY` does it on a test server); no field bosses
-  on the Bosses tab; dummies don't fight back with anything but a stomp.
+- No field bosses on the Bosses tab; dummies don't fight back with anything but a stomp.

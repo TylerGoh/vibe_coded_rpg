@@ -227,7 +227,9 @@ function createHydra(d) {
   // an ultimate: Hundred Heads (necks strike everywhere but the gaps) or Strangle (the coils surge; only the high arch)
   function ult(m, k, t) {
     const f = m.fin, row = FINAL[f.row];
-    const which = f.ph >= row.alternateFrom ? row.ults[f.ultN++ % row.ults.length] : row.ults[0];
+    const pin = m.forceUlt; // (the sandbox's Ultimate now: that one)
+    m.forceUlt = null;
+    const which = (pin != null && row.ults[pin]) || (f.ph >= row.alternateFrom ? row.ults[f.ultN++ % row.ults.length] : row.ults[0]);
     const u = { ...which, dur: FINAL_ULT_WARN };
     if (u.kind === 'heads') {
       // HUNDRED_GAPS safe gaps, spread out across the open floor between the coils
@@ -318,7 +320,7 @@ function createHydra(d) {
     if (!fighters(m, here).length) return 0;
     // the next move: an ultimate due (phases 1–3), else the loop's next step
     let name;
-    if (f.ph < 3 && m.ultArmed && t >= f.nextUlt) name = 'ult';
+    if ((f.ph < 3 || m.forceUlt != null) && m.ultArmed && t >= f.nextUlt) name = 'ult';
     else {
       const loop = row.loops[f.ph];
       name = loop[f.step % loop.length];
