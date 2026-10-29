@@ -75,7 +75,8 @@ No quests, no hard level gates.
          E5 and atlas Phase 6 (below).
 7. **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase. (a) on paper 2026-10-29:
    Typhon, the Buried Fire, under the Old Foundry (`e5-plan.md`), approved with every default
-   (the owner may polish it). Next: (b) the way there (the Foundry's fallen pit, the Under-Flues, the Long Flue).
+   (the owner may polish it). (b) built 2026-10-29: the Foundry's fallen pit, ledger and hot grates, the Under-Flues
+   (63), the Long Flue (64), the furnace door holding (`docs/places/underflues.md`). Next: (c) the den (65) and the fight.
 
 ## Next
 - [ ] **Atlas Phase 6: the climb** (E4 shipped: this is next; can run alongside E5): the thermal column vista, the balloon crossing (Slag's

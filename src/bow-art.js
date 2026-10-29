@@ -85,6 +85,7 @@ export const BOWS = {
   bellower_bow: { len: 31, wood: ['#5a5058', '#2e2830'], w: 3.8, tip: 'rivet', c: '#a8a0a8', grip: '#3a3038', gem: '#ffb46a', string: '#c8b8a8', glow: '255,170,110', curve: 0.36 },
   // the Caldera Rim (E4a, docs/places/rim.md)
   cragbeak_bow: { len: 34, wood: ['#3a3438', '#1c181e'], w: 4, tip: 'feather', c: '#4a4248', c2: '#c8c0b8', grip: '#5a4a40', gem: '#c8d0f0', string: '#c8bca8', glow: '230,236,255', curve: 0.38 },
+  twinfang_bow: { len: 33, wood: ['#2e2a2c', '#141012'], w: 3.8, tip: 'fang', c: '#d8d0c8', grip: '#3a2c28', gem: '#ff7a3a', string: '#c8b8a8', glow: '255,120,60', curve: 0.42 }, // (E5 (b): Orthrus's)
   bearer_bow: { len: 34, wood: ['#5a4234', '#2e2018'], w: 4.4, tip: 'rivet', c: '#6e6870', grip: '#34303a', gem: '#e8f2ff', string: '#c8bca8', glow: '214,232,255', curve: 0.38 }, // (Brenna's, E4b: two old carrying straps, riveted, a buckle at the grip)
 };
 export const BOW_LEN = Object.fromEntries(Object.entries(BOWS).map(([id, b]) => [id, b.len]));

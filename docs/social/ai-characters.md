@@ -68,6 +68,10 @@ one shared corner feed).
   if they bring it up; "My sister. She put it down." is his first answer about the name; he never says what the tooth
   was for. Soot let him win at stones that night; Slag sharpened the chisel and wants to see the finished tooth on the
   rim; Ochre has seen something standing by the hoist again some days since (the den respawns) and doesn't go close.
+  E5 (b) (the Under-Flues, `docs/places/underflues.md`): Ash knows the back of the Foundry's big pit has fallen through
+  into the stokers' flues (before his time), lists what travellers say is down there (hotter going in, 145 and up, a
+  two-headed hound), says flatly once that he isn't going down, won't say what's at the bottom, and on the ledger only
+  that the stokers kept their own books.
   Ignis and Pyra are den bosses, not personas: their E4b `lines` are in `docs/combat/bosses.md`.
   **Liv** (`liv`, E2, `docs/places/coast.md`): Eyvind's daughter, fjord folk thinned nearly clear (`folk:
   'thinned'`); cuts black glass, one clean stroke. Plain and quiet like her father, warmer underneath. Tier 0 plus the
@@ -79,7 +83,9 @@ one shared corner feed).
   level. Hints at the Drained Tubes' Skylight (she'd like to hear what you saw from it).
   **Collier Pitch** (`pitch`, E1): the last charcoal-burner, dry, slow and sad; Tier 0 plus the Ashwood, Greyback,
   the bridge, the adit he helped brick up and, in E3b, unbrick (he sends you to Ash for why), the Kiln Stone (his family's story, it bothers him),
-  and the Green Tree, which he hints at and won't place.
+  and the Green Tree, which he hints at and won't place. E5 (b): his grandfather was a stoker in the flues under the
+  furnaces before he was a collier, came up one day and never went back down ("warm all the way down"); Pitch knew the
+  flues were there, not that they went so far, and won't guess what's at the end.
   **Picker Ochre** (`ochre`, E3a, `docs/places/brimstone.md`): forge folk; carries sulphur down to the forges on a
   yoke, lost her sense of smell, goes by her canary Saffron, sings to the vents; the plainest-spoken person on the
   island. Tier 0 plus the Fields, the Condor, the Bearers' stair (she doesn't know who the Bearers were), the

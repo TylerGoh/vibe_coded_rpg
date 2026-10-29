@@ -88,6 +88,12 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   memorial wall at its small size. On the sheet a lone Archer faints at 16:48 when a pulse, the ultimate and a hit
   land in the same half second (both branches, at any ATK tried); Sigrun's and the Colossus's Archers survive it. If
   players find her unsoloable as an Archer, look there. The mini Brenna is her art shrunk, tooth and all.
+- E5 (b) (the Under-Flues, the Long Flue: `docs/places/underflues.md`) is untested in play (no bot tests): the hot
+  grates' timing (do players read the glow as a warning before the vent?), Orthrus's charge and its alternating barks,
+  the jump to the Damper, the clinker bits, the flue bats' dive at `fly` 60, whether the shape under the Long Flue's
+  grating reads in the 90 px strip below the floor (on a phone too), whether the nearly-dark between breaths is too
+  dark on dim screens, and the audio (the bellows and hammer don't share the art's breath clock: they drift). The held
+  furnace door's banging is art only; it opens with E5 (c)'s `DENS` row (`TYPHON_DOOR_OPEN`).
 - Getting home is two sailings: if it annoys people, a direct Forgehold to Greenhollow sailing waits for
   the "routes reconnect" idea in `story/world/geography.md`.
 

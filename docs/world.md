@@ -38,6 +38,8 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | The Blue Halls | 41 `BLUEHALLS` | back up the ladder to the Glacier's Crevasse Field (west end) · down the old ladder behind the fallen wall to the Old Ice (east end); a hard pocket (`docs/places/bluehalls.md`) |
 | The Old Ice | 50 `OLDICE` | back up to the Blue Halls (west end) · down the stair to the Long Stair (east end); a deep room on hard-pocket rules (`docs/places/oldice.md`) |
 | The Long Stair | 51 `LONGSTAIR` | back up to the Old Ice (west end) · Fenrir's den (room 52, `FENRIR_DEN`, once FB2 (c) adds its `DENS` row; until then the ice over the door holds) at `FENRIR_DEN_X`; no mobs, not a combat room (`docs/places/oldice.md`) |
+| The Under-Flues | 63 `UNDERFLUES` | back up the flue to the Old Foundry's fallen pit (west end) · down to the Long Flue (east end); a deep room on hard-pocket rules (`docs/places/underflues.md`) |
+| The Long Flue | 64 `LONGFLUE` | back up to the Under-Flues (west end) · Typhon's den (room 65, `TYPHON_DEN`, once E5 (c) adds its `DENS` row; until then the furnace door holds) at `TYPHON_DEN_X`; no mobs, not a combat room (`docs/places/underflues.md`) |
 | The Queen's Bridge | 42 `QBRIDGE` | back down the ice stair to Frostpine Ridge (west end) · Sigrun's den, the Seam (room 43), at the east end (`docs/places/queensbridge.md`) |
 | Pet Shop | 27 `PETSHOP` | exit (`docs/places/pets.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |

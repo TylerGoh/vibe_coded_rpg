@@ -63,7 +63,8 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
   reads the weather off his bad knee; sleeps on deck in the heat. Tier 0 plus the southern passage.
 - **Collier Pitch** (the Ashwood, E1, **exists**): forge folk; the last charcoal-burner, whose family burned the
   forest for the foundry; trades. Burns only deadwood now, counts fern seedlings in a ledger, knows where the
-  Green Tree is and won't quite say. Dry, slow, sad. Tier 0 plus the Ashwood.
+  Green Tree is and won't quite say. Dry, slow, sad. Tier 0 plus the Ashwood. His grandfather was a stoker in the
+  flues under the foundry's furnaces before he took to the trees; came up one day and never went back down (E5 (b)).
 - **Liv** (the Smoking Coast, E2, **exists**): fjord folk thinned nearly clear by seven years of heat; Ice-Cutter
   Eyvind's daughter, Arne's deckhand left behind on the last voyage. Cuts and trades black glass, one clean stroke
   like her father with ice; stays, afraid the cold would set her solid; letters go both ways on the Lodestar. Keeps

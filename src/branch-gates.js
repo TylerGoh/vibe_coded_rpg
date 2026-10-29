@@ -28,6 +28,9 @@
 // sea cliff, steam roaring out of it until it drained (E2), open to the Drained Tubes (OPEN.tubemouth: old steps down).
 // The Brimstone Fields' gate (E3a): the Bearers' stair up toward the Caldera Rim, its hand-chains rusted through and
 // its top steps fallen (`bearerstair`), open since E4a (OPEN.bearerstair: new chains, the fallen steps rebuilt in iron).
+// The Old Foundry's (E5 (b)): the back of the big casting pit fallen in, a brick flue going down under the half-cast
+// tooth to the Under-Flues (OPEN.flue). Typhon's furnace door at the foot of the Long Flue is a gate with no art here
+// (`furnacedoor`: the Long Flue draws it, src/longflue.js, and its own sign).
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, circle, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';
@@ -65,7 +68,7 @@ export function drawEntries(ctx, room, ground, L, R, time) {
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { fallenwall: -178, rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, adit: 92, fumes: -130, balloon: -190, tubemouth: 130, bearerstair: 130 };
+const SIGN_AT = { fallenwall: -178, rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, adit: 92, flue: -122, fumes: -130, balloon: -190, tubemouth: 130, bearerstair: 130 };
 const SCALE = { bridge: 1.5, thorns: 1.15, balloon: 0.82 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -2271,7 +2274,7 @@ function drawBalloon(ctx, time) {
   ctx.stroke();
 }
 
-const DRAW = { tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair };
+const DRAW = { furnacedoor: () => {}, tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair };
 // The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
 // going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
 // white rose petal or two drifting into it. The update itself split it: no quest
@@ -2408,7 +2411,110 @@ function drawFallenWall(ctx, time) {
   for (const [cx, cy, r] of [[-40, -2, 3], [-150, -1, 2.4], [-20, -1, 2], [62, -1, 2.6], [-118, -3, 1.8]]) ellipse(ctx, cx, cy, r * 1.6, r, cx);
 }
 
-const OPEN = { fallenwall: drawFallenWall, icestair: (ctx, time, g) => drawIcestair(ctx, time, g, true), snout: drawSnout, crevasse: (ctx, time, g) => drawCrevasse(ctx, time, g, true), icefall: (ctx, time, g) => drawIcefall(ctx, time, g, true), snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
+// The back of the Old Foundry's biggest casting pit, fallen in (E5 (b)): a ragged hole in the brick where the pit's
+// back wall gave way, bricks tumbled on the floor in front, and behind it a brick flue sloping down into the dark under
+// the half-cast tooth, an old stokers' ladder pegged down its throat, a red glow far below and hot air shimmering up
+// out of it. The update itself made it fall in: no quest
+const FLUE_BRICKS = [[-62, -3, 0.2], [-44, -2, -0.3], [-78, -1, 0.6], [-54, -12, 0.9], [40, -2, -0.2], [56, -3, 0.4], [-30, -1, 0.1]];
+function drawFlue(ctx, time) {
+  const breath = 0.5 + 0.5 * Math.sin(time * 0.9);
+  // the glow out of it, on the brick round the hole
+  const dg = ctx.createRadialGradient(-6, -30, 4, -6, -40, 120);
+  dg.addColorStop(0, `rgba(255,120,50,${0.26 + 0.1 * breath})`);
+  dg.addColorStop(1, 'rgba(255,90,40,0)');
+  ctx.fillStyle = dg;
+  ctx.fillRect(-120, -160, 240, 170);
+  // the hole: a ragged gap in the pit's back wall
+  const hole = () => {
+    ctx.beginPath();
+    ctx.moveTo(-50, 2);
+    ctx.lineTo(-54, -54);
+    ctx.lineTo(-40, -92);
+    ctx.lineTo(-22, -104);
+    ctx.lineTo(-6, -96);
+    ctx.lineTo(12, -110);
+    ctx.lineTo(30, -84);
+    ctx.lineTo(42, -40);
+    ctx.lineTo(40, 2);
+    ctx.closePath();
+  };
+  // its broken brick rim
+  ctx.save();
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#6a443c';
+  ctx.lineWidth = 12;
+  hole();
+  ctx.stroke();
+  ctx.strokeStyle = '#2a1a18';
+  ctx.lineWidth = 1.2;
+  for (const [x, y] of [[-56, -40], [-52, -70], [-38, -96], [-14, -104], [10, -112], [32, -78], [44, -40], [44, -12], [-56, -14]]) {
+    ctx.strokeRect(x - 7, y - 3, 14, 6);
+  }
+  ctx.restore();
+  ctx.save();
+  hole();
+  ctx.clip();
+  // inside: the flue's brick lining going away and down, darker and redder the deeper
+  const ig = ctx.createLinearGradient(0, -110, 0, 4);
+  ig.addColorStop(0, '#0c0607');
+  ig.addColorStop(0.6, '#2a0e0a');
+  ig.addColorStop(1, `rgb(${120 + 40 * breath},40,20)`);
+  ctx.fillStyle = ig;
+  ctx.fillRect(-60, -115, 110, 120);
+  ctx.strokeStyle = 'rgba(255,120,60,0.18)';
+  ctx.lineWidth = 1;
+  for (let k = 0; k < 6; k++) {
+    const w = 80 - k * 11, y = -8 - k * 13;
+    ctx.beginPath();
+    ctx.ellipse(-4, y, w / 2, 7 - k * 0.6, 0, Math.PI, TAU);
+    ctx.stroke();
+  }
+  // a glowing seam far down
+  ctx.fillStyle = `rgba(255,170,90,${0.5 + 0.3 * breath})`;
+  ctx.fillRect(-16, -6, 24, 3);
+  // the stokers' old ladder down its throat
+  ctx.strokeStyle = '#3a3034';
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.moveTo(-16, 4);
+  ctx.lineTo(-10, -70);
+  ctx.moveTo(10, 4);
+  ctx.lineTo(6, -70);
+  for (let y = -6; y > -68; y -= 11) {
+    const k = -y / 70;
+    ctx.moveTo(-16 + k * 6, y);
+    ctx.lineTo(10 - k * 4, y);
+  }
+  ctx.stroke();
+  ctx.restore();
+  // hot air shimmering up out of it
+  for (let i = 0; i < 4; i++) {
+    const k = (time * 0.35 + i / 4) % 1;
+    ctx.strokeStyle = `rgba(255,190,130,${0.2 * Math.sin(k * Math.PI)})`;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    const x = -24 + i * 14, y = -40 - k * 120;
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x + 6 + Math.sin(time * 2.2 + i) * 5, y - 14, x, y - 28);
+    ctx.stroke();
+  }
+  // the bricks that came down, tumbled in front
+  for (const [x, y, a] of FLUE_BRICKS) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(a);
+    ctx.fillStyle = '#5a3a32';
+    ctx.strokeStyle = '#2a1a18';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.roundRect(-8, -4, 16, 8, 1.5);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+const OPEN = { flue: drawFlue, fallenwall: drawFallenWall, icestair: (ctx, time, g) => drawIcestair(ctx, time, g, true), snout: drawSnout, crevasse: (ctx, time, g) => drawCrevasse(ctx, time, g, true), icefall: (ctx, time, g) => drawIcefall(ctx, time, g, true), snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
   flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true), rootsplit: drawRootSplit, geyser: (ctx, time, g) => drawGeyser(ctx, time, g, true), ironbridge: (ctx, time, g) => drawIronBridge(ctx, time, g, true),
   lavatongue: (ctx, time, g) => drawLavaTongue(ctx, time, g, true), tubemouth: (ctx, time, g) => drawTubeMouth(ctx, time, g, true),
   fumes: (ctx, time, g) => drawFumes(ctx, time, g, true), bearerstair: (ctx, time, g) => drawBearerStair(ctx, time, g, true),

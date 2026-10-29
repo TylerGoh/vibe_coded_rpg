@@ -76,5 +76,17 @@ in).
   Old Crucible's `armour` + `curse`, the music scene `foundry` (`docs/ui/audio.md`).
 - Not playtested (owner's rule: no headless bot tests): checked by a build, the economy sheet and reading the code.
   The sheet solos Old Crucible in a median ~4:36 at Lv 145.
-- Left for later: Emberdeep's final boss (E5) goes "past the Old Foundry or the Drained Tubes, whichever is darker"
-  (`story/final-bosses.md`); no gate for it is laid here yet.
+- E5 (b), 2026-10-29: the way down to Typhon starts here (the next section).
+
+## E5 (b): the way down (`docs/places/underflues.md`)
+- **The fallen pit:** the back of the big casting pit has fallen in (the update did it, no quest), and under the
+  half-cast tooth a brick flue runs down to the Under-Flues, hot air coming up it (`UNDERFLUES_GATE_X`, at the pit's
+  west end; `OPEN.flue` in `src/branch-gates.js`, a red-trimmed sign). The door is in `ROOMS[FOUNDRY]`.
+- **The stoker's ledger**, the second find after the Pattern: a reading with E like the tally board (`RUIN_STONES`,
+  shape `ledger`, at `FOUNDRY_LEDGER_X`, west of the flue's mouth so the sign and the book don't overlap): the stokers'
+  shifts feeding the fire from below, the entries getting shorter, the last one "IT BREATHED BACK. WE CAME UP."
+- **Hot grates** (the Foundry's room hazard, like the Thornheart's thorn patches): iron grates in the floor over the
+  old flues (`HOT_GRATES`) that warm, vent and cool on a cycle read from the server tick (`grateAt`); a venting one
+  hurts whoever stands on the floor over it (`GRATE_DOT`, a flat 'dot', no `step()` change). `drawFoundry` takes the
+  tick for them (`net.renderTick()` from `src/main.js`).
+- Personas: Ash and Pitch learned of it (`docs/places/underflues.md`).

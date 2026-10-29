@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, TYPHON_DEN_X, TYPHON_DEN_NAME } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -65,6 +65,13 @@ export const EMBERDEEP = [
   { id: 'ashwood', name: 'The Ashwood', band: '115–130', at: [355, 135], from: 'flats', rooms: [ASHWOOD], entry: { room: CALDERA, x: ASHWOOD_GATE_X, kind: 'ironbridge' } },
   // E3b: the forge folk took the bricks out of the old adit and stacked them beside it (the update itself lifted it)
   { id: 'foundry', name: 'Old Foundry', band: '130–145', hard: true, at: [205, 135], from: 'ashwood', rooms: [FOUNDRY], entry: { room: ASHWOOD, x: FOUNDRY_GATE_X, kind: 'adit' } },
+  // E5 (b): the deep room under the Old Foundry and the approach to Typhon's den (one node: the Long Flue is its end),
+  // down the flue at the back of the big casting pit (the update itself made it fall in), and the den's furnace door at
+  // the flue's foot, shut and holding until E5 (c) gives the den its DENS row (then this gate goes: the door comes with
+  // the row, like Fenrir's). `sign: false`: the Long Flue draws the door's own sign (src/longflue.js)
+  { id: 'underflues', name: 'The Under-Flues', band: '145–150', hard: true, at: [76, 135], from: 'foundry', rooms: [UNDERFLUES, LONGFLUE], entry: { room: FOUNDRY, x: UNDERFLUES_GATE_X, kind: 'flue' } },
+  { id: 'hearth', name: TYPHON_DEN_NAME, at: [215, 60], from: 'underflues', block: 'the door holds',
+    gate: { room: LONGFLUE, x: TYPHON_DEN_X, kind: 'furnacedoor', sign: false, look: 'look at the door', says: 'The iron door is too hot to touch. It bangs with every breath, but it holds.' } },
   // E3a: the wind on the flank turned, the fumes blow off the path now, and someone cairned it (the update itself lifted it)
   { id: 'brimstone', name: 'Brimstone Fields', band: '125–140', at: [505, 135], from: 'heart', rooms: [BRIMSTONE], entry: { room: CALDERA, x: BRIMSTONE_GATE_X, kind: 'fumes' } },
   // E4a: the Bearers' stair rechained, its fallen top steps rebuilt in iron (the update itself lifted it)

@@ -85,6 +85,11 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
 27. **The Caldera Rim**: E4a, Emberdeep's heart up the Bearers' stair from the Fields (Lv 135–150; no trader, elites or
    field boss: Brenna's party den, E4b, is the danger) (`docs/places/rim.md`). Rim goats (passive), pumice puffs
    (`split` into pumice bits, kept small), glass scorpions (`shell`), heat shimmers (`phase`), crag rocs (`dive`).
+28. **The Under-Flues**: E5 (b), Emberdeep's deep room under the Old Foundry (Lv 145–150, hard-pocket rules, three
+   elites and Orthrus, a named elite with its own `art`, charging like Garm), and past it the Long Flue, the mob-free
+   approach to Typhon's den (`docs/places/underflues.md`). Cinder whelps (`trail`, burning), flue bats (`dive`),
+   clinker crawlers (`split` into clinker bits, kept small), stoker wardens (`shell`). The Old Foundry got a room
+   hazard, hot grates that vent on a cycle (`docs/places/foundry.md`).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

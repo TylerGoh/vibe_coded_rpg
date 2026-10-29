@@ -86,6 +86,7 @@ export const STAFFS = {
   crucible_staff: { len: 70, shaft: ['#5a5460', '#2e2a32'], w: 3.2, head: 'ember', gem: '#2a2426', gem2: '#ffb040', glow: '255,150,60' }, // (Old Crucible's: a little crucible of molten metal)
   // the Caldera Rim (E4a, docs/places/rim.md)
   cragbeak_staff: { len: 68, shaft: ['#3a3438', '#1c181e'], w: 3, head: 'feather', gem: '#2a2428', gem2: '#6a6a84', glow: '230,236,255' }, // (a roc's beak, a shimmer bead in its jaw)
+  twinfang_staff: { len: 68, shaft: ['#2e2a2c', '#141012'], w: 3, head: 'fang', gem: '#1c1416', gem2: '#ff7a3a', glow: '255,120,60' }, // (E5 (b): Orthrus's, two fangs and a coal between them)
   bearer_staff: { len: 70, shaft: ['#5a4a40', '#2e2420'], w: 3.2, head: 'gear', gem: '#6e6870', gem2: '#e8f2ff', glow: '214,232,255' }, // (Brenna's, E4b: a little toothed block strapped on, a shard of light in it)
 };
 export const STAFF_LEN = Object.fromEntries(Object.entries(STAFFS).map(([id, s]) => [id, s.len]));
@@ -710,6 +711,28 @@ const HEADS = {
     ctx.lineTo(11, y + 5);
     ctx.lineTo(1, y + 9);
     ctx.closePath();
+    ctx.fill();
+  },
+  // two black fangs forking up from the head, a coal held between them (E5 (b): Orthrus's)
+  fang(ctx, s, y, t) {
+    for (const d of [-1, 1]) {
+      ctx.fillStyle = s.gem;
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(d * 2, y + 4);
+      ctx.quadraticCurveTo(d * 9, y - 4, d * 4, y - 16);
+      ctx.quadraticCurveTo(d * 5, y - 4, d * 0.5, y + 1);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.fillStyle = s.gem2;
+    ctx.beginPath();
+    ctx.arc(0, y - 4, 3 + 0.4 * Math.sin(t * 3), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,240,200,0.8)';
+    ellipse(ctx, -0.8, y - 5, 1, 1);
     ctx.fill();
   },
 };

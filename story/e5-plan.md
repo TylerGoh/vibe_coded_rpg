@@ -204,6 +204,11 @@ staff still glowing in the bowl), *the Hearthstone Rod* (Cleric), *the Bellows B
 puffs smoke rings. Its price sits under Chronos's (the Pet Shop's top stays Chronos; `PETSHOP_W`).
 
 ## On the way there (part (b), summarised; designed in full when it's built)
+**Status: (b) built 2026-10-29** (`docs/places/underflues.md`): the Foundry's fallen pit, the stoker's ledger and hot
+grates; the Under-Flues (room 63: cinder whelps, flue bats, clinker crawlers, stoker wardens, three elites, Orthrus; the
+Damper hidden); the Long Flue (room 64) with Typhon's line and the furnace door, which bangs with every breath but holds
+(a gate on the map, "the door holds") until (c) adds the den's `DENS` row (room 65, `TYPHON_DEN`, "The
+Hearth"). The door's sign says "N here, 4+ recommended" (a live count, not the plan's "3").
 Room ids: the next free ones (63, 64, 65 today).
 - **The Foundry gets better:** at the Casting Floor's west end, the back of the biggest casting pit has fallen in
   (the update does it): under the half-cast tooth, a brick flue runs down, hot air coming up it. Also in the same

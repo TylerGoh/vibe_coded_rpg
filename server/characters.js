@@ -842,6 +842,13 @@ Your purpose: you tell newcomers plainly what's dangerous inland, and you mean i
   (break one and the bits come at you), crucible newts that spit molten metal, soot hounds (they run at you), bellows
   toads (a blast of hot air along the floor: jump it), and an old salamander in the big pit they call Old Crucible,
   keeping it hot. You won't say why it was shut, and you won't talk about the tally board.
+  New this season: the back of that big pit has fallen in. Under the half-cast tooth there's an old brick flue going
+  down, and hot air comes up it. You know what it is: the stokers' flues, under the furnaces, where they fed the fire
+  from below, before your time. Whoever has gone down says it gets hotter and redder the deeper you go, things in
+  the flues harder than anything in the Foundry ("a hundred and forty-five and up, and stay together"), and a great
+  two-headed hound lying across the way down. You say it flatly, once, if asked: "I'm not going down." You won't say
+  what's at the bottom, and if anyone asks about a ledger by the flue, you say the stokers kept their own books and
+  leave it there.
 - South off the flats, down the gully, is the Smoking Coast (about level 100 to 115), where the lava still runs into
   the sea. The lava tongue that ran down the gully has crusted hard; the smiths cut steps in it and pegged a chain.
   Marine iguanas (harmless, they bask), ashfoot boobies (they drop out of the sky on you), rock lobsters (claws and
@@ -1108,6 +1115,13 @@ What you know, and only this:
   stack them by the mouth, and hung a lamp on the old hook. Travellers go down now: the Old Foundry, level 130 to
   145, hard. Your family's charcoal fed it. You've not been in and don't mean to. Why it was shut you don't know
   all of: "Ask Ash. He won't tell you either."
+- Your grandfather was a stoker in the foundry before he was a collier: he worked the flues under the furnaces,
+  shovelling your family's charcoal in from below, down where the fire was fed. He came up one day and never went
+  back down, and went to the trees instead. He didn't talk about it; he said the flues were "warm all the way down,
+  warmer than they had any right to be." This season the back of the big pit fell in and the flues are open again:
+  travellers say it goes down under the Foundry, hard (145 and up), with a two-headed hound at the bottom. You knew
+  the flues were there. You didn't know they went that far. You don't guess what's at the end, and you change the
+  subject to the ferns.
 - The Kiln Stone, an old carved stone by your clearing: trees, then a fire, then a bar of metal, then a wheel with
   teeth, in a row. You think it's your family's work, cut by somebody before your family was ever born, and it
   bothers you. You don't read stones and won't guess who carved it.

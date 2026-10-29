@@ -6,7 +6,7 @@
 //   audio.sfx(name, {pan, vol}) one-shot effects (unknown names are ignored)
 //   audio.setMusic(on) / audio.musicOn   music + ambience on/off (sfx stay on), remembered in localStorage
 //   audio.setMuted(on)        everything off (e.g. while logged out)
-//   audio.setDepth(v)         0..1 how deep into the Road's End (its heartbeats) or down the Long Stair (its hum and chain) you are; 0 everywhere else
+//   audio.setDepth(v)         0..1 how deep into the Road's End (its heartbeats), down the Long Stair (its hum and chain) or down the Long Flue (its bellows and hammer) you are; 0 everywhere else
 //
 // Each scene is a small "song": a step sequencer (song.play is called once per step) plus optional noise
 // beds and random ambience (birds, drips, crickets). A lookahead scheduler (setTimeout ~25 ms) books
@@ -1417,6 +1417,59 @@ const SONGS = {
       // the chain: rare at the top, near and often at the bottom
       if (s % 2 === 1 && chance(0.02 + 0.12 * d)) chainClink(p, chance(0.5) ? p.l : p.r, t, 0.01 + 0.02 * d);
       if (d < 0.3 && s === 6 && n % 16 === 6) e.voice(p.r, t, p.f(ch[2], 2), { ...GLOCK, vol: 0.012, tau: 1 }); // the last of the ice ringing
+    },
+  },
+  // ——— E5 (b) (docs/places/underflues.md) ———
+  // The Under-Flues: the Foundry's music gone down under the furnaces. The same minor a fourth lower and slower, a
+  // low roar of fire under everything that swells and falls like a slow breath (the seams in the brick brighten with
+  // it), the melody only every other pass and further apart, a far anvil ringing now and then, and a crackle of embers
+  underflues: {
+    bpm: 54, spb: 8, key: 47, scale: MINOR, gain: 0.78, send: 0.7, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5], [2, 4, 6], [4, 6, 8], [5, 7, 9]],
+    mel: melody(
+      '5 - - - . . . .', '3 - - - 2 - . .', '6 - - - . . 5 -', '2 - - - . . . .',
+      '5 - - - 4 - 3 -', '6 - - - . . . .', '4 - 3 - 2 - . .', '1 - - - - - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 85, 0.024); // the fire's roar, far under
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar);
+      if (s === 0) {
+        pad(p, ch, t, p.stepDur * 8, 0.01, { type: 'sawtooth', a: 1.6, cutoff: 440, unison: 4, rel: 1.6 });
+        e.voice(p.c, t, p.f(ch[0], -2), { type: 'triangle', vol: 0.1, a: 0.6, hold: p.stepDur * 6, rel: 1.2, cutoff: 240 });
+      }
+      if (s === 0 && bar % 2 === 0) e.noiseHit(p.c, t, { type: 'lowpass', f: 120, sweep: 260, sweepT: 2.2, vol: 0.06, a: 1.2, hold: 0.6, tau: 1.3 }); // the breath below
+      const m = p.mel(bar, s);
+      if (m && pass % 2 === 0) e.voice(p.c, t, p.f(m.d, 0), { type: 'sine', vol: 0.04, a: 0.15, hold: m.len * 0.8, rel: 0.8, partials: [[2, 0.18]] });
+      if (s === 3 && bar % 4 === 2 && chance(0.6)) anvil(e, chance(0.5) ? p.l : p.r, t, 1050, 0.014, 1.2); // far off
+      if (s % 2 === 1 && chance(0.12)) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'highpass', f: 3500, vol: 0.006, tau: 0.02 }); // an ember cracking
+    },
+  },
+  // The Long Flue: the music falls away to the bellows breath and a slow hammer. A deep held note; a breath (filtered
+  // noise swelling up and falling away) every two bars, bigger the deeper; the Under-Flues' tune at the way in thinning
+  // to nothing; and a slow hammer on an anvil, one stroke a bar, that stops partway down (with the depth the client
+  // gives it, audio.setDepth: how far down the flue you are). At the bottom only the breath, and a deep iron boom
+  // with it now and then (the furnace door banging in its frame)
+  longflue: {
+    bpm: 52, spb: 8, key: 40, scale: MINOR, gain: 0.85, send: 0.7, loop: 4,
+    chords: [[1, 5, 8], [1, 5, 8], [6, 8, 10], [1, 5, 8]],
+    mel: melody('5 - - - . . . .', '3 - - - 2 - . .', '4 - - - . . . .', '1 - - - - - . .'),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 80, 0.024);
+    },
+    play(p, bar, s, t) {
+      const e = p.eng, d = e.depth ?? 0;
+      if (s === 0) e.voice(p.c, t, p.f(1, -2), { type: 'sine', vol: 0.08 + 0.05 * d, a: 1.4, hold: p.stepDur * 7, rel: 1.4, partials: [[2, 0.25]] });
+      // the bellows: a breath in and out every two bars
+      if (s === 0 && bar % 2 === 0) e.noiseHit(p.c, t, { type: 'lowpass', f: 140, sweep: 200 + 160 * d, sweepT: 2.6, vol: 0.05 + 0.07 * d, a: 1.6, hold: 0.8, tau: 1.6 });
+      // what's left of the tune, gone by the middle of the flue
+      const m = p.mel(bar, s);
+      if (m && d < 0.5 && chance(1 - d * 2)) e.voice(p.c, t, p.f(m.d, 0), { type: 'sine', vol: 0.035 * (1 - d * 2), a: 0.2, hold: m.len * 0.8, rel: 0.8 });
+      // the hammer: one slow stroke a bar, fainter as you go, and it stops partway down
+      if (s === 4 && d < 0.55) anvil(e, p.r, t, 980, 0.03 * (1 - d * 1.6), 0.5);
+      // at the bottom, the door banging in its frame with the breath
+      if (s === 2 && bar % 2 === 1 && d > 0.85) e.noiseHit(p.c, t, { type: 'lowpass', f: 90, vol: 0.09, a: 0.004, tau: 0.35 });
     },
   },
 
@@ -3171,7 +3224,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna']; // (62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue']; // (63-64: the Under-Flues and the Long Flue, E5 (b); 65, Typhon's den, comes with E5 (c); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -3302,7 +3355,8 @@ Object.assign(MOB_HURT, { dragonfly: MOB_HURT.cinder_bat, gloop_snail: MOB_HURT.
   marine_iguana: MOB_HURT.magma_slug, ashfoot_booby: MOB_HURT.cinder_bat, rock_lobster: MOB_HURT.obsidian_crab, pumice_crab: MOB_HURT.obsidian_crab, pumice_crumb: MOB_HURT.mushling, steam_ray: MOB_HURT.wisp, hatchkeeper: MOB_HURT.colossus, brenna: MOB_HURT.colossus ?? MOB_HURT.golem,
   clinker_beetle: MOB_HURT.obsidian_crab, tube_adder: MOB_HURT.magma_slug, lava_drip: MOB_HURT.magma_slug, cinder_moth: MOB_HURT.wisp, hundredfoot: MOB_HURT.golem,
   brimstone_hopper: MOB_HURT.cinder_bat, acid_slug: MOB_HURT.magma_slug, vent_crab: MOB_HURT.obsidian_crab, fume_wisp: MOB_HURT.wisp, sulphur_kite: MOB_HURT.cinder_bat, chimney_spitter: MOB_HURT.magma_slug, brimstone_condor: MOB_HURT.golem,
-  iron_ant: MOB_HURT.obsidian_crab, slag_golem: MOB_HURT.golem, slagling: MOB_HURT.golem, crucible_newt: MOB_HURT.magma_slug, soot_hound: MOB_HURT.aether_knight, bellows_toad: MOB_HURT.magma_slug, golem_elite: MOB_HURT.golem, hound_elite: MOB_HURT.aether_knight, old_crucible: MOB_HURT.golem, rim_goat: MOB_HURT.mushling, pumice_puff: MOB_HURT.golem, pumice_bit: MOB_HURT.mushling, glass_scorpion: MOB_HURT.obsidian_crab, heat_shimmer: MOB_HURT.wisp, crag_roc: MOB_HURT.cinder_bat });
+  iron_ant: MOB_HURT.obsidian_crab, slag_golem: MOB_HURT.golem, slagling: MOB_HURT.golem, crucible_newt: MOB_HURT.magma_slug, soot_hound: MOB_HURT.aether_knight, bellows_toad: MOB_HURT.magma_slug, golem_elite: MOB_HURT.golem, hound_elite: MOB_HURT.aether_knight, old_crucible: MOB_HURT.golem, rim_goat: MOB_HURT.mushling, pumice_puff: MOB_HURT.golem, pumice_bit: MOB_HURT.mushling, glass_scorpion: MOB_HURT.obsidian_crab, heat_shimmer: MOB_HURT.wisp, crag_roc: MOB_HURT.cinder_bat,
+  cinder_whelp: MOB_HURT.magma_slug, flue_bat: MOB_HURT.cinder_bat, clinker_crawler: MOB_HURT.golem ?? MOB_HURT.yeti, clinker_bit: MOB_HURT.obsidian_crab, stoker_warden: MOB_HURT.golem ?? MOB_HURT.yeti, whelp_elite: MOB_HURT.magma_slug, clinker_elite: MOB_HURT.golem ?? MOB_HURT.yeti, stoker_elite: MOB_HURT.golem ?? MOB_HURT.yeti, orthrus: MOB_HURT.yeti });
 Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEATH.magma_slug, rock_crab: MOB_DEATH.obsidian_crab, snapshrimp: MOB_DEATH.obsidian_crab,
   puffcap: MOB_DEATH.mushling, cave_bat: MOB_DEATH.cinder_bat, puffball: MOB_DEATH.mushling, root_beetle: MOB_DEATH.obsidian_crab, glowworm: MOB_DEATH.magma_slug, glow_moth: MOB_DEATH.wisp,
   oak_squirrel: MOB_DEATH.mushling, tent_caterpillar: MOB_DEATH.magma_slug, tawny_owl: MOB_DEATH.cinder_bat, wasp_nest: MOB_DEATH.mushling, hornet: MOB_DEATH.cinder_bat,
@@ -3321,4 +3375,5 @@ Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEA
   marine_iguana: MOB_DEATH.magma_slug, ashfoot_booby: MOB_DEATH.cinder_bat, rock_lobster: MOB_DEATH.obsidian_crab, pumice_crab: MOB_DEATH.obsidian_crab, pumice_crumb: MOB_DEATH.mushling, steam_ray: MOB_DEATH.wisp, hatchkeeper: MOB_DEATH.colossus, brenna: MOB_DEATH.colossus,
   clinker_beetle: MOB_DEATH.obsidian_crab, tube_adder: MOB_DEATH.magma_slug, lava_drip: MOB_DEATH.magma_slug, cinder_moth: MOB_DEATH.wisp, hundredfoot: MOB_DEATH.golem,
   brimstone_hopper: MOB_DEATH.cinder_bat, acid_slug: MOB_DEATH.magma_slug, vent_crab: MOB_DEATH.obsidian_crab, fume_wisp: MOB_DEATH.wisp, sulphur_kite: MOB_DEATH.cinder_bat, chimney_spitter: MOB_DEATH.magma_slug, brimstone_condor: MOB_DEATH.yeti,
-  iron_ant: MOB_DEATH.obsidian_crab, slag_golem: MOB_DEATH.golem ?? MOB_DEATH.yeti, slagling: MOB_DEATH.obsidian_crab, crucible_newt: MOB_DEATH.magma_slug, soot_hound: MOB_DEATH.aether_knight ?? MOB_DEATH.yeti, bellows_toad: MOB_DEATH.magma_slug, golem_elite: MOB_DEATH.golem ?? MOB_DEATH.yeti, hound_elite: MOB_DEATH.aether_knight ?? MOB_DEATH.yeti, old_crucible: MOB_DEATH.yeti, rim_goat: MOB_DEATH.mushling, pumice_puff: MOB_DEATH.golem, pumice_bit: MOB_DEATH.mushling, glass_scorpion: MOB_DEATH.obsidian_crab, heat_shimmer: MOB_DEATH.wisp, crag_roc: MOB_DEATH.cinder_bat });
+  iron_ant: MOB_DEATH.obsidian_crab, slag_golem: MOB_DEATH.golem ?? MOB_DEATH.yeti, slagling: MOB_DEATH.obsidian_crab, crucible_newt: MOB_DEATH.magma_slug, soot_hound: MOB_DEATH.aether_knight ?? MOB_DEATH.yeti, bellows_toad: MOB_DEATH.magma_slug, golem_elite: MOB_DEATH.golem ?? MOB_DEATH.yeti, hound_elite: MOB_DEATH.aether_knight ?? MOB_DEATH.yeti, old_crucible: MOB_DEATH.yeti, rim_goat: MOB_DEATH.mushling, pumice_puff: MOB_DEATH.golem, pumice_bit: MOB_DEATH.mushling, glass_scorpion: MOB_DEATH.obsidian_crab, heat_shimmer: MOB_DEATH.wisp, crag_roc: MOB_DEATH.cinder_bat,
+  cinder_whelp: MOB_DEATH.magma_slug, flue_bat: MOB_DEATH.cinder_bat, clinker_crawler: MOB_DEATH.golem ?? MOB_DEATH.yeti, clinker_bit: MOB_DEATH.obsidian_crab, stoker_warden: MOB_DEATH.golem ?? MOB_DEATH.yeti, whelp_elite: MOB_DEATH.magma_slug, clinker_elite: MOB_DEATH.golem ?? MOB_DEATH.yeti, stoker_elite: MOB_DEATH.golem ?? MOB_DEATH.yeti, orthrus: MOB_DEATH.yeti });

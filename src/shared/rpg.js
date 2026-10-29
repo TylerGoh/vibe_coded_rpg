@@ -382,6 +382,7 @@ export const LADON_LINE = 'Something is on the road.';
 export const FINAL_LVL_OVER = 20, FINAL_MIN_PLAYERS = 4;
 export const GREEN_TOP = 60; // Greenhollow's top level
 export const FROST_TOP = 100; // Frostpeak's top level (FB2: Fenrir's door and sign)
+export const EMBER_TOP = 150; // Emberdeep's top level (E5: Typhon's door and sign)
 export const finalTag = (top) => `Lv ${top + FINAL_LVL_OVER} · recommended Lv ${top}, ${FINAL_MIN_PLAYERS}+ players`;
 // ——— island depth G5 (docs/places/spine.md) ———
 // Keeper's Spine (room 34): the bare stone ridge along the top of Greenhollow, above the Old Oak Canopy, over
@@ -868,6 +869,74 @@ export const RIM_PLATFORMS = [
   { x: 4140, y: 340, w: 190, kind: 'basalt' },
   { x: 1170, y: 168, w: 132, kind: 'seat' }, // the Bearer's Seat, on top of the spur's crag: easy to miss (its left half holds the tooth Brenna set down, E4b)
 ];
+// ——— E5 (b): the way to Emberdeep's final boss (docs/places/underflues.md, story/e5-plan.md) ———
+// The Old Foundry gets a room hazard: hot grates (HOT_GRATES, iron grates in the floor over the old flues). Each one
+// warms (GRATE_WARM: it glows, a warning), vents heat (GRATE_VENT: it hurts) and goes cold again, over and over, on its
+// own offset in a GRATE_CYCLE. Both sides read the same clock (the server tick, like the Thornheart's thorn patches),
+// so nothing goes over the wire: the client draws them (src/foundry.js) and the server hurts whoever stands on the
+// floor over a venting one (GRATE_DOT of max HP every PATCH_HIT_EVERY ticks, a flat 'dot': no knockback, so no step()
+// change). On the floor only: a ledge or a jump is safe.
+export const HOT_GRATES = [
+  { x: 1180, w: 110 }, { x: 1740, w: 110 }, { x: 2440, w: 120 }, { x: 3000, w: 110 }, { x: 3520, w: 110 },
+];
+export const GRATE_CYCLE = 480, GRATE_WARM = 100, GRATE_VENT = 130; // (ticks)
+export const GRATE_DOT = 0.05;
+// grate i at server tick t → { k: 0..1 how hot it glows, vent: whether it's venting (and hurts) }
+export function grateAt(i, t) {
+  const c = (((t + i * 157) % GRATE_CYCLE) + GRATE_CYCLE) % GRATE_CYCLE;
+  if (c < GRATE_WARM) return { k: c / GRATE_WARM, vent: false };
+  if (c < GRATE_WARM + GRATE_VENT) return { k: 1, vent: true };
+  if (c < GRATE_WARM + GRATE_VENT + 60) return { k: 1 - (c - GRATE_WARM - GRATE_VENT) / 60, vent: false };
+  return { k: 0, vent: false };
+}
+// The way down: the back of the Old Foundry's biggest casting pit has fallen in (the update did it, no quest), and
+// under the half-cast tooth a brick flue runs down, hot air coming up it (UNDERFLUES_GATE_X, at the pit's west end).
+// The stoker's ledger lies by the flue's mouth (FOUNDRY_LEDGER_X, a reading: src/ruins.js).
+export const UNDERFLUES_GATE_X = FOUNDRY_PIT_X - 200;
+export const FOUNDRY_LEDGER_X = FOUNDRY_PIT_X - 430;
+// The Under-Flues (room 63): the brick flues and fire channels under the furnaces, where the stokers fed the fire from
+// below. A deep room past the hard pocket: hard-pocket rules (a red chip, no waystone, no trader, elites throughout).
+// You come in at the WEST end, at the flue's foot, and go east, deeper and hotter: the Flue Foot (no mobs: the stokers'
+// shovels left standing in the coal, a barrow tipped over), the Fire Channels, the Hot Seams and the Hound's Bed, where
+// Orthrus (a named elite) lies across the way down. The Damper, a great iron damper wheel high in a flue shaft (last
+// in UNDERFLUES_PLATFORMS), is the hidden spot. At the far east end the Long Flue goes down (UNDERFLUES_END_X).
+export const UNDERFLUES = 63; // room id
+export const UNDERFLUES_W = 4400;
+export const UNDERFLUES_EXIT_X = 70; // back up the flue into the Old Foundry
+export const UNDERFLUES_END_X = UNDERFLUES_W - 90; // the head of the Long Flue, at the east end
+export const UNDERFLUES_ZONES = [
+  { name: 'The Flue Foot', x0: 0, x1: 520, lvl: null }, // (no mobs)
+  { name: 'The Fire Channels', x0: 520, x1: 2300, lvl: '145–147' },
+  { name: 'The Hot Seams', x0: 2300, x1: 3700, lvl: '147–149' },
+  { name: "The Hound's Bed", x0: 3700, x1: UNDERFLUES_W, lvl: '148–150' },
+];
+export const UNDERFLUES_PLATFORMS = [
+  { x: 700, y: 340, w: 210, kind: 'ledge' }, // brick ledges along the channel walls, iron catwalks over them
+  { x: 1080, y: 255, w: 200, kind: 'catwalk' },
+  { x: 1480, y: 340, w: 220, kind: 'ledge' },
+  { x: 1880, y: 255, w: 200, kind: 'catwalk' },
+  { x: 2500, y: 340, w: 220, kind: 'ledge' },
+  { x: 2900, y: 255, w: 200, kind: 'catwalk' },
+  { x: 3300, y: 340, w: 220, kind: 'ledge' },
+  { x: 3880, y: 330, w: 200, kind: 'ledge' },
+  { x: 2955, y: 165, w: 90, kind: 'damper' }, // the Damper, a great iron damper wheel high in a flue shaft: easy to miss
+];
+// The Long Flue (room 64): the approach. No mobs, no combat, no STAGES row: safe ground where the party gathers. A
+// sloping brick flue down into the heat, walked on an iron grating over the drop. Everything cinematic in it is
+// drawing and sound (src/longflue.js, the `longflue` music scene), never step(): through the grating the shape under
+// it grows (a glow, a coil sliding past, the curve of a back, four eyes at the last landing), the glow brightens with
+// every breath, the flue narrows and the soot thickens, and haze hides the way back, the further east you are.
+// TYPHON_MARK_X: the first slime past it in an empty Long Flue hears Typhon (TYPHON_LINE, server/rpg.js). TYPHON_DEN_X:
+// the den's furnace door (its art is always drawn; until the den's DENS row exists, E5 (c), it holds: a gate in
+// EMBERDEEP, src/shared/branches.js).
+export const LONGFLUE = 64; // room id
+export const LONGFLUE_W = 2600;
+export const LONGFLUE_EXIT_X = 70; // back up the flue into the Under-Flues
+export const TYPHON_MARK_X = 1000;
+export const TYPHON_DEN_X = LONGFLUE_W - 240;
+export const TYPHON_DEN = 65; // the den's room id, kept for E5 (c)
+export const TYPHON_DEN_NAME = 'The Hearth';
+export const TYPHON_LINE = 'Is it time to pour? ...No. Not you. Go back up.';
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
 // door into it (doorBand in sim.js); hard: a hard pocket (elites, a danger look on its doors). name: the
 // location pill's (src/main.js)
@@ -899,6 +968,7 @@ export const STAGES = {
   [BRIMSTONE]: { name: 'The Brimstone Fields', zones: BRIM_ZONES, band: '125–140', pill: 'Brimstone Fields' },
   [FOUNDRY]: { name: 'The Old Foundry', zones: FOUNDRY_ZONES, band: '130–145', hard: true, pill: 'Old Foundry' },
   [RIM]: { name: 'The Caldera Rim', zones: RIM_ZONES, band: '135–150', pill: 'Caldera Rim' },
+  [UNDERFLUES]: { name: 'The Under-Flues', zones: UNDERFLUES_ZONES, band: '145–150', hard: true, pill: 'Under-Flues' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -2211,6 +2281,51 @@ MOBS.brenna = {
   drops: [['royal_sap', 1, 2, 3], ['bearer_blade', 1, 1, 1], ['bearer_helm', 0.6, 1, 1], ['coin', 1, 1640000, 2550000], ['mega_elixir', 1, 4, 6], ['bearer_strap', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
+// ——— E5 (b): the Under-Flues (art: src/underflues-art.js; docs/places/underflues.md). On the frozen curve, elites
+// throughout ———
+// Cinder whelps (the brood: small fire serpents that leave burning cinders behind them), flue bats (sooty bats that
+// hang in the flue mouths and drop on you), clinker crawlers (heaps of fused clinker on legs that break into clinker
+// bits) and stoker wardens (Keeper iron figures holding a long fire-iron across their front: hit them from behind).
+// The brood share one tell with what's below: eyes like coals, two pairs on the bigger things
+MOBS.cinder_whelp = {
+  name: 'Cinder Whelp', lvl: 145, hp: 19800, atk: 501, exp: 12032, speed: 55, w: 66, h: 34, aggro: true, hops: false,
+  ai: { kind: 'trail', every: 0.8, life: 4.5, w: 58 },
+  drops: [['coin', 1, 1190, 1790], ['whelp_ember', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
+};
+MOBS.flue_bat = {
+  name: 'Flue Bat', lvl: 146, hp: 19570, atk: 505, exp: 12174, speed: 115, w: 62, h: 40, aggro: true, hops: false, fly: 60,
+  ai: { kind: 'dive', every: 3.2, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 1198, 1800], ['fluebat_wing', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
+};
+MOBS.clinker_crawler = {
+  name: 'Clinker Crawler', lvl: 147, hp: 21250, atk: 509, exp: 12316, speed: 45, w: 66, h: 60, aggro: true, hops: false,
+  ai: { kind: 'split', into: 'clinker_bit', n: 2 },
+  drops: [['coin', 1, 1206, 1812], ['clinker_cake', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
+};
+// (a split minion: the economy sheet doesn't check these, so its EXP and gold stay small, like the pufflings)
+MOBS.clinker_bit = {
+  name: 'Clinker Bit', lvl: 145, hp: 2000, atk: 420, exp: 590, speed: 160, w: 26, h: 24, aggro: true, hops: true,
+  drops: [['coin', 1, 58, 110]],
+};
+MOBS.stoker_warden = {
+  name: 'Stoker Warden', lvl: 148, hp: 26615, atk: 513, exp: 12458, speed: 45, w: 58, h: 76, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.6, lunge: 520, time: 0.34 },
+  drops: [['coin', 1, 1214, 1825], ['stoker_iron', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1], ['stoker_helm', 0.004, 1, 1]],
+};
+MOBS.whelp_elite = elite('cinder_whelp', 'Eldest Cinder Whelp');
+MOBS.clinker_elite = elite('clinker_crawler', 'Great Clinker Crawler');
+MOBS.stoker_elite = elite('stoker_warden', 'Elder Stoker Warden');
+// Orthrus, the Two-Headed Hound: a named elite (not a boss: no den, no phases, an ordinary respawn), in the myth
+// Typhon's son, the hound that guards the way. A soot hound the size of a cart with two heads, lying across the head of
+// the Long Flue; it gets up and charges whoever comes near (the shell brain's lunge with no shell, `cut: 0`, like
+// Garm), barking one head at a time. Drawn with its own art (`art`); checked as an elite of the stoker warden (the
+// room's top mob), as Garm is of the black-ice wolf
+MOBS.orthrus = {
+  ...elite('stoker_warden', 'Orthrus, the Two-Headed Hound'), art: 'orthrus', w: 170, h: 104,
+  ai: { kind: 'shell', cut: 0, every: 2.4, warn: 0.65, lunge: 700, time: 0.45 },
+};
+MOBS.orthrus.drops = [...MOBS.orthrus.drops, ['twinfang', 0.04, 1, 1]];
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -2403,6 +2518,7 @@ const onTuPlat = onRoomPlat(TUBES_PLATFORMS, TUBES);
 const onFoPlat = onRoomPlat(FOUNDRY_PLATFORMS, FOUNDRY);
 const onBfPlat = onRoomPlat(BRIM_PLATFORMS, BRIMSTONE);
 const onRmPlat = onRoomPlat(RIM_PLATFORMS, RIM);
+const onUfPlat = onRoomPlat(UNDERFLUES_PLATFORMS, UNDERFLUES);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -2830,6 +2946,23 @@ export const SPAWNS = [
   ...strip('glass_scorpion', 650, 1650, FIELD_GROUND, 1, RIM),
   ...onRmPlat('crag_roc', 2, 1),
   ...onRmPlat('heat_shimmer', 1, 1),
+  // E5 (b): the Under-Flues (the Flue Foot, x < 520, has none; nothing past 4150: the head of the Long Flue)
+  ...strip('cinder_whelp', 600, 1450, FIELD_GROUND, 4, UNDERFLUES),
+  ...onUfPlat('cinder_whelp', 0, 1),
+  ...onUfPlat('cinder_whelp', 2, 1),
+  ...strip('flue_bat', 1250, 2250, FIELD_GROUND, 3, UNDERFLUES),
+  ...onUfPlat('flue_bat', 1, 1),
+  ...onUfPlat('flue_bat', 3, 1),
+  ...strip('clinker_crawler', 2400, 3350, FIELD_GROUND, 4, UNDERFLUES),
+  ...onUfPlat('clinker_crawler', 4, 1),
+  ...onUfPlat('clinker_crawler', 6, 1),
+  ...strip('stoker_warden', 2650, 3650, FIELD_GROUND, 4, UNDERFLUES),
+  ...onUfPlat('stoker_warden', 5, 1),
+  ...onUfPlat('stoker_warden', 7, 1),
+  ...strip('whelp_elite', 800, 1500, FIELD_GROUND, 1, UNDERFLUES),
+  ...strip('clinker_elite', 2500, 3200, FIELD_GROUND, 1, UNDERFLUES),
+  ...strip('stoker_elite', 3000, 3600, FIELD_GROUND, 1, UNDERFLUES),
+  { kind: 'orthrus', x0: 3780, x1: 4150, y: FIELD_GROUND, room: UNDERFLUES },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -3210,6 +3343,13 @@ export const ITEMS = {
   bearer_strap: { name: "Bearer's Strap", price: 1520, kind: 'loot', desc: 'A length of the old carrying strap, leather gone hard as iron, worn shiny on one side where it lay over a shoulder for longer than anyone has been alive.' },
   bearer_blade: { name: "Bearer's Edge", price: 1060000, lvl: 151, slots: 10, kind: 'sword', atk: 209, reach: 66, desc: 'A long straight blade of dark forge iron with a notch cut in its spine the shape of a gear-tooth. It is heavier than it looks, and it does not mind.' },
   bearer_helm: { name: "Bearer's Cap", price: 805000, lvl: 151, slots: 10, kind: 'helmet', def: 103, desc: 'A plain round cap of dark iron, buckled under the chin, its crown worn flat and bright where something very heavy rested on it.' },
+  // ——— E5 (b): the Under-Flues (art: src/underflues-art.js; docs/places/underflues.md). No trader: drops only ———
+  whelp_ember: { name: 'Whelp Cinder', price: 1450, kind: 'loot', desc: "A coal shed off a cinder whelp's back, the size of a thumbnail. It glows when you breathe on it, and it is never quite cold." },
+  fluebat_wing: { name: 'Flue Bat Wing', price: 1460, kind: 'loot', desc: 'A leathery wing gone black and stiff with soot, singed along every edge. It still smells of the flue.' },
+  clinker_cake: { name: 'Clinker Cake', price: 1475, kind: 'loot', desc: 'A lump of fused clinker, the stuff a fire leaves when it burns too hot for too long, glassy and full of holes.' },
+  stoker_iron: { name: "Stoker's Iron", price: 1500, kind: 'loot', desc: "A length of a stoker warden's fire-iron, its tip worn round and blue from a hundred years in the fire." },
+  stoker_helm: { name: "Stoker's Helm", price: 772000, lvl: 148, kind: 'helmet', def: 101, desc: "A stoker warden's iron helm, a slot of a visor and a brim to keep the heat off. Soot in every rivet. Forged for a wheel that never got it." },
+  twinfang: { name: 'Twinfang', price: 1046000, lvl: 150, kind: 'sword', atk: 208, reach: 64, desc: 'Two black fangs off one jaw and the other, forged side by side into a single blade. It bites twice, and it is warm.' },
   // ——— farming and alchemy (src/shared/alchemy.js): herbs grow in garden plots, potions are brewed at a lab.
   // Herbs and brews sell for less than their seeds cost (npm run economy checks it): they're for using.
   // buff: { atk (ATK and MAGIC ×1+atk), crit (+crit chance), ward (damage taken ×1−ward), regen (fight HP regen
@@ -3321,6 +3461,7 @@ export const ITEMS = {
   sootfang_staff: { name: 'Sootfang Staff', price: 896000, lvl: 139, kind: 'staff', magic: 198, mp: 119, reach: 60, twin: 'sootfang', desc: "A black iron rod with a hound's fang at its head, soot smoking off it. Its bolts run low and fast." },
   crucible_staff: { name: 'Crucible Staff', price: 1004000, lvl: 147, kind: 'staff', magic: 205, mp: 123, reach: 66, twin: 'crucible_blade', desc: 'A long iron staff with a little crucible at its head, a bead of molten metal glowing in it that never spills.' },
   cragbeak_staff: { name: 'Cragbeak Staff', price: 990000, lvl: 146, kind: 'staff', magic: 204, mp: 122, reach: 64, twin: 'cragbeak', desc: "A long iron staff with a roc's hooked beak at its head, a bead of shimmer glass in its jaw. Its bolts fall like the bird does." },
+  twinfang_staff: { name: 'Twinfang Staff', price: 1046000, lvl: 150, kind: 'staff', magic: 208, mp: 125, reach: 64, twin: 'twinfang', desc: 'A soot-black iron rod forked at the head into two fangs, a coal held between them. Its bolts come in pairs, one a breath behind the other.' },
   bearer_staff: { name: "Bearer's Staff", price: 1060000, lvl: 151, slots: 10, kind: 'staff', magic: 209, mp: 125, reach: 66, twin: 'bearer_blade', desc: 'An iron staff with a little toothed block lashed to its head by a strap, a shard of light caught in it. It has to be carried upright.' },
   gatehound_staff: { name: 'Gatehound Staff', price: 430000, lvl: 97, kind: 'staff', magic: 154, mp: 92, reach: 60, twin: 'gatehound_fang', desc: 'A rod of black ice with a hound\'s fang at its head and a link of old chain round the grip. Its bolts come out howling, very far off.' },
   // ——— enhancement scrolls (boss drops): see SCROLL rules below ———
@@ -3395,6 +3536,7 @@ const BOW_LIST = [
   ['sootfang_bow', 'sootfang', 'Sootfang Bow', 'A short black bow of sooty iron with a fang at each tip. Its arrows fly low, like a hound running.'],
   ['crucible_bow', 'crucible_blade', 'Crucible Bow', "Two cast-iron limbs off one mould, a salamander's tail curling round the grip. It's warm to draw, and warmer after."],
   ['cragbeak_bow', 'cragbeak', 'Cragbeak Bow', "A great black-iron bow with a roc's flight feathers bound along both limbs, a hooked beak at each tip. Draw it into the wind."],
+  ['twinfang_bow', 'twinfang', 'Twinfang Bow', 'A black iron bow with a fang at each tip, its grip wound in soot-stiff hide. Loose one arrow and you hear two.'],
   ['bearer_bow', 'bearer_blade', "Bearer's Bow", 'Two old carrying straps of iron-hard leather, bent and riveted, a buckle at the grip. Draw it and it creaks like something taking a weight.'],
   ['spring_bow', 'slag_maul', 'Ironspring Bow', 'Two leaf-springs off an old forge bellows, riveted together and strung with wire. Forged for a wheel that never got it.'],
 ];

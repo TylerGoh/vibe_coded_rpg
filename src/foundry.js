@@ -1,4 +1,4 @@
-// Docs: docs/places/foundry.md
+// Docs: docs/places/foundry.md, docs/places/underflues.md
 // The Old Foundry (room FOUNDRY, a hard pocket; data in src/shared/rpg.js): where the forge folk cast the great
 // gear-teeth, a cold hall deep in the mountain at the end of the Ashwood's old mine adit (FOUNDRY_GATE_X, the bricks
 // taken out in E3b). Brick arches black with soot, iron girders and a gantry crane overhead with empty ladles on its
@@ -8,8 +8,11 @@
 // half-cast tooth that was never finished. The tally board by the pit is drawn by src/ruins.js (a reading); the
 // Pattern (last in FOUNDRY_PLATFORMS), up in the pattern loft over the Casting Floor, is the find.
 // Emberdeep's register: iron, slag, brick, soot; dark, with a red glow only where something is still hot.
+// E5 (b): hot grates in the floor over the old flues (HOT_GRATES, drawn from the server tick: drawGrate) warm, vent
+// and cool on a cycle; the way down at the back of the big pit is drawn by src/branch-gates.js (OPEN.flue) and the
+// stoker's ledger beside it by src/ruins.js.
 import { H, TAU, mulberry32, circle, ellipse } from './util.js';
-import { FOUNDRY_W, FOUNDRY_EXIT_X, FOUNDRY_ZONES, FOUNDRY_PLATFORMS, FOUNDRY_PIT_X, FIELD_GROUND } from './shared/rpg.js';
+import { FOUNDRY_W, FOUNDRY_EXIT_X, FOUNDRY_ZONES, FOUNDRY_PLATFORMS, FOUNDRY_PIT_X, FIELD_GROUND, HOT_GRATES, grateAt } from './shared/rpg.js';
 import { glow as radialGlow } from './glow.js';
 
 const GROUND = FIELD_GROUND;
@@ -82,8 +85,8 @@ const sparks = (() => {
   return Array.from({ length: 22 }, () => ({ x: FOUNDRY_PIT_X + (r() - 0.5) * PIT_W * 0.9, p: r(), v: 0.25 + r() * 0.35 }));
 })();
 
-// Everything behind the slimes. camX is the left edge of the view.
-export function drawFoundry(ctx, camX, viewW, time) {
+// Everything behind the slimes. camX is the left edge of the view; tick: the server tick (null offline), for the grates
+export function drawFoundry(ctx, camX, viewW, time, tick = null) {
   const L = camX - 160, R = camX + viewW + 160;
   ctx.save();
   ctx.fillStyle = vgrad(ctx, 'back', 0, GROUND, [[0, '#0a0809'], [0.45, '#1a1314'], [1, '#2c2020']]);
@@ -103,6 +106,7 @@ export function drawFoundry(ctx, camX, viewW, time) {
   if (visible(PAT.x - 120, PAT.x + PAT.w + 120, L, R)) drawPatternLoft(ctx, PAT, time);
   if (visible(ADIT_X - 200, FOUNDRY_W, L, R)) drawAdit(ctx, time);
   drawFloor(ctx, Math.max(0, L), Math.min(FOUNDRY_W, R), time);
+  if (tick !== null) HOT_GRATES.forEach((g, i) => visible(g.x - g.w, g.x + g.w, L, R) && drawGrate(ctx, g, grateAt(i, Math.floor(tick)), time));
   FOUNDRY_ZONES.forEach((z) => {
     if (!z.lvl) return;
     const sx = z.x1 - 90; // (each zone's sign at its east edge: you walk in from the east)
@@ -570,6 +574,41 @@ function drawFloor(ctx, L, R, time) {
     glow(ctx, FOUNDRY_PIT_X, H - 10, PIT_W * 0.6, 50, '255,140,60', 0.5);
     ctx.fillStyle = BRICK_L;
     ctx.fillRect(x0 - 8, GROUND + 22, PIT_W + 16, 6);
+  }
+}
+
+// A hot grate (HOT_GRATES, E5 (b)): an iron grate set in the floor over one of the old flues. Cold it's dull iron over
+// black; as it warms (k) the bars glow from dull red to orange; venting, heat roars up out of it in a shimmering
+// column with sparks (and hurts whoever stands on it: the server decides)
+function drawGrate(ctx, g, st, time) {
+  const x0 = g.x - g.w / 2, k = st.k;
+  ctx.fillStyle = '#080506';
+  ctx.fillRect(x0, GROUND - 1, g.w, 10);
+  if (k > 0.02) {
+    ctx.fillStyle = `rgba(255,${90 + 80 * k},40,${0.25 + 0.6 * k})`;
+    ctx.fillRect(x0 + 3, GROUND + 2, g.w - 6, 6);
+  }
+  // the bars
+  const r = Math.round(70 + 185 * k), gg = Math.round(66 + 70 * k * k), b = Math.round(72 - 40 * k);
+  ctx.fillStyle = `rgb(${r},${gg},${b})`;
+  for (let x = x0 + 4; x < x0 + g.w - 2; x += 9) ctx.fillRect(x, GROUND - 1, 3.5, 9);
+  ctx.fillStyle = IRON_D;
+  ctx.fillRect(x0 - 4, GROUND - 2, g.w + 8, 3);
+  ctx.fillRect(x0 - 4, GROUND + 8, g.w + 8, 2);
+  if (k > 0.3) glow(ctx, g.x, GROUND - 6, g.w * 0.75, 30 + 40 * k, '255,120,50', 0.25 * k);
+  if (!st.vent) return;
+  // venting: a column of heat roaring up, shimmering, with sparks in it
+  glow(ctx, g.x, GROUND - 70, g.w * 0.7, 110, '255,140,60', 0.22 + 0.06 * Math.sin(time * 9));
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 6; i++) {
+    const p = (time * 1.4 + i / 6) % 1, x = x0 + 10 + ((i * 37) % (g.w - 20));
+    ctx.strokeStyle = `rgba(255,200,140,${0.35 * (1 - p)})`;
+    ctx.beginPath();
+    ctx.moveTo(x, GROUND - 4 - p * 120);
+    ctx.quadraticCurveTo(x + Math.sin(time * 7 + i) * 6, GROUND - 18 - p * 120, x, GROUND - 32 - p * 120);
+    ctx.stroke();
+    ctx.fillStyle = `rgba(255,${200 - p * 90},90,${0.9 * (1 - p)})`;
+    circle(ctx, x + Math.sin(p * 8 + i) * 8, GROUND - 6 - p * 150, 1.5);
   }
 }
 

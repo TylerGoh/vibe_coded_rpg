@@ -271,6 +271,21 @@ between Old Crucible's (226k) and the Colossus's (248k); `PETSHOP_W` 5150 → 53
 Elsewhere only the toughness column moved (the dens' median ATK: frostbinder Lv 60 25 → 23 s) and a 0.01 in the shape
 table; farming, play time and gold earned by are unchanged (no mobs). Ignis's and Pyra's `lines` change no numbers.
 
+## E5 (b): the Under-Flues (2026-10-29)
+Four mobs on the curve at Lv 145–148 (`docs/places/underflues.md`: cinder whelp 95% HP, flue bat 93% for a flier,
+clinker crawler 100% (a `split` mob), stoker warden 124% for its shell like the glass scorpion; EXP 100%, gold
+103–104%: coins and materials scaled from the Rim's by the gold curve), three elites and Orthrus (an elite of the stoker
+warden, checked as one, Lv 150); the clinker bit is a split minion, kept small (Lv 145, 590 EXP, 58–110 coins: unchecked
+by the sheet). **The stoker warden sits at Lv 148 on purpose**: at Lv 149 it became "farming your own level" at 149–155
+in place of the legacy sentry (on-curve EXP levels faster than the sentry's), which cut gold earned by Lv 170 ~1.3% and
+the EXP worth of Brenna and the Colossus against farming (0.76× → 0.66× an hour). At 148 it ties the sentry and doesn't
+take its place, as the Old Ice's black-ice wolf ties the rime archer, so nothing moved: **gold earned by** Lv 150
+~8,945,881 → ~8,945,868, Lv 170 and Lv 200 the same to a dozen coins; **play time** unchanged. Gear on the curve: the
+Stoker's Helm (`helmetPrice` at Lv 148, 772k) off stoker wardens, the Twinfang and its staff and bow twins (`swordPrice`
+at Lv 150, 1.046M) off Orthrus only (4%; gear isn't in a kill's value, so the elite check doesn't see it), between the
+Rim's Cragbeak (Lv 146) and Brenna's set (Lv 151). No trader, no field boss, no pet. The Long Flue has no mobs. Hot
+grates (the Foundry) cost HP only.
+
 ## The levelling rebalance, L1 and L2 (2026-10-23, `story/progression.md`)
 **L1, the pace.** `expToNext` = the larger of the old curve and `LEVEL_MIN(L)` minutes of `KILLS_PER_MIN` kills
 of the frozen curve's EXP at L (owner's curve "A": `0.5·L^0.65` minutes up to Lv 100, then `L/10`). Mobs and

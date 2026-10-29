@@ -12,12 +12,12 @@
 // loading quay, gear-teeth on barges, a tally with its last mark half cut, and the Breathing Stone in the Brimstone Fields'
 // camp: the mountain breathing in and out, and the islands coming close and drifting off with it, and the Hoist Stone at the
 // Caldera Rim's stair head: every island's road meeting at a city on the ground, a gear-tooth going up the road). Wreck Cave has a reading here that isn't a stone: the
-// wrecked ship's logbook; the Old Foundry's tally board is the other (`wing` and `when` change the card's header lines). The text opens
+// wrecked ship's logbook; the Old Foundry's tally board and (E5 (b)) the stoker's ledger by the fallen flue are the others (`wing` and `when` change the card's header lines). The text opens
 // on the museum's fact-sheet card (src/museum.js, `set`: the stones in the same room). Story:
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X, COAST, COAST_STONE_X, BRIMSTONE, BRIM_STONE_X, FOUNDRY, FOUNDRY_TALLY_X, RIM, RIM_STONE_X } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X, COAST, COAST_STONE_X, BRIMSTONE, BRIM_STONE_X, FOUNDRY, FOUNDRY_TALLY_X, FOUNDRY_LEDGER_X, RIM, RIM_STONE_X } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -161,6 +161,18 @@ export const RUIN_STONES = [
     ],
     note: 'Every row of chalk is grey with old dust except the last line. Somebody has wiped that one clean, and not long ago.',
   },
+  {
+    // the stoker's ledger by the fallen flue (E5 (b), docs/places/underflues.md): a second reading in the Foundry
+    room: FOUNDRY, place: 'the Old Foundry', x: FOUNDRY_LEDGER_X, shape: 'ledger', name: "the stoker's ledger", title: "The Stoker's Ledger",
+    wing: 'the Old Foundry · by the fallen flue', when: 'Ink on scorched pages · read by the heat coming up',
+    look: "A thick book bound in iron-studded leather, lying open on a stoker's stool by the mouth of the fallen flue, its pages brown and curled at the edges from the heat coming up. It is the stokers' own book, kept below: whose shift, how much was shovelled in, how the fire took it.",
+    legible: [
+      'SHIFT DOWN. FED. FIRE TOOK IT.',
+      'Pages of it, in many hands, the entries long at first: who went down, how many barrows, how the fire drew, a joke now and then. Further on they get shorter. Fed. Took it. Fed. Took it. Hot below. Fed.',
+      'The last entry is on its own at the top of a clean page, the ink pressed in hard: IT BREATHED BACK. WE CAME UP.',
+    ],
+    note: 'The pages after it are blank. A stoker\'s shovel leans against the stool, its handle worn smooth, its blade still black.',
+  },
 ];
 for (const s of RUIN_STONES) {
   s.room ??= FIELD;
@@ -190,7 +202,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone, landing: drawLandingStone, breathing: drawBreathingStone, tally: drawTally, hoist: drawHoistStone })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone, landing: drawLandingStone, breathing: drawBreathingStone, tally: drawTally, ledger: drawLedger, hoist: drawHoistStone })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -1620,6 +1632,88 @@ function drawHoistStone(ctx, time, glow) {
     const k = (time * 0.5 + i / 3) % 1;
     ctx.fillStyle = `rgba(60,52,58,${0.4 * (1 - k)})`;
     circle(ctx, -60 - k * 50, -130 + k * 20 + i * 4, 1.4);
+  }
+}
+
+// The stoker's ledger (E5 (b)): a thick iron-studded book lying open on a stoker's stool by the fallen flue, its pages
+// curled with the heat, a shovel leaning on the stool; heat shimmering up past it. glow: you're close enough to read it
+function drawLedger(ctx, time, glow) {
+  ctx.fillStyle = 'rgba(20,12,12,0.3)';
+  ellipse(ctx, 0, 0, 46, 6);
+  // the shovel, leaning
+  ctx.strokeStyle = '#5a3e2c';
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(30, -96);
+  ctx.lineTo(44, -6);
+  ctx.stroke();
+  ctx.fillStyle = '#1e1a1c';
+  ctx.beginPath();
+  ctx.moveTo(38, -16);
+  ctx.lineTo(52, -18);
+  ctx.lineTo(54, 0);
+  ctx.lineTo(40, 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.lineCap = 'butt';
+  // the stool: an iron-bound wooden block on three legs
+  ctx.fillStyle = '#3a2a22';
+  for (const lx of [-20, 0, 20]) ctx.fillRect(lx - 2.5, -44, 5, 44);
+  ctx.fillStyle = '#4a3428';
+  ctx.beginPath();
+  ctx.roundRect(-30, -52, 60, 10, 3);
+  ctx.fill();
+  ctx.fillStyle = '#5a5460';
+  ctx.fillRect(-30, -46, 60, 2);
+  // the book, open: two pages curled up at their outer edges, the spine iron-studded
+  ctx.save();
+  ctx.translate(0, -54);
+  ctx.fillStyle = '#2a1a14'; // the cover under the pages
+  ctx.beginPath();
+  ctx.moveTo(-36, 0);
+  ctx.lineTo(36, 0);
+  ctx.lineTo(34, -6);
+  ctx.lineTo(-34, -6);
+  ctx.closePath();
+  ctx.fill();
+  const page = glow ? '#e8d8b4' : '#b8a888';
+  for (const d of [-1, 1]) {
+    ctx.fillStyle = page;
+    ctx.beginPath();
+    ctx.moveTo(0, -6);
+    ctx.quadraticCurveTo(d * 16, -10, d * 30, -8);
+    ctx.quadraticCurveTo(d * 36, -12, d * 34, -18); // the curled edge
+    ctx.quadraticCurveTo(d * 18, -20, 0, -15);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = 'rgba(90,50,30,0.5)'; // scorched at the edge
+    ctx.beginPath();
+    ctx.ellipse(d * 31, -13, 4, 5, 0, 0, TAU);
+    ctx.fill();
+    // lines of writing, shorter going down the right-hand page
+    ctx.strokeStyle = 'rgba(40,26,20,0.55)';
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    for (let i = 0; i < 3; i++) {
+      const len = d < 0 ? 22 : 22 - i * 7;
+      ctx.moveTo(d * 4, -13 + i * 2.2);
+      ctx.lineTo(d * (4 + len), -12 + i * 2.2);
+    }
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#8a8490';
+  for (const y of [-14, -10, -6]) circle(ctx, 0, y, 1);
+  ctx.restore();
+  // heat coming up past it from the flue
+  for (let i = 0; i < 3; i++) {
+    const k = (time * 0.4 + i / 3) % 1;
+    ctx.strokeStyle = `rgba(255,160,90,${0.18 * Math.sin(k * Math.PI)})`;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(-40 + i * 8, -20 - k * 90);
+    ctx.quadraticCurveTo(-34 + i * 8 + Math.sin(time * 2 + i) * 5, -40 - k * 90, -40 + i * 8, -60 - k * 90);
+    ctx.stroke();
   }
 }
 

@@ -18,7 +18,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS } from './shared/rpg.js';
+import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE } from './shared/rpg.js';
 import { drawHighlands, drawSummitLookout } from './highlands.js';
 import { drawCaldera } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
@@ -71,6 +71,8 @@ import { drawTubes } from './tubes.js';
 import { drawBrimstone } from './brimstone.js';
 import { drawRim } from './rim.js';
 import { drawFoundry } from './foundry.js';
+import { drawUnderFlues } from './underflues.js';
+import { drawLongFlue, drawLongFlueFront, flueDepth, say as flueSay } from './longflue.js';
 import { wayAt, wayById, sameIsle } from './shared/waystones.js';
 import { drawWaystones, wayPrompt, wayBeacons, WayCard, shimmer } from './waystones.js';
 import { PoolCard, NewsBanner, newsFor, nearPool, poolSplash } from './rebirth.js';
@@ -219,6 +221,7 @@ const net = new Net(wsUrl, {
       // a voice out of the dark, not a mob's (Ladon's one line in the Road's End: docs/places/sunkenroad.md)
       if (room === ROADSEND) roadsSay(m.text, time);
       if (room === LONGSTAIR) stairSay(m.text, time); // (Fenrir's, on the Long Stair: docs/places/oldice.md)
+      if (room === LONGFLUE) flueSay(m.text, time); // (Typhon's, in the Long Flue: docs/places/underflues.md)
       chat.announce(`${m.who}: "${m.text}"`);
       return;
     }
@@ -1337,7 +1340,7 @@ function update(realDt) {
     if (online()) audio.sfx('door');
   }
   if (online()) audio.setScene(room, STAGES[room] ? zoneAt(net.me.x, room).name : null);
-  audio.setDepth(online() && room === ROADSEND ? roadsDepth(net.me.x) : online() && room === LONGSTAIR ? stairDepth(net.me.x) : 0); // (the Road's End's heartbeats, the Long Stair's hum and chain)
+  audio.setDepth(online() && room === ROADSEND ? roadsDepth(net.me.x) : online() && room === LONGSTAIR ? stairDepth(net.me.x) : online() && room === LONGFLUE ? flueDepth(net.me.x) : 0); // (the Road's End's heartbeats, the Long Stair's hum and chain, the Long Flue's bellows and hammer)
   rpg.update(dt, online() ? net.me : null, room);
   skillTree.tick(); // (the K panel's cooldown sweeps while it's open, SP1)
   if ((room === STORE || room === PETSHOP) && online()) store.update(net.me, room);
@@ -1571,8 +1574,9 @@ function render() {
     else if (room === COAST) drawCoast(ctx, camX, W, time);
     else if (room === TUBES) drawTubes(ctx, camX, W, time);
     else if (room === BRIMSTONE) drawBrimstone(ctx, camX, W, time);
-    else if (room === FOUNDRY) drawFoundry(ctx, camX, W, time);
+    else if (room === FOUNDRY) drawFoundry(ctx, camX, W, time, net.renderTick()); // (its hot grates follow the server tick)
     else if (room === RIM) drawRim(ctx, camX, W, time);
+    else if (room === UNDERFLUES) drawUnderFlues(ctx, camX, W, time);
     else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
       if (near(SUMMIT_LOOKOUT_X)) drawSummitLookout(ctx, SUMMIT_LOOKOUT_X, ROOMS[HIGHLANDS].ground, time);
@@ -1589,6 +1593,7 @@ function render() {
   else if (room === FJORD) drawFjord(ctx, camX, W, time);
   else if (room === FORGEHOLD) drawForgehold(ctx, camX, W, time);
   else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
+  else if (room === LONGFLUE) drawLongFlue(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === LONGSTAIR) drawLongStair(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === ROADSEND) drawRoadsEnd(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (roomDef(room)?.crossing) drawCrossing(ctx, room, camX, W, time, online() ? net.me : null);
@@ -1628,6 +1633,7 @@ function render() {
   if (meShown) nameTag(mine, true);
   if (roomDef(room)?.crossing) drawCrossingFront(ctx, room, camX, W, time, online() ? net.me : null); // the near water, over the hull's foot
   if (room === ROADSEND) drawRoadsEndFront(ctx, camX, W, time, online() ? net.me : null); // the dark closing in, the petals, Ladon's line
+  if (room === LONGFLUE) drawLongFlueFront(ctx, camX, W, time, online() ? net.me : null); // the dark between breaths, the haze, the soot, Typhon's line
   if (room === LONGSTAIR) drawLongStairFront(ctx, camX, W, time, online() ? net.me : null); // the dark, the ice dust, Fenrir's line
   rpg.drawFx(ctx); // skill effects (and Dash / Blink anywhere)
   if (isCombat(room)) for (const s of all) if (s.hpAt !== undefined && time - s.hpAt < 5) bar(ctx, s.x - 22, s.y - s.h - 14, 44, 6, s.hp / s.maxHp, '#ff6f91');
@@ -1693,6 +1699,7 @@ function render() {
     else if (status === 'online' && room === FORGEHOLD) drawPill(16, 14, 300, `Forgehold · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CLIFFS) drawPill(16, 14, 300, `The East Cliffs · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === ROADSEND) drawPill(16, 14, 300, `The Road's End · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === LONGFLUE) drawPill(16, 14, 300, `The Long Flue · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === LONGSTAIR) drawPill(16, 14, 300, `The Long Stair · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && crossingAt(room, net.me)) {
       // aboard: where she's bound, how long till she's in, and a little track of the voyage
