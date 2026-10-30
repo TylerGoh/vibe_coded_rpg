@@ -100,6 +100,10 @@ No quests, no hard level gates.
       uncharted islands (`world/regions/uncharted.md`, `expansion.md`).
 
 ## Small asks
+- [ ] **Bug (owner, 2026-10-30), seen in the `/rpg_dev` sandbox:** every one-shot boss skill (ultimates and the
+      like) still kills you while you stand in its safe zone. Check whether it's sandbox-only (the Bosses tab's
+      "Ultimate now" / restart-at-phase path, `docs/sandbox.md`) or live too (the safe-zone check in the boss
+      moves, `docs/combat/bosses.md`).
 - Trading: start a trade by tapping a slime on the canvas (today: the Players panel).
 - Owner to decide: whether bought cosmetics become tradeable.
 - Everything else asked for but not planned: `docs/ideas.md`.
