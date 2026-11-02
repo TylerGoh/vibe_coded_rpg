@@ -41,19 +41,20 @@ touches (see the index at the bottom) before changing code. Every source file na
   things with its method (aim level → share of gold earned by then) instead of guessing.
 
 ## Run / deploy
-- **Moving to an Oracle box (planned 2026-11-02, not done):** the plan, steps and what to update afterwards are in
-  `deploy/oracle/README.md`. Until that's done, everything below describes the home box.
-- Public https://tylergoh.com/rpg/ → Cloudflare tunnel → nginx `location /rpg/` (WebSocket upgrade) →
-  `127.0.0.1:3002`. The whole box is described in `~/NETWORK.md`. nginx changes need the user's sudo
-  (staged config + `deploy/install-nginx.sh`).
+- Runs on an **Oracle Linux 9 box on OCI** (ARM, user `opc`; moved from the home box 2026-11-02, how and why in
+  `deploy/oracle/README.md`). Public https://rpg.tylergoh.com/rpg/ → Cloudflare (proxied DNS, no tunnel) → the box's
+  :443 → nginx (`/etc/nginx/conf.d/rpg.conf`, source `deploy/oracle/nginx-rpg.conf`; Cloudflare Origin cert in
+  `/etc/nginx/ssl/`, SSL "Full (strict)") → `127.0.0.1:3002`. firewalld lets only Cloudflare's ranges reach 443
+  (`deploy/oracle/cloudflare-firewall.sh`, re-run to refresh them); SELinux needs `httpd_can_network_connect` on or
+  nginx 502s. nginx/firewall changes need sudo. Nothing else (no `~/NETWORK.md`, no other apps) lives on this box.
 - User systemd unit `rpg.service` (source `deploy/rpg.service`) runs `npm run build` then
   `node server/index.js`. **Deploy = `systemctl --user restart rpg`** (rebuilds). Logs:
-  `journalctl --user -u rpg` (the startup log says whether TURN and DeepSeek are on). Restarting drops
+  `sudo journalctl _SYSTEMD_USER_UNIT=rpg.service` (`journalctl --user` shows nothing on this box; the startup log says whether TURN and DeepSeek are on). Restarting drops
   everyone for a few seconds; clients reconnect where they stood (owner: small deploys mustn't reset
   positions; `savePositions` in `server/index.js`; bosses keep their HP too, `docs/netcode.md`). For a game-breaking change, create an empty
   `reset-positions` file next to the accounts DB before restarting and everyone starts at spawn. Unit changes: `install -m 644 deploy/rpg.service
   ~/.config/systemd/user/` + `daemon-reload`.
-- The dev sandbox at https://tylergoh.com/rpg_dev/ (owner's hand-test tool: any class, dummies, bosses on demand) is
+- The dev sandbox at https://rpg.tylergoh.com/rpg_dev/ (owner's hand-test tool: any class, dummies, bosses on demand) is
   a second, on-demand server (`rpg-dev.socket` / `rpg-dev.service`, port 3003) running `~/rpg-dev`, a worktree on
   the `dev` branch: `docs/sandbox.md`. It never touches the live DB beyond reading logins.
 - Git: `~/rpg` is a repo, remote `origin` = github.com:TylerGoh/vibe_coded_rpg (branch `main`). **Always
@@ -77,9 +78,9 @@ touches (see the index at the bottom) before changing code. Every source file na
   script exits; anything launched another way, kill it yourself, and check `pgrep -c chromium` is 0 before you finish.
 - **One test server at a time, never left running** (owner: RAM is tight). Stop it right after each test, and
   before finishing kill any stray game test server (`pgrep -af "server/index.js"`), other sessions' too; keep only
-  the live one (cwd `~/rpg`, port 3002) and Slime Hop (cwd `~/game`).
+  the live one (cwd `~/rpg`, port 3002) and the sandbox (cwd `~/rpg-dev`, port 3003).
 - Stop test servers by PID (check `readlink /proc/<pid>/cwd`). `pkill -f "node server/index.js"` also kills
-  the live service and Slime Hop (`~/game`, port 3000).
+  the live service and the sandbox.
 
 ## Core rules (break these and things desync or glitch; details in `docs/netcode.md`)
 - Fixed 60 Hz on both sides; one input message = one sim step; client predicts and replays unacked inputs.

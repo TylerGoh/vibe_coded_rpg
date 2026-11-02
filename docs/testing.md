@@ -5,7 +5,7 @@ build into the scratchpad, `node --check`, `npm run economy -- --check`, `npm ru
 napkin math for balance (each class's DPS from the skills it would actually use, then time to kill). The tools
 below are for when the owner asks for a playtest. One test server at a time, stopped right after (`Agent.md`).
 
-**The owner's own hand testing happens in the dev sandbox** (https://tylergoh.com/rpg_dev/, `docs/sandbox.md`): any
+**The owner's own hand testing happens in the dev sandbox** (https://rpg.tylergoh.com/rpg_dev/, `docs/sandbox.md`): any
 class, level, skills and gear in one click, training dummies with a DPS readout, any boss at any phase. Point
 `~/rpg-dev` at the work and ask the owner (and friends) to try it there; it is how "feel" gets checked, which no bot
 can do. It is not a place for agents' test players: those still use a throwaway server, below.

@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 
-// Served publicly at tylergoh.com/rpg/ (nginx → 127.0.0.1:3002), so every URL lives under /rpg/. The dev sandbox
+// Served publicly at rpg.tylergoh.com/rpg/ (nginx → 127.0.0.1:3002), so every URL lives under /rpg/. The dev sandbox
 // (docs/sandbox.md) builds the same client with RPG_BASE=/rpg_dev/ (scripts/sandbox-build.mjs); the client finds its
 // WebSocket from the base (src/main.js), and the server serves under the same RPG_BASE.
 const base = `/${(process.env.RPG_BASE || '/rpg/').replace(/^\/+|\/+$/g, '')}/`;

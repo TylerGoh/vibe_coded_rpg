@@ -4,7 +4,7 @@ Files: `server/sandbox.js` (its messages, the login copy, dummies, bosses, toggl
 `src/shared/sandbox.js` (the Training Yard's room `ARENA` and every sandbox number), `src/sandbox.js` (the panel and
 the readout), `src/sandbox-art.js` (the yard and the dummies), `scripts/sandbox-build.mjs` (the build-if-changed step),
 `deploy/rpg-dev.service` and its socket unit `deploy/rpg-dev.socket`, the `/rpg_dev/` block in
-`deploy/nginx-owntracks.conf`. Hooks into the game: `hooks` in `createRpg` (`server/rpg.js`: `onDamage`, `god`, `respawn`, `hpFloor`, `party`; and
+`deploy/oracle/nginx-rpg.conf`. Hooks into the game: `hooks` in `createRpg` (`server/rpg.js`: `onDamage`, `god`, `respawn`, `hpFloor`, `party`; and
 `m.forceUlt`, read by `startUlt` and the final bosses' loops), the `sbx` branch and
 `SANDBOX` in `server/index.js`, `onSandbox` in `src/net.js` / `src/main.js`.
 
@@ -95,14 +95,13 @@ systemctl --user daemon-reload && systemctl --user enable --now rpg-dev.socket
 (cd ~/rpg-dev && DIST=~/.cache/rpg-dev/dist RPG_BASE=/rpg_dev/ node scripts/sandbox-build.mjs)   # first build
 curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3003/rpg_dev/   # 200: started on demand
 ```
-nginx (the owner, with sudo): `sudo bash /home/tylergoh/rpg/deploy/install-nginx.sh`. The staged config is a whole copy
-of the live one; the installer refuses one that would drop a route the live config has (other projects add theirs:
-`/cal/`, `/bank/`), so restage it from `/etc/nginx/conf.d/owntracks.conf` if it complains.
+nginx (sudo): the `/rpg_dev/` block is already in `deploy/oracle/nginx-rpg.conf`; after changing it,
+`sudo install -m 644 deploy/oracle/nginx-rpg.conf /etc/nginx/conf.d/rpg.conf && sudo nginx -t && sudo systemctl reload nginx`.
 
 Update: put the code in `~/rpg-dev` (`git -C ~/rpg-dev merge main` for what's live, or commit / check out work in
 progress on `dev`), then `systemctl --user restart rpg-dev.service` (it rebuilds if the client changed). Or just stop
 it (`systemctl --user stop rpg-dev.service`): the next visit starts it with the new code. Logs:
-`journalctl --user -u rpg-dev`. A failed start (a build error) leaves the socket waiting: fix the code, then
+`sudo journalctl _SYSTEMD_USER_UNIT=rpg-dev.service` (`journalctl --user` shows nothing on this box). A failed start (a build error) leaves the socket waiting: fix the code, then
 `systemctl --user reset-failed rpg-dev.service`. Unit changes: `install` them again and `daemon-reload`.
 Note: `npm run dev` (Vite's dev server) also wants port 3003; stop the socket or pass `--port` while using it.
 

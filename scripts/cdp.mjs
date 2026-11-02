@@ -1,7 +1,7 @@
 // Docs: docs/testing.md
 // Headless-browser test helper (tests only, never against the live server on 3002). Import it from a
 // scratch test script:
-//   import { launch, page, sleep, wait } from '/home/tylergoh/rpg/scripts/cdp.mjs';
+//   import { launch, page, sleep, wait } from '/home/opc/rpg/scripts/cdp.mjs';
 //   const br = await launch({ game: 3010 });        // a throwaway server's port
 //   const a = await page(); await a.login('knight1'); // as many pages as players
 //   await a.tp(6, 500); await a.key('Digit1'); await wait(3000); console.log(await a.eval('slimeville.net.me'));

@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/tylergoh/rpg
+WorkingDirectory=%h/rpg
 # Cloudflare TURN key for voice chat relay (optional; see server/turn.js). Not in the repo: secrets.
 EnvironmentFile=-%h/.config/rpg/turn.env
 # DeepSeek API key for Elder Mochi (optional; see server/npc.js).

@@ -1,6 +1,6 @@
 // Docs: docs/netcode.md (the protocol is documented below)
 // Production server: serves the built game (dist/) at /rpg/ and the multiplayer WebSocket at /rpg/ws,
-// on loopback. nginx proxies tylergoh.com/rpg/ to it. Run with: npm start (builds first) or npm run serve.
+// on loopback. nginx proxies rpg.tylergoh.com/rpg/ to it. Run with: npm start (builds first) or npm run serve.
 // The dev sandbox (docs/sandbox.md) is this same server with SANDBOX=1, RPG_BASE=/rpg_dev/ (the client built with the same
 // RPG_BASE), its own PORT, DB and DIST, and the listening socket handed over by systemd (LISTEN_FDS) when it has one.
 //

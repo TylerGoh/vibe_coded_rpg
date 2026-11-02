@@ -1,7 +1,8 @@
 # Moving Slimeville to the Oracle box
 
-Status (2026-11-02): **planned, not done.** Slimeville (live, `/rpg/`) and its dev sandbox (`/rpg_dev/`) move from the
-home Arch box to a fresh **Oracle Linux 9** instance on OCI. Everything else on the home box (other apps,
+Status: **done 2026-11-02.** Slimeville (live, `/rpg/`) and its dev sandbox (`/rpg_dev/`) moved from the
+home Arch box to an **Oracle Linux 9** instance on OCI (ARM, Singapore). Kept as the record of how, and as the recipe
+for rebuilding the box. Everything else on the home box (other apps,
 Home Assistant, the Cloudflare tunnel) stays where it is. Written for the owner and for an agent on either box.
 
 ## The plan (owner decision: "option A")
@@ -35,7 +36,7 @@ after:   browser → Cloudflare (proxied DNS) → Oracle public IP :443 → ngin
 | sandbox DB (optional) | `~/.local/share/rpg-dev/` | same | owner copies; without it the sandbox starts fresh and copies logins from live |
 | secrets | `~/.config/rpg/turn.env`, `deepseek.env` | same, mode 600 | owner copies (scp); never print or commit |
 | units | `deploy/rpg.service`, `rpg-dev.service`, `rpg-dev.socket` | `~/.config/systemd/user/` | `install` (they use `%h`, so any username works) |
-| nginx | `deploy/nginx-owntracks.conf` (blocks inside the home box's shared server) | `/etc/nginx/conf.d/rpg.conf` | `deploy/oracle/nginx-rpg.conf` |
+| nginx | the `/rpg/` blocks in the home box's shared nginx file (the repo copy, `deploy/nginx-owntracks.conf`, was deleted after the move) | `/etc/nginx/conf.d/rpg.conf` | `deploy/oracle/nginx-rpg.conf` |
 
 Every server module opens the one `data/accounts.sqlite` (accounts, characters, houses, chat, trades, NPC memory).
 There are no native npm modules (SQLite is Node's built-in `node:sqlite`), so x86 or ARM (Ampere) both work. Node
@@ -67,6 +68,8 @@ sudo dnf install -y git nginx curl tar
 curl -fsSL https://rpm.nodesource.com/setup_26.x | sudo bash -
 sudo dnf install -y nodejs
 node -v   # v26.x
+# (OL9's own AppStream module may already have put an older Node in /usr/bin: remove it and disable the module first,
+#  sudo dnf remove -y nodejs npm && sudo dnf module reset -y nodejs && sudo dnf module disable -y nodejs)
 # (If NodeSource has no 26 build: download the official linux-<x64|arm64> tarball from nodejs.org into /opt/node and
 #  sudo ln -sf /opt/node/bin/{node,npm,npx} /usr/bin/ ; the units call /usr/bin/node and /usr/bin/npm.)
 
@@ -133,7 +136,7 @@ to the real one corrupts it.
 ```bash
 chmod 600 ~/.config/rpg/*.env
 systemctl --user enable --now rpg rpg-dev.socket
-journalctl --user -u rpg -n 30     # startup log: listening on 3002, TURN on, DeepSeek on
+sudo journalctl _SYSTEMD_USER_UNIT=rpg.service -n 30   # startup log (journalctl --user shows nothing here): listening on 3002, TURN on, DeepSeek on
 curl -sk -o /dev/null -w '%{http_code}\n' --resolve rpg.tylergoh.com:443:127.0.0.1 https://rpg.tylergoh.com/rpg/   # 200
 ```
 
@@ -158,7 +161,7 @@ while the sandbox builds.
 3. `~/NETWORK.md`: drop `rpg.service`, 3002/3003 and the `/rpg/` route; note that Slimeville lives on Oracle.
 4. Keep `~/rpg` and `~/rpg-dev` on the home box for a while as a fallback (the units are disabled), then delete.
 
-## 7. The repo afterwards (an agent on the Oracle box)
+## 7. The repo afterwards (an agent on the Oracle box) — done 2026-11-02
 
 Once it runs there, make the repo describe its new home, and delete this file's "planned" status:
 - `Agent.md` → "Run / deploy": the public path (Cloudflare proxied DNS → nginx on Oracle → 3002), no tunnel, where
@@ -170,3 +173,11 @@ Once it runs there, make the repo describe its new home, and delete this file's 
 - Comments that say `tylergoh.com/rpg/` (`server/index.js`, `vite.config.js`) → `rpg.tylergoh.com/rpg/`.
 - Claude Code memory from the home box (`~/.claude/projects/-home-tylergoh-rpg/memory/`) can be copied to the new
   box's project folder (named after the new path, e.g. `~/.claude/projects/-home-opc-rpg/memory/`).
+
+## What bit during the move (2026-11-02)
+- `deploy/rpg.service` had `WorkingDirectory=/home/tylergoh/rpg` hardcoded; it is `%h/rpg` now. Keep the units
+  user-agnostic.
+- The box came with Node 20 from OL9's AppStream module (too old for `node:sqlite`); see the note in step 3.
+- `journalctl --user` shows nothing for user units here: use `sudo journalctl _SYSTEMD_USER_UNIT=rpg.service`.
+- The public URL gave 522 (Cloudflare couldn't connect) until the OCI side was fixed: no SYN reached the box
+  (`tcpdump -ni enp0s6 'tcp port 443'`), so check the security list and the A record before nginx or firewalld.
