@@ -181,3 +181,16 @@ Once it runs there, make the repo describe its new home, and delete this file's 
 - `journalctl --user` shows nothing for user units here: use `sudo journalctl _SYSTEMD_USER_UNIT=rpg.service`.
 - The public URL gave 522 (Cloudflare couldn't connect) until the OCI side was fixed: no SYN reached the box
   (`tcpdump -ni enp0s6 'tcp port 443'`), so check the security list and the A record before nginx or firewalld.
+
+## 8. Working on the game from the Oracle box
+
+The usual flow ("continue with the next phase": `story/roadmap.md` → work in a scratch copy → install back →
+`systemctl --user restart rpg` → commit and push) needs nothing from the home box: the story bible, docs, the docs
+hook (`.claude/settings.json`) and the economy sheet are all in the repo. What the box needs once:
+- **Push access**: a GitHub *deploy key* is read-only unless "Allow write access" was ticked; without it every
+  push after a deploy fails. Use a key on the GitHub account or tick write access.
+- **git identity**: `git config --global user.name tylergoh` and `user.email` (the home box commits as
+  `tylergoh@limzhengguang.com`).
+- **Claude Code** installed and logged in; copy the memory folder (section 7) so the owner's standing rules come along.
+- **Chromium** only if the owner asks for a headless test (`scripts/cdp.mjs` runs `/usr/bin/chromium`); otherwise
+  skip it (no bot playtests unless asked).
