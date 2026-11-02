@@ -108,7 +108,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   const mobs = SPAWNS.map((sp) => spawn({ id: nextMob++, sp: { ...sp, room: sp.room ?? FIELD } }));
   for (const d of DENS) mobs.push(spawn({ id: nextMob++, sp: { kind: d.boss, x0: 200, x1: DEN_W - 200, y: ROOMS[d.room].ground, room: d.room }, den: d }));
   const loot = []; // { id, room, item, n, x, y, at }
-  // FB1 (c): the final bosses' brains (server/final.js: Ladon's; server/fenrir.js: Fenrir's, FB2), with what they need
+  // FB1 (c): the final bosses' brains (server/final.js: Ladon's; server/fenrir.js: Fenrir's, FB2; server/typhon.js: Typhon's, E5), with what they need
   // from here (all called lazily)
   const final = createFinal({
     now: () => now(), MOBS, TEST_BOSS_HP, ULT_FIRST, PULSE_WARN, weakOf, weakHpOf,
@@ -869,11 +869,16 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       if (prop) m.hitters.set(id, now()); // (relighting or setting an anchor is fighting it: the EXP and the loot roll)
       const hit = prop ? [m.id, dmg, h[2] ? 1 : 0, 0] : damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock, src);
       if (shatter) hit.push(1);
-      if ((pt?.head || pt?.stump || prop) && !m.dead) final.hitHead(m, pt, dmg, id, p, { fire: fire || el === 'fire' || dot?.kind === 'burn', throatFill: THROAT_FILL }); // (fire seals a stump, relights a lantern)
+      if ((pt?.head || pt?.stump || prop) && !m.dead) final.hitHead(m, pt, dmg, id, p, { fire: fire || el === 'fire' || dot?.kind === 'burn', throatFill: THROAT_FILL, frost: el === 'frost' }); // (fire seals a stump, relights a lantern; frost crusts a plate)
       if (ps && !m.dead && !prop) partyHitLanded(m, dmg, { magic: magic && !off, heavy: (heavy || shatter) && !cracked.has(m) && !off, weak, onShield: ps.onShield && !off }) && cracked.add(m);
       if (el && !m.dead && !prop) element(m, el, dmg, id, shatter);
       if (dot && !m.dead && !prop) dotOn(m, dot.kind, dmg * dot.share, id);
       out.push(hit);
+    }
+    // E5: a frost hit in a final boss's den: Typhon's hot plates in its reach crust over (server/typhon.js frost)
+    if (el === 'frost' && out.length) {
+      const fb = mobs.find((q) => !q.dead && q.room === p.state.room && MOBS[q.kind].final && q.fin);
+      if (fb) final.frost(fb, p, dir || 1, range);
     }
     return out;
   }
@@ -890,7 +895,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         m.frozenUntil = t + (k.boss || k.field ? FREEZE_BOSS : FREEZE_S) * 1000;
         if (!k.boss && !k.field) m.vx = 0;
         // S5.2's interrupt: a boss frozen while its ultimate is still warning loses the ultimate, then staggers
-        if (k.boss && m.act === 'ult' && m.phase === 'warn' && m.ult?.kind !== 'rebirth' && partyOn(m, 'interrupt')) interruptUlt(m, id);
+        if (k.boss && m.act === 'ult' && m.phase === 'warn' && m.ult?.kind !== 'rebirth' && !m.ult?.noFreeze && partyOn(m, 'interrupt')) interruptUlt(m, id); // (noFreeze: Typhon's full-pressure Eruption, E5)
       } else m.chillUntil = t + CHILL_S * 1000;
     } else if (el === 'fire') {
       if (shatter) m.frozenUntil = m.chillUntil = 0;
@@ -1822,7 +1827,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   }
   function ultGoesOff(m, k, t) {
     const u = m.ult;
-    const lasts = u.kind === 'wave' ? (DEN_W / WAVE_SPEED) * 1000 + 600 : u.kind === 'overclock' ? u.gap * 2000 + 900 : u.kind === 'timestop' ? u.still * 1000 + 700
+    const lasts = u.kind === 'wave' || u.kind === 'lastpour' ? (DEN_W / (u.speed ?? WAVE_SPEED)) * 1000 + 600 : u.kind === 'overclock' ? u.gap * 2000 + 900 : u.kind === 'timestop' ? u.still * 1000 + 700
       : u.kind === 'collapse' ? (DEN_W / u.speed) * 1000 + 700 : 1500;
     if (u.kind === 'rebirth') {
       m.egg = null;

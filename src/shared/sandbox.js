@@ -33,10 +33,10 @@ export const SANDBOX_POTIONS = ['mega_elixir', 'star_tonic', 'barrier_draught', 
 export const SANDBOX_POTS = 999;
 // the Bosses tab's party switch: a boss's party mechanics come on as if this many slimes were fighting it
 export const SANDBOX_PARTY = 4;
-// the Bosses tab's headliners: each island's biggest boss (Emberdeep's is Brenna until Typhon ships in E5 (c)); the
-// rest of DENS sit under "Other dens"
+// the Bosses tab's headliners: each island's biggest boss (Emberdeep's is Typhon since E5 (c); Brenna moved under
+// "Other dens" with the rest of DENS)
 export const SANDBOX_HEADLINERS = [
   { island: 'Greenhollow', boss: 'ladon' },
   { island: 'Frostpeak', boss: 'fenrir' },
-  { island: 'Emberdeep', boss: 'brenna' },
+  { island: 'Emberdeep', boss: 'typhon' },
 ];

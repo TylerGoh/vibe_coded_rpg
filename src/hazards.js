@@ -1037,6 +1037,8 @@ const BEAM = {
   brine: { glow: '255,214,190', outer: 'rgba(236,232,224,0.9)', mid: '#ffffff', aim: '255,96,110' }, // the Hatchkeeper's snort of hot brine and salt (E2)
   bellows: { glow: '255,170,110', outer: 'rgba(255,190,140,0.6)', mid: '#ffe8d0', aim: '255,96,110' }, // the bellows toad's low blast of hot air (the Old Foundry)
   tooth: { glow: '214,232,255', outer: 'rgba(200,214,240,0.88)', mid: '#ffffff', aim: '255,96,110' }, // Brenna: the shard's cold light thrown off the tooth's face (E4b)
+  hearth: { glow: '255,150,60', outer: 'rgba(255,120,40,0.9)', mid: '#fff0b0', aim: '255,96,80' }, // Typhon's Fire Breath (E5)
+  vent: { glow: '255,180,90', outer: 'rgba(255,150,60,0.92)', mid: '#fff6d0', aim: '255,110,80' }, // a vent's column of fire in the Hearth (E5)
 };
 function drawBeam(ctx, h, now) {
   const B = BEAM[h.style] || BEAM.sentry;

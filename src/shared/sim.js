@@ -356,8 +356,7 @@ ROOMS[FOUNDRY] = {
 };
 // rooms 63 and 64 (E5 (b), docs/places/underflues.md): the Under-Flues, down the brick flue at the back of the
 // Foundry's big pit, entered at its WEST end, and at its far east end the Long Flue, the approach to Typhon's den
-// (room 65, E5 (c): its door comes with its DENS row, through denDoors; until then the furnace door holds, a gate in
-// EMBERDEEP)
+// (room 65, E5 (c): its door comes with its DENS row, through denDoors)
 ROOMS[UNDERFLUES] = {
   name: 'The Under-Flues', width: UNDERFLUES_W, ground: FIELD_GROUND, platforms: UNDERFLUES_PLATFORMS,
   doors: [

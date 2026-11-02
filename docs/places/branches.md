@@ -95,8 +95,8 @@ island shows what's coming.
   `denDoors(RIM)`. Emberdeep's only gate left is the balloon (Phase 6).
 - **Shipped (E5 (b), the way to Typhon):** `docs/places/underflues.md`: the back of the Old Foundry's big casting pit fell
   in (the update did it), a brick flue down to the Under-Flues (`flue` drawn by `OPEN.flue`); the `underflues` node has
-  both rooms (63, 64) and an `entry` in the Foundry. Until E5 (c) the `hearth` node gates the den's door at the Long
-  Flue's foot (`furnacedoor`, `sign: false`: the Long Flue draws the door and its sign; "the door holds").
+  both rooms (63, 64) and an `entry` in the Foundry. Until E5 (c) a `hearth` node gated the den's door at the Long
+  Flue's foot ("the door holds"); E5 (c) deleted it and the door comes with the den's `DENS` row.
 - The island map (`docs/ui/world-map.md`) reads the same list: shipped places solid with their levels,
   the rest dashed with a short `block` reason. Keep both in step: a node's `block` should match its gate.
 
@@ -151,8 +151,8 @@ Gotchas already hit:
   Thornheart (two rooms, entry `rootsplit`). A deep room and an approach follow the branch checklist above, except
   the approach is no stage at all (no `STAGES` row: not a combat room).
 - **Emberdeep's way to its final boss** (E5 (b), `docs/places/underflues.md`): the `underflues` node under the Old
-  Foundry (two rooms, entry `flue`), and the `hearth` node gating the den's furnace door until E5 (c) adds the den's
-  `DENS` row and deletes the node (the door then comes through `denDoors(LONGFLUE)`, like Fenrir's).
+  Foundry (two rooms, entry `flue`), and the `hearth` node gated the den's furnace door until E5 (c) added the den's
+  `DENS` row and deleted the node (the door comes through `denDoors(LONGFLUE)`, like Fenrir's; `docs/places/typhon.md`).
 - **Frostpeak's way to its final boss** (FB2 (b), `docs/places/oldice.md`): the `oldice` node under the Blue Halls
   (two rooms, entry `fallenwall`). Until FB2 (c) a `wolfhold` node gated the den's door ("the ice holds"); (c) added the
   den's `DENS` row and deleted the node, so the door comes through `denDoors` like Ladon's (`docs/places/fenrir.md`).

@@ -1,4 +1,4 @@
-// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md
+// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md, docs/places/typhon.md
 // The final bosses' brain (FB1 (c); data in FINAL, src/shared/final.js): four phases, each a written loop of moves
 // run in order (never a random pick), the heads (several targets on one boss, each with a ring; cut, two regrow
 // unless fire seals the stump), the phase 3 coils (a server-timed hazard: it hurts, it never blocks), the enrage.
@@ -8,6 +8,7 @@
 // → the room: {t:'final', fb: 'ladon', id, ph, hd: [[slot, state, ring filled 0–100, ms left in that state, x]], act: the slot
 // that's acting (-1: none), cw: the coils' reach from each end (px), enr: 1 once enraged, cu: the Coil's ms left}
 import { createWolf } from './fenrir.js';
+import { createTyphon } from './typhon.js';
 import { FINAL, finalPhase, FINAL_ENRAGE_MIN, COIL_ENRAGE_S, ENRAGE_BREATH_S, FINAL_ULT_WARN, FINAL_GAP_S, LADON_SLOTS, HEAD_MAX, HEAD_RING, HEAD_CHUNK, HEAD_ADDS, REGROW_S, SEALED_REGROW_S, WATCH_S, BITE_WARN, BITE_REST_S, BITE_STUCK_S, LASH_WARN, LASH_FLOOR, LASH_ARCH, COIL_S, GAZE_S, GAZE_HP, GAZE_WEAK, COIL_STEP, COIL_STEPS, HUNDRED_GAPS, HUNDRED_GAP_W, FIN_W, headSpot, headReach, headTarget, throatOpen, isStump } from '../src/shared/final.js';
 
 const ENRAGE_MS = (Number(process.env.TEST_ENRAGE_MIN) || FINAL_ENRAGE_MIN) * 60_000; // (tests only: sooner)
@@ -16,11 +17,12 @@ const rand = (a, b) => a + Math.random() * (b - a);
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 
 // The engine (FB2 generalised it): each FINAL row names its brain ('hydra': this file's, Ladon's heads and coils;
-// 'wolf': server/fenrir.js, Fenrir's fetters, lanterns and sons). They share one face, which server/rpg.js calls for any
-// boss with `final`: tick (instead of bossBrain), part / hitHead (hits on its other targets: h[4] = 2 + slot), send, and
-// son (stepMob, for an add with `son`: Skoll and Hati).
+// 'wolf': server/fenrir.js, Fenrir's fetters, lanterns and sons; 'fire': server/typhon.js, Typhon's plates, pressure and
+// vents, E5). They share one face, which server/rpg.js calls for any boss with `final`: tick (instead of bossBrain), part /
+// hitHead (hits on its other targets: h[4] = 2 + slot), send, son (stepMob, for an add with `son`: Skoll and Hati) and
+// frost (a frost hit landed in its den: Typhon's plates crust; the others ignore it).
 export function createFinal(d) {
-  const brains = { hydra: createHydra(d), wolf: createWolf(d) };
+  const brains = { hydra: createHydra(d), wolf: createWolf(d), fire: createTyphon(d) };
   const of = (m) => brains[FINAL[d.MOBS[m.kind].final]?.brain ?? 'hydra'];
   return {
     tick: (m, ...a) => of(m).tick(m, ...a),
@@ -28,6 +30,7 @@ export function createFinal(d) {
     hitHead: (m, ...a) => of(m).hitHead(m, ...a),
     send: (m) => of(m).send(m),
     son: (...a) => brains.wolf.son(...a),
+    frost: (m, ...a) => of(m).frost?.(m, ...a),
   };
 }
 

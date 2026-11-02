@@ -76,7 +76,10 @@ No quests, no hard level gates.
 7. **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase. (a) on paper 2026-10-29:
    Typhon, the Buried Fire, under the Old Foundry (`e5-plan.md`), approved with every default
    (the owner may polish it). (b) built 2026-10-29: the Foundry's fallen pit, ledger and hot grates, the Under-Flues
-   (63), the Long Flue (64), the furnace door holding (`docs/places/underflues.md`). Next: (c) the den (65) and the fight.
+   (63), the Long Flue (64), the furnace door holding (`docs/places/underflues.md`). (c1) built 2026-11-02: the furnace
+   door opens on the Hearth (65), the whole fight (the plates, the pressure and vents, the Pour, the coils, the Inhale,
+   Eruption and the Last Pour), stand-in art, music and drop (`docs/places/typhon.md`). Next: **(c2)** Typhon's art,
+   its music, its four weapons, the Furnace Mask and the mini Typhon; then the owner plays it.
 
 ## Next
 - [ ] **Atlas Phase 6: the climb** (E4 shipped: this is next; can run alongside E5): the thermal column vista, the balloon crossing (Slag's
@@ -103,7 +106,9 @@ No quests, no hard level gates.
 - [ ] **Bug (owner, 2026-10-30), seen in the `/rpg_dev` sandbox:** every one-shot boss skill (ultimates and the
       like) still kills you while you stand in its safe zone. Check whether it's sandbox-only (the Bosses tab's
       "Ultimate now" / restart-at-phase path, `docs/sandbox.md`) or live too (the safe-zone check in the boss
-      moves, `docs/combat/bosses.md`).
+      moves, `docs/combat/bosses.md`). E5 (c1)'s reading (not fixed): a top boss's uninterrupted ultimate also takes
+      `TOP_ULT_HP` (60%) of max HP from everyone, safe spot or not (`ultGoesOff`), so anyone under that dies in the
+      safe zone, more so right after a pulse; owner to decide (lower it, or skip it for slimes in the safe spot).
 - Trading: start a trade by tapping a slime on the canvas (today: the Players panel).
 - Owner to decide: whether bought cosmetics become tradeable.
 - Everything else asked for but not planned: `docs/ideas.md`.

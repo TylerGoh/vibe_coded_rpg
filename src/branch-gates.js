@@ -29,8 +29,8 @@
 // The Brimstone Fields' gate (E3a): the Bearers' stair up toward the Caldera Rim, its hand-chains rusted through and
 // its top steps fallen (`bearerstair`), open since E4a (OPEN.bearerstair: new chains, the fallen steps rebuilt in iron).
 // The Old Foundry's (E5 (b)): the back of the big casting pit fallen in, a brick flue going down under the half-cast
-// tooth to the Under-Flues (OPEN.flue). Typhon's furnace door at the foot of the Long Flue is a gate with no art here
-// (`furnacedoor`: the Long Flue draws it, src/longflue.js, and its own sign).
+// tooth to the Under-Flues (OPEN.flue). Typhon's furnace door at the foot of the Long Flue was a gate with no art here until E5 (c) gave the
+// den its DENS row (the Long Flue draws the door, src/longflue.js).
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, circle, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES } from './shared/branches.js';
@@ -2274,7 +2274,7 @@ function drawBalloon(ctx, time) {
   ctx.stroke();
 }
 
-const DRAW = { furnacedoor: () => {}, tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair };
+const DRAW = { tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair };
 // The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
 // going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
 // white rose petal or two drifting into it. The update itself split it: no quest

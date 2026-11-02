@@ -271,6 +271,18 @@ between Old Crucible's (226k) and the Colossus's (248k); `PETSHOP_W` 5150 → 53
 Elsewhere only the toughness column moved (the dens' median ATK: frostbinder Lv 60 25 → 23 s) and a 0.01 in the shape
 table; farming, play time and gold earned by are unchanged (no mobs). Ignis's and Pyra's `lines` change no numbers.
 
+## E5 (c1): Typhon, the third final boss (2026-11-02)
+FINAL BOSSES gains `typhon`, fought at Lv 150 (`fightLvl`: its Lv 170 tag less `FINAL_LVL_OVER`), as Ladon and Fenrir
+are. HP 125M fixed for four: a party of four 46:31 (in `FINAL_PARTY_MIN`), every three slower than the enrage (no knight
+56:42, no priest 74:56, no frostbinder 81:18, no sniper 70:33); Brenna's 124.6M for four at Lv 149 (46:51) was the
+yardstick. ATK 600 (Brenna 580). EXP 2.9M: 0.92× farming's EXP an hour at Lv 150 (Ladon 0.92×, Fenrir 0.85×; 3.6M
+read 1.15×, near the band's top); coins 4.4–6.6M with mega elixirs, royal sap, whelp embers, stoker's iron and scrolls:
+2.53× farming's gold (Fenrir 2.68×). c1's drop is a stand-in (Brenna's twin set, 100%: LOOT BY CLASS lists it); its
+own weapons, hat and pet come with E5 (c2) and get priced then (a weapon a step over Brenna's Lv 151; the pet under
+Chronos's). The plates, vents and the Pour aren't modelled (they cost the party HP and time the sheet's fight doesn't
+see, as Ladon's heads and Fenrir's dark aren't); everything else on the sheet is unchanged (two rows moved by a hair:
+a frostbinder toughness 23 → 25 s and a 0.01 in the shape table, the sheet's random schedules).
+
 ## E5 (b): the Under-Flues (2026-10-29)
 Four mobs on the curve at Lv 145–148 (`docs/places/underflues.md`: cinder whelp 95% HP, flue bat 93% for a flier,
 clinker crawler 100% (a `split` mob), stoker warden 124% for its shell like the glass scorpion; EXP 100%, gold

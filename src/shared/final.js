@@ -1,4 +1,4 @@
-// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md
+// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md, docs/places/typhon.md
 // The final bosses' machinery (FB1 (c), story/fb1-plan.md; the pattern in story/final-bosses.md), shared by client
 // and server: the FINAL table (each final boss's phases, its written loops, its heads), the heads' geometry (where
 // each head hangs, bites, lowers; where its stump is), the coils, and the arena's ledges. The brain is
@@ -56,6 +56,22 @@ export const FINAL = {
       ['watch', 'lunge', 'strain', 'howl', 'breath', 'ward:2'],
       ['howl', 'watch', 'lunge', 'strain', 'claw', 'claw', 'shield', 'breath'],
       ['ult', 'watch', 'pounce', 'howl', 'ice', 'rear', 'both'],
+    ],
+  },
+  // Typhon, the Buried Fire (E5 (c), story/e5-plan.md; its own constants: src/shared/typhon.js). 'glare': the focus,
+  // 'bellows': the pulse, 'crust': Slag Crust (the armour), 'haze': Heat Haze (the barrier), 'burst': Coil Burst,
+  // 'pour': the ladle tops up the iron (phase 3), 'sweep': Coil Sweep, 'inhale': the tooth (phase 4)
+  typhon: {
+    brain: 'fire',
+    at: [0.75, 0.5, 0.25],
+    ultEvery: [75, 60, 50, 0],
+    ults: [{ name: 'Eruption', kind: 'eruption' }, { name: 'The Last Pour', kind: 'lastpour' }],
+    alternateFrom: 2,
+    loops: [
+      ['glare', 'hammer', 'hammer', 'bellows', 'crust:2'],
+      ['glare', 'burst', 'bellows', 'breath', 'hammer', 'haze:2'],
+      ['bellows', 'glare', 'hammer', 'burst', 'breath', 'shield', 'pour'],
+      ['ult', 'glare', 'sweep', 'bellows', 'hammer', 'hammer', 'inhale', 'both'],
     ],
   },
 };

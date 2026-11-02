@@ -22,7 +22,7 @@ const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const smooth = (v) => (v <= 0 ? 0 : v >= 1 ? 1 : v * v * (3 - 2 * v));
 const BRICK = '#4a2a24', BRICK_D = '#1e0e0c', BRICK_L = '#6e3e32';
 const IRON = '#5a5460', IRON_D = '#2a2630';
-// the door opens only once E5 (c) gives the den its DENS row; until then it bangs with every breath and holds
+// the door opens only once the den has its DENS row (E5 (c) gave it one); without it, it bangs with every breath and holds
 const TYPHON_DOOR_OPEN = DENS.some((d) => d.room === TYPHON_DEN);
 
 // 0 at the way in, 1 at the den's door: how deep down the flue a slime at x is

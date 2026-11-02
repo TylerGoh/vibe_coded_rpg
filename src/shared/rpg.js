@@ -5,6 +5,7 @@
 import { curve } from './curve.js';
 import { LADON_PLATFORMS, LADON_BODY_X } from './final.js';
 import { FENRIR_PLATFORMS, FEN_MID } from './fenrir.js';
+import { TYPHON_PLATFORMS, TY_MID } from './typhon.js';
 import { ARENA, DUMMY_HP, SPAR_HIT_PCT } from './sandbox.js';
 
 export const FIELD = 5; // room id (see ROOMS in sim.js)
@@ -927,14 +928,14 @@ export const UNDERFLUES_PLATFORMS = [
 // it grows (a glow, a coil sliding past, the curve of a back, four eyes at the last landing), the glow brightens with
 // every breath, the flue narrows and the soot thickens, and haze hides the way back, the further east you are.
 // TYPHON_MARK_X: the first slime past it in an empty Long Flue hears Typhon (TYPHON_LINE, server/rpg.js). TYPHON_DEN_X:
-// the den's furnace door (its art is always drawn; until the den's DENS row exists, E5 (c), it holds: a gate in
-// EMBERDEEP, src/shared/branches.js).
+// the den's furnace door (its art is always drawn; it held until E5 (c) gave the den its DENS row, and now opens into
+// the Hearth, room TYPHON_DEN).
 export const LONGFLUE = 64; // room id
 export const LONGFLUE_W = 2600;
 export const LONGFLUE_EXIT_X = 70; // back up the flue into the Under-Flues
 export const TYPHON_MARK_X = 1000;
 export const TYPHON_DEN_X = LONGFLUE_W - 240;
-export const TYPHON_DEN = 65; // the den's room id, kept for E5 (c)
+export const TYPHON_DEN = 65; // the den's room id (E5 (c): the Hearth, its DENS row)
 export const TYPHON_DEN_NAME = 'The Hearth';
 export const TYPHON_LINE = 'Is it time to pour? ...No. Not you. Go back up.';
 // The open-air stages (each has zones); dens are separate rooms. band: the levels it's for, shown on every
@@ -2325,6 +2326,31 @@ MOBS.orthrus = {
   ai: { kind: 'shell', cut: 0, every: 2.4, warn: 0.65, lunge: 700, time: 0.45 },
 };
 MOBS.orthrus.drops = [...MOBS.orthrus.drops, ['twinfang', 0.04, 1, 1]];
+// Typhon, the Buried Fire (E5 (c), story/e5-plan.md; docs/places/typhon.md): Emberdeep's final boss, in the Hearth (room
+// 65) at the foot of the Long Flue. A giant of black basalt and slag rising out of the first forge's hearth pit, serpent
+// coils below the waist moving under the floor plates. Rooted at the hearth in phases 1-3, it moves along the den on
+// its coils in phase 4 (server/typhon.js; its own constants in src/shared/typhon.js, its FINAL row in
+// src/shared/final.js). `heads`: targets besides its body (the four vents and the eight plates' rings, h[4] = 2 + slot;
+// the tooth in its chest while it inhales is the weak point). `final`, `top`, `partyAll`, `partyLive` as Ladon's and
+// Fenrir's: fixed HP for four, the enrage, no reward window; its stats are the FINAL table's, never the Lv 170 on its
+// tag. hp, exp and gold from the economy sheet's FINAL BOSSES (a party of four at Lv 150 near 45 min). c1's drop is a
+// stand-in (Brenna's twin set); its own weapons, hat and pet come with E5 (c2).
+MOBS.typhon = {
+  name: 'Typhon, the Buried Fire', boss: true, top: true, final: 'typhon', heads: true, touchW: 180, touchH: 190, denX: TY_MID,
+  lvl: 170, hp: 125000000, atk: 600, exp: 2900000, speed: 60, w: 300, h: 260, aggro: true, hops: false,
+  phases: [[], [], []], minion: 'cinder_whelp',
+  looks: { beam: 'hearth', shell: 'slag', dome: 'haze', curse: 'scorch', pulse: 'bellows' },
+  party: ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'], partyAll: true, partyLive: true,
+  weak: { dx: 0.1, dy: -0.62, r: 32, front: true }, // (the tooth behind the grille of its ribs, open while it inhales)
+  lines: {
+    enter: ['Is it the last one? Have you brought the last one? ...I have kept it hot.'],
+    phase: ['They are quiet up there. No hammers. When did the hammers stop?', 'One short. ONE SHORT. Then I will cast it myself. Hold still. You are the right shape.', 'Everyone I warmed is a name on a wall. If I let it out, what is left of them?'],
+    shield: 'Not yet. The fire stays in. It stays in until the Wheel has every tooth.',
+    freed: '...Nobody is coming to pour. Then I can let the fire go. Tell them up there it is warm enough now.',
+  },
+  // (c1: a stand-in drop, Brenna's twin set, as FB2's c1 used Sigrun's; E5 (c2) brings its own four weapons, the hat, the pet)
+  drops: [['coin', 1, 4400000, 6600000], ['bearer_blade', 1, 1, 1], ['mega_elixir', 1, 8, 12], ['royal_sap', 1, 4, 5], ['whelp_ember', 1, 6, 10], ['stoker_iron', 1, 4, 6], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.6, 1, 2]],
+};
 
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
@@ -2991,6 +3017,7 @@ export const DENS = [
   { room: HATCH_DEN, boss: 'hatchkeeper', name: 'The Buried Clutch', from: COAST, entranceX: HATCH_DEN_X, theme: 'hatch' }, // (E2; art: src/dens-hatch.js)
   { room: BRENNA_DEN, boss: 'brenna', name: "The Bearer's Hoist", from: RIM, entranceX: BRENNA_DEN_X, theme: 'hoist' }, // (E4b; art: src/dens-rim.js)
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
+  { room: TYPHON_DEN, boss: 'typhon', name: TYPHON_DEN_NAME, from: LONGFLUE, fromName: 'the Long Flue', entranceX: TYPHON_DEN_X, theme: 'hearth', platforms: TYPHON_PLATFORMS, final: true }, // (E5 (c); art: src/dens-typhon.js; the door's art: src/longflue.js)
 ];
 export const DEN_EXIT_X = 80;
 export const DEN_PLATFORMS = [

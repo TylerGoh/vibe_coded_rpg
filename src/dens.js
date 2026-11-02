@@ -14,14 +14,15 @@ import { DEN_ART as SKERRIES_DENS, ENTRANCE_ART as SKERRIES_ENTRANCES, BOSS_ART 
 import { DEN_ART as QBRIDGE_DENS, ENTRANCE_ART as QBRIDGE_ENTRANCES, BOSS_ART as QBRIDGE_BOSSES } from './dens-qbridge.js';
 import { DEN_ART as LADON_DENS, BOSS_ART as LADON_BOSSES, FX2 as LADON_FX } from './dens-ladon.js';
 import { DEN_ART as FENRIR_DENS, BOSS_ART as FENRIR_BOSSES, FX2 as FENRIR_FX } from './dens-fenrir.js';
+import { DEN_ART as TYPHON_DENS, BOSS_ART as TYPHON_BOSSES, FX2 as TYPHON_FX } from './dens-typhon.js';
 import { DEN_ART as HATCH_DENS, ENTRANCE_ART as HATCH_ENTRANCES, BOSS_ART as HATCH_BOSSES, ULT_LOOKS as HATCH_ULT_LOOKS, HATCH_FREED_S, drawHatchFreed } from './dens-hatch.js';
 import { DEN_ART as HOIST_DENS, ENTRANCE_ART as HOIST_ENTRANCES, BOSS_ART as HOIST_BOSSES, ULT_LOOKS as HOIST_ULT_LOOKS, BRENNA_FREED_S, drawBrennaFreed } from './dens-rim.js';
 import { glow as radialGlow } from './glow.js';
 // the third and fourth stages' dens, bosses and boss effects live in their own files (same contracts as here)
-const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS, ...LADON_DENS, ...FENRIR_DENS, ...HATCH_DENS, ...HOIST_DENS };
+const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS, ...LADON_DENS, ...FENRIR_DENS, ...TYPHON_DENS, ...HATCH_DENS, ...HOIST_DENS };
 const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES, ...SPINE_ENTRANCES, ...SKERRIES_ENTRANCES, ...QBRIDGE_ENTRANCES, ...HATCH_ENTRANCES, ...HOIST_ENTRANCES };
-const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES, ...QBRIDGE_BOSSES, ...LADON_BOSSES, ...FENRIR_BOSSES, ...HATCH_BOSSES, ...HOIST_BOSSES };
-const FX2 = { ...CALDERA_FX, ...CITADEL_FX, ...LADON_FX, ...FENRIR_FX };
+const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES, ...QBRIDGE_BOSSES, ...LADON_BOSSES, ...FENRIR_BOSSES, ...TYPHON_BOSSES, ...HATCH_BOSSES, ...HOIST_BOSSES };
+const FX2 = { ...CALDERA_FX, ...CITADEL_FX, ...LADON_FX, ...FENRIR_FX, ...TYPHON_FX };
 // a den's own look for a shared ultimate, by theme (the Hatchkeeper's Boiling Sand is the spores ult as boiling sand)
 const ULT_LOOKS = { ...HATCH_ULT_LOOKS, ...HOIST_ULT_LOOKS }; // (Brenna's Last Delivery: the wave ult as the tooth rolling)
 
@@ -2358,8 +2359,9 @@ const FXPAL = {
   oath: { debris: ['#f4f8ff', '#e2f0fc', '#b4d4f0', '#d8dce8'], dust: '226,238,252', crack: '#3e6294', warn: '255,96,120', jelly: ['#e2f0fc', '#d8dce8', '#8ab8e0', '#f4f8ff'] },
   hatch: { debris: ['#2e2a32', '#4a4450', '#ff8a4a', '#eeeae4'], dust: '150,130,126', crack: '#ff7a3a', warn: '255,96,110', jelly: ['#3a3440', '#e8dcc4', '#ff9a5a', '#9adce8'] }, // (the Hatchkeeper's den, E2)
   hoist: { debris: ['#3a3438', '#5a5258', '#ff8a4a', '#b0a8a4'], dust: '180,170,166', crack: '#ff7a3a', warn: '255,96,110', jelly: ['#4a4048', '#6e6870', '#ff9a5a', '#b0a8a4'] }, // (Brenna's den, E4b: basalt, iron, ember, pumice)
+  hearth: { debris: ['#2a2022', '#4a3a38', '#ff9a40', '#ffd27a'], dust: '170,130,110', crack: '#ff7a2a', warn: '255,96,80', jelly: ['#2a2022', '#4a3a38', '#ffb040', '#fff0b0'] }, // (Typhon's den, E5: basalt, slag, molten iron)
 };
-const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250', oath: '190,226,255', hydra: '170,230,120', wolf: '200,226,255', hatch: '255,160,110', hoist: '255,170,120' };
+const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250', oath: '190,226,255', hydra: '170,230,120', wolf: '200,226,255', hatch: '255,160,110', hoist: '255,170,120', hearth: '255,150,70' };
 const DUR = {
   slamWarn: 1, shockwave: 0.55, chargeWarn: 0.8, rainWarn: 1, rainHit: 0.45, summon: 0.9, roar: 0.8, bossDie: 1.6,
   leap: 1.1, phase: 1.5,

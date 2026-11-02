@@ -131,13 +131,19 @@
 //   shields, with the cracks as a 5th element) · a hit's h[4] may be 2 + slot (aimed at that head or its stump) ·
 //   ouch kinds bite and coil · boss events watch {to}, bite {slot, tx, dur}, biteHit {slot, tx}, coil {dur},
 //   coilStep {n, dir}, headFall {slot, hx, hy}, regrow {slot, also}, seal {slot}, gaze {dur}, finalRage; ultWarn /
-//   ultHit kinds heads {gaps} and strangle. Every 'final' message has fb ('ladon' | 'fenrir': whose it is).
+//   ultHit kinds heads {gaps} and strangle. Every 'final' message has fb ('ladon' | 'fenrir' | 'typhon': whose it is).
 //   Fenrir (FB2, server/fenrir.js): ← {t:'final', fb:'fenrir', id, ph, enr, rc (the reach, px from the middle), po (its
 //   pose), an: [[state 'h'|'c'|'s', ring %, ms]], ln: [[lit 1|0, ring %]]} · h[4] = 2 + slot: an anchor (0–3) or a
 //   lantern (4–9) · boss events lunge {tx, dur, rc} / lungeHit {tx}, claw {x0, x1, dur} / clawHit, strain {slot, dur,
 //   dir}, anchorSet / anchorSlip {slot}, snap {slot}, reach {rc, dir}, lanternOut / lanternLit {i, by}, pounce {tx, dur,
 //   n} / pounceHit {tx}, rear {tx, dur, r} / rearHit {tx, r} / rearBroken, sonUp / sonDown {son}, sonSwallow {i, son,
 //   sid, dur}, sonStopped {i, son}, pack {px}; ultWarn / ultHit kinds swallow {keep} and fimbul {dir}.
+//   Typhon (E5, server/typhon.js): ← {t:'final', fb:'typhon', id, ph, enr, pr (the pressure 0–100), po (its pose), pl:
+//   [[state 'c'|'g'|'m'|'k', ring %, ms]] (the eight plates), vn: [[state 'r'|'o'|'s'|'j', ring %, ms]] (the vents)} ·
+//   h[4] = 2 + slot: a vent (0–3) or a plate's ring (4–11) · boss events hammer {tx, dur, r, side} / hammerHit {tx, r},
+//   bulge {i, dur} / burst {i}, sweep {x0, x1, warn, dur}, inhale {dur} / inhaleOut / inhaleBroken, crust {i, by},
+//   ventOpen {slot}, ladle {tip}, unburied, brood {px}; beam styles hearth (Fire Breath) and vent (a vent's blast);
+//   ultWarn / ultHit kinds eruption {dark, safe, noFreeze} and lastpour {dir, x0, speed, safe}.
 //   The Cleric's summons (S3, server/summons.js): ← {t:'summons', s: [[id, what, owner, x, y, hp, maxHp, dir]]}
 //   ~20 Hz to rooms with any (an empty one when the last goes) · ← {t:'sumhit', h: [[summonId, hits]]} ·
 //   ← {t:'sumhurt', id, dmg} · ← {t:'sumgone', id, how: 'faded'|'broke', x, y}. A skill echo may carry

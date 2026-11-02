@@ -52,8 +52,8 @@ The sandbox only adds a room, two mob kinds, a panel and a readout; it never cha
     at any level), up to `DUMMY_MAX`; Clear. Dummies never die and give nothing (`dummy` on their `MOBS` rows, kept up
     in `damage()`); their HP stays at the yard's setting (`DUMMY_HP_SHARES`), for skills that care about a target's HP.
   - *Bosses* (reworked 2026-10-29, owner: "jump me into boss fights… I only need the biggest boss of each region"):
-    each island's headliner up top (`SANDBOX_HEADLINERS`: Ladon, Fenrir, and Brenna for Emberdeep until Typhon ships in
-    E5 (c); add him there then), every other `DENS` row folded under "Other dens". Start at phase 1–4 or near death:
+    each island's headliner up top (`SANDBOX_HEADLINERS`: Ladon, Fenrir, Typhon; Brenna is under "Other dens" since
+    E5 (c)), every other `DENS` row folded under "Other dens". Start at phase 1–4 or near death:
     Fight resets that boss (`resetBoss`), sets its HP to the share that phase starts at (`PHASE_AT`, a final boss's
     `FINAL` row), and puts you in its den. Two switches go with Fight:
     - *Hold phase*: `sbxHold` on the boss, read by `hooks.hpFloor` in `damage()`: its HP stops just above the next
@@ -63,7 +63,7 @@ The sandbox only adds a room, two mob kinds, a panel and a readout; it never cha
       Final bosses have them anyway (`partyAll`).
     In a den the tab adds *This fight*: **Ultimate now**, one button for each of the boss's ultimates (`sb.ultNow`
     sets `m.forceUlt`; the boss uses that one the next time it's free: `startUlt` for den bosses; the loop in
-    `server/final.js` / `server/fenrir.js` for final bosses, even in phase 4, where the loop otherwise runs them
+    `server/final.js` / `server/fenrir.js` / `server/typhon.js` for final bosses, even in phase 4, where the loop otherwise runs them
     itself), Restart at any phase without leaving, the two switches applied mid-fight (`bossopt`), and **Be a Lv N**
     (any class at once: max skills, every point in the main stat, the best weapon and helmet up to that level; N is
     the island's recommended level, `GREEN_TOP` / `FROST_TOP` / `EMBER_TOP`, or the boss's own level for other dens).

@@ -2,15 +2,15 @@
 
 E5 (b): the way to Emberdeep's final boss, Typhon, the Buried Fire (`story/e5-plan.md`, "On the way there"; the
 pattern is FB2's `docs/places/oldice.md` and FB1's `docs/places/sunkenroad.md`). Deep room, then approach, then den
-(room 65, `TYPHON_DEN`, `TYPHON_DEN_NAME` "The Hearth", kept for E5 (c)).
+(room 65, `TYPHON_DEN`, `TYPHON_DEN_NAME` "The Hearth": E5 (c), `docs/places/typhon.md`).
 
 ## The way in (the Old Foundry gets better)
 - **The fallen pit:** the back of the Old Foundry's biggest casting pit, at the Casting Floor's west end, has fallen
   in (the update did it, no quest), and under the half-cast tooth a brick flue runs down, hot air coming up it, the
   stokers' old ladder pegged down its throat (`UNDERFLUES_GATE_X`; `OPEN.flue` in `src/branch-gates.js`, a red-trimmed
   "The Under-Flues" sign). On the island map it's one node, `underflues`, under the Foundry (`EMBERDEEP` in
-  `src/shared/branches.js`; both rooms are its `rooms`), and (until E5 (c)) the den's node, `hearth`, blocked ("the door
-  holds").
+  `src/shared/branches.js`; both rooms are its `rooms`), and until E5 (c) the den's node, `hearth`, was blocked ("the door
+  holds"); E5 (c) deleted it.
 - **The stoker's ledger** (`RUIN_STONES` in `src/ruins.js`, shape `ledger`, at `FOUNDRY_LEDGER_X`): the Foundry's
   second find, a reading with E like the tally board (`wing` / `when`). The stokers' own book, open on a stool by the
   flue's mouth: the shifts that fed the fire from below, entries getting shorter, the last one alone on a clean page:
@@ -73,17 +73,17 @@ never be shut in.
   ticks, reset when the room empties), exactly like Fenrir's. The client shows a dark bubble with ember writing and a
   chat line.
 - **The den's door** at `TYPHON_DEN_X`: a great round-topped iron furnace door in a brick arch, riveted, a latch bar
-  across it, red-hot at the seams. **In (b) it holds**: with every breath it bangs in its frame (a jolt, the seams
+  across it, red-hot at the seams. **In (b) it held** (until E5 (c), below): with every breath it bangs in its frame (a jolt, the seams
   flaring, sparks and smoke puffing out round it) and doesn't open; a gate (`furnacedoor`, `sign: false`, no art in
   `src/branch-gates.js`: the Long Flue draws the door and its own sign) whose E look says so. The sign beside it:
   `TYPHON_DEN_NAME`, `finalTag(EMBER_TOP)` (both levels, from `FINAL_LVL_OVER` and `FINAL_MIN_PLAYERS`) and a live
   count, "3 here, 4+ recommended": a count, never a lock.
 
-## The door opens (E5 (c))
-Add the den's `DENS` row (`from: LONGFLUE`, `fromName`, `entranceX: TYPHON_DEN_X`, room `TYPHON_DEN`) and delete the
-`hearth` node: the door comes through `denDoors(LONGFLUE)` (`ROOMS[LONGFLUE]` already spreads it), and
-`TYPHON_DOOR_OPEN` (true once the row exists) lets the door swing open by itself on a gust of heat as you come near,
-the plan's look. Add the den's room to `ISLAND_OF_STAGE` (`src/worldmap.js`) if `islandOf` doesn't find it by its row.
+## The door opens (E5 (c), 2026-11-02)
+E5 (c1) added the den's `DENS` row (`from: LONGFLUE`, `fromName`, `entranceX: TYPHON_DEN_X`, room `TYPHON_DEN`) and
+deleted the `hearth` node: the door comes through `denDoors(LONGFLUE)`, and `TYPHON_DOOR_OPEN` (true now the row exists)
+swings it open by itself on a gust of heat as you come near. `islandOf` finds the den by its row (`from`). The den and
+the fight: `docs/places/typhon.md`.
 
 ## Personas that changed with it
 Ash (the pit has fallen through; the stokers' flues, before his time; "I'm not going down", flatly; the stokers kept
