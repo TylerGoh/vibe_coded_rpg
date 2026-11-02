@@ -41,6 +41,8 @@ touches (see the index at the bottom) before changing code. Every source file na
   things with its method (aim level → share of gold earned by then) instead of guessing.
 
 ## Run / deploy
+- **Moving to an Oracle box (planned 2026-11-02, not done):** the plan, steps and what to update afterwards are in
+  `deploy/oracle/README.md`. Until that's done, everything below describes the home box.
 - Public https://tylergoh.com/rpg/ → Cloudflare tunnel → nginx `location /rpg/` (WebSocket upgrade) →
   `127.0.0.1:3002`. The whole box is described in `~/NETWORK.md`. nginx changes need the user's sudo
   (staged config + `deploy/install-nginx.sh`).
