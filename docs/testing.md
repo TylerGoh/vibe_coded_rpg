@@ -56,8 +56,9 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
 - **Always close Chromium when done** (owner, 2026-10-26). `launch()` in `scripts/cdp.mjs` kills its browser when the
   script exits (normally, on a crash or on Ctrl-C), so end scripts with `process.exit(0)`. Check `pgrep -c chromium`
   is 0 afterwards.
-- **The Oracle box has no Chromium installed** (found 2026-11-03): `launch()` fails with ENOENT until someone installs
-  one (needs sudo). Until then, check UI by reading the code and test the server side with a raw `ws` client.
+- **On the Oracle box Chromium is EPEL's `chromium` package** (installed 2026-11-03), at `/usr/bin/chromium-browser`, a shell
+  wrapper. `scripts/cdp.mjs` finds either name and starts it in its own process group, killing the whole group on exit:
+  killing only the wrapper once left a dozen Chromiums running.
 - `/usr/bin/chromium --headless=new --remote-debugging-port=…`, driven by a small Node script using
   `node_modules/ws`: `Input.dispatchKeyEvent` for keys, `Runtime.evaluate` to read state,
   `Page.captureScreenshot` to look (then Read the PNG). Log in by filling `#name` / `#pass` and clicking `#go`.

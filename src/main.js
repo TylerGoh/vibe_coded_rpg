@@ -873,7 +873,7 @@ function showKeyEditor(on) {
   controlsList.hidden = on;
   kbReset.hidden = !on;
   kbSwitch.hidden = !TOUCH;
-  kbSwitch.textContent = on ? 'Touch controls' : 'Keyboard keys';
+  kbSwitch.textContent = on ? 'Touch list' : 'Keyboard keys';
   kbReset.textContent = 'Reset keys';
   kbReset.dataset.sure = '';
   keyEditor.stop();

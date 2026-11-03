@@ -33,4 +33,5 @@ rebindable, **saved per account**, opened **only from the Esc menu** (no hotkey 
 - Past mistake avoided: a `me` already on its way when you change a key would carry the old set and undo it, so
   `keys.load` ignores the server for a few seconds after a local change (the `me` that answers the save
   confirms it).
-- Not checked in a browser (the Oracle box has no Chromium): the page's layout in 960×540 and on a phone.
+- Layout checked in headless Chromium at 960×540 and on a phone (844×390). On touch the key buttons are kept small and
+  the combo list is hidden (`body.touch #kb-combos`) so the editor fits above its buttons.

@@ -3272,6 +3272,13 @@ body.touch #menu {
 body.touch #menu button {
   padding: calc(7px * var(--s)) 0;
 }
+/* the key editor on a touch screen (a tablet with a keyboard): small key buttons, no combo list, so it fits */
+body.touch #menu .kb-key {
+  padding: calc(2px * var(--s)) 0;
+}
+body.touch #kb-combos {
+  display: none;
+}
 
 /* ——— trading: docs/social/trading.md ——— */
 #trade[hidden],

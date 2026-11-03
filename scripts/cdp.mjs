@@ -9,10 +9,12 @@
 // `wait(ms)` waits that many GAME ms: with the server on TEST_SPEED=N it waits ms/N real ms (set SPEED=N for
 // the script too). `sleep(ms)` is always real time (page loads, logins).
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import WebSocket from '../node_modules/ws/index.js';
+// the browser: /usr/bin/chromium on the old box, chromium-browser on the Oracle box (EPEL's package)
+const CHROMIUM = ['/usr/bin/chromium', '/usr/bin/chromium-browser'].find(existsSync) ?? '/usr/bin/chromium';
 
 const SPEED = Number(process.env.SPEED) || 1;
 const OUT = process.env.OUT ?? tmpdir(); // where shot() writes its PNGs: point it at your scratchpad
@@ -25,12 +27,17 @@ export async function launch({ game = 3010, cdp = 9460 } = {}) {
   CDP = cdp;
   const dir = join(OUT, `chrome-${cdp}`);
   mkdirSync(dir, { recursive: true });
-  const proc = spawn('/usr/bin/chromium', ['--headless=new', `--remote-debugging-port=${cdp}`, '--no-first-run', '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--user-data-dir=${dir}`, '--window-size=960,540', 'about:blank'], { stdio: 'ignore' });
+  const proc = spawn(CHROMIUM, ['--headless=new', `--remote-debugging-port=${cdp}`, '--no-first-run', '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--user-data-dir=${dir}`, '--window-size=960,540', 'about:blank'], { stdio: 'ignore', detached: true }); // (its own process group: see kill)
   // never leave a headless Chromium running (owner, 2026-10-26): it dies with this script, even on a crash or Ctrl-C
   const kill = () => {
+    // the whole group: chromium-browser is a shell wrapper, and killing just it left a dozen Chromiums behind
     try {
-      proc.kill('SIGKILL');
-    } catch {}
+      process.kill(-proc.pid, 'SIGKILL');
+    } catch {
+      try {
+        proc.kill('SIGKILL');
+      } catch {}
+    }
   };
   process.on('exit', kill);
   for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => process.exit(130));
