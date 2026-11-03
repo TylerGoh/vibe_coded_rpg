@@ -73,7 +73,7 @@
 //       skills:{id:rank}, sp, hotbar:[6], potbar:[3], alt:{hotbar,potbar}, set, ap:{str,dex,int,luk}, apLeft,
 //       minRoll, pvp, berserk, shield (Mana Shield switched on), fire, cls, reborn, spLeft:{novice, cls}, momentum, arcane}  your character (sp: points
 //       you can spend now; a Novice's class points pile up in spLeft.cls until it chooses a class)
-//   → {t:'learn'|'unlearn', skill} · {t:'respec'} · {t:'hotbar', bar:'skill'|'pot', slot, id} · {t:'pvp', on}
+//   → {t:'learn'|'unlearn', skill} · {t:'respec'} · {t:'hotbar', bar:'skill'|'pot', slot, id} · {t:'pvp', on} · {t:'keys', keys: {action: [code|null, …]}} (rebound keys, only the changed ones)
 //   → {t:'hotswap'}  swap the hotbar for the other setup · {t:'ap', stat, n} (n < 0 takes back) · {t:'ap', reset:true}
 //   → {t:'buy', item, n, shop} · {t:'sell', slot, n, shop} · {t:'buycos', id} (Boutique)  at a shop (SHOPS: Pip, Runa)
 //       ← {t:'shop', ok:'buy'|'sell', item|cos, n, gold}
@@ -446,7 +446,7 @@ wss.on('connection', (ws) => {
       rpg.scroll(id, p, m);
     } else if (m.t === 'rebirth' && p.joined) {
       rpg.rebirth(id, p, m);
-    } else if (['learn', 'unlearn', 'respec', 'hotbar', 'hotswap', 'ap', 'pvp', 'wear', 'showhelm'].includes(m.t) && p.joined) {
+    } else if (['learn', 'unlearn', 'respec', 'hotbar', 'hotswap', 'ap', 'pvp', 'keys', 'wear', 'showhelm'].includes(m.t) && p.joined) {
       rpg.skills(id, p, m);
     } else if ((m.t === 'buy' || m.t === 'sell' || m.t === 'buycos') && p.joined) {
       rpg.shop(id, p, m);

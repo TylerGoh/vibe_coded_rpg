@@ -79,6 +79,7 @@ import { PoolCard, NewsBanner, newsFor, nearPool, poolSplash } from './rebirth.j
 import { fastGradients } from './fastcanvas.js';
 import { checkBuild, onInstall, takeResume } from './update.js';
 import { gfx } from './gfx.js';
+import { keys, KeyEditor } from './keys.js';
 import { Sandbox } from './sandbox.js';
 import { drawArena } from './sandbox-art.js';
 import { ARENA } from './shared/sandbox.js';
@@ -498,7 +499,10 @@ rpg.onReborn = (m, s) => {
   if (m.id === net.id) pool.reborn();
 };
 rpg.onToast = (text) => pool.refused(text);
-rpg.onMe = (m) => pool.update(m);
+rpg.onMe = (m) => {
+  pool.update(m);
+  keys.load(m.keys); // your key bindings live on your character (src/keys.js)
+};
 document.getElementById('sail-no').onclick = () => sail.close();
 function pressMove(id) {
   if (!rankOf(rpg.me?.skills, id)) return rpg.toast(`You haven't learned ${SKILLS[id].name} yet (press K)`), audio.sfx('error');
@@ -658,10 +662,10 @@ const casting = () => net.id !== null && voice.casters.has(net.id);
 function showMic() {
   micButton.hidden = !joined;
   micButton.classList.toggle('on', voice.micOn);
-  micButton.textContent = micError || (voice.micOn ? 'Mic on' : 'Mic off') + (TOUCH ? '' : ' · M');
+  micButton.textContent = micError || (voice.micOn ? 'Mic on' : 'Mic off') + (TOUCH || !keys.label('mic') ? '' : ` · ${keys.label('mic')}`);
   castButton.hidden = !joined || status !== 'online';
   castButton.classList.toggle('on', casting());
-  castButton.textContent = (casting() ? 'Live to all' : 'Broadcast') + (TOUCH ? '' : ' · B');
+  castButton.textContent = (casting() ? 'Live to all' : 'Broadcast') + (TOUCH || !keys.label('broadcast') ? '' : ` · ${keys.label('broadcast')}`);
 }
 async function toggleMic() {
   try {
@@ -765,6 +769,8 @@ async function showVoiceStatus() {
 document.getElementById('resume').onclick = () => toggleMenu(false);
 const fsButton = document.getElementById('fullscreen');
 fsButton.hidden = !fullscreenSupported();
+const showFsKey = () => (fsButton.textContent = 'Fullscreen' + (keys.label('fullscreen') ? ` · ${keys.label('fullscreen')}` : ''));
+showFsKey();
 fsButton.onclick = () => {
   toggleFullscreen();
   toggleMenu(false);
@@ -818,27 +824,80 @@ musicButton.onclick = () => {
   audio.setMusic(!audio.musicOn);
   showMusic();
 };
-// Controls: every key (or touch button), in the Esc menu instead of as labels on the HUD (owner's request)
-const CONTROLS = TOUCH
-  ? [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-     ['Tap the game', 'slap · Hit attacks (hold it to keep attacking)'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['▼ then Dash', 'Hook (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree (Cast a skill from its card)'],
-     ['Players', "who's online, invite, message"], ['Chat', 'chat · /w name to whisper · /r to reply'], ['Decorate', 'in your own house'],
-     ['Mic · Broadcast', 'talk to slimes nearby · to everyone'], ['Menu', 'this menu']]
-  : [['← → / A D', 'walk'], ['↑ / W / Space', 'jump (twice with Flash Jump)'], ['↓ / S', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-     ['Click', 'slap · attack'], ['X', 'attack (hold to keep attacking)'], ['Shift then X', 'Charge (Warrior) · Retreat Shot (Archer)'], ['↓ + X in the air', 'Leap Slam (Warrior)'], ['↓ + Shift', 'Hook (Warrior)'], ['Jump + X, rising', 'Upward Cut (Warrior)'], ['Z', 'pick things up'], ['1–6 · 7–9', 'skills · potions'], ['Shift · V', 'Dash · Blink'],
-     ['I · K', 'bag · skill tree (double-click a skill, or Cast, to cast it)'], ['P', "who's online, invite, message"], ['Enter', 'chat · /w name to whisper · /r to reply'],
-     ['R', 'decorate your house'], ['C · H · Q', 'course menu · raise your hand · ask Clio'], ['M · B', 'mic · broadcast to everyone'],
-     ['F', 'fullscreen'], ['Esc', 'this menu']];
-const controlsList = document.getElementById('controls-list');
-for (const [k, what] of CONTROLS) {
-  const dt = document.createElement('dt'), dd = document.createElement('dd');
-  dt.textContent = k;
-  dd.textContent = what;
-  controlsList.append(dt, dd);
+// Controls: every key (or touch button), in the Esc menu instead of as labels on the HUD (owner's request). On a
+// keyboard it's where you rebind keys (src/keys.js, docs/ui/keybinds.md); touch shows the touch buttons, and a
+// tablet with a keyboard can still switch to the key editor.
+const kl = (id) => keys.label(id) || '—';
+// the walk keys in pairs, "← → / A D"
+const walkKeys = () => {
+  const l = keys.all('left').split(' / '), r = keys.all('right').split(' / ');
+  return Array.from({ length: Math.max(l.length, r.length) }, (_, i) => [l[i], r[i]].filter(Boolean).join(' ')).filter(Boolean).join(' / ') || '—';
+};
+const TOUCH_CONTROLS = [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
+  ['Tap the game', 'slap · Hit attacks (hold it to keep attacking)'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['▼ then Dash', 'Hook (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree (Cast a skill from its card)'],
+  ['Players', "who's online, invite, message"], ['Chat', 'chat · /w name to whisper · /r to reply'], ['Decorate', 'in your own house'],
+  ['Mic · Broadcast', 'talk to slimes nearby · to everyone'], ['Menu', 'this menu']];
+// the moves made of two keys, under the editor (they follow whatever the keys are)
+const comboControls = () => [['Click', 'slap · attack (hold to keep attacking)'], [`${kl('dash')} then ${kl('attack')}`, 'Charge (Warrior) · Retreat Shot (Archer)'],
+  [`${kl('down')} + ${kl('attack')} in the air`, 'Leap Slam (Warrior)'], [`${kl('down')} + ${kl('dash')}`, 'Hook (Warrior)'], [`${kl('jump')} + ${kl('attack')}, rising`, 'Upward Cut (Warrior)'],
+  ['Double-click a skill', 'cast it from the skill tree'], ['Esc', 'this menu (always)']];
+function fillList(dl, rows) {
+  dl.replaceChildren();
+  for (const [k, what] of rows) {
+    const dt = document.createElement('dt'), dd = document.createElement('dd');
+    dt.textContent = k;
+    dd.textContent = what;
+    dl.append(dt, dd);
+  }
 }
+const controlsList = document.getElementById('controls-list');
+const kbBox = document.getElementById('kb'), kbCombos = document.getElementById('kb-combos');
+const kbReset = document.getElementById('kb-reset'), kbSwitch = document.getElementById('kb-switch');
+fillList(controlsList, TOUCH_CONTROLS);
+const keyEditor = new KeyEditor(document.getElementById('kb-grid'), document.getElementById('kb-note'));
+keys.send = (k) => net.sendNpc({ t: 'keys', keys: k });
+keys.onChange = () => {
+  held.clear(); // a key held across a rebind would stick
+  rpg.relabel();
+  showMic();
+  showFsKey();
+  fillList(kbCombos, comboControls());
+  keyEditor.render();
+  if (skillTree.isOpen) skillTree.render?.();
+};
+fillList(kbCombos, comboControls());
+let kbShown = !TOUCH;
+function showKeyEditor(on) {
+  kbShown = on;
+  kbBox.hidden = !on;
+  controlsList.hidden = on;
+  kbReset.hidden = !on;
+  kbSwitch.hidden = !TOUCH;
+  kbSwitch.textContent = on ? 'Touch controls' : 'Keyboard keys';
+  kbReset.textContent = 'Reset keys';
+  kbReset.dataset.sure = '';
+  keyEditor.stop();
+}
+kbSwitch.onclick = () => {
+  showKeyEditor(!kbShown);
+  menu.classList.toggle('kbview', kbShown);
+};
+// twice to be sure: one stray click shouldn't throw away a whole layout
+kbReset.onclick = () => {
+  if (!kbReset.dataset.sure) {
+    kbReset.dataset.sure = '1';
+    kbReset.textContent = 'Click again to reset';
+    return;
+  }
+  keys.reset();
+  showKeyEditor(true);
+  keyEditor.say('Every key is back to its default');
+};
 function showControls(on) {
   menu.classList.toggle('help', on);
+  menu.classList.toggle('kbview', on && kbShown);
   document.getElementById('controls').hidden = !on;
+  showKeyEditor(kbShown);
   if (on) document.getElementById('controls-back').focus();
 }
 document.getElementById('controls-open').onclick = () => showControls(true);
@@ -987,13 +1046,14 @@ canvas.addEventListener('pointermove', (e) => {
 });
 
 // ——— input ———
-const held = new Set();
-const KEYMAP = {
-  ArrowLeft: LEFT, KeyA: LEFT, ArrowRight: RIGHT, KeyD: RIGHT,
-  ArrowUp: JUMP, KeyW: JUMP, Space: JUMP, ArrowDown: DOWN, KeyS: DOWN,
-  KeyE: USE, // go through doors (talking to characters and reading exhibits are handled before this)
-  ShiftLeft: DASH, ShiftRight: DASH, KeyV: BLINK, // the Mobility skills (they do nothing until learned)
+// keys held down → the input bits they give (the action each key means is in src/keys.js, rebindable)
+const held = new Map();
+const MOVE_BITS = {
+  left: LEFT, right: RIGHT, jump: JUMP, down: DOWN,
+  use: USE, // go through doors (talking to characters and reading exhibits are handled before this)
+  dash: DASH, blink: BLINK, // the Mobility skills (they do nothing until learned)
 };
+const heldKey = (e) => (e.isTrusted === false ? 't:' : 'k:') + e.code; // (a touch button's key and a real one apart)
 addEventListener('keydown', (e) => {
   if (!joined) return;
   piano.unlock(); // any key press counts as the gesture browsers need before playing sound
@@ -1014,7 +1074,7 @@ addEventListener('keydown', (e) => {
   // the waystone card: Esc or E closes it, number keys pick a stone
   if (ways.isOpen) {
     e.preventDefault();
-    if (e.code === 'Escape' || (e.code === 'KeyE' && !e.repeat)) ways.close();
+    if (e.code === 'Escape' || (keys.is(e, 'use') && !e.repeat)) ways.close();
     else if (/^Digit[1-9]$/.test(e.code)) ways.list.children[Number(e.code.slice(5)) - 1]?.click();
     return;
   }
@@ -1022,14 +1082,14 @@ addEventListener('keydown', (e) => {
   if (pool.isOpen) {
     e.preventDefault();
     if (e.code === 'Escape') pool.back();
-    else if (e.code === 'KeyE' && !e.repeat) pool.close();
+    else if (keys.is(e, 'use') && !e.repeat) pool.close();
     return;
   }
   // boarding a ship: E or Enter sets sail, Esc thinks better of it
   if (sail.door) {
     e.preventDefault();
     if (e.code === 'Escape') sail.close();
-    else if ((e.code === 'KeyE' || e.code === 'Enter') && !e.repeat) sail.go();
+    else if ((keys.is(e, 'use') || keys.is(e, 'chat')) && !e.repeat) sail.go();
     return;
   }
   // the trade window: Esc calls the trade off
@@ -1041,9 +1101,9 @@ addEventListener('keydown', (e) => {
     return;
   }
   // the bag (I), the skill tree (K) and the shop: their key or Esc closes them (the rest is clicks / taps)
-  for (const [panel, code] of [[rpg, 'KeyI'], [skillTree, 'KeyK'], [shop, 'KeyE'], [players, 'KeyP'], [alchemy, 'KeyE'], [pets, 'KeyE'], [chest, 'KeyE'], [sandbox, 'KeyO']]) {
+  for (const [panel, id] of [[rpg, 'bag'], [skillTree, 'skills'], [shop, 'use'], [players, 'players'], [alchemy, 'use'], [pets, 'use'], [chest, 'use'], [sandbox, 'sandbox']]) {
     if (!panel.isOpen) continue;
-    if (e.code === 'Escape' || (e.code === code && !e.repeat)) {
+    if (e.code === 'Escape' || ((id === 'sandbox' ? e.code === 'KeyO' : keys.is(e, id)) && !e.repeat)) {
       e.preventDefault();
       panel.close();
     }
@@ -1051,7 +1111,7 @@ addEventListener('keydown', (e) => {
   }
   // decorating your house: Esc / R finishes, Delete removes, F flips; walking and doors still work
   if (houses.editing && !e.repeat) {
-    if (e.code === 'Escape' || e.code === 'KeyR') {
+    if (e.code === 'Escape' || keys.is(e, 'decorate')) {
       e.preventDefault();
       houses.stopEditing();
       return;
@@ -1066,7 +1126,7 @@ addEventListener('keydown', (e) => {
     chat.close();
     return;
   }
-  if (e.code === 'KeyP' && !e.repeat && menu.hidden && online()) {
+  if (keys.is(e, 'players') && !e.repeat && menu.hidden && online()) {
     e.preventDefault();
     players.open();
     return;
@@ -1077,7 +1137,7 @@ addEventListener('keydown', (e) => {
     sandbox.open(); // the dev sandbox's panel (src/sandbox.js)
     return;
   }
-  if (e.code === 'KeyR' && !e.repeat && menu.hidden && online() && houses.isMine(room)) {
+  if (keys.is(e, 'decorate') && !e.repeat && menu.hidden && online() && houses.isMine(room)) {
     e.preventDefault();
     houses.startEditing(room);
     return;
@@ -1087,40 +1147,39 @@ addEventListener('keydown', (e) => {
     rpg.assign = null; // stop choosing a hotbar slot
     return;
   }
-  if (e.code === 'KeyI' && !e.repeat && menu.hidden && online()) {
+  if (keys.is(e, 'bag') && !e.repeat && menu.hidden && online()) {
     e.preventDefault();
     rpg.toggle();
     return;
   }
-  if (e.code === 'KeyK' && !e.repeat && menu.hidden && online()) {
+  if (keys.is(e, 'skills') && !e.repeat && menu.hidden && online()) {
     e.preventDefault();
     skillTree.toggle();
     return;
   }
-  const digit = /^Digit([1-9])$/.exec(e.code);
-  if (digit && !e.repeat && menu.hidden && online()) {
+  const slot = /^(skill|pot)(\d)$/.exec(keys.of(e) ?? ''); // a hotbar slot's key
+  if (slot && !e.repeat && menu.hidden && online()) {
     e.preventDefault();
-    const n = Number(digit[1]) - 1;
-    useSlot(n < HOTBAR ? 'skill' : 'pot', n < HOTBAR ? n : n - HOTBAR);
+    useSlot(slot[1], Number(slot[2]) - 1);
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && nearShop()) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && nearShop()) {
     e.preventDefault();
     shop.open();
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && rpg.me && nearPool(net.me, room)) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && online() && rpg.me && nearPool(net.me, room)) {
     e.preventDefault();
     held.clear();
     pool.open(rpg.me); // the Rebirth Pool's card (src/rebirth.js)
     return;
   }
-  if (e.code === 'KeyZ' && menu.hidden && isCombat(room) && online()) {
+  if (keys.is(e, 'pickup') && menu.hidden && isCombat(room) && online()) {
     e.preventDefault();
     rpg.pickup(net.me, net.seq); // held Z keeps picking things up
     return;
   }
-  if (e.code === 'KeyX' && menu.hidden && isCombat(room) && online()) {
+  if (keys.is(e, 'attack') && menu.hidden && isCombat(room) && online()) {
     e.preventDefault();
     if (e.repeat) return; // (held: update() keeps firing at the swing's own rate, not the keyboard's repeat)
     attackHeld = true;
@@ -1128,23 +1187,23 @@ addEventListener('keydown', (e) => {
     return;
   }
   if (courseMenu.isOpen) {
-    if (e.code === 'Escape' || e.code === 'KeyC') {
+    if (e.code === 'Escape' || keys.is(e, 'courses')) {
       e.preventDefault();
       courseMenu.close();
     }
     return;
   }
-  if (e.code === 'KeyC' && !e.repeat && menu.hidden && (room === HALL || room === TUTOR) && online()) {
+  if (keys.is(e, 'courses') && !e.repeat && menu.hidden && (room === HALL || room === TUTOR) && online()) {
     e.preventDefault();
     courseMenu.open(room === TUTOR);
     return;
   }
-  if (e.code === 'Enter' && room === TUTOR && tutor.myTurn) {
+  if (keys.is(e, 'chat') && room === TUTOR && tutor.myTurn) {
     e.preventDefault();
     tutor.input.focus(); // back to the answer box
     return;
   }
-  if ((e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Slash') && !e.repeat && menu.hidden && online()) {
+  if (keys.is(e, 'chat') && !e.repeat && menu.hidden && online()) {
     e.preventDefault();
     chat.focus(); // the chatbox (/ starts a command)
     if (e.code === 'Slash' && !chat.input.value) chat.input.value = '/';
@@ -1153,48 +1212,48 @@ addEventListener('keydown', (e) => {
   if (museum.isOpen) {
     // reading a fact sheet: ← → browse, Esc or E closes
     e.preventDefault();
-    if (e.code === 'Escape' || (e.code === 'KeyE' && !e.repeat)) museum.close();
-    else if (e.code === 'ArrowLeft' || e.code === 'KeyA') museum.browse(-1);
-    else if (e.code === 'ArrowRight' || e.code === 'KeyD') museum.browse(1);
+    if (e.code === 'Escape' || (keys.is(e, 'use') && !e.repeat)) museum.close();
+    else if (keys.is(e, 'left')) museum.browse(-1);
+    else if (keys.is(e, 'right')) museum.browse(1);
     return;
   }
   if (scope.isOpen) {
     // looking through the telescope: ← → swing it, Esc or E steps back
     e.preventDefault();
-    if (e.code === 'Escape' || (e.code === 'KeyE' && !e.repeat)) scope.close();
-    else if (!e.repeat && (e.code === 'ArrowLeft' || e.code === 'KeyA')) scope.turn(-1);
-    else if (!e.repeat && (e.code === 'ArrowRight' || e.code === 'KeyD')) scope.turn(1);
+    if (e.code === 'Escape' || (keys.is(e, 'use') && !e.repeat)) scope.close();
+    else if (!e.repeat && keys.is(e, 'left')) scope.turn(-1);
+    else if (!e.repeat && keys.is(e, 'right')) scope.turn(1);
     return;
   }
-  if (e.code === 'KeyH' && !e.repeat && menu.hidden && room === HALL && online()) {
+  if (keys.is(e, 'hand') && !e.repeat && menu.hidden && room === HALL && online()) {
     e.preventDefault();
     hall.toggleHand(profile.name);
     return;
   }
-  const talkTo = e.code === 'KeyE' && !e.repeat && menu.hidden && charsHere().find((c) => c.near);
+  const talkTo = keys.is(e, 'use') && !e.repeat && menu.hidden && charsHere().find((c) => c.near);
   if (talkTo) {
     e.preventDefault();
     talkTo.open();
     return;
   }
-  if (e.code === 'KeyQ' && !e.repeat && menu.hidden && room === MUSEUM && online()) {
+  if (keys.is(e, 'clio') && !e.repeat && menu.hidden && room === MUSEUM && online()) {
     e.preventDefault();
     askClio();
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && !houses.editing && alchemy.use(room, net.me)) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && online() && !houses.editing && alchemy.use(room, net.me)) {
     e.preventDefault(); // a garden plot or an alchemy lab
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && !houses.editing && chest.use(room, net.me)) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && online() && !houses.editing && chest.use(room, net.me)) {
     e.preventDefault(); // your storage chest
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && !houses.editing && pets.use(room, net.me)) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && online() && !houses.editing && pets.use(room, net.me)) {
     e.preventDefault(); // a pet: its card, to feed it
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && (room === STORE || room === PETSHOP) && (store.isOpen || store.near)) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && (room === STORE || room === PETSHOP) && (store.isOpen || store.near)) {
     e.preventDefault();
     if (store.isOpen) store.close();
     else store.open();
@@ -1205,33 +1264,33 @@ addEventListener('keydown', (e) => {
     store.close();
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && room === MUSEUM && museum.near) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && room === MUSEUM && museum.near) {
     e.preventDefault();
     museum.open();
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && wayAt(net.me)) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && online() && wayAt(net.me)) {
     e.preventDefault();
     useWaystone(); // a waystone: attune, or pick where to go (docs/places/waystones.md)
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && ruinStoneAt(net.me)) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && online() && ruinStoneAt(net.me)) {
     e.preventDefault();
     museum.open(ruinStoneAt(net.me)); // a Keeper stone, on the museum's fact-sheet card
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && gateAt(net.me, room)) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && online() && gateAt(net.me, room)) {
     e.preventDefault();
     rpg.toast(gateAt(net.me, room).says); // a blocked way into a branch (docs/places/branches.md)
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && room === CLIFFS && online() && scopeNear(net.me)) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && room === CLIFFS && online() && scopeNear(net.me)) {
     e.preventDefault();
     held.clear();
     scope.show();
     return;
   }
-  if (e.code === 'KeyE' && !e.repeat && menu.hidden && online() && doorAt(net.me)?.ask) {
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && online() && doorAt(net.me)?.ask) {
     e.preventDefault();
     sail.open(doorAt(net.me)); // a ship's gangway: ask first (docs/places/crossings.md)
     return;
@@ -1242,41 +1301,42 @@ addEventListener('keydown', (e) => {
     return;
   }
   if (!menu.hidden) return;
-  if (e.code === 'KeyF' && !e.repeat) {
+  if (keys.is(e, 'fullscreen') && !e.repeat) {
     toggleFullscreen();
     return;
   }
-  if (e.code === 'KeyM' && !e.repeat) {
+  if (keys.is(e, 'mic') && !e.repeat) {
     toggleMic();
     return;
   }
-  if (e.code === 'KeyB' && !e.repeat && online()) {
+  if (keys.is(e, 'broadcast') && !e.repeat && online()) {
     toggleCast();
     return;
   }
-  if (!(e.code in KEYMAP)) return;
+  const bits = MOVE_BITS[keys.of(e)];
+  if (!bits) return;
   e.preventDefault();
-  held.add(e.code);
-  if ((KEYMAP[e.code] & (DASH | BLINK)) && !e.repeat) {
+  held.set(heldKey(e), bits);
+  if ((bits & (DASH | BLINK)) && !e.repeat) {
     // latched for a few steps, so even the quickest tap reaches the physics
-    moveBits |= KEYMAP[e.code];
+    moveBits |= bits;
     moveSteps = 3;
   }
 });
 addEventListener('keyup', (e) => {
-  held.delete(e.code);
-  if (e.code === 'KeyX') attackHeld = false;
+  held.delete(heldKey(e));
+  if (keys.is(e, 'attack')) attackHeld = false;
 });
 addEventListener('blur', () => {
   held.clear();
   attackHeld = false;
   clickHeld = null;
 });
-const keys = () => {
+const inputBits = () => {
   if (mine && splatted(mine)) return 0; // the server ignores us until we wake up anyway
   if (scope.isOpen) return 0; // standing still at the telescope
   let k = 0;
-  for (const c of held) k |= KEYMAP[c];
+  for (const bits of held.values()) k |= bits;
   if (moveSteps > 0) {
     k |= moveBits;
     if (--moveSteps === 0) moveBits = 0;
@@ -1303,7 +1363,7 @@ function update(realDt) {
   if (joined) {
     acc = Math.min(acc + realDt, DT * 5 * speed); // speed: TEST_SPEED test servers only, else 1
     while (acc >= DT) {
-      net.tick(keys());
+      net.tick(inputBits());
       acc -= DT;
     }
     net.smooth(dt);
@@ -1734,7 +1794,7 @@ function render() {
     if (!museum.isOpen && !chat.isOpen) drawFeed(ctx, TOUCH ? H - 112 : a > 0 ? H - 56 : isCombat(room) ? H - 72 : H - 14, TOUCH ? 520 : isCombat(room) ? 300 : 620); // on touch, above the controls; above the hotbar
     if (a > 0 && !scope.isOpen) {
       ctx.globalAlpha = a;
-      drawPill(W / 2 - 380, TOUCH ? 140 : H - 48, 760, TOUCH ? '◀ ▶  walk  ·  Jump  ·  E  doors, talk, read  ·  tap the game  slap  ·  Menu' : '← → / A D  walk  ·  ↑ / W / Space  jump  ·  E  use  ·  click  slap  ·  I  bag  ·  K  skills  ·  P  players  ·  M  mic  ·  Esc  menu');
+      drawPill(W / 2 - 380, TOUCH ? 140 : H - 48, 760, TOUCH ? '◀ ▶  walk  ·  Jump  ·  E  doors, talk, read  ·  tap the game  slap  ·  Menu' : `${walkKeys()}  walk  ·  ${keys.all('jump') || '—'}  jump  ·  ${kl('use')}  use  ·  click  slap  ·  ${kl('bag')}  bag  ·  ${kl('skills')}  skills  ·  ${kl('players')}  players  ·  ${kl('mic')}  mic  ·  Esc  menu`);
       ctx.globalAlpha = 1;
     }
   } else {

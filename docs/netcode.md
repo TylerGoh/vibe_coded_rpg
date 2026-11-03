@@ -142,5 +142,5 @@ The dev sandbox runs both with `/rpg_dev/` and takes its listening socket from s
 
 ## `src/main.js`
 Owns the keyboard handler (panels first, then room-specific keys, then the Esc menu), the Esc menu
-buttons (and its Controls page, `CONTROLS`: keep it in step with new keys), the HUD and splats, and wires every feature module together. `#debug` in the URL exposes
+buttons (and its Controls page: new keys go in `KEY_ACTIONS`, `docs/ui/keybinds.md`; new touch buttons in `TOUCH_CONTROLS`), the HUD and splats, and wires every feature module together. `#debug` in the URL exposes
 `window.slimeville` (see `docs/testing.md`).

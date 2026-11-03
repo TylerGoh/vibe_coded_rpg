@@ -562,14 +562,14 @@ Hold-to-fire (above) came with it.
   `FAR_PX`). The sheet: `docs/economy.md`, "The Archer's skill pool (SP5)".
 
 ## Mobility runs in the physics
-Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V, the hotbar, touch buttons) handled in sim.js
+Dash and Blink are input bits (`DASH`, `BLINK`: Shift, V by default and rebindable (`docs/ui/keybinds.md`), touch buttons) handled in sim.js
 `step()`; ranks reach the physics as `state.mv` (`mobilityOf`, set by the server's `moves()`). The state
 carries their cooldowns and i-frames (`ifr`) and goes through `pack`. Some late ultimates need them.
 
 ## The hotbar
 - HTML `#hotbar` (combat rooms only, or while choosing a slot; hidden while a Keeper stone's card or a
   conversation with a character (`#npc`) is open, since both sit in its spot): `HOTBAR` skill slots (keys 1–6) and
-  `POTBAR` potion slots (7–9), tappable, with cooldown sweeps and potion counts. "Hotbar" in the skill tree
+  `POTBAR` potion slots (7–9) (the default keys; each slot's key can be rebound: `docs/ui/keybinds.md`), tappable, with cooldown sweeps and potion counts. "Hotbar" in the skill tree
   or "Put on hotbar" in the bag, then press a slot (`startAssign` / `finishAssign`).
 - **Two setups.** The active one is `c.hotbar` / `c.potbar`, the other `c.alt`, and `c.set` says which
   (0/1). `{t:'hotswap'}` swaps both rows. **It is swapped ONLY from the Esc menu button. The owner

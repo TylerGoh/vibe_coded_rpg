@@ -738,7 +738,7 @@ export const SKILLS = {
   // can sit on the hotbar too; they cost no MP. Dash and Blink make you untouchable for a moment
   // ("i-frames"): that's how you get through the tall sweeps and the Colossus's / Chronos's ultimates.
   dash: {
-    cls: 'any', tree: 'wind', adv: 10, name: 'Dash', kind: 'move', max: 3, mp: 0, cdFor: (r) => DASH_CD[r] / 60, key: 'Shift',
+    cls: 'any', tree: 'wind', adv: 10, name: 'Dash', kind: 'move', max: 3, mp: 0, cdFor: (r) => DASH_CD[r] / 60,
     desc: (r) => `Shift: burst forward ${Math.round((DASH_V * DASH_TICKS) / 60)} (in the air too), untouchable for ${secs(IFR_DASH)}. Cooldown ${DASH_CD[Math.max(1, r)] / 60} s.`,
   },
   flash_jump: {
@@ -746,7 +746,7 @@ export const SKILLS = {
     desc: (r) => `Press Jump again in mid-air for a second, forward-flying jump (speed ${FJ_VX[Math.max(1, r)]}).`,
   },
   blink: {
-    cls: 'any', tree: 'wind', adv: 30, name: 'Blink', kind: 'move', max: 3, mp: 0, cdFor: (r) => BLINK_CD[r] / 60, key: 'V',
+    cls: 'any', tree: 'wind', adv: 30, name: 'Blink', kind: 'move', max: 3, mp: 0, cdFor: (r) => BLINK_CD[r] / 60,
     desc: (r) => `V: teleport forward ${BLINK_DIST[Math.max(1, r)]}, straight through anything, untouchable for ${secs(IFR_BLINK)}. Cooldown ${BLINK_CD[Math.max(1, r)] / 60} s.`,
   },
   phantom_step: {

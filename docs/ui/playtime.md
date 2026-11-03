@@ -1,7 +1,7 @@
 # Play time page (Esc menu)
 
 Owner's ask (2026-10-26): players can see how long they've played, per day and overall, from the settings
-(Esc) menu. The **Play time** button sits beside **Controls** (two half-width buttons in a `.menu-row`, so
+(Esc) menu. The **Play time** button sits beside **Controls** (the key bindings page, `docs/ui/keybinds.md`) (two half-width buttons in a `.menu-row`, so
 the menu still fits in 540 px on phones).
 
 - **Data**: the character's `played` / `active` totals (`docs/combat/core.md`, recorded since 2026-10-23)

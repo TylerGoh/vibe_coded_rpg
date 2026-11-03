@@ -4,7 +4,8 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
 
 - Players said they couldn't tell what they could do where. Everything possible at your spot is listed
   above your own slime as key caps (E door/talk/read/buy furniture/adopt a pet/feed a pet/plant/harvest/brew/telescope/the Rebirth Pool, Z loot, X attack, ↓ drop down); on touch the caps
-  name the on-screen buttons instead (`keyName`).
+  name the on-screen buttons instead (`keyName`). On a keyboard `keyName` turns the cap into the account's own key
+  (`keys.token`, `docs/ui/keybinds.md`): write prompts with the default letters, never a rebound key.
 - Doors, characters, the Keeper stones, the telescope and the Rebirth Pool (`nearPool`, `src/rebirth.js`) nearby but out of reach get a bouncing "E"
   beacon (the nearest two). A door that's shut for now (`doorOpen`: the ferry's gangway before she's in)
   gets no beacon and no prompt.

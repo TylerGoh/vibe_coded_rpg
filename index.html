@@ -252,7 +252,7 @@
       <div id="menu" role="dialog" aria-label="Menu" hidden>
         <p>Menu</p>
         <button id="resume" type="button">Back to the village</button>
-        <button id="fullscreen" type="button" hidden>Fullscreen · F</button>
+        <button id="fullscreen" type="button" hidden>Fullscreen</button>
         <button id="music" type="button">Music: on</button>
         <button id="gfx" type="button">Graphics: auto</button>
         <button id="pvp" type="button">Friendly fire: on</button>
@@ -267,7 +267,16 @@
         <div id="voice-status" aria-live="polite"></div>
         <div id="controls" hidden>
           <dl id="controls-list"></dl>
-          <button id="controls-back" type="button">Back</button>
+          <div id="kb" hidden>
+            <div id="kb-grid"></div>
+            <div id="kb-note">Click a key to change it</div>
+            <dl id="kb-combos"></dl>
+          </div>
+          <div class="menu-row">
+            <button id="kb-switch" type="button" hidden>Keyboard keys</button>
+            <button id="kb-reset" type="button" hidden>Reset keys</button>
+            <button id="controls-back" type="button">Back</button>
+          </div>
         </div>
         <div id="playtime" hidden>
           <div id="pt-summary"></div>

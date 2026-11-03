@@ -3049,6 +3049,80 @@ body.touch #hudbtns.combat ~ #chat {
 #controls-list dd {
   margin: 0;
 }
+/* the key editor (src/keys.js): three columns of actions, each with its keys as small buttons */
+#menu.kbview > p {
+  display: none;
+}
+#kb[hidden], #controls-list[hidden] {
+  display: none;
+}
+#kb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(6px * var(--s));
+  padding: calc(10px * var(--s)) calc(16px * var(--s));
+  border-radius: calc(16px * var(--s));
+  background: #fffaf3;
+  color: #5b4a6b;
+  font: 600 calc(13px * var(--s)) Fredoka, 'Trebuchet MS', sans-serif;
+}
+#kb-grid {
+  display: flex;
+  gap: calc(18px * var(--s));
+  align-items: flex-start;
+}
+.kb-col {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2px * var(--s));
+}
+.kb-head {
+  font-weight: 700;
+  color: #e46f95;
+  margin-bottom: calc(2px * var(--s));
+}
+.kb-row {
+  display: flex;
+  align-items: center;
+  gap: calc(4px * var(--s));
+}
+.kb-name {
+  width: calc(124px * var(--s));
+}
+#menu .kb-key {
+  width: calc(54px * var(--s));
+  padding: calc(2px * var(--s)) 0;
+  border-radius: calc(7px * var(--s));
+  font-size: calc(12px * var(--s));
+  background: #fff;
+  box-shadow: 0 0 0 calc(1px * var(--s)) #d9c3a8, 0 calc(2px * var(--s)) 0 #d9c3a8;
+}
+#menu .kb-key.none {
+  opacity: 0.45;
+}
+#menu .kb-key.on {
+  background: #ffd34d;
+}
+#kb-note {
+  min-height: calc(16px * var(--s));
+  color: #8a6fc4;
+}
+#kb-combos {
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  gap: calc(2px * var(--s)) calc(12px * var(--s));
+  margin: 0;
+  font-size: calc(12px * var(--s));
+}
+#kb-combos dt {
+  font-weight: 700;
+  color: #e46f95;
+  text-align: right;
+}
+#kb-combos dd {
+  margin: 0;
+}
 /* two half-width buttons side by side (Controls · Play time), so the menu still fits in 540 */
 #menu .menu-row {
   display: flex;

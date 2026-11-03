@@ -186,6 +186,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |
 | [docs/ui/mobile.md](docs/ui/mobile.md) | touch controls, phone layout, fullscreen, home-screen mode |
 | [docs/ui/updates.md](docs/ui/updates.md) | the new-patch banner (Install without a hard refresh), build ids in `welcome` |
+| [docs/ui/keybinds.md](docs/ui/keybinds.md) | key bindings, the Controls page in the Esc menu, any new key or keyboard shortcut (`KEY_ACTIONS`) |
 | [docs/ui/hints.md](docs/ui/hints.md) | the on-screen prompts above your slime, any new interaction |
 | [docs/ui/world-map.md](docs/ui/world-map.md) | the World map page in the Esc menu |
 | [docs/ui/playtime.md](docs/ui/playtime.md) | the Play time page in the Esc menu (play time per day and overall) |

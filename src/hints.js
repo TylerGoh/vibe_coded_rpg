@@ -2,6 +2,7 @@
 // "What can I do here?": a stack of prompts above your own slime listing every action available where
 // you stand (key cap + what it does), and little bouncing beacons over doors and characters that are
 // close by but not in reach yet, so people notice them from a distance. main.js decides the actions.
+import { keys } from './keys.js';
 import { W, clamp } from './util.js';
 import { text } from './village.js';
 
@@ -9,7 +10,7 @@ const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 
 // What each key is called on the touch controls (src/touch.js)
 const TOUCH_NAMES = { E: 'E', Z: 'Loot', X: 'Hit', '↓': '▼', '↓+X': '▼ Hit', H: 'Hand', C: 'Courses', Q: 'Ask Clio', I: 'Bag', Shift: 'Dash', Space: 'Jump' };
-export const keyName = (key, touch) => (touch ? TOUCH_NAMES[key] ?? key : key);
+export const keyName = (key, touch) => (touch ? TOUCH_NAMES[key] ?? key : keys.token(key)); // (on a keyboard: this account's keys)
 
 function keycap(ctx, x, y, label, h = 22) {
   ctx.font = `700 13px ${FONT}`;

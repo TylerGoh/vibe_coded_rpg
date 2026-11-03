@@ -5,6 +5,7 @@
 // falling thorns hit you (the knockback is predicted at that exact step, see net.js applyKick). The
 // server sanity-checks and owns the mobs, loot and your stats. Also: HP/MP/EXP HUD, the hotbar (1–9),
 // the bag (I). The skill tree and the shop are in skilltree.js and shop.js.
+import { keys } from './keys.js';
 import { W, clamp, rand } from './util.js';
 import { text } from './village.js';
 import { drawMob, drawItemIcon } from './field.js';
@@ -1700,7 +1701,7 @@ export class Rpg {
       b.type = 'button';
       b.className = `hb-slot hb-${bar}`;
       b.innerHTML = '<canvas></canvas><span class="hb-cd"></span><span class="hb-key"></span><span class="hb-n"></span>';
-      b.querySelector('.hb-key').textContent = key;
+      b.querySelector('.hb-key').textContent = keys.label(key);
       b.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -1710,11 +1711,15 @@ export class Rpg {
       this.hb.append(b);
       this.hbSlots.push({ b, bar, i, drawn: undefined, cd: b.querySelector('.hb-cd'), n: b.querySelector('.hb-n') });
     };
-    for (let i = 0; i < HOTBAR; i++) make('skill', i, String(i + 1));
+    for (let i = 0; i < HOTBAR; i++) make('skill', i, `skill${i + 1}`);
     const gap = document.createElement('span');
     gap.className = 'hb-gap';
     this.hb.append(gap);
-    for (let i = 0; i < POTBAR; i++) make('pot', i, String(HOTBAR + i + 1));
+    for (let i = 0; i < POTBAR; i++) make('pot', i, `pot${i + 1}`);
+  }
+  // the slots' key labels, after a key is rebound (src/keys.js)
+  relabel() {
+    for (const s of this.hbSlots) s.b.querySelector('.hb-key').textContent = keys.label(`${s.bar}${s.i + 1}`);
   }
   // the other hotbar setup, from the Esc menu only (shown at once; the server keeps both)
   swapHotbar() {

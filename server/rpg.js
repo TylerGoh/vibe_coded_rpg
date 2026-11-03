@@ -13,6 +13,7 @@
 // them (each player keeps ~0.5 s of position history).
 import { DatabaseSync } from 'node:sqlite';
 import { SANDBOX_PARTY } from '../src/shared/sandbox.js';
+import { cleanKeys } from '../src/shared/keys.js';
 import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, EGG_HP, FIELD_GROUND, THORNHEART, THORN_PATCHES, patchAt, PATCH_DOT, PATCH_HIT_EVERY, ROADSEND, LADON_MARK_X, LADON_LINE, BLUEHALLS, THIN_ICE, THIN_ICE_HOLD, THIN_ICE_DOT, LONGSTAIR, FENRIR_MARK_X, FENRIR_LINE, FOUNDRY, HOT_GRATES, grateAt, GRATE_DOT, LONGFLUE, TYPHON_MARK_X, TYPHON_LINE } from '../src/shared/rpg.js';
 import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS, DEVOTION_S, DEVOTION_CAP, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, judgmentMult, RESOLVE_R } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
@@ -279,6 +280,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     r.hp = Math.min(st.maxHp, Math.max(1, r.hp));
     r.mp = Math.min(st.maxMp, Math.max(0, r.mp ?? st.maxMp));
     r.pvp = r.pvp !== false;
+    r.keys = cleanKeys(r.keys); // key bindings, only the ones changed from the defaults (docs/ui/keybinds.md)
     r.cosmetics = (r.cosmetics ?? []).filter((id) => COSMETICS[id]);
     r.wear = (r.wear ?? []).filter((id) => r.cosmetics.includes(id));
     r.showHelmet = r.showHelmet !== false;
@@ -373,9 +375,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   function save(p) {
     if (p.rpg && p.joined) clock(p);
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -389,7 +391,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     send(p.ws, {
       t: 'me', down: p.faintUntil === Infinity ? 1 : undefined, lvl: c.lvl, exp: c.exp, next: expToNext(c.lvl), hp: Math.ceil(c.hp), maxHp: st.maxHp, mp: Math.floor(c.mp), maxMp: st.maxMp,
       coins: c.coins, bag: c.bag, chest: c.chest, gear: c.gear, gearE: c.gearE, atk: st.atk, magic: st.magic, heal: st.heal, def: st.def, skills: c.skills, sp: spFree(c), spLeft: spLeft(c), cls: c.cls, reborn: c.reborn,
-      hotbar: c.hotbar, potbar: c.potbar, alt: c.alt, set: c.set, pvp: c.pvp, crit: st.crit, critMult: st.critMult, minRoll: st.minRoll,
+      hotbar: c.hotbar, potbar: c.potbar, alt: c.alt, set: c.set, pvp: c.pvp, keys: c.keys, crit: st.crit, critMult: st.critMult, minRoll: st.minRoll,
       ap: c.ap, apLeft: apTotal(c.lvl) - apSpent(c.ap),
       cosmetics: c.cosmetics, wear: c.wear, showHelmet: c.showHelmet,
       momentum: momentumOf(p), momentumLeft: momentumOf(p) ? left(p.momentum.until) : 0, arcane: arcaneOf(p), retri: p.retri ? Math.round(p.retri) : undefined, // (SP2: Retribution's store)
@@ -2933,6 +2935,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       } else if (m.t === 'pvp') {
         c.pvp = !!m.on;
         showLook(id, p);
+      } else if (m.t === 'keys') {
+        c.keys = cleanKeys(m.keys); // (the 'me' below confirms them to the client)
       } else return;
       moves(p);
       // passives change max HP / MP

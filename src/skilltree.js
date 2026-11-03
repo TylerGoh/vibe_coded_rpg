@@ -7,6 +7,7 @@
 // too on desktop), the same {t:'skill'} the hotbar sends, so the panel stays open and the node shows its cooldown.
 // "Reset all" refunds everything for free, so nobody gets stuck with a build.
 // Rules: src/shared/skills.js. On phones the card sits in the scroll after the tree (docs/ui/mobile.md).
+import { keys } from './keys.js';
 import { drawSkillIcon } from './skillfx.js';
 import { audio } from './audio.js';
 import { TREES, SKILLS, ACTIVE, giftsOf, CLASSES, CLASS_LVL, ADVANCEMENTS, rankOf, cantLearn, cantUnlearn, pointsIn, branchPoints, cooldownOf, branchOf, spLeft, spFree } from './shared/skills.js';
@@ -343,7 +344,7 @@ export class SkillTree {
     ic.append(this.icon(id, touch ? 64 : 52, true));
     const text = el('div', 'skc-body');
     const cd = cooldownOf(id, Math.max(1, rank));
-    const tag = [sk.branch && branchOf(sk.branch).name, sk.adv > 1 && `Lv ${sk.adv}`, sk.kind === 'move' ? `${sk.key} · ${cd} s cooldown · no MP` : sk.kind === 'chase' ? `${sk.how}${cd ? ` · ${Math.round(cd * 10) / 10} s cooldown` : ''} · no MP` : ACTIVE(id) ? `${sk.mp} MP · ${cd} s cooldown` : 'passive'].filter(Boolean).join(' · ');
+    const tag = [sk.branch && branchOf(sk.branch).name, sk.adv > 1 && `Lv ${sk.adv}`, sk.kind === 'move' ? `${keys.label(id) || 'no key'} · ${cd} s cooldown · no MP` : sk.kind === 'chase' ? `${sk.how}${cd ? ` · ${Math.round(cd * 10) / 10} s cooldown` : ''} · no MP` : ACTIVE(id) ? `${sk.mp} MP · ${cd} s cooldown` : 'passive'].filter(Boolean).join(' · ');
     const title = el('div', 'skc-title');
     title.append(el('b', null, sk.name), el('span', 'skc-rank', `${rank}/${sk.max}`), el('span', 'skc-tag', tag));
     text.append(title, el('p', null, rank ? `Now: ${sk.desc(rank)}` : `Rank 1: ${sk.desc(1)}`));
@@ -361,7 +362,7 @@ export class SkillTree {
     btn('−', 'sk-minus', () => this.unlearn(id), !rank || !!sk.gift);
     if (ACTIVE(id)) {
       const on = m.hotbar?.indexOf(id) ?? -1;
-      btn(on >= 0 ? `Key ${on + 1}` : 'Hotbar', 'sk-bar', () => {
+      btn(on >= 0 ? (keys.label(`skill${on + 1}`) ? `Key ${keys.label(`skill${on + 1}`)}` : `Slot ${on + 1}`) : 'Hotbar', 'sk-bar', () => {
         this.rpg.startAssign('skill', id);
         this.close();
       }, !rank);
