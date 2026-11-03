@@ -1917,6 +1917,65 @@ const SONGS = {
     },
   },
 
+  // Typhon's den, the Hearth (E5 (c2)): heavy and grieving, E phrygian, seeded with the Long Flue: its bellows breath
+  // (a swell of filtered noise every two bars, the room's glow coming up with it) and the smith's hammer that stopped
+  // partway down the flue, here going again on the anvil (two strokes and a rest). A deep held drone, a low horn for the
+  // lead (a slow lament: the flat second leaning on the root). It layers in by phase (src/rpg.js, PHASE_INTENSITY a step):
+  // phase 2 the hammer falls on a drum on 1 and 3 and a bass pulses under it; phase 3 the Pour, the iron rolling (low toms
+  // running into each fourth bar, a slow glide up as the ladle tips, lava bubbling); phase 4 (0.7) the hundred voices (the
+  // plan's: the lead sung in many voices at once, a choir of detuned saws an octave apart, the drums every beat, the anvil
+  // every beat); the enrage (1) the pressure: a tone sliding up every two bars, drums every eighth, the lead bent sharp.
+  // Nothing below E2 (82 Hz): laptop and phone speakers lose it.
+  typhon: {
+    bpm: 66, spb: 8, key: 40, scale: PHRYGIAN, gain: 0.68, send: 0.55, loop: 8,
+    chords: [[1, 3, 5], [2, 4, 6], [1, 3, 5], [7, 9, 11], [6, 8, 10], [2, 4, 6], [4, 6, 8], [1, 3, 5]],
+    mel: melody(
+      '5 - - - 6 - 5 -', '3 - - - 2 - 1 -', '5 - - - 6 - 8 -', '7 - - - 6 - 5 -',
+      '8 - - - 9 - 8 -', '6 - - - 5 - 3 -', '4 - 3 - 2 - - -', '1 - - - - - . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 140, 0.02); // the fire under the floor
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), I = e.intensity;
+      const drums = I > 0.1, pour = I > 0.25, voices = I > 0.5, rage = I > 0.9;
+      if (s === 0) {
+        // the drone: the root held under everything, a fifth over it from the third phase
+        e.voice(p.c, t, p.f(1, 0), { type: 'sine', vol: 0.088, a: 1, hold: p.stepDur * 7, rel: 1.2, partials: [[2, 0.35], [3, 0.12]] });
+        if (pour) e.voice(p.c, t, p.f(5, 0), { type: 'triangle', vol: 0.03, a: 1, hold: p.stepDur * 7, rel: 1, cutoff: 500 });
+        pad(p, ch, t, p.stepDur * 8, voices ? 0.009 : 0.013, { oct: 1, type: 'sawtooth', a: 1, rel: 1.2, cutoff: voices ? 1300 : 800, unison: 5 });
+      }
+      // the bellows: a breath in and out every two bars (every bar enraged), bigger the further in
+      if (s === 0 && (bar % 2 === 0 || rage)) e.noiseHit(p.c, t, { type: 'lowpass', f: 160, sweep: 320 + 300 * I, sweepT: 2.4, vol: 0.05 + 0.04 * I, a: 1.4, hold: 0.6, tau: 1.4 });
+      // the hammer on the anvil: two strokes and a rest; every beat in the last phase
+      if (s === 0 || s === 2 || (voices && s % 2 === 0)) anvil(e, s === 0 ? p.l : p.r, t, s === 0 ? 1040 : 980, voices ? 0.03 : 0.032, 0.45);
+      // phase 2 on: the hammer falls on a drum (1 and 3; every beat in the last phase, every eighth enraged); a bass pulse
+      if (drums && (s === 0 || s === 4 || (voices && s % 2 === 0) || rage)) {
+        const accent = s === 0 || s === 4;
+        e.kick(p.c, t, accent ? 0.22 : 0.13, 170, 84, accent ? 0.17 : 0.1);
+        if (accent) e.noiseHit(p.c, t, { type: 'lowpass', f: 900, vol: 0.05, tau: 0.06 }); // (iron on iron)
+      }
+      if (drums && s % 2 === 0) e.voice(p.c, t, p.f(ch[0], 0), { type: 'sawtooth', vol: s % 4 ? 0.035 : 0.05, a: 0.01, hold: p.stepDur * 1.2, rel: 0.2, cutoff: 420 });
+      // phase 3 on: the Pour. Toms running down into every fourth bar, a slow glide up as the ladle tips, lava
+      if (pour && bar % 4 === 3 && s >= 4) e.kick(s % 2 ? p.l : p.r, t, 0.1 + (s - 4) * 0.02, 260 - (s - 4) * 20, 120, 0.12);
+      if (pour && s === 0 && bar % 4 === 0) e.voice(p.c, t, p.f(1, 1), { type: 'triangle', vol: 0.02, a: 1.5, hold: p.stepDur * 6, rel: 0.6, glide: 0.67, glideT: p.stepDur * 7, cutoff: 1200 }); // (glide: it starts at f × glide and slides to f)
+      if (pour && s % 4 === 2 && chance(0.4)) lavaBubble(e, chance(0.5) ? p.l : p.r, t, 0.024);
+      // the lament (the lead): a low horn; the last phase sings it in many voices at once; enraged it bends sharp
+      const m = p.mel(bar, s);
+      if (m && pass % 4 !== 3) {
+        const hold = Math.max(0.1, m.len * 0.85), bend = rage ? 1.03 : 1;
+        e.voice(p.c, t, p.f(m.d, 1) * bend, { type: 'sawtooth', vol: 0.03, a: 0.12, hold, rel: 0.5, cutoff: 1100, unison: 4, vib: 6, vibRate: 4.6 });
+        if (voices) {
+          for (const [o, v, dest] of [[0, 0.02, p.l], [2, 0.012, p.r], [1, 0.016, p.c]]) e.voice(dest, t + Math.random() * 0.04, p.f(m.d, o) * bend * (0.995 + Math.random() * 0.01), { type: 'sawtooth', vol: v, a: 0.2, hold, rel: 0.6, cutoff: 1500, unison: 6, vib: 8, vibRate: 5 });
+        }
+      }
+      // enraged: the pressure, a tone sliding up every two bars
+      if (rage && s === 0 && bar % 2 === 0) e.voice(p.c, t, p.f(1, 1), { type: 'square', vol: 0.014, a: 0.4, hold: p.stepDur * 14, rel: 0.4, glide: 0.5, glideT: p.stepDur * 15, cutoff: 1600 });
+      // embers cracking, now and then
+      if (s % 2 === 1 && chance(0.1 + 0.1 * I)) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'highpass', f: 3500, vol: 0.007, tau: 0.02 });
+    },
+  },
+
   // The Knotted Burrow: a stubborn 6/8 in C minor, low plucked strings, the thump of digging paws, and a
   // tangle of a melody that keeps looping back on itself
   knotmole: {
@@ -3224,7 +3283,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'brenna']; // (63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, E5 (c1): Brenna's track as a stand-in until E5 (c2) writes its own; 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon']; // (63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)

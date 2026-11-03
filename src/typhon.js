@@ -136,6 +136,7 @@ export class TyphonFinal {
       audio.sfx('bossWarn', { pan, vol: m.to === r.myId ? 0.7 : 0.35 });
     } else if (m.a === 'hammer') {
       this.marks.push({ kind: 'hammer', x: m.tx, r: m.r, at: t, end: t + m.dur + 0.3 });
+      setTyphonLook({ hx: m.tx }); // (the fist comes down on the mark and lies there: src/dens-typhon.js)
       audio.sfx('bossWarn', { pan, vol: 0.5 });
     } else if (m.a === 'hammerHit') {
       this.marks = this.marks.filter((q) => !(q.kind === 'hammer' && q.x === m.tx));

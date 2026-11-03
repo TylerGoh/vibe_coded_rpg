@@ -36,7 +36,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 5300; // (the plinths need about 5190 since the mini Brenna (E4b): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 5450; // (the plinths need about 5330 since the mini Typhon (E5 (c2)): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -2333,12 +2333,12 @@ MOBS.orthrus.drops = [...MOBS.orthrus.drops, ['twinfang', 0.04, 1, 1]];
 // src/shared/final.js). `heads`: targets besides its body (the four vents and the eight plates' rings, h[4] = 2 + slot;
 // the tooth in its chest while it inhales is the weak point). `final`, `top`, `partyAll`, `partyLive` as Ladon's and
 // Fenrir's: fixed HP for four, the enrage, no reward window; its stats are the FINAL table's, never the Lv 170 on its
-// tag. hp, exp and gold from the economy sheet's FINAL BOSSES (a party of four at Lv 150 near 45 min). c1's drop is a
-// stand-in (Brenna's twin set); its own weapons, hat and pet come with E5 (c2).
+// tag. hp, exp and gold from the economy sheet's FINAL BOSSES (a party of four at Lv 150 near 45 min); its rewards came
+// with E5 (c2). `petWH`: its pet's own size (the mini Typhon is a little slag serpent, not the giant shrunk: src/typhon-art.js).
 MOBS.typhon = {
   name: 'Typhon, the Buried Fire', boss: true, top: true, final: 'typhon', heads: true, touchW: 180, touchH: 190, denX: TY_MID,
   lvl: 170, hp: 125000000, atk: 600, exp: 2900000, speed: 60, w: 300, h: 260, aggro: true, hops: false,
-  phases: [[], [], []], minion: 'cinder_whelp',
+  phases: [[], [], []], minion: 'cinder_whelp', petWH: [70, 52],
   looks: { beam: 'hearth', shell: 'slag', dome: 'haze', curse: 'scorch', pulse: 'bellows' },
   party: ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'], partyAll: true, partyLive: true,
   weak: { dx: 0.1, dy: -0.62, r: 32, front: true }, // (the tooth behind the grille of its ribs, open while it inhales)
@@ -2348,8 +2348,8 @@ MOBS.typhon = {
     shield: 'Not yet. The fire stays in. It stays in until the Wheel has every tooth.',
     freed: '...Nobody is coming to pour. Then I can let the fire go. Tell them up there it is warm enough now.',
   },
-  // (c1: a stand-in drop, Brenna's twin set, as FB2's c1 used Sigrun's; E5 (c2) brings its own four weapons, the hat, the pet)
-  drops: [['coin', 1, 4400000, 6600000], ['bearer_blade', 1, 1, 1], ['mega_elixir', 1, 8, 12], ['royal_sap', 1, 4, 5], ['whelp_ember', 1, 6, 10], ['stoker_iron', 1, 4, 6], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.6, 1, 2]],
+  // (E5 (c2): one of its four class weapons a kill, twinPick choosing by who fought; the Furnace Mask on a shared chance)
+  drops: [['coin', 1, 4400000, 6600000], ['last_hammer', 1, 1, 1], ['furnace_mask', 0.5, 1, 1], ['mega_elixir', 1, 8, 12], ['royal_sap', 1, 4, 5], ['whelp_ember', 1, 6, 10], ['stoker_iron', 1, 4, 6], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.6, 1, 2]],
 };
 
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
@@ -3218,6 +3218,11 @@ export const ITEMS = {
   // Gleipnir Staff (Mage), the Lantern Rod (Cleric: `cls`, CLERIC_STAFF_OF), the Moon-Chaser Bow; and a chance of the Hood
   pledge_hand: { name: 'The Pledge-Hand', price: 556000, lvl: 110, slots: 9, kind: 'sword', atk: 168, reach: 68, desc: 'A broad pale blade held at the root by a fist of Keeper stone. They left a hand as a pledge. This one does not let go.' },
   wolfpelt_hood: { name: 'The Wolf-Pelt Hood', price: 424000, lvl: 110, slots: 9, kind: 'helmet', def: 80, desc: 'A grey-white pelt gone to rime at every tip, the ears still up, its eyes shut on your brow. It is warm, and it was lonely.' },
+  // Typhon's set (E5 (c2), docs/places/typhon.md): Emberdeep's best, a step above Brenna's (lvl 159 on the frozen curve,
+  // swordPrice / helmetPrice there). One weapon a kill, picked by the classes who fought (twinPick): the Last Hammer, the
+  // Pour Staff (Mage), the Hearthstone Rod (Cleric: `cls`, CLERIC_STAFF_OF), the Bellows Bow; and a chance of the Mask
+  last_hammer: { name: 'The Last Hammer', price: 1178000, lvl: 159, slots: 10, kind: 'sword', atk: 217, reach: 70, desc: 'A smith\'s hammer drawn out into a blade, black iron still glowing along its edge. On the pommel, a hammer over a flame. It was for the last tooth.' },
+  furnace_mask: { name: 'The Furnace Mask', price: 893000, lvl: 159, slots: 10, kind: 'helmet', def: 107, desc: 'A smith\'s iron face-guard with four eye slits, soot in every rivet. Look out through it and everything is the colour of the fire.' },
   // the Rimeglass Glacier (F1)
   hare_tuft: { name: 'Snow Hare Tuft', price: 480, kind: 'loot', desc: 'A puff of white winter fur, softer than it has any right to be. The fjord folk line mittens with it.' },
   petrel_down: { name: 'Petrel Down', price: 500, kind: 'loot', desc: 'A handful of grey-white down from a snow petrel. It smells of the sea, even up here.' },
@@ -3451,6 +3456,8 @@ export const ITEMS = {
   white_rose_rod: { name: 'The White Rose Rod', price: 221000, lvl: 70, slots: 9, kind: 'staff', magic: 124, mp: 74, reach: 62, twin: 'ladon_fang', cls: 'cleric', desc: 'A briar rod with every thorn smoothed away and one white rose open at the top. The roses planted to keep it, kept.' },
   gleipnir_staff: { name: 'The Gleipnir Staff', price: 556000, lvl: 110, slots: 9, kind: 'staff', magic: 168, mp: 101, reach: 68, twin: 'pledge_hand', desc: 'A grey rod with a ribbon of pale light wound all the way up it, tied off at the top. Sound of a footfall, breath of a fish. It holds.' },
   lantern_rod: { name: 'The Lantern Rod', price: 556000, lvl: 110, slots: 9, kind: 'staff', magic: 168, mp: 101, reach: 68, twin: 'pledge_hand', cls: 'cleric', desc: 'A Keeper crook with one of the cutters\' lanterns hung from it, lit. Somebody has to keep the light where it is darkest.' },
+  pour_staff: { name: 'The Pour Staff', price: 1178000, lvl: 159, slots: 10, kind: 'staff', magic: 217, mp: 130, reach: 70, twin: 'last_hammer', desc: 'A long iron rod with a casting ladle for a head, the bowl still glowing. Tip it and something pours that was never cast.' },
+  hearthstone_rod: { name: 'The Hearthstone Rod', price: 1178000, lvl: 159, slots: 10, kind: 'staff', magic: 217, mp: 130, reach: 70, twin: 'last_hammer', cls: 'cleric', desc: 'A rod of black basalt with a hearthstone set in its head, warm right through. Hold it by a cold bed and the room is warm by morning.' },
   glacier_staff: { name: 'Glacier Staff', price: 80000, lvl: 64, aim: 66, kind: 'staff', magic: 117, mp: 70, reach: 52, twin: 'cutter_cleaver', desc: 'A blackened driftwood staff with a lump of blue glacier ice in its head that never melts. Eyvind cut the ice; Skaldi carved the wood.' },
   howl_staff: { name: 'Howling Staff', price: 209000, lvl: 68, kind: 'staff', magic: 121, mp: 72, reach: 54, twin: 'rimefang', desc: 'A grey staff bound in rime wolf pelt, a white fang at its tip. Its bolts howl on the way out.' },
   tusk_staff: { name: 'Rimehorn Staff', price: 262000, lvl: 76, kind: 'staff', magic: 130, mp: 78, reach: 60, twin: 'tusk_blade', desc: "A curved staff of old mammoth ivory wound with red-brown wool, frost flowers growing up it as you cast." },
@@ -3546,6 +3553,7 @@ const BOW_LIST = [
   ['rimeguard_bow', 'rimeguard_blade', 'Rimeguard Bow', "A guard's longbow, the Queen's crown on its silver grip. Its arrows fly straight, as if on watch."],
   ['oath_bow', 'oath_blade', 'Shield-Oath Bow', 'A war bow with a little shield on its grip and an oath carved down its back. It has never broken one.'],
   ['moonchaser_bow', 'pledge_hand', 'The Moon-Chaser Bow', "Hati's: a night-blue bow with a crescent moon on each tip, strung with silver. Its arrows run after what they are loosed at, and never tire."],
+  ['bellows_bow', 'last_hammer', 'The Bellows Bow', 'Two arms of riveted forge iron with a little bellows in the grip. Every draw breathes on the arrow, and it leaves the string red.'],
   ['gatehound_bow', 'gatehound_fang', 'Gatehound Bow', 'Two black-ice fangs joined at a grip bound in pelt, strung with a strand of old glowing ribbon.'],
   ['blackglass_bow', 'blackglass_cutlass', 'Black Glass Bow', 'Iron limbs tipped with black glass, strung with eel-gut. Its arrowheads are knapped, not forged.'],
   ['bellower_bow', 'bellower_maul', "Bellower's Bow", 'A heavy iron bow with a toadstone in the grip, strung with scald-eel sinew. Every arrow goes off with a little boom.'],

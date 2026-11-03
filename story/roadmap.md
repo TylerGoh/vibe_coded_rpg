@@ -73,13 +73,14 @@ No quests, no hard level gates.
    - [x] E4: the Caldera Rim and Brenna, Emberdeep's party den; Ignis's and Pyra's lines (2026-10-28; rooms 61 and 62,
          `docs/places/rim.md`). Emberdeep's depth pass is done but its final boss. Next: **the owner plays** them, then
          E5 and atlas Phase 6 (below).
-7. **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase. (a) on paper 2026-10-29:
+7. [x] **E5: Emberdeep's final boss** (`final-bosses.md`), the pass's last phase. (a) on paper 2026-10-29:
    Typhon, the Buried Fire, under the Old Foundry (`e5-plan.md`), approved with every default
    (the owner may polish it). (b) built 2026-10-29: the Foundry's fallen pit, ledger and hot grates, the Under-Flues
    (63), the Long Flue (64), the furnace door holding (`docs/places/underflues.md`). (c1) built 2026-11-02: the furnace
    door opens on the Hearth (65), the whole fight (the plates, the pressure and vents, the Pour, the coils, the Inhale,
-   Eruption and the Last Pour), stand-in art, music and drop (`docs/places/typhon.md`). Next: **(c2)** Typhon's art,
-   its music, its four weapons, the Furnace Mask and the mini Typhon; then the owner plays it.
+   Eruption and the Last Pour), stand-in art, music and drop (`docs/places/typhon.md`). (c2) built 2026-11-03: Typhon's
+   look, its own track, the Last Hammer / Pour Staff / Hearthstone Rod / Bellows Bow, the Furnace Mask and the mini
+   Typhon. **E5 done.** Next: **the owner plays** it with friends.
 
 ## Next
 - [ ] **Atlas Phase 6: the climb** (E4 shipped: this is next; can run alongside E5): the thermal column vista, the balloon crossing (Slag's

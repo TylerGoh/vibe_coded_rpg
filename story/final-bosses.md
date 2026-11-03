@@ -1,6 +1,6 @@
 # Final bosses: one per island, very hard, deep in (plan)
 
-**Status: plan, written 2026-10-24 (owner). FB1 built 2026-10-26 (`fb1-plan.md`, `docs/places/ladon.md`); FB2 built 2026-10-27 (`fb2-plan.md`, Fenrir, the Bound Wolf); E5 on paper (`e5-plan.md`).** Builds on S5's party mechanics
+**Status: plan, written 2026-10-24 (owner). FB1 built 2026-10-26 (`fb1-plan.md`, `docs/places/ladon.md`); FB2 built 2026-10-27 (`fb2-plan.md`, Fenrir, the Bound Wolf); E5 built 2026-11-03 (`e5-plan.md`, Typhon, the Buried Fire).** Builds on S5's party mechanics
 (`progression.md` section 6, `s5-plan.md`). Order (owner, 2026-10-24): after the skill pool
 (`skills-plan.md`), Greenhollow's first, then S5.4 for Emberdeep, then Frostpeak's, then Emberdeep's E1.
 
@@ -137,7 +137,9 @@ Each its own session (or two) and dev copy. Before building: read `progression.m
       (b) the Thornheart's pass, the Sunken Road, the Road's End; (c) the den and the boss, the FINAL table.
 - [x] **FB2: Frostpeak's final boss** (live 2026-10-27, Fenrir: `docs/places/fenrir.md`, `docs/places/oldice.md`): the same, through the Blue Halls, the Old Ice and the Long Stair. (a) on paper
       2026-10-27 (`fb2-plan.md`, Fenrir), approved; then (b) the way there, (c) the den and the boss.
-- Then each new island's depth pass ends with its own (Emberdeep's is E5).
+- [x] **E5: Emberdeep's final boss** (2026-11-03, Typhon: `docs/places/typhon.md`, `docs/places/underflues.md`): through the
+      Old Foundry's fallen pit, the Under-Flues and the Long Flue. (a) on paper 2026-10-29, (b), (c1), (c2).
+- Then each new island's depth pass ends with its own.
 
 ## Open questions for the owner
 None open. (The reward window: none, owner 2026-10-26.)

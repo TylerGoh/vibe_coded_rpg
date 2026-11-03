@@ -41,7 +41,8 @@ staff and a bow twin, so `twinPick` can give each class its own kind (checked by
   sword's staff (`CLERIC_STAFF_OF`; `STAFF_OF` leaves it out). Where a sword has both, `twinPick` gives a Cleric who
   fought the rod and a Mage the staff (S5's loot by class: a fighter's class, not just the kind they hold). Same price,
   MAGIC, slots and `lvl` as the sword (checked like any staff). So far: Ladon's White Rose Rod, beside the Unsleeping
-  Staff (`docs/places/ladon.md`), and Fenrir's Lantern Rod, beside the Gleipnir Staff (`docs/places/fenrir.md`).
+  Staff (`docs/places/ladon.md`), Fenrir's Lantern Rod, beside the Gleipnir Staff (`docs/places/fenrir.md`), and Typhon's Hearthstone Rod, beside the Pour
+  Staff (`docs/places/typhon.md`).
 
 ## Bows (S4, 2026-10-24: `story/progression.md` 4)
 - Every sword with a staff twin has a **bow twin** too (`BOW_LIST`, `BOW_OF`): the bow is *made from the sword*
@@ -125,7 +126,9 @@ staff and a bow twin, so `twinPick` can give each class its own kind (checked by
   must be unique across the whole `ITEMS` literal) and the Gatehound Fang set (`src/oldice-art.js`). The final bosses'
   sets have their own files: Ladon's in `src/ladon-art.js`, Fenrir's in `src/fenrir-art.js` (`FENRIR_*`: the Pledge-Hand
   and the Wolf-Pelt Hood; the Gleipnir Staff, its ribbon wound up the shaft by `STAFFS`' `ribbon`, the Lantern Rod and
-  the Moon-Chaser Bow are rows). All on the gear curve at their `lvl`, priced on it.
+  the Moon-Chaser Bow are rows), Typhon's in `src/typhon-art.js` (`TYPHON_*`: the Last Hammer and the Furnace Mask; the
+  Pour Staff, the Hearthstone Rod and the Bellows Bow, its `bellows` and `ember` tip, are rows). All on the gear curve at
+  their `lvl`, priced on it.
   Emberdeep's E0 (atlas Phase 5) adds **Slag** (`SHOPS.slag`, Forgehold: the **Slag Maul**, its twin the
   **Bellows Rod** and the **Smith's Iron Cap**, aimed at Lv 92, the island's start; register "forged for a
   wheel that never got it"), art in `src/forgehold-art.js` (`FORGE_*`; the rod is a row in `STAFFS`), and

@@ -1,7 +1,8 @@
 # E5: Emberdeep's final boss, on paper (for the owner to approve)
 
 **Status: approved by the owner 2026-10-29 with every default (Typhon; ice as the floor's answer; the Pour floods
-the floor; the shard is Ignis's tooth, shown only). The owner will polish it later.** Step (a) of E5 (`final-bosses.md`,
+the floor; the shard is Ignis's tooth, shown only). The owner will polish it later. Built: (b) 2026-10-29, (c1)
+2026-11-02, (c2) 2026-11-03 (`docs/places/typhon.md`).** Step (a) of E5 (`final-bosses.md`,
 `world/emberdeep-depth.md`): the boss, its move set and its phase order, before anything is built. Numbers are
 aims, not code: the economy sheet sets the real ones. Built on the final-boss engine FB1 made and FB2 generalised
 (`docs/combat/bosses.md` "Final bosses", `src/shared/final.js`, `server/final.js`): a FINAL row, written loops, the

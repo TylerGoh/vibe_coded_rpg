@@ -61,6 +61,7 @@ export const BOWS = {
   rimeguard_bow: { len: 31, wood: ['#e0e4ee', '#8a90a8'], w: 3.2, tip: 'cap', c: '#c8ccd8', grip: '#3e5a8a', gem: '#e2f0fc', string: '#f0f4ff', glow: '200,230,255' },
   oath_bow: { len: 33, wood: ['#c8b498', '#6a5a44'], w: 3.6, tip: 'cap', c: '#c8ccd8', grip: '#3e6294', gem: '#e2f0fc', string: '#e8e0d0', glow: '190,226,255', shield: true },
   moonchaser_bow: { len: 35, wood: ['#3a4a6a', '#141c30'], w: 3.8, tip: 'moon', c: '#eef4ff', grip: '#d8e2f2', gem: '#f4f8ff', string: '#cfe0ff', glow: '220,232,255', curve: 0.55 }, // (Fenrir's: Hati's, a crescent moon on each tip)
+  bellows_bow: { len: 36, wood: ['#5a4c4a', '#241c1c'], w: 4.6, tip: 'ember', c: '#3a3234', grip: '#4a2e22', gem: '#fff2c4', string: '#d8a070', glow: '255,160,70', curve: 0.42, bellows: true }, // (Typhon's: riveted forge iron, a little bellows at the grip; src/typhon-art.js has the rest)
   spring_bow: { len: 30, wood: ['#8a8490', '#4e4a56'], w: 4, tip: 'rivet', c: '#c8c4cc', grip: '#3a3640', gem: '#ff8a3c', string: '#b8b4bc', glow: '255,150,80', curve: 0.38 },
   // the Black Sands (E1, docs/places/blacksands.md)
   blackglass_bow: { len: 30, wood: ['#6a6470', '#36323c'], w: 3.2, tip: 'fang', c: '#2e2a38', grip: '#4a3a30', gem: '#8ad0c0', string: '#d8c8b8', glow: '160,230,215' },
@@ -338,6 +339,22 @@ const TIPS = {
     ctx.fill();
     ctx.stroke();
   },
+  ember(ctx, b, x, y, side) { // (the Bellows Bow) an iron cap riveted on, its point glowing like iron from the fire
+    const t = performance.now() / 1000;
+    ctx.fillStyle = b.c;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(x - 3, y - side * 4);
+    ctx.lineTo(x + 3, y - side * 4);
+    ctx.lineTo(x, y + side * 3.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = `rgba(255,${170 + 40 * Math.sin(t * 3 + side)},80,0.95)`;
+    circle(ctx, x, y + side * 1.8, 1.5);
+    ctx.fill();
+  },
   rivet(ctx, b, x, y) { // an iron rivet
     ctx.fillStyle = b.c;
     ctx.strokeStyle = LINE;
@@ -422,6 +439,29 @@ export function drawBow(ctx, id, draw = 0, t = 0, flash = 0) {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+  }
+  if (b.bellows) { // the Bellows Bow: a little bellows behind the grip, two iron boards and a leather pleat, squeezed as you draw
+    const sq = 1 - draw * 0.6;
+    ctx.fillStyle = '#7a4a30';
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.moveTo(-3, -5);
+    ctx.lineTo(-3 - 7 * sq, -3.5);
+    ctx.lineTo(-3 - 7 * sq, 3.5);
+    ctx.lineTo(-3, 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(30,14,8,0.6)';
+    ctx.beginPath();
+    for (let k = 1; k < 3; k++) {
+      ctx.moveTo(-3 - (7 * sq * k) / 3, -4.2);
+      ctx.lineTo(-3 - (7 * sq * k) / 3, 4.2);
+    }
+    ctx.stroke();
+    ctx.fillStyle = b.c;
+    ctx.fillRect(-4 - 7 * sq, -4.5, 2, 9);
   }
   if (b.gem) {
     ctx.fillStyle = b.gem;

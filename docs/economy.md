@@ -271,6 +271,15 @@ between Old Crucible's (226k) and the Colossus's (248k); `PETSHOP_W` 5150 → 53
 Elsewhere only the toughness column moved (the dens' median ATK: frostbinder Lv 60 25 → 23 s) and a 0.01 in the shape
 table; farming, play time and gold earned by are unchanged (no mobs). Ignis's and Pyra's `lines` change no numbers.
 
+## E5 (c2): Typhon's rewards and pet (2026-11-03)
+- **Gear** on the frozen curve at Lv 159 (a step over Brenna's Lv 151, as Ladon's and Fenrir's were over theirs): the
+  Last Hammer (217 ATK, `swordPrice`, 1,178k) with its staff, rod (`CLERIC_STAFF_OF`) and bow twins at the same price, and
+  the Furnace Mask (107 DEF, `helmetPrice`, 893k) at a 50% chance. They replace c1's stand-in, Brenna's Lv 151 set. A
+  member's quarter of the loot 1,486,600 → 1,543,050 (2.53× → 2.63× farming's gold an hour, inside `FINAL_PAY`, under
+  Fenrir's 2.68×); EXP unchanged. LOOT BY CLASS lists the rod.
+- **The mini Typhon**: 258k, ~19 min of farming at its fight level (the pet band), between the Colossus's (248k) and
+  Chronos's (270k), which stays the Pet Shop's top. `PETSHOP_W` 5300 → 5450 (the plinths need ~5330). Nothing else moved.
+
 ## E5 (c1): Typhon, the third final boss (2026-11-02)
 FINAL BOSSES gains `typhon`, fought at Lv 150 (`fightLvl`: its Lv 170 tag less `FINAL_LVL_OVER`), as Ladon and Fenrir
 are. HP 125M fixed for four: a party of four 46:31 (in `FINAL_PARTY_MIN`), every three slower than the enrage (no knight

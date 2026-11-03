@@ -5,8 +5,9 @@
 // a wheel), the great hearth pit at the back middle, an empty mould set in the floor (a gear-tooth's print, one short),
 // four old furnace doors in the side walls (the vents), low brick ledges, a high one at each end, and the rusted gantry
 // of a ladle-crane overhead. dens.js imports this file (DEN_ART, BOSS_ART, FX2), so it must NOT import dens.js.
-// E5 (c1) stand-in art: readable shapes, functional; E5 (c2) polishes it. The den's static layer is baked (as Fenrir's),
-// and the plates' four looks are baked once each and stamped (docs/performance.md).
+// E5 (c2) polished c1's stand-in shapes: Typhon's eased poses, its cracks, coils and arms; the coils moving under the
+// plates; the den's carving, chains and tools. The den's static layer is baked (as Fenrir's), and the plates' four looks
+// are baked once each and stamped (docs/performance.md).
 import { H, TAU, mulberry32, circle, ellipse, clamp } from './util.js';
 import { DEN_EXIT_X } from './shared/rpg.js';
 import { FIN_W, FIN_FLOOR } from './shared/final.js';
@@ -28,8 +29,8 @@ function text(ctx, str, x, y, size, color) {
 
 // ——— what the client last heard (src/typhon.js sets it: the FX and the boss art read it) ———
 // po: its pose, ph: the phase, pr: the pressure, plates: ['c'|'g'|'m'|'k'], crusted: [bool], enr, breath 0–1 (its bellows
-// breathing, eased), rise: how far out of the hearth (eased)
-const look = { po: 'sunk', ph: 0, pr: 0, enr: false, plates: Array(PLATES).fill('c'), crusted: Array(PLATES).fill(false), rise: 0.2, arm: 0, rest: 0, ribs: 0, freed: 0 };
+// breathing, eased), rise: how far out of the hearth (eased), hx: where its last Hammer lands (the fist lies there)
+const look = { po: 'sunk', ph: 0, pr: 0, enr: false, plates: Array(PLATES).fill('c'), crusted: Array(PLATES).fill(false), rise: 0.2, arm: 0, rest: 0, ribs: 0, freed: 0, hx: null };
 export function setTyphonLook(o) {
   Object.assign(look, o);
   if (o.plates) look.crusted = o.plates.map((s) => s === 'k');
@@ -186,6 +187,97 @@ function drawDenStatic(ctx) {
     ctx.stroke();
     ctx.fillStyle = '#3a2620';
     for (const dy of [-26, 0, 26]) for (const dx of [-20, 20]) circle(ctx, v.x + dx, v.y + dy, 2.5);
+  }
+  // the hearth's mouth: an arch of wedge bricks, the mortar between them glowing, a Keeper wheel at its crown
+  for (let k = 0; k <= 14; k++) { // (along the mouth's curve: a quadratic from (±236, 200) through the control (0, 32))
+    const u = k / 14, x = TY_MID - 236 + 472 * u, y = (1 - u) * (1 - u) * 200 + 2 * u * (1 - u) * 32 + u * u * 200;
+    const a = Math.atan2(2 * (1 - u) * (32 - 200) + 2 * u * (200 - 32), 472);
+    ctx.save();
+    ctx.translate(x, y - 6);
+    ctx.rotate(a);
+    ctx.fillStyle = k % 2 ? '#3a221a' : '#2e1a14';
+    ctx.strokeStyle = 'rgba(255,130,50,0.45)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(-16, -14, 32, 26, 3);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+  ctx.strokeStyle = 'rgba(190,140,90,0.55)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(TY_MID, 66, 16, 0, TAU);
+  for (let i = 0; i < 8; i++) {
+    const an = (i / 8) * TAU;
+    ctx.moveTo(TY_MID, 66);
+    ctx.lineTo(TY_MID + Math.cos(an) * 16, 66 + Math.sin(an) * 16);
+  }
+  ctx.stroke();
+  // soot streaks up the walls over the hearth and the vents
+  for (const [x, y, ww] of [[TY_MID - 120, 120, 60], [TY_MID + 110, 110, 70], ...VENTS.map((v) => [v.x + v.side * -10, v.y - 40, 50])]) {
+    const sg = ctx.createLinearGradient(0, y - 120, 0, y);
+    sg.addColorStop(0, 'rgba(0,0,0,0)');
+    sg.addColorStop(1, 'rgba(0,0,0,0.45)');
+    ctx.fillStyle = sg;
+    ctx.beginPath();
+    ctx.moveTo(x - ww / 2, y);
+    ctx.quadraticCurveTo(x - ww * 0.2, y - 80, x, y - 130);
+    ctx.quadraticCurveTo(x + ww * 0.2, y - 80, x + ww / 2, y);
+    ctx.fill();
+  }
+  // the smiths' tools left on the wall either side of the hearth: a rack of tongs and hammers, rusting
+  for (const rx of [445, FIN_W - 445]) {
+    ctx.fillStyle = '#2a1c18';
+    ctx.fillRect(rx - 50, 160, 100, 8);
+    for (let k = 0; k < 4; k++) {
+      const x = rx - 36 + k * 24;
+      ctx.strokeStyle = '#3e2c26';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(x, 168);
+      ctx.lineTo(x, 240 + (k % 2) * 16);
+      ctx.stroke();
+      ctx.fillStyle = '#4a3630';
+      if (k % 2) { // (tongs: two jaws)
+        ctx.beginPath();
+        ctx.moveTo(x - 6, 254);
+        ctx.lineTo(x, 238);
+        ctx.lineTo(x + 6, 254);
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      } else ctx.fillRect(x - 12, 232, 24, 14); // (a hammer's head)
+    }
+  }
+  // chains hanging off the crane's rail, one with an empty hook
+  for (const [x, len] of [[372, 130], [590, 90], [910, 110], [1128, 150]]) {
+    ctx.strokeStyle = '#2e201c';
+    ctx.lineWidth = 3;
+    for (let y = 106; y < 106 + len; y += 10) {
+      ctx.beginPath();
+      ctx.ellipse(x, y + 5, 3, 5, 0, 0, TAU);
+      ctx.stroke();
+    }
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(x + 6, 106 + len + 6, 8, Math.PI, Math.PI * 0.2, true);
+    ctx.stroke();
+  }
+  // the old marks of its fists in the side walls, cracked round
+  for (const [x, y] of [[140, 300], [FIN_W - 150, 290]]) {
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(x, y, 34, 26, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const an = (k / 6) * TAU + 0.3;
+      ctx.moveTo(x + Math.cos(an) * 32, y + Math.sin(an) * 24);
+      ctx.lineTo(x + Math.cos(an) * 42, y + Math.sin(an) * 32);
+    }
+    ctx.stroke();
   }
   // the floor: a dark brick apron under the plates (the plates themselves are live)
   g = ctx.createLinearGradient(0, GROUND, 0, H);
@@ -368,6 +460,43 @@ export function drawPlates(ctx, sts, t, bulge = null) {
       ctx.fillRect(x + 4, GROUND - 26, PLATE_W - 8, 24);
     }
   }
+  // the seams between the plates glow with the heat under them (more with the pressure); from phase 2 its coils slide
+  // under the floor, seen as a dark shape crossing the plates' faces with light in the gaps between its scales
+  const pr = clamp(look.pr / 100, 0, 1), alive = look.po !== 'freed';
+  if (alive) {
+    ctx.strokeStyle = `rgba(255,150,60,${0.2 + 0.35 * pr + 0.1 * (look.breath ?? 0.5)})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 1; i < PLATES; i++) {
+      ctx.moveTo(i * PLATE_W, GROUND);
+      ctx.lineTo(i * PLATE_W, GROUND + PH);
+    }
+    ctx.stroke();
+  }
+  if (alive && look.ph >= 1 && look.ph <= 2) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, GROUND + 2, FIN_W, PH - 2);
+    ctx.clip();
+    for (const c of [0, 1]) {
+      const span = FIN_W + 900, dir = c ? -1 : 1, x0 = ((((t * 70 * dir + c * 800) % span) + span) % span) - 450, len = 420;
+      ctx.fillStyle = 'rgba(8,3,2,0.5)';
+      ctx.beginPath();
+      for (let k = 0; k <= 12; k++) ctx[k ? 'lineTo' : 'moveTo'](x0 + (k / 12) * len, GROUND + 12 + Math.sin(t * 2 + k * 0.7) * 4 - Math.sin((k / 12) * Math.PI) * 4);
+      for (let k = 12; k >= 0; k--) ctx.lineTo(x0 + (k / 12) * len, GROUND + 36 + Math.sin(t * 2 + k * 0.7) * 3);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,140,50,0.55)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let k = 1; k < 12; k++) {
+        const x = x0 + (k / 12) * len, y = GROUND + 24 + Math.sin(t * 2 + k * 0.7) * 3;
+        ctx.moveTo(x - 10, y - 8);
+        ctx.quadraticCurveTo(x, y + 2, x + 10, y - 8);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
   // the empty mould: the print of a gear-tooth in sand, set into the floor at the middle (one short)
   ctx.save();
   ctx.fillStyle = 'rgba(30,18,12,0.85)';
@@ -442,82 +571,251 @@ export function drawVent(ctx, i, st, t, open = 0) {
 }
 
 // ——— Typhon ———
-// (ctx, w, h, st): feet at the origin (the floor in the hearth), facing +x. Only as much of it is out of the hearth as
-// the phase has pushed up (look.rise; clipped at the floor): a hunched giant of black basalt and slag cracked with orange
-// light, a mane of smoke, four burning eyes in a face like a cooling ingot, two huge forearms, and behind the grille of its
-// ribs the tooth glowing gold-white (the weak point while it inhales: MOBS.typhon.weak's spot). Phase 4: the coils lie
-// out along the floor behind it.
-const BASALT = '#2a2022', BASALT_L = '#4a3a38', INK = '#0c0606';
-function drawTyphon(ctx, w, h, st) {
-  const t = st.t, dying = st.dying ?? 0, rise = clamp(look.rise, 0, 1), pr = clamp(look.pr / 100, 0, 1), b = look.breath ?? 0.5;
-  const sink = (1 - rise) * h; // (how far down in the hearth it is)
-  const heat = 0.35 + 0.45 * pr + 0.2 * b;
-  ctx.save();
-  // phase 4: the coils along the floor (behind it, both ways)
-  if (look.ph >= 3 && look.po !== 'freed') {
-    for (const s of [-1, 1]) {
-      ctx.fillStyle = BASALT;
-      ctx.strokeStyle = INK;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(0, -20);
-      for (let k = 0; k <= 10; k++) {
-        const x = s * (k * 34), y = -26 + Math.sin(t * 2 + k * 0.9) * 8 + k * 1.6;
-        ctx.lineTo(x, y - (24 - k * 1.6));
-      }
-      for (let k = 10; k >= 0; k--) ctx.lineTo(s * (k * 34), 0);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-      ctx.strokeStyle = `rgba(255,140,50,${0.4 * heat})`;
-      ctx.lineWidth = 2;
-      for (let k = 1; k < 10; k += 2) {
-        ctx.beginPath();
-        ctx.moveTo(s * k * 34, -6);
-        ctx.lineTo(s * (k * 34 + 10), -22);
-        ctx.stroke();
-      }
-    }
-  }
+// (ctx, w, h, st, m): feet at the origin (the floor in the hearth), facing +x. Only as much of it is out of the hearth as
+// the phase has pushed up (look.rise; clipped at the floor, a collar of molten iron where it goes in): a hunched giant of
+// black basalt and cooled slag, cracked all over with orange light that brightens with the pressure and every breath, a
+// shaggy mane of smoke, four burning eyes under a heavy brow in a face like a cooling ingot, a jaw that opens to roar,
+// breathe fire and work the bellows, and two enormous forearms it uses like hammers (the back one braced on the hearth's
+// lip, the front one raised and brought down on the mark: the fist then lies on the floor where it landed, steaming, the
+// melee's opening). Behind the grille of its ribs the tooth glows gold-white (the weak point while it inhales:
+// MOBS.typhon.weak's spot, w * 0.1, -h * 0.62: move one, move the other). Phase 4: the coils lie out along the floor.
+// Every pose eases the same numbers (look: arm, rest, ribs, hunch, jaw, lean, raise), so it moves between poses.
+const BASALT = '#2a2022', BASALT_L = '#3e3232', BASALT_H = '#5a4846', INK = '#0c0606', SLAG = '#4a3430', TOOTH_C = '255,236,170';
+// columnar basalt facets and the crack network over the torso, in units of (w, h), seeded once
+const frnd = mulberry32(6517);
+const FACETS = Array.from({ length: 16 }, () => {
+  const cx = (frnd() - 0.5) * 0.56, cy = -0.12 - frnd() * 0.58, r = 0.05 + frnd() * 0.04, n = 5 + Math.floor(frnd() * 2), a0 = frnd() * TAU;
+  return { pts: Array.from({ length: n }, (_, k) => [cx + Math.cos(a0 + (k / n) * TAU) * r, cy + Math.sin(a0 + (k / n) * TAU) * r * 1.1]), a: 0.06 + frnd() * 0.1 };
+});
+const CRACKS = Array.from({ length: 11 }, () => {
+  let x = (frnd() - 0.5) * 0.6, y = -0.08 - frnd() * 0.62;
+  const pts = [[x, y]], n = 3 + Math.floor(frnd() * 3), dx = (frnd() - 0.5) * 0.08, dy = -0.04 - frnd() * 0.04;
+  for (let k = 0; k < n; k++) pts.push([(x += dx + (frnd() - 0.5) * 0.06), (y += dy + (frnd() - 0.5) * 0.03)]);
+  return { pts, ph: frnd() * TAU };
+});
+const DRIPS = [[-0.33, -0.66, 0], [0.31, -0.68, 1.7], [-0.18, -0.4, 3.1], [0.24, -0.3, 4.4]];
+// eased pose numbers, by pose: hunch (shoulders down, head low), lean (head forward), jaw (open), raise (the back arm up:
+// the Pour, the ladle), glare (the eyes flare)
+const POSE = {
+  sunk: { hunch: 0.6, lean: 0, jaw: 0, raise: 0, glare: 0 },
+  idle: { hunch: 0.2, lean: 0, jaw: 0, raise: 0, glare: 0 },
+  glare: { hunch: 0.35, lean: 1, jaw: 0.25, raise: 0, glare: 1 },
+  hammerL: { hunch: 0, lean: 0.4, jaw: 0.5, raise: 0, glare: 0.5 },
+  hammerR: { hunch: 0, lean: 0.4, jaw: 0.5, raise: 0, glare: 0.5 },
+  restL: { hunch: 0.7, lean: 0.8, jaw: 0.1, raise: 0, glare: 0 },
+  restR: { hunch: 0.7, lean: 0.8, jaw: 0.1, raise: 0, glare: 0 },
+  coil: { hunch: 0.8, lean: 0.3, jaw: 0.3, raise: 0, glare: 0.3 },
+  bellows: { hunch: 0, lean: -0.3, jaw: 0.8, raise: 0, glare: 0.2 },
+  breath: { hunch: 0.3, lean: 1, jaw: 1, raise: 0, glare: 0.6 },
+  pour: { hunch: 0, lean: -0.2, jaw: 0.4, raise: 1, glare: 0.3 },
+  sweep: { hunch: 0.5, lean: 0.8, jaw: 0.6, raise: 0, glare: 0.6 },
+  inhale: { hunch: 0, lean: -0.6, jaw: 0.9, raise: 0, glare: 0.4 },
+  sink: { hunch: 0.6, lean: 0, jaw: 0.2, raise: 0, glare: 0.4 },
+  stag: { hunch: 1, lean: 0.6, jaw: 0.3, raise: 0, glare: -0.7 },
+  freed: { hunch: 0.5, lean: 0.2, jaw: 0, raise: 0, glare: -1 },
+};
+const pz = { hunch: 0.6, lean: 0, jaw: 0, raise: 0, glare: 0 };
+let pzAt = -1;
+function easePose(t) {
+  const dt = pzAt < 0 ? 1 : clamp(t - pzAt, 0, 0.1);
+  pzAt = t;
+  const want = POSE[look.po] ?? POSE.idle;
+  for (const k in pz) pz[k] += (want[k] - pz[k]) * Math.min(1, dt * (k === 'jaw' ? 8 : 4));
+}
+// a stroke laid twice: a wide soft glow and a thin hot core (the cracks, the seams)
+function hotLine(ctx, path, heat, core = 2) {
+  ctx.strokeStyle = `rgba(255,110,40,${0.35 * heat})`;
+  ctx.lineWidth = core * 3.2;
   ctx.beginPath();
-  ctx.rect(-w * 2, -h * 2, w * 4, h * 2); // (clip at the floor: the rest of it is down in the hearth)
-  ctx.clip();
-  ctx.translate(0, sink);
-  const breathe = b * 4, ribs = look.ribs;
-  // the torso: hunched, wide at the shoulders
-  const torso = () => {
-    ctx.moveTo(-w * 0.34, 0);
-    ctx.quadraticCurveTo(-w * 0.44, -h * 0.5, -w * 0.3, -h * 0.74 - breathe);
-    ctx.quadraticCurveTo(0, -h * 0.86 - breathe, w * 0.3, -h * 0.74 - breathe);
-    ctx.quadraticCurveTo(w * 0.44, -h * 0.5, w * 0.34, 0);
+  path();
+  ctx.stroke();
+  ctx.strokeStyle = `rgba(255,${180 + Math.round(60 * heat)},${90 + Math.round(70 * heat)},${Math.min(1, 0.4 + heat)})`;
+  ctx.lineWidth = core;
+  ctx.stroke();
+}
+// a limb: a tapered round-ended slab from (x0, y0) r0 to (x1, y1) r1, basalt, outlined, a crack down it
+function limb(ctx, x0, y0, r0, x1, y1, r1, heat, t, k) {
+  const a = Math.atan2(y1 - y0, x1 - x0), nx = -Math.sin(a), ny = Math.cos(a);
+  const shape = () => {
+    ctx.moveTo(x0 + nx * r0, y0 + ny * r0);
+    ctx.lineTo(x1 + nx * r1, y1 + ny * r1);
+    ctx.arc(x1, y1, r1, a + Math.PI / 2, a - Math.PI / 2, true);
+    ctx.lineTo(x0 - nx * r0, y0 - ny * r0);
+    ctx.arc(x0, y0, r0, a - Math.PI / 2, a + Math.PI / 2, true);
     ctx.closePath();
   };
-  // the mane of smoke behind
-  ctx.fillStyle = `rgba(60,50,52,${0.55 * (1 - dying)})`;
-  for (let k = 0; k < 7; k++) {
-    const a = -Math.PI * 0.9 + (k / 6) * Math.PI * 0.8, r = w * 0.3 + Math.sin(t * 1.5 + k) * 6;
-    circle(ctx, Math.cos(a) * r, -h * 0.82 + Math.sin(a) * r * 0.6, 26 + (k % 3) * 6);
-  }
+  ctx.fillStyle = BASALT_L;
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  shape();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(0,0,0,0.25)'; // (its shadowed underside)
+  ctx.beginPath();
+  ctx.moveTo(x0 - nx * r0 * 0.2, y0 - ny * r0 * 0.2);
+  ctx.lineTo(x1 - nx * r1 * 0.2, y1 - ny * r1 * 0.2);
+  ctx.lineTo(x1 - nx * r1, y1 - ny * r1);
+  ctx.lineTo(x0 - nx * r0, y0 - ny * r0);
+  ctx.fill();
+  const len = Math.hypot(x1 - x0, y1 - y0);
+  hotLine(ctx, () => {
+    for (let s = 0; s <= 4; s++) {
+      const f = 0.15 + s * 0.17, j = Math.sin(k * 7 + s * 2.3) * 0.35;
+      ctx[s ? 'lineTo' : 'moveTo'](x0 + (x1 - x0) * f + nx * j * (r0 + (r1 - r0) * f), y0 + (y1 - y0) * f + ny * j * (r0 + (r1 - r0) * f));
+    }
+  }, heat * (0.75 + 0.25 * Math.sin(t * 2 + k)), len > 140 ? 2.4 : 2);
+}
+// a fist: a great knuckled block of basalt at (x, y), knuckles toward +x rotated by a; glowing between the fingers
+function fist(ctx, x, y, s, a, heat, hot) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(a);
   ctx.fillStyle = BASALT;
   ctx.strokeStyle = INK;
   ctx.lineWidth = 4;
   ctx.beginPath();
+  ctx.roundRect(-s * 0.55, -s * 0.5, s * 1.1, s, s * 0.28);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = BASALT_H;
+  for (let k = 0; k < 4; k++) { // (the knuckles)
+    ctx.beginPath();
+    ctx.roundRect(s * 0.22, -s * 0.46 + k * s * 0.235, s * 0.36, s * 0.21, s * 0.08);
+    ctx.fill();
+    ctx.stroke();
+  }
+  hotLine(ctx, () => {
+    for (let k = 1; k < 4; k++) {
+      ctx.moveTo(s * 0.2, -s * 0.46 + k * s * 0.235);
+      ctx.lineTo(s * 0.56, -s * 0.46 + k * s * 0.235);
+    }
+  }, heat * (1 + hot), 1.6);
+  ctx.beginPath(); // (the thumb over the front)
+  ctx.ellipse(s * 0.05, -s * 0.48, s * 0.26, s * 0.13, -0.2, 0, TAU);
+  ctx.fillStyle = BASALT_L;
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 3;
+  ctx.fill();
+  ctx.stroke();
+  if (hot > 0.05) glow(ctx, s * 0.4, 0, s * 0.9, s * 0.8, EMBER, 0.5 * hot);
+  ctx.restore();
+}
+function drawTyphon(ctx, w, h, st, m) {
+  const t = st.t, dying = st.dying ?? 0, rise = clamp(look.rise, 0, 1), pr = clamp(look.pr / 100, 0, 1), b = look.breath ?? 0.5;
+  easePose(st.time ?? t);
+  const sink = (1 - rise) * h; // (how far down in the hearth it is)
+  const enr = look.enr, out = look.po === 'freed' ? clamp(1 - dying * 1.5, 0, 1) : 1;
+  const heat = clamp((0.35 + 0.4 * pr + 0.2 * b + (enr ? 0.25 : 0) + 0.25 * pz.glare) * out, 0.05, 1.3);
+  const facing = (m?.facing ?? 1) >= 0 ? 1 : -1;
+  ctx.save();
+  // phase 4: the coils lie out along the floor both ways (stretched toward its front in the Sweep), scaled in slag
+  if (look.ph >= 3 && look.po !== 'freed') drawCoils(ctx, w, t, heat, pz.lean);
+  ctx.beginPath();
+  ctx.rect(-FIN_W, -h * 2, FIN_W * 2, h * 2); // (clip at the floor: the rest of it is down in the hearth)
+  ctx.clip();
+  // where it goes into the floor: a collar of molten iron round its waist
+  glow(ctx, 0, 0, w * 0.6, 40, HOT, 0.55 * out + 0.2 * pr);
+  ctx.translate(0, sink);
+  const breathe = b * 4 + (look.po === 'bellows' ? b * 6 : 0), hun = pz.hunch * 18, ribs = look.ribs;
+  const shY = -h * 0.7 - breathe + hun; // (the shoulders' line)
+  // the mane of smoke behind: big soft puffs rolling up off its shoulders and head, lit from below
+  for (let k = 0; k < 11; k++) {
+    const a = -Math.PI * 0.95 + (k / 10) * Math.PI * 0.9, ph = (t * 0.25 + k * 0.37) % 1, r = w * (0.3 + 0.08 * Math.sin(t * 1.3 + k));
+    const x = Math.cos(a) * r * 1.1, y = -h * 0.8 + hun + Math.sin(a) * r * 0.7 - ph * 30;
+    ctx.fillStyle = `rgba(${48 + (k % 3) * 8},${40 + (k % 3) * 6},${42 + (k % 3) * 6},${(0.6 - ph * 0.35) * out})`;
+    circle(ctx, x, y, 24 + (k % 3) * 8 + ph * 14);
+  }
+  glow(ctx, 0, -h * 0.82 + hun, w * 0.42, h * 0.22, EMBER, 0.12 * heat);
+  // the back arm: braced on the hearth's lip behind it (raised toward the ladle for the Pour)
+  const raise = pz.raise;
+  const bShX = -w * 0.34, bFx = -w * 0.62 + raise * w * 0.2, bFy = -32 - raise * (h - 32);
+  const bEx = (bShX + bFx) / 2 - w * 0.12, bEy = (shY + bFy) / 2 + (raise ? -raise * 40 : 30);
+  limb(ctx, bShX, shY + 10, 30, bEx, bEy, 26, heat * 0.8, t, 1);
+  limb(ctx, bEx, bEy, 28, bFx, bFy, 36, heat * 0.8, t, 2);
+  fist(ctx, bFx, bFy, 64, raise ? -Math.PI / 2 : Math.PI, heat * 0.8, 0);
+  // the torso: hunched, huge at the shoulders, narrowing into the hearth
+  const torso = () => {
+    ctx.moveTo(-w * 0.3, 0);
+    ctx.quadraticCurveTo(-w * 0.42, -h * 0.4, -w * 0.4, shY + 18);
+    ctx.quadraticCurveTo(-w * 0.38, shY - 22, -w * 0.18, shY - 16);
+    ctx.quadraticCurveTo(0, shY - 30 - breathe * 0.5, w * 0.2, shY - 16);
+    ctx.quadraticCurveTo(w * 0.4, shY - 22, w * 0.42, shY + 18);
+    ctx.quadraticCurveTo(w * 0.44, -h * 0.4, w * 0.3, 0);
+    ctx.closePath();
+  };
+  ctx.fillStyle = BASALT;
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 5;
+  ctx.beginPath();
   torso();
   ctx.fill();
   ctx.stroke();
-  // cracks of light all over it, brighter with the pressure
-  ctx.strokeStyle = `rgba(255,140,50,${heat})`;
-  ctx.lineWidth = 2.5;
+  ctx.save();
   ctx.beginPath();
-  for (const [x0, y0, x1, y1] of [[-0.25, -0.2, -0.15, -0.45], [0.22, -0.15, 0.12, -0.4], [-0.08, -0.62, -0.18, -0.7], [0.1, -0.6, 0.2, -0.7], [-0.3, -0.5, -0.2, -0.58], [0.28, -0.48, 0.2, -0.3]]) {
-    ctx.moveTo(x0 * w, y0 * h);
-    ctx.lineTo((x0 + x1) * 0.5 * w + 6, (y0 + y1) * 0.5 * h);
-    ctx.lineTo(x1 * w, y1 * h);
+  torso();
+  ctx.clip();
+  // columnar basalt facets, a slag skin round the waist, light from below
+  for (const f of FACETS) {
+    ctx.fillStyle = `rgba(110,90,86,${f.a})`;
+    ctx.beginPath();
+    f.pts.forEach(([x, y], i) => ctx[i ? 'lineTo' : 'moveTo'](x * w, y * h + hun * 0.6));
+    ctx.closePath();
+    ctx.fill();
   }
-  ctx.stroke();
-  // the chest: a grille of its ribs, and behind it the tooth (gold-white; the ribs spread when it inhales)
-  const cx = w * 0.1, cy = -h * 0.62;
-  glow(ctx, cx, cy, 40 + ribs * 30, 34 + ribs * 24, '255,236,170', 0.5 + 0.4 * pr + 0.4 * ribs);
+  ctx.fillStyle = SLAG;
+  ctx.beginPath();
+  ctx.moveTo(-w * 0.5, 0);
+  for (let k = 0; k <= 12; k++) ctx.lineTo(-w * 0.5 + (k / 12) * w, -h * 0.14 - Math.sin(k * 1.7) * 10 - (k % 2) * 8);
+  ctx.lineTo(w * 0.5, 0);
+  ctx.fill();
+  glow(ctx, 0, 0, w * 0.5, h * 0.3, EMBER, 0.25 + 0.3 * pr);
+  // the cracks: a network of light all over it, brighter with the pressure and with each breath
+  for (const c of CRACKS) {
+    hotLine(ctx, () => c.pts.forEach(([x, y], i) => ctx[i ? 'lineTo' : 'moveTo'](x * w, y * h + hun * 0.6)), heat * (0.7 + 0.3 * Math.sin(t * 1.6 + c.ph)), 2.2);
+  }
+  ctx.restore();
+  // shoulder boulders (pauldrons of rock)
+  for (const s of [-1, 1]) {
+    ctx.fillStyle = BASALT_L;
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.ellipse(s * w * 0.33, shY + 2, w * 0.13, h * 0.09, s * 0.3, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(140,116,110,0.25)';
+    ellipse(ctx, s * w * 0.31, shY - 6, w * 0.07, h * 0.035, s * 0.3);
+  }
+  // slag dripping off it: a bead swells at a ledge of rock, stretches, falls and fades
+  for (const [dx, dy, ph] of DRIPS) {
+    const k = ((t * 0.35 + ph) % 1), x = dx * w, y0 = dy * h + hun * 0.6;
+    if (k < 0.6) {
+      ctx.fillStyle = `rgba(255,${150 + 60 * heat},70,${0.9 * out})`;
+      ellipse(ctx, x, y0 + k * 8, 3 + k * 2, 3 + k * 6);
+    } else {
+      const f = (k - 0.6) / 0.4;
+      ctx.fillStyle = `rgba(255,160,70,${(1 - f) * out})`;
+      circle(ctx, x, y0 + 12 + f * f * 120, 3);
+    }
+  }
+  // the chest: a grille of its ribs, and behind it the tooth (gold-white; the ribs spread open when it inhales)
+  const cx = w * 0.1, cy = -h * 0.62 + hun * 0.4;
+  ctx.fillStyle = '#140a08';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 34 + ribs * 16, 30 + ribs * 8, 0, 0, TAU);
+  ctx.fill();
+  glow(ctx, cx, cy, 44 + ribs * 40, 38 + ribs * 30, TOOTH_C, (0.45 + 0.35 * pr + 0.5 * ribs) * out);
+  if (ribs > 0.3) { // (light pouring out between the ribs)
+    ctx.fillStyle = `rgba(255,240,190,${0.18 * ribs})`;
+    for (const a of [-0.5, -0.2, 0.15, 0.45]) {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(a) * 160, cy + Math.sin(a) * 160 - 30);
+      ctx.lineTo(cx + Math.cos(a + 0.1) * 160, cy + Math.sin(a + 0.1) * 160 - 30);
+      ctx.fill();
+    }
+  }
   ctx.fillStyle = '#fff4c8';
   ctx.strokeStyle = '#a8742a';
   ctx.lineWidth = 2;
@@ -531,84 +829,144 @@ function drawTyphon(ctx, w, h, st) {
   ctx.strokeStyle = '#7a4a1a'; // (the mark burnt on it: a hammer over a flame, shown, never named)
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(cx - 5, cy + 2);
-  ctx.lineTo(cx + 5, cy + 2);
-  ctx.moveTo(cx, cy + 2);
-  ctx.lineTo(cx, cy + 8);
+  ctx.moveTo(cx - 5, cy + 1);
+  ctx.lineTo(cx + 5, cy + 1);
+  ctx.moveTo(cx, cy + 1);
+  ctx.lineTo(cx, cy + 5);
+  ctx.moveTo(cx - 3, cy + 9);
+  ctx.quadraticCurveTo(cx, cy + 3, cx + 3, cy + 9);
   ctx.stroke();
-  ctx.strokeStyle = BASALT_L;
-  ctx.lineWidth = 6;
-  for (let k = -2; k <= 2; k++) {
-    const spread = 1 + ribs * 1.6;
-    ctx.beginPath();
-    ctx.moveTo(cx + k * 9 * spread, cy - 22);
-    ctx.quadraticCurveTo(cx + k * 13 * spread, cy, cx + k * 9 * spread, cy + 22);
-    ctx.stroke();
+  for (let k = -2; k <= 2; k++) { // (the ribs: thick curved bars of basalt, outlined)
+    const spread = 1 + ribs * 1.7, x0 = cx + k * 10 * spread, bow = k * 6 * spread;
+    for (const [lw, col] of [[10, INK], [6, BASALT_H]]) {
+      ctx.strokeStyle = col;
+      ctx.lineWidth = lw;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(x0 - k * 2, cy - 24);
+      ctx.quadraticCurveTo(x0 + bow, cy, x0 - k * 2, cy + 24);
+      ctx.stroke();
+    }
   }
-  // the head: a face like a cooling ingot, four burning eyes
-  const hx = w * 0.04, hy = -h * 0.86 - breathe;
+  // the head: a face like a cooling ingot under a crag of slag, a heavy brow over four eyes, a jaw that opens
+  const hx = w * 0.04 + pz.lean * 22, hy = -h * 0.86 - breathe + hun * 1.6 + pz.lean * 10;
+  ctx.save();
+  ctx.translate(hx, hy);
+  ctx.rotate(pz.lean * 0.12 - (look.po === 'inhale' ? 0.18 : 0));
+  const jaw = pz.jaw * 22;
+  // the jaw (under the face; its mouth glows from the fire inside)
+  ctx.fillStyle = '#2e2224';
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(-36, 6 + jaw * 0.3, 74, 28 + jaw * 0.4, [4, 4, 14, 14]);
+  ctx.fill();
+  ctx.stroke();
+  if (jaw > 2) {
+    glow(ctx, 6, 16 + jaw * 0.5, 50, 20 + jaw, HOT, 0.6 * pz.jaw * out);
+    ctx.fillStyle = `rgba(255,${190 + 40 * heat},110,${0.95 * out})`;
+    ctx.beginPath();
+    ctx.roundRect(-26, 10, 58, jaw * 0.8, 4);
+    ctx.fill();
+    ctx.fillStyle = '#4a3a38'; // (blunt teeth, top and bottom)
+    for (let k = 0; k < 5; k++) {
+      ctx.fillRect(-24 + k * 12, 10, 7, 4);
+      ctx.fillRect(-22 + k * 12, 10 + jaw * 0.8 - 4, 7, 4);
+    }
+  }
+  // the face: the ingot, bevelled at the top, a crag of slag on its crown
   ctx.fillStyle = '#3a2c2a';
   ctx.strokeStyle = INK;
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.roundRect(hx - 44, hy - 40, 88, 64, 16);
+  ctx.moveTo(-44, 14);
+  ctx.lineTo(-48, -22);
+  ctx.lineTo(-34, -44);
+  ctx.lineTo(34, -46);
+  ctx.lineTo(50, -24);
+  ctx.lineTo(46, 14);
+  ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  ctx.strokeStyle = `rgba(255,150,60,${heat})`;
-  ctx.lineWidth = 2;
+  ctx.fillStyle = 'rgba(120,98,92,0.25)';
   ctx.beginPath();
-  ctx.moveTo(hx - 30, hy + 14);
-  ctx.lineTo(hx + 30, hy + 14);
+  ctx.moveTo(-34, -44);
+  ctx.lineTo(34, -46);
+  ctx.lineTo(40, -36);
+  ctx.lineTo(-38, -34);
+  ctx.fill();
+  ctx.fillStyle = SLAG;
+  ctx.beginPath();
+  ctx.moveTo(-36, -42);
+  for (let k = 0; k <= 8; k++) ctx.lineTo(-36 + k * 9, -48 - (k % 2 ? 12 + Math.sin(k * 3.1) * 5 : 2));
+  ctx.lineTo(36, -44);
+  ctx.closePath();
+  ctx.fill();
   ctx.stroke();
-  const eyesOpen = look.po === 'freed' ? clamp(1 - dying * 2, 0, 1) * 0.2 : look.po === 'stag' ? 0.4 : 1;
-  for (const [ex, ey] of [[-22, -20], [10, -22], [-14, -4], [20, -6]]) {
-    glow(ctx, hx + ex, hy + ey, 16, 12, '255,170,60', 0.7 * eyesOpen);
-    ctx.fillStyle = `rgba(255,236,170,${eyesOpen})`;
+  hotLine(ctx, () => { // (cracks across the face)
+    ctx.moveTo(-40, -8);
+    ctx.lineTo(-30, 2);
+    ctx.lineTo(-34, 10);
+    ctx.moveTo(30, -38);
+    ctx.lineTo(24, -28);
+    ctx.moveTo(42, 0);
+    ctx.lineTo(34, 8);
+  }, heat, 1.8);
+  // the four eyes: two big ones, two smaller under them, slanted; they flare to glare, gutter when it staggers, shut freed
+  const open = look.po === 'freed' ? clamp(1 - dying * 2, 0, 1) * 0.15 : clamp(1 + pz.glare * 0.6, 0.3, 1.4);
+  for (const [ex, ey, r, sl] of [[-20, -18, 9, 0.25], [18, -19, 9, -0.25], [-14, -2, 6, 0.2], [14, -3, 6, -0.2]]) {
+    glow(ctx, ex, ey, r * 2.6, r * 1.9, '255,170,60', 0.65 * Math.min(1, open) * out);
+    ctx.fillStyle = '#120806';
     ctx.beginPath();
-    ctx.ellipse(hx + ex, hy + ey, 6, 4 * eyesOpen + 0.5, 0, 0, TAU);
+    ctx.ellipse(ex, ey, r + 2, (r * 0.6 + 2) * Math.min(1, open), sl, 0, TAU);
     ctx.fill();
+    ctx.fillStyle = `rgba(255,${200 + 40 * Math.min(1, open)},150,${Math.min(1, open)})`;
+    ctx.beginPath();
+    ctx.ellipse(ex, ey, r, r * 0.55 * open + 0.4, sl, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = `rgba(255,255,240,${0.9 * Math.min(1, open)})`;
+    circle(ctx, ex + 2, ey, r * 0.28);
   }
-  // the forearms: the back one braced on the hearth's lip, the front one raised to hammer (or lying on the floor, steaming)
+  ctx.fillStyle = '#2a1e1e'; // (the brow: a heavy ledge of rock over the top pair)
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-42, -26);
+  ctx.quadraticCurveTo(-20, -40 + pz.glare * 6, 0, -28 + pz.glare * 4);
+  ctx.quadraticCurveTo(20, -40 + pz.glare * 6, 44, -28);
+  ctx.lineTo(42, -34);
+  ctx.lineTo(-40, -32);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  if (look.po === 'bellows' || look.po === 'stag') { // (smoke out of its mouth)
+    for (let k = 0; k < 3; k++) {
+      const f = (t * 0.8 + k / 3) % 1;
+      ctx.fillStyle = `rgba(90,80,80,${0.5 * (1 - f)})`;
+      circle(ctx, 20 + f * 40, 20 - f * 50, 6 + f * 14);
+    }
+  }
+  ctx.restore();
+  // the front arm: idle at its side; raised overhead to hammer; then lying out on the floor to the mark, steaming
   const arm = clamp(look.arm, 0, 1), rest = clamp(look.rest, 0, 1);
-  const drawArm = (sx, front) => {
-    const shx = sx * w * 0.3, shy = -h * 0.66 - breathe;
-    let fx = sx * w * 0.5, fy = -18;
-    if (front) {
-      fx += (w * 0.1) * arm + w * 0.35 * rest;
-      fy += (-h * 0.75) * arm + 6 * rest + sink * rest;
+  const reach = look.hx != null && m ? clamp((look.hx - m.x) * facing, w * 0.45, FIN_W * 0.62) : w * 0.9;
+  const fShX = w * 0.34, fShY = shY + 10;
+  let fFx = w * 0.6 - pz.hunch * 6, fFy = -36;
+  fFx += (w * 0.22 - fFx) * arm;
+  fFy += (-h * 1.22 + hun - fFy) * arm;
+  fFx += (reach - fFx) * rest;
+  fFy += (-30 - sink - fFy) * rest; // (on the floor, wherever the body is in the hearth)
+  const fEx = (fShX + fFx) / 2 + w * 0.1 * (1 - arm) - w * 0.04 * arm, fEy = (fShY + fFy) / 2 + 40 * (1 - arm) - 10 * rest - 30 * arm;
+  limb(ctx, fShX, fShY, 32, fEx, fEy, 28, heat, t, 3);
+  limb(ctx, fEx, fEy, 30, fFx, fFy, 40, heat * (1 + 0.5 * arm), t, 4);
+  fist(ctx, fFx, fFy, 70, arm > 0.5 ? -Math.PI / 2 : 0, heat, arm * 0.9 + rest * 0.4);
+  if (rest > 0.5) { // (steam off the arm lying on the floor)
+    for (let k = 0; k < 4; k++) {
+      const f = (t * 0.7 + k / 4) % 1, x = fEx + (fFx - fEx) * (k / 3);
+      ctx.fillStyle = `rgba(200,190,190,${0.3 * (1 - f) * rest})`;
+      circle(ctx, x, fFy - 40 - f * 60, 8 + f * 10);
     }
-    ctx.strokeStyle = INK;
-    ctx.lineWidth = 46;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(shx, shy);
-    ctx.quadraticCurveTo((shx + fx) / 2 + sx * 30, (shy + fy) / 2, fx, fy);
-    ctx.stroke();
-    ctx.strokeStyle = BASALT_L;
-    ctx.lineWidth = 38;
-    ctx.stroke();
-    ctx.fillStyle = BASALT;
-    ctx.strokeStyle = INK;
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.roundRect(fx - 34, fy - 30, 68, 50, 18);
-    ctx.fill();
-    ctx.stroke();
-    ctx.strokeStyle = `rgba(255,140,50,${heat * (front && arm > 0.5 ? 1.3 : 1)})`;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    for (let k = -1; k <= 1; k++) {
-      ctx.moveTo(fx + k * 16, fy - 26);
-      ctx.lineTo(fx + k * 16, fy - 10);
-    }
-    ctx.stroke();
-    if (front && rest > 0.5) { // (steam off the arm lying on the floor)
-      ctx.fillStyle = 'rgba(200,190,190,0.3)';
-      for (let k = 0; k < 3; k++) circle(ctx, fx - 20 + k * 20, fy - 40 - ((t * 30 + k * 13) % 40), 8 + k * 2);
-    }
-  };
-  drawArm(-1, false);
-  drawArm(1, true);
+  }
   ctx.restore();
   return () => {
     ctx.save();
@@ -616,6 +974,45 @@ function drawTyphon(ctx, w, h, st) {
     torso();
     ctx.restore();
   };
+}
+// phase 4's coils: two great lengths of slag-scaled body lying along the floor from its waist, rolling slowly, glowing
+// between the scales; stretched forward (toward +x) as it leans into the Sweep
+function drawCoils(ctx, w, t, heat, lean) {
+  for (const s of [-1, 1]) {
+    const len = s > 0 ? 380 + lean * 120 : 340, n = 14, thick = (k) => 46 - k * 2.4;
+    const pt = (k) => [s * (40 + (k / n) * len), -28 + Math.sin(t * 2 + k * 0.8 + (s > 0 ? 0 : 2)) * 6 + k * 1.2];
+    // the body: a band through the points, its top edge the scales'
+    ctx.fillStyle = BASALT;
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    for (let k = 0; k <= n; k++) {
+      const [x, y] = pt(k);
+      ctx[k ? 'lineTo' : 'moveTo'](x, y - thick(k) * 0.5);
+    }
+    const [tx, ty] = pt(n);
+    ctx.quadraticCurveTo(tx + s * 30, ty, tx + s * 46, ty + 14); // (the tail's tip)
+    for (let k = n; k >= 0; k--) ctx.lineTo(pt(k)[0], 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    // slag scales along its back, glowing in the gaps
+    for (let k = 0; k < n; k++) {
+      const [x, y] = pt(k), r = thick(k) * 0.42;
+      ctx.fillStyle = k % 2 ? BASALT_L : SLAG;
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(x, y - thick(k) * 0.32, r, r * 0.6, 0, Math.PI, 0);
+      ctx.fill();
+      ctx.stroke();
+      hotLine(ctx, () => {
+        ctx.moveTo(x + s * r, y - thick(k) * 0.3);
+        ctx.lineTo(x + s * r * 1.1, y + 2);
+      }, heat * (0.6 + 0.4 * Math.sin(t * 3 + k)), 1.6);
+    }
+    glow(ctx, s * (40 + len * 0.5), 0, len * 0.55, 30, EMBER, 0.18 * heat);
+  }
 }
 export const BOSS_ART = { typhon: drawTyphon };
 

@@ -62,6 +62,8 @@ export const STAFFS = {
   white_rose_rod: { len: 68, shaft: ['#4e6a3e', '#22301e'], w: 2.8, head: 'whiterose', gem: '#fbf6f0', gem2: '#7aa05e', glow: '250,246,232' },
   gleipnir_staff: { len: 72, shaft: ['#5a6476', '#262c3a'], w: 3, head: 'gleipnir', gem: '#f4f8ff', gem2: '#8aa0c8', glow: '226,236,255', ribbon: '226,236,255' }, // (Fenrir's: src/fenrir-art.js has the rest)
   lantern_rod: { len: 70, shaft: ['#7a8090', '#3a404c'], w: 2.9, head: 'lantern', gem: '#ffe2a0', gem2: '#3a404c', glow: '255,220,150' },
+  pour_staff: { len: 74, shaft: ['#5a4c4a', '#241c1c'], w: 3.1, head: 'ladle', gem: '#ffd070', gem2: '#2e2626', glow: '255,170,70' }, // (Typhon's: src/typhon-art.js has the rest)
+  hearthstone_rod: { len: 72, shaft: ['#4a3e3e', '#1e1818'], w: 3, head: 'hearthstone', gem: '#fff2c4', gem2: '#2e2626', glow: '255,214,150' },
   bellows_rod: { len: 62, shaft: ['#8a8490', '#4e4a56'], w: 2.8, head: 'ring', gem: '#ff8a3c', gem2: '#5e5a66', glow: '255,150,80' },
   // the Black Sands (E1, docs/places/blacksands.md)
   blackglass_staff: { len: 64, shaft: ['#6a6470', '#36323c'], w: 2.8, head: 'crystal', gem: '#3a3446', gem2: '#8ad0c0', glow: '160,230,215' },
@@ -654,6 +656,73 @@ const HEADS = {
       ctx.stroke();
     }
     gem(ctx, 0, y - 1, 2.2 + glow * 0.6, s.gem, false);
+  },
+  // Typhon's Pour Staff: a casting ladle on the end of the rod, its long bowl still glowing, a drip of iron hanging off
+  // the lip and falling now and then
+  ladle(ctx, s, y, t, glow) {
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.3;
+    ctx.fillStyle = s.gem2;
+    ctx.beginPath(); // (the neck bending over into the bowl)
+    ctx.moveTo(-1.5, y + 3);
+    ctx.quadraticCurveTo(-2, y - 9, 4, y - 10);
+    ctx.lineTo(4, y - 7);
+    ctx.quadraticCurveTo(1.5, y - 7, 1.5, y + 3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    halo(ctx, s, y - 9, 9 + glow * 4, 0.5 + glow * 0.3);
+    ctx.fillStyle = s.gem2;
+    ctx.beginPath(); // (the bowl, a deep half-round)
+    ctx.moveTo(2, y - 12);
+    ctx.lineTo(14, y - 12);
+    ctx.quadraticCurveTo(14, y - 2, 8, y - 2);
+    ctx.quadraticCurveTo(2, y - 2, 2, y - 12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = s.gem; // (the iron in it, rolling)
+    ctx.beginPath();
+    ctx.ellipse(8, y - 11.5, 5.4, 1.4 + 0.3 * Math.sin(t * 4), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff6d8';
+    circle(ctx, 6 + 3 * Math.sin(t * 1.7), y - 11.6, 0.8);
+    ctx.fill();
+    const k = (t * 0.6) % 1; // (a drip off the lip)
+    ctx.fillStyle = `rgba(255,190,90,${1 - k})`;
+    circle(ctx, 14.5, y - 11 + k * 14, 1.1 + (k < 0.2 ? k * 2 : 0.4));
+    ctx.fill();
+  },
+  // Typhon's Hearthstone Rod: a cradle of basalt claws holding a hearthstone, warm through, its cracks glowing
+  hearthstone(ctx, s, y, t, glow) {
+    halo(ctx, s, y - 9, 11 + glow * 4, 0.55 + glow * 0.3 + 0.08 * Math.sin(t * 1.6));
+    ctx.fillStyle = s.gem2;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.2;
+    for (const sd of [-1, 1]) { // (the claws)
+      ctx.beginPath();
+      ctx.moveTo(sd * 2, y + 2);
+      ctx.quadraticCurveTo(sd * 9, y - 4, sd * 6.5, y - 15);
+      ctx.lineTo(sd * 4.5, y - 13.5);
+      ctx.quadraticCurveTo(sd * 6, y - 5, 0, y - 1);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.fillStyle = s.gem; // (the stone)
+    ctx.beginPath();
+    ctx.roundRect(-5, -15 + y + 2, 10, 11, 3.5);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = `rgba(255,150,60,${0.7 + 0.25 * Math.sin(t * 2.2)})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-3, y - 11);
+    ctx.lineTo(0, y - 8.5);
+    ctx.lineTo(-1, y - 6);
+    ctx.moveTo(0, y - 8.5);
+    ctx.lineTo(3, y - 9.5);
+    ctx.stroke();
   },
   // the Lantern Rod: a Keeper crook at the top with a little cutters' lantern hanging from it, lit
   lantern(ctx, s, y, t, glow) {
