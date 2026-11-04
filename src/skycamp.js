@@ -4,10 +4,11 @@
 // tied up alongside (her gangway is a door, CAMP_DOCK_X), the ridge tent whose flap is everyone's own front door
 // (CAMP_HOME_X), the waystone, the brazier lashed down with chains (you wake by it), a gantry hanging off the city on
 // chains, Pilgrim Ione's lantern pole, Tamp's pile of salvaged gears, a second tent, and the pier's end, where the
-// plank across to the next pier is stood on end and lashed (the wind; Phase 6 (c) lays it). Behind: a cold high
+// plank across to the next pier lies laid and lashed down (Phase 6 (c): a door into the Skydocks). Behind: a cold high
 // sky, a sea of cloud below with the other islands' landmarks poking through it, the Citadel's underside overhead,
 // and beyond the pier's end the broken piers of the Skydocks with a small brass figure at its post on one of them.
-// The platforms are CAMP_PLATFORMS. This room paints its own sky.
+// The platforms are CAMP_PLATFORMS. This room paints its own sky; the Skydocks (src/skydocks.js) borrow it and the
+// wind (drawCitadelSky, drawCitadelAir).
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
 import { CAMP_W, FIELD_GROUND, CAMP_DOCK_X, CAMP_HOME_X, CAMP_FIRE_X, CAMP_END_X, CAMP_PLATFORMS, KESTREL_X, IONE_X } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
@@ -43,12 +44,12 @@ const billows = (() => {
 export function drawSkycamp(ctx, camX, viewW, time) {
   ctx.save();
   ctx.translate(camX, 0); // the sky in screen space
-  drawSky(ctx, camX, time);
+  drawCitadelSky(ctx, camX, time);
   ctx.restore();
   const L = camX - 100, R = camX + viewW + 100;
   if (visible(CAMP_END_X - 400, CAMP_W, L, R)) drawBeyond(ctx, time);
   if (visible(CAMP_DOCK_X - 420, CAMP_DOCK_X + 420, L, R)) drawKite(ctx, time);
-  drawPier(ctx, Math.max(0, L), Math.min(CAMP_W, R));
+  drawPier(ctx, Math.max(0, L), Math.min(CAMP_END_X + 158, R)); // (past the last post it's only the plank, over the cloud)
   if (visible(KESTREL_X - 140, KESTREL_X + 260, L, R)) drawStall(ctx, time);
   if (visible(CAMP_DOCK_X - 100, CAMP_DOCK_X + 100, L, R)) drawMast(ctx, time);
   for (const p of plats('tent')) if (visible(p.x - 40, p.x + p.w + 40, L, R)) drawTent(ctx, p, time, p.x < CAMP_HOME_X);
@@ -61,18 +62,18 @@ export function drawSkycamp(ctx, camX, viewW, time) {
   if (visible(CAMP_END_X - 100, CAMP_W + 40, L, R)) drawPierEnd(ctx, time);
   ctx.save();
   ctx.translate(camX, 0);
-  drawAir(ctx, time);
+  drawCitadelAir(ctx, time);
   ctx.restore();
 }
 
 // A house can look out on the camp (its `view`, docs/places/houses.md): the sky and the wind, in screen space
 export function drawSkycampView(ctx, camX, time) {
-  drawSky(ctx, camX, time);
-  drawAir(ctx, time);
+  drawCitadelSky(ctx, camX, time);
+  drawCitadelAir(ctx, time);
 }
 
 // ——— the sky ———
-function drawSky(ctx, camX, time) {
+export function drawCitadelSky(ctx, camX, time, roomW = CAMP_W) {
   const sky = ctx.createLinearGradient(0, 0, 0, HORIZON);
   sky.addColorStop(0, '#2f4f92');
   sky.addColorStop(0.6, '#7ea6d8');
@@ -82,7 +83,7 @@ function drawSky(ctx, camX, time) {
   ctx.fillStyle = 'rgba(255,255,255,0.5)'; // a few stars, it's that high
   for (let i = 0; i < 14; i++) circle(ctx, (i * 173 + 40) % W, 30 + ((i * 59) % 90), 0.8 + (i % 3) * 0.4);
   // the other islands, their landmarks standing up out of the cloud sea
-  drawDistantIslands(ctx, { from: 'citadel', scroll: camX, roomW: CAMP_W, time, horizon: HORIZON, haze: '#d6e4f4', fade: 0.55, scale: 0.55, night: 0.25, sky: 200 });
+  drawDistantIslands(ctx, { from: 'citadel', scroll: camX, roomW, time, horizon: HORIZON, haze: '#d6e4f4', fade: 0.55, scale: 0.55, night: 0.25, sky: 200 });
   // the sea of cloud below, rolling
   ctx.fillStyle = '#eef2f8';
   ctx.fillRect(0, HORIZON + 10, W, H - HORIZON);
@@ -126,7 +127,7 @@ function drawSky(ctx, camX, time) {
 }
 
 // Wind streaks and ice motes blowing through, over everything
-function drawAir(ctx, time) {
+export function drawCitadelAir(ctx, time) {
   ctx.strokeStyle = 'rgba(255,255,255,0.35)';
   ctx.lineWidth = 1.2;
   ctx.beginPath();
@@ -494,32 +495,39 @@ function drawGearPile(ctx, p) {
   for (let i = 0; i < 5; i++) gear(p.x + p.w + 40 + i * 18, GROUND - 7, 6, i % 2 ? '#c9a24a' : '#8a8490', i); // sorted, in a row
 }
 
-// The pier's end: a rail, the plank across to the next pier stood on end and lashed to it, a flag cracking in the wind
+// The pier's end: the rail opened up, and the plank across to the next pier laid flat and lashed down at this end (the
+// way on to the Skydocks since Phase 6 (c)), ropes strung along it for a handrail, the flag still cracking in the wind,
+// and a board nailed to the post with the way chalked on it
 function drawPierEnd(ctx, time) {
   const x = CAMP_END_X;
-  ctx.fillStyle = '#5a4e58';
-  ctx.fillRect(x + 50, GROUND - 40, 8, 40);
-  ctx.fillRect(x + 130, GROUND - 40, 8, 40);
+  ctx.fillStyle = '#5a4e58'; // the rail's posts, the rail itself unshipped and stacked
+  ctx.fillRect(x - 40, GROUND - 40, 8, 40);
+  ctx.fillRect(x + 150, GROUND - 40, 8, 40);
   ctx.fillStyle = '#8a7058';
-  ctx.fillRect(x + 40, GROUND - 42, 110, 7);
-  ctx.save(); // the plank, upright, rocking against its lashings
-  ctx.translate(x + 20, GROUND);
-  ctx.rotate(Math.sin(time * 2.4) * 0.03);
+  ctx.fillRect(x - 70, GROUND - 10, 90, 6);
+  ctx.fillRect(x - 64, GROUND - 16, 80, 6);
+  // the plank: from the pier's end out over the gap, off the room's edge, flexing a little in the wind
+  const sag = Math.sin(time * 2.2) * 2;
   ctx.fillStyle = '#c99b6b';
-  ctx.fillRect(-14, -150, 28, 150);
-  ctx.fillStyle = '#a77b52';
-  for (let y = -140; y < 0; y += 18) ctx.fillRect(-14, y, 28, 3);
-  ctx.restore();
-  ctx.strokeStyle = 'rgba(200,190,175,0.95)';
+  ctx.beginPath();
+  ctx.moveTo(x + 10, GROUND - 2);
+  ctx.quadraticCurveTo(x + 200, GROUND + 6 + sag, CAMP_W + 60, GROUND - 2);
+  ctx.lineTo(CAMP_W + 60, GROUND + 8);
+  ctx.quadraticCurveTo(x + 200, GROUND + 16 + sag, x + 10, GROUND + 8);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(200,190,175,0.95)'; // the lashings and the handrope
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(x + 6, GROUND - 120);
-  ctx.lineTo(x + 54, GROUND - 40);
-  ctx.moveTo(x + 6, GROUND - 60);
-  ctx.lineTo(x + 54, GROUND - 20);
+  for (const lx of [x + 20, x + 34]) {
+    ctx.moveTo(lx, GROUND - 4);
+    ctx.lineTo(lx + 4, GROUND + 12);
+  }
+  ctx.moveTo(x + 154, GROUND - 38);
+  ctx.quadraticCurveTo(x + 260, GROUND - 20 + sag, CAMP_W + 60, GROUND - 36);
   ctx.stroke();
   ctx.fillStyle = '#5a4e58'; // the flag
-  ctx.fillRect(x + 92, GROUND - 170, 4, 130);
+  ctx.fillRect(x + 92, GROUND - 170, 4, 170);
   ctx.fillStyle = '#e8c45a';
   ctx.beginPath();
   ctx.moveTo(x + 96, GROUND - 170);
@@ -527,6 +535,12 @@ function drawPierEnd(ctx, time) {
   for (let i = 6; i >= 0; i--) ctx.lineTo(x + 96 + i * 10, GROUND - 146 + Math.sin(time * 9 + i) * 4);
   ctx.closePath();
   ctx.fill();
+  // the board on the flagpole: the way, chalked
+  ctx.fillStyle = '#6a5040';
+  ctx.beginPath();
+  ctx.roundRect(x + 40, GROUND - 120, 112, 30, 4);
+  ctx.fill();
+  text(ctx, 'The Skydocks', x + 92, GROUND - 105, 13, '#f2ece0');
 }
 
 // Past the pier's end, across a gap of cloud: the Skydocks' broken piers at different heights, empty mooring rings,

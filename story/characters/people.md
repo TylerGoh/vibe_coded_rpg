@@ -80,8 +80,10 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
   "the one who went up" long ago; never lets it go out. Gentle, strange, everything surprises her. Tier 0 plus home.
 - **Tamp** (the Skydocks camp, **exists**): forge folk; the old master's bellows-boy, looking for the master's best
   gear (a hammer over a flame on it), sure it went up to the city. Taught Ash to hold tongs; a little deaf; strong tea.
-- **The Dockwarden** (the Skydocks, Phase 6 (c), seen across the gap since (b)): a brass porter automaton logging
-  arrivals that never come; an AI character in (c), speaking in ledger entries.
+- **The Dockwarden** (the Skydocks' Warden's Pier, **exists** since Phase 6 (c)): a brass porter automaton logging
+  arrivals that never came, until the camp's travellers; speaks in capitals and ledger entries, logs every traveller by
+  name with an arrival number, knows "the port is open; departures are suspended pending the hour" and nothing more.
+  Logged Kestrel's cargo as "OPINIONS" and Tamp as "TAMPE"; Ione keeps asking it about the one who went up.
 - **The Last Echo** (the Citadel): a Keeper echo stuck repeating, who becomes briefly lucid when players
   bring Mochi's name. Holds Tier 4.
 - **Pell** (post-game, by the apple tree): see `mochi-and-chronos.md`.

@@ -277,6 +277,14 @@ One trader, **Pilot Kestrel** (`docs/places/skydocks.md`): the potions and her *
 Lv 136, DEF 95 between the Fume Mask's 92 at 131 and the Glassback Helm's 97 at 141), aimed at Lv 140: 185k, ~16 min of
 farming at the aim, inside the gear band. Phase 6 (c)'s Skydocks (Lv 135–145) adds mobs and goes through the sheet then.
 
+## Atlas Phase 6 (c): the Skydocks (2026-11-04)
+The Skydocks (`docs/places/skydocks.md`) put three mobs on the curve between the Rim and Cogwork Bastion: the loose bolt
+(Lv 136, HP 87%, a plain hopper, a little soft for a swarm), the rigging moth (Lv 140, 91%, `dive`) and the mooring hook
+(Lv 144, 111%, `stomp`: a slow heavy hitter, like the other stomp mobs' extra bulk); ATK and EXP 100%, gold 103–106%
+(coins and materials read off the Rim's at the same levels: Stray Bolt 1,300, Rigging Silk 1,345, Mooring Link 1,390).
+No elites, no field boss, no gear drop, no trader. They sit under the sheet's best farms at Lv 140–150 (the Rim's and the
+sentry), so **nothing else moved**: gold earned by and play time to every level, the boss tables and the price checks
+are identical to before. The gusts are a hazard (a `'dot'`), not a faucet. `--check` green.
 ## E5 (c2): Typhon's rewards and pet (2026-11-03)
 - **Gear** on the frozen curve at Lv 159 (a step over Brenna's Lv 151, as Ladon's and Fenrir's were over theirs): the
   Last Hammer (217 ATK, `swordPrice`, 1,178k) with its staff, rod (`CLERIC_STAFF_OF`) and bow twins at the same price, and

@@ -3,10 +3,10 @@
 // Walk up to one and press E to attune to it (saved with your character, server/rpg.js); at any stone you
 // have attuned, E lists the others you have and the server moves you there. Respawn stays at towns
 // (TOWNS in sim.js): a waystone is for getting back out, not for waking up. One in Slimeville, one at each
-// branch's entrance hub and one on Keeper's Spine, the Queen's Bridge and the Caldera Rim (story/world/island-depth.md); none in the hard pockets.
+// branch's entrance hub and one on Keeper's Spine, the Queen's Bridge and the Caldera Rim, and the Citadel's two (the camp, the Skydocks) (story/world/island-depth.md); none in the hard pockets.
 // The stones only reach stones on their own island (isle): islands are reached by their crossings.
 import { VILLAGE, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, CANOPY, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, ASHWOOD, COAST, BRIMSTONE, RIM } from './sim.js';
-import { CALDERA, SKYCAMP, CAMP_WAY_X } from './rpg.js';
+import { CALDERA, SKYCAMP, CAMP_WAY_X, SKYDOCKS, DOCKS_WAY_X } from './rpg.js';
 
 // x: the stone, on its room's ground (where you arrive is a little beside it, ARRIVE_DX) · isle: its island
 // (Greenhollow when left out)
@@ -29,6 +29,7 @@ export const WAYSTONES = [
   { id: 'brimstone', name: 'The Brimstone Fields', room: BRIMSTONE, x: 5080, isle: 'ember' }, // (in the Picker's Camp, past the Breathing Stone)
   { id: 'rim', name: 'The Caldera Rim', room: RIM, x: 5120, isle: 'ember' }, // (at the Stair Head, past the Hoist Stone)
   { id: 'skycamp', name: 'The Skydocks Camp', room: SKYCAMP, x: CAMP_WAY_X, isle: 'citadel' }, // (by the brazier; the Citadel's first stone, atlas Phase 6)
+  { id: 'skydocks', name: 'The Skydocks', room: SKYDOCKS, x: DOCKS_WAY_X, isle: 'citadel' }, // (on the Warden's Pier, past the Dockwarden's post; Phase 6 (c))
 ];
 export const isleOf = (w) => w.isle ?? 'green';
 export const sameIsle = (a, b) => isleOf(a) === isleOf(b);

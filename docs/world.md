@@ -14,12 +14,13 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | The Wildwood | 5 `FIELD` | village · 3 dens · Willowmere's footbridge · the Mycelium Deep's stump · the Old Oak Canopy's rope ladder · the cut in the thorns to the Thornheart · the gap to the east cliffs (east end; the Highlands trail went when the ferry started) |
 | Frostpeak (Frostpine Ridge, Starfall Summit) | 9 `HIGHLANDS` | down to Icefang Hamlet (west end) · 2 dens · the Glacier's snout · the ice stair to the Queen's Bridge; a plain lookout at the east end where the Caldera pass was (`SUMMIT_LOOKOUT_X`) |
 | Icefang Hamlet (Icefang Fjord) | 23 `FJORD` | the ferry's gangway (`FJORD_DOCK_X`, boards `FERRY_S`) · the Lodestar's gangway (`FJORD_LODESTAR_X`, boards `STEAM_N`) · your house (`FJORD_HOME_X`) · up to Frostpine Ridge (east end) · the shore path to the Skerries (`docs/places/fjord.md`) |
-| Emberdeep (Cinder Flats, Magma Heart) | 12 `CALDERA` | down the road to Forgehold (west end) · 2 dens · the balloon's cradle (`BALLOON_X`, boards `SKY_UP`) · Citadel skylift (until Phase 6 (c)) |
+| Emberdeep (Cinder Flats, Magma Heart) | 12 `CALDERA` | down the road to Forgehold (west end) · 2 dens · the balloon's cradle (`BALLOON_X`, boards `SKY_UP`) · the column vista at the east end where the skylift stood (`COLUMN_VISTA_X`, removed in atlas Phase 6 (c)) |
 | Forgehold (Black Sand Shore) | 44 `FORGEHOLD` | the Lodestar's gangway (`FORGE_DOCK_X`, boards `STEAM_S`) · your house (`FORGE_HOME_X`) · up the road to Cinder Flats (east end) (`docs/places/forgehold.md`) |
 | The Lodestar's deck, out / home | 45 `STEAM_N`, 46 `STEAM_S` | ashore at Forgehold / Icefang Hamlet, once she's in; back ashore while she casts off (`docs/places/crossings.md`) |
-| Aether Citadel | 13 `CITADEL` | Caldera · 2 dens |
+| Aether Citadel | 13 `CITADEL` | down the loading ramp to the Skydocks (west end; the skylift down to the Caldera until atlas Phase 6 (c)) · 2 dens |
 | The Kite's gondola, up / down | 66 `SKY_UP`, 67 `SKY_DOWN` | ashore at the Skydocks camp / Magma Heart's ledge, once she's in; back while she casts off (`docs/places/crossings.md`, `docs/places/skydocks.md`) |
-| The Skydocks Camp | 68 `SKYCAMP` | the Kite's gangway (`CAMP_DOCK_X`, boards `SKY_DOWN`) · your house (`CAMP_HOME_X`); the plank to the Skydocks at the pier's end is lashed up until Phase 6 (c) (`docs/places/skydocks.md`) |
+| The Skydocks Camp | 68 `SKYCAMP` | the Kite's gangway (`CAMP_DOCK_X`, boards `SKY_DOWN`) · your house (`CAMP_HOME_X`) · the plank across to the Skydocks at the pier's end (`CAMP_END_X`) (`docs/places/skydocks.md`) |
+| The Skydocks | 69 `SKYDOCKS` | the plank back to the camp (west end) · the loading ramp up into the Aether Citadel (`SKYDOCKS_RAMP_X`, at the ramp's foot) (`docs/places/skydocks.md`) |
 | Greenhollow's East Cliffs | 20 `CLIFFS` | back into the Wildwood (west end); a vista, no mobs (`docs/places/cliffs.md`) |
 | Greenhollow Harbour | 19 `HARBOUR` | back up to the village (east end) · the ferry's gangway (`GANGWAY_X`, boards `FERRY_N`) (`docs/places/harbour.md`) |
 | The ferry's deck, out / home | 21 `FERRY_N`, 22 `FERRY_S` | ashore at Icefang Hamlet / Greenhollow Harbour, once she's in; back ashore while she casts off (`docs/places/crossings.md`) |

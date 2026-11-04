@@ -1,9 +1,9 @@
 // Docs: docs/places/skydocks.md, docs/art.md
 // The Skydocks camp's art that isn't the room itself (src/skycamp.js): what its three visitors wear (drawCampDress,
 // called by src/slime.js for their NPCS `accessory`: Pilot Kestrel's 'aeronaut', Pilgrim Ione's 'pilgrim', Tamp's
-// 'tinker') and Kestrel's own gear for players (CAMP_HELMETS: the Aeronaut's Goggles, through field.js).
+// 'tinker', and the Dockwarden's 'porter' out on the Skydocks, Phase 6 (c)) and Kestrel's own gear for players (CAMP_HELMETS: the Aeronaut's Goggles, through field.js).
 // Slime space: the body sits on y = 0 and reaches up to -h, facing right; fx is the face's centre x.
-import { circle, ellipse } from './util.js';
+import { TAU, circle, ellipse } from './util.js';
 
 const LEATHER = '#7a5038', LEATHER_D = '#4e3222', BRASS = '#c9a24a', BRASS_D = '#8a6a2a';
 
@@ -153,6 +153,65 @@ export function drawCampDress(ctx, kind, w, h, fx, t) {
     ctx.ellipse(0, -h * 0.9, w * 0.5, h * 0.14, 0, Math.PI, 0);
     ctx.fill();
     ctx.fillRect(0, -h * 0.92, w * 0.62, 4);
+  } else if (kind === 'porter') {
+    // The Dockwarden: a brass porter automaton (a brass-hued slime): rivets round its middle and verdigris at the seams,
+    // one lens over the eye nearer us glowing pale blue, a navy porter's cap with a brass badge bolted on, and a fat
+    // ledger held open in front, a pen ticking down its columns
+    ctx.strokeStyle = 'rgba(70,140,120,0.55)'; // the seams, gone green
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(0, -h * 0.42, w * 0.47, h * 0.1, 0, 0.1, Math.PI - 0.1);
+    ctx.stroke();
+    ctx.fillStyle = BRASS_D; // rivets
+    for (let i = -3; i <= 3; i++) circle(ctx, i * w * 0.13, -h * 0.34 + Math.abs(i) * 1.6, 2);
+    ctx.fillStyle = '#2e2a30'; // the lens
+    circle(ctx, fx + 7, -h * 0.55, 7.5);
+    ctx.fillStyle = `rgba(150,220,255,${0.75 + 0.2 * Math.sin(t * 2)})`;
+    circle(ctx, fx + 7, -h * 0.55, 5);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    circle(ctx, fx + 5.5, -h * 0.57, 1.5);
+    // the cap: a navy crown, a stiff black peak to the front, a brass badge
+    ctx.fillStyle = '#2e3a5e';
+    ctx.strokeStyle = '#1c2440';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.roundRect(-w * 0.4, -h * 1.02, w * 0.8, h * 0.2, 5);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#1c1c24';
+    ctx.beginPath();
+    ctx.ellipse(w * 0.3, -h * 0.82, w * 0.24, 4, 0.1, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = BRASS;
+    circle(ctx, w * 0.06, -h * 0.92, 4.2);
+    ctx.fillStyle = BRASS_D;
+    circle(ctx, w * 0.06, -h * 0.92, 2);
+    // the ledger, held open in front, and the pen
+    const lx = fx + w * 0.34, ly = -h * 0.26;
+    ctx.fillStyle = '#5a3a2a';
+    ctx.beginPath();
+    ctx.roundRect(lx - 16, ly - 9, 32, 18, 2);
+    ctx.fill();
+    ctx.fillStyle = '#efe6cc';
+    ctx.fillRect(lx - 14, ly - 7, 13, 14);
+    ctx.fillRect(lx + 1, ly - 7, 13, 14);
+    ctx.strokeStyle = 'rgba(80,70,90,0.6)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    for (let r = 0; r < 4; r++) {
+      ctx.moveTo(lx - 12, ly - 4 + r * 3.4);
+      ctx.lineTo(lx - 3, ly - 4 + r * 3.4);
+      ctx.moveTo(lx + 3, ly - 4 + r * 3.4);
+      ctx.lineTo(lx + 12, ly - 4 + r * 3.4);
+    }
+    ctx.stroke();
+    const pk = (t * 1.5) % 1; // the pen, ticking down a column
+    ctx.strokeStyle = '#2e2a30';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(lx + 6, ly - 4 + pk * 10);
+    ctx.lineTo(lx + 14, ly - 14 + pk * 10);
+    ctx.stroke();
   }
   ctx.restore();
 }

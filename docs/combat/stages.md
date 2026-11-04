@@ -20,7 +20,8 @@ Data: `src/shared/rpg.js` (`ZONES`, `HIGHLAND_ZONES`, `CALDERA_ZONES`, `CITADEL_
    Icefang Hamlet, which lands at Forgehold (a safe town room, `docs/places/forgehold.md`); its west end is the
    road down there. The old pass from Starfall Summit went in the same update (the summit's end is a lookout).
    Its branches' gates are in Cinder Flats and Magma Heart (`docs/places/branches.md`).
-4. **Aether Citadel** (`CITADEL`, `src/citadel.js`): Cogwork Bastion, Chrono Spire.
+4. **Aether Citadel** (`CITADEL`, `src/citadel.js`): Cogwork Bastion, Chrono Spire. Reached since atlas Phase 6 (c) by
+   the balloon, the Skydocks camp and the Skydocks (its west end is the top of their loading ramp; the skylift is gone).
 Stages 3 and 4 were added because players were Lv 35–88 and out of content.
 **The rebalance (R, 2026-10-23, `story/world/island-depth.md`):** once Greenhollow covered Lv 1–60, stages
 2–4 moved up to the bottom of their islands' new bands, keeping their order and spacing: Frostpeak 40–60
@@ -90,6 +91,11 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    approach to Typhon's den (`docs/places/underflues.md`). Cinder whelps (`trail`, burning), flue bats (`dive`),
    clinker crawlers (`split` into clinker bits, kept small), stoker wardens (`shell`). The Old Foundry got a room
    hazard, hot grates that vent on a cycle (`docs/places/foundry.md`).
+29. **The Skydocks**: atlas Phase 6 (c), the Aether Citadel's broken piers between the Skydocks camp and Cogwork Bastion
+   (Lv 135–145, no trader, elites or field boss; the Dockwarden on the mob-free Warden's Pier) (`docs/places/skydocks.md`).
+   Loose bolts (plain hoppers), rigging moths (`dive`), mooring hooks (`stomp`). A room hazard: gusts across the plank
+   gaps between the piers, on a cycle like the hot grates (`GUSTS`, `gustAt`). It replaced the skylift as the way into
+   the Citadel.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

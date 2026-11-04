@@ -95,6 +95,8 @@ pin at sea in `src/worldmap.js`, Brine's and Arne's personas in
   directions were tested. The skylift stays until the balloon works (Phase 6).
 - 2026-11-04 (atlas Phase 6 (b)): the balloon flies. The skylift stays one more step, until (c) opens the Skydocks
   and the way on into the Citadel (it's still the only way into Cogwork Bastion).
+- 2026-11-04 (atlas Phase 6 (c)): the Skydocks open (the camp's plank, the room, the ramp into Cogwork Bastion) and the
+  skylift is gone in the same update: the last back door. Every island is now reached only by its crossing.
 - Level gate: none (the game has none on purpose, `docs/world.md`); the ferry's gangway label says "Lv 40+" (it said "Lv 13+" until the rebalance, R, raised Frostpeak), the
   Lodestar's "Lv 90+".
 - `[proposed]` Later: fishing over the rail, things climbing aboard on the far routes (light, optional,

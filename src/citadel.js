@@ -1,12 +1,13 @@
 // Docs: docs/combat/stages.md
-// The Aether Citadel (room 13): the fourth mob stage, a clockwork city floating in the clouds, up the
-// skylift at the Caldera's east end (data in src/shared/rpg.js). Cogwork Bastion is brass towers, turning
+// The Aether Citadel (room 13): the fourth mob stage, a clockwork city floating in the clouds, reached by the balloon
+// and up the Skydocks' loading ramp (atlas Phase 6 (c), docs/places/skydocks.md; data in src/shared/rpg.js). Cogwork Bastion is brass towers, turning
 // gears and puffing steam pipes under a bright sky; the Chrono Spire is floating crystal clock towers in a
 // twilight teal-violet aether. This room draws its own sky (all 540 px). The den mouths (x 2280 and 4620)
-// are drawn elsewhere, so the scenery leaves room round them. Also here: the skylift station that stands
-// in the Caldera (drawSkylift) and the Citadel's mobs (CITADEL_MOB_ART, called by drawMob in field.js).
+// are drawn elsewhere, so the scenery leaves room round them. Its west end is the top of the loading ramp down to the
+// Skydocks (drawExit; until Phase 6 (c) a skylift ran down to the Caldera from there). Also here: the Citadel's mobs
+// (CITADEL_MOB_ART, called by drawMob in field.js).
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
-import { CITADEL_W, CITADEL_EXIT_X, CITADEL_ZONES, CITADEL_PLATFORMS, CITADEL, CALDERA_W, FIELD_GROUND, DENS } from './shared/rpg.js';
+import { CITADEL_W, CITADEL_EXIT_X, CITADEL_ZONES, CITADEL_PLATFORMS, CITADEL, FIELD_GROUND, DENS } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
 
 const GROUND = FIELD_GROUND;
@@ -1107,7 +1108,7 @@ function drawAetherPlat(ctx, p, bits, time) {
   }
 }
 
-// ——— signs and the skylift ———
+// ——— signs and the way down ———
 
 function drawZoneSign(ctx, x, z, i, time) {
   const base = GROUND;
@@ -1173,170 +1174,50 @@ function liftSign(ctx, x, y, label, sub, dir, time) {
   return tw;
 }
 
-// A skylift station: brass frame, a pulley wheel, a cable and a little cabin waiting at the platform.
-// up = the cable goes up off the top of the screen (in the Caldera); otherwise it runs down below the deck.
-function drawStation(ctx, x, base, time, up) {
-  const fh = 196, top = base - fh;
-  // the cable(s)
-  ctx.strokeStyle = '#5a4a4a';
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  if (up) {
-    ctx.moveTo(x - 12, top - 4);
-    ctx.lineTo(x - 12, -10);
-    ctx.moveTo(x + 12, top - 4);
-    ctx.lineTo(x + 12, -10);
-  } else {
-    ctx.moveTo(x - 12, top - 4);
-    ctx.lineTo(x - 12, base);
-  }
-  ctx.stroke();
-  // little cable markers riding along it
-  if (up) {
-    ctx.fillStyle = '#7a6a6a';
-    for (let i = 0; i < 4; i++) {
-      const yy = ((time * 30 + i * 60) % 240);
-      ctx.fillRect(x - 15, top - 4 - yy, 6, 3);
-      ctx.fillRect(x + 9, -10 + yy, 6, 3);
-    }
-  }
-  // frame posts and a roof beam
-  for (const px of [x - 86, x + 86]) {
-    ctx.fillStyle = BRASS_D;
-    ctx.beginPath();
-    ctx.roundRect(px - 8, top + 6, 16, fh - 6, 5);
-    ctx.fill();
-    ctx.fillStyle = BRASS;
-    ctx.fillRect(px - 5, top + 8, 5, fh - 10);
-    ctx.fillStyle = BRASS_E;
-    for (let ry = top + 30; ry < base - 10; ry += 36) circle(ctx, px + 3, ry, 1.8);
-  }
-  ctx.strokeStyle = BRASS_D;
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(x - 86, top + 40);
-  ctx.lineTo(x - 50, top + 10);
-  ctx.moveTo(x + 86, top + 40);
-  ctx.lineTo(x + 50, top + 10);
-  ctx.stroke();
-  ctx.fillStyle = BRASS_D;
-  ctx.beginPath();
-  ctx.roundRect(x - 100, top - 2, 200, 16, 7);
-  ctx.fill();
-  ctx.fillStyle = BRASS;
-  ctx.beginPath();
-  ctx.roundRect(x - 100, top - 3, 200, 9, 6);
-  ctx.fill();
-  // the pulley
-  drawGear(ctx, x, top - 4, 20, 10, time * (up ? 1.4 : -1.4), { fill: BRASS_L, edge: BRASS_E, hole: BRASS_D });
-  // the cabin, hovering gently on its hanger
-  const cy = Math.sin(time * 1.6 + x) * 1.5;
-  const cTop = base - 128 + cy;
-  ctx.strokeStyle = '#6a5a5a';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(x - 12, top + 14);
-  ctx.lineTo(x - 12, cTop - 6);
-  ctx.lineTo(x, cTop - 2);
-  ctx.stroke();
-  ctx.fillStyle = BRASS_D;
-  ctx.beginPath();
-  ctx.ellipse(x, cTop + 4, 46, 16, 0, Math.PI, 0);
-  ctx.fill();
-  ctx.fillStyle = '#9fd8c8'; // verdigris roof
-  ctx.beginPath();
-  ctx.ellipse(x, cTop + 2, 42, 14, 0, Math.PI, 0);
-  ctx.fill();
-  ctx.fillStyle = BRASS_L;
-  circle(ctx, x, cTop - 12, 5);
-  ctx.fillStyle = '#f6e4c0';
-  ctx.strokeStyle = BRASS_D;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(x - 42, cTop + 2, 84, 96, [4, 4, 12, 12]);
-  ctx.fill();
-  ctx.stroke();
-  // round windows either side of an open door
-  for (const wx of [x - 26, x + 26]) {
-    ctx.fillStyle = '#bfeaff';
-    circle(ctx, wx, cTop + 30, 10);
-    ctx.strokeStyle = BRASS_D;
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    ellipse(ctx, wx - 3, cTop + 27, 3, 4, 0.5);
-  }
-  ctx.fillStyle = up ? '#ffd9a0' : '#5a4a7a';
-  ctx.beginPath();
-  ctx.roundRect(x - 13, cTop + 22, 26, 76, [13, 13, 0, 0]);
-  ctx.fill();
-  if (up) {
-    // warm light inside, a cool sky glow on top
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.beginPath();
-    ctx.roundRect(x - 8, cTop + 30, 16, 60, [8, 8, 0, 0]);
-    ctx.fill();
-  }
-  ctx.fillStyle = BRASS;
-  ctx.fillRect(x - 44, cTop + 56, 88, 5);
-  // the landing plinth
-  ctx.fillStyle = BRASS_D;
-  ctx.beginPath();
-  ctx.roundRect(x - 104, base - 12, 208, 16, 6);
-  ctx.fill();
-  ctx.fillStyle = BRASS;
-  ctx.beginPath();
-  ctx.roundRect(x - 104, base - 13, 208, 8, 5);
-  ctx.fill();
-  ctx.fillStyle = BRASS_E;
-  for (let rx = x - 92; rx <= x + 92; rx += 23) circle(ctx, rx, base - 2, 1.8);
-}
-
-// The way back down: the skylift landing at the west end of the Citadel
+// The way back down (since atlas Phase 6 (c)): the top of the Skydocks' loading ramp at the west end, an open brass
+// gate with the ramp going down out of it to the west, cold sky and cloud showing through, and its sign
 function drawExit(ctx, x, time) {
-  const base = GROUND;
-  drawStation(ctx, x + 30, base, time, false);
-  ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
-  const half = (ctx.measureText('Emberdeep').width + 46) / 2;
-  liftSign(ctx, Math.max(x + 30, half + 10), base - 262, 'Emberdeep', null, -1, time);
-}
-
-// The skylift in the Caldera (door at CITADEL_DOOR_X): a brass station with its cable running up into
-// the sky, a cool blue light falling down it, and wisps of cloud drifting down out of the sky.
-export function drawSkylift(ctx, x, groundY, time) {
+  const base = GROUND, gx = x + 20;
   ctx.save();
-  const sx = Math.min(x, CALDERA_W - 108);
-  // a shaft of cool sky light falling through the volcano's glow
-  const g = ctx.createLinearGradient(0, 0, 0, groundY);
-  g.addColorStop(0, 'rgba(200,236,255,0.5)');
-  g.addColorStop(1, 'rgba(200,236,255,0.05)');
+  // the gateway: cold daylight through it
+  const g = ctx.createLinearGradient(0, base - 220, 0, base);
+  g.addColorStop(0, '#7ea6d8');
+  g.addColorStop(1, '#eef2f8');
   ctx.fillStyle = g;
   ctx.beginPath();
-  ctx.moveTo(sx - 60, 0);
-  ctx.lineTo(sx + 60, 0);
-  ctx.lineTo(sx + 110, groundY);
-  ctx.lineTo(sx - 110, groundY);
+  ctx.roundRect(gx - 70, base - 220, 140, 220, [70, 70, 0, 0]);
+  ctx.fill();
+  ctx.strokeStyle = BRASS_D;
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.roundRect(gx - 74, base - 224, 148, 228, [74, 74, 0, 0]);
+  ctx.stroke();
+  for (let i = 0; i < 5; i++) { // rivets round the arch
+    const a = Math.PI + (i + 0.5) * (Math.PI / 5);
+    ctx.fillStyle = BRASS_E;
+    circle(ctx, gx + Math.cos(a) * 74, base - 150 + Math.sin(a) * 74, 2.4);
+  }
+  // the ramp, going down out of the gate to the west, its rails
+  ctx.fillStyle = '#6e6052';
+  ctx.beginPath();
+  ctx.moveTo(gx + 70, base);
+  ctx.lineTo(gx - 70, base);
+  ctx.lineTo(gx - 70, base + 30);
   ctx.closePath();
   ctx.fill();
-  // little clouds drifting down the cable
-  for (let i = 0; i < 6; i++) {
-    const k = (time * 0.08 + i / 6) % 1;
-    ctx.globalAlpha = Math.sin(k * Math.PI) * 0.75;
-    ctx.fillStyle = '#ffffff';
-    const cx = sx - 50 + ((i * 41) % 100), cy = k * (groundY - 220);
-    ellipse(ctx, cx, cy, 16, 6);
-    circle(ctx, cx - 4, cy - 4, 7);
-    circle(ctx, cx + 6, cy - 3, 5);
-  }
-  ctx.globalAlpha = 1;
-  drawStation(ctx, sx, groundY, time, true);
-  // sparkle on the brass
-  ctx.fillStyle = `rgba(255,250,220,${0.5 + 0.5 * Math.sin(time * 3)})`;
-  star4(ctx, sx - 80, groundY - 180, 4);
-  ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
-  const half = (ctx.measureText('Aether Citadel').width + 46) / 2;
-  liftSign(ctx, Math.min(sx, CALDERA_W - 10 - half), groundY - 266, 'Aether Citadel', 'Lv 140+', 1, time);
+  ctx.strokeStyle = BRASS;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(gx + 60, base - 40);
+  ctx.lineTo(gx - 66, base - 20);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; // a wisp of cloud blowing in
+  const k = (time * 0.2) % 1;
+  ellipse(ctx, gx - 50 + k * 90, base - 60 - k * 20, 18, 5);
   ctx.restore();
+  ctx.font = "700 14px Fredoka, 'Trebuchet MS', sans-serif";
+  const half = (ctx.measureText('The Skydocks').width + 46) / 2;
+  liftSign(ctx, Math.max(gx, half + 10), base - 290, 'The Skydocks', 'Lv 135+', -1, time);
 }
 
 // ——— mobs ———

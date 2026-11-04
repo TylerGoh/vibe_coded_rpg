@@ -114,11 +114,13 @@ export const CALDERA_PLATFORMS = [
   { x: 2950, y: 240, w: 200, kind: 'obsidian' },
   { x: 3450, y: 320, w: 240, kind: 'obsidian' },
 ];
-// The fourth stage: the Aether Citadel, a clockwork city in the clouds, up a skylift at the Caldera's east end
+// The fourth stage: the Aether Citadel, a clockwork city in the clouds. Since atlas Phase 6 (c) you reach it by the
+// balloon and the Skydocks (SKYDOCKS, below): its west end is the top of the loading ramp down to them. (Until then
+// a skylift ran up from the Caldera's east end; it's gone, and the column vista stands there: COLUMN_VISTA_X.)
 export const CITADEL = 13; // room id
 export const CITADEL_W = 4800;
-export const CITADEL_EXIT_X = 70; // back down to the Caldera
-export const CITADEL_DOOR_X = 4300; // the skylift up, at the Caldera's east end
+export const CITADEL_EXIT_X = 70; // back down the loading ramp to the Skydocks
+export const COLUMN_VISTA_X = 4230; // Magma Heart's east end, where the skylift stood: the thermal column roaring up (drawing only)
 export const CITADEL_ZONES = [
   { name: 'Cogwork Bastion', x0: 0, x1: 2400, lvl: '140–155' },
   { name: 'Chrono Spire', x0: 2400, x1: CITADEL_W, lvl: '156+' },
@@ -136,7 +138,7 @@ export const CITADEL_PLATFORMS = [
 // east: Pilot Kestrel's stall (she trades: SHOPS; x matches her spot at the burner on the balloon's decks), the
 // mooring mast where the Kite ties up (her gangway boards SKY_DOWN, sim.js), the tent whose flap is everyone's own
 // front door, the waystone, the brazier (you wake by it), Pilgrim Ione's lantern pole, Tamp's pile of salvaged gears,
-// and the pier's end, where the plank across to the Skydocks is pulled in (the wind; Phase 6 (c) lays it).
+// and the pier's end, where the plank across to the Skydocks lies laid (Phase 6 (c); a door into SKYDOCKS).
 export const SKYCAMP = 68; // room id
 export const CAMP_W = 2700;
 export const KESTREL_X = 250; // Pilot Kestrel, at her stall
@@ -147,7 +149,7 @@ export const CAMP_SPAWN_X = 1330; // where you wake up, by the brazier
 export const CAMP_FIRE_X = 1420; // the brazier
 export const IONE_X = 1700; // Pilgrim Ione, by her lantern pole
 export const TAMP_X = 2060; // Tamp, by his pile of salvaged gears
-export const CAMP_END_X = 2560; // the pier's end, where the plank to the Skydocks is pulled in
+export const CAMP_END_X = 2560; // the pier's end: the plank across to the Skydocks (a door, since Phase 6 (c))
 // crates hauled up by Kestrel's stall, the mast's mooring ring, the tent ridges, the gear pile, a hanging gantry
 export const CAMP_PLATFORMS = [
   { x: 360, y: 384, w: 108, kind: 'crates' },
@@ -157,6 +159,54 @@ export const CAMP_PLATFORMS = [
   { x: 1930, y: 360, w: 170, kind: 'gears' }, // Tamp's pile
   { x: 2280, y: 300, w: 180, kind: 'tent' },
 ];
+// The Skydocks (room 69, atlas Phase 6 (c), docs/places/skydocks.md): the Citadel's broken piers, past the camp's pier
+// end across the plank. Wind all the time, empty mooring rings, gantries hanging off the city on chains. You come in
+// at the WEST end (SKYDOCKS_EXIT_X, the plank) and go east, harder: the Outer Moorings, the Warden's Pier (no mobs: the
+// Dockwarden at its post, WARDEN_X, still logging arrivals; a waystone), the Hanging Gantries and the Loading Ramp,
+// which climbs at the east end into Cogwork Bastion's west end (SKYDOCKS_RAMP_X). The Harbour Lamp, a dead signal lamp
+// in its cage high over the Gantries (last in SKYDOCKS_PLATFORMS), is the find. No trader, no elites, no field boss.
+export const SKYDOCKS = 69; // room id
+export const SKYDOCKS_W = 5400;
+export const SKYDOCKS_EXIT_X = 70; // back across the plank to the camp
+export const SKYDOCKS_RAMP_X = SKYDOCKS_W - 220; // the loading ramp's foot: up into the Aether Citadel (Cogwork Bastion's west end)
+export const WARDEN_X = 2300; // the Dockwarden, at its post on the Warden's Pier
+export const DOCKS_WAY_X = 2640; // the Warden's Pier's waystone
+export const SKYDOCKS_ZONES = [
+  { name: 'The Outer Moorings', x0: 0, x1: 1900, lvl: '135–139' },
+  { name: "The Warden's Pier", x0: 1900, x1: 2900, lvl: null }, // (no mobs)
+  { name: 'The Hanging Gantries', x0: 2900, x1: 4250, lvl: '139–142' },
+  { name: 'The Loading Ramp', x0: 4250, x1: SKYDOCKS_W, lvl: '142–145' },
+];
+// pier stubs at deck height, gantries hanging off the city, the Warden's crates of cargo nobody came for
+export const SKYDOCKS_PLATFORMS = [
+  { x: 420, y: 340, w: 200, kind: 'pier' },
+  { x: 820, y: 262, w: 180, kind: 'gantry' },
+  { x: 1450, y: 330, w: 200, kind: 'pier' },
+  { x: 2060, y: 352, w: 160, kind: 'crates' }, // the Warden's undelivered cargo
+  { x: 3100, y: 336, w: 200, kind: 'pier' },
+  { x: 3460, y: 252, w: 180, kind: 'gantry' },
+  { x: 3880, y: 330, w: 200, kind: 'pier' },
+  { x: 4420, y: 340, w: 200, kind: 'pier' },
+  { x: 4800, y: 258, w: 180, kind: 'gantry' },
+  { x: 3600, y: 166, w: 120, kind: 'lamp' }, // the Harbour Lamp, in its cage up off the gantry: easy to miss
+];
+// A room hazard: gusts across the gaps between the piers, where the deck is only planks laid over the cloud (GUSTS).
+// Each gap's wind rises (GUST_WARN: streaks thicken, the planks shudder, a warning) and blows (GUST_BLOW: it hurts
+// whoever stands on the planks) and drops, over and over, on its own offset in a GUST_CYCLE. Both sides read the server
+// tick (like the Old Foundry's hot grates), so nothing goes over the wire: the client draws it (src/skydocks.js), the
+// server hurts (GUST_DOT of max HP every PATCH_HIT_EVERY ticks, a flat 'dot': no knockback, no step() change). On the
+// planks only: a ledge over the gap or a jump is out of it.
+export const GUSTS = [{ x: 1180, w: 200 }, { x: 3560, w: 220 }, { x: 4720, w: 200 }];
+export const GUST_CYCLE = 540, GUST_WARN = 120, GUST_BLOW = 100; // (ticks)
+export const GUST_DOT = 0.05;
+// gap i at server tick t → { k: 0..1 how hard the wind is getting up, blow: whether it's blowing (and hurts) }
+export function gustAt(i, t) {
+  const c = (((t + i * 193) % GUST_CYCLE) + GUST_CYCLE) % GUST_CYCLE;
+  if (c < GUST_WARN) return { k: c / GUST_WARN, blow: false };
+  if (c < GUST_WARN + GUST_BLOW) return { k: 1, blow: true };
+  if (c < GUST_WARN + GUST_BLOW + 50) return { k: 1 - (c - GUST_WARN - GUST_BLOW) / 50, blow: false };
+  return { k: 0, blow: false };
+}
 // ——— Greenhollow's branches (island depth G1: story/world/island-depth.md, docs/places/willowmere.md and
 // docs/places/coves.md) ———
 // Willowmere (room 24): north of Sprout Meadow up the brook path. West to east: the mill (no mobs; Miller
@@ -996,6 +1046,7 @@ export const STAGES = {
   [FOUNDRY]: { name: 'The Old Foundry', zones: FOUNDRY_ZONES, band: '130–145', hard: true, pill: 'Old Foundry' },
   [RIM]: { name: 'The Caldera Rim', zones: RIM_ZONES, band: '135–150', pill: 'Caldera Rim' },
   [UNDERFLUES]: { name: 'The Under-Flues', zones: UNDERFLUES_ZONES, band: '145–150', hard: true, pill: 'Under-Flues' },
+  [SKYDOCKS]: { name: 'The Skydocks', zones: SKYDOCKS_ZONES, band: '135–145' },
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -2378,6 +2429,26 @@ MOBS.typhon = {
   drops: [['coin', 1, 4400000, 6600000], ['last_hammer', 1, 1, 1], ['furnace_mask', 0.5, 1, 1], ['mega_elixir', 1, 8, 12], ['royal_sap', 1, 4, 5], ['whelp_ember', 1, 6, 10], ['stoker_iron', 1, 4, 6], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.6, 1, 2]],
 };
 
+// ——— atlas Phase 6 (c): the Skydocks (art: src/skydocks-art.js; docs/places/skydocks.md). On the frozen curve; no
+// elites, no field boss ———
+// Loose bolts are the city's own small hardware shaken free, hopping about in swarms on their threads; rigging moths are
+// great pale moths that live in the old sailcloth and drop on you out of the wind; mooring hooks are cargo winches with
+// a hook on a jib that heave themselves up on their chain and slam down (a shockwave: jump it)
+MOBS.loose_bolt = {
+  name: 'Loose Bolt', lvl: 136, hp: 16500, atk: 465, exp: 10790, speed: 125, w: 32, h: 38, aggro: true, hops: true,
+  drops: [['coin', 1, 1095, 1645], ['stray_bolt', 0.55, 1, 2], ['mega_elixir', 0.18, 1, 1]],
+};
+MOBS.rigging_moth = {
+  name: 'Rigging Moth', lvl: 140, hp: 18100, atk: 481, exp: 11335, speed: 95, w: 70, h: 46, aggro: true, hops: false, fly: 48,
+  ai: { kind: 'dive', every: 3.6, warn: 0.65, time: 0.45 },
+  drops: [['coin', 1, 1137, 1709], ['rigging_silk', 0.5, 1, 2], ['mega_elixir', 0.18, 1, 1]],
+};
+MOBS.mooring_hook = {
+  name: 'Mooring Hook', lvl: 144, hp: 22800, atk: 497, exp: 11892, speed: 42, w: 70, h: 74, aggro: true, hops: false,
+  ai: { kind: 'stomp', every: 4, warn: 0.9, r: 200, range: 260, jump: 520 },
+  drops: [['coin', 1, 1178, 1770], ['mooring_link', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
+};
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -2571,6 +2642,7 @@ const onFoPlat = onRoomPlat(FOUNDRY_PLATFORMS, FOUNDRY);
 const onBfPlat = onRoomPlat(BRIM_PLATFORMS, BRIMSTONE);
 const onRmPlat = onRoomPlat(RIM_PLATFORMS, RIM);
 const onUfPlat = onRoomPlat(UNDERFLUES_PLATFORMS, UNDERFLUES);
+const onSdPlat = onRoomPlat(SKYDOCKS_PLATFORMS, SKYDOCKS);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -3015,6 +3087,22 @@ export const SPAWNS = [
   ...strip('clinker_elite', 2500, 3200, FIELD_GROUND, 1, UNDERFLUES),
   ...strip('stoker_elite', 3000, 3600, FIELD_GROUND, 1, UNDERFLUES),
   { kind: 'orthrus', x0: 3780, x1: 4150, y: FIELD_GROUND, room: UNDERFLUES },
+  // atlas Phase 6 (c): the Skydocks (nothing by the plank, x < 300, and none on the Warden's Pier, 1900–2900)
+  ...strip('loose_bolt', 300, 1800, FIELD_GROUND, 6, SKYDOCKS),
+  ...onSdPlat('loose_bolt', 0, 1),
+  ...onSdPlat('loose_bolt', 2, 1),
+  ...strip('rigging_moth', 700, 1800, FIELD_GROUND, 3, SKYDOCKS),
+  ...onSdPlat('rigging_moth', 1, 1),
+  ...strip('rigging_moth', 3000, 4150, FIELD_GROUND, 4, SKYDOCKS),
+  ...strip('mooring_hook', 3050, 4150, FIELD_GROUND, 2, SKYDOCKS),
+  ...strip('loose_bolt', 3000, 4150, FIELD_GROUND, 2, SKYDOCKS),
+  ...onSdPlat('rigging_moth', 5, 1),
+  ...onSdPlat('loose_bolt', 4, 1),
+  ...onSdPlat('mooring_hook', 6, 1),
+  ...strip('mooring_hook', 4350, 5000, FIELD_GROUND, 4, SKYDOCKS),
+  ...strip('loose_bolt', 4350, 5000, FIELD_GROUND, 2, SKYDOCKS),
+  ...onSdPlat('mooring_hook', 7, 1),
+  ...onSdPlat('rigging_moth', 8, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -3396,6 +3484,9 @@ export const ITEMS = {
   puff_pumice: { name: 'Puff Pumice', price: 1345, kind: 'loot', desc: 'A lump of grey froth gone hard, so light it floats. It was part of a pumice puff a moment ago.' },
   scorpion_glass: { name: 'Scorpion Glass', price: 1370, kind: 'loot', desc: "A plate of black glass off a glass scorpion's back, sharp along one edge. Hold it up and the crater shows in it, small." },
   shimmer_bead: { name: 'Shimmer Bead', price: 1405, kind: 'loot', desc: 'A bead of clear glass that forms where a heat shimmer hung too long, still too hot to hold for more than a breath.' },
+  stray_bolt: { name: 'Stray Bolt', price: 1300, kind: 'loot', desc: 'A brass bolt as long as your hand, its thread still bright. It stopped hopping when you picked it up. Mostly.' },
+  rigging_silk: { name: 'Rigging Silk', price: 1345, kind: 'loot', desc: "A hank of pale silk spun through old sailcloth by a rigging moth. Stronger than the rope it was holding together." },
+  mooring_link: { name: 'Mooring Link', price: 1390, kind: 'loot', desc: 'One iron link off a mooring chain, as big as your head, worn bright on the inside where a ship once pulled at it.' },
   roc_feather: { name: 'Crag Roc Feather', price: 1445, kind: 'loot', desc: "A great dark flight feather, its shaft as thick as your finger, grey with the rim's dust. The wind tugs at it even indoors." },
   glassback_helm: { name: 'Glassback Helm', price: 700000, lvl: 141, kind: 'helmet', def: 97, desc: "An iron helm plated in a glass scorpion's black scutes, a curled sting for a crest. Forged for a wheel that never got it." },
   cragbeak: { name: 'Cragbeak', price: 990000, lvl: 146, kind: 'sword', atk: 204, reach: 64, desc: "A heavy black-iron blade hooked at the end like a roc's beak, its edge chipped where it hit rock. It comes down out of the wind." },

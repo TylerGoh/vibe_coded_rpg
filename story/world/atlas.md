@@ -312,9 +312,10 @@ stand-in door into an existing area.
       pass goes. Next phase's block: the balloon, grounded for an in-world reason. (Shipped 2026-10-23 as
       Emberdeep's E0, `emberdeep-depth.md`, `docs/places/forgehold.md`: one room for the shore and the town,
       Skipper Arne at the wheel, the stage renamed **Emberdeep**, the balloon grounded by the stalling column.)
-- [ ] **Phase 6: the climb.** The thermal column vista, the balloon crossing, the Skydocks zone, the
+- [x] **Phase 6: the climb.** The thermal column vista, the balloon crossing, the Skydocks zone, the
       Skydocks camp as the Citadel's town, and the Dockwarden. The skylift goes.
-      (Plan `../phase6-plan.md`. (b) shipped 2026-11-04: the balloon, the cradle as the vista, the camp; (c) to come.)
+      (Plan `../phase6-plan.md`. (b) shipped 2026-11-04: the balloon, the cradle as the vista, the camp; (c) shipped
+      2026-11-04: the Skydocks, the Dockwarden, the ramp into Cogwork Bastion, the skylift gone.)
 - [ ] **Phase 7: story progress.** Per-account lore tiers feeding every AI character; boss lines
       (`../roadmap.md`, "Story delivery"). Can run alongside any phase from 1 on.
 - [ ] **Phase 8: Lantern Fen** (side island, the Wickmother).

@@ -1,7 +1,7 @@
 # Atlas Phase 6: the climb, on paper (for the owner to approve)
 
-**Status: approved by the owner 2026-11-04 with every default (and all four characters AI). (b) built 2026-11-04
-(`docs/places/skydocks.md`); (c) next.** Phase 6 of `world/atlas.md`: the thermal column vista, the balloon
+**Status: approved by the owner 2026-11-04 with every default (and all four characters AI). (b) and (c) built
+2026-11-04 (`docs/places/skydocks.md`): Phase 6 is done.** Phase 6 of `world/atlas.md`: the thermal column vista, the balloon
 crossing, the Skydocks zone, the Skydocks camp as the Citadel's town, the Dockwarden. The skylift goes. Story:
 `world/regions/citadel.md`, `world/geography.md`, `world/emberdeep-depth.md` (decision 3: the column stalls,
 Slag's forge-burner lifts it). Marked `[default]` = what gets built unless the owner says otherwise.

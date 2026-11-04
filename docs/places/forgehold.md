@@ -76,8 +76,8 @@ personas in `server/characters.js`, the `forgehold` music scene in `src/audio.js
   `drawSummitLookout` in `src/highlands.js`): posts, a rope, a cairn, the old steps drifted over. The
   legacy stage's west door now leads down the road to Forgehold, its arch signed "Forgehold".
 - **Renamed** (owner's default): the stage is "Emberdeep" (`STAGES[CALDERA]`, its room, its door chips; the
-  zones keep their names). The code still calls the room `CALDERA`. The skylift stays until the balloon
-  works (atlas Phase 6).
+  zones keep their names). The code still calls the room `CALDERA`. The skylift stayed until the balloon
+  worked and the Skydocks opened (atlas Phase 6 (c) removed it; the column vista stands there now).
 - **Phase 6's block**: the balloon lay deflated in its cradle by the thermal column in Magma Heart
   (`BALLOON_X`, a gate on the island map: "the column stalls"). Phase 6 (b) lifted it (Slag's forge-burner): it flies to
   the Skydocks camp (`docs/places/skydocks.md`).

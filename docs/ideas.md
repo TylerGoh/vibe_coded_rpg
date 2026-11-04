@@ -97,9 +97,13 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 - Getting home is two sailings: if it annoys people, a direct Forgehold to Greenhollow sailing waits for
   the "routes reconnect" idea in `story/world/geography.md`.
 
-## Atlas Phase 6 (b) left for later
-- Untested by people: the balloon both ways, the camp, the Trade button showing only on the pier. Nothing was
-  playtested headless (owner's rule); the art was checked by reading the code, not by eye.
+## Atlas Phase 6 (b) and (c) left for later
+- Untested by people: the balloon both ways, the camp, the Trade button showing only on the pier; (c)'s Skydocks (the
+  mobs, the gusts' timing and damage, the Harbour Lamp's jump from the gantry, the ramp both ways, the Dockwarden's
+  arrival count), the column vista and the ramp's top in Cogwork Bastion. Nothing was playtested headless (owner's
+  rule); the art was checked by reading the code, not by eye.
+- The Skydocks have no rare gear drop and no field boss (the plan's default); a Dockwarden-themed cosmetic could come
+  later. The Dockwarden's arrival count is only as good as its chat memory (it can drift once memories fold).
 - Soot, Arne, Brine, Ochre and Pitch don't mention the balloon yet (only Ash and Slag do).
 - No Citadel island map (the World map's tap goes nowhere on the Citadel); Lantern Fen's folk look (Ione is plain).
 - Kestrel sells no weapon of her own (only the goggles).

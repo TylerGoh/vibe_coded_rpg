@@ -1010,7 +1010,7 @@ export class Slime {
     if (this.has('collier')) drawCollierDress(ctx, w, h, fx, this.t); // the Ashwood's Collier Pitch
     if (this.has('glasscutter')) drawGlasscutterDress(ctx, w, h, fx, this.t); // the Smoking Coast's Liv
     if (this.has('picker')) drawPickerDress(ctx, w, h, fx, this.t); // the Brimstone Fields' Picker Ochre
-    for (const kind of ['aeronaut', 'pilgrim', 'tinker']) if (this.has(kind)) drawCampDress(ctx, kind, w, h, fx, this.t); // the Skydocks camp's visitors (Kestrel, Ione, Tamp)
+    for (const kind of ['aeronaut', 'pilgrim', 'tinker', 'porter']) if (this.has(kind)) drawCampDress(ctx, kind, w, h, fx, this.t); // the Skydocks camp's visitors (Kestrel, Ione, Tamp) and the Dockwarden
     if (this.has('petkeeper')) drawPetkeeperDress(ctx, w, h, fx, this.t, bodyPath); // the Pet Shop's Auntie Clover
     if (this.has('captain')) {
       // Captain Brine: a salt-white beard, a navy captain's cap with a gold anchor badge, and a brass spyglass

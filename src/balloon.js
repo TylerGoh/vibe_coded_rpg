@@ -8,6 +8,8 @@
 // in Magma Heart, 1 at the Skydocks pier): the crater falls away below, the column's smoke and sparks stream past,
 // three cloud layers come down through the deck (a whiteout as each one passes), then the cold clear blue with the
 // whole archipelago small on the Glass Sea far below, and the Citadel's underside comes down over the envelope.
+// Also here: the column vista at Magma Heart's east end (drawColumnVista, at COLUMN_VISTA_X, where the skylift stood
+// until Phase 6 (c)): the column roaring up behind the ledge out of the vent below, and the city far overhead.
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { DECK_W, DECK_GROUND, DECK_PLATFORMS, DECK_GANGWAY_X } from './shared/sim.js';
 
@@ -633,4 +635,62 @@ export function drawSkyFront(ctx, cr, camX, viewW, time) {
     ctx.fillStyle = `rgba(250,250,252,${0.55 * cloudy})`;
     ellipse(ctx, x, y, w.s * 2, w.s * 0.6);
   }
+}
+
+// ——— the column vista (Magma Heart's east end, since Phase 6 (c)) ———
+// Where the skylift's station stood: a chain strung along iron stakes at the back of the ledge, and behind it the
+// thermal column pouring up out of the vent below, a shimmering pillar of heat full of ash and sparks streaming up, and
+// high overhead, small with distance, the Citadel's underside with broken piers hanging off it on chains (where the
+// Kite goes). Drawing only, all behind the slimes; groundY is the room's ground.
+export function drawColumnVista(ctx, x, groundY, time) {
+  ctx.save();
+  const cx = x + 20; // the column's middle, behind the ledge
+  // the column: wobbling bands of hot air, glowing at the foot
+  const g = ctx.createLinearGradient(0, groundY, 0, 0);
+  g.addColorStop(0, 'rgba(255,150,90,0.45)');
+  g.addColorStop(0.5, 'rgba(255,200,160,0.18)');
+  g.addColorStop(1, 'rgba(255,230,210,0.04)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(cx - 60, groundY - 4);
+  for (let y = groundY - 4; y >= 0; y -= 30) ctx.lineTo(cx - 60 - (groundY - y) * 0.08 + Math.sin(time * 2.4 + y * 0.03) * 6, y);
+  for (let y = 0; y <= groundY - 4; y += 30) ctx.lineTo(cx + 60 + (groundY - y) * 0.08 + Math.sin(time * 2.1 + y * 0.03 + 1) * 6, y);
+  ctx.closePath();
+  ctx.fill();
+  for (let i = 0; i < 12; i++) { // ash and sparks streaming up it
+    const k = (time * 0.35 + i / 12) % 1, spark = i % 3 === 0;
+    const y = groundY - 10 - k * groundY, sx = cx + Math.sin(i * 2.3 + time * 1.5) * (30 + (1 - k) * 20);
+    ctx.fillStyle = spark ? `rgba(255,190,110,${0.9 * (1 - k)})` : `rgba(90,80,86,${0.5 * (1 - k)})`;
+    circle(ctx, sx, y, spark ? 1.8 : 2.6);
+  }
+  // the city, far overhead: a dark brass underside across the top, chains and broken piers hanging off it
+  ctx.fillStyle = 'rgba(78,72,88,0.75)';
+  ctx.beginPath();
+  ctx.moveTo(cx - 200, 0);
+  ctx.lineTo(cx - 200, 18);
+  ctx.quadraticCurveTo(cx, 46, cx + 220, 20);
+  ctx.lineTo(cx + 220, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(78,72,88,0.6)';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  for (const [px, len] of [[-130, 60], [-40, 90], [70, 50], [150, 76]]) {
+    ctx.moveTo(cx + px, 30);
+    ctx.lineTo(cx + px + 2, 30 + len);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(110,98,104,0.7)';
+  for (const [px, py, w] of [[-150, 84, 46], [56, 74, 40]]) ctx.fillRect(cx + px, py + Math.sin(time * 0.8 + px) * 1.5, w, 4);
+  // the stakes along the back of the ledge, a chain sagging between them
+  const xs = [x - 110, x - 30, x + 50, x + 130];
+  ctx.fillStyle = '#3a2c34';
+  for (const sx of xs) ctx.fillRect(sx - 3, groundY - 40, 6, 36);
+  ctx.strokeStyle = '#6e6870';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(xs[0], groundY - 36);
+  for (let i = 1; i < xs.length; i++) ctx.quadraticCurveTo((xs[i - 1] + xs[i]) / 2, groundY - 22, xs[i], groundY - 36);
+  ctx.stroke();
+  ctx.restore();
 }

@@ -3,11 +3,11 @@
 // landing town (src/forgehold.js; data in src/shared/rpg.js). Cinder Flats is a warm ash plain under an orange dusk, with smouldering
 // boulders and drifting embers; Magma Heart sinks deeper, under a crimson-violet sky, with glowing lava
 // rivers, obsidian spires and the volcano's maw. This room draws its own sky (all 540 px).
-// Left clear for others: the den mouths (x 2080, 4060) and the skylift up to the Citadel (x 4300).
+// Left clear for others: the den mouths (x 2080, 4060) and the column vista at the east end (COLUMN_VISTA_X, src/balloon.js; the skylift stood there until atlas Phase 6 (c)).
 // Also here: the Caldera's four mobs. (The pass down from Starfall Summit went in atlas Phase 5; its end on
 // the summit is a plain lookout now, drawn by src/highlands.js.)
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
-import { CALDERA_W, CALDERA_EXIT_X, CALDERA_ZONES, CALDERA_PLATFORMS, CALDERA, DENS, FIELD_GROUND, CITADEL_DOOR_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X } from './shared/rpg.js';
+import { CALDERA_W, CALDERA_EXIT_X, CALDERA_ZONES, CALDERA_PLATFORMS, CALDERA, DENS, FIELD_GROUND, COLUMN_VISTA_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
 import { glow as radialGlow } from './glow.js';
 
@@ -20,10 +20,10 @@ const smooth = (a, b, x) => {
 };
 const heatK = (x) => smooth(B - 300, B + 300, x); // 0 = Cinder Flats, 1 = Magma Heart
 const visible = (x0, x1, L, R) => x1 > L && x0 < R;
-// keep big scenery away from the den entrances and the skylift
-const CLEAR_XS = [...DENS.filter((d) => d.from === CALDERA).map((d) => d.entranceX), CITADEL_DOOR_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X];
+// keep big scenery away from the den entrances, the gates and the column vista (where the skylift stood)
+const CLEAR_XS = [...DENS.filter((d) => d.from === CALDERA).map((d) => d.entranceX), COLUMN_VISTA_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X];
 const clearOf = (x, pad = 150) => CLEAR_XS.every((d) => Math.abs(x - d) > pad);
-const SCENERY_END = CITADEL_DOOR_X - 150;
+const SCENERY_END = COLUMN_VISTA_X - 150;
 
 function text(ctx, str, x, y, size, color) {
   ctx.font = `700 ${size}px Fredoka, 'Trebuchet MS', sans-serif`;

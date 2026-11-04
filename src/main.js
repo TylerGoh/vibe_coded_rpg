@@ -18,10 +18,10 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP } from './shared/rpg.js';
+import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, COLUMN_VISTA_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP, SKYDOCKS } from './shared/rpg.js';
 import { drawHighlands, drawSummitLookout } from './highlands.js';
 import { drawCaldera } from './caldera.js';
-import { drawCitadel, drawSkylift } from './citadel.js';
+import { drawCitadel } from './citadel.js';
 import { drawDen, drawDenEntrance } from './dens.js';
 import { SkillTree } from './skilltree.js';
 import { Shop } from './shop.js';
@@ -42,6 +42,8 @@ import { drawHarbour } from './harbour.js';
 import { drawFjord, drawFjordView } from './fjord.js';
 import { drawForgehold, drawForgeView } from './forgehold.js';
 import { drawSkycamp, drawSkycampView } from './skycamp.js';
+import { drawSkydocks } from './skydocks.js';
+import { drawColumnVista } from './balloon.js';
 import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel, shipName } from './crossing.js';
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
@@ -1640,12 +1642,13 @@ function render() {
     else if (room === FOUNDRY) drawFoundry(ctx, camX, W, time, net.renderTick()); // (its hot grates follow the server tick)
     else if (room === RIM) drawRim(ctx, camX, W, time);
     else if (room === UNDERFLUES) drawUnderFlues(ctx, camX, W, time);
+    else if (room === SKYDOCKS) drawSkydocks(ctx, camX, W, time, net.renderTick()); // (its gusts follow the server tick)
     else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
       if (near(SUMMIT_LOOKOUT_X)) drawSummitLookout(ctx, SUMMIT_LOOKOUT_X, ROOMS[HIGHLANDS].ground, time);
     } else if (room === CALDERA) {
       drawCaldera(ctx, camX, W, time);
-      if (near(CITADEL_DOOR_X)) drawSkylift(ctx, CITADEL_DOOR_X, ROOMS[CALDERA].ground, time);
+      if (near(COLUMN_VISTA_X)) drawColumnVista(ctx, COLUMN_VISTA_X, ROOMS[CALDERA].ground, time); // (where the skylift stood until atlas Phase 6 (c))
     } else drawCitadel(ctx, camX, W, time);
     for (const d of DENS) if (d.from === room && Math.abs(d.entranceX - camX - W / 2) < W / 2 + 140) drawDenEntrance(ctx, d.entranceX, ROOMS[room].ground, d.theme, time);
   } else if (denAt(room)) drawDen(ctx, room, camX, W, time);

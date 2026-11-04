@@ -39,8 +39,11 @@ one shared corner feed).
   hole he goes quiet: his grandfather's crew came back up early one winter and never said why, but he never says
   it was them ("Some crews come back early. You don't ask them why.").
   Atlas Phase 6 (b): the balloon flies (Slag's burner). Ash's shut-ways list lost it (he looked the burner over and
-  said nothing; old Tamp went up); Slag built the burner and goes red about it. The camp's three know the plank to the
-  Skydocks is lashed up against the wind and the brass figure across the gap; none of them has been into the city. A
+  said nothing; old Tamp went up); Slag built the burner and goes red about it. Phase 6 (c): the plank is laid (Kestrel and
+  Tamp lashed it) and each of the three has met the Dockwarden; none of them has been into the city. **The Dockwarden**
+  (`dockwarden`, the Skydocks' Warden's Pier) is a brass porter automaton in capitals and ledger entries; it logs you by
+  name and counts your arrivals through its ordinary per-player memory (the persona asks it to; `first` opens a new
+  entry), knows the port and its hazards and nothing of "the hour" (`docs/places/skydocks.md`). A
   character who stands in more than one room (`also`) trades only where its shop is (`src/npc.js`).
   E0 (atlas Phase 5): the Lodestar sails and the Caldera pass is gone. Brine is thrilled for Arne and says the
   only way south is his ship; Skaldi lit every quay lamp; Runa is glad and cross (her tarp); Eyvind sent his box
