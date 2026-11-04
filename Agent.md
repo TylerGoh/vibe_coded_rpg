@@ -143,6 +143,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |
 | [docs/social/chat.md](docs/social/chat.md) | the chatbox, public chat, private messages, chat speech bubbles |
 | [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, the branches' traders (Bun, Moss, Truffle, Acorn, Eyvind, Hakon, Pitch), Skipper Arne, Forgehold's three (Ash, Soot, Slag), the Skydocks camp's three (Kestrel, Ione, Tamp), the Dockwarden, Auntie Clover, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
+| [docs/social/story.md](docs/social/story.md) | atlas Phase 7: each character's story record (den bosses ever beaten), lore tiers, the AI characters' `lore` caps and how canon reaches them (`server/lore.js` reads `story/canon.md`), the tier toast, the freed world changes |
 | [docs/social/trading.md](docs/social/trading.md) | trading coins and items between players, the trade log |
 | [docs/social/accuse.md](docs/social/accuse.md) | accusing someone of botting, the canvas deny button, the EXP skim |
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |

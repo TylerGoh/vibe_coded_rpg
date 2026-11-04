@@ -24,6 +24,10 @@ import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIR
 import { encodeMobs } from '../src/shared/wire.js';
 import { RECIPES, BREW_MAX, cleanSteps, recipeFor, needs, CURE_CD, DRAUGHT_S } from '../src/shared/alchemy.js';
 import { wayAt, wayById, sameIsle, ARRIVE_DX } from '../src/shared/waystones.js';
+import { BOSS_TIER, tierOf, cleanStory } from '../src/shared/story.js';
+
+// atlas Phase 7 (docs/social/story.md): said once, when a boss you beat for the first time opens a new lore tier
+const STORY_TOAST = 'Something has changed. Elder Mochi might have more to tell you now.';
 import { caughtBy, cleanBot, BOT_CUT } from './accuse.js';
 
 export const MOB_KINDS = Object.keys(MOBS); // mob kinds go over the wire as an index into this
@@ -66,6 +70,7 @@ const newChar = () => ({
   cosmetics: [], wear: [], showHelmet: true, // the Boutique
   ways: [], // the waystones you've attuned to (src/shared/waystones.js)
   bossAt: {}, // den boss kind → when you last got its full reward (BOSS_WINDOW_MS)
+  story: {}, // atlas Phase 7: every den boss you've ever helped beat → when, the first time (src/shared/story.js); never reset
   played: 0, active: 0, // ms logged in, and ms of that with a key pressed in the last ACTIVE_WINDOW_MS (clock)
   days: {}, // play time per day: { 'YYYY-MM-DD': [ms played, ms active] }, the last DAYS_KEPT days (clock)
   lb: 1, // the levelling rebalance's rollback has been looked at (ROLLBACK; new characters never need it)
@@ -288,6 +293,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     r.town = TOWNS[r.town] ? r.town | 0 : 0;
     r.ways = [...new Set((Array.isArray(r.ways) ? r.ways : []).filter(wayById))];
     r.bossAt = Object.fromEntries(Object.entries(r.bossAt ?? {}).filter(([k, at]) => MOBS[k]?.boss && Number.isFinite(at) && at <= now() && now() - at < BOSS_WINDOW_MS));
+    // (the story record started with atlas Phase 7: a character saved before it starts from the bosses still in its
+    // reward window, owner's choice; nothing older is known)
+    r.story = cleanStory(c && 'story' in c ? c.story : r.bossAt, now());
     for (const k of ['played', 'active']) r[k] = Number.isFinite(r[k]) && r[k] > 0 ? Math.floor(r[k]) : 0;
     r.days = Object.fromEntries(Object.entries(r.days && typeof r.days === 'object' ? r.days : {})
       .filter(([d, v]) => /^\d{4}-\d\d-\d\d$/.test(d) && Array.isArray(v)).sort(([a], [b]) => (a < b ? 1 : -1)).slice(0, DAYS_KEPT)
@@ -375,9 +383,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   function save(p) {
     if (p.rpg && p.joined) clock(p);
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, cosmetics, wear, showHelmet, brew, ways, bossAt, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, cosmetics, wear, showHelmet, brew, ways, bossAt, story, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, cosmetics, wear, showHelmet, brew, town, ways, bossAt, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, cosmetics, wear, showHelmet, brew, town, ways, bossAt, story, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -665,6 +673,12 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       const q = players.get(qid);
       if (!q?.joined || q.state.room !== m.room || t - at >= (k.boss || k.field ? 600_000 : 20000)) continue;
       let scale = expFalloff(q.rpg.lvl, k) * (1 + (brewOf(q.rpg)?.exp ?? 0)) * (1 + stats(q).exp); // (a brewed EXP buff; a long buff's, SP1)
+      if (k.boss && BOSS_TIER[m.kind] && !q.rpg.story[m.kind]) { // atlas Phase 7: the first time you beat it goes in your story
+        const was = tierOf(q.rpg.story);
+        q.rpg.story[m.kind] = t;
+        q.dirty = true;
+        if (tierOf(q.rpg.story) > was) setTimeout(() => q.joined && toast(q, STORY_TOAST), 4000); // (after the kill's own toasts)
+      }
       if (k.final) fresh = true; // (FB1: no reward window on a final boss, owner 2026-10-26: every kill pays in full)
       else if (k.boss) {
         const last = q.rpg.bossAt[m.kind] ?? 0;

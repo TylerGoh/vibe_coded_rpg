@@ -1,7 +1,8 @@
 # Canon
 
 The settled facts. Short on purpose: AI characters get fed this text (sliced by tier, see
-`delivery.md`), and anything here they'll repeat as truth. Change it only with the owner's okay.
+`delivery.md`; since atlas Phase 7 the server reads this file itself, `server/lore.js`, so keep the `## Tier N` and
+"Deliberately open" headings), and anything here they'll repeat as truth. Change it only with the owner's okay.
 
 Status: **reviewed by the owner (2026-10-24).**
 

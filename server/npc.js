@@ -13,6 +13,7 @@
 // Configure with DEEPSEEK_API_KEY (and optionally DEEPSEEK_MODEL) — rpg.service reads them from
 // ~/.config/rpg/deepseek.env. Without a key the characters say they're napping.
 import { DatabaseSync } from 'node:sqlite';
+import { loreFor } from './lore.js';
 
 const MEMORY_TOKENS = 3000; // per player and character: summary + remembered messages
 const KEEP_AFTER_FOLD = 1800; // after summarising, the recent conversation is trimmed to about this
@@ -50,7 +51,8 @@ export async function deepseek(messages, maxTokens, opts = {}) {
   return text;
 }
 
-// char: { id, name, short, persona(user, { first }), replyTokens } — see server/characters.js and NPCS in sim.js
+// char: { id, name, short, persona(user, { first, tier }), replyTokens, lore } — see server/characters.js and NPCS in sim.js.
+// lore: the deepest canon tier it may share (atlas Phase 7, server/lore.js); each slime hears up to its own tier.
 export function createNpc(dbPath, char) {
   const db = new DatabaseSync(dbPath);
   db.exec(`
@@ -106,10 +108,11 @@ export function createNpc(dbPath, char) {
 
   // Everything the character needs to answer `user`: persona, his notes and older chats with them, then the
   // recent public conversation as turns (consecutive lines of the same role merged).
-  function prompt(user, mem) {
+  function prompt(user, mem, tier) {
     const since = log[0]?.ts ?? Infinity; // personal lines older than the public window
     const older = mem.messages.filter((m) => (m.ts ?? 0) < since);
-    let system = char.persona(user, { first: !mem.summary && !mem.messages.length }); // (first: they've never talked)
+    let system = char.persona(user, { first: !mem.summary && !mem.messages.length, tier }); // (first: they've never talked)
+    if (char.lore) system += loreFor(user, tier, char.lore);
     if (mem.summary) system += `\n\nWhat you remember about ${user}:\n${mem.summary}`;
     if (older.length) system += `\n\nEarlier chats with ${user}:\n${older.map((m) => `${m.role === 'user' ? user : 'You'}: ${m.content}`).join('\n')}`;
     const turns = [];
@@ -143,13 +146,14 @@ export function createNpc(dbPath, char) {
     },
 
     // `user` said `text` publicly → { reply } or { error }
-    // ctx: optional note on where the speaker is (e.g. which museum exhibit they're standing at)
-    async reply(user, text, ctx) {
+    // ctx: optional note on where the speaker is (e.g. which museum exhibit they're standing at); tier: the speaker's
+    // lore tier (src/shared/story.js), for a character with a `lore` cap
+    async reply(user, text, ctx, tier = 0) {
       try {
         const ts = Date.now();
         remember({ from: user, text, ts, ctx });
         const mem = memoryOf(user);
-        const reply = await deepseek(prompt(user, mem), char.replyTokens ?? 300);
+        const reply = await deepseek(prompt(user, mem, tier), char.replyTokens ?? 300);
         remember({ from: null, to: user, text: reply, ts: Date.now() });
         mem.messages.push({ role: 'user', content: text, ts }, { role: 'assistant', content: reply, ts: Date.now() });
         await compact(user, mem);

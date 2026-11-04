@@ -208,6 +208,7 @@ import { openAccounts } from './accounts.js';
 import { getIceServers, turnConfigured } from './turn.js';
 import { createSandbox, IDLE_EXIT_MIN } from './sandbox.js';
 import { ARENA, ARENA_SPAWN_X } from '../src/shared/sandbox.js';
+import { tierOf } from '../src/shared/story.js';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const DIST = process.env.DIST ? resolve(process.env.DIST) : join(ROOT, 'dist'); // tests point this at a scratch build
@@ -616,7 +617,7 @@ async function talkToNpc(p, m) {
   }
   broadcast({ t: 'npc-say', npc: c.id, from: p.name, text });
   if (c.thinking++ === 0) broadcast({ t: 'npc-think', npc: c.id, on: true });
-  const result = await c.ai.reply(p.name, text, c.room === MUSEUM ? museumPlace(p.state.x) : c.id === 'mochi' ? whoIs(p) : undefined);
+  const result = await c.ai.reply(p.name, text, c.room === MUSEUM ? museumPlace(p.state.x) : c.id === 'mochi' ? whoIs(p) : undefined, tierOf(p.rpg?.story)); // (atlas Phase 7: how much of the old story it may tell them)
   if (--c.thinking === 0) broadcast({ t: 'npc-think', npc: c.id, on: false });
   if (result.reply) broadcast({ t: 'npc-reply', npc: c.id, to: p.name, text: result.reply });
   else send(p.ws, { t: 'npc-error', npc: c.id, text: result.error });
