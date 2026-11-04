@@ -28,7 +28,11 @@ E4b added **The Bearer's Hoist** (room 62, `BRENNA_DEN`, the Caldera Rim, art `s
 tooth rolled end to end of the den (`HOIST_ULT` through `ULT_LOOKS`, `toothMass`; jump it) and her freeing a longer
 `bossDie` (`drawBrennaFreed`: she lowers the tooth and sets it down).
 Big bosses can have `lines` (enter / phase / freed) that they say in a bubble and the chat; since E4b Ignis and Pyra
-have theirs too (Ignis's freed line is where Emberdeep says its Tier 3 in words: the Tidewheel, the Keeper of Hours). `looks` on a boss picks how the shared beam
+have theirs too (Ignis's freed line is where Emberdeep says its Tier 3 in words: the Tidewheel, the Keeper of Hours).
+Since atlas Phase 7 (c) every den boss has them: the Sprout King, Mother Mushroom, the Bramble Behemoth, the Frost Queen
+(beside her `shield` line), the Astral Wyrm, the Colossus and Chronos got theirs, each in its region's register
+(`story/delivery.md`); the freed lines say their tier's canon softly, and Chronos's hint at Pell without the name
+(`docs/social/story.md`). `looks` on a boss picks how the shared beam
 and grid moves are drawn (the Warden's Keeper amber and roots; the Old Narwhal's jet of sea water; Sigrun's `shield` beam and `seam` grid; Brenna's `tooth` beam, `rimrock` grid, `ash` pulse and `ember` front wall), and `party` names the party mechanics a
 boss is built for (below: "Bosses that need a party"). Field bosses (no den;
 `docs/combat/stages.md`) have no `lines`: F3's Pale Wyrm, which has a story, tells it through the Serpent Stone

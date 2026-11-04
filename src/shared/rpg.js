@@ -1086,18 +1086,36 @@ export const MOBS = {
     name: 'Sprout King', boss: true, lvl: 4, hp: 5000, atk: 14, exp: 320, speed: 80, w: 120, h: 112, aggro: true, hops: false,
     phases: [['slam', 'charge'], ['slam', 'charge', 'summon', 'leap'], ['slam', 'charge', 'summon', 'leap']],
     ult: { name: 'Royal Decree', kind: 'stomp' }, minion: 'sprout',
+    // atlas Phase 7 (c): its lines (said on entering, at each new phase, when freed; docs/social/story.md)
+    lines: {
+      enter: ['Halt! Who goes there? Bow! Bow before the King!', 'A visitor? Nobody visits. Kneel, and be quick about it, I have decreeing to do.'],
+      phase: [null, 'You dare? I decree you... OUT! I decree it twice!', 'Guards! GUARDS! Oh, I am the guards. Very well. ROYAL DECREE!'],
+      freed: '...Oh. Oh, that\'s better. The crown was ever so heavy, you know. There was a shiny stone in it, and it said I was very important. You can keep it. I\'d rather just be a sprout.',
+    },
     drops: [['royal_sap', 0.5, 1, 1], ['king_crown', 1, 1, 1], ['coin', 1, 50, 90], ['red_jelly', 1, 2, 4], ['mana_jelly', 1, 1, 2], ['wood_sword', 0.5, 1, 1], ['scroll_s100', 0.7, 1, 2], ['scroll_h100', 0.7, 1, 2], ['scroll_s60', 0.25, 1, 1], ['scroll_h60', 0.25, 1, 1]],
   },
   mother_mushroom: {
     name: 'Mother Mushroom', boss: true, lvl: 8, hp: 14000, atk: 24, exp: 950, speed: 60, w: 150, h: 140, aggro: true, hops: false,
     phases: [['slam', 'rain'], ['slam', 'rain', 'summon', 'leap'], ['slam', 'rain', 'summon', 'leap', 'barrage']],
     ult: { name: 'Spore Bloom', kind: 'spores' }, minion: 'mushling',
+    // atlas Phase 7 (c): its lines (said on entering, at each new phase, when freed; docs/social/story.md)
+    lines: {
+      enter: ['So loud... everything is so loud. Can you hear them too? Make them stop.', 'Little one, my roots are burning. Don\'t come close. I can\'t hold the spores in.'],
+      phase: [null, 'The threads are screaming. Far, far off, under the water, they\'re all screaming at once.', 'The stone in my cap is so hot! Every thread I have is shouting! I can\'t...'],
+      freed: '...Hush now. Oh, it\'s quiet. Listen: they\'re still there, under the sea, very far away. Other voices, little one. Other islands, whispering back. I\'d almost forgotten they were real.',
+    },
     drops: [['royal_sap', 0.8, 1, 2], ['spore_blade', 1, 1, 1], ['coin', 1, 120, 200], ['blue_jelly', 1, 1, 3], ['mana_jelly', 1, 2, 3], ['mush_helm', 0.6, 1, 1], ['scroll_s100', 1, 1, 2], ['scroll_h100', 1, 1, 2], ['scroll_s60', 0.4, 1, 1], ['scroll_h60', 0.4, 1, 1], ['scroll_s10', 0.05, 1, 1]],
   },
   bramble_behemoth: {
     name: 'Bramble Behemoth', boss: true, lvl: 12, hp: 351000, atk: 36, exp: 4300, speed: 95, w: 170, h: 130, aggro: true, hops: false,
     phases: [['charge', 'slam'], ['charge', 'slam', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
     ult: { name: 'Thorn Tsunami', kind: 'wave' }, minion: 'bramble',
+    // atlas Phase 7 (c): its lines (said on entering, at each new phase, when freed; docs/social/story.md)
+    lines: {
+      enter: ['TURN BACK. The briar is for keeping. Everything inside it stays.', 'No further. I grew every thorn of this for a reason, small one.'],
+      phase: [null, 'Hold. HOLD. If I let go, the island floats away like a leaf on a pond.', 'The old stones are mine to keep. Their marks are not for little eyes. THORNS!'],
+      freed: '...So heavy, holding it all in. The thorn-stone in my chest kept saying: tighter, tighter. Go on, then. The old stones behind me have marks on them. The ones who carved them were called Keepers. Read them, if you can.',
+    },
     // S5.4 (story/s5-plan.md, docs/combat/bosses.md): its bark hardens into armour (`looks.shell`: drawn as bark
     // plates, src/party.js); freezing Thorn Tsunami as it rears cancels it
     party: ['armour', 'interrupt'], partyLive: true, looks: { shell: 'bark' },
@@ -1128,13 +1146,25 @@ export const MOBS = {
     // melts it; `looks.dome: 'queen'`, pale ice with snowflakes turning round it), and freezing Absolute Zero as
     // she raises it cancels it (a frost queen beaten at her own game)
     party: ['barrier', 'interrupt'], partyLive: true, looks: { dome: 'queen' },
-    lines: { shield: 'Stay close. Everyone stays close. The ice holds us all together, and it does not let go.' }, // (said once a fight, the first time the dome goes up)
+    // (shield: said once a fight, the first time the dome goes up; enter, phase and freed since atlas Phase 7 (c))
+    lines: {
+      shield: 'Stay close. Everyone stays close. The ice holds us all together, and it does not let go.',
+      enter: ['You came across my ice. Then you know it holds.', 'Be still. The cold keeps what it touches.'],
+      phase: [null, 'The strait wants to open. I will not let it. I will not let them drift.', 'My people sleep in the ice so the bridge stays whole. It is a small price. It is SMALL.'],
+      freed: '...It was already cracking. I knew. I held it so long I forgot why holding hurt. The land was one land once, before the hour stopped. Let the strait open. Let them go, gently.',
+    }, // (said once a fight, the first time the dome goes up)
     drops: [['frost_heart', 1, 1, 2], ['frost_blade_n', 1, 1, 1], ['glacier_helm_n', 1, 1, 1], ['coin', 1, 37800, 56600], ['elixir', 1, 2, 4], ['ice_shard', 1, 4, 8], ['scroll_s60', 1, 1, 1], ['scroll_h60', 1, 1, 1], ['scroll_s10', 0.2, 1, 1], ['scroll_h10', 0.2, 1, 1], ['scroll_s30', 0.1, 1, 1], ['scroll_chaos', 0.1, 1, 1]],
   },
   astral_wyrm: {
     name: 'Astral Wyrm', boss: true, lvl: 57, hp: 2829000, atk: 180, exp: 123000, speed: 110, w: 190, h: 150, aggro: true, hops: false,
     phases: [['rain', 'charge', 'leap'], ['barrage', 'charge', 'leap', 'slam', 'summon'], ['barrage', 'charge', 'leap', 'slam', 'summon', 'rain']],
     ult: { name: 'Supernova', kind: 'nova' }, minion: 'wisp',
+    // atlas Phase 7 (c): its lines (said on entering, at each new phase, when freed; docs/social/story.md)
+    lines: {
+      enter: ['Fallen. Fallen. The sky is wrong.', 'Small light. You are not a star. Go.'],
+      phase: [null, 'I was the road the ships read. The hour stopped, and the road broke.', 'The stars are not where they were. Nothing is where it was.'],
+      freed: '...Up. I can go up. The land was one, under me, once. It broke, and I fell with it. Steer by me again, small light. The far south is a long way. It gets longer.',
+    },
     // S5.4: the star on its back flares (the weak point, on its rear hump: arrows, or jump; `looks.weak: 'star'`),
     // it wraps itself in a shell of starlight (a barrier, `looks.dome: 'star'`), and freezing Supernova as it
     // gathers cancels it
@@ -1233,6 +1263,12 @@ export const MOBS = {
     name: 'The Clockwork Colossus', boss: true, top: true, lvl: 150, hp: 45474000, atk: 600, exp: 2442000, speed: 70, w: 220, h: 200, aggro: true, hops: false,
     phases: [['slam', 'gears', 'beam'], ['slam', 'gears', 'beam', 'grid', 'sweep'], ['grid', 'sweep', 'gears', 'beam', 'charge', 'summon']],
     ult: { name: 'Overclock', kind: 'overclock' }, minion: 'cogling',
+    // atlas Phase 7 (c): its lines (said on entering, at each new phase, when freed; docs/social/story.md)
+    lines: {
+      enter: ['INTRUDER IN THE FOUNDRY. THE KEEPER IS NOT TO BE DISTURBED.', 'ORDER STANDING: PROTECT THE KEEPER. ORDER STANDING. ORDER STANDING.'],
+      phase: [null, 'THE WHEEL DOES NOT TURN. CORRECTING. CORRECTING. CORRECTING.', 'OVER TOLERANCE. ALL TEETH TO THE HOUR. THE KEEPER IS NOT TO BE DISTURBED.'],
+      freed: '...ORDER... still standing. I protected the Keeper. I was told to. No one said what to do when the Keeper was the thing to be protected from. Go up, small ones. Be kind to him.',
+    },
     // S5.4: it bolts plates over its body (armour, `looks.shell: 'brass'`, dark bronze, riveted), its clock-gear heart
     // opens (the weak point, the core on its chest: `front`, only a hit from in front finds it, low enough for a
     // slap from the floor; `looks.weak: 'core'`, a glowing cyan gear), its boiler blows off across the den (a pulse,
@@ -1250,6 +1286,13 @@ export const MOBS = {
     // 'hours'`: a clock dial on the floor, its hand sweeping round), and freezing either ultimate as it gathers
     // cancels it
     party: ['barrier', 'curse', 'interrupt'], partyLive: true, looks: { dome: 'hours', curse: 'hours' },
+    // atlas Phase 7 (c): his lines, fragments of the Stopped Hour (story/characters/mochi-and-chronos.md). They hint and
+    // never say his old name: that's Mochi's to tell (Tier 4, docs/social/story.md)
+    lines: {
+      enter: ['Shh. Stay. Stay just as you are.', 'You came all this way to leave again. Everyone does. Not this time.'],
+      phase: [null, 'I held the hour still for all of you. Do you know how heavy one hour is, held for ever?', 'If nothing moves, nothing goes. Nothing goes, and no one is ever lost again. STAY!'],
+      freed: '...The hands are moving. I had forgotten the sound. There was a little one once, who swept the leaves under a tree for me and asked too many questions. Is he... does the tree still grow?',
+    },
     drops: [['time_sand', 1, 2, 3], ['chrono_blade_n', 1, 1, 1], ['hourglass_crown_n', 0.6, 1, 1], ['coin', 1, 2325700, 3876400], ['mega_elixir', 1, 5, 8], ['aether_crystal', 1, 8, 12], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s10', 0.8, 1, 2], ['scroll_h10', 0.8, 1, 2], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.5, 1, 2]],
   },
   // ——— Frostpeak's later wildlife (atlas Phase 4; kept last: mob kinds go over the wire as their index) ———

@@ -53,6 +53,7 @@ export async function deepseek(messages, maxTokens, opts = {}) {
 
 // char: { id, name, short, persona(user, { first, tier }), replyTokens, lore } — see server/characters.js and NPCS in sim.js.
 // lore: the deepest canon tier it may share (atlas Phase 7, server/lore.js); each slime hears up to its own tier.
+// loreKnows: it knows the story itself (Mochi, Clio) rather than having heard it whispered.
 export function createNpc(dbPath, char) {
   const db = new DatabaseSync(dbPath);
   db.exec(`
@@ -112,7 +113,7 @@ export function createNpc(dbPath, char) {
     const since = log[0]?.ts ?? Infinity; // personal lines older than the public window
     const older = mem.messages.filter((m) => (m.ts ?? 0) < since);
     let system = char.persona(user, { first: !mem.summary && !mem.messages.length, tier }); // (first: they've never talked)
-    if (char.lore) system += loreFor(user, tier, char.lore);
+    if (char.lore) system += loreFor(user, tier, char.lore, char.loreKnows);
     if (mem.summary) system += `\n\nWhat you remember about ${user}:\n${mem.summary}`;
     if (older.length) system += `\n\nEarlier chats with ${user}:\n${older.map((m) => `${m.role === 'user' ? user : 'You'}: ${m.content}`).join('\n')}`;
     const turns = [];

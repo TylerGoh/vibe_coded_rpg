@@ -318,7 +318,8 @@ stand-in door into an existing area.
       2026-11-04: the Skydocks, the Dockwarden, the ramp into Cogwork Bastion, the skylift gone.)
 - [ ] **Phase 7: story progress.** Per-account lore tiers feeding every AI character; boss lines
       (`../roadmap.md`, "Story delivery"). Can run alongside any phase from 1 on.
-      (Plan `../phase7-plan.md`. (b) shipped 2026-11-04: the story record, tiers, Mochi and Clio fed by tier.)
+      (Plan `../phase7-plan.md`. (b) shipped 2026-11-04: the story record, tiers, Mochi and Clio fed by tier; (c) the same day: every
+      character's island cap, the seven older bosses' lines.)
 - [ ] **Phase 8: Lantern Fen** (side island, the Wickmother).
 - [ ] **Phase 9: Amberdune** (side island, Old Carapace).
 - [ ] **Phase 10: the finale and the post-game**: the Wheel event, the Maelstrom rim, swim physics, the

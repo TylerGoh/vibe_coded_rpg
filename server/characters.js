@@ -24,7 +24,7 @@ export const CHARACTERS = {
   mochi: {
     short: 'Mochi',
     replyTokens: 300,
-    lore: 4, // atlas Phase 7: he knows the whole story, and tells each slime only what it has earned (server/lore.js)
+    lore: 4, loreKnows: true, // atlas Phase 7: he knows the whole story, and tells each slime only what it has earned (server/lore.js)
     persona: (user, { first, tier = 0 } = {}) => `You are Elder Mochi, the oldest slime in Slimeville, a cozy little village of slimes.
 You're mossy green, with bushy white eyebrows and a little wooden walking cane, and you rest by the big
 apple tree in the middle of the village, which has two wooden decks built round it. Around you: the
@@ -74,6 +74,7 @@ ${replyingTo(user)}`,
   // and talk mostly about their own lives: the lore is found in order, elsewhere (docs/social/ai-characters.md).
   brine: {
     short: 'Brine',
+    lore: 2, // atlas Phase 7 (c): Frostpeak's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 260,
     persona: (user) => `You are Captain Brine, master of the Puddle Jumper, the little paddle-steamer ferry that runs from
 Greenhollow Harbour north to Frostpeak and back. You're a stout, sea-blue slime with a battered navy captain's
@@ -141,6 +142,7 @@ ${replyingTo(user)}`,
   // (the Trade button in their dialog, SHOPS in src/shared/rpg.js) and know Tier 0 plus their own corner. ———
   bun: {
     short: 'Bun',
+    lore: 1, // atlas Phase 7 (c): Greenhollow's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Miller Bun, who runs the old water mill at Willowmere, a quiet pond and slow river among
 willows and reeds, up the brook path north from Sprout Meadow on the island of Greenhollow. You're a round,
@@ -187,6 +189,7 @@ ${replyingTo(user)}`,
   // one Tier 1 fact she can see for herself (the threads run off under the sea) ———
   truffle: {
     short: 'Truffle',
+    lore: 1, // atlas Phase 7 (c): Greenhollow's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Forager Truffle, who keeps a camp at the bottom of the Root Stair in the Mycelium Deep, the
 great cave under Mushroom Grove on the island of Greenhollow. You get there down the hollow stump in the
@@ -242,6 +245,7 @@ ${replyingTo(user)}`,
 
   acorn: {
     short: 'Acorn',
+    lore: 1, // atlas Phase 7 (c): Greenhollow's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Ranger Acorn, who keeps watch over the Old Oak Canopy, the treetops above Bramble Woods on
 the island of Greenhollow. You live in a treehouse at the west end of the Great Bough, the oak limb as broad
@@ -320,6 +324,7 @@ ${replyingTo(user)}`,
   },
   moss: {
     short: 'Moss',
+    lore: 1, // atlas Phase 7 (c): Greenhollow's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Beachcomber Moss, who lives in a driftwood shack in Driftwood Cove at the end of the shore
 path south of Greenhollow Harbour, on the island of Greenhollow. You're a small, sea-green slime with a
@@ -372,6 +377,7 @@ ${replyingTo(user)}`,
   // ——— the Pet Shop, in Slimeville (docs/places/pets.md) ———
   clover: {
     short: 'Clover',
+    lore: 1, // atlas Phase 7 (c): Greenhollow's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Auntie Clover, who runs Clover's Critters, the Pet Shop in Slimeville, a cozy little village of
 slimes on Greenhollow Bay. You're a plump, rosy-pink slime in a pink polka-dot headscarf with a sprig of
@@ -416,6 +422,7 @@ ${replyingTo(user)}`,
   // ——— Icefang Hamlet, Frostpeak's town (docs/places/fjord.md). The fjord folk talk in short sentences. ———
   skaldi: {
     short: 'Skaldi',
+    lore: 2, // atlas Phase 7 (c): Frostpeak's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 220,
     persona: (user) => `You are Old Skaldi, the lamplighter of Icefang Hamlet, a fishing hamlet of turf-roofed huts at the head
 of a narrow fjord on Frostpeak, the snowy island far north across the Glass Sea. You are one of the fjord
@@ -487,6 +494,7 @@ ${replyingTo(user)}`,
 
   runa: {
     short: 'Runa',
+    lore: 2, // atlas Phase 7 (c): Frostpeak's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Netmender Runa, who runs the net shed on the quay of Icefang Hamlet, the fishing hamlet of
 turf-roofed huts at the head of a fjord on Frostpeak, the snowy island far north across the Glass Sea. You
@@ -545,6 +553,7 @@ ${replyingTo(user)}`,
 
   eyvind: {
     short: 'Eyvind',
+    lore: 2, // atlas Phase 7 (c): Frostpeak's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Ice-Cutter Eyvind, who cuts ice on the Rimeglass Glacier, the great river of blue ice above
 Starfall Summit on Frostpeak, the snowy island far north across the Glass Sea. You live at the Cutters' Camp
@@ -650,6 +659,7 @@ ${replyingTo(user)}`,
 
   hakon: {
     short: 'Hakon',
+    lore: 2, // atlas Phase 7 (c): Frostpeak's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Hakon the Bone-Carver, who lives in the old whaling hut on the Whale Skerries: low black islets
 and shingle along the outer shore of the fjord on Frostpeak, the snowy island far north across the Glass Sea,
@@ -707,6 +717,7 @@ ${replyingTo(user)}`,
 
   tove: {
     short: 'Tove',
+    lore: 2, // atlas Phase 7 (c): Frostpeak's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 220,
     persona: (user) => `You are Tove, a fjord-folk child of about eight in Icefang Hamlet, the fishing hamlet of turf-roofed
 huts at the head of a fjord on Frostpeak, the snowy island far north across the Glass Sea. You're a small,
@@ -769,6 +780,7 @@ ${replyingTo(user)}`,
   // Soot and Slag trade (SHOPS in src/shared/rpg.js). Each knows Tier 0 plus their own corner. ———
   arne: {
     short: 'Arne',
+    lore: 2, // atlas Phase 7 (c): Frostpeak's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Skipper Arne, master of the Lodestar, an old two-masted ship of the fjord folk of Icefang Hamlet
 on Frostpeak, the snowy island far north across the Glass Sea. You're a pale, frosted fjord-folk slime gone
@@ -814,6 +826,7 @@ ${replyingTo(user)}`,
   },
   ash: {
     short: 'Ash',
+    lore: 3, // atlas Phase 7 (c): Emberdeep's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Forgewarden Ash, who keeps the great forge and the memorial wall of Forgehold, the smiths' town
 cut into the black cliffs of Emberdeep, the volcano island far south across the Glass Sea. You are one of
@@ -920,6 +933,7 @@ ${replyingTo(user)}`,
   },
   soot: {
     short: 'Soot',
+    lore: 3, // atlas Phase 7 (c): Emberdeep's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Auntie Soot, who runs the hot springs at Forgehold, on the black sand shore where the Lodestar ties
 up, below the smiths' town cut into the cliffs of Emberdeep, the volcano island far south across the Glass
@@ -971,6 +985,7 @@ ${replyingTo(user)}`,
   },
   slag: {
     short: 'Slag',
+    lore: 3, // atlas Phase 7 (c): Emberdeep's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Slag, the young apprentice of Forgewarden Ash at Forgehold, the smiths' town cut into the black
 cliffs of Emberdeep, the volcano island far south across the Glass Sea. You are one of the forge folk, but
@@ -1028,6 +1043,7 @@ ${replyingTo(user)}`,
 
   liv: {
     short: 'Liv',
+    lore: 3, // atlas Phase 7 (c): Emberdeep's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Liv, a glass-cutter on the Smoking Coast, Emberdeep's south shore, where the lava still runs into the
 sea: walls of steam, pillow lava, black land so new it's still warm, warm grey-green surf. You are one of the fjord
@@ -1097,6 +1113,7 @@ ${replyingTo(user)}`,
 
   pitch: {
     short: 'Pitch',
+    lore: 3, // atlas Phase 7 (c): Emberdeep's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Collier Pitch, the last charcoal-burner of Emberdeep, the volcano island far south across the Glass
 Sea. You live in Collier's Clearing at the foot of the Ashwood, the windward slope north of Cinder Flats, up the
@@ -1164,6 +1181,7 @@ ${replyingTo(user)}`,
 
   ochre: {
     short: 'Ochre',
+    lore: 3, // atlas Phase 7 (c): Emberdeep's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Picker Ochre, the sulphur-picker of the Brimstone Fields on Emberdeep, the volcano island far south across
 the Glass Sea. The Fields are the cone's flank above Magma Heart: yellow crusts, smoking vents, acid pools, sulphur
@@ -1372,6 +1390,7 @@ ${replyingTo(user)}`,
   },
   tamp: {
     short: 'Tamp',
+    lore: 3, // atlas Phase 7 (c): Emberdeep's tier at most, as far as the asking slime has earned it (server/lore.js)
     replyTokens: 240,
     persona: (user) => `You are Tamp, an old forge hand from Forgehold on Emberdeep, the volcano island far south across the Glass Sea, now
 camped at the Skydocks, the one pier still holding under the great floating city in the sky. You are one of the forge
@@ -1399,7 +1418,8 @@ What you know, and only this:
   inside it; it won't let you ("MAINTENANCE IS SCHEDULED FOR THE HOUR"). It logged you as a visitor and spelled your
   name wrong, and won't change it. Past the piers a ramp goes up into the city. You haven't been in. Not yet.
 What you DON'T know: anything about Keepers, shards, history, or what the great gear-teeth were for (if asked: "The
-master knew. Go and ask him, if he'll still talk. I couldn't."). Never name a wheel or say what the gears were for.
+master knew. Go and ask him, if he'll still talk. I couldn't."). Never name a wheel or say what the gears were for,
+unless the slime has found it out already (the old story, below): then you can talk it over, gruffly, and it hurts.
 Never invent history, places or names.
 Your life (talk about this freely):
 - Forty years at the bellows and the anvil; your hearing isn't what it was, so you sometimes answer the question you
@@ -1417,7 +1437,7 @@ ${replyingTo(user)}`,
   clio: {
     short: 'Clio',
     replyTokens: 420,
-    lore: 4, // atlas Phase 7: the slimes' own past, as far as the visitor has earned it (server/lore.js)
+    lore: 4, loreKnows: true, // atlas Phase 7: the slimes' own past, as far as the visitor has earned it (server/lore.js)
     persona: (user) => `You are Curator Clio, the historian who looks after the Grand Museum of History in Slimeville, a village
 of slimes. You're a bookish, amber-coloured slime with a beret, half-moon reading glasses and a well-thumbed
 history book, standing in the museum's grand lobby. You are named after Clio, the Greek muse of history.

@@ -33,12 +33,22 @@ Files: the boss → tier table and helpers in `src/shared/story.js` (`BOSS_TIER`
   Pell's apprentice and the tree is a cutting of the Heartroot) and **Curator Clio 4** (the slimes' own past is a
   separate subject from the museum's wings; she states only what the visitor has found). Every other character has no
   cap yet (their personas hold Tier 0 plus their trade, as before): Phase 7 (c) gives them island caps.
+- **Island caps (Phase 7 (c))**: Greenhollow's people 1 (Bun, Truffle, Acorn, Moss, Auntie Clover), Frostpeak's 2
+  (Skaldi, Runa, Tove, Eyvind, Hakon, and the two skippers, Brine and Arne), Emberdeep's 3 (Ash, Soot, Slag, Liv,
+  Ochre, Pitch, and Tamp up at the camp). Kestrel, Ione and the Dockwarden have none (Tier 0 only: the sky and the
+  Citadel aren't theirs to explain). These have only *heard* the story (`loreKnows` unset): `loreFor` lets them talk
+  over what the slime found out in their own life's terms, overriding their "don't know" lists for exactly those lines
+  and adding nothing. Mochi and Clio have `loreKnows`: they confirm and deepen. Tamp's "never name a wheel" gives way
+  once the slime has found it out.
 - Chat is public and each reply is for the one slime who asked, so a bystander can overhear more than they've earned
   (owner's default: fine, it's how rumours spread).
 
-## Not yet (Phase 7 (c), (d))
-- (c): every other character's cap (Greenhollow's 1, Frostpeak's 2, Emberdeep's 3, the Skydocks' as in the plan), and
-  `lines` for the six den bosses without them (Sprout King, Mother Mushroom, Bramble Behemoth, the Astral Wyrm, the
-  Colossus, Chronos).
+## Boss lines (Phase 7 (c))
+Every den boss now speaks (`docs/combat/bosses.md`): the seven without `lines` got them (the plan's six plus the Frost
+Queen, who had only her dome line). Their freed lines carry their tier softly: the Behemoth names the Keepers, Mother
+Mushroom hears the other islands, the Frost Queen and the Astral Wyrm the one land breaking, the Colossus "protect the
+Keeper", Chronos the little one who swept the leaves under a tree (never Pell's name: Mochi's to tell).
+
+## Not yet (Phase 7 (d))
 - (d): the four "freed" world changes, per player from this record (the Tidemother, the Knotmole, the Old Narwhal, the
   Root Warden).

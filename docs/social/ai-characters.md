@@ -46,8 +46,9 @@ one shared corner feed).
   entry), knows the port and its hazards and nothing of "the hour" (`docs/places/skydocks.md`). A
   character who stands in more than one room (`also`) trades only where its shop is (`src/npc.js`).
   **Atlas Phase 7 (story progress, `docs/social/story.md`)**: a character with a `lore` cap gets the canon up to the
-  asking slime's lore tier (from its story record); Mochi and Clio have cap 4, the rest none yet (their personas still
-  hold Tier 0 plus their trade). Editing `story/canon.md` changes what they say.
+  asking slime's lore tier (from its story record); Mochi and Clio have cap 4 and know it themselves; since (c) every
+  island's people have their island's tier as a cap, as hearsay (Greenhollow 1, Frostpeak 2, Emberdeep 3; Kestrel,
+  Ione and the Dockwarden none). Editing `story/canon.md` changes what they say.
   E0 (atlas Phase 5): the Lodestar sails and the Caldera pass is gone. Brine is thrilled for Arne and says the
   only way south is his ship; Skaldi lit every quay lamp; Runa is glad and cross (her tarp); Eyvind sent his box
   of letters south with Arne and has no answer yet; Tove wants to go. In Forgehold, Ash lists every shut way
