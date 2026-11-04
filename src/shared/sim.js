@@ -15,7 +15,7 @@ export const DT = 1 / TICK_RATE;
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_PLATFORMS, FORGEHOLD, FORGE_W, FORGE_DOCK_X, FORGE_HOME_X, FORGE_SPAWN_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X, ASH_X, SLAG_X, FJORD_LODESTAR_X, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X, SUNKEN, SUNKEN_W, SUNKEN_EXIT_X, SUNKEN_GATE_X, SUNKEN_END_X, SUNKEN_PLATFORMS, ROADSEND, ROADSEND_W, ROADSEND_EXIT_X, OLDICE, OLDICE_W, OLDICE_EXIT_X, OLDICE_GATE_X, OLDICE_END_X, OLDICE_PLATFORMS, LONGSTAIR, LONGSTAIR_W, LONGSTAIR_EXIT_X, BLACKSANDS, SANDS_W, SANDS_EXIT_X, SANDS_PLATFORMS, SANDS_GATE_X, ASHWOOD, ASH_W, ASH_EXIT_X, ASH_PLATFORMS, ASHWOOD_GATE_X, PITCH_X, COAST, COAST_W, COAST_EXIT_X, COAST_PLATFORMS, COAST_GATE_X, LIV_X, TUBES, TUBES_W, TUBES_EXIT_X, TUBES_PLATFORMS, TUBES_GATE_X, BRIMSTONE, BRIM_W, BRIM_EXIT_X, BRIM_PLATFORMS, BRIMSTONE_GATE_X, OCHRE_X, FOUNDRY, FOUNDRY_W, FOUNDRY_EXIT_X, FOUNDRY_PLATFORMS, RIM, RIM_W, RIM_EXIT_X, RIM_PLATFORMS, RIM_GATE_X, FOUNDRY_GATE_X, UNDERFLUES, UNDERFLUES_W, UNDERFLUES_EXIT_X, UNDERFLUES_GATE_X, UNDERFLUES_END_X, UNDERFLUES_PLATFORMS, LONGFLUE, LONGFLUE_W, LONGFLUE_EXIT_X } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_PLATFORMS, FORGEHOLD, FORGE_W, FORGE_DOCK_X, FORGE_HOME_X, FORGE_SPAWN_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X, ASH_X, SLAG_X, FJORD_LODESTAR_X, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_DOOR_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X, SUNKEN, SUNKEN_W, SUNKEN_EXIT_X, SUNKEN_GATE_X, SUNKEN_END_X, SUNKEN_PLATFORMS, ROADSEND, ROADSEND_W, ROADSEND_EXIT_X, OLDICE, OLDICE_W, OLDICE_EXIT_X, OLDICE_GATE_X, OLDICE_END_X, OLDICE_PLATFORMS, LONGSTAIR, LONGSTAIR_W, LONGSTAIR_EXIT_X, BLACKSANDS, SANDS_W, SANDS_EXIT_X, SANDS_PLATFORMS, SANDS_GATE_X, ASHWOOD, ASH_W, ASH_EXIT_X, ASH_PLATFORMS, ASHWOOD_GATE_X, PITCH_X, COAST, COAST_W, COAST_EXIT_X, COAST_PLATFORMS, COAST_GATE_X, LIV_X, TUBES, TUBES_W, TUBES_EXIT_X, TUBES_PLATFORMS, TUBES_GATE_X, BRIMSTONE, BRIM_W, BRIM_EXIT_X, BRIM_PLATFORMS, BRIMSTONE_GATE_X, OCHRE_X, FOUNDRY, FOUNDRY_W, FOUNDRY_EXIT_X, FOUNDRY_PLATFORMS, RIM, RIM_W, RIM_EXIT_X, RIM_PLATFORMS, RIM_GATE_X, FOUNDRY_GATE_X, UNDERFLUES, UNDERFLUES_W, UNDERFLUES_EXIT_X, UNDERFLUES_GATE_X, UNDERFLUES_END_X, UNDERFLUES_PLATFORMS, LONGFLUE, LONGFLUE_W, LONGFLUE_EXIT_X, BALLOON_X, SKYCAMP, CAMP_W, CAMP_DOCK_X, CAMP_HOME_X, CAMP_SPAWN_X, CAMP_PLATFORMS, KESTREL_X, IONE_X, TAMP_X } from './rpg.js';
 import { ARENA, ARENA_W, ARENA_PLATFORMS } from './sandbox.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
@@ -23,6 +23,8 @@ export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/pla
 export const CLIFFS = 20; // Greenhollow's east cliffs, past the end of the Wildwood (docs/places/cliffs.md)
 export const FERRY_N = 21, FERRY_S = 22; // the ferry's deck, out to Frostpeak and back home (docs/places/crossings.md)
 export const STEAM_N = 45, STEAM_S = 46; // the Lodestar's deck, south through the Steam Straits to Emberdeep and back north
+export const SKY_UP = 66, SKY_DOWN = 67; // the balloon Kite's gondola, up Emberdeep's thermal column to the Skydocks and back down (atlas Phase 6)
+export { SKYCAMP } from './rpg.js';
 export { FIELD, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, UNDERFLUES, LONGFLUE };
 
 export const PLATFORMS = [
@@ -225,6 +227,8 @@ ROOMS[CALDERA] = {
     { x: ASHWOOD_GATE_X, w: 80, to: ASHWOOD, toX: ASH_EXIT_X, label: 'cross the iron bridge up the charcoal road to the Ashwood' },
     { x: COAST_GATE_X, w: 80, to: COAST, toX: COAST_EXIT_X, label: 'climb down the gully over the old lava to the Smoking Coast' },
     { x: BRIMSTONE_GATE_X, w: 80, to: BRIMSTONE, toX: BRIM_EXIT_X, label: 'climb the cairned path up the flank to the Brimstone Fields' },
+    // the balloon by the thermal column (atlas Phase 6, docs/places/skydocks.md): the update lifted its block (Slag's burner)
+    { x: BALLOON_X, w: 80, to: SKY_UP, toX: DECK_GANGWAY_X, label: "climb into the Kite's gondola, up to the Skydocks (Lv 135+)", ask: 'Cast off up the column to the Skydocks? The climb takes about 80 seconds.', go: 'Cast off' },
     ...denDoors(CALDERA),
   ],
 };
@@ -301,6 +305,12 @@ ROOMS[STEAM_N] = deck('The Lodestar, bound for Emberdeep', { route: 'steam', fro
   { to: FORGEHOLD, toX: FORGE_DOCK_X, label: 'go ashore at Forgehold' }, { to: FJORD, toX: FJORD_LODESTAR_X });
 ROOMS[STEAM_S] = deck('The Lodestar, bound for Frostpeak', { route: 'steam', from: 'ember', to: 'frost', ticks: 70 * TICK_RATE },
   { to: FJORD, toX: FJORD_LODESTAR_X, label: 'go ashore at Icefang Hamlet' }, { to: FORGEHOLD, toX: FORGE_DOCK_X });
+// The Kite (atlas Phase 6, docs/places/skydocks.md): a balloon up Emberdeep's thermal column to the Skydocks camp
+// under the Citadel ('sky' route: the deck is her long gondola, same platforms). Up is the slow one; down is quicker.
+ROOMS[SKY_UP] = deck('The Kite, climbing to the Skydocks', { route: 'sky', from: 'ember', to: 'citadel', ticks: 80 * TICK_RATE },
+  { to: SKYCAMP, toX: CAMP_DOCK_X, label: 'step off onto the Skydocks pier' }, { to: CALDERA, toX: BALLOON_X });
+ROOMS[SKY_DOWN] = deck('The Kite, coming down to Emberdeep', { route: 'sky', from: 'citadel', to: 'ember', ticks: 55 * TICK_RATE },
+  { to: CALDERA, toX: BALLOON_X, label: 'step out onto the ledge in Magma Heart (mobs!)' }, { to: SKYCAMP, toX: CAMP_DOCK_X });
 export const VOYAGE_MAX = 65535; // state.vt stops counting here (it's a u16 on the wire)
 // room 23: Icefang Fjord, Frostpeak's landing, and its town, Icefang Hamlet (docs/places/fjord.md). A safe
 // room: the ferry's dock at the west end, the hamlet round its lamp-fire, the path up to Frostpine Ridge
@@ -326,6 +336,16 @@ ROOMS[FORGEHOLD] = {
     { x: FORGE_HOME_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
     { x: FORGE_EXIT_X, w: 80, to: CALDERA, toX: CALDERA_EXIT_X, label: 'climb the road up into Cinder Flats (mobs!)' },
     { x: SANDS_GATE_X, w: 80, to: BLACKSANDS, toX: SANDS_EXIT_X, label: 'take the beach path out to the Black Sands' },
+  ],
+};
+// room 68 (atlas Phase 6, docs/places/skydocks.md): the Skydocks camp, the Citadel's town. A safe room on the one pier
+// under the city that still holds: the Kite's mooring mast near the west end, the camp, and the pier's end (the plank
+// across to the Skydocks pulled in until Phase 6 (c)). Its platforms are CAMP_PLATFORMS (rpg.js).
+ROOMS[SKYCAMP] = {
+  name: 'The Skydocks Camp', width: CAMP_W, ground: FIELD_GROUND, platforms: CAMP_PLATFORMS,
+  doors: [
+    { x: CAMP_DOCK_X, w: 80, to: SKY_DOWN, toX: DECK_GANGWAY_X, label: "board the Kite down to Emberdeep", ask: 'Cast off down the column to Magma Heart? About a minute in the air.', go: 'Cast off' },
+    { x: CAMP_HOME_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
   ],
 };
 // room 54 (Emberdeep's depth pass E1, docs/places/blacksands.md): the Black Sands, out along the beach path past
@@ -520,6 +540,7 @@ export const TOWNS = [
   { room: VILLAGE, name: 'Slimeville', x: SPAWN_X, homeX: HOME_DOOR_X },
   { room: FJORD, name: 'Icefang Hamlet', x: FJORD_SPAWN_X, homeX: FJORD_HOME_X },
   { room: FORGEHOLD, name: 'Forgehold', x: FORGE_SPAWN_X, homeX: FORGE_HOME_X },
+  { room: SKYCAMP, name: 'The Skydocks Camp', x: CAMP_SPAWN_X, homeX: CAMP_HOME_X },
 ];
 TOWNS.forEach((t, i) => (ROOMS[t.room].town = i)); // (step() reads room.town)
 export const townOf = (room) => ROOMS[room]?.town ?? -1; // -1: not a town
@@ -866,6 +887,11 @@ export const NPCS = [
   { id: 'ash', name: 'Forgewarden Ash', short: 'Ash', room: FORGEHOLD, x: ASH_X, hue: 14, range: 130, size: 1.3, accessory: 'forgewarden', folk: 'forge', faces: -1, blurb: 'keeps the great forge and the memorial wall', hello: 'You came up the Straits. Good. Ask what you need. (Everyone can hear you.)' },
   { id: 'soot', name: 'Auntie Soot', short: 'Soot', room: FORGEHOLD, x: SOOT_X, hue: 340, range: 120, size: 1.15, accessory: 'bathkeeper', folk: 'forge', faces: 1, blurb: 'runs the springs, sells potions and boiled eggs', shop: 'soot', hello: 'Oh, a sailor! Sit, soak, have an egg. Trade is the button. (Everyone can hear you.)' },
   { id: 'slag', name: 'Slag', short: 'Slag', room: FORGEHOLD, x: SLAG_X, hue: 28, range: 120, size: 0.95, accessory: 'apprentice', folk: 'forge', lively: true, faces: -1, blurb: "Ash's apprentice, who trades forge gear by his stack of gear-teeth", shop: 'slag', hello: 'Are you from the north? Is there snow? Trade is the button. (Everyone can hear you.)' },
+  // the Skydocks camp (atlas Phase 6): visitors from the other islands, huddled at the dead city's edge. Kestrel flies
+  // the Kite too, so she stands at its burner on both decks (also) as well as at her stall (KESTREL_X is the same x)
+  { id: 'kestrel', name: 'Pilot Kestrel', short: 'Kestrel', room: SKYCAMP, also: [SKY_UP, SKY_DOWN], x: KESTREL_X, hue: 22, range: 125, size: 1.1, accessory: 'aeronaut', folk: 'forge', faces: 1, blurb: 'flies the balloon Kite up the column, and trades at her stall on the pier', shop: 'kestrel', hello: "Hold the rail, not the ropes. Buying or talking? Trade is the button, on the pier. (Everyone can hear you.)" },
+  { id: 'ione', name: 'Pilgrim Ione', short: 'Ione', room: SKYCAMP, x: IONE_X, hue: 268, range: 120, size: 1.05, accessory: 'pilgrim', faces: -1, blurb: 'came a long way from Wickmere with a lantern for someone', hello: 'Oh. Hello. Mind the lantern, it mustn\'t go out. (Everyone can hear you.)' },
+  { id: 'tamp', name: 'Tamp', short: 'Tamp', room: SKYCAMP, x: TAMP_X, hue: 32, range: 120, size: 1.15, accessory: 'tinker', folk: 'forge', faces: -1, blurb: 'an old forge hand sorting salvaged gears, looking for one in particular', hello: 'Mind the pile. Seen a gear with a hammer mark on it? (Everyone can hear you.)' },
   // the Smoking Coast's glass-cutter (Emberdeep's depth pass E2): fjord folk, thinned nearly clear by the heat
   { id: 'liv', name: 'Liv', short: 'Liv', room: COAST, x: LIV_X, hue: 192, range: 120, size: 1.05, accessory: 'glasscutter', folk: 'thinned', faces: -1, blurb: "Ice-Cutter Eyvind's daughter, who cuts black glass on the Smoking Coast and trades at her shelter", shop: 'liv', hello: 'Mind the edges, they cut. Buying or talking? Trade is the button. (Everyone can hear you.)' },
   // the Brimstone Fields' sulphur-picker (Emberdeep's depth pass E3a): forge folk, a yoke and two baskets, a canary

@@ -73,6 +73,15 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
 - **Picker Ochre** (the Brimstone Fields, E3a, **exists**): forge folk; carries sulphur down to Forgehold's forges in
   two baskets on a yoke; lost her sense of smell to the fumes, keeps a canary called Saffron (her third) who warns
   her of bad air, sings to the vents; the plainest-spoken person on the island; trades. Tier 0 plus the Fields.
+- **Pilot Kestrel** (the Skydocks camp, atlas Phase 6 (b), **exists**): forge folk; flies the balloon Kite up the
+  thermal column (Slag built her burner); trades at her stall on the pier. Talks to the Kite, counts flights again
+  from one, afraid of staying on the ground; her mother wanted her at the anvil. Tier 0 plus the sky.
+- **Pilgrim Ione** (the Skydocks camp, **exists**): from Wickmere (Lantern Fen, not open yet), carrying a lantern for
+  "the one who went up" long ago; never lets it go out. Gentle, strange, everything surprises her. Tier 0 plus home.
+- **Tamp** (the Skydocks camp, **exists**): forge folk; the old master's bellows-boy, looking for the master's best
+  gear (a hammer over a flame on it), sure it went up to the city. Taught Ash to hold tongs; a little deaf; strong tea.
+- **The Dockwarden** (the Skydocks, Phase 6 (c), seen across the gap since (b)): a brass porter automaton logging
+  arrivals that never come; an AI character in (c), speaking in ledger entries.
 - **The Last Echo** (the Citadel): a Keeper echo stuck repeating, who becomes briefly lucid when players
   bring Mochi's name. Holds Tier 4.
 - **Pell** (post-game, by the apple tree): see `mochi-and-chronos.md`.

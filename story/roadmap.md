@@ -83,10 +83,15 @@ No quests, no hard level gates.
    Typhon. **E5 done.** Next: **the owner plays** it with friends.
 
 ## Next
-- [ ] **Atlas Phase 6: the climb** (E4 shipped: this is next; can run alongside E5): the thermal column vista, the balloon crossing (Slag's
-      forge-burner lifts the block), the Skydocks zone, the Skydocks camp as the Citadel's town, the
-      Dockwarden, the Skydocks' folk look. **The skylift goes** once the balloon works, which ends the
-      old back-door chain (`world/geography.md`).
+- [ ] **Atlas Phase 6: the climb**: the thermal column vista, the balloon crossing (Slag's forge-burner lifts the
+      block), the Skydocks zone, the Skydocks camp as the Citadel's town, the Dockwarden. **The skylift goes** once the
+      balloon works, which ends the old back-door chain (`world/geography.md`).
+      - [x] (a) on paper 2026-11-04 (`phase6-plan.md`), approved with every default.
+      - [x] (b) built 2026-11-04: the balloon flies (the Kite, `'sky'` crossing, rooms 66/67), the cradle in Magma Heart as
+            the vista, the Skydocks Camp (room 68, a town: Kestrel and her shop, Ione, Tamp, a waystone), music
+            (`docs/places/skydocks.md`). The plank to the Skydocks is lashed up (wind); the skylift stays.
+      - [ ] (c) the Skydocks (room 69, Lv 135–145: loose bolts, rigging moths, a mooring hook), the Dockwarden (AI), the
+            plank laid, the way on into Cogwork Bastion, **the skylift goes** (after the balloon is tested both ways).
 - [ ] **S6: past the cap** (`progression.md` section 8): stat taper, mastery stars, the Lv 150 advancement.
 - [ ] **Story delivery (atlas Phase 7)**, can run alongside anything (`delivery.md`, `canon.md`):
   - [ ] per-account story progress: bosses beaten at least once, saved with the character; gives the lore tier

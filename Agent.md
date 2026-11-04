@@ -142,7 +142,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/economy.md](docs/economy.md) | ANY gold / EXP / price / drop / scaling change: the balance sheet, `npm run economy` |
 | [docs/social/voice.md](docs/social/voice.md) | proximity voice, broadcast, TURN |
 | [docs/social/chat.md](docs/social/chat.md) | the chatbox, public chat, private messages, chat speech bubbles |
-| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, the branches' traders (Bun, Moss, Truffle, Acorn, Eyvind, Hakon, Pitch), Skipper Arne, Forgehold's three (Ash, Soot, Slag), Auntie Clover, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
+| [docs/social/ai-characters.md](docs/social/ai-characters.md) | Elder Mochi, Captain Brine, Curator Clio, Icefang Hamlet's three, the branches' traders (Bun, Moss, Truffle, Acorn, Eyvind, Hakon, Pitch), Skipper Arne, Forgehold's three (Ash, Soot, Slag), the Skydocks camp's three (Kestrel, Ione, Tamp), Auntie Clover, DeepSeek, NPC memory, how much lore a character knows, characters who trade |
 | [docs/social/trading.md](docs/social/trading.md) | trading coins and items between players, the trade log |
 | [docs/social/accuse.md](docs/social/accuse.md) | accusing someone of botting, the canvas deny button, the EXP skim |
 | [docs/social/lecture-tutor.md](docs/social/lecture-tutor.md) | the lecture hall, courses, votes, the tutoring room |
@@ -150,7 +150,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/museum.md](docs/places/museum.md) | the history museum and its content |
 | [docs/places/houses.md](docs/places/houses.md) | personal houses, the furniture store, the backyard, expanding, decorating, the storage chest (second bag), pets, the swing, the Players panel, invites |
 | [docs/places/harbour.md](docs/places/harbour.md) | Greenhollow Harbour, the lighthouse, Captain Brine, the far-off islands drawn in every sky |
-| [docs/places/crossings.md](docs/places/crossings.md) | crossing rooms (the ferry's and the Lodestar's decks), the voyage clock `state.vt`, boarding (the Set sail card), route themes, the future balloon |
+| [docs/places/crossings.md](docs/places/crossings.md) | crossing rooms (the ferry's and the Lodestar's decks, the balloon's gondola), the voyage clock `state.vt`, boarding (the Set sail card), route themes |
 | [docs/places/fjord.md](docs/places/fjord.md) | Icefang Fjord and Icefang Hamlet (Frostpeak's landing town), Skaldi, Runa and her shop, Tove, the fjord folk's look, the Lodestar's berth |
 | [docs/places/forgehold.md](docs/places/forgehold.md) | Forgehold (Emberdeep's landing town, room 44), Ash, Soot and Slag and their shops, the forge folk's look, the memorial wall, the Caldera pass's removal and the summit lookout, the Emberdeep rename |
 | [docs/places/cliffs.md](docs/places/cliffs.md) | the Keeper ruins in Bramble Woods, Greenhollow's east cliffs, the telescope |
@@ -181,6 +181,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/underflues.md](docs/places/underflues.md) | the Under-Flues (room 63, E5's deep room under the Old Foundry: its mobs, Orthrus), the Long Flue (room 64, the approach to Typhon's den: the grating and the shape under it, the breath, Typhon's line, the furnace door that holds until E5 (c), its sign) |
 | [docs/places/oldice.md](docs/places/oldice.md) | the Old Ice (room 50, FB2's deep room under the Blue Halls: its mobs, the black-ice wolf, Garm), the Long Stair (room 51, the approach to Fenrir's den: the wolf in the ice, Fenrir's line, the door, its sign) |
 | [docs/places/deep.md](docs/places/deep.md) | the Mycelium Deep (room 28), Glowroot Hollow (29, a hard pocket), Forager Truffle, the Knotmole's burrow (30), the Listening Stone |
+| [docs/places/skydocks.md](docs/places/skydocks.md) | atlas Phase 6: the balloon Kite up Emberdeep's thermal column (its cradle at `BALLOON_X`, the `'sky'` route, `src/balloon.js`), the Skydocks camp (room 68, the Citadel's town), Pilot Kestrel and her stall, Pilgrim Ione, Tamp, the plank to the Skydocks, the skylift's end |
 | [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel, within one island), attuning, the travel card |
 | [docs/places/pets.md](docs/places/pets.md) | pets' hunger, moods and dying, feeding, the Pet Shop, Auntie Clover, pet food |
 | [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |

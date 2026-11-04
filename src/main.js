@@ -18,7 +18,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE } from './shared/rpg.js';
+import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, CITADEL_DOOR_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP } from './shared/rpg.js';
 import { drawHighlands, drawSummitLookout } from './highlands.js';
 import { drawCaldera } from './caldera.js';
 import { drawCitadel, drawSkylift } from './citadel.js';
@@ -41,6 +41,7 @@ import { PlayTime } from './playtime.js';
 import { drawHarbour } from './harbour.js';
 import { drawFjord, drawFjordView } from './fjord.js';
 import { drawForgehold, drawForgeView } from './forgehold.js';
+import { drawSkycamp, drawSkycampView } from './skycamp.js';
 import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel, shipName } from './crossing.js';
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
@@ -457,6 +458,7 @@ const sail = {
   open(d) {
     this.door = d;
     document.getElementById('sail-text').textContent = d.ask;
+    document.getElementById('sail-go').textContent = d.go ?? 'Set sail'; // (the balloon says Cast off)
     this.el.hidden = false;
     held.clear();
   },
@@ -1427,7 +1429,7 @@ function update(realDt) {
     mine.talk = ease(mine.talk, voice.micLevel, dt);
   }
 
-  for (const c of characters.values()) c.update(dt, online() && npcIn(c.cfg, room) ? mine : null);
+  for (const c of characters.values()) c.update(dt, online() && npcIn(c.cfg, room) ? mine : null, npcIn(c.cfg, room) ? room : undefined);
   if (sail.door && !(online() && doorAt(net.me) === sail.door)) sail.close(); // walked off the gangway
   if (room === MUSEUM) museum.update(dt, online() ? net.me : null);
   if (scope.isOpen) scope.update(dt);
@@ -1547,7 +1549,7 @@ function drawHints() {
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);
-  if (talk) acts.push({ key: 'E', label: talk.cfg.shop ? `talk to ${talk.cfg.name} (or trade)` : `talk to ${talk.cfg.name}` });
+  if (talk) acts.push({ key: 'E', label: talk.cfg.shop && SHOPS[talk.cfg.shop]?.room === room ? `talk to ${talk.cfg.name} (or trade)` : `talk to ${talk.cfg.name}` });
   else if (nearShop()) acts.push({ key: 'E', label: 'shop with Merchant Pip' });
   else if (nearPool(me, room)) acts.push({ key: 'E', label: 'the Rebirth Pool' });
   else if (room === MUSEUM && museum.near) acts.push({ key: 'E', label: `read: ${museum.near.title.length > 34 ? museum.near.title.slice(0, 32) + '…' : museum.near.title}` });
@@ -1600,6 +1602,7 @@ function render() {
   const view = isHouse(room) ? (TOWNS[houses.viewOf(room)] ?? TOWNS[0]).room : room;
   if (view === FJORD) drawFjordView(ctx, camX, time);
   else if (view === FORGEHOLD) drawForgeView(ctx, camX, time);
+  else if (view === SKYCAMP && room !== SKYCAMP) drawSkycampView(ctx, camX, time); // (the camp paints its own sky)
   else if (view === VILLAGE || view === FIELD) drawBackground(ctx, camX, time, ENV, roomDef(room).width);
 
   ctx.save();
@@ -1652,6 +1655,7 @@ function render() {
   else if (room === HARBOUR) drawHarbour(ctx, camX, W, time);
   else if (room === FJORD) drawFjord(ctx, camX, W, time);
   else if (room === FORGEHOLD) drawForgehold(ctx, camX, W, time);
+  else if (room === SKYCAMP) drawSkycamp(ctx, camX, W, time);
   else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
   else if (room === LONGFLUE) drawLongFlue(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === LONGSTAIR) drawLongStair(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
@@ -1757,6 +1761,7 @@ function render() {
     else if (status === 'online' && room === HARBOUR) drawPill(16, 14, 300, `Greenhollow Harbour · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === FJORD) drawPill(16, 14, 300, `Icefang Hamlet · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === FORGEHOLD) drawPill(16, 14, 300, `Forgehold · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === SKYCAMP) drawPill(16, 14, 300, `The Skydocks Camp · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CLIFFS) drawPill(16, 14, 300, `The East Cliffs · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === ROADSEND) drawPill(16, 14, 300, `The Road's End · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === LONGFLUE) drawPill(16, 14, 300, `The Long Flue · ${here} slime${here === 1 ? '' : 's'}`);

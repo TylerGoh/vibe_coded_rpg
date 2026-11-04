@@ -13,7 +13,8 @@ one shared corner feed).
   `docs/places/glacier.md`), the Whale Skerries' Hakon the Bone-Carver (fjord folk, trades;
   `docs/places/skerries.md`), the Lodestar's Skipper Arne (fjord folk, at her wheel on both decks, like
   Brine; `docs/places/crossings.md`), Forgehold's Forgewarden Ash, Auntie Soot and Slag (forge folk; Soot and
-  Slag trade; `docs/places/forgehold.md`), the Ashwood's Collier Pitch (forge folk, trades; `docs/places/ashwood.md`), and
+  Slag trade; `docs/places/forgehold.md`), the Ashwood's Collier Pitch (forge folk, trades; `docs/places/ashwood.md`), the Skydocks camp's Pilot Kestrel
+  (forge folk, trades at her stall, flies the balloon on both its decks), Pilgrim Ione and Tamp (`docs/places/skydocks.md`), and
   the Pet Shop's Auntie Clover (sells pet food, preaches feeding; `docs/places/pets.md`). Press E
   in range to talk.
 - When a place opens, update the personas that can see it, or they keep describing the block: Moss knows
@@ -37,6 +38,10 @@ one shared corner feed).
   down, older than his, to black ice and a camp left in a hurry; he won't go down. On the writing carved by the
   hole he goes quiet: his grandfather's crew came back up early one winter and never said why, but he never says
   it was them ("Some crews come back early. You don't ask them why.").
+  Atlas Phase 6 (b): the balloon flies (Slag's burner). Ash's shut-ways list lost it (he looked the burner over and
+  said nothing; old Tamp went up); Slag built the burner and goes red about it. The camp's three know the plank to the
+  Skydocks is lashed up against the wind and the brass figure across the gap; none of them has been into the city. A
+  character who stands in more than one room (`also`) trades only where its shop is (`src/npc.js`).
   E0 (atlas Phase 5): the Lodestar sails and the Caldera pass is gone. Brine is thrilled for Arne and says the
   only way south is his ship; Skaldi lit every quay lamp; Runa is glad and cross (her tarp); Eyvind sent his box
   of letters south with Arne and has no answer yet; Tove wants to go. In Forgehold, Ash lists every shut way

@@ -22,7 +22,8 @@
 // new steps cut up to the Aurora Heights (F3), and on Emberdeep the geyser on Forgehold's beach path gone quiet,
 // stones laid across it, to the Black Sands (E1), and the charcoal road's iron bridge hauled back up onto its
 // stones, to the Ashwood (E1), and the gully's lava tongue crusted hard, steps cut down it, to the Smoking Coast (E2), and
-// the vent field with the fumes blown off the path and cairns up it, to the Brimstone Fields (E3a).
+// the vent field with the fumes blown off the path and cairns up it, to the Brimstone Fields (E3a), and the balloon
+// up in its cradle by the thermal column, full, with Slag's burner, to the Skydocks (atlas Phase 6: OPEN.balloon).
 // The Ashwood's own gate: the Old Foundry's mine adit, bricked up by the forge folk until E3b (OPEN.adit: the bricks
 // stacked beside it, a lamp lit). The Coast's old lava tube in its
 // sea cliff, steam roaring out of it until it drained (E2), open to the Drained Tubes (OPEN.tubemouth: old steps down).
@@ -2274,6 +2275,103 @@ function drawBalloon(ctx, time) {
   ctx.stroke();
 }
 
+// Open since atlas Phase 6 (docs/places/skydocks.md): the Kite up in her cradle, full, straining at her tethers, a
+// squat iron burner under the envelope's mouth (Slag's, his hammer marks on it) roaring now and then, the gondola
+// on the ledge with its gate open, and the column pouring up strong behind (it still stalls, but she carries through)
+function drawBalloonUp(ctx, time) {
+  for (let i = 0; i < 10; i++) { // the column, steady now
+    const y = -40 - i * 44, wob = Math.sin(time * 2.2 + i) * 5;
+    ctx.fillStyle = `rgba(255,214,180,${0.16 * (1 - i / 11)})`;
+    ellipse(ctx, 30 + wob, y, 46 + i * 5, 24);
+  }
+  for (let i = 0; i < 6; i++) { // sparks lifting in it
+    const k = (time * 0.4 + i / 6) % 1;
+    ctx.fillStyle = `rgba(255,190,110,${0.8 * (1 - k)})`;
+    circle(ctx, 10 + Math.sin(i * 2.1 + time) * 40, -30 - k * 420, 1.8);
+  }
+  // the ledge and the cradle
+  ctx.fillStyle = '#4a3a44';
+  ctx.beginPath();
+  ctx.roundRect(-110, -22, 230, 26, 6);
+  ctx.fill();
+  const bob = Math.sin(time * 1.1) * 4, cy = -300 + bob; // the envelope's middle, tugging at its tethers
+  // tethers to iron rings in the ledge
+  ctx.strokeStyle = 'rgba(200,190,175,0.9)';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (const [x0, x1] of [[-100, -70], [110, 80]]) {
+    ctx.moveTo(x0, -20);
+    ctx.lineTo(x1, cy + 96);
+  }
+  ctx.stroke();
+  // the envelope: tall, patched, red with gold gores
+  ctx.fillStyle = '#c95f58';
+  ctx.strokeStyle = '#7a3a38';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(-26, cy + 120);
+  ctx.bezierCurveTo(-150, cy + 40, -120, cy - 130, 0, cy - 130);
+  ctx.bezierCurveTo(120, cy - 130, 150, cy + 40, 26, cy + 120);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = '#e8c45a';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (const k of [-0.62, -0.25, 0.25, 0.62]) {
+    ctx.moveTo(26 * k, cy + 118);
+    ctx.quadraticCurveTo(130 * k, cy - 20, 0, cy - 128);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.18)'; // a shine
+  ellipse(ctx, -50, cy - 60, 18, 40, -0.3);
+  ctx.fillStyle = '#d8c8a8'; // patches
+  ctx.fillRect(-70, cy - 20, 16, 12);
+  ctx.fillRect(44, cy + 20, 14, 14);
+  ctx.fillRect(-12, cy - 96, 12, 10);
+  // the burner under the mouth, roaring in bursts
+  const roar = Math.max(0, Math.sin(time * 1.7)) ** 3;
+  ctx.fillStyle = '#4e4a56';
+  ctx.beginPath();
+  ctx.roundRect(-16, cy + 124, 32, 18, 4);
+  ctx.fill();
+  ctx.fillStyle = '#7a7480';
+  for (const x of [-8, 2, 10]) circle(ctx, x, cy + 130, 1.6); // the hammer marks
+  ctx.fillStyle = `rgba(255,200,90,${0.35 + 0.6 * roar})`;
+  ctx.beginPath();
+  ctx.moveTo(-9, cy + 124);
+  ctx.quadraticCurveTo(0, cy + 70 - roar * 30, 9, cy + 124);
+  ctx.closePath();
+  ctx.fill();
+  // ropes down to the gondola
+  const gy = -66;
+  ctx.strokeStyle = 'rgba(200,190,175,0.9)';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  for (const [a, b] of [[-14, -60], [14, 60], [-6, -20], [6, 20]]) {
+    ctx.moveTo(a, cy + 140);
+    ctx.lineTo(b, gy);
+  }
+  ctx.stroke();
+  // the gondola on the ledge, its little gate open
+  ctx.fillStyle = '#a8784a';
+  ctx.strokeStyle = '#6a4a2e';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(-64, gy, 128, 44, [4, 4, 10, 10]);
+  ctx.fill();
+  ctx.stroke();
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let y = gy + 7; y < gy + 42; y += 7) {
+    ctx.moveTo(-62, y);
+    ctx.lineTo(62, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#3a2c34';
+  ctx.fillRect(-10, gy + 6, 20, 38);
+}
+
 const DRAW = { tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair };
 // The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
 // going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
@@ -2517,5 +2615,5 @@ function drawFlue(ctx, time) {
 const OPEN = { flue: drawFlue, fallenwall: drawFallenWall, icestair: (ctx, time, g) => drawIcestair(ctx, time, g, true), snout: drawSnout, crevasse: (ctx, time, g) => drawCrevasse(ctx, time, g, true), icefall: (ctx, time, g) => drawIcefall(ctx, time, g, true), snowslide: drawSnowslideOpen, grotto: drawGrottoMouth, bridge: (ctx, time, g) => drawBridge(ctx, time, g, true), shore: drawShore, stump: (ctx, time, gate) => drawStump(ctx, time, gate, true), crack: drawCrack, ladder: (ctx, time, g) => drawLadder(ctx, time, g, true),
   flooded: (ctx, time, g) => drawFlooded(ctx, time, g, true), thorns: (ctx, time, g) => drawThorns(ctx, time, g, true), trunk: (ctx, time, g) => drawTrunk(ctx, time, g, true), rootsplit: drawRootSplit, geyser: (ctx, time, g) => drawGeyser(ctx, time, g, true), ironbridge: (ctx, time, g) => drawIronBridge(ctx, time, g, true),
   lavatongue: (ctx, time, g) => drawLavaTongue(ctx, time, g, true), tubemouth: (ctx, time, g) => drawTubeMouth(ctx, time, g, true),
-  fumes: (ctx, time, g) => drawFumes(ctx, time, g, true), bearerstair: (ctx, time, g) => drawBearerStair(ctx, time, g, true),
+  fumes: (ctx, time, g) => drawFumes(ctx, time, g, true), bearerstair: (ctx, time, g) => drawBearerStair(ctx, time, g, true), balloon: drawBalloonUp,
   adit: (ctx, time, g) => drawAdit(ctx, time, g, true) };

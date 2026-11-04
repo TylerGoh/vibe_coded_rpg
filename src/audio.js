@@ -821,6 +821,61 @@ const SONGS = {
     },
   },
 
+  // Aboard the Kite (the sky route, atlas Phase 6, docs/places/skydocks.md): the climb. F major, slow and open, wind on
+  // a high bed, a glockenspiel line that keeps climbing, long string pads, and the burner roaring in bursts under it
+  sky: {
+    bpm: 70, spb: 4, melSteps: 4, key: 65, scale: MAJOR, gain: 0.72, send: 0.55, loop: 8,
+    chords: [[1, 3, 5], [5, 7, 9], [6, 8, 10], [4, 6, 8], [1, 3, 5], [2, 4, 6], [4, 6, 8], [5, 7, 9]],
+    mel: melody(
+      '1 - 3 5', '5 - - .', '6 - 8 10', '8 - - .',
+      '5 - 6 8', '9 - 8 6', '8 - 9 10', '12 - - .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'highpass', 2600, 0.006); // the wind in the rigging
+      p.eng.bed(p, 'lowpass', 260, 0.008); // the column, far below
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) {
+        pad(p, ch, t, p.stepDur * 4, 0.013, { type: 'triangle', a: 1, cutoff: 1400, rel: 1.4 });
+        e.voice(p.c, t, p.f(ch[0], -2), { type: 'sine', vol: 0.06, a: 0.5, hold: p.stepDur * 3, rel: 1 });
+      }
+      const m = p.mel(bar, s);
+      if (m) e.voice(part ? p.l : p.r, t, p.f(m.d, 1), { ...GLOCK, vol: 0.05, tau: 0.7 });
+      if (m && part) e.voice(p.c, t, p.f(m.d), { type: 'sine', vol: 0.03, a: 0.08, hold: m.len * 0.8, rel: 0.6, vib: 4, vibRate: 4 });
+      if (s === 2 && bar % 2 === 1) e.noiseHit(p.c, t, { type: 'lowpass', f: 500, sweep: 1600, sweepT: 0.7, vol: 0.04, a: 0.1, hold: 0.6, tau: 0.5 }); // the burner
+      if (s === 3 && chance(0.2)) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'bandpass', f: 260, q: 6, vol: 0.015, a: 0.05, hold: 0.15, tau: 0.25 }); // the wicker creaking
+    },
+  },
+  // The Skydocks camp (docs/places/skydocks.md): cold, thin, a long way from anywhere. D dorian, very slow: the wind,
+  // the dead city's clockwork ticking far overhead (out of step), a low bowed drone, a lonely line on a flute-ish
+  // voice, and the brazier crackling close by. Solemn, with the camp's one small warmth in it
+  skycamp: {
+    bpm: 58, spb: 4, melSteps: 4, key: 62, scale: DORIAN, gain: 0.7, send: 0.6, loop: 8,
+    chords: [[1, 3, 5], [7, 9, 11], [4, 6, 8], [1, 3, 5], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5]],
+    mel: melody(
+      '5 - - 4', '3 - - .', '4 - 5 6', '5 - - .',
+      '8 - 7 6', '5 - 4 .', '3 - 2 3', '1 - - .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'highpass', 3200, 0.007); // the wind
+      p.eng.bed(p, 'bandpass', 700, 0.004, 0.6); // the cloud sea, a hush
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) {
+        e.voice(p.c, t, p.f(1, -2), { type: 'sawtooth', vol: 0.03, a: 1, hold: p.stepDur * 3, rel: 1.2, cutoff: 500 });
+        pad(p, ch, t, p.stepDur * 4, 0.01, { type: 'sine', a: 1.2, cutoff: 900, rel: 1.5 });
+      }
+      if (s % 2 === 1) clockTick(p, t + p.stepDur * 0.13, s === 1, 0.008); // the city, ticking far overhead, a little late
+      const m = p.mel(bar, s);
+      if (m && part === 0) e.voice(p.r, t, p.f(m.d, 1), { type: 'sine', vol: 0.04, a: 0.15, hold: m.len * 0.85, rel: 0.6, vib: 5, vibRate: 5 });
+      if (m && part === 1) e.voice(p.l, t, p.f(m.d, 1), { ...GLOCK, vol: 0.03, tau: 0.8 });
+      if (chance(0.3)) e.noiseHit(p.c, t + rand(0, p.stepDur), { f: rand(1800, 3200), q: 3, vol: 0.006, tau: 0.015 }); // the brazier
+      if (s === 0 && bar === 4 && pass % 2 === 1) e.noiseHit(p.l, t, { type: 'bandpass', f: 180, q: 4, vol: 0.02, a: 0.3, hold: 0.4, tau: 0.6 }); // the pier groaning
+    },
+  },
+
   // Lecture hall: soft maj7 pads and a rare bell; the professor talks over it
   hall: {
     bpm: 56, spb: 8, key: 60, scale: MAJOR, gain: 0.6, send: 0.35,
@@ -3283,7 +3338,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon']; // (63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon', 'sky', 'sky', 'skycamp']; // (66-67: the Kite's gondola, up and down, and 68: the Skydocks camp, atlas Phase 6; 63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)

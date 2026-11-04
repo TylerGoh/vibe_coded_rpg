@@ -7,11 +7,13 @@
 // clock runs out she's in: the sea stills, a jetty lies alongside and the gangway goes down (the door's
 // `after`). One room type, themed per route (`crossing.route`): 'cold' (Greenhollow–Frostpeak: icebergs, snow,
 // the aurora) and 'steam' (Frostpeak–Emberdeep through the Steam Straits: the last icebergs, fog banks, warm
-// green water, geysers out of the sea, steam, ash settling, Emberdeep's black cliffs). SHIPS: each route's ship.
+// green water, geysers out of the sea, steam, ash settling, Emberdeep's black cliffs), and 'sky' (atlas Phase 6: the
+// balloon Kite up Emberdeep's thermal column to the Skydocks, drawn by src/balloon.js). SHIPS: each route's ship.
 // This room paints its own sky.
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { DECK_W, DECK_GROUND, DECK_PLATFORMS, DECK_GANGWAY_X, roomDef, voyage } from './shared/sim.js';
 import { drawLandmark } from './distant.js';
+import { drawSkyRoute, drawGondola, drawSkyFront } from './balloon.js';
 
 const GROUND = DECK_GROUND;
 const HORIZON = 292;
@@ -33,11 +35,12 @@ function text(ctx, str, x, y, size, color, align = 'center') {
   ctx.fillText(str, x, y);
 }
 
-const ISLAND_NAME = { green: 'Greenhollow', frost: 'Frostpeak', ember: 'Emberdeep' };
+const ISLAND_NAME = { green: 'Greenhollow', frost: 'Frostpeak', ember: 'Emberdeep', citadel: 'the Skydocks' };
 // How each route's ship looks on deck (the deck's platforms are the same for every ship). paddle: a paddle
 // box amidships (else portholes all along); funnel: [pipe, band, width]
 const SHIPS = {
   cold: { name: 'Puddle Jumper', short: 'Ferry', hull: '#4f6b9a', band: '#fff1dc', label: 'PUDDLE JUMPER', ink: '#4f6b9a', paddle: true, funnel: ['#4f6b9a', '#e86f86', 36], cabin: '#fff8f0', roof: ['#7fc8c0', '#5aa9a1'], sail: '#fff6ea', stripe: 'rgba(244,166,180,0.55)', pennant: '#9fd8ff', smoke: '240,236,246' },
+  sky: { name: 'Kite', short: 'Kite' }, // (the balloon: her look is src/balloon.js's own)
   steam: { name: 'Lodestar', short: 'Lodestar', hull: '#3e4258', band: '#c9a07a', label: 'LODESTAR', ink: '#3e4258', paddle: false, funnel: ['#4a4450', '#c9a07a', 18], cabin: '#e2d6c2', roof: ['#8a9a7e', '#6a7a60'], sail: '#efe4cc', stripe: 'rgba(208,72,90,0.42)', pennant: '#d0485a', smoke: '200,196,200' },
 };
 export const shipName = (cr, short = false) => (SHIPS[cr.route] ?? SHIPS.cold)[short ? 'short' : 'name'];
@@ -53,7 +56,10 @@ export function crossingAt(room, me) {
   return { ...c, k, d: DIST * ease, u, w: c.to === 'ember' ? k : 1 - k, docked: k >= 1, left: Math.max(0, Math.ceil((c.ticks - (me?.vt | 0)) / 60)) };
 }
 // "Frostpeak in 42 s" for the HUD
-export const crossingLabel = (cr) => (cr.docked ? `In at ${ISLAND_NAME[cr.to]}` : `${ISLAND_NAME[cr.to]} in ${cr.left} s`);
+export const crossingLabel = (cr) => {
+  const at = ISLAND_NAME[cr.to];
+  return cr.docked ? `In at ${at}` : `${at[0].toUpperCase()}${at.slice(1)} in ${cr.left} s`;
+};
 
 // ——— seeded scenery ———
 const clouds = (() => {
@@ -84,17 +90,20 @@ export function drawCrossing(ctx, room, camX, viewW, time, me) {
   if (!cr) return;
   ctx.save();
   ctx.translate(camX, 0); // sky, sea and coasts in screen space
-  if (cr.route === 'steam') drawSteamSea(ctx, cr, camX, time);
+  if (cr.route === 'sky') drawSkyRoute(ctx, cr, camX, time);
+  else if (cr.route === 'steam') drawSteamSea(ctx, cr, camX, time);
   else drawSea(ctx, cr, camX, time);
   ctx.restore();
   const L = camX - 80, R = camX + viewW + 80;
-  drawShip(ctx, cr, L, R, time);
+  if (cr.route === 'sky') drawGondola(ctx, cr, L, R, time);
+  else drawShip(ctx, cr, L, R, time);
 }
 
 // In front of the slimes: the near water lapping over the hull's foot, the bow wave
 export function drawCrossingFront(ctx, room, camX, viewW, time, me) {
   const cr = crossingAt(room, me);
   if (!cr) return;
+  if (cr.route === 'sky') return drawSkyFront(ctx, cr, camX, viewW, time); // (no water up there: cloud wisps under the gondola)
   const speed = cr.docked ? 0 : Math.sin(Math.PI * Math.min(1, cr.k * 1.05));
   const top = GROUND + 62, col = cr.route === 'steam' ? mix('#5d7f9e', '#5f9c88', smooth(0.35, 0.85, cr.w)) : mix('#7cc0d6', '#5d7f9e', cr.u);
   ctx.fillStyle = col;

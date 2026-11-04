@@ -17,6 +17,7 @@ import { drawBonecarverDress } from './skerries-art.js';
 import { drawCollierDress } from './ashwood-art.js';
 import { THIN_PALETTE, drawThinFolk, drawGlasscutterDress } from './coast-art.js';
 import { drawPickerDress } from './brimstone-art.js';
+import { drawCampDress } from './skycamp-art.js';
 import { drawPetkeeperDress } from './pet-art.js';
 
 // yr's laptop notifications: icon colours, and how long each one floats
@@ -1009,6 +1010,7 @@ export class Slime {
     if (this.has('collier')) drawCollierDress(ctx, w, h, fx, this.t); // the Ashwood's Collier Pitch
     if (this.has('glasscutter')) drawGlasscutterDress(ctx, w, h, fx, this.t); // the Smoking Coast's Liv
     if (this.has('picker')) drawPickerDress(ctx, w, h, fx, this.t); // the Brimstone Fields' Picker Ochre
+    for (const kind of ['aeronaut', 'pilgrim', 'tinker']) if (this.has(kind)) drawCampDress(ctx, kind, w, h, fx, this.t); // the Skydocks camp's visitors (Kestrel, Ione, Tamp)
     if (this.has('petkeeper')) drawPetkeeperDress(ctx, w, h, fx, this.t, bodyPath); // the Pet Shop's Auntie Clover
     if (this.has('captain')) {
       // Captain Brine: a salt-white beard, a navy captain's cap with a gold anchor badge, and a brass spyglass

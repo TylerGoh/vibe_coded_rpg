@@ -93,6 +93,9 @@ island shows what's coming.
   in `ROOMS[BRIMSTONE]` / `ROOMS[RIM]`. A waystone at the Stair Head (a heart room, like the Queen's Bridge). Brenna's den
   (E4b) is reserved: room 62, its mouth at `BRENNA_DEN_X` (the old hoist frame); `ROOMS[RIM]` already spreads
   `denDoors(RIM)`. Emberdeep's only gate left is the balloon (Phase 6).
+- **Lifted (atlas Phase 6 (b), the balloon):** `docs/places/skydocks.md`: the `column` node has an `entry` at `BALLOON_X`
+  (the Kite up in her cradle, `OPEN.balloon`) and no rooms of its own; its door (in `ROOMS[CALDERA]`) boards the balloon's
+  deck, not a branch. No gate is left on Emberdeep.
 - **Shipped (E5 (b), the way to Typhon):** `docs/places/underflues.md`: the back of the Old Foundry's big casting pit fell
   in (the update did it), a brick flue down to the Under-Flues (`flue` drawn by `OPEN.flue`); the `underflues` node has
   both rooms (63, 64) and an `entry` in the Foundry. Until E5 (c) a `hearth` node gated the den's door at the Long
@@ -103,7 +106,8 @@ island shows what's coming.
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 66 after E5 (b)'s Under-Flues (63) and Long Flue (64) and the Hearth it keeps (65, E5 (c)); before that, E4a's Caldera Rim (61) and the Bearer's Hoist it keeps (62, E4b), E3b's Old Foundry (60), E3a's Brimstone Fields (59), E2's Smoking Coast (56), the Hatchkeeper's den (57) and the Drained Tubes (58), E1's Ashwood (55) and Black Sands (54); 53 is the dev sandbox's Training Yard; ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, the Wolf's Hold)), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 69 after atlas Phase 6 (b)'s balloon decks (66, 67) and the
+  Skydocks camp (68), and 69 is kept for Phase 6 (c)'s Skydocks; 66 after E5 (b)'s Under-Flues (63) and Long Flue (64) and the Hearth it keeps (65, E5 (c)); before that, E4a's Caldera Rim (61) and the Bearer's Hoist it keeps (62, E4b), E3b's Old Foundry (60), E3a's Brimstone Fields (59), E2's Smoking Coast (56), the Hatchkeeper's den (57) and the Drained Tubes (58), E1's Ashwood (55) and Black Sands (54); 53 is the dev sandbox's Training Yard; ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, the Wolf's Hold)), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last; `onRoomPlat` helper names must be new: F2 first clashed with
   Willowmere's `onWPlat`), a `STAGES` row (`band`, `pill` if the name is long, `hard` for

@@ -131,6 +131,32 @@ export const CITADEL_PLATFORMS = [
   { x: 3150, y: 230, w: 200, kind: 'aether' },
   { x: 3650, y: 320, w: 240, kind: 'aether' },
 ];
+// The Skydocks camp (room 68, atlas Phase 6, docs/places/skydocks.md): the Citadel's town, a safe room. Tents and a
+// brazier lashed to the one pier under the Citadel that still holds, kept by visitors who came up by balloon. West to
+// east: Pilot Kestrel's stall (she trades: SHOPS; x matches her spot at the burner on the balloon's decks), the
+// mooring mast where the Kite ties up (her gangway boards SKY_DOWN, sim.js), the tent whose flap is everyone's own
+// front door, the waystone, the brazier (you wake by it), Pilgrim Ione's lantern pole, Tamp's pile of salvaged gears,
+// and the pier's end, where the plank across to the Skydocks is pulled in (the wind; Phase 6 (c) lays it).
+export const SKYCAMP = 68; // room id
+export const CAMP_W = 2700;
+export const KESTREL_X = 250; // Pilot Kestrel, at her stall
+export const CAMP_DOCK_X = 640; // the Kite's gangway at the mooring mast
+export const CAMP_HOME_X = 1010; // the tent flap that is everyone's own front door
+export const CAMP_WAY_X = 1190; // the waystone
+export const CAMP_SPAWN_X = 1330; // where you wake up, by the brazier
+export const CAMP_FIRE_X = 1420; // the brazier
+export const IONE_X = 1700; // Pilgrim Ione, by her lantern pole
+export const TAMP_X = 2060; // Tamp, by his pile of salvaged gears
+export const CAMP_END_X = 2560; // the pier's end, where the plank to the Skydocks is pulled in
+// crates hauled up by Kestrel's stall, the mast's mooring ring, the tent ridges, the gear pile, a hanging gantry
+export const CAMP_PLATFORMS = [
+  { x: 360, y: 384, w: 108, kind: 'crates' },
+  { x: 560, y: 196, w: 160, kind: 'ring' }, // the mooring ring up the mast
+  { x: 890, y: 330, w: 240, kind: 'tent' },
+  { x: 1560, y: 268, w: 200, kind: 'gantry' }, // a gantry hanging off the city's underside on chains
+  { x: 1930, y: 360, w: 170, kind: 'gears' }, // Tamp's pile
+  { x: 2280, y: 300, w: 180, kind: 'tent' },
+];
 // ——— Greenhollow's branches (island depth G1: story/world/island-depth.md, docs/places/willowmere.md and
 // docs/places/coves.md) ———
 // Willowmere (room 24): north of Sprout Meadow up the brook path. West to east: the mill (no mobs; Miller
@@ -3348,6 +3374,8 @@ export const ITEMS = {
   condor_quill: { name: 'Condor Quill', price: 1320, kind: 'loot', desc: "A flight feather as long as your arm, its tip singed ragged by the vents. The forge folk use them to sweep the hearth." },
   brimstone_pick: { name: 'Brimstone Pick', price: 215000, lvl: 131, aim: 135, kind: 'sword', atk: 190, reach: 56, desc: "A short iron pick with a long chisel point, its haft worn pale where a hand has held it for years. Ochre picks sulphur with one just like it." },
   fume_mask: { name: "Picker's Fume Mask", price: 170000, lvl: 131, aim: 135, kind: 'helmet', def: 92, desc: 'A leather hood with a pad of wet cloth over the mouth and two smoked-glass eyes. It does not stop the smell. Nothing does.' },
+  // Pilot Kestrel's own, at the Skydocks camp (atlas Phase 6, docs/places/skydocks.md)
+  aeronaut_goggles: { name: "Aeronaut's Goggles", price: 185000, lvl: 136, aim: 140, kind: 'helmet', def: 95, desc: 'A padded leather flying cap with brass goggles and ear-flaps that tie under the chin. The lenses are scratched from looking down.' },
   fumarole_helm: { name: 'Fumarole Helm', price: 613000, lvl: 132, kind: 'helmet', def: 92, desc: "An iron helm crusted over with a vent crab's sulphur crystals, yellow on black. It steams a little in the rain. Forged for a wheel that never got it." },
   kitetalon: { name: 'Kitetalon', price: 857000, lvl: 136, kind: 'sword', atk: 195, reach: 60, desc: "A hooked iron blade shaped like a kite's talon, its edge stained yellow. It comes down the way the bird does." },
   condor_pinion: { name: 'Condor Pinion', price: 935000, lvl: 142, kind: 'sword', atk: 201, reach: 66, desc: "A long blade beaten from slag iron in the shape of a condor's flight feather, the vanes cut into its edge. Forged for a wheel that never got it." },
@@ -3679,6 +3707,7 @@ export const SHOPS = {
   liv: { name: "Liv's Shelter", room: COAST, x: LIV_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'glasscutter_blade', 'quench_staff', 'glasscutter_bow', 'smoked_visor'] },
   // the Brimstone Fields (E3a): Picker Ochre's sulphur-picker's gear and potions at her lean-to
   ochre: { name: "Ochre's Lean-to", room: BRIMSTONE, x: OCHRE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'brimstone_pick', 'pick_staff', 'picker_bow', 'fume_mask'] },
+  kestrel: { name: "Kestrel's Stall", room: SKYCAMP, x: KESTREL_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'aeronaut_goggles'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));

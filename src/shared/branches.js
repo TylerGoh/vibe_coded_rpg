@@ -50,7 +50,7 @@ export const FROSTPEAK = [
 ];
 // Emberdeep (atlas Phase 5, E0 on: story/world/emberdeep-depth.md): Forgehold, the legacy stage's two zones,
 // and every branch's gate laid before any of them ships. The balloon by the thermal column is atlas Phase 6
-// (to the Citadel's Skydocks), not a branch, but it's blocked the same way and shown on the map.
+// (to the Citadel's Skydocks), not a branch, but it was blocked the same way and is shown on the map.
 export const EMBERDEEP = [
   { id: 'forgehold', name: 'Forgehold', at: [205, 215], rooms: [FORGEHOLD], town: true },
   { id: 'flats', name: 'Cinder Flats', band: '90–100', at: [355, 215], from: 'forgehold', zone: 0, zr: CALDERA },
@@ -73,8 +73,9 @@ export const EMBERDEEP = [
   { id: 'brimstone', name: 'Brimstone Fields', band: '125–140', at: [505, 135], from: 'heart', rooms: [BRIMSTONE], entry: { room: CALDERA, x: BRIMSTONE_GATE_X, kind: 'fumes' } },
   // E4a: the Bearers' stair rechained, its fallen top steps rebuilt in iron (the update itself lifted it)
   { id: 'rim', name: 'Caldera Rim', band: '135–150', at: [505, 58], from: 'brimstone', rooms: [RIM], entry: { room: BRIMSTONE, x: RIM_GATE_X, kind: 'bearerstair' } },
-  { id: 'column', name: 'The Balloon', at: [640, 215], from: 'heart', block: 'the column stalls',
-    gate: { room: CALDERA, x: BALLOON_X, kind: 'balloon', look: 'look at the balloon', says: 'The column keeps stalling. Nobody goes up in a wind that drops out under them.' } },
+  // atlas Phase 6: the balloon flies (Slag built the pilot a forge-burner that carries her through the stalls; the update
+  // itself lifted it). Her gangway is a door (sim.js, up to the Skydocks camp); the node has no rooms of its own
+  { id: 'column', name: 'The Balloon', at: [640, 215], from: 'heart', entry: { room: CALDERA, x: BALLOON_X, kind: 'balloon' } },
 ];
 export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK, ember: EMBERDEEP };
 const ALL = Object.values(ISLAND_MAPS).flat();

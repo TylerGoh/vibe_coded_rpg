@@ -1,6 +1,6 @@
 # Crossings: the ferry, the Lodestar and the sea between islands
 
-Atlas Phase 3, "the crossing room", and Phase 5, the Steam Straits (`story/world/atlas.md`). Story:
+Atlas Phase 3, "the crossing room", Phase 5, the Steam Straits, and Phase 6, the balloon (`story/world/atlas.md`). Story:
 `story/world/geography.md` (distance and travel), `story/world/regions/frostpeak.md`,
 `story/world/regions/emberdeep.md`.
 
@@ -20,7 +20,8 @@ pin at sea in `src/worldmap.js`, Brine's and Arne's personas in
 - **One room type, themed per route.** A room is a crossing when its `ROOMS` entry has `crossing: { route,
   from, to, ticks }`. `route` picks the palette and props in `src/crossing.js` (only `'cold'` so far: the
   Greenhollow–Frostpeak ferry); `from` / `to` are `src/distant.js` island keys. The Lodestar (atlas Phase 5) is the `'steam'` route; the
-  balloon (Phase 6) will be another entry plus a route theme, not a new code path. Each route's ship has its
+  balloon Kite (Phase 6) is the `'sky'` route, drawn by `src/balloon.js` (the sky, the gondola and the envelope instead
+  of the sea and a hull: `docs/places/skydocks.md`). Each route's ship has its
   own look on the same deck (`SHIPS`: hull, name, a paddle box or not, the funnel, the sail), and its name is
   on the voyage pill (`shipName`).
 - **Each direction is its own room** (`FERRY_N` out, `FERRY_S` home), so the two sailings don't share a deck
@@ -73,6 +74,13 @@ pin at sea in `src/worldmap.js`, Brine's and Arne's personas in
   condition for sailing is met, so the notice says "All aboard!" and the gangway (`GANGWAY_X`) is a door.
   See `docs/places/harbour.md`.
 
+## The sky route (the Kite, atlas Phase 6)
+- `SKY_UP` (room 66: Magma Heart's cradle at `BALLOON_X` up to the Skydocks camp's mast, `CAMP_DOCK_X`) and `SKY_DOWN`
+  (67, back down). Up is the slow one. No sea: her clock drives how high you are (`skyAt`: the crater, the column's
+  sparks, three cloud layers through the deck, the archipelago small below, the Citadel's underside overhead). Front
+  of the slimes: cloud wisps under the gondola instead of water. Pilot Kestrel on both decks (`also`). Her door's card
+  says Cast off (`go` on the door). Details: `docs/places/skydocks.md`.
+
 ## HUD, hints and phones
 - A pill at the top left: where she's bound, seconds to go (or "In at …"), who's aboard, and a thin track
   of the voyage. On phones it's narrower ("Ferry · …") so it clears the top buttons.
@@ -85,6 +93,8 @@ pin at sea in `src/worldmap.js`, Brine's and Arne's personas in
   and 6: never remove a back door before its crossing works).
 - 2026-10-23 (atlas Phase 5): the Lodestar sails. The Caldera pass went in the same update, after both
   directions were tested. The skylift stays until the balloon works (Phase 6).
+- 2026-11-04 (atlas Phase 6 (b)): the balloon flies. The skylift stays one more step, until (c) opens the Skydocks
+  and the way on into the Citadel (it's still the only way into Cogwork Bastion).
 - Level gate: none (the game has none on purpose, `docs/world.md`); the ferry's gangway label says "Lv 40+" (it said "Lv 13+" until the rebalance, R, raised Frostpeak), the
   Lodestar's "Lv 90+".
 - `[proposed]` Later: fishing over the rail, things climbing aboard on the far routes (light, optional,

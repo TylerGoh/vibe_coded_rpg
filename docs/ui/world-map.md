@@ -20,7 +20,8 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
 - Slimeville is the apple tree, a few roofs and a small glowing dot for the Rebirth Pool beside the tree.
 - Greenhollow's east rim is drawn white: the east cliffs (`docs/places/cliffs.md`).
 - Aboard a crossing, `islandOf` says `'sea'` and the pin sits on the ferry's route, or `'straits'` aboard the
-  Lodestar, in the Steam Straits (`PINS`).
+  Lodestar, in the Steam Straits, or `'sky'` aboard the balloon, on its climb (`PINS`). The Skydocks camp is on the
+  Citadel (`docs/places/skydocks.md`), whose sub-label names it. No Citadel island map yet.
 - Emberdeep's sub-label names Forgehold; it sits near the chart's bottom edge, so its "tap for its map" hint
   goes beside it, not under it.
 - Frostpeak shows Icefang Hamlet where the ferry comes in (turf huts, a fire) and the Queen's cracked ice

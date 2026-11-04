@@ -97,6 +97,13 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 - Getting home is two sailings: if it annoys people, a direct Forgehold to Greenhollow sailing waits for
   the "routes reconnect" idea in `story/world/geography.md`.
 
+## Atlas Phase 6 (b) left for later
+- Untested by people: the balloon both ways, the camp, the Trade button showing only on the pier. Nothing was
+  playtested headless (owner's rule); the art was checked by reading the code, not by eye.
+- Soot, Arne, Brine, Ochre and Pitch don't mention the balloon yet (only Ash and Slag do).
+- No Citadel island map (the World map's tap goes nowhere on the Citadel); Lantern Fen's folk look (Ione is plain).
+- Kestrel sells no weapon of her own (only the goggles).
+
 ## Classes (S1–S4) left for later
 - **S1:** staff twins for the swords that only drop from mobs (`docs/combat/items.md` lists them).
 - **S2.5:** nobody has chained the Warrior's charge, hit, charge across a room, or said whether the grace

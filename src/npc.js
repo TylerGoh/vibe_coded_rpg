@@ -7,6 +7,7 @@ import { clamp } from './util.js';
 import { Slime } from './slime.js';
 import { text } from './village.js';
 import { ROOMS, NPC_TEXT_MAX } from './shared/sim.js';
+import { SHOPS } from './shared/rpg.js';
 
 const TYPE_SPEED = 45; // characters per second for their replies
 const FEED_LINES = 6;
@@ -101,7 +102,8 @@ export class Character {
     ui.name.textContent = this.cfg.name;
     ui.blurb.textContent = `${this.cfg.blurb} · everyone can hear`;
     ui.input.placeholder = `Say something to ${this.cfg.short}…`;
-    tradeButton.hidden = !this.cfg.shop;
+    // (a trader who stands in more than one room trades only where the shop is: Kestrel aboard the Kite talks, on the pier she sells)
+    tradeButton.hidden = !this.cfg.shop || (this.room !== undefined && SHOPS[this.cfg.shop]?.room !== this.room);
     ui.el.hidden = false;
     this.renderLog();
     this.send({ t: 'npc-open', npc: this.cfg.id });
@@ -187,8 +189,9 @@ export class Character {
 
   // me: your slime if you're in this character's room (else null). Turns them toward you, runs the
   // typewriters, and tracks whether you're close enough to talk.
-  update(dt, me) {
+  update(dt, me, room) {
     this.time += dt;
+    if (room !== undefined && room !== this.room && ROOMS[room]) [this.room, this.ground] = [room, ROOMS[room].ground]; // (one in several rooms stands on each one's ground)
     const { x } = this.cfg;
     const d = me ? Math.hypot(me.x - x, me.y - this.ground) : Infinity;
     this.near = d <= this.cfg.range;

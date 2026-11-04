@@ -52,7 +52,8 @@ personas in `server/characters.js`, the `forgehold` music scene in `src/audio.js
   its old tube's steam is the shut way, and he says Liv's edges are better than his: `docs/places/coast.md`; E3a: the
   Brimstone Fields are open (he likes Picker Ochre, who carries his sulphur), and he won't go near the Bearers' stair
   at their top or say why: `docs/places/brimstone.md`; E3b: he had the adit's bricks taken down himself, lists the
-  Old Foundry's dangers and won't say why it was shut: `docs/places/foundry.md`; the balloon stays in his shut-ways list).
+  Old Foundry's dangers and won't say why it was shut: `docs/places/foundry.md`; atlas Phase 6 (b): the balloon flies,
+  he looked Slag's burner over and said nothing: `docs/places/skydocks.md`).
 - **Auntie Soot** (`soot`, `shop: 'soot'`): the springs, the one kind voice. Sells the basic potions and her
   **Spring-Boiled Egg** (`spring_egg`, a plain heal). Holds Arne's sack of letters for "the northern girl out
   on the coast"; since E2 (`docs/places/coast.md`) she has met Liv, passes letters both ways for her and the
@@ -61,7 +62,7 @@ personas in `server/characters.js`, the `forgehold` music scene in `src/audio.js
 - **Slag** (`slag`, `shop: 'slag'`, lively): Ash's apprentice; sells the basic potions and the island's first
   gear tier, aimed at its start: the **Slag Maul**, its staff twin the **Bellows Rod**, and the **Smith's Iron
   Cap** (`docs/combat/items.md`, `docs/economy.md`). Never seen snow; afraid of the sea. Laid the Black Sands' stones
-  and riveted the Ashwood bridge's new plates (E1); pegged the Coast gully's hand-chain and asks Liv about snow (E2); asked Picker Ochre what the vents smell like (E3a).
+  and riveted the Ashwood bridge's new plates (E1); pegged the Coast gully's hand-chain and asks Liv about snow (E2); asked Picker Ochre what the vents smell like (E3a); built Kestrel's burner, so the balloon flies (atlas Phase 6).
 - **Their look** (the forge folk): `folk: 'forge'` makes `Slime.setFolk` paint them dark and dense with ember
   flecks and a warm glow low down (`FORGE_PALETTE`, `drawForgeFolk`), with the same stiff wobble as the
   fjord folk (`lively` still bounces). Mid-dark, not black, so the face reads. Their clothes are the
@@ -77,8 +78,9 @@ personas in `server/characters.js`, the `forgehold` music scene in `src/audio.js
 - **Renamed** (owner's default): the stage is "Emberdeep" (`STAGES[CALDERA]`, its room, its door chips; the
   zones keep their names). The code still calls the room `CALDERA`. The skylift stays until the balloon
   works (atlas Phase 6).
-- **Phase 6's block**: the balloon lies deflated in its cradle by the thermal column in Magma Heart
-  (`BALLOON_X`, a gate on the island map: "the column stalls"). Phase 6 lifts it (Slag's forge-burner).
+- **Phase 6's block**: the balloon lay deflated in its cradle by the thermal column in Magma Heart
+  (`BALLOON_X`, a gate on the island map: "the column stalls"). Phase 6 (b) lifted it (Slag's forge-burner): it flies to
+  the Skydocks camp (`docs/places/skydocks.md`).
 - Personas that changed: Brine, Skaldi, Runa, Eyvind (his letters went south; no answer yet), Tove.
 
 ## Decisions and history

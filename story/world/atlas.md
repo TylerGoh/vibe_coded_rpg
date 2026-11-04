@@ -314,6 +314,7 @@ stand-in door into an existing area.
       Skipper Arne at the wheel, the stage renamed **Emberdeep**, the balloon grounded by the stalling column.)
 - [ ] **Phase 6: the climb.** The thermal column vista, the balloon crossing, the Skydocks zone, the
       Skydocks camp as the Citadel's town, and the Dockwarden. The skylift goes.
+      (Plan `../phase6-plan.md`. (b) shipped 2026-11-04: the balloon, the cradle as the vista, the camp; (c) to come.)
 - [ ] **Phase 7: story progress.** Per-account lore tiers feeding every AI character; boss lines
       (`../roadmap.md`, "Story delivery"). Can run alongside any phase from 1 on.
 - [ ] **Phase 8: Lantern Fen** (side island, the Wickmother).
