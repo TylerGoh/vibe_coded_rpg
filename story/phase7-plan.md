@@ -1,7 +1,7 @@
 # Atlas Phase 7: story progress, on paper (for the owner to approve)
 
-**Status: approved by the owner 2026-11-04 with every default (backfill: from now on). (b) and (c) built
-2026-11-04 (`docs/social/story.md`); (d) next.** Phase 7 of `world/atlas.md` and "Story delivery" in `roadmap.md`: per-account lore
+**Status: approved by the owner 2026-11-04 with every default (backfill: from now on). (b), (c) and (d)
+built 2026-11-04 (`docs/social/story.md`). Phase 7 done.** Phase 7 of `world/atlas.md` and "Story delivery" in `roadmap.md`: per-account lore
 tiers feeding the AI characters, boss lines for the older dens, the "freed" world changes. Rules: `delivery.md` (the
 story never blocks hanging out; no quest log), `canon.md` (the tiers, reviewed by the owner). Marked `[default]` = what
 gets built unless the owner says otherwise.

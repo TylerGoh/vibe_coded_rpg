@@ -13,7 +13,8 @@ Don't "fix" this.
   (the den, its way in, the Old Narwhal).
 - Grey, cold and quiet: a pale low sun, the open sea behind with more skerries and floes on it and the far
   islands on the horizon, sea smoke drifting over the water. To the west the sea fills with pack ice: the
-  Old Narwhal holds it shut across the outer sound.
+  Old Narwhal holds it shut across the outer sound. Once *you've* beaten her, for you only, the pack is broken up,
+  the floes drift out west and fish leap (the freed world changes, `docs/social/story.md`).
 - East to west: **the Whaling Hut** (no mobs: Hakon's stone hut with a turf roof, which is a platform, and a
   whalebone arch over the door; his carving bench; the old try-pot; the drying racks; the Sounding Stone and
   a waystone), **the Black Skerries** (ice seals, skuas), **the Whalebones** (sea urchins, whalebone crabs;

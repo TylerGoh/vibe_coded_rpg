@@ -1615,20 +1615,21 @@ function render() {
   else if (room === TUTOR) tutor.draw(ctx);
   else if (STAGES[room]) {
     const near = (x) => Math.abs(x - camX - W / 2) < W / 2 + 160;
+    const freed = (boss) => !!rpg.me?.freed?.includes(boss); // (atlas Phase 7 (d): your own story record, docs/social/story.md)
     if (room === FIELD) {
       drawField(ctx, camX, W, time);
       if (near(CLIFFS_PATH_X)) drawCliffsPath(ctx, CLIFFS_PATH_X, ROOMS[FIELD].ground, time);
     } else if (room === WILLOWMERE) drawWillowmere(ctx, camX, W, time);
-    else if (room === COVES) drawCoves(ctx, camX, W, time);
-    else if (room === MYCELIUM) drawDeep(ctx, camX, W, time);
+    else if (room === COVES) drawCoves(ctx, camX, W, time, freed('tidemother'));
+    else if (room === MYCELIUM) drawDeep(ctx, camX, W, time, freed('knotmole'));
     else if (room === GLOWROOT) drawGlowroot(ctx, camX, W, time);
     else if (room === CANOPY) drawCanopy(ctx, camX, W, time);
     else if (room === WRECK) drawWreck(ctx, camX, W, time);
     else if (room === THORNHEART) drawThornheart(ctx, camX, W, time, net.renderTick());
     else if (room === SUNKEN) drawSunkenRoad(ctx, camX, W, time);
-    else if (room === SPINE) drawSpine(ctx, camX, W, time);
+    else if (room === SPINE) drawSpine(ctx, camX, W, time, freed('root_warden'));
     else if (room === GLACIER) drawGlacier(ctx, camX, W, time);
-    else if (room === SKERRIES) drawSkerries(ctx, camX, W, time);
+    else if (room === SKERRIES) drawSkerries(ctx, camX, W, time, freed('old_narwhal'));
     else if (room === GROTTO) drawGrotto(ctx, camX, W, time);
     else if (room === HEIGHTS) drawHeights(ctx, camX, W, time);
     else if (room === BLUEHALLS) drawBlueHalls(ctx, camX, W, time, onFloor()); // (its thin ice cracks under them)

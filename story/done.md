@@ -13,6 +13,10 @@ over is in `docs/ideas.md` under the phase's name. Full plans as written: `archi
 - **Phase 5 / E0** (2026-10-23): the Lodestar through the Steam Straits, Forgehold with Black Sand Shore,
   the forge folk, "Emberdeep Caldera" renamed Emberdeep, the Caldera pass removed, the balloon grounded
   (`docs/places/forgehold.md`). No gate on the Astral Wyrm (owner: no hard gates).
+- **Phase 6** (2026-11-04): the balloon Kite up the thermal column, the Skydocks camp and the Skydocks, the
+  skylift removed (`docs/places/skydocks.md`).
+- **Phase 7** (2026-11-04): story progress (per-character record of den bosses beaten, lore tiers, characters fed
+  canon by tier), lines for every den boss, the four freed world changes, per player (`docs/social/story.md`).
 
 ## Island depth: Greenhollow (Lv 1–60)
 - **G0** (2026-10-20): field bosses, elites, door level labels, the island map, every branch gate laid,

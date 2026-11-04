@@ -409,6 +409,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       devo: p.devo && p.devo.until > now() ? [Math.ceil(p.devo.left), left(p.devo.until)] : undefined, // (SP4: Devotion's ward [amount, ms left])
       draught: left(p.draughtUntil), cure: left(p.cureAt), // (S5.5: a Barrier Draught waiting for a pulse; the two potions' shared cooldown)
       ways: c.ways,
+      freed: Object.keys(c.story), // (atlas Phase 7 (d): the den bosses you've ever beaten; the client draws their places freed)
       buffs: p.buffs && longOf(p).length ? longOf(p).map(([id, b]) => [id, left(b.until), b.rank]) : undefined, // (SP1: [skill id, ms left, rank])
     });
   }

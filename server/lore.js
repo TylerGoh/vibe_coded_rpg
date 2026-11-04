@@ -51,3 +51,22 @@ may have earned less: speak to ${user}.
 Nobody knows these, you included (never answer them, never invent an answer; wonder about them if you like):
 ${CANON.open ?? ''}`;
 }
+
+// The freed world changes (atlas Phase 7 (d)): once a slime has beaten one of these bosses, its place is drawn changed
+// for that slime alone (src/coves.js, deep.js, skerries.js, spine.js). The characters who live by it hear it from the
+// slime's own story record, so they don't go on describing it as stuck to the one who freed it. near: character ids
+export const FREED = {
+  tidemother: { near: ['moss'], name: 'the Tidemother', seen: "the Tide Pools run clear again: the tide comes and goes in them, the anemones stand up, little fish are back" },
+  knotmole: { near: ['truffle'], name: 'the Knotmole', seen: "the Knotmole's knots are untied, and the glow runs west along the great threads in full again, past the Knotted Halls and off under the sea" },
+  old_narwhal: { near: ['hakon', 'skaldi', 'runa', 'tove'], name: 'the Old Narwhal', seen: "the pack ice across the outer sound has broken up: she sang the floes out, they drift away to sea and fish leap in the open water" },
+  root_warden: { near: ['acorn'], name: 'the Root Warden', seen: "up on Keeper's Spine the great roots have drawn back off the Crest's stones into the turf, heather growing over them" },
+};
+
+// The prompt lines for character `id` about what `user` has freed (freed: the boss kinds in their story record)
+export function freedFor(user, id, freed = []) {
+  const seen = freed.map((k) => FREED[k]).filter((f) => f?.near.includes(id));
+  if (!seen.length) return '';
+  return `\n\nWhat ${user} has changed: ${seen.map((f) => `they beat ${f.name}, and for them ${f.seen}`).join('; ')}. With ${user},
+talk of it as changed (you've noticed it lately; you can guess it was their doing, and be glad of it in your own way).
+What you know above describes it as it was before. Others standing near may still see it the old way.`;
+}

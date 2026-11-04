@@ -15,7 +15,8 @@ the cut trunk from this side) and go east along the Keepers' road, higher and ha
   keep the two alike). West to east: the Windgap (no mobs: a waystone and the Road Stone), the Heather
   Slopes (rock outcrops), the Standing Stones (trilithons, their lintels the platforms) and the Warden's
   Crest (ruined Keeper walls, great roots running east along the road, golden late light), where the road
-  ends at a ruined gatehouse into the Root Warden's court.
+  ends at a ruined gatehouse into the Root Warden's court. Once *you've* beaten the Warden the roots are off the
+  walls and sunk back into the turf, for you only (the freed world changes, `docs/social/story.md`).
 - **The Road Stone** (`RUIN_STONES`, shape `road`, in the Windgap): a Keeper milestone. Tier 1 only: "the
   high road, keep it", the Warden "holds the gate until we come again", and a carved root runs under the
   road off the stone's west edge, toward the village (the quiet Heartroot hint; it agrees with the Root

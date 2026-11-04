@@ -13,7 +13,7 @@
 // Configure with DEEPSEEK_API_KEY (and optionally DEEPSEEK_MODEL) — rpg.service reads them from
 // ~/.config/rpg/deepseek.env. Without a key the characters say they're napping.
 import { DatabaseSync } from 'node:sqlite';
-import { loreFor } from './lore.js';
+import { loreFor, freedFor } from './lore.js';
 
 const MEMORY_TOKENS = 3000; // per player and character: summary + remembered messages
 const KEEP_AFTER_FOLD = 1800; // after summarising, the recent conversation is trimmed to about this
@@ -109,11 +109,12 @@ export function createNpc(dbPath, char) {
 
   // Everything the character needs to answer `user`: persona, his notes and older chats with them, then the
   // recent public conversation as turns (consecutive lines of the same role merged).
-  function prompt(user, mem, tier) {
+  function prompt(user, mem, tier, freed) {
     const since = log[0]?.ts ?? Infinity; // personal lines older than the public window
     const older = mem.messages.filter((m) => (m.ts ?? 0) < since);
     let system = char.persona(user, { first: !mem.summary && !mem.messages.length, tier }); // (first: they've never talked)
     if (char.lore) system += loreFor(user, tier, char.lore, char.loreKnows);
+    system += freedFor(user, char.id, freed); // (the places this slime has freed, if this character lives by one)
     if (mem.summary) system += `\n\nWhat you remember about ${user}:\n${mem.summary}`;
     if (older.length) system += `\n\nEarlier chats with ${user}:\n${older.map((m) => `${m.role === 'user' ? user : 'You'}: ${m.content}`).join('\n')}`;
     const turns = [];
@@ -148,13 +149,14 @@ export function createNpc(dbPath, char) {
 
     // `user` said `text` publicly → { reply } or { error }
     // ctx: optional note on where the speaker is (e.g. which museum exhibit they're standing at); tier: the speaker's
-    // lore tier (src/shared/story.js), for a character with a `lore` cap
-    async reply(user, text, ctx, tier = 0) {
+    // lore tier (src/shared/story.js), for a character with a `lore` cap; freed: the den bosses in the speaker's story
+    // record (the freed world changes, server/lore.js FREED)
+    async reply(user, text, ctx, tier = 0, freed = []) {
       try {
         const ts = Date.now();
         remember({ from: user, text, ts, ctx });
         const mem = memoryOf(user);
-        const reply = await deepseek(prompt(user, mem, tier), char.replyTokens ?? 300);
+        const reply = await deepseek(prompt(user, mem, tier, freed), char.replyTokens ?? 300);
         remember({ from: null, to: user, text: reply, ts: Date.now() });
         mem.messages.push({ role: 'user', content: text, ts }, { role: 'assistant', content: reply, ts: Date.now() });
         await compact(user, mem);

@@ -8,7 +8,8 @@ deeper and harder, so its zones run hard → easy by x (`COVES_ZONES`). Don't "f
   `src/coves.js` (room; the sky uses `drawDistantIslands` with the `greenSouth` view, so Emberdeep's
   smoke shows), `src/coves-art.js` (mobs, gear, icons, Moss's dress), `src/dens-coves.js` (den).
 - East to west: Driftwood Cove (no mobs: Beachcomber Moss, the waystone), the Tide Pools (rock crabs:
-  `shell`; tide jellies: `phase`; the tide post, a Keeper stone), the Sea Stacks (storm gulls: `dive`;
+  `shell`; tide jellies: `phase`; the tide post, a Keeper stone; the pools are stale until *you've* beaten the
+  Tidemother, then clear: `docs/social/story.md`, the freed world changes), the Sea Stacks (storm gulls: `dive`;
   snapshrimp: `lob` with `style: 'water'`), the Tidemother's cave mouth and Wreck Cave's mouth, its
   water gone down since G4 (a hard pocket, `docs/places/wreck.md`).
 - **The Tidemother** (den, Lv 25): a big boss, so she talks: `lines` on her `MOBS` entry (on walking in,

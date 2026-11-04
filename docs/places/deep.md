@@ -17,6 +17,8 @@ Deep's WEST end (`MYCELIUM_EXIT_X`, the root stair back up) and go east, deeper 
   in `MYCELIUM_PLATFORMS`), is the off-the-path spot: an old lantern and a carved gear.
 - The threads' glow drifts west along them (toward the sea: canon Tier 1, the net runs under the sea).
   West of the Knotted Halls only a trickle gets through; in the Halls it bunches up in the Knotmole's knots.
+  Once *you've* beaten the Knotmole the knots are gone and the glow runs in full, for you only (the freed world
+  changes, `docs/social/story.md`).
   Truffle's persona says the same, so keep them in step.
 - **Glowroot Hollow** is a hard pocket (`hard` on its `STAGES` entry, a red "Lv 40–50" chip on its door,
   a red-trimmed sign): the Glowfall (no mobs), the Lit Galleries, the Heart Knot, where every thread meets

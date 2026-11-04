@@ -61,8 +61,10 @@ const weed = (() => {
   return out;
 })();
 
-// Everything behind the slimes. camX is the left edge of the view.
-export function drawCoves(ctx, camX, viewW, time) {
+// Everything behind the slimes. camX is the left edge of the view. freed: you've beaten the Tidemother (your own
+// story record, docs/social/story.md): the tide runs in and out of the pools again and they're clear; until then
+// they're stale, the water green and filmed over, the anemones drooping, the sea's leavings caught in them
+export function drawCoves(ctx, camX, viewW, time, freed = false) {
   ctx.save();
   ctx.translate(camX, 0);
   drawSky(ctx, camX, time);
@@ -72,7 +74,7 @@ export function drawCoves(ctx, camX, viewW, time) {
   drawSurf(ctx, Math.max(0, L), Math.min(COVES_W, R), time);
   if (visible(-60, 560, L, R)) drawCliff(ctx, time);
   drawSand(ctx, Math.max(0, L), Math.min(COVES_W, R), time);
-  for (const p of pools) if (visible(p.x - p.w, p.x + p.w, L, R)) drawPool(ctx, p, time);
+  for (const p of pools) if (visible(p.x - p.w, p.x + p.w, L, R)) drawPool(ctx, p, time, freed);
   if (visible(SHACK_X - 140, SHACK_X + 160, L, R)) drawShack(ctx, time);
   if (visible(COVES_EXIT_X - 160, COVES_W + 20, L, R)) drawShorePath(ctx, COVES_EXIT_X, time);
   COVES_ZONES.forEach((z, i) => {
@@ -227,29 +229,69 @@ function drawSand(ctx, L, R, time) {
   void time;
 }
 
-function drawPool(ctx, p, time) {
+function drawPool(ctx, p, time, freed) {
   const g = ctx.createLinearGradient(0, GROUND - 2, 0, GROUND + 14);
-  g.addColorStop(0, '#9fdcea');
-  g.addColorStop(1, '#5eb4cc');
+  g.addColorStop(0, freed ? '#9fdcea' : '#a8b88a');
+  g.addColorStop(1, freed ? '#5eb4cc' : '#7a8a5e');
   ctx.fillStyle = '#c8b898';
   ellipse(ctx, p.x, GROUND + 5, p.w + 6, 11);
   ctx.fillStyle = g;
   ellipse(ctx, p.x, GROUND + 5, p.w, 8);
-  ctx.fillStyle = `rgba(255,255,255,${0.35 + 0.2 * Math.sin(time * 1.3 + p.p)})`;
-  ellipse(ctx, p.x - p.w * 0.3, GROUND + 2, p.w * 0.3, 1.6);
+  if (freed) {
+    ctx.fillStyle = `rgba(255,255,255,${0.35 + 0.2 * Math.sin(time * 1.3 + p.p)})`;
+    ellipse(ctx, p.x - p.w * 0.3, GROUND + 2, p.w * 0.3, 1.6);
+    // the tide washing in over the lip, and a little fish darting about
+    const wash = (time * 0.4 + p.p) % 1;
+    ctx.strokeStyle = `rgba(255,255,255,${0.5 * (1 - wash)})`;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.ellipse(p.x, GROUND + 5, p.w * (0.3 + 0.6 * wash), 6 * (0.3 + 0.6 * wash), 0, 0, TAU);
+    ctx.stroke();
+    const fx = p.x + Math.sin(time * 0.9 + p.p) * p.w * 0.55, dir = Math.cos(time * 0.9 + p.p) >= 0 ? 1 : -1;
+    ctx.fillStyle = '#ffc070';
+    ellipse(ctx, fx, GROUND + 6, 4, 1.8);
+    ctx.beginPath();
+    ctx.moveTo(fx - dir * 3, GROUND + 6);
+    ctx.lineTo(fx - dir * 7, GROUND + 4);
+    ctx.lineTo(fx - dir * 7, GROUND + 8);
+    ctx.closePath();
+    ctx.fill();
+  } else {
+    // stale: a dull scum film, a bubble or two, and what the sea left in it
+    ctx.fillStyle = 'rgba(200,210,150,0.55)';
+    ellipse(ctx, p.x + p.w * 0.15, GROUND + 4, p.w * 0.45, 3);
+    const b = (time * 0.3 + p.p) % 1;
+    ctx.strokeStyle = `rgba(230,236,200,${0.7 * (1 - b)})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(p.x + p.w * 0.1, GROUND + 4 - b * 3, 1.6, 0, TAU);
+    ctx.stroke();
+    ctx.fillStyle = '#8a7058'; // a bit of driftwood
+    ctx.save();
+    ctx.translate(p.x - p.w * 0.05, GROUND + 4);
+    ctx.rotate(0.15 + Math.sin(p.p) * 0.2);
+    ctx.beginPath();
+    ctx.roundRect(-9, -1.5, 18, 3, 1.5);
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = '#6e8a4a'; // weed caught round it
+    ellipse(ctx, p.x + p.w * 0.45, GROUND + 5, 6, 1.6, 0.3);
+  }
   if (p.star) {
-    ctx.fillStyle = '#ff9f7a';
+    ctx.fillStyle = freed ? '#ff9f7a' : '#c99a80';
     for (let i = 0; i < 5; i++) ellipse(ctx, p.x + p.w * 0.35 + Math.cos((i / 5) * TAU) * 4, GROUND + 7 + Math.sin((i / 5) * TAU) * 2, 4, 1.6, (i / 5) * TAU);
   }
   if (p.anem) {
-    ctx.strokeStyle = '#f08ab8';
+    ctx.strokeStyle = freed ? '#f08ab8' : '#b88a9e';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     for (let i = 0; i < 5; i++) {
-      const a = -Math.PI / 2 + (i - 2) * 0.35 + Math.sin(time * 2 + i + p.p) * 0.12;
+      // drooping and still in a stale pool; up and waving in a clear one
+      const a = freed ? -Math.PI / 2 + (i - 2) * 0.35 + Math.sin(time * 2 + i + p.p) * 0.12 : -Math.PI / 2 + (i - 2) * 0.75;
+      const len = freed ? 8 : 6;
       ctx.beginPath();
       ctx.moveTo(p.x - p.w * 0.3, GROUND + 6);
-      ctx.lineTo(p.x - p.w * 0.3 + Math.cos(a) * 8, GROUND + 6 + Math.sin(a) * 8);
+      ctx.lineTo(p.x - p.w * 0.3 + Math.cos(a) * len, GROUND + 6 + Math.sin(a) * len);
       ctx.stroke();
     }
   }

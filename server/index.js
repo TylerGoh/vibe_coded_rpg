@@ -72,7 +72,8 @@
 //   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,weapon}, atk, magic, def,
 //       skills:{id:rank}, sp, hotbar:[6], potbar:[3], alt:{hotbar,potbar}, set, ap:{str,dex,int,luk}, apLeft,
 //       minRoll, pvp, berserk, shield (Mana Shield switched on), fire, cls, reborn, spLeft:{novice, cls}, momentum, arcane}  your character (sp: points
-//       you can spend now; a Novice's class points pile up in spLeft.cls until it chooses a class)
+//       you can spend now; a Novice's class points pile up in spLeft.cls until it chooses a class; freed: the den bosses
+//       in your story record, for the freed world changes, docs/social/story.md)
 //   → {t:'learn'|'unlearn', skill} · {t:'respec'} · {t:'hotbar', bar:'skill'|'pot', slot, id} · {t:'pvp', on} · {t:'keys', keys: {action: [code|null, …]}} (rebound keys, only the changed ones)
 //   → {t:'hotswap'}  swap the hotbar for the other setup · {t:'ap', stat, n} (n < 0 takes back) · {t:'ap', reset:true}
 //   → {t:'buy', item, n, shop} · {t:'sell', slot, n, shop} · {t:'buycos', id} (Boutique)  at a shop (SHOPS: Pip, Runa)
@@ -617,7 +618,7 @@ async function talkToNpc(p, m) {
   }
   broadcast({ t: 'npc-say', npc: c.id, from: p.name, text });
   if (c.thinking++ === 0) broadcast({ t: 'npc-think', npc: c.id, on: true });
-  const result = await c.ai.reply(p.name, text, c.room === MUSEUM ? museumPlace(p.state.x) : c.id === 'mochi' ? whoIs(p) : undefined, tierOf(p.rpg?.story)); // (atlas Phase 7: how much of the old story it may tell them)
+  const result = await c.ai.reply(p.name, text, c.room === MUSEUM ? museumPlace(p.state.x) : c.id === 'mochi' ? whoIs(p) : undefined, tierOf(p.rpg?.story), Object.keys(p.rpg?.story ?? {})); // (atlas Phase 7: how much of the old story it may tell them, and what they've freed)
   if (--c.thinking === 0) broadcast({ t: 'npc-think', npc: c.id, on: false });
   if (result.reply) broadcast({ t: 'npc-reply', npc: c.id, to: p.name, text: result.reply });
   else send(p.ws, { t: 'npc-error', npc: c.id, text: result.error });

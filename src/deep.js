@@ -85,15 +85,17 @@ const pebbles = (() => {
   return out;
 })();
 
-// Everything behind the slimes. camX is the left edge of the view.
-export function drawDeep(ctx, camX, viewW, time) {
+// Everything behind the slimes. camX is the left edge of the view. freed: you've beaten the Knotmole (your own
+// story record, docs/social/story.md): her knots are untied and the glow runs west along the threads in full,
+// off under the sea again; until then only a trickle gets past the Knotted Halls
+export function drawDeep(ctx, camX, viewW, time, freed = false) {
   ctx.save();
   ctx.translate(camX, 0);
   drawBackWall(ctx, camX, time);
   ctx.restore();
 
   const L = camX - 80, R = camX + viewW + 80;
-  drawThreads(ctx, Math.max(0, L), Math.min(MYCELIUM_W, R), time);
+  drawThreads(ctx, Math.max(0, L), Math.min(MYCELIUM_W, R), time, freed);
   drawCeiling(ctx, Math.max(0, L), Math.min(MYCELIUM_W, R), time);
   if (visible(-40, 420, L, R)) drawRootStair(ctx, time);
   for (const p of MYCELIUM_PLATFORMS) {
@@ -147,7 +149,7 @@ function drawBackWall(ctx, camX, time) {
 }
 
 // The great glowing threads across the back wall, with glow drifting west along them
-function drawThreads(ctx, L, R, time) {
+function drawThreads(ctx, L, R, time, freed) {
   ctx.save();
   ctx.lineCap = 'round';
   for (const [i, t] of THREADS.entries()) {
@@ -165,12 +167,14 @@ function drawThreads(ctx, L, R, time) {
     ctx.strokeStyle = 'rgba(170,250,225,0.45)';
     ctx.lineWidth = Math.max(2, t.w * 0.25);
     ctx.stroke();
-    // the drifting glow: west of the knots only a trickle gets through (dimmer, further apart)
-    const n = Math.ceil((MYCELIUM_W + 200) / t.gap), span = n * t.gap;
+    // the drifting glow: west of the knots only a trickle gets through (dimmer, further apart); freed, it all
+    // runs through, closer together
+    const gap = freed ? t.gap * 0.6 : t.gap;
+    const n = Math.ceil((MYCELIUM_W + 200) / gap), span = n * gap;
     for (let k = 0; k < n; k++) {
-      const px = (((k * t.gap - time * t.v + i * 97) % span) + span) % span - 100;
+      const px = (((k * gap - time * t.v + i * 97) % span) + span) % span - 100;
       if (px < L - 40 || px > R + 40) continue;
-      const a = px < HALLS_X ? (k % 3 ? 0 : 0.6) : 0.9;
+      const a = freed || px >= HALLS_X ? 0.9 : k % 3 ? 0 : 0.6;
       if (!a) continue;
       const py = threadY(t, px);
       glow(ctx, px, py, 26, 14, '190,255,230', a);
@@ -178,9 +182,20 @@ function drawThreads(ctx, L, R, time) {
       circle(ctx, px, py, t.w * 0.3);
     }
   }
-  // the Knotmole's knots: the threads bunched and tied, the glow pooling bright in them
+  // the Knotmole's knots: the threads bunched and tied, the glow pooling bright in them. Freed, only a slack
+  // kink in the thread is left where each one was
   for (const k of KNOTS) {
     if (!visible(k.x - 60, k.x + 60, L, R)) continue;
+    if (freed) {
+      const t = THREADS[k.t], y = threadY(t, k.x);
+      ctx.strokeStyle = 'rgba(170,250,225,0.35)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(k.x - 22 * k.s, y);
+      ctx.bezierCurveTo(k.x - 8 * k.s, y - 14 * k.s, k.x + 8 * k.s, y + 14 * k.s, k.x + 22 * k.s, y);
+      ctx.stroke();
+      continue;
+    }
     const t = THREADS[k.t], y = threadY(t, k.x), s = k.s, pulse = 0.7 + 0.3 * Math.sin(time * 1.6 + k.p);
     glow(ctx, k.x, y, 70 * s, 50 * s, '170,255,220', 0.55 * pulse);
     ctx.beginPath();

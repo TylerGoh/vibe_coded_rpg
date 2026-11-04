@@ -95,14 +95,14 @@ No quests, no hard level gates.
             **the skylift is gone** (the column vista stands there). Phase 6 done.
 - [ ] **S6: past the cap** (`progression.md` section 8): stat taper, mastery stars, the Lv 150 advancement.
 - [ ] **Story delivery (atlas Phase 7)**, can run alongside anything (`delivery.md`, `canon.md`). Plan
-      `phase7-plan.md` (approved 2026-11-04, every default): (b) and (c) built; (d) the freed world changes next.
+      `phase7-plan.md` (approved 2026-11-04, every default): (b), (c) and (d) built: Phase 7 done but for the flavor-text rewrite (its own phase).
   - [x] per-account story progress: bosses beaten at least once, saved with the character; gives the lore tier
         (`docs/social/story.md`; from now on, owner's choice)
   - [x] Mochi and Clio fed canon by tier (read from `canon.md` itself, `server/lore.js`)
   - [x] every other character fed canon by tier (its island's cap, as hearsay; Phase 7 (c))
   - [x] boss `lines` for the older dens (Phase 7 (c): seven bosses)
-  - [ ] the "freed" world changes (the Tidemother's clear pools,
-        the Knotmole's threads, the Old Narwhal's floes, the Root Warden's roots)
+  - [x] the "freed" world changes (the Tidemother's clear pools,
+        the Knotmole's threads, the Old Narwhal's floes, the Root Warden's roots; Phase 7 (d), per player)
   - [ ] rewrite flavor text in each region's register: items, mobs, zone names, door labels
 
 ## Later

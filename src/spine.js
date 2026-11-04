@@ -131,8 +131,10 @@ const petals = (() => {
 // late golden light on the Crest
 const crestAt = (x) => smooth(CREST_X - 300, CREST_X + 400, x);
 
-// Everything behind the slimes. camX is the left edge of the view.
-export function drawSpine(ctx, camX, viewW, time) {
+// Everything behind the slimes. camX is the left edge of the view. freed: you've beaten the Root Warden (your own
+// story record, docs/social/story.md): it let the roots have it, and they've drawn back off the stones into the
+// turf, heather growing over them; until then they climb the Crest's walls and arch up over the road
+export function drawSpine(ctx, camX, viewW, time, freed = false) {
   const mid = camX + viewW / 2, gold = crestAt(mid);
   ctx.save();
   ctx.translate(camX, 0);
@@ -147,11 +149,11 @@ export function drawSpine(ctx, camX, viewW, time) {
     if (!visible(p.x - 80, p.x + p.w + 80, L, R)) continue;
     if (p.kind === 'ledge') drawOutcrop(ctx, p, time);
     else if (p.kind === 'lintel') drawTrilithon(ctx, p, time);
-    else if (p.kind === 'wall') drawWallTop(ctx, p, time);
+    else if (p.kind === 'wall') drawWallTop(ctx, p, time, freed);
   }
   if (visible(SEAT.x - 80, SEAT.x + SEAT.w + 80, L, R)) drawWatchSeat(ctx, SEAT, time);
   drawRoad(ctx, Math.max(0, L), Math.min(SPINE_W, R), time);
-  if (visible(CREST_X, SPINE_W, L, R)) drawCrestRoots(ctx, L, R, time);
+  if (visible(CREST_X, SPINE_W, L, R)) drawCrestRoots(ctx, L, R, time, freed);
   if (visible(SPINE_EXIT_X - 120, SPINE_EXIT_X + 160, L, R)) drawCutTrunk(ctx, time);
   SPINE_ZONES.forEach((z, i) => {
     if (!z.lvl) return;
@@ -387,7 +389,7 @@ function drawTrilithon(ctx, p, time) {
 }
 
 // The tops of the Crest's ruined walls (platforms), coursed stone, broken off ragged at the ends
-function drawWallTop(ctx, p, time) {
+function drawWallTop(ctx, p, time, freed) {
   const { x, y, w } = p;
   ctx.fillStyle = STONE_D;
   ctx.strokeStyle = LINE;
@@ -415,7 +417,7 @@ function drawWallTop(ctx, p, time) {
   ctx.strokeStyle = LINE;
   ctx.lineWidth = 2.5;
   ctx.stroke();
-  root(ctx, x + w + 30, GROUND, x + w + 10, y + 40, x + w * 0.7, y + 4, 7);
+  if (!freed) root(ctx, x + w + 30, GROUND, x + w + 10, y + 40, x + w * 0.7, y + 4, 7);
   ctx.fillStyle = MOSS;
   ellipse(ctx, x + w * 0.3, y - 3, 22, 4);
 }
@@ -507,12 +509,22 @@ function drawWatchSeat(ctx, p, time) {
 }
 
 // On the Crest the great roots come up out of the turf and run east along the road, toward the Warden
-function drawCrestRoots(ctx, L, R, time) {
+function drawCrestRoots(ctx, L, R, time, freed) {
   for (let x = CREST_X; x < SPINE_W - 200; x += 360) {
     if (!visible(x - 200, x + 400, L, R)) continue;
     const k = (x - CREST_X) / (SPINE_W - CREST_X);
-    root(ctx, x - 60, GROUND + 24, x + 80, GROUND - 26 - 20 * k, x + 340, GROUND + 18, 10 + 10 * k);
+    if (!freed) {
+      root(ctx, x - 60, GROUND + 24, x + 80, GROUND - 26 - 20 * k, x + 340, GROUND + 18, 10 + 10 * k);
+      continue;
+    }
+    // drawn back down: just a low hump through the turf, heather and moss grown over it
+    root(ctx, x + 50, GROUND + 18, x + 120, GROUND + 4, x + 190, GROUND + 18, 6 + 3 * k);
+    ctx.fillStyle = MOSS;
+    ellipse(ctx, x + 120, GROUND + 9, 42, 5);
+    ctx.fillStyle = HEATHER;
+    for (let i = 0; i < 4; i++) circle(ctx, x + 96 + i * 16, GROUND + 6 - (i % 2) * 2, 2.4);
   }
+  void time;
 }
 
 // The fallen trunk at the way down, from this side: its end sawn through, the cut wedge rolled aside and

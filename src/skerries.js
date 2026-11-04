@@ -88,21 +88,28 @@ const backRocks = (() => {
   for (let x = ICE_X + 40; x < SKERRIES_W - 100; x += 140 + r() * 160) out.push({ x, w: 60 + r() * 90, h: 24 + r() * 40 });
   return out;
 })();
+// fish leaping in the open sound, once the Old Narwhal has let the floes go (freed)
+const leaps = (() => {
+  const r = mulberry32(3781);
+  return Array.from({ length: 12 }, () => ({ x: r() * SKERRIES_W, y: HORIZON + 20 + r() * 50, p: r() * 7, s: 0.7 + r() * 0.5 }));
+})();
 const flakes = (() => {
   const r = mulberry32(3771);
   return Array.from({ length: 50 }, () => ({ x: r() * W, y: r() * H, v: 14 + r() * 22, s: 0.8 + r() * 1.6, p: r() * TAU }));
 })();
 
-// Everything behind the slimes. camX is the left edge of the view.
-export function drawSkerries(ctx, camX, viewW, time) {
+// Everything behind the slimes. camX is the left edge of the view. freed: you've beaten the Old Narwhal (your own
+// story record, docs/social/story.md): she has sung the floes out, so the pack across the sound is broken up, the
+// floes drift out west and fish leap in the open water; until then the pack holds and nothing leaves
+export function drawSkerries(ctx, camX, viewW, time, freed = false) {
   const mid = camX + viewW / 2;
   ctx.save();
   ctx.translate(camX, 0);
-  drawSky(ctx, camX, time, mid);
+  drawSky(ctx, camX, time, mid, freed);
   ctx.restore();
 
   const L = camX - 160, R = camX + viewW + 160;
-  drawSeaFloes(ctx, L, R, time);
+  drawSeaFloes(ctx, L, R, time, freed);
   for (const b of backRocks) if (visible(b.x - b.w, b.x + b.w, L, R)) drawBackRock(ctx, b);
   if (visible(-40, 420, L, R)) drawCliff(ctx, time);
   for (const p of SKERRIES_PLATFORMS) {
@@ -128,7 +135,7 @@ export function drawSkerries(ctx, camX, viewW, time) {
 
 // The sky: low grey cloud, pale at the sea line, a weak sun low in the south-west; the sea, slate grey-green,
 // with skerries and floes on it, the far islands on the horizon
-function drawSky(ctx, camX, time, mid) {
+function drawSky(ctx, camX, time, mid, freed) {
   ctx.fillStyle = vgrad(ctx, 'sky', 0, HORIZON, [[0, '#6e7c94'], [0.6, '#b4bccc'], [1, '#e2e2e6']]);
   ctx.fillRect(0, 0, W, HORIZON);
   // the low sun behind cloud
@@ -171,7 +178,15 @@ function drawSky(ctx, camX, time, mid) {
   });
   // the pack ice, filling the sea to the west: more of it the further west you are
   const pack = 1 - smooth(800, 3600, mid);
-  if (pack > 0.01) {
+  if (freed && pack > 0.01) {
+    // broken up: loose white pieces along the sea line with open water between, drifting out west
+    ctx.fillStyle = `rgba(232,242,250,${0.7 * pack})`;
+    for (let i = 0; i < 16; i++) {
+      const x = ((i * 67 - time * 3 - camX * 0.02) % (W + 80) + W + 80) % (W + 80) - 40;
+      if ((i * 7) % 3 === 0) continue;
+      ellipse(ctx, x, HORIZON + 4 + (i % 3) * 5, 10 + ((i * 13) % 20), 1.8);
+    }
+  } else if (pack > 0.01) {
     ctx.fillStyle = `rgba(232,242,250,${0.75 * pack})`;
     ctx.beginPath();
     ctx.moveTo(0, HORIZON + 2);
@@ -183,19 +198,49 @@ function drawSky(ctx, camX, time, mid) {
   }
 }
 
-// Floes drifting on the near sea (they don't drift out: the pack holds them), more of them to the west
-function drawSeaFloes(ctx, L, R, time) {
+// Floes drifting on the near sea (they don't drift out: the pack holds them), more of them to the west. Freed,
+// fewer of them, all drifting slowly west and out to sea, and fish leaping between
+function drawSeaFloes(ctx, L, R, time, freed) {
   for (const f of seaFloes) {
-    if (!visible(f.x - f.w, f.x + f.w, L, R)) continue;
-    const dense = 1 - smooth(500, 3800, f.x);
+    const fx = freed ? ((f.x - time * 5) % SKERRIES_W + SKERRIES_W) % SKERRIES_W : f.x;
+    if (!visible(fx - f.w, fx + f.w, L, R)) continue;
+    const dense = freed ? 0.1 : 1 - smooth(500, 3800, f.x);
     if ((f.w * 13) % 1 > 0.25 + dense * 0.75) continue;
     const y = f.y + Math.sin(time * 0.8 + f.x) * 1.2;
     ctx.fillStyle = 'rgba(30,50,60,0.3)';
-    ellipse(ctx, f.x + 2, y + 3, f.w / 2, 3.4);
+    ellipse(ctx, fx + 2, y + 3, f.w / 2, 3.4);
     ctx.fillStyle = '#e8f2f8';
-    ellipse(ctx, f.x, y, f.w / 2, 3.2);
+    ellipse(ctx, fx, y, f.w / 2, 3.2);
     ctx.fillStyle = '#b8d4e6';
-    ctx.fillRect(f.x - f.w / 2 + 2, y + 1, f.w - 4, 2);
+    ctx.fillRect(fx - f.w / 2 + 2, y + 1, f.w - 4, 2);
+  }
+  if (!freed) return;
+  for (const l of leaps) {
+    if (!visible(l.x - 30, l.x + 30, L, R)) continue;
+    const u = (time + l.p) % 7 / 0.9; // a leap lasts 0.9 s, every 7 s
+    if (u >= 1) {
+      if (u < 1.6) { // the ring it leaves
+        ctx.strokeStyle = `rgba(230,240,248,${0.6 * (1.6 - u)})`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.ellipse(l.x + 14 * l.s, l.y, 6 + 10 * (u - 1), 1.6 + 2 * (u - 1), 0, 0, TAU);
+        ctx.stroke();
+      }
+      continue;
+    }
+    const x = l.x - 14 * l.s + 28 * l.s * u, y = l.y - Math.sin(u * Math.PI) * 18 * l.s, a = (u - 0.5) * 1.6;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(a);
+    ctx.fillStyle = '#9fb4c4';
+    ellipse(ctx, 0, 0, 6 * l.s, 2.2 * l.s);
+    ctx.beginPath();
+    ctx.moveTo(-5 * l.s, 0);
+    ctx.lineTo(-9 * l.s, -3 * l.s);
+    ctx.lineTo(-9 * l.s, 3 * l.s);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
   }
 }
 

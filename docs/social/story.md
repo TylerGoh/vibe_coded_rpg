@@ -49,6 +49,20 @@ Queen, who had only her dome line). Their freed lines carry their tier softly: t
 Mushroom hears the other islands, the Frost Queen and the Astral Wyrm the one land breaking, the Colossus "protect the
 Keeper", Chronos the little one who swept the leaves under a tree (never Pell's name: Mochi's to tell).
 
-## Not yet (Phase 7 (d))
-- (d): the four "freed" world changes, per player from this record (the Tidemother, the Knotmole, the Old Narwhal, the
-  Root Warden).
+## The freed world changes (Phase 7 (d))
+Once **you** have beaten one of four den bosses, its place is drawn changed for you alone (owner's default: per player;
+other slimes see their own world). The client gets your record's bosses as `me.freed` and `src/main.js` passes a
+`freed` flag to the room's draw. Drawing only: no platforms, mobs or sim change.
+- **The Tidemother** → Saltspray Coves' Tide Pools (`drawPool` in `src/coves.js`): stale before (green water, scum,
+  driftwood and weed, drooping anemones), clear after (the tide washing in, waving anemones, a little fish).
+- **The Knotmole** → the Mycelium Deep's threads (`drawThreads` in `src/deep.js`): her knots untied (a slack kink left)
+  and the glow running west in full the whole way, not just a trickle past the Knotted Halls.
+- **The Old Narwhal** → the Whale Skerries' sea (`drawSky`, `drawSeaFloes` in `src/skerries.js`): the pack across the
+  outer sound broken into loose pieces, the near floes fewer and drifting west out to sea, fish leaping.
+- **The Root Warden** → Keeper's Spine's Crest (`drawCrestRoots`, `drawWallTop` in `src/spine.js`): the roots off the
+  walls and sunk back into the turf as low humps with moss and heather.
+- The characters who live by each place (`FREED` in `server/lore.js`: Moss; Truffle; Hakon, Skaldi, Runa and Tove;
+  Acorn) get a line for a slime who has freed it (`freedFor`), so they don't describe it as stuck to the one who
+  freed it. Their personas still describe the old state for everyone else: keep both in step.
+- Later, if wanted (plan): Ladon, Fenrir (the cutters finish the Long Stair), Typhon (the Foundry's pits go cold). The
+  one world-wide flag stays for the finale (`story/delivery.md`).
