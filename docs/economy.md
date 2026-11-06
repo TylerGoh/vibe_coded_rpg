@@ -59,7 +59,8 @@ Lv 5–20, which would have doubled early levelling.
   `LEGACY_MOBS` are the curve and aren't checked; **every other mob must sit within `MOB_FIT`** (HP and
   attack loosely, so a gimmick can trade one for the other; EXP and gold tightly).
 - **Gear with a `lvl`** (anything new) must be within `GEAR_FIT` of the sword or helmet curve: about as
-  strong as the curve there, never much stronger.
+  strong as the curve there, never much stronger; boss gear within `GEAR_FIT` of the curve × its `bossTier` (since
+  2026-11-06).
 - **Elites** (`ELITE_*` in rpg.js) are checked against their base mob: never more gold per EXP. They don't
   count as what a player farms ("farming your own level" picks ordinary mobs).
 - **Field bosses** sit in the boss table (kind `field`). Since SP6 each one the sheet can fight is priced a minute of
@@ -727,6 +728,9 @@ the moves instead (ideas go to the owner as a list to approve, `story/roadmap.md
   top dens back inside `BOSS_PAY`; field bosses ~1.9 min of farming a minute of fight (`FIELD_PAY`). Ordinary dens keep
   their rewards: the respawn timer, not the fight, bounds an hour of them. Turnipop (under `CLASS_LVL`) keeps its pay.
   Gear, scrolls, materials and pets don't move (one set a kill).
+- **Boss gear** (same day, owner: boss gear must be strictly better): `BOSS_GEAR` above the curve by boss kind
+  (`docs/combat/items.md`); `GEAR_FIT` now checks a boss piece against the curve × its `bossTier`. The CLASSES and boss
+  tables still fight on curve gear, so no fight time moved; real players in boss gear kill faster than the sheet.
 - **Ultimates**: the sheet no longer models a top boss's flat ultimate hit (it's gone from the game: the safe spot is
   safe), so the Frostbinder's interrupt (`INTERRUPT_CHANCE`, now 1 in 5) is worth nothing on the sheet. A lopsided
   party's potions (`LOPSIDED_POTS`, 100 → 60 a member with the shorter fights) are only checked where its time isn't

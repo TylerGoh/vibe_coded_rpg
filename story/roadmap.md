@@ -98,6 +98,11 @@ No quests, no hard level gates.
 - [ ] **Tanky to tricky** (owner, 2026-11-06): boss HP cut to 0.6× (done, `docs/economy.md`); the difficulty moves into
   the moves: tighter dodges, more going on, traps you escape with a key combination. Ideas go to the owner as a list to
   approve.
+- [ ] **Boss gear worth the fight** (owner, 2026-11-06): stats above the curve by boss kind (done, `BOSS_GEAR`,
+  `docs/combat/items.md`); next, a unique effect on each top and final boss piece (list to the owner).
+- [ ] **The Archer's Trapper becomes the Skirmisher** (owner, 2026-11-06: "this game rewards jumping around dealing
+  damage; placing traps neither helps with farming nor bossing"): shots in the air or mid-dash, Explosive Arrow, a
+  backflip volley, the hawk kept; Arrow Rain and Thousand Arrows stay. Skill list to the owner first.
 - [ ] **Story delivery (atlas Phase 7)**, can run alongside anything (`delivery.md`, `canon.md`). Plan
       `phase7-plan.md` (approved 2026-11-04, every default): (b), (c) and (d) built: Phase 7 done but for the flavor-text rewrite (its own phase).
   - [x] per-account story progress: bosses beaten at least once, saved with the character; gives the lore tier

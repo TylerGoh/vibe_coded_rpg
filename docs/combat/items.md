@@ -19,6 +19,15 @@ materials, so those aren't only for selling any more. Two brews answer boss mech
 Cleansing Tonic and the Barrier Draught, S5.5). Every boss and field boss from `LOOT_TWIN_LVL` drops a sword with a
 staff and a bow twin, so `twinPick` can give each class its own kind (checked by `npm run economy`). Bosses drop unique swords and helmets; their later ones have more upgrade slots.
 
+## Boss gear is better (owner, 2026-11-06)
+"Bossing is not worth it ... because the equipment isn't strictly better": until then every piece with a `lvl` sat on
+the same gear curve, boss drops included, and several boss pieces also dropped from ordinary mobs. Now a piece a boss
+drops gets `BOSS_GEAR` of its written stats by the boss's kind (field, den, top, final; its best if several drop it),
+its staff and bow twins too (`bossTier`, built after `SHOPS` in `src/shared/rpg.js`), and ordinary mobs no longer drop
+it. Untouched: anything a shop sells (Bun's Reed Rapier, also Snapjaw's), legacy pieces with no `lvl`, prices. Stats
+are read from `ITEMS` at runtime, so pieces already owned got stronger too. Planned next: a unique effect on top and
+final boss pieces (owner's choice; the list goes to the owner to approve).
+
 ## Staves (S1, 2026-10-23: `story/progression.md`)
 - Every staff has a **twin** sword (`twin` on the staff, `STAFF_OF`): the same price, slots and `lvl`, with
   MAGIC equal to the sword's ATK (the economy script checks the match). Wherever the twin sword drops (boss

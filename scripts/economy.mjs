@@ -3,7 +3,7 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { FINAL_LVL_OVER, BOSS_HIT_PCT, bossHitPct, pulseHpOf, barrierOf, weakHpOf, PARTY_DEN_HP_FLOOR, MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CUT, ARMOUR_CRACKS } from '../src/shared/rpg.js';
+import { bossTier, FINAL_LVL_OVER, BOSS_HIT_PCT, bossHitPct, pulseHpOf, barrierOf, weakHpOf, PARTY_DEN_HP_FLOOR, MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CUT, ARMOUR_CRACKS } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { curve } from '../src/shared/curve.js';
 import { FINAL_ENRAGE_MIN } from '../src/shared/final.js';
@@ -979,7 +979,7 @@ if (!(FIELD_BOSS_RESPAWN_MS >= 10 * 60_000)) problems.push('field bosses come ba
 for (const [id, it] of Object.entries(ITEMS)) {
   if (!it.lvl || !['sword', 'staff', 'bow', 'helmet'].includes(it.kind)) continue;
   // a staff's MAGIC and a bow's ATK sit on the sword curve (S1, S4: story/progression.md)
-  const f = (it.kind === 'sword' || it.kind === 'bow' ? it.atk : it.kind === 'staff' ? it.magic : it.def) / curve(it.kind === 'staff' || it.kind === 'bow' ? 'sword' : it.kind, it.lvl);
+  const f = (it.kind === 'sword' || it.kind === 'bow' ? it.atk : it.kind === 'staff' ? it.magic : it.def) / curve(it.kind === 'staff' || it.kind === 'bow' ? 'sword' : it.kind, it.lvl) / (bossTier[id] ?? 1); // (boss gear: its BOSS_GEAR tier above the curve, 2026-11-06)
   if (f < GEAR_FIT[0] || f > GEAR_FIT[1]) problems.push(`${id} (lvl ${it.lvl}) has ${Math.round(f * 100)}% of the frozen ${it.kind === 'staff' ? 'sword (as MAGIC)' : it.kind} curve (want ${GEAR_FIT[0] * 100}–${GEAR_FIT[1] * 100}%)`);
 }
 // A staff is its twin sword's equal: same price, MAGIC = the sword's ATK, so a drop that can be either is

@@ -3863,6 +3863,28 @@ export const SHOPS = {
   kestrel: { name: "Kestrel's Stall", room: SKYCAMP, x: KESTREL_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'aeronaut_goggles'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
+// Boss gear is better than anything else at its level (owner, 2026-11-06: "bossing is not worth it ... because the
+// equipment isn't strictly better"). A piece with a `lvl` that a boss drops gets BOSS_GEAR of the stats written for it
+// (ATK, MAGIC or DEF, by the boss's kind: its best, if more than one drops it), and so do its staff and bow twins; ordinary
+// mobs stop dropping it (they keep their other drops). Anything a shop sells stays as it is (Bun's Reed Rapier), and legacy pieces with no `lvl` (the Novices' gear) are left as they
+// are. Prices don't move. bossTier: an item id → that multiplier, for the sheet and the item card.
+export const BOSS_GEAR = { field: 1.15, den: 1.2, top: 1.3, final: 1.4 };
+export const bossTier = {};
+{
+  const tierOf = (k) => (k.final ? BOSS_GEAR.final : k.top ? BOSS_GEAR.top : k.boss ? BOSS_GEAR.den : k.field ? BOSS_GEAR.field : 0);
+  const sold = new Set(Object.values(SHOPS).flatMap((k) => k.stock));
+  const gearIds = (id) => [id, STAFF_OF[id], CLERIC_STAFF_OF[id], BOW_OF[id]].filter(Boolean);
+  for (const k of Object.values(MOBS)) {
+    const t = tierOf(k);
+    if (!t) continue;
+    for (const [id] of k.drops ?? []) if (ITEMS[id]?.lvl && isGear(id) && !sold.has(id)) for (const g of gearIds(id)) bossTier[g] = Math.max(bossTier[g] ?? 1, t);
+  }
+  for (const [id, t] of Object.entries(bossTier)) {
+    const it = ITEMS[id];
+    for (const stat of ['atk', 'magic', 'def']) if (it[stat]) it[stat] = Math.round(it[stat] * t);
+  }
+  for (const k of Object.values(MOBS)) if (!tierOf(k) && k.drops) k.drops = k.drops.filter(([id]) => !bossTier[id]);
+}
 export const sellPrice = (id) => Math.max(1, Math.floor((ITEMS[id]?.price ?? 0) * SELL_RATE));
 export const BUY_MAX = 20; // potions bought at once
 
