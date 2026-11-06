@@ -96,8 +96,17 @@ No quests, no hard level gates.
 - ~~S6: past the cap~~ dropped (owner, 2026-11-06): "this level cap is not needed, just let it expand forever with new
   places". No stat taper, no mastery stars; the Colossus and Chronos are the capstone only for now (`progression.md` 8).
 - [ ] **Tanky to tricky** (owner, 2026-11-06): boss HP cut to 0.6× (done, `docs/economy.md`); the difficulty moves into
-  the moves: tighter dodges, more going on, traps you escape with a key combination. Ideas go to the owner as a list to
-  approve.
+  the moves: tighter dodges, more going on, traps you escape with a key combination. Plan `tricky-plan.md` (approved
+  2026-11-06, every challenge type, every boss's set, G1 and G2).
+  - [ ] T0: the engine (shipped dark): challenge table, wire version 8 (trapped, controls swapped), the combo overlay and
+        touch arrow pad, first-meeting banners, the sandbox's "challenge now", the sheet's uptime; types A1 and A17.
+  - [ ] T1: the top and final bosses (Root Warden, Ladon, Sigrun, Fenrir, Brenna, Colossus, Chronos, Typhon), with the
+        types they need and Head Swap, Hunt and Rewind (T1a Greenhollow and Frostpeak, T1b Emberdeep and the end-game
+        if it runs long). Next after it: **the owner plays** them in the sandbox and with friends.
+  - [ ] T2: the den bosses (Behemoth, Tidemother, Knotmole, Frost Queen, Astral Wyrm, Old Narwhal, Ignis, Pyra,
+        Hatchkeeper), the remaining types, punish windows everywhere.
+  - [ ] T3: the field bosses and the Novices' two.
+  - [ ] T4: tuning after the owner and friends have played.
 - [x] **Boss gear worth the fight** (owner, 2026-11-06): stats above the curve by boss kind (`BOSS_GEAR`), and 22 unique
   effects the owner approved (movement, attack changes, costs; `docs/combat/items.md`). Next: **the owner plays** them.
 - [x] **The Archer's Trapper becomes the Skirmisher** (owner, 2026-11-06: "this game rewards jumping around dealing
