@@ -27,6 +27,8 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
   ("Shift get clear", "Rally: take the boss's focus", "Cleanse: lift your friend's curse", "jump and hit the
   glowing weak point", "drink a Cleansing Tonic", "get round behind her shield") and toasted it the first few times
   a session. **Every future boss follows this:** telegraphs yes, text naming the answer no.
+- The one exception (owner-approved, `story/tricky-plan.md` G2): the first time a character meets a boss challenge type,
+  one banner line says what it is ("Snared! Enter the arrows to break free"), then never again (`docs/combat/challenges.md`).
 - `drawHints()` builds the list in the same order the E key acts in. **A new interaction must add its
   line there.** (The old per-object pills were removed in favour of this.)
 - Room-wide actions stay as pills top-right on desktop (H hand, C courses, Q Clio, X/I/K in combat rooms,

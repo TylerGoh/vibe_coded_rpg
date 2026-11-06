@@ -22,6 +22,8 @@ import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isComba
 import { SPLIT_R, SPLIT_SHARE, FAR_PX, SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds, isLongBuff, DOTS, statOf, targetsOf, retriMult, EXEC_AT, STUN_S, judgmentMult, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, mpCost, BLAST_MAX } from './shared/skills.js';
 import { drawMobState } from './elements.js';
 import { Gear } from './gear.js';
+import { Challenges } from './challenge.js';
+import { SWAP_KNOCK } from './shared/challenge.js';
 import { fxLine, HYDRA_HIT } from './shared/gearfx.js';
 import { staffGlow } from './staff-art.js';
 import { bowTint } from './bow-art.js';
@@ -31,7 +33,7 @@ const MOB_KINDS = Object.keys(MOBS); // same order as the server's
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const panX = (x, me) => clamp((x - me) / 500, -1, 1);
 // knockbacks: same numbers as server/rpg.js OUCH + hurt()
-const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 240, burn: 150, geyser: 380, sweep: 380, beam: 300, zap: 260, bomb: 420, slash: 380, pulse: 360, bite: 420, coil: 360 }; // (bite, coil: Ladon's, FB1)
+const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 240, burn: 150, geyser: 380, sweep: 380, beam: 300, zap: 260, bomb: 420, slash: 380, pulse: 360, bite: 420, coil: 360, snare: 0, swap: SWAP_KNOCK }; // (bite, coil: Ladon's, FB1; snare, swap: boss challenges, src/challenge.js)
 // ultimates Dash / Blink i-frames can get you through (the rest want you somewhere safe)
 const DODGEABLE_ULT = new Set(['collapse']);
 const TILE = 150; // den floor tiles for the grid attacks
@@ -76,6 +78,7 @@ export class Rpg {
     this.fields = new Fields(this); // SP1's fields on the ground (src/fields.js)
     this.party = new Party(this); // S5's party mechanics on bosses (src/party.js)
     this.gear = new Gear(this); // boss gear's effects and the Skirmisher's air shots (src/gear.js)
+    this.chal = new Challenges(this, keys); // boss challenges: snares, the controls swap (src/challenge.js)
     this.final = new Finals(this); // FB1: a final boss's heads, coils and title card (src/ladon.js); FB2: Fenrir's (src/fenrir.js), routed by src/finals.js
     this.aimArrow = false; // (the hit being aimed is an arrow: any arrow reaches any head in range)
     this.status = new StatusBox(document.getElementById('status')); // what's on you, under the HP panel (src/status.js)
@@ -113,6 +116,7 @@ export class Rpg {
     const { mine, slimeOf, myId } = ctx;
     this.slimeOf = slimeOf;
     this.myId = myId;
+    if (m.t === 'chal') return this.chal.receive(m);
     if (m.t === 'me') {
       const old = this.me;
       this.me = m;
@@ -1102,7 +1106,8 @@ export class Rpg {
   hazardEvent(m, k, theme, pan, me) {
     const now = this.time, mob = m.id, fx = this.bossFx, ground = 450;
     const add = (h) => this.hz.push({ mob, warnAt: now, ...h });
-    if (m.a === 'shots') {
+    if (m.a === 'chal') this.chal.event(m, add); // (boss challenges: src/challenge.js)
+    else if (m.a === 'shots') {
       for (const [x, y, vx, vy, g, r, delay] of m.shots) add({ type: 'shot', style: m.style, x, y, vx, vy, g, r, at: now + delay, end: now + delay + 4, pos: null });
       audio.sfx(m.style === 'water' ? 'squirt' : 'fireball', { pan, vol: m.style === 'ember' ? 0.8 : 0.5 });
     } else if (m.a === 'puddle') {
@@ -1228,11 +1233,17 @@ export class Rpg {
     const t = this.time, bx = me.x, by = me.y - 20; // our body's middle
     for (const h of this.hz) {
       if (t < h.at || h.done) continue;
-      const ouch = (kind) => ({ mob: h.mob, kind: h.lethal ? 'ult' : kind, mx: h.dir ? me.x - h.dir : h.x ?? me.x - 1, noDodge: h.lethal && !(h.type === 'sweep') });
+      const ouch = (kind) => ({ mob: h.mob, kind: h.lethal ? 'ult' : h.ch ?? kind, mx: h.dir ? me.x - h.dir : h.x ?? me.x - 1, noDodge: h.lethal && !(h.type === 'sweep') });
       if (h.type === 'shot') {
         if (h.pos && Math.hypot(h.pos.x - bx, h.pos.y - by) < h.r + 16) {
           h.done = true;
           return { ...ouch('shot'), mx: h.pos.x };
+        }
+      } else if (h.type === 'snare') {
+        // a boss's snare (src/challenge.js): on the floor over the mark while the roots are up (a jump or a ledge clears it)
+        if (t < h.at + h.dur && !me.onPlat && me.y > h.y - 24 && Math.abs(me.x - h.x) < h.r + 8) {
+          h.done = true;
+          return { ...ouch('snare'), mx: h.x, trap: { seed: h.seed, len: h.len } };
         }
       } else if (h.type === 'puddle') {
         if (t < h.end - 0.4 && me.grounded && Math.abs(me.y - h.y) < 2 && Math.abs(me.x - h.x) < h.w / 2 + 6) return ouch('burn');
@@ -1294,6 +1305,7 @@ export class Rpg {
     let ouch = this.ouchNext;
     this.ouchNext = null;
     if (ouch) delete ouch.noDodge;
+    if (ouch?.kind === 'snare' && me.tr) ouch = null; // (already held: a second snare does nothing)
     if (!ouch) {
       for (const v of this.targets()) {
         const k = MOBS[v.kind];
@@ -1306,15 +1318,19 @@ export class Rpg {
     }
     if (!ouch) return null;
     this.hurtAt = this.time;
+    const trap = this.chal.hit(ouch); // (a snare or a swap: {tr} / {cs}, predicted at this input; else null)
+    if (!trap) this.chal.hurtByBoss();
     this.send({ t: 'ouch', s: seq, ...ouch });
+    if (trap?.tr) return trap; // (a snare holds you where you stand: no knockback)
     // shields and Second Wind are the server's call; the knockback only if we'd still be standing
-    if (this.gear.knockFree(me)) return null; // (Sigrun's helm: the server knocks nothing back either)
-    return kickFrom(me, ouch.mx, OUCH[ouch.kind]);
+    if (this.gear.knockFree(me)) return trap; // (Sigrun's helm: the server knocks nothing back either)
+    return { ...kickFrom(me, ouch.mx, OUCH[ouch.kind]), ...trap };
   }
 
   // ——— the mobs, interpolated on the server's clock (same as other slimes) ———
   update(dt, me, room) {
     this.time += dt;
+    this.chal.update(me);
     this.flash = Math.max(0, (this.flash ?? 0) - dt * 3);
     this.fx.update(dt);
     this.summons.update(dt);
@@ -1455,7 +1471,7 @@ export class Rpg {
       ctx.fill();
       drawItemIcon(ctx, d[1], d[3], d[4] - 16 + bob, 26);
     }
-    for (const h of this.hz) if (h.type === 'puddle' || h.type === 'geyser') drawHazard(ctx, h, this.time);
+    for (const h of this.hz) if (h.type === 'puddle' || h.type === 'geyser' || h.type === 'snare') drawHazard(ctx, h, this.time);
     const draw = (v) => (MOBS[v.kind].boss ? drawBoss(ctx, v, this.time) : drawMob(ctx, v, this.time));
     for (const g of this.ghosts) draw({ ...g, hurt: 0 });
     for (const v of this.views.values()) if (!this.killed.has(v.id)) {
@@ -1540,7 +1556,7 @@ export class Rpg {
     if ((s.barrierUntil ?? 0) > this.time) drawBarrier(ctx, s.x, s.y, this.time, s.barrierF ?? 1);
   }
   drawFx(ctx) {
-    for (const h of this.hz) if (h.type !== 'puddle' && h.type !== 'geyser') drawHazard(ctx, h, this.time);
+    for (const h of this.hz) if (h.type !== 'puddle' && h.type !== 'geyser' && h.type !== 'snare') drawHazard(ctx, h, this.time);
     this.party.drawOver(ctx); // a curse's wisps, over the slimes (S5.2)
     this.fx.draw(ctx);
   }

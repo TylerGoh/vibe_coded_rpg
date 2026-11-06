@@ -67,6 +67,9 @@ The sandbox only adds a room, two mob kinds, a panel and a readout; it never cha
     itself), Restart at any phase without leaving, the two switches applied mid-fight (`bossopt`), and **Be a Lv N**
     (any class at once: max skills, every point in the main stat, the best weapon and helmet up to that level; N is
     the island's recommended level, `GREEN_TOP` / `FROST_TOP` / `EMBER_TOP`, or the boss's own level for other dens).
+    **Challenge now** (T0): one button per built boss challenge (`CHALLENGES` rows with `built`: the Snare, the Controls
+    swap), fired at once at everyone in the den through `sb.chalNow`, whether or not this boss uses it yet
+    (`docs/combat/challenges.md`).
     Everything else is the game's: leave and it heals after a few seconds, the switches stay on the boss until changed.
     Everyone in the sandbox shares the dens, as in the game. With god mode on, an ultimate still hits you (the
     number shows) but you stay up.

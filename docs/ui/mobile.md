@@ -17,6 +17,8 @@ Files: `src/touch.js` (buttons, fullscreen), touch layout rules in `src/style.cs
   Hit) use a grace window in the physics instead (`SLAM_GRACE`, `UPCUT_GRACE`): tap one, then the other.
   The Archer's Retreat Shot is Dash, then Hit (Hit shoots backward on its own while it's open), so it needs
   no new button either; tapping the game aims where you tap.
+- A boss's snare (`docs/combat/challenges.md`): while you're caught, a four-arrow pad (`#chpad`, 60 px keys in a cross in
+  the middle of the screen, away from both thumbs' buttons) enters the combo; ◀ ▶ Jump ▼ work too. One tap at a time.
 - Boss gear's air dash (Ladon's crown) goes up or down the same way: Jump or ▼, then Dash, within the grace windows.
   The Colossus's glide is holding Jump; the Skirmisher's Backflip Volley is a hotbar skill. No new buttons.
 - The HUD buttons and pills don't carry key labels (owner, 2026-10-20: they crowded the combat HUD); every

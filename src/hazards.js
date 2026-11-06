@@ -5,6 +5,7 @@
 // the bright, opaque thing = "it hurts now". Tall sweeps fill the whole height so nobody tries to jump them.
 import { TAU } from './util.js';
 import { glow as radialGlow } from './glow.js';
+import { drawSnareHz } from './challenge.js';
 
 const GROUND = 450;
 const TOP = -40; // tall things start above the screen top
@@ -125,7 +126,8 @@ const SHOT = {
   seed: { glow: '190,255,150', core: '#fbffe8', mid: '#c8f0a0', rim: '#3e5a30' }, // the seed-pod lantern's glowing seed
   log: { glow: '255,130,60', core: '#ffd27a', mid: '#3a3034', rim: '#1e1a1e' }, // Greyback's burning log (the Ashwood)
   sulphur: { glow: '240,220,90', core: '#fffbd0', mid: '#ffe04a', rim: '#b08a1e' }, // the chimney spitter's glob of burning sulphur (the Brimstone Fields)
-  molten: { glow: '255,150,60', core: '#fff6d0', mid: '#ffb040', rim: '#c84a1e' }, // molten metal: the crucible newt's and Old Crucible's (the Old Foundry)
+  molten: { glow: '255,150,60', core: '#fff6d0', mid: '#ffb040', rim: '#c84a1e' },
+  swap: { glow: '190,140,255', core: '#ffffff', mid: '#c9a6ff', rim: '#6a3ea8' }, // a boss's controls-swap orb (src/challenge.js) // molten metal: the crucible newt's and Old Crucible's (the Old Foundry)
 };
 function drawShot(ctx, h, now) {
   const p = h.pos;
@@ -1386,6 +1388,7 @@ const DRAW = {
   bomb: drawBomb,
   slash: drawSlash,
   pulse: drawPulse,
+  snare: drawSnareHz, // a boss's snare (src/challenge.js)
 };
 
 export function drawHazard(ctx, h, now) {

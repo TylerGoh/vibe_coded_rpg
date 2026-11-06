@@ -98,8 +98,10 @@ No quests, no hard level gates.
 - [ ] **Tanky to tricky** (owner, 2026-11-06): boss HP cut to 0.6× (done, `docs/economy.md`); the difficulty moves into
   the moves: tighter dodges, more going on, traps you escape with a key combination. Plan `tricky-plan.md` (approved
   2026-11-06, every challenge type, every boss's set, G1 and G2).
-  - [ ] T0: the engine (shipped dark): challenge table, wire version 8 (trapped, controls swapped), the combo overlay and
+  - [x] T0: the engine (shipped dark): challenge table, wire version 8 (trapped, controls swapped), the combo overlay and
         touch arrow pad, first-meeting banners, the sandbox's "challenge now", the sheet's uptime; types A1 and A17.
+        Built 2026-11-06 (`docs/combat/challenges.md`); no boss uses them yet. The owner checks the snare and the swap
+        by hand in the sandbox (and on a phone) before T1 ships.
   - [ ] T1: the top and final bosses (Root Warden, Ladon, Sigrun, Fenrir, Brenna, Colossus, Chronos, Typhon), with the
         types they need and Head Swap, Hunt and Rewind (T1a Greenhollow and Frostpeak, T1b Emberdeep and the end-game
         if it runs long). Next after it: **the owner plays** them in the sandbox and with friends.

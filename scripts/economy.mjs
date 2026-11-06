@@ -3,6 +3,7 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
+import { uptimeOf } from '../src/shared/challenge.js';
 import { bossTier, FINAL_LVL_OVER, BOSS_HIT_PCT, bossHitPct, pulseHpOf, barrierOf, weakHpOf, PARTY_DEN_HP_FLOOR, MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CUT, ARMOUR_CRACKS } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { curve } from '../src/shared/curve.js';
@@ -400,7 +401,9 @@ const POTIONS = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))].filte
 // SP6: pct, the share of max HP each boss hit takes on top (bossHitPct × BOSS_HIT_MULT, past DEF); mech.pulseHp /
 // mech.bar: its pulse and barrier (pulseHpOf, barrierOf). Ultimates aren't modelled: the sheet stands in the safe spot,
 // and since 2026-11-06 nothing hurts you there (the old flat ultimate chip is gone)
-function fight(c, { n = 1, range = 0, hit = 0, pct = 0, every = BOSS_HIT_EVERY.warrior, hp: bossHp = Infinity, potions = false, until = SIM_S, mech = null }) {
+// up: the share of the fight you're free to hit (uptimeOf: a boss with challenges snares you or has you carrying things,
+// src/shared/challenge.js); your own hits are scaled by it, the dots and summons you left going are not
+function fight(c, { n = 1, range = 0, hit = 0, pct = 0, every = BOSS_HIT_EVERY.warrior, hp: bossHp = Infinity, potions = false, until = SIM_S, mech = null, up = 1 }) {
   const r = (id) => rankOf(c.skills, id);
   // S5's party mechanics (PARTY DENS below): mech = { pulse, barrier, weak, hp1 (the boss's one-slime HP), behind (a
   // share of your hits from behind a front-only barrier), front (Sigrun's: front-only barrier and weak point), weakBack (Brenna's: the weak point only from behind), jump
@@ -669,7 +672,7 @@ function fight(c, { n = 1, range = 0, hit = 0, pct = 0, every = BOSS_HIT_EVERY.w
     if (!dmg) continue;
     dmg *= markX(t);
     if (M) dmg = mechHit(dmg, chase ? { arrow: chase === 'retreat_shot' } : best ? hitKinds(SKILLS[best], r(best), st, held, c.skills) : { magic: !!st.boltRange, arrow: !!st.arrowRange }, t);
-    dealt += dmg; // (a crowd: the sum over the mobs it caught)
+    dealt += dmg * up; // (a crowd: the sum over the mobs it caught)
     if (st.thirst) hp = Math.min(st.maxHp, hp + dmg * st.thirst);
     if (best && SKILLS[best].smite) healUp(dmg * SKILLS[best].smite(r(best)) * st.heal, st); // Smite
     if (!best && !chase && st.holyBolt) healUp(dmg * HOLY_BOLT_HEAL * st.heal, st); // the holy bolt (alone: it heals you)
@@ -705,7 +708,7 @@ const isPartyDen = (m) => !!(m.partyDen && m.partyLive); // (S5.3: the Root Ward
 // boss hit takes bossHitPct of max HP on top of its flat part (pctOf: the average move, × BOSS_HIT_MULT like the flat).
 const isTop = (m) => !!m.top;
 const pctOf = (m) => bossHitPct(m) * BOSS_HIT_MULT;
-const bossFight = (m) => ({ hit: m.atk * BOSS_HIT_MULT, pct: pctOf(m) });
+const bossFight = (m) => ({ hit: m.atk * BOSS_HIT_MULT, pct: pctOf(m), up: uptimeOf(m) }); // (up: T0's downtime, 1 until a boss has challenges)
 // SP6's targets (owner, 2026-10-25), in the sheet's minutes (it plays faster than people do): an ordinary den soloed at
 // its level about 15 min (the eight branches' median within DEN_SOLO_MIN); a field boss longer than it was but well
 // short of a den (FIELD_SOLO_MIN, about 4); a top boss about 45 min for a party of four (TOP_PARTY_MIN), alone TOP_SOLO ×

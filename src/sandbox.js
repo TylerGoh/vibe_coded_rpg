@@ -8,6 +8,7 @@ import { ITEMS, DENS, MOBS, PHASE_AT, isCombat, GREEN_TOP, FROST_TOP, EMBER_TOP 
 import { SKILLS, CLASSES, weaponOk } from './shared/skills.js';
 import { FINAL } from './shared/final.js';
 import { ARENA, DUMMY_HP_SHARES, SANDBOX_LEVELS, SANDBOX_MAX_LVL, SANDBOX_HEADLINERS, SANDBOX_PARTY } from './shared/sandbox.js';
+import { CHALLENGES } from './shared/challenge.js';
 
 const LEVEL_NAMES = { 10: '1st', 30: '2nd', 60: '3rd', 100: '4th', 200: 'cap' };
 const WEAPON_KINDS = { warrior: ['sword'], mage: ['staff'], cleric: ['staff'], archer: ['bow'], novice: ['sword', 'staff', 'bow'] };
@@ -261,6 +262,8 @@ export class Sandbox {
       out.push(el('div', { className: 'sbx-fight' }, [
         el('b', { textContent: `This fight: ${k.name}` }),
         this.row('Ultimate now', el('div', { className: 'sbx-btns' }, ultsOf(kind).map((u, i) => this.act(u.name, { a: 'ult', kind, which: i })))),
+        // (boss challenges, docs/combat/challenges.md: any built type on this boss, aimed at everyone in the den)
+        this.row('Challenge now', el('div', { className: 'sbx-btns' }, Object.entries(CHALLENGES).filter(([, c]) => c.built).map(([type, c]) => this.act(c.name, { a: 'chal', kind, type })))),
         this.row('Restart at', el('div', { className: 'sbx-btns' }, [...phasesOf(kind).map((_, i) => i), phasesOf(kind).length].map((i) => el('button', { type: 'button', className: 'sbx-act', textContent: `Phase ${i + 1}`, onclick: () => {
           this.phase = i;
           this.send({ t: 'sbx', a: 'boss', kind, hp: phaseHp(kind, i), hold: this.hold ? holdHp(kind, i) : 0, party: this.party });
@@ -280,7 +283,7 @@ export class Sandbox {
         this.send({ t: 'sbx', a: 'yard' });
         this.close();
       } })]),
-      el('p', { className: 'sbx-note', textContent: 'Fight takes you into its den with the boss fresh at that phase. Ultimate now fires once the boss finishes what it is doing. God mode (Toggles) keeps you up through an ultimate: the hit still shows. Leave and it heals after a few seconds, as in the game. Everyone in the sandbox shares the dens.' }),
+      el('p', { className: 'sbx-note', textContent: 'Fight takes you into its den with the boss fresh at that phase. Ultimate now fires once the boss finishes what it is doing; Challenge now goes off at once, whether or not this boss uses it yet. God mode (Toggles) keeps you up through an ultimate: the hit still shows. Leave and it heals after a few seconds, as in the game. Everyone in the sandbox shares the dens.' }),
     );
     return out.filter(Boolean);
   }

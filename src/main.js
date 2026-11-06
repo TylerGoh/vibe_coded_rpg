@@ -446,7 +446,7 @@ function useSlot(bar, i) {
 // Cast skill id: a hotbar key, or the K panel's Cast button / a double-click on its node (SP1: the server never checks
 // the hotbar, so it's the same {t:'skill'} either way)
 function castSkill(id) {
-  if (!online() || splatted(mine)) return;
+  if (!online() || splatted(mine) || net.me.tr) return; // (snared by a boss: break free first)
   audio.unlock();
   if (SKILLS[id]?.kind === 'move') return pressMove(id);
   if (!rpg.cast(id, mine, mine.facing, net.seq, mine)) return;
@@ -844,12 +844,13 @@ const walkKeys = () => {
   return Array.from({ length: Math.max(l.length, r.length) }, (_, i) => [l[i], r[i]].filter(Boolean).join(' ')).filter(Boolean).join(' / ') || '—';
 };
 const TOUCH_CONTROLS = [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-  ['Tap the game', 'slap · Hit attacks (hold it to keep attacking)'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['▼ then Dash', 'Hook (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree (Cast a skill from its card)'],
+  ['Tap the game', 'slap · Hit attacks (hold it to keep attacking)'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['▼ then Dash', 'Hook (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Arrow pad', 'snared by a boss: tap the arrows shown (◀ ▶ Jump ▼ work too)'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree (Cast a skill from its card)'],
   ['Players', "who's online, invite, message"], ['Chat', 'chat · /w name to whisper · /r to reply'], ['Decorate', 'in your own house'],
   ['Mic · Broadcast', 'talk to slimes nearby · to everyone'], ['Menu', 'this menu']];
 // the moves made of two keys, under the editor (they follow whatever the keys are)
 const comboControls = () => [['Click', 'slap · attack (hold to keep attacking)'], [`${kl('dash')} then ${kl('attack')}`, 'Charge (Warrior) · Retreat Shot (Archer)'],
   [`${kl('down')} + ${kl('attack')} in the air`, 'Leap Slam (Warrior)'], [`${kl('down')} + ${kl('dash')}`, 'Hook (Warrior)'], [`${kl('jump')} + ${kl('attack')}, rising`, 'Upward Cut (Warrior)'],
+  [`${kl('left')} ${kl('right')} ${kl('jump')} ${kl('down')}`, 'snared by a boss: the arrows shown (◀ ▶ ▲ ▼)'],
   ['Double-click a skill', 'cast it from the skill tree'], ['Esc', 'this menu (always)']];
 function fillList(dl, rows) {
   dl.replaceChildren();
@@ -1006,7 +1007,7 @@ const weaponSound = (s) => ({ sword: 'swing', staff: 'staffBolt', bow: 'bowShot'
 // aimed: a click or tap toward a side (X and the Hit button go the way you face, except that while an Archer's
 // Retreat Shot is open they shoot back the way you came: sim.js retreatOpen)
 function slapToward(dir, aimed = false) {
-  if (performance.now() - lastSlap < SLAP_COOLDOWN_MS / (isCombat(room) && rpg.me ? attackSpeedOf(rpg.me) : 1) || splatted(mine)) return; // (Chronos's weapons: faster)
+  if (performance.now() - lastSlap < SLAP_COOLDOWN_MS / (isCombat(room) && rpg.me ? attackSpeedOf(rpg.me) : 1) || splatted(mine) || net.me.tr) return; // (Chronos's weapons: faster; snared: no swinging)
   lastSlap = performance.now();
   const bow = isCombat(room) && ITEMS[rpg.me?.gear?.weapon]?.kind === 'bow';
   if (bow && !aimed && retreatOpen(net.me, -dir)) dir = -dir;
@@ -1323,6 +1324,8 @@ addEventListener('keydown', (e) => {
     toggleCast();
     return;
   }
+  // snared by a boss (src/challenge.js): the walk / jump / drop keys enter the combo (the physics ignores them meanwhile)
+  if (menu.hidden && isCombat(room) && online() && rpg.chal.key(e)) e.preventDefault();
   const bits = MOVE_BITS[keys.of(e)];
   if (!bits) return;
   e.preventDefault();
@@ -1425,6 +1428,7 @@ function update(realDt) {
     const st = remote.get(id);
     s.visible = !!st && st.room === room; // only slimes in the same room are seen (and heard)
     if (s.visible) s.animate(dt, st, fx);
+    if (s.visible) [s.tr, s.cs] = [st.tr | 0, st.cs | 0]; // (a boss's snare / swap on them: src/challenge.js draws it)
     if (s.visible) moveFx(s, st);
     else s.mvWas = null;
   }
@@ -1704,6 +1708,7 @@ function render() {
   if (isCombat(room)) for (const s of meShown ? [...all, mine] : all) rpg.drawAura(ctx, s); // Berserk
   if (meShown) drawSlime(mine); // our own slime on top
   if (isCombat(room)) for (const s of meShown ? [...all, mine] : all) rpg.drawShields(ctx, s); // Bubble, Aegis
+  if (isCombat(room)) rpg.chal.drawOver(ctx, [...all.map((s) => [s, s.tr | 0, s.cs | 0]), ...(meShown ? [[mine, net.me.tr | 0, net.me.cs | 0]] : [])], meShown ? mine : null); // snares, swaps, your combo
   for (const s of all) nameTag(s, false);
   if (meShown) nameTag(mine, true);
   if (roomDef(room)?.crossing) drawCrossingFront(ctx, room, camX, W, time, online() ? net.me : null); // the near water, over the hull's foot
@@ -1804,6 +1809,7 @@ function render() {
       drawPill(W / 2 - w / 2, 54, w, label, '#d9465f');
     }
     if (status === 'online') rpg.drawHud(ctx, isCombat(room), H);
+    if (status === 'online') rpg.chal.drawHud(ctx); // (a boss challenge's first-time line)
     if (status === 'online') alchemy.drawBuff(ctx, 128);
     if (status === 'online') accuse.draw(ctx);
     const a = clamp(1 - (hintTime - 8) / 1.5, 0, 1);

@@ -26,6 +26,7 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { ITEMS, DENS, DEN_EXIT_X, MOBS, isWeapon } from '../src/shared/rpg.js';
 import { FINAL } from '../src/shared/final.js';
+import { CHALLENGES } from '../src/shared/challenge.js';
 import { SKILLS, CLASSES, ACTIVE, HOTBAR, AP_STATS, apTotal, apSpent, cantLearn, cleanSkills, giftsOf, rankOf, skillFor, weaponOk } from '../src/shared/skills.js';
 import { placeAt } from '../src/shared/sim.js';
 import { ARENA, ARENA_W, ARENA_SPAWN_X, DUMMY_HP_SHARES, DUMMY_MAX, DUMMY_PACK, DUMMY_GAP, METER_EVERY_MS, SANDBOX_MAX_LVL, MAIN_STAT, SANDBOX_POTIONS, SANDBOX_POTS } from '../src/shared/sandbox.js';
@@ -242,6 +243,16 @@ export function createSandbox({ rpg, hooks, players, send, dbPath, livePath }) {
     sb.toast(p, `${list[which ?? 0].name}: as soon as it's free`);
   }
 
+  // Challenge now (T0, docs/combat/challenges.md): one of the built challenge types on this den's boss, at everyone in
+  // the den, whether or not the boss uses it yet
+  function chalNow(p, m) {
+    const b = denBoss(m.kind);
+    if (!b || b.dead) return;
+    if (p.state.room !== b.room) return sb.toast(p, 'Go into its den first');
+    if (!CHALLENGES[m.type]?.built) return;
+    if (!sb.chalNow(b, m.type)) sb.toast(p, `${CHALLENGES[m.type].name}: nobody to aim it at`);
+  }
+
   function receive(id, p, m) {
     if (!p.rpg || !p.sbx) return;
     if (m.a === 'char') char(id, p, m);
@@ -253,6 +264,7 @@ export function createSandbox({ rpg, hooks, players, send, dbPath, livePath }) {
       const b = denBoss(m.kind);
       if (b) bossOpts(b, m);
     } else if (m.a === 'ult') ultNow(p, m);
+    else if (m.a === 'chal') chalNow(p, m);
     else if (m.a === 'yard') {
       if (p.faintUntil) return sb.toast(p, 'Wake up first');
       placeAt(p.state, ARENA, ARENA_SPAWN_X);

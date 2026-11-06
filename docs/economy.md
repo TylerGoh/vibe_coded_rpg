@@ -736,6 +736,10 @@ the moves instead (ideas go to the owner as a list to approve, `story/roadmap.md
   party's potions (`LOPSIDED_POTS`, 100 → 60 a member with the shorter fights) are only checked where its time isn't
   (Sigrun, Brenna, the Colossus); Chronos, with an all-round barrier, now costs it time (43 min against 27) rather than
   potions. Brenna's lone-Archer faint at 16:48 (E4b) is gone: it was the ultimate's flat hit.
+- **Challenges' downtime** (T0, `docs/combat/challenges.md`): `fight()` takes `up`, the share of a fight you're free to hit
+  (`uptimeOf`: `UPTIME_DEN` / `UPTIME_TOP` for a boss whose `MOBS` row lists challenges in `ch`, else 1), and scales your own
+  hits by it (dots and summons keep going). No boss has `ch` yet, so nothing moved; as T1–T3 give bosses theirs, a boss
+  pushed out of its band gets its HP cut, never its rewards raised.
 
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.

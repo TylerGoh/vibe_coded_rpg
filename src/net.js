@@ -16,10 +16,14 @@ import { enableTestSkills } from './shared/skills.js';
 const INTERP = 6; // ticks (100 ms) behind the newest snapshot for remote slimes
 const MAX_SNAPS = 60;
 const KICKED = 4001; // server close code: this account logged in somewhere else
-const RPG = new Set(['final', 'me', 'mobs', 'loot', 'hurt', 'faint', 'woke', 'gear', 'toast', 'notice', 'advance', 'thirst', 'reborn', 'got', 'skill', 'boss', 'bossdmg', 'nomana', 'shop', 'guard', 'scrolled', 'warp', 'summons', 'sumhit', 'sumhurt', 'sumgone', 'netcatch', 'party', 'curse', 'burn', 'fields', 'fieldhit', 'burst', 'refund']);
+const RPG = new Set(['final', 'me', 'mobs', 'loot', 'hurt', 'faint', 'woke', 'gear', 'toast', 'notice', 'advance', 'thirst', 'reborn', 'got', 'skill', 'boss', 'bossdmg', 'nomana', 'shop', 'guard', 'scrolled', 'warp', 'summons', 'sumhit', 'sumhurt', 'sumgone', 'netcatch', 'party', 'curse', 'burn', 'fields', 'fieldhit', 'burst', 'refund', 'chal']);
 
-// A knockback: same numbers as server/rpg.js hurt(), so prediction and server agree exactly
+// A knockback: same numbers as server/rpg.js hurt(), so prediction and server agree exactly. A boss challenge's hit
+// may carry tr (snared: no knockback) or cs (controls swapped) instead or too (src/challenge.js; the server's ouch)
 export function applyKick(s, kick) {
+  if (kick.tr) s.tr = kick.tr;
+  if (kick.cs) s.cs = kick.cs;
+  if (kick.vx === undefined) return;
   s.vx = kick.vx;
   s.vy = kick.vy;
   s.grounded = s.onPlat = false;
@@ -31,7 +35,7 @@ export class Net {
     this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime, onSandbox };
     this.id = null;
     this.me = newState(); // predicted state
-    this.pending = []; // [seq, keys, kick?, charge?, hook?] not yet acknowledged
+    this.pending = []; // [seq, keys, kick?, charge?, hook?, free?] not yet acknowledged
     this.afterInput = []; // messages to send right after this step's input (src/rpg.js hook / chase)
     this.seq = 0;
     this.snaps = []; // { tick, players: Map(id → state) }
@@ -182,11 +186,12 @@ export class Net {
     const before = { x: this.me.x, y: this.me.y };
     this.pending = this.pending.filter(([s]) => s > snap.ack);
     Object.assign(this.me, server); // (keeps this.me.home, which snapshots don't carry)
-    for (const [, k, kick, charge, hook] of this.pending) {
+    for (const [, k, kick, charge, hook, free] of this.pending) {
       step(this.me, k);
       if (hook !== undefined) applyHook(this.me, hook); // a Hook cut short at its mob (the server's hook message does the same)
       if (kick) applyKick(this.me, kick); // a knockback we predicted at this step (the server applies it there too)
       if (charge) applyCharge(this.me); // a Charge that connected after this step (the server's slap does the same)
+      if (free) this.me.tr = 0; // a snare's combo entered after this step (the server's free does the same)
     }
     // Ease any visible difference away over a few frames instead of popping.
     const dx = before.x - this.me.x, dy = before.y - this.me.y;
@@ -231,6 +236,15 @@ export class Net {
     if (seq === this.seq) applyCharge(this.me);
   }
 
+  // A snare's combo was entered, sent as {t:'free', s: seq} (the newest input): free now and on every replay, like a
+  // Charge. The server does the same when it runs that message, if the arrows were right
+  free(seq) {
+    const e = this.pending.find((p) => p[0] === seq);
+    if (!e) return;
+    e[5] = true;
+    if (seq === this.seq) this.me.tr = 0;
+  }
+
   // The server tick other slimes (and mobs) are being drawn at: INTERP ticks behind the newest
   renderTick() {
     return this.clockOffset === null ? null : (performance.now() / 1000) * TICK_RATE + this.clockOffset - INTERP;
@@ -272,6 +286,7 @@ export class Net {
         room: sb.room,
         dt: sb.dt, bc: sb.bc, fj: sb.fj, ifr: sb.ifr, // Mobility (for their dash / blink effects)
         sl: sb.sl, uc: sb.uc, // the chase moves (their slam / cut effects)
+        tr: sb.tr, cs: sb.cs, // a boss's snare / controls swap on them (src/challenge.js draws it)
       });
     }
     return out;

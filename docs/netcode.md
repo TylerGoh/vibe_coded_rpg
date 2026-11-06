@@ -14,11 +14,12 @@ protocol is documented in the comment at the top of that file: keep it updated**
   and the Skirmisher's Backflip Volley), never by side-channel messages. Doors, rooms, Dash, Blink, Flash Jump, Leap
   Slam, Upward Cut, Hook and boss gear's movement all work this way. Per-player movement abilities ride in the state
   (`state.mv`, `state.mw`, `state.gx`) so prediction knows them too.
-- **Predicted state edits**: three things change your state from a client-decided event rather than an
-  input: a mob's knockback (`applyKick`, from `ouch`), a Warrior's Charge connecting (`applyCharge`,
-  from a slap) and a Hook cut short at its mob (`applyHook`, SP2: the client says how many ticks the yank
-  has left; the edit can only shorten it). The client stores the edit on that input's `pending` entry
-  (`[seq, keys, kick, charge, hook]`), applies it now and on every replay; the server applies the same edit
+- **Predicted state edits**: four things change your state from a client-decided event rather than an
+  input: a mob's knockback (`applyKick`, from `ouch`; a boss challenge's hit rides on it too, setting `tr` snared or `cs`
+  controls swapped), a Warrior's Charge connecting (`applyCharge`, from a slap), a Hook cut short at its mob (`applyHook`,
+  SP2: the client says how many ticks the yank has left; the edit can only shorten it) and a snare's combo entered
+  (`net.free`, from `{t:'free'}`: `tr` cleared; `docs/combat/challenges.md`). The client stores the edit on that input's
+  `pending` entry (`[seq, keys, kick, charge, hook, free]`), applies it now and on every replay; the server applies the same edit
   when it runs the message at that `s`. Charge and knockback are computed from the state alone (see
   `docs/combat/skills.md`).
 - **A chase move's message goes right after its input** (`net.afterInput`, flushed in `tick()` straight after
@@ -72,6 +73,9 @@ protocol is documented in the comment at the top of that file: keep it updated**
   `pack` / `unpack` entries 24–25. An input is now 7 bytes: a second keys byte for `BOOST` (Rush: the client times it from
   its own kills) and `FLIP` (Backflip Volley); a 6-byte input from an older tab still decodes (`KEY_MASK` 1023). An older
   tab gets version 6's records and predicts without gear movement until it reloads (the new-patch banner).
+- 2026-11-06: wire version 8 (boss challenges, T0: `docs/combat/challenges.md`): 53 bytes per slime: `tr` u8 (snared: ticks
+  left, `TRAP_HOLD` = until freed) and `cs` u8 (controls swapped: ticks left); `pack` / `unpack` entries 26–27. `step()`
+  reads both. `remotes()` passes them on so a friend's snare and swap are drawn. Older tabs get version 7's records.
 - 2026-10-24 (the Archer, S4): no wire version change. Two more mob flags in the same byte (2048 marked by
   Hunter's Mark, 4096 netted; the 7 bits there hold up to 16384), Retreat Shot's rank in `mw` bits 6–7 (it was
   6 bits used of the byte), the slap echo's `retreat`, the skill's `mob` / echo's `mark`, and

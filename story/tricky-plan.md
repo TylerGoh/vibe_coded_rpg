@@ -1,8 +1,8 @@
 # Tanky to tricky: boss challenges (plan, owner-approved 2026-11-06)
 
 **Status: (a) on paper 2026-11-06; the owner approved every challenge type (A1–A23), every boss's set (B1–B21) and
-both global rules (G1, G2): "I like all of these".** Nothing is built yet. Start at "The phases" below; each phase is
-sized for one session.
+both global rules (G1, G2): "I like all of these".** T0 (the engine, the snare and the swap) built 2026-11-06, shipped
+dark (`docs/combat/challenges.md`); next is T1. Start at "The phases" below; each phase is sized for one session.
 
 Owner, 2026-11-06: "Bosses right now take a long time to kill but not because they are challenging but because they are
 tanky. Let's scale down the health by 40%. The difficulty will be in how pixel perfect. How many challenges are inside.

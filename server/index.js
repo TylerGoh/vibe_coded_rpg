@@ -71,6 +71,12 @@
 //       an extra hit of that kind (server/rpg.js GEAR_HITS), run in input order ← {t:'gearhit', id, kind, x, hits} the
 //       room sees it · ← {t:'gearfx', a:'oath'} (just you) Sigrun's weapons blocked a hit · {t:'gearfx', a:'echo', skill}
 //       Ladon's staff: cast it again → {t:'skill', …, free:1} · the cast's `free` · Chronos's staff's reset is a 'refund'
+//   Boss challenges (T0, src/shared/challenge.js, docs/combat/challenges.md): ← {t:'boss', a:'chal', id, type:'snare', list:
+//       [[x, delay]], warn, dur, r, y, len, seed} roots spring under each target · {…, type:'swap', shots} slow orbs (the
+//       `shots` shape) · → {t:'ouch', kind:'snare'|'swap', …} one caught me (only while that boss has one going: `tr` /
+//       `cs` set at that input, wire v8) · → {t:'free', s, k:[arrows]} I entered my snare's combo (in input order; the
+//       server checks the order against the seed) · ← {t:'chal', a:'freed', id} (the room) someone broke free ·
+//       ← {t:'chal', a:'first', type} (just you) the first time this character met that type: G2's banner
 //   → {t:'pickup', s}
 //   ← {t:'nomana'}  a skill you tried had too little MP
 //   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,weapon}, atk, magic, def,
@@ -231,7 +237,7 @@ const MAX_CREDIT = 6; // a player may catch up on at most this many steps in one
 const RTC_BURST = 60; // voice call-setup messages a player may send in a burst…
 const RTC_PER_SEC = 20; // …and on average
 const IDLE_TICKS = 15; // no input for this long (e.g. tab hidden) → simulate them standing still
-const ORDERED = new Set(['slap', 'skill', 'ouch', 'pickup', 'gearHit']); // carry `s`, the client's latest input seq
+const ORDERED = new Set(['slap', 'skill', 'ouch', 'pickup', 'gearHit', 'free']); // carry `s`, the client's latest input seq
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css',
@@ -751,6 +757,7 @@ function runActions(id, p, all) {
       rpg.cast(id, p, m);
     }
     else if (m.t === 'ouch') rpg.ouch(id, p, m);
+    else if (m.t === 'free') rpg.free(id, p, m); // (a snare's combo entered: docs/combat/challenges.md)
     else if (m.t === 'gearHit') rpg.gearHit(id, p, m);
     else if (m.t === 'pickup') rpg.pickup(p);
   }

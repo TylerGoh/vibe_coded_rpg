@@ -10,6 +10,8 @@ rebindable, **saved per account**, opened **only from the Esc menu** (no hotkey 
   three columns (Move, Fight, Other), one row per action, a small button per key. Click one, press a key:
   Backspace clears it, Esc cancels. Under it, the moves made of two keys (Charge, Leap Slam, Hook, Upward
   Cut) written with your keys. **Reset keys** puts everything back (it asks for a second click).
+- **A boss's snare combo** uses the four movement actions (left, right, jump, down: `KEY_DIR` in `src/challenge.js`), so it
+  follows the rebinding; it's listed under the editor with the two-key moves. Not a new action.
 - **Esc is fixed** (`FIXED_KEYS`): it always opens the menu, so nobody can lock themselves out of this page. Also
   not rebindable on purpose: number keys picking a stone on the waystone card, Delete / F while decorating
   (`Houses.key`), O for the sandbox panel (dev only). They sit inside their own cards, so they don't clash.

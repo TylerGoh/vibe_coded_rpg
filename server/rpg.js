@@ -21,6 +21,8 @@ import { mpCost, BLAST_MAX } from '../src/shared/skills.js';
 import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS, DEVOTION_S, DEVOTION_CAP, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, judgmentMult, RESOLVE_R } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { createFinal } from './final.js';
+import { createChallenges } from './challenge.js';
+import { CHALLENGES, SNARE_HIT, SWAP_HIT, SWAP_KNOCK } from '../src/shared/challenge.js';
 import { THROAT_MULT, THROAT_FILL, GAZE_STAGGER_S } from '../src/shared/final.js';
 import { SON_KNOCK } from '../src/shared/fenrir.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen, applyHook, HOOK_RANGE } from '../src/shared/sim.js';
@@ -141,6 +143,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       mobs.push(q);
     },
   });
+  // T0: boss challenges (server/challenge.js, docs/combat/challenges.md): snares and the controls swap so far
+  const chal = createChallenges({ now: () => now(), MOBS, bossEvent: (...a) => bossEvent(...a), send, toRoom: (r) => toRoom(r), inRoom: (r) => inRoom(r) });
   let roadsEndSaid = false; // (the Road's End: Ladon has spoken since it last emptied)
   let longStairSaid = false; // (the Long Stair: Fenrir has spoken since it last emptied)
   let longFlueSaid = false; // (the Long Flue: Typhon has spoken since it last emptied)
@@ -158,6 +162,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       bleed: null, poison: null, pull: null,
       // the Archer's (S4): netted until (Net Trap), and Hunter's Mark { until, boost, by }
       snareUntil: 0, stunUntil: 0, mark: null, staticUntil: 0, // (staticUntil: Static's charge, SP3)
+      ch: null, // (its live challenges: server/challenge.js)
       // bosses: walk → warn → act, every few seconds
       phase: 'walk', next: 3, timer: 0, act: null, enraged: false, last: null, emptyFor: 0,
       stage: 0, chain: 0, ultAt: 0, ultArmed: false, ult: null, ultLiveUntil: 0, rains: [], slamR: 300,
@@ -288,6 +293,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     r.hp = Math.min(st.maxHp, Math.max(1, r.hp));
     r.mp = Math.min(st.maxMp, Math.max(0, r.mp ?? st.maxMp));
     r.pvp = r.pvp !== false;
+    r.seen = (Array.isArray(r.seen) ? r.seen : []).filter((id) => CHALLENGES[id]); // challenge types met (G2's banners: docs/combat/challenges.md)
     r.keys = cleanKeys(r.keys); // key bindings, only the ones changed from the defaults (docs/ui/keybinds.md)
     r.cosmetics = (r.cosmetics ?? []).filter((id) => COSMETICS[id]);
     r.wear = (r.wear ?? []).filter((id) => r.cosmetics.includes(id));
@@ -388,9 +394,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   function save(p) {
     if (p.rpg && p.joined) clock(p);
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, cosmetics, wear, showHelmet, brew, ways, bossAt, story, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, seen, cosmetics, wear, showHelmet, brew, ways, bossAt, story, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, cosmetics, wear, showHelmet, brew, town, ways, bossAt, story, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, seen, cosmetics, wear, showHelmet, brew, town, ways, bossAt, story, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -1326,6 +1332,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     bomb: [1.5, 420], slash: [1.3, 380], pulse: [1.2, 360],
     // FB1: Ladon's Bite (a head striking the floor) and the phase 3 coils (a wall of necks: it hurts, it doesn't block)
     bite: [1.5, 420], coil: [0.7, 360],
+    // T0's challenges (src/shared/challenge.js): a snare barely hurts and doesn't knock (it holds you); the swap's orb
+    snare: [SNARE_HIT, 0], swap: [SWAP_HIT, SWAP_KNOCK],
   };
   function ouch(id, p, m) {
     const mob = mobs.find((q) => q.id === m.mob && !q.dead && q.room === p.state.room);
@@ -1338,10 +1346,13 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     if ((m.kind === 'touch' || m.kind === 'charge') && (mob.frozenUntil > now() || mob.snareUntil > now() || mob.stunUntil > now()) && !MOBS[mob.kind].boss && !MOBS[mob.kind].field) return; // frozen solid, netted or stunned: harmless
     if (m.kind !== 'touch' && m.kind !== 'charge' && !MOBS[mob.kind].boss && !MOBS[mob.kind].ai) return;
     if (ult && now() > mob.ultLiveUntil) return; // no ultimate going off right now
+    const ch = CHALLENGES[m.kind] ? chal.claim(mob, m.kind) : null; // (a snare or a swap: only while that boss has one going)
+    if (CHALLENGES[m.kind] && !ch) return;
     const mx = Number.isFinite(m.mx) && Math.abs(m.mx - mob.x) < DEN_W ? m.mx : mob.x;
     const focused = !ult && mob.focus?.p === p && mob.focus.until > now(); // (S5: the boss's focus hits harder)
-    const x = mult * (focused ? FOCUS_ATK : 1);
+    const x = mult * (focused ? FOCUS_ATK : 1) * (ult || ch ? 1 : chal.punish(p, mob)); // (a snare failed lately: this hit does more)
     hurt(id, p, MOBS[mob.kind].atk * x, mx, undefined, knock, ult, mob, false, ult ? 0 : bossHitPct(MOBS[mob.kind]) * x); // (SP6: a boss's share of max HP)
+    if (ch && !p.faintUntil) chal.apply(id, p, ch, mob); // (trapped or turned round at this input, as the client predicted)
     // Frost Armor (SP3, `chills` on a long buff): a mob that ran into you is chilled (a soft chill: never a freeze)
     const armor = (m.kind === 'touch' || m.kind === 'charge') && Object.entries(p.buffs ?? {}).find(([bid, b]) => SKILLS[bid]?.chills && b.until > now());
     if (armor && !mob.dead) element(mob, 'frost', 0, armor[1].by, false, true);
@@ -2399,6 +2410,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         return m;
       },
       resetBoss: (m) => resetBoss(m),
+      // a challenge on this boss now (the sandbox's Challenge now; T0, before any boss uses them): → started?
+      chalNow: (m, type) => chal.start(m, type),
       // an ultimate as soon as the boss is free (which: an index into its ults, or the next): a final boss's loop takes
       // it next (server/final.js, server/fenrir.js read m.forceUlt), any other boss on its next move
       ultNow(m, which) {
@@ -2445,12 +2458,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     pvp,
     cast,
     ouch,
+    free: (id, p, m) => chal.free(id, p, m), // ({t:'free'}: a snare's combo entered, in input order)
     playerAt,
 
     tick(serverTick) {
       tick = serverTick;
       const t = now(), dt = 1 / TICK_RATE;
       for (const [, p] of players) if (p.joined && p.rpg) record(p, p.state.x, p.state.y);
+      chal.tick(players, mobs); // (snares that ran out, challenges past their time)
       const rooms = new Map();
       for (const m of mobs) {
         if (m.gone) continue;
