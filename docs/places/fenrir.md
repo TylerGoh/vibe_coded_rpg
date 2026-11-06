@@ -61,7 +61,7 @@ lamp posts with the cutters' lanterns on them (`LANTERN_X`). The stone hand lies
   floor (`LUNGE_R`, `POUNCE_R`), the Claw's red box (`CLAW_W` × `CLAW_H`), the Rearing's landing (`REAR_R`, wide).
   Rearing (phase 4): the shard in the collar is the weak point for `REAR_S` (`REAR_WEAK`, front only, a jump for
   melee); filled, it staggers `GAZE_STAGGER_S` and doesn't land.
-- **Ultimates** (both interruptible by a freeze in the wind-up; an uninterrupted one also hits for `TOP_ULT_HP`):
+- **Ultimates** (both interruptible by a freeze in the wind-up, `INTERRUPT_CHANCE`):
   Swallow the Light (`u.keep`: the two pools marked SAFE; fangs everywhere else; the rest go dark) and Fimbulwinter
   (`u.dir`: the snow streams the way it'll blow; safe only in the lee strips at the far end, `inLee`: the floor by the
   wall behind the low stone, `LEE_FLOOR`, or the wall end of the outer ledge, `LEE_LEDGE`).

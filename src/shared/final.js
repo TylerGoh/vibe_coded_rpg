@@ -76,10 +76,10 @@ export const FINAL = {
   },
 };
 export const finalPhase = (row, frac) => row.at.filter((a) => frac <= a).length; // 0–3
-// FINAL_ENRAGE_MIN: a little past the ~45 min a party of four should take (the server's TEST_ENRAGE_MIN shortens it
+// FINAL_ENRAGE_MIN: a little past the ~26 min a party of four should take (since BOSS_HP_SCALE) (the server's TEST_ENRAGE_MIN shortens it
 // in tests). At it: the petals turn to thorns, every stump regrows at once and nothing seals one, the coils close to
 // the middle over COIL_ENRAGE_S and nothing pushes them back, and the Breath comes every ENRAGE_BREATH_S as well.
-export const FINAL_ENRAGE_MIN = 48;
+export const FINAL_ENRAGE_MIN = 29; // (48 until BOSS_HP_SCALE cut the fights to 0.6x, 2026-11-06)
 export const COIL_ENRAGE_S = 60;
 export const ENRAGE_BREATH_S = 14;
 // A final boss's ultimates warn FINAL_ULT_WARN s (a little longer than ULT_WARN: a party has to climb the high arch)

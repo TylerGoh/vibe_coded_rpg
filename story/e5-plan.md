@@ -145,7 +145,7 @@ the level every loop)
   from one end of the den to the other (the wind-up says which: the ladle swings that way). Only the high ledges at
   the far end, and anywhere frosted, are safe. Freeze it in the wind-up to stop it. Phase 3 alternates Eruption and
   the Last Pour.
-- An ultimate nobody interrupts also hits the people in the safe place (`TOP_ULT_HP`), as on any top boss.
+- ~~An ultimate nobody interrupts also hits the people in the safe place, as on any top boss.~~ (Removed 2026-11-06: the safe spot is safe.)
 
 **Its line:** "One short. ONE SHORT. Then I will cast it myself. Hold still. You are the right shape."
 

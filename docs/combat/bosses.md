@@ -48,11 +48,20 @@ branches of `drawBit` and `drawFallObj`).
   sweeps…), all sent through the hazards pipeline (`docs/combat/stages.md`).
 - The Mage's combos (`docs/combat/skills.md`): a frozen boss (den or field) isn't stopped, only slowed
   to `FROZEN_BOSS_SLOW` for `FREEZE_BOSS`, and its timers and moves run on; a fire spell still shatters it.
-  Burns count for their caster on the damage meter. Freezing a boss while its ultimate warns cancels it on a boss
-  with the `interrupt` mechanic (S5.2, below).
+  Burns count for their caster on the damage meter. Freezing a boss while its ultimate warns may cancel it on a boss
+  with the `interrupt` mechanic (S5.2, below; a 1-in-5 chance since 2026-11-06).
+- **The safe spot is safe** (owner, 2026-11-06): an ultimate KOs whoever isn't in its safe spot (the client's 'ult'
+  ouch) and does nothing to whoever is. Until then a top boss's uninterrupted ultimate also took 60% of max HP from
+  everyone, safe or not, which is what killed people standing in safe zones (the owner's 2026-10-30 report).
 - Boss HP grows per extra slime in the den (`BOSS_HP_PER_PLAYER`). Since SP6 (owner, 2026-10-25) a den boss soloed at
   its level is a ~15 min fight on the economy sheet, a field boss ~4, a top boss ~45 for a party of four
-  (`docs/economy.md`, "The balance pass"); rewards grew with them. Every boss hit also takes a share of the target's max
+  (`docs/economy.md`, "The balance pass"); rewards grew with them.
+- **Tanky to tricky** (owner, 2026-11-06): "bosses take a long time to kill not because they are challenging but
+  because they are tanky." Every boss's HP is `BOSS_HP_SCALE` of the number written in `MOBS` (applied once, after
+  every boss is defined), so all those fights are 0.6× as long (a den ~9 min, a field boss ~2.5, a top boss ~26 for
+  four); field, top and final bosses pay `BOSS_PAY_SCALE` of their written EXP and coins a kill (`docs/economy.md`,
+  "Tanky to tricky"). The final bosses' enrage came down with them (`FINAL_ENRAGE_MIN`). The difficulty is meant to
+  move into the moves (tighter dodges, more going on, traps): ideas go to the owner as a list to approve (`story/roadmap.md`). Every boss hit also takes a share of the target's max
   HP (`bossHitPct`, `docs/combat/core.md`).
   Everyone leaving for a few seconds resets it; a kill respawns after `BOSS_RESPAWN_MS` (`b` in `mobs`
   is the countdown). Bosses drop their unique gear, scrolls, gold and potions. Events: `{t:'boss', a: …}`.
@@ -154,7 +163,8 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
   within `WEAK_REACH` of the spot's height: a jump, a ledge, Upward Cut, Flash Jump). Hits on it fill `WEAK_HP` of
   the boss's one-slime HP (the ring round the crystal); full, it breaks (`weakBreak`) and the boss staggers.
 - **interrupt**: no boss move. A freeze landing while an ultimate is still warning (`element()` → `interruptUlt`)
-  cancels it outright: `{t:'boss', a:'ultCancel', by}` drops everyone's banner and its warning art, "INTERRUPTED!"
+  cancels it `INTERRUPT_CHANCE` of the time (one roll per ultimate, on the first freeze; owner 2026-11-06: "don't let
+  freeze just cancel ultis"; before, always): `{t:'boss', a:'ultCancel', by}` drops everyone's banner and its warning art, "INTERRUPTED!"
   pops, the next one comes `ULT_EVERY` later as usual, and the boss staggers. Not Pyra's Rebirth (her egg is its own
   answer). On from the first slime (`min: 1`), but only on a boss that lists it.
 - **Nothing makes a boss immune**: a barrier still lets `BARRIER_PHYS` through, armour `ARMOUR_CUT`, a missed weak
@@ -170,7 +180,7 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
 | barrier | Mage's spells (and a Cleric's holy bolts and Smite) break it | wait it out; `BARRIER_PHYS` still lands |
 | armour | Berserker (Sky Splitter, Blade Storm, Power Strike); Snipe, Heartseeker; a shatter, Meteor | wait it out; `ARMOUR_CUT` still lands |
 | weak point | Archer: every arrow reaches it | jump for it (Upward Cut, Flash Jump, a ledge); a staff bolt cast mid-jump |
-| interrupt | Frostbinder (Frost Nova, then Glacial Spike); an Elementalist with a Frostbinder friend | dodge the ultimate as always |
+| interrupt | Frostbinder (Frost Nova, then Glacial Spike), a 1-in-5 chance; an Elementalist with a Frostbinder friend | dodge the ultimate as always |
 - Tested (S5.1) with two and three test players on a test boss (`TEST_PARTY=sprout_king:focus,pulse`): alone nothing
   shows; with two the focus goes on, Rally pulls it, it rotates, the pulse lands for 30%, a Barrier soaks it.
 - Tested (S5.2) on the Sprout King with two headless players each (`TEST_PARTY=sprout_king:<mech>`, `TEST_BOSS_HP`
@@ -258,8 +268,8 @@ alone they fight as before too). The armour and barrier use the shared numbers (
   Colossus got a **pulse** on top of the draft's armour + weak point: a top boss is meant to punish a party with no
   healer (owner's SP6 rule 4), and armour and a weak point are exactly the lopsided team's own answers (Berserkers,
   Archers), so without it a no-healer party beat it as fast as the right mix. Ignis, the Colossus and Chronos got
-  `interrupt` like every den with a freezable ult; for the two top bosses that's also a way out of `TOP_ULT_HP`'s chip
-  (the Frostbinder's). Pyra's adds only show in her middle stage (`summon` is only in her stage-2 moves).
+  `interrupt` like every den with a freezable ult; for the two top bosses that was also a way out of the
+  ultimate's flat hit, gone since 2026-11-06. Pyra's adds only show in her middle stage (`summon` is only in her stage-2 moves).
 - The Colossus's core sits on its chest (`front`, the Narwhal's rule): low enough that a slap from the floor finds it,
   so a melee party breaks it as well as arrows do, from in front.
 - `lines`: Ignis and Pyra got theirs with E4b (from their stories in `story/characters/bosses.md`; Ignis's freed line
@@ -284,9 +294,8 @@ every mechanic (S5's rule), but a weak answer costs more here than on an ordinar
 - the barrier is up `TOP_BARRIER_S`, back `TOP_BARRIER_EVERY` s after it ends, and lets `TOP_BARRIER_PHYS` of a physical
   hit through (`barrierOf`; the client's `Party.mod` and the server's `partyHit` both pass its `phys` to
   `partyHitMult`): unbroken, it roughly doubles the fight. Its HP and the weak point's are `TOP_BARRIER_HP`, `TOP_WEAK_HP`;
-- an ultimate nobody interrupted hits everyone in the den for `TOP_ULT_HP` of max HP even in the safe spot
-  (`ultGoesOff`, flat like a pulse: Aegis, a Bubble, a Barrier, Sanctuary, the totem, a ward, a Barrier Draught take it
-  as they take one); standing in the wrong place is still a KO. Not Pyra's Rebirth (she isn't top anyway). Since S5.4
+- (until 2026-11-06: an ultimate nobody interrupted also hit everyone for 60% of max HP even in the safe spot; owner:
+  removed, the safe spot is safe); standing in the wrong place is still a KO. Not Pyra's Rebirth (she isn't top anyway). Since S5.4
   the Colossus and Chronos have `interrupt` too: a Frostbinder freezes theirs away; otherwise a Knight's Sanctuary or
   Aegis and a Cleric's Barrier are the answers.
 On the sheet a right-mix party (`PARTY_TEAM`) takes ~45 min; a lopsided one (no healer, Mage or Frostbinder) ~73 min on
@@ -314,15 +323,13 @@ the boss's HP down; `hitHead` gets `fire` and `frost` (a frost hit crusts one of
 - **Owner's rules**: HP fixed for four (`bossMaxHp` returns `k.hp`: no `BOSS_HP_PER_PLAYER`, no floor), no reward
   window (`kill` pays every kill in full), every S5 mechanic on from the first slime (`partyAll`), Lv on the tag from
   `finalTag`, stats from the FINAL table. The economy sheet doesn't hold a final boss to `TOP_SOLO`.
-- **Safe zones and `TOP_ULT_HP`**: an uninterrupted top boss's ultimate takes `TOP_ULT_HP` of max HP from everyone in
-  the den, safe spot or not; a slime under that share dies in the safe zone. The owner's 2026-10-30 report ("one-shot
-  skills kill you in the safe zone", `story/roadmap.md`) most likely comes from this (with the pulse close by), not from
-  the safe-spot checks; unchanged, for the owner (`docs/places/typhon.md`, "Safe zones").
+- **Safe zones**: the owner's 2026-10-30 report ("one-shot skills kill you in the safe zone") most likely came from the
+  top bosses' flat 60% ultimate hit, removed 2026-11-06 (above, "How a fight works").
 - **Four phases** (`FINAL[row].at`, `finalPhase`: PHASE_AT's FINAL row), each a **written loop** run in order for ever
   (`loops`: a move, `name:2` every other loop, `shield` bark and ward by turns, `ult`), a short opening after each move
   (`FINAL_GAP_S`, where a queued stagger lands). Ultimates come on a timer in phases 1–3 (`ultEvery`, the first below
   `ULT_FIRST`), alternate from `alternateFrom`, and warn `FINAL_ULT_WARN`; a freeze in the wind-up interrupts them as
-  on any boss (`interruptUlt`), and one nobody interrupts hits for `TOP_ULT_HP` (`top`). `startUlt` takes the forced
+  on any boss (`interruptUlt`, `INTERRUPT_CHANCE`). `startUlt` takes the forced
   ultimate; new kinds `heads` (safe gaps, `u.gaps`) and `strangle` (only the high arch: `LADON_HIGH`), judged on the
   client in `src/ladon.js`.
 - **The loop drives S5's engine**: `partyTick` starts no focus, pulse, shield or weak point by itself for a final boss

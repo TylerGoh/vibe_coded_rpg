@@ -134,9 +134,10 @@ branch, plus long buffs and passives that change play (`skills-plan.md`).
 **No quests** (owner): an advancement opens at its level with a banner. The point schedule (owner, 2026-10-24): two points a level, capped at what's open (`spClass`,
 `spRoom`), so you can hold everything open and the hotbar is the limit.
 
-### 8. Levelling past the content (S6)
+### 8. Levelling past the content (S6: dropped)
 Built (S0): the over-level EXP falloff and the per-player boss reward window (`BOSS_WINDOW_MS`,
-`docs/combat/bosses.md`). Still to build:
+`docs/combat/bosses.md`). **Dropped 2026-11-06** (owner: "this level cap is not needed, just let it expand forever with
+new places"; the end-game capstone is only the capstone for now). Was planned:
 - **Stat growth tapers past the content** (above Lv 200): gear and the tree decide power there. **Applies
   to everyone** (owner), so today's highest characters lose a little; the banner should say so.
 - **Mastery stars:** every N levels past the cap gives a star by your name and a cosmetic or comfort
@@ -157,7 +158,7 @@ In full, with the rollback table: `archive/progression-full.md`. What a builder 
 Done: S0, S1, L, R, S2, S3, S4 (one line each in `done.md`).
 - [ ] **S5: bosses that need a party** (section 6), with loot by class and the status box. Plan:
       `s5-plan.md`.
-- [ ] **S6: past the cap** (section 8): stat taper, mastery stars, the Lv 150 advancement.
+- ~~S6: past the cap~~ (section 8): dropped 2026-11-06.
 
 ## Open decisions
 None. Settled ones are in `archive/progression-full.md`.

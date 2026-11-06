@@ -60,7 +60,7 @@ No quests, no hard level gates.
    **Built 2026-10-27** (`docs/sandbox.md`): its own on-demand server (`rpg-dev.socket`, port 3003, exits when idle)
    running the `~/rpg-dev` worktree (`dev` branch), logins copied read-only from live, the Training Yard (room 53),
    the panel (character swap, dummies incl. one that hits back, DPS readout, bosses at any phase, god mode / full MP /
-   no cooldowns). Stopped 2026-10-27 (owner; the socket still starts it on a visit). Next: the owner installs nginx's `/rpg_dev/` block, then **the owner and friends play** it.
+   no cooldowns). Stopped 2026-10-27 (owner; the socket still starts it on a visit). Next: the owner nginx's `/rpg_dev/` block is in (since the move to OCI); **the owner and friends play** it.
 6. **Emberdeep's depth pass, E1–E4** (Lv 90–150; plan, map and settled decisions:
    `world/emberdeep-depth.md`, method: `world/island-depth.md`, how to ship a branch:
    `docs/places/branches.md`). E0 shipped.
@@ -93,7 +93,11 @@ No quests, no hard level gates.
       - [x] (c) built 2026-11-04: the Skydocks (room 69, Lv 135–145: loose bolts, rigging moths, mooring hooks, gusts on
             the planks, the Harbour Lamp), the Dockwarden (AI), the plank laid, the loading ramp into Cogwork Bastion;
             **the skylift is gone** (the column vista stands there). Phase 6 done.
-- [ ] **S6: past the cap** (`progression.md` section 8): stat taper, mastery stars, the Lv 150 advancement.
+- ~~S6: past the cap~~ dropped (owner, 2026-11-06): "this level cap is not needed, just let it expand forever with new
+  places". No stat taper, no mastery stars; the Colossus and Chronos are the capstone only for now (`progression.md` 8).
+- [ ] **Tanky to tricky** (owner, 2026-11-06): boss HP cut to 0.6× (done, `docs/economy.md`); the difficulty moves into
+  the moves: tighter dodges, more going on, traps you escape with a key combination. Ideas go to the owner as a list to
+  approve.
 - [ ] **Story delivery (atlas Phase 7)**, can run alongside anything (`delivery.md`, `canon.md`). Plan
       `phase7-plan.md` (approved 2026-11-04, every default): (b), (c) and (d) built: Phase 7 done but for the flavor-text rewrite (its own phase).
   - [x] per-account story progress: bosses beaten at least once, saved with the character; gives the lore tier
@@ -114,7 +118,8 @@ No quests, no hard level gates.
       uncharted islands (`world/regions/uncharted.md`, `expansion.md`).
 
 ## Small asks
-- [ ] **Bug (owner, 2026-10-30), seen in the `/rpg_dev` sandbox:** every one-shot boss skill (ultimates and the
+- [x] **Bug (owner, 2026-10-30), fixed 2026-11-06** (owner: skip it for the safe spot; the flat 60% is gone, and a freeze
+      now interrupts an ultimate only 1 time in 5, `INTERRUPT_CHANCE`). Was: seen in the `/rpg_dev` sandbox: every one-shot boss skill (ultimates and the
       like) still kills you while you stand in its safe zone. Check whether it's sandbox-only (the Bosses tab's
       "Ultimate now" / restart-at-phase path, `docs/sandbox.md`) or live too (the safe-zone check in the boss
       moves, `docs/combat/bosses.md`). E5 (c1)'s reading (not fixed): a top boss's uninterrupted ultimate also takes

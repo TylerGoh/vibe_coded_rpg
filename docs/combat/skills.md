@@ -240,7 +240,7 @@ server's mob (`chillUntil`, `frozenUntil`, `burn`), set in `element()` from `app
   cap; `me.arcane`; fainting clears it). The echo carries `arcane` (an "ARCANE xN" pop over the caster).
   The status box shows its icon with the charges stored (it used to be diamonds in the MP bar's right end).
 - **The interrupt** (S5.2; owner, 2026-10-24): a freeze landing on a boss while its ultimate is still warning
-  cancels the ultimate outright and staggers the boss (`interruptUlt` in `server/rpg.js`, called from
+  may cancel the ultimate (`INTERRUPT_CHANCE`, one roll per ultimate; always, until 2026-11-06) and staggers the boss (`interruptUlt` in `server/rpg.js`, called from
   `element()`). It's the `interrupt` party mechanic, so it needs the boss to list it (`docs/combat/bosses.md`).
   Pyra's Rebirth is left alone (breaking her egg is its own answer). Not built: the masteries (Permafrost,
   Wildfire) are S6's.

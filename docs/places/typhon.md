@@ -81,12 +81,12 @@ den's way out is at `DEN_EXIT_X`; the plan's "east wall" gave way to that).
   per `BROOD_PER` hot plates, within the adds cap. A crusted plate gives none.
 - **Phase 4 movement**: in its openings it hauls itself after the watched slime (`walk`, never nearer a wall than
   `BODY_EDGE`); in phases 1–3 it's rooted at the hearth (`TY_MID`).
-- **Ultimates** (an uninterrupted one also hits for `TOP_ULT_HP`, as on any top boss): **Eruption** (`u.dark`: the
+- **Ultimates**: **Eruption** (`u.dark`: the
   `ERUPT_DARK` plates the wind-up leaves dark, marked SAFE with every crusted plate, live; at the hit the server sends
   `u.safe`, the crusted ones then plus the dark ones, and the client checks the plate under it, **at any height**: a
   ledge is not safe) and **the Last Pour** (`u.dir`: the ladle swings that way; a wave of iron at `POUR_SPEED`, judged as
   its front passes you, `pourSafe`: only on the high ledge at the end it runs to, or on the floor over a crusted plate).
-  Both are interruptible by a freeze in the wind-up (`interruptUlt`) except a full-pressure Eruption. Everything they
+  Both are interruptible by a freeze in the wind-up (`interruptUlt`, `INTERRUPT_CHANCE`) except a full-pressure Eruption. Everything they
   hit is left molten.
 - **The enrage** (`FINAL_ENRAGE_MIN`): every vent jams, every crust goes, nothing crusts again (frost and rings are
   ignored), one more plate goes molten for good every `ENRAGE_PLATE_S`, and a Bellows every `ENRAGE_BREATH_S` besides
@@ -152,10 +152,9 @@ Chronos's. Numbers: `docs/economy.md`, "E5 (c2)".
 ## Safe zones (the owner's 2026-10-30 bug report)
 Both ultimates judge safety by the state at the moment they land (crusts then, plus the dark plates; the wave by your
 spot as its front passes). Eruption is judged on x only, so standing anywhere above a safe plate is safe; nothing else
-is. Separately, a top boss's uninterrupted ultimate also hits everyone for `TOP_ULT_HP` of max HP **even in the safe
-spot** (`ultGoesOff`): a slime below that share of its HP dies standing in a safe zone. That is the likeliest cause of
-"one-shot skills still kill you in the safe zone" (with the pulse's `TOP_PULSE_HP` landing in the same few seconds);
-not changed here, for the owner to decide (`story/roadmap.md`, Small asks).
+is. Until 2026-11-06 a top boss's uninterrupted ultimate also hit everyone for 60% of max HP even in the safe spot,
+the likeliest cause of "one-shot skills still kill you in the safe zone"; the owner had it removed: the safe spot is
+safe (`docs/combat/bosses.md`).
 
 ## Tested (c1, 2026-11-02: no bots, no test server, owner's rule)
 The client builds; the server files pass `node --check`; the economy sheet is green; the brain was ticked offline with

@@ -2492,6 +2492,22 @@ MOBS.mooring_hook = {
   drops: [['coin', 1, 1178, 1770], ['mooring_link', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
 };
 
+// Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
+// final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
+// cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
+// A field, top or final boss also pays BOSS_PAY_SCALE of the EXP and coins written above a kill (owner's SP6 rule:
+// rewards follow the fight, so an hour of them pays about what it did; a little more, docs/economy.md). Ordinary dens
+// keep theirs: their respawn timer, not the fight, bounds an hour of them. The Novices' field boss (under Lv 10,
+// CLASS_LVL) keeps its pay too.
+export const BOSS_HP_SCALE = 0.6, BOSS_PAY_SCALE = 0.7;
+for (const k of Object.values(MOBS)) {
+  if (!(k.boss || k.field) || k.dummy) continue;
+  k.hp = Math.round(k.hp * BOSS_HP_SCALE);
+  if (!(k.field || k.top) || k.lvl < 10) continue;
+  k.exp = Math.round(k.exp * BOSS_PAY_SCALE);
+  k.drops = k.drops.map((d) => d[0] === 'coin' ? [d[0], d[1], Math.round(d[2] * BOSS_PAY_SCALE), Math.round(d[3] * BOSS_PAY_SCALE), ...d.slice(4)] : d);
+}
+
 // Boss phases: below these fractions of max HP a boss moves to its next phase (more moves, combos)
 export const PHASE_AT = [1, 0.7, 0.3];
 export const COMBO_CHANCE = [0, 0.4, 0.7]; // chance an attack chains into another, per phase
@@ -2514,6 +2530,9 @@ export const WAVE_SPEED = 520;
 // Warden, Sigrun), every one from the first slime on a final boss (`partyAll`). Nothing switches on until the
 // boss also has `partyLive` (S5.3 / S5.4 add it, a boss at a time), so the engine can ship dark.
 // The client gets the switched-on ones as bits, in PARTY_MECHS order ({t:'party'}).
+// The interrupt: a freeze landing on a boss while its ultimate is still warning cancels it only INTERRUPT_CHANCE of the
+// time (owner, 2026-11-06: a Frostbinder shouldn't just switch ultimates off; you dodge them).
+export const INTERRUPT_CHANCE = 0.2;
 export const PARTY_MECHS = ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'];
 export const PARTY = {
   focus: { min: 2, capMin: 2 }, // (alone it means nothing, even in a party den)
@@ -2628,11 +2647,11 @@ export const STAGGER_DMG = 0.3;
 // Top bosses (`top` on the boss: the party dens, the final bosses, the Clockwork Colossus and Chronos) are built for a
 // party of four (~45 min on the sheet), and a weak answer to their mechanics costs more there: a pulse of TOP_PULSE_HP,
 // a barrier up longer (TOP_BARRIER_S, back TOP_BARRIER_EVERY s after it ends) that lets only TOP_BARRIER_PHYS of a
-// physical hit through, and an ultimate nobody interrupted hits everyone in the den for TOP_ULT_HP of max HP even
-// where it's safe (server/rpg.js ultGoesOff). Ordinary dens keep the S5 numbers.
+// physical hit through. Ordinary dens keep the S5 numbers. (Until 2026-11-06 an uninterrupted ultimate also took 60% of
+// max HP from everyone, safe spot or not; owner: standing in the safe spot is the answer, so that's gone.)
 export const BOSS_HIT_PCT = 0.03, TOP_HIT_PCT = 0.05;
 export const bossHitPct = (k) => (k?.top ? TOP_HIT_PCT : k?.boss || k?.field ? BOSS_HIT_PCT : k?.hitPct ?? 0); // (hitPct: the sandbox's sparring dummy)
-export const TOP_PULSE_HP = 0.45, TOP_BARRIER_PHYS = 0.15, TOP_BARRIER_S = 18, TOP_BARRIER_EVERY = 12, TOP_ULT_HP = 0.6;
+export const TOP_PULSE_HP = 0.45, TOP_BARRIER_PHYS = 0.15, TOP_BARRIER_S = 18, TOP_BARRIER_EVERY = 12;
 // a top boss's HP went up ~28x in SP6 (a den's ~9x), so its barrier's and weak point's HP shares are smaller
 // (TOP_BARRIER_HP, TOP_WEAK_HP): one Mage or Archer still breaks them in a few seconds
 export const TOP_BARRIER_HP = 0.0021, TOP_WEAK_HP = 0.0014;

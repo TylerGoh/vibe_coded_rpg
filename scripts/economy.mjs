@@ -3,7 +3,7 @@
 // (the shop, the Boutique, furniture, house expansions, seeds), worked out from the live constants, plus the checks that
 // keep prices in line with what players can actually earn. Run it after changing any drop, price, EXP
 // or HP number; `--check` exits 1 if a check fails. The assumptions it makes are the constants below.
-import { FINAL_LVL_OVER, BOSS_HIT_PCT, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, ULT_EVERY, ULT_WARN, PARTY_DEN_HP_FLOOR, MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CUT, ARMOUR_CRACKS } from '../src/shared/rpg.js';
+import { FINAL_LVL_OVER, BOSS_HIT_PCT, bossHitPct, pulseHpOf, barrierOf, weakHpOf, PARTY_DEN_HP_FLOOR, MOBS, SPAWNS, ITEMS, SHOPS, COSMETICS, sellPrice, expToNext, KILLS_PER_MIN, LEVEL_MIN, REBIRTH_HOURS, rebirthCost, FIELD_BOSS_RESPAWN_MS, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, DENS, STAFF_BOLT_MULT, BOW_SHOT_MULT, bossMaxHp, partyActive, PULSE_EVERY, PULSE_WARN, PULSE_HP, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_PHYS, BARRIER_HP, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_MULT, WEAK_HP, STAGGER_S, STAGGER_DMG, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CUT, ARMOUR_CRACKS } from '../src/shared/rpg.js';
 const SHOP_STOCK = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))]; // every shopkeeper's
 import { curve } from '../src/shared/curve.js';
 import { FINAL_ENRAGE_MIN } from '../src/shared/final.js';
@@ -397,9 +397,9 @@ const attackDmg = (st, range, c) => (st.boltRange ? (st.boltRange >= range ? st.
 const POTIONS = [...new Set(Object.values(SHOPS).flatMap((k) => k.stock))].filter((id) => ITEMS[id].kind === 'potion' && ITEMS[id].heal).map((id) => ITEMS[id]).sort((a, b) => a.heal - b.heal);
 // A fight: n targets, `range` px away; `hit` raw damage every BOSS_HIT_EVERY s (0: nobody hits back);
 // `hp`: stop once that much damage is done (a boss); `potions`: drink them. → { t, dealt, faint, drunk, gold }
-// SP6: pct, the share of max HP each boss hit takes on top (bossHitPct × BOSS_HIT_MULT, past DEF); mech.ult: a top boss's
-// uninterrupted ultimate every that many s (TOP_ULT_HP of max HP, flat like the pulse); mech.pulseHp / mech.bar: its
-// pulse and barrier (pulseHpOf, barrierOf)
+// SP6: pct, the share of max HP each boss hit takes on top (bossHitPct × BOSS_HIT_MULT, past DEF); mech.pulseHp /
+// mech.bar: its pulse and barrier (pulseHpOf, barrierOf). Ultimates aren't modelled: the sheet stands in the safe spot,
+// and since 2026-11-06 nothing hurts you there (the old flat ultimate chip is gone)
 function fight(c, { n = 1, range = 0, hit = 0, pct = 0, every = BOSS_HIT_EVERY.warrior, hp: bossHp = Infinity, potions = false, until = SIM_S, mech = null }) {
   const r = (id) => rankOf(c.skills, id);
   // S5's party mechanics (PARTY DENS below): mech = { pulse, barrier, weak, hp1 (the boss's one-slime HP), behind (a
@@ -407,7 +407,7 @@ function fight(c, { n = 1, range = 0, hit = 0, pct = 0, every = BOSS_HIT_EVERY.w
   // (a share of your non-arrow hits that reach a high weak point), help { magic, weak } (the rest of the party's
   // damage a second on the barrier and the weak point) }; S5.4: armour (a shell phase: non-heavy hits ×ARMOUR_CUT,
   // your heavy hits crack it, one an action; the others' cracks aren't counted, so a party is a little slower here)
-  const M = mech ? { bar: barrierOf({}), pulseHp: PULSE_HP, weakHp: WEAK_HP, ultX: 1, ultT: mech.ult || 0, shNext: (mech.bar ?? barrierOf({})).every * 0.5, shFrom: 0, shUntil: 0, shHp: 0, wkNext: WEAK_EVERY * 0.5, wkOpen: false, wkUntil: 0, wkFill: 0, stag: 0, pulse: PULSE_EVERY + PULSE_WARN, staggers: 0, arNext: ARMOUR_EVERY * 0.5, arFrom: 0, arUntil: 0, cracks: 0, ...mech } : null;
+  const M = mech ? { bar: barrierOf({}), pulseHp: PULSE_HP, weakHp: WEAK_HP, shNext: (mech.bar ?? barrierOf({})).every * 0.5, shFrom: 0, shUntil: 0, shHp: 0, wkNext: WEAK_EVERY * 0.5, wkOpen: false, wkUntil: 0, wkFill: 0, stag: 0, pulse: PULSE_EVERY + PULSE_WARN, staggers: 0, arNext: ARMOUR_EVERY * 0.5, arFrom: 0, arUntil: 0, cracks: 0, ...mech } : null;
   const shUp = (t) => M?.barrier && t >= M.shFrom && t < M.shUntil, wkUp = (t) => M?.weak && M.wkOpen && t < M.wkUntil;
   const arUp = (t) => M?.armour && !M.barrier && t >= M.arFrom && t < M.arUntil;
   const stagger = (t) => { M.stag = t + STAGGER_S; M.staggers++; };
@@ -478,13 +478,12 @@ function fight(c, { n = 1, range = 0, hit = 0, pct = 0, every = BOSS_HIT_EVERY.w
   for (let t = 0; t < until; t += ACTION_S) {
     // what happened since the last action: MP (and HP) regen once a second, the boss's hits
     for (;;) {
-      const hT = hit ? nextHit : Infinity, pT = M?.pulse ? +M.pulse : Infinity, uT = M?.ultT || Infinity, at0 = Math.min(nextRegen, hT, pT, uT);
+      const hT = hit ? nextHit : Infinity, pT = M?.pulse ? +M.pulse : Infinity, at0 = Math.min(nextRegen, hT, pT);
       if (at0 > t) break;
-      const flatHit = uT === at0 ? 'ult' : pT === at0 ? 'pulse' : null, pulse = !!flatHit; // (SP6: an ultimate goes like a pulse)
+      const pulse = pT === at0;
       if (pulse || hT === at0) {
         const at = at0, st = statsAt(at);
-        if (flatHit === 'ult') M.ultT += mech.ult;
-        else if (pulse) M.pulse += PULSE_EVERY + PULSE_WARN;
+        if (pulse) M.pulse += PULSE_EVERY + PULSE_WARN;
         else nextHit += every;
         if (!pulse && M?.stag > at) continue; // (staggered: no moves)
         if (buff.aegis > at) continue;
@@ -496,8 +495,7 @@ function fight(c, { n = 1, range = 0, hit = 0, pct = 0, every = BOSS_HIT_EVERY.w
           drawer.hp -= Math.max(1, hit - drawer.def);
           continue;
         }
-        let d = pulse ? Math.round(st.maxHp * (flatHit === 'ult' ? TOP_ULT_HP : M.pulseHp)) : Math.max(1, Math.round(hit - st.def)) + Math.round(st.maxHp * pct); // (the pulse: flat, past DEF; SP6: pct of max HP too)
-        if (flatHit === 'ult') d = Math.round(d * M.ultX); // (SP6: the team's answer, timed for it: a Knight's Sanctuary, a Cleric's Barrier)
+        let d = pulse ? Math.round(st.maxHp * M.pulseHp) : Math.max(1, Math.round(hit - st.def)) + Math.round(st.maxHp * pct); // (the pulse: flat, past DEF; SP6: pct of max HP too)
         if (buff.zone > at) d = Math.max(1, Math.round(d * (1 - SKILLS.sanctuary.cut(r('sanctuary')))));
         else if (M?.help?.zone && at % M.help.zone.every < M.help.zone.dur) d = Math.max(1, Math.round(d * (1 - M.help.zone.cut))); // (SP6: a Knight friend's)
         if (totem && totem.until > at && totem.hp > 0) d = Math.max(1, Math.round(d * (1 - totem.cut)));
@@ -551,8 +549,8 @@ function fight(c, { n = 1, range = 0, hit = 0, pct = 0, every = BOSS_HIT_EVERY.w
     }
     const st = statsAt(t);
     // this action: a potion, Jelly Patch, a buff that's down, the best hit, or the normal attack
-    // (SP6: a pulse or a top boss's ultimate coming, drink first if it would take you under POTION_AT: you see it coming)
-    const soon = M ? Math.max(M.pulse && M.pulse - t < PULSE_WARN ? M.pulseHp : 0, M.ultT && M.ultT - t < ULT_WARN ? TOP_ULT_HP * M.ultX : 0) : 0;
+    // (SP6: a pulse coming, drink first if it would take you under POTION_AT: you see it coming)
+    const soon = M?.pulse && M.pulse - t < PULSE_WARN ? M.pulseHp : 0;
     if (hit && potions && hp < (POTION_AT + soon) * st.maxHp) {
       const p = [...POTIONS].reverse().find((q) => q.heal <= st.maxHp - hp) ?? POTIONS[0];
       hp = Math.min(st.maxHp, hp + p.heal);
@@ -713,13 +711,15 @@ const bossFight = (m) => ({ hit: m.atk * BOSS_HIT_MULT, pct: pctOf(m) });
 // short of a den (FIELD_SOLO_MIN, about 4); a top boss about 45 min for a party of four (TOP_PARTY_MIN), alone TOP_SOLO ×
 // the party's time (possible but miserable, never blocked), and a lopsided party with no answer to its mechanics
 // (LOPSIDED_TEAM: no healer, no Mage) TOP_LOPSIDED_MIN, on a lot of potions
-const DEN_SOLO_MIN = [12, 18], FIELD_SOLO_MIN = [3, 6], TOP_PARTY_MIN = [38, 55], TOP_SOLO = [2, 3.5], TOP_LOPSIDED_MIN = [60, 100];
+const DEN_SOLO_MIN = [7, 11], FIELD_SOLO_MIN = [2, 4], TOP_PARTY_MIN = [23, 33], TOP_SOLO = [2, 3.5], TOP_LOPSIDED_MIN = [36, 60]; // (0.6x the SP6 targets since BOSS_HP_SCALE, 2026-11-06)
 const LOPSIDED_TEAM = ['berserker', 'berserker', 'sniper', 'trapper'];
 // (the time is only checked on a boss whose barrier covers it all round: Sigrun's is front-only, and flanking her is
 // everyone's answer to it, so a lopsided party there pays in potions, at least LOPSIDED_POTS a member, not in time;
 // S5.4: so does one with no barrier at all, the Clockwork Colossus: its armour and weak point are a Berserker's and an
 // Archer's, the lopsided team's own answers, and it's the pulse with no healer that costs them)
-const LOPSIDED_POTS = 100;
+// (since 2026-11-06 the potions are only checked where the time isn't: with the ultimate's flat chip gone, a boss whose
+// barrier covers it all round makes a lopsided party pay in time; 100 a member until the fights went 0.6x)
+const LOPSIDED_POTS = 60;
 const SOLO_UNTIL = 5 * 3600; // s: a fight the sim gives up on
 const fightMin = {}; // boss id → the sheet's minutes for its fight (dens and fields: the solo median; top: the party's), for BOSS PAY
 const soloDens = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => m.lvl >= CLASS_LVL && !isTop(m)).sort((a, b) => a[1].lvl - b[1].lvl);
@@ -743,8 +743,7 @@ for (const [id, m] of fieldBosses) {
 table(`FIELD BOSSES: time to solo each at its level (want the median in FIELD_SOLO_MIN ${FIELD_SOLO_MIN.join('–')} min)`, Object.fromEntries(fieldBosses.map(([id, m]) => [id, { lvl: m.lvl, hp: fmt(m.hp), ...Object.fromEntries(branches.map((br) => [br, soloRow(fieldSolo[id][br])])), median: mmss(fightMin[id] * 60), 'kill pays': fmt(bossWorth(id)) }])));
 // TOP BOSSES (S5.3's PARTY DENS, SP6): a team's kill time. A party den fights a lone slime with every mechanic but the
 // focus on (PARTY capMin); Colossus and Chronos have none yet (their retrofit hasn't come). The sim leaves out the adds and
-// the focus; a top boss's ultimate goes off every ULT_GAP s for TOP_ULT_HP of everyone's max HP unless a Frostbinder is in
-// the team to interrupt it (on a boss with `interrupt`). Its HP is bossMaxHp's (never under PARTY_DEN_HP_FLOOR slimes'
+// the focus and the ultimates (everyone stands safe). Its HP is bossMaxHp's (never under PARTY_DEN_HP_FLOOR slimes'
 // worth). In a team the boss's hits are shared out (each member takes one every team-size × as often), the Mages' and
 // Clerics' spells wear the barrier down for everyone, the Archers' arrows fill the weak point, and the Knight holds a
 // front-only barrier's focus (all hits on her front) while the others flank (PARTY_BEHIND). Alone, a slime reaches a high
@@ -752,13 +751,8 @@ table(`FIELD BOSSES: time to solo each at its level (want the median in FIELD_SO
 // run is PARTY_SIM_S long (its damage a second, and potions scaled up to the whole fight).
 const PARTY_TEAM = ['knight', 'priest', 'frostbinder', 'sniper'];
 const WEAK_JUMP = 0.3, SOLO_BEHIND = 0.35, PARTY_BEHIND = 0.8, PARTY_SIM_S = 1200;
-const ULT_GAP = ULT_EVERY[1] + ULT_WARN;
 const topBosses = DENS.map((d) => [d.boss, MOBS[d.boss]]).filter(([, m]) => isTop(m)).sort((a, b) => a[1].lvl - b[1].lvl);
-// SP6: a top boss's ultimate (ULT_GAP) unless a Frostbinder interrupts it; ultX: what of it lands, with the team's best
-// answer timed for it (a Knight's Sanctuary, ULT_CLERIC with a Cleric's Barrier and heals)
-const ULT_CLERIC = 0.5;
-const ultXOf = (team) => Math.min(1, ...team.map((br) => (br === 'knight' ? 1 - SKILLS.sanctuary.cut(SKILLS.sanctuary.max) : BUILDS[br].cls === 'cleric' ? ULT_CLERIC : 1)));
-const mechOf = (m, fighters, team = []) => ({ pulse: partyActive(m, fighters, 'pulse'), barrier: partyActive(m, fighters, 'barrier'), armour: partyActive(m, fighters, 'armour'), weak: partyActive(m, fighters, 'weakpoint'), hp1: m.hp, front: !!m.barrierFront, weakBack: !!m.weak?.back, pulseHp: pulseHpOf(m), bar: barrierOf(m), weakHp: weakHpOf(m), ult: m.top && !(team.includes('frostbinder') && partyActive(m, fighters, 'interrupt')) ? ULT_GAP : 0, ultX: ultXOf(team) });
+const mechOf = (m, fighters, team = []) => ({ pulse: partyActive(m, fighters, 'pulse'), barrier: partyActive(m, fighters, 'barrier'), armour: partyActive(m, fighters, 'armour'), weak: partyActive(m, fighters, 'weakpoint'), hp1: m.hp, front: !!m.barrierFront, weakBack: !!m.weak?.back, pulseHp: pulseHpOf(m), bar: barrierOf(m), weakHp: weakHpOf(m) });
 // SP6: what a team's Clerics and Knights do for the others in TOP BOSSES and RETROFIT (heals are party-wide: Jelly Heal,
 // Mend, the wisp, the Barrier, each on cooldown, HEAL_GIVE of the time spent on friends), HP a second; a Knight's
 // Sanctuary covering them on its cooldown
@@ -808,7 +802,7 @@ table(`TOP BOSSES: a party of ${PARTY_TEAM.join(', ')} (want TOP_PARTY_MIN ${TOP
 // set of loot is split PARTY_TEAM ways), an hour of it against an hour of farming at the recommended level: no reward
 // window, so every kill pays in full (FINAL_PAY, BOSS_PAY's EXP band; gold 2-6x like the dens'). The heads (cutting them
 // takes HEAD_CHUNK a head off) aren't modelled: a party that cuts them is faster than the sheet.
-const FINAL_PARTY_MIN = [41, 49], FINAL_PAY = { exp: BOSS_PAY, gold: [2, 6] };
+const FINAL_PARTY_MIN = [24, 29], FINAL_PAY = { exp: BOSS_PAY, gold: [2, 6] };
 const finals = topBosses.filter(([, m]) => m.final);
 const finalRow = {};
 for (const [id, m] of finals) {
@@ -859,8 +853,9 @@ for (const [id, m] of topBosses) {
   const q = topRun[id], r = q.med / q.party.t;
   if (q.party.t < TOP_PARTY_MIN[0] * 60 || q.party.t > TOP_PARTY_MIN[1] * 60) classProblems.push(`a party of ${PARTY_TEAM.length} kills top boss ${id} in ${mmss(q.party.t)} (want TOP_PARTY_MIN ${TOP_PARTY_MIN.join('–')} min)`);
   if (!m.final && (r < TOP_SOLO[0] || r > TOP_SOLO[1])) classProblems.push(`top boss ${id} alone takes ${mmss(q.med)} (median), ${r.toFixed(1)}x the party's ${mmss(q.party.t)} (want TOP_SOLO ${TOP_SOLO.join('–')}x)`);
-  if (q.lop && q.lop.pots < LOPSIDED_POTS * LOPSIDED_TEAM.length) classProblems.push(`a lopsided party (${LOPSIDED_TEAM.join(' ')}) at top boss ${id} drinks only ${q.lop.pots} potions (want LOPSIDED_POTS ${LOPSIDED_POTS} a member or more)`);
-  if (q.lop && m.party?.includes('barrier') && !m.barrierFront && (q.lop.t < TOP_LOPSIDED_MIN[0] * 60 || q.lop.t > TOP_LOPSIDED_MIN[1] * 60)) classProblems.push(`a lopsided party (${LOPSIDED_TEAM.join(' ')}) kills top boss ${id} in ${mmss(q.lop.t)} (want TOP_LOPSIDED_MIN ${TOP_LOPSIDED_MIN.join('–')} min)`);
+  const lopTimed = m.party?.includes('barrier') && !m.barrierFront;
+  if (q.lop && !lopTimed && q.lop.pots < LOPSIDED_POTS * LOPSIDED_TEAM.length) classProblems.push(`a lopsided party (${LOPSIDED_TEAM.join(' ')}) at top boss ${id} drinks only ${q.lop.pots} potions (want LOPSIDED_POTS ${LOPSIDED_POTS} a member or more)`);
+  if (q.lop && lopTimed && (q.lop.t < TOP_LOPSIDED_MIN[0] * 60 || q.lop.t > TOP_LOPSIDED_MIN[1] * 60)) classProblems.push(`a lopsided party (${LOPSIDED_TEAM.join(' ')}) kills top boss ${id} in ${mmss(q.lop.t)} (want TOP_LOPSIDED_MIN ${TOP_LOPSIDED_MIN.join('–')} min)`);
   if (branches.every((br) => q.alone[br].faint)) classProblems.push(`nobody can solo top boss ${id}: it must stay possible (never locked)`);
   for (const r of q.party.runs) if (r.faint) classProblems.push(`the ${r.br} faints in the party at top boss ${id}`);
 }

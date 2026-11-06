@@ -382,9 +382,8 @@ schedule, a boss's HP or ATK, or the gear curve moves these: re-run and say what
   boss's hits shared out, the others' spells wearing the barrier, the arrows filling the weak point, the Clerics'
   party-wide heals (`healGive`, `HEAL_GIVE` of their time) and a Knight's Sanctuary covering them (`teamHelp`); the
   Knight in front of a front-only barrier, the rest behind it `PARTY_BEHIND` of the time; alone, `SOLO_BEHIND` and
-  `WEAK_JUMP`. The ultimate goes off every `ULT_GAP` s unless a Frostbinder is there to interrupt it, cut by the
-  team's best answer (`ultXOf`: a Knight's Sanctuary, `ULT_CLERIC` with a Cleric). Potions are drunk early when a
-  pulse or ultimate is coming (you see the warning). Checks below (SP6). The lopsided party's time
+  `WEAK_JUMP`. (Until 2026-11-06 the sheet also modelled a top boss's flat ultimate hit; gone with it, "Tanky to
+  tricky" below.) Potions are drunk early when a pulse is coming (you see the warning). Checks below (SP6). The lopsided party's time
   (`TOP_LOPSIDED_MIN`) is only checked on a boss with a barrier all round: it has no Mage, so that's what slows it.
   On Sigrun (front-only) and the Colossus (no barrier: its armour and weak point are the lopsided team's own
   Berserkers' and Archers' answers) it pays in potions instead (`LOPSIDED_POTS`).
@@ -713,6 +712,26 @@ No trader, no field boss, no pet. The Long Stair has no mobs. Thin ice costs HP 
   is no longer at `CLASS_FIT`'s floor (~0.7× the median on the late dens).
 - The Novices' dens (Sprout King, Mother Mushroom) weren't lengthened: the sheet can't fight them (no class), and a
   15-minute fight at Lv 4–8 is a question for the owner.
+
+## Tanky to tricky (2026-11-06)
+Owner: bosses were long because they were tanky, not hard; "scale down the health by 40%", the difficulty to come from
+the moves instead (ideas go to the owner as a list to approve, `story/roadmap.md`). What moved:
+- **HP**: every den, field, top and final boss has `BOSS_HP_SCALE` (0.6) of its written HP (`src/shared/rpg.js`, right
+  after the last mob). The written numbers stay the pre-cut ones, so the SP6 notes above still read against them.
+- **Fight targets ×0.6**: `DEN_SOLO_MIN`, `FIELD_SOLO_MIN`, `TOP_PARTY_MIN`, `TOP_LOPSIDED_MIN`, `FINAL_PARTY_MIN` (and
+  the game's own `FINAL_ENRAGE_MIN`, 48 → 29, so three still can't beat the enrage). Sheet: a den ~9–10 min, a field
+  boss ~2:20–3:15, a top boss ~26–29 for four, a final boss ~26, three of four 32–43.
+- **Pay**: by the SP6 rule (rewards follow the fight; an hour pays about what it did), field, top and final bosses pay
+  `BOSS_PAY_SCALE` (0.7) of their written EXP and coins a kill: a little under the fight's 0.6, so an hour of them pays
+  ~1.15× what it did (they're meant to be harder now). Final bosses 1.05–1.14× farming's EXP an hour, 3.4–3.7× its gold;
+  top dens back inside `BOSS_PAY`; field bosses ~1.9 min of farming a minute of fight (`FIELD_PAY`). Ordinary dens keep
+  their rewards: the respawn timer, not the fight, bounds an hour of them. Turnipop (under `CLASS_LVL`) keeps its pay.
+  Gear, scrolls, materials and pets don't move (one set a kill).
+- **Ultimates**: the sheet no longer models a top boss's flat ultimate hit (it's gone from the game: the safe spot is
+  safe), so the Frostbinder's interrupt (`INTERRUPT_CHANCE`, now 1 in 5) is worth nothing on the sheet. A lopsided
+  party's potions (`LOPSIDED_POTS`, 100 → 60 a member with the shorter fights) are only checked where its time isn't
+  (Sigrun, Brenna, the Colossus); Chronos, with an all-round barrier, now costs it time (43 min against 27) rather than
+  potions. Brenna's lone-Archer faint at 16:48 (E4b) is gone: it was the ultimate's flat hit.
 
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.

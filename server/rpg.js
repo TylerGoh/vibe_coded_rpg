@@ -14,7 +14,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { SANDBOX_PARTY } from '../src/shared/sandbox.js';
 import { cleanKeys } from '../src/shared/keys.js';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, TOP_ULT_HP, EGG_HP, FIELD_GROUND, THORNHEART, THORN_PATCHES, patchAt, PATCH_DOT, PATCH_HIT_EVERY, ROADSEND, LADON_MARK_X, LADON_LINE, BLUEHALLS, THIN_ICE, THIN_ICE_HOLD, THIN_ICE_DOT, LONGSTAIR, FENRIR_MARK_X, FENRIR_LINE, FOUNDRY, HOT_GRATES, grateAt, GRATE_DOT, LONGFLUE, TYPHON_MARK_X, TYPHON_LINE, SKYDOCKS, GUSTS, gustAt, GUST_DOT } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, INTERRUPT_CHANCE, EGG_HP, FIELD_GROUND, THORNHEART, THORN_PATCHES, patchAt, PATCH_DOT, PATCH_HIT_EVERY, ROADSEND, LADON_MARK_X, LADON_LINE, BLUEHALLS, THIN_ICE, THIN_ICE_HOLD, THIN_ICE_DOT, LONGSTAIR, FENRIR_MARK_X, FENRIR_LINE, FOUNDRY, HOT_GRATES, grateAt, GRATE_DOT, LONGFLUE, TYPHON_MARK_X, TYPHON_LINE, SKYDOCKS, GUSTS, gustAt, GUST_DOT } from '../src/shared/rpg.js';
 import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS, DEVOTION_S, DEVOTION_CAP, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, judgmentMult, RESOLVE_R } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { createFinal } from './final.js';
@@ -911,8 +911,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         m.chillUntil = m.staticUntil = 0;
         m.frozenUntil = t + (k.boss || k.field ? FREEZE_BOSS : FREEZE_S) * 1000;
         if (!k.boss && !k.field) m.vx = 0;
-        // S5.2's interrupt: a boss frozen while its ultimate is still warning loses the ultimate, then staggers
-        if (k.boss && m.act === 'ult' && m.phase === 'warn' && m.ult?.kind !== 'rebirth' && !m.ult?.noFreeze && partyOn(m, 'interrupt')) interruptUlt(m, id); // (noFreeze: Typhon's full-pressure Eruption, E5)
+        // S5.2's interrupt: a boss frozen while its ultimate is still warning loses the ultimate (INTERRUPT_CHANCE of the
+        // time, one roll an ultimate), then staggers
+        if (k.boss && m.act === 'ult' && m.phase === 'warn' && m.ult?.kind !== 'rebirth' && !m.ult?.noFreeze && !m.ult.rolled && partyOn(m, 'interrupt') && (m.ult.rolled = true) && Math.random() < INTERRUPT_CHANCE) interruptUlt(m, id); // (noFreeze: Typhon's full-pressure Eruption, E5)
       } else m.chillUntil = t + CHILL_S * 1000;
     } else if (el === 'fire') {
       if (shatter) m.frozenUntil = m.chillUntil = 0;
@@ -1853,10 +1854,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     }
     m.ultLiveUntil = t + lasts; // clients report their 'ult' ouches within this window
     summons.ult(m.room); // (spirits and totems take a big share of it)
-    // SP6: a top boss's ultimate that nobody interrupted hits everyone in the fight for TOP_ULT_HP of max HP, safe spot or
-    // not (flat, like a pulse: Aegis, a Bubble, a Barrier, Sanctuary and the rest take it as they take one); the KO for
-    // standing in the wrong place still comes as an 'ult' ouch
-    if (k.top && u.kind !== 'rebirth') for (const [qid, q] of inRoom(m.room)) if (!q.faintUntil) hurt(qid, q, stats(q).maxHp * TOP_ULT_HP, m.x, undefined, 0, false, m, true);
+    // (the KO for standing in the wrong place comes as an 'ult' ouch; the safe spot is safe: owner, 2026-11-06)
     m.timer = lasts / 1000;
     m.ultAt = t + ULT_EVERY[Math.max(1, m.stage)] * 1000;
     bossEvent(m, 'ultHit', { ...u, x: Math.round(m.x) });

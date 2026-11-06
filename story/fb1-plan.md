@@ -132,7 +132,7 @@ a narrow middle strip; only the enrage closes them all the way.
   ledges. The only safe place is the high middle ledge, which just fits four. Freeze it in the wind-up to stop
   it. Phase 3 alternates Hundred Heads and Strangle; the wind-up says which (the heads rise for one, the coils
   tense for the other).
-- An ultimate nobody interrupts also hits the people in the safe place (`TOP_ULT_HP`), as on any top boss.
+- ~~An ultimate nobody interrupts also hits the people in the safe place, as on any top boss.~~ (Removed 2026-11-06: the safe spot is safe.)
 
 **Its line:** "Closer. A hedge is for keeping. I keep."
 
