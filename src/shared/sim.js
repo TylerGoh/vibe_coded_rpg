@@ -17,6 +17,7 @@ export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
 import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_PLATFORMS, FORGEHOLD, FORGE_W, FORGE_DOCK_X, FORGE_HOME_X, FORGE_SPAWN_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X, ASH_X, SLAG_X, FJORD_LODESTAR_X, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X, SUNKEN, SUNKEN_W, SUNKEN_EXIT_X, SUNKEN_GATE_X, SUNKEN_END_X, SUNKEN_PLATFORMS, ROADSEND, ROADSEND_W, ROADSEND_EXIT_X, OLDICE, OLDICE_W, OLDICE_EXIT_X, OLDICE_GATE_X, OLDICE_END_X, OLDICE_PLATFORMS, LONGSTAIR, LONGSTAIR_W, LONGSTAIR_EXIT_X, BLACKSANDS, SANDS_W, SANDS_EXIT_X, SANDS_PLATFORMS, SANDS_GATE_X, ASHWOOD, ASH_W, ASH_EXIT_X, ASH_PLATFORMS, ASHWOOD_GATE_X, PITCH_X, COAST, COAST_W, COAST_EXIT_X, COAST_PLATFORMS, COAST_GATE_X, LIV_X, TUBES, TUBES_W, TUBES_EXIT_X, TUBES_PLATFORMS, TUBES_GATE_X, BRIMSTONE, BRIM_W, BRIM_EXIT_X, BRIM_PLATFORMS, BRIMSTONE_GATE_X, OCHRE_X, FOUNDRY, FOUNDRY_W, FOUNDRY_EXIT_X, FOUNDRY_PLATFORMS, RIM, RIM_W, RIM_EXIT_X, RIM_PLATFORMS, RIM_GATE_X, FOUNDRY_GATE_X, UNDERFLUES, UNDERFLUES_W, UNDERFLUES_EXIT_X, UNDERFLUES_GATE_X, UNDERFLUES_END_X, UNDERFLUES_PLATFORMS, LONGFLUE, LONGFLUE_W, LONGFLUE_EXIT_X, BALLOON_X, SKYCAMP, CAMP_W, CAMP_DOCK_X, CAMP_HOME_X, CAMP_SPAWN_X, CAMP_PLATFORMS, KESTREL_X, IONE_X, TAMP_X, CAMP_END_X, SKYDOCKS, SKYDOCKS_W, SKYDOCKS_EXIT_X, SKYDOCKS_RAMP_X, SKYDOCKS_PLATFORMS, WARDEN_X } from './rpg.js';
 import { ARENA, ARENA_W, ARENA_PLATFORMS } from './sandbox.js';
+import { GX, walkOf, AIR_UP_V, AIR_DOWN_V, AIRDASH_CD, GLIDE_JUMP, GLIDE_FALL, PHASE_IFR } from './gearfx.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
@@ -600,7 +601,10 @@ export function pianoKeyAt(s) {
 export const LEFT = 1, RIGHT = 2, JUMP = 4, DOWN = 8, USE = 16; // USE: E, goes through doors
 export const DASH = 32, BLINK = 64; // the Mobility skills (Shift, V); they only act on the press
 export const ATTACK = 128; // set on the step an attack goes off (X, click, Hit): the Warrior's chase moves read it
-export const KEY_MASK = 255;
+// The second input byte (2026-11-06): BOOST, a boss helmet's Rush running (the client times it from its own kills:
+// gearfx.js); FLIP, the Skirmisher's Backflip Volley (acts on the press, like Dash)
+export const BOOST = 256, FLIP = 512;
+export const KEY_MASK = 1023;
 
 // ——— Mobility (skills.js 'wind' tree). state.mv packs the ranks (skills.js mobilityOf), set by the
 // server from the character's skills and sent in every snapshot, so prediction knows them too.
@@ -656,6 +660,7 @@ const GRAVITY = 2300; // same feel as Slime Hop
 const JUMP_V = 800;
 const MAX_FALL = 1400;
 const WALK = 270;
+export const FLIP_VY = 700, FLIP_VX = 460; // Backflip Volley's hop (up, and back from where you face)
 const ACCEL_GROUND = 2600;
 const ACCEL_AIR = 1500;
 const DROP_TIME = 0.25; // seconds platforms are ignored after dropping through one
@@ -677,13 +682,15 @@ const HALF_W = 16; // half the slime's footprint, for platform edges and world b
 // The chase moves: mw their ranks; ah: Attack held last step; sl: slamming (Leap Slam, until it lands); sc / uc:
 // Leap Slam / Upward Cut cooldowns; cw: the Charge window after a dash; uw / lw: ticks since Jump / Down were held;
 // hk: Hook's yank ticks left, hc: its cooldown (SP2)
+// gx: boss gear's movement effects and the Backflip Volley (gearfx.js GX; set by the server); aj: what's been used
+// since you last stood: 1 the third jump, 2 the air dash, 4 the wall jump; 8: Flip held last step
 // home: the room id of your own house (set by the server at login; 0 = none yet, so that door stays shut)
 // vt: voyage ticks, how long you've been aboard a crossing (0 everywhere else)
 // town: your town (an index into TOWNS), the last one you were in
-export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0, hk: 0, hc: 0 });
+export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0, hk: 0, hc: 0, gx: 0, aj: 0 });
 // Move a slime to (room, x), standing, keeping who it is (house, mobility, town). For the server's
 // teleports (waking up, invites, tests); doors do this inside step().
-export const placeAt = (s, room, x) => Object.assign(s, newState(x), { room, y: roomDef(room).ground, home: s.home, mv: s.mv, mw: s.mw, facing: s.facing, town: townOf(room) >= 0 ? townOf(room) : s.town | 0 });
+export const placeAt = (s, room, x) => Object.assign(s, newState(x), { room, y: roomDef(room).ground, home: s.home, mv: s.mv, mw: s.mw, gx: s.gx, facing: s.facing, town: townOf(room) >= 0 ? townOf(room) : s.town | 0 });
 
 // Whether door d can be used right now (your own house once you have one; a ship's gangway once she's in,
 // or back ashore while she's casting off). A door with `ask` is confirmed on the client first (src/main.js).
@@ -737,10 +744,19 @@ export function step(s, keys) {
   s.uw = keys & JUMP ? UPCUT_GRACE : Math.max(0, (s.uw | 0) - 1);
   s.lw = keys & DOWN ? SLAM_GRACE : Math.max(0, (s.lw | 0) - 1);
   const mv = s.mv | 0, phantom = rankBits(mv, 3), cdK = 1 - PHANTOM_CD * phantom, mw = s.mw | 0;
+  const gx = s.gx | 0, walk = WALK * walkOf(gx, keys & BOOST), pressedFlip = keys & FLIP && !(s.aj & 8);
+  s.aj = ((s.aj | 0) & 7) | (keys & FLIP ? 8 : 0);
 
   const dir = (keys & RIGHT ? 1 : 0) - (keys & LEFT ? 1 : 0);
   if (dir) s.facing = dir;
-  s.vx = approach(s.vx, dir * WALK, (s.grounded ? ACCEL_GROUND : ACCEL_AIR) * DT);
+  s.vx = approach(s.vx, dir * walk, (s.grounded ? ACCEL_GROUND : ACCEL_AIR) * DT);
+  // the Skirmisher's Backflip Volley: up and back, still facing the way you were (its arrows are a skill: src/rpg.js)
+  if (pressedFlip && gx & GX.FLIP && !s.sl && !s.hk) {
+    s.vy = -FLIP_VY;
+    s.vx = -s.facing * FLIP_VX;
+    s.grounded = false;
+    s.dt = 0;
+  }
   if (pressedAttack && !s.grounded && !s.sl) {
     if (s.lw && chaseRank(mw, 1) && !s.sc) {
       s.sl = true; // Leap Slam: straight down (the hits go off where it lands)
@@ -751,14 +767,22 @@ export function step(s, keys) {
       s.uc = UPCUT_CD[chaseRank(mw, 2)];
     }
   }
-  if (pressedDash && s.lw && chaseRank(mw, 4) && rankBits(mv, 0) && !s.hc && !s.hk && !s.dt && !s.sl) {
+  if (pressedDash && !s.grounded && gx & GX.AIRDASH && !(s.aj & 2) && !s.sl && !s.hk && !s.dt) {
+    // Ladon's crown: one dash in mid-air each jump, whatever the cooldown: Down (held, or within SLAM_GRACE) goes down,
+    // Jump (held, or within UPCUT_GRACE: one thumb on a phone taps one, then the other) up, else level
+    s.aj |= 2;
+    s.ifr = Math.max(s.ifr, IFR_DASH);
+    if (s.lw) [s.vy, s.vx] = [AIR_DOWN_V, 0];
+    else if (s.uw) [s.vy, s.vx] = [-AIR_UP_V, dir * walk];
+    else s.dt = DASH_TICKS;
+  } else if (pressedDash && s.lw && chaseRank(mw, 4) && rankBits(mv, 0) && !s.hc && !s.hk && !s.dt && !s.sl && !(gx & GX.NODASH)) {
     s.hk = HOOK_TICKS; // Hook: the chain flies out (src/rpg.js finds the mob and cuts the yank to it: applyHook)
     s.hc = HOOK_CD[chaseRank(mw, 4)];
     s.cw = 0;
-  } else if (pressedDash && rankBits(mv, 0) && !s.dc && !s.dt && !s.sl && !s.hk) {
+  } else if (pressedDash && rankBits(mv, 0) && !s.dc && !s.dt && !s.sl && !s.hk && !(gx & GX.NODASH)) {
     s.dt = DASH_TICKS;
-    s.dc = Math.round(DASH_CD[rankBits(mv, 0)] * cdK);
-    s.ifr = Math.max(s.ifr, IFR_DASH + IFR_PHANTOM * phantom);
+    s.dc = Math.round(DASH_CD[rankBits(mv, 0)] * cdK * (gx & GX.AIRDASH ? AIRDASH_CD : 1));
+    s.ifr = Math.max(s.ifr, IFR_DASH + IFR_PHANTOM * phantom + (gx & GX.PHASE ? PHASE_IFR : 0));
   }
   if (pressedBlink && rankBits(mv, 2) && !s.bc && !s.sl) {
     s.x = Math.min(room.width - HALF_W, Math.max(HALF_W, s.x + s.facing * BLINK_DIST[rankBits(mv, 2)]));
@@ -769,13 +793,13 @@ export function step(s, keys) {
   }
   if (s.dt) {
     s.dt--;
-    s.vx = s.facing * (s.dt ? DASH_V : WALK); // ends at walking speed, so it stops crisply
+    s.vx = s.facing * (s.dt ? DASH_V : walk); // ends at walking speed, so it stops crisply
     s.vy = Math.min(s.vy, 0); // a level dash, in the air too
     if (!s.dt) s.cw = CHARGE_WINDOW; // a slap that lands this soon after still counts as a Charge
   }
   if (s.hk) {
     s.hk--;
-    s.vx = s.facing * (s.hk ? HOOK_V : WALK); // yanked level along, at walking speed once it's there
+    s.vx = s.facing * (s.hk ? HOOK_V : walk); // yanked level along, at walking speed once it's there
     s.vy = Math.min(s.vy, 0);
   }
 
@@ -785,18 +809,29 @@ export function step(s, keys) {
     s.drop = DROP_TIME; // fall through the platform underfoot
     s.grounded = false;
   } else if (keys & JUMP && s.grounded) {
-    s.vy = -JUMP_V;
+    s.vy = -JUMP_V * (gx & GX.GLIDE ? GLIDE_JUMP : 1);
     s.grounded = false;
-  } else if (pressedJump && !s.grounded && !s.fj && !s.sl && rankBits(mv, 1)) {
-    s.vy = -FJ_VY; // Flash Jump
-    s.vx = s.facing * FJ_VX[rankBits(mv, 1)];
-    s.fj = true;
+  } else if (pressedJump && !s.grounded && !s.sl && !(gx & GX.NOAIR)) {
+    const wall = s.x <= HALF_W + 1 ? 1 : s.x >= room.width - HALF_W - 1 ? -1 : 0;
+    if (wall && gx & GX.WALL && !(s.aj & 4)) {
+      s.vy = -JUMP_V; // a wall jump (boss gear): off the wall
+      s.vx = wall * walk * 1.3;
+      s.aj |= 4;
+    } else if (!s.fj && rankBits(mv, 1)) {
+      s.vy = -FJ_VY; // Flash Jump
+      s.vx = s.facing * FJ_VX[rankBits(mv, 1)];
+      s.fj = true;
+    } else if (gx & GX.TRIPLE && !(s.aj & 1)) {
+      s.vy = -JUMP_V * 0.9; // Fenrir's hood: one more
+      s.aj |= 1;
+    }
   }
   s.drop = Math.max(0, s.drop - DT);
 
   const prevY = s.y;
   s.x = Math.min(room.width - HALF_W, Math.max(HALF_W, s.x + s.vx * DT));
   s.vy = Math.min(s.vy + GRAVITY * DT, MAX_FALL);
+  if (gx & GX.GLIDE && keys & JUMP && s.vy > GLIDE_FALL && !s.sl && !s.dt) s.vy = GLIDE_FALL; // (the Colossus's helm)
   if (s.sl) {
     s.vx = 0; // a slam falls straight
     s.vy = SLAM_V;
@@ -826,7 +861,10 @@ export function step(s, keys) {
     }
   }
 
-  if (s.grounded) s.fj = s.sl = false; // (a slam ends where it lands: the client sends its hits then)
+  if (s.grounded) {
+    s.fj = s.sl = false; // (a slam ends where it lands: the client sends its hits then)
+    s.aj &= 8;
+  }
   s.x = q(s.x);
   s.y = q(s.y);
   s.vx = q(s.vx);
@@ -835,11 +873,11 @@ export function step(s, keys) {
   return s;
 }
 
-// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town, mw, flags2, sc, uc, cw, uw, lw, hk, hc]
+// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town, mw, flags2, sc, uc, cw, uw, lw, hk, hc, gx, aj]
 // (`home` never changes, so it isn't in snapshots: welcome / join info carry it, and src/net.js keeps ours)
 // flags: 1 grounded · 2 on a platform · 4 facing left · 8 E held · 16 Jump held · 32 Dash held · 64 Blink held · 128 Flash Jump used
 // flags2: 1 Attack held · 2 slamming
-export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0, s.mw | 0, (s.ah ? 1 : 0) | (s.sl ? 2 : 0), s.sc | 0, s.uc | 0, s.cw | 0, s.uw | 0, s.lw | 0, s.hk | 0, s.hc | 0];
+export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0, s.mw | 0, (s.ah ? 1 : 0) | (s.sl ? 2 : 0), s.sc | 0, s.uc | 0, s.cw | 0, s.uw | 0, s.lw | 0, s.hk | 0, s.hc | 0, s.gx | 0, s.aj | 0];
 export function unpack(a, s = {}) {
   s.x = a[1];
   s.y = a[2];
@@ -872,6 +910,8 @@ export function unpack(a, s = {}) {
   s.lw = a[21] ?? 0;
   s.hk = a[22] ?? 0;
   s.hc = a[23] ?? 0;
+  s.gx = a[24] ?? 0;
+  s.aj = a[25] ?? 0;
   return s;
 }
 

@@ -19,8 +19,10 @@ import { Finals } from './finals.js';
 import { StatusBox, statusOf } from './status.js';
 import { audio } from './audio.js';
 import { MOBS, ITEMS, BAG_SLOTS, lootFits, PICKUP_RANGE, HURT_INVULN_MS, isCombat, denAt, sellPrice, SAFE_R, DEN_W, COSMETICS, DEN_PLATFORMS, canScroll, slotsOf, enhName, FIELD_BOSS_RESPAWN_MS, gearSlotOf, isGear, STAFF_BOLT_MULT, STAFF_BOLT_SPEED, STAFF_BOLT_RANGE, BOW_SHOT_MULT, BOW_SHOT_SPEED, BOW_RANGE, curseMult, heavyHit } from './shared/rpg.js';
-import { SPLIT_R, SPLIT_SHARE, FAR_PX, SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds, isLongBuff, DOTS, statOf, targetsOf, retriMult, EXEC_AT, STUN_S, judgmentMult, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX } from './shared/skills.js';
+import { SPLIT_R, SPLIT_SHARE, FAR_PX, SKILLS, HOTBAR, POTBAR, rankOf, cooldownOf, durOf, AP_STATS, AP_PER_LVL, apOf, MIN_ROLL, MAX_ROLL, statsFor, CLASSES, weaponOk, ARCANE_MAX, ARCANE_DUR, SHATTER_MULT, BURN_SPREAD, spendsArcane, arcaneMult, HOLY_BOLT_MULT, arrowBonus, RAIN_AT, RAIN_EVERY, aOrAn, hitKinds, isLongBuff, DOTS, statOf, targetsOf, retriMult, EXEC_AT, STUN_S, judgmentMult, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, mpCost, BLAST_MAX } from './shared/skills.js';
 import { drawMobState } from './elements.js';
+import { Gear } from './gear.js';
+import { fxLine, HYDRA_HIT } from './shared/gearfx.js';
 import { staffGlow } from './staff-art.js';
 import { bowTint } from './bow-art.js';
 import { SLAP_REACH, DASH_CD, BLINK_CD, PHANTOM_CD, HOOK_V, HOOK_RANGE, TICK_RATE } from './shared/sim.js';
@@ -73,6 +75,7 @@ export class Rpg {
     this.summons = new Summons(this); // the Cleric's spirits, wisps and totems (S3)
     this.fields = new Fields(this); // SP1's fields on the ground (src/fields.js)
     this.party = new Party(this); // S5's party mechanics on bosses (src/party.js)
+    this.gear = new Gear(this); // boss gear's effects and the Skirmisher's air shots (src/gear.js)
     this.final = new Finals(this); // FB1: a final boss's heads, coils and title card (src/ladon.js); FB2: Fenrir's (src/fenrir.js), routed by src/finals.js
     this.aimArrow = false; // (the hit being aimed is an arrow: any arrow reaches any head in range)
     this.status = new StatusBox(document.getElementById('status')); // what's on you, under the HP panel (src/status.js)
@@ -211,6 +214,8 @@ export class Rpg {
       for (const [id] of m.h ?? []) { const v = this.views.get(id); if (v && m.el) this.predictEl(v, m.el, false); }
       this.othersHits(m.h, mine?.x ?? m.x);
       audio.sfx('nova', { pan: panX(m.x, mine?.x ?? m.x), vol: 0.6 });
+    } else if (m.t === 'gearfx' || m.t === 'gearhit') {
+      this.gear.receive(m, mine); // (boss gear: src/gear.js)
     } else if (m.t === 'refund') {
       // an on-kill hook gave a skill's cooldown back (SP1: Execution)
       this.cds[m.skill] = 0;
@@ -267,6 +272,7 @@ export class Rpg {
     audio.sfx(crit ? 'crit' : 'hit', { pan: panX(v.x, myX) });
     audio.sfx('mobHurt', { kind: MOBS[v.kind].base ?? v.kind, pan: panX(v.x, myX), vol: 0.8 });
     if (v.localHp <= 0 && !this.killed.has(v.id)) {
+      this.gear.killed(); // (Rush: boss gear)
       this.mobDied(v, myX);
       killed?.();
     }
@@ -282,7 +288,7 @@ export class Rpg {
     if (depth >= (ok.jumps ?? 1)) return;
     const next = this.targets().filter((q) => q !== v && !this.killed.has(q.id) && Math.abs(q.x - v.x) < ok.range + MOBS[q.kind].w / 2 && Math.abs(q.y - v.y) < ok.range).sort((a, b) => Math.abs(a.x - v.x) - Math.abs(b.x - v.x))[0];
     if (!next) return;
-    let [dmg, crit] = this.roll(m.atk, ok.mult(rank) * arrowBonus(m.skills, null, this.slowed(next), 0) * this.markOn(next));
+    let [dmg, crit] = this.roll(m.atk, ok.mult(rank) * arrowBonus(m.skills, null, this.slowed(next), 0) * this.markOn(next) * this.gear.mult(next));
     dmg = Math.max(1, Math.round(dmg * this.shellCut(next, v.x)));
     const k = MOBS[v.kind], fy = v.y - k.h / 2, ty = next.y - MOBS[next.kind].h / 2, dur = Math.abs(next.x - v.x) / BOW_SHOT_SPEED + 0.03;
     this.fx.spawn('arrow', { x: v.x, y: fy, tx: next.x, ty, dur, hit: true, tint: bowTint(m.gear?.weapon) });
@@ -334,16 +340,17 @@ export class Rpg {
   }
   // A slap / sword swing / staff bolt: → hits to send with it ([[mobId, dmg, crit]]). mult: a Charge's
   // (the server allows it from its own state: server/rpg.js attack)
-  slapHits(me, dir, mult = 1) {
+  slapHits(me, dir, mult = 1, retreat = false) {
     if (!this.me || !isCombat(this.room)) return [];
     this.aimArrow = !!this.bowOf(this.me);
     this.aimMagic = !!this.staffOf(this.me);
     if (this.staffOf(this.me)) return this.staffBolt(me, dir);
-    if (this.bowOf(this.me)) return this.bowShot(me, dir, mult);
+    if (this.bowOf(this.me)) return this.bowShot(me, dir, mult, retreat);
     const [v] = this.ahead(me, dir, SLAP_REACH + (this.swordOf(this.me)?.reach ?? 0));
+    this.gear.swung(me, dir, v); // (boss gear: src/gear.js)
     if (!v) return [];
     const cut = this.shellCut(v, me.x), [pm, weak] = this.party.mod(v, { heavy: heavyHit(mult) }, me.y, me.x); // (S5.2: a boss's barrier, armour, weak point, stagger)
-    let [dmg, crit] = this.roll(this.me.atk, mult * this.markOn(v));
+    let [dmg, crit] = this.roll(this.me.atk, mult * this.markOn(v) * this.gear.mult(v) * (this.gear.fx.hydra === 'sword' ? HYDRA_HIT : 1));
     dmg = Math.max(1, Math.round(dmg * cut * pm));
     this.blocked(v, cut);
     this.showHit(v, dmg, crit, me.x);
@@ -374,7 +381,7 @@ export class Rpg {
     const msg = { t: 'skill', skill: id, dir: me.facing, s: seq, hits: [] }, sx = me.x;
     for (const v of id === 'leap_slam' ? this.around(me.x, me.y, sk.radius) : this.above(me, sk.reach)) {
       const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { heavy: heavyHit(sk.mult(rank)) }, me.y, sx);
-      let [dmg, crit] = this.roll(m.atk, sk.mult(rank) * this.markOn(v));
+      let [dmg, crit] = this.roll(m.atk, sk.mult(rank) * this.markOn(v) * this.gear.mult(v));
       dmg = Math.max(1, Math.round(dmg * cut * pm));
       this.blocked(v, cut);
       msg.hits.push(weak ? [v.id, dmg, crit, 0, +weak] : [v.id, dmg, crit]);
@@ -405,8 +412,8 @@ export class Rpg {
   }
   // A bow's normal attack (S4): an arrow to the first mob ahead within the bow's range, BOW_SHOT_MULT of ATK
   // (mult: a Retreat Shot's, main.js). Sent now, shown when it lands; the server caps it (server/rpg.js shoot).
-  bowShot(me, dir, mult = 1) {
-    const m = this.me, range = statsFor(m).arrowRange;
+  bowShot(me, dir, mult = 1, retreat = false) {
+    const m = this.me, range = statsFor(m).arrowRange, airborne = !this.net?.me?.grounded;
     const [v] = this.ahead(me, dir, range, 0);
     const sx = me.x, sy = me.y;
     const at = v?.part?.x !== undefined ? v.part : null; // (FB1: at the head it's aimed at)
@@ -414,8 +421,10 @@ export class Rpg {
     const dur = Math.abs(tx - sx) / BOW_SHOT_SPEED + 0.03;
     this.fx.spawn('arrow', { x: sx + dir * 30, y: sy - 13, tx, ty, dur, hit: !!v, tint: bowTint(m.gear.weapon) });
     if (!v) return [];
+    const sm = this.gear.shotMult(airborne); // (the Skirmisher: src/gear.js)
+    this.gear.shot(me, dir, v, dur, { retreat: retreat ? mult : 1, airborne, sm });
     const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { arrow: true }, sy, sx);
-    let [dmg, crit] = this.roll(m.atk, BOW_SHOT_MULT * mult * arrowBonus(m.skills, null, this.slowed(v), 0) * this.markOn(v));
+    let [dmg, crit] = this.roll(m.atk, BOW_SHOT_MULT * mult * sm * arrowBonus(m.skills, null, this.slowed(v), 0) * this.markOn(v) * this.gear.mult(v) * (this.gear.fx.hydra === 'bow' ? HYDRA_HIT : 1));
     dmg = Math.max(1, Math.round(dmg * cut * pm));
     if (rankOf(m.skills, 'barbed_arrows')) v.slowLocal = this.time + dur + 1;
     setTimeout(() => {
@@ -449,7 +458,7 @@ export class Rpg {
     if (!v) return [];
     if (!holy && rankOf(m.skills, 'arcane_charge')) this.arcane = { n: Math.min(ARCANE_MAX, this.charges() + 1), at: this.time, until: this.time + ARCANE_DUR }; // (the server counts it too: attack)
     const cut = this.shellCut(v, sx), [pm, weak] = this.party.mod(v, { magic: true }, sy, sx);
-    let [dmg, crit] = this.roll(m.magic, (holy ? HOLY_BOLT_MULT : STAFF_BOLT_MULT) * this.markOn(v));
+    let [dmg, crit] = this.roll(m.magic, (holy ? HOLY_BOLT_MULT : STAFF_BOLT_MULT) * this.markOn(v) * this.gear.mult(v));
     dmg = Math.max(1, Math.round(dmg * cut * pm));
     setTimeout(() => {
       this.blocked(v, cut);
@@ -498,7 +507,8 @@ export class Rpg {
   // (S5.2: a boss's curse on us takes CURSE_DMG a stack off every hit: curseMult, the server's cap too)
   // sure: a crit whatever the dice say (SP5's Eagle Eye)
   roll(base, mult = 1, sure = false) {
-    const crit = sure || Math.random() < (this.me?.crit ?? 0.12);
+    const crit = sure || this.sureNext || Math.random() < (this.me?.crit ?? 0.12);
+    this.sureNext = false; // (First Blood: boss gear, src/gear.js)
     mult *= curseMult(this.me?.curse?.n);
     return [Math.max(1, Math.round(base * mult * rand(this.me?.minRoll ?? MIN_ROLL, MAX_ROLL) * (crit ? this.me?.critMult ?? 1.6 : 1))), crit ? 1 : 0];
   }
@@ -544,7 +554,7 @@ export class Rpg {
       msg.d = clamp(Math.ceil(gap / (HOOK_V / TICK_RATE)), 0, me.hk | 0);
       msg.tx = Math.round(v.x);
       const sk = SKILLS.hook, cut = this.shellCut(v, me.x), [pm, weak] = this.party.mod(v, { heavy: heavyHit(sk.mult(rank)) }, me.y, me.x);
-      let [dmg, crit] = this.roll(m.atk, sk.mult(rank) * this.markOn(v));
+      let [dmg, crit] = this.roll(m.atk, sk.mult(rank) * this.markOn(v) * this.gear.mult(v));
       dmg = Math.max(1, Math.round(dmg * cut * pm));
       msg.hits.push(weak ? [v.id, dmg, crit, 0, +weak] : [v.id, dmg, crit]);
       setTimeout(() => this.showHit(v, dmg, crit, v.x - dir * 30), (msg.d / TICK_RATE) * 1000);
@@ -570,7 +580,7 @@ export class Rpg {
     else if (sk.kind === 'wave') this.fx.spawn('wave', { x, y, range: sk.range });
   }
 
-  cast(id, me, dir, seq, mine) {
+  cast(id, me, dir, seq, mine, free = false) {
     const sk = SKILLS[id], m = this.me;
     if (!sk || !m) return false;
     const fail = (msg, sound) => {
@@ -581,19 +591,23 @@ export class Rpg {
     const rank = rankOf(m.skills, id);
     if (!rank) return fail(`You haven't learned ${sk.name} yet (press K)`, 'error');
     if (!isCombat(this.room)) return fail('Skills only work out in the Wildwood', 'error');
-    if (this.cooldown(id) > 0) return false;
-    if (m.mp < sk.mp) return fail('Not enough MP', 'noMana');
+    if (!free && this.cooldown(id) > 0) return false;
+    const cost = this.gear.cost(sk, mpCost(sk, m), free); // (boss gear: src/gear.js)
+    if (m.mp < cost) return fail('Not enough MP', 'noMana');
     if (sk.kind === 'revive' && !this.downNear(me.x, me.y, sk.radius)) return fail('Nobody near you is knocked out', 'error');
     if (sk.kind === 'cleanse' && !this.cleanseTarget(me, sk.radius)) return fail('Nothing to cleanse: nobody near you is cursed', 'error');
-    m.mp -= sk.mp; // the server's next 'me' corrects this
-    this.cds[id] = this.time + cooldownOf(id, rank);
+    m.mp -= cost; // the server's next 'me' corrects this
+    if (!free) this.cds[id] = this.time + cooldownOf(id, rank);
+    this.gear.cast(free);
     const msg = { t: 'skill', skill: id, dir, s: seq, hits: [] };
+    if (free) msg.free = 1; // (Ladon's staff's echo)
     // Arcane Charge: a Mage damage spell spends every stored charge for extra damage (the server counts the same)
     const charges = spendsArcane(id) ? this.charges() : 0;
     if (spendsArcane(id)) this.arcane = { n: 0, at: this.time, until: 0 };
     if (charges && mine) this.pop(mine.x, mine.y - 112, `ARCANE x${charges}`, '#c4cdff', 16);
-    const mult = (sk.mult?.(rank) ?? 1) * arcaneMult(m.skills, charges);
     const kinds = hitKinds(sk, rank, m, charges, m.skills); // (S5.2: magic, heavy, arrow: what a boss's mechanics make of it)
+    const airborne = !this.net?.me?.grounded;
+    const mult = (sk.mult?.(rank) ?? 1) * arcaneMult(m.skills, charges) * (kinds.arrow ? this.gear.shotMult(airborne) : 1); // (the Skirmisher's)
     this.aimArrow = !!kinds.arrow;
     this.aimMagic = !!kinds.magic;
     // SP2: Retribution's store comes out with a Shield Bash (the server adds the same: retriMult); Execution on a low mob
@@ -608,7 +622,7 @@ export class Rpg {
       const cut = this.shellCut(v, sx);
       const shatter = sk.el === 'fire' && !!v.frozen; // fire on a frozen mob (the Mage's combos)
       const [pm, weak] = this.party.mod(v, { ...kinds, heavy: kinds.heavy || shatter }, sy, sx);
-      let [dmg, crit] = this.roll(base, mult * extra * judge * this.markOn(v) * (shatter ? SHATTER_MULT : 1), sure);
+      let [dmg, crit] = this.roll(base, mult * extra * judge * this.markOn(v) * this.gear.mult(v) * (shatter ? SHATTER_MULT : 1), sure);
       dmg = Math.max(1, Math.round(dmg * cut * pm));
       if (!delay) this.blocked(v, cut);
       msg.hits.push(weak ? [v.id, dmg, crit, shatter ? 1 : 0, +weak] : shatter ? [v.id, dmg, crit, 1] : [v.id, dmg, crit]); // (+weak: 1 the weak point, 2 + slot a final boss's head)
@@ -650,6 +664,13 @@ export class Rpg {
         hit(q, m.atk, at, arrow(q) * SPLIT_SHARE);
       }
       if (sk.split) msg.split = behind.map((q) => [Math.round(q.x), Math.round(q.y - MOBS[q.kind].h / 2)]); // (the others' fan)
+      // the Skirmisher's Explosive Arrow: it bursts on the first mob, catching up to BLAST_MAX round it
+      if (sk.blast && v) {
+        const boom = this.targets().filter((q) => q !== v && Math.abs(q.x - v.x) < sk.blast + MOBS[q.kind].w / 2 && Math.abs(q.y - v.y) < sk.blast).slice(0, BLAST_MAX);
+        for (const q of boom) hit(q, m.atk, at0, arrow(q));
+        this.timed.push([this.time + at0, () => this.fx.spawn('nova', { x: v.x, y: v.y + 10, radius: sk.blast, tint: 'fire' })]);
+      }
+      if (v && sk.kind === 'shot') this.gear.shot(me, dir, v, at0, { normal: false, airborne }); // (Skyfall)
       this.arrowFx(id, sk, sx, sy, dir, tx, ty, !!v, m.gear?.weapon, { line, split: msg.split });
       if (far) setTimeout(() => audio.sfx('arrowHit', { pan: panX(far.x, sx) }), (Math.abs(far.x - sx) / speed) * 1000);
     } else if (sk.kind === 'rain') {
@@ -666,7 +687,7 @@ export class Rpg {
       const [v] = this.ahead(me, dir, sk.range, 0);
       if (!v) {
         this.cds[id] = 0; // nothing to mark: no MP, no cooldown (the server would refuse it)
-        m.mp += sk.mp;
+        m.mp += cost;
         return fail('Nothing ahead to mark', 'error');
       }
       msg.mob = v.id;
@@ -795,6 +816,11 @@ export class Rpg {
       this.fx.spawn('aegis', { x: sx, y: sy, radius: sk.radius });
     }
     if (sound) audio.sfx(sound);
+    // Typhon's staff (boss gear): a damage spell leaves the ground burning where it went (or round the first mob it hit)
+    if (this.staffOf(m) && msg.hits.length) {
+      const v0 = this.views.get(msg.hits[0][0]);
+      this.gear.spell(sk, msg.tx ?? v0?.x ?? sx, v0 ? v0.y : sy);
+    }
     this.send(msg);
     return true;
   }
@@ -947,6 +973,13 @@ export class Rpg {
     } else if (m.what === 'cleansed') { // a Cleansing Tonic lifted a curse (S5.5)
       this.pop(s.x, s.y - 64, 'CLEANSED', '#e8e4ff', 18);
       audio.sfx('buff', { vol: isMe ? 0.8 : 0.4 });
+    } else if (m.what === 'oath') { // Sigrun's weapons blocked it (boss gear: our next hit is OATH_BONUS×)
+      audio.sfx('block', { vol: isMe ? 1 : 0.5 });
+      this.pop(s.x, s.y - 64, 'OATH', '#ffe08a', 18);
+    } else if (m.what === 'rewind') { // Chronos's crown: a killing blow, rewound
+      this.fx.spawn('secondwind', { x: s.x, y: s.y });
+      audio.sfx('timeStop', { vol: isMe ? 0.8 : 0.4 });
+      this.pop(s.x, s.y - 70, 'REWIND!', '#c4cdff', 22);
     } else if (m.what === 'secondwind') {
       this.fx.spawn('secondwind', { x: s.x, y: s.y });
       audio.sfx('secondWind');
@@ -1231,6 +1264,7 @@ export class Rpg {
   // ——— every fixed step (from net.js): did something hit us? → the knockback to predict ———
   step(me, seq, splatted) {
     if (!this.me || !isCombat(this.room) || splatted) return null;
+    this.gear.step(me); // (boss gear's per-step effects and the Skirmisher's: src/gear.js)
     // the Thorn Tsunami rolling across the den: on the ground when its front passes you = hit
     if (this.wave) {
       const w = this.wave, front = w.x0 + w.dir * w.speed * (this.time - w.at);
@@ -1274,6 +1308,7 @@ export class Rpg {
     this.hurtAt = this.time;
     this.send({ t: 'ouch', s: seq, ...ouch });
     // shields and Second Wind are the server's call; the knockback only if we'd still be standing
+    if (this.gear.knockFree(me)) return null; // (Sigrun's helm: the server knocks nothing back either)
     return kickFrom(me, ouch.mx, OUCH[ouch.kind]);
   }
 
@@ -1384,6 +1419,7 @@ export class Rpg {
   // Changing rooms: forget the old room's mobs (the new one's are sent on the way in)
   leave(room) {
     this.room = room;
+    this.gear.reset();
     this.snaps = [];
     this.views.clear();
     this.killed.clear();
@@ -1408,6 +1444,7 @@ export class Rpg {
   // ——— drawing, in world space ———
   drawWorld(ctx) {
     this.fields.draw(ctx); // (SP1's fields, on the floor)
+    this.gear.draw(ctx); // (boss gear's burning ground and fire trail)
     this.summons.drawGround(ctx); // (a Guardian Totem's ring)
     for (const d of this.loot) {
       if (this.taken.has(d[0])) continue;
@@ -1970,6 +2007,7 @@ export class Rpg {
     d.textContent = it.desc + (it.atk ? ` ATK +${it.atk}.` : '') + (it.kind === 'sword' ? ` Reach +${it.reach}.` : '') + (it.magic && it.kind === 'staff' ? ` MAGIC +${it.magic}, MP +${it.mp}. Fires a bolt instead of swinging. Range ${STAFF_BOLT_RANGE + it.reach}.` : '') + (it.kind === 'bow' ? ` Shoots arrows instead of swinging. Range ${BOW_RANGE + it.reach}. Archers aim with DEX.` : '') + (it.def ? ` DEF +${it.def}.` : '')
       + (gear ? ` Upgrade slots: ${slotsOf(sel.id) - (e.u ?? 0)} of ${slotsOf(sel.id)} left${bonus ? ` (scrolled: ${bonus})` : ''}.` : '')
       + (it.price ? ` Sells for ${sellPrice(sel.id)} gold.` : '')
+      + (fxLine(sel.id) ? ` ${fxLine(sel.id)}` : '')
       + (it.legacy ? ' Legacy: the old version, from before Frostpeak, Emberdeep and the Aether Citadel grew stronger. It works as it always did, but nothing drops it any more.' : '');
     const row = document.createElement('div');
     row.className = 'inv-actions';

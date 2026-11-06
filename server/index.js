@@ -67,6 +67,10 @@
 //       mob flags 8192 bleeding, 16384 poisoned · SP3: the skill echo's `combust` [mob ids] (burns a Combustion set
 //       off), `charged` [mob ids] + `cs` (s) (Static's charge: no mob flag left)
 //   → {t:'ouch', s, mob, kind:'touch'|'charge'|'slam'|'rain', mx}  a mob hit me (the server applies the same knockback)
+//   Boss gear and the Skirmisher (src/shared/gearfx.js, docs/combat/items.md): → {t:'gearHit', kind, s, dir, x?, hits}
+//       an extra hit of that kind (server/rpg.js GEAR_HITS), run in input order ← {t:'gearhit', id, kind, x, hits} the
+//       room sees it · ← {t:'gearfx', a:'oath'} (just you) Sigrun's weapons blocked a hit · {t:'gearfx', a:'echo', skill}
+//       Ladon's staff: cast it again → {t:'skill', …, free:1} · the cast's `free` · Chronos's staff's reset is a 'refund'
 //   → {t:'pickup', s}
 //   ← {t:'nomana'}  a skill you tried had too little MP
 //   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,weapon}, atk, magic, def,
@@ -203,6 +207,7 @@ import { createChat } from './chat.js';
 import { createAccuse } from './accuse.js';
 import { createTrade } from './trade.js';
 import { decode, encodeSlimes, encodeSnap, BIN_VERSION } from '../src/shared/wire.js';
+import { attackSpeedOf } from '../src/shared/gearfx.js';
 import { isCombat } from '../src/shared/rpg.js';
 import { CHARACTERS } from './characters.js';
 import { openAccounts } from './accounts.js';
@@ -226,7 +231,7 @@ const MAX_CREDIT = 6; // a player may catch up on at most this many steps in one
 const RTC_BURST = 60; // voice call-setup messages a player may send in a burst…
 const RTC_PER_SEC = 20; // …and on average
 const IDLE_TICKS = 15; // no input for this long (e.g. tab hidden) → simulate them standing still
-const ORDERED = new Set(['slap', 'skill', 'ouch', 'pickup']); // carry `s`, the client's latest input seq
+const ORDERED = new Set(['slap', 'skill', 'ouch', 'pickup', 'gearHit']); // carry `s`, the client's latest input seq
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css',
@@ -559,7 +564,7 @@ const inReach = (s, dir, x, y, extra = 0) => {
 // were then); hits are the mobs the slapper's own screen says it hit (server/rpg.js checks them)
 function slap(id, p, m) {
   const now = Date.now(), dir = m.dir < 0 ? -1 : 1;
-  if (now - (p.slapAt ?? 0) < SLAP_COOLDOWN_MS - 60) return;
+  if (now - (p.slapAt ?? 0) < SLAP_COOLDOWN_MS / (p.rpg ? attackSpeedOf(p.rpg) : 1) - 60) return; // (Chronos's weapons swing faster: gearfx.js)
   p.slapAt = now;
   const room = p.state.room;
   const hits = [];
@@ -746,6 +751,7 @@ function runActions(id, p, all) {
       rpg.cast(id, p, m);
     }
     else if (m.t === 'ouch') rpg.ouch(id, p, m);
+    else if (m.t === 'gearHit') rpg.gearHit(id, p, m);
     else if (m.t === 'pickup') rpg.pickup(p);
   }
 }

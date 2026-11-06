@@ -9,7 +9,7 @@ import { curve } from '../src/shared/curve.js';
 import { FINAL_ENRAGE_MIN } from '../src/shared/final.js';
 import { HOUSE_SIZES, FURNITURE, PET_STARVE_MS } from '../src/shared/house.js';
 import { CROPS, RECIPES, needs } from '../src/shared/alchemy.js';
-import { DOTS, SPLIT_R, SPLIT_SHARE, SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds, isLongBuff, fxText, buffFx, momentumMax, EXEC_AT, BLEED_S, RETRI_HOLD, retriMult, targetsOf, statOf, HOLY_SYMBOL_EXP, JUDGMENT_AT, judgmentMult, DEVOTION_CAP, SUMMON_LIGHT, WARD_PULSE_S, RESOLVE_R, summonCap } from '../src/shared/skills.js';
+import { BLAST_MAX, DOTS, SPLIT_R, SPLIT_SHARE, SKILLS, CLASSES, CLASS_LVL, statsFor, cooldownOf, durOf, spClass, spNovice, cantLearn, rankOf, mpRegen, apTotal, MAX_ROLL, MOMENTUM_MAX, MOMENTUM_DUR, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, BURN_DPS, BURN_S, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, healOf, summonHp, summonHit, SPIRIT_HIT_S, SERAPH_R, BOSS_SUMMON_S, BOSS_SUMMON_HIT, WISP_TICK, spiritCap, BARB_BONUS, NET_BURST_R, hitKinds, isLongBuff, fxText, buffFx, momentumMax, EXEC_AT, BLEED_S, RETRI_HOLD, retriMult, targetsOf, statOf, HOLY_SYMBOL_EXP, JUDGMENT_AT, judgmentMult, DEVOTION_CAP, SUMMON_LIGHT, WARD_PULSE_S, RESOLVE_R, summonCap } from '../src/shared/skills.js';
 import { SLAP_REACH, SLAP_COOLDOWN_MS, DASH_CD, PHANTOM_CD, CHARGE_RESET } from '../src/shared/sim.js';
 
 // Assumptions (see docs/economy.md): a player farming mobs at their own level, solo, kills about
@@ -272,7 +272,7 @@ const BUILDS = {
   // with the basics, each branch's new staples as they open, then Focus and Sharp Eyes; Ricochet, Eagle Eye and
   // Huntmaster come with "every passive")
   sniper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'spread_shot', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'snipe', 'piercing_arrow', 'deadeye', 'splitting_arrow', 'hunters_mark', 'heartseeker', 'sharp_eyes', 'bow_focus', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
-  trapper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'spread_shot', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'arrow_rain', 'poison_arrow', ['net_trap', 1], 'barbed_arrows', 'blast_trap', 'trap_mastery', 'net_trap', 'thousand_arrows', 'hawk', 'bow_focus', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
+  trapper: { cls: 'archer', order: ['double_shot', 'steady_hands', 'spread_shot', 'evasion', ['dash', 1], 'retreat_shot', 'keen_eye', 'arrow_rain', 'poison_arrow', 'backflip_volley', 'aerial_archery', 'explosive_arrow', 'hit_and_run', 'thousand_arrows', 'hawk', 'skyfall', 'bow_focus', ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
   warden: { cls: 'cleric', order: [['smite', 1], ['jelly_spirit', 1], ['heal', 1], 'smite', 'radiance', 'jelly_spirit', 'faith', 'cleanse', 'heal', 'sprites', 'barrier', 'guardian_totem', 'stone_guardian', 'spirit_bond', 'seraph', 'resolve', 'blessing', ['dash', 1], ['blink', 1], 'flash_jump', 'dash', 'blink', 'phantom_step'] },
 };
 // SP3: a new staple takes the hotbar slot of the one a tier before it (story/skills-plan.md, Rule 1: "the new one
@@ -283,7 +283,7 @@ const HOTBAR_SWAPS = {
   cleave: ['ground_shake', 'whirlwind'], ground_shake: ['shockwave'], shockwave: ['judgement'], whirlwind: ['blade_storm'], blade_storm: ['cyclone'],
   power_strike: ['shield_bash', 'rending_slash'], shield_bash: ['holy_lance'], rending_slash: ['execution'], execution: ['sky_splitter'],
   radiance: ['sacred_light', 'sprites'], sacred_light: ['consecration'], // (SP4: the Cleric's; Smite stays, the filler between its big spells)
-  spread_shot: ['piercing_arrow', 'arrow_rain'], piercing_arrow: ['splitting_arrow'], arrow_rain: ['blast_trap'], poison_arrow: ['hawk'], // (SP5: the Archer's; Double Shot stays, its filler)
+  spread_shot: ['piercing_arrow', 'arrow_rain'], piercing_arrow: ['splitting_arrow'], arrow_rain: ['explosive_arrow'], poison_arrow: ['hawk'], // (SP5: the Archer's; Double Shot stays, its filler)
 };
 const NOVICE_ORDER = ['slime_bash', 'pebble_toss', 'jelly_patch']; // (nine points fill all three by Lv 9)
 const CLASS_AT = [10, 30, 60, 100, 150, 200];
@@ -368,7 +368,7 @@ function hitsOf(sk, st, n, rank) {
     bolt: 1, fireball: caught(n, 2 * sk.radius), chain: Math.min(sk.targets, n), meteor: caught(n, 2 * sk.radius), nova: caught(n, 2 * sk.radius), starfall: caught(n, 2 * sk.radius),
     // (SP5: Spread Shot, an arrow at each of the first `spread`; Splitting Arrow, its first mob then SPLIT_SHARE on the ones
     // behind it within SPLIT_R, up to `split`)
-    shot: sk.spread ? Math.min(sk.spread, n) : sk.split ? 1 + SPLIT_SHARE * Math.min(sk.split, caught(n, SPLIT_R) - 1) : sk.arrows, pierce: Math.min(targetsOf(sk, rank), n), rain: sk.hits * caught(n, 2 * sk.radius),
+    shot: sk.spread ? Math.min(sk.spread, n) : sk.split ? 1 + SPLIT_SHARE * Math.min(sk.split, caught(n, SPLIT_R) - 1) : sk.blast ? sk.arrows + Math.min(BLAST_MAX, caught(n, 2 * sk.blast) - 1) : sk.arrows, // (blast: the Skirmisher's Explosive Arrow) pierce: Math.min(targetsOf(sk, rank), n), rain: sk.hits * caught(n, 2 * sk.radius),
   }[sk.kind];
 }
 function rangeOf(sk, st) {

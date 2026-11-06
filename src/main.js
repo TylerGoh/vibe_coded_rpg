@@ -88,7 +88,8 @@ import { drawArena } from './sandbox-art.js';
 import { ARENA } from './shared/sandbox.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
-import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, chargeOpen, retreatOpen, chaseRank, HOOK_RANGE, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X, TOWNS } from './shared/sim.js';
+import { attackSpeedOf } from './shared/gearfx.js';
+import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, BOOST, FLIP, chargeOpen, retreatOpen, chaseRank, HOOK_RANGE, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X, TOWNS } from './shared/sim.js';
 
 const canvas = document.getElementById('game');
 const stage = document.getElementById('stage');
@@ -448,7 +449,12 @@ function castSkill(id) {
   if (!online() || splatted(mine)) return;
   audio.unlock();
   if (SKILLS[id]?.kind === 'move') return pressMove(id);
-  if (rpg.cast(id, mine, mine.facing, net.seq, mine) && ['strike', 'spin'].includes(SKILL_KIND(id))) mine.slap(mine.facing);
+  if (!rpg.cast(id, mine, mine.facing, net.seq, mine)) return;
+  if (['strike', 'spin'].includes(SKILL_KIND(id))) mine.slap(mine.facing);
+  if (SKILLS[id].flip) { // the Skirmisher's Backflip Volley: the hop is physics (sim.js step, FLIP), the arrows the skill
+    moveBits |= FLIP;
+    moveSteps = Math.max(moveSteps, 3);
+  }
 }
 // Dash / Blink from the hotbar: hold their input bit for a few steps (the physics acts on the press)
 let moveBits = 0, moveSteps = 0;
@@ -1000,7 +1006,7 @@ const weaponSound = (s) => ({ sword: 'swing', staff: 'staffBolt', bow: 'bowShot'
 // aimed: a click or tap toward a side (X and the Hit button go the way you face, except that while an Archer's
 // Retreat Shot is open they shoot back the way you came: sim.js retreatOpen)
 function slapToward(dir, aimed = false) {
-  if (performance.now() - lastSlap < SLAP_COOLDOWN_MS || splatted(mine)) return;
+  if (performance.now() - lastSlap < SLAP_COOLDOWN_MS / (isCombat(room) && rpg.me ? attackSpeedOf(rpg.me) : 1) || splatted(mine)) return; // (Chronos's weapons: faster)
   lastSlap = performance.now();
   const bow = isCombat(room) && ITEMS[rpg.me?.gear?.weapon]?.kind === 'bow';
   if (bow && !aimed && retreatOpen(net.me, -dir)) dir = -dir;
@@ -1009,7 +1015,7 @@ function slapToward(dir, aimed = false) {
   audio.sfx(weaponSound(mine), { vol: 0.7 });
   // Charge (Warrior): a hit while dashing or just after is stronger and gives Dash back (sim.js applyCharge)
   const charge = isCombat(room) && chargeOpen(net.me); // (the server makes the same call from its own state)
-  const hits = rpg.slapHits(mine, dir, charge ? SKILLS.charge.mult(chaseRank(net.me.mw, 0)) : retreat ? SKILLS.retreat_shot.mult(chaseRank(net.me.mw, 3)) : 1);
+  const hits = rpg.slapHits(mine, dir, charge ? SKILLS.charge.mult(chaseRank(net.me.mw, 0)) : retreat ? SKILLS.retreat_shot.mult(chaseRank(net.me.mw, 3)) : 1, retreat);
   if (retreat && hits.length) rpg.retreatFx(mine, dir);
   if (charge && hits.length) {
     net.charge(net.seq);
@@ -1341,6 +1347,7 @@ const inputBits = () => {
   if (scope.isOpen) return 0; // standing still at the telescope
   let k = 0;
   for (const bits of held.values()) k |= bits;
+  if (rpg.gear.boost()) k |= BOOST; // (Rush: boss gear, src/gear.js)
   if (moveSteps > 0) {
     k |= moveBits;
     if (--moveSteps === 0) moveBits = 0;

@@ -25,8 +25,55 @@ the same gear curve, boss drops included, and several boss pieces also dropped f
 drops gets `BOSS_GEAR` of its written stats by the boss's kind (field, den, top, final; its best if several drop it),
 its staff and bow twins too (`bossTier`, built after `SHOPS` in `src/shared/rpg.js`), and ordinary mobs no longer drop
 it. Untouched: anything a shop sells (Bun's Reed Rapier, also Snapjaw's), legacy pieces with no `lvl`, prices. Stats
-are read from `ITEMS` at runtime, so pieces already owned got stronger too. Planned next: a unique effect on top and
-final boss pieces (owner's choice; the list goes to the owner to approve).
+are read from `ITEMS` at runtime, so pieces already owned got stronger too.
+
+## Boss gear's unique effects (owner, 2026-11-06)
+Owner: "big impact stuff, so people have to actually think if it's worth it", movement changes and changes to how you
+attack included. The owner approved all 22. Each top and final boss's weapons (sword, staff and bow each their own
+version) share one effect and its helmet another, most with a cost; twelve den and field bosses give a small one, no
+cost, to every piece they drop. Shop stock never carries one. The item card shows it (`fxLine`).
+- **Where it lives**: `src/shared/gearfx.js` holds every number (named constants), `GEAR_FX` (name, text, cost),
+  `BOSS_FX` (which boss gives which), `FX_OF` (item → effect, built from the bosses' drops), `fxOf(c)` (what the worn
+  gear does, by weapon kind), `gearMoves(c)` (the movement bits) and `walkOf`. Plain stat changes go in `statsFor`
+  (damage, max HP, DEF, crit damage; `mpX`, `taken`, and `gearCap`: the most the situational ones can add, which the
+  server's `capOf` allows). The client's side is `src/gear.js` (`Gear`: hit multipliers, extra hits, per-step effects,
+  the drawing of burning ground and the fire trail).
+- **Extra hits** (a second hit, the piston, eruptions, explosions, pierces, burning ground, the fire trail, dash
+  slashes, the frost nova, volleys, stomps; and the Skirmisher's air shots) are client-decided like every hit and sent
+  as `{t:'gearHit', kind, s, hits}`, run in input order; the server's `GEAR_HITS` table says per kind who may send it,
+  how often, how far and its cap (`gearHit` in `server/rpg.js`), and everyone else sees `{t:'gearhit'}`.
+- **Movement** (Brenna's weapons, the helmets of Fenrir, Ladon, the Colossus, Typhon, Brenna and Sigrun, Rush, Wall
+  Jump, Phase Dash) is physics: the server puts `gearMoves` in the slime's state as `gx` (`moves`, on load and on every
+  equip), `step()` reads it, so prediction matches (`docs/netcode.md`: wire version 7). Rush's speed needs a timer
+  the client keeps from its own kills, so it rides the input as the `BOOST` bit.
+- **Server-side ones**: Sigrun's block (`oathAt`, a `{t:'gearfx', a:'oath'}` so the next hit is `OATH_BONUS`×; the
+  block still knocks you back, as the client predicted), Chronos's crown (in `hurt()` after Second Wind: 1 HP, Aegis for
+  `REWIND_SAFE_S`, every mob in the room chilled; `rewindAt`), Typhon's extra damage taken, the Root Warden's helm and
+  Typhon's mask (the once-a-second tick: standing still heals or burns), Brewer (potions), the Colossus's HP per attack
+  (`pistonCost`) and free spells, Ladon's staff's echo (`p.echo`: the client casts it again with `free`) and Chronos's
+  staff's reset (the `refund` message on-kill hooks use).
+
+| boss | weapons (sword · staff · bow) | cost | helmet | cost |
+|---|---|---|---|---|
+| Ladon | two hits at `HYDRA_HIT` · `HYDRA_ECHO` chance a spell casts again free · two arrows at `HYDRA_HIT` | crit damage × `HYDRA_CRIT` | air dash, any way, once a jump | Dash cooldown × `AIRDASH_CD` |
+| Chronos | `HOURS_SPEED` faster swings · `HOURS_RESET` chance a skill's cooldown resets · `HOURS_SPEED` faster held shots | MP × `HOURS_MP` | cheat death every `REWIND_CD_S` | max HP × `REWIND_HP` |
+| Typhon | every `HEARTH_EVERY`th hit erupts · burning ground under spells · arrows explode | damage taken × `HEARTH_TAKEN` | walk × `FURNACE_WALK`, fire trail | standing still burns `FURNACE_DRAIN`/s |
+| Brenna | damage × `BURDEN_DMG` (all) | walk × `BURDEN_WALK`, no air jumps | landing from a fall faster than `STOMP_VY` stomps | no Dash (nor Hook) |
+| Fenrir | dashing through mobs slashes · Blink leaves a frost nova · Retreat Shot + `VOLLEY` arrows | max HP × `UNBOUND_HP` | a third jump | DEF × `PACK_DEF` |
+| Root Warden | still `ROOTED_S`: damage × `ROOTED_DMG` (all) | standing still | still: heal `REST_HEAL`/s | none |
+| Sigrun | block a hit every `OATH_EVERY` s, next hit × `OATH_BONUS` (all) | damage × `OATH_DMG` | no knockback (both sides skip it) | walk × `BULWARK_WALK` |
+| Colossus | piston shot ahead · every `PISTON_FREE`th spell free · arrows pierce `PISTON_PIERCE` more | `PISTON_HP` of HP an attack | jump × `GLIDE_JUMP`, hold Jump to glide | none on paper (slow falls) |
+
+Small ones (every piece): Knotmole, Hornet Queen: **Rush** (a kill: walk × `RUSH_SPEED` for `RUSH_S`). Snapjaw (its
+shell; the Reed Rapier is Bun's stock), Thorn Hart: **First Blood** (the first hit on each mob crits). Frost Queen,
+Ignis: **Shatterer** (`SHATTERER` on a frozen or burning boss). Old Narwhal, Hall Troll: **Wall Jump** (one more jump
+touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREWER`). Pale Wyrm, Brimstone Condor:
+**Phase Dash** (`PHASE_IFR` more untouchable ticks on a dash).
+- **Air controls**: Ladon's air dash is Dash in mid-air; Jump just before (held, or within `UPCUT_GRACE`) goes up, Down
+  (within `SLAM_GRACE`) goes down, else level (on touch: tap Jump or ▼, then Dash). The Colossus's glide is holding Jump while falling. Nothing new to bind.
+- **Not on the economy sheet**: it fights on curve gear with no effects. **Untested in play** (no playtests, owner's
+  rule): every effect; whether the costs make them real choices; the stomp's fall speed; whether the fire trail and
+  burning ground read on a dark den floor; the echo's timing with lag.
 
 ## Staves (S1, 2026-10-23: `story/progression.md`)
 - Every staff has a **twin** sword (`twin` on the staff, `STAFF_OF`): the same price, slots and `lvl`, with

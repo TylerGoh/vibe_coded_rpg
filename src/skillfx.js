@@ -35,6 +35,7 @@ const TREE_OF = {
   barbed_arrows: 'archer', trap_mastery: 'archer', thousand_arrows: 'archer',
   spread_shot: 'archer', bow_focus: 'archer', ricochet: 'archer', splitting_arrow: 'archer', sharp_eyes: 'archer', eagle_eye: 'archer', // (SP5)
   poison_arrow: 'archer', blast_trap: 'archer', hawk: 'archer', huntmaster: 'archer',
+  backflip_volley: 'archer', aerial_archery: 'archer', explosive_arrow: 'archer', hit_and_run: 'archer', skyfall: 'archer', // (the Skirmisher)
 };
 const PALETTE = {
   blade: [BLADE, '#ffc4b0', '#b85a48'],
@@ -484,6 +485,47 @@ const ICONS = {
     ctx.strokeStyle = dark;
     ctx.lineWidth = 1.4;
     ctx.stroke();
+  },
+  // ——— the Skirmisher (2026-11-06) ———
+  backflip_volley(ctx, dark) { // a curling hop arrow over three arrows flying forward
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(-6, -2, 12, Math.PI * 0.1, Math.PI * 1.3);
+    ctx.stroke();
+    for (const y of [-6, 4, 14]) iconArrow(ctx, dark, 8, y, 16, 0, 0.6);
+  },
+  aerial_archery(ctx, dark) { // an arrow over a little cloud
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.6;
+    for (const [x, r] of [[-8, 6], [0, 8], [8, 6]]) circle(ctx, x, 12, r);
+    ctx.stroke();
+    iconArrow(ctx, dark, 4, -6, 26, -0.35, 0.8);
+  },
+  explosive_arrow(ctx, dark) { // an arrow into a burst
+    ctx.fillStyle = '#fff2c4';
+    star(ctx, 8, 4, 13, 7, 0.45);
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    iconArrow(ctx, dark, -2, 0, 24, 0, 0.8);
+  },
+  hit_and_run(ctx, dark) { // speed lines behind an arrow
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2.4;
+    for (const y of [-8, 0, 8]) {
+      ctx.beginPath();
+      ctx.moveTo(-18, y);
+      ctx.lineTo(-8, y);
+      ctx.stroke();
+    }
+    iconArrow(ctx, dark, 6, 0, 24, 0, 0.8);
+  },
+  skyfall(ctx, dark) { // three arrows stooping from above, a star at the top
+    ctx.fillStyle = '#fff2c4';
+    star(ctx, 0, -14, 7, 5, 0.45);
+    for (const x of [-10, 0, 10]) iconArrow(ctx, dark, x, 6, 18, Math.PI / 2, 0.6);
   },
   thousand_arrows(ctx, dark) { // a sky full of arrows
     for (const [x, y] of [[-14, -2], [-5, 8], [4, -4], [13, 6], [-9, 16], [9, 18]]) iconArrow(ctx, dark, x, y, 13, Math.PI / 2 - 0.25, 0.6);

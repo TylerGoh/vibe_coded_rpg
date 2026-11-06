@@ -14,9 +14,10 @@ export const SNAP = 1, INPUT = 2, MOBS = 3;
 // before them say bin: 1, 2 or 3 and get the shorter records (their code has none of it), so the server
 // encodes each version someone needs. Version 5 changed only the mobs (their combo states, below): its
 // slime records are version 4's. Version 6 (SP2's Hook) adds · mw's high byte u8 (Hook's rank sits in bits 8–9)
-// · hk u8 · hc u16.
-export const BIN_VERSION = 6;
-const SLIME_BYTES = 48, BYTES_OF = { 1: 32, 2: 34, 3: 35, 4: 44, 5: 44, 6: 48 };
+// · hk u8 · hc u16. Version 7 (boss gear's effects, the Skirmisher: gearfx.js) adds · gx u16 · aj u8, and an input can
+// carry a second keys byte (BOOST, FLIP: sim.js).
+export const BIN_VERSION = 7;
+const SLIME_BYTES = 51, BYTES_OF = { 1: 32, 2: 34, 3: 35, 4: 44, 5: 44, 6: 48, 7: 51 };
 const c = (v) => Math.round(v * 100);
 
 // The per-slime part of a snapshot, shared by every recipient: packed = [sim.js pack() arrays]
@@ -54,6 +55,10 @@ export function encodeSlimes(packed, version = BIN_VERSION) {
       v.setUint8(o + 45, Math.min(255, a[22] | 0));
       v.setUint16(o + 46, Math.min(65535, a[23] | 0), true);
     }
+    if (size > 48) {
+      v.setUint16(o + 48, (a[24] | 0) & 65535, true);
+      v.setUint8(o + 50, (a[25] | 0) & 255);
+    }
   });
   return new Uint8Array(buf);
 }
@@ -68,10 +73,11 @@ export function encodeSnap(tick, ack, slimes) {
 }
 
 export function encodeInput(seq, keys) {
-  const v = new DataView(new ArrayBuffer(6));
+  const v = new DataView(new ArrayBuffer(7));
   v.setUint8(0, INPUT);
   v.setUint32(1, seq, true);
-  v.setUint8(5, keys);
+  v.setUint8(5, keys & 255);
+  v.setUint8(6, (keys >> 8) & 255);
   return v.buffer;
 }
 
@@ -111,14 +117,14 @@ export function encodeMobs(tick, list, b = 0, version = BIN_VERSION) {
 export function decode(data) {
   const v = new DataView(data.buffer ?? data, data.byteOffset ?? 0, data.byteLength);
   const type = v.getUint8(0);
-  if (type === INPUT) return v.byteLength >= 6 ? { t: 'in', s: v.getUint32(1, true), k: v.getUint8(5) } : null;
+  if (type === INPUT) return v.byteLength >= 6 ? { t: 'in', s: v.getUint32(1, true), k: v.getUint8(5) | (v.byteLength >= 7 ? v.getUint8(6) << 8 : 0) } : null;
   if (type === SNAP) {
     const p = [];
     for (let o = 9; o + SLIME_BYTES <= v.byteLength; o += SLIME_BYTES) {
       p.push([v.getUint32(o, true), v.getInt32(o + 4, true) / 100, v.getInt32(o + 8, true) / 100, v.getInt32(o + 12, true) / 100, v.getInt32(o + 16, true) / 100,
         v.getUint8(o + 20), v.getUint16(o + 21, true) / 100, v.getUint16(o + 23, true), v.getUint8(o + 25), v.getUint8(o + 26), v.getUint16(o + 27, true), v.getUint16(o + 29, true), v.getUint8(o + 31), v.getUint16(o + 32, true), v.getUint8(o + 34),
         v.getUint8(o + 35) | (v.getUint8(o + 44) << 8), v.getUint8(o + 36), v.getUint16(o + 37, true), v.getUint16(o + 39, true), v.getUint8(o + 41), v.getUint8(o + 42), v.getUint8(o + 43),
-        v.getUint8(o + 45), v.getUint16(o + 46, true)]);
+        v.getUint8(o + 45), v.getUint16(o + 46, true), v.getUint16(o + 48, true), v.getUint8(o + 50)]);
     }
     return { t: 's', k: v.getUint32(1, true), a: v.getUint32(5, true), p };
   }

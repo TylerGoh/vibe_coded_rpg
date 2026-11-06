@@ -16,7 +16,8 @@ with its section below. Next for classes: the bigger skill pool (`story/skills-p
 ## Classes (S2)
 - `CLASSES`: `novice`, `warrior` (sword, STR), `mage` (staff, INT), `cleric` (staff, INT; S3), `archer` (bow,
   DEX; S4), each with its weapon kind, starter weapon, colour, blurb, strong / bad at text (for the pool's card)
-  and two `branches` (Knight / Berserker, Elementalist / Frostbinder, Priest / Warden, Sniper / Trapper).
+  and two `branches` (Knight / Berserker, Elementalist / Frostbinder, Priest / Warden, Sniper / Skirmisher; the Skirmisher's id is still
+  `trapper`, from before 2026-11-06).
   `classNames()` words the list ("Warrior, Mage, Cleric or Archer") for the banners and notices, and `aOrAn`
   the article ("an Archer"), so a new class needs no text hunt. Saved on the character as `c.cls`, plus `c.reborn` (how many times a class
   was chosen; 0 = the next choice is free).
@@ -357,9 +358,8 @@ it); bows in `docs/combat/items.md`.
   (+ATK with a bow), Evasion (`EVADE` a rank: a hit misses, see `hurt()`).
 - **Sniper**: Snipe (one long hard arrow, `FAR_BONUS` more past `FAR_PX`: keeping your distance pays), Piercing
   Arrow (through every mob in a line), then Deadeye (crit, like Sword Mastery) and Hunter's Mark, then
-  Heartseeker (a giant piercing arrow across the room). **Trapper**: Arrow Rain (a volley that comes down round
-  the first mob ahead, `RAIN_AT` then a wave every `RAIN_EVERY`), Net Trap, then Barbed Arrows (every arrow slows
-  for `BARB_SLOW`; `BARB_BONUS` a rank more on a slowed, chilled, frozen or netted mob) and Trap Mastery, then
+  Heartseeker (a giant piercing arrow across the room). **Skirmisher** (was the Trapper; below, "The Skirmisher"):
+  Arrow Rain (a volley that comes down round the first mob ahead, `RAIN_AT` then a wave every `RAIN_EVERY`), then
   Thousand Arrows (a huge rain that slows).
 - **Retreat Shot** (`kind: 'chase'`, no MP, no hotbar; Charge's twin for the Archer): a bow shot while dashing
   or within `CHARGE_WINDOW` ticks after, **back the way you came**, is a Retreat Shot for its `mult`. X / the
@@ -374,13 +374,9 @@ it); bows in `docs/combat/items.md`.
   boost; mob flag 2048 says a mob is marked, for late joiners, who assume the lowest boost). Drawn as a turning
   red target ring over the mob (`drawMark`). On a boss whose weak point is open it keeps the spot open for
   `WEAK_MARK_S` instead of `WEAK_OPEN_S` (S5.2, `docs/combat/bosses.md`).
-- **Net Trap** (`summon`, `what: 'net'`): server-run with the Cleric's summons (`net` in `server/summons.js`):
-  planted where you stand, never a target and never hurt; the first mob on the ground that walks within `NET_R`
-  of it is caught (`m.snareUntil`): an ordinary mob stops dead and can't hurt anyone (both sides skip its
-  touch, like a frozen one), a boss is only slowed to `NET_BOSS_SLOW` for half as long. Trap Mastery lets it
-  catch more and bursts each catch (`burst(rank)` × ATK on everything within `NET_BURST_R`, sent as `sumhit`);
-  spent, it goes with `how: 'sprung'`. `{t:'netcatch', id, m, x, y}` shows the snap and "CAUGHT!"; the caught
-  mob wears a net (flag 4096, `drawNet`).
+- **Net Trap**, **Barbed Arrows**, **Trap Mastery**, **Blast Trap**, **Huntmaster**: removed 2026-11-06 with the Trapper.
+  Their machinery stays dark (the `net` and `blast` summons in `server/summons.js`, `BARB_BONUS` in `arrowBonus`), the
+  test skills still use the blast trap; a removed skill's points come back by themselves (`cleanSkills`).
 - **Evasion**: in `hurt()`, after Aegis and the bubble and never an ultimate, a dodged hit does no damage but
   still knocks you back, because the client predicted that knockback at that step (the physics would rubber-
   band otherwise). Everyone sees "MISS" (`guard` `'dodge'`).
@@ -552,11 +548,34 @@ Hold-to-fire (above) came with it.
   as `split`, echoed for the others' `FX.split`), **Sharp Eyes** (a long party buff: crit and crit damage), **Eagle Eye**
   (passive: a `far` `shot`, Snipe, at a mob past `FAR_PX` always crits: the client's `roll(…, sure)` and an "EAGLE EYE"
   pop; the server's cap always allowed a crit, so nothing changes there).
-- **Trapper**: **Poison Arrow** (a `shot` with SP1's poison `dot`), **Blast Trap** (SP1's `blast` summon on ATK, `stat:
-  'atk'`: the first mob on the ground over it sets it off on everything within its radius), **Hawk** (SP1's `hawk` summon on
-  ATK: dives at what you last shot, `p.lastHit`), **Huntmaster** (passive: `huntX` in `server/summons.js`, × (1 +
-  `bonus(rank)`) on the Net Trap's bursts, the Blast Trap and the hawk when the mob is slowed, chilled, frozen or netted;
-  Barbed Arrows slows whatever you shoot, so the hawk's target nearly always is).
+- **Trapper** (now the Skirmisher, below): **Poison Arrow** (a `shot` with SP1's poison `dot`), **Hawk** (SP1's `hawk`
+  summon on ATK: dives at what you last shot, `p.lastHit`). Blast Trap and Huntmaster went with the Trapper.
+
+## The Skirmisher (owner, 2026-11-06)
+Owner: "the trapper tree is not worth it or fundamentally is not how people play. This game rewards jumping around
+dealing damage. Placing traps neither helps with farming nor bossing." The Trapper's traps went; its branch (id still
+`trapper`, so saves and builds keep working) became the Skirmisher, built on shooting in the air and on the move. It
+keeps Arrow Rain, Poison Arrow, Thousand Arrows and the Hawk. Numbers in `SKILLS`; the client side in `src/gear.js`
+(it shares the extra-hit path with boss gear's effects, `docs/combat/items.md`).
+- **Backflip Volley** (Lv 30, a `shot` with `arrows: 3` and `flip`): the arrows are an ordinary shot skill; the hop is
+  physics. Casting it sets the `FLIP` input bit for a few steps (`src/main.js` castSkill), and `step()` flips you up
+  and back (`FLIP_VY`, `FLIP_VX`) facing the same way, but only if your state's `gx` has `GX.FLIP`, which the server sets
+  from the skill's rank (`moves`). It acts on the press (`aj` bit 8 is "held last step").
+- **Aerial Archery** (Lv 30, passive): in the air, every arrow does `bonus(rank)` more, and the normal shot fires a
+  second arrow (an `aerial` extra hit). "In the air" is the physics state at the shot's input: the client's `net.me`,
+  the server's `p.state` (skill and extra-hit messages run in input order), so both make the same call.
+- **Explosive Arrow** (Lv 60, a `shot` with `blast`): the arrow bursts on its first mob, the same damage to up to
+  `BLAST_MAX` mobs within `blast` (the server allows `arrows + BLAST_MAX` hits out to `range + blast`).
+- **Hit and Run** (Lv 60, passive): a jump or a dash (the client spots either in `src/gear.js` step) readies `shots`
+  arrows for `window` s that do `bonus(rank)` more. The client counts them; the server's cap always allows the bonus
+  (`skirmX` in `server/rpg.js`).
+- **Skyfall** (Lv 100, passive, one rank): in the air, every shot (the normal one and shot skills) also pierces to the
+  mob behind its target (`pierce` × ATK, a `sky` extra hit), and every `every`-th one a hawk stoops on the target
+  (`dive` × ATK, a `dive` extra hit, "STOOP!").
+- The economy sheet models Explosive Arrow's burst (`caught`) but not the air or Hit and Run bonuses (it doesn't jump),
+  so the Skirmisher's sheet numbers are its floor: about the Sniper's crowd damage and 0.85× its single-target, before
+  any of its jumping pays. **Untested in play**: whether it feels better than the Sniper in the air, the backflip's hop
+  on a phone.
 - No wire bump: `split` rides the skill echo; the rest is SP1's machinery.
 - Not on the economy sheet: Ricochet (kills aren't modelled) and Eagle Eye (the sheet's ranged column is closer than
   `FAR_PX`). The sheet: `docs/economy.md`, "The Archer's skill pool (SP5)".

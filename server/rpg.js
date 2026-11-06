@@ -15,6 +15,9 @@ import { DatabaseSync } from 'node:sqlite';
 import { SANDBOX_PARTY } from '../src/shared/sandbox.js';
 import { cleanKeys } from '../src/shared/keys.js';
 import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, INTERRUPT_CHANCE, EGG_HP, FIELD_GROUND, THORNHEART, THORN_PATCHES, patchAt, PATCH_DOT, PATCH_HIT_EVERY, ROADSEND, LADON_MARK_X, LADON_LINE, BLUEHALLS, THIN_ICE, THIN_ICE_HOLD, THIN_ICE_DOT, LONGSTAIR, FENRIR_MARK_X, FENRIR_LINE, FOUNDRY, HOT_GRATES, grateAt, GRATE_DOT, LONGFLUE, TYPHON_MARK_X, TYPHON_LINE, SKYDOCKS, GUSTS, gustAt, GUST_DOT } from '../src/shared/rpg.js';
+import { HYDRA_HIT, PISTON_RANGE, PISTON_MULT, PISTON_PIERCE, ERUPT_R, ERUPT_MULT, EXPLODE_R, EXPLODE_MULT, GROUND_MULT, TRAIL_MULT, DASH_SLASH_MULT, NOVA_R, NOVA_MULT, VOLLEY, STOMP_R, STOMP_MULT } from '../src/shared/gearfx.js';
+import { fxOf, gearMoves, GX, OATH_EVERY, REWIND_CD_S, REWIND_SAFE_S, FURNACE_DRAIN, FURNACE_STILL, REST_HEAL, BREWER, PISTON_HP, PISTON_FREE, HYDRA_ECHO, HOURS_RESET } from '../src/shared/gearfx.js';
+import { mpCost, BLAST_MAX } from '../src/shared/skills.js';
 import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS, DEVOTION_S, DEVOTION_CAP, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, judgmentMult, RESOLVE_R } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { createFinal } from './final.js';
@@ -355,6 +358,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     if (!p.state || !p.rpg) return;
     p.state.mv = mobilityOf(p.rpg.skills);
     p.state.mw = chaseOf(p.rpg.skills);
+    // boss gear's movement effects, and the Skirmisher's Backflip Volley (gearfx.js GX)
+    p.state.gx = gearMoves(p.rpg) | (rankOf(p.rpg.skills, 'backflip_volley') ? GX.FLIP : 0);
   }
   // Play time (owner, 2026-10-23: for balancing levelling speed): logged-in time, and the active part of it
   function clock(p) {
@@ -533,6 +538,15 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       sendMe(q);
       return guard(qid, q, 'dodge');
     }
+    // Sigrun's weapons (gearfx.js): one hit blocked every OATH_EVERY s (never an ultimate); the next hit you land does more
+    if (!ult && !dot && st.fx.oath && t >= (q.oathAt ?? 0)) {
+      q.oathAt = t + OATH_EVERY * 1000;
+      q.hurtAt = t;
+      knockBack(q, fromX, knock); // (as the client predicted)
+      send(q.ws, { t: 'gearfx', a: 'oath' });
+      sendMe(q);
+      return guard(qid, q, 'oath');
+    }
     const bar = q.barrier && q.barrier.until > t ? q.barrier : null; // a Cleric's Barrier (S3)
     if (bar && ult) {
       q.barrier = null; // it takes the ultimate instead of you, and breaks
@@ -585,6 +599,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         }
       }
     }
+    if (st.taken > 1 && !dot) dmg = Math.round(dmg * st.taken); // (Typhon's weapons: you take more)
     if (st.manaShield && !ult) { // Mana Shield: a share of it comes off MP while there's MP
       const take = Math.min(Math.round(dmg * st.manaShield), Math.floor(q.rpg.mp));
       q.rpg.mp -= take;
@@ -601,6 +616,13 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       q.swReadyAt = t + SKILLS.second_wind.cdFor(sw) * 1000;
       guard(qid, q, 'secondwind');
     }
+    if (q.rpg.hp <= 0 && st.fx.rewind && t >= (q.rewindAt ?? 0)) { // Chronos's crown: 1 HP, untouchable, time slows round you
+      q.rpg.hp = 1;
+      q.rewindAt = t + REWIND_CD_S * 1000;
+      q.aegisUntil = t + REWIND_SAFE_S * 1000;
+      for (const m of alive(q.state.room)) m.chillUntil = Math.max(m.chillUntil ?? 0, t + REWIND_SAFE_S * 1000);
+      guard(qid, q, 'rewind');
+    }
     if (q.rpg.hp <= 0 && hooks.god?.(q)) q.rpg.hp = st.maxHp; // (the sandbox's god mode: the hit lands, you don't go down)
     toRoom(q.state.room)(dot ? { ...hurtMsg(qid, q, dmg, by), dot: 1 } : hurtMsg(qid, q, dmg, by));
     if (q.rpg.hp <= 0) return faint(qid, q, by);
@@ -610,6 +632,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   // knocked back (and up): the client's prediction catches up from the next snapshot
   function knockBack(q, fromX, knock) {
     const s = q.state;
+    if ((s.gx | 0) & GX.KNOCKFREE) return; // (Sigrun's helm; the client predicts none either: src/rpg.js step)
     s.vx = Math.sign(s.x - fromX || 1) * knock;
     s.vy = -Math.min(420, knock * 1.1);
     s.grounded = s.onPlat = false;
@@ -935,7 +958,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   }
   // set m burning at dps for BURN_S (the Mage's combos)
   const burn = (m, dps, id) => dotOn(m, 'burn', dps, id);
-  const capOf = (st) => 1.15 * st.critMult; // best roll × crit
+  const capOf = (st) => 1.15 * st.critMult * (st.gearCap ?? 1); // best roll × crit (× boss gear's situational most: gearfx.js)
   // Jelly Thirst: the hits p just landed heal it a share of their damage (everyone in the room sees the +HP)
   function thirst(id, p, hits) {
     const st = stats(p), c = p.rpg;
@@ -962,6 +985,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   function attack(id, p, dir, hits) {
     if (p.faintUntil || !isCombat(p.state.room)) return [];
     const st = stats(p);
+    pistonCost(p, st);
     if (st.holyBolt) return holyBolt(id, p, dir, hits);
     if (st.arrowRange) return shoot(id, p, dir, hits, st);
     const charged = !st.boltRange && chargeOpen(p.state) && Array.isArray(hits) && hits.length > 0;
@@ -981,12 +1005,61 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     return out;
   }
 
+  // ——— extra hits: boss gear's (gearfx.js) and the Skirmisher's air shots (skills.js). The client decides them like
+  // any hit and sends {t:'gearHit', kind, s, hits}; each kind says who may send it (ok), how often (every ms), how far
+  // from you (range), how many (max) and its cap before the roll and crit (capOf). Everyone else sees the numbers.
+  const bowX = (p, st) => (st.arrowRange ? skirmX(p) : 1); // (the Skirmisher's bonuses ride on any arrow)
+  const GEAR_HITS = {
+    twin: { ok: (st) => st.fx.hydra && st.fx.hydra !== 'staff', every: 100, max: 1, range: (st) => st.arrowRange || SLAP_REACH + st.reach, cap: (st, p) => st.atk * (st.arrowRange ? BOW_SHOT_MULT * bowX(p, st) * retreatCap(p) : 1) * HYDRA_HIT, arrow: true },
+    piston: { ok: (st) => st.fx.piston === 'sword', every: 100, max: 1, range: () => PISTON_RANGE, cap: (st) => st.atk * PISTON_MULT },
+    pierce: { ok: (st) => st.fx.piston === 'bow', every: 100, max: PISTON_PIERCE, range: (st) => st.arrowRange + 300, cap: (st, p) => st.atk * BOW_SHOT_MULT * bowX(p, st) * retreatCap(p), arrow: true },
+    erupt: { ok: (st) => st.fx.hearth === 'sword', every: 900, max: 12, range: () => ERUPT_R, cap: (st) => st.atk * ERUPT_MULT, el: 'fire' },
+    explode: { ok: (st) => st.fx.hearth === 'bow', every: 100, max: 6, range: (st) => st.arrowRange + EXPLODE_R, cap: (st, p) => st.atk * BOW_SHOT_MULT * EXPLODE_MULT * bowX(p, st) * retreatCap(p) },
+    ground: { ok: (st) => st.fx.hearth === 'staff', every: 400, max: 20, range: () => 1000, cap: (st) => st.magic * GROUND_MULT, magic: true },
+    trail: { ok: (st) => st.fx.furnace, every: 400, max: 12, range: () => 700, cap: (st) => Math.max(st.atk, st.magic) * TRAIL_MULT },
+    dash: { ok: (st) => st.fx.unbound === 'sword', every: 60, max: 6, range: () => 120, cap: (st) => st.atk * DASH_SLASH_MULT },
+    nova: { ok: (st) => st.fx.unbound === 'staff', every: 1500, max: 12, range: () => 420 + NOVA_R, cap: (st) => st.magic * NOVA_MULT, el: 'frost', magic: true },
+    volley: { ok: (st) => st.fx.unbound === 'bow', every: 150, max: VOLLEY, range: (st) => st.arrowRange, cap: (st, p) => st.atk * BOW_SHOT_MULT * retreatCap(p) * bowX(p, st), arrow: true },
+    stomp: { ok: (st) => st.fx.quake, every: 500, max: 12, range: () => STOMP_R, cap: (st) => Math.max(st.atk, st.magic) * STOMP_MULT, knock: 380 },
+    // the Skirmisher (skills.js): Aerial Archery's extra arrow, Skyfall's pierce and its hawk's dive
+    aerial: { ok: (st, p) => st.arrowRange && rankOf(p.rpg.skills, 'aerial_archery'), every: 100, max: 1, range: (st) => st.arrowRange, cap: (st, p) => st.atk * BOW_SHOT_MULT * bowX(p, st) * retreatCap(p), arrow: true },
+    sky: { ok: (st, p) => st.arrowRange && rankOf(p.rpg.skills, 'skyfall'), every: 100, max: 1, range: (st) => st.arrowRange + 700, cap: (st) => st.atk * SKILLS.skyfall.pierce, arrow: true },
+    dive: { ok: (st, p) => st.arrowRange && rankOf(p.rpg.skills, 'skyfall'), every: 300, max: 1, range: (st) => st.arrowRange + 700, cap: (st) => st.atk * SKILLS.skyfall.dive, arrow: true },
+  };
+  function gearHit(id, p, m) {
+    const g = GEAR_HITS[m.kind];
+    if (!g || p.faintUntil || !isCombat(p.state.room)) return;
+    const st = stats(p), t = now();
+    if (!g.ok(st, p)) return;
+    p.gearAt ??= {};
+    if (t - (p.gearAt[m.kind] ?? 0) < g.every * 0.75) return; // (slack for lag)
+    p.gearAt[m.kind] = t;
+    const out = applyHits(id, p, m.hits, { max: g.max, range: g.range(st, p), cap: g.cap(st, p) * capOf(st), dir: m.dir < 0 ? -1 : 1, knock: g.knock ?? 80, el: g.el ?? null, magic: !!g.magic, arrow: !!g.arrow, src: g.arrow ? { arrow: true } : g.magic ? { spell: true } : {} });
+    if (!out.length) return;
+    toRoom(p.state.room)({ t: 'gearhit', id, kind: m.kind, x: Math.round(Number(m.x) || p.state.x), hits: out });
+    thirst(id, p, out);
+  }
+  // the Skirmisher's bonuses on an arrow (skills.js): Aerial Archery in the air (the state at that input: these
+  // messages run in input order), Hit and Run's after a jump or a dash (the client counts its three shots; the cap
+  // always allows it)
+  function skirmX(p) {
+    const aer = rankOf(p.rpg.skills, 'aerial_archery'), run = rankOf(p.rpg.skills, 'hit_and_run');
+    return (aer && !p.state.grounded ? 1 + SKILLS.aerial_archery.bonus(aer) : 1) * (run ? 1 + SKILLS.hit_and_run.bonus(run) : 1);
+  }
+  // the best a Retreat Shot's extra could be (an arrow fired in one may be any of these extra hits)
+  const retreatCap = (p) => Math.max(1, SKILLS.retreat_shot.mult(chaseRank(p.state.mw, 3)));
+  // the Colossus's weapons (gearfx.js): every attack and skill costs PISTON_HP of max HP (never down past 1)
+  function pistonCost(p, st) {
+    if (!st.fx.piston || p.rpg.hp <= 1) return;
+    p.rpg.hp = Math.max(1, p.rpg.hp - st.maxHp * PISTON_HP);
+    sendMe(p);
+  }
   // A bow shot (S4): an arrow to the first mob ahead within the bow's range, BOW_SHOT_MULT of ATK. A Retreat
   // Shot (sim.js retreatOpen: dashing or just after, shooting back the way you came) is judged from our own
   // state at the shot's input, like a Charge, but changes nothing about the move.
   function shoot(id, p, dir, hits, st) {
     const r = chaseRank(p.state.mw, 3), retreat = r > 0 && retreatOpen(p.state, dir);
-    const mult = BOW_SHOT_MULT * (retreat ? SKILLS.retreat_shot.mult(r) : 1) * barbCap(p);
+    const mult = BOW_SHOT_MULT * (retreat ? SKILLS.retreat_shot.mult(r) : 1) * barbCap(p) * skirmX(p);
     const out = applyHits(id, p, hits, { range: st.arrowRange, cap: st.atk * mult * capOf(st), dir, knock: 100, slow: barbSlow(p), arrow: true, src: { arrow: true } });
     out.retreat = retreat && out.length > 0;
     return out;
@@ -1045,14 +1118,23 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     if (!skillFor(c.cls, m.skill)) return toast(p, `${sk.name} isn't one of your class's skills`);
     if (!rank) return toast(p, `You haven't learned ${sk.name} yet (K)`);
     if (!isCombat(s.room)) return toast(p, 'Skills only work out in the Wildwood');
-    if ((p.cds[m.skill] ?? 0) > now() + 250) return; // still cooling down (with slack for lag)
-    if (c.mp < sk.mp) return send(p.ws, { t: 'nomana' });
+    // boss gear (gearfx.js): Ladon's staff's echo comes back free (m.free, once, within its window); the Colossus's
+    // staff makes every PISTON_FREE-th spell free; Chronos's weapons cost more MP (mpCost)
+    const st0 = stats(p), echo = !!m.free && p.echo?.skill === m.skill && p.echo.until > now();
+    if (!echo && (p.cds[m.skill] ?? 0) > now() + 250) return; // still cooling down (with slack for lag)
+    const cost = echo || (st0.fx.piston === 'staff' && ((p.fxCasts ?? 0) + 1) % PISTON_FREE === 0) ? 0 : mpCost(sk, c);
+    if (c.mp < cost) return send(p.ws, { t: 'nomana' });
     const down = sk.kind === 'revive' || sk.kind === 'miracle' ? downNear(p, sk.radius) : [];
     if (sk.kind === 'revive' && !down.length) return toast(p, 'Nobody near you is knocked out'); // (the client checks first: src/rpg.js cast)
     const cleansed = sk.kind === 'cleanse' ? cleanseTarget(p, sk.radius) : null;
     if (sk.kind === 'cleanse' && !cleansed) return toast(p, 'Nothing to cleanse: nobody near you is cursed'); // (the client checks first too)
-    c.mp -= sk.mp;
-    p.cds[m.skill] = now() + cooldownOf(m.skill, rank) * 1000;
+    c.mp -= cost;
+    if (echo) p.echo = null;
+    else {
+      p.cds[m.skill] = now() + cooldownOf(m.skill, rank) * 1000;
+      p.fxCasts = (p.fxCasts ?? 0) + 1;
+    }
+    pistonCost(p, st0);
     const st = stats(p), dir = m.dir < 0 ? -1 : 1, t = now();
     // Arcane Charge: a Mage damage spell spends every stored charge (the client predicted the same count)
     const charges = spendsArcane(m.skill) ? arcaneOf(p) : 0;
@@ -1086,10 +1168,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       if (Array.isArray(m.points)) out.points = m.points.slice(0, 6).map((q) => [Number(q[0]) || 0, Number(q[1]) || 0]);
     } else if (sk.kind === 'shot' || sk.kind === 'pierce' || sk.kind === 'rain') {
       // the Archer's (S4): arrows on ATK; Barbed Arrows slows, Snipe / Heartseeker allow FAR_BONUS
-      const cap = phys * barbCap(p) * (sk.far ? 1 + FAR_BONUS : 1), slow = Math.max(sk.slow ?? 0, barbSlow(p));
+      const cap = phys * barbCap(p) * skirmX(p) * (sk.far ? 1 + FAR_BONUS : 1), slow = Math.max(sk.slow ?? 0, barbSlow(p));
       // (SP5: Spread Shot, one arrow at each of `spread` mobs; Splitting Arrow, its first mob and up to `split` behind it,
       // within SPLIT_R; Eagle Eye's sure crit needs nothing here: the cap always allows a crit)
-      if (sk.kind === 'shot') hit({ max: sk.split ? 1 + sk.split : sk.spread ?? sk.arrows, range: sk.range + (sk.split ? SPLIT_R : 0), cap, knock: sk.far ? 260 : 120, slow });
+      if (sk.kind === 'shot') hit({ max: sk.split ? 1 + sk.split : sk.blast ? sk.arrows + BLAST_MAX : sk.spread ?? sk.arrows, range: sk.range + (sk.split ? SPLIT_R : 0) + (sk.blast ?? 0), cap, knock: sk.far ? 260 : sk.blast ? 220 : 120, slow }); // (blast: the Skirmisher's Explosive Arrow)
       else if (sk.kind === 'pierce') hit({ max: sk.targets, range: sk.range, cap, knock: 160, slow });
       else hit({ max: 20 * sk.hits, range: sk.range + sk.radius, cap, knock: 40, slow });
       out.tx = Number(m.tx) || s.x + dir * sk.range;
@@ -1211,6 +1293,16 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     // SP4: every Cleric damage skill heals a little: Sacred Light heals you for each mob it hit; `lightHeal`, the holy bolt's rule
     if (sk.selfPer && out.hits.length) healFrom(id, p, id, p, out.hits.length * st.magic * sk.selfPer(rank) * st.heal);
     if (sk.lightHeal && out.hits.length) lightHeal(id, p, out.hits.reduce((n, h) => n + h[1], 0) * sk.lightHeal(rank) * st.heal);
+    // boss gear's spell effects (gearfx.js): Ladon's staff echoes a spell that hit (the client casts it again, free);
+    // Chronos's staff gives a skill's cooldown back (the same 'refund' an on-kill hook sends)
+    if (!echo && st.fx.hydra === 'staff' && out.hits.length && Math.random() < HYDRA_ECHO) {
+      p.echo = { skill: m.skill, until: now() + 1500 };
+      send(p.ws, { t: 'gearfx', a: 'echo', skill: m.skill });
+    }
+    if (st.fx.hours === 'staff' && Math.random() < HOURS_RESET) {
+      p.cds[m.skill] = 0;
+      send(p.ws, { t: 'refund', skill: m.skill });
+    }
     sendMe(p);
   }
   // knocked-out slimes within r of p (Revive, Miracle): [[id, q]]
@@ -2349,6 +2441,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     look,
     sendMe,
     attack,
+    gearHit,
     pvp,
     cast,
     ouch,
@@ -2528,6 +2621,18 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
           if (!p.joined || !p.rpg || p.faintUntil) continue;
           const st = stats(p), c = p.rpg, combat = isCombat(p.state.room);
           let changed = false;
+          // standing still (boss gear: the Root Warden's helm heals, Typhon's mask burns; gearfx.js)
+          const still = Math.abs(p.state.vx) < 1 && p.state.grounded;
+          p.stillSince = still ? p.stillSince ?? t : null;
+          const stillS = p.stillSince ? (t - p.stillSince) / 1000 : 0;
+          if (combat && st.fx.rest && stillS >= 1 && c.hp < st.maxHp) {
+            c.hp = Math.min(st.maxHp, c.hp + st.maxHp * REST_HEAL);
+            changed = true;
+          }
+          if (combat && st.fx.furnace && stillS >= FURNACE_STILL && c.hp > 1) {
+            c.hp = Math.max(1, c.hp - st.maxHp * FURNACE_DRAIN);
+            changed = true;
+          }
           if (c.hp < st.maxHp && !(combat && t - p.hurtAt < 5000)) {
             c.hp = Math.min(st.maxHp, c.hp + (combat ? Math.max(1, st.maxHp * 0.01 * st.hpRegen) : st.maxHp * 0.08));
             changed = true;
@@ -2668,6 +2773,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         c.gear[slot] = null;
         c.gearE[slot] = null;
         showLook(id, p);
+        moves(p); // (boss gear's movement effects: gearfx.js)
+        c.hp = Math.min(c.hp, stats(p).maxHp);
         return sendMe(p);
       }
       // the potion hotbar names the item instead of a bag slot
@@ -2683,6 +2790,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         if (old) c.bag[slot] = oldE ? { id: old, n: 1, e: oldE } : { id: old, n: 1 };
         else c.bag.splice(slot, 1);
         showLook(id, p);
+        moves(p); // (boss gear's movement effects: gearfx.js)
+        c.hp = Math.min(c.hp, stats(p).maxHp);
       } else if (m.t === 'use' && it.kind === 'potion') {
         const st = stats(p);
         if (p.faintUntil) return;
@@ -2698,7 +2807,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         }
         if (it.heal && c.hp >= st.maxHp && !it.mana) return toast(p, "You're already at full HP");
         if (it.mana && c.mp >= st.maxMp && !it.heal) return toast(p, "You're already at full MP");
-        if (it.heal) c.hp = Math.min(st.maxHp, c.hp + it.heal);
+        if (it.heal) c.hp = Math.min(st.maxHp, c.hp + it.heal * (st.fx.brewer ? BREWER : 1)); // (Brewer: boss gear, gearfx.js)
         if (it.mana) c.mp = Math.min(st.maxMp, c.mp + it.mana);
         if (it.buff) {
           // a brewed buff replaces whichever one was up

@@ -1,5 +1,6 @@
 // Docs: docs/combat/skills.md
 import { attackFor, defenseFor, maxHpFor, reachFor, ITEMS, STAFF_BOLT_RANGE, BOW_RANGE, heavyHit } from './rpg.js';
+import { fxOf, HYDRA_CRIT, HOURS_MP, HEARTH_TAKEN, BURDEN_DMG, UNBOUND_HP, ROOTED_DMG, OATH_BONUS, OATH_DMG, PACK_DEF, REWIND_HP, SHATTERER } from './gearfx.js';
 import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR_BLINK, IFR_PHANTOM, PHANTOM_CD, SLAM_CD, UPCUT_CD, CHARGE_RESET, HOOK_CD, HOOK_RANGE } from './sim.js';
 
 // Shared by client and server: classes, their skill trees, mana, and the hotbar (story/progression.md,
@@ -54,7 +55,7 @@ export const CLASSES = {
     strong: 'steady damage from range, staying on the move', bad: 'crowds of mobs, and anything that gets up close',
     branches: [
       { id: 'sniper', name: 'Sniper', blurb: 'One arrow at a time: long shots, arrows that go right through, and a mark that helps the whole party.' },
-      { id: 'trapper', name: 'Trapper', blurb: 'Nets, slows and arrows from the sky: stops whatever chases you, and handles a crowd.' },
+      { id: 'trapper', name: 'Skirmisher', blurb: 'Jump, dash and shoot: arrows in the air and on the move, a backflip volley, exploding arrows and arrows from the sky.' },
     ],
   },
 };
@@ -684,30 +685,33 @@ export const SKILLS = {
     mult: (r) => 0.4 + 0.08 * r,
     desc: (r) => `Loose a volley into the sky: it comes down round the first mob ahead (range 450), hitting everything within range 130 of it 3 times for ${pct(0.4 + 0.08 * Math.max(1, r))} each.`,
   },
-  net_trap: {
-    ...A, branch: 'trapper', adv: 30, name: 'Net Trap', kind: 'summon', what: 'net', max: 3, mp: 15, cd: 12, dur: 20,
-    snare: (r) => 2 + r,
-    desc: (r) => `Set a net on the ground where you stand for 20 s. The first mob to walk into it is caught: stuck fast and harmless for ${2 + Math.max(1, r)} s (a boss only slowed, for half that). Set it, then run: whatever chases you walks right in. One at a time.`,
-  },
   // SP5: the Trapper's single-target staple from Lv 30 (poison), its Lv 60 mobbing trap, its hawk and its capstone passive
   poison_arrow: {
     ...A, branch: 'trapper', adv: 30, name: 'Poison Arrow', kind: 'shot', arrows: 1, max: 5, mp: 14, cd: 5, range: 480,
     mult: (r) => 1.2 + 0.15 * r, dot: { kind: 'poison', share: (r) => 0.04 + 0.01 * r },
     desc: (r) => `A venom-tipped arrow at the first mob ahead (range ${SKILLS.poison_arrow.range}): ${pct(SKILLS.poison_arrow.mult(R1(r)))} damage, then it loses ${pct(SKILLS.poison_arrow.dot.share(R1(r)))} of that every second for ${POISON_S} s. Cooldown ${SKILLS.poison_arrow.cd} s.`,
   },
-  blast_trap: {
-    ...A, branch: 'trapper', adv: 60, name: 'Blast Trap', kind: 'summon', what: 'blast', stat: 'atk', max: 5, mp: 20, cd: 12, dur: 20, radius: 140,
-    mult: (r) => 1.4 + 0.2 * r,
-    desc: (r) => `Set a trap where you stand for ${SKILLS.blast_trap.dur} s. The first mob to walk onto it sets it off: ${pct(SKILLS.blast_trap.mult(R1(r)))} of your attack to every mob within range ${SKILLS.blast_trap.radius}. Lead the pack over it. One at a time. Cooldown ${SKILLS.blast_trap.cd} s.`,
+  // The Skirmisher (owner, 2026-11-06: "this game rewards jumping around dealing damage"; it was the Trapper, whose nets
+  // and traps helped neither farming nor bossing): shots in the air and on the move. Branch id stays 'trapper' (saves).
+  backflip_volley: {
+    ...A, branch: 'trapper', adv: 30, name: 'Backflip Volley', kind: 'shot', arrows: 3, flip: true, max: 5, mp: 14, cd: 5, range: 480,
+    mult: (r) => 0.6 + 0.08 * r,
+    desc: (r) => `Flip up and back, loosing ${SKILLS.backflip_volley.arrows} arrows at the first mob ahead (range ${SKILLS.backflip_volley.range}) as you go: ${pct(SKILLS.backflip_volley.mult(R1(r)))} damage each. You land facing it. Cooldown ${SKILLS.backflip_volley.cd} s.`,
   },
-  barbed_arrows: {
-    ...A, branch: 'trapper', adv: 60, name: 'Barbed Arrows', kind: 'passive', max: 5,
-    desc: (r) => `Your arrows slow whatever they hit for ${BARB_SLOW} s, and hit slowed, chilled or netted mobs ${Math.round(BARB_BONUS * 100 * r)}% harder.`,
+  aerial_archery: {
+    ...A, branch: 'trapper', adv: 30, name: 'Aerial Archery', kind: 'passive', max: 3,
+    bonus: (r) => 0.1 * r,
+    desc: (r) => `In the air, every arrow you fire does ${pct(SKILLS.aerial_archery.bonus(R1(r)))} more, and your normal shot fires a second arrow.`,
   },
-  trap_mastery: {
-    ...A, branch: 'trapper', adv: 60, name: 'Trap Mastery', kind: 'passive', max: 3,
-    burst: (r) => 1.2 + 0.4 * r,
-    desc: (r) => `Your net catches ${1 + Math.max(1, r)} mobs instead of one, and bursts with every catch: ${pct(1.2 + 0.4 * Math.max(1, r))} of your attack to every mob within range ${NET_BURST_R}.`,
+  explosive_arrow: {
+    ...A, branch: 'trapper', adv: 60, name: 'Explosive Arrow', kind: 'shot', arrows: 1, blast: 130, max: 5, mp: 18, cd: 4, range: 500,
+    mult: (r) => 1.3 + 0.15 * r,
+    desc: (r) => `An arrow at the first mob ahead (range ${SKILLS.explosive_arrow.range}) that bursts when it hits: ${pct(SKILLS.explosive_arrow.mult(R1(r)))} damage to it and to up to ${BLAST_MAX} mobs within range ${SKILLS.explosive_arrow.blast} of it. Cooldown ${SKILLS.explosive_arrow.cd} s.`,
+  },
+  hit_and_run: {
+    ...A, branch: 'trapper', adv: 60, name: 'Hit and Run', kind: 'passive', max: 5,
+    bonus: (r) => 0.08 * r, shots: 3, window: 4,
+    desc: (r) => `After a jump or a dash, your next ${SKILLS.hit_and_run.shots} shots (within ${SKILLS.hit_and_run.window} s) do ${pct(SKILLS.hit_and_run.bonus(R1(r)))} more.`,
   },
   thousand_arrows: {
     ...A, branch: 'trapper', adv: 100, name: 'Thousand Arrows', kind: 'rain', max: 3, mp: 70, cd: 60, range: 520, radius: 340, hits: 6, slow: 3,
@@ -719,11 +723,11 @@ export const SKILLS = {
     mult: (r) => 0.4 + 0.1 * r,
     desc: (r) => `A hawk circles over you for ${SKILLS.hawk.dur} s and every ${SKILLS.hawk.every} s dives at whatever you last shot (else the nearest mob ahead) for ${pct(SKILLS.hawk.mult(R1(r)))} of your attack. Nothing can hit it.`,
   },
-  huntmaster: {
-    ...A, branch: 'trapper', adv: 100, name: 'Huntmaster', kind: 'passive', max: 3,
-    bonus: (r) => 0.08 * r,
-    desc: (r) => `Your Net Trap's bursts, your Blast Trap and your hawk hit ${pct(SKILLS.huntmaster.bonus(R1(r)))} harder on a slowed, chilled, frozen or netted mob.`,
+  skyfall: {
+    ...A, branch: 'trapper', adv: 100, name: 'Skyfall', kind: 'passive', max: 1, pierce: 0.6, dive: 1.5, every: 3,
+    desc: () => `In the air, every shot also pierces to the mob behind its target for ${pct(SKILLS.skyfall.pierce)} of your attack, and every ${SKILLS.skyfall.every}rd shot a hawk stoops on the target for ${pct(SKILLS.skyfall.dive)}.`,
   },
+
 
   // ——— Gifts: one player's own skill, granted by the server on load (server/rpg.js), never learned or
   // taken back, outside the point counts. `gift`: the account(s) it belongs to. Shown in the Novice tab.
@@ -815,6 +819,7 @@ export const RAIN_AT = 0.45, RAIN_EVERY = 0.22;
 // SPLIT_SHARE of it. Eagle Eye: a `far` shot (Snipe) at a mob past FAR_PX always crits (the client rolls it; the
 // server's cap already allows a crit). Huntmaster: a trap's or the hawk's hit × (1 + bonus(rank)) on a mob that's slowed,
 // chilled, frozen or netted (server/summons.js huntX)
+export const BLAST_MAX = 8; // the most mobs an Explosive Arrow's burst catches besides its target (the Skirmisher)
 export const SPLIT_R = 300, SPLIT_SHARE = 1;
 // the bonuses an arrow gets on mob view / server mob v (the client's roll and the server's cap use the same
 // rules): Barbed Arrows on a slowed, chilled, frozen or netted mob · Snipe's and Heartseeker's long shot
@@ -1061,13 +1066,20 @@ export function statsFor(c, buffs = {}) {
   const str = apOf(c.ap, 'str'), dex = apOf(c.ap, 'dex'), int = apOf(c.ap, 'int'), luk = apOf(c.ap, 'luk');
   const ms = rankOf(c.skills, 'mana_shield');
   // SP2: Bloodlust below BLOODLUST_AT of max HP (buffs.hp: HP now), Unbroken's DEF per mob after you (buffs.attackers)
-  const hpMax = buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str + (bow ? BOW_DEX_HP * dex : 0)) * (1 + 0.08 * rankOf(c.skills, 'vitality')) * (1 + (long.hp ?? 0)));
+  const hpMax = buffs.gods ? 1 : Math.round((maxHpFor(c.lvl) + enh('hp') + 17 * rankOf(c.skills, 'iron_jelly') + 3 * str + (bow ? BOW_DEX_HP * dex : 0)) * (1 + 0.08 * rankOf(c.skills, 'vitality')) * (1 + (long.hp ?? 0)) * fxHpOf(c));
   const lust = rankOf(c.skills, 'bloodlust') && buffs.hp != null && buffs.hp < hpMax * BLOODLUST_AT ? SKILLS.bloodlust.boost(rankOf(c.skills, 'bloodlust')) : 0;
   const stand = 1 + SKILLS.unbroken.per(rankOf(c.skills, 'unbroken')) * Math.min(UNBROKEN_MAX, buffs.attackers ?? 0);
+  // boss gear's effects (gearfx.js): its damage, HP, DEF and crit changes are plain stats; gearCap is the most the
+  // situational ones can add to a hit (the server's cap allows it: server/rpg.js capOf)
+  const fx = fxOf(c), fxDmg = (fx.burden ? BURDEN_DMG : 1) * (fx.oath ? OATH_DMG : 1);
   return {
-    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + (bow ? 0.2 * str + 0.6 * dex : 0.6 * str + 0.2 * dex)) * rage * rally * might * push * (bow ? 1 + STEADY * rankOf(c.skills, 'steady_hands') : 1) * (!bow && !staff ? 1 + SWORD_MASTERY_ATK * mastery : 1) * (1 + (long.atk ?? 0)) * (1 + lust)),
-    magic: Math.round((magicFor(c.lvl) + (staff?.magic ?? 0) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might * (1 + (long.magic ?? 0))),
-    def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 5 * rankOf(c.skills, 'iron_jelly')) * rally * (1 + (long.def ?? 0)) * stand),
+    fx,
+    gearCap: (fx.rooted ? ROOTED_DMG : 1) * (fx.oath ? OATH_BONUS : 1) * (fx.shatterer ? SHATTERER : 1),
+    mpX: fx.hours ? HOURS_MP : 1, // what skills cost in MP, × (Chronos's weapons)
+    taken: fx.hearth ? HEARTH_TAKEN : 1, // damage taken × (Typhon's weapons; server/rpg.js hurt)
+    atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + (bow ? 0.2 * str + 0.6 * dex : 0.6 * str + 0.2 * dex)) * rage * rally * might * push * (bow ? 1 + STEADY * rankOf(c.skills, 'steady_hands') : 1) * (!bow && !staff ? 1 + SWORD_MASTERY_ATK * mastery : 1) * (1 + (long.atk ?? 0)) * (1 + lust) * fxDmg),
+    magic: Math.round((magicFor(c.lvl) + (staff?.magic ?? 0) + enh('magic') + 0.9 * int + 0.2 * dex) * rage * rally * arcane * might * (1 + (long.magic ?? 0)) * fxDmg),
+    def: Math.round((defenseFor(c.gear?.helmet) + enh('def') + 5 * rankOf(c.skills, 'iron_jelly')) * rally * (1 + (long.def ?? 0)) * stand * (fx.pack ? PACK_DEF : 1)),
     maxHp: hpMax,
     maxMp: maxMpFor(c.lvl, c.skills) + 2 * int + (staff?.mp ?? 0),
     reach: staff || bow ? 0 : reachFor(c.gear?.weapon), // a sword's extra reach (swings and blade skills)
@@ -1078,7 +1090,7 @@ export function statsFor(c, buffs = {}) {
     heal: 1 + 0.08 * rankOf(c.skills, 'holy_power'), // the Cleric's heals' multiplier, and Smite's (`holy` skills) (Holy Power)
     bond: rankOf(c.skills, 'spirit_bond'), // Spirit Bond's rank (summons' HP and damage)
     crit: 0.12 + 0.03 * (mastery + aim) + 0.02 * keen + Math.min(0.2, 0.0004 * luk) + (brew.crit ?? 0) + (long.crit ?? 0),
-    critMult: 1.6 + 0.1 * (mastery + aim) + 0.0015 * luk + (long.critDmg ?? 0),
+    critMult: Math.max(1, (1.6 + 0.1 * (mastery + aim) + 0.0015 * luk + (long.critDmg ?? 0)) * (fx.hydra ? HYDRA_CRIT : 1)),
     exp: long.exp ?? 0, // share of extra EXP from kills (a long buff, SP1; server/rpg.js kill)
     cut: long.cut ?? 0, // share of damage taken away (a long buff, SP1; server/rpg.js hurt)
     minRoll: minRollFor(c.ap),
@@ -1090,6 +1102,9 @@ export function statsFor(c, buffs = {}) {
     fire: 1 + 0.06 * rankOf(c.skills, 'kindling'), // fire spells' multiplier (Kindling)
   };
 }
+const fxHpOf = (c) => { const f = fxOf(c); return (f.unbound ? UNBOUND_HP : 1) * (f.rewind ? REWIND_HP : 1); };
+// a skill's MP cost for character c (Chronos's weapons cost more: gearfx.js)
+export const mpCost = (sk, c) => Math.round((sk?.mp ?? 0) * (fxOf(c).hours ? HOURS_MP : 1));
 export const mpRegen = (skills) => mpRegenOf(rankOf(skills, 'mana_flow')); // multiplier
 export const magicFor = (lvl) => 5 + lvl * 3; // spell power from the level (a staff adds its magic; swords don't help spells)
 

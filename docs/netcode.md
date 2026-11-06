@@ -10,9 +10,10 @@ protocol is documented in the comment at the top of that file: keep it updated**
   the last input it ran in every `s` snapshot; the client rewinds to the server state and replays its
   unacked inputs. State is quantised inside `step()` so prediction matches the server bit for bit.
 - **Anything that changes movement goes in `step()`**, driven by input bits (`LEFT RIGHT JUMP DOWN USE`
-  plus `DASH BLINK` for the Mobility skills and `ATTACK` for the Warrior's chase moves), never by
-  side-channel messages. Doors, rooms, Dash, Blink, Flash Jump, Leap Slam, Upward Cut and Hook all work this way.
-  Per-player movement abilities ride in the state (`state.mv`, `state.mw`) so prediction knows them too.
+  plus `DASH BLINK` for the Mobility skills, `ATTACK` for the Warrior's chase moves, `BOOST FLIP` for boss gear's Rush
+  and the Skirmisher's Backflip Volley), never by side-channel messages. Doors, rooms, Dash, Blink, Flash Jump, Leap
+  Slam, Upward Cut, Hook and boss gear's movement all work this way. Per-player movement abilities ride in the state
+  (`state.mv`, `state.mw`, `state.gx`) so prediction knows them too.
 - **Predicted state edits**: three things change your state from a client-decided event rather than an
   input: a mob's knockback (`applyKick`, from `ouch`), a Warrior's Charge connecting (`applyCharge`,
   from a slap) and a Hook cut short at its mob (`applyHook`, SP2: the client says how many ticks the yank
@@ -65,6 +66,12 @@ protocol is documented in the comment at the top of that file: keep it updated**
 - 2026-10-24: wire version 6 (SP2's Hook): 48 bytes per slime: `mw`'s high byte (Hook's rank is bits 8–9 of
   `mw`, past the old u8), `hk` (the yank's ticks left) u8, `hc` (its cooldown) u16; `pack` / `unpack` carry them
   as entries 22–23. Older tabs get version 4's records.
+- 2026-11-06: wire version 7 (boss gear's movement effects and the Skirmisher, `docs/combat/items.md`): 51 bytes per
+  slime: `gx` u16 (`GX` bits in `src/shared/gearfx.js`, set by the server from the worn gear and Backflip Volley's rank)
+  and `aj` u8 (what's been used since you last stood: the third jump, the air dash, the wall jump; bit 8 Flip held);
+  `pack` / `unpack` entries 24–25. An input is now 7 bytes: a second keys byte for `BOOST` (Rush: the client times it from
+  its own kills) and `FLIP` (Backflip Volley); a 6-byte input from an older tab still decodes (`KEY_MASK` 1023). An older
+  tab gets version 6's records and predicts without gear movement until it reloads (the new-patch banner).
 - 2026-10-24 (the Archer, S4): no wire version change. Two more mob flags in the same byte (2048 marked by
   Hunter's Mark, 4096 netted; the 7 bits there hold up to 16384), Retreat Shot's rank in `mw` bits 6–7 (it was
   6 bits used of the byte), the slap echo's `retreat`, the skill's `mob` / echo's `mark`, and
