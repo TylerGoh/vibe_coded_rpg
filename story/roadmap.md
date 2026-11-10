@@ -102,7 +102,7 @@ No quests, no hard level gates.
         touch arrow pad, first-meeting banners, the sandbox's "challenge now", the sheet's uptime; types A1 and A17.
         Built 2026-11-06 (`docs/combat/challenges.md`); no boss uses them yet. The owner checks the snare and the swap
         by hand in the sandbox (and on a phone) before T1 ships.
-  - [ ] T1: the top and final bosses (Root Warden, Ladon, Sigrun, Fenrir, Brenna, Colossus, Chronos, Typhon), with the
+  - [x] T1: the top and final bosses (Root Warden, Ladon, Sigrun, Fenrir, Brenna, Colossus, Chronos, Typhon), with the
         types they need and Head Swap, Hunt and Rewind (T1a Greenhollow and Frostpeak, T1b Emberdeep and the end-game
         if it runs long). Next after it: **the owner plays** them in the sandbox and with friends.
     - [x] T1a (2026-11-10, live): the Root Warden (arena, cage, lock), Sigrun (parry, tethers, cage), Ladon (snare, two
@@ -140,7 +140,9 @@ No quests, no hard level gates.
 ## Later
 - [ ] The Last Echo (AI, Tier 4) in the Chrono Spire.
 - [ ] The Slime Ages wing in the museum.
-- [ ] Atlas Phase 8: Lantern Fen (the Wickmother). Phase 9: Amberdune (Old Carapace).
+- [ ] **Atlas Phase 8: Lantern Fen** (the Wickmother), the next island (owner, 2026-11-10). (a) on paper 2026-11-10:
+      `phase8-plan.md` (Lv 70–110 side island, the Hush from Icefang Hamlet, Wickmere, L0–L5), waiting for the owner.
+- [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,
       uncharted islands (`world/regions/uncharted.md`, `expansion.md`).

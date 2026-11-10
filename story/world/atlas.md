@@ -320,7 +320,7 @@ stand-in door into an existing area.
       (`../roadmap.md`, "Story delivery"). Can run alongside any phase from 1 on.
       (Plan `../phase7-plan.md`. (b) shipped 2026-11-04: the story record, tiers, Mochi and Clio fed by tier; (c) the same day: every
       character's island cap, the seven older bosses' lines.)
-- [ ] **Phase 8: Lantern Fen** (side island, the Wickmother).
+- [ ] **Phase 8: Lantern Fen** (side island, the Wickmother). (Plan `../phase8-plan.md`, (a) on paper 2026-11-10.)
 - [ ] **Phase 9: Amberdune** (side island, Old Carapace).
 - [ ] **Phase 10: the finale and the post-game**: the Wheel event, the Maelstrom rim, swim physics, the
       Sunken Reach.
