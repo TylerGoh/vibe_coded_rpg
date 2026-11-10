@@ -23,7 +23,7 @@ import { SPLIT_R, SPLIT_SHARE, FAR_PX, SKILLS, HOTBAR, POTBAR, rankOf, cooldownO
 import { drawMobState } from './elements.js';
 import { Gear } from './gear.js';
 import { Challenges } from './challenge.js';
-import { SWAP_KNOCK, BASH_KNOCK } from './shared/challenge.js';
+import { SWAP_KNOCK, BASH_KNOCK, zoneX } from './shared/challenge.js';
 import { fxLine, HYDRA_HIT } from './shared/gearfx.js';
 import { staffGlow } from './staff-art.js';
 import { bowTint } from './bow-art.js';
@@ -33,7 +33,7 @@ const MOB_KINDS = Object.keys(MOBS); // same order as the server's
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const panX = (x, me) => clamp((x - me) / 500, -1, 1);
 // knockbacks: same numbers as server/rpg.js OUCH + hurt()
-const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 240, burn: 150, geyser: 380, sweep: 380, beam: 300, zap: 260, bomb: 420, slash: 380, pulse: 360, bite: 420, coil: 360, snare: 0, swap: SWAP_KNOCK, rhythm: 0, lock: 0, cage: 0, gaps: 200, bash: BASH_KNOCK, mirror: 0, laser: 160, late: 300 }; // (bite, coil: Ladon's, FB1; snare … bash: boss challenges, src/challenge.js)
+const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 240, burn: 150, geyser: 380, sweep: 380, beam: 300, zap: 260, bomb: 420, slash: 380, pulse: 360, bite: 420, coil: 360, snare: 0, swap: SWAP_KNOCK, rhythm: 0, lock: 0, cage: 0, gaps: 200, bash: BASH_KNOCK, mirror: 0, laser: 160, late: 300, mash: 0, flood: 120 }; // (bite, coil: Ladon's, FB1; snare … bash: boss challenges, src/challenge.js)
 // ultimates Dash / Blink i-frames can get you through (the rest want you somewhere safe)
 const DODGEABLE_ULT = new Set(['collapse']);
 const TILE = 150; // den floor tiles for the grid attacks
@@ -1066,6 +1066,7 @@ export class Rpg {
     } else if (m.a === 'ultWarn') {
       // the big one: a banner, the safe spots, and ULT_WARN seconds to get there
       this.ult = { ...m, boss: k.name, at: this.time }; // (no answer line: players learn each ultimate, owner 2026-10-26)
+      if (m.zone) this.chal.zone = { ...m.zone, at: this.time, dur: m.dur }; // (T2: Pyra's ring of cool air)
       this.bossFx.spawn(`${m.kind}Warn`, { ...m, y: ground, theme });
       audio.sfx('ultWarn');
     } else if (m.a === 'ultHit') {
@@ -1190,6 +1191,7 @@ export class Rpg {
       audio.sfx('bossBlink', { pan, vol: 0.6 });
     } else if (m.a === 'eggBreak') {
       this.ult = null;
+      this.chal.zone = null;
       fx.spawn('eggBreak', { x: m.x, y: m.y, theme });
       audio.sfx('eggBreak', { pan });
       this.toast(`The egg shattered! ${k.name} is stunned`);
@@ -1207,7 +1209,9 @@ export class Rpg {
       if (!safe) this.ouchNext = { mob, kind: 'ult', mx: me.x - 1, noDodge: true };
       audio.sfx('magmaRise');
     } else if (m.kind === 'rebirth') {
-      this.ouchNext = { mob, kind: 'ult', mx: m.x, noDodge: true }; // nobody broke the egg: everyone's caught
+      const z = m.zone; // (T2: standing in the ring of cool air as it bursts, you live)
+      if (!z || Math.abs(me.x - zoneX(z, 1)) > z.r) this.ouchNext = { mob, kind: 'ult', mx: m.x, noDodge: true }; // nobody broke the egg: everyone's caught
+      this.chal.zone = null;
       audio.sfx('rebirth');
     } else if (m.kind === 'overclock') {
       // three lethal zaps of every column but the safe one, m.gap apart
@@ -1245,7 +1249,7 @@ export class Rpg {
           h.done = true;
           return { ...ouch('snare'), mx: h.x, trap: { seed: h.seed, len: h.len, flip: h.flip } };
         }
-      } else if (h.type === 'cage' || h.type === 'gaps' || h.type === 'bash' || h.type === 'lasers' || h.type === 'late') {
+      } else if (h.type === 'cage' || h.type === 'gaps' || h.type === 'bash' || h.type === 'lasers' || h.type === 'late' || h.type === 'flood') {
         const o = this.chal.judge(h, me, t, ouch); // (T1a's and T1b's: src/challenge.js)
         if (o) return o;
       } else if (h.type === 'puddle') {

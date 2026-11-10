@@ -24,14 +24,17 @@ escape with a key combination. The owner approved every type, every boss's set a
 - **T1b (built, live, 2026-11-10)**: Emberdeep's and the end-game's big four (Brenna, the Colossus, Chronos, Typhon) and
   their types: the mirror trap, the laser grid, late tells, fake-outs, floor-is-lava waves, carrying the thing, the
   tilting floor and Rewind. Not played either. T1 is done.
+- **T2 (built, live, 2026-11-10)**: the nine den bosses, the types left (mash free, bullet rings, adds with jobs, the weak
+  spot mid-air, the den's floor flooding) and the punish window on every boss with challenges. Not played either.
 - A type is live only when its row says `built`; the server refuses the rest. `loop` rows (Two at once, the moving safe
   zone, Head Swap, the Hunt, the fake-outs, floor-is-lava) only come from a boss's own loop or brain, never from the
   sandbox's **Challenge now**.
-- Next: T2 (den bosses), T3 (field bosses, the Novices'), T4 (tuning):
+- Next: T3 (field bosses, the Novices'), T4 (tuning):
   `story/roadmap.md`. A boss gets its challenges as a `ch` list on its `MOBS` row (what the sheet reads, below) and starts
   them from its brain: a move in its `phases` named in `CHAL_MOVE` (`server/rpg.js`: `bash`, `tether`, `cage`, `arena`,
-  `snare`, `fetter`, `gaps`, `dark`, and T1b's `tilt`, `tooth`, `lasers`, `late`, `reverse`, `rewind`; `CHAL_TIME` says how
-  long the boss stands for it; `offslam` is its own case in `newMove`), or `d.challenge(m, type, opts)`
+  `snare`, `fetter`, `gaps`, `dark`, T1b's `tilt`, `tooth`, `lasers`, `late`, `reverse`, `rewind` and T2's `coffin`, `bury`,
+  `orbs`, `flood`, `clutch`, `rock`; `CHAL_TIME` says how long the boss stands for it; `offslam`, `tusk` and `burrow` are
+  their own cases in `newMove`), or `d.challenge(m, type, opts)`
   from its loop (`server/final.js`, `server/fenrir.js`, `server/typhon.js`). A party-only move is left out of the pick
   while fewer than its `min` are standing.
 
@@ -82,6 +85,29 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
 - **Typhon** (its loop, T1b): from phase 2 a Coil Burst or a Breath comes with a Hammer from its other arm at someone
   else (`alsoHammer`, A13) and the plates heat in a wave (`lava`, A12); phase 3 adds the Pour's iron setting round
   everyone (`iron`: a snare with `looks.snare: 'iron'`); phase 4 the mirror trap (`mirror`) and a faster wave.
+- **The den bosses** (`bossBrain`, T2; every type here works alone: dens stay soloable by any class):
+  - **The Bramble Behemoth**: roots that snare (`snare`, phase 2 on, combos of 4); its back bark opens mid-leap (A21: the
+    leap comes from phase 2 now).
+  - **The Tidemother**: the tide floods the floor in waves (`flood`, every phase; style `tide`); a wall of bubbles with one
+    gap (`gaps`, phase 2 on; style `bubble`).
+  - **The Knotmole**: `burrow` (phase 2 on): the den dark (`dark`, `noBoss`: no light at her), `MOUNDS` mounds bulging; the
+    fakes pop one by one, harmless, and the last is her, erupting (a slam `MOUND_R` round it).
+  - **The Frost Queen**: ice beams off her mirror pillars (`lasers`, the laser grid, style `ice`; she stands for it in
+    phase 1); the ice coffin (`coffin`: mash free, phase 2 on).
+  - **The Astral Wyrm**: star spirals (`orbs`: bullet rings); a gravity flip (`reverse`: the controls swap, phase 2 on).
+  - **The Old Narwhal**: the very late tusk charge (`tusk`: it lowers its tusk `TUSK_WIND` with nothing on the floor, a
+    glint at its tip the tell, then charges with only `LATE_TELL` of warning); the sea over the floes (`flood`, style
+    `floe`, phase 2 on).
+  - **Ignis**: magma waves (`flood`, style `magma`); a cooling rock to throw back at him (`rock`: carry the thing, phase 2
+    on; `looks.carry: 'rock'`).
+  - **Pyra**: fire rings (`orbs`); her Rebirth gets a ring of cool air (A9: `u.zone`, `REBIRTH_ZONE_R` wide) drifting
+    across the den while it gathers (`zoneX`): if nobody breaks the egg, standing in the ring as it bursts, you live.
+  - **The Hatchkeeper**: buried in hot sand (`bury`: mash free); her clutch (`clutch`, phase 2 on): hatchlings (her
+    minion) that grow into Grown Hatchlings (`grows: 'grown_hatchling'`, an elite of the marine iguana) if left `JOB_S`.
+- **The punish window** (A19, T2, every boss with a `ch` list that isn't a final boss: the dens and T1's five `bossBrain`
+  bosses): a slam, leap, charge, burrow or ultimate that hit nobody leaves it dazed `PUNISH_S` (`watchMiss`: no accepted
+  ouch from that boss since the move began, `PUNISH_JUDGE_MS` after it ends; a stagger, so with party mechanics on it
+  takes `STAGGER_DMG` more too). "OPENING!" over it, and G2's line the first time.
 - **Solo**: the party-only types (cage, tether, lock) stay off alone, so a lone slime meets the arena and the parry on the
   party dens, everything on Ladon and Fenrir (their Hunt sends both sons at you).
 
@@ -182,6 +208,27 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
   replays them through `later`). Chronos fights on through it, so there's something to dodge twice.
 - **A17's time reverse** (Chronos): the controls swap, as built in T0.
 
+### T2's types
+- **A2 Mash free** (the Frost Queen's ice coffin, the Hatchkeeper's sand): sprung like a snare (its style draws it: `PAL`
+  in `src/challenge.js`, ice or sand); caught, press Jump (or ▲ on the pad) `MASH_N` times within `MASH_S`: a big key cap
+  with the count. Other keys do nothing while held. `{t:'free', k: count}`; the server wants the count and at least
+  `MASH_N × MASH_GAP_MS` since you were caught (the client holds a too-quick finish until then). Failing it: the snare's
+  punish. A friend's hits on it don't help (the plan's idea; not built).
+- **A8 Bullet rings**: `RINGS_N[stage]` rings of `RING_ORBS` boss shots (`shots`, style `looks.rings`), each missing
+  `RING_GAP` side by side, the gap turning `RING_TURN` a ring. Ordinary shots, so the ordinary `shot` ouch.
+- **A12 in a den** (`lava` through `start`, unlike Typhon's plates): the floor in `FLOOD_SEGS` strips floods from one end,
+  `FLOOD_GAP` apart (`FLOOD_WARN` of a dashed outline, then up `FLOOD_HOT`); from phase 2 a second pass comes back, and in
+  phase 3 it starts before the first is done. On the floor in a flooded strip (not on a ledge, not in the air): the
+  `flood` ouch. Drawn by `drawFloodHz` (`FLOOD_LOOK`: tide, floe, magma).
+- **A14 Adds with jobs** (the Hatchkeeper): `JOB_N[stage]` of her minion dig out round her (`addAdd`), a ring over each
+  counting down `JOB_S`; any still alive grows (`grow`: it's replaced by its boss's `grows` kind where it stood). A boss
+  with no `grows` (the sandbox's) leaves them as they are.
+- **A21 Weak spot mid-air** (the Behemoth): while a boss whose `ch` lists `airweak` is in a leap, a glowing spot on its
+  back and a dashed line at `AIRWEAK_H` over the floor; any hit on it from a slime whose feet are above that line
+  (`hitLanded`, from `applyHits`) cracks it once: `AIRWEAK_HIT` of its max HP and an `AIRWEAK_STAGGER_S` stagger.
+  Everyone jumps, so every class reaches it.
+- **A9 on Pyra's Rebirth**, **A10's tusk**, **A11 + A16's burrow**: above, under the bosses.
+
 ## Owner rules every challenge keeps (from the plan)
 - Den and field bosses stay soloable by any class; a type that needs two slimes only switches on with two or more.
 - Every class carries an answer (moving, jumping, Dash); a challenge only one class can answer is a bug.
@@ -193,7 +240,8 @@ A boss with challenges loses some of your hitting time: `uptimeOf` (`UPTIME_DEN`
 top and final bosses; 1 while its `MOBS` row has no `ch`) scales your own hits in `fight()` (`scripts/economy.mjs`; dots
 and summons keep going). The same share comes off its HP (the `BOSS_HP_SCALE` loop), so a fight lasts what it did
 before its challenges: HP is the lever, never rewards (`docs/economy.md`). T1a's four moved by under a minute; T1b's four
-by under 40 s.
+by under 40 s; T2's nine dens by seconds (`UPTIME_DEN`). The punish window isn't on the sheet (it can't dodge, so it
+assumes every big move lands): real fights that dodge well are shorter than the sheet says, never longer.
 
 ## Wire and protocol
 Wire version 8 (`docs/netcode.md`): `tr` and `cs` in every slime record; version 9 (T1a) adds `pf`; version 10 (T1b) adds
@@ -202,10 +250,10 @@ friend's cage), `{t:'pf'}` (with `pf` or `tl`), `{t:'rw'}`, `{t:'carry'}`, `{t:'
 'crushed'}`, all in the protocol comment at the top of `server/index.js`.
 
 ## Not done yet
-- T2 onward. Nobody has played T1's challenges: the numbers are the plan's starting points (T4 tunes them).
+- T3 onward. Nobody has played T1's or T2's challenges: the numbers are the plan's starting points (T4 tunes them).
 - Phones: the owner wanted the swap and the arrow pad checked on a phone in the sandbox before T1 shipped; T1a and T1b
   shipped on the owner's "continue with next phase" without that check, so it's still owed (with the rhythm lock, the
-  cage, the mirror trap, the tilt and throwing the chip).
+  cage, the mirror trap, the tilt and throwing the chip; T2 adds mashing ▲ on the pad).
 - Known rough edges: a slime that walks into a den mid-arena (or mid-tilt) doesn't sink its ledges (or lean) until the
   next one, and doesn't see a Rewind's ghosts it wasn't there for; the Caldera's and Citadel's dens don't draw a sunk
   ledge (only the sandbox can sink them); a lock alone never opens; the tilt is drawn as chevrons and a grinding chain,

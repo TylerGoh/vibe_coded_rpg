@@ -1109,7 +1109,10 @@ export const MOBS = {
   },
   bramble_behemoth: {
     name: 'Bramble Behemoth', boss: true, lvl: 12, hp: 351000, atk: 36, exp: 4300, speed: 95, w: 170, h: 130, aggro: true, hops: false,
-    phases: [['charge', 'slam'], ['charge', 'slam', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
+    phases: [['charge', 'slam'], ['charge', 'slam', 'rain', 'summon', 'snare', 'leap'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage', 'snare']],
+    // T2's challenges (docs/combat/challenges.md): roots that snare (phase 2 on, combos of 4) and its back bark that
+    // opens mid-leap (`airweak`: the leap from phase 2), and the punish window
+    ch: ['snare', 'airweak'],
     ult: { name: 'Thorn Tsunami', kind: 'wave' }, minion: 'bramble',
     // atlas Phase 7 (c): its lines (said on entering, at each new phase, when freed; docs/social/story.md)
     lines: {
@@ -1141,12 +1144,15 @@ export const MOBS = {
   },
   frost_queen: {
     name: 'Frost Queen Glacia', boss: true, lvl: 47, hp: 2298000, atk: 150, exp: 66700, speed: 90, w: 140, h: 160, aggro: true, hops: false,
-    phases: [['rain', 'charge', 'slam'], ['rain', 'charge', 'slam', 'leap', 'summon'], ['barrage', 'rain', 'leap', 'slam', 'summon', 'charge']],
+    phases: [['rain', 'charge', 'slam', 'lasers'], ['rain', 'charge', 'slam', 'leap', 'summon', 'lasers', 'coffin'], ['barrage', 'rain', 'leap', 'slam', 'summon', 'charge', 'lasers', 'coffin']],
+    // T2's challenges (docs/combat/challenges.md): ice beams off her mirror pillars (`lasers`, the laser grid,
+    // standing for it in phase 1) and the ice coffin (`coffin`: mash free, phase 2 on)
+    ch: ['grid', 'mash'],
     ult: { name: 'Absolute Zero', kind: 'lanes' }, minion: 'frostling',
     // S5.4 (story/s5-plan.md, docs/combat/bosses.md): she draws a dome of ice round herself (a barrier: magic
     // melts it; `looks.dome: 'queen'`, pale ice with snowflakes turning round it), and freezing Absolute Zero as
     // she raises it cancels it (a frost queen beaten at her own game)
-    party: ['barrier', 'interrupt'], partyLive: true, looks: { dome: 'queen' },
+    party: ['barrier', 'interrupt'], partyLive: true, looks: { dome: 'queen', snare: 'ice', laser: 'ice' },
     // (shield: said once a fight, the first time the dome goes up; enter, phase and freed since atlas Phase 7 (c))
     lines: {
       shield: 'Stay close. Everyone stays close. The ice holds us all together, and it does not let go.',
@@ -1158,7 +1164,10 @@ export const MOBS = {
   },
   astral_wyrm: {
     name: 'Astral Wyrm', boss: true, lvl: 57, hp: 2829000, atk: 180, exp: 123000, speed: 110, w: 190, h: 150, aggro: true, hops: false,
-    phases: [['rain', 'charge', 'leap'], ['barrage', 'charge', 'leap', 'slam', 'summon'], ['barrage', 'charge', 'leap', 'slam', 'summon', 'rain']],
+    phases: [['rain', 'charge', 'leap', 'orbs'], ['barrage', 'charge', 'leap', 'slam', 'summon', 'orbs', 'reverse'], ['barrage', 'charge', 'leap', 'slam', 'summon', 'rain', 'orbs', 'reverse']],
+    // T2's challenges (docs/combat/challenges.md): star spirals (`orbs`: bullet rings) and a gravity flip
+    // (`reverse`: the controls swap, phase 2 on)
+    ch: ['rings', 'swap'],
     ult: { name: 'Supernova', kind: 'nova' }, minion: 'wisp',
     // atlas Phase 7 (c): its lines (said on entering, at each new phase, when freed; docs/social/story.md)
     lines: {
@@ -1169,7 +1178,7 @@ export const MOBS = {
     // S5.4: the star on its back flares (the weak point, on its rear hump: arrows, or jump; `looks.weak: 'star'`),
     // it wraps itself in a shell of starlight (a barrier, `looks.dome: 'star'`), and freezing Supernova as it
     // gathers cancels it
-    party: ['weakpoint', 'barrier', 'interrupt'], partyLive: true, weak: { dx: -0.14, dy: -0.52, r: 22 }, looks: { weak: 'star', dome: 'star' },
+    party: ['weakpoint', 'barrier', 'interrupt'], partyLive: true, weak: { dx: -0.14, dy: -0.52, r: 22 }, looks: { weak: 'star', dome: 'star', rings: 'star' },
     drops: [['frost_heart', 1, 2, 3], ['star_sword_n', 1, 1, 1], ['star_crown_n', 1, 1, 1], ['coin', 1, 67300, 112000], ['elixir', 1, 4, 6], ['stardust', 1, 6, 10], ['scroll_s60', 1, 1, 2], ['scroll_h60', 1, 1, 2], ['scroll_s10', 0.3, 1, 1], ['scroll_h10', 0.3, 1, 1], ['scroll_s30', 0.15, 1, 1], ['scroll_chaos', 0.15, 1, 1]],
   },
   // ——— Emberdeep (the legacy stage: Cinder Flats, Magma Heart) ———
@@ -1201,13 +1210,16 @@ export const MOBS = {
   },
   ignis: {
     name: 'Ignis the Magma Tyrant', boss: true, lvl: 99, hp: 6652000, atk: 360, exp: 300000, speed: 85, w: 180, h: 170, aggro: true, hops: false,
-    phases: [['slam', 'fireballs', 'geysers'], ['slam', 'fireballs', 'geysers', 'charge', 'flamewall'], ['geysers', 'fireballs', 'flamewall', 'leap', 'summon', 'barrage']],
+    phases: [['slam', 'fireballs', 'geysers', 'flood'], ['slam', 'fireballs', 'geysers', 'charge', 'flamewall', 'flood', 'rock'], ['geysers', 'fireballs', 'flamewall', 'leap', 'summon', 'barrage', 'flood', 'rock']],
+    // T2's challenges (docs/combat/challenges.md): magma waves over the floor (`flood`) and a cooling rock to
+    // throw back at him (`rock`: carry the thing, phase 2 on)
+    ch: ['lava', 'carry'],
     ult: { name: 'Caldera Eruption', kind: 'magma' }, minion: 'ember_imp',
     // S5.4 (story/s5-plan.md, docs/combat/bosses.md): his magma skin cools into a crust of black rock (armour,
     // `looks.shell: 'cinder'`: basalt plates with the heat still glowing in their seams), the heat of the forge
     // swells off him till the whole den breathes it (a pulse, `looks.pulse: 'heat'`: ember rings, a shimmer going up,
     // "HEAT"), and freezing Caldera Eruption as it wells up cancels it
-    party: ['armour', 'pulse', 'interrupt'], partyLive: true, looks: { shell: 'cinder', pulse: 'heat' },
+    party: ['armour', 'pulse', 'interrupt'], partyLive: true, looks: { shell: 'cinder', pulse: 'heat', flood: 'magma', carry: 'rock' },
     // E4b (story/characters/bosses.md): the master smith, mad with guilt that his tooth snapped, forging and smashing
     // gears for ever. Freed, he tells the island's truth (Tier 3, story/canon.md) in his own words: the only place
     // Emberdeep names the Wheel (Ash deflects, the stones only show)
@@ -1220,12 +1232,15 @@ export const MOBS = {
   },
   pyra: {
     name: 'Pyra the Ember Phoenix', boss: true, lvl: 110, hp: 7387000, atk: 400, exp: 472000, speed: 120, w: 170, h: 140, aggro: true, hops: false, fly: 40,
-    phases: [['feathers', 'dive', 'rings'], ['feathers', 'dive', 'rings', 'rain', 'summon'], ['feathers', 'dive', 'rings', 'barrage', 'spiral']],
+    phases: [['feathers', 'dive', 'rings', 'orbs'], ['feathers', 'dive', 'rings', 'rain', 'summon', 'orbs'], ['feathers', 'dive', 'rings', 'barrage', 'spiral', 'orbs']],
+    // T2's challenges (docs/combat/challenges.md): fire rings (`orbs`: bullet rings) and a ring of cool air
+    // drifting across the den while her Rebirth gathers (`safezone`: in it as the egg bursts, you live)
+    ch: ['rings', 'safezone'],
     ult: { name: 'Rebirth', kind: 'rebirth' }, minion: 'cinder_bat',
     // S5.4: whoever she dives near catches fire that won't go out (a curse, `looks.curse: 'ember'`: a ring of embers
     // with sparks flying up off it) and her cinder bats come in bigger flocks (adds). No interrupt: Rebirth's egg is
     // its own answer (interruptUlt skips it)
-    party: ['curse', 'adds'], partyLive: true, looks: { curse: 'ember' },
+    party: ['curse', 'adds'], partyLive: true, looks: { curse: 'ember', rings: 'ember' },
     // E4b: the bird of the cycle, stuck burning at the threshold because the Wheel doesn't turn; freed, she says what
     // she is for (Tier 3 in her words) and points up the column
     lines: {
@@ -1404,11 +1419,14 @@ MOBS.snapshrimp = {
 // she's freed (server/rpg.js bossSays, a bubble over her and a line in the chat)
 MOBS.tidemother = {
   name: 'The Tidemother', boss: true, lvl: 25, hp: 1143000, atk: 66, exp: 19700, speed: 90, w: 184, h: 150, aggro: true, hops: false,
-  phases: [['slam', 'charge'], ['slam', 'charge', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
+  phases: [['slam', 'charge', 'flood'], ['slam', 'charge', 'rain', 'summon', 'flood', 'gaps'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage', 'flood', 'gaps']],
+  // T2's challenges (docs/combat/challenges.md): the tide floods the low floor in waves (`flood`) and a bubble wall with one
+  // gap (`gaps`, phase 2 on)
+  ch: ['lava', 'gaps'],
   ult: { name: 'Riptide', kind: 'wave' }, minion: 'rock_crab',
   // S5.4: the tide (a pulse, `looks.pulse`: sea-green rings, "TIDE"), more crabs for a party, and freezing
   // Riptide as it rises cancels it
-  party: ['pulse', 'adds', 'interrupt'], partyLive: true, looks: { pulse: 'tide' },
+  party: ['pulse', 'adds', 'interrupt'], partyLive: true, looks: { pulse: 'tide', flood: 'tide', snare: 'bubble' },
   lines: {
     enter: ['Mine. All of it is mine. The sea brought it and the sea shan\'t have it back.', 'Shoo! Don\'t touch the pretty things. Don\'t touch ANY of the things.'],
     phase: [null, 'You want my shells? My bottles? My lovely lost buttons? No!', 'If the tide goes out, it takes everything! I won\'t let it! I WON\'T!'],
@@ -1473,7 +1491,10 @@ MOBS.weaver_elite = elite('thread_weaver', 'Elder Threadweaver');
 // the `stomp` ult (be off the floor when it lands)
 MOBS.knotmole = {
   name: 'The Knotmole', boss: true, lvl: 35, hp: 1464000, atk: 96, exp: 39400, speed: 80, w: 190, h: 150, aggro: true, hops: false,
-  phases: [['slam', 'charge'], ['slam', 'charge', 'rain', 'summon'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage']],
+  phases: [['slam', 'charge'], ['slam', 'charge', 'rain', 'summon', 'burrow'], ['charge', 'slam', 'rain', 'summon', 'leap', 'barrage', 'burrow']],
+  // T2's challenges (docs/combat/challenges.md): she burrows (`burrow`, phase 2 on): the den goes dark and mounds bulge, the
+  // fakes pop and the last one is her (fake-outs in the dark)
+  ch: ['dark', 'feint'],
   ult: { name: 'Root Quake', kind: 'stomp' }, minion: 'puffcap',
   // S5.4: she sniffs out one slime at a time (focus), more puffcaps for a party, and freezing Root Quake as she
   // rears cancels it
@@ -1842,13 +1863,16 @@ MOBS.skate_elite = elite('ice_skate', 'Elder Skate');
 // her beam is a jet of freezing sea (`looks`)
 MOBS.old_narwhal = {
   name: 'The Old Narwhal', boss: true, lvl: 70, hp: 4776000, atk: 222, exp: 233000, speed: 75, w: 230, h: 150, aggro: true, hops: false,
-  phases: [['charge', 'slam', 'rain'], ['charge', 'slam', 'beam', 'rain', 'summon'], ['charge', 'beam', 'echo', 'rain', 'summon', 'leap', 'barrage']],
+  phases: [['charge', 'slam', 'rain', 'tusk'], ['charge', 'slam', 'beam', 'rain', 'summon', 'tusk', 'flood'], ['charge', 'beam', 'echo', 'rain', 'summon', 'leap', 'barrage', 'tusk', 'flood']],
+  // T2's challenges (docs/combat/challenges.md): a very late tusk charge (`tusk`: its glint is the tell) and the sea
+  // washing over the floes (`flood`, phase 2 on)
+  ch: ['late', 'lava'],
   ult: { name: 'Close the Floes', kind: 'lanes' }, minion: 'whalebone_crab',
   // S5.4: the shard at her tusk's root glows (the weak point: `front`, only a hit from in front of her finds it,
   // in reach from the floor, drawn as the crystal it is), the breathing hole heaves (a pulse, `looks.pulse: 'breath'`:
   // cold spray, "BREATH"), and freezing Close the Floes as she rears cancels it
   party: ['weakpoint', 'pulse', 'interrupt'], partyLive: true, weak: { dx: 0.4, dy: -0.54, r: 20, front: true },
-  looks: { beam: 'jet', pulse: 'breath' },
+  looks: { beam: 'jet', pulse: 'breath', flood: 'floe' },
   lines: {
     enter: ['Shut. The floes are shut. Nothing leaves my water. Nothing.', 'Another little warm thing come to open the ice? Go home. Go home and STAY.'],
     phase: [null, 'They all swam south. Every one. I sang and sang and they did not turn round.', 'If the ice opens, the fish go, the seals go, YOU go. Then I am the only thing left in the sea!'],
@@ -2202,13 +2226,16 @@ MOBS.steam_ray = {
 // hot sand spitting lava up. Freed, the eggs hatch and the little ones run down to the sea (the den's bossDie)
 MOBS.hatchkeeper = {
   name: 'The Hatchkeeper', boss: true, lvl: 115, hp: 7900000, atk: 412, exp: 520000, speed: 80, w: 260, h: 130, aggro: true, hops: false,
-  phases: [['charge', 'slam', 'rain'], ['charge', 'slam', 'beam', 'geysers', 'rain', 'summon'], ['charge', 'beam', 'geysers', 'rain', 'summon', 'leap', 'barrage']],
+  phases: [['charge', 'slam', 'rain', 'bury'], ['charge', 'slam', 'beam', 'geysers', 'rain', 'summon', 'bury', 'clutch'], ['charge', 'beam', 'geysers', 'rain', 'summon', 'leap', 'barrage', 'bury', 'clutch']],
+  // T2's challenges (docs/combat/challenges.md): buried in hot sand (`bury`: mash free) and her clutch (`clutch`, phase 2
+  // on): hatchlings that grow into Grown Hatchlings if left alive (`grows`)
+  ch: ['mash', 'jobs'], grows: 'grown_hatchling',
   ult: { name: 'Boiling Sand', kind: 'spores' }, minion: 'marine_iguana',
   // S5.4: the shard under her crest glints (the weak point, the S5.2 crystal: over her neck, in reach from the
   // floor), the nest heaves with heat (a pulse, Ignis's `heat` look), and freezing Boiling Sand as it wells up
   // cancels it
   party: ['weakpoint', 'pulse', 'interrupt'], partyLive: true, weak: { dx: 0.3, dy: -0.62, r: 20 },
-  looks: { beam: 'brine', pulse: 'heat' },
+  looks: { beam: 'brine', pulse: 'heat', snare: 'sand' },
   lines: {
     enter: ['Hush. Hush. They are sleeping. They are warm. Nothing comes near my sand.', 'Another little cold thing come to dig up my eggs? They stay warm. They stay HERE.'],
     phase: [null, 'Mine went to the sea, once. Every one. The sea is wide and it does not give them back.', 'Warm forever. Never hatched, never gone. If they hatch they RUN, and I am only a stone on the beach!'],
@@ -2509,6 +2536,9 @@ MOBS.mooring_hook = {
   ai: { kind: 'stomp', every: 4, warn: 0.9, r: 200, range: 260, jump: 520 },
   drops: [['coin', 1, 1178, 1770], ['mooring_link', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
 };
+// T2 (docs/combat/challenges.md, A14): a hatchling of the Hatchkeeper's clutch left alive grows into this (an elite of the
+// marine iguana, drawn as one). Only her clutch makes them, so like a split minion its EXP and gold stay small
+MOBS.grown_hatchling = { ...elite('marine_iguana', 'Grown Hatchling'), exp: 900, drops: [['coin', 1, 80, 150]] };
 
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't

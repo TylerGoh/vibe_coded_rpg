@@ -8,36 +8,37 @@
 // rhythm lock, the rescue cage, thin gaps, the darkness, the moving arena, tethers, the parry, the group key-lock, and
 // the three that live inside the final bosses' loops: two at once, the moving safe zone and the fake-outs' cousin, Head
 // Swap; T1b: the mirror trap, the laser grid, late tells, the fake-outs, floor-is-lava waves, carrying the thing, the
-// tilting floor and Rewind); min: how many fighters it needs (a party-only type stays off below that); banner: G2's one line, shown the
+// tilting floor and Rewind; T2: mash free, bullet rings, the den's floor flooding, adds with jobs, the punish window, the
+// weak spot mid-air); min: how many fighters it needs (a party-only type stays off below that); banner: G2's one line, shown the
 // first time a character meets it (c.seen), never again. Only built types are ever sent. loop: only a boss's own loop
 // starts it (server/final.js, server/fenrir.js), never `start` (so the sandbox's Challenge now leaves it out).
 export const CHALLENGES = {
   snare: { a: 1, name: 'Snare', built: true, min: 1, banner: 'Snared! Enter the arrows to break free' },
-  mash: { a: 2, name: 'Mash free', min: 1, banner: 'Stuck! Mash Jump to break out' },
+  mash: { a: 2, name: 'Mash free', built: true, min: 1, banner: 'Stuck! Mash Jump to break out' },
   rhythm: { a: 3, name: 'Rhythm lock', built: true, min: 1, banner: 'Fettered! Enter each arrow on the beat' },
   mirror: { a: 4, name: 'Mirror trap', built: true, min: 1, banner: 'A mirrored snare! Enter what the arrows mean' },
   rescue: { a: 5, name: 'Rescue trap', built: true, min: 2, banner: 'Caged! A friend at the cage can enter its arrows' },
   gaps: { a: 6, name: 'Thin gaps', built: true, min: 1, banner: 'A wall with one gap: stay in it' },
   grid: { a: 7, name: 'Laser grid', built: true, min: 1, banner: 'Beams that blink on and off' },
-  rings: { a: 8, name: 'Bullet rings', min: 1, banner: 'Rings with gaps in them' },
+  rings: { a: 8, name: 'Bullet rings', built: true, min: 1, banner: 'Rings with a gap in each: slip through it' },
   safezone: { a: 9, name: 'Moving safe zone', built: true, loop: true, min: 1, banner: 'The safe spot moves' },
   late: { a: 10, name: 'Late tells', built: true, min: 1, banner: 'Time stops! When he glows, move: the marks come too late' },
   headswap: { a: 0, name: 'Head Swap', built: true, loop: true, min: 1, banner: 'Two heads rear: watch which one glows' },
   hunt: { a: 0, name: 'The Hunt', built: true, loop: true, min: 1, banner: 'Hunted! The sons run at the two farthest apart' },
   rewind: { a: 0, name: 'Rewind', built: true, min: 1, banner: 'Rewind! Where you stand now, you go back to' },
-  feint: { a: 11, name: 'Fake-outs', built: true, loop: true, min: 1, banner: 'Count the ticks: it lands off the beat' },
-  lava: { a: 12, name: 'Floor is lava', built: true, loop: true, min: 1, banner: 'The plates heat in a wave: keep ahead of it' },
+  feint: { a: 11, name: 'Fake-outs', built: true, loop: true, min: 1, banner: 'Fake-outs! Not every tell is the real one' },
+  lava: { a: 12, name: 'Floor is lava', built: true, min: 1, banner: 'The floor floods in a wave: keep ahead of it, or get up high' },
   double: { a: 13, name: 'Two at once', built: true, loop: true, min: 1, banner: 'Two moves at once' },
-  jobs: { a: 14, name: 'Adds with jobs', min: 1, banner: 'Some of these adds matter more than others' },
+  jobs: { a: 14, name: 'Adds with jobs', built: true, min: 1, banner: 'Hatchlings! Left alone, they grow' },
   arena: { a: 15, name: 'Moving arena', built: true, min: 1, banner: 'The ledges sink! Find one that holds' },
   tilt: { a: 15, name: 'Tilting floor', built: true, min: 1, banner: 'The floor tilts! Walk uphill, or stand on a ledge' },
   dark: { a: 16, name: 'Darkness', built: true, min: 1, banner: 'The lights go out' },
   swap: { a: 17, name: 'Controls swap', built: true, min: 1, banner: 'Turned around! Left is right for a few seconds' },
   tether: { a: 18, name: 'Tethers', built: true, min: 2, banner: 'Chained together! Stay close' },
-  punish: { a: 19, name: 'Punish window', min: 1, banner: 'It missed everyone: hit it now' },
+  punish: { a: 19, name: 'Punish window', built: true, loop: true, min: 1, banner: 'It missed everyone: hit it now' },
   parry: { a: 20, name: 'Parry', built: true, min: 1, banner: 'A glowing hit: attack right as it lands' },
-  airweak: { a: 21, name: 'Weak spot mid-air', min: 1, banner: 'A weak spot up high' },
-  carry: { a: 22, name: 'Carry the thing', built: true, min: 1, banner: 'A piece of the tooth! Pick it up and throw it back at her' },
+  airweak: { a: 21, name: 'Weak spot mid-air', built: true, min: 1, banner: 'A weak spot up high: jump and hit it' },
+  carry: { a: 22, name: 'Carry the thing', built: true, min: 1, banner: 'Pick it up (your loot key) and throw it back at the boss' },
   lock: { a: 23, name: 'Group key-lock', built: true, min: 2, banner: 'Everyone enter the arrows together' },
 };
 
@@ -180,6 +181,52 @@ export const CARRY_BURST_R = 220, CARRY_BURST_HP = 0.35;
 // (a predicted edit, {t:'rw'}: the server takes it within REWIND_SLACK px of where it had you) and the attacks of those
 // REWIND_S come again, in the same order. Dodge them twice.
 export const REWIND_S = 3, REWIND_SLACK = 150;
+
+// ——— T2's types (the den bosses) ———
+
+// A2, mash free (the Frost Queen's ice coffin, the Hatchkeeper's sand): sprung like a snare (`style` its look); caught,
+// press Jump (or ▲) MASH_N times within MASH_S. The server checks the count and that it took at least MASH_N × MASH_GAP_MS
+// (no faster than a quick thumb). Failing it: the snare's punish.
+export const MASH_N = 12, MASH_S = 4, MASH_GAP_MS = 55;
+export const MASH_TICKS = Math.round(MASH_S * 60);
+
+// A8, bullet rings (the Astral Wyrm's stars, Pyra's fire): RINGS_N[stage] rings of RING_ORBS orbs from the boss's chest,
+// RING_EVERY s apart at RING_SPEED px/s, each missing RING_GAP orbs side by side (the gap turning RING_TURN orbs a ring).
+// An ordinary boss shot (`shots`, the `shot` ouch); jump or Dash through, or stand in the gap's line.
+export const RINGS_N = [2, 3, 4], RING_ORBS = 20, RING_GAP = 4, RING_TURN = 2, RING_EVERY = 0.6, RING_SPEED = 250, RING_R = 11;
+
+// A12 in the dens (the Tidemother's tide, the Old Narwhal's floe water, Ignis's magma): the floor in FLOOD_SEGS strips
+// floods one after another from one end, FLOOD_GAP s apart; each shows FLOOD_WARN, then is up FLOOD_HOT. On the floor in
+// a flooded strip (not on a ledge, not in the air): FLOOD_HIT × ATK (judged every step; the hit's invulnerability spaces
+// them). FLOOD_PASSES[stage]: once, there and back, there and back with the second following closer.
+export const FLOOD_SEGS = 10, FLOOD_GAP = 0.32, FLOOD_WARN = 0.9, FLOOD_HOT = 1.5, FLOOD_HIT = 0.9, FLOOD_PASSES = [1, 2, 2];
+
+// A14, adds with jobs (the Hatchkeeper's clutch): JOB_N[stage] hatchlings dig out round her, each with JOB_S to live:
+// one still alive then grows into its boss's `grows` kind (an elite). Kill them young.
+export const JOB_N = [2, 3, 3], JOB_S = 14;
+
+// A19, the punish window (every boss with challenges, not the final bosses: their loops have their own openings): a
+// slam, leap, charge or ultimate that hit nobody (no ouch from that boss from the move's start to PUNISH_JUDGE_MS after
+// it ends) leaves the boss dazed PUNISH_S (a stagger: no moves, and with its party mechanics on, STAGGER_DMG more).
+export const PUNISH_S = 3, PUNISH_JUDGE_MS = 700;
+
+// A21, the weak spot mid-air (the Bramble Behemoth's back bark, opening mid-leap): while it's in the air, a hit on it from
+// a slime whose feet are AIRWEAK_H px or more above the floor cracks the bark: AIRWEAK_HIT of its max HP and an
+// AIRWEAK_STAGGER_S stagger, once a leap. (The sandbox's Challenge now opens it AIRWEAK_S.)
+export const AIRWEAK_H = 70, AIRWEAK_HIT = 0.01, AIRWEAK_STAGGER_S = 2.5, AIRWEAK_S = 3;
+
+// A10 in a den (the Old Narwhal's tusk): it lowers its tusk TUSK_WIND s with no mark on the floor (its glint is the
+// tell), then charges with only LATE_TELL of the usual warning.
+export const TUSK_WIND = 1.1;
+
+// A11 + A16 in a den (the Knotmole's burrow): the den goes dark BURROW_S and MOUNDS[stage] mounds of dirt bulge; one by
+// one the fakes pop (a puff, harmless), and the last one is her, erupting (a slam MOUND_R round it).
+export const BURROW_S = 4.5, MOUNDS = [3, 3, 4], MOUND_R = 150;
+
+// A9 on Pyra's Rebirth: if nobody breaks the egg, a ring of cool air REBIRTH_ZONE_R wide drifts across the den while it
+// gathers; standing in it when it bursts, you live.
+export const REBIRTH_ZONE_R = 90;
+export const zoneX = (z, k) => z.x0 + (z.x1 - z.x0) * (0.5 - 0.5 * Math.cos(Math.PI * Math.max(0, Math.min(1, k))));
 
 // How long the server keeps a challenge claimable after it should have landed (lag), ms
 export const CLAIM_SLACK_MS = 1500;

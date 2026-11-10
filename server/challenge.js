@@ -16,20 +16,23 @@ import {
   ARENA_WARN, ARENA_S, ARENA_SINK, ARENA_GRID_AT, DARK_S, TETHER_S, TETHER_R, TETHER_HP, TETHER_WARN, BASH_WARN, BASH_REACH, BASH_H, PARRY_STAGGER_S, PARRY_REFLECT,
   LOCK_WARN, LOCK_S, LOCK_R, LASER_COLS, LASER_BEAT, LASER_BEATS, LASER_WARN, LATE_WIND, LATE_TELL, LATE_R, TILT_WARN, TILT_S, TILT_EDGE, TILT_HP, TILT_TICK,
   tiltOf, CARRY_S, CARRY_R, CARRY_FAR, THROW_RANGE, CARRY_HIT, CARRY_STAGGER_S, CARRY_BURST_R, CARRY_BURST_HP, REWIND_S, REWIND_SLACK,
+  MASH_N, MASH_TICKS, MASH_GAP_MS, RINGS_N, RING_ORBS, RING_GAP, RING_TURN, RING_EVERY, RING_SPEED, RING_R, FLOOD_SEGS, FLOOD_GAP, FLOOD_WARN, FLOOD_HOT,
+  FLOOD_PASSES, JOB_N, JOB_S, AIRWEAK_H, AIRWEAK_HIT, AIRWEAK_STAGGER_S, AIRWEAK_S,
 } from '../src/shared/challenge.js';
 import { roomDef } from '../src/shared/sim.js';
 
 // an ouch's kind → the challenge type it claims (the kinds the client sends: src/rpg.js hazardHits, src/challenge.js)
-export const KIND = { snare: 'snare', swap: 'swap', rhythm: 'rhythm', cage: 'rescue', lock: 'lock', gaps: 'gaps', bash: 'parry', mirror: 'mirror', laser: 'grid', late: 'late' };
-const TEACH_AT_START = new Set(['rescue', 'gaps', 'arena', 'dark', 'tether', 'parry', 'lock', 'grid', 'late', 'feint', 'tilt', 'carry', 'rewind']);
+export const KIND = { snare: 'snare', swap: 'swap', rhythm: 'rhythm', cage: 'rescue', lock: 'lock', gaps: 'gaps', bash: 'parry', mirror: 'mirror', laser: 'grid', late: 'late', mash: 'mash', flood: 'lava' };
+const TEACH_AT_START = new Set(['rescue', 'gaps', 'arena', 'dark', 'tether', 'parry', 'lock', 'grid', 'late', 'feint', 'tilt', 'carry', 'rewind', 'rings', 'lava', 'jobs', 'airweak']);
 const FLOOR = 450; // (every den's floor: FIELD_GROUND)
 const ONE_AT_A_TIME = new Set(['carry', 'tilt', 'rewind']); // (G2's line as it starts, not on a hit)
 const SLACK = 60; // px: a rescuer's or a parrier's distance, as the client saw it a moment ago
 
 // deps: now(), MOBS, bossEvent(m, a, extra), send(ws, msg), toRoom(room)(msg), inRoom(room) → [[id, p]], mobById(id),
 // faint(id, p, by), hurtFlat(id, p, share, m) (a share of max HP, no knockback), stagger(m, s), damage(m, n, id, p, dir),
-// lockBroken(m) (A23 done: the barrier breaks), later(m, ms, fn) (a timed follow-up on the boss)
-export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, mobById, faint, hurtFlat, stagger, damage, lockBroken, later }) {
+// lockBroken(m) (A23 done: the barrier breaks), later(m, ms, fn) (a timed follow-up on the boss), addAdd(m, kind, x) (a
+// minion of kind at x: the Hatchkeeper's hatchlings, T2) → the mob
+export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, mobById, faint, hurtFlat, stagger, damage, lockBroken, later, addAdd }) {
   const live = (m) => (m.ch ??= []);
   const newSeed = () => (Math.random() * 4294967296) >>> 0;
   const standing = (list) => list.filter(([, q]) => !q.faintUntil);
@@ -47,11 +50,11 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
     if (!here.length || (fighters < row.min && !opts.force)) return false;
     if (ONE_AT_A_TIME.has(type) && live(m).some((c) => c.type === type && !c.over && !c.snapped && c.until > now())) return false; // (a chip, a lean, a Rewind: one going at once)
     const t = now(), seed = newSeed(), stage = opts.stage ?? m.stage ?? 0, style = opts.style ?? k.looks?.snare;
-    if (type === 'snare' || type === 'rhythm' || type === 'mirror') {
+    if (type === 'snare' || type === 'rhythm' || type === 'mirror' || type === 'mash') {
       // roots (or fetters, or iron) under each target, a little apart in time, so a crowd can't all be caught by one jump.
       // A4's mirror: the arrows are drawn flipped (flip), the combo the same
       const list = opts.marks ?? here.map(([, q], i) => [Math.round(q.state.x), +(i * 0.25).toFixed(2)]);
-      const len = type === 'rhythm' ? rhythmLen(k.lvl) : snareLen(k.lvl);
+      const len = type === 'rhythm' ? rhythmLen(k.lvl) : type === 'mash' ? MASH_N : snareLen(k.lvl);
       const last = Math.max(...list.map((a) => a[1]));
       const flip = type === 'mirror' ? (Math.random() < 0.5 ? 'h' : 'v') : undefined;
       live(m).push({ type, seed, len, until: t + (last + SNARE_WARN + SNARE_LIVE) * 1000 + CLAIM_SLACK_MS });
@@ -131,7 +134,7 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
       const side = m.x + far > W - 80 ? -1 : m.x - far < 80 ? 1 : Math.random() < 0.5 ? -1 : 1;
       const x = Math.round(Math.max(80, Math.min(W - 80, m.x + side * far)));
       live(m).push({ type, seed, x, holder: 0, until: t + CARRY_S * 1000, over: false });
-      bossEvent(m, 'chal', { type, x, ms: CARRY_S * 1000, seed });
+      bossEvent(m, 'chal', { type, x, ms: CARRY_S * 1000, seed, style: k.looks?.carry ?? 'tooth' });
     } else if (type === 'rewind') {
       // Rewind: everyone's ghost stays where they stand; REWIND_S later they're snapped back to it and the boss's attacks
       // since come again (its events are recorded meanwhile: m.rec, server/rpg.js bossEvent)
@@ -140,8 +143,43 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
       m.rec = { at: t, list: [] };
       bossEvent(m, 'chal', { type, ghosts: here.map(([id, q]) => [id, Math.round(q.state.x), Math.round(q.state.y)]), dur: REWIND_S, seed });
     } else if (type === 'dark') {
-      live(m).push({ type, seed, until: t + DARK_S * 1000 });
-      bossEvent(m, 'chal', { type, dur: DARK_S });
+      const dur = opts.dur ?? DARK_S; // (the Knotmole's burrow: shorter, and she's no light of her own: noBoss)
+      live(m).push({ type, seed, until: t + dur * 1000 });
+      bossEvent(m, 'chal', { type, dur, noBoss: opts.noBoss ? 1 : 0 });
+    } else if (type === 'rings') {
+      // A8: rings of orbs from its chest, a gap in each, turning ring to ring (ordinary shots: the client judges them)
+      const n = RINGS_N[Math.min(RINGS_N.length - 1, stage)], y0 = Math.round(m.y - k.h * 0.55), g0 = Math.floor(Math.random() * RING_ORBS), spin = Math.random() < 0.5 ? 1 : -1, shots = [];
+      for (let r = 0; r < n; r++) {
+        const gap = g0 + spin * r * RING_TURN;
+        for (let i = 0; i < RING_ORBS; i++) {
+          if ((((i - gap) % RING_ORBS) + RING_ORBS) % RING_ORBS < RING_GAP) continue;
+          const a = (i / RING_ORBS) * Math.PI * 2;
+          shots.push([Math.round(m.x), y0, Math.round(Math.cos(a) * RING_SPEED), Math.round(Math.sin(a) * RING_SPEED), 0, RING_R, +(0.4 + r * RING_EVERY).toFixed(2)]);
+        }
+      }
+      live(m).push({ type, seed, until: t + (n * RING_EVERY + 4) * 1000 });
+      bossEvent(m, 'shots', { style: opts.style ?? k.looks?.rings ?? 'star', shots });
+    } else if (type === 'lava') {
+      // A12 in a den: the floor floods strip by strip from one end (and back, from its phase 2)
+      const dir = Math.random() < 0.5 ? 1 : -1, passes = FLOOD_PASSES[Math.min(FLOOD_PASSES.length - 1, stage)];
+      const span = (passes * FLOOD_SEGS - (passes > 1 && stage >= 2 ? FLOOD_SEGS / 2 : 0)) * FLOOD_GAP + FLOOD_WARN + FLOOD_HOT;
+      live(m).push({ type, seed, until: t + span * 1000 + CLAIM_SLACK_MS });
+      bossEvent(m, 'chal', { type, dir, passes, back: stage >= 2 ? FLOOD_SEGS / 2 : 0, segs: FLOOD_SEGS, gap: FLOOD_GAP, warn: FLOOD_WARN, hot: FLOOD_HOT, style: opts.style ?? k.looks?.flood ?? 'tide' });
+    } else if (type === 'jobs') {
+      // A14: hatchlings dig out round the boss; any still alive after JOB_S grows into its `grows` kind
+      const n = JOB_N[Math.min(JOB_N.length - 1, stage)], W = roomDef(m.room).width, ids = [];
+      for (let i = 0; i < n; i++) {
+        const x = Math.round(Math.max(100, Math.min(W - 100, m.x + (i % 2 ? 1 : -1) * (160 + 90 * Math.floor(i / 2) + Math.random() * 60))));
+        const q = addAdd(m, k.jobAdd ?? k.minion, x);
+        if (q) ids.push(q.id);
+      }
+      if (!ids.length) return false;
+      live(m).push({ type, seed, ids, growAt: t + JOB_S * 1000, until: t + JOB_S * 1000 + 500, grown: false });
+      bossEvent(m, 'chal', { type, ids, ms: JOB_S * 1000 });
+    } else if (type === 'airweak') {
+      // A21: its weak spot opens up high for dur (the brain: the leap's time in the air)
+      live(m).push({ type, seed, until: t + (opts.dur ?? AIRWEAK_S) * 1000, used: false });
+      bossEvent(m, 'chal', { type, dur: opts.dur ?? AIRWEAK_S, h: AIRWEAK_H });
     } else if (type === 'tether') {
       // A18: pairs of fighters, chosen at random; an odd one out is chained to the boss (b: 0)
       const ids = here.map(([id]) => id).sort(() => Math.random() - 0.5), pairs = [];
@@ -194,6 +232,9 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
       s.tr = TRAP_HOLD;
       p.snare = { type: 'rescue', seed: seedFor(c.seed, id), len: c.len, mob: m.id, room: s.room, at: t, until: t + CAGE_S * 1000 };
       toRoom(s.room)({ t: 'chal', a: 'caged', id, seed: p.snare.seed, len: c.len, ms: CAGE_S * 1000 }); // (everyone else sees its arrows)
+    } else if (c.type === 'mash') {
+      s.tr = MASH_TICKS;
+      p.snare = { type: 'mash', seed: c.seed, len: c.len, mob: m.id, room: s.room, at: t };
     } else if (c.type === 'swap') s.cs = SWAP_TICKS;
     firstTime(p, c.type);
   }
@@ -215,7 +256,9 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
     }
     const sn = p.snare;
     if (!sn || !p.state.tr || sn.type === 'rescue') return;
-    if (!sameCombo(m.k, comboFor(sn.seed, sn.len))) return;
+    if (sn.type === 'mash') { // (A2: the count, and not faster than a quick thumb)
+      if (!((m.k | 0) >= sn.len) || t - sn.at < sn.len * MASH_GAP_MS) return;
+    } else if (!sameCombo(m.k, comboFor(sn.seed, sn.len))) return;
     if (sn.type === 'rhythm' && t - sn.at < (sn.len - 1) * RHYTHM_BEAT * 1000 - RHYTHM_SLACK_MS) return; // (faster than the beat allows)
     p.state.tr = 0;
     p.snare = null;
@@ -327,6 +370,18 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
   let lastMobs = [];
   const bossesIn = (room) => lastMobs.filter((m) => m.room === room && m.ch?.length);
 
+  // ——— A21: a hit on boss m from p (server/rpg.js applyHits): from high up while its weak spot is open, the bark cracks ———
+  function hitLanded(m, id, p) {
+    if (!m.ch?.length || m.dead) return;
+    const c = live(m).find((q) => q.type === 'airweak' && !q.used && q.until > now());
+    if (!c || p.state.y > FLOOR - AIRWEAK_H) return;
+    c.used = true;
+    bossEvent(m, 'chal', { type: 'airHit', by: id });
+    firstTime(p, 'airweak');
+    damage(m, Math.round(m.maxHp * AIRWEAK_HIT), id, p, Math.sign(m.x - p.state.x) || 1);
+    stagger(m, AIRWEAK_STAGGER_S);
+  }
+
   // ——— Rewind: {t:'rw', s, x, y}: snapped back to your ghost at this input (as your client predicted it) ———
   function rewind(id, p, msg) {
     if (p.faintUntil) return;
@@ -365,6 +420,7 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
           if (t >= c.from && t >= c.tickAt) grind(m, c, players, t);
         }
         if (c.type === 'carry' && !c.over) carryTick(m, c, players, t);
+        if (c.type === 'jobs' && !c.grown && t >= c.growAt) grow(m, c);
         if (c.type === 'rewind' && !c.snapped && t >= c.snapAt) snap(m, c);
         if (c.type === 'tether' && c.until > t && t >= c.from && !m.dead) tethers(m, c, players);
         if (c.type === 'lock' && !c.over && t > c.until) {
@@ -424,6 +480,19 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
       if (p.joined && !p.faintUntil && p.state.room === m.room && Math.abs(p.state.x - x) <= CARRY_BURST_R && p.state.y > FLOOR - 200) hurtFlat(id, p, CARRY_BURST_HP, m);
     }
   }
+  // A14: the hatchlings still alive grow into the boss's `grows` kind where they stand
+  function grow(m, c) {
+    c.grown = true;
+    const k = MOBS[m.kind], grown = [];
+    for (const id of c.ids) {
+      const q = mobById(id);
+      if (!q || q.dead || m.dead || !k.grows) continue; // (a boss with nothing to grow into, the sandbox's: they stay as they are)
+      q.dead = q.gone = true;
+      const g = addAdd(m, k.grows, Math.round(q.x));
+      if (g) grown.push(g.id);
+    }
+    if (grown.length) bossEvent(m, 'chal', { type: 'grow', ids: grown });
+  }
   // Rewind's moment: everyone's told (each client snaps itself back: {t:'rw'}), and the recorded attacks come again
   function snap(m, c) {
     c.snapped = true;
@@ -455,5 +524,5 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
     m.rec = null;
   };
 
-  return { start, claim, apply, free, parry, platforms, punish, tick, clear, seen, pick, toss, rewind };
+  return { start, claim, apply, free, parry, platforms, punish, tick, clear, seen, pick, toss, rewind, hitLanded, firstTime };
 }

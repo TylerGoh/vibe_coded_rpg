@@ -8,7 +8,9 @@ Deep's WEST end (`MYCELIUM_EXIT_X`, the root stair back up) and go east, deeper 
 - Data: `MYCELIUM_ZONES`, `MYCELIUM_PLATFORMS`, `TRUFFLE_X`, `KNOT_DEN_X`, `GLOWROOT_GATE_X`,
   `GLOWROOT_ZONES`, `GLOWROOT_PLATFORMS` and the spawns in `src/shared/rpg.js`; rooms in `src/shared/sim.js`.
   Art: `src/deep.js` (the Deep), `src/glowroot.js` (the Hollow), `src/deep-art.js` (mobs, gear, icons,
-  Truffle's dress), `src/dens-deep.js` (the burrow, its molehill mouth, the Knotmole).
+  Truffle's dress), `src/dens-deep.js` (the burrow, its molehill mouth, the Knotmole). Her challenges (T2, 2026-11-10:
+  `docs/combat/challenges.md`): she burrows (phase 2 on), the den goes dark and mounds bulge; the fakes pop and the
+  last is her; and the punish window.
 - **The Deep**, west to east: the Root Stair (no mobs: Forager Truffle's camp under a mushroom-cap tent, a
   waystone, the Listening Stone, a Keeper stone in `src/ruins.js`), Puffcap Hollow, the Thread Caverns and
   the Knotted Halls, with the Knotmole's molehill and the crack down into Glowroot Hollow at the far end.

@@ -744,7 +744,9 @@ the moves instead (ideas go to the owner as a list to approve, `story/roadmap.md
   party of four took 34–38 min (out of `TOP_PARTY_MIN`, and Ladon and Fenrir past `FINAL_ENRAGE_MIN`); with it, 27–30,
   within a minute of before. Rewards unchanged. T1b (2026-11-10) gave Brenna, the Colossus, Chronos and Typhon theirs: the
   same cut, and their times moved under 40 s (Brenna 28:22 → 27:50, the Colossus 30:59 → 30:56, Chronos 29:23 → 29:08,
-  Typhon 27:48 → 27:13 for a party of four). Rewards unchanged. The rings that are shares of the plain `hp` (head rings, anchors,
+  Typhon 27:48 → 27:13 for a party of four). Rewards unchanged. T2 (2026-11-10) gave the nine den bosses theirs
+  (`UPTIME_DEN`): their HP took the same cut and their times moved by seconds (solo and party). The punish window (A19)
+  isn't modelled: the sheet can't dodge, so it's the slow case. The rings that are shares of the plain `hp` (head rings, anchors,
   barriers, weak points) shrink with it, so they fill a fifth faster.
 
 ## How to price something new (since L2: in minutes of farming)

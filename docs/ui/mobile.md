@@ -22,7 +22,8 @@ Files: `src/touch.js` (buttons, fullscreen), touch layout rules in `src/style.cs
   The same pad shows while you stand at a friend's rescue cage (T1a), and there it's better than ◀ ▶ Jump ▼, which also
   move you. The rhythm lock takes a tap on each beat (the ring landing on the key); the parry is the Hit button. The
   mirror trap uses the same pad (tap what the arrows mean). A chip of Brenna's tooth (T1b) is picked up with Loot and
-  thrown with Hit; Brenna's tilting floor is walked against with ◀ ▶, no new buttons.
+  thrown with Hit; Brenna's tilting floor is walked against with ◀ ▶, no new buttons. A mash trap (T2: the Frost Queen's
+  coffin, the Hatchkeeper's sand) shows the same pad: tap ▲ (or Jump) again and again.
 - Boss gear's air dash (Ladon's crown) goes up or down the same way: Jump or ▼, then Dash, within the grace windows.
   The Colossus's glide is holding Jump; the Skirmisher's Backflip Volley is a hotbar skill. No new buttons.
 - The HUD buttons and pills don't carry key labels (owner, 2026-10-20: they crowded the combat HUD); every

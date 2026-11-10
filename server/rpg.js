@@ -22,7 +22,7 @@ import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, ap
 import { createSummons } from './summons.js';
 import { createFinal } from './final.js';
 import { createChallenges, KIND as CHAL_KIND } from './challenge.js';
-import { CHALLENGES, SNARE_HIT, SWAP_HIT, SWAP_KNOCK, CAGE_HIT, GAPS_HIT, BASH_HIT, BASH_KNOCK, BASH_WARN, ARENA_WARN, LASER_HIT, LASER_WARN, LASER_BEAT, LASER_BEATS, LATE_HIT, LATE_WIND, FEINT_BEAT, FEINT_TICKS, FEINT_CANCEL, FEINT_R } from '../src/shared/challenge.js';
+import { CHALLENGES, SNARE_HIT, SWAP_HIT, SWAP_KNOCK, CAGE_HIT, GAPS_HIT, BASH_HIT, BASH_KNOCK, BASH_WARN, ARENA_WARN, LASER_HIT, LASER_WARN, LASER_BEAT, LASER_BEATS, LATE_HIT, LATE_WIND, FEINT_BEAT, FEINT_TICKS, FEINT_CANCEL, FEINT_R, LATE_TELL, FLOOD_HIT, FLOOD_SEGS, FLOOD_GAP, FLOOD_WARN, RINGS_N, RING_EVERY, PUNISH_S, PUNISH_JUDGE_MS, TUSK_WIND, BURROW_S, MOUNDS, MOUND_R, REBIRTH_ZONE_R } from '../src/shared/challenge.js';
 import { THROAT_MULT, THROAT_FILL, GAZE_STAGGER_S } from '../src/shared/final.js';
 import { SON_KNOCK } from '../src/shared/fenrir.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen, applyHook, HOOK_RANGE } from '../src/shared/sim.js';
@@ -132,12 +132,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     inRoom: (r) => inRoom(r),
     minionsOf: (m, kind) => mobs.filter((q) => q.minion && !q.dead && q.room === m.room && q.kind === kind).length,
     // a named add of its own (FB2: Skoll and Hati): a minion of kind `kind`, at x
-    addAdd: (m, kind, x) => {
-      const q = spawn({ id: nextMob++, sp: { kind, x0: 60, x1: DEN_W - 60, y: m.sp.y, room: m.room }, minion: true, by: m.id });
-      q.x = x;
-      mobs.push(q);
-      return q;
-    },
+    addAdd: (m, kind, x) => addAdd(m, kind, x),
     addMinion: (m, x) => {
       const q = spawn({ id: nextMob++, sp: { kind: MOBS[m.kind].minion, x0: 60, x1: DEN_W - 60, y: m.sp.y, room: m.room }, minion: true });
       q.x = x;
@@ -156,7 +151,16 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     // A23 done: the barrier (or the Colossus's armour) breaks, with its stagger; none up (it broke meanwhile), a stagger anyway
     lockBroken: (m) => (m.shield ? breakShield(m, m.shield.kind === 'armour' ? 'armour' : 'barrier') : stagger(m)),
     later: (m, ms, fn) => later(m, ms, fn),
+    addAdd: (m, kind, x) => addAdd(m, kind, x),
   });
+  // a named add of a boss's own (Skoll and Hati; the Hatchkeeper's hatchlings): a minion of kind `kind`, at x
+  function addAdd(m, kind, x) {
+    if (!MOBS[kind]) return null;
+    const q = spawn({ id: nextMob++, sp: { kind, x0: 60, x1: DEN_W - 60, y: m.sp.y, room: m.room }, minion: true, by: m.id });
+    q.x = x;
+    mobs.push(q);
+    return q;
+  }
   let roadsEndSaid = false; // (the Road's End: Ladon has spoken since it last emptied)
   let longStairSaid = false; // (the Long Stair: Fenrir has spoken since it last emptied)
   let longFlueSaid = false; // (the Long Flue: Typhon has spoken since it last emptied)
@@ -927,6 +931,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       if (prop) m.hitters.set(id, now()); // (relighting or setting an anchor is fighting it: the EXP and the loot roll)
       const hit = prop ? [m.id, dmg, h[2] ? 1 : 0, 0] : damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock, src);
       if (shatter) hit.push(1);
+      if (!prop && !m.dead && k.ch) chal.hitLanded(m, id, p); // (A21: its weak spot up high)
       if ((pt?.head || pt?.stump || prop) && !m.dead) final.hitHead(m, pt, dmg, id, p, { fire: fire || el === 'fire' || dot?.kind === 'burn', throatFill: THROAT_FILL, frost: el === 'frost' }); // (fire seals a stump, relights a lantern; frost crusts a plate)
       if (ps && !m.dead && !prop) partyHitLanded(m, dmg, { magic: magic && !off, heavy: (heavy || shatter) && !cracked.has(m) && !off, weak, onShield: ps.onShield && !off }) && cracked.add(m);
       if (el && !m.dead && !prop) element(m, el, dmg, id, shatter);
@@ -1348,6 +1353,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     // orb, the gaps' ice and the shield bash do
     snare: [SNARE_HIT, 0], swap: [SWAP_HIT, SWAP_KNOCK], rhythm: [SNARE_HIT, 0], lock: [SNARE_HIT * 0.5, 0], cage: [CAGE_HIT, 0], gaps: [GAPS_HIT, 200], bash: [BASH_HIT, BASH_KNOCK],
     mirror: [SNARE_HIT, 0], laser: [LASER_HIT, 160], late: [LATE_HIT, 300], // (T1b)
+    mash: [SNARE_HIT, 0], flood: [FLOOD_HIT, 120], // (T2)
   };
   function ouch(id, p, m) {
     const mob = mobs.find((q) => q.id === m.mob && !q.dead && q.room === p.state.room);
@@ -1368,6 +1374,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     const x = mult * (focused ? FOCUS_ATK : 1) * (ult || ch ? 1 : chal.punish(p, mob)); // (a snare failed lately: this hit does more)
     hurt(id, p, MOBS[mob.kind].atk * x, mx, undefined, knock, ult, mob, false, ult ? 0 : bossHitPct(MOBS[mob.kind]) * x); // (SP6: a boss's share of max HP)
     if (ch && !p.faintUntil) chal.apply(id, p, ch, mob); // (trapped or turned round at this input, as the client predicted)
+    mob.lastHitAt = now(); // (A19: whatever it was doing hit someone)
     // Frost Armor (SP3, `chills` on a long buff): a mob that ran into you is chilled (a soft chill: never a freeze)
     const armor = (m.kind === 'touch' || m.kind === 'charge') && Object.entries(p.buffs ?? {}).find(([bid, b]) => SKILLS[bid]?.chills && b.until > now());
     if (armor && !mob.dead) element(mob, 'frost', 0, armor[1].by, false, true);
@@ -1657,18 +1664,35 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     gears: 0.5, beam: 0.3, grid: 0.3, sweep: 0.3, bombs: 0.4, blink: 0.3, echo: 0.5,
     // boss challenges (T1a, T1b; server/challenge.js: each carries its own telegraph)
     bash: 0.2, tether: 0.3, cage: 0.3, arena: 0.3, tilt: 0.3, tooth: 0.4, lasers: 0.3, offslam: 0.2, late: 0.2, reverse: 0.3, rewind: 0.3,
+    coffin: 0.3, bury: 0.3, orbs: 0.5, flood: 0.3, clutch: 0.4, tusk: TUSK_WIND, burrow: 0.4, rock: 0.4, // (T2)
   };
   // a move in a boss's `phases` that starts a challenge (docs/combat/challenges.md) → its type
   const CHAL_MOVE = {
     bash: 'parry', tether: 'tether', cage: 'rescue', arena: 'arena', snare: 'snare', fetter: 'rhythm', gaps: 'gaps', dark: 'dark',
     tilt: 'tilt', tooth: 'carry', lasers: 'grid', offslam: 'feint', late: 'late', reverse: 'swap', rewind: 'rewind', // (T1b)
+    coffin: 'mash', bury: 'mash', orbs: 'rings', flood: 'lava', clutch: 'jobs', rock: 'carry', // (T2; `tusk` and `burrow` are newMove's own)
   };
   // how long the boss stands for each (else 0.8 s). G1: the laser grid stands still the phase it's taught, then the boss
   // fights on through it; the tilt and Rewind always fight on (Rewind's whole point: attacks to dodge twice)
   const CHAL_TIME = {
     parry: (st) => BASH_WARN[Math.min(BASH_WARN.length - 1, st)] + 0.5, tether: () => 1.2, rescue: () => 1, arena: () => ARENA_WARN + 0.6,
     grid: (st) => (st ? 1.2 : LASER_WARN + LASER_BEATS[0] * LASER_BEAT), late: () => LATE_WIND + 0.6, tilt: () => 0.9, rewind: () => 0.5,
+    lava: (st) => (st ? 1 : FLOOD_SEGS * FLOOD_GAP + FLOOD_WARN), rings: (st) => 0.6 + RINGS_N[st] * RING_EVERY, jobs: () => 1, // (T2: G1, the flood stands the phase it's taught)
   };
+  // A19, the punish window: a big move from `from` that hit nobody (no accepted ouch from this boss since, PUNISH_JUDGE_MS
+  // after it ends) dazes it PUNISH_S. Bosses with challenges only (`ch`), not the final bosses (their loops have openings)
+  function watchMiss(m, from, endMs = 0) {
+    const k = MOBS[m.kind];
+    if (!k.ch?.length || k.final) return;
+    later(m, endMs + PUNISH_JUDGE_MS, () => {
+      if (m.dead || (m.lastHitAt ?? 0) >= from) return;
+      const up = inRoom(m.room).filter(([, q]) => !q.faintUntil);
+      if (!up.length) return;
+      stagger(m, PUNISH_S);
+      bossEvent(m, 'chal', { type: 'punish' });
+      for (const [, q] of up) chal.seen(q, 'punish');
+    });
+  }
   const minionsIn = (room) => mobs.filter((q) => q.minion && !q.dead && q.room === room).length;
   const ownMinions = (m) => mobs.filter((q) => q.minion && !q.dead && q.by === m.id); // (S5.4: a field boss's called adds)
   const addsCap = (m) => (partyOn(m, 'adds') ? Math.min(ADDS_MAX, 4 + m.fighters) : 5); // (how many of its minions may stand at once)
@@ -1720,6 +1744,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         bossEvent(m, 'diveWarn', { tx: m.leapX, ty: m.sp.y, dur: m.timer });
       }
       if (act === 'feathers' || act === 'spiral') m.hover = 170;
+      if (act === 'tusk') { // (A10: its glint is the only tell)
+        bossEvent(m, 'chal', { type: 'tusk', dur: m.timer });
+        for (const [, q] of here) if (!q.faintUntil) chal.seen(q, 'late');
+      }
       bossEvent(m, 'warn', extra);
     };
     const fightersUp = here.filter(([, q]) => !q.faintUntil).length;
@@ -1751,6 +1779,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     if (m.phase === 'warn') {
       if (m.timer > 0) return 0;
       m.phase = 'act';
+      m.moveAt = t; // (A19: a hit on anyone from here on means it didn't miss)
       if (m.act === 'ult') return ultGoesOff(m, k, t), 0;
       if (m.act === 'slam') {
         m.vy = -760;
@@ -1764,6 +1793,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         m.slamR = 170;
         m.timer = 3;
         bossEvent(m, 'leap', { tx: m.leapX, dur: air });
+        if (k.ch?.includes('airweak')) chal.start(m, 'airweak', { dur: air + 0.15 }); // (A21: its back bark opens up there)
       } else if (m.act === 'charge') {
         m.vx = m.dir * [600, 660, 740][stage];
         m.timer = 1.4;
@@ -1797,6 +1827,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     // acting
     if (m.act === 'charge') {
       if (m.timer > 0) return m.vx;
+      if (m.vx) watchMiss(m, m.moveAt ?? t); // (A19: it ran through nobody)
       m.vx = 0;
     } else if ((m.act === 'slam' || m.act === 'leap' || m.act === 'ult') && m.timer > 0) return 0;
     else if (m.timer > 0) return 0;
@@ -1817,6 +1848,40 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   const tiles = (pick) => Array.from({ length: 10 }, (_, i) => i).filter(pick);
   function newMove(m, k, here, stage, t) {
     const a = m.act;
+    if (a === 'tusk') {
+      // A10 (the Old Narwhal): the tusk lowered with no mark on the floor (its glint was the tell), then the charge with only
+      // LATE_TELL of warning
+      m.act = 'charge';
+      m.phase = 'warn';
+      m.dir = Math.sign(((m.target ?? here[0]?.[1])?.state.x ?? m.x) - m.x) || m.dir;
+      m.timer = LATE_TELL;
+      bossEvent(m, 'warn', { act: 'charge', dur: LATE_TELL });
+      return true;
+    }
+    if (a === 'burrow') {
+      // A11 + A16 (the Knotmole): under she goes, the den dark; mounds bulge, the fakes pop one by one (harmless), and the
+      // last is her, erupting (a slam)
+      const n = MOUNDS[Math.min(MOUNDS.length - 1, stage)], tx = (m.target ?? here[0]?.[1])?.state.x ?? m.x, xs = [Math.round(Math.max(120, Math.min(DEN_W - 120, tx)))];
+      for (let tries = 0; xs.length < n && tries < 40; tries++) {
+        const x = Math.round(rand(120, DEN_W - 120));
+        if (xs.every((q) => Math.abs(q - x) > MOUND_R * 1.4)) xs.push(x);
+      }
+      xs.sort(() => Math.random() - 0.5);
+      const real = xs[xs.length - 1], list = xs.map((x, i) => [x, +(i === xs.length - 1 ? BURROW_S : BURROW_S * (0.35 + (0.5 * i) / Math.max(1, xs.length - 1))).toFixed(2)]);
+      chal.start(m, 'dark', { dur: BURROW_S + 0.5, noBoss: true });
+      bossEvent(m, 'chal', { type: 'mounds', list: list.sort((p, q) => p[0] - q[0]) });
+      for (const [, q] of here) if (!q.faintUntil) chal.seen(q, 'feint');
+      later(m, BURROW_S * 1000, () => {
+        if (m.dead) return;
+        const x0 = m.x;
+        m.x = real;
+        bossEvent(m, 'bossBlink', { x0: Math.round(x0) });
+        bossEvent(m, 'slam', { r: MOUND_R });
+        watchMiss(m, now() - 50);
+      });
+      m.timer = BURROW_S + 0.6;
+      return true;
+    }
     if (a === 'offslam') {
       // A11, the fake-out (the Colossus): it rears and ticks FEINT_BEAT apart, and lands half a beat after a tick (so it
       // leaps one air time before); from its phase 2 it may cancel into Gear Teeth instead. The landing is the ordinary
@@ -1992,6 +2057,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     else if (u.kind === 'rebirth') {
       // an egg: break it within the time or it bursts, knocking everyone out, and she heals
       u.dur = 10;
+      if (k.ch?.includes('safezone')) { // (A9, T2: a ring of cool air drifting across the den while it gathers; in it as it bursts, you live)
+        const a = rand(160, DEN_W - 160), b = a > DEN_W / 2 ? rand(160, a - 420) : rand(a + 420, DEN_W - 160);
+        u.zone = { x0: Math.round(a), x1: Math.round(b), r: REBIRTH_ZONE_R };
+      }
       const max = Math.round(m.maxHp * EGG_HP);
       m.egg = { hp: max, max };
       m.special = true;
@@ -2020,6 +2089,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       m.hp = Math.min(m.maxHp, m.hp + m.maxHp * 0.15);
     }
     m.ultLiveUntil = t + lasts; // clients report their 'ult' ouches within this window
+    if (!MOBS[m.kind].final) watchMiss(m, t, lasts); // (A19: it caught nobody)
     summons.ult(m.room); // (spirits and totems take a big share of it)
     // (the KO for standing in the wrong place comes as an 'ult' ouch; the safe spot is safe: owner, 2026-11-06)
     m.timer = lasts / 1000;
@@ -2035,6 +2105,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   function slamLands(m) {
     bossEvent(m, 'slam', { r: m.slamR });
     m.timer = 0;
+    watchMiss(m, m.moveAt ?? now()); // (A19: it landed on nobody)
   }
   function resetBoss(m) {
     for (const q of mobs) if (q.minion && q.room === m.room) q.dead = q.gone = true;

@@ -36,6 +36,8 @@ Drained Tubes west of the Coast, and the old tube mouth is in the west part. Don
 - **Waystone** `coast` on the Glass Beach (`isle: 'ember'`, `src/shared/waystones.js`).
 
 ## The Hatchkeeper (den 57, `HATCH_DEN`, The Buried Clutch, Lv 115; E2's second piece)
+Her challenges (T2, 2026-11-10: `docs/combat/challenges.md`): buried in hot sand (`bury`: mash free), her clutch
+(`clutch`, phase 2 on: hatchlings that grow into Grown Hatchlings if left), and the punish window.
 A big boss with a story (`story/characters/bosses.md`) and `lines`: a great black marine iguana, older than anyone,
 who with a shard under her crest keeps her clutch buried in sand the lava keeps hot, warm forever, so it never
 hatches and never leaves her (Eyvind and Liv's story from the other side). Her mouth is on the nesting sand at

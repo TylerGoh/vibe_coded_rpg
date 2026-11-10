@@ -11,6 +11,7 @@
 import {
   CHALLENGES, ARROWS, ARROW_GLYPH, TRAP_HOLD, SNARE_TICKS, SWAP_TICKS, PUNISH_KEEP_S, seedFor, comboFor, RHYTHM_TICKS, RHYTHM_BEAT, RHYTHM_WINDOW, CAGE_S, RESCUE_R, GAP_GRACE, gapX, TETHER_R, PARRY_MS, PARRY_LATE_MS, DARK_R,
   MIRROR, LASER_COLS, LASER_W, laserX, tiltV, CARRY_S, CARRY_R, THROW_RANGE, CARRY_BURST_R, REWIND_S,
+  MASH_TICKS, MASH_GAP_MS, zoneX,
 } from './shared/challenge.js';
 import { text } from './village.js';
 import { audio } from './audio.js';
@@ -19,7 +20,7 @@ import { TAU } from './util.js';
 
 const BANNER_S = 4.5; // G2's line stays this long
 const KEY_DIR = { left: 0, right: 1, jump: 2, down: 3 }; // the key actions (src/shared/keys.js) that enter each arrow
-const TRAP_MAXT = { snare: SNARE_TICKS, rhythm: RHYTHM_TICKS, lock: SNARE_TICKS, mirror: SNARE_TICKS }; // (each trap's whole time, for its bar)
+const TRAP_MAXT = { snare: SNARE_TICKS, rhythm: RHYTHM_TICKS, lock: SNARE_TICKS, mirror: SNARE_TICKS, mash: MASH_TICKS }; // (each trap's whole time, for its bar)
 
 // The moving arena's ledges as drawn (the dens' art asks, drawSunk): platform index → how far sunk, 0 (up) to 1 (gone
 // into the floor); shaking: about to go
@@ -63,6 +64,11 @@ export class Challenges {
     this.stopped = null; // { at, until, mob }: the stopped hour (A10's wind-up: the room greys)
     this.feint = null; // the fake-out's ring (a hazard), while it ticks
     this.flashAt = -9; // (Rewind's snap: a white flash)
+    this.jobs = null; // { ids, until }: hatchlings growing (T2)
+    this.airweak = null; // { mob, until, h }: a weak spot up high (T2)
+    this.tusk = null; // { mob, until }: the Narwhal's tusk glinting (T2)
+    this.mounds = null; // [[x, popAt, popped]]: the Knotmole's mounds (T2); the last to pop is her
+    this.zone = null; // { x0, x1, r, at, dur }: Pyra's ring of cool air (T2)
     this.pad = TOUCH ? this.buildPad() : null;
   }
 
@@ -76,7 +82,7 @@ export class Challenges {
   // ——— the boss's event → hazards (src/rpg.js hazardEvent) ———
   event(m, add) {
     const now = this.time;
-    if (m.type === 'snare' || m.type === 'rhythm' || m.type === 'lock' || m.type === 'mirror') {
+    if (m.type === 'snare' || m.type === 'rhythm' || m.type === 'lock' || m.type === 'mirror' || m.type === 'mash') {
       this.style = m.style ?? 'root';
       for (const [x, d] of m.list) {
         const at = now + d + m.warn;
@@ -103,7 +109,7 @@ export class Challenges {
       this.arena = { mask: m.down.reduce((a, i) => a | (1 << i), 0), warnAt: now, sinkAt: now + m.warn, upAt: now + m.warn + m.dur, sink: m.sink, room: this.rpg.room, done: 0 };
       audio.sfx('bossRoar', { vol: 0.4 });
     } else if (m.type === 'dark') {
-      this.dark = { at: now, until: now + m.dur, mob: m.id };
+      this.dark = { at: now, until: now + m.dur, mob: m.noBoss ? null : m.id };
       audio.sfx('phaseOut', { vol: 0.6 });
     } else if (m.type === 'tether') {
       this.tethers = { pairs: m.pairs, from: now + m.warn, until: now + m.warn + m.dur, r: m.r, mob: m.id, at: now };
@@ -152,7 +158,7 @@ export class Challenges {
       this.tilt = { tl: m.tl, dir: m.dir, warnAt: now, from: now + m.warn, until: now + m.warn + m.dur, room: this.rpg.room, done: 0, edge: m.edge };
       audio.sfx('bossRoar', { vol: 0.4 });
     } else if (m.type === 'carry') {
-      this.tooth = { x: m.x, x0: m.x0 ?? m.x, holder: 0, at: now, until: now + m.ms / 1000, mob: m.id, fly: null };
+      this.tooth = { x: m.x, holder: 0, at: now, until: now + m.ms / 1000, mob: m.id, fly: null, style: m.style };
       audio.sfx('eggBreak', { vol: 0.6 });
     } else if (m.type === 'carried') {
       if (this.tooth) this.tooth.holder = m.by;
@@ -181,6 +187,38 @@ export class Challenges {
       if (ghosts.has(this.myId) && me) ghosts.set(this.myId, [me.x, me.y]); // (ours: where we stand in our own predicted world)
       this.rewind = { ghosts, at: now, snapAt: now + m.dur, mob: m.id };
       audio.sfx('timeStop', { vol: 0.5 });
+    }
+    // ——— T2's ———
+    else if (m.type === 'lava') {
+      add({ type: 'flood', ch: 'flood', dir: m.dir, passes: m.passes, back: m.back, segs: m.segs, gap: m.gap, warn: m.warn, hot: m.hot, style: m.style, warnAt: now, at: now, end: now + floodSpan(m) + 0.4 });
+      audio.sfx(m.style === 'magma' ? 'magmaRise' : 'bossRoar', { vol: 0.5 });
+    } else if (m.type === 'jobs') {
+      this.jobs = { ids: m.ids, at: now, until: now + m.ms / 1000 };
+      audio.sfx('summon', { vol: 0.6 });
+    } else if (m.type === 'grow') {
+      this.jobs = null;
+      for (const id of m.ids) {
+        const v = this.rpg.views.get(id);
+        if (v) this.rpg.pop(v.x, v.y - 60, 'GROWN!', '#ff8fa3', 18);
+      }
+      audio.sfx('bossRoar', { vol: 0.5 });
+    } else if (m.type === 'airweak') {
+      this.airweak = { mob: m.id, until: now + m.dur, h: m.h };
+    } else if (m.type === 'airHit') {
+      const b = this.rpg.views.get(m.id);
+      if (b) this.rpg.pop(b.x, b.y - 150, 'CRACKED!', '#ffe28a', 22);
+      if (this.airweak) this.airweak.until = now;
+      audio.sfx('crit');
+    } else if (m.type === 'tusk') {
+      this.tusk = { mob: m.id, at: now, until: now + m.dur + 0.4 };
+      audio.sfx('laserCharge', { vol: 0.4 });
+    } else if (m.type === 'mounds') {
+      this.mounds = m.list.map(([x, d]) => [x, now + d, false]);
+      audio.sfx('magmaRise', { vol: 0.4 });
+    } else if (m.type === 'punish') {
+      const b = this.rpg.views.get(m.id);
+      if (b) this.rpg.pop(b.x, b.y - 170, 'OPENING!', '#9ff0b4', 22);
+      audio.sfx('bubblePop', { vol: 0.7 });
     } else if (m.type === 'rewindGo') {
       const r = this.rewind, net = this.rpg.net, mine = r?.ghosts.get(this.myId);
       if (mine && net.seq) {
@@ -213,6 +251,9 @@ export class Challenges {
       // A7: the beam over us is on this beat (any height: they come from the roof). Not marked done: each beat can hit
       const b = Math.floor((t - h.at) / h.beat), c = Math.round((me.x - laserX(0)) / (laserX(1) - laserX(0)));
       if (b < h.masks.length && c >= 0 && c < LASER_COLS && h.masks[b] & (1 << c) && Math.abs(me.x - laserX(c)) < LASER_W / 2 + 6) return ouch('laser');
+    } else if (h.type === 'flood') {
+      // the den's floor flooding strip by strip: on the floor (not a ledge, not in the air) in a strip that's up
+      if (me.grounded && !me.onPlat && floodHot(h, Math.floor(me.x / (1500 / h.segs)), t)) return ouch('flood');
     } else if (h.type === 'late') {
       if (t < h.at + h.dur && Math.abs(me.x - h.x) < h.r + 6) {
         h.done = true;
@@ -251,6 +292,11 @@ export class Challenges {
       this.combo = { arrows: comboFor(seed, h.len), i: 0, wrongAt: -9, at: this.time, kind: k, max: TRAP_MAXT[k], flip: k === 'mirror' ? h.flip : null };
       audio.sfx('block');
       return { tr: TRAP_MAXT[k] };
+    }
+    if (k === 'mash') {
+      this.combo = { arrows: null, n: h.len, i: 0, wrongAt: -9, at: this.time, kind: k, max: MASH_TICKS };
+      audio.sfx('block');
+      return { tr: MASH_TICKS };
     }
     if (k === 'cage') {
       this.caged = { until: this.time + CAGE_S, at: this.time };
@@ -327,6 +373,20 @@ export class Challenges {
       f.tick++;
       audio.sfx('bombTick', { vol: 0.7 });
     }
+    // a mash done but faster than the server allows: it goes when the time's up
+    const c = this.combo;
+    if (c?.kind === 'mash' && c.i >= c.n && t - c.at >= (c.n * MASH_GAP_MS) / 1000 + 0.05) this.freeOwn();
+    if (this.jobs && t > this.jobs.until + 0.5) this.jobs = null;
+    if (this.airweak && t > this.airweak.until + 0.3) this.airweak = null;
+    if (this.tusk && t > this.tusk.until) this.tusk = null;
+    if (this.mounds) {
+      for (const md of this.mounds) if (!md[2] && t >= md[1]) {
+        md[2] = true;
+        this.bursts.push([md[0], FLOOR_Y, t, 'dirt']);
+      }
+      if (this.mounds.every((md) => md[2])) this.mounds = null;
+    }
+    if (this.zone && t > this.zone.at + this.zone.dur + 0.5) this.zone = null;
     if (this.tooth && t > this.tooth.until + 0.5) this.tooth = null;
     if (this.rewind && t > this.rewind.snapAt + 2) this.rewind = null;
     if (this.stopped && t > this.stopped.until + 0.3) this.stopped = null;
@@ -389,7 +449,7 @@ export class Challenges {
     if (dir === undefined) return false;
     if (this.combo) {
       this.press(dir);
-      return true;
+      return true; // (a mash: every movement key is held off; only Jump counts)
     }
     if (this.near(this.rpg.net.me) !== null) this.press(dir);
     return false;
@@ -419,6 +479,13 @@ export class Challenges {
   pressOwn(dir) {
     const c = this.combo, net = this.rpg.net, t = this.time;
     if (!(net.me.tr > 0)) return;
+    if (c.kind === 'mash') { // (A2: Jump, again and again)
+      if (dir !== 2 || c.i >= c.n) return;
+      c.i++;
+      c.hitAt = t;
+      audio.sfx('pickup', { vol: 0.25 });
+      return;
+    }
     // the rhythm lock: only on the beat (counted from when it caught us)
     const off = c.kind === 'rhythm' ? Math.abs(((t - c.at + RHYTHM_BEAT / 2) % RHYTHM_BEAT) - RHYTHM_BEAT / 2) : 0;
     if (c.arrows[c.i] !== dir || off > RHYTHM_WINDOW) {
@@ -430,11 +497,15 @@ export class Challenges {
     c.i++;
     audio.sfx('pickup', { vol: 0.4 });
     if (c.i < c.arrows.length) return;
-    // all in: free at the newest input (the server checks the order and frees us there too)
-    this.rpg.send({ t: 'free', s: net.seq, k: c.arrows });
+    this.freeOwn();
+  }
+  // all in: free at the newest input (the server checks the order, or a mash's count, and frees us there too)
+  freeOwn() {
+    const c = this.combo, net = this.rpg.net;
+    this.rpg.send({ t: 'free', s: net.seq, k: c.kind === 'mash' ? c.i : c.arrows });
     net.free(net.seq);
     this.combo = null;
-    this.bursts.push([net.me.x, net.me.y, t]);
+    this.bursts.push([net.me.x, net.me.y, this.time]);
     audio.sfx('bubblePop');
   }
 
@@ -452,11 +523,16 @@ export class Challenges {
     if (this.rewind) this.drawGhosts(ctx, t);
     if (this.tooth) this.drawTooth(ctx, t);
     if (this.dark) this.drawDark(ctx, list, t);
+    if (this.mounds) for (const [x, at, popped] of this.mounds) if (!popped) drawMound(ctx, x, t, at - t);
+    if (this.zone) this.drawZone(ctx, t);
+    if (this.jobs) this.drawJobs(ctx, t);
+    if (this.airweak) this.drawAirweak(ctx, t);
+    if (this.tusk) this.drawTusk(ctx, t);
     if (this.tethers && t >= this.tethers.at) this.drawTethers(ctx, t);
     if (this.hunt) this.drawHunt(ctx, t);
     for (const [s, tr, cs] of list) {
       if (tr >= TRAP_HOLD) drawCage(ctx, s.x, s.y, t);
-      else if (tr > 0) (this.style === 'fetter' ? drawFetters : this.style === 'iron' ? drawIron : drawRoots)(ctx, s.x, s.y, s.h ?? 40, t, tr / SNARE_TICKS);
+      else if (tr > 0) (this.style === 'fetter' ? drawFetters : PAL[this.style] ? drawIron : drawRoots)(ctx, s.x, s.y, s.h ?? 40, t, tr / SNARE_TICKS, this.style);
       if (cs > 0) drawSwapSign(ctx, s.x, s.y - (s.h ?? 40) - (s === mine && this.combo ? 80 : 30), t, cs / SWAP_TICKS);
     }
     for (const [x, y, at, kind] of this.bursts) drawBurst(ctx, x, y, (t - at) / 0.6, kind ?? this.style);
@@ -480,7 +556,8 @@ export class Challenges {
       ctx.restore();
     }
     const c = this.combo, me = this.rpg.net.me;
-    if (c && mine) drawCombo(ctx, mine.x, mine.y - (mine.h ?? 40) - 34, c, t, (me.tr | 0) / (c.max || SNARE_TICKS), c.kind === 'rhythm' ? c.at : null, c.flip);
+    if (c && mine && c.kind === 'mash') drawMash(ctx, mine.x, mine.y - (mine.h ?? 40) - 34, c, t, (me.tr | 0) / MASH_TICKS);
+    else if (c && mine) drawCombo(ctx, mine.x, mine.y - (mine.h ?? 40) - 34, c, t, (me.tr | 0) / (c.max || SNARE_TICKS), c.kind === 'rhythm' ? c.at : null, c.flip);
     // in a cage: the time left (a friend opens it)
     if (this.caged && mine) drawCageClock(ctx, mine.x, mine.y - (mine.h ?? 40) - 40, (this.caged.until - t) / CAGE_S, t);
     // a friend's cage we're standing at: its arrows over it, ours to enter
@@ -489,6 +566,83 @@ export class Challenges {
       const s = this.rpg.slimeOf(who), cage = this.cages.get(who), r = this.rescue?.who === who ? this.rescue : { i: 0, wrongAt: -9 };
       if (s && cage) drawCombo(ctx, s.x, s.y - (s.h ?? 40) - 40, { arrows: cage.arrows, i: r.i, wrongAt: r.wrongAt }, t, (cage.until - t) / CAGE_S, null);
     }
+  }
+
+  // ——— T2's art ———
+  // Pyra's ring of cool air drifting across the den while her Rebirth gathers
+  drawZone(ctx, t) {
+    const z = this.zone, k = (t - z.at) / z.dur, x = zoneX(z, k);
+    ctx.save();
+    ctx.fillStyle = 'rgba(170,230,255,0.18)';
+    ctx.strokeStyle = `rgba(190,240,255,${0.6 + 0.3 * Math.sin(t * 8)})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(x, FLOOR_Y + 1, z.r, 14, 0, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    for (let i = 0; i < 5; i++) {
+      const px = x - z.r * 0.7 + i * z.r * 0.35, py = FLOOR_Y - ((t * 60 + i * 37) % 120);
+      ctx.fillStyle = 'rgba(220,245,255,0.6)';
+      ctx.beginPath();
+      ctx.arc(px, py, 3, 0, TAU);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+  // a hatchling's time left before it grows: a ring over it closing
+  drawJobs(ctx, t) {
+    const J = this.jobs, k = Math.max(0, Math.min(1, (J.until - t) / (J.until - J.at)));
+    for (const id of J.ids) {
+      const v = this.rpg.views.get(id);
+      if (!v || v.dead) continue;
+      ctx.save();
+      ctx.strokeStyle = k > 0.3 ? '#ffd06a' : `rgba(255,111,145,${0.6 + 0.4 * Math.sin(t * 14)})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(v.x, v.y - 70, 11, -Math.PI / 2, -Math.PI / 2 + TAU * k);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+  // the weak spot on its back while it's up there, and the height you need (a dashed line)
+  drawAirweak(ctx, t) {
+    const A = this.airweak, b = this.rpg.views.get(A.mob);
+    if (!b || t > A.until) return;
+    const x = b.x - (b.dir ?? 1) * 40, y = b.y - 110, p = 0.5 + 0.5 * Math.sin(t * 16);
+    ctx.save();
+    const g = ctx.createRadialGradient(x, y, 2, x, y, 30);
+    g.addColorStop(0, `rgba(255,236,150,${0.7 + 0.3 * p})`);
+    g.addColorStop(1, 'rgba(255,200,90,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - 30, y - 30, 60, 60);
+    ctx.strokeStyle = 'rgba(255,226,140,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 8]);
+    ctx.beginPath();
+    ctx.moveTo(b.x - 260, FLOOR_Y - A.h);
+    ctx.lineTo(b.x + 260, FLOOR_Y - A.h);
+    ctx.stroke();
+    ctx.restore();
+  }
+  // the Old Narwhal's tusk glinting as it lowers (the only tell of its late charge)
+  drawTusk(ctx, t) {
+    const T = this.tusk, b = this.rpg.views.get(T.mob);
+    if (!b) return;
+    const x = b.x + (b.dir ?? 1) * 150, y = b.y - 70, k = Math.min(1, (t - T.at) / 0.4), r = 6 + 10 * k * (0.6 + 0.4 * Math.sin(t * 20));
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.translate(x, y);
+    for (let i = 0; i < 4; i++) {
+      ctx.rotate(Math.PI / 4);
+      ctx.beginPath();
+      ctx.moveTo(0, -r);
+      ctx.lineTo(2, 0);
+      ctx.lineTo(0, r);
+      ctx.lineTo(-2, 0);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   // ——— T1b's art ———
@@ -616,7 +770,7 @@ export class Challenges {
       ctx.stroke();
       ctx.restore();
     }
-    drawChip(ctx, x, y, ang, t);
+    drawChip(ctx, x, y, ang, t, T.style);
   }
 
   // A16: black but a light round each slime and the boss (one offscreen layer, holes cut in it)
@@ -643,7 +797,7 @@ export class Challenges {
     };
     for (const [s] of list) hole(s.x, s.y - 20, DARK_R);
     const b = this.rpg.views.get(d.mob);
-    if (b) hole(b.x, b.y - 120, 70); // (its eyes)
+    if (b && d.mob) hole(b.x, b.y - 120, 70); // (its eyes; the Knotmole underground has none)
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.globalAlpha = k;
@@ -922,7 +1076,7 @@ function drawSwapSign(ctx, x, y, t, left) {
 // Roots snapping apart (broke free); iron cracking off (kind 'iron'), embers (a chip of the tooth bursting)
 function drawBurst(ctx, x, y, k, kind = 'root') {
   if (k > 1) return;
-  const cols = kind === 'iron' ? ['#5a5250', '#ff9a4a'] : kind === 'ember' ? ['#ffb347', '#ff6a3a'] : kind === 'fetter' ? ['#e8f2ff', '#9ab0d8'] : ['#8fc06a', '#9a7652'];
+  const cols = PAL[kind] ? [PAL[kind].body, PAL[kind].crack] : kind === 'ember' ? ['#ffb347', '#ff6a3a'] : kind === 'fetter' ? ['#e8f2ff', '#9ab0d8'] : kind === 'dirt' ? ['#7a5a3e', '#a07a52'] : ['#8fc06a', '#9a7652'];
   ctx.save();
   ctx.globalAlpha = 1 - k;
   for (let i = 0; i < 8; i++) {
@@ -939,7 +1093,7 @@ function drawBurst(ctx, x, y, k, kind = 'root') {
 export function drawSnareHz(ctx, h, now) {
   const x = h.x, y = h.y ?? 450, r = h.r;
   if (h.style === 'fetter') return drawFetterHz(ctx, h, now);
-  if (h.style === 'iron') return drawIronHz(ctx, h, now);
+  if (PAL[h.style]) return drawIronHz(ctx, h, now);
   if (h.ch === 'lock' && now < h.at) {
     // the group lock: a golden ring of the Keepers' rune under each, so the party sees it's the one lock
     ctx.strokeStyle = `rgba(255,214,110,${0.4 + 0.3 * Math.sin(now * 10)})`;
@@ -1183,6 +1337,14 @@ export function drawGapsHz(ctx, h, now) {
     for (let x = 14; x < W; x += 23) {
       if (x > a - 6 && x < b + 6) continue;
       const y = ((k * 1.6 + ((x * 13) % 7) / 7) % 1) * (G + 40) - 30;
+      if (h.style === 'bubble') { // (the Tidemother's wall of bubbles, rising)
+        ctx.beginPath();
+        ctx.arc(x, G - y, 8, 0, TAU);
+        ctx.fillStyle = 'rgba(190,235,255,0.55)';
+        ctx.fill();
+        ctx.stroke();
+        continue;
+      }
       ctx.beginPath();
       ctx.moveTo(x - 5, y - 18);
       ctx.lineTo(x + 5, y - 18);
@@ -1236,10 +1398,16 @@ export function drawBashHz(ctx, h, now) {
 
 // ——— T1b's art ———
 // Typhon's iron setting round a held slime: a dark crust up the body, cracks glowing orange, cooling darker as time runs
-function drawIron(ctx, x, y, h, t, left) {
-  const H = h * (0.45 + 0.2 * Math.min(1, left * 1.5)), W = 30, heat = Math.max(0, Math.min(1, left));
+// (T2: the same crust as an ice coffin or a heap of hot sand: PAL)
+const PAL = {
+  iron: { body: '#3e3836', crack: '#ff9a4a', glow: [255, 120, 60], pool: '255,170,70' },
+  ice: { body: 'rgba(200,232,255,0.92)', crack: '#7ab8e8', glow: [120, 190, 255], pool: '180,225,255' },
+  sand: { body: '#c8a46a', crack: '#ff9a4a', glow: [255, 150, 70], pool: '230,190,120' },
+};
+function drawIron(ctx, x, y, h, t, left, style = 'iron') {
+  const H = h * (0.45 + 0.2 * Math.min(1, left * 1.5)) * (style === 'ice' ? 1.6 : 1), W = 30, heat = Math.max(0, Math.min(1, left)), P = PAL[style] ?? PAL.iron;
   ctx.save();
-  ctx.fillStyle = '#3e3836';
+  ctx.fillStyle = P.body;
   ctx.beginPath();
   ctx.moveTo(x - W - 6, y + 2);
   for (let i = 0; i <= 8; i++) {
@@ -1249,7 +1417,7 @@ function drawIron(ctx, x, y, h, t, left) {
   ctx.lineTo(x + W + 6, y + 2);
   ctx.closePath();
   ctx.fill();
-  ctx.strokeStyle = `rgba(255,${120 + Math.round(60 * heat)},60,${0.35 + 0.55 * heat})`;
+  ctx.strokeStyle = `rgba(${P.glow[0]},${P.glow[1] + Math.round(60 * heat * (style === 'ice' ? 0 : 1))},${P.glow[2]},${0.35 + 0.55 * heat})`;
   ctx.lineWidth = 2;
   ctx.lineCap = 'round';
   for (let i = 0; i < 4; i++) {
@@ -1264,13 +1432,13 @@ function drawIron(ctx, x, y, h, t, left) {
 }
 // its hazard: the iron pooling under the mark (glowing, bubbling), then setting in jagged spikes
 function drawIronHz(ctx, h, now) {
-  const x = h.x, y = h.y ?? 450, r = h.r;
+  const x = h.x, y = h.y ?? 450, r = h.r, P = PAL[h.style] ?? PAL.iron;
   ctx.save();
   if (now < h.at) {
     const k = Math.max(0, Math.min(1, (now - h.warnAt) / Math.max(0.05, h.at - h.warnAt)));
     const g = ctx.createRadialGradient(x, y, 2, x, y, r);
-    g.addColorStop(0, `rgba(255,170,70,${0.4 + 0.4 * k})`);
-    g.addColorStop(1, 'rgba(255,90,40,0)');
+    g.addColorStop(0, `rgba(${P.pool},${0.4 + 0.4 * k})`);
+    g.addColorStop(1, `rgba(${P.pool},0)`);
     ctx.fillStyle = g;
     ctx.beginPath();
     ctx.ellipse(x, y + 1, r * (0.5 + 0.5 * k), 9, 0, 0, TAU);
@@ -1295,14 +1463,14 @@ function drawIronHz(ctx, h, now) {
     const rise = Math.min(1, (now - h.at) / 0.1) * (1 - f);
     for (let i = 0; i < 7; i++) {
       const px = x - r * 0.9 + (i / 6) * r * 1.8, tall = (30 + 18 * Math.sin(i * 2.3 + 1)) * rise;
-      ctx.fillStyle = '#463e3a';
+      ctx.fillStyle = P.body;
       ctx.beginPath();
       ctx.moveTo(px - 7, y + 2);
       ctx.lineTo(px + (i % 2 ? 3 : -3), y - tall);
       ctx.lineTo(px + 7, y + 2);
       ctx.closePath();
       ctx.fill();
-      ctx.strokeStyle = 'rgba(255,140,60,0.8)';
+      ctx.strokeStyle = P.crack;
       ctx.lineWidth = 1.5;
       ctx.stroke();
     }
@@ -1311,10 +1479,26 @@ function drawIronHz(ctx, h, now) {
 }
 
 // A chip of Brenna's tooth: a shard of old gear-tooth (bronze, a sliver of the shard's light in it)
-function drawChip(ctx, x, y, ang, t) {
+function drawChip(ctx, x, y, ang, t, style) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(ang);
+  if (style === 'rock') { // (Ignis's: a lump of cooled basalt, frost-blue in its cracks)
+    const g = ctx.createRadialGradient(0, 0, 2, 0, 0, 32);
+    g.addColorStop(0, `rgba(150,210,255,${0.4 + 0.2 * Math.sin(t * 6)})`);
+    g.addColorStop(1, 'rgba(150,210,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(-32, -32, 64, 64);
+    ctx.fillStyle = '#3a3a44';
+    ctx.strokeStyle = '#9ad4ff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 15, 12, 0.3, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
   const g = ctx.createRadialGradient(0, 0, 2, 0, 0, 34);
   g.addColorStop(0, `rgba(255,214,140,${0.45 + 0.2 * Math.sin(t * 6)})`);
   g.addColorStop(1, 'rgba(255,214,140,0)');
@@ -1422,6 +1606,102 @@ export function drawFeintHz(ctx, h, now) {
     ctx.beginPath();
     ctx.arc(h.x - (n - 1) * 9 + i * 18, 470, 5, 0, TAU);
     ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ——— T2's art and helpers ———
+// A2's mash: one big ▲ key cap with the count, shaking with each press, and the time left
+function drawMash(ctx, x, y, c, t, left) {
+  const S = 34, kick = c.hitAt && t - c.hitAt < 0.1 ? 3 : 0;
+  ctx.save();
+  ctx.fillStyle = 'rgba(48,30,56,0.8)';
+  ctx.beginPath();
+  ctx.roundRect(x - 52, y - S / 2 - 8, 104, S + 22, 12);
+  ctx.fill();
+  ctx.fillStyle = '#fff4d6';
+  ctx.strokeStyle = `rgba(255,208,106,${0.6 + 0.4 * Math.sin(t * 20)})`;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.roundRect(x - 44, y - S / 2 + kick, S, S, 8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = ctx.strokeStyle = '#5b3a6b';
+  arrow(ctx, x - 44 + S / 2, y + kick, 2, 12);
+  text(ctx, `${Math.min(c.i, c.n)} / ${c.n}`, x + 18, y + 1, 16, '#fff4d6');
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.fillRect(x - 44, y + S / 2 + 5, 88, 4);
+  ctx.fillStyle = '#7fd88f';
+  ctx.fillRect(x - 44, y + S / 2 + 5, 88 * Math.min(1, c.i / c.n), 4);
+  ctx.fillStyle = left > 0.35 ? '#ffd06a' : '#ff6f91';
+  ctx.fillRect(x - 44, y + S / 2 + 10, 88 * Math.max(0, Math.min(1, left)), 3);
+  ctx.restore();
+}
+
+// the Knotmole's mound of dirt bulging (all alike: the last to pop is her)
+function drawMound(ctx, x, t, left) {
+  const k = Math.max(0, Math.min(1, 1 - left / 4)), sh = Math.sin(t * (14 + 20 * k)) * (1 + 2 * k);
+  ctx.save();
+  ctx.fillStyle = '#6e4e34';
+  ctx.beginPath();
+  ctx.ellipse(x + sh, FLOOR_Y, 40 + 10 * k, 12 + 12 * k, 0, Math.PI, 0);
+  ctx.fill();
+  ctx.fillStyle = '#8a6646';
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.arc(x - 24 + i * 16 + sh, FLOOR_Y - 8 - 6 * k - (i % 2) * 4, 4, 0, TAU);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// A12 in a den: when each strip floods (strip i, pass p) and whether it's up at t
+function floodWindows(h, i) {
+  const out = [];
+  for (let p = 0; p < h.passes; p++) {
+    const d = p % 2 ? -h.dir : h.dir, j = d > 0 ? i : h.segs - 1 - i, from = p * (h.segs - h.back) * h.gap + j * h.gap;
+    out.push([from, from + h.warn, from + h.warn + h.hot]); // (warning from, up from, down at), from the event
+  }
+  return out;
+}
+function floodHot(h, i, t) {
+  if (i < 0 || i >= h.segs) return false;
+  return floodWindows(h, i).some(([, a, b]) => t - h.at >= a && t - h.at < b);
+}
+function floodSpan(m) {
+  return (m.passes * m.segs - (m.passes > 1 ? m.back : 0)) * m.gap + m.warn + m.hot;
+}
+const FLOOD_LOOK = {
+  tide: { warn: '120,200,230', fill: 'rgba(90,170,210,0.75)', top: 'rgba(220,245,255,0.9)' },
+  floe: { warn: '170,215,240', fill: 'rgba(60,110,160,0.8)', top: 'rgba(235,248,255,0.95)' },
+  magma: { warn: '255,140,70', fill: 'rgba(230,90,40,0.85)', top: 'rgba(255,220,120,0.95)' },
+};
+export function drawFloodHz(ctx, h, now) {
+  const L = FLOOD_LOOK[h.style] ?? FLOOD_LOOK.tide, w = 1500 / h.segs, t = now - h.at;
+  ctx.save();
+  for (let i = 0; i < h.segs; i++) {
+    const x = i * w;
+    for (const [w0, a, b] of floodWindows(h, i)) {
+      if (t >= w0 && t < a) {
+        const k = (t - w0) / (a - w0);
+        ctx.strokeStyle = `rgba(${L.warn},${0.35 + 0.5 * k * (0.5 + 0.5 * Math.sin(now * 16))})`;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.strokeRect(x + 3, FLOOR_Y - 22, w - 6, 22);
+        ctx.setLineDash([]);
+      } else if (t >= a && t < b + 0.3) {
+        const rise = Math.min(1, (t - a) / 0.15) * Math.min(1, (b + 0.3 - t) / 0.3), H = 22 * rise;
+        ctx.fillStyle = L.fill;
+        ctx.fillRect(x, FLOOR_Y - H, w, H + 2);
+        ctx.fillStyle = L.top;
+        for (let j = 0; j < 4; j++) {
+          const px = x + ((j * 37 + now * 40) % w);
+          ctx.beginPath();
+          ctx.ellipse(px, FLOOR_Y - H, h.style === 'floe' ? 14 : 6, 2.5, 0, 0, TAU);
+          ctx.fill();
+        }
+      }
+    }
   }
   ctx.restore();
 }

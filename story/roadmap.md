@@ -112,8 +112,10 @@ No quests, no hard level gates.
           off-beat slams, the gear lock on its armour), Chronos (time reversed, the stopped hour, Rewind), Typhon (the
           iron snare, two at once, lava waves, the mirror trap); wire v10 (`tl`); HP cut by uptime as T1a. Unplayed; the
           phone check is still owed.
-  - [ ] T2: the den bosses (Behemoth, Tidemother, Knotmole, Frost Queen, Astral Wyrm, Old Narwhal, Ignis, Pyra,
-        Hatchkeeper), the remaining types, punish windows everywhere.
+  - [x] T2 (2026-11-10, live): the den bosses (Behemoth: roots, the bark mid-leap; Tidemother: tide waves, bubble wall;
+        Knotmole: the burrow; Frost Queen: ice beams, the coffin; Astral Wyrm: star rings, gravity flip; Old Narwhal: the
+        late tusk, the floe sea; Ignis: magma waves, a rock to throw; Pyra: fire rings, the Rebirth's drifting safe ring;
+        Hatchkeeper: buried in sand, hatchlings that grow), the punish window on every boss with challenges. Unplayed.
   - [ ] T3: the field bosses and the Novices' two.
   - [ ] T4: tuning after the owner and friends have played.
 - [x] **Boss gear worth the fight** (owner, 2026-11-06): stats above the curve by boss kind (`BOSS_GEAR`), and 22 unique

@@ -42,6 +42,9 @@ Don't "fix" this.
 - No elites, no field boss here: the den is the Skerries' big fight.
 
 ## The Old Narwhal (den 38, The Breathing Hole, Lv 70)
+Her challenges (T2, 2026-11-10: `docs/combat/challenges.md`): a very late tusk charge (`tusk`: a glint on the tusk is
+the tell, the floor's warning comes too late to wait for), the sea washing over the floes (`flood`, phase 2 on), and
+the punish window.
 A big boss with a story (`story/characters/bosses.md`) and `lines`: the last of her pod, who stayed when the
 rest swam south, holding the floes shut across the outer sound so nothing can leave the fjord: not the fish,
 not the seals. Things may come in (the ferry does); nothing goes out. Freed, she sings them out past the

@@ -12,6 +12,8 @@ deeper and harder, so its zones run hard → easy by x (`COVES_ZONES`). Don't "f
   Tidemother, then clear: `docs/social/story.md`, the freed world changes), the Sea Stacks (storm gulls: `dive`;
   snapshrimp: `lob` with `style: 'water'`), the Tidemother's cave mouth and Wreck Cave's mouth, its
   water gone down since G4 (a hard pocket, `docs/places/wreck.md`).
+- **The Tidemother's challenges** (T2, 2026-11-10: `docs/combat/challenges.md`): the tide floods the floor in waves
+  (`flood`, every phase), a wall of bubbles with one gap (`gaps`, phase 2 on), and the punish window.
 - **The Tidemother** (den, Lv 25): a big boss, so she talks: `lines` on her `MOBS` entry (on walking in,
   at phases 2 and 3, when freed) go out as `{t:'boss', a:'say'}` (`bossSays`, server/rpg.js) and show as a
   bubble and a chat line (`src/rpg.js`). Her ult is the `wave` kind, drawn as water for the `tide`

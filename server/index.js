@@ -94,6 +94,11 @@
 //       wire v10) · → {t:'pickup', s} also picks up a chip of the tooth (before any loot) · → {t:'carry', s, a:'throw',
 //       dir} thrown · → {t:'rw', s, x, y} snapped back to my ghost (in input order; within REWIND_SLACK of where the
 //       server had me). A Rewind's replayed boss events carry replay: 1
+//     T2's: ← {t:'boss', a:'chal', type:'mash' (the snare's shape; len = presses needed) | 'lava' {dir, passes, back, segs,
+//       gap, warn, hot, style} (the den's floor flooding) | 'jobs' {ids, ms} then 'grow' {ids} | 'airweak' {dur, h} then
+//       'airHit' {by} | 'tusk' {dur} | 'mounds' {list: [[x, s]]} | 'punish' | 'dark' {…, noBoss}} · bullet rings are plain
+//       'shots' · → {t:'ouch', kind:'mash'|'flood'} · → {t:'free', s, k: presses} out of a mash trap · Pyra's 'ultWarn' /
+//       'ultHit' for Rebirth carry zone {x0, x1, r}
 //   → {t:'pickup', s}
 //   ← {t:'nomana'}  a skill you tried had too little MP
 //   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,weapon}, atk, magic, def,
