@@ -72,6 +72,7 @@ list; he likes her; won't go near the stair), Soot (makes her sit in the springs
   `dive` brain (`fly` 90: field bosses can hover high, they don't need to notice anyone). It roams the High Vents.
   S5.4 party pair: `focus` and `pulse` (its wingbeats whipping the fumes into a gust; `looks.pulse: 'steam'`). Its pet
   is in the Pet Shop (`PETS`).
+  T3 (`docs/combat/challenges.md`): rings of burning sulphur from above.
 
 ## Gear (`docs/combat/items.md`)
 Ochre's tier (Lv 131, `aim` 135): Brimstone Pick / Picker's Staff / Picker's Bow, Picker's Fume Mask. Mob drops at

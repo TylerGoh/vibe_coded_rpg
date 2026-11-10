@@ -99,6 +99,10 @@
 //       'airHit' {by} | 'tusk' {dur} | 'mounds' {list: [[x, s]]} | 'punish' | 'dark' {…, noBoss}} · bullet rings are plain
 //       'shots' · → {t:'ouch', kind:'mash'|'flood'} · → {t:'free', s, k: presses} out of a mash trap · Pyra's 'ultWarn' /
 //       'ultHit' for Rebirth carry zone {x0, x1, r}
+//     T3's (the field bosses: aimed only at the slimes fighting one): 'gaps' may carry {a, b} (only that stretch) ·
+//       ← {t:'boss', a:'chal', type:'pullup'} a dive that was a feint (a new 'diveWarn' follows) | 'feintThrow' {x, y,
+//       style} an empty swing | 'deflected' {by, x, y} · 'shots' with pr: 1 can be knocked back · → {t:'ouch', kind:
+//       'deflect', mob} I attacked right as its block reached me (no hit; the server checks it threw one lately)
 //   → {t:'pickup', s}
 //   ← {t:'nomana'}  a skill you tried had too little MP
 //   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,weapon}, atk, magic, def,

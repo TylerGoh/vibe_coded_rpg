@@ -11,7 +11,7 @@
 import {
   CHALLENGES, ARROWS, ARROW_GLYPH, TRAP_HOLD, SNARE_TICKS, SWAP_TICKS, PUNISH_KEEP_S, seedFor, comboFor, RHYTHM_TICKS, RHYTHM_BEAT, RHYTHM_WINDOW, CAGE_S, RESCUE_R, GAP_GRACE, gapX, TETHER_R, PARRY_MS, PARRY_LATE_MS, DARK_R,
   MIRROR, LASER_COLS, LASER_W, laserX, tiltV, CARRY_S, CARRY_R, THROW_RANGE, CARRY_BURST_R, REWIND_S,
-  MASH_TICKS, MASH_GAP_MS, zoneX,
+  MASH_TICKS, MASH_GAP_MS, zoneX, DEFLECT_REST,
 } from './shared/challenge.js';
 import { text } from './village.js';
 import { audio } from './audio.js';
@@ -57,6 +57,7 @@ export class Challenges {
     this.tethers = null; // { pairs, from, until, r, mob }
     this.hunt = null; // { pairs: [[son id, slime id]], until }
     this.swungAt = -9; // (rpg.time) we last attacked: a parry's timing
+    this.prevSwungAt = -9; // (and the time before: knocking a block back wants a rest before the swing, T3)
     this.style = 'root'; // how the latest snare looks (a fetter in Fenrir's den, iron in Typhon's)
     this.tilt = null; // { tl, dir, warnAt, from, until, room, done: 0 | 1 | 2, edge }: the floor leaning
     this.tooth = null; // { x, holder, until, mob, fly: { x0, x1, at, hit } }: a chip of Brenna's tooth
@@ -98,7 +99,7 @@ export class Challenges {
       audio.sfx('bossWarn', { vol: 0.5 });
       this.rpg.later(m.warn, () => audio.sfx('shellBlock', { vol: 0.7 }));
     } else if (m.type === 'gaps') {
-      add({ type: 'gaps', ch: 'gaps', x0: m.x0, v: m.v, w: m.w, from: now, warnAt: now, at: now + m.warn, dur: m.dur, end: now + m.warn + m.dur + 0.4, style: m.style });
+      add({ type: 'gaps', ch: 'gaps', x0: m.x0, v: m.v, w: m.w, from: now, warnAt: now, at: now + m.warn, dur: m.dur, end: now + m.warn + m.dur + 0.4, style: m.style, a: m.a, b: m.b }); // (a, b: only that stretch, a field boss's)
       audio.sfx('bossRoar', { vol: 0.5 });
       this.rpg.later(m.warn, () => audio.sfx('thornRain', { vol: 0.8 }));
     } else if (m.type === 'parry') {
@@ -172,7 +173,7 @@ export class Challenges {
       }
       audio.sfx('dash', { vol: 0.6 });
       if (m.hit) this.rpg.later(0.4, () => {
-        this.rpg.pop(m.x1, 260, m.back ? 'THE STRAP!' : 'HIT!', '#ffe28a', m.back ? 24 : 20);
+        this.rpg.pop(m.x1, 260, m.back ? (this.tooth?.style === 'tooth' || !this.tooth?.style ? 'THE STRAP!' : 'FROM BEHIND!') : 'HIT!', '#ffe28a', m.back ? 24 : 20);
         audio.sfx('bossSlam', { vol: 0.8 });
       });
     } else if (m.type === 'dropped') {
@@ -219,6 +220,17 @@ export class Challenges {
       const b = this.rpg.views.get(m.id);
       if (b) this.rpg.pop(b.x, b.y - 170, 'OPENING!', '#9ff0b4', 22);
       audio.sfx('bubblePop', { vol: 0.7 });
+    }
+    // ——— T3's (the field bosses) ———
+    else if (m.type === 'pullup') audio.sfx('reset', { vol: 0.6 }); // (a dive that was a feint: it marks again)
+    else if (m.type === 'feintThrow') { // (an empty swing: the real throw comes after)
+      this.bursts.push([m.x, m.y + 12, now, m.style === 'ice' ? 'ice' : 'ember']);
+      audio.sfx('dash', { vol: 0.6 });
+    } else if (m.type === 'deflected') {
+      if (m.by !== this.myId) {
+        this.rpg.pop(m.x, m.y - 50, 'PARRY!', '#fff4a8', 20);
+        audio.sfx('block', { vol: 0.6 });
+      }
     } else if (m.type === 'rewindGo') {
       const r = this.rewind, net = this.rpg.net, mine = r?.ghosts.get(this.myId);
       if (mine && net.seq) {
@@ -246,6 +258,7 @@ export class Challenges {
       }
     } else if (h.type === 'gaps') {
       // (not marked done: a Dash's i-frames skip a moment of it, not the whole fall; the hit's invulnerability does the rest)
+      if (h.a !== undefined && (me.x < h.a || me.x > h.b)) return null; // (outside its stretch: a field boss's wall, T3)
       if (t < h.at + h.dur && Math.abs(me.x - gapX(h, t)) > h.w / 2 - GAP_GRACE) return ouch('gaps');
     } else if (h.type === 'lasers') {
       // A7: the beam over us is on this beat (any height: they come from the roof). Not marked done: each beat can hit
@@ -277,8 +290,23 @@ export class Challenges {
     return null;
   }
 
+  // T3, A20 on a thrown block (the Hall Troll's, `pr`), as it reaches us (src/rpg.js hazardHits): we attacked within
+  // PARRY_MS, after holding off DEFLECT_REST? → knocked back (told to the server, flying home): true; else it hits
+  deflect(h, me) {
+    const t = this.time;
+    if (!(t - this.swungAt <= PARRY_MS / 1000 && this.swungAt - this.prevSwungAt >= DEFLECT_REST)) return false;
+    this.rpg.send({ t: 'ouch', s: this.rpg.net.seq, mob: h.mob, kind: 'deflect', mx: Math.round(h.pos.x) });
+    this.rpg.pop(me.x, me.y - 80, 'PARRY!', '#fff4a8', 22);
+    this.rpg.fx?.spawn?.('nova', { x: h.pos.x, y: h.pos.y, radius: 44, tint: 'holy' });
+    const b = this.rpg.views.get(h.mob), tx = b?.x ?? h.x, ty = b ? b.y - 60 : h.y, T = 0.6, g = 900;
+    this.rpg.hz.push({ type: 'shot', style: h.style, mob: h.mob, back: true, x: h.pos.x, y: h.pos.y, vx: (tx - h.pos.x) / T, vy: (ty - h.pos.y - 0.5 * g * T * T) / T, g, r: h.r, warnAt: t, at: t, end: t + T, pos: null });
+    audio.sfx('block');
+    return true;
+  }
+
   // We attacked (a slap or a skill: src/main.js): a parry's timing
   swung() {
+    this.prevSwungAt = this.swungAt;
     this.swungAt = this.time;
   }
 
@@ -1304,29 +1332,43 @@ export function drawCageHz(ctx, h, now) {
 // A6: ice down the whole den but the gap. Warning: the roof cracks and a red wash everywhere but the gap (sliding as it
 // will); live: icicles falling
 export function drawGapsHz(ctx, h, now) {
-  const W = 1500, G = 450, gx = gapX(h, now), a = gx - h.w / 2, b = gx + h.w / 2;
+  // (a, b: a field boss's wall covers only that stretch, T3; a den's, the whole den)
+  const X0 = h.a ?? 0, W = h.b ?? 1500, G = 450, gx = gapX(h, now), a = gx - h.w / 2, b = gx + h.w / 2, cinder = h.style === 'cinder';
   ctx.save();
   if (now < h.at) {
     const k = Math.max(0, Math.min(1, (now - h.warnAt) / Math.max(0.05, h.at - h.warnAt))), pulse = 0.5 + 0.5 * Math.sin(now * (8 + 12 * k));
-    ctx.fillStyle = `rgba(150,200,255,${0.06 + 0.1 * k})`;
-    ctx.fillRect(0, 0, a, G);
+    ctx.fillStyle = cinder ? `rgba(255,140,60,${0.05 + 0.09 * k})` : `rgba(150,200,255,${0.06 + 0.1 * k})`;
+    ctx.fillRect(X0, 0, a - X0, G);
     ctx.fillRect(b, 0, W - b, G);
     ctx.strokeStyle = `rgba(140,255,190,${0.6 + 0.35 * pulse})`;
     ctx.lineWidth = 3;
     ctx.setLineDash([10, 8]);
     ctx.strokeRect(a, 40, b - a, G - 40);
     ctx.setLineDash([]);
-    // icicles hanging off the roof, shivering
-    ctx.fillStyle = 'rgba(210,235,255,0.85)';
-    for (let x = 20; x < W; x += 46) {
-      if (x > a - 10 && x < b + 10) continue;
-      const len = 14 + ((x * 7) % 18) + k * 10, sh = Math.sin(now * 30 + x) * k * 1.5;
-      ctx.beginPath();
-      ctx.moveTo(x - 7 + sh, 0);
-      ctx.lineTo(x + 7 + sh, 0);
-      ctx.lineTo(x + sh, len);
-      ctx.closePath();
-      ctx.fill();
+    if (cinder) {
+      // (the Bellower's boom: a dark cloud of ash gathering high over the sand, glowing underneath)
+      for (let x = X0 + 30; x < W; x += 60) {
+        if (x > a - 20 && x < b + 20) continue;
+        ctx.fillStyle = `rgba(60,48,46,${0.35 + 0.35 * k})`;
+        ctx.beginPath();
+        ctx.ellipse(x + Math.sin(now * 3 + x) * 4, 30 + ((x * 7) % 20), 34, 16 + 6 * k, 0, 0, TAU);
+        ctx.fill();
+        ctx.fillStyle = `rgba(255,130,60,${0.15 + 0.25 * k * pulse})`;
+        ctx.fillRect(x - 20, 44 + ((x * 7) % 20), 40, 3);
+      }
+    } else {
+      // icicles hanging off the roof, shivering
+      ctx.fillStyle = 'rgba(210,235,255,0.85)';
+      for (let x = X0 + 20; x < W; x += 46) {
+        if (x > a - 10 && x < b + 10) continue;
+        const len = 14 + ((x * 7) % 18) + k * 10, sh = Math.sin(now * 30 + x) * k * 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x - 7 + sh, 0);
+        ctx.lineTo(x + 7 + sh, 0);
+        ctx.lineTo(x + sh, len);
+        ctx.closePath();
+        ctx.fill();
+      }
     }
   } else {
     const k = (now - h.at) / Math.max(0.05, h.dur);
@@ -1334,7 +1376,7 @@ export function drawGapsHz(ctx, h, now) {
     ctx.fillStyle = 'rgba(225,242,255,0.95)';
     ctx.strokeStyle = 'rgba(120,170,230,0.9)';
     ctx.lineWidth = 1.5;
-    for (let x = 14; x < W; x += 23) {
+    for (let x = X0 + 14; x < W; x += 23) {
       if (x > a - 6 && x < b + 6) continue;
       const y = ((k * 1.6 + ((x * 13) % 7) / 7) % 1) * (G + 40) - 30;
       if (h.style === 'bubble') { // (the Tidemother's wall of bubbles, rising)
@@ -1345,6 +1387,19 @@ export function drawGapsHz(ctx, h, now) {
         ctx.stroke();
         continue;
       }
+      if (cinder) { // (the Bellower's cinders: dark lumps, a hot core, a short streak above)
+        ctx.fillStyle = 'rgba(255,140,60,0.35)';
+        ctx.fillRect(x - 1.5, y - 26, 3, 20);
+        ctx.fillStyle = '#2e2628';
+        ctx.beginPath();
+        ctx.arc(x, y, 7, 0, TAU);
+        ctx.fill();
+        ctx.fillStyle = '#ff9a4a';
+        ctx.beginPath();
+        ctx.arc(x + 1, y + 1, 3, 0, TAU);
+        ctx.fill();
+        continue;
+      }
       ctx.beginPath();
       ctx.moveTo(x - 5, y - 18);
       ctx.lineTo(x + 5, y - 18);
@@ -1353,8 +1408,8 @@ export function drawGapsHz(ctx, h, now) {
       ctx.fill();
       ctx.stroke();
     }
-    ctx.fillStyle = 'rgba(200,230,255,0.25)';
-    ctx.fillRect(0, G - 8, a, 10);
+    ctx.fillStyle = cinder ? 'rgba(80,60,56,0.35)' : 'rgba(200,230,255,0.25)';
+    ctx.fillRect(X0, G - 8, a - X0, 10);
     ctx.fillRect(b, G - 8, W - b, 10);
   }
   ctx.restore();
@@ -1403,6 +1458,7 @@ const PAL = {
   iron: { body: '#3e3836', crack: '#ff9a4a', glow: [255, 120, 60], pool: '255,170,70' },
   ice: { body: 'rgba(200,232,255,0.92)', crack: '#7ab8e8', glow: [120, 190, 255], pool: '180,225,255' },
   sand: { body: '#c8a46a', crack: '#ff9a4a', glow: [255, 150, 70], pool: '230,190,120' },
+  wax: { body: 'rgba(242,190,80,0.92)', crack: '#a8701c', glow: [255, 200, 80], pool: '255,214,110' }, // (the Hornet Queen's wax cell, T3)
 };
 function drawIron(ctx, x, y, h, t, left, style = 'iron') {
   const H = h * (0.45 + 0.2 * Math.min(1, left * 1.5)) * (style === 'ice' ? 1.6 : 1), W = 30, heat = Math.max(0, Math.min(1, left)), P = PAL[style] ?? PAL.iron;
@@ -1483,6 +1539,30 @@ function drawChip(ctx, x, y, ang, t, style) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(ang);
+  if (style === 'slag') { // (Old Crucible's, T3: a gobbet of slag, black crust cracked over orange)
+    const g = ctx.createRadialGradient(0, 0, 2, 0, 0, 32);
+    g.addColorStop(0, `rgba(255,150,60,${0.35 + 0.2 * Math.sin(t * 6)})`);
+    g.addColorStop(1, 'rgba(255,150,60,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(-32, -32, 64, 64);
+    ctx.fillStyle = '#2a2224';
+    ctx.strokeStyle = '#ff8a3a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 16, 11, -0.2, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = `rgba(255,190,90,${0.7 + 0.3 * Math.sin(t * 9)})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-9, -3);
+    ctx.lineTo(-2, 2);
+    ctx.lineTo(5, -4);
+    ctx.lineTo(10, 3);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
   if (style === 'rock') { // (Ignis's: a lump of cooled basalt, frost-blue in its cracks)
     const g = ctx.createRadialGradient(0, 0, 2, 0, 0, 32);
     g.addColorStop(0, `rgba(150,210,255,${0.4 + 0.2 * Math.sin(t * 6)})`);

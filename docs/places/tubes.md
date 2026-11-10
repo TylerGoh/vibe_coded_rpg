@@ -40,6 +40,8 @@ runs the Deep Tube. S5.4: `armour` (Ignis's basalt plates, `looks.shell: 'cinder
 round it, `looks.pulse: 'heat'`), from two fighters. Drops the Hundredfoot Saw / Staff / Bow, the Hundredfoot Helm,
 its plates and clinker scutes. Its pet, the mini Hundredfoot, is in the Pet Shop (`PETS`, between Fenrir's and
 Greyback's by level; `PETSHOP_W` went up to fit it).
+T3 (`docs/combat/challenges.md`): it thrashes and the ledges near it crumble into the floor and come back (more as it weakens), while its
+trail keeps burning the floor; `src/tubes.js` draws them sinking.
 
 ## Gear (`docs/combat/items.md`)
 Mob drops at their mob's level: the Clinker Helm (clinker beetles), Adderglass / Adderglass Staff / Adderglass Bow

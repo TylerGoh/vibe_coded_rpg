@@ -17,7 +17,7 @@ import {
   LOCK_WARN, LOCK_S, LOCK_R, LASER_COLS, LASER_BEAT, LASER_BEATS, LASER_WARN, LATE_WIND, LATE_TELL, LATE_R, TILT_WARN, TILT_S, TILT_EDGE, TILT_HP, TILT_TICK,
   tiltOf, CARRY_S, CARRY_R, CARRY_FAR, THROW_RANGE, CARRY_HIT, CARRY_STAGGER_S, CARRY_BURST_R, CARRY_BURST_HP, REWIND_S, REWIND_SLACK,
   MASH_N, MASH_TICKS, MASH_GAP_MS, RINGS_N, RING_ORBS, RING_GAP, RING_TURN, RING_EVERY, RING_SPEED, RING_R, FLOOD_SEGS, FLOOD_GAP, FLOOD_WARN, FLOOD_HOT,
-  FLOOD_PASSES, JOB_N, JOB_S, AIRWEAK_H, AIRWEAK_HIT, AIRWEAK_STAGGER_S, AIRWEAK_S,
+  FLOOD_PASSES, JOB_N, JOB_S, AIRWEAK_H, AIRWEAK_HIT, AIRWEAK_STAGGER_S, AIRWEAK_S, DEFLECT_HIT, DEFLECT_STAGGER_S,
 } from '../src/shared/challenge.js';
 import { roomDef } from '../src/shared/sim.js';
 
@@ -82,22 +82,25 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
       live(m).push({ type, seed, len, target: id, until: t + (CAGE_WARN + SNARE_LIVE) * 1000 + CLAIM_SLACK_MS });
       bossEvent(m, 'chal', { type, x: Math.round(q.state.x), y: Math.round(q.state.y), target: id, warn: CAGE_WARN, dur: SNARE_LIVE, r: CAGE_R, len, seed, style });
     } else if (type === 'gaps') {
-      // A6: ice along the whole den but one gap; from the boss's phase 4 (stage 3) it slides
-      const W = roomDef(m.room).width, slide = stage >= 3 ? GAP_SLIDE * (Math.random() < 0.5 ? -1 : 1) : 0, span = GAPS_WARN + GAPS_LIVE;
-      const lo = 120 + Math.max(0, -slide * span), hi = W - 120 - Math.max(0, slide * span);
+      // A6: ice along the whole den but one gap; from the boss's phase 4 (stage 3) it slides. opts.span: [a, b], only
+      // that stretch of the room (a field boss's, T3: round it, not the whole field); opts.slide: it slides anyway
+      const W = roomDef(m.room).width, slide = (opts.slide ?? stage >= 3) ? GAP_SLIDE * (Math.random() < 0.5 ? -1 : 1) : 0, span = GAPS_WARN + GAPS_LIVE;
+      const A = opts.span ? Math.round(Math.max(0, opts.span[0])) : 0, B = opts.span ? Math.round(Math.min(W, opts.span[1])) : W;
+      const lo = A + 120 + Math.max(0, -slide * span), hi = B - 120 - Math.max(0, slide * span);
       const x0 = Math.round(lo + Math.random() * Math.max(1, hi - lo));
       live(m).push({ type, seed, until: t + span * 1000 + CLAIM_SLACK_MS });
-      bossEvent(m, 'chal', { type, x0, v: slide, w: GAP_W, warn: GAPS_WARN, dur: GAPS_LIVE, style });
+      bossEvent(m, 'chal', { type, x0, v: slide, w: GAP_W, warn: GAPS_WARN, dur: GAPS_LIVE, style: opts.style ?? k.looks?.gaps ?? style, ...(opts.span ? { a: A, b: B } : {}) });
     } else if (type === 'arena') {
       // A15: ledges sink for ARENA_S; from its phase 2 the floor's roots strike while they're down
-      const n = roomDef(m.room).platforms.length;
-      if (!n) return false;
-      const all = Array.from({ length: n }, (_, i) => i).sort(() => Math.random() - 0.5);
-      const down = opts.down ?? all.slice(0, Math.max(1, Math.min(n - 1, stage + 1)));
+      // opts.pool: only these ledges (a field boss's: the ones near it, T3); opts.noGrid: no roots striking the floor
+      const n = roomDef(m.room).platforms.length, pool = (opts.pool ?? Array.from({ length: n }, (_, i) => i)).filter((i) => i < 8); // (pf is a byte)
+      if (!pool.length) return false;
+      const all = pool.sort(() => Math.random() - 0.5);
+      const down = opts.down ?? all.slice(0, Math.max(1, Math.min(opts.pool ? all.length : n - 1, stage + 1)));
       const mask = down.reduce((a, i) => a | (1 << i), 0);
       live(m).push({ type, seed, mask, until: t + (ARENA_WARN + ARENA_S + 1) * 1000 });
       bossEvent(m, 'chal', { type, down, warn: ARENA_WARN, dur: ARENA_S, sink: ARENA_SINK });
-      if (stage >= 1) {
+      if (stage >= 1 && !opts.noGrid) {
         const odd = Math.random() < 0.5, tiles = Array.from({ length: 10 }, (_, i) => i).filter((i) => stage >= 2 || i % 2 === (odd ? 1 : 0));
         bossEvent(m, 'grid', { style: k.looks?.grid ?? 'root', tiles, warn: ARENA_WARN + ARENA_SINK + ARENA_GRID_AT, dur: 0.45, tall: false });
       }
@@ -195,7 +198,7 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
       bossEvent(m, 'chal', { type, x: Math.round(m.x), dir: m.dir, w: Math.round(k.w / 2), reach: BASH_REACH, h: BASH_H, warn });
     } else return false;
     // G2: the types you learn by seeing them (no hit to wait for) show their line to everyone fighting as they start
-    if (TEACH_AT_START.has(type)) for (const [, q] of standing(inRoom(m.room))) firstTime(q, type);
+    if (TEACH_AT_START.has(type)) for (const [, q] of standing(opts.at ?? inRoom(m.room))) firstTime(q, type); // (opts.at: a field boss's fighters only, not passers-by)
     return true;
   }
 
@@ -309,6 +312,19 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
       c.parried = true;
       stagger(m, PARRY_STAGGER_S);
     }
+  }
+
+  // ——— A20 on a thrown block ({t:'ouch', kind:'deflect'}, the Hall Troll, T3): it threw one lately, at p, and nobody has
+  // knocked that one back yet ———
+  function deflect(id, p, m) {
+    const k = MOBS[m.kind], t = now();
+    if (p.faintUntil || !k.ch?.includes('deflect') || !m.throwAt || t - m.throwAt > 4000 || m.throwBack === m.throwAt) return;
+    if (Math.abs(p.state.x - m.x) > 900) return;
+    m.throwBack = m.throwAt;
+    bossEvent(m, 'chal', { type: 'deflected', by: id, x: Math.round(p.state.x), y: Math.round(p.state.y - 30) });
+    firstTime(p, 'deflect');
+    damage(m, Math.round(m.maxHp * DEFLECT_HIT), id, p, Math.sign(m.x - p.state.x) || 1);
+    stagger(m, DEFLECT_STAGGER_S);
   }
 
   // ——— A15: {t:'pf', s, pf}: the platforms sunk for p as its client's clock passed the boss's schedule ———
@@ -524,5 +540,5 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
     m.rec = null;
   };
 
-  return { start, claim, apply, free, parry, platforms, punish, tick, clear, seen, pick, toss, rewind, hitLanded, firstTime };
+  return { start, claim, apply, free, parry, deflect, platforms, punish, tick, clear, seen, pick, toss, rewind, hitLanded, firstTime };
 }

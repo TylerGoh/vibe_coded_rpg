@@ -22,7 +22,7 @@ import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, ap
 import { createSummons } from './summons.js';
 import { createFinal } from './final.js';
 import { createChallenges, KIND as CHAL_KIND } from './challenge.js';
-import { CHALLENGES, SNARE_HIT, SWAP_HIT, SWAP_KNOCK, CAGE_HIT, GAPS_HIT, BASH_HIT, BASH_KNOCK, BASH_WARN, ARENA_WARN, LASER_HIT, LASER_WARN, LASER_BEAT, LASER_BEATS, LATE_HIT, LATE_WIND, FEINT_BEAT, FEINT_TICKS, FEINT_CANCEL, FEINT_R, LATE_TELL, FLOOD_HIT, FLOOD_SEGS, FLOOD_GAP, FLOOD_WARN, RINGS_N, RING_EVERY, PUNISH_S, PUNISH_JUDGE_MS, TUSK_WIND, BURROW_S, MOUNDS, MOUND_R, REBIRTH_ZONE_R } from '../src/shared/challenge.js';
+import { CHALLENGES, SNARE_HIT, SWAP_HIT, SWAP_KNOCK, CAGE_HIT, GAPS_HIT, BASH_HIT, BASH_KNOCK, BASH_WARN, ARENA_WARN, LASER_HIT, LASER_WARN, LASER_BEAT, LASER_BEATS, LATE_HIT, LATE_WIND, FEINT_BEAT, FEINT_TICKS, FEINT_CANCEL, FEINT_R, LATE_TELL, FLOOD_HIT, FLOOD_SEGS, FLOOD_GAP, FLOOD_WARN, RINGS_N, RING_EVERY, PUNISH_S, PUNISH_JUDGE_MS, TUSK_WIND, BURROW_S, MOUNDS, MOUND_R, REBIRTH_ZONE_R, FIELD_CHAL_EVERY, FIELD_CHAL_R, fieldStage, FIELD_GAPS_HALF, FIELD_FEINT, FEINT_REWARN, FEINT_THROW, FIELD_PUNISH_CD, GAPS_WARN, GAPS_LIVE } from '../src/shared/challenge.js';
 import { THROAT_MULT, THROAT_FILL, GAZE_STAGGER_S } from '../src/shared/final.js';
 import { SON_KNOCK } from '../src/shared/fenrir.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen, applyHook, HOOK_RANGE } from '../src/shared/sim.js';
@@ -1358,6 +1358,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   function ouch(id, p, m) {
     const mob = mobs.find((q) => q.id === m.mob && !q.dead && q.room === p.state.room);
     if (m.kind === 'parry') return mob && chal.parry(id, p, mob); // (A20: attacked right as the bash landed: no hit)
+    if (m.kind === 'deflect') return mob && chal.deflect(id, p, mob); // (T3: the Hall Troll's block knocked back: no hit)
     const [mult, knock] = OUCH[m.kind] ?? [];
     if (!mob || !mult || p.faintUntil) return;
     const ult = m.kind === 'ult';
@@ -1422,6 +1423,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     }
     let want = 0;
     for (let i = m.later.length - 1; i >= 0; i--) if (t >= m.later[i][0]) m.later.splice(i, 1)[0][1](); // timed follow-ups
+    if (k.field && k.chf && !staggered && !frozen && !netted) fieldChal(m, k, here, t); // (T3: its challenges)
     const ai = !k.boss && k.ai && !staggered ? mobAi(m, k, here, dt, t) : null;
     if (staggered && !k.boss) want = 0;
     else if (k.final) {
@@ -1497,12 +1499,27 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     }
     if (ai.kind === 'lob') {
       if (m.aiPhase === 'warn') {
+        // T3, A11 (a field boss whose `ch` lists feint): an empty swing now and then; the real throw follows where you went
+        if (tg && k.field && k.ch?.includes('feint') && !m.feinted && Math.random() < FIELD_FEINT[fieldStage(m)]) {
+          face();
+          m.feinted = true;
+          m.aiTimer = rand(FEINT_THROW[0], FEINT_THROW[1]);
+          bossEvent(m, 'chal', { type: 'feintThrow', x: Math.round(m.x + m.dir * k.w * 0.3), y: Math.round(m.y - k.h - 6), style: ai.style });
+          for (const [, q] of here) if (!q.faintUntil && Math.abs(q.state.x - m.x) < FIELD_CHAL_R) chal.seen(q, 'feint');
+          return 0;
+        }
+        m.feinted = false;
         // a lobbed fireball that lands where the target is now
         if (tg) {
           face();
           const x0 = m.x + m.dir * 8, y0 = m.y - k.h - 6, tx = tg.x + rand(-20, 20), ty = tg.y - 18;
           const T = Math.max(0.6, Math.min(1.3, Math.abs(tx - x0) / 380)), g = 900;
-          bossEvent(m, 'shots', { style: ai.style ?? 'ember', shots: [[Math.round(x0), Math.round(y0), Math.round((tx - x0) / T), Math.round((ty - y0 - 0.5 * g * T * T) / T), g, 14, 0]] });
+          const pr = k.field && k.ch?.includes('deflect'); // (T3: the Hall Troll's blocks glow: knock them back, A20)
+          bossEvent(m, 'shots', { style: ai.style ?? 'ember', shots: [[Math.round(x0), Math.round(y0), Math.round((tx - x0) / T), Math.round((ty - y0 - 0.5 * g * T * T) / T), g, 14, 0]], ...(pr ? { pr: 1 } : {}) });
+          if (pr) {
+            m.throwAt = t;
+            chal.seen(m.target, 'deflect');
+          }
         }
         again();
         return 0;
@@ -1522,6 +1539,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         m.aiPhase = 'air';
         m.aiTimer = 3; // (landing ends it: stompLands)
         m.vy = -ai.jump;
+        m.moveAt = t; // (A19, T3: a hit on anyone from here on means it didn't miss)
         return 0;
       }
       if (m.aiPhase === 'air') {
@@ -1565,6 +1583,20 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     }
     if (ai.kind === 'dive') {
       if (m.aiPhase === 'warn') {
+        // T3, A11 (a field boss whose `ch` lists feint): now and then it pulls up as the warning ends and marks where its
+        // target is now, FEINT_REWARN, and dives there
+        if (tg && k.field && k.ch?.includes('feint') && !m.feinted && Math.random() < FIELD_FEINT[fieldStage(m)]) {
+          m.feinted = true;
+          face();
+          m.diveX = tg.x;
+          m.aiTimer = FEINT_REWARN;
+          bossEvent(m, 'chal', { type: 'pullup' });
+          bossEvent(m, 'diveWarn', { tx: Math.round(tg.x), ty: m.sp.y, dur: FEINT_REWARN });
+          for (const [, q] of here) if (!q.faintUntil && Math.abs(q.state.x - m.x) < FIELD_CHAL_R) chal.seen(q, 'feint');
+          return 0;
+        }
+        m.feinted = false;
+        m.moveAt = t; // (A19, T3)
         // swoop down to where the target was and back up
         const y1 = m.sp.y - 6, x1 = Math.max(m.sp.x0 - 120, Math.min(m.sp.x1 + 120, m.diveX));
         m.dive = { x0: m.x, y0: m.y, x1, y1, ms: ai.time * 1000, at: t, next: { x0: x1, y0: y1, x1: x1 + m.dir * 90, y1: m.sp.y - m.hover, ms: 600 } };
@@ -1574,6 +1606,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       }
       if (m.aiPhase === 'diving') {
         again();
+        if (k.field) watchMiss(m, m.moveAt ?? t); // (A19, T3: it dived on nobody)
         return 0;
       }
       if (ready && adx < 360) {
@@ -1679,15 +1712,50 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     grid: (st) => (st ? 1.2 : LASER_WARN + LASER_BEATS[0] * LASER_BEAT), late: () => LATE_WIND + 0.6, tilt: () => 0.9, rewind: () => 0.5,
     lava: (st) => (st ? 1 : FLOOD_SEGS * FLOOD_GAP + FLOOD_WARN), rings: (st) => 0.6 + RINGS_N[st] * RING_EVERY, jobs: () => 1, // (T2: G1, the flood stands the phase it's taught)
   };
+  // ——— T3: a field boss's challenges (`chf`: [type, from stage]) ———
+  // the slimes fighting field boss m: standing, near it, and they've hit it lately
+  const fieldFoes = (m, here, t) => here.filter(([id, q]) => !q.faintUntil && Math.abs(q.state.x - m.x) < FIELD_CHAL_R && t - (m.hitters.get(id) ?? -Infinity) < FIELD_BOSS_FIGHT_MS);
+  // every FIELD_CHAL_EVERY s or so while it's being fought (and between its own attacks), one of them, aimed only at its
+  // fighters (a field is a shared room). G1: in its first third it stands for it; after, they come faster and its own
+  // attacks go on alongside
+  function fieldChal(m, k, here, t) {
+    if (m.aiPhase || m.dive) return;
+    const foes = fieldFoes(m, here, t);
+    if (!foes.length) return void (m.chalAt = 0);
+    if (!m.chalAt) return void (m.chalAt = t + FIELD_CHAL_EVERY * 1000 * rand(0.5, 0.8)); // (the first, a little after it starts)
+    if (t < m.chalAt) return;
+    const stage = fieldStage(m), pool = k.chf.filter(([, from]) => stage >= from).map(([type]) => type);
+    m.chalAt = t + FIELD_CHAL_EVERY * 1000 * rand(0.8, 1.25) * (stage ? 0.8 : 1);
+    if (!pool.length) return;
+    const type = pool[Math.floor(Math.random() * pool.length)], opts = { at: foes, stage };
+    let stand = 1;
+    if (type === 'gaps') {
+      Object.assign(opts, { span: [m.x - FIELD_GAPS_HALF, m.x + FIELD_GAPS_HALF], slide: stage >= 2 });
+      stand = GAPS_WARN + GAPS_LIVE;
+    } else if (type === 'arena') {
+      const plats = ROOMS[m.room].platforms ?? [];
+      opts.pool = plats.map((q, i) => [q, i]).filter(([q]) => q.kind === 'ledge' && Math.abs(q.x + q.w / 2 - m.x) < FIELD_CHAL_R).map(([, i]) => i);
+      opts.noGrid = true;
+      stand = ARENA_WARN + 0.6;
+    } else if (type === 'rings') stand = 0.6 + RINGS_N[stage] * RING_EVERY;
+    if (!chal.start(m, type, opts)) return;
+    if (!stage) m.aiCd = Math.max(m.aiCd, stand); // (G1: nothing alongside while it's being taught)
+  }
+
   // A19, the punish window: a big move from `from` that hit nobody (no accepted ouch from this boss since, PUNISH_JUDGE_MS
   // after it ends) dazes it PUNISH_S. Bosses with challenges only (`ch`), not the final bosses (their loops have openings)
+  // A field boss (T3): only the slimes fighting it count, and it's dazed at most once every FIELD_PUNISH_CD s
   function watchMiss(m, from, endMs = 0) {
     const k = MOBS[m.kind];
     if (!k.ch?.length || k.final) return;
     later(m, endMs + PUNISH_JUDGE_MS, () => {
       if (m.dead || (m.lastHitAt ?? 0) >= from) return;
-      const up = inRoom(m.room).filter(([, q]) => !q.faintUntil);
+      const up = k.field ? fieldFoes(m, inRoom(m.room), now()) : inRoom(m.room).filter(([, q]) => !q.faintUntil);
       if (!up.length) return;
+      if (k.field) {
+        if (now() < (m.punishCd ?? 0)) return;
+        m.punishCd = now() + FIELD_PUNISH_CD * 1000;
+      }
       stagger(m, PUNISH_S);
       bossEvent(m, 'chal', { type: 'punish' });
       for (const [, q] of up) chal.seen(q, 'punish');
@@ -2101,6 +2169,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     bossEvent(m, 'slam', { r: k.ai.r });
     m.aiPhase = null;
     m.aiCd = k.ai.every * rand(0.8, 1.25);
+    if (k.field) watchMiss(m, m.moveAt ?? now()); // (A19, T3: it landed on nobody)
   }
   function slamLands(m) {
     bossEvent(m, 'slam', { r: m.slamR });

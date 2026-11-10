@@ -141,6 +141,13 @@ function drawShot(ctx, h, now) {
   ctx.save();
   ctx.globalAlpha = a;
   glow(ctx, p.x, p.y, r * 2.6, r * 2.6, st.glow, 0.55);
+  if (h.pr && !h.back) { // (T3: one that can be knocked back, src/challenge.js: a bright ring pulsing round it)
+    ctx.strokeStyle = `rgba(255,250,215,${0.55 + 0.35 * Math.sin(now * 14)})`;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r * 1.9, 0, Math.PI * 2);
+    ctx.stroke();
+  }
   // trail: fading blobs behind it
   const tl = Math.min(80, sp * 0.09) + r;
   ctx.fillStyle = `rgb(${st.glow})`;

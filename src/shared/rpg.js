@@ -1085,8 +1085,10 @@ export const MOBS = {
   },
   sprout_king: {
     name: 'Sprout King', boss: true, lvl: 4, hp: 5000, atk: 14, exp: 320, speed: 80, w: 120, h: 112, aggro: true, hops: false,
-    phases: [['slam', 'charge'], ['slam', 'charge', 'summon', 'leap'], ['slam', 'charge', 'summon', 'leap']],
+    phases: [['slam', 'charge'], ['slam', 'charge', 'summon', 'leap', 'snare'], ['slam', 'charge', 'summon', 'leap', 'snare']],
     ult: { name: 'Royal Decree', kind: 'stomp' }, minion: 'sprout',
+    // T3 (docs/combat/challenges.md): the gentle first meeting: a snare of three arrows from phase 2, and the punish window
+    ch: ['snare'],
     // atlas Phase 7 (c): its lines (said on entering, at each new phase, when freed; docs/social/story.md)
     lines: {
       enter: ['Halt! Who goes there? Bow! Bow before the King!', 'A visitor? Nobody visits. Kneel, and be quick about it, I have decreeing to do.'],
@@ -1097,8 +1099,10 @@ export const MOBS = {
   },
   mother_mushroom: {
     name: 'Mother Mushroom', boss: true, lvl: 8, hp: 14000, atk: 24, exp: 950, speed: 60, w: 150, h: 140, aggro: true, hops: false,
-    phases: [['slam', 'rain'], ['slam', 'rain', 'summon', 'leap'], ['slam', 'rain', 'summon', 'leap', 'barrage']],
+    phases: [['slam', 'rain'], ['slam', 'rain', 'summon', 'leap', 'snare'], ['slam', 'rain', 'summon', 'leap', 'barrage', 'snare']],
     ult: { name: 'Spore Bloom', kind: 'spores' }, minion: 'mushling',
+    // T3: as the Sprout King: a snare of three arrows from phase 2 (her mycelium), and the punish window
+    ch: ['snare'],
     // atlas Phase 7 (c): its lines (said on entering, at each new phase, when freed; docs/social/story.md)
     lines: {
       enter: ['So loud... everything is so loud. Can you hear them too? Make them stop.', 'Little one, my roots are burning. Don\'t come close. I can\'t hold the spores in.'],
@@ -1554,7 +1558,10 @@ MOBS.hornet_queen = {
   // S5.4: a party brings her wasps (adds: a field boss with no summon calls `minion`s every FIELD_ADDS_EVERY s,
   // server/rpg.js partyTick) and her honey sac glows (the weak point at `weak`, on her abdomen, high in the air:
   // arrows, or jump; `looks.weak`: a honeycomb cell)
-  party: ['adds', 'weakpoint'], partyLive: true, minion: 'wasp', weak: { dx: -0.45, dy: -0.5, r: 20 }, looks: { weak: 'honey' },
+  party: ['adds', 'weakpoint'], partyLive: true, minion: 'wasp', weak: { dx: -0.45, dy: -0.5, r: 20 }, looks: { weak: 'honey', rings: 'sting', snare: 'wax' },
+  // T3 (docs/combat/challenges.md; `chf`: a field boss's challenges and the stage each starts in): rings of stingers,
+  // and from her second third a wax cell round you (mash free); the punish window on a dive that hits nobody
+  ch: ['rings', 'mash'], chf: [['rings', 0], ['mash', 1]],
   desc: 'The Hornet Queen has left her nest in the Wasp Crowns!',
   drops: [['coin', 1, 10900, 16800], ['honeycomb', 1, 4, 8], ['hornet_sting', 1, 3, 5], ['elixir', 1, 2, 3], ['mega_elixir', 1, 1, 2], ['queen_stinger', 0.25, 1, 1], ['honey_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.12, 1, 1], ['scroll_h10', 0.12, 1, 1]],
 };
@@ -1952,6 +1959,8 @@ MOBS.pale_wyrm = {
   // sigil with dim stars sinking into it) and the last bright star in its coils (the weak point, mid-back, in the
   // air: arrows or a jump; `looks.weak: 'star'`)
   party: ['curse', 'weakpoint'], partyLive: true, weak: { dx: -0.06, dy: -0.62, r: 22 }, looks: { curse: 'pale', weak: 'star' },
+  // T3: some dives are feints (it pulls up and comes down where you went: FIELD_FEINT), and the punish window
+  ch: ['feint'],
   desc: 'The Pale Wyrm has stirred in the Wyrmfall.',
   drops: [['coin', 1, 30200, 43900], ['pale_scale', 1, 4, 8], ['star_spark', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['pale_star_blade', 0.25, 1, 1], ['aurora_crown', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
@@ -1964,6 +1973,8 @@ MOBS.hall_troll = {
   // S5.4: he stacks blocks of ice round himself (armour, `looks.shell: 'block'`) and throws at one slime at a
   // time (focus)
   party: ['armour', 'focus'], partyLive: true, looks: { shell: 'block' },
+  // T3: its blocks glow: knock them back with a well-timed attack (`deflect`), and some throws are feints
+  ch: ['feint', 'deflect'],
   desc: 'The Hall Troll is stacking ice in the Deep Blue. Hear it?',
   drops: [['coin', 1, 30200, 43700], ['troll_tooth', 1, 4, 8], ['glass_shell', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['troll_maul', 0.25, 1, 1], ['troll_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
@@ -2139,7 +2150,10 @@ MOBS.bellower = {
   ai: { kind: 'stomp', every: 3.4, warn: 1, r: 320, range: 340, jump: 560 },
   // S5.4: with two or more on it, the black sand on its back bakes into a crust of basalt (armour, `looks.shell:
   // 'cinder'`, Ignis's plates) and it picks one slime to flatten at a time (focus)
-  party: ['armour', 'focus'], partyLive: true, looks: { shell: 'cinder' },
+  party: ['armour', 'focus'], partyLive: true, looks: { shell: 'cinder', gaps: 'cinder' },
+  // T3: its boom brings cinders down round it but for one gap (thin gaps, sliding in its last third), and the punish
+  // window on a stomp that lands on nobody
+  ch: ['gaps'], chf: [['gaps', 0]],
   desc: 'The Bellower is booming on the Black Sands. The whole beach can hear it.',
   drops: [['coin', 1, 36500, 53000], ['bellow_stone', 1, 4, 8], ['toad_wart', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['bellower_maul', 0.25, 1, 1], ['toadstone_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
@@ -2179,6 +2193,8 @@ MOBS.greyback = {
   // S5.4: with two or more on him he picks one slime to throw at (focus), and his logs leave whoever they land
   // near smouldering (a curse, `looks.curse: 'ember'`)
   party: ['focus', 'curse'], partyLive: true, looks: { curse: 'ember' },
+  // T3: some throws are feints (an empty swing, then the log where you went)
+  ch: ['feint'],
   desc: 'Greyback is up on the Burnt Crown, throwing logs. Keep your head down.',
   drops: [['coin', 1, 50800, 73800], ['greyback_claw', 1, 4, 8], ['char_tusk', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['greyback_brand', 0.25, 1, 1], ['greyback_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
@@ -2279,6 +2295,9 @@ MOBS.hundredfoot = {
   // S5.4: with two or more on it, its clinker plates close up (armour, `looks.shell: 'cinder'`) and the heat in the
   // tube builds round it till it breaks (a pulse, Ignis's `heat` look)
   party: ['armour', 'pulse'], partyLive: true, looks: { shell: 'cinder', pulse: 'heat' },
+  // T3: it thrashes and the tube's ledges near it crumble into the floor and come back (the moving arena), more of them
+  // as it weakens, while its trail keeps burning the floor
+  ch: ['arena'], chf: [['arena', 0]],
   desc: 'Hundredfoot is running in the Deep Tube. Feel the floor?',
   drops: [['coin', 1, 48300, 70100], ['hundred_plate', 1, 4, 8], ['clinker_scute', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['hundred_saw', 0.25, 1, 1], ['hundred_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
@@ -2326,7 +2345,9 @@ MOBS.brimstone_condor = {
   ai: { kind: 'dive', every: 3.0, warn: 0.85, time: 0.55 },
   // S5.4: with two or more on it, it picks one slime to fall on at a time (focus), and its wingbeats whip the fumes
   // into a gust that builds round it till it breaks (a pulse, `looks.pulse: 'steam'`)
-  party: ['focus', 'pulse'], partyLive: true, looks: { pulse: 'steam' },
+  party: ['focus', 'pulse'], partyLive: true, looks: { pulse: 'steam', rings: 'sulphur' },
+  // T3: rings of burning sulphur from above, and the punish window on a dive that hits nobody
+  ch: ['rings'], chf: [['rings', 0]],
   desc: 'The Brimstone Condor is riding the fumes over the High Vents. Watch the sky.',
   drops: [['coin', 1, 56000, 81000], ['condor_quill', 1, 4, 8], ['kite_plume', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['condor_pinion', 0.25, 1, 1], ['condor_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
@@ -2375,7 +2396,9 @@ MOBS.old_crucible = {
   ai: { kind: 'lob', range: 540, every: 2.6, keep: 190, warn: 0.75, style: 'molten' },
   // S5.4: with two or more on it, the slag on its skin sets into a crust (armour, Ignis's basalt plates,
   // `looks.shell: 'cinder'`), and its splashes leave whoever they land near smouldering (a curse, `looks.curse: 'ember'`)
-  party: ['armour', 'curse'], partyLive: true, looks: { shell: 'cinder', curse: 'ember' },
+  party: ['armour', 'curse'], partyLive: true, looks: { shell: 'cinder', curse: 'ember', carry: 'slag' },
+  // T3: a gobbet of slag cools on the floor: pick it up and throw it back (carry the thing)
+  ch: ['carry'], chf: [['carry', 0]],
   desc: 'Old Crucible is awake in the casting pit. Mind the pour.',
   drops: [['coin', 1, 59500, 86000], ['crucible_scale', 1, 4, 8], ['newt_skin', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['crucible_blade', 0.25, 1, 1], ['crucible_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };

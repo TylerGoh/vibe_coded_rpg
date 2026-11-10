@@ -46,6 +46,7 @@ told by the stone, the personas and Skaldi's one-line song. Its pet is in the Pe
 S5.4: with two or more fighting it, a `curse` (the cold of falling: a pale sigil with dim stars sinking into it,
 `looks.curse: 'pale'`) and a `weakpoint`, the last bright star in its coils (`weak`, mid-back, in the air like the
 Hornet Queen's: arrows or a jump; `looks.weak: 'star'`): `docs/combat/bosses.md`.
+T3 (`docs/combat/challenges.md`): some of its dives are feints: it pulls up and comes down where you went.
 
 ## Gear (`docs/combat/items.md`)
 Mob drops: the Foxfire Blade / Foxfire Staff (snow foxes), the Musk Ox Helm (musk oxen). The Pale Wyrm: above.

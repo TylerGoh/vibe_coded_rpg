@@ -11,6 +11,7 @@
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
 import { TUBES_W, TUBES_EXIT_X, TUBES_ZONES, TUBES_PLATFORMS, FIELD_GROUND } from './shared/rpg.js';
 import { glow as radialGlow } from './glow.js';
+import { drawSunk } from './challenge.js';
 
 const GROUND = FIELD_GROUND;
 const MOUTH_X = TUBES_ZONES[2].x0;
@@ -91,10 +92,10 @@ export function drawTubes(ctx, camX, viewW, time) {
   drawWalls(ctx, L, R, time);
   for (const h of holes) if (visible(h.x - 160, h.x + 160, L, R)) drawShaft(ctx, h, time);
   for (const b of blocks) if (visible(b.x - b.w, b.x + b.w, L, R)) drawBlock(ctx, b);
-  for (const p of TUBES_PLATFORMS) {
-    if (!visible(p.x - 60, p.x + p.w + 60, L, R)) continue;
-    if (p.kind === 'ledge') drawLedge(ctx, p, time);
-  }
+  TUBES_PLATFORMS.forEach((p, i) => {
+    if (!visible(p.x - 60, p.x + p.w + 60, L, R)) return;
+    if (p.kind === 'ledge') drawSunk(ctx, p, i, () => drawLedge(ctx, p, time)); // (Hundredfoot's thrashing sinks the ones near it: src/challenge.js)
+  });
   if (visible(SKY.x - 80, SKY.x + SKY.w + 80, L, R)) drawSkylight(ctx, SKY, time);
   drawRoof(ctx, L, R, time);
   if (visible(MOUTH_X - 100, TUBES_W, L, R)) drawMouth(ctx, time);

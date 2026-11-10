@@ -1109,7 +1109,7 @@ export class Rpg {
     const add = (h) => (this.hz.push({ mob, warnAt: now, ...h }), this.hz[this.hz.length - 1]); // (→ the hazard: src/challenge.js keeps the fake-out's)
     if (m.a === 'chal') this.chal.event(m, add); // (boss challenges: src/challenge.js)
     else if (m.a === 'shots') {
-      for (const [x, y, vx, vy, g, r, delay] of m.shots) add({ type: 'shot', style: m.style, x, y, vx, vy, g, r, at: now + delay, end: now + delay + 4, pos: null });
+      for (const [x, y, vx, vy, g, r, delay] of m.shots) add({ type: 'shot', style: m.style, x, y, vx, vy, g, r, at: now + delay, end: now + delay + 4, pos: null, pr: m.pr ? 1 : 0 }); // (pr: it can be knocked back, T3)
       audio.sfx(m.style === 'water' ? 'squirt' : 'fireball', { pan, vol: m.style === 'ember' ? 0.8 : 0.5 });
     } else if (m.a === 'puddle') {
       add({ type: 'puddle', style: m.style, x: m.x - m.dir * k.w * 0.35, y: m.y, w: m.w, at: now + 0.15, end: now + m.life });
@@ -1239,8 +1239,10 @@ export class Rpg {
       if (t < h.at || h.done) continue;
       const ouch = (kind) => ({ mob: h.mob, kind: h.lethal ? 'ult' : h.ch ?? kind, mx: h.dir ? me.x - h.dir : h.x ?? me.x - 1, noDodge: h.lethal && !(h.type === 'sweep') });
       if (h.type === 'shot') {
+        if (h.back) continue; // (one we knocked back, flying home: src/challenge.js deflect)
         if (h.pos && Math.hypot(h.pos.x - bx, h.pos.y - by) < h.r + 16) {
           h.done = true;
+          if (h.pr && this.chal.deflect(h, me)) continue; // (T3: attacked right as it reached us: it flies back, no hit)
           return { ...ouch('shot'), mx: h.pos.x };
         }
       } else if (h.type === 'snare') {

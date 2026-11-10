@@ -28,6 +28,7 @@ the Canopy's WEST end (`CANOPY_EXIT_X`, the ladder back down) and go east, highe
   that, a few swings pushed them out of reach).
 - **The Hornet Queen** (field boss, Lv 38, small: no story): roams the Wasp Crowns on the `dive` brain,
   passive until hit, the usual field-boss rules (`docs/combat/stages.md`). Her pet is the Mini Hornet Queen.
+  T3's challenges (`docs/combat/challenges.md`): rings of stingers, and from her second third a wax cell to mash out of.
   S5.4 party mechanics (two or more slimes fighting her): `adds` (a field boss has no summon, so she calls her
   `minion` wasps every `FIELD_ADDS_EVERY` s, at most `FIELD_ADDS_MAX` of hers at once; they leave when she dies or
   heals up) and a `weakpoint`, her honey sac (`weak` on her abdomen, drawn as a glowing honeycomb cell,

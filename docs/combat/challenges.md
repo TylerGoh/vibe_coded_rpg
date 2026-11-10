@@ -26,11 +26,12 @@ escape with a key combination. The owner approved every type, every boss's set a
   tilting floor and Rewind. Not played either. T1 is done.
 - **T2 (built, live, 2026-11-10)**: the nine den bosses, the types left (mash free, bullet rings, adds with jobs, the weak
   spot mid-air, the den's floor flooding) and the punish window on every boss with challenges. Not played either.
+- **T3 (built, live, 2026-11-10)**: the eight field bosses and the Novices' two (below, "The field bosses and the
+  Novices'"), with one new piece: knocking a thrown block back (`deflect`). Not played either.
 - A type is live only when its row says `built`; the server refuses the rest. `loop` rows (Two at once, the moving safe
   zone, Head Swap, the Hunt, the fake-outs, floor-is-lava) only come from a boss's own loop or brain, never from the
   sandbox's **Challenge now**.
-- Next: T3 (field bosses, the Novices'), T4 (tuning):
-  `story/roadmap.md`. A boss gets its challenges as a `ch` list on its `MOBS` row (what the sheet reads, below) and starts
+- Next: T4 (tuning, after the owner and friends have played): `story/roadmap.md`. A boss gets its challenges as a `ch` list on its `MOBS` row (what the sheet reads, below) and starts
   them from its brain: a move in its `phases` named in `CHAL_MOVE` (`server/rpg.js`: `bash`, `tether`, `cage`, `arena`,
   `snare`, `fetter`, `gaps`, `dark`, T1b's `tilt`, `tooth`, `lasers`, `late`, `reverse`, `rewind` and T2's `coffin`, `bury`,
   `orbs`, `flood`, `clutch`, `rock`; `CHAL_TIME` says how long the boss stands for it; `offslam`, `tusk` and `burrow` are
@@ -229,6 +230,38 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
   Everyone jumps, so every class reaches it.
 - **A9 on Pyra's Rebirth**, **A10's tusk**, **A11 + A16's burrow**: above, under the bosses.
 
+## The field bosses and the Novices' (T3)
+A field boss fights in the open, in a room other slimes walk through, so everything it starts is aimed only at the
+slimes **fighting** it: standing, within `FIELD_CHAL_R`, and they've hit it within `FIELD_BOSS_FIGHT_MS` (`fieldFoes` in
+`server/rpg.js`; `start`'s `opts.at`, which also keeps G2's banners off passers-by). It has no phases, so its stage is by
+its HP in thirds (`fieldStage`).
+- **The driver** (`fieldChal`, from `stepMob`): a field boss with a `chf` list (`[type, from stage]`) starts one about
+  every `FIELD_CHAL_EVERY` s while it's fought, between its own attacks; the first a little after the fight begins. G1: in
+  stage 0 it holds its own attacks for it (`aiCd`); later they come a fifth sooner and its attacks go on alongside.
+- **Feints** (A11, `ch` lists `feint`, in `mobAi` itself): `FIELD_FEINT[stage]` of its dives or throws fake. A dive pulls
+  up as its warning ends (`pullup`) and marks where its target is now, `FEINT_REWARN`, then dives there; a throw swings
+  empty (`feintThrow`: a puff at its hand) and the real one follows `FEINT_THROW` later, aimed where you went.
+- **Knock it back** (A20 on thrown things, `deflect`, a `loop` row: only its throws bring it): the block glows (a ring
+  round the shot: `pr` on the `shots` event). Attack within `PARRY_MS` before it reaches you, having held off
+  `DEFLECT_REST` before that swing (so attacking non-stop doesn't knock everything back), and it flies home: no hit,
+  `{t:'ouch', kind:'deflect'}`; the server checks it threw one in the last few seconds that nobody has knocked back
+  (`m.throwAt`), then it takes `DEFLECT_HIT` of its max HP and staggers `DEFLECT_STAGGER_S`. Any class: everyone attacks.
+- **The punish window** on a field boss: a dive or a stomp that hit nobody (`moveAt`, `watchMiss`), at most once every
+  `FIELD_PUNISH_CD` s (it does them every few seconds). Throws and trails don't count.
+- **The bosses**:
+  - **The Hornet Queen**: rings of stingers (`rings`, style `sting`); from her second third a wax cell (`mash`, `PAL.wax`).
+  - **The Pale Wyrm**: feint dives. **The Hall Troll**: feint throws, and its blocks can be knocked back.
+  - **The Bellower**: its boom brings cinders down round it but for one gap (`gaps`, style `cinder`): only
+    `FIELD_GAPS_HALF` either side of it (`opts.span`; the event's `a`, `b`, which the client judges and draws to),
+    sliding in its last third (`opts.slide`).
+  - **Hundredfoot**: the Tubes' ledges near it crumble into the floor and come back (`arena` with `opts.pool`: the
+    `ledge` platforms within `FIELD_CHAL_R`, one more each third; `opts.noGrid`), while its trail keeps burning the
+    floor. `src/tubes.js` draws them through `drawSunk`.
+  - **Greyback**: feint throws. **The Brimstone Condor**: rings of burning sulphur from above (`rings`, style `sulphur`).
+  - **Old Crucible**: a gobbet of slag to throw back at it (`carry`, `looks.carry: 'slag'`; from behind, "FROM BEHIND!").
+  - **The Sprout King and Mother Mushroom** (`bossBrain`): the gentle first meeting: a snare of three arrows (`snareLen`)
+    from their phase 2, and the punish window.
+
 ## Owner rules every challenge keeps (from the plan)
 - Den and field bosses stay soloable by any class; a type that needs two slimes only switches on with two or more.
 - Every class carries an answer (moving, jumping, Dash); a challenge only one class can answer is a bug.
@@ -240,7 +273,7 @@ A boss with challenges loses some of your hitting time: `uptimeOf` (`UPTIME_DEN`
 top and final bosses; 1 while its `MOBS` row has no `ch`) scales your own hits in `fight()` (`scripts/economy.mjs`; dots
 and summons keep going). The same share comes off its HP (the `BOSS_HP_SCALE` loop), so a fight lasts what it did
 before its challenges: HP is the lever, never rewards (`docs/economy.md`). T1a's four moved by under a minute; T1b's four
-by under 40 s; T2's nine dens by seconds (`UPTIME_DEN`). The punish window isn't on the sheet (it can't dodge, so it
+by under 40 s; T2's nine dens by seconds (`UPTIME_DEN`); T3's eight field bosses and two Novices' bosses by seconds too. The punish window isn't on the sheet (it can't dodge, so it
 assumes every big move lands): real fights that dodge well are shorter than the sheet says, never longer.
 
 ## Wire and protocol
@@ -250,10 +283,12 @@ friend's cage), `{t:'pf'}` (with `pf` or `tl`), `{t:'rw'}`, `{t:'carry'}`, `{t:'
 'crushed'}`, all in the protocol comment at the top of `server/index.js`.
 
 ## Not done yet
-- T3 onward. Nobody has played T1's or T2's challenges: the numbers are the plan's starting points (T4 tunes them).
+- T4. Nobody has played T1's, T2's or T3's challenges: the numbers are the plan's starting points (T4 tunes them).
 - Phones: the owner wanted the swap and the arrow pad checked on a phone in the sandbox before T1 shipped; T1a and T1b
   shipped on the owner's "continue with next phase" without that check, so it's still owed (with the rhythm lock, the
-  cage, the mirror trap, the tilt and throwing the chip; T2 adds mashing ▲ on the pad).
+  cage, the mirror trap, the tilt and throwing the chip; T2 adds mashing ▲ on the pad; T3 knocking a block back with Hit).
+- The sandbox can't spawn field bosses, so T3's field challenges can only be tried in the live fields (the Novices' two
+  are dens: their snare is in Challenge now as ever).
 - Known rough edges: a slime that walks into a den mid-arena (or mid-tilt) doesn't sink its ledges (or lean) until the
   next one, and doesn't see a Rewind's ghosts it wasn't there for; the Caldera's and Citadel's dens don't draw a sunk
   ledge (only the sandbox can sink them); a lock alone never opens; the tilt is drawn as chevrons and a grinding chain,

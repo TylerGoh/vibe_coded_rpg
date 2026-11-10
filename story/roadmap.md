@@ -116,7 +116,10 @@ No quests, no hard level gates.
         Knotmole: the burrow; Frost Queen: ice beams, the coffin; Astral Wyrm: star rings, gravity flip; Old Narwhal: the
         late tusk, the floe sea; Ignis: magma waves, a rock to throw; Pyra: fire rings, the Rebirth's drifting safe ring;
         Hatchkeeper: buried in sand, hatchlings that grow), the punish window on every boss with challenges. Unplayed.
-  - [ ] T3: the field bosses and the Novices' two.
+  - [x] T3 (2026-11-10, live): the field bosses (Hornet Queen: stinger rings, wax cell; Pale Wyrm: feint dives; Hall
+        Troll: feint throws, blocks knocked back; Bellower: cinders with one gap; Hundredfoot: the Tubes' ledges crumble;
+        Greyback: feint throws; Condor: sulphur rings; Old Crucible: slag to throw back), aimed only at their fighters;
+        the Novices' two: a three-arrow snare and the punish window. Unplayed.
   - [ ] T4: tuning after the owner and friends have played.
 - [x] **Boss gear worth the fight** (owner, 2026-11-06): stats above the curve by boss kind (`BOSS_GEAR`), and 22 unique
   effects the owner approved (movement, attack changes, costs; `docs/combat/items.md`). Next: **the owner plays** them.

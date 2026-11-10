@@ -47,6 +47,7 @@ distance). Drops the Hall Troll's Maul / Troll-Ice Staff, the Troll-Ice Helm and
 Pet Shop (`PETS`; `PETSHOP_W` went up to fit both F3 pets). S5.4: with two or more fighting it, `armour` (blocks
 of ice stacked round it, `looks.shell: 'block'`) and `focus` (it throws at one slime at a time):
 `docs/combat/bosses.md`.
+T3 (`docs/combat/challenges.md`): its blocks glow and can be knocked back with a well-timed attack; some throws are feints.
 
 ## Decisions and history
 - 2026-10-23: built in F3. The plan's "elites" plus a field boss (like the G4 pockets); the names (the Ladder

@@ -57,6 +57,7 @@ its skin sets into a crust, `looks.shell: 'cinder'`) and `curse` (its splashes l
 pour." Drops the Crucible Blade / Staff / Bow, the Crucible Helm, Crucible Scales and newt skins. Its pet, the mini Old
 Crucible (its art shrunk), is in the Pet Shop (`PETS`, between the Brimstone Condor's and the Colossus's by level;
 `PETSHOP_W` went up to fit it).
+T3 (`docs/combat/challenges.md`): a gobbet of slag cools on the floor now and then: pick it up and throw it back at it.
 
 ## Gear (`docs/combat/items.md`)
 Mob drops at their mob's level: the Scrap-Iron Helm (iron ants), Sootfang / Sootfang Staff / Sootfang Bow (soot hounds).

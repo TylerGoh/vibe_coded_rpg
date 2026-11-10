@@ -40,6 +40,8 @@ export const CHALLENGES = {
   airweak: { a: 21, name: 'Weak spot mid-air', built: true, min: 1, banner: 'A weak spot up high: jump and hit it' },
   carry: { a: 22, name: 'Carry the thing', built: true, min: 1, banner: 'Pick it up (your loot key) and throw it back at the boss' },
   lock: { a: 23, name: 'Group key-lock', built: true, min: 2, banner: 'Everyone enter the arrows together' },
+  // T3: A20 on thrown things (the Hall Troll's blocks): only its throws bring it, so `loop`
+  deflect: { a: 20, name: 'Knock it back', built: true, loop: true, min: 1, banner: 'A glowing block: hold off, then attack right as it reaches you' },
 };
 
 // The four arrows of a combo: the bound Left / Right / Jump / Down keys (rebinding works: docs/ui/keybinds.md)
@@ -227,6 +229,28 @@ export const BURROW_S = 4.5, MOUNDS = [3, 3, 4], MOUND_R = 150;
 // gathers; standing in it when it bursts, you live.
 export const REBIRTH_ZONE_R = 90;
 export const zoneX = (z, k) => z.x0 + (z.x1 - z.x0) * (0.5 - 0.5 * Math.cos(Math.PI * Math.max(0, Math.min(1, k))));
+
+// ——— T3's: the field bosses and the Novices' two ———
+
+// Field bosses fight in the open, in rooms other slimes walk through: a challenge is aimed only at the slimes fighting
+// it (hit it lately and within FIELD_CHAL_R px), about every FIELD_CHAL_EVERY s, from its `chf` list ([type, from
+// stage]). Its stage is by its HP (fieldStage: thirds). G1: in stage 0 it stands for it; later ones come faster and its
+// own attacks go on alongside. The first comes a little after the fight starts.
+export const FIELD_CHAL_EVERY = 11, FIELD_CHAL_R = 700;
+export const fieldStage = (m) => (m.hp > (m.maxHp * 2) / 3 ? 0 : m.hp > m.maxHp / 3 ? 1 : 2);
+// A6 in the open (the Bellower's cinders): the wall spans FIELD_GAPS_HALF px either side of the boss, not the whole room
+export const FIELD_GAPS_HALF = 650;
+// A11 for the field bosses (the Pale Wyrm, the Hall Troll, Greyback): FIELD_FEINT[stage] of its dives or throws fake.
+// A dive pulls up as its warning ends and marks where you are now, FEINT_REWARN s; a throw swings empty and the real one
+// follows FEINT_THROW s later (a range), aimed where you went.
+export const FIELD_FEINT = [0.25, 0.4, 0.55], FEINT_REWARN = 0.45, FEINT_THROW = [0.35, 0.7];
+// A20 on thrown blocks (the Hall Troll, `deflect`): each block glows. Attack within PARRY_MS before it reaches you, having
+// held off DEFLECT_REST s before that swing (so swinging non-stop doesn't knock everything back), and it flies back: no
+// hit, DEFLECT_HIT of its max HP (from you) and a DEFLECT_STAGGER_S stagger, once a throw.
+export const DEFLECT_REST = 0.45, DEFLECT_HIT = 0.003, DEFLECT_STAGGER_S = 1;
+// A19 on a field boss: a dive or a stomp that hit nobody dazes it PUNISH_S, at most once every FIELD_PUNISH_CD s (it
+// dives or stomps every few seconds)
+export const FIELD_PUNISH_CD = 15;
 
 // How long the server keeps a challenge claimable after it should have landed (lag), ms
 export const CLAIM_SLACK_MS = 1500;

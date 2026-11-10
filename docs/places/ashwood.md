@@ -66,6 +66,7 @@ aimed at Lv 122 (`aim`): the Collier's Axe, its Deadwood Staff and Charcoal Bow 
   `focus` and `curse` (`looks.curse: 'ember'`, the logs leave you smouldering), like the Thorn Hart's pair. Drops
   Greyback's Brand (with its Smoulder Staff and Greyback's Bow twins) and the Greyback Helm. Its pet is in the Pet
   Shop (`PETS`, between Fenrir's and the Colossus's; `PETSHOP_W` went up to fit it).
+  T3 (`docs/combat/challenges.md`): some throws are feints (an empty swing, then the log where you went).
 
 ## Gear (`docs/combat/items.md`)
 Pitch's tier (Lv 118, `aim` 122): Collier's Axe / Deadwood Staff / Charcoal Bow, Collier's Hood. Mob drops at their

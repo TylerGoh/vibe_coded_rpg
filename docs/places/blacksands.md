@@ -45,6 +45,7 @@ and harder, so its zones run hard → easy by x (`SANDS_ZONES`), like the Whale 
   its back bakes into basalt plates, `looks.shell: 'cinder'`, Ignis's look reused) and `focus`
   (`docs/combat/bosses.md`). Drops the Bellower's Maul (with its staff and bow twins) and the Toadstone Helm.
   Its pet is in the Pet Shop (`PETS`; `PETSHOP_W` went up to fit it).
+  T3 (`docs/combat/challenges.md`): its boom brings cinders down round it but for one gap (sliding in its last third).
 
 ## Gear (`docs/combat/items.md`)
 Mob drops: the Basalt Helm (crabs), the Black Glass Cutlass / Black Glass Staff / Black Glass Bow (frigatebirds).
