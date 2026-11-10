@@ -33,7 +33,7 @@ const MOB_KINDS = Object.keys(MOBS); // same order as the server's
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const panX = (x, me) => clamp((x - me) / 500, -1, 1);
 // knockbacks: same numbers as server/rpg.js OUCH + hurt()
-const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 240, burn: 150, geyser: 380, sweep: 380, beam: 300, zap: 260, bomb: 420, slash: 380, pulse: 360, bite: 420, coil: 360, snare: 0, swap: SWAP_KNOCK, rhythm: 0, lock: 0, cage: 0, gaps: 200, bash: BASH_KNOCK }; // (bite, coil: Ladon's, FB1; snare … bash: boss challenges, src/challenge.js)
+const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 240, burn: 150, geyser: 380, sweep: 380, beam: 300, zap: 260, bomb: 420, slash: 380, pulse: 360, bite: 420, coil: 360, snare: 0, swap: SWAP_KNOCK, rhythm: 0, lock: 0, cage: 0, gaps: 200, bash: BASH_KNOCK, mirror: 0, laser: 160, late: 300 }; // (bite, coil: Ladon's, FB1; snare … bash: boss challenges, src/challenge.js)
 // ultimates Dash / Blink i-frames can get you through (the rest want you somewhere safe)
 const DODGEABLE_ULT = new Set(['collapse']);
 const TILE = 150; // den floor tiles for the grid attacks
@@ -1105,7 +1105,7 @@ export class Rpg {
   // → true if m was one of these events
   hazardEvent(m, k, theme, pan, me) {
     const now = this.time, mob = m.id, fx = this.bossFx, ground = 450;
-    const add = (h) => this.hz.push({ mob, warnAt: now, ...h });
+    const add = (h) => (this.hz.push({ mob, warnAt: now, ...h }), this.hz[this.hz.length - 1]); // (→ the hazard: src/challenge.js keeps the fake-out's)
     if (m.a === 'chal') this.chal.event(m, add); // (boss challenges: src/challenge.js)
     else if (m.a === 'shots') {
       for (const [x, y, vx, vy, g, r, delay] of m.shots) add({ type: 'shot', style: m.style, x, y, vx, vy, g, r, at: now + delay, end: now + delay + 4, pos: null });
@@ -1243,10 +1243,10 @@ export class Rpg {
         // a boss's snare (src/challenge.js): on the floor over the mark while the roots are up (a jump or a ledge clears it)
         if (t < h.at + h.dur && !me.onPlat && me.y > h.y - 24 && Math.abs(me.x - h.x) < h.r + 8) {
           h.done = true;
-          return { ...ouch('snare'), mx: h.x, trap: { seed: h.seed, len: h.len } };
+          return { ...ouch('snare'), mx: h.x, trap: { seed: h.seed, len: h.len, flip: h.flip } };
         }
-      } else if (h.type === 'cage' || h.type === 'gaps' || h.type === 'bash') {
-        const o = this.chal.judge(h, me, t, ouch); // (T1a's: src/challenge.js)
+      } else if (h.type === 'cage' || h.type === 'gaps' || h.type === 'bash' || h.type === 'lasers' || h.type === 'late') {
+        const o = this.chal.judge(h, me, t, ouch); // (T1a's and T1b's: src/challenge.js)
         if (o) return o;
       } else if (h.type === 'puddle') {
         if (t < h.end - 0.4 && me.grounded && Math.abs(me.y - h.y) < 2 && Math.abs(me.x - h.x) < h.w / 2 + 6) return ouch('burn');
@@ -1426,6 +1426,7 @@ export class Rpg {
 
   // Z: hide the nearest loot at once (the server's 'got' and 'loot' confirm it)
   pickup(me, seq) {
+    if (this.chal.toothNear(me)) return this.send({ t: 'pickup', s: seq }); // (A22: the server hands over the chip of the tooth first)
     let best = null, bestD = PICKUP_RANGE;
     for (const d of this.loot) {
       const dx = Math.abs(d[3] - me.x);

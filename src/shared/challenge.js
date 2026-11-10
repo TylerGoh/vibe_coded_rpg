@@ -7,34 +7,37 @@
 // One row per type (A1–A23 in the plan). built: switched on in the code so far (T0: the snare and the swap; T1a: the
 // rhythm lock, the rescue cage, thin gaps, the darkness, the moving arena, tethers, the parry, the group key-lock, and
 // the three that live inside the final bosses' loops: two at once, the moving safe zone and the fake-outs' cousin, Head
-// Swap); min: how many fighters it needs (a party-only type stays off below that); banner: G2's one line, shown the
+// Swap; T1b: the mirror trap, the laser grid, late tells, the fake-outs, floor-is-lava waves, carrying the thing, the
+// tilting floor and Rewind); min: how many fighters it needs (a party-only type stays off below that); banner: G2's one line, shown the
 // first time a character meets it (c.seen), never again. Only built types are ever sent. loop: only a boss's own loop
 // starts it (server/final.js, server/fenrir.js), never `start` (so the sandbox's Challenge now leaves it out).
 export const CHALLENGES = {
   snare: { a: 1, name: 'Snare', built: true, min: 1, banner: 'Snared! Enter the arrows to break free' },
   mash: { a: 2, name: 'Mash free', min: 1, banner: 'Stuck! Mash Jump to break out' },
   rhythm: { a: 3, name: 'Rhythm lock', built: true, min: 1, banner: 'Fettered! Enter each arrow on the beat' },
-  mirror: { a: 4, name: 'Mirror trap', min: 1, banner: 'A mirrored snare! Enter what the arrows mean' },
+  mirror: { a: 4, name: 'Mirror trap', built: true, min: 1, banner: 'A mirrored snare! Enter what the arrows mean' },
   rescue: { a: 5, name: 'Rescue trap', built: true, min: 2, banner: 'Caged! A friend at the cage can enter its arrows' },
   gaps: { a: 6, name: 'Thin gaps', built: true, min: 1, banner: 'A wall with one gap: stay in it' },
-  grid: { a: 7, name: 'Laser grid', min: 1, banner: 'Beams that blink on and off' },
+  grid: { a: 7, name: 'Laser grid', built: true, min: 1, banner: 'Beams that blink on and off' },
   rings: { a: 8, name: 'Bullet rings', min: 1, banner: 'Rings with gaps in them' },
   safezone: { a: 9, name: 'Moving safe zone', built: true, loop: true, min: 1, banner: 'The safe spot moves' },
-  late: { a: 10, name: 'Late tells', min: 1, banner: 'Watch the boss, not the floor' },
+  late: { a: 10, name: 'Late tells', built: true, min: 1, banner: 'Time stops! When he glows, move: the marks come too late' },
   headswap: { a: 0, name: 'Head Swap', built: true, loop: true, min: 1, banner: 'Two heads rear: watch which one glows' },
   hunt: { a: 0, name: 'The Hunt', built: true, loop: true, min: 1, banner: 'Hunted! The sons run at the two farthest apart' },
-  feint: { a: 11, name: 'Fake-outs', min: 1, banner: 'Not every wind-up lands when you think' },
-  lava: { a: 12, name: 'Floor is lava', min: 1, banner: 'The floor heats up in waves' },
+  rewind: { a: 0, name: 'Rewind', built: true, min: 1, banner: 'Rewind! Where you stand now, you go back to' },
+  feint: { a: 11, name: 'Fake-outs', built: true, loop: true, min: 1, banner: 'Count the ticks: it lands off the beat' },
+  lava: { a: 12, name: 'Floor is lava', built: true, loop: true, min: 1, banner: 'The plates heat in a wave: keep ahead of it' },
   double: { a: 13, name: 'Two at once', built: true, loop: true, min: 1, banner: 'Two moves at once' },
   jobs: { a: 14, name: 'Adds with jobs', min: 1, banner: 'Some of these adds matter more than others' },
   arena: { a: 15, name: 'Moving arena', built: true, min: 1, banner: 'The ledges sink! Find one that holds' },
+  tilt: { a: 15, name: 'Tilting floor', built: true, min: 1, banner: 'The floor tilts! Walk uphill, or stand on a ledge' },
   dark: { a: 16, name: 'Darkness', built: true, min: 1, banner: 'The lights go out' },
   swap: { a: 17, name: 'Controls swap', built: true, min: 1, banner: 'Turned around! Left is right for a few seconds' },
   tether: { a: 18, name: 'Tethers', built: true, min: 2, banner: 'Chained together! Stay close' },
   punish: { a: 19, name: 'Punish window', min: 1, banner: 'It missed everyone: hit it now' },
   parry: { a: 20, name: 'Parry', built: true, min: 1, banner: 'A glowing hit: attack right as it lands' },
   airweak: { a: 21, name: 'Weak spot mid-air', min: 1, banner: 'A weak spot up high' },
-  carry: { a: 22, name: 'Carry the thing', min: 1, banner: 'Something to pick up' },
+  carry: { a: 22, name: 'Carry the thing', built: true, min: 1, banner: 'A piece of the tooth! Pick it up and throw it back at her' },
   lock: { a: 23, name: 'Group key-lock', built: true, min: 2, banner: 'Everyone enter the arrows together' },
 };
 
@@ -128,6 +131,55 @@ export const LOCK_WARN = 1.3, LOCK_S = 2, LOCK_R = 70;
 // for HUNT_S at HUNT_SPEED ×; if the brothers meet (within HUNT_CLASH px) they crash into each other: stunned
 // HUNT_STUN_S, HUNT_CLASH_HP of their max HP off each. Stay together and they collide.
 export const HUNT_S = 8, HUNT_SPEED = 1.7, HUNT_CLASH = 50, HUNT_STUN_S = 4, HUNT_CLASH_HP = 0.25;
+
+// ——— T1b's types (Emberdeep's and the end-game's big four: Brenna, the Colossus, Chronos, Typhon) ———
+
+// A4, the mirror trap (Typhon, phase 4): a snare whose arrows are drawn mirrored: flip 'h' (left and right traded) or 'v'
+// (up and down); you enter what they mean (the true combo, comboFor as ever). Its art is the snare's (`style`).
+export const MIRROR = { h: [1, 0, 2, 3], v: [0, 1, 3, 2] }; // flip → the arrow drawn for each true one
+
+// A7, the laser grid (the Colossus's pistons): LASER_COLS beams down from the roof, every LASER_GAP px, LASER_W wide,
+// each on or off for each of LASER_BEATS[stage] beats of LASER_BEAT s (`masks`, one per beat, sent with the event). The
+// next beat's beams glow faintly a beat ahead; a safe lane two beams wide steps at most one beam a beat, so there's
+// always somewhere to walk to. Any height (they come from the roof); LASER_HIT × ATK.
+export const LASER_COLS = 10, LASER_GAP = 150, LASER_W = 64, LASER_BEAT = 0.75, LASER_BEATS = [5, 6, 8], LASER_WARN = 1.2, LASER_HIT = 1.2;
+export const laserX = (c) => LASER_GAP / 2 + c * LASER_GAP;
+
+// A10, late tells (Chronos's stopped hour): he gathers himself LATE_WIND s (he glows and the room greys: time stops),
+// then the hands of the clock come down where everyone stood when it began, the marks showing only LATE_TELL s first.
+// A column LATE_R either side, any height; LATE_HIT × ATK. Moving as he glows is the answer.
+export const LATE_WIND = 1.1, LATE_TELL = 0.3, LATE_R = 64, LATE_HIT = 1.4;
+
+// A11, fake-outs (the Colossus): it rears up for a slam and ticks: FEINT_BEAT s a tick, FEINT_TICKS (min, max) of them,
+// and it comes down half a beat after a tick (off the beat), never on one; from its phase 2 it may cancel into Gear Teeth
+// instead (FEINT_CANCEL). The landing is the ordinary slam (its radius FEINT_R): the jump itself is the last tell.
+export const FEINT_BEAT = 0.5, FEINT_TICKS = [2, 4], FEINT_CANCEL = 0.35, FEINT_R = 300;
+
+// A12, floor is lava (Typhon, from phase 2): the plates heat one after another from one end, LAVA_GAP s apart, each
+// glowing LAVA_GLOW[phase] s then molten LAVA_HOT s (the plates' own heat: MOLTEN_HP, server-timed); a crusted plate is
+// spared. Keep ahead of the wave, or let it pass on a ledge.
+export const LAVA_GAP = 0.45, LAVA_GLOW = [1.1, 1.1, 0.9, 0.75], LAVA_HOT = 2.6;
+
+// A15's cousin, the tilting floor (Brenna's hoist): after TILT_WARN the floor leans one way for TILT_S; on it you slide
+// downhill TILT_V[stage] px/s (`tl` in sim.js step(): walk against it; ledges don't tilt). Within TILT_EDGE px of the low
+// wall the hoist's chain grinds: TILT_HP of max HP every TILT_TICK s (server-judged, like Typhon's plates).
+// `tl`: 0 level, else 1 + 2 × stage + (1 if it leans right): odd leans left.
+export const TILT_WARN = 1.4, TILT_S = 6, TILT_V = [80, 100, 120], TILT_EDGE = 150, TILT_HP = 0.04, TILT_TICK = 0.5;
+export const tiltOf = (dir, stage) => 1 + 2 * Math.min(TILT_V.length - 1, stage) + (dir > 0 ? 1 : 0);
+export const tiltV = (tl) => (tl ? (tl % 2 ? -1 : 1) * TILT_V[(tl - 1) >> 1] : 0); // px/s, signed
+
+// A22, carry the thing (Brenna): she knocks a chip off the tooth; it lands CARRY_FAR px from her and lies there CARRY_S.
+// Pick it up (your loot key, within CARRY_R) and attack to throw it (no attacking or casting while you carry it): if
+// she's within THROW_RANGE that way, it hits her: CARRY_HIT of her max HP and a CARRY_STAGGER_S stagger, twice both
+// from behind (the strap on her back). Missed, it lands and can be picked up again. Not back in her in CARRY_S, it
+// bursts: CARRY_BURST_HP of max HP to anyone within CARRY_BURST_R (the one carrying it too).
+export const CARRY_S = 12, CARRY_R = 70, CARRY_FAR = [260, 480], THROW_RANGE = 560, CARRY_HIT = 0.004, CARRY_STAGGER_S = 2.5;
+export const CARRY_BURST_R = 220, CARRY_BURST_HP = 0.35;
+
+// Rewind (Chronos, from phase 2): a ghost stays where each slime stood; REWIND_S later everyone snaps back to theirs
+// (a predicted edit, {t:'rw'}: the server takes it within REWIND_SLACK px of where it had you) and the attacks of those
+// REWIND_S come again, in the same order. Dodge them twice.
+export const REWIND_S = 3, REWIND_SLACK = 150;
 
 // How long the server keeps a challenge claimable after it should have landed (lag), ms
 export const CLAIM_SLACK_MS = 1500;

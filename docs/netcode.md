@@ -19,7 +19,9 @@ protocol is documented in the comment at the top of that file: keep it updated**
   controls swapped), a Warrior's Charge connecting (`applyCharge`, from a slap), a Hook cut short at its mob (`applyHook`,
   SP2: the client says how many ticks the yank has left; the edit can only shorten it), and `net.edit(seq, patch)`, a
   patch of fields: a trap's combo entered (`net.free`, from `{t:'free'}`: `tr` cleared) and a boss's moving arena
-  sinking or raising ledges (`{t:'pf'}`: `pf`, as your clock passes the boss's schedule; T1a). Both in
+  sinking or raising ledges (`{t:'pf'}`: `pf`, as your clock passes the boss's schedule; T1a), the floor tilting under
+  you (`{t:'pf', tl}`: `tl`, T1b) and a Rewind snapping you back to your ghost (`{t:'rw', x, y}`: your position, speed
+  zeroed; T1b, checked against where the server had you). All in
   `docs/combat/challenges.md`. The client stores the edit on that input's `pending` entry (`[seq, keys, kick, charge,
   hook, edit]`), applies it now and on every replay; the server applies the same edit when it runs the message at that
   `s`. One server-side edit is safe without prediction: a friend opening your rescue cage clears your `tr` (held, you
@@ -83,6 +85,10 @@ protocol is documented in the comment at the top of that file: keep it updated**
   you, bit i = the room's platform i; `pack` / `unpack` entry 28). `step()` skips a sunk platform when landing; a door
   clears it. Set only by `{t:'pf'}` (predicted, in input order); the server takes only bits a boss in your room has
   sunk and clears them once nothing there has (`server/challenge.js`). Older tabs get version 8's records.
+- 2026-11-10: wire version 10 (boss challenges, T1b: Brenna's tilting floor): 55 bytes per slime: `tl` u8 (the floor
+  leaning under you: `tiltOf`, `pack` / `unpack` entry 29). `step()` slides you downhill at `tiltV(tl)` while you stand on
+  the floor (not a ledge); a door clears it. Set only by `{t:'pf', s, tl}` (predicted, in input order); the server takes
+  only the lean a boss in your room has going and levels you when it ends. Older tabs get version 9's records.
 - 2026-10-24 (the Archer, S4): no wire version change. Two more mob flags in the same byte (2048 marked by
   Hunter's Mark, 4096 netted; the 7 bits there hold up to 16384), Retreat Shot's rank in `mw` bits 6–7 (it was
   6 bits used of the byte), the slap echo's `retreat`, the skill's `mob` / echo's `mark`, and

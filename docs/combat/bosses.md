@@ -62,7 +62,8 @@ branches of `drawBit` and `drawFallObj`).
   four); field, top and final bosses pay `BOSS_PAY_SCALE` of their written EXP and coins a kill (`docs/economy.md`,
   "Tanky to tricky"). The final bosses' enrage came down with them (`FINAL_ENRAGE_MIN`). The difficulty is meant to
   move into the moves (tighter dodges, more going on, traps): the owner approved the plan (`story/tricky-plan.md`) and
-  it's being built in phases (`docs/combat/challenges.md`; T1a gave the Root Warden, Sigrun, Ladon and Fenrir theirs). Every boss hit also takes a share of the target's max
+  it's being built in phases (`docs/combat/challenges.md`; T1a gave the Root Warden, Sigrun, Ladon and Fenrir theirs; T1b Brenna, the Colossus
+  (the laser grid, off-beat slams, the gear lock on its armour), Chronos (time reversed, the stopped hour, Rewind) and Typhon). Every boss hit also takes a share of the target's max
   HP (`bossHitPct`, `docs/combat/core.md`).
   Everyone leaving for a few seconds resets it; a kill respawns after `BOSS_RESPAWN_MS` (`b` in `mobs`
   is the countdown). Bosses drop their unique gear, scrolls, gold and potions. Events: `{t:'boss', a: …}`.

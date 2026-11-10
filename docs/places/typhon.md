@@ -94,6 +94,14 @@ den's way out is at `DEN_EXIT_X`; the plan's "east wall" gave way to that).
 - **Freed**: its line; it sinks into the hearth, the plates go dark and the tooth drops from its chest into the empty
   mould (client art only).
 
+## Its challenges (T1b, 2026-11-10: `docs/combat/challenges.md`)
+- From phase 2 a Coil Burst or a Breath comes with a Hammer from its other arm at someone it isn't watching (two at once,
+  `alsoHammer`), and the plates heat in a wave from one end (`lava`: each glows, then is molten a short while; crusted
+  plates are spared, so frost still answers it). It stands for the wave in phase 2 and fights through it after.
+- Phase 3, the Pour: the iron sets round everyone's feet (`iron`: a snare drawn as iron, `looks.snare: 'iron'`).
+- Phase 4: the mirror trap (`mirror`: the iron again, its arrows drawn mirrored) and a faster wave.
+- Its HP (`hp` on its row) is cut by its uptime share, so the fight lasts what it did (`docs/economy.md`).
+
 ## Every class's answer
 As in the plan's table: a Frostbinder's frost crusts plates ahead of time and freezes either ultimate's wind-up (but not
 a full-pressure Eruption); anyone opens a vent (ranged from anywhere; mind the blast), the Knight's Rally holds the

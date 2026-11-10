@@ -1262,8 +1262,11 @@ export const MOBS = {
   },
   colossus: {
     name: 'The Clockwork Colossus', boss: true, top: true, lvl: 150, hp: 45474000, atk: 600, exp: 2442000, speed: 70, w: 220, h: 200, aggro: true, hops: false,
-    phases: [['slam', 'gears', 'beam'], ['slam', 'gears', 'beam', 'grid', 'sweep'], ['grid', 'sweep', 'gears', 'beam', 'charge', 'summon']],
+    phases: [['slam', 'gears', 'beam', 'lasers'], ['slam', 'gears', 'beam', 'grid', 'sweep', 'lasers', 'offslam'], ['grid', 'sweep', 'gears', 'beam', 'charge', 'summon', 'lasers', 'offslam']],
     ult: { name: 'Overclock', kind: 'overclock' }, minion: 'cogling',
+    // T1b's challenges (docs/combat/challenges.md): its pistons' laser grid (`lasers`, from phase 1), slams that land off
+    // its tick (`offslam`, from phase 2) and the gear lock on its armour (2+ fighting: shieldUp starts it)
+    ch: ['grid', 'feint', 'lock'],
     // atlas Phase 7 (c): its lines (said on entering, at each new phase, when freed; docs/social/story.md)
     lines: {
       enter: ['INTRUDER IN THE FOUNDRY. THE KEEPER IS NOT TO BE DISTURBED.', 'ORDER STANDING: PROTECT THE KEEPER. ORDER STANDING. ORDER STANDING.'],
@@ -1280,7 +1283,10 @@ export const MOBS = {
   },
   chronos: {
     name: 'Chronos, Keeper of Hours', boss: true, top: true, lvl: 170, hp: 52887000, atk: 630, exp: 3326000, speed: 100, w: 160, h: 190, aggro: true, hops: false, fly: 30,
-    phases: [['bombs', 'sweep', 'blink', 'spiral'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid', 'summon']],
+    phases: [['bombs', 'sweep', 'blink', 'spiral', 'reverse'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid', 'late', 'rewind'], ['bombs', 'sweep', 'blink', 'spiral', 'echo', 'grid', 'summon', 'late', 'rewind', 'reverse']],
+    // T1b's challenges (docs/combat/challenges.md): time reversed (`reverse`: the controls swap), the stopped hour (`late`:
+    // marks that come too late, from phase 2) and Rewind (from phase 2)
+    ch: ['swap', 'late', 'rewind'],
     ult: { name: 'Time Stop', kind: 'timestop' }, ults: [{ name: 'Time Stop', kind: 'timestop' }, { name: 'Collapse of Hours', kind: 'collapse' }], minion: 'chrono_wraith',
     // S5.4: he winds the hours round himself (a barrier, `looks.dome: 'hours'`: a gold clock face of a dome with
     // hour marks turning round it), lends whoever he marks time they'll have to pay back (a curse, `looks.curse:
@@ -2395,7 +2401,10 @@ MOBS.crag_roc = {
 // from Sigrun's) · adds: crag rocs off the hoist frame · interrupt: freeze Last Delivery as she heaves the tooth up
 MOBS.brenna = {
   name: 'Brenna, the Last Bearer', boss: true, lvl: 149, hp: 44500000, atk: 580, exp: 2400000, speed: 70, w: 160, h: 196, aggro: true, hops: false,
-  phases: [['slam', 'charge', 'rain'], ['slam', 'charge', 'beam', 'rain', 'summon', 'grid'], ['grid', 'beam', 'geysers', 'slam', 'summon', 'barrage', 'leap', 'charge']],
+  phases: [['slam', 'charge', 'rain', 'tilt'], ['slam', 'charge', 'beam', 'rain', 'summon', 'grid', 'tilt', 'tooth', 'cage'], ['grid', 'beam', 'geysers', 'slam', 'summon', 'barrage', 'leap', 'charge', 'tilt', 'tooth', 'cage']],
+  // T1b's challenges (docs/combat/challenges.md): the hoist tilts the floor (`tilt`, every phase, steeper each), a chip of the
+  // tooth to throw back at her (`tooth`, from phase 2), the cage (`cage`, from phase 2, 2+ fighting)
+  ch: ['tilt', 'carry', 'rescue'],
   ult: { name: 'Last Delivery', kind: 'wave' }, minion: 'crag_roc', looks: { beam: 'tooth', grid: 'rimrock', dome: 'ember', pulse: 'ash' }, // (how they're drawn: src/hazards.js, src/party.js)
   party: ['focus', 'barrier', 'pulse', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, top: true, barrierFront: true, weak: { dx: -0.4, dy: -0.36, r: 20, back: true },
   lines: {
@@ -2464,7 +2473,11 @@ MOBS.typhon = {
   name: 'Typhon, the Buried Fire', boss: true, top: true, final: 'typhon', heads: true, touchW: 180, touchH: 190, denX: TY_MID,
   lvl: 170, hp: 125000000, atk: 600, exp: 2900000, speed: 60, w: 300, h: 260, aggro: true, hops: false,
   phases: [[], [], []], minion: 'cinder_whelp', petWH: [70, 52],
-  looks: { beam: 'hearth', shell: 'slag', dome: 'haze', curse: 'scorch', pulse: 'bellows' },
+  looks: { beam: 'hearth', shell: 'slag', dome: 'haze', curse: 'scorch', pulse: 'bellows', snare: 'iron' },
+  // T1b's challenges (in its loops, server/typhon.js; docs/combat/challenges.md): the Pour's iron sets round you (`iron`, a
+  // snare, phase 3), two at once (a Hammer alongside, from phase 2), the plates heating in waves (`lava`, from phase 2)
+  // and the mirror trap (`mirror`, phase 4)
+  ch: ['snare', 'double', 'lava', 'mirror'],
   party: ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'], partyAll: true, partyLive: true,
   weak: { dx: 0.1, dy: -0.62, r: 32, front: true }, // (the tooth behind the grille of its ribs, open while it inhales)
   lines: {

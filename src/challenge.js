@@ -4,8 +4,14 @@
 // a trap's combo is taken from the bound walk / jump / drop keys (or the arrow pad on touch) and sent as {t:'free'}
 // (a friend's cage too, standing at it), the moving arena's ledges are sunk and raised by predicted edits ({t:'pf'}),
 // and the rest is drawn: roots, fetters or a cage round whoever is caught, a swap sign, tethers, the Hunt's marks, the
-// dark, the combo over your head, G2's first-time banner.
-import { CHALLENGES, ARROWS, ARROW_GLYPH, TRAP_HOLD, SNARE_TICKS, SWAP_TICKS, PUNISH_KEEP_S, seedFor, comboFor, RHYTHM_TICKS, RHYTHM_BEAT, RHYTHM_WINDOW, CAGE_S, RESCUE_R, GAP_GRACE, gapX, TETHER_R, PARRY_MS, PARRY_LATE_MS, DARK_R } from './shared/challenge.js';
+// dark, the combo over your head, G2's first-time banner. T1b: the mirror trap's flipped arrows, the laser grid, the late
+// tells and the stopped hour, the fake-out's ticking ring, the tilting floor (predicted edits of `tl`, like the arena's),
+// the chip of Brenna's tooth (picked up with the loot key, thrown with an attack: carrying(), throw()) and Rewind's
+// ghosts (snapped back by a predicted edit, {t:'rw'}).
+import {
+  CHALLENGES, ARROWS, ARROW_GLYPH, TRAP_HOLD, SNARE_TICKS, SWAP_TICKS, PUNISH_KEEP_S, seedFor, comboFor, RHYTHM_TICKS, RHYTHM_BEAT, RHYTHM_WINDOW, CAGE_S, RESCUE_R, GAP_GRACE, gapX, TETHER_R, PARRY_MS, PARRY_LATE_MS, DARK_R,
+  MIRROR, LASER_COLS, LASER_W, laserX, tiltV, CARRY_S, CARRY_R, THROW_RANGE, CARRY_BURST_R, REWIND_S,
+} from './shared/challenge.js';
 import { text } from './village.js';
 import { audio } from './audio.js';
 import { TOUCH } from './touch.js';
@@ -13,7 +19,7 @@ import { TAU } from './util.js';
 
 const BANNER_S = 4.5; // G2's line stays this long
 const KEY_DIR = { left: 0, right: 1, jump: 2, down: 3 }; // the key actions (src/shared/keys.js) that enter each arrow
-const TRAP_MAXT = { snare: SNARE_TICKS, rhythm: RHYTHM_TICKS, lock: SNARE_TICKS }; // (each trap's whole time, for its bar)
+const TRAP_MAXT = { snare: SNARE_TICKS, rhythm: RHYTHM_TICKS, lock: SNARE_TICKS, mirror: SNARE_TICKS }; // (each trap's whole time, for its bar)
 
 // The moving arena's ledges as drawn (the dens' art asks, drawSunk): platform index → how far sunk, 0 (up) to 1 (gone
 // into the floor); shaking: about to go
@@ -50,7 +56,13 @@ export class Challenges {
     this.tethers = null; // { pairs, from, until, r, mob }
     this.hunt = null; // { pairs: [[son id, slime id]], until }
     this.swungAt = -9; // (rpg.time) we last attacked: a parry's timing
-    this.style = 'root'; // how the latest snare looks (a fetter in Fenrir's den)
+    this.style = 'root'; // how the latest snare looks (a fetter in Fenrir's den, iron in Typhon's)
+    this.tilt = null; // { tl, dir, warnAt, from, until, room, done: 0 | 1 | 2, edge }: the floor leaning
+    this.tooth = null; // { x, holder, until, mob, fly: { x0, x1, at, hit } }: a chip of Brenna's tooth
+    this.rewind = null; // { ghosts: Map(id → [x, y]), at, snapAt, mob }: where everyone goes back to
+    this.stopped = null; // { at, until, mob }: the stopped hour (A10's wind-up: the room greys)
+    this.feint = null; // the fake-out's ring (a hazard), while it ticks
+    this.flashAt = -9; // (Rewind's snap: a white flash)
     this.pad = TOUCH ? this.buildPad() : null;
   }
 
@@ -64,11 +76,11 @@ export class Challenges {
   // ——— the boss's event → hazards (src/rpg.js hazardEvent) ———
   event(m, add) {
     const now = this.time;
-    if (m.type === 'snare' || m.type === 'rhythm' || m.type === 'lock') {
+    if (m.type === 'snare' || m.type === 'rhythm' || m.type === 'lock' || m.type === 'mirror') {
       this.style = m.style ?? 'root';
       for (const [x, d] of m.list) {
         const at = now + d + m.warn;
-        add({ type: 'snare', ch: m.type, style: m.style, x, y: m.y, r: m.r, warnAt: now + d, at, dur: m.dur, end: at + m.dur + 0.5, len: m.len, seed: m.seed });
+        add({ type: 'snare', ch: m.type, style: m.style, x, y: m.y, r: m.r, warnAt: now + d, at, dur: m.dur, end: at + m.dur + 0.5, len: m.len, seed: m.seed, flip: m.flip });
         this.rpg.later(at - now, () => audio.sfx('thornRain', { vol: 0.5 }));
       }
       audio.sfx('slashWarn', { vol: 0.5 });
@@ -119,6 +131,67 @@ export class Challenges {
       this.rpg.pop(m.x, 300, 'CLASH!', '#ffe28a', 22);
       audio.sfx('bossSlam', { vol: 0.8 });
     } else if (m.type === 'headswap') this.rpg.final.here?.()?.headSwap?.(m);
+    // ——— T1b's ———
+    else if (m.type === 'grid') {
+      add({ type: 'lasers', ch: 'laser', masks: m.masks, beat: m.beat, style: m.style, warnAt: now, at: now + m.warn, end: now + m.warn + m.masks.length * m.beat + 0.3 });
+      audio.sfx('laserCharge', { vol: 0.5 });
+    } else if (m.type === 'late') {
+      this.stopped = { at: now, until: now + m.wind, mob: m.id };
+      for (const x of m.list) add({ type: 'late', ch: 'late', x, r: m.r, warnAt: now + m.wind - m.tell, at: now + m.wind, dur: 0.25, end: now + m.wind + 0.6 });
+      audio.sfx('timeStop', { vol: 0.6 });
+      this.rpg.later(m.wind, () => audio.sfx('slash', { vol: 0.8 }));
+    } else if (m.type === 'feint') {
+      this.feint = add({ type: 'feint', x: m.x, r: m.r, beat: m.beat, warnAt: now, at: now + 99, end: now + 8, tick: 0 });
+      audio.sfx('bossWarn', { vol: 0.5 });
+    } else if (m.type === 'feintGo' || m.type === 'feintOff') {
+      // up it goes (its ring and its ticks go on until it lands), or it thinks better of it
+      if (this.feint) this.feint.end = now + (m.type === 'feintGo' ? (m.air ?? 0.6) + 0.1 : 0);
+      if (this.feint) this.feint.go = now;
+      audio.sfx(m.type === 'feintGo' ? 'leap' : 'reset', { vol: 0.6 });
+    } else if (m.type === 'tilt') {
+      this.tilt = { tl: m.tl, dir: m.dir, warnAt: now, from: now + m.warn, until: now + m.warn + m.dur, room: this.rpg.room, done: 0, edge: m.edge };
+      audio.sfx('bossRoar', { vol: 0.4 });
+    } else if (m.type === 'carry') {
+      this.tooth = { x: m.x, x0: m.x0 ?? m.x, holder: 0, at: now, until: now + m.ms / 1000, mob: m.id, fly: null };
+      audio.sfx('eggBreak', { vol: 0.6 });
+    } else if (m.type === 'carried') {
+      if (this.tooth) this.tooth.holder = m.by;
+      if (m.by === this.myId) audio.sfx('pickup');
+    } else if (m.type === 'thrown') {
+      if (this.tooth) {
+        this.tooth.fly = { x0: m.x0, x1: m.x1, at: now, hit: m.hit };
+        this.tooth.holder = 0;
+        this.tooth.x = m.x1;
+        if (m.hit) this.tooth.until = now + 0.45;
+      }
+      audio.sfx('dash', { vol: 0.6 });
+      if (m.hit) this.rpg.later(0.4, () => {
+        this.rpg.pop(m.x1, 260, m.back ? 'THE STRAP!' : 'HIT!', '#ffe28a', m.back ? 24 : 20);
+        audio.sfx('bossSlam', { vol: 0.8 });
+      });
+    } else if (m.type === 'dropped') {
+      if (this.tooth) [this.tooth.holder, this.tooth.x] = [0, m.x];
+    } else if (m.type === 'carryBurst') {
+      this.tooth = null;
+      this.bursts.push([m.x, 450, this.time, 'ember']);
+      this.rpg.fx?.spawn?.('nova', { x: m.x, y: 430, radius: CARRY_BURST_R, tint: 'fire' });
+      audio.sfx('bombBoom', { vol: 0.8 });
+    } else if (m.type === 'rewind') {
+      const me = this.rpg.net.me, ghosts = new Map(m.ghosts.map(([id, x, y]) => [id, [x, y]]));
+      if (ghosts.has(this.myId) && me) ghosts.set(this.myId, [me.x, me.y]); // (ours: where we stand in our own predicted world)
+      this.rewind = { ghosts, at: now, snapAt: now + m.dur, mob: m.id };
+      audio.sfx('timeStop', { vol: 0.5 });
+    } else if (m.type === 'rewindGo') {
+      const r = this.rewind, net = this.rpg.net, mine = r?.ghosts.get(this.myId);
+      if (mine && net.seq) {
+        const [x, y] = mine;
+        this.rpg.send({ t: 'rw', s: net.seq, x, y });
+        net.edit(net.seq, { x, y, vx: 0, vy: 0, dt: 0, hk: 0, sl: false });
+      }
+      this.rewind = null;
+      this.flashAt = now;
+      audio.sfx('timeResume', { vol: 0.8 });
+    }
   }
 
   // where slime id is now (us: the predicted state)
@@ -136,6 +209,15 @@ export class Challenges {
     } else if (h.type === 'gaps') {
       // (not marked done: a Dash's i-frames skip a moment of it, not the whole fall; the hit's invulnerability does the rest)
       if (t < h.at + h.dur && Math.abs(me.x - gapX(h, t)) > h.w / 2 - GAP_GRACE) return ouch('gaps');
+    } else if (h.type === 'lasers') {
+      // A7: the beam over us is on this beat (any height: they come from the roof). Not marked done: each beat can hit
+      const b = Math.floor((t - h.at) / h.beat), c = Math.round((me.x - laserX(0)) / (laserX(1) - laserX(0)));
+      if (b < h.masks.length && c >= 0 && c < LASER_COLS && h.masks[b] & (1 << c) && Math.abs(me.x - laserX(c)) < LASER_W / 2 + 6) return ouch('laser');
+    } else if (h.type === 'late') {
+      if (t < h.at + h.dur && Math.abs(me.x - h.x) < h.r + 6) {
+        h.done = true;
+        return { ...ouch('late'), mx: h.x };
+      }
     } else if (h.type === 'bash') {
       // judged once, PARRY_LATE_MS after it lands: in its reach then, you either swung in time (parried) or it hits
       if (t < h.at + PARRY_LATE_MS / 1000) return null;
@@ -164,9 +246,9 @@ export class Challenges {
     const h = ouch.trap;
     delete ouch.trap;
     const k = ouch.kind;
-    if (k === 'snare' || k === 'rhythm' || k === 'lock') {
+    if (k === 'snare' || k === 'rhythm' || k === 'lock' || k === 'mirror') {
       const seed = k === 'lock' ? h.seed : seedFor(h.seed, this.myId); // (a lock: everyone the same arrows)
-      this.combo = { arrows: comboFor(seed, h.len), i: 0, wrongAt: -9, at: this.time, kind: k, max: TRAP_MAXT[k] };
+      this.combo = { arrows: comboFor(seed, h.len), i: 0, wrongAt: -9, at: this.time, kind: k, max: TRAP_MAXT[k], flip: k === 'mirror' ? h.flip : null };
       audio.sfx('block');
       return { tr: TRAP_MAXT[k] };
     }
@@ -230,6 +312,24 @@ export class Challenges {
       for (let i = 0; i < 8; i++) if (a.mask & (1 << i) && t < a.sinkAt) shakeNow.add(i);
       if (t > a.upAt + a.sink) this.arena = null;
     }
+    // the tilting floor: lean, then level again, each a predicted edit at the newest input (the server checks the lean)
+    const tl = this.tilt;
+    if (tl && tl.room !== this.rpg.room) this.tilt = null;
+    else if (tl) {
+      if (tl.done === 0 && t >= tl.from) this.lean(tl.tl, (tl.done = 1));
+      if (tl.done === 1 && t >= tl.until) this.lean(0, (tl.done = 2));
+      if (t > tl.until + 0.5) this.tilt = null;
+    }
+    // the fake-out ticks on its beat (it lands half a beat after one)
+    const f = this.feint;
+    if (f && t > f.end) this.feint = null;
+    else if (f && t - f.warnAt >= (f.tick + 1) * f.beat) {
+      f.tick++;
+      audio.sfx('bombTick', { vol: 0.7 });
+    }
+    if (this.tooth && t > this.tooth.until + 0.5) this.tooth = null;
+    if (this.rewind && t > this.rewind.snapAt + 2) this.rewind = null;
+    if (this.stopped && t > this.stopped.until + 0.3) this.stopped = null;
     if (this.pad) this.pad.hidden = !this.combo && !this.near(me);
     this.bursts = this.bursts.filter((b) => t - b[2] < 0.6);
     if (this.dark && t > this.dark.until + 0.6) this.dark = null;
@@ -241,6 +341,31 @@ export class Challenges {
     if (!net.seq) return;
     this.rpg.send({ t: 'pf', s: net.seq, pf });
     net.edit(net.seq, { pf });
+  }
+  lean(tl) {
+    const net = this.rpg.net;
+    if (!net.seq) return;
+    this.rpg.send({ t: 'pf', s: net.seq, tl });
+    net.edit(net.seq, { tl });
+  }
+
+  // ——— A22: the chip of Brenna's tooth ———
+  // are we carrying it? (no attacking or casting meanwhile: an attack throws it, src/main.js)
+  carrying() {
+    return !!this.tooth && this.tooth.holder === this.myId && !this.tooth.fly;
+  }
+  // a chip lying within reach of us (the loot key picks it up before any loot)
+  toothNear(me) {
+    const T = this.tooth;
+    return !!T && !T.holder && !T.fly && !!me && Math.abs(T.x - me.x) <= CARRY_R && me.y > FLOOR_Y - 140;
+  }
+  // an attack while carrying: thrown the way we face (the server judges whether it reaches her)
+  throw(dir) {
+    const net = this.rpg.net;
+    this.rpg.send({ t: 'carry', s: net.seq, a: 'throw', dir });
+    const x1 = Math.max(80, Math.min(1420, net.me.x + dir * THROW_RANGE * 0.6));
+    this.tooth.fly = { x0: net.me.x, x1, at: this.time, hit: 0 }; // (the server's 'thrown' corrects it)
+    [this.tooth.holder, this.tooth.x] = [0, x1];
   }
 
   // the caged friend we're standing at (a rescue's arrows go to it), or null
@@ -322,15 +447,27 @@ export class Challenges {
   // Over the slimes (world space): list = [[slime, tr, cs], …] for everyone shown, our own last
   drawOver(ctx, list, mine) {
     const t = this.time;
+    if (this.stopped) this.drawStopped(ctx, t);
+    if (this.tilt) this.drawTilt(ctx, t);
+    if (this.rewind) this.drawGhosts(ctx, t);
+    if (this.tooth) this.drawTooth(ctx, t);
     if (this.dark) this.drawDark(ctx, list, t);
     if (this.tethers && t >= this.tethers.at) this.drawTethers(ctx, t);
     if (this.hunt) this.drawHunt(ctx, t);
     for (const [s, tr, cs] of list) {
       if (tr >= TRAP_HOLD) drawCage(ctx, s.x, s.y, t);
-      else if (tr > 0) (this.style === 'fetter' ? drawFetters : drawRoots)(ctx, s.x, s.y, s.h ?? 40, t, tr / SNARE_TICKS);
+      else if (tr > 0) (this.style === 'fetter' ? drawFetters : this.style === 'iron' ? drawIron : drawRoots)(ctx, s.x, s.y, s.h ?? 40, t, tr / SNARE_TICKS);
       if (cs > 0) drawSwapSign(ctx, s.x, s.y - (s.h ?? 40) - (s === mine && this.combo ? 80 : 30), t, cs / SWAP_TICKS);
     }
-    for (const [x, y, at] of this.bursts) drawBurst(ctx, x, y, (t - at) / 0.6);
+    for (const [x, y, at, kind] of this.bursts) drawBurst(ctx, x, y, (t - at) / 0.6, kind ?? this.style);
+    if (t - this.flashAt < 0.35) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalAlpha = 0.7 * (1 - (t - this.flashAt) / 0.35);
+      ctx.fillStyle = '#fff8e6';
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.restore();
+    }
     if (mine && this.punishUntil > t) {
       const p = 0.5 + 0.5 * Math.sin(t * 9);
       ctx.save();
@@ -343,7 +480,7 @@ export class Challenges {
       ctx.restore();
     }
     const c = this.combo, me = this.rpg.net.me;
-    if (c && mine) drawCombo(ctx, mine.x, mine.y - (mine.h ?? 40) - 34, c, t, (me.tr | 0) / (c.max || SNARE_TICKS), c.kind === 'rhythm' ? c.at : null);
+    if (c && mine) drawCombo(ctx, mine.x, mine.y - (mine.h ?? 40) - 34, c, t, (me.tr | 0) / (c.max || SNARE_TICKS), c.kind === 'rhythm' ? c.at : null, c.flip);
     // in a cage: the time left (a friend opens it)
     if (this.caged && mine) drawCageClock(ctx, mine.x, mine.y - (mine.h ?? 40) - 40, (this.caged.until - t) / CAGE_S, t);
     // a friend's cage we're standing at: its arrows over it, ours to enter
@@ -352,6 +489,134 @@ export class Challenges {
       const s = this.rpg.slimeOf(who), cage = this.cages.get(who), r = this.rescue?.who === who ? this.rescue : { i: 0, wrongAt: -9 };
       if (s && cage) drawCombo(ctx, s.x, s.y - (s.h ?? 40) - 40, { arrows: cage.arrows, i: r.i, wrongAt: r.wrongAt }, t, (cage.until - t) / CAGE_S, null);
     }
+  }
+
+  // ——— T1b's art ———
+  // A10's stopped hour: the room greys while he gathers himself, a glow at him (the real tell)
+  drawStopped(ctx, t) {
+    const d = this.stopped, k = Math.min(1, (t - d.at) / 0.2, Math.max(0, (d.until + 0.3 - t) / 0.3));
+    if (k <= 0) return;
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 0.28 * k;
+    ctx.fillStyle = '#c9b48a';
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.restore();
+    const b = this.rpg.views.get(d.mob);
+    if (!b) return;
+    const g = ctx.createRadialGradient(b.x, b.y - 100, 10, b.x, b.y - 100, 150);
+    g.addColorStop(0, `rgba(255,236,170,${0.75 * k})`);
+    g.addColorStop(1, 'rgba(255,236,170,0)');
+    ctx.save();
+    ctx.fillStyle = g;
+    ctx.fillRect(b.x - 150, b.y - 250, 300, 300);
+    ctx.restore();
+  }
+
+  // the tilting floor: chevrons along the floor pointing downhill, the chain grinding at the low end
+  drawTilt(ctx, t) {
+    const T = this.tilt, live = t >= T.from && t < T.until, W = 1500, y = FLOOR_Y;
+    const k = t < T.from ? 0.35 + 0.35 * Math.sin(t * 12) : t < T.until ? 1 : Math.max(0, 1 - (t - T.until) / 0.5);
+    ctx.save();
+    ctx.globalAlpha = k;
+    ctx.fillStyle = 'rgba(255,190,120,0.75)';
+    const step = 90, off = live ? ((t * Math.abs(tiltV(T.tl)) * 0.8) % step) * T.dir : 0;
+    for (let x = -step; x < W + step; x += step) {
+      const cx = x + off;
+      ctx.beginPath();
+      ctx.moveTo(cx + T.dir * 10, y - 9);
+      ctx.lineTo(cx - T.dir * 6, y - 17);
+      ctx.lineTo(cx - T.dir * 6, y - 1);
+      ctx.closePath();
+      ctx.fill();
+    }
+    // the low end: the hoist's chain grinding
+    const a = T.dir < 0 ? 0 : W - T.edge;
+    const g = ctx.createLinearGradient(T.dir < 0 ? 0 : W, 0, T.dir < 0 ? T.edge : W - T.edge, 0);
+    g.addColorStop(0, `rgba(255,90,60,${live ? 0.45 : 0.2})`);
+    g.addColorStop(1, 'rgba(255,90,60,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(a, y - 120, T.edge, 122);
+    ctx.strokeStyle = '#4a3a34';
+    ctx.lineWidth = 5;
+    ctx.setLineDash([12, 6]);
+    ctx.lineDashOffset = live ? t * 160 * T.dir : 0;
+    ctx.beginPath();
+    ctx.moveTo(a, y - 3);
+    ctx.lineTo(a + T.edge, y - 3);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Rewind: a ghost of each slime where it'll go back to, a clock hand sweeping round it, a thread to the slime
+  drawGhosts(ctx, t) {
+    const R = this.rewind, k = Math.max(0, Math.min(1, (R.snapAt - t) / REWIND_S));
+    ctx.save();
+    for (const [id, [x, y]] of R.ghosts) {
+      const s = this.at(id);
+      if (!s) continue;
+      ctx.strokeStyle = 'rgba(255,226,150,0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 6]);
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y - 20);
+      ctx.lineTo(x, y - 20);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = 'rgba(255,240,200,0.35)';
+      ctx.strokeStyle = 'rgba(255,226,150,0.9)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(x, y - 19, 24, 19, 0, 0, TAU);
+      ctx.fill();
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = '#ffd06a';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(x, y - 19, 30, -Math.PI / 2, -Math.PI / 2 - TAU * k, true);
+      ctx.stroke();
+      const a = -Math.PI / 2 - TAU * k;
+      ctx.strokeStyle = '#fff4d6';
+      ctx.beginPath();
+      ctx.moveTo(x, y - 19);
+      ctx.lineTo(x + Math.cos(a) * 16, y - 19 + Math.sin(a) * 16);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // A22: the chip on the floor (glowing, its time running out), over whoever carries it, or flying
+  drawTooth(ctx, t) {
+    const T = this.tooth;
+    let x = T.x, y = FLOOR_Y - 14, ang = Math.sin(t * 3) * 0.2;
+    if (T.fly) {
+      const f = Math.min(1, (t - T.fly.at) / 0.4);
+      x = T.fly.x0 + (T.fly.x1 - T.fly.x0) * f;
+      y = FLOOR_Y - 60 - Math.sin(f * Math.PI) * 120 + (T.fly.hit ? -80 * f : 46 * f);
+      ang = t * 14;
+      if (f >= 1 && !T.fly.hit) T.fly = null;
+      if (f >= 1 && T.fly?.hit) return;
+    } else if (T.holder) {
+      const s = this.at(T.holder);
+      if (!s) return;
+      [x, y, ang] = [s.x, s.y - (s.h ?? 40) - 30 + Math.sin(t * 5) * 2, 0.15];
+    } else {
+      // a ring for the pickup reach and the time left
+      const left = Math.max(0, Math.min(1, (T.until - t) / CARRY_S));
+      ctx.save();
+      ctx.strokeStyle = left > 0.3 ? 'rgba(255,208,106,0.7)' : `rgba(255,111,145,${0.6 + 0.4 * Math.sin(t * 14)})`;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(x, FLOOR_Y + 1, CARRY_R * 0.7, 8, 0, 0, TAU);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(x, y - 36, 9, -Math.PI / 2, -Math.PI / 2 + TAU * left);
+      ctx.stroke();
+      ctx.restore();
+    }
+    drawChip(ctx, x, y, ang, t);
   }
 
   // A16: black but a light round each slime and the boss (one offscreen layer, holes cut in it)
@@ -510,15 +775,37 @@ function arrow(ctx, x, y, dir, size) {
 
 // The combo over your head: a row of arrow keys (done ones green), the one to press glowing, a bar for the time left.
 // beatAt: a rhythm lock's first beat (rings close in on the key to press, landing on each beat)
-function drawCombo(ctx, x, y, c, t, left, beatAt = null) {
+// flip: A4's mirror trap: each arrow drawn as MIRROR[flip] has it (enter what it means), in a silvered frame
+function drawCombo(ctx, x, y, c, t, left, beatAt = null, flip = null) {
   const n = c.arrows.length, S = 26, G = 5, w = n * S + (n - 1) * G;
   const shake = t - c.wrongAt < 0.25 ? Math.sin(t * 90) * 5 * (1 - (t - c.wrongAt) / 0.25) : 0;
   const x0 = x - w / 2 + shake;
   ctx.save();
-  ctx.fillStyle = 'rgba(48,30,56,0.78)';
+  ctx.fillStyle = flip ? 'rgba(70,82,104,0.85)' : 'rgba(48,30,56,0.78)';
   ctx.beginPath();
   ctx.roundRect(x0 - 8, y - S / 2 - 8, w + 16, S + 24, 12);
   ctx.fill();
+  if (flip) {
+    // the mirror: a silver frame and a glint sweeping across it, and the axis it flips on
+    ctx.strokeStyle = '#d8e4f2';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    const gx = x0 - 8 + ((t * 0.7) % 1) * (w + 16);
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.fillRect(gx - 6, y - S / 2 - 8, 12, S + 24);
+    ctx.strokeStyle = 'rgba(216,228,242,0.55)';
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    if (flip === 'h') {
+      ctx.moveTo(x, y - S / 2 - 6);
+      ctx.lineTo(x, y + S / 2 + 6);
+    } else {
+      ctx.moveTo(x0 - 6, y);
+      ctx.lineTo(x0 + w + 6, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
   c.arrows.forEach((d, i) => {
     const bx = x0 + i * (S + G), done = i < c.i, now = i === c.i;
     const wrong = t - c.wrongAt < 0.25;
@@ -530,7 +817,7 @@ function drawCombo(ctx, x, y, c, t, left, beatAt = null) {
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = ctx.strokeStyle = done ? '#2e6b3a' : now ? '#5b3a6b' : 'rgba(255,255,255,0.85)';
-    arrow(ctx, bx + S / 2, y, d, 9);
+    arrow(ctx, bx + S / 2, y, flip ? MIRROR[flip][d] : d, 9);
     if (now && beatAt !== null) {
       // the beat: a ring closing in, landing as the beat does (a flash on it)
       const ph = ((t - beatAt) % RHYTHM_BEAT) / RHYTHM_BEAT, on = Math.min(ph, 1 - ph) * RHYTHM_BEAT < RHYTHM_WINDOW;
@@ -632,14 +919,15 @@ function drawSwapSign(ctx, x, y, t, left) {
   ctx.restore();
 }
 
-// Roots snapping apart (broke free)
-function drawBurst(ctx, x, y, k) {
+// Roots snapping apart (broke free); iron cracking off (kind 'iron'), embers (a chip of the tooth bursting)
+function drawBurst(ctx, x, y, k, kind = 'root') {
   if (k > 1) return;
+  const cols = kind === 'iron' ? ['#5a5250', '#ff9a4a'] : kind === 'ember' ? ['#ffb347', '#ff6a3a'] : kind === 'fetter' ? ['#e8f2ff', '#9ab0d8'] : ['#8fc06a', '#9a7652'];
   ctx.save();
   ctx.globalAlpha = 1 - k;
   for (let i = 0; i < 8; i++) {
     const a = -Math.PI * (i / 7), d = 10 + 40 * k;
-    ctx.fillStyle = i % 2 ? '#8fc06a' : '#9a7652';
+    ctx.fillStyle = cols[i % 2];
     ctx.beginPath();
     ctx.ellipse(x + Math.cos(a) * d, y - 12 + Math.sin(a) * d + 30 * k * k, 6, 3, a, 0, TAU);
     ctx.fill();
@@ -651,6 +939,7 @@ function drawBurst(ctx, x, y, k) {
 export function drawSnareHz(ctx, h, now) {
   const x = h.x, y = h.y ?? 450, r = h.r;
   if (h.style === 'fetter') return drawFetterHz(ctx, h, now);
+  if (h.style === 'iron') return drawIronHz(ctx, h, now);
   if (h.ch === 'lock' && now < h.at) {
     // the group lock: a golden ring of the Keepers' rune under each, so the party sees it's the one lock
     ctx.strokeStyle = `rgba(255,214,110,${0.4 + 0.3 * Math.sin(now * 10)})`;
@@ -941,6 +1230,198 @@ export function drawBashHz(ctx, h, now) {
     ctx.globalAlpha = 1 - k;
     ctx.fillStyle = 'rgba(230,245,255,0.8)';
     ctx.fillRect(a, top + h.h * 0.2, h.reach, h.h * 0.8);
+  }
+  ctx.restore();
+}
+
+// ——— T1b's art ———
+// Typhon's iron setting round a held slime: a dark crust up the body, cracks glowing orange, cooling darker as time runs
+function drawIron(ctx, x, y, h, t, left) {
+  const H = h * (0.45 + 0.2 * Math.min(1, left * 1.5)), W = 30, heat = Math.max(0, Math.min(1, left));
+  ctx.save();
+  ctx.fillStyle = '#3e3836';
+  ctx.beginPath();
+  ctx.moveTo(x - W - 6, y + 2);
+  for (let i = 0; i <= 8; i++) {
+    const px = x - W + (i / 8) * W * 2, py = y - H + Math.sin(i * 2.7) * 5 + (i % 2 ? 6 : 0);
+    ctx.lineTo(px, py);
+  }
+  ctx.lineTo(x + W + 6, y + 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = `rgba(255,${120 + Math.round(60 * heat)},60,${0.35 + 0.55 * heat})`;
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 4; i++) {
+    const px = x - W * 0.7 + i * W * 0.47;
+    ctx.beginPath();
+    ctx.moveTo(px, y);
+    ctx.lineTo(px + 4, y - H * 0.4);
+    ctx.lineTo(px - 2, y - H * 0.7 + Math.sin(t * 2 + i));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+// its hazard: the iron pooling under the mark (glowing, bubbling), then setting in jagged spikes
+function drawIronHz(ctx, h, now) {
+  const x = h.x, y = h.y ?? 450, r = h.r;
+  ctx.save();
+  if (now < h.at) {
+    const k = Math.max(0, Math.min(1, (now - h.warnAt) / Math.max(0.05, h.at - h.warnAt)));
+    const g = ctx.createRadialGradient(x, y, 2, x, y, r);
+    g.addColorStop(0, `rgba(255,170,70,${0.4 + 0.4 * k})`);
+    g.addColorStop(1, 'rgba(255,90,40,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(x, y + 1, r * (0.5 + 0.5 * k), 9, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = `rgba(255,84,112,${0.35 + 0.5 * k * (0.5 + 0.5 * Math.sin(now * 16))})`;
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([6, 6]);
+    ctx.lineDashOffset = now * 30;
+    ctx.beginPath();
+    ctx.ellipse(x, y + 1, r, 8, 0, 0, TAU);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#ffd08a';
+    for (let i = 0; i < 4; i++) {
+      const bx = x + Math.sin(i * 2.1 + now * 3) * r * 0.6, b = (now * 2 + i * 0.25) % 1;
+      ctx.beginPath();
+      ctx.arc(bx, y - b * 8, 2 + 2 * (1 - b), 0, TAU);
+      ctx.fill();
+    }
+  } else {
+    const live = h.at + h.dur, f = now > live ? Math.min(1, (now - live) / Math.max(0.05, h.end - live)) : 0;
+    const rise = Math.min(1, (now - h.at) / 0.1) * (1 - f);
+    for (let i = 0; i < 7; i++) {
+      const px = x - r * 0.9 + (i / 6) * r * 1.8, tall = (30 + 18 * Math.sin(i * 2.3 + 1)) * rise;
+      ctx.fillStyle = '#463e3a';
+      ctx.beginPath();
+      ctx.moveTo(px - 7, y + 2);
+      ctx.lineTo(px + (i % 2 ? 3 : -3), y - tall);
+      ctx.lineTo(px + 7, y + 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,140,60,0.8)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+// A chip of Brenna's tooth: a shard of old gear-tooth (bronze, a sliver of the shard's light in it)
+function drawChip(ctx, x, y, ang, t) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(ang);
+  const g = ctx.createRadialGradient(0, 0, 2, 0, 0, 34);
+  g.addColorStop(0, `rgba(255,214,140,${0.45 + 0.2 * Math.sin(t * 6)})`);
+  g.addColorStop(1, 'rgba(255,214,140,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(-34, -34, 68, 68);
+  ctx.fillStyle = '#9a6a3c';
+  ctx.strokeStyle = '#5a3a22';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-14, 10);
+  ctx.lineTo(-10, -8);
+  ctx.lineTo(-4, -14);
+  ctx.lineTo(6, -14);
+  ctx.lineTo(12, -6);
+  ctx.lineTo(15, 10);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#ffe6a8';
+  ctx.beginPath();
+  ctx.moveTo(-2, -9);
+  ctx.lineTo(4, -9);
+  ctx.lineTo(2, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// A7: the pistons along the roof and their beams. This beat's beams burn bright; next beat's glow faintly (a beat ahead)
+export function drawLasersHz(ctx, h, now) {
+  const b = Math.floor((now - h.at) / h.beat), on = b >= 0 ? h.masks[b] ?? 0 : 0, next = h.masks[Math.max(0, b + 1)] ?? 0, top = 30, G = 450;
+  const f = b >= 0 ? ((now - h.at) / h.beat) % 1 : 0;
+  ctx.save();
+  for (let c = 0; c < LASER_COLS; c++) {
+    const x = laserX(c), lit = !!(on & (1 << c)), soon = !!(next & (1 << c)) && (b < 0 ? true : f > 0.25);
+    // the piston
+    ctx.fillStyle = '#6b5a3e';
+    ctx.fillRect(x - 16, 0, 32, top - 4);
+    ctx.fillStyle = lit ? '#bff6ff' : soon ? `rgba(160,230,255,${0.5 + 0.4 * Math.sin(now * 20)})` : '#3d4a52';
+    ctx.beginPath();
+    ctx.roundRect(x - 10, top - 8, 20, 12, 4);
+    ctx.fill();
+    if (lit) {
+      const g = ctx.createLinearGradient(x - LASER_W / 2, 0, x + LASER_W / 2, 0);
+      g.addColorStop(0, 'rgba(120,230,255,0)');
+      g.addColorStop(0.35, 'rgba(150,240,255,0.75)');
+      g.addColorStop(0.5, 'rgba(240,255,255,0.95)');
+      g.addColorStop(0.65, 'rgba(150,240,255,0.75)');
+      g.addColorStop(1, 'rgba(120,230,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(x - LASER_W / 2, top, LASER_W, G - top);
+    } else if (soon) {
+      ctx.strokeStyle = 'rgba(150,230,255,0.45)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 8]);
+      ctx.lineDashOffset = -now * 60;
+      ctx.strokeRect(x - LASER_W / 2, top, LASER_W, G - top);
+      ctx.setLineDash([]);
+    }
+  }
+  ctx.restore();
+}
+
+// A10: the hands of the clock: nothing until LATE_TELL before (a thin gold line flickering), then a blade of light
+export function drawLateHz(ctx, h, now) {
+  ctx.save();
+  if (now < h.at) {
+    ctx.strokeStyle = `rgba(255,226,140,${0.5 + 0.5 * Math.sin(now * 40)})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(h.x, 0);
+    ctx.lineTo(h.x, 450);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,226,140,0.12)';
+    ctx.fillRect(h.x - h.r, 0, h.r * 2, 450);
+  } else {
+    const k = Math.min(1, (now - h.at) / 0.5);
+    ctx.globalAlpha = 1 - k;
+    const g = ctx.createLinearGradient(h.x - h.r, 0, h.x + h.r, 0);
+    g.addColorStop(0, 'rgba(255,236,170,0)');
+    g.addColorStop(0.5, 'rgba(255,250,225,0.95)');
+    g.addColorStop(1, 'rgba(255,236,170,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(h.x - h.r, 0, h.r * 2, 450);
+  }
+  ctx.restore();
+}
+
+// A11: the fake-out: the slam's ring held with no countdown, a pip lighting at each tick (it lands between two)
+export function drawFeintHz(ctx, h, now) {
+  const p = 0.5 + 0.5 * Math.sin(now * 10);
+  ctx.save();
+  ctx.strokeStyle = `rgba(255,110,90,${0.35 + 0.35 * p})`;
+  ctx.lineWidth = 3;
+  ctx.setLineDash([10, 8]);
+  ctx.lineDashOffset = now * 40;
+  ctx.beginPath();
+  ctx.ellipse(h.x, 451, h.r, 14, 0, 0, TAU);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  const n = (h.tick | 0) + 1;
+  for (let i = 0; i < n; i++) {
+    const lit = i < (h.tick | 0);
+    ctx.fillStyle = lit ? '#ffe28a' : 'rgba(255,226,138,0.3)';
+    ctx.beginPath();
+    ctx.arc(h.x - (n - 1) * 9 + i * 18, 470, 5, 0, TAU);
+    ctx.fill();
   }
   ctx.restore();
 }

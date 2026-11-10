@@ -22,7 +22,7 @@ import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, ap
 import { createSummons } from './summons.js';
 import { createFinal } from './final.js';
 import { createChallenges, KIND as CHAL_KIND } from './challenge.js';
-import { CHALLENGES, SNARE_HIT, SWAP_HIT, SWAP_KNOCK, CAGE_HIT, GAPS_HIT, BASH_HIT, BASH_KNOCK, BASH_WARN, ARENA_WARN } from '../src/shared/challenge.js';
+import { CHALLENGES, SNARE_HIT, SWAP_HIT, SWAP_KNOCK, CAGE_HIT, GAPS_HIT, BASH_HIT, BASH_KNOCK, BASH_WARN, ARENA_WARN, LASER_HIT, LASER_WARN, LASER_BEAT, LASER_BEATS, LATE_HIT, LATE_WIND, FEINT_BEAT, FEINT_TICKS, FEINT_CANCEL, FEINT_R } from '../src/shared/challenge.js';
 import { THROAT_MULT, THROAT_FILL, GAZE_STAGGER_S } from '../src/shared/final.js';
 import { SON_KNOCK } from '../src/shared/fenrir.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen, applyHook, HOOK_RANGE } from '../src/shared/sim.js';
@@ -145,7 +145,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       mobs.push(q);
     },
   });
-  // Boss challenges (server/challenge.js, docs/combat/challenges.md): T0's engine, T1a's types
+  // Boss challenges (server/challenge.js, docs/combat/challenges.md): T0's engine, T1a's and T1b's types
   const chal = createChallenges({
     now: () => now(), MOBS, bossEvent: (...a) => bossEvent(...a), send, toRoom: (r) => toRoom(r), inRoom: (r) => inRoom(r),
     mobById: (id) => (id ? mobs.find((q) => q.id === id) : undefined),
@@ -153,8 +153,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     hurtFlat: (id, p, share, m) => hurt(id, p, stats(p).maxHp * share, p.state.x, undefined, 0, false, m, true),
     stagger: (m, secs) => stagger(m, secs),
     damage: (m, n, id, p, dir) => damage(m, n, false, id, p, dir, 0),
-    // A23 done: the barrier breaks (with its stagger); no barrier up (it broke meanwhile), a stagger anyway
-    lockBroken: (m) => (m.shield && (m.shield.kind === 'barrier' || m.shield.kind === 'both') ? breakShield(m, 'barrier') : stagger(m)),
+    // A23 done: the barrier (or the Colossus's armour) breaks, with its stagger; none up (it broke meanwhile), a stagger anyway
+    lockBroken: (m) => (m.shield ? breakShield(m, m.shield.kind === 'armour' ? 'armour' : 'barrier') : stagger(m)),
+    later: (m, ms, fn) => later(m, ms, fn),
   });
   let roadsEndSaid = false; // (the Road's End: Ladon has spoken since it last emptied)
   let longStairSaid = false; // (the Long Stair: Fenrir has spoken since it last emptied)
@@ -1346,6 +1347,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     // the boss challenges (src/shared/challenge.js): a trap barely hurts and doesn't knock (it holds you); the swap's
     // orb, the gaps' ice and the shield bash do
     snare: [SNARE_HIT, 0], swap: [SWAP_HIT, SWAP_KNOCK], rhythm: [SNARE_HIT, 0], lock: [SNARE_HIT * 0.5, 0], cage: [CAGE_HIT, 0], gaps: [GAPS_HIT, 200], bash: [BASH_HIT, BASH_KNOCK],
+    mirror: [SNARE_HIT, 0], laser: [LASER_HIT, 160], late: [LATE_HIT, 300], // (T1b)
   };
   function ouch(id, p, m) {
     const mob = mobs.find((q) => q.id === m.mob && !q.dead && q.room === p.state.room);
@@ -1639,7 +1641,12 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     return null;
   }
 
-  const bossEvent = (m, a, extra = {}) => toRoom(m.room)({ t: 'boss', a, id: m.id, x: Math.round(m.x), y: m.y, dir: m.dir, ...extra });
+  const bossEvent = (m, a, extra = {}) => {
+    if (m.rec && REPLAY.has(a)) m.rec.list.push([now() - m.rec.at, a, { x: Math.round(m.x), y: m.y, dir: m.dir, ...extra }]); // (Rewind: these come again)
+    toRoom(m.room)({ t: 'boss', a, id: m.id, x: Math.round(m.x), y: m.y, dir: m.dir, ...extra });
+  };
+  // the attacks a Rewind plays again (server/challenge.js snap): the hazards, not the boss's own moving about
+  const REPLAY = new Set(['shots', 'sweep', 'grid', 'echo', 'beam', 'bombs', 'slam', 'rain', 'rainHit']);
   // A big boss's lines (MOBS[kind].lines: on entering, at each new phase, when freed): a bubble over it and a
   // line in the chat, for the whole den (or just `p`, who walked in)
   const bossSays = (m, text, p) => text && (p ? (msg) => send(p.ws, msg) : toRoom(m.room))({ t: 'boss', a: 'say', id: m.id, kind: m.kind, text });
@@ -1648,12 +1655,20 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     // the newer bosses (their attacks carry their own telegraphs, so the boss's own wind-up is short)
     fireballs: 0.6, geysers: 0.35, flamewall: 0.5, feathers: 0.5, spiral: 0.6, dive: 0.8, rings: 0.5,
     gears: 0.5, beam: 0.3, grid: 0.3, sweep: 0.3, bombs: 0.4, blink: 0.3, echo: 0.5,
-    // boss challenges (T1a, server/challenge.js: each carries its own telegraph)
-    bash: 0.2, tether: 0.3, cage: 0.3, arena: 0.3,
+    // boss challenges (T1a, T1b; server/challenge.js: each carries its own telegraph)
+    bash: 0.2, tether: 0.3, cage: 0.3, arena: 0.3, tilt: 0.3, tooth: 0.4, lasers: 0.3, offslam: 0.2, late: 0.2, reverse: 0.3, rewind: 0.3,
   };
   // a move in a boss's `phases` that starts a challenge (docs/combat/challenges.md) → its type
-  const CHAL_MOVE = { bash: 'parry', tether: 'tether', cage: 'rescue', arena: 'arena', snare: 'snare', fetter: 'rhythm', gaps: 'gaps', dark: 'dark' };
-  const CHAL_TIME = { parry: (st) => BASH_WARN[Math.min(BASH_WARN.length - 1, st)] + 0.5, tether: () => 1.2, rescue: () => 1, arena: () => ARENA_WARN + 0.6 };
+  const CHAL_MOVE = {
+    bash: 'parry', tether: 'tether', cage: 'rescue', arena: 'arena', snare: 'snare', fetter: 'rhythm', gaps: 'gaps', dark: 'dark',
+    tilt: 'tilt', tooth: 'carry', lasers: 'grid', offslam: 'feint', late: 'late', reverse: 'swap', rewind: 'rewind', // (T1b)
+  };
+  // how long the boss stands for each (else 0.8 s). G1: the laser grid stands still the phase it's taught, then the boss
+  // fights on through it; the tilt and Rewind always fight on (Rewind's whole point: attacks to dodge twice)
+  const CHAL_TIME = {
+    parry: (st) => BASH_WARN[Math.min(BASH_WARN.length - 1, st)] + 0.5, tether: () => 1.2, rescue: () => 1, arena: () => ARENA_WARN + 0.6,
+    grid: (st) => (st ? 1.2 : LASER_WARN + LASER_BEATS[0] * LASER_BEAT), late: () => LATE_WIND + 0.6, tilt: () => 0.9, rewind: () => 0.5,
+  };
   const minionsIn = (room) => mobs.filter((q) => q.minion && !q.dead && q.room === room).length;
   const ownMinions = (m) => mobs.filter((q) => q.minion && !q.dead && q.by === m.id); // (S5.4: a field boss's called adds)
   const addsCap = (m) => (partyOn(m, 'adds') ? Math.min(ADDS_MAX, 4 + m.fighters) : 5); // (how many of its minions may stand at once)
@@ -1802,6 +1817,30 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   const tiles = (pick) => Array.from({ length: 10 }, (_, i) => i).filter(pick);
   function newMove(m, k, here, stage, t) {
     const a = m.act;
+    if (a === 'offslam') {
+      // A11, the fake-out (the Colossus): it rears and ticks FEINT_BEAT apart, and lands half a beat after a tick (so it
+      // leaps one air time before); from its phase 2 it may cancel into Gear Teeth instead. The landing is the ordinary
+      // slam (slamLands)
+      const air = (2 * 760) / (GRAVITY * 1.3), ticks = FEINT_TICKS[0] + Math.floor(Math.random() * (FEINT_TICKS[1] - FEINT_TICKS[0] + 1));
+      const hold = Math.max(0.3, (ticks + 0.5) * FEINT_BEAT - air);
+      if (!chal.start(m, 'feint', { stage, r: FEINT_R, beat: FEINT_BEAT })) return (m.timer = 0), true;
+      const cancel = stage >= 1 && Math.random() < FEINT_CANCEL;
+      m.timer = hold + 0.4;
+      later(m, hold * 1000, () => {
+        if (m.dead || m.act !== 'offslam') return;
+        bossEvent(m, 'chal', { type: cancel ? 'feintOff' : 'feintGo', air: +air.toFixed(2) });
+        if (cancel) {
+          m.act = 'gears';
+          newMove(m, k, here, stage, now());
+          return;
+        }
+        m.act = 'slam';
+        m.vy = -760;
+        m.slamR = FEINT_R;
+        m.timer = 3; // until it lands
+      });
+      return true;
+    }
     if (CHAL_MOVE[a]) {
       // a boss challenge (server/challenge.js): its own telegraph; the boss stands while it winds up
       const type = CHAL_MOVE[a];
@@ -2169,7 +2208,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     m.shieldLast = kind;
     m.shieldNext = m.shield.until + (b ? bar.every : ARMOUR_EVERY) * 1000;
     bossEvent(m, 'shieldUp', { kind, dur: warn });
-    if (b && k.ch?.includes('lock')) chal.start(m, 'lock'); // (A23: everyone's arrows at once break it; 2+ fighting)
+    if (k.ch?.includes('lock')) chal.start(m, 'lock'); // (A23: everyone's arrows at once break it, a barrier or the Colossus's armour; 2+ fighting)
     if (b && !m.saidShield) bossSays(m, k.lines?.shield); // (once a fight: S5.3's line about it)
     m.saidShield ||= b;
     sendParty(m);
@@ -2485,6 +2524,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     cast,
     ouch,
     free: (id, p, m) => chal.free(id, p, m), // ({t:'free'}: a trap's combo entered, yours or a friend's cage, in input order)
+    rewind: (id, p, m) => chal.rewind(id, p, m), // ({t:'rw'}: snapped back to your ghost by a Rewind, in input order)
+    carry: (id, p, m) => m.a === 'throw' && chal.toss(id, p, m), // ({t:'carry', a:'throw', dir}: the chip of Brenna's tooth thrown)
     platforms: (id, p, m) => chal.platforms(id, p, m), // ({t:'pf'}: the ledges a boss's arena sank for you, in input order)
     playerAt,
 
@@ -2780,10 +2821,11 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     },
 
     // Z: pick up the nearest thing on the ground
-    pickup(p) {
+    pickup(p, id) {
       const t = now();
       if (!isCombat(p.state.room) || t - (p.pickAt ?? 0) < 100) return;
       p.pickAt = t;
+      if (id !== undefined && chal.pick(id, p)) return; // (A22: the chip of Brenna's tooth comes before any loot)
       const s = p.state;
       const c = p.rpg;
       // the nearest drop that fits: a full bag still takes the coins beside an item it can't hold

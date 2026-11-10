@@ -108,7 +108,10 @@ No quests, no hard level gates.
     - [x] T1a (2026-11-10, live): the Root Warden (arena, cage, lock), Sigrun (parry, tethers, cage), Ladon (snare, two
           at once, the moving gaps, Head Swap), Fenrir (rhythm lock, blackout, gaps, the Hunt); wire v9 (`pf`); their HP
           cut by their uptime so the fights last what they did. Unplayed; the phone check is still owed.
-    - [ ] T1b: Brenna, the Colossus, Chronos, Typhon (A4, A7, A10, A11, A22, Rewind).
+    - [x] T1b (2026-11-10, live): Brenna (tilting floor, the tooth's chip to throw, cage), the Colossus (laser grid,
+          off-beat slams, the gear lock on its armour), Chronos (time reversed, the stopped hour, Rewind), Typhon (the
+          iron snare, two at once, lava waves, the mirror trap); wire v10 (`tl`); HP cut by uptime as T1a. Unplayed; the
+          phone check is still owed.
   - [ ] T2: the den bosses (Behemoth, Tidemother, Knotmole, Frost Queen, Astral Wyrm, Old Narwhal, Ignis, Pyra,
         Hatchkeeper), the remaining types, punish windows everywhere.
   - [ ] T3: the field bosses and the Novices' two.

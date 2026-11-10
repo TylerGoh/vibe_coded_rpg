@@ -446,7 +446,7 @@ function useSlot(bar, i) {
 // Cast skill id: a hotbar key, or the K panel's Cast button / a double-click on its node (SP1: the server never checks
 // the hotbar, so it's the same {t:'skill'} either way)
 function castSkill(id) {
-  if (!online() || splatted(mine) || net.me.tr) return; // (snared by a boss: break free first)
+  if (!online() || splatted(mine) || net.me.tr || rpg.chal.carrying()) return; // (snared by a boss: break free first; carrying a chip of Brenna's tooth: throw it first)
   audio.unlock();
   if (SKILLS[id]?.kind === 'move') return pressMove(id);
   if (!rpg.cast(id, mine, mine.facing, net.seq, mine)) return;
@@ -1010,6 +1010,7 @@ const weaponSound = (s) => ({ sword: 'swing', staff: 'staffBolt', bow: 'bowShot'
 function slapToward(dir, aimed = false) {
   if (performance.now() - lastSlap < SLAP_COOLDOWN_MS / (isCombat(room) && rpg.me ? attackSpeedOf(rpg.me) : 1) || splatted(mine) || net.me.tr) return; // (Chronos's weapons: faster; snared: no swinging)
   lastSlap = performance.now();
+  if (isCombat(room) && rpg.chal.carrying()) return rpg.chal.throw(dir); // (A22: carrying a chip of Brenna's tooth, an attack throws it)
   if (isCombat(room)) rpg.chal.swung(); // (a boss's shield bash: attacking as it lands parries it, src/challenge.js)
   const bow = isCombat(room) && ITEMS[rpg.me?.gear?.weapon]?.kind === 'bow';
   if (bow && !aimed && retreatOpen(net.me, -dir)) dir = -dir;

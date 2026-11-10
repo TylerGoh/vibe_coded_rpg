@@ -70,6 +70,11 @@ Room 62 (`BRENNA_DEN`), a `DENS` row `from: RIM` at `BRENNA_DEN_X` (theme `hoist
   Bearer's Seat's left half (`drawSeat`, using `drawTooth`), its strap loose beside it, the right half still clear to
   sit on; and her name is carved in the memorial wall's blank space in Forgehold (`docs/places/forgehold.md`). The den
   still respawns her holding a tooth (the shard pulls her back, like every boss); only Ochre says so.
+- **Her challenges** (T1b, 2026-11-10: `docs/combat/challenges.md`): the hoist tilts the floor in every phase (`tilt`,
+  steeper each phase: slide downhill, the chain grinding at the low end; a ledge doesn't tilt); from phase 2 she knocks a
+  chip off the tooth (`tooth`: pick it up with the loot key and throw it back at her, twice as hard into the strap on her
+  back; left lying, it bursts) and drops a cage on someone (`cage`, 2+ fighting). Her HP is cut by her uptime share, so
+  the fight lasts what it did.
 - **Numbers** (`docs/economy.md`): HP sized like the other top party dens (a party of four ~47 min on the sheet,
   alone ~2.4x that), EXP and coins between Sigrun's and the Colossus's by level, gear a step over the Rim's (Lv 151), her
   pet between Old Crucible's and the Colossus's. Music: scene `brenna` (`docs/ui/audio.md`).

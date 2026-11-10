@@ -742,7 +742,9 @@ the moves instead (ideas go to the owner as a list to approve, `story/roadmap.md
   `BOSS_HP_SCALE` loop in `src/shared/rpg.js` multiplies by `uptimeOf`), so its fight lasts what it did before: HP is the
   lever, never its rewards. T1a (2026-11-10) gave the Root Warden, Ladon, Sigrun and Fenrir theirs: without the cut a
   party of four took 34–38 min (out of `TOP_PARTY_MIN`, and Ladon and Fenrir past `FINAL_ENRAGE_MIN`); with it, 27–30,
-  within a minute of before. Rewards unchanged. The rings that are shares of the plain `hp` (head rings, anchors,
+  within a minute of before. Rewards unchanged. T1b (2026-11-10) gave Brenna, the Colossus, Chronos and Typhon theirs: the
+  same cut, and their times moved under 40 s (Brenna 28:22 → 27:50, the Colossus 30:59 → 30:56, Chronos 29:23 → 29:08,
+  Typhon 27:48 → 27:13 for a party of four). Rewards unchanged. The rings that are shares of the plain `hp` (head rings, anchors,
   barriers, weak points) shrink with it, so they fill a fifth faster.
 
 ## How to price something new (since L2: in minutes of farming)

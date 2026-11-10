@@ -18,7 +18,7 @@ export const SPAWN_X = 220; // where you start in the village
 import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_PLATFORMS, FORGEHOLD, FORGE_W, FORGE_DOCK_X, FORGE_HOME_X, FORGE_SPAWN_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X, ASH_X, SLAG_X, FJORD_LODESTAR_X, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X, SUNKEN, SUNKEN_W, SUNKEN_EXIT_X, SUNKEN_GATE_X, SUNKEN_END_X, SUNKEN_PLATFORMS, ROADSEND, ROADSEND_W, ROADSEND_EXIT_X, OLDICE, OLDICE_W, OLDICE_EXIT_X, OLDICE_GATE_X, OLDICE_END_X, OLDICE_PLATFORMS, LONGSTAIR, LONGSTAIR_W, LONGSTAIR_EXIT_X, BLACKSANDS, SANDS_W, SANDS_EXIT_X, SANDS_PLATFORMS, SANDS_GATE_X, ASHWOOD, ASH_W, ASH_EXIT_X, ASH_PLATFORMS, ASHWOOD_GATE_X, PITCH_X, COAST, COAST_W, COAST_EXIT_X, COAST_PLATFORMS, COAST_GATE_X, LIV_X, TUBES, TUBES_W, TUBES_EXIT_X, TUBES_PLATFORMS, TUBES_GATE_X, BRIMSTONE, BRIM_W, BRIM_EXIT_X, BRIM_PLATFORMS, BRIMSTONE_GATE_X, OCHRE_X, FOUNDRY, FOUNDRY_W, FOUNDRY_EXIT_X, FOUNDRY_PLATFORMS, RIM, RIM_W, RIM_EXIT_X, RIM_PLATFORMS, RIM_GATE_X, FOUNDRY_GATE_X, UNDERFLUES, UNDERFLUES_W, UNDERFLUES_EXIT_X, UNDERFLUES_GATE_X, UNDERFLUES_END_X, UNDERFLUES_PLATFORMS, LONGFLUE, LONGFLUE_W, LONGFLUE_EXIT_X, BALLOON_X, SKYCAMP, CAMP_W, CAMP_DOCK_X, CAMP_HOME_X, CAMP_SPAWN_X, CAMP_PLATFORMS, KESTREL_X, IONE_X, TAMP_X, CAMP_END_X, SKYDOCKS, SKYDOCKS_W, SKYDOCKS_EXIT_X, SKYDOCKS_RAMP_X, SKYDOCKS_PLATFORMS, WARDEN_X } from './rpg.js';
 import { ARENA, ARENA_W, ARENA_PLATFORMS } from './sandbox.js';
 import { GX, walkOf, AIR_UP_V, AIR_DOWN_V, AIRDASH_CD, GLIDE_JUMP, GLIDE_FALL, PHASE_IFR } from './gearfx.js';
-import { TRAP_HOLD } from './challenge.js';
+import { TRAP_HOLD, tiltV } from './challenge.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
@@ -691,10 +691,12 @@ const HALF_W = 16; // half the slime's footprint, for platform edges and world b
 // way when the combo is entered (net.free; the server's free)
 // pf: platforms down (a boss's moving arena, A15): bit i set = the room's platform i is sunk into the floor for you. Set
 // by predicted edits as your client's clock passes the boss's schedule (net.edit; the server's {t:'pf'}); a door clears it
+// tl: the floor tilting under you (Brenna's hoist, T1b): 0 level, else challenge.js tiltOf (the way and how steep). On the
+// floor (not a ledge, not trapped) you slide downhill at tiltV(tl) as well as walking. Set and cleared like pf ({t:'pf', s, tl})
 // home: the room id of your own house (set by the server at login; 0 = none yet, so that door stays shut)
 // vt: voyage ticks, how long you've been aboard a crossing (0 everywhere else)
 // town: your town (an index into TOWNS), the last one you were in
-export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0, hk: 0, hc: 0, gx: 0, aj: 0, tr: 0, cs: 0, pf: 0 });
+export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0, hk: 0, hc: 0, gx: 0, aj: 0, tr: 0, cs: 0, pf: 0, tl: 0 });
 // Move a slime to (room, x), standing, keeping who it is (house, mobility, town). For the server's
 // teleports (waking up, invites, tests); doors do this inside step().
 export const placeAt = (s, room, x) => Object.assign(s, newState(x), { room, y: roomDef(room).ground, home: s.home, mv: s.mv, mw: s.mw, gx: s.gx, facing: s.facing, town: townOf(room) >= 0 ? townOf(room) : s.town | 0 });
@@ -740,7 +742,7 @@ export function step(s, keys) {
     s.room = door.to === HOME ? s.home : town ? town.room : door.to;
     s.x = town ? town.homeX : door.toX;
     s.y = roomDef(s.room).ground;
-    s.vx = s.vy = s.drop = s.dt = s.vt = s.cw = s.hk = s.pf = 0;
+    s.vx = s.vy = s.drop = s.dt = s.vt = s.cw = s.hk = s.pf = s.tl = 0;
     s.sl = false;
     s.grounded = true;
     s.onPlat = false;
@@ -849,7 +851,8 @@ export function step(s, keys) {
   s.drop = Math.max(0, s.drop - DT);
 
   const prevY = s.y;
-  s.x = Math.min(room.width - HALF_W, Math.max(HALF_W, s.x + s.vx * DT));
+  const slide = s.tl && !s.tr && s.grounded && !s.onPlat ? tiltV(s.tl) : 0; // (the tilting floor: downhill, on the floor only; a trap holds you)
+  s.x = Math.min(room.width - HALF_W, Math.max(HALF_W, s.x + (s.vx + slide) * DT));
   s.vy = Math.min(s.vy + GRAVITY * DT, MAX_FALL);
   if (gx & GX.GLIDE && keys & JUMP && s.vy > GLIDE_FALL && !s.sl && !s.dt) s.vy = GLIDE_FALL; // (the Colossus's helm)
   if (s.sl) {
@@ -896,11 +899,11 @@ export function step(s, keys) {
   return s;
 }
 
-// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town, mw, flags2, sc, uc, cw, uw, lw, hk, hc, gx, aj, tr, cs, pf]
+// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town, mw, flags2, sc, uc, cw, uw, lw, hk, hc, gx, aj, tr, cs, pf, tl]
 // (`home` never changes, so it isn't in snapshots: welcome / join info carry it, and src/net.js keeps ours)
 // flags: 1 grounded · 2 on a platform · 4 facing left · 8 E held · 16 Jump held · 32 Dash held · 64 Blink held · 128 Flash Jump used
 // flags2: 1 Attack held · 2 slamming
-export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0, s.mw | 0, (s.ah ? 1 : 0) | (s.sl ? 2 : 0), s.sc | 0, s.uc | 0, s.cw | 0, s.uw | 0, s.lw | 0, s.hk | 0, s.hc | 0, s.gx | 0, s.aj | 0, s.tr | 0, s.cs | 0, s.pf | 0];
+export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0, s.mw | 0, (s.ah ? 1 : 0) | (s.sl ? 2 : 0), s.sc | 0, s.uc | 0, s.cw | 0, s.uw | 0, s.lw | 0, s.hk | 0, s.hc | 0, s.gx | 0, s.aj | 0, s.tr | 0, s.cs | 0, s.pf | 0, s.tl | 0];
 export function unpack(a, s = {}) {
   s.x = a[1];
   s.y = a[2];
@@ -938,6 +941,7 @@ export function unpack(a, s = {}) {
   s.tr = a[26] ?? 0;
   s.cs = a[27] ?? 0;
   s.pf = a[28] ?? 0;
+  s.tl = a[29] ?? 0;
   return s;
 }
 

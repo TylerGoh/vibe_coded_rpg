@@ -69,10 +69,12 @@ The sandbox only adds a room, two mob kinds, a panel and a readout; it never cha
     the island's recommended level, `GREEN_TOP` / `FROST_TOP` / `EMBER_TOP`, or the boss's own level for other dens).
     **Challenge now**: one button per built boss challenge (`CHALLENGES` rows with `built` and not `loop`: since T1a the
     Snare, the Rhythm lock, the Rescue trap, Thin gaps, the Moving arena, Darkness, the Controls swap, Tethers, the
-    Parry and the Group key-lock), fired at once at everyone in the den through `sb.chalNow`, whether or not this boss
+    Parry and the Group key-lock; since T1b the Mirror trap, the Laser grid, Late tells, Rewind, the Tilting floor and Carry
+    the thing), fired at once at everyone in the den through `sb.chalNow`, whether or not this boss
     uses it, and even alone (`force`: a cage alone just crushes you after `CAGE_S`, a tether alone chains you to the
     boss, a lock alone never opens). Head Swap, Two at once, the moving safe zone and the Hunt live in Ladon's and
-    Fenrir's loops: restart those at a phase to see them (`docs/combat/challenges.md`).
+    Fenrir's loops, Typhon's lava waves in its loop and the Colossus's fake-outs in its brain (phase 2 on): restart those at
+    a phase to see them (`docs/combat/challenges.md`).
     Everything else is the game's: leave and it heals after a few seconds, the switches stay on the boss until changed.
     Everyone in the sandbox shares the dens, as in the game. With god mode on, an ultimate still hits you (the
     number shows) but you stay up.

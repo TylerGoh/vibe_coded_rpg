@@ -6,24 +6,30 @@
 // physics edit (`tr`, `cs`: sim.js) is made at that input on both sides. Escaping is {t:'free', s, k} (your own arrows)
 // or {t:'free', s, k, who} (a friend's cage), checked against the trap's seed (the order, not the timing, but for the
 // rhythm lock's overall length). Tethers are judged here from positions; the moving arena's ledges ({t:'pf'}) are the
-// client's predicted edits, checked against what's sunk.
+// client's predicted edits, checked against what's sunk; the tilting floor's lean ({t:'pf', s, tl}) likewise. T1b: the
+// chip of Brenna's tooth is a server-owned object (picked up with the loot key, thrown with an attack: pick, throw), and
+// Rewind snaps everyone back to where they stood ({t:'rw'}, a predicted edit checked against where the server had them)
+// while the boss's attacks of those seconds come again (recorded by bossEvent in server/rpg.js: m.rec).
 import {
   CHALLENGES, TRAP_HOLD, SNARE_TICKS, SNARE_WARN, SNARE_LIVE, SNARE_R, SNARE_PUNISH, PUNISH_KEEP_S, snareLen, SWAP_TICKS, SWAP_SPEED, SWAP_R, CLAIM_SLACK_MS,
   seedFor, comboFor, sameCombo, RHYTHM_TICKS, RHYTHM_BEAT, RHYTHM_SLACK_MS, rhythmLen, CAGE_WARN, CAGE_R, CAGE_S, RESCUE_R, GAPS_WARN, GAPS_LIVE, GAP_W, GAP_SLIDE,
   ARENA_WARN, ARENA_S, ARENA_SINK, ARENA_GRID_AT, DARK_S, TETHER_S, TETHER_R, TETHER_HP, TETHER_WARN, BASH_WARN, BASH_REACH, BASH_H, PARRY_STAGGER_S, PARRY_REFLECT,
-  LOCK_WARN, LOCK_S, LOCK_R,
+  LOCK_WARN, LOCK_S, LOCK_R, LASER_COLS, LASER_BEAT, LASER_BEATS, LASER_WARN, LATE_WIND, LATE_TELL, LATE_R, TILT_WARN, TILT_S, TILT_EDGE, TILT_HP, TILT_TICK,
+  tiltOf, CARRY_S, CARRY_R, CARRY_FAR, THROW_RANGE, CARRY_HIT, CARRY_STAGGER_S, CARRY_BURST_R, CARRY_BURST_HP, REWIND_S, REWIND_SLACK,
 } from '../src/shared/challenge.js';
 import { roomDef } from '../src/shared/sim.js';
 
 // an ouch's kind → the challenge type it claims (the kinds the client sends: src/rpg.js hazardHits, src/challenge.js)
-export const KIND = { snare: 'snare', swap: 'swap', rhythm: 'rhythm', cage: 'rescue', lock: 'lock', gaps: 'gaps', bash: 'parry' };
-const TEACH_AT_START = new Set(['rescue', 'gaps', 'arena', 'dark', 'tether', 'parry', 'lock']); // (G2's line as it starts, not on a hit)
+export const KIND = { snare: 'snare', swap: 'swap', rhythm: 'rhythm', cage: 'rescue', lock: 'lock', gaps: 'gaps', bash: 'parry', mirror: 'mirror', laser: 'grid', late: 'late' };
+const TEACH_AT_START = new Set(['rescue', 'gaps', 'arena', 'dark', 'tether', 'parry', 'lock', 'grid', 'late', 'feint', 'tilt', 'carry', 'rewind']);
+const FLOOR = 450; // (every den's floor: FIELD_GROUND)
+const ONE_AT_A_TIME = new Set(['carry', 'tilt', 'rewind']); // (G2's line as it starts, not on a hit)
 const SLACK = 60; // px: a rescuer's or a parrier's distance, as the client saw it a moment ago
 
 // deps: now(), MOBS, bossEvent(m, a, extra), send(ws, msg), toRoom(room)(msg), inRoom(room) → [[id, p]], mobById(id),
 // faint(id, p, by), hurtFlat(id, p, share, m) (a share of max HP, no knockback), stagger(m, s), damage(m, n, id, p, dir),
-// lockBroken(m) (A23 done: the barrier breaks)
-export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, mobById, faint, hurtFlat, stagger, damage, lockBroken }) {
+// lockBroken(m) (A23 done: the barrier breaks), later(m, ms, fn) (a timed follow-up on the boss)
+export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, mobById, faint, hurtFlat, stagger, damage, lockBroken, later }) {
   const live = (m) => (m.ch ??= []);
   const newSeed = () => (Math.random() * 4294967296) >>> 0;
   const standing = (list) => list.filter(([, q]) => !q.faintUntil);
@@ -39,14 +45,17 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
     const here = standing(opts.at ?? inRoom(m.room));
     const fighters = opts.at ? standing(inRoom(m.room)).length : here.length;
     if (!here.length || (fighters < row.min && !opts.force)) return false;
+    if (ONE_AT_A_TIME.has(type) && live(m).some((c) => c.type === type && !c.over && !c.snapped && c.until > now())) return false; // (a chip, a lean, a Rewind: one going at once)
     const t = now(), seed = newSeed(), stage = opts.stage ?? m.stage ?? 0, style = opts.style ?? k.looks?.snare;
-    if (type === 'snare' || type === 'rhythm') {
-      // roots (or fetters) under each target, a little apart in time, so a crowd can't all be caught by one jump
+    if (type === 'snare' || type === 'rhythm' || type === 'mirror') {
+      // roots (or fetters, or iron) under each target, a little apart in time, so a crowd can't all be caught by one jump.
+      // A4's mirror: the arrows are drawn flipped (flip), the combo the same
       const list = opts.marks ?? here.map(([, q], i) => [Math.round(q.state.x), +(i * 0.25).toFixed(2)]);
       const len = type === 'rhythm' ? rhythmLen(k.lvl) : snareLen(k.lvl);
       const last = Math.max(...list.map((a) => a[1]));
+      const flip = type === 'mirror' ? (Math.random() < 0.5 ? 'h' : 'v') : undefined;
       live(m).push({ type, seed, len, until: t + (last + SNARE_WARN + SNARE_LIVE) * 1000 + CLAIM_SLACK_MS });
-      bossEvent(m, 'chal', { type, list, warn: SNARE_WARN, dur: SNARE_LIVE, r: SNARE_R, y: m.sp.y, len, seed, style });
+      bossEvent(m, 'chal', { type, list, warn: SNARE_WARN, dur: SNARE_LIVE, r: SNARE_R, y: m.sp.y, len, seed, style, flip });
     } else if (type === 'swap') {
       // a slow orb at each target, from the boss's chest
       const y0 = m.y - k.h * 0.6, shots = [];
@@ -89,6 +98,47 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
         const odd = Math.random() < 0.5, tiles = Array.from({ length: 10 }, (_, i) => i).filter((i) => stage >= 2 || i % 2 === (odd ? 1 : 0));
         bossEvent(m, 'grid', { style: k.looks?.grid ?? 'root', tiles, warn: ARENA_WARN + ARENA_SINK + ARENA_GRID_AT, dur: 0.45, tall: false });
       }
+    } else if (type === 'grid') {
+      // A7: the pistons' beams, on and off by the beat. A safe lane two beams wide steps at most one a beat; the rest
+      // are on at random (fewer off as the boss's phase climbs)
+      const n = LASER_BEATS[Math.min(LASER_BEATS.length - 1, stage)], masks = [];
+      let lane = Math.floor(Math.random() * (LASER_COLS - 1));
+      for (let b = 0; b < n; b++) {
+        if (b) lane = Math.max(0, Math.min(LASER_COLS - 2, lane + Math.floor(Math.random() * 3) - 1));
+        let mask = 0;
+        for (let c = 0; c < LASER_COLS; c++) if (c !== lane && c !== lane + 1 && Math.random() < 0.6 + 0.1 * stage) mask |= 1 << c;
+        masks.push(mask);
+      }
+      live(m).push({ type, seed, until: t + (LASER_WARN + n * LASER_BEAT) * 1000 + CLAIM_SLACK_MS });
+      bossEvent(m, 'chal', { type, masks, beat: LASER_BEAT, warn: LASER_WARN, style: k.looks?.laser ?? 'piston' });
+    } else if (type === 'late') {
+      // A10: the hands come down where everyone stands now, LATE_WIND from now; their marks show only LATE_TELL first
+      const list = here.map(([, q]) => Math.round(q.state.x));
+      live(m).push({ type, seed, until: t + (LATE_WIND + 0.4) * 1000 + CLAIM_SLACK_MS });
+      bossEvent(m, 'chal', { type, list, wind: LATE_WIND, tell: LATE_TELL, r: LATE_R });
+    } else if (type === 'feint') {
+      // A11: rearing for a slam and ticking (the brain brings it down: server/rpg.js newMove); this is its warning ring
+      live(m).push({ type, seed, until: t + 4000 });
+      bossEvent(m, 'chal', { type, r: opts.r ?? 300, beat: opts.beat });
+    } else if (type === 'tilt') {
+      // A15's cousin: the floor leans one way (downhill: dir) for TILT_S, after TILT_WARN
+      const dir = opts.dir ?? (Math.random() < 0.5 ? -1 : 1), tl = tiltOf(dir, stage);
+      live(m).push({ type, seed, tl, dir, from: t + TILT_WARN * 1000, until: t + (TILT_WARN + TILT_S) * 1000, tickAt: 0 });
+      bossEvent(m, 'chal', { type, tl, dir, warn: TILT_WARN, dur: TILT_S, edge: TILT_EDGE });
+    } else if (type === 'carry') {
+      // A22: a chip of the tooth, knocked off to one side of her (the side with more room)
+      const W = roomDef(m.room).width, far = CARRY_FAR[0] + Math.random() * (CARRY_FAR[1] - CARRY_FAR[0]);
+      const side = m.x + far > W - 80 ? -1 : m.x - far < 80 ? 1 : Math.random() < 0.5 ? -1 : 1;
+      const x = Math.round(Math.max(80, Math.min(W - 80, m.x + side * far)));
+      live(m).push({ type, seed, x, holder: 0, until: t + CARRY_S * 1000, over: false });
+      bossEvent(m, 'chal', { type, x, ms: CARRY_S * 1000, seed });
+    } else if (type === 'rewind') {
+      // Rewind: everyone's ghost stays where they stand; REWIND_S later they're snapped back to it and the boss's attacks
+      // since come again (its events are recorded meanwhile: m.rec, server/rpg.js bossEvent)
+      const anchors = new Map(here.map(([id, q]) => [id, [q.state.x, q.state.y]]));
+      live(m).push({ type, seed, anchors, snapAt: t + REWIND_S * 1000, snapped: false, used: new Set(), until: t + REWIND_S * 1000 + CLAIM_SLACK_MS });
+      m.rec = { at: t, list: [] };
+      bossEvent(m, 'chal', { type, ghosts: here.map(([id, q]) => [id, Math.round(q.state.x), Math.round(q.state.y)]), dur: REWIND_S, seed });
     } else if (type === 'dark') {
       live(m).push({ type, seed, until: t + DARK_S * 1000 });
       bossEvent(m, 'chal', { type, dur: DARK_S });
@@ -130,9 +180,9 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
   // The hit landed (after hurt(), the slime still up): the physics edit at this input, as the client predicted it
   function apply(id, p, c, m) {
     const s = p.state, t = now();
-    if (c.type === 'snare') {
+    if (c.type === 'snare' || c.type === 'mirror') {
       s.tr = SNARE_TICKS;
-      p.snare = { type: 'snare', seed: seedFor(c.seed, id), len: c.len, mob: m.id, room: s.room, at: t };
+      p.snare = { type: c.type, seed: seedFor(c.seed, id), len: c.len, mob: m.id, room: s.room, at: t };
     } else if (c.type === 'rhythm') {
       s.tr = RHYTHM_TICKS;
       p.snare = { type: 'rhythm', seed: seedFor(c.seed, id), len: c.len, mob: m.id, room: s.room, at: t };
@@ -219,12 +269,76 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
   }
 
   // ——— A15: {t:'pf', s, pf}: the platforms sunk for p as its client's clock passed the boss's schedule ———
-  let masks = new Map(); // room → what's sunk there now (rebuilt every tick)
+  let masks = new Map(), tilts = new Map(); // room → what's sunk there now; room → the floor's lean there now (rebuilt every tick)
   const arenaMask = (room) => masks.get(room) ?? 0;
   function platforms(id, p, m) {
+    if (m.tl !== undefined) { // (the tilting floor: only the lean a boss there has going, or level)
+      const tl = m.tl | 0;
+      if (!tl || tl === tilts.get(p.state.room)) p.state.tl = tl;
+    }
+    if (m.pf === undefined) return;
     const pf = (m.pf | 0) & 255;
     if (pf & ~arenaMask(p.state.room)) return; // (only what a boss there has sunk)
     p.state.pf = pf;
+  }
+
+  // ——— A22: the chip of the tooth ———
+  // the loot key near a chip lying in p's room: p carries it → true (the loot itself waits)
+  function pick(id, p) {
+    if (p.faintUntil || p.state.tr) return false;
+    for (const [m, c] of carries(p.state.room)) {
+      if (c.holder || c.over || Math.abs(c.x - p.state.x) > CARRY_R + SLACK || p.state.y < FLOOR - 140) continue;
+      c.holder = id;
+      bossEvent(m, 'chal', { type: 'carried', by: id });
+      return true;
+    }
+    return false;
+  }
+  // {t:'carry', a:'throw', dir}: thrown along dir. Her body within THROW_RANGE that way: it strikes her (from behind,
+  // the strap: twice); else it lands short and lies there again
+  function toss(id, p, msg) {
+    const dir = Math.sign(msg.dir) || p.state.facing || 1;
+    for (const [m, c] of carries(p.state.room)) {
+      if (c.holder !== id) continue;
+      const k = MOBS[m.kind], x = p.state.x, gap = (m.x - x) * dir - k.w / 2;
+      if (!m.dead && gap <= THROW_RANGE && (m.x - x) * dir > -k.w / 2) {
+        const back = (x - m.x) * m.dir < 0; // (thrown from behind her: the buckle where the straps cross)
+        c.over = true;
+        c.holder = 0;
+        bossEvent(m, 'chal', { type: 'thrown', by: id, x0: Math.round(x), x1: Math.round(m.x), hit: 1, back: back ? 1 : 0 });
+        firstTime(p, 'carry');
+        damage(m, Math.round(m.maxHp * CARRY_HIT * (back ? 2 : 1)), id, p, dir);
+        stagger(m, CARRY_STAGGER_S * (back ? 2 : 1));
+      } else {
+        const W = roomDef(m.room).width;
+        c.x = Math.round(Math.max(80, Math.min(W - 80, x + dir * THROW_RANGE * 0.6)));
+        c.holder = 0;
+        bossEvent(m, 'chal', { type: 'thrown', by: id, x0: Math.round(x), x1: c.x, hit: 0 });
+      }
+      return;
+    }
+  }
+  // every chip lying (or carried) in a room: [[boss, its record]]
+  function carries(room) {
+    const out = [];
+    for (const m of bossesIn(room)) for (const c of live(m)) if (c.type === 'carry' && !c.over) out.push([m, c]);
+    return out;
+  }
+  let lastMobs = [];
+  const bossesIn = (room) => lastMobs.filter((m) => m.room === room && m.ch?.length);
+
+  // ——— Rewind: {t:'rw', s, x, y}: snapped back to your ghost at this input (as your client predicted it) ———
+  function rewind(id, p, msg) {
+    if (p.faintUntil) return;
+    for (const m of bossesIn(p.state.room)) {
+      const c = live(m).find((q) => q.type === 'rewind' && q.snapped && q.until > now() && q.anchors.has(id) && !q.used.has(id));
+      if (!c) continue;
+      const [ax, ay] = c.anchors.get(id), x = +msg.x, y = +msg.y;
+      if (!Number.isFinite(x) || !Number.isFinite(y) || Math.abs(x - ax) > REWIND_SLACK || Math.abs(y - ay) > REWIND_SLACK) return;
+      c.used.add(id);
+      Object.assign(p.state, { x, y, vx: 0, vy: 0, dt: 0, hk: 0, sl: false });
+      return;
+    }
   }
 
   // A boss's hit on p: × SNARE_PUNISH if p failed a trap lately (used up by this hit)
@@ -240,10 +354,18 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
   function tick(players, mobs) {
     const t = now();
     masks = new Map();
+    tilts = new Map();
+    lastMobs = mobs;
     for (const m of mobs) {
       if (!m.ch?.length) continue;
       for (const c of m.ch) {
         if (c.type === 'arena' && c.until > t && !m.dead) masks.set(m.room, (masks.get(m.room) ?? 0) | c.mask);
+        if (c.type === 'tilt' && c.until > t && !m.dead) {
+          if (t >= c.from - 500) tilts.set(m.room, c.tl); // (a client a little ahead of the server leans a moment early)
+          if (t >= c.from && t >= c.tickAt) grind(m, c, players, t);
+        }
+        if (c.type === 'carry' && !c.over) carryTick(m, c, players, t);
+        if (c.type === 'rewind' && !c.snapped && t >= c.snapAt) snap(m, c);
         if (c.type === 'tether' && c.until > t && t >= c.from && !m.dead) tethers(m, c, players);
         if (c.type === 'lock' && !c.over && t > c.until) {
           if (!c.caught.size) c.over = true; // (it caught nobody)
@@ -254,6 +376,7 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
     }
     for (const [id, p] of players) {
       if (p.state?.pf && !(arenaMask(p.state.room) & p.state.pf)) p.state.pf = 0; // (its boss gone or the arena over: back up)
+      if (p.state?.tl && tilts.get(p.state.room) !== p.state.tl) p.state.tl = 0; // (the floor's level again)
       const sn = p.snare;
       if (!sn) continue;
       if (p.faintUntil || !p.joined || p.state.room !== sn.room) { // (knocked out or gone: no punish)
@@ -274,6 +397,43 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
       }
     }
   }
+  // the tilting floor: the hoist's chain grinds anyone on the floor at the low end
+  function grind(m, c, players, t) {
+    c.tickAt = t + TILT_TICK * 1000;
+    const W = roomDef(m.room).width;
+    for (const [id, p] of players) {
+      const s = p.state;
+      if (!p.joined || p.faintUntil || s.room !== m.room || s.y < FLOOR - 6) continue;
+      if (c.dir < 0 ? s.x < TILT_EDGE : s.x > W - TILT_EDGE) hurtFlat(id, p, TILT_HP, m);
+    }
+  }
+  // A22: the one carrying it went down or away (it drops where they were), or its time ran out (it bursts)
+  function carryTick(m, c, players, t) {
+    const h = c.holder ? players.get(c.holder) : null;
+    if (c.holder && (!h || !h.joined || h.faintUntil || h.state.room !== m.room)) {
+      if (h?.joined && h.state.room === m.room) c.x = Math.round(h.state.x);
+      c.holder = 0;
+      bossEvent(m, 'chal', { type: 'dropped', x: c.x });
+    }
+    if (t < c.until && !m.dead) return;
+    c.over = true;
+    const x = h && c.holder ? h.state.x : c.x;
+    bossEvent(m, 'chal', { type: 'carryBurst', x: Math.round(x) });
+    if (m.dead) return;
+    for (const [id, p] of players) {
+      if (p.joined && !p.faintUntil && p.state.room === m.room && Math.abs(p.state.x - x) <= CARRY_BURST_R && p.state.y > FLOOR - 200) hurtFlat(id, p, CARRY_BURST_HP, m);
+    }
+  }
+  // Rewind's moment: everyone's told (each client snaps itself back: {t:'rw'}), and the recorded attacks come again
+  function snap(m, c) {
+    c.snapped = true;
+    const rec = m.rec;
+    m.rec = null;
+    if (m.dead) return;
+    bossEvent(m, 'chal', { type: 'rewindGo' });
+    for (const [dt, a, extra] of rec?.list ?? []) later(m, Math.max(0, dt), () => !m.dead && bossEvent(m, a, { ...extra, replay: 1 }));
+  }
+
   // A18: a pair past TETHER_R snaps (both hurt), or a slime gone or down lets go
   function tethers(m, c, players) {
     c.pairs = c.pairs.filter(([a, b]) => {
@@ -292,7 +452,8 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
   // A boss starting over (reset, death): its challenges go
   const clear = (m) => {
     m.ch = [];
+    m.rec = null;
   };
 
-  return { start, claim, apply, free, parry, platforms, punish, tick, clear, seen };
+  return { start, claim, apply, free, parry, platforms, punish, tick, clear, seen, pick, toss, rewind };
 }

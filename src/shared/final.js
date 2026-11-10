@@ -61,7 +61,9 @@ export const FINAL = {
   },
   // Typhon, the Buried Fire (E5 (c), story/e5-plan.md; its own constants: src/shared/typhon.js). 'glare': the focus,
   // 'bellows': the pulse, 'crust': Slag Crust (the armour), 'haze': Heat Haze (the barrier), 'burst': Coil Burst,
-  // 'pour': the ladle tops up the iron (phase 3), 'sweep': Coil Sweep, 'inhale': the tooth (phase 4)
+  // 'pour': the ladle tops up the iron (phase 3), 'sweep': Coil Sweep, 'inhale': the tooth (phase 4). T1b's challenges
+  // (docs/combat/challenges.md): 'lava' (the plates heat in a wave, from phase 2), 'iron' (the Pour's iron sets round you:
+  // a snare, phase 3), 'mirror' (the mirror trap, phase 4); from phase 2 a Burst or a Breath comes with a Hammer (A13)
   typhon: {
     brain: 'fire',
     at: [0.75, 0.5, 0.25],
@@ -70,9 +72,9 @@ export const FINAL = {
     alternateFrom: 2,
     loops: [
       ['glare', 'hammer', 'hammer', 'bellows', 'crust:2'],
-      ['glare', 'burst', 'bellows', 'breath', 'hammer', 'haze:2'],
-      ['bellows', 'glare', 'hammer', 'burst', 'breath', 'shield', 'pour'],
-      ['ult', 'glare', 'sweep', 'bellows', 'hammer', 'hammer', 'inhale', 'both'],
+      ['glare', 'burst', 'bellows', 'breath', 'hammer', 'lava', 'haze:2'],
+      ['bellows', 'glare', 'hammer', 'iron', 'burst', 'breath', 'shield', 'lava', 'pour'],
+      ['ult', 'glare', 'sweep', 'mirror', 'bellows', 'hammer', 'hammer', 'lava', 'inhale', 'both'],
     ],
   },
 };

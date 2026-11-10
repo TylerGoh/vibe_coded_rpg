@@ -15,6 +15,7 @@ import {
   BREATH_FLOOR, BREATH_LEDGE, SWEEP_WARN, SWEEP_SPEED, INHALE_S, INHALE_WEAK, BODY_EDGE, BROOD_EVERY, BROOD_BASE, BROOD_PER, UNBURIED_GLOW, ENRAGE_PLATE_S,
   ERUPT_DARK, POUR_SPEED, PLATE_SLOT, tySpot,
 } from '../src/shared/typhon.js';
+import { SNARE_WARN, DOUBLE_DELAY, LAVA_GAP, LAVA_GLOW, LAVA_HOT } from '../src/shared/challenge.js';
 
 const ENRAGE_MS = (Number(process.env.TEST_ENRAGE_MIN) || FINAL_ENRAGE_MIN) * 60_000; // (tests only: sooner)
 const SLACK = 60;
@@ -138,18 +139,22 @@ export function createTyphon(d) {
     }
     if (name === 'hammer') {
       if (!aim) return 0.3;
-      const tx = Math.round(clampX(aim.state.x)), warn = HAMMER_WARN[ph], side = face(m, tx);
-      pose(f, side < 0 ? 'hammerL' : 'hammerR');
-      d.bossEvent(m, 'hammer', { tx, dur: warn, r: HAMMER_R, side });
-      d.later(m, warn * 1000, () => {
-        if (m.dead) return;
-        pose(f, side < 0 ? 'restL' : 'restR');
-        d.bossEvent(m, 'hammerHit', { tx, r: HAMMER_R });
-        melt(m, plateAt(tx));
-        addPress(m, PRESS_HAMMER);
-      });
+      const warn = strike(m, aim, true);
       return warn + 0.3 + HAMMER_REST * (f.enr ? 0.7 : 1);
     }
+    // ——— T1b's challenges (docs/combat/challenges.md) ———
+    if (name === 'iron') { // (the Pour's iron sets round everyone's feet: a snare)
+      pose(f, 'pour');
+      d.challenge(m, 'snare', { stage: ph });
+      return SNARE_WARN + 0.9;
+    }
+    if (name === 'mirror') { // (A4: the iron again, its arrows drawn in a mirror)
+      pose(f, 'glare');
+      d.challenge(m, 'mirror', { stage: ph });
+      return SNARE_WARN + 0.9;
+    }
+    if (name === 'lava') return lava(m, list);
+    if (name === 'burst' || name === 'breath') alsoHammer(m, aim, list); // (A13, from phase 2: a Hammer at someone else alongside)
     if (name === 'burst') {
       const ax = aim ? aim.state.x : m.x;
       const order = [...Array(PLATES).keys()].sort((a, b) => Math.abs(plateMid(a) - ax) - Math.abs(plateMid(b) - ax)).slice(0, BURST_N);
@@ -226,6 +231,48 @@ export function createTyphon(d) {
     }
     if (name === 'ult') return ult(m, k, t);
     return 0.2;
+  }
+  // A Hammer at q's spot (posed: it's the move, not a second one alongside) → its wind-up (s)
+  function strike(m, q, posed) {
+    const f = m.fin, tx = Math.round(clampX(q.state.x)), warn = HAMMER_WARN[f.ph], side = posed ? face(m, tx) : Math.sign(tx - m.x) || 1;
+    if (posed) pose(f, side < 0 ? 'hammerL' : 'hammerR');
+    d.bossEvent(m, 'hammer', { tx, dur: warn, r: HAMMER_R, side });
+    d.later(m, warn * 1000, () => {
+      if (m.dead) return;
+      if (posed) pose(f, side < 0 ? 'restL' : 'restR');
+      d.bossEvent(m, 'hammerHit', { tx, r: HAMMER_R });
+      melt(m, plateAt(tx));
+      addPress(m, PRESS_HAMMER);
+    });
+    return warn;
+  }
+  // A13 (from phase 2): its other forearm comes down at someone it isn't watching, DOUBLE_DELAY in
+  function alsoHammer(m, aim, list) {
+    if (m.fin.ph < 1 || !list.length) return;
+    const others = list.filter(([, q]) => q !== aim), [, q] = pick(others.length ? others : list);
+    d.later(m, DOUBLE_DELAY * 1000, () => {
+      if (m.dead || q.faintUntil || q.state.room !== m.room) return;
+      strike(m, q, false);
+      for (const [, p] of list) d.chalSeen(p, 'double');
+    });
+  }
+  // A12, the plates heat in a wave from one end: each cold one glows LAVA_GLOW, then is molten LAVA_HOT (crusted ones are
+  // spared). G1: it stands for the whole wave in phase 2, fights on through it after
+  function lava(m, list) {
+    const f = m.fin, dir = Math.random() < 0.5 ? 1 : -1, glow = LAVA_GLOW[f.ph];
+    pose(f, 'coil');
+    for (const [, q] of list) d.chalSeen(q, 'lava');
+    for (let j = 0; j < PLATES; j++) {
+      const i = dir > 0 ? j : PLATES - 1 - j;
+      d.later(m, j * LAVA_GAP * 1000, () => {
+        const p = f.plates[i];
+        if (m.dead || f.stuck.has(i) || p.st !== 'c') return;
+        setPlate(m, i, 'g', glow);
+        d.later(m, glow * 1000, () => !m.dead && !f.stuck.has(i) && (f.plates[i].st === 'g' || f.plates[i].st === 'm') && setPlate(m, i, 'm', LAVA_HOT));
+      });
+    }
+    d.bossEvent(m, 'lavaWave', { dir, gap: LAVA_GAP, glow });
+    return f.ph <= 1 ? PLATES * LAVA_GAP + glow + 0.5 : 1.2;
   }
   // an ultimate: Eruption (u.dark: the two plates the wind-up leaves dark; u.noFreeze: a full-pressure one) or the Last
   // Pour (u.dir: the way the iron runs)

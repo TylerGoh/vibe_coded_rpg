@@ -3,8 +3,10 @@
 Files: `src/shared/challenge.js` (the table `CHALLENGES`, every challenge number, the combo from a seed, `uptimeOf`),
 `server/challenge.js` (starting, judging, ending: `createChallenges`, `KIND`), `src/challenge.js` (the client: hazards,
 the combo, the touch arrow pad, the art, G2's banner, `drawSunk`). Physics: `tr` / `cs` / `pf` in `step()`
-(`src/shared/sim.js`). The final bosses' own: `server/final.js` (Ladon), `server/fenrir.js` (Fenrir), `src/ladon.js`
-(Head Swap's marks), `src/dens-ladon.js` (the moving gaps). The plan, every type (A1–A23) and every boss's set
+(`src/shared/sim.js`); T1b adds `tl` (the tilting floor). The final bosses' own: `server/final.js` (Ladon),
+`server/fenrir.js` (Fenrir), `server/typhon.js` (Typhon's iron, its second Hammer, the lava waves), `src/ladon.js` (Head
+Swap's marks), `src/dens-ladon.js` (the moving gaps). The bosses using `bossBrain` (the Root Warden, Sigrun, Brenna, the
+Colossus, Chronos) start theirs from `server/rpg.js` (`CHAL_MOVE`, and the fake-out in `newMove`). The plan, every type (A1–A23) and every boss's set
 (B1–B21): `story/tricky-plan.md`.
 
 ## Why (owner, 2026-11-06)
@@ -19,12 +21,17 @@ escape with a key combination. The owner approved every type, every boss's set a
 - **T0 (built, shipped dark, 2026-11-06)**: the engine, with the snare (A1) and the controls swap (A17).
 - **T1a (built, live, 2026-11-10)**: Greenhollow's and Frostpeak's big bosses, with the types they need (below, "The
   bosses so far"). Not played by anyone yet: the owner plays them in the sandbox and with friends next.
+- **T1b (built, live, 2026-11-10)**: Emberdeep's and the end-game's big four (Brenna, the Colossus, Chronos, Typhon) and
+  their types: the mirror trap, the laser grid, late tells, fake-outs, floor-is-lava waves, carrying the thing, the
+  tilting floor and Rewind. Not played either. T1 is done.
 - A type is live only when its row says `built`; the server refuses the rest. `loop` rows (Two at once, the moving safe
-  zone, Head Swap, the Hunt) only come from a final boss's loop, never from `start` or the sandbox's **Challenge now**.
-- Next: T1b (Brenna, the Colossus, Chronos, Typhon), T2 (den bosses), T3 (field bosses, the Novices'), T4 (tuning):
+  zone, Head Swap, the Hunt, the fake-outs, floor-is-lava) only come from a boss's own loop or brain, never from the
+  sandbox's **Challenge now**.
+- Next: T2 (den bosses), T3 (field bosses, the Novices'), T4 (tuning):
   `story/roadmap.md`. A boss gets its challenges as a `ch` list on its `MOBS` row (what the sheet reads, below) and starts
   them from its brain: a move in its `phases` named in `CHAL_MOVE` (`server/rpg.js`: `bash`, `tether`, `cage`, `arena`,
-  `snare`, `fetter`, `gaps`, `dark`; `CHAL_TIME` says how long the boss stands for it), or `d.challenge(m, type, opts)`
+  `snare`, `fetter`, `gaps`, `dark`, and T1b's `tilt`, `tooth`, `lasers`, `late`, `reverse`, `rewind`; `CHAL_TIME` says how
+  long the boss stands for it; `offslam` is its own case in `newMove`), or `d.challenge(m, type, opts)`
   from its loop (`server/final.js`, `server/fenrir.js`, `server/typhon.js`). A party-only move is left out of the pick
   while fewer than its `min` are standing.
 
@@ -64,6 +71,17 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
   (A9: `u.to`).
 - **Fenrir** (its loop): `fetter` (the rhythm lock, every other loop in phase 1), `blackout` (the dark, from phase 2),
   `gaps` (from phase 3, sliding in phase 4) and `hunt` (phases 3–4, when Skoll and Hati are up).
+- **Brenna** (`bossBrain`, T1b): `tilt` in every phase (the hoist leans the floor, steeper each phase: `TILT_V`), `tooth`
+  (a chip to throw back at her) and `cage` (2+) from phase 2.
+- **The Clockwork Colossus** (`bossBrain`, T1b): `lasers` (the laser grid) in every phase, standing still for it in phase
+  1 and fighting on through it after; `offslam` (the fake-out) from phase 2, sometimes cancelling into Gear Teeth from
+  then; the **gear lock** on its armour (2+: `ch` lists `lock`, so `shieldUp` starts it on any shield of a boss that lists
+  it; `lockBroken` breaks the armour).
+- **Chronos** (`bossBrain`, T1b): `reverse` (the controls swap: time reversed) from phase 1; `late` (the stopped hour) and
+  `rewind` from phase 2; all three in phase 3.
+- **Typhon** (its loop, T1b): from phase 2 a Coil Burst or a Breath comes with a Hammer from its other arm at someone
+  else (`alsoHammer`, A13) and the plates heat in a wave (`lava`, A12); phase 3 adds the Pour's iron setting round
+  everyone (`iron`: a snare with `looks.snare: 'iron'`); phase 4 the mirror trap (`mirror`) and a faster wave.
 - **Solo**: the party-only types (cage, tether, lock) stay off alone, so a lone slime meets the arena and the parry on the
   party dens, everything on Ladon and Fenrir (their Hunt sends both sons at you).
 
@@ -126,6 +144,44 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
   crash: stunned `HUNT_STUN_S`, `HUNT_CLASH_HP` of their max HP off each. Their bites are their ordinary touch. Drawn as a
   red mark over each hunted slime and a dashed line from its hunter.
 
+### T1b's types
+- **A4 Mirror trap** (Typhon, phase 4): the snare, its arrows drawn mirrored (`flip` 'h': left and right traded; 'v': up
+  and down; `MIRROR`) in a silvered frame with the axis marked; you enter what they mean (the combo is the snare's own,
+  so the server checks it the same way).
+- **A7 Laser grid** (the Colossus's pistons): `LASER_COLS` beams from the roof, `LASER_BEATS[stage]` beats of
+  `LASER_BEAT`; each beat's on/off mask comes with the event (`masks`). A safe lane two beams wide steps at most one beam
+  a beat (always walkable at `WALK`), the rest on at random. The next beat's beams show a dashed outline a beat ahead;
+  any height (no ledge shields you); judged every step, not once (the hit's invulnerability spaces them).
+- **A10 Late tells** (Chronos's stopped hour): `LATE_WIND` of the room greying and a glow at him (the real tell); the
+  clock's hands come down where everyone stood when it began, their lines showing only `LATE_TELL` first. Move when he
+  glows.
+- **A11 Fake-outs** (the Colossus): its slam ring held with no countdown while it ticks (`FEINT_BEAT`, a pip and a tick
+  each); it leaps so it lands half a beat after a tick (`FEINT_TICKS`), the jump the last tell; from phase 2 it may
+  cancel into Gear Teeth (`FEINT_CANCEL`). The landing is the ordinary slam.
+- **A12 Floor is lava** (Typhon): the plates glow and go molten one after another from one end (`LAVA_GAP` apart,
+  `LAVA_GLOW[phase]` of glow, `LAVA_HOT` molten); a crusted plate is spared and only cold plates heat. The plates' own
+  heat does the hurting (server-timed, as ever).
+- **A13 Two at once** (Typhon from phase 2): `alsoHammer`, `DOUBLE_DELAY` in, at someone it isn't aiming at.
+- **A15's tilting floor** (Brenna's hoist): `TILT_WARN` of chevrons flashing along the floor, then `TILT_S` of the floor
+  leaning: on it (not on a ledge) you slide downhill at `tiltV(tl)` on top of walking (`tl` in `step()`, set and cleared
+  by predicted edits like `pf`: `{t:'pf', s, tl}`, the server taking only the lean a boss in the room has going and
+  levelling you when it ends). At the low end the hoist's chain grinds: `TILT_HP` of max HP every `TILT_TICK` within
+  `TILT_EDGE` of the wall (server-judged). `tl` holds the way and how steep (`tiltOf`), steeper each phase.
+- **A22 Carry the thing** (Brenna): a chip of the tooth lands `CARRY_FAR` from her. The loot key (Z; Loot on a phone)
+  picks it up within `CARRY_R` (before any loot: `pick`, from the server's `pickup`); carrying it you can't attack or
+  cast: an attack (X; Hit) throws it the way you face (`{t:'carry', a:'throw'}`). Her body within `THROW_RANGE` that way:
+  `CARRY_HIT` of her max HP and a `CARRY_STAGGER_S` stagger, both doubled from behind (the strap on her back, like her
+  weak point); else it lands short and can be picked up again. Not back in her by `CARRY_S`: it bursts
+  (`CARRY_BURST_HP` of max HP to anyone within `CARRY_BURST_R`, the one holding it too). Its carrier going down drops it.
+  Any class can throw it from anywhere in range: from behind is the bonus, not the rule (a lone slime can't always get
+  behind her).
+- **Rewind** (Chronos, phase 2 on): a ghost of everyone stays where they stood, a clock hand sweeping round it; `REWIND_S`
+  later each client snaps itself back to its ghost (`net.edit` with `x`, `y`, speed zeroed; `{t:'rw', s, x, y}`, the server
+  taking it within `REWIND_SLACK` of where it had you, once) and the boss's attacks of those seconds come again in the
+  same order (`bossEvent` records them while `m.rec` is set: `REPLAY`, the hazards only, not its moving about; `snap`
+  replays them through `later`). Chronos fights on through it, so there's something to dodge twice.
+- **A17's time reverse** (Chronos): the controls swap, as built in T0.
+
 ## Owner rules every challenge keeps (from the plan)
 - Den and field bosses stay soloable by any class; a type that needs two slimes only switches on with two or more.
 - Every class carries an answer (moving, jumping, Dash); a challenge only one class can answer is a bug.
@@ -136,16 +192,22 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
 A boss with challenges loses some of your hitting time: `uptimeOf` (`UPTIME_DEN` for dens and fields, `UPTIME_TOP` for
 top and final bosses; 1 while its `MOBS` row has no `ch`) scales your own hits in `fight()` (`scripts/economy.mjs`; dots
 and summons keep going). The same share comes off its HP (the `BOSS_HP_SCALE` loop), so a fight lasts what it did
-before its challenges: HP is the lever, never rewards (`docs/economy.md`). T1a's four moved by under a minute.
+before its challenges: HP is the lever, never rewards (`docs/economy.md`). T1a's four moved by under a minute; T1b's four
+by under 40 s.
 
 ## Wire and protocol
-Wire version 8 (`docs/netcode.md`): `tr` and `cs` in every slime record; version 9 (T1a) adds `pf`. Messages: the `chal`
-boss event, the `ouch` kinds (`KIND` maps each to its type), `{t:'free'}` (with `who` for a friend's cage), `{t:'pf'}`,
-`{t:'chal', a:'freed' | 'first' | 'caged' | 'crushed'}`, all in the protocol comment at the top of `server/index.js`.
+Wire version 8 (`docs/netcode.md`): `tr` and `cs` in every slime record; version 9 (T1a) adds `pf`; version 10 (T1b) adds
+`tl`. Messages: the `chal` boss event, the `ouch` kinds (`KIND` maps each to its type), `{t:'free'}` (with `who` for a
+friend's cage), `{t:'pf'}` (with `pf` or `tl`), `{t:'rw'}`, `{t:'carry'}`, `{t:'chal', a:'freed' | 'first' | 'caged' |
+'crushed'}`, all in the protocol comment at the top of `server/index.js`.
 
 ## Not done yet
-- T1b onward. Nobody has played T1a's challenges: the numbers are the plan's starting points (T4 tunes them).
-- Phones: the owner wanted the swap and the arrow pad checked on a phone in the sandbox before T1 shipped; T1a shipped
-  on the owner's "continue with next phase" without that check, so it's still owed (with the rhythm lock and the cage).
-- Known rough edges: a slime that walks into a den mid-arena doesn't sink its ledges until the next one; the Caldera's
-  and Citadel's dens don't draw a sunk ledge (only the sandbox can sink them); a lock alone never opens.
+- T2 onward. Nobody has played T1's challenges: the numbers are the plan's starting points (T4 tunes them).
+- Phones: the owner wanted the swap and the arrow pad checked on a phone in the sandbox before T1 shipped; T1a and T1b
+  shipped on the owner's "continue with next phase" without that check, so it's still owed (with the rhythm lock, the
+  cage, the mirror trap, the tilt and throwing the chip).
+- Known rough edges: a slime that walks into a den mid-arena (or mid-tilt) doesn't sink its ledges (or lean) until the
+  next one, and doesn't see a Rewind's ghosts it wasn't there for; the Caldera's and Citadel's dens don't draw a sunk
+  ledge (only the sandbox can sink them); a lock alone never opens; the tilt is drawn as chevrons and a grinding chain,
+  the den itself doesn't lean. A Rewind's snap is your client's own record of where you stood, so on a bad connection
+  the server may refuse it (past `REWIND_SLACK`) and you stay put.

@@ -86,6 +86,14 @@
 //       who} I entered a friend's cage's arrows · ← {t:'chal', a:'caged', id, seed, len, ms} (the room) · ← {t:'chal',
 //       a:'crushed', id} a cage left shut too long (a KO) · → {t:'pf', s, pf} the ledges sunk for me now (in input order,
 //       `pf` in step(), wire v9; only what a boss in the room has sunk)
+//     T1b's: ← {t:'boss', a:'chal', type:'mirror' (the snare's shape, its arrows drawn flipped: flip 'h'|'v') | 'grid'
+//       {masks: [per beat], beat, warn} (the laser grid) | 'late' {list: [x], wind, tell, r} | 'feint' {r, beat} then
+//       'feintGo' | 'feintOff' | 'tilt' {tl, dir, warn, dur, edge} | 'carry' {x, ms, seed} then 'carried' {by} | 'thrown'
+//       {by, x0, x1, hit, back} | 'dropped' {x} | 'carryBurst' {x} | 'rewind' {ghosts: [[id, x, y]], dur} then 'rewindGo'}
+//       · → {t:'ouch', kind:'mirror'|'laser'|'late'} · → {t:'pf', s, tl} the floor's lean under me now (`tl` in step(),
+//       wire v10) · → {t:'pickup', s} also picks up a chip of the tooth (before any loot) · → {t:'carry', s, a:'throw',
+//       dir} thrown · → {t:'rw', s, x, y} snapped back to my ghost (in input order; within REWIND_SLACK of where the
+//       server had me). A Rewind's replayed boss events carry replay: 1
 //   → {t:'pickup', s}
 //   ← {t:'nomana'}  a skill you tried had too little MP
 //   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,weapon}, atk, magic, def,
@@ -246,7 +254,7 @@ const MAX_CREDIT = 6; // a player may catch up on at most this many steps in one
 const RTC_BURST = 60; // voice call-setup messages a player may send in a burst…
 const RTC_PER_SEC = 20; // …and on average
 const IDLE_TICKS = 15; // no input for this long (e.g. tab hidden) → simulate them standing still
-const ORDERED = new Set(['slap', 'skill', 'ouch', 'pickup', 'gearHit', 'free', 'pf']); // carry `s`, the client's latest input seq
+const ORDERED = new Set(['slap', 'skill', 'ouch', 'pickup', 'gearHit', 'free', 'pf', 'rw', 'carry']); // carry `s`, the client's latest input seq
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css',
@@ -767,9 +775,11 @@ function runActions(id, p, all) {
     }
     else if (m.t === 'ouch') rpg.ouch(id, p, m);
     else if (m.t === 'free') rpg.free(id, p, m); // (a trap's combo entered: docs/combat/challenges.md)
-    else if (m.t === 'pf') rpg.platforms(id, p, m); // (a boss's arena sank or raised a ledge for you)
+    else if (m.t === 'pf') rpg.platforms(id, p, m); // (a boss's arena sank or raised a ledge for you, or its floor tilted)
+    else if (m.t === 'rw') rpg.rewind(id, p, m); // (T1b: a Rewind snapped you back to your ghost)
+    else if (m.t === 'carry') rpg.carry(id, p, m); // (T1b: the chip of Brenna's tooth thrown)
     else if (m.t === 'gearHit') rpg.gearHit(id, p, m);
-    else if (m.t === 'pickup') rpg.pickup(p);
+    else if (m.t === 'pickup') rpg.pickup(p, id);
   }
 }
 
