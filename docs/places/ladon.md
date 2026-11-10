@@ -47,6 +47,12 @@ it's enraged.
   has no Bites.
 - **Briarlings** (the Sunken Road's `briarling`, as `minion`) spring up wherever a head falls.
 
+### Its challenges (T1a, 2026-11-10: `docs/combat/challenges.md`)
+From phase 2 a Bite's roots spring beside where it struck (a snare, A1) and a Lash, the Rows and the Storm come with a
+second head's Bite (A13); from phase 3 Head Swap (`swapbite` in its loops: two heads rear, the lit one bites where the
+other aimed) and Hundred Heads' gaps shrink and drift as it warns (A9). Its HP is `UPTIME_TOP` of what it was, so the fight
+lasts what it did (`docs/economy.md`).
+
 ## Every class's answer
 As in the plan's table (`story/fb1-plan.md`): arrows, spells and bolts cut any head in range at any height (owner,
 2026-10-26: a Cleric's bolts all flew into the body; before, only arrows reached the hanging heads); a Mage's fire or a

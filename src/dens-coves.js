@@ -7,6 +7,7 @@
 import { H, TAU, mulberry32, circle, ellipse, mix } from './util.js';
 import { DEN_W, DEN_PLATFORMS, DEN_EXIT_X, DENS, MOBS, FIELD_GROUND } from './shared/rpg.js';
 import { glow as radialGlow } from './glow.js';
+import { drawSunk } from './challenge.js';
 
 const GROUND = FIELD_GROUND;
 const THRONE_X = DEN_W - 105;
@@ -154,7 +155,7 @@ function drawDenTide(ctx, camX, viewW, time, den) {
   for (const t of floorHoard) if (t.x > L - 20 && t.x < R + 20) trinket(ctx, t.k, t.x, t.y, t.s, t.rot, t.c);
   if (visible(DEN_EXIT_X - 90, DEN_EXIT_X + 90, L, R)) drawExit(ctx, time);
   if (visible(750 - 260, 750 + 260, L, R)) drawBanner(ctx, den?.name ?? "The Tidemother's Hoard", 750, time);
-  DEN_PLATFORMS.forEach((p, i) => visible(p.x - 60, p.x + p.w + 60, L, R) && drawLedge(ctx, p, i, time));
+  DEN_PLATFORMS.forEach((p, i) => visible(p.x - 60, p.x + p.w + 60, L, R) && drawSunk(ctx, p, i, () => drawLedge(ctx, p, i, time))); // (drawSunk: a boss's moving arena, src/challenge.js)
   ctx.restore();
 }
 

@@ -9,7 +9,8 @@
 // that's acting (-1: none), cw: the coils' reach from each end (px), enr: 1 once enraged, cu: the Coil's ms left}
 import { createWolf } from './fenrir.js';
 import { createTyphon } from './typhon.js';
-import { FINAL, finalPhase, FINAL_ENRAGE_MIN, COIL_ENRAGE_S, ENRAGE_BREATH_S, FINAL_ULT_WARN, FINAL_GAP_S, LADON_SLOTS, HEAD_MAX, HEAD_RING, HEAD_CHUNK, HEAD_ADDS, REGROW_S, SEALED_REGROW_S, WATCH_S, BITE_WARN, BITE_REST_S, BITE_STUCK_S, LASH_WARN, LASH_FLOOR, LASH_ARCH, COIL_S, GAZE_S, GAZE_HP, GAZE_WEAK, COIL_STEP, COIL_STEPS, HUNDRED_GAPS, HUNDRED_GAP_W, FIN_W, headSpot, headReach, headTarget, throatOpen, isStump } from '../src/shared/final.js';
+import { DOUBLE_DELAY, HEADSWAP_AT, HEADSWAP_SPREAD, SAFE_SHRINK_W, SAFE_DRIFT, SNARE_R } from '../src/shared/challenge.js';
+import { FINAL, finalPhase, FINAL_ENRAGE_MIN, COIL_ENRAGE_S, ENRAGE_BREATH_S, FINAL_ULT_WARN, FINAL_GAP_S, LADON_SLOTS, HEAD_MAX, HEAD_RING, HEAD_CHUNK, HEAD_ADDS, REGROW_S, SEALED_REGROW_S, WATCH_S, BITE_WARN, BITE_REST_S, BITE_STUCK_S, BITE_R, LASH_WARN, LASH_FLOOR, LASH_ARCH, COIL_S, GAZE_S, GAZE_HP, GAZE_WEAK, COIL_STEP, COIL_STEPS, HUNDRED_GAPS, HUNDRED_GAP_W, FIN_W, headSpot, headReach, headTarget, throatOpen, isStump } from '../src/shared/final.js';
 
 const ENRAGE_MS = (Number(process.env.TEST_ENRAGE_MIN) || FINAL_ENRAGE_MIN) * 60_000; // (tests only: sooner)
 const SLACK = 60;
@@ -130,6 +131,48 @@ function createHydra(d) {
   const watched = (m) => (m.focus && m.focus.until > now() ? m.focus.p : null);
   const fighters = (m, here) => here.filter(([, q]) => !q.faintUntil);
 
+  const clampX = (x) => Math.round(Math.max(60, Math.min(FIN_W - 60, x)));
+  // G2's banner for a loop-only challenge: everyone fighting meets it now
+  const seenBy = (m, type) => {
+    for (const [, q] of d.inRoom(m.room)) if (!q.faintUntil) d.chalSeen(q, type);
+  };
+  // a head bites at x: it rears warn s (eyes lit, the mark on the floor), strikes, sticks there BITE_STUCK_S
+  function bite(m, h, x, warn, t) {
+    const f = m.fin, tx = clampX(x);
+    Object.assign(h, { st: 'rear', until: t + warn * 1000, x: tx });
+    f.act = h.slot;
+    f.dirty = true;
+    d.bossEvent(m, 'bite', { slot: h.slot, tx, dur: warn });
+    d.later(m, warn * 1000, () => {
+      if (m.dead || h.st !== 'rear') return;
+      Object.assign(h, { st: 'bite', until: now() + BITE_STUCK_S * 1000 });
+      if (f.act === h.slot) f.act = -1;
+      f.dirty = true;
+      d.bossEvent(m, 'biteHit', { slot: h.slot, tx });
+      rootsAt(m, tx);
+    });
+  }
+  // A1 (T1a): from phase 2 a Bite's roots spring up beside where it struck (one side, then both from phase 3): a
+  // slime that dodged by a hair is snared
+  function rootsAt(m, tx) {
+    const f = m.fin;
+    if (f.ph < 1) return;
+    const off = BITE_R + SNARE_R + 30, sides = f.ph >= 2 ? [-1, 1] : [Math.random() < 0.5 ? -1 : 1];
+    const marks = sides.map((s) => tx + s * off).filter((x) => x > 60 && x < FIN_W - 60).map((x) => [Math.round(x), 0]);
+    if (marks.length) d.challenge(m, 'snare', { marks });
+  }
+  // A13 (T1a): from phase 2 another head bites alongside a Lash, the Rows or the Storm (at someone not the watched
+  // slime if it can)
+  function alsoBite(m, list, busy, t) {
+    const f = m.fin;
+    if (f.ph < 1 || !list.length) return;
+    const h = live(f).filter((q) => q.st === 'up' && q !== busy).sort(() => Math.random() - 0.5)[0];
+    if (!h) return;
+    const w = watched(m), others = list.filter(([, q]) => q !== w), q = pick(others.length ? others : list)[1];
+    seenBy(m, 'double');
+    d.later(m, DOUBLE_DELAY * 1000, () => !m.dead && h.st === 'up' && bite(m, h, q.state.x, BITE_WARN[f.ph], now()));
+  }
+
   // one move of the loop → how long it takes (s)
   function move(m, k, here, name, t) {
     const f = m.fin, ph = f.ph, w = watched(m), list = fighters(m, here);
@@ -149,17 +192,42 @@ function createHydra(d) {
     if (name === 'bite') {
       const h = nextHead(f);
       if (!h || !aim) return 0.3;
-      const tx = Math.round(Math.max(60, Math.min(FIN_W - 60, aim.state.x))), warn = BITE_WARN[ph];
-      Object.assign(h, { st: 'rear', until: t + warn * 1000, x: tx });
-      f.act = h.slot;
+      bite(m, h, aim.state.x, BITE_WARN[ph], t);
+      return BITE_WARN[ph] + 0.35 + BITE_REST_S[ph] * (f.enr ? 0.7 : 1);
+    }
+    if (name === 'swapbite') {
+      // Head Swap (T1a, docs/combat/challenges.md): two heads rear at two marks, the real one's eyes lit; halfway
+      // through they trade marks. The lit one bites where the other was aiming; the other pulls back.
+      const a = nextHead(f), b = nextHead(f);
+      if (!a || !aim) return 0.3;
+      if (!b || b === a) {
+        bite(m, a, aim.state.x, BITE_WARN[ph], t);
+        return BITE_WARN[ph] + 0.35 + BITE_REST_S[ph];
+      }
+      const warn = BITE_WARN[ph] + 0.4, ta = clampX(aim.state.x);
+      const far = list.map(([, q]) => q.state.x).filter((x) => Math.abs(x - ta) > HEADSWAP_SPREAD * 0.8);
+      const tb = clampX(far.length ? pick(far) : ta + (ta < FIN_W / 2 ? 1 : -1) * HEADSWAP_SPREAD);
+      Object.assign(a, { st: 'rear', until: t + warn * 1000, x: ta });
+      Object.assign(b, { st: 'rear', until: t + warn * 1000, x: tb });
+      f.act = a.slot;
       f.dirty = true;
-      d.bossEvent(m, 'bite', { slot: h.slot, tx, dur: warn });
-      d.later(m, warn * 1000, () => {
-        if (m.dead || h.st !== 'rear') return;
-        Object.assign(h, { st: 'bite', until: now() + BITE_STUCK_S * 1000 });
-        if (f.act === h.slot) f.act = -1;
+      d.bossEvent(m, 'chal', { type: 'headswap', a: a.slot, b: b.slot, ta, tb, dur: warn, at: HEADSWAP_AT });
+      seenBy(m, 'headswap');
+      d.later(m, warn * HEADSWAP_AT * 1000, () => {
+        if (m.dead) return;
+        if (a.st === 'rear') a.x = tb;
+        if (b.st === 'rear') b.x = ta;
         f.dirty = true;
-        d.bossEvent(m, 'biteHit', { slot: h.slot, tx });
+      });
+      d.later(m, warn * 1000, () => {
+        if (m.dead) return;
+        if (b.st === 'rear') [b.st, b.x, f.dirty] = ['up', LADON_SLOTS[b.slot].x, true];
+        d.bossEvent(m, 'feint', { slot: b.slot, tx: ta });
+        if (a.st !== 'rear') return;
+        Object.assign(a, { st: 'bite', until: now() + BITE_STUCK_S * 1000 });
+        if (f.act === a.slot) f.act = -1;
+        d.bossEvent(m, 'biteHit', { slot: a.slot, tx: tb });
+        rootsAt(m, tb);
       });
       return warn + 0.35 + BITE_REST_S[ph] * (f.enr ? 0.7 : 1);
     }
@@ -170,6 +238,7 @@ function createHydra(d) {
       if (ph >= 2) bands.push({ y: low ? LASH_ARCH : LASH_FLOOR, delay: 1.4 });
       for (const b of bands) d.bossEvent(m, 'beam', { style: 'briar', bx: dir > 0 ? 0 : FIN_W, dir, y0: b.y[0], y1: b.y[1], len: FIN_W, warn: LASH_WARN + b.delay, dur: 0.5 });
       d.later(m, (LASH_WARN + 0.6 + (ph >= 2 ? 1.4 : 0)) * 1000, () => f.act === h?.slot && ((f.act = -1), (f.dirty = true)));
+      alsoBite(m, list, h, t);
       return LASH_WARN + 0.8 + (ph >= 2 ? 1.4 : 0);
     }
     if (name === 'bark' || name === 'ward' || name === 'both' || name === 'shield') {
@@ -187,7 +256,8 @@ function createHydra(d) {
       const odd = Math.random() < 0.5, tiles = (p) => Array.from({ length: 10 }, (_, i) => i).filter(p);
       d.bossEvent(m, 'grid', { style: 'briar', tiles: tiles((i) => i % 2 === (odd ? 1 : 0)), warn: 1.2, dur: 0.45, tall: false });
       d.bossEvent(m, 'grid', { style: 'briar', tiles: tiles((i) => i % 2 === (odd ? 0 : 1)), warn: 2.2, dur: 0.45, tall: false });
-      return 2.6;
+      alsoBite(m, list, null, t);
+      return Math.max(2.6, DOUBLE_DELAY + BITE_WARN[ph] + 0.4);
     }
     if (name === 'breath') {
       m.pulseAt = t; // (partyTick warns and lands it: the pulse, looks.pulse 'thorn')
@@ -208,7 +278,8 @@ function createHydra(d) {
         }
       });
       d.bossEvent(m, 'shots', { style: 'thorn', shots });
-      return 2.6;
+      alsoBite(m, list, null, t);
+      return Math.max(2.6, DOUBLE_DELAY + BITE_WARN[ph] + 0.4);
     }
     if (name === 'gaze') {
       const fh = f.heads[0];
@@ -241,6 +312,14 @@ function createHydra(d) {
         const x = Math.round(lo + span * i + rand(0, Math.max(0, span - HUNDRED_GAP_W)));
         return [x, x + HUNDRED_GAP_W];
       });
+      // A9 (T1a): from phase 3 each gap shrinks and drifts while it warns; judged where it ends (u.to)
+      if (f.ph >= 2) {
+        u.to = u.gaps.map(([a, b]) => {
+          const mid = Math.max(lo + SAFE_SHRINK_W / 2, Math.min(hi + HUNDRED_GAP_W - SAFE_SHRINK_W / 2, (a + b) / 2 + rand(-SAFE_DRIFT, SAFE_DRIFT)));
+          return [Math.round(mid - SAFE_SHRINK_W / 2), Math.round(mid + SAFE_SHRINK_W / 2)];
+        });
+        seenBy(m, 'safezone');
+      }
     }
     m.act = 'ult';
     m.phase = 'warn';

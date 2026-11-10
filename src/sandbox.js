@@ -262,8 +262,9 @@ export class Sandbox {
       out.push(el('div', { className: 'sbx-fight' }, [
         el('b', { textContent: `This fight: ${k.name}` }),
         this.row('Ultimate now', el('div', { className: 'sbx-btns' }, ultsOf(kind).map((u, i) => this.act(u.name, { a: 'ult', kind, which: i })))),
-        // (boss challenges, docs/combat/challenges.md: any built type on this boss, aimed at everyone in the den)
-        this.row('Challenge now', el('div', { className: 'sbx-btns' }, Object.entries(CHALLENGES).filter(([, c]) => c.built).map(([type, c]) => this.act(c.name, { a: 'chal', kind, type })))),
+        // (boss challenges, docs/combat/challenges.md: any built type on this boss, aimed at everyone in the den; the
+        // final bosses' own, `loop`, come in their loops)
+        this.row('Challenge now', el('div', { className: 'sbx-btns' }, Object.entries(CHALLENGES).filter(([, c]) => c.built && !c.loop).map(([type, c]) => this.act(c.name, { a: 'chal', kind, type })))),
         this.row('Restart at', el('div', { className: 'sbx-btns' }, [...phasesOf(kind).map((_, i) => i), phasesOf(kind).length].map((i) => el('button', { type: 'button', className: 'sbx-act', textContent: `Phase ${i + 1}`, onclick: () => {
           this.phase = i;
           this.send({ t: 'sbx', a: 'boss', kind, hp: phaseHp(kind, i), hold: this.hold ? holdHp(kind, i) : 0, party: this.party });

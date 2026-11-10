@@ -689,10 +689,12 @@ const HALF_W = 16; // half the slime's footprint, for platform edges and world b
 // or doors meanwhile, only gravity. cs: controls swapped (left is right) for this many ticks. Both are set by a
 // predicted edit at the input the hit landed (applyKick in src/net.js; the server's ouch), and `tr` is cleared the same
 // way when the combo is entered (net.free; the server's free)
+// pf: platforms down (a boss's moving arena, A15): bit i set = the room's platform i is sunk into the floor for you. Set
+// by predicted edits as your client's clock passes the boss's schedule (net.edit; the server's {t:'pf'}); a door clears it
 // home: the room id of your own house (set by the server at login; 0 = none yet, so that door stays shut)
 // vt: voyage ticks, how long you've been aboard a crossing (0 everywhere else)
 // town: your town (an index into TOWNS), the last one you were in
-export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0, hk: 0, hc: 0, gx: 0, aj: 0, tr: 0, cs: 0 });
+export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0, hk: 0, hc: 0, gx: 0, aj: 0, tr: 0, cs: 0, pf: 0 });
 // Move a slime to (room, x), standing, keeping who it is (house, mobility, town). For the server's
 // teleports (waking up, invites, tests); doors do this inside step().
 export const placeAt = (s, room, x) => Object.assign(s, newState(x), { room, y: roomDef(room).ground, home: s.home, mv: s.mv, mw: s.mw, gx: s.gx, facing: s.facing, town: townOf(room) >= 0 ? townOf(room) : s.town | 0 });
@@ -738,7 +740,7 @@ export function step(s, keys) {
     s.room = door.to === HOME ? s.home : town ? town.room : door.to;
     s.x = town ? town.homeX : door.toX;
     s.y = roomDef(s.room).ground;
-    s.vx = s.vy = s.drop = s.dt = s.vt = s.cw = s.hk = 0;
+    s.vx = s.vy = s.drop = s.dt = s.vt = s.cw = s.hk = s.pf = 0;
     s.sl = false;
     s.grounded = true;
     s.onPlat = false;
@@ -860,7 +862,10 @@ export function step(s, keys) {
 
   if (s.vy >= 0) {
     if (s.drop === 0) {
-      for (const p of room.platforms) {
+      const pf = s.pf | 0;
+      for (let i = 0; i < room.platforms.length; i++) {
+        const p = room.platforms[i];
+        if (pf & (1 << i)) continue; // (sunk by a boss's moving arena, A15)
         if (s.x + HALF_W < p.x || s.x - HALF_W > p.x + p.w) continue;
         if (prevY <= p.y && s.y >= p.y) {
           s.y = p.y;
@@ -891,11 +896,11 @@ export function step(s, keys) {
   return s;
 }
 
-// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town, mw, flags2, sc, uc, cw, uw, lw, hk, hc, gx, aj, tr, cs]
+// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town, mw, flags2, sc, uc, cw, uw, lw, hk, hc, gx, aj, tr, cs, pf]
 // (`home` never changes, so it isn't in snapshots: welcome / join info carry it, and src/net.js keeps ours)
 // flags: 1 grounded · 2 on a platform · 4 facing left · 8 E held · 16 Jump held · 32 Dash held · 64 Blink held · 128 Flash Jump used
 // flags2: 1 Attack held · 2 slamming
-export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0, s.mw | 0, (s.ah ? 1 : 0) | (s.sl ? 2 : 0), s.sc | 0, s.uc | 0, s.cw | 0, s.uw | 0, s.lw | 0, s.hk | 0, s.hc | 0, s.gx | 0, s.aj | 0, s.tr | 0, s.cs | 0];
+export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0, s.mw | 0, (s.ah ? 1 : 0) | (s.sl ? 2 : 0), s.sc | 0, s.uc | 0, s.cw | 0, s.uw | 0, s.lw | 0, s.hk | 0, s.hc | 0, s.gx | 0, s.aj | 0, s.tr | 0, s.cs | 0, s.pf | 0];
 export function unpack(a, s = {}) {
   s.x = a[1];
   s.y = a[2];
@@ -932,6 +937,7 @@ export function unpack(a, s = {}) {
   s.aj = a[25] ?? 0;
   s.tr = a[26] ?? 0;
   s.cs = a[27] ?? 0;
+  s.pf = a[28] ?? 0;
   return s;
 }
 

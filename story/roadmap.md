@@ -105,6 +105,10 @@ No quests, no hard level gates.
   - [ ] T1: the top and final bosses (Root Warden, Ladon, Sigrun, Fenrir, Brenna, Colossus, Chronos, Typhon), with the
         types they need and Head Swap, Hunt and Rewind (T1a Greenhollow and Frostpeak, T1b Emberdeep and the end-game
         if it runs long). Next after it: **the owner plays** them in the sandbox and with friends.
+    - [x] T1a (2026-11-10, live): the Root Warden (arena, cage, lock), Sigrun (parry, tethers, cage), Ladon (snare, two
+          at once, the moving gaps, Head Swap), Fenrir (rhythm lock, blackout, gaps, the Hunt); wire v9 (`pf`); their HP
+          cut by their uptime so the fights last what they did. Unplayed; the phone check is still owed.
+    - [ ] T1b: Brenna, the Colossus, Chronos, Typhon (A4, A7, A10, A11, A22, Rewind).
   - [ ] T2: the den bosses (Behemoth, Tidemother, Knotmole, Frost Queen, Astral Wyrm, Old Narwhal, Ignis, Pyra,
         Hatchkeeper), the remaining types, punish windows everywhere.
   - [ ] T3: the field bosses and the Novices' two.

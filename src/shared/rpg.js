@@ -7,6 +7,7 @@ import { LADON_PLATFORMS, LADON_BODY_X } from './final.js';
 import { FENRIR_PLATFORMS, FEN_MID } from './fenrir.js';
 import { TYPHON_PLATFORMS, TY_MID } from './typhon.js';
 import { ARENA, DUMMY_HP, SPAR_HIT_PCT } from './sandbox.js';
+import { uptimeOf } from './challenge.js';
 
 export const FIELD = 5; // room id (see ROOMS in sim.js)
 export const FIELD_W = 5200; // the last stretch (where the Highlands trail used to be) is mob-free: the briar thins out toward the sea cliffs
@@ -1647,6 +1648,7 @@ MOBS.ladon = {
   name: 'Ladon, the Briar Hydra', boss: true, top: true, final: 'ladon', heads: true, still: true, touchW: 260, touchH: 70, denX: LADON_BODY_X,
   lvl: 80, hp: 46000000, atk: 230, exp: 620000, speed: 0, w: 380, h: 300, aggro: true, hops: false,
   phases: [[], [], []], minion: 'briarling', petWH: [96, 62],
+  ch: ['snare', 'double', 'safezone', 'headswap'], // (boss challenges, T1a: in its loop, server/final.js; docs/combat/challenges.md)
   looks: { beam: 'briar', grid: 'briar', shell: 'bark', dome: 'rose', curse: 'thorn', pulse: 'thorn' },
   party: ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'], partyAll: true, partyLive: true,
   weak: { dx: 0, dy: -0.18, r: 30 }, // (the shard in the first head's brow, when it lays it on the road: the Gaze)
@@ -1708,7 +1710,8 @@ MOBS.rootling = {
 // back (`weak`, drawn in src/dens-spine.js) · adds: rootlings · interrupt: freeze Hold Fast as it winds up
 MOBS.root_warden = {
   name: 'The Root Warden', boss: true, lvl: 60, hp: 19059000, atk: 200, exp: 541000, speed: 65, w: 200, h: 230, aggro: true, hops: false,
-  phases: [['slam', 'beam', 'charge'], ['slam', 'beam', 'grid', 'summon', 'echo'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap']],
+  phases: [['slam', 'beam', 'charge', 'arena'], ['slam', 'beam', 'grid', 'summon', 'echo', 'arena', 'cage'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap', 'arena', 'cage']],
+  ch: ['arena', 'rescue', 'lock'], // (boss challenges, T1a: docs/combat/challenges.md; the lock goes with its barrier)
   ult: { name: 'Hold Fast', kind: 'lanes' }, minion: 'rootling', looks: { beam: 'warden', grid: 'root', dome: 'keeper' }, // (how its beam, grid and barrier are drawn: src/hazards.js, src/party.js)
   party: ['focus', 'pulse', 'barrier', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, top: true, weak: { dx: -0.31, dy: -0.7, r: 22 },
   lines: {
@@ -1982,7 +1985,8 @@ MOBS.rime_archer = {
 // (`weak.front`) · adds: rimeguards · interrupt: freeze Close the Seam as it winds up
 MOBS.sigrun = {
   name: "Sigrun, the Queen's Shield", boss: true, lvl: 100, hp: 28069000, atk: 330, exp: 1213000, speed: 80, w: 150, h: 190, aggro: true, hops: false,
-  phases: [['slam', 'charge', 'rain'], ['slam', 'charge', 'beam', 'rain', 'summon', 'grid'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap', 'charge']],
+  phases: [['slam', 'charge', 'rain', 'bash'], ['slam', 'charge', 'beam', 'rain', 'summon', 'grid', 'bash', 'tether'], ['grid', 'beam', 'echo', 'slam', 'summon', 'barrage', 'leap', 'charge', 'bash', 'tether', 'cage']],
+  ch: ['parry', 'tether', 'rescue'], // (boss challenges, T1a: docs/combat/challenges.md)
   ult: { name: 'Close the Seam', kind: 'wave' }, minion: 'rimeguard', looks: { beam: 'shield', grid: 'seam', dome: 'ice' }, // (how they're drawn: src/hazards.js, src/party.js)
   party: ['focus', 'barrier', 'pulse', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, top: true, barrierFront: true, weak: { dx: 0.43, dy: -0.36, r: 20, front: true },
   lines: {
@@ -2044,7 +2048,8 @@ MOBS.fenrir = {
   name: 'Fenrir, the Bound Wolf', boss: true, top: true, final: 'fenrir', heads: true, touchW: 220, denX: FEN_MID,
   lvl: 120, hp: 80000000, atk: 360, exp: 1500000, speed: 70, w: 330, h: 220, aggro: true, hops: false,
   phases: [[], [], []], minion: 'black_wolf', petWH: [74, 56],
-  looks: { beam: 'rime', shell: 'rime', dome: 'fetter', curse: 'paw', pulse: 'howl' },
+  ch: ['rhythm', 'dark', 'gaps', 'hunt'], // (boss challenges, T1a: in its loop, server/fenrir.js)
+  looks: { beam: 'rime', shell: 'rime', dome: 'fetter', curse: 'paw', pulse: 'howl', snare: 'fetter' }, // (snare: how its rhythm lock's fetters look, src/challenge.js)
   party: ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'], partyAll: true, partyLive: true,
   weak: { dx: 0.25, dy: -0.68, r: 30, front: true }, // (the shard in the lock of its collar, held high while it rears)
   lines: {
@@ -2499,10 +2504,13 @@ MOBS.mooring_hook = {
 // rewards follow the fight, so an hour of them pays about what it did; a little more, docs/economy.md). Ordinary dens
 // keep theirs: their respawn timer, not the fight, bounds an hour of them. The Novices' field boss (under Lv 10,
 // CLASS_LVL) keeps its pay too.
+// A boss with challenges (`ch`, docs/combat/challenges.md) also takes its uptime share off its HP (uptimeOf: a snared or
+// carrying slime isn't hitting, so the sheet's fight would grow by 1 / uptime; the plan's rule: HP is the lever, not the
+// rewards), so its fight lasts what it did before the challenges came.
 export const BOSS_HP_SCALE = 0.6, BOSS_PAY_SCALE = 0.7;
 for (const k of Object.values(MOBS)) {
   if (!(k.boss || k.field) || k.dummy) continue;
-  k.hp = Math.round(k.hp * BOSS_HP_SCALE);
+  k.hp = Math.round(k.hp * BOSS_HP_SCALE * uptimeOf(k));
   if (!(k.field || k.top) || k.lvl < 10) continue;
   k.exp = Math.round(k.exp * BOSS_PAY_SCALE);
   k.drops = k.drops.map((d) => d[0] === 'coin' ? [d[0], d[1], Math.round(d[2] * BOSS_PAY_SCALE), Math.round(d[3] * BOSS_PAY_SCALE), ...d.slice(4)] : d);

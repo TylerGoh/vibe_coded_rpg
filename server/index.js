@@ -77,6 +77,15 @@
 //       `cs` set at that input, wire v8) · → {t:'free', s, k:[arrows]} I entered my snare's combo (in input order; the
 //       server checks the order against the seed) · ← {t:'chal', a:'freed', id} (the room) someone broke free ·
 //       ← {t:'chal', a:'first', type} (just you) the first time this character met that type: G2's banner
+//     T1a's: ← {t:'boss', a:'chal', type:'rhythm' (the snare's shape, arrows on the beat) | 'lock' (the snare's shape, one
+//       combo for all) | 'rescue' {x, y, target, warn, dur, r, len, seed} | 'gaps' {x0, v, w, warn, dur} | 'arena' {down:
+//       [platform], warn, dur, sink} | 'dark' {dur} | 'tether' {pairs: [[id, id | 0 = the boss]], warn, dur, r} | 'parry'
+//       {x, dir, w, reach, h, warn} (the shield bash) | 'snap' {a, b} | 'lockDone' {ok} | 'parried' {by} | 'headswap' |
+//       'hunt' (the final bosses' loops: server/final.js, server/fenrir.js)} · → {t:'ouch', kind:'rhythm'|'lock'|'cage'|
+//       'gaps'|'bash'} · → {t:'ouch', kind:'parry', mob} I attacked right as the bash landed (no hit) · → {t:'free', s, k,
+//       who} I entered a friend's cage's arrows · ← {t:'chal', a:'caged', id, seed, len, ms} (the room) · ← {t:'chal',
+//       a:'crushed', id} a cage left shut too long (a KO) · → {t:'pf', s, pf} the ledges sunk for me now (in input order,
+//       `pf` in step(), wire v9; only what a boss in the room has sunk)
 //   → {t:'pickup', s}
 //   ← {t:'nomana'}  a skill you tried had too little MP
 //   ← {t:'me', lvl, exp, next, hp, maxHp, mp, maxMp, coins, bag:[{id,n}], gear:{helmet,weapon}, atk, magic, def,
@@ -237,7 +246,7 @@ const MAX_CREDIT = 6; // a player may catch up on at most this many steps in one
 const RTC_BURST = 60; // voice call-setup messages a player may send in a burst…
 const RTC_PER_SEC = 20; // …and on average
 const IDLE_TICKS = 15; // no input for this long (e.g. tab hidden) → simulate them standing still
-const ORDERED = new Set(['slap', 'skill', 'ouch', 'pickup', 'gearHit', 'free']); // carry `s`, the client's latest input seq
+const ORDERED = new Set(['slap', 'skill', 'ouch', 'pickup', 'gearHit', 'free', 'pf']); // carry `s`, the client's latest input seq
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css',
@@ -757,7 +766,8 @@ function runActions(id, p, all) {
       rpg.cast(id, p, m);
     }
     else if (m.t === 'ouch') rpg.ouch(id, p, m);
-    else if (m.t === 'free') rpg.free(id, p, m); // (a snare's combo entered: docs/combat/challenges.md)
+    else if (m.t === 'free') rpg.free(id, p, m); // (a trap's combo entered: docs/combat/challenges.md)
+    else if (m.t === 'pf') rpg.platforms(id, p, m); // (a boss's arena sank or raised a ledge for you)
     else if (m.t === 'gearHit') rpg.gearHit(id, p, m);
     else if (m.t === 'pickup') rpg.pickup(p);
   }

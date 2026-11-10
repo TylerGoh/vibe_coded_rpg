@@ -13,6 +13,7 @@ import {
   POUNCE_MAX, ICE_N, ICE_WARN, REAR_S, REAR_WEAK, REAR_R, FEN_WATCH_S, PACK_EVERY, PACK_BASE, PACK_PER_DARK, SONS, SWALLOW_S, SONS_BACK_S, ENRAGE_HOWL_S,
   LANTERN_SLOT, fenSpot,
 } from '../src/shared/fenrir.js';
+import { SNARE_WARN, GAPS_WARN, GAPS_LIVE, HUNT_S, HUNT_SPEED, HUNT_CLASH, HUNT_STUN_S, HUNT_CLASH_HP } from '../src/shared/challenge.js';
 
 const ENRAGE_MS = (Number(process.env.TEST_ENRAGE_MIN) || FINAL_ENRAGE_MIN) * 60_000; // (tests only: sooner)
 const SLACK = 60;
@@ -225,6 +226,43 @@ export function createWolf(d) {
       d.sendParty(m);
       return REAR_S + 1.2;
     }
+    // ——— T1a's challenges (docs/combat/challenges.md) ———
+    if (name === 'fetter') {
+      // A3: Gleipnir's fetters spring under everyone: the arrows only count on the beat
+      pose(f, 'howl');
+      d.challenge(m, 'rhythm', { stage: ph });
+      return SNARE_WARN + 0.9;
+    }
+    if (name === 'blackout') {
+      // A16: its breath fogs every lantern: the den goes black but for a light round each slime; the loop goes on in it
+      pose(f, 'breath');
+      d.challenge(m, 'dark', { stage: ph });
+      return 0.9;
+    }
+    if (name === 'gaps') {
+      // A6: the Howl brings the roof's ice down along the whole den but one gap (sliding from phase 4)
+      pose(f, 'howl');
+      d.challenge(m, 'gaps', { stage: ph });
+      return GAPS_WARN + GAPS_LIVE + 0.4;
+    }
+    if (name === 'hunt') {
+      // the Hunt: Skoll and Hati each run at one of the two slimes farthest apart (alone: both at you); together, they
+      // crash into each other
+      const sons = SONS.map((n) => d.mobById(f.sons[n]?.id)).filter((q) => q && !q.dead);
+      if (!sons.length || !list.length) return 0.3;
+      const byX = [...list].sort((a, b) => a[1].state.x - b[1].state.x), ends = [byX[0], byX[byX.length - 1]];
+      sons.sort((a, b) => a.x - b.x);
+      const pairs = sons.map((q, i) => {
+        const [id, p] = ends[sons.length === 1 ? (Math.abs(ends[0][1].state.x - q.x) < Math.abs(ends[1][1].state.x - q.x) ? 0 : 1) : i];
+        q.hunt = { id, p, until: t + HUNT_S * 1000 };
+        q.sw = null;
+        return [q.id, id];
+      });
+      pose(f, 'howl');
+      d.bossEvent(m, 'chal', { type: 'hunt', pairs, dur: HUNT_S });
+      for (const [, q] of list) d.chalSeen(q, 'hunt');
+      return 1.4;
+    }
     if (name === 'ult') return ult(m, k, t);
     return 0.2;
   }
@@ -266,6 +304,16 @@ export function createWolf(d) {
       const x = westDark > eastDark ? 60 : eastDark > westDark ? FIN_W - 60 : pick([60, FIN_W - 60]);
       for (let i = 0; i < Math.min(n, space); i++) d.addMinion(m, x + rand(-30, 30));
       if (Math.min(n, space) > 0) d.bossEvent(m, 'pack', { px: x });
+    }
+    // the Hunt (T1a): the brothers running at their slimes crash into each other if they meet
+    const hunting = SONS.map((n) => d.mobById(f.sons[n]?.id)).filter((q) => q && !q.dead && q.hunt && q.hunt.until > t);
+    if (hunting.length === 2 && Math.abs(hunting[0].x - hunting[1].x) < HUNT_CLASH) {
+      for (const q of hunting) {
+        q.hunt = null;
+        q.stunUntil = t + HUNT_STUN_S * 1000;
+        q.hp = Math.max(1, q.hp - Math.round(q.maxHp * HUNT_CLASH_HP));
+      }
+      d.bossEvent(m, 'chal', { type: 'clash', x: Math.round((hunting[0].x + hunting[1].x) / 2) });
     }
     // Skoll and Hati: out of the dark from phase 3; each comes back SONS_BACK_S after it's killed
     if (f.ph >= 2) for (const [i, name] of SONS.entries()) {
@@ -453,6 +501,16 @@ export function createWolf(d) {
   function son(m, k, here, dt, t) {
     const b = d.mobById(m.by), f = b?.fin;
     if (!f || b.dead) return 0;
+    if (m.hunt) {
+      // the Hunt: straight at its slime, faster, until it's over (a stun, its slime down or gone)
+      const q = m.hunt.p;
+      if (t >= m.hunt.until || m.stunUntil > t || !q.joined || q.faintUntil || q.state.room !== m.room) m.hunt = null;
+      else {
+        const dx = q.state.x - m.x;
+        if (Math.abs(dx) > 6) m.dir = Math.sign(dx);
+        return Math.abs(dx) > 6 ? Math.sign(dx) * k.speed * HUNT_SPEED : 0;
+      }
+    }
     if (m.sw) {
       const at = m.sw.at, stopped = m.frozenUntil > at || m.stunUntil > at || m.snareUntil > at || (m.knockAt ?? 0) > at;
       if (stopped || !f.lit[m.sw.i] || f.enr) {

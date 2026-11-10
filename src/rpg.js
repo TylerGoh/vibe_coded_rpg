@@ -23,7 +23,7 @@ import { SPLIT_R, SPLIT_SHARE, FAR_PX, SKILLS, HOTBAR, POTBAR, rankOf, cooldownO
 import { drawMobState } from './elements.js';
 import { Gear } from './gear.js';
 import { Challenges } from './challenge.js';
-import { SWAP_KNOCK } from './shared/challenge.js';
+import { SWAP_KNOCK, BASH_KNOCK } from './shared/challenge.js';
 import { fxLine, HYDRA_HIT } from './shared/gearfx.js';
 import { staffGlow } from './staff-art.js';
 import { bowTint } from './bow-art.js';
@@ -33,7 +33,7 @@ const MOB_KINDS = Object.keys(MOBS); // same order as the server's
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const panX = (x, me) => clamp((x - me) / 500, -1, 1);
 // knockbacks: same numbers as server/rpg.js OUCH + hurt()
-const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 240, burn: 150, geyser: 380, sweep: 380, beam: 300, zap: 260, bomb: 420, slash: 380, pulse: 360, bite: 420, coil: 360, snare: 0, swap: SWAP_KNOCK }; // (bite, coil: Ladon's, FB1; snare, swap: boss challenges, src/challenge.js)
+const OUCH = { touch: 380, charge: 380, slam: 420, rain: 200, ult: 420, shot: 240, burn: 150, geyser: 380, sweep: 380, beam: 300, zap: 260, bomb: 420, slash: 380, pulse: 360, bite: 420, coil: 360, snare: 0, swap: SWAP_KNOCK, rhythm: 0, lock: 0, cage: 0, gaps: 200, bash: BASH_KNOCK }; // (bite, coil: Ladon's, FB1; snare … bash: boss challenges, src/challenge.js)
 // ultimates Dash / Blink i-frames can get you through (the rest want you somewhere safe)
 const DODGEABLE_ULT = new Set(['collapse']);
 const TILE = 150; // den floor tiles for the grid attacks
@@ -1245,6 +1245,9 @@ export class Rpg {
           h.done = true;
           return { ...ouch('snare'), mx: h.x, trap: { seed: h.seed, len: h.len } };
         }
+      } else if (h.type === 'cage' || h.type === 'gaps' || h.type === 'bash') {
+        const o = this.chal.judge(h, me, t, ouch); // (T1a's: src/challenge.js)
+        if (o) return o;
       } else if (h.type === 'puddle') {
         if (t < h.end - 0.4 && me.grounded && Math.abs(me.y - h.y) < 2 && Math.abs(me.x - h.x) < h.w / 2 + 6) return ouch('burn');
       } else if (h.type === 'geyser') {
@@ -1305,7 +1308,7 @@ export class Rpg {
     let ouch = this.ouchNext;
     this.ouchNext = null;
     if (ouch) delete ouch.noDodge;
-    if (ouch?.kind === 'snare' && me.tr) ouch = null; // (already held: a second snare does nothing)
+    if (ouch?.trap && me.tr) ouch = null; // (already held: a second trap does nothing)
     if (!ouch) {
       for (const v of this.targets()) {
         const k = MOBS[v.kind];

@@ -21,8 +21,8 @@ import { mpCost, BLAST_MAX } from '../src/shared/skills.js';
 import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS, DEVOTION_S, DEVOTION_CAP, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, judgmentMult, RESOLVE_R } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
 import { createFinal } from './final.js';
-import { createChallenges } from './challenge.js';
-import { CHALLENGES, SNARE_HIT, SWAP_HIT, SWAP_KNOCK } from '../src/shared/challenge.js';
+import { createChallenges, KIND as CHAL_KIND } from './challenge.js';
+import { CHALLENGES, SNARE_HIT, SWAP_HIT, SWAP_KNOCK, CAGE_HIT, GAPS_HIT, BASH_HIT, BASH_KNOCK, BASH_WARN, ARENA_WARN } from '../src/shared/challenge.js';
 import { THROAT_MULT, THROAT_FILL, GAZE_STAGGER_S } from '../src/shared/final.js';
 import { SON_KNOCK } from '../src/shared/fenrir.js';
 import { SLAP_REACH, TICK_RATE, ROOMS, TOWNS, placeAt, VILLAGE, REBIRTH_X, REBIRTH_RANGE, chargeOpen, applyCharge, chaseRank, retreatOpen, applyHook, HOOK_RANGE } from '../src/shared/sim.js';
@@ -128,6 +128,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     addsCap: (m) => addsCap(m), minionsIn: (r) => minionsIn(r), shieldUp: (...a) => shieldUp(...a),
     startUlt: (...a) => startUlt(...a), ultGoesOff: (...a) => ultGoesOff(...a), stagger: (...a) => stagger(...a),
     mobById: (id) => (id ? mobs.find((q) => q.id === id) : undefined), alive: (id) => mobs.some((q) => q.id === id && !q.dead),
+    challenge: (m, type, opts) => chal.start(m, type, opts), chalSeen: (p, type) => chal.seen(p, type), // (T1a: its challenges, server/challenge.js)
+    inRoom: (r) => inRoom(r),
     minionsOf: (m, kind) => mobs.filter((q) => q.minion && !q.dead && q.room === m.room && q.kind === kind).length,
     // a named add of its own (FB2: Skoll and Hati): a minion of kind `kind`, at x
     addAdd: (m, kind, x) => {
@@ -143,8 +145,17 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       mobs.push(q);
     },
   });
-  // T0: boss challenges (server/challenge.js, docs/combat/challenges.md): snares and the controls swap so far
-  const chal = createChallenges({ now: () => now(), MOBS, bossEvent: (...a) => bossEvent(...a), send, toRoom: (r) => toRoom(r), inRoom: (r) => inRoom(r) });
+  // Boss challenges (server/challenge.js, docs/combat/challenges.md): T0's engine, T1a's types
+  const chal = createChallenges({
+    now: () => now(), MOBS, bossEvent: (...a) => bossEvent(...a), send, toRoom: (r) => toRoom(r), inRoom: (r) => inRoom(r),
+    mobById: (id) => (id ? mobs.find((q) => q.id === id) : undefined),
+    faint: (id, p, by) => faint(id, p, by),
+    hurtFlat: (id, p, share, m) => hurt(id, p, stats(p).maxHp * share, p.state.x, undefined, 0, false, m, true),
+    stagger: (m, secs) => stagger(m, secs),
+    damage: (m, n, id, p, dir) => damage(m, n, false, id, p, dir, 0),
+    // A23 done: the barrier breaks (with its stagger); no barrier up (it broke meanwhile), a stagger anyway
+    lockBroken: (m) => (m.shield && (m.shield.kind === 'barrier' || m.shield.kind === 'both') ? breakShield(m, 'barrier') : stagger(m)),
+  });
   let roadsEndSaid = false; // (the Road's End: Ladon has spoken since it last emptied)
   let longStairSaid = false; // (the Long Stair: Fenrir has spoken since it last emptied)
   let longFlueSaid = false; // (the Long Flue: Typhon has spoken since it last emptied)
@@ -1332,11 +1343,13 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     bomb: [1.5, 420], slash: [1.3, 380], pulse: [1.2, 360],
     // FB1: Ladon's Bite (a head striking the floor) and the phase 3 coils (a wall of necks: it hurts, it doesn't block)
     bite: [1.5, 420], coil: [0.7, 360],
-    // T0's challenges (src/shared/challenge.js): a snare barely hurts and doesn't knock (it holds you); the swap's orb
-    snare: [SNARE_HIT, 0], swap: [SWAP_HIT, SWAP_KNOCK],
+    // the boss challenges (src/shared/challenge.js): a trap barely hurts and doesn't knock (it holds you); the swap's
+    // orb, the gaps' ice and the shield bash do
+    snare: [SNARE_HIT, 0], swap: [SWAP_HIT, SWAP_KNOCK], rhythm: [SNARE_HIT, 0], lock: [SNARE_HIT * 0.5, 0], cage: [CAGE_HIT, 0], gaps: [GAPS_HIT, 200], bash: [BASH_HIT, BASH_KNOCK],
   };
   function ouch(id, p, m) {
     const mob = mobs.find((q) => q.id === m.mob && !q.dead && q.room === p.state.room);
+    if (m.kind === 'parry') return mob && chal.parry(id, p, mob); // (A20: attacked right as the bash landed: no hit)
     const [mult, knock] = OUCH[m.kind] ?? [];
     if (!mob || !mult || p.faintUntil) return;
     const ult = m.kind === 'ult';
@@ -1346,8 +1359,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     if ((m.kind === 'touch' || m.kind === 'charge') && (mob.frozenUntil > now() || mob.snareUntil > now() || mob.stunUntil > now()) && !MOBS[mob.kind].boss && !MOBS[mob.kind].field) return; // frozen solid, netted or stunned: harmless
     if (m.kind !== 'touch' && m.kind !== 'charge' && !MOBS[mob.kind].boss && !MOBS[mob.kind].ai) return;
     if (ult && now() > mob.ultLiveUntil) return; // no ultimate going off right now
-    const ch = CHALLENGES[m.kind] ? chal.claim(mob, m.kind) : null; // (a snare or a swap: only while that boss has one going)
-    if (CHALLENGES[m.kind] && !ch) return;
+    const ch = CHAL_KIND[m.kind] ? chal.claim(mob, m.kind) : null; // (a challenge's hit: only while that boss has one going)
+    if (CHAL_KIND[m.kind] && !ch) return;
     const mx = Number.isFinite(m.mx) && Math.abs(m.mx - mob.x) < DEN_W ? m.mx : mob.x;
     const focused = !ult && mob.focus?.p === p && mob.focus.until > now(); // (S5: the boss's focus hits harder)
     const x = mult * (focused ? FOCUS_ATK : 1) * (ult || ch ? 1 : chal.punish(p, mob)); // (a snare failed lately: this hit does more)
@@ -1635,7 +1648,12 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     // the newer bosses (their attacks carry their own telegraphs, so the boss's own wind-up is short)
     fireballs: 0.6, geysers: 0.35, flamewall: 0.5, feathers: 0.5, spiral: 0.6, dive: 0.8, rings: 0.5,
     gears: 0.5, beam: 0.3, grid: 0.3, sweep: 0.3, bombs: 0.4, blink: 0.3, echo: 0.5,
+    // boss challenges (T1a, server/challenge.js: each carries its own telegraph)
+    bash: 0.2, tether: 0.3, cage: 0.3, arena: 0.3,
   };
+  // a move in a boss's `phases` that starts a challenge (docs/combat/challenges.md) → its type
+  const CHAL_MOVE = { bash: 'parry', tether: 'tether', cage: 'rescue', arena: 'arena', snare: 'snare', fetter: 'rhythm', gaps: 'gaps', dark: 'dark' };
+  const CHAL_TIME = { parry: (st) => BASH_WARN[Math.min(BASH_WARN.length - 1, st)] + 0.5, tether: () => 1.2, rescue: () => 1, arena: () => ARENA_WARN + 0.6 };
   const minionsIn = (room) => mobs.filter((q) => q.minion && !q.dead && q.room === room).length;
   const ownMinions = (m) => mobs.filter((q) => q.minion && !q.dead && q.by === m.id); // (S5.4: a field boss's called adds)
   const addsCap = (m) => (partyOn(m, 'adds') ? Math.min(ADDS_MAX, 4 + m.fighters) : 5); // (how many of its minions may stand at once)
@@ -1689,8 +1707,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       if (act === 'feathers' || act === 'spiral') m.hover = 170;
       bossEvent(m, 'warn', extra);
     };
+    const fightersUp = here.filter(([, q]) => !q.faintUntil).length;
     const choose = () => {
-      const list = k.phases[stage].filter((a) => a !== m.last && !(a === 'summon' && minionsIn(m.room) >= addsCap(m) - 1));
+      const list = k.phases[stage].filter((a) => a !== m.last && !(a === 'summon' && minionsIn(m.room) >= addsCap(m) - 1) && !(CHAL_MOVE[a] && fightersUp < CHALLENGES[CHAL_MOVE[a]].min)); // (a party-only challenge stays off alone)
       return pick(list.length ? list : k.phases[stage]);
     };
     if (m.phase === 'walk') {
@@ -1783,6 +1802,12 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   const tiles = (pick) => Array.from({ length: 10 }, (_, i) => i).filter(pick);
   function newMove(m, k, here, stage, t) {
     const a = m.act;
+    if (CHAL_MOVE[a]) {
+      // a boss challenge (server/challenge.js): its own telegraph; the boss stands while it winds up
+      const type = CHAL_MOVE[a];
+      m.timer = chal.start(m, type, { stage }) ? (CHAL_TIME[type]?.(stage) ?? 0.8) : 0;
+      return true;
+    }
     const targets = here.filter(([, q]) => !q.faintUntil).map(([, q]) => q.state);
     const tq = m.target?.state ?? targets[0] ?? { x: m.x + m.dir * 200, y: m.sp.y, facing: 1 }; // (the target may have just left)
     const head = { x: m.x + m.dir * k.w * 0.25, y: m.y - k.h * 0.6 };
@@ -2144,6 +2169,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     m.shieldLast = kind;
     m.shieldNext = m.shield.until + (b ? bar.every : ARMOUR_EVERY) * 1000;
     bossEvent(m, 'shieldUp', { kind, dur: warn });
+    if (b && k.ch?.includes('lock')) chal.start(m, 'lock'); // (A23: everyone's arrows at once break it; 2+ fighting)
     if (b && !m.saidShield) bossSays(m, k.lines?.shield); // (once a fight: S5.3's line about it)
     m.saidShield ||= b;
     sendParty(m);
@@ -2410,8 +2436,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         return m;
       },
       resetBoss: (m) => resetBoss(m),
-      // a challenge on this boss now (the sandbox's Challenge now; T0, before any boss uses them): → started?
-      chalNow: (m, type) => chal.start(m, type),
+      // a challenge on this boss now (the sandbox's Challenge now, even below its fighters' `min`): → started?
+      chalNow: (m, type) => chal.start(m, type, { force: true }),
       // an ultimate as soon as the boss is free (which: an index into its ults, or the next): a final boss's loop takes
       // it next (server/final.js, server/fenrir.js read m.forceUlt), any other boss on its next move
       ultNow(m, which) {
@@ -2458,7 +2484,8 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     pvp,
     cast,
     ouch,
-    free: (id, p, m) => chal.free(id, p, m), // ({t:'free'}: a snare's combo entered, in input order)
+    free: (id, p, m) => chal.free(id, p, m), // ({t:'free'}: a trap's combo entered, yours or a friend's cage, in input order)
+    platforms: (id, p, m) => chal.platforms(id, p, m), // ({t:'pf'}: the ledges a boss's arena sank for you, in input order)
     playerAt,
 
     tick(serverTick) {

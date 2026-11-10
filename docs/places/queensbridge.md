@@ -69,6 +69,11 @@ Warden: only her line says so).
   curve a step above the bridge's mob gear (9 slots); Seam Ice. Her pet is in the Pet Shop (`PETS`, priced
   just above Ignis's, the next boss up by level; `PETSHOP_W` was raised for it).
 
+- **Her challenges** (T1a, 2026-11-10: `docs/combat/challenges.md`): the shield bash in every phase (`bash`, the parry
+  A20: attack as it lands and she staggers; jumping or backing out works too), and with 2+ fighting tethers of old ice
+  from phase 2 (`tether`, A18) and a rescue cage in phase 3 (`cage`, A5). Her HP is `UPTIME_TOP` of what it was
+  (`docs/economy.md`).
+
 ## Gear (`docs/combat/items.md`)
 Mob drops: the Rimeguard Helm (rimeguards), the Rimeguard Blade / Rimeguard Staff (rime archers). Sigrun:
 above. Materials from every mob.

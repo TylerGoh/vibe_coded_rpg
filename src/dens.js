@@ -18,6 +18,7 @@ import { DEN_ART as TYPHON_DENS, BOSS_ART as TYPHON_BOSSES, FX2 as TYPHON_FX } f
 import { DEN_ART as HATCH_DENS, ENTRANCE_ART as HATCH_ENTRANCES, BOSS_ART as HATCH_BOSSES, ULT_LOOKS as HATCH_ULT_LOOKS, HATCH_FREED_S, drawHatchFreed } from './dens-hatch.js';
 import { DEN_ART as HOIST_DENS, ENTRANCE_ART as HOIST_ENTRANCES, BOSS_ART as HOIST_BOSSES, ULT_LOOKS as HOIST_ULT_LOOKS, BRENNA_FREED_S, drawBrennaFreed } from './dens-rim.js';
 import { glow as radialGlow } from './glow.js';
+import { drawSunk } from './challenge.js';
 // the third and fourth stages' dens, bosses and boss effects live in their own files (same contracts as here)
 const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS, ...LADON_DENS, ...FENRIR_DENS, ...TYPHON_DENS, ...HATCH_DENS, ...HOIST_DENS };
 const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES, ...SPINE_ENTRANCES, ...SKERRIES_ENTRANCES, ...QBRIDGE_ENTRANCES, ...HATCH_ENTRANCES, ...HOIST_ENTRANCES };
@@ -215,11 +216,13 @@ export function drawDen(ctx, room, camX, viewW, time) {
   if (visible(750 - 260, 750 + 260, L, R)) drawBanner(ctx, theme, den?.name ?? 'Boss Den', 750, time);
   DEN_PLATFORMS.forEach((p, i) => {
     if (!visible(p.x - 60, p.x + p.w + 60, L, R)) return;
-    if (theme === 'sprout') ledgeSprout(ctx, p, i, time);
-    else if (theme === 'mushroom') ledgeMush(ctx, p, i, time);
-    else if (theme === 'frost') ledgeFrost(ctx, p, i, time);
-    else if (theme === 'star') ledgeStar(ctx, p, i, time);
-    else ledgeBramble(ctx, p, i, time);
+    drawSunk(ctx, p, i, () => { // (a boss's moving arena sinks it: src/challenge.js)
+      if (theme === 'sprout') ledgeSprout(ctx, p, i, time);
+      else if (theme === 'mushroom') ledgeMush(ctx, p, i, time);
+      else if (theme === 'frost') ledgeFrost(ctx, p, i, time);
+      else if (theme === 'star') ledgeStar(ctx, p, i, time);
+      else ledgeBramble(ctx, p, i, time);
+    });
   });
   drawAmbient(ctx, theme, L, R, time);
   ctx.restore();

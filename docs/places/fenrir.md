@@ -70,6 +70,12 @@ lamp posts with the cutters' lanterns on them (`LANTERN_X`). The stone hand lies
 - **Freed**: its line; it lies down (the `freed` pose), the last fetter lies shining on the floor and the lanterns come
   back one by one (client art only).
 
+### Its challenges (T1a, 2026-11-10: `docs/combat/challenges.md`)
+Gleipnir's fetters to a beat (`fetter`, the rhythm lock A3: every other loop in phase 1, every loop after), the
+blackout (`blackout`, A16: from phase 2, its moves go on in it), the Howl's ice with one gap (`gaps`, A6: phase 3,
+sliding in phase 4) and the Hunt (`hunt`: Skoll and Hati run at the two slimes farthest apart; stay together and they
+crash). Its HP is `UPTIME_TOP` of what it was, so the fight lasts what it did (`docs/economy.md`).
+
 ## Every class's answer
 As in the plan's table: ranged stand outside the reach, melee works the Lunge's pant; the Knight's Rally takes the Watch
 and places the Lunge, Strain and Pounce; anyone sets the far anchor (arrows and spells reach it at any height); a Mage's

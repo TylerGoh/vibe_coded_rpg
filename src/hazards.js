@@ -5,7 +5,7 @@
 // the bright, opaque thing = "it hurts now". Tall sweeps fill the whole height so nobody tries to jump them.
 import { TAU } from './util.js';
 import { glow as radialGlow } from './glow.js';
-import { drawSnareHz } from './challenge.js';
+import { drawSnareHz, drawCageHz, drawGapsHz, drawBashHz } from './challenge.js';
 
 const GROUND = 450;
 const TOP = -40; // tall things start above the screen top
@@ -1389,6 +1389,7 @@ const DRAW = {
   slash: drawSlash,
   pulse: drawPulse,
   snare: drawSnareHz, // a boss's snare (src/challenge.js)
+  cage: drawCageHz, gaps: drawGapsHz, bash: drawBashHz, // T1a's: a rescue cage dropping, ice but for one gap, the shield bash (src/challenge.js)
 };
 
 export function drawHazard(ctx, h, now) {

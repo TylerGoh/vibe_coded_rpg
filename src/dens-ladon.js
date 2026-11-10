@@ -10,6 +10,7 @@ import { H, TAU, mulberry32, circle, ellipse, clamp } from './util.js';
 import { DEN_EXIT_X, MOBS } from './shared/rpg.js';
 import { FIN_W, FIN_FLOOR, LADON_PLATFORMS, LADON_HIGH } from './shared/final.js';
 import { glow as radialGlow } from './glow.js';
+import { gapsAt } from './shared/challenge.js';
 
 const GROUND = FIN_FLOOR;
 const visible = (x0, x1, L, R) => x1 > L && x0 < R;
@@ -880,7 +881,8 @@ const HH_STEP = 60;
 // Hundred Heads: every neck rises out of the floor at once, but for the gaps, which are marked
 function headsWarn(ctx, e, k) {
   const pulse = 0.5 + 0.5 * Math.sin(e.t * (6 + 12 * k));
-  const gaps = e.gaps ?? [];
+  // (from phase 3 the gaps shrink and drift to e.to as it warns: A9, src/shared/challenge.js; eased so they settle)
+  const gaps = e.to ? gapsAt(e.gaps ?? [], e.to, 1 - (1 - Math.min(1, k * 1.15)) ** 2) : e.gaps ?? [];
   const safe = (x) => gaps.some(([a, b]) => x >= a - 10 && x <= b + 10);
   for (let x = 30; x < FIN_W; x += HH_STEP) {
     if (safe(x)) continue;
@@ -919,7 +921,7 @@ function headsWarn(ctx, e, k) {
   }
 }
 function headsHit(ctx, e, k) {
-  const gaps = e.gaps ?? [];
+  const gaps = e.to ?? e.gaps ?? [];
   const safe = (x) => gaps.some(([a, b]) => x >= a - 10 && x <= b + 10);
   const up = k < 0.2 ? k / 0.2 : 1 - (k - 0.2) / 0.8;
   for (let x = 30; x < FIN_W; x += HH_STEP) {

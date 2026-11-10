@@ -4,33 +4,38 @@
 // (server/challenge.js); the client draws them and takes the combo (src/challenge.js); the physics side (trapped,
 // controls swapped) is `tr` / `cs` in sim.js step().
 
-// One row per type (A1–A23 in the plan). built: switched on in the code so far (T0: the snare and the swap); min: how
-// many fighters it needs (a party-only type stays off below that); banner: G2's one line, shown the first time a
-// character meets it (c.seen), never again. Only built types are ever sent.
+// One row per type (A1–A23 in the plan). built: switched on in the code so far (T0: the snare and the swap; T1a: the
+// rhythm lock, the rescue cage, thin gaps, the darkness, the moving arena, tethers, the parry, the group key-lock, and
+// the three that live inside the final bosses' loops: two at once, the moving safe zone and the fake-outs' cousin, Head
+// Swap); min: how many fighters it needs (a party-only type stays off below that); banner: G2's one line, shown the
+// first time a character meets it (c.seen), never again. Only built types are ever sent. loop: only a boss's own loop
+// starts it (server/final.js, server/fenrir.js), never `start` (so the sandbox's Challenge now leaves it out).
 export const CHALLENGES = {
   snare: { a: 1, name: 'Snare', built: true, min: 1, banner: 'Snared! Enter the arrows to break free' },
   mash: { a: 2, name: 'Mash free', min: 1, banner: 'Stuck! Mash Jump to break out' },
-  rhythm: { a: 3, name: 'Rhythm lock', min: 1, banner: 'Locked! Enter each arrow on the beat' },
+  rhythm: { a: 3, name: 'Rhythm lock', built: true, min: 1, banner: 'Fettered! Enter each arrow on the beat' },
   mirror: { a: 4, name: 'Mirror trap', min: 1, banner: 'A mirrored snare! Enter what the arrows mean' },
-  rescue: { a: 5, name: 'Rescue trap', min: 2, banner: 'Caged! A friend at the cage can enter its arrows' },
-  gaps: { a: 6, name: 'Thin gaps', min: 1, banner: 'A wall with one gap' },
+  rescue: { a: 5, name: 'Rescue trap', built: true, min: 2, banner: 'Caged! A friend at the cage can enter its arrows' },
+  gaps: { a: 6, name: 'Thin gaps', built: true, min: 1, banner: 'A wall with one gap: stay in it' },
   grid: { a: 7, name: 'Laser grid', min: 1, banner: 'Beams that blink on and off' },
   rings: { a: 8, name: 'Bullet rings', min: 1, banner: 'Rings with gaps in them' },
-  safezone: { a: 9, name: 'Moving safe zone', min: 1, banner: 'The safe spot moves' },
+  safezone: { a: 9, name: 'Moving safe zone', built: true, loop: true, min: 1, banner: 'The safe spot moves' },
   late: { a: 10, name: 'Late tells', min: 1, banner: 'Watch the boss, not the floor' },
+  headswap: { a: 0, name: 'Head Swap', built: true, loop: true, min: 1, banner: 'Two heads rear: watch which one glows' },
+  hunt: { a: 0, name: 'The Hunt', built: true, loop: true, min: 1, banner: 'Hunted! The sons run at the two farthest apart' },
   feint: { a: 11, name: 'Fake-outs', min: 1, banner: 'Not every wind-up lands when you think' },
   lava: { a: 12, name: 'Floor is lava', min: 1, banner: 'The floor heats up in waves' },
-  double: { a: 13, name: 'Two at once', min: 1, banner: 'Two moves at once' },
+  double: { a: 13, name: 'Two at once', built: true, loop: true, min: 1, banner: 'Two moves at once' },
   jobs: { a: 14, name: 'Adds with jobs', min: 1, banner: 'Some of these adds matter more than others' },
-  arena: { a: 15, name: 'Moving arena', min: 1, banner: 'The floor itself moves' },
-  dark: { a: 16, name: 'Darkness', min: 1, banner: 'The lights go out' },
+  arena: { a: 15, name: 'Moving arena', built: true, min: 1, banner: 'The ledges sink! Find one that holds' },
+  dark: { a: 16, name: 'Darkness', built: true, min: 1, banner: 'The lights go out' },
   swap: { a: 17, name: 'Controls swap', built: true, min: 1, banner: 'Turned around! Left is right for a few seconds' },
-  tether: { a: 18, name: 'Tethers', min: 2, banner: 'Chained together! Stay close' },
+  tether: { a: 18, name: 'Tethers', built: true, min: 2, banner: 'Chained together! Stay close' },
   punish: { a: 19, name: 'Punish window', min: 1, banner: 'It missed everyone: hit it now' },
-  parry: { a: 20, name: 'Parry', min: 1, banner: 'A glowing hit: attack right as it lands' },
+  parry: { a: 20, name: 'Parry', built: true, min: 1, banner: 'A glowing hit: attack right as it lands' },
   airweak: { a: 21, name: 'Weak spot mid-air', min: 1, banner: 'A weak spot up high' },
   carry: { a: 22, name: 'Carry the thing', min: 1, banner: 'Something to pick up' },
-  lock: { a: 23, name: 'Group key-lock', min: 2, banner: 'Everyone enter the arrows together' },
+  lock: { a: 23, name: 'Group key-lock', built: true, min: 2, banner: 'Everyone enter the arrows together' },
 };
 
 // The four arrows of a combo: the bound Left / Right / Jump / Down keys (rebinding works: docs/ui/keybinds.md)
@@ -57,6 +62,72 @@ export const SWAP_SPEED = 330; // px/s
 export const SWAP_R = 13; // the orb's radius
 export const SWAP_HIT = 0.6; // × ATK
 export const SWAP_KNOCK = 220;
+
+// ——— T1a's types (story/tricky-plan.md: the top and final bosses of Greenhollow and Frostpeak) ———
+// Every trap below sets `tr` like the snare (a predicted edit at the hit's input); TRAP_MAX is the longest a counted
+// one can last (a u8 of ticks below TRAP_HOLD).
+export const TRAP_MAX = TRAP_HOLD - 1;
+
+// A3, the rhythm lock (Fenrir's fetters, Gleipnir): a snare whose arrows only count on the beat. Beats every RHYTHM_BEAT
+// s from the moment you're caught (rings pulse in to each); a press more than RHYTHM_WINDOW s off a beat is wrong (the
+// combo starts over). The server checks the order and that the whole combo took at least (len - 1) beats, less
+// RHYTHM_SLACK_MS (it can't see the timing itself). Held at most RHYTHM_S.
+export const RHYTHM_BEAT = 0.5, RHYTHM_WINDOW = 0.14, RHYTHM_S = 4.2, RHYTHM_SLACK_MS = 350;
+export const RHYTHM_TICKS = Math.min(TRAP_MAX, Math.round(RHYTHM_S * 60));
+export const rhythmLen = (lvl) => snareLen(lvl) - 1; // (one arrow fewer than a snare: each one waits for its beat)
+
+// A5, the rescue cage (party: 2+ fighting): a cage drops on one slime (marked CAGE_WARN on the floor and over it, CAGE_R
+// either side); caught, it's held until freed (`tr` = TRAP_HOLD) and can't enter its own arrows: a friend within
+// RESCUE_R of it enters them (its combo shows over the cage to everyone else). Not freed in CAGE_S: knocked out (the S5
+// rule: a party mechanic may be deadly).
+export const CAGE_WARN = 1.6, CAGE_R = 52, CAGE_S = 12, RESCUE_R = 120, CAGE_HIT = 0.4;
+
+// A6, thin gaps (Fenrir's Howl brings the roof's ice down): ice falls along the whole den but one gap GAP_W wide, its
+// middle at gapX(h, t): from x0 at a steady v px/s (0 in the phase that teaches it). Warned GAPS_WARN, falling GAPS_LIVE;
+// anyone whose middle is past GAP_W / 2 - GAP_GRACE from the gap's middle is hit (Dash's i-frames skip it, as ever).
+export const GAPS_WARN = 1.8, GAPS_LIVE = 0.9, GAP_W = 84, GAP_GRACE = 12, GAP_SLIDE = 150, GAPS_HIT = 1.3;
+export const gapX = (h, t) => h.x0 + h.v * Math.max(0, t - h.from);
+
+// A9, the moving safe zone (Ladon's Hundred Heads from phase 3): each gap shrinks from HUNDRED_GAP_W to SAFE_SHRINK_W
+// and drifts up to SAFE_DRIFT px while it warns; judged where it ends (u.to).
+export const SAFE_SHRINK_W = 64, SAFE_DRIFT = 110;
+export const gapsAt = (from, to, k) => from.map(([a, b], i) => [a + (to[i][0] - a) * k, b + (to[i][1] - b) * k]);
+
+// A13, two at once (Ladon from phase 2): a Lash or the Rows comes with a Bite from another head, DOUBLE_DELAY s in.
+export const DOUBLE_DELAY = 0.5;
+// Head Swap (Ladon, phase 3 on): two heads rear at two marks, the real one's eyes lit; HEADSWAP_AT of the way through
+// the wind-up they trade marks (each turns to the other's). The lit one bites; the other pulls back.
+export const HEADSWAP_AT = 0.5, HEADSWAP_SPREAD = 260;
+
+// A15, the moving arena (the Root Warden): roots drag ledges (indices in the room's platforms) down into the floor for
+// ARENA_S after ARENA_WARN (they shake meanwhile), then raise them again. On the slime it's `pf` (sim.js): a mask of
+// the platforms that are down for it, set by predicted edits as each client's clock passes the schedule ({t:'pf'}).
+// From its phase 2 the floor's roots strike while they're down (a grid ARENA_GRID_AT s after they sink).
+export const ARENA_WARN = 1.5, ARENA_S = 6, ARENA_SINK = 0.35, ARENA_GRID_AT = 1.2;
+
+// A16, darkness (Fenrir, phase 2 on): DARK_S of black but a light round each slime (DARK_R) and the boss's eyes; the
+// moves go on in it.
+export const DARK_S = 7, DARK_R = 95;
+
+// A18, tethers (party: 2+; Sigrun's chains of old ice): pairs of fighters (an odd one out is chained to the boss) for
+// TETHER_S; past TETHER_R apart it snaps: TETHER_HP of max HP to both (server-judged from positions, no knockback).
+export const TETHER_S = 10, TETHER_R = 280, TETHER_HP = 0.3, TETHER_WARN = 1;
+
+// A20, the parry (Sigrun's shield bash): her shield glows BASH_WARN[stage] s, then she drives it BASH_REACH px in front
+// (anyone low in it: BASH_HIT × ATK, BASH_KNOCK). Attack within PARRY_MS before it lands (or PARRY_LATE_MS after) while
+// in it: parried: no damage, she staggers PARRY_STAGGER_S and takes PARRY_REFLECT of her max HP (from you).
+export const BASH_WARN = [1.3, 1.05, 0.85], BASH_REACH = 230, BASH_H = 110, BASH_HIT = 1.6, BASH_KNOCK = 480;
+export const PARRY_MS = 260, PARRY_LATE_MS = 90, PARRY_STAGGER_S = 2.5, PARRY_REFLECT = 0.004;
+
+// A23, the group key-lock (party: 2+; the Root Warden's root shield): roots seize everyone at once (dodgeable like a
+// snare, LOCK_WARN); all those caught get the SAME arrows, and if every one of them is free within LOCK_S of the first,
+// the barrier breaks (a stagger). Out of step, or one too slow: it holds.
+export const LOCK_WARN = 1.3, LOCK_S = 2, LOCK_R = 70;
+
+// The Hunt (Fenrir, phase 3 on): Skoll and Hati each run at one of the two fighters farthest apart (alone: both at you)
+// for HUNT_S at HUNT_SPEED ×; if the brothers meet (within HUNT_CLASH px) they crash into each other: stunned
+// HUNT_STUN_S, HUNT_CLASH_HP of their max HP off each. Stay together and they collide.
+export const HUNT_S = 8, HUNT_SPEED = 1.7, HUNT_CLASH = 50, HUNT_STUN_S = 4, HUNT_CLASH_HP = 0.25;
 
 // How long the server keeps a challenge claimable after it should have landed (lag), ms
 export const CLAIM_SLACK_MS = 1500;

@@ -738,8 +738,12 @@ the moves instead (ideas go to the owner as a list to approve, `story/roadmap.md
   potions. Brenna's lone-Archer faint at 16:48 (E4b) is gone: it was the ultimate's flat hit.
 - **Challenges' downtime** (T0, `docs/combat/challenges.md`): `fight()` takes `up`, the share of a fight you're free to hit
   (`uptimeOf`: `UPTIME_DEN` / `UPTIME_TOP` for a boss whose `MOBS` row lists challenges in `ch`, else 1), and scales your own
-  hits by it (dots and summons keep going). No boss has `ch` yet, so nothing moved; as T1–T3 give bosses theirs, a boss
-  pushed out of its band gets its HP cut, never its rewards raised.
+  hits by it (dots and summons keep going). As T1–T3 give bosses theirs, a boss's HP is cut by the same share (the
+  `BOSS_HP_SCALE` loop in `src/shared/rpg.js` multiplies by `uptimeOf`), so its fight lasts what it did before: HP is the
+  lever, never its rewards. T1a (2026-11-10) gave the Root Warden, Ladon, Sigrun and Fenrir theirs: without the cut a
+  party of four took 34–38 min (out of `TOP_PARTY_MIN`, and Ladon and Fenrir past `FINAL_ENRAGE_MIN`); with it, 27–30,
+  within a minute of before. Rewards unchanged. The rings that are shares of the plain `hp` (head rings, anchors,
+  barriers, weak points) shrink with it, so they fill a fifth faster.
 
 ## How to price something new (since L2: in minutes of farming)
 1. Decide who it's for: the level (or stage) a player should be able to buy it at. That's its `aim`.

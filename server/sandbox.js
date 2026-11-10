@@ -243,13 +243,13 @@ export function createSandbox({ rpg, hooks, players, send, dbPath, livePath }) {
     sb.toast(p, `${list[which ?? 0].name}: as soon as it's free`);
   }
 
-  // Challenge now (T0, docs/combat/challenges.md): one of the built challenge types on this den's boss, at everyone in
-  // the den, whether or not the boss uses it yet
+  // Challenge now (docs/combat/challenges.md): one of the built challenge types on this den's boss, at everyone in the
+  // den, whether or not the boss uses it (not the ones that live inside a final boss's loop: `loop`)
   function chalNow(p, m) {
     const b = denBoss(m.kind);
     if (!b || b.dead) return;
     if (p.state.room !== b.room) return sb.toast(p, 'Go into its den first');
-    if (!CHALLENGES[m.type]?.built) return;
+    if (!CHALLENGES[m.type]?.built || CHALLENGES[m.type].loop) return;
     if (!sb.chalNow(b, m.type)) sb.toast(p, `${CHALLENGES[m.type].name}: nobody to aim it at`);
   }
 

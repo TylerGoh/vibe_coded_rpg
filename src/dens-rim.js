@@ -12,6 +12,7 @@
 import { H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { DEN_W, DEN_PLATFORMS, DEN_EXIT_X, DENS, MOBS, FIELD_GROUND, BOSS_RESPAWN_MS } from './shared/rpg.js';
 import { glow as radialGlow } from './glow.js';
+import { drawSunk } from './challenge.js';
 
 const GROUND = FIELD_GROUND;
 export const BRENNA_FREED_S = 7; // how long the freeing plays (the den's bossDie lasts this long)
@@ -152,7 +153,7 @@ function drawDenHoist(ctx, camX, viewW, time, den) {
   if (visible(HOIST_X - 160, HOIST_X + 220, L, R)) drawBigHoist(ctx, time);
   if (visible(DEN_EXIT_X - 90, DEN_EXIT_X + 90, L, R)) drawExit(ctx);
   if (visible(750 - 260, 750 + 260, L, R)) drawBanner(ctx, den?.name ?? "The Bearer's Hoist", 750, time);
-  DEN_PLATFORMS.forEach((p) => visible(p.x - 60, p.x + p.w + 60, L, R) && drawLedge(ctx, p));
+  DEN_PLATFORMS.forEach((p, i) => visible(p.x - 60, p.x + p.w + 60, L, R) && drawSunk(ctx, p, i, () => drawLedge(ctx, p))); // (drawSunk: a boss's moving arena, src/challenge.js)
   if (setDown && visible(freedX - 80, freedX + 80, L, R)) {
     ctx.save();
     ctx.translate(freedX, GROUND - 38);

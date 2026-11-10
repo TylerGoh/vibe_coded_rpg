@@ -450,6 +450,7 @@ function castSkill(id) {
   audio.unlock();
   if (SKILLS[id]?.kind === 'move') return pressMove(id);
   if (!rpg.cast(id, mine, mine.facing, net.seq, mine)) return;
+  rpg.chal.swung(); // (a boss's shield bash: attacking as it lands parries it, src/challenge.js)
   if (['strike', 'spin'].includes(SKILL_KIND(id))) mine.slap(mine.facing);
   if (SKILLS[id].flip) { // the Skirmisher's Backflip Volley: the hop is physics (sim.js step, FLIP), the arrows the skill
     moveBits |= FLIP;
@@ -844,13 +845,13 @@ const walkKeys = () => {
   return Array.from({ length: Math.max(l.length, r.length) }, (_, i) => [l[i], r[i]].filter(Boolean).join(' ')).filter(Boolean).join(' / ') || '—';
 };
 const TOUCH_CONTROLS = [['◀ ▶', 'walk'], ['Jump', 'jump (twice with Flash Jump)'], ['▼', 'drop through a platform'], ['E', 'doors, talk, read, use, waystones'],
-  ['Tap the game', 'slap · Hit attacks (hold it to keep attacking)'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['▼ then Dash', 'Hook (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Arrow pad', 'snared by a boss: tap the arrows shown (◀ ▶ Jump ▼ work too)'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree (Cast a skill from its card)'],
+  ['Tap the game', 'slap · Hit attacks (hold it to keep attacking)'], ['Dash, then Hit', 'Charge (Warrior) · Retreat Shot (Archer)'], ['▼ then Hit, in the air', 'Leap Slam (Warrior)'], ['▼ then Dash', 'Hook (Warrior)'], ['Jump then Hit, rising', 'Upward Cut (Warrior)'], ['Loot', 'pick things up'], ['Arrow pad', 'snared by a boss, or at a friend\'s cage: tap the arrows shown (◀ ▶ Jump ▼ work too)'], ['Hotbar', 'skills and potions'], ['Bag · Skills', 'your bag and skill tree (Cast a skill from its card)'],
   ['Players', "who's online, invite, message"], ['Chat', 'chat · /w name to whisper · /r to reply'], ['Decorate', 'in your own house'],
   ['Mic · Broadcast', 'talk to slimes nearby · to everyone'], ['Menu', 'this menu']];
 // the moves made of two keys, under the editor (they follow whatever the keys are)
 const comboControls = () => [['Click', 'slap · attack (hold to keep attacking)'], [`${kl('dash')} then ${kl('attack')}`, 'Charge (Warrior) · Retreat Shot (Archer)'],
   [`${kl('down')} + ${kl('attack')} in the air`, 'Leap Slam (Warrior)'], [`${kl('down')} + ${kl('dash')}`, 'Hook (Warrior)'], [`${kl('jump')} + ${kl('attack')}, rising`, 'Upward Cut (Warrior)'],
-  [`${kl('left')} ${kl('right')} ${kl('jump')} ${kl('down')}`, 'snared by a boss: the arrows shown (◀ ▶ ▲ ▼)'],
+  [`${kl('left')} ${kl('right')} ${kl('jump')} ${kl('down')}`, 'snared by a boss, or at a friend\'s cage: the arrows shown (◀ ▶ ▲ ▼)'],
   ['Double-click a skill', 'cast it from the skill tree'], ['Esc', 'this menu (always)']];
 function fillList(dl, rows) {
   dl.replaceChildren();
@@ -1009,6 +1010,7 @@ const weaponSound = (s) => ({ sword: 'swing', staff: 'staffBolt', bow: 'bowShot'
 function slapToward(dir, aimed = false) {
   if (performance.now() - lastSlap < SLAP_COOLDOWN_MS / (isCombat(room) && rpg.me ? attackSpeedOf(rpg.me) : 1) || splatted(mine) || net.me.tr) return; // (Chronos's weapons: faster; snared: no swinging)
   lastSlap = performance.now();
+  if (isCombat(room)) rpg.chal.swung(); // (a boss's shield bash: attacking as it lands parries it, src/challenge.js)
   const bow = isCombat(room) && ITEMS[rpg.me?.gear?.weapon]?.kind === 'bow';
   if (bow && !aimed && retreatOpen(net.me, -dir)) dir = -dir;
   const retreat = bow && retreatOpen(net.me, dir); // (the server makes the same call from its own state)

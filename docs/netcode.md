@@ -14,13 +14,16 @@ protocol is documented in the comment at the top of that file: keep it updated**
   and the Skirmisher's Backflip Volley), never by side-channel messages. Doors, rooms, Dash, Blink, Flash Jump, Leap
   Slam, Upward Cut, Hook and boss gear's movement all work this way. Per-player movement abilities ride in the state
   (`state.mv`, `state.mw`, `state.gx`) so prediction knows them too.
-- **Predicted state edits**: four things change your state from a client-decided event rather than an
-  input: a mob's knockback (`applyKick`, from `ouch`; a boss challenge's hit rides on it too, setting `tr` snared or `cs`
+- **Predicted state edits**: these change your state from a client-decided event rather than an
+  input: a mob's knockback (`applyKick`, from `ouch`; a boss challenge's hit rides on it too, setting `tr` trapped or `cs`
   controls swapped), a Warrior's Charge connecting (`applyCharge`, from a slap), a Hook cut short at its mob (`applyHook`,
-  SP2: the client says how many ticks the yank has left; the edit can only shorten it) and a snare's combo entered
-  (`net.free`, from `{t:'free'}`: `tr` cleared; `docs/combat/challenges.md`). The client stores the edit on that input's
-  `pending` entry (`[seq, keys, kick, charge, hook, free]`), applies it now and on every replay; the server applies the same edit
-  when it runs the message at that `s`. Charge and knockback are computed from the state alone (see
+  SP2: the client says how many ticks the yank has left; the edit can only shorten it), and `net.edit(seq, patch)`, a
+  patch of fields: a trap's combo entered (`net.free`, from `{t:'free'}`: `tr` cleared) and a boss's moving arena
+  sinking or raising ledges (`{t:'pf'}`: `pf`, as your clock passes the boss's schedule; T1a). Both in
+  `docs/combat/challenges.md`. The client stores the edit on that input's `pending` entry (`[seq, keys, kick, charge,
+  hook, edit]`), applies it now and on every replay; the server applies the same edit when it runs the message at that
+  `s`. One server-side edit is safe without prediction: a friend opening your rescue cage clears your `tr` (held, you
+  haven't moved, so the replay can't jerk). Charge and knockback are computed from the state alone (see
   `docs/combat/skills.md`).
 - **A chase move's message goes right after its input** (`net.afterInput`, flushed in `tick()` straight after
   `encodeInput`; `rpg.afterInput`). Sent before it, the server could run it before stepping that input (the
@@ -76,6 +79,10 @@ protocol is documented in the comment at the top of that file: keep it updated**
 - 2026-11-06: wire version 8 (boss challenges, T0: `docs/combat/challenges.md`): 53 bytes per slime: `tr` u8 (snared: ticks
   left, `TRAP_HOLD` = until freed) and `cs` u8 (controls swapped: ticks left); `pack` / `unpack` entries 26–27. `step()`
   reads both. `remotes()` passes them on so a friend's snare and swap are drawn. Older tabs get version 7's records.
+- 2026-11-10: wire version 9 (boss challenges, T1a: the moving arena): 54 bytes per slime: `pf` u8 (platforms sunk for
+  you, bit i = the room's platform i; `pack` / `unpack` entry 28). `step()` skips a sunk platform when landing; a door
+  clears it. Set only by `{t:'pf'}` (predicted, in input order); the server takes only bits a boss in your room has
+  sunk and clears them once nothing there has (`server/challenge.js`). Older tabs get version 8's records.
 - 2026-10-24 (the Archer, S4): no wire version change. Two more mob flags in the same byte (2048 marked by
   Hunter's Mark, 4096 netted; the 7 bits there hold up to 16384), Retreat Shot's rank in `mw` bits 6–7 (it was
   6 bits used of the byte), the slap echo's `retreat`, the skill's `mob` / echo's `mark`, and

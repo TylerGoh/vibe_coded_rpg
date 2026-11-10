@@ -10,6 +10,7 @@ import { audio } from './audio.js';
 import { MOBS, LADON_DEN, finalTag, GREEN_TOP, weakOf } from './shared/rpg.js';
 import { FIN_W, FIN_FLOOR, LADON_SLOTS, LADON_PLATFORMS, LADON_HIGH, headSpot, headTarget, throatOpen, isStump, inCoils, HEAD_R, HEAD_REACH, BITE_R, SWELL_S, onBitePath, BITE_PATH_R } from './shared/final.js';
 import { drawHead, drawStump, drawRing, drawCoilWall, drawEyes, drawHighArch, cane, glow, setLadonLook } from './dens-ladon.js';
+import { gapsAt } from './shared/challenge.js';
 
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const CARD_S = 5; // the title card's seconds (you can move all the while)
@@ -27,7 +28,8 @@ export class Final {
     this.rpg = rpg;
     this.st = null; // { id, ph, act, cw, enr, cuUntil, heads: [{ slot, st, fill, until, x }] }
     this.pos = new Map(); // slot → { x, y, a } as drawn (eased toward where the server says)
-    this.marks = []; // bite marks on the floor { x, at, end }
+    this.marks = []; // bite marks on the floor { x, at, end, slot, from, swap? }
+    this.decoys = new Map(); // slot → rpg.time it stops: Head Swap's other head (rearing, eyes dark: it won't bite)
     this.lit = new Map(); // slot → rpg.time its eyes lit (an act)
     this.cardAt = -99;
     this.inDen = false;
@@ -41,6 +43,7 @@ export class Final {
     this.hurt.clear();
     this.pos.clear();
     this.marks = [];
+    this.decoys.clear();
     this.lit.clear();
     this.cwShown = 0;
     setLadonLook({ enr: false, ph: 0 });
@@ -129,6 +132,11 @@ export class Final {
       this.marks.push({ x: m.tx, at: t, end: t + m.dur, slot: m.slot, from: headSpot({ slot: m.slot, st: 'rear' }) });
       this.lit.set(m.slot, t);
       audio.sfx('bossWarn', { pan, vol: 0.5 });
+    } else if (m.a === 'feint') {
+      // Head Swap's other head pulls back without biting (its mark goes)
+      this.marks = this.marks.filter((q) => q.x !== m.tx);
+      this.decoys.delete(m.slot);
+      return true;
     } else if (m.a === 'biteHit') {
       this.marks = this.marks.filter((q) => q.x !== m.tx);
       this.lit.delete(m.slot);
@@ -163,11 +171,24 @@ export class Final {
     } else return false;
     return true;
   }
-  // its ultimates going off (from Rpg.newUlt) → true if one of its own: Hundred Heads (stand in a gap) and Strangle
-  // (be on the high arch)
+  // Head Swap (T1a, src/challenge.js routes it here): two heads rear at two marks, a's eyes lit (the real one), b's
+  // dark; at m.at of the way through they trade aim (the server moves their x). Both marks look the same: the paths to
+  // them swap heads at the trade, so only the lit head tells which one lands.
+  headSwap(m) {
+    const t = this.rpg.time, swapAt = t + m.dur * m.at, end = t + m.dur;
+    const from = (slot) => headSpot({ slot, st: 'rear' });
+    this.marks.push({ x: m.ta, at: t, end, slot: m.a, from: from(m.a), swapAt, then: from(m.b) });
+    this.marks.push({ x: m.tb, at: t, end, slot: m.b, from: from(m.b), swapAt, then: from(m.a) });
+    this.lit.set(m.a, t);
+    this.decoys.set(m.b, end);
+    audio.sfx('bossWarn', { vol: 0.6 });
+    this.rpg.later(m.dur * m.at, () => audio.sfx('slashWarn', { vol: 0.6 }));
+  }
+  // its ultimates going off (from Rpg.newUlt) → true if one of its own: Hundred Heads (stand in a gap: where it ended
+  // up, m.to, once the gaps move from phase 3) and Strangle (be on the high arch)
   ult(m, me) {
     if (m.kind === 'heads') {
-      if (!(m.gaps ?? []).some(([a, b]) => me.x >= a && me.x <= b)) this.rpg.ouchNext = { mob: m.id, kind: 'ult', mx: me.x - 1, noDodge: true };
+      if (!(m.to ?? m.gaps ?? []).some(([a, b]) => me.x >= a && me.x <= b)) this.rpg.ouchNext = { mob: m.id, kind: 'ult', mx: me.x - 1, noDodge: true };
       audio.sfx('thornRain');
       return true;
     }
@@ -252,7 +273,9 @@ export class Final {
       ctx.strokeStyle = `rgba(255,120,120,${0.5 + 0.4 * pulse})`;
       ctx.lineWidth = 3;
       ctx.stroke();
-      // the head's way down: a band from where it rears to the mark (it hits everything on it)
+      // the head's way down: a band from where it rears to the mark (it hits everything on it; Head Swap's trade
+      // hands each mark to the other head)
+      if (q.swapAt !== undefined && t >= q.swapAt) [q.from, q.then, q.swapAt] = [q.then, q.from, undefined];
       if (q.from) {
         ctx.save();
         ctx.lineCap = 'round';
@@ -284,7 +307,8 @@ export class Final {
         continue;
       }
       // the acting head's eyes light first (its move's tell), then its jaw opens
-      const litAt = this.lit.get(h.slot), acting = h.st === 'rear' || h.st === 'gaze' || st.act === h.slot;
+      const decoy = (this.decoys.get(h.slot) ?? -1) > t; // (Head Swap's other head: rearing, but its eyes stay dark)
+      const litAt = this.lit.get(h.slot), acting = !decoy && (h.st === 'rear' || h.st === 'gaze' || st.act === h.slot);
       const lit = acting ? 1 : litAt !== undefined ? clamp(1 - (t - litAt) / 0.8, 0, 1) : 0.15;
       const throat = coil && h.st === 'up' && h.slot !== 0 ? 1 : 0;
       const jaw = h.st === 'bite' ? 0.35 : h.st === 'rear' ? 0.9 : throat ? 0.55 : acting ? 0.4 + 0.2 * Math.sin(t * 6) : 0.08 + 0.06 * Math.sin(t * 1.4 + h.slot);

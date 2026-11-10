@@ -24,7 +24,7 @@ export const LADON_BODY_X = FIN_W / 2; // the root knot at the back wall (the bo
 // at: the HP shares where phases 2, 3 and 4 start (four phases: PHASE_AT's FINAL row). heads: side heads at each
 // phase's start (stumps and sealed stumps all push through again). first: the phase the first head comes out of
 // the dark. ultEvery: s between ultimates in phases 1–3 (the first below ULT_FIRST; in phase 4 the loop holds
-// them). loops: each phase's written loop, run in order for ever: a move name, 'name:2' (every other loop), 'shield'
+// them). loops: each phase's written loop, run in order for ever: a move name ('swapbite': Head Swap, T1a), 'name:2' (every other loop), 'shield'
 // (bark and ward by turns), 'ult' (the two ultimates by turns from phase 3). brain: which brain runs it
 // (server/final.js: 'hydra', Ladon's heads and coils; server/fenrir.js: 'wolf', Fenrir's fetters and lanterns; FB2).
 export const FINAL = {
@@ -39,12 +39,13 @@ export const FINAL = {
     loops: [
       ['watch', 'bite', 'bite', 'bite', 'lash', 'bark:2'],
       ['watch', 'coil', 'bite', 'bite', 'rows', 'breath', 'ward:2'],
-      ['breath', 'watch', 'coil', 'bite', 'bite', 'bite', 'shield', 'lash'],
-      ['ult', 'watch', 'gaze', 'breath', 'storm', 'coil', 'both'],
+      ['breath', 'watch', 'coil', 'bite', 'swapbite', 'bite', 'shield', 'lash'],
+      ['ult', 'watch', 'gaze', 'breath', 'storm', 'swapbite', 'coil', 'both'],
     ],
   },
   // Fenrir, the Bound Wolf (FB2 (c), story/fb2-plan.md; its own constants: src/shared/fenrir.js). 'rime': Rime Coat
-  // (the armour), 'ward': Fetter Ward (the barrier), 'howl': the pulse, 'ice': Falling Ice, 'rear': Rearing (the shard)
+  // (the armour), 'ward': Fetter Ward (the barrier), 'howl': the pulse, 'ice': Falling Ice, 'rear': Rearing (the shard);
+  // T1a's challenges: 'fetter' (A3, the rhythm lock), 'blackout' (A16), 'gaps' (A6, a gap in the ice), 'hunt' (the Hunt)
   fenrir: {
     brain: 'wolf',
     at: [0.75, 0.5, 0.25],
@@ -52,10 +53,10 @@ export const FINAL = {
     ults: [{ name: 'Swallow the Light', kind: 'swallow' }, { name: 'Fimbulwinter', kind: 'fimbul' }],
     alternateFrom: 2,
     loops: [
-      ['watch', 'lunge', 'claw', 'claw', 'strain', 'rime:2'],
-      ['watch', 'lunge', 'strain', 'howl', 'breath', 'ward:2'],
-      ['howl', 'watch', 'lunge', 'strain', 'claw', 'claw', 'shield', 'breath'],
-      ['ult', 'watch', 'pounce', 'howl', 'ice', 'rear', 'both'],
+      ['watch', 'lunge', 'claw', 'claw', 'strain', 'fetter:2', 'rime:2'],
+      ['watch', 'lunge', 'strain', 'fetter', 'howl', 'blackout:2', 'breath', 'ward:2'],
+      ['howl', 'watch', 'lunge', 'hunt', 'strain', 'claw', 'gaps', 'claw', 'shield', 'breath', 'fetter'],
+      ['ult', 'watch', 'blackout', 'pounce', 'howl', 'gaps', 'ice', 'hunt', 'rear', 'both'],
     ],
   },
   // Typhon, the Buried Fire (E5 (c), story/e5-plan.md; its own constants: src/shared/typhon.js). 'glare': the focus,

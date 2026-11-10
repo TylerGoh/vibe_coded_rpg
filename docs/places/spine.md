@@ -65,3 +65,9 @@ Knotmole: only its line says so).
 - Loot: the Warden's Greatblade (or its twin, the Warden's Rootstaff) and the Wardenstone Helm, on the
   frozen curve a step above the Spine's mob gear; its pet is the mini Root Warden (`PETS`, priced between
   the Thorn Hart's and the Colossus's; `PETSHOP_W` was raised for it).
+
+- **Its challenges** (T1a, 2026-11-10: `docs/combat/challenges.md`): its roots sink the ledges (`arena`, A15: one in
+  phase 1, two and a root grid on the floor in phase 2, all but one and the whole floor in phase 3), and with 2+
+  fighting a cage drops on one of you from phase 2 (`cage`, A5: a friend enters its arrows) and its barrier comes with
+  the group key-lock (A23: everyone caught enters the same arrows within `LOCK_S` and it breaks). Its HP is `UPTIME_TOP`
+  of what it was (`docs/economy.md`).

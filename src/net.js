@@ -35,7 +35,7 @@ export class Net {
     this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime, onSandbox };
     this.id = null;
     this.me = newState(); // predicted state
-    this.pending = []; // [seq, keys, kick?, charge?, hook?, free?] not yet acknowledged
+    this.pending = []; // [seq, keys, kick?, charge?, hook?, edit?] not yet acknowledged
     this.afterInput = []; // messages to send right after this step's input (src/rpg.js hook / chase)
     this.seq = 0;
     this.snaps = []; // { tick, players: Map(id → state) }
@@ -186,12 +186,12 @@ export class Net {
     const before = { x: this.me.x, y: this.me.y };
     this.pending = this.pending.filter(([s]) => s > snap.ack);
     Object.assign(this.me, server); // (keeps this.me.home, which snapshots don't carry)
-    for (const [, k, kick, charge, hook, free] of this.pending) {
+    for (const [, k, kick, charge, hook, edit] of this.pending) {
       step(this.me, k);
       if (hook !== undefined) applyHook(this.me, hook); // a Hook cut short at its mob (the server's hook message does the same)
       if (kick) applyKick(this.me, kick); // a knockback we predicted at this step (the server applies it there too)
       if (charge) applyCharge(this.me); // a Charge that connected after this step (the server's slap does the same)
-      if (free) this.me.tr = 0; // a snare's combo entered after this step (the server's free does the same)
+      if (edit) Object.assign(this.me, edit); // a snare's combo entered, a ledge sunk, after this step (the server does the same)
     }
     // Ease any visible difference away over a few frames instead of popping.
     const dx = before.x - this.me.x, dy = before.y - this.me.y;
@@ -236,13 +236,17 @@ export class Net {
     if (seq === this.seq) applyCharge(this.me);
   }
 
-  // A snare's combo was entered, sent as {t:'free', s: seq} (the newest input): free now and on every replay, like a
-  // Charge. The server does the same when it runs that message, if the arrows were right
-  free(seq) {
+  // A predicted edit to our state after input `seq` (the newest: sent as a message carrying s: seq), made now and on
+  // every replay, like a Charge: a snare's combo entered ({t:'free'} → {tr: 0}), the platforms a boss's arena sank
+  // ({t:'pf'} → {pf}). The server makes the same edit when it runs that message (docs/combat/challenges.md)
+  edit(seq, patch) {
     const e = this.pending.find((p) => p[0] === seq);
     if (!e) return;
-    e[5] = true;
-    if (seq === this.seq) this.me.tr = 0;
+    e[5] = { ...e[5], ...patch };
+    if (seq === this.seq) Object.assign(this.me, patch);
+  }
+  free(seq) {
+    this.edit(seq, { tr: 0 });
   }
 
   // The server tick other slimes (and mobs) are being drawn at: INTERP ticks behind the newest

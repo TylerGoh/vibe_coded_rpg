@@ -9,6 +9,7 @@
 import { H, TAU, mulberry32, circle, ellipse, mix } from './util.js';
 import { DEN_W, DEN_PLATFORMS, DEN_EXIT_X, DENS, MOBS, FIELD_GROUND } from './shared/rpg.js';
 import { glow as radialGlow } from './glow.js';
+import { drawSunk } from './challenge.js';
 
 const GROUND = FIELD_GROUND;
 const GATE_X = DEN_W - 130; // the sealed gate, in the court's far wall
@@ -189,7 +190,7 @@ function drawDenWarden(ctx, camX, viewW, time, den) {
   }
   if (visible(DEN_EXIT_X - 90, DEN_EXIT_X + 90, L, R)) drawExit(ctx, time);
   if (visible(750 - 260, 750 + 260, L, R)) drawBanner(ctx, den?.name ?? "The Warden's Court", 750, time);
-  DEN_PLATFORMS.forEach((p, i) => visible(p.x - 60, p.x + p.w + 60, L, R) && drawLedge(ctx, p, i, time));
+  DEN_PLATFORMS.forEach((p, i) => visible(p.x - 60, p.x + p.w + 60, L, R) && drawSunk(ctx, p, i, () => drawLedge(ctx, p, i, time))); // (drawSunk: a boss's moving arena, src/challenge.js)
   ctx.restore();
 }
 
