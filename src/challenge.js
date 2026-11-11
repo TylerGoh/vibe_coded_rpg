@@ -1460,6 +1460,7 @@ const PAL = {
   sand: { body: '#c8a46a', crack: '#ff9a4a', glow: [255, 150, 70], pool: '230,190,120' },
   wax: { body: 'rgba(242,190,80,0.92)', crack: '#a8701c', glow: [255, 200, 80], pool: '255,214,110' }, // (the Hornet Queen's wax cell, T3)
   gullet: { body: '#2a2832', crack: '#ffd696', glow: [255, 214, 150], pool: '42,40,50' }, // (Old Gullet's jaws round you, the lights inside showing through: atlas Phase 8 L2)
+  peat: { body: '#3a2c20', crack: '#c8a060', glow: [200, 160, 96], pool: '58,44,32' }, // (the Sleeper in the Peat pulls you down into the peat with it: atlas Phase 8 L3)
 };
 function drawIron(ctx, x, y, h, t, left, style = 'iron') {
   const H = h * (0.45 + 0.2 * Math.min(1, left * 1.5)) * (style === 'ice' ? 1.6 : 1), W = 30, heat = Math.max(0, Math.min(1, left)), P = PAL[style] ?? PAL.iron;

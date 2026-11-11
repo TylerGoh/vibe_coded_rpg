@@ -144,4 +144,8 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 - The Hush's deck is the shared ship, the ferry's size; an eel-boat of her own size would need her own deck platforms.
 - Soot, Arne, Brine, Skaldi and Kestrel don't mention the Hush or the Fen yet (Runa and Ione do).
 - L1–L5 are on the roadmap: Firefly Hollow and the Drowned Grove (L1), the Still Mere (L2), the Sunk Barrows and the field
-  bosses (L3), the Causeway and Grandfather Mire (L4), the Wickmother (L5).
+  bosses (L3, done), the Causeway and Grandfather Mire (L4), the Wickmother (L5).
+- **L3 left for later:** the Will-Queen (the Causeway's field boss) comes with L4. The Bog Bloat's boglings aren't on the
+  sheet (it can't model `shed`), so its real fight is a little longer than the sheet's 2:56. The Sleeper "rising when you
+  near it" is drawn (asleep at full HP) rather than a new brain. No freed moments for field bosses. Nobody has seen the
+  Barrows' art by eye.

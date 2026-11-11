@@ -829,3 +829,22 @@ times the curve's ratio from 166 to 169; the sheet solos him in a median ~9:31 (
 Crab Lantern (Lv 168, 998k) is a rare drop on the helmet curve. His pet is 254k, between Long-Neck's (250k, Lv 166) and
 Typhon's (258k, Lv 170), so he's Lv 169, not 170. `PETSHOP_W` 5600 → 5750. `--check` green. (A first try named the crab's
 material `lamp_glass`, which overwrote Wreck Cave's 270-gold Lamp Glass and failed the check on the Lv 33 drowned lamp's gold.)
+
+## Lantern Fen, L3 (atlas Phase 8, 2026-11-11)
+The Sunk Barrows (`docs/places/barrows.md`, a hard pocket) put four mobs on the frozen curve: the grave lamp (171, HP 88%
+for a rooted shooter, like the lava drip), lantern leech (173, 95%), peat mound (175, 100%, a `split` mob) and barrow hound
+(177, 104%, a plain chaser); EXP 100%, gold 101% (coins read off the lamp crab's by the gold curve; materials on the
+ladder: Barrow Wick 1,670, Lantern Leech Skin 1,690, Barrow Peat 1,710, Old Collar 1,730). Two elites from `elite()`; the
+peat clod and the Bog Bloat's bogling are split-style minions, kept small and unchecked by the sheet. "Farming your own
+level" from 177 on picks the barrow hound: **gold earned by** Lv 170 ~13.21M (same), Lv 200 ~22.51M → ~22.29M; **play
+time** to Lv 200 37.0 h → 36.2 h (target 34.9 h); `rebirthCost` at 200 now 1.16× the sheet's hour of gold (was 1.24×).
+Below 177 nothing moved. Rare gear on the curve at its mob's level: the Bog-Iron Helm (`helmetPrice` at 175, 1.084M) and
+Barrowfang with its twins (`swordPrice` at 177, 1.465M).
+**Two field bosses**, modelled on Old Crucible by the curve (HP, atk, EXP and coins scaled from Lv 145): **the Bog Bloat**
+(the Shallows, Lv 158: written HP 3.4M, solo median ~2:56 on the sheet, a kill pays 1.56× / 1.70× a minute of its fight in
+farming gold / EXP, `FIELD_PAY`) and **the Sleeper in the Peat** (the Barrows, Lv 178: 4.04M, ~3:05, 1.48× / 1.62×). The
+sheet can't model the Bloat's `shed` (its boglings), so its real fight runs a little longer. Their gear a step over:
+the Bog-Iron Cleaver and twins (Lv 160, 1.193M) and Bloat Cap (904k); the Sleeper's Blade and twins (Lv 180, 1.516M) and
+Hood (1.147M), on the curve × `BOSS_GEAR.field`. Materials: Bloat Jelly 1,520, Bog Bronze 1,760. Pets by level: the mini
+Bog Bloat 249k (between the Colossus's 248k and Long-Neck's 250k), the mini Sleeper 282k (above Chronos's 270k, the
+dearest); `PETSHOP_W` 5750 → 6050. `--check` green on the first run.

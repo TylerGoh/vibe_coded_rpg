@@ -55,7 +55,9 @@ one shared corner feed).
   open (the willow sawn through, the water down) and gave Wren, Hob and Sedge the Sitting Stones and Long-Neck
   (`docs/places/grove.md`); the next phases' blocks (the barrows flooded, the Causeway sunk) they know too. L2 put Hob's punt
   back in the water and gave him a shop (his tier, aimed at Lv 165) and the Still Mere and Old Gullet in full; Wren knows
-  of Old Gullet, Netta and Sedge that Hob's poling again (`docs/places/stillmere.md`).
+  of Old Gullet, Netta and Sedge that Hob's poling again (`docs/places/stillmere.md`). L3 drained the barrows: all four
+  know (Wren of the Sleeper and the untagged lantern, Hob of his ancestor's niche, Sedge of the bog-iron in the peat) and
+  of the Bog Bloat in the Shallows (`docs/places/barrows.md`); the Causeway is still sunk.
   **Atlas Phase 7 (story progress, `docs/social/story.md`)**: a character with a `lore` cap gets the canon up to the
   asking slime's lore tier (from its story record); Mochi and Clio have cap 4 and know it themselves; since (c) every
   island's people have their island's tier as a cap, as hearsay (Greenhollow 1, Frostpeak 2, Emberdeep 3; Kestrel,

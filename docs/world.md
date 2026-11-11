@@ -24,7 +24,8 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Wickmere | 70 `WICKMERE` | the Hush's gangway (`WICK_DOCK_X`, boards `FEN_HOME`) · your house (`WICK_HOME_X`) · Hob's punt to the Still Mere (`STILLMERE_GATE_X`, since L2) · the boardwalk's east end into the Shallows (`WICK_EXIT_X`) (`docs/places/fen.md`) |
 | The Shallows | 73 `SHALLOWS` | back to Wickmere (west end) · the side path to Firefly Hollow (`FIREFLY_GATE_X`) · the boardwalk on into the Drowned Grove (`GROVE_GATE_X`, east end) (`docs/places/shallows.md`) |
 | Firefly Hollow | 74 `FIREFLY` | back to the Shallows (west end) (`docs/places/firefly.md`) |
-| The Drowned Grove | 75 `GROVE` | back to the Shallows (west end) · Long-Neck's den (`HERON_DEN_X`, room 76 `HERON_DEN`); the Sunk Barrows and the Lantern Causeway are gates (`docs/places/grove.md`) |
+| The Drowned Grove | 75 `GROVE` | back to the Shallows (west end) · down under the lintel into the Sunk Barrows (`BARROWS_GATE_X`, since L3) · Long-Neck's den (`HERON_DEN_X`, room 76 `HERON_DEN`); the Lantern Causeway is a gate (`docs/places/grove.md`) |
+| The Sunk Barrows | 79 `BARROWS` | back up the Lintel Steps to the Grove (west end); the Peat Barrows' way down is a gate (`PEAT_GATE_X`) (`docs/places/barrows.md`) |
 | The Still Mere | 77 `STILLMERE` | Hob's punt back to Wickmere (west end) · Old Gullet's den (`GULLET_DEN_X`, room 78 `GULLET_DEN`) (`docs/places/stillmere.md`) |
 | The Skydocks | 69 `SKYDOCKS` | the plank back to the camp (west end) · the loading ramp up into the Aether Citadel (`SKYDOCKS_RAMP_X`, at the ramp's foot) (`docs/places/skydocks.md`) |
 | Greenhollow's East Cliffs | 20 `CLIFFS` | back into the Wildwood (west end); a vista, no mobs (`docs/places/cliffs.md`) |

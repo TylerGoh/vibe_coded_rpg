@@ -271,6 +271,8 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | Old Gullet (den, 169; atlas Phase 8 L2) | weakpoint (the shard among the lights in his belly), pulse (the pit's cold breath), interrupt | the S5.2 crystal; the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
 | Hundredfoot (field, 125; E2) | armour, pulse (the heat) | Ignis's basalt plates (`looks.shell: 'cinder'`): its clinker closing up; Ignis's ember rings, "HEAT" (`looks.pulse: 'heat'`) |
 | The Brimstone Condor (field, 140; E3a) | focus, pulse (a gust of fumes) | the Colossus's steam rings (`looks.pulse: 'steam'`): its wingbeats whipping up the fumes |
+| The Bog Bloat (field, 158; atlas Phase 8 L3) | adds (boglings, its `minion`), focus | its boglings (on top of the ones it sheds as it's hit: `shed`, `docs/places/barrows.md`) |
+| The Sleeper in the Peat (field, 178; L3) | focus, pulse (the barrow's cold breath) | the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
 | Old Crucible (field, 145; E3b) | armour, curse (smouldering) | Ignis's basalt plates (`looks.shell: 'cinder'`): the slag on its skin setting; Pyra's charred sigil (`looks.curse: 'ember'`): its splashes of metal |
 | Greyback (field, 130; E1) | focus, curse (smouldering) | Pyra's charred sigil (`looks.curse: 'ember'`): his burning logs leave you smouldering |
 | Chronos, Keeper of Hours (den, `top`, 170) | barrier, curse (borrowed time), interrupt | a gold dome with hour marks and two clock hands turning inside (`looks.dome: 'hours'`); a dial of gold light on the floor, its hand sweeping round (`looks.curse: 'hours'`) |

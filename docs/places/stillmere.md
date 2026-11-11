@@ -42,7 +42,7 @@ West to east (`STILLMERE_ZONES`):
 - **The hidden spot** (last in `STILLMERE_PLATFORMS`): an old eel-trap stake standing up out of the mist off the first
   staging, a lantern tied to it whose tag the weather has washed blank. Nobody knows whose; somebody keeps it lit.
 
-## Its mobs (on the frozen curve; no elites, no field boss until L3)
+## Its mobs (on the frozen curve; no elites, no field boss)
 - **Mist shade** (161): the mere's mist got up into a hooded shape, faceless but for two pale eyes; it thins to nothing and
   comes back with a cold pulse (`phase`, like the Grove's wisps but slower and wider).
 - **Mere eel** (164): a long black eel along the bottom of the shallows; it goes under (only a fin and a ring show) and

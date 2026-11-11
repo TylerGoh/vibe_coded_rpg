@@ -81,6 +81,9 @@ export const BOWS = {
   greywing_bow: { len: 34, wood: ['#a8acb4', '#5e626c'], w: 3.4, tip: 'feather', c: '#3a3e46', grip: '#e8b040', string: '#e4e6ea', glow: '200,215,235' }, // (Long-Neck's: a heron's spread wing)
   decoy_bow: { len: 30, wood: ['#c8a870', '#8a6a48'], w: 3, tip: 'reed', c: '#6a5a42', grip: '#e8b040', string: '#e0d8c8', glow: '255,214,150' }, // (Hob's: willow, a carved duck in the grip)
   eelbone_bow: { len: 34, wood: ['#efe6d0', '#a89a78'], w: 3.4, tip: 'fang', c: '#2a2832', grip: '#2a2832', gem: '#ffd696', string: '#c8c0d8', glow: '255,214,150', curve: 0.42 }, // (Old Gullet's: the old eel's spine)
+  bogwood_bow: { len: 32, wood: ['#3a3026', '#1a1612'], w: 3.6, tip: 'reed', c: '#6e8a4e', grip: '#6a5640', gem: '#c8b890', string: '#a8a080', glow: '200,180,120' }, // (the Bog Bloat's: bog-oak bound in dried weed)
+  barrowfang_bow: { len: 30, wood: ['#3a2c20', '#1e1610'], w: 3.2, tip: 'fang', c: '#c8a060', grip: '#5a4430', gem: '#d8b070', string: '#c8b8a0', glow: '220,180,110', curve: 0.44 }, // (a hound's bronze tooth at each tip)
+  peatyew_bow: { len: 35, wood: ['#7a5a3a', '#4a3422'], w: 3.4, tip: 'rivet', c: '#a8783a', grip: '#a8783a', gem: '#ffd696', string: '#d8ccb0', glow: '255,214,150', curve: 0.38 }, // (the Sleeper's: yew the bog kept, bronze wire)
   wicker_bow: { len: 30, wood: ['#c8b890', '#7e7058'], w: 3, tip: 'reed', c: '#8a7aa8', grip: '#9a8a62', string: '#e0d8c8', glow: '214,190,255' }, // (Sedge's: willow staves bound in split reed)
   kitetalon_bow: { len: 30, wood: ['#9a8a5a', '#5a4e30'], w: 3.2, tip: 'fang', c: '#2a2426', grip: '#6a4a30', gem: '#ffd040', string: '#d8ccb0', glow: '255,220,100', curve: 0.46 },
   condor_bow: { len: 34, wood: ['#4a4448', '#24202a'], w: 4, tip: 'feather', c: '#7a7278', c2: '#c8c0b8', grip: '#6a5a48', gem: '#ffd060', string: '#c8bca8', glow: '255,214,120', curve: 0.36 },

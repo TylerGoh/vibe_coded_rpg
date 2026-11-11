@@ -27,9 +27,10 @@ West to east (`GROVE_ZONES`):
   water, a figure on its face setting a light on the water and the light cut again smaller and smaller as it goes. Someone
   has tied a lantern to it, tag turned in. The Fen adds no canon tier, so it says no more than Tier 1 and leans on the
   island's own theme (letting go).
-- **The Root Halls** (159–163): roots in great arches. **The Sunk Barrows' way in** (`BARROWS_GATE_X`, a gate, L3): a
-  low green mound, a stone doorway with a lantern cut in its lintel, its passage full of black water to the lintel and
-  something lit down under it.
+- **The Root Halls** (159–163): roots in great arches. **The Sunk Barrows' way in** (`BARROWS_GATE_X`): a low green
+  mound, a stone doorway with a lantern cut in its lintel. Until L3 its passage was full of black water to the lintel with
+  something lit down under it (a gate); L3 let the water down (`drawBarrowMouth`'s open look: wet steps going down, a weed
+  line just under the lintel, a lantern far down the passage), and its door is in `ROOMS[GROVE]` (`docs/places/barrows.md`).
 - **The Heronry** (163–166): nest rocks streaked white, dead trees with herons' nests in their forks. **Long-Neck's den**
   opens at `HERON_DEN_X`: a gap between two great drowned willow roots, nest stones heaped in its mouth, grey feathers
   caught on the bark, and now and then a long grey neck rising over the reeds behind it to look out.
@@ -39,7 +40,7 @@ West to east (`GROVE_ZONES`):
 - **The hidden spot** (last in `GROVE_PLATFORMS`): the high crook of the oldest willow, up off a bough in the Root Halls,
   a heron's moulted feathers lodged in it.
 
-## Its mobs (on the frozen curve; no elites, no field boss until L3)
+## Its mobs (on the frozen curve; no elites, no field boss: the Fen's field bosses are the Shallows' and the Barrows', L3)
 - **Will-o'-wisp** (157): a cold blue-white flame with eyes, drifting; it fades out and comes back with a pulse (`phase`).
 - **Reed stalker** (160): a great bittern striped like the reeds, neck stiff and bill to the sky; it levels the bill and
   lunges (`shell` with `cut: 0`, the black-ice wolf's lunge).

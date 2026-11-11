@@ -1424,6 +1424,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     let want = 0;
     for (let i = m.later.length - 1; i >= 0; i--) if (t >= m.later[i][0]) m.later.splice(i, 1)[0][1](); // timed follow-ups
     if (k.field && k.chf && !staggered && !frozen && !netted) fieldChal(m, k, here, t); // (T3: its challenges)
+    if (k.shed) shedTick(m, k, t); // (atlas Phase 8 L3: the Bog Bloat splits as it's hit)
     const ai = !k.boss && k.ai && !staggered ? mobAi(m, k, here, dt, t) : null;
     if (staggered && !k.boss) want = 0;
     else if (k.final) {
@@ -1742,6 +1743,25 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     } else if (type === 'rings') stand = 0.6 + RINGS_N[stage] * RING_EVERY;
     if (!chal.start(m, type, opts)) return;
     if (!stage) m.aiCd = Math.max(m.aiCd, stand); // (G1: nothing alongside while it's being taught)
+  }
+
+  // atlas Phase 8 L3: a field boss with `shed` ({ kind, n }) sheds n of kind every time its HP drops into a new third
+  // (fieldStage), aimed at whoever hit it last; back over two thirds (it heals when left alone, or it respawned), it
+  // starts again. Capped like a field boss's adds (FIELD_ADDS_MAX of its own minions at once)
+  function shedTick(m, k, t) {
+    const st = fieldStage(m);
+    if (st < (m.shedSt ?? 0)) m.shedSt = st;
+    if (st <= (m.shedSt ?? 0) || m.dead) return;
+    m.shedSt = st;
+    const n = Math.min(k.shed.n, FIELD_ADDS_MAX - ownMinions(m).length);
+    for (let i = 0; i < n; i++) {
+      const q = spawn({ id: nextMob++, sp: { kind: k.shed.kind, x0: m.sp.x0, x1: m.sp.x1, y: m.sp.y, room: m.room }, minion: true, by: m.id });
+      q.x = Math.max(m.sp.x0, Math.min(m.sp.x1, m.x + (i - (n - 1) / 2) * 70 + rand(-20, 20)));
+      q.target = m.target;
+      q.targetUntil = t + 8000;
+      mobs.push(q);
+    }
+    if (n > 0) bossEvent(m, 'summon');
   }
 
   // A19, the punish window: a big move from `from` that hit nobody (no accepted ouch from this boss since, PUNISH_JUDGE_MS

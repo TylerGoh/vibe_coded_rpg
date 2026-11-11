@@ -26,7 +26,7 @@ West to east (`SHALLOWS_ZONES`):
   across its top to stand on, its arms pointing at every island the fen folk know (GREENHOLLOW, FROSTPEAK, EMBERDEEP)
   and one pointing up with no name on it.
 
-## Its mobs (on the frozen curve; no elites, no field boss until L3)
+## Its mobs (on the frozen curve; no elites; the field boss, the Bog Bloat, came in L3)
 - **Lantern moth** (150): a big soft grey-violet moth with a light in its belly; passive, flutters over the reeds
   (`fly`). The fen folk say they're the dead's lanterns learning to fly.
 - **Bog slime** (152): the fen's own peat gone to jelly, slow and heavy; leaves a trail of stinging bog muck (`trail`,
@@ -35,6 +35,11 @@ West to east (`SHALLOWS_ZONES`):
 - **Mudskipper** (156): a goggle-eyed fish that runs at you across the mud on its fins, quick and low. Drops the Reed
   Hood now and then (very rarely).
 Materials: lamp dust, bog jelly, mire frog skin, mudskipper fins (`docs/economy.md`).
+
+## The Bog Bloat (field boss, Lv 158; L3)
+Wallows along the Sunken Boardwalk (its strip 3200–4400): a bog slime the size of a house, everything it has rolled over
+floating inside it. It splits as it's hit (boglings each third of its HP), spits rings of mud, and leaves bog muck behind
+it. Full write-up with the Sunk Barrows': `docs/places/barrows.md`.
 
 ## Its ways on (`LANTERN_FEN`, `docs/places/branches.md`; gates in L0, opened by L1)
 - **Firefly Hollow** (`FIREFLY_GATE_X`, kind `willowfall`, `docs/places/firefly.md`): until L1 a great willow lay across

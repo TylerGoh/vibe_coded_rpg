@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -78,7 +78,7 @@ export const EMBERDEEP = [
   { id: 'column', name: 'The Balloon', at: [640, 215], from: 'heart', entry: { room: CALDERA, x: BALLOON_X, kind: 'balloon' } },
 ];
 // Lantern Fen (atlas Phase 8: story/phase8-plan.md, L0 on): Wickmere, the Shallows, and every gate the next phases
-// lift (each with an in-world reason); places further in (the Sunk Barrows, the Causeway) are `past` until a room leads there
+// lift (each with an in-world reason); places further in are `past` until a room leads there
 export const LANTERN_FEN = [
   { id: 'wickmere', name: 'Wickmere', at: [130, 200], rooms: [WICKMERE], town: true },
   { id: 'shallows', name: 'The Shallows', band: '150–158', at: [290, 200], from: 'wickmere', rooms: [SHALLOWS] },
@@ -87,8 +87,10 @@ export const LANTERN_FEN = [
   { id: 'grove', name: 'The Drowned Grove', band: '156–166', at: [450, 200], from: 'shallows', rooms: [GROVE], entry: { room: SHALLOWS, x: GROVE_GATE_X, kind: 'floodwater' } },
   // L2: the mere went down and Hob's punt is in the water (the update did it)
   { id: 'stillmere', name: 'The Still Mere', band: '160–170', at: [130, 300], from: 'wickmere', rooms: [STILLMERE], entry: { room: WICKMERE, x: STILLMERE_GATE_X, kind: 'punt' } },
-  { id: 'barrows', name: 'The Sunk Barrows', band: '170–178', hard: true, at: [450, 300], from: 'grove', block: 'flooded to the lintel',
-    gate: { room: GROVE, x: BARROWS_GATE_X, kind: 'barrowmouth', look: 'look into the barrow', says: "The barrow's passage is full of black water to the lintel. Something down there is lit." } },
+  // L3: the water went down out of the barrow's passage (the update did it)
+  { id: 'barrows', name: 'The Sunk Barrows', band: '170–178', hard: true, at: [450, 300], from: 'grove', rooms: [BARROWS], entry: { room: GROVE, x: BARROWS_GATE_X, kind: 'barrowmouth' } },
+  { id: 'peat', name: 'The Peat Barrows', band: '175–180', hard: true, at: [600, 330], from: 'barrows', block: 'caved in',
+    gate: { room: BARROWS, x: PEAT_GATE_X, kind: 'peatfall', look: 'look down the old peat cuts', says: 'The peat cuts go on down, but the roof has come in. Lamplight shows through the cracks.' } },
   { id: 'causeway', name: 'The Lantern Causeway', band: '168–180', at: [610, 200], from: 'grove', block: 'its near end sunk',
     gate: { room: GROVE, x: CAUSEWAY_GATE_X, kind: 'sunkcauseway', look: 'look along the causeway', says: 'The causeway\'s near end has sunk under the mere. Its lamps go on, out of reach.' } },
 ];

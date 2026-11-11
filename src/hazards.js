@@ -129,6 +129,7 @@ const SHOT = {
   sulphur: { glow: '240,220,90', core: '#fffbd0', mid: '#ffe04a', rim: '#b08a1e' }, // the chimney spitter's glob of burning sulphur (the Brimstone Fields)
   molten: { glow: '255,150,60', core: '#fff6d0', mid: '#ffb040', rim: '#c84a1e' },
   mud: { glow: '150,130,90', core: '#c8b890', mid: '#6a5640', rim: '#3a2c22' }, // the mire frog's gobbet of bog mud (the Shallows, atlas Phase 8)
+  lampoil: { glow: '255,214,150', core: '#fffbe8', mid: '#ffd696', rim: '#a8743a' }, // the grave lamp's drop of burning lamp oil (the Sunk Barrows, atlas Phase 8 L3)
   swap: { glow: '190,140,255', core: '#ffffff', mid: '#c9a6ff', rim: '#6a3ea8' }, // a boss's controls-swap orb (src/challenge.js) // molten metal: the crucible newt's and Old Crucible's (the Old Foundry)
 };
 function drawShot(ctx, h, now) {

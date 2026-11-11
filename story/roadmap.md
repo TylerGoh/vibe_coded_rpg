@@ -149,9 +149,12 @@ No quests, no hard level gates.
         challenges from day one: late tells, the mire flood), the Sunk Stone, gates laid to the Sunk Barrows (L3) and the
         Lantern Causeway (L4) (`docs/places/firefly.md`, `docs/places/grove.md`). Unplayed.
   - [x] L2 (2026-11-11, live): the Still Mere (77, by Hob's punt, now afloat; Hob trades from it), Old Gullet and his den the
-        Eel Pit (78, challenges from day one: swallowed and the dark) (`docs/places/stillmere.md`). Unplayed. Next: **L3**
-        (the Sunk Barrows and the field bosses).
-  - [ ] L3–L4: the Sunk Barrows and the field bosses, the Causeway and Grandfather Mire. L5: the Wickmother.
+        Eel Pit (78, challenges from day one: swallowed and the dark) (`docs/places/stillmere.md`). Unplayed.
+  - [x] L3 (2026-11-11, live): the Sunk Barrows (79, a hard pocket off the Grove: grave lamps, lantern leeches, peat mounds,
+        barrow hounds, two elites, the nameless niche), the Sleeper in the Peat (field boss, late hands and the peat) and the
+        Shallows' Bog Bloat (field boss, sheds boglings as it's hit: `shed`); the Peat Barrows' gate laid early
+        (`docs/places/barrows.md`). Unplayed. Next: **L4** (the Causeway, Grandfather Mire, the Will-Queen).
+  - [ ] L4: the Causeway and Grandfather Mire (and the Will-Queen). L5: the Wickmother.
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

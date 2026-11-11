@@ -265,6 +265,9 @@ its HP in thirds (`fieldStage`).
     floor. `src/tubes.js` draws them through `drawSunk`.
   - **Greyback**: feint throws. **The Brimstone Condor**: rings of burning sulphur from above (`rings`, style `sulphur`).
   - **Old Crucible**: a gobbet of slag to throw back at it (`carry`, `looks.carry: 'slag'`; from behind, "FROM BEHIND!").
+  - **The Bog Bloat** (atlas Phase 8 L3, from day one): rings of mud gobbets (`rings`, style `mud`, the mire frog's shot).
+  - **The Sleeper in the Peat** (L3, from day one): late hands from its first third (`late`), and from its second it pulls
+    you down into the peat (`mash`, `PAL.peat`).
   - **The Sprout King and Mother Mushroom** (`bossBrain`): the gentle first meeting: a snare of three arrows (`snareLen`)
     from their phase 2, and the punish window.
 

@@ -71,7 +71,9 @@ art of its own is the **mini Typhon** (E5 (c2): `drawTyphonPet` in `src/typhon-a
 with its head up, its chest glowing gold-white; every few seconds it breathes in, puffs a smoke ring and watches it go.
 Priced between the Colossus's and Chronos's (the shop's top stays Chronos), it raised `PETSHOP_W` once more, and so did
 the mini Long-Neck (atlas Phase 8 L1, her art shrunk, between the Colossus's and Typhon's by level), and the mini Old
-Gullet (L2, his art shrunk, lights and all, between Long-Neck's and Typhon's: Lv 169, under Typhon's 170).
+Gullet (L2, his art shrunk, lights and all, between Long-Neck's and Typhon's: Lv 169, under Typhon's 170), and L3's two
+field bosses': the mini Bog Bloat (Lv 158, between the Colossus's and Long-Neck's) and the mini Sleeper in the Peat (Lv
+178, the dearest, above Chronos's), asleep under its peat as long as nothing hits it.
 
 ## Testing
 - `TEST_PET_FAST=1440` makes a full belly last 2 minutes (test servers only, never live).

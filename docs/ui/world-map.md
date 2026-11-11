@@ -26,7 +26,8 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
 - **Lantern Fen** (atlas Phase 8) is charted where the eastern fog was: a low violet island with meres, Wickmere's stilt
   houses at its west end, a thinner mist and the lights still flickering over it; the Hush's dashed route runs to it
   from Frostpeak. Its own map is `LANTERN_FEN` (`src/shared/branches.js`; `LOOK.fen`): Wickmere, the Shallows, Firefly Hollow
-  and the Drowned Grove (L1), the Still Mere (L2), and the Sunk Barrows and Causeway gated in the Grove (L1 gave them gates).
+  and the Drowned Grove (L1), the Still Mere (L2), the Sunk Barrows (L3), the Causeway gated in the Grove, and the Peat
+  Barrows gated in the Barrows (L3 laid it: "caved in").
 - Emberdeep's sub-label names Forgehold; it sits near the chart's bottom edge, so its "tap for its map" hint
   goes beside it, not under it.
 - Frostpeak shows Icefang Hamlet where the ferry comes in (turf huts, a fire) and the Queen's cracked ice

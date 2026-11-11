@@ -37,7 +37,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 5750; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) and the mini Old Gullet (L2): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 6050; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), and the mini Bog Bloat and Sleeper (L3): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -348,6 +348,38 @@ export const STILLMERE_PLATFORMS = [
   { x: 3800, y: 244, w: 140, kind: 'stones' },
   { x: 4560, y: 340, w: 170, kind: 'islet' },
   { x: 1745, y: 182, w: 80, kind: 'stake' }, // the old eel-trap stake, a blank-tagged lantern tied on: easy to miss
+];
+// ——— atlas Phase 8, L3: the Sunk Barrows (story/phase8-plan.md; docs/places/barrows.md) ———
+// The Sunk Barrows (room 79, a hard pocket): the fen folk's old burial mounds, off the Drowned Grove's Root Halls through
+// the passage under the lantern lintel (BARROWS_GATE_X: flooded to the lintel until L3, when the water went down out of
+// it). Dark and closed in: stone passages under turf roofs, roots through the ceiling, a niche in every wall with a
+// lantern in it. You come in at the WEST end, down the Lintel Steps (no mobs: the passage's wet steps, the water-line
+// high on the walls), and go east, deeper: the Niches, the Long Barrow, and the Peat Hall, the deepest mound, cut down
+// into the peat, where the Sleeper lies. At its far end the old peat cuts go on down to the Peat Barrows, caved in (a
+// gate, PEAT_GATE_X: L5's). The hidden spot (last in BARROWS_PLATFORMS): a niche high in the Long Barrow's wall with no
+// name cut over it, and a lantern in it with no tag, still lit. No waystone (a hard pocket), no trader.
+export const BARROWS = 79; // room id
+export const BARROWS_W = 4600;
+export const BARROWS_EXIT_X = 70; // back up the Lintel Steps to the Drowned Grove
+export const PEAT_GATE_X = BARROWS_W - 130; // the old peat cuts down to the Peat Barrows, caved in (L5)
+export const BARROWS_ZONES = [
+  { name: 'The Lintel Steps', x0: 0, x1: 560, lvl: null }, // (no mobs)
+  { name: 'The Niches', x0: 560, x1: 1800, lvl: '170–172' },
+  { name: 'The Long Barrow', x0: 1800, x1: 3100, lvl: '172–175' },
+  { name: 'The Peat Hall', x0: 3100, x1: BARROWS_W, lvl: '175–178' },
+];
+// burial shelves along the walls, fallen capstones, great roots through the roof; the nameless niche (hidden, last)
+export const BARROWS_PLATFORMS = [
+  { x: 700, y: 344, w: 180, kind: 'capstone' },
+  { x: 1030, y: 272, w: 170, kind: 'shelf' },
+  { x: 1450, y: 340, w: 200, kind: 'capstone' },
+  { x: 1980, y: 330, w: 200, kind: 'capstone' },
+  { x: 2350, y: 258, w: 180, kind: 'shelf' },
+  { x: 2760, y: 336, w: 190, kind: 'capstone' },
+  { x: 3300, y: 322, w: 200, kind: 'root' },
+  { x: 3760, y: 252, w: 170, kind: 'root' },
+  { x: 4180, y: 334, w: 180, kind: 'capstone' },
+  { x: 2395, y: 168, w: 90, kind: 'nameless' }, // a niche with no name over it, a lantern with no tag, still lit: easy to miss
 ];
 export const GUST_CYCLE = 540, GUST_WARN = 120, GUST_BLOW = 100; // (ticks)
 export const GUST_DOT = 0.05;
@@ -1203,6 +1235,7 @@ export const STAGES = {
   [FIREFLY]: { name: 'Firefly Hollow', zones: FIREFLY_ZONES, band: '150–155', pill: 'Firefly Hollow' }, // (L1)
   [GROVE]: { name: 'The Drowned Grove', zones: GROVE_ZONES, band: '156–166', pill: 'Drowned Grove' }, // (L1)
   [STILLMERE]: { name: 'The Still Mere', zones: STILLMERE_ZONES, band: '160–170', pill: 'Still Mere' }, // (L2)
+  [BARROWS]: { name: 'The Sunk Barrows', zones: BARROWS_ZONES, band: '170–178', hard: true, pill: 'Sunk Barrows' }, // (L3)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -2846,6 +2879,73 @@ MOBS.old_gullet = {
   drops: [['royal_sap', 1, 2, 3], ['gullet_tooth', 1, 1, 1], ['eelskin_cowl', 0.6, 1, 1], ['coin', 1, 257000, 388000], ['mega_elixir', 1, 4, 6], ['swallowed_lamp', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
+// ——— atlas Phase 8, L3: the Bog Bloat (the Shallows' field boss) and the Sunk Barrows (art: src/barrows-art.js;
+// docs/places/shallows.md, docs/places/barrows.md). On the frozen curve; elites only in the Barrows ———
+// The Bog Bloat: a field boss (small: no story), a bog slime that never stopped growing, as big as a hut, peat and weed
+// and old boards inside it, that wallows along the Sunken Boardwalk leaving a trail of stinging muck. Passive until hit.
+// It splits as it's hit: every third of its HP it sheds boglings (`shed`, server/rpg.js), and it spits rings of mud
+MOBS.bog_bloat = {
+  name: 'The Bog Bloat', field: true, lvl: 158, hp: 3400000, atk: 503, exp: 540000, speed: 36, w: 210, h: 150, aggro: false, hops: false,
+  ai: { kind: 'trail', every: 0.7, life: 4.5, w: 72, style: 'bog' },
+  shed: { kind: 'bogling', n: 3 }, minion: 'bogling',
+  // S5.4: with two or more on it, more boglings come off it (adds) and it picks one slime to roll at (focus)
+  party: ['adds', 'focus'], partyLive: true, looks: { rings: 'mud' },
+  // T3: rings of mud gobbets, a gap in each; the punish window as every field boss's
+  ch: ['rings'], chf: [['rings', 0]],
+  desc: 'The Bog Bloat has come up on the Sunken Boardwalk. The whole fen can smell it.',
+  drops: [['coin', 1, 66300, 95900], ['bloat_jelly', 1, 4, 8], ['bog_jelly', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['bloat_cleaver', 0.25, 1, 1], ['bloat_cap', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+// (a split minion: the economy sheet doesn't check these, so its EXP and gold stay small, like the slaglings)
+MOBS.bogling = {
+  name: 'Bogling', lvl: 155, hp: 2600, atk: 520, exp: 640, speed: 150, w: 28, h: 24, aggro: true, hops: true,
+  drops: [['coin', 1, 60, 115]],
+};
+// The Sunk Barrows: grave lamps are the dead's lanterns grown into the barrow walls, set fast and spitting burning lamp
+// oil (rooted, like the lava drip); lantern leeches are fat black leeches with a light inside them from all the lamp oil
+// they've drunk, and they come at you along the floor; peat mounds are heaps of the barrows' peat that got up and walk,
+// and break into clods when you break them; barrow hounds are the hounds buried with their masters, peat-dark and
+// still keeping the barrows, quick and low
+MOBS.grave_lamp = {
+  name: 'Grave Lamp', lvl: 171, hp: 23300, atk: 607, exp: 15926, speed: 0, w: 40, h: 66, aggro: true, hops: false, anchored: true,
+  ai: { kind: 'lob', range: 460, every: 2.6, keep: 0, warn: 0.55, style: 'lampoil' },
+  drops: [['coin', 1, 1438, 2161], ['barrow_wick', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1]],
+};
+MOBS.lantern_leech = {
+  name: 'Lantern Leech', lvl: 173, hp: 25570, atk: 616, exp: 16244, speed: 105, w: 60, h: 30, aggro: true, hops: false,
+  drops: [['coin', 1, 1459, 2193], ['leech_skin', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1]],
+};
+MOBS.peat_mound = {
+  name: 'Peat Mound', lvl: 175, hp: 27370, atk: 624, exp: 16565, speed: 42, w: 70, h: 72, aggro: true, hops: false,
+  ai: { kind: 'split', into: 'peat_clod', n: 2 },
+  drops: [['coin', 1, 1481, 2225], ['barrow_peat', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1], ['bogiron_helm', 0.004, 1, 1]],
+};
+// (a split minion, kept small like the bogling)
+MOBS.peat_clod = {
+  name: 'Peat Clod', lvl: 172, hp: 2900, atk: 600, exp: 700, speed: 140, w: 28, h: 24, aggro: true, hops: true,
+  drops: [['coin', 1, 65, 125]],
+};
+MOBS.barrow_hound = {
+  name: 'Barrow Hound', lvl: 177, hp: 28940, atk: 632, exp: 16888, speed: 118, w: 66, h: 50, aggro: true, hops: false,
+  drops: [['coin', 1, 1502, 2257], ['hound_collar', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1], ['barrowfang', 0.003, 1, 1]],
+};
+MOBS.mound_elite = elite('peat_mound', 'Great Peat Mound');
+MOBS.barrowhound_elite = elite('barrow_hound', 'Old Barrow Hound');
+// The Sleeper in the Peat: a field boss (small, and no story of its own: the plan's "slow and sad"), a great slime the
+// bog kept, brown as tea and gone leathery, curled asleep in the Peat Hall's floor under a blanket of peat with grave
+// goods round it. Passive until hit; then it gets up, slowly, and comes down again (a stomp). Its hands come down late
+// (`late`), and from its second third it pulls you down into the peat with it (`mash`, `looks.snare: 'peat'`)
+MOBS.peat_sleeper = {
+  name: 'The Sleeper in the Peat', field: true, lvl: 178, hp: 4040000, atk: 578, exp: 662000, speed: 32, w: 230, h: 150, aggro: false, hops: false,
+  ai: { kind: 'stomp', every: 3.6, warn: 1.1, r: 320, range: 340, jump: 500 },
+  // S5.4: with two or more on it, it turns to one slime at a time (focus), and the barrow's cold breathes out round it till
+  // it breaks (a pulse, the Narwhal's `breath`)
+  party: ['focus', 'pulse'], partyLive: true, looks: { pulse: 'breath', snare: 'peat' },
+  // T3: late hands, and from its second third the peat (a mash free); the punish window on a stomp that lands on nobody
+  ch: ['late', 'mash'], chf: [['late', 0], ['mash', 1]],
+  desc: 'The Sleeper in the Peat is awake in the Sunk Barrows. Something very old is getting up.',
+  drops: [['coin', 1, 77100, 111500], ['bog_bronze', 1, 4, 8], ['barrow_peat', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['sleeper_blade', 0.25, 1, 1], ['sleeper_hood', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -3066,6 +3166,7 @@ const onShPlat = onRoomPlat(SHALLOWS_PLATFORMS, SHALLOWS);
 const onFfPlat = onRoomPlat(FIREFLY_PLATFORMS, FIREFLY);
 const onGvPlat = onRoomPlat(GROVE_PLATFORMS, GROVE);
 const onSmPlat = onRoomPlat(STILLMERE_PLATFORMS, STILLMERE);
+const onBaPlat = onRoomPlat(BARROWS_PLATFORMS, BARROWS);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -3586,6 +3687,27 @@ export const SPAWNS = [
   ...onSmPlat('lamp_crab', 7, 1),
   ...onSmPlat('mere_eel', 8, 1),
   ...onSmPlat('lamp_crab', 9, 1),
+  // atlas Phase 8, L3: the Bog Bloat (the Shallows' Sunken Boardwalk) and the Sunk Barrows
+  { kind: 'bog_bloat', x0: 3200, x1: 4400, y: FIELD_GROUND, room: SHALLOWS },
+  ...strip('grave_lamp', 640, 1760, FIELD_GROUND, 3, BARROWS),
+  ...strip('lantern_leech', 640, 1760, FIELD_GROUND, 4, BARROWS),
+  ...onBaPlat('grave_lamp', 0, 1),
+  ...onBaPlat('lantern_leech', 1, 1),
+  ...onBaPlat('grave_lamp', 2, 1),
+  ...strip('lantern_leech', 1850, 3060, FIELD_GROUND, 3, BARROWS),
+  ...strip('peat_mound', 1850, 3060, FIELD_GROUND, 3, BARROWS),
+  ...strip('grave_lamp', 1850, 3060, FIELD_GROUND, 1, BARROWS),
+  ...onBaPlat('peat_mound', 3, 1),
+  ...onBaPlat('grave_lamp', 4, 1),
+  ...onBaPlat('lantern_leech', 5, 1),
+  { kind: 'mound_elite', x0: 2000, x1: 2900, y: FIELD_GROUND, room: BARROWS },
+  ...strip('peat_mound', 3150, 4400, FIELD_GROUND, 2, BARROWS),
+  ...strip('barrow_hound', 3150, 4400, FIELD_GROUND, 4, BARROWS),
+  ...onBaPlat('barrow_hound', 6, 1),
+  ...onBaPlat('grave_lamp', 7, 1),
+  ...onBaPlat('barrow_hound', 8, 1),
+  { kind: 'barrowhound_elite', x0: 3300, x1: 4300, y: FIELD_GROUND, room: BARROWS },
+  { kind: 'peat_sleeper', x0: 3400, x1: 4300, y: FIELD_GROUND, room: BARROWS },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -3999,6 +4121,19 @@ export const ITEMS = {
   mere_eelskin: { name: 'Mere Eelskin', price: 1600, kind: 'loot', desc: "A long strip of black eel hide, slick as wet slate. Wickmere's lantern-makers hinge their lantern doors with it: it never cracks." },
   crab_glass: { name: 'Crab Glass', price: 1640, kind: 'loot', desc: "A curved pane of lantern glass off a lamp crab's back, smoked dark inside. A name is scratched in one corner, too worn to read." },
   swallowed_lamp: { name: 'Swallowed Lamp', price: 1860, kind: 'loot', desc: 'A little lantern from inside Old Gullet, its tag long gone, still lit. It is warm, which a lantern from the bottom of a mere has no business being.' },
+  // atlas Phase 8, L3: the Bog Bloat (the Shallows) and the Sunk Barrows (docs/places/shallows.md, docs/places/barrows.md)
+  bloat_jelly: { name: 'Bloat Jelly', price: 1520, kind: 'loot', desc: "A wobbling lump of the Bog Bloat, brown and see-through, a bit of old boardwalk floating in it. It smells exactly as you'd think." },
+  bloat_cleaver: { name: 'Bog-Iron Cleaver', price: 1193000, lvl: 160, kind: 'sword', atk: 218, reach: 66, desc: 'A heavy cleaver of black bog-iron, found inside the Bog Bloat along with a great many other things. It has been cleaned. Mostly.' },
+  bloat_cap: { name: 'Bloat Cap', price: 904000, lvl: 160, kind: 'helmet', def: 107, desc: "A round cap of the Bog Bloat's own jelly, set hard and brown as old glass, a sprig of bog myrtle stuck in it for luck." },
+  barrow_wick: { name: 'Barrow Wick', price: 1670, kind: 'loot', desc: "A grave lamp's wick, black and long as your arm. It has been burning since before Wickmere had a name, and it is still warm." },
+  leech_skin: { name: 'Lantern Leech Skin', price: 1690, kind: 'loot', desc: "A lantern leech's skin, thin and black, with a little of the lamp oil it drank still glowing through it." },
+  barrow_peat: { name: 'Barrow Peat', price: 1710, kind: 'loot', desc: 'A brick of black peat from the old mounds, so old it has gone hard as wood. Things are kept in it. Things keep.' },
+  hound_collar: { name: 'Old Collar', price: 1730, kind: 'loot', desc: "A barrow hound's collar of plaited reed gone dark in the peat, a little bronze bell on it that doesn't ring any more." },
+  bog_bronze: { name: 'Bog Bronze', price: 1760, kind: 'loot', desc: 'A green scrap of bronze from the grave goods round the Sleeper: a pin, a ring, the rim of a bowl. Somebody was buried with care.' },
+  bogiron_helm: { name: 'Bog-Iron Helm', price: 1084000, lvl: 175, kind: 'helmet', def: 115, desc: 'A round helm of black bog-iron that came up out of a peat mound, a band of plaited reed round the rim. Whoever it was buried with, it kept.' },
+  barrowfang: { name: 'Barrowfang', price: 1465000, lvl: 177, kind: 'sword', atk: 234, reach: 62, desc: "A short dark bronze blade with a hooked point like a hound's tooth, out of a barrow hound's keeping. It comes in low and quiet." },
+  sleeper_blade: { name: "Sleeper's Blade", price: 1516000, lvl: 180, kind: 'sword', atk: 236, reach: 68, desc: 'A long leaf-shaped blade of old bronze, laid in the peat beside the Sleeper long ago. The bog kept it. It never rusted, it only went brown.' },
+  sleeper_hood: { name: "Sleeper's Hood", price: 1147000, lvl: 180, kind: 'helmet', def: 118, desc: "A hood of woven wool the peat has turned the colour of tea, a bronze pin at the throat. It is warm, and it smells of rain on a hill a long time ago." },
   nest_stone: { name: 'Nest Stone', price: 1830, kind: 'loot', desc: "A smooth grey pebble from Long-Neck's nest, worn round by being turned and turned. It is never quite warm, however long you hold it." },
   roc_feather: { name: 'Crag Roc Feather', price: 1445, kind: 'loot', desc: "A great dark flight feather, its shaft as thick as your finger, grey with the rim's dust. The wind tugs at it even indoors." },
   glassback_helm: { name: 'Glassback Helm', price: 700000, lvl: 141, kind: 'helmet', def: 97, desc: "An iron helm plated in a glass scorpion's black scutes, a curled sting for a crest. Forged for a wheel that never got it." },
@@ -4125,6 +4260,9 @@ export const ITEMS = {
   willow_staff: { name: 'Willow Staff', price: 265000, lvl: 151, aim: 155, kind: 'staff', magic: 209, mp: 124, reach: 60, twin: 'reedcutter', desc: 'A peeled willow wand as tall as you, a little lantern of frog-skin hung from its crook with a moth-light inside. It sways when you cast.' },
   punt_staff: { name: 'Punt-Pole Staff', price: 287000, lvl: 161, aim: 165, kind: 'staff', magic: 219, mp: 130, reach: 64, twin: 'boathook', desc: 'A punt pole cut down to staff height, its iron shoe worn bright, a lantern hung from a peg at the top. It knows the way across without being told.' },
   sunklamp_staff: { name: 'Sunken Lamp Staff', price: 1350000, lvl: 170, slots: 9, kind: 'staff', magic: 227, mp: 135, reach: 68, twin: 'gullet_tooth', desc: 'A staff of black bog-oak, a drowned lantern caged at its head, glowing from the inside. Its bolts come up from below, like bubbles.' },
+  bogglass_staff: { name: 'Bog-Glass Staff', price: 1193000, lvl: 160, kind: 'staff', magic: 218, mp: 131, reach: 66, twin: 'bloat_cleaver', desc: "A staff of black bog-oak with a ball of the Bog Bloat's jelly set hard at its head, something small and green still floating in it." },
+  barrowfang_staff: { name: 'Barrowfang Staff', price: 1465000, lvl: 177, kind: 'staff', magic: 234, mp: 140, reach: 62, twin: 'barrowfang', desc: "A dark rod of peat-oak with a hound's bronze tooth at its head. Its bolts run low and quiet." },
+  barrowoak_staff: { name: 'Barrow-Oak Staff', price: 1516000, lvl: 180, kind: 'staff', magic: 236, mp: 142, reach: 68, twin: 'sleeper_blade', desc: 'A staff of black oak from the roof of the Peat Hall, a little grave lamp hung at its head, still lit. Its bolts come slow, then all at once.' },
   stillwater_staff: { name: 'Stillwater Staff', price: 1300000, lvl: 167, slots: 9, kind: 'staff', magic: 224, mp: 134, reach: 68, twin: 'heron_bill', desc: "A tall grey staff, jointed like a heron's leg, a smooth nest stone held in its crook. Its bolts leave the air very still behind them." },
   kitetalon_staff: { name: 'Kitetalon Staff', price: 857000, lvl: 136, kind: 'staff', magic: 195, mp: 117, reach: 60, twin: 'kitetalon', desc: "An iron staff hooked at the head like a kite's foot, clutching a yellow crystal. Its bolts stoop on whatever they're aimed at." },
   pinion_staff: { name: 'Pinion Staff', price: 935000, lvl: 142, kind: 'staff', magic: 201, mp: 121, reach: 66, twin: 'condor_pinion', desc: 'A long iron staff with a fan of slag-iron feathers at its head, singed at the tips. A hot wind follows its bolts.' },
@@ -4213,6 +4351,9 @@ const BOW_LIST = [
   ['wicker_bow', 'reedcutter', 'Wicker Bow', "Three willow staves bound in split reed and strung with eel-gut. It bends like the reeds do in the wind, and doesn't break either."],
   ['decoy_bow', 'boathook', 'Decoy Bow', "A short willow bow with a carved duck set in its grip, the way Hob carves them. It shoots straight, and the duck looks very pleased about it."],
   ['eelbone_bow', 'gullet_tooth', 'Eelbone Bow', "A long bow of the old eel's spine, every little bone of it pale and fine, strung with eel-gut. It bends like something swimming."],
+  ['bogwood_bow', 'bloat_cleaver', 'Bogwood Bow', 'A bow of black bog-oak out of the Bog Bloat, bound with weed that has dried hard as wire. It draws heavy and lets go with a wet slap.'],
+  ['barrowfang_bow', 'barrowfang', 'Barrowfang Bow', "A short dark bow with a hound's bronze tooth at each tip. Its arrows fly low, like a hound running."],
+  ['peatyew_bow', 'sleeper_blade', 'Peat-Yew Bow', 'A long yew bow the bog kept, brown as tea, its grip bound in old bronze wire. Strung again after a very long time, it seems glad of it.'],
   ['greywing_bow', 'heron_bill', 'Greywing Bow', "A long bow of grey willow shaped like a heron's spread wing, fletched at the tips. It draws slow and looses all at once."],
 ];
 for (const [id, twin, name, desc] of BOW_LIST) {
