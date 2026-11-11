@@ -789,3 +789,10 @@ the moves instead (ideas go to the owner as a list to approve, `story/roadmap.md
 - **Ideas if gold keeps piling up** (not done, ask the owner first): sell boss gear for less than other
   items (its own sell rate), more prestige sinks (furniture colours, garden extras, cosmetics with a
   late-game price), or a gold cost on scroll re-tries.
+
+## Lantern Fen, L0 (atlas Phase 8, 2026-11-11)
+The owner put the Fen at Lv 150–180, past the Citadel. L0 adds the Shallows' four mobs on the frozen curve (lantern moth
+150, bog slime 152, mire frog 154, mudskipper 156; HP within `MOB_FIT`, the bog slime a little over the curve like the
+other `trail` mobs), their four materials (priced on the ladder above the Skydocks'), and Sedge's tier (the Reedcutter,
+Willow Staff, Wicker Bow and Reed Hood, `aim` 155, on the gear curve at Lv 151). No bosses yet. The sheet's checks pass;
+nothing older moved.

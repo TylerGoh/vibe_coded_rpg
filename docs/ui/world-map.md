@@ -20,8 +20,13 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
 - Slimeville is the apple tree, a few roofs and a small glowing dot for the Rebirth Pool beside the tree.
 - Greenhollow's east rim is drawn white: the east cliffs (`docs/places/cliffs.md`).
 - Aboard a crossing, `islandOf` says `'sea'` and the pin sits on the ferry's route, or `'straits'` aboard the
-  Lodestar, in the Steam Straits, or `'sky'` aboard the balloon, on its climb (`PINS`). The Skydocks camp and the
-  Skydocks are on the Citadel (`docs/places/skydocks.md`), whose sub-label names the camp. No Citadel island map yet.
+  Lodestar, in the Steam Straits, `'sky'` aboard the balloon, on its climb, or `'fenroute'` aboard the Hush, on her way
+  east (`PINS`). The Skydocks camp and the Skydocks are on the Citadel (`docs/places/skydocks.md`), whose sub-label
+  names the camp. No Citadel island map yet.
+- **Lantern Fen** (atlas Phase 8) is charted where the eastern fog was: a low violet island with meres, Wickmere's stilt
+  houses at its west end, a thinner mist and the lights still flickering over it; the Hush's dashed route runs to it
+  from Frostpeak. Its own map is `LANTERN_FEN` (`src/shared/branches.js`; `LOOK.fen`): Wickmere, the Shallows, the gated
+  Firefly Hollow, Drowned Grove and Still Mere, and the Sunk Barrows and Causeway dashed further in (`past`).
 - Emberdeep's sub-label names Forgehold; it sits near the chart's bottom edge, so its "tap for its map" hint
   goes beside it, not under it.
 - Frostpeak shows Icefang Hamlet where the ferry comes in (turf huts, a fire) and the Queen's cracked ice

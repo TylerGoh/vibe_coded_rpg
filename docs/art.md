@@ -27,4 +27,6 @@
   with glints, a slow half-solid wobble, no leaf (`src/fjord-art.js`; `docs/places/fjord.md`), and the forge
   folk of Emberdeep (`folk: 'forge'`): dark and dense, mid-dark rather than black so the face reads, ember
   flecks that pulse, a warm glow low down, the same stiff wobble, no leaf (`FORGE_PALETTE`, `drawForgeFolk`
-  in `src/forgehold-art.js`; `docs/places/forgehold.md`).
+  in `src/forgehold-art.js`; `docs/places/forgehold.md`), and Lantern Fen's fen folk (`folk: 'fen'`, atlas Phase 8):
+  pale see-through violet-grey with a soft warm light deep inside and a faint mist line, the same slow wobble
+  (`FEN_PALETTE`, `drawFenFolk` in `src/wickmere-art.js`; `docs/places/fen.md`).

@@ -96,6 +96,9 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    Loose bolts (plain hoppers), rigging moths (`dive`), mooring hooks (`stomp`). A room hazard: gusts across the plank
    gaps between the piers, on a cycle like the hot grates (`GUSTS`, `gustAt`). It replaced the skylift as the way into
    the Citadel.
+30. **The Shallows**: atlas Phase 8 (L0), Lantern Fen's first wilds, east off Wickmere (Lv 150–158, no trader, elites or
+   field boss; the Landing Stage is mob-free with a waystone) (`docs/places/shallows.md`). Lantern moths (passive,
+   flying), bog slimes (a `trail` of bog muck), mire frogs (`lob`, mud), mudskippers (fast hoppers).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

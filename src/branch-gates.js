@@ -69,7 +69,7 @@ export function drawEntries(ctx, room, ground, L, R, time) {
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { fallenwall: -178, rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, adit: 92, flue: -122, fumes: -130, balloon: -190, tubemouth: 130, bearerstair: 130 };
+const SIGN_AT = { fallenwall: -178, rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, adit: 92, flue: -122, fumes: -130, balloon: -190, tubemouth: 130, bearerstair: 130, willowfall: 150, floodwater: -150, punt: 128 };
 const SCALE = { bridge: 1.5, thorns: 1.15, balloon: 0.82 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -2372,7 +2372,7 @@ function drawBalloonUp(ctx, time) {
   ctx.fillRect(-10, gy + 6, 20, 38);
 }
 
-const DRAW = { tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair };
+const DRAW = { tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair, willowfall: drawWillowfall, floodwater: drawFloodwater, punt: drawPunt };
 // The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
 // going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
 // white rose petal or two drifting into it. The update itself split it: no quest
@@ -2617,3 +2617,191 @@ const OPEN = { flue: drawFlue, fallenwall: drawFallenWall, icestair: (ctx, time,
   lavatongue: (ctx, time, g) => drawLavaTongue(ctx, time, g, true), tubemouth: (ctx, time, g) => drawTubeMouth(ctx, time, g, true),
   fumes: (ctx, time, g) => drawFumes(ctx, time, g, true), bearerstair: (ctx, time, g) => drawBearerStair(ctx, time, g, true), balloon: drawBalloonUp,
   adit: (ctx, time, g) => drawAdit(ctx, time, g, true) };
+
+// ——— Lantern Fen's gates (atlas Phase 8, L0: story/phase8-plan.md; L1 and L2 lift them) ———
+// The side path to Firefly Hollow off the Shallows' Reedbeds: a great willow come down right across it, lying on its
+// side with its root plate torn up out of the peat, its long fronds hanging dead into the water, moss and a shelf of
+// pale fungus along the trunk. Too rotten to climb, too big to shift. A few fireflies on the far side
+function drawWillowfall(ctx, time) {
+  ctx.fillStyle = 'rgba(214,204,232,0.18)'; // the path beyond, going off into the mist
+  ctx.beginPath();
+  ctx.moveTo(-40, -6);
+  ctx.quadraticCurveTo(10, -40, 40, -70);
+  ctx.lineTo(70, -70);
+  ctx.quadraticCurveTo(40, -36, 40, -6);
+  ctx.closePath();
+  ctx.fill();
+  for (let i = 0; i < 6; i++) {
+    const a = time * 0.7 + i * 1.3;
+    ctx.fillStyle = `rgba(230,255,160,${0.35 + 0.35 * Math.sin(time * 3 + i * 2)})`;
+    circle(ctx, 30 + Math.sin(a) * 30, -80 + Math.cos(a * 1.3) * 14, 1.6);
+  }
+  // the root plate, torn up at the right
+  ctx.fillStyle = '#3e3028';
+  ctx.beginPath();
+  ctx.ellipse(118, -52, 34, 56, -0.15, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = '#2a2018';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let i = 0; i < 7; i++) {
+    const a = -1.2 + i * 0.45;
+    ctx.moveTo(118 + Math.cos(a) * 26, -52 + Math.sin(a) * 44);
+    ctx.quadraticCurveTo(118 + Math.cos(a) * 46, -52 + Math.sin(a) * 60, 118 + Math.cos(a + 0.2) * 52, -52 + Math.sin(a + 0.3) * 66);
+  }
+  ctx.stroke();
+  // the trunk, lying from the roots off to the left, low over the path
+  ctx.fillStyle = '#5a5048';
+  ctx.beginPath();
+  ctx.moveTo(110, -86);
+  ctx.quadraticCurveTo(0, -70, -150, -40);
+  ctx.lineTo(-150, -6);
+  ctx.quadraticCurveTo(0, -24, 110, -26);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(40,34,30,0.5)'; // its bark, deeply furrowed
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  for (let i = 0; i < 9; i++) {
+    const x = 90 - i * 26;
+    ctx.moveTo(x, -76 + i * 4);
+    ctx.lineTo(x - 18, -30 + i * 2);
+  }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(110,138,78,0.75)'; // moss along the top
+  for (let i = 0; i < 8; i++) ellipse(ctx, 80 - i * 28, -78 + i * 4.6, 14, 4);
+  ctx.fillStyle = '#e8e0cc'; // a shelf of pale fungus
+  for (const [fx, fy] of [[-20, -48], [-34, -44], [20, -56]]) ellipse(ctx, fx, fy, 9, 3);
+  ctx.strokeStyle = '#7a7a5a'; // dead fronds trailing into the water
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let i = 0; i < 14; i++) {
+    const x = -140 + i * 16, y = -42 + i * -2.4, sw = Math.sin(time * 0.6 + i) * 2;
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x - 4 + sw, y + 20, x - 2 + sw, -2);
+  }
+  ctx.stroke();
+}
+
+// The Drowned Grove's path at the Shallows' far end: the old boardwalk runs on east, but the water's risen over it,
+// up to its rails; posts and the rail's top stand out of a dark still sheet higher than the shallows round you, a
+// lantern post half drowned, its light still going under the water. Willows in the mist beyond
+function drawFloodwater(ctx, time) {
+  ctx.fillStyle = 'rgba(60,52,80,0.6)'; // willows beyond, in mist
+  for (const [x, r] of [[40, 50], [110, 64], [170, 46]]) {
+    ellipse(ctx, x, -150, r, r * 0.7);
+    ctx.fillRect(x - 4, -150, 8, 120);
+  }
+  ctx.fillStyle = 'rgba(214,204,232,0.25)';
+  ellipse(ctx, 90, -110, 160, 30);
+  // the risen water: a dark sheet from just east of here, its top well above the shallows
+  const top = -38 + Math.sin(time * 0.7) * 1.5;
+  const g = ctx.createLinearGradient(0, top, 0, 6);
+  g.addColorStop(0, 'rgba(90,80,120,0.95)');
+  g.addColorStop(1, 'rgba(36,30,52,0.98)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(-40, 6);
+  ctx.quadraticCurveTo(-30, top, 0, top);
+  ctx.lineTo(220, top);
+  ctx.lineTo(220, 6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(214,204,232,0.5)';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(-20, top + 2);
+  ctx.lineTo(220, top + 2);
+  ctx.stroke();
+  // the boardwalk's rail and post tops standing out of it
+  ctx.fillStyle = '#4a4058';
+  for (let x = 10; x < 220; x += 46) ctx.fillRect(x - 4, top - 22, 8, 24);
+  ctx.fillRect(4, top - 22, 216, 5);
+  ctx.strokeStyle = 'rgba(214,204,232,0.35)'; // rings round each post
+  ctx.lineWidth = 1;
+  for (let x = 10; x < 220; x += 46) {
+    const k = (time * 0.4 + x * 0.01) % 1;
+    ctx.beginPath();
+    ctx.ellipse(x, top + 2, 6 + k * 14, 1.5 + k * 2, 0, 0, TAU);
+    ctx.stroke();
+  }
+  // a lantern post, half drowned, its lantern still lit under the water
+  ctx.fillStyle = '#4a4058';
+  ctx.fillRect(-12, top - 70, 6, 70);
+  const lg = ctx.createRadialGradient(-6, top + 8, 2, -6, top + 8, 30);
+  lg.addColorStop(0, `rgba(255,214,150,${0.35 + 0.1 * Math.sin(time * 2)})`);
+  lg.addColorStop(1, 'rgba(255,214,150,0)');
+  ctx.fillStyle = lg;
+  ctx.fillRect(-36, top - 22, 60, 60);
+  ctx.fillStyle = 'rgba(255,226,168,0.6)';
+  ctx.fillRect(-10, top + 4, 8, 10);
+}
+
+// Hob's punt in Wickmere, drawn up on the boards: a long flat-bottomed boat of black planks, his pole laid along it,
+// an oiled cloth over the stern, a rope coiled, its little lantern hung on the bow unlit. The mere beyond is up to the
+// boardwalk's edge, lapping over it
+function drawPunt(ctx, time) {
+  const lap = Math.sin(time * 0.9) * 2; // the mere, high, lapping at the edge behind
+  ctx.fillStyle = 'rgba(80,70,110,0.7)';
+  ctx.beginPath();
+  ctx.moveTo(-130, -8 + lap);
+  ctx.quadraticCurveTo(0, -12 - lap, 130, -8 + lap);
+  ctx.lineTo(130, -2);
+  ctx.lineTo(-130, -2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#2e2a3a'; // the punt: low, square-ended, on two chocks
+  ctx.fillRect(-70, -6, 10, 6);
+  ctx.fillRect(60, -6, 10, 6);
+  ctx.beginPath();
+  ctx.moveTo(-100, -40);
+  ctx.lineTo(100, -40);
+  ctx.lineTo(92, -8);
+  ctx.lineTo(-92, -8);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#4a4058';
+  ctx.fillRect(-98, -42, 196, 5);
+  ctx.strokeStyle = 'rgba(122,110,138,0.6)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (const y of [-30, -20]) {
+    ctx.moveTo(-94, y);
+    ctx.lineTo(94, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#6a5a42'; // the oiled cloth over the stern
+  ctx.beginPath();
+  ctx.moveTo(-100, -42);
+  ctx.quadraticCurveTo(-70, -60, -30, -42);
+  ctx.lineTo(-40, -20);
+  ctx.lineTo(-96, -22);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#8a6a48'; // his pole, laid along it, past both ends
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(-130, -46);
+  ctx.lineTo(140, -50);
+  ctx.stroke();
+  ctx.strokeStyle = '#a89a78'; // a coil of rope
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.ellipse(60, -44, 14 - i * 3, 4 - i, 0, 0, TAU);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = '#3a3446'; // the bow lantern on its crook, unlit
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(96, -40);
+  ctx.lineTo(104, -80);
+  ctx.quadraticCurveTo(112, -86, 116, -76);
+  ctx.stroke();
+  ctx.fillStyle = '#2e2a3a';
+  ctx.beginPath();
+  ctx.roundRect(110, -74, 12, 16, 3);
+  ctx.fill();
+  ctx.fillStyle = '#6a6278';
+  ctx.fillRect(113, -71, 6, 10);
+}

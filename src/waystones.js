@@ -19,7 +19,8 @@ export function drawWaystones(ctx, room, ground, L, R, time, near, ways = []) {
 }
 
 // isle: Frostpeak's stones wear snow and rime where Greenhollow's wear moss; Emberdeep's are dusted with ash,
-// with glints of black glass and a warm crack low down; the Citadel's is wind-scoured, rimed and bolted down in brass
+// with glints of black glass and a warm crack low down; the Citadel's is wind-scoured, rimed and bolted down in brass;
+// Lantern Fen's is wet peat-dark with a slime tide line and a candle stub kept lit on top
 function drawStone(ctx, x, base, time, near, lit, isle = 'green') {
   const frost = isle === 'frost', ember = isle === 'ember';
   ctx.save();
@@ -105,6 +106,17 @@ function drawStone(ctx, x, base, time, near, lit, isle = 'green') {
       ctx.closePath();
       ctx.fill();
     }
+  } else if (isle === 'fen') {
+    // Lantern Fen's (atlas Phase 8): peat-dark and wet, a tide line of green slime a hand up from the foot, duckweed, and
+    // a stub of candle someone always keeps lit in a hollow on its top
+    ctx.fillStyle = 'rgba(70,96,60,0.55)';
+    ctx.fillRect(-27, -22, 53, 8);
+    ctx.fillStyle = 'rgba(120,160,90,0.8)';
+    for (const dx of [-20, -8, 4, 16]) ellipse(ctx, dx, -1, 6, 2.5);
+    ctx.fillStyle = '#e8e0c8';
+    ctx.fillRect(-4, -134, 6, 10);
+    ctx.fillStyle = `rgba(255,214,140,${0.6 + 0.3 * Math.sin(time * 5)})`;
+    ellipse(ctx, -1, -139, 2.4, 4.2);
   } else if (isle === 'citadel') {
     // the Citadel's (atlas Phase 6): wind-scoured smooth, a thin rime on the windward side, bolted to the pier by two
     // brass collars the Keepers put round it

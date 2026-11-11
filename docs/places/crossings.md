@@ -81,6 +81,16 @@ pin at sea in `src/worldmap.js`, Brine's and Arne's personas in
   of the slimes: cloud wisps under the gondola instead of water. Pilot Kestrel on both decks (`also`). Her door's card
   says Cast off (`go` on the door). Details: `docs/places/skydocks.md`.
 
+## The fen route (the Hush, atlas Phase 8)
+- `FEN_OUT` (room 71: Icefang Hamlet's quay, the lantern post at `FJORD_HUSH_X`, east to Wickmere's jetty, `WICK_DOCK_X`)
+  and `FEN_HOME` (72, back). Out is the slow one; both shorter than the Lodestar's (a side trip). The shared deck in the
+  Hush's look (`SHIPS.fen`: black hull, violet band, stove pipe, dun sail) plus a lantern on a pole at her bow
+  (`drawBowLantern`). The sea (`drawFenSea`, driven by `f`, how far toward the Fen): the aurora fading astern, the
+  water stilling and darkening to violet-black under a dusk sky and a low moon, mist through the middle, the dead's
+  lanterns adrift (more toward the Fen), lily pads and fireflies near the end; the Fen's coast is reeds, willows,
+  stilt houses with lit windows and Reedwater's jetty (`drawCoast`'s `fen`). Skipper Netta at the tiller on both decks
+  (`also`). Details: `docs/places/fen.md`.
+
 ## HUD, hints and phones
 - A pill at the top left: where she's bound, seconds to go (or "In at …"), who's aboard, and a thin track
   of the voyage. On phones it's narrower ("Ferry · …") so it clears the top buttons.

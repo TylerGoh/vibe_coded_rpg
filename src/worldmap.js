@@ -4,7 +4,7 @@
 // routes and fog where the charts run out, plus a bouncing "you are here" slime. Tapping an island that has
 // one (ISLAND_MAPS) opens its own map: its places as a graph, shipped ones solid, blocked ones dashed
 // (src/shared/branches.js). It sends nothing to the server.
-import { FJORD, FORGEHOLD, HIGHLANDS, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, OLDICE, LONGSTAIR, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, CALDERA, CITADEL, DENS, UNDERFLUES, LONGFLUE, SKYCAMP, SKYDOCKS } from './shared/rpg.js';
+import { FJORD, FORGEHOLD, HIGHLANDS, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, OLDICE, LONGSTAIR, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, CALDERA, CITADEL, DENS, UNDERFLUES, LONGFLUE, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS } from './shared/rpg.js';
 import { roomDef } from './shared/sim.js';
 import { ISLAND_MAPS, nodeAt, shipped } from './shared/branches.js';
 import { TOUCH } from './touch.js';
@@ -14,10 +14,11 @@ const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 const INK = '#5b4a6b';
 
 // Which island a room is on. Everything not listed (the village, its buildings, houses, the Wildwood) is home.
-// Aboard a crossing you're out on its route: 'sea' (the ferry's), 'straits' (the Lodestar's) or 'sky' (the balloon's).
-const ISLAND_OF_STAGE = { [FORGEHOLD]: 'ember', [BLACKSANDS]: 'ember', [ASHWOOD]: 'ember', [COAST]: 'ember', [TUBES]: 'ember', [BRIMSTONE]: 'ember', [FOUNDRY]: 'ember', [RIM]: 'ember', [UNDERFLUES]: 'ember', [LONGFLUE]: 'ember', [HIGHLANDS]: 'frost', [FJORD]: 'frost', [GLACIER]: 'frost', [SKERRIES]: 'frost', [GROTTO]: 'frost', [HEIGHTS]: 'frost', [BLUEHALLS]: 'frost', [QBRIDGE]: 'frost', [OLDICE]: 'frost', [LONGSTAIR]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel', [SKYCAMP]: 'citadel', [SKYDOCKS]: 'citadel' };
+// Aboard a crossing you're out on its route: 'sea' (the ferry's), 'straits' (the Lodestar's), 'sky' (the balloon's) or
+// 'fenroute' (the Hush's, east to Lantern Fen).
+const ISLAND_OF_STAGE = { [FORGEHOLD]: 'ember', [BLACKSANDS]: 'ember', [ASHWOOD]: 'ember', [COAST]: 'ember', [TUBES]: 'ember', [BRIMSTONE]: 'ember', [FOUNDRY]: 'ember', [RIM]: 'ember', [UNDERFLUES]: 'ember', [LONGFLUE]: 'ember', [HIGHLANDS]: 'frost', [FJORD]: 'frost', [GLACIER]: 'frost', [SKERRIES]: 'frost', [GROTTO]: 'frost', [HEIGHTS]: 'frost', [BLUEHALLS]: 'frost', [QBRIDGE]: 'frost', [OLDICE]: 'frost', [LONGSTAIR]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel', [SKYCAMP]: 'citadel', [SKYDOCKS]: 'citadel', [WICKMERE]: 'fen', [SHALLOWS]: 'fen' };
 export function islandOf(room) {
-  if (roomDef(room)?.crossing) return { steam: 'straits', sky: 'sky' }[roomDef(room).crossing.route] ?? 'sea';
+  if (roomDef(room)?.crossing) return { steam: 'straits', sky: 'sky', fen: 'fenroute' }[roomDef(room).crossing.route] ?? 'sea';
   const den = DENS.find((d) => d.room === room);
   return ISLAND_OF_STAGE[den ? den.from : room] ?? 'green';
 }
@@ -28,10 +29,11 @@ const ISLANDS = {
   frost: { x: 395, y: 92, name: 'Frostpeak', sub: 'Icefang Hamlet · the far north' },
   ember: { x: 400, y: 296, name: 'Emberdeep', sub: 'Forgehold · the far south' },
   citadel: { x: 545, y: 150, name: 'Aether Citadel', sub: 'the Skydocks Camp · in the sky' },
+  fen: { x: 650, y: 232, name: 'Lantern Fen', sub: 'Wickmere · the east' },
 };
-const PINS = { ...ISLANDS, sea: { x: 205, y: 150 }, straits: { x: 334, y: 214 }, sky: { x: 512, y: 240 } }; // (out on the ferry's route, out in the Steam Straits, up the balloon's climb)
+const PINS = { ...ISLANDS, sea: { x: 205, y: 150 }, straits: { x: 334, y: 214 }, sky: { x: 512, y: 240 }, fenroute: { x: 600, y: 112 } }; // (out on the ferry's route, out in the Steam Straits, up the balloon's climb, east with the Hush)
 // Where to tap for an island's own map (on the chart), and the way back from it
-const TAP = { green: { x: 150, y: 215, rx: 85, ry: 85 }, frost: { x: 395, y: 112, rx: 72, ry: 64 }, ember: { x: 400, y: 300, rx: 72, ry: 56 } };
+const TAP = { green: { x: 150, y: 215, rx: 85, ry: 85 }, frost: { x: 395, y: 112, rx: 72, ry: 64 }, ember: { x: 400, y: 300, rx: 72, ry: 56 }, fen: { x: 650, y: 236, rx: 60, ry: 46 } };
 const BACK = { x: 16, y: 16, w: 132, h: 30 };
 
 // Small seeded random, so the coastlines and waves are the same every time the page opens
@@ -162,25 +164,35 @@ function drawChart(ctx, t, here, hue) {
   route(ctx, [190, 172, 230, 110, 300, 90, 350, 92]);
   route(ctx, [385, 128, 330, 190, 330, 240, 370, 274]);
   route(ctx, [445, 280, 500, 262, 525, 215, 540, 182], [3, 6]);
+  route(ctx, [452, 92, 540, 88, 612, 120, 640, 196]); // (the Hush, east from Icefang Hamlet: atlas Phase 8)
   label(ctx, 262, 116, 'the ferry', 12, '#e46f95', 600);
   label(ctx, 318, 228, 'Steam Straits', 12, '#e46f95', 600);
   label(ctx, 530, 250, 'by balloon', 12, '#e46f95', 600);
+  label(ctx, 598, 80, 'the Hush', 12, '#e46f95', 600);
 
   // uncharted: fog where the charts give out
-  fog(ctx, 650, 230, 90, t, 'rgba(225, 214, 240, 0.4)'); // east: ghost lights in a marsh
+  // east: Lantern Fen (atlas Phase 8), a low violet marsh island in its own mist, lights hovering over it
+  island(ctx, 650, 236, 56, 30, 61, '#dcd6e6', '#bcb2cc');
+  ctx.fillStyle = '#c4bad6';
+  for (const [x, y] of [[628, 236], [648, 244], [668, 232], [640, 226]]) { // the meres, dark water in the reeds
+    ctx.beginPath();
+    ctx.ellipse(x, y, 8, 3.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = '#9a8cb4'; // Wickmere's stilt houses at the west end
+  for (const [x, y] of [[606, 236], [612, 240], [600, 242]]) ctx.fillRect(x - 2.5, y - 4, 5, 5);
+  fog(ctx, 650, 230, 70, t, 'rgba(225, 214, 240, 0.28)');
   fog(ctx, 118, 335, 80, t + 3, 'rgba(244, 228, 196, 0.45)'); // south-west: a sandy smudge
   fog(ctx, 655, 60, 70, t + 6, 'rgba(240, 244, 250, 0.45)'); // far north-east: open water
   for (let i = 0; i < 4; i++) { // lights flicker inside the eastern fog
     const a = t * 0.6 + i * 1.6;
     ctx.fillStyle = `rgba(255, 228, 160, ${0.45 + 0.35 * Math.sin(a * 2)})`;
     ctx.beginPath();
-    ctx.arc(630 + i * 15 + Math.sin(a) * 4, 225 + Math.cos(a * 1.4) * 10, 2.4, 0, Math.PI * 2);
+    ctx.arc(630 + i * 15 + Math.sin(a) * 4, 218 + Math.cos(a * 1.4) * 8, 2.4, 0, Math.PI * 2);
     ctx.fill();
   }
-  label(ctx, 650, 236, '?', 26, 'rgba(91, 74, 107, 0.55)');
   label(ctx, 118, 342, '?', 24, 'rgba(91, 74, 107, 0.55)');
   label(ctx, 655, 66, '?', 20, 'rgba(91, 74, 107, 0.5)');
-  label(ctx, 650, 262, 'uncharted', 11, 'rgba(91, 74, 107, 0.6)', 600);
 
   // a scatter of islets nobody has named
   for (const [x, y, r] of [[250, 300, 7], [590, 320, 6], [300, 40, 5], [80, 90, 6], [520, 60, 4], [690, 330, 5]]) {
@@ -304,7 +316,7 @@ function drawChart(ctx, t, here, hue) {
 
   // names
   for (const [key, isl] of Object.entries(ISLANDS)) {
-    const dy = key === 'frost' ? 48 : key === 'ember' ? 50 : key === 'citadel' ? 34 + bob : 64;
+    const dy = key === 'frost' ? 48 : key === 'ember' ? 50 : key === 'citadel' ? 34 + bob : key === 'fen' ? 46 : 64;
     label(ctx, isl.x, isl.y + dy, isl.name, 16);
     label(ctx, isl.x, isl.y + dy + 14, isl.sub, 11, 'rgba(91, 74, 107, 0.75)', 600);
     // (Emberdeep sits near the chart's bottom edge, so its hint goes beside it)
@@ -376,6 +388,7 @@ const LOOK = {
   green: { sea: ['#b9dcee', '#b4e0d4'], land: '#c8eab3', rim: '#a6d48f', edge: '#7fbf73', ok: '#5f9a52', path: '#c99b6b' },
   frost: { sea: ['#aec8de', '#a4c2d6'], land: '#eef6fb', rim: '#c6dbea', edge: '#7fa8d4', ok: '#4e7ea8', path: '#a8b8c8' },
   ember: { sea: ['#b8d4c4', '#a8ccb8'], land: '#e2cfc8', rim: '#c4a8a4', edge: '#c07a6a', ok: '#a0503e', path: '#9a7a70' },
+  fen: { sea: ['#b6c2d6', '#aab8cc'], land: '#dcd6e6', rim: '#bcb2cc', edge: '#8a7aa8', ok: '#5e4e84', path: '#9a90aa' },
 };
 function drawIslandMap(ctx, t, key, here, hue) {
   const nodes = ISLAND_MAPS[key], byId = Object.fromEntries(nodes.map((n) => [n.id, n])), lk = LOOK[key] ?? LOOK.green;

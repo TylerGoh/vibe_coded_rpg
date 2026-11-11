@@ -116,9 +116,10 @@ edge, each from a different island.
   in the shop's room (`src/npc.js`; a character in several rooms also stands on each room's own ground). Tier 0 plus
   the sky. Life: talks to the Kite, counts flights in a logbook (starting again from one), afraid of staying on the
   ground, her mother wanted her at the anvil; Ash calls her "the balloon girl".
-- **Pilgrim Ione** (`ione`, a plain violet slime in a hood: Lantern Fen's folk look is Phase 8's): from Wickmere,
+- **Pilgrim Ione** (`ione`, a violet slime in a hood, in the fen folk's look since atlas Phase 8's L0): from Wickmere,
   carrying a lantern for "the one who went up" long ago. Gentle, strange. Tier 0 and home talk (Wickmere's lanterns);
-  she never says how to get there or names the Wickmother. **She is Phase 8's "seen but not open".**
+  she never names the Wickmother. She was Phase 8's "seen but not open"; since L0 she says the Hush sails from Icefang
+  Hamlet again (`docs/places/fen.md`).
 - **Tamp** (`tamp`, forge folk): an old forge hand, once the bellows-boy of "the master" (Ignis, never named by him),
   sorting salvaged gears for the master's best piece, marked with a hammer over a flame, which he's sure went up to
   the city. It didn't (players who've seen Typhon's tooth may guess where it went); he never says what the gears were

@@ -76,8 +76,9 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
 - **Pilot Kestrel** (the Skydocks camp, atlas Phase 6 (b), **exists**): forge folk; flies the balloon Kite up the
   thermal column (Slag built her burner); trades at her stall on the pier. Talks to the Kite, counts flights again
   from one, afraid of staying on the ground; her mother wanted her at the anvil. Tier 0 plus the sky.
-- **Pilgrim Ione** (the Skydocks camp, **exists**): from Wickmere (Lantern Fen, not open yet), carrying a lantern for
-  "the one who went up" long ago; never lets it go out. Gentle, strange, everything surprises her. Tier 0 plus home.
+- **Pilgrim Ione** (the Skydocks camp, **exists**; fen folk since atlas Phase 8): from Wickmere, carrying a lantern for
+  "the one who went up" long ago; never lets it go out. Gentle, strange, everything surprises her. Tier 0 plus home;
+  knows the Hush sails again.
 - **Tamp** (the Skydocks camp, **exists**): forge folk; the old master's bellows-boy, looking for the master's best
   gear (a hammer over a flame on it), sure it went up to the city. Taught Ash to hold tongs; a little deaf; strong tea.
 - **The Dockwarden** (the Skydocks' Warden's Pier, **exists** since Phase 6 (c)): a brass porter automaton logging
@@ -91,3 +92,18 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
 ## Existing villagers
 Merchant Pip, the baker and the innkeeper keep their cozy roles. Over the acts they hear news from the
 other islands, which is a cheap way to make home feel connected to the story.
+
+## Lantern Fen: Wickmere (atlas Phase 8, L0, **exist**; `../phase8-plan.md`, `docs/places/fen.md`)
+The **fen folk**: pale, see-through violet-grey jelly with a soft light deep inside, as if each carries a small lantern;
+slow, floaty wobble; hoods and reed capes. Every family keeps a lantern lit on the Lamp Walk for each of its dead, and
+none has ever gone out. Nobody says the Wickmother's name: "the Mother", and a change of subject.
+- **Skipper Netta**: sails the eel-boat Hush between Wickmere and Icefang Hamlet; steers round every drifting lantern,
+  never over; sells smoked eels to Runa and loses every argument about salt; talks to her drowned husband Tam's lantern
+  in the wheelhouse window about the weather. Took Ione north, frets about her. Tier 0 plus the sea road east.
+- **Wren the Lamplady**: tends every lantern on the Lamp Walk; trades "lamp oil" (potions). Knows the old funeral songs
+  (one names "the Keepers"; she doesn't know who they were). Has wanted for years to let her husband's lantern go out
+  and can't; finds it strange that no lantern in Wickmere ever has. Tier 0 plus the town.
+- **Ferryman Hob**: poles the punt to the islets of the Still Mere, not while the mere's this high. Twelve grandchildren,
+  no lantern for any of them; carves willow ducks; can't swim. Calls the thing in the mere "the old eel".
+- **Sedge**: a young reed-weaver who makes armour of reed and bog-iron (trades the Fen's first gear). Has lost no one
+  and keeps a lantern lit "for practice". Wants to see snow.

@@ -9,7 +9,7 @@
 // (drawFjordPath, called by src/highlands.js), and the Lodestar herself (drawLodestar), moored here and at
 // Forgehold's quay (src/forgehold.js).
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
-import { FJORD_W, FIELD_GROUND, FJORD_DOCK_X, FJORD_LODESTAR_X, FJORD_HOME_X, FJORD_FIRE_X, FJORD_EXIT_X, FJORD_PLATFORMS } from './shared/rpg.js';
+import { FJORD_W, FIELD_GROUND, FJORD_DOCK_X, FJORD_LODESTAR_X, FJORD_HOME_X, FJORD_FIRE_X, FJORD_EXIT_X, FJORD_PLATFORMS, FJORD_HUSH_X } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
 import { drawFerry, drawBoarding } from './harbour.js';
 
@@ -67,11 +67,13 @@ export function drawFjord(ctx, camX, viewW, time) {
   const L = camX - 100, R = camX + viewW + 100;
   drawShore(ctx, Math.max(QUAY_END - 40, L), Math.min(FJORD_W, R));
   for (const h of backHuts) if (visible(h.x - 90, h.x + 90, L, R)) drawHut(ctx, h.x, GROUND - 52, h.s, time, true);
+  if (visible(FJORD_HUSH_X - 120, FJORD_HUSH_X + 120, L, R)) drawHushAtAnchor(ctx, time); // (atlas Phase 8: far out, behind the two ships)
   if (visible(FERRY_X - 60, FERRY_X + 700, L, R)) drawFerry(ctx, time, FERRY_X, GROUND, [FERRY_X - 40, FERRY_X + 690]);
   if (visible(SHIP_X - 40, SHIP_X + SHIP_LEN + 60, L, R)) drawLodestar(ctx, time);
   drawQuay(ctx, Math.max(0, L), Math.min(QUAY_END, R));
   drawGround(ctx, Math.max(QUAY_END, L), Math.min(FJORD_W, R));
   if (visible(FJORD_DOCK_X - 200, FJORD_DOCK_X + 120, L, R)) drawBoarding(ctx, FJORD_DOCK_X, time, GROUND, ['FERRY TO GREENHOLLOW', 'The fjord is open!', 'Home in under a minute.']);
+  if (visible(FJORD_HUSH_X - 60, FJORD_HUSH_X + 60, L, R)) drawHushPost(ctx, FJORD_HUSH_X, time);
   if (visible(FJORD_LODESTAR_X - 80, NOTICE_X + 100, L, R)) {
     drawLodestarGangway(ctx, FJORD_LODESTAR_X, time);
     drawNotice(ctx, NOTICE_X, time);
@@ -930,5 +932,103 @@ export function drawFjordPath(ctx, x, groundY, time) {
   ctx.stroke();
   text(ctx, 'Icefang Hamlet', 2, -4, 13, INK);
   text(ctx, 'ferry · fire', 2, 10, 10, '#8f6240');
+  ctx.restore();
+}
+
+// ——— the Hush (atlas Phase 8, docs/places/fen.md) ———
+// Skipper Netta's eel-boat from Lantern Fen, riding at anchor out in the fjord between the ferry and the Lodestar: small
+// with distance, black-hulled, a dun sail furled, and her bow lantern on its pole, violet and always lit
+function drawHushAtAnchor(ctx, time) {
+  const x = FJORD_HUSH_X - 10, wl = HORIZON + 26 + Math.sin(time * 0.8 + 2) * 1.2, s = 0.5;
+  ctx.save();
+  ctx.translate(x, wl);
+  ctx.scale(s, s);
+  ctx.fillStyle = 'rgba(214,190,255,0.18)'; // her lantern's light on the water
+  ellipse(ctx, 84, 8, 40, 5);
+  ctx.fillStyle = '#2e2a3a';
+  ctx.beginPath();
+  ctx.moveTo(-110, -18);
+  ctx.lineTo(110, -24);
+  ctx.quadraticCurveTo(96, 2, 60, 6);
+  ctx.lineTo(-90, 6);
+  ctx.quadraticCurveTo(-112, 0, -110, -18);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#8a7aa8';
+  ctx.fillRect(-104, -16, 206, 4);
+  ctx.fillStyle = '#d8cfc0'; // the little wheelhouse and its stove pipe
+  ctx.fillRect(-70, -48, 44, 28);
+  ctx.fillStyle = '#4e4862';
+  ctx.fillRect(-74, -52, 52, 6);
+  ctx.fillStyle = '#3a3446';
+  ctx.fillRect(-36, -70, 7, 22);
+  ctx.strokeStyle = '#3a3446'; // the mast, sail furled on the boom
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(10, -22);
+  ctx.lineTo(10, -128);
+  ctx.moveTo(10, -40);
+  ctx.lineTo(-50, -36);
+  ctx.stroke();
+  ctx.fillStyle = '#cfc4ae';
+  ctx.beginPath();
+  ctx.roundRect(-46, -46, 54, 10, 5);
+  ctx.fill();
+  ctx.lineWidth = 3; // the bow lantern on its pole
+  ctx.beginPath();
+  ctx.moveTo(86, -22);
+  ctx.lineTo(100, -84);
+  ctx.quadraticCurveTo(112, -92, 114, -80);
+  ctx.stroke();
+  const g = ctx.createRadialGradient(114, -66, 2, 114, -66, 34);
+  g.addColorStop(0, `rgba(214,190,255,${0.55 + 0.15 * Math.sin(time * 3)})`);
+  g.addColorStop(1, 'rgba(214,190,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(80, -100, 68, 68);
+  ctx.fillStyle = '#e4d4ff';
+  ctx.beginPath();
+  ctx.roundRect(108, -76, 12, 16, 3);
+  ctx.fill();
+  ctx.restore();
+}
+// On the quay: a mooring post with a violet lantern on it, a rope running out to the Hush's skiff below the edge, the
+// top of a ladder, and a board hung on the post, chalked by Netta
+function drawHushPost(ctx, x, time) {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(80,70,90,0.8)'; // the rope, out over the water
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x - 8, GROUND - 42);
+  ctx.quadraticCurveTo(x - 30, GROUND - 26, x - 60, GROUND - 56);
+  ctx.stroke();
+  ctx.fillStyle = '#6a5a4a'; // the ladder's top rails
+  ctx.fillRect(x + 14, GROUND - 22, 4, 22);
+  ctx.fillRect(x + 32, GROUND - 22, 4, 22);
+  ctx.fillRect(x + 14, GROUND - 14, 22, 3);
+  ctx.fillStyle = '#4a4058'; // the post
+  ctx.beginPath();
+  ctx.roundRect(x - 12, GROUND - 66, 16, 66, 4);
+  ctx.fill();
+  ctx.fillStyle = '#3a3446';
+  ctx.fillRect(x - 14, GROUND - 70, 20, 6);
+  const g = ctx.createRadialGradient(x - 4, GROUND - 82, 2, x - 4, GROUND - 82, 40);
+  g.addColorStop(0, `rgba(214,190,255,${0.5 + 0.12 * Math.sin(time * 3)})`);
+  g.addColorStop(1, 'rgba(214,190,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(x - 44, GROUND - 122, 80, 80);
+  ctx.fillStyle = '#3a3446';
+  ctx.beginPath();
+  ctx.roundRect(x - 11, GROUND - 94, 14, 20, 3);
+  ctx.fill();
+  ctx.fillStyle = '#e4d4ff';
+  ctx.beginPath();
+  ctx.roundRect(x - 8, GROUND - 91, 8, 13, 2);
+  ctx.fill();
+  ctx.fillStyle = '#3e3a4c'; // Netta's board, chalked
+  ctx.beginPath();
+  ctx.roundRect(x - 40, GROUND - 60, 46, 26, 3);
+  ctx.fill();
+  text(ctx, 'HUSH', x - 17, GROUND - 52, 10, '#e8e0f4');
+  text(ctx, 'EAST', x - 17, GROUND - 41, 8, '#c8b8e8');
   ctx.restore();
 }

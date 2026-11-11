@@ -489,11 +489,12 @@ function briarArcAt(ctx, x, base, w, h, seed, time) {
 }
 
 // ——— the telescope's view (screen space, over everything) ———
-// Swing left and right between the three landmarks you can see from here. Captions stay at canon Tier 0
+// Swing left and right between the landmarks you can see from here (Lantern Fen's since atlas Phase 8). Captions stay at canon Tier 0
 // (story/canon.md): names and what a sailor would tell you, nothing of the history.
 const VIEWS = [
   { key: 'frost', name: 'Frostpeak, far to the north', s: 1.45, line: 'Snow on every peak, and coloured lights rippling over them even by day. Captain Brine\'s ferry sails there from the harbour.' },
   { key: 'citadel', name: 'Something in the sky', s: 2.4, sky: 34, line: 'A pale island hanging over the middle of the sea, towers and all. Clouds drift. This does not.' },
+  { key: 'fen', name: 'Lantern Fen, far to the east', s: 2.2, line: "A low dark marsh in its own mist, and lights over it that never go out. Fishermen in Frostpeak sail there." }, // (atlas Phase 8)
   { key: 'ember', name: 'Emberdeep, far to the south', s: 1.6, line: 'A volcano with a smoke column you could set a clock by. The sea round it steams.' },
 ];
 const LENS_R = 196, LENS_Y = H / 2 - 34;

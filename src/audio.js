@@ -901,6 +901,79 @@ const SONGS = {
     },
   },
 
+  // ——— Lantern Fen (atlas Phase 8, docs/places/fen.md, docs/places/shallows.md): strange, gentle, sad ———
+  // Aboard the Hush: east out of the cold into the mist. A minor and slow, oars of a low plucked pulse, the water
+  // lapping, a music-box line that keeps losing its place, and as you go, a breathy high voice like the wind over a
+  // bottle (the dead's lanterns, drifting by)
+  fenroute: {
+    bpm: 66, spb: 4, melSteps: 4, key: 57, scale: MINOR, gain: 0.7, send: 0.6, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5], [7, 9, 11], [6, 8, 10], [5, 7, 9]],
+    mel: melody(
+      '5 - 4 3', '1 - - .', '3 - 4 5', '6 - 5 .',
+      '8 - 7 5', '6 - - .', '5 - 4 2', '3 - - .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 300, 0.008); // the water under her
+      p.eng.bed(p, 'bandpass', 900, 0.003, 0.6); // the mist, a hush
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) pad(p, ch, t, p.stepDur * 4, 0.01, { type: 'sine', a: 1, cutoff: 900, rel: 1.4 });
+      if (s === 0 || s === 2) e.voice(p.c, t, p.f(ch[0], -2), { ...PLUCK, vol: 0.05, tau: 0.3, cutoff: 800 }); // the oar's slow stroke
+      const m = p.mel(bar, s);
+      if (m) e.voice(part ? p.l : p.r, t + (chance(0.15) ? p.stepDur * 0.25 : 0), p.f(m.d, 1), { ...GLOCK, vol: 0.04, tau: 0.9 }); // (now and then a note a beat late)
+      if (m && part) e.voice(p.c, t, p.f(m.d, 1), { type: 'sine', vol: 0.02, a: 0.3, hold: m.len * 0.8, rel: 0.9, vib: 4, vibRate: 3 });
+      if (s === 1 && chance(0.25)) e.noiseHit(chance(0.5) ? p.l : p.r, t, { type: 'bandpass', f: 600, q: 4, vol: 0.012, a: 0.08, hold: 0.1, tau: 0.3 }); // the water lapping on her hull
+    },
+  },
+  // Wickmere: a town that grieves quietly. D minor, very slow, a music box (the Lamp Walk) over a low reed-organ drone,
+  // frogs and a heron's croak far out on the mere, the lantern wicks hissing close by. Kind, and a little eerie
+  wickmere: {
+    bpm: 56, spb: 4, melSteps: 4, key: 62, scale: MINOR, gain: 0.7, send: 0.6, loop: 8,
+    chords: [[1, 3, 5], [4, 6, 8], [7, 9, 11], [3, 5, 7], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5]],
+    mel: melody(
+      '5 - 3 1', '2 - 3 .', '4 - 3 2', '1 - - .',
+      '3 - 5 6', '5 - 4 .', '3 - 2 1', '1 - - .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 320, 0.007); // the mere
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) {
+        e.voice(p.c, t, p.f(ch[0], -2), { type: 'sawtooth', vol: 0.025, a: 1.2, hold: p.stepDur * 3, rel: 1.4, cutoff: 420 }); // the reed organ
+        pad(p, ch, t, p.stepDur * 4, 0.008, { type: 'triangle', a: 1.2, cutoff: 800, rel: 1.6 });
+      }
+      const m = p.mel(bar, s);
+      if (m) e.voice(part ? p.l : p.r, t, p.f(m.d, 1), { ...GLOCK, vol: 0.045, tau: 1 }); // the music box
+      if (s === 3 && chance(0.18)) e.voice(chance(0.5) ? p.l : p.r, t, p.f(1, -1) * (0.9 + Math.random() * 0.2), { type: 'triangle', vol: 0.02, a: 0.01, tau: 0.08, cutoff: 500 }); // a frog
+      if (s === 0 && bar === 5 && part) e.noiseHit(p.l, t, { type: 'bandpass', f: 420, q: 3, vol: 0.015, a: 0.02, hold: 0.12, tau: 0.2 }); // a heron, far out
+      if (chance(0.2)) e.noiseHit(p.c, t + rand(0, p.stepDur), { f: rand(2600, 3600), q: 4, vol: 0.004, tau: 0.02 }); // a wick hissing
+    },
+  },
+  // The Shallows: a fighting room in the same key as the town, moving now: a low plucked pulse like wading, frogs on
+  // every other beat, a reedy line on top that sounds a bit like someone whistling to keep their spirits up
+  shallows: {
+    bpm: 82, spb: 4, melSteps: 4, key: 62, scale: DORIAN, gain: 0.72, send: 0.5, loop: 8,
+    chords: [[1, 3, 5], [7, 9, 11], [4, 6, 8], [1, 3, 5], [6, 8, 10], [5, 7, 9], [4, 6, 8], [5, 7, 9]],
+    mel: melody(
+      '5 - 6 5', '4 - 3 .', '2 - 3 4', '5 - - .',
+      '8 - 7 6', '5 - 4 .', '3 - 2 3', '1 - - .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 300, 0.007); // the water
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) pad(p, ch, t, p.stepDur * 4, 0.008, { type: 'triangle', a: 0.6, cutoff: 900, rel: 1 });
+      if (s === 0 || s === 2) e.voice(p.c, t, p.f(ch[0], -2), { ...PLUCK, vol: 0.055, tau: 0.22, cutoff: 600 }); // wading
+      if (s === 1 || s === 3) e.voice(chance(0.5) ? p.l : p.r, t, p.f(5, -1), { type: 'triangle', vol: 0.014, a: 0.01, tau: 0.06, cutoff: 600 }); // frogs
+      const m = p.mel(bar, s);
+      if (m) e.voice(part ? p.l : p.r, t, p.f(m.d, 1), { type: 'sine', vol: 0.035, a: 0.04, hold: m.len * 0.7, rel: 0.3, vib: 5, vibRate: 6 });
+      if (m && part) e.voice(p.c, t, p.f(m.d, 1), { ...GLOCK, vol: 0.02, tau: 0.6 });
+    },
+  },
+
   // Lecture hall: soft maj7 pads and a rare bell; the professor talks over it
   hall: {
     bpm: 56, spb: 8, key: 60, scale: MAJOR, gain: 0.6, send: 0.35,
@@ -3363,7 +3436,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon', 'sky', 'sky', 'skycamp', 'skydocks']; // (66-67: the Kite's gondola, up and down, 68: the Skydocks camp, atlas Phase 6, and 69: the Skydocks, Phase 6 (c); 63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon', 'sky', 'sky', 'skycamp', 'skydocks', 'wickmere', 'fenroute', 'fenroute', 'shallows']; // (70: Wickmere, 71-72: the Hush's deck, out and home, 73: the Shallows, atlas Phase 8) // (66-67: the Kite's gondola, up and down, 68: the Skydocks camp, atlas Phase 6, and 69: the Skydocks, Phase 6 (c); 63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -3519,3 +3592,8 @@ Object.assign(MOB_DEATH, { dragonfly: MOB_DEATH.cinder_bat, gloop_snail: MOB_DEA
 // atlas Phase 6 (c): the Skydocks' mobs (a bolt clanks like a cogling, a moth sighs like a wisp, a hook grinds like a golem)
 Object.assign(MOB_HURT, { loose_bolt: MOB_HURT.cogling, rigging_moth: MOB_HURT.wisp, mooring_hook: MOB_HURT.golem });
 Object.assign(MOB_DEATH, { loose_bolt: MOB_DEATH.obsidian_crab, rigging_moth: MOB_DEATH.wisp, mooring_hook: MOB_DEATH.golem ?? MOB_DEATH.yeti });
+
+// atlas Phase 8 (L0): the Shallows' mobs (a moth sighs like a wisp, a bog slime squelches like a magma slug, a frog
+// ribbits like the pond frog, a mudskipper squeaks like a mushling)
+Object.assign(MOB_HURT, { lantern_moth: MOB_HURT.wisp, bog_slime: MOB_HURT.magma_slug, mire_frog: MOB_HURT.pond_frog ?? MOB_HURT.mushling, mudskipper: MOB_HURT.mushling });
+Object.assign(MOB_DEATH, { lantern_moth: MOB_DEATH.wisp, bog_slime: MOB_DEATH.magma_slug, mire_frog: MOB_DEATH.pond_frog ?? MOB_DEATH.mushling, mudskipper: MOB_DEATH.mushling });

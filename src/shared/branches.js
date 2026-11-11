@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -77,7 +77,21 @@ export const EMBERDEEP = [
   // itself lifted it). Her gangway is a door (sim.js, up to the Skydocks camp); the node has no rooms of its own
   { id: 'column', name: 'The Balloon', at: [640, 215], from: 'heart', entry: { room: CALDERA, x: BALLOON_X, kind: 'balloon' } },
 ];
-export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK, ember: EMBERDEEP };
+// Lantern Fen (atlas Phase 8: story/phase8-plan.md, L0 on): Wickmere, the Shallows, and every gate the next phases
+// lift (each with an in-world reason); places further in (the Sunk Barrows, the Causeway) are `past` until a room leads there
+export const LANTERN_FEN = [
+  { id: 'wickmere', name: 'Wickmere', at: [130, 200], rooms: [WICKMERE], town: true },
+  { id: 'shallows', name: 'The Shallows', band: '150–158', at: [290, 200], from: 'wickmere', rooms: [SHALLOWS] },
+  { id: 'firefly', name: 'Firefly Hollow', band: '150–155', at: [290, 300], from: 'shallows', block: 'a fallen willow',
+    gate: { room: SHALLOWS, x: FIREFLY_GATE_X, kind: 'willowfall', look: 'look at the fallen willow', says: 'A great willow came down across the side path. Too rotten to climb, too big to shift.' } },
+  { id: 'grove', name: 'The Drowned Grove', band: '156–166', at: [450, 200], from: 'shallows', block: 'the water is up',
+    gate: { room: SHALLOWS, x: GROVE_GATE_X, kind: 'floodwater', look: 'look along the boardwalk', says: "The water's up over the boardwalk rails. Nobody wades the Grove path like this." } },
+  { id: 'stillmere', name: 'The Still Mere', band: '160–170', at: [130, 300], from: 'wickmere', block: "Hob won't pole",
+    gate: { room: WICKMERE, x: STILLMERE_GATE_X, kind: 'punt', look: "look at Hob's punt", says: "Hob's punt is drawn up on the boards. \"Not with the mere this high,\" he says." } },
+  { id: 'barrows', name: 'The Sunk Barrows', band: '170–178', hard: true, at: [450, 300], from: 'grove', past: true },
+  { id: 'causeway', name: 'The Lantern Causeway', band: '168–180', at: [610, 200], from: 'grove', past: true },
+];
+export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK, ember: EMBERDEEP, fen: LANTERN_FEN };
 const ALL = Object.values(ISLAND_MAPS).flat();
 export const shipped = (n) => !n.gate && !n.past;
 export const ENTRIES = ALL.filter((n) => n.entry).map((n) => ({ ...n.entry, branch: n.id, name: n.name, band: n.band, hard: !!n.hard }));

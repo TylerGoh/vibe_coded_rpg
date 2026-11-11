@@ -15,7 +15,7 @@ export const DT = 1 / TICK_RATE;
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_PLATFORMS, FORGEHOLD, FORGE_W, FORGE_DOCK_X, FORGE_HOME_X, FORGE_SPAWN_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X, ASH_X, SLAG_X, FJORD_LODESTAR_X, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X, SUNKEN, SUNKEN_W, SUNKEN_EXIT_X, SUNKEN_GATE_X, SUNKEN_END_X, SUNKEN_PLATFORMS, ROADSEND, ROADSEND_W, ROADSEND_EXIT_X, OLDICE, OLDICE_W, OLDICE_EXIT_X, OLDICE_GATE_X, OLDICE_END_X, OLDICE_PLATFORMS, LONGSTAIR, LONGSTAIR_W, LONGSTAIR_EXIT_X, BLACKSANDS, SANDS_W, SANDS_EXIT_X, SANDS_PLATFORMS, SANDS_GATE_X, ASHWOOD, ASH_W, ASH_EXIT_X, ASH_PLATFORMS, ASHWOOD_GATE_X, PITCH_X, COAST, COAST_W, COAST_EXIT_X, COAST_PLATFORMS, COAST_GATE_X, LIV_X, TUBES, TUBES_W, TUBES_EXIT_X, TUBES_PLATFORMS, TUBES_GATE_X, BRIMSTONE, BRIM_W, BRIM_EXIT_X, BRIM_PLATFORMS, BRIMSTONE_GATE_X, OCHRE_X, FOUNDRY, FOUNDRY_W, FOUNDRY_EXIT_X, FOUNDRY_PLATFORMS, RIM, RIM_W, RIM_EXIT_X, RIM_PLATFORMS, RIM_GATE_X, FOUNDRY_GATE_X, UNDERFLUES, UNDERFLUES_W, UNDERFLUES_EXIT_X, UNDERFLUES_GATE_X, UNDERFLUES_END_X, UNDERFLUES_PLATFORMS, LONGFLUE, LONGFLUE_W, LONGFLUE_EXIT_X, BALLOON_X, SKYCAMP, CAMP_W, CAMP_DOCK_X, CAMP_HOME_X, CAMP_SPAWN_X, CAMP_PLATFORMS, KESTREL_X, IONE_X, TAMP_X, CAMP_END_X, SKYDOCKS, SKYDOCKS_W, SKYDOCKS_EXIT_X, SKYDOCKS_RAMP_X, SKYDOCKS_PLATFORMS, WARDEN_X } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_PLATFORMS, FORGEHOLD, FORGE_W, FORGE_DOCK_X, FORGE_HOME_X, FORGE_SPAWN_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X, ASH_X, SLAG_X, FJORD_LODESTAR_X, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X, SUNKEN, SUNKEN_W, SUNKEN_EXIT_X, SUNKEN_GATE_X, SUNKEN_END_X, SUNKEN_PLATFORMS, ROADSEND, ROADSEND_W, ROADSEND_EXIT_X, OLDICE, OLDICE_W, OLDICE_EXIT_X, OLDICE_GATE_X, OLDICE_END_X, OLDICE_PLATFORMS, LONGSTAIR, LONGSTAIR_W, LONGSTAIR_EXIT_X, BLACKSANDS, SANDS_W, SANDS_EXIT_X, SANDS_PLATFORMS, SANDS_GATE_X, ASHWOOD, ASH_W, ASH_EXIT_X, ASH_PLATFORMS, ASHWOOD_GATE_X, PITCH_X, COAST, COAST_W, COAST_EXIT_X, COAST_PLATFORMS, COAST_GATE_X, LIV_X, TUBES, TUBES_W, TUBES_EXIT_X, TUBES_PLATFORMS, TUBES_GATE_X, BRIMSTONE, BRIM_W, BRIM_EXIT_X, BRIM_PLATFORMS, BRIMSTONE_GATE_X, OCHRE_X, FOUNDRY, FOUNDRY_W, FOUNDRY_EXIT_X, FOUNDRY_PLATFORMS, RIM, RIM_W, RIM_EXIT_X, RIM_PLATFORMS, RIM_GATE_X, FOUNDRY_GATE_X, UNDERFLUES, UNDERFLUES_W, UNDERFLUES_EXIT_X, UNDERFLUES_GATE_X, UNDERFLUES_END_X, UNDERFLUES_PLATFORMS, LONGFLUE, LONGFLUE_W, LONGFLUE_EXIT_X, BALLOON_X, SKYCAMP, CAMP_W, CAMP_DOCK_X, CAMP_HOME_X, CAMP_SPAWN_X, CAMP_PLATFORMS, KESTREL_X, IONE_X, TAMP_X, CAMP_END_X, SKYDOCKS, SKYDOCKS_W, SKYDOCKS_EXIT_X, SKYDOCKS_RAMP_X, SKYDOCKS_PLATFORMS, WARDEN_X, FJORD_HUSH_X, WICKMERE, WICK_W, NETTA_X, WICK_DOCK_X, WREN_X, WICK_SPAWN_X, WICK_HOME_X, HOB_X, SEDGE_X, WICK_EXIT_X, WICK_PLATFORMS, SHALLOWS, SHALLOWS_W, SHALLOWS_EXIT_X, SHALLOWS_PLATFORMS } from './rpg.js';
 import { ARENA, ARENA_W, ARENA_PLATFORMS } from './sandbox.js';
 import { GX, walkOf, AIR_UP_V, AIR_DOWN_V, AIRDASH_CD, GLIDE_JUMP, GLIDE_FALL, PHASE_IFR } from './gearfx.js';
 import { TRAP_HOLD, tiltV } from './challenge.js';
@@ -27,6 +27,8 @@ export const FERRY_N = 21, FERRY_S = 22; // the ferry's deck, out to Frostpeak a
 export const STEAM_N = 45, STEAM_S = 46; // the Lodestar's deck, south through the Steam Straits to Emberdeep and back north
 export const SKY_UP = 66, SKY_DOWN = 67; // the balloon Kite's gondola, up Emberdeep's thermal column to the Skydocks and back down (atlas Phase 6)
 export { SKYCAMP, SKYDOCKS } from './rpg.js';
+export const FEN_OUT = 71, FEN_HOME = 72; // the Hush's deck, east from Icefang Hamlet to Lantern Fen and back (atlas Phase 8)
+export { WICKMERE, SHALLOWS } from './rpg.js';
 export { FIELD, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, UNDERFLUES, LONGFLUE };
 
 export const PLATFORMS = [
@@ -313,6 +315,12 @@ ROOMS[SKY_UP] = deck('The Kite, climbing to the Skydocks', { route: 'sky', from:
   { to: SKYCAMP, toX: CAMP_DOCK_X, label: 'step off onto the Skydocks pier' }, { to: CALDERA, toX: BALLOON_X });
 ROOMS[SKY_DOWN] = deck('The Kite, coming down to Emberdeep', { route: 'sky', from: 'citadel', to: 'ember', ticks: 55 * TICK_RATE },
   { to: CALDERA, toX: BALLOON_X, label: 'step out onto the ledge in Magma Heart (mobs!)' }, { to: SKYCAMP, toX: CAMP_DOCK_X });
+// The Hush (atlas Phase 8, docs/places/fen.md): Skipper Netta's eel-boat, east from Icefang Hamlet to Reedwater, Lantern
+// Fen's jetty ('fen' route: grey water stilling, mist, the dead's lanterns adrift). A side trip: shorter than the Lodestar.
+ROOMS[FEN_OUT] = deck('The Hush, bound for Lantern Fen', { route: 'fen', from: 'frost', to: 'fen', ticks: 75 * TICK_RATE },
+  { to: WICKMERE, toX: WICK_DOCK_X, label: 'step ashore at Reedwater' }, { to: FJORD, toX: FJORD_HUSH_X });
+ROOMS[FEN_HOME] = deck('The Hush, bound for Frostpeak', { route: 'fen', from: 'fen', to: 'frost', ticks: 55 * TICK_RATE },
+  { to: FJORD, toX: FJORD_HUSH_X, label: 'go ashore at Icefang Hamlet' }, { to: WICKMERE, toX: WICK_DOCK_X });
 export const VOYAGE_MAX = 65535; // state.vt stops counting here (it's a u16 on the wire)
 // room 23: Icefang Fjord, Frostpeak's landing, and its town, Icefang Hamlet (docs/places/fjord.md). A safe
 // room: the ferry's dock at the west end, the hamlet round its lamp-fire, the path up to Frostpine Ridge
@@ -322,6 +330,7 @@ ROOMS[FJORD] = {
   doors: [
     { x: FJORD_DOCK_X, w: 80, to: FERRY_S, toX: DECK_GANGWAY_X, label: 'board the ferry home to Greenhollow', ask: 'Sail home to Greenhollow? About 45 seconds at sea.' },
     { x: FJORD_LODESTAR_X, w: 80, to: STEAM_N, toX: DECK_GANGWAY_X, label: 'board the Lodestar south to Emberdeep (Lv 90+)', ask: 'Set sail south for Emberdeep? The Lodestar takes about a minute and a half.' },
+    { x: FJORD_HUSH_X, w: 70, to: FEN_OUT, toX: DECK_GANGWAY_X, label: 'climb down to the Hush, east to Lantern Fen (Lv 150+)', ask: 'Sail east with the Hush to Lantern Fen? About a minute and a quarter.' },
     { x: FJORD_HOME_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
     { x: FJORD_EXIT_X, w: 80, to: HIGHLANDS, toX: HIGHLANDS_EXIT_X, label: 'climb up to Frostpine Ridge (mobs!)' },
     { x: SKERRIES_GATE_X, w: 80, to: SKERRIES, toX: SKERRIES_EXIT_X, label: 'take the shore path out to the Whale Skerries' },
@@ -350,6 +359,23 @@ ROOMS[SKYCAMP] = {
     { x: CAMP_HOME_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
     { x: CAMP_END_X, w: 80, to: SKYDOCKS, toX: SKYDOCKS_EXIT_X, label: 'cross the plank to the Skydocks' },
   ],
+};
+// room 70 (atlas Phase 8, L0, docs/places/fen.md): Wickmere, Lantern Fen's town, with Reedwater's jetty as its waterfront.
+// A safe room: the Hush's gangway near the west end, the Lamp Walk, the stilt houses, and the boardwalk's east end, off
+// into the Shallows. Hob's punt (the Still Mere, L2) is a gate (branches.js). Its platforms are WICK_PLATFORMS (rpg.js).
+ROOMS[WICKMERE] = {
+  name: 'Wickmere', width: WICK_W, ground: FIELD_GROUND, platforms: WICK_PLATFORMS,
+  doors: [
+    { x: WICK_DOCK_X, w: 80, to: FEN_HOME, toX: DECK_GANGWAY_X, label: 'board the Hush home to Frostpeak', ask: 'Sail back west to Icefang Hamlet? About a minute on the water.' },
+    { x: WICK_HOME_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
+    { x: WICK_EXIT_X, w: 80, to: SHALLOWS, toX: SHALLOWS_EXIT_X, label: 'wade out into the Shallows (mobs!)' },
+  ],
+};
+// room 73 (atlas Phase 8, L0, docs/places/shallows.md): the Shallows, entered at its WEST end from Wickmere's boardwalk.
+// Its far end (the Drowned Grove) and the side path to Firefly Hollow are gates (branches.js)
+ROOMS[SHALLOWS] = {
+  name: 'The Shallows', width: SHALLOWS_W, ground: FIELD_GROUND, platforms: SHALLOWS_PLATFORMS,
+  doors: [{ x: SHALLOWS_EXIT_X, w: 80, to: WICKMERE, toX: WICK_EXIT_X, label: 'wade back to Wickmere' }],
 };
 // room 69 (atlas Phase 6 (c), docs/places/skydocks.md): the Skydocks, the city's broken piers past the camp's pier end,
 // entered at its WEST end; its east end climbs the loading ramp into the Aether Citadel (Cogwork Bastion's west end)
@@ -553,6 +579,7 @@ export const TOWNS = [
   { room: FJORD, name: 'Icefang Hamlet', x: FJORD_SPAWN_X, homeX: FJORD_HOME_X },
   { room: FORGEHOLD, name: 'Forgehold', x: FORGE_SPAWN_X, homeX: FORGE_HOME_X },
   { room: SKYCAMP, name: 'The Skydocks Camp', x: CAMP_SPAWN_X, homeX: CAMP_HOME_X },
+  { room: WICKMERE, name: 'Wickmere', x: WICK_SPAWN_X, homeX: WICK_HOME_X }, // (atlas Phase 8)
 ];
 TOWNS.forEach((t, i) => (ROOMS[t.room].town = i)); // (step() reads room.town)
 export const townOf = (room) => ROOMS[room]?.town ?? -1; // -1: not a town
@@ -970,8 +997,13 @@ export const NPCS = [
   // the Skydocks camp (atlas Phase 6): visitors from the other islands, huddled at the dead city's edge. Kestrel flies
   // the Kite too, so she stands at its burner on both decks (also) as well as at her stall (KESTREL_X is the same x)
   { id: 'kestrel', name: 'Pilot Kestrel', short: 'Kestrel', room: SKYCAMP, also: [SKY_UP, SKY_DOWN], x: KESTREL_X, hue: 22, range: 125, size: 1.1, accessory: 'aeronaut', folk: 'forge', faces: 1, blurb: 'flies the balloon Kite up the column, and trades at her stall on the pier', shop: 'kestrel', hello: "Hold the rail, not the ropes. Buying or talking? Trade is the button, on the pier. (Everyone can hear you.)" },
-  { id: 'ione', name: 'Pilgrim Ione', short: 'Ione', room: SKYCAMP, x: IONE_X, hue: 268, range: 120, size: 1.05, accessory: 'pilgrim', faces: -1, blurb: 'came a long way from Wickmere with a lantern for someone', hello: 'Oh. Hello. Mind the lantern, it mustn\'t go out. (Everyone can hear you.)' },
+  { id: 'ione', name: 'Pilgrim Ione', short: 'Ione', room: SKYCAMP, x: IONE_X, hue: 268, range: 120, size: 1.05, accessory: 'pilgrim', folk: 'fen', faces: -1, blurb: 'came a long way from Wickmere with a lantern for someone', hello: 'Oh. Hello. Mind the lantern, it mustn\'t go out. (Everyone can hear you.)' },
   { id: 'dockwarden', name: 'The Dockwarden', short: 'Dockwarden', room: SKYDOCKS, x: WARDEN_X, hue: 42, range: 125, size: 1.15, accessory: 'porter', faces: -1, blurb: 'a brass porter at its post on the pier, still logging arrivals', hello: 'ARRIVAL NOTED. State your name for the ledger. (Everyone can hear you.)' },
+  // Wickmere's fen folk (atlas Phase 8, docs/places/fen.md), and Skipper Netta at the Hush's tiller
+  { id: 'netta', name: 'Skipper Netta', short: 'Netta', room: WICKMERE, also: [FEN_OUT, FEN_HOME], x: NETTA_X, hue: 250, range: 125, size: 1.1, accessory: 'eelskipper', folk: 'fen', faces: 1, blurb: 'sails the eel-boat Hush between Wickmere and Icefang Hamlet', hello: "Mind the eel boxes. And the lanterns on the water: we go round, never over. (Everyone can hear you.)" },
+  { id: 'wren', name: 'Wren the Lamplady', short: 'Wren', room: WICKMERE, x: WREN_X, hue: 280, range: 125, size: 1.1, accessory: 'lamplady', folk: 'fen', faces: 1, blurb: "tends every lantern on the Lamp Walk, and sells lamp oil (potions)", shop: 'wren', hello: 'Shh. Mind the wicks. Buying oil, or only talking? Trade is the button. (Everyone can hear you.)' },
+  { id: 'hob', name: 'Ferryman Hob', short: 'Hob', room: WICKMERE, x: HOB_X, hue: 232, range: 120, size: 1.2, accessory: 'ferryman', folk: 'fen', faces: 1, blurb: 'poles the punt between the islets, when the mere lets him', hello: "Ho there. Not today, the punt. Mere's too high. Sit, if you like. (Everyone can hear you.)" },
+  { id: 'sedge', name: 'Sedge', short: 'Sedge', room: WICKMERE, x: SEDGE_X, hue: 300, range: 120, size: 1.0, accessory: 'reedweaver', folk: 'fen', lively: true, faces: -1, blurb: 'weaves armour out of reed and bog-iron at her shed', shop: 'sedge', hello: "Oh! A customer! Or a visitor. Either's good. Trade is the button. (Everyone can hear you.)" },
   { id: 'tamp', name: 'Tamp', short: 'Tamp', room: SKYCAMP, x: TAMP_X, hue: 32, range: 120, size: 1.15, accessory: 'tinker', folk: 'forge', faces: -1, blurb: 'an old forge hand sorting salvaged gears, looking for one in particular', hello: 'Mind the pile. Seen a gear with a hammer mark on it? (Everyone can hear you.)' },
   // the Smoking Coast's glass-cutter (Emberdeep's depth pass E2): fjord folk, thinned nearly clear by the heat
   { id: 'liv', name: 'Liv', short: 'Liv', room: COAST, x: LIV_X, hue: 192, range: 120, size: 1.05, accessory: 'glasscutter', folk: 'thinned', faces: -1, blurb: "Ice-Cutter Eyvind's daughter, who cuts black glass on the Smoking Coast and trades at her shelter", shop: 'liv', hello: 'Mind the edges, they cut. Buying or talking? Trade is the button. (Everyone can hear you.)' },
@@ -1028,6 +1060,10 @@ export const SLAP_QUIPS = {
   brine: ['Oi! Mind the captain, landlubber!', 'Arr, I\'ve been hit by bigger waves than you.', 'Blistering barnacles!', 'Is that how they greet sailors these days?'],
   kestrel: ['Oi! Not near the envelope!', "That's going in the logbook.", 'Hold the rail, not the pilot.', 'The wind hits harder than you.'],
   ione: ['Oh! The lantern!', "That wasn't kind.", "...I'll keep the light lit anyway.", 'Please. Not here.'],
+  netta: ['Oi! Mind the eels.', "We don't do that on the water.", "My husband's lantern saw that.", 'Round, never over. Hands too.'],
+  wren: ['Shh! The wicks!', "That's not how we greet anyone here.", '...I will pretend that was a draught.', 'Gently. Everything here is gentle.'],
+  hob: ['Ho! Nearly had me in the mere.', "Twelve grandchildren and none of them that rude.", "Can't swim, you know. Not taking chances.", 'Steady on, steady on.'],
+  sedge: ['Hey! I was weaving that!', "Ow! That's going in a hood somewhere.", 'Is that how they say hello up north?', 'Rude. Interesting. Mostly rude.'],
   tamp: ['Eh? Was that a hello?', 'Mind the pile!', "I've been hit by hotter things than you.", "Ember'd have clipped your ear for that."],
   dockwarden: ['INCIDENT LOGGED.', 'ASSAULT ON PORT STAFF. NOTED.', 'PLEASE KEEP HANDS INSIDE THE DOCKS.', 'COMPLAINT FILED. PENDING THE HOUR.'],
   prof: ["Ouch! That's not on the syllabus!", 'Detention!', 'Hey! Please backpropagate that.', 'Ow — I felt that in every layer!'],

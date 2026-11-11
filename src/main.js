@@ -18,7 +18,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, COLUMN_VISTA_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP, SKYDOCKS } from './shared/rpg.js';
+import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, COLUMN_VISTA_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS } from './shared/rpg.js';
 import { drawHighlands, drawSummitLookout } from './highlands.js';
 import { drawCaldera } from './caldera.js';
 import { drawCitadel } from './citadel.js';
@@ -43,6 +43,8 @@ import { drawFjord, drawFjordView } from './fjord.js';
 import { drawForgehold, drawForgeView } from './forgehold.js';
 import { drawSkycamp, drawSkycampView } from './skycamp.js';
 import { drawSkydocks } from './skydocks.js';
+import { drawWickmere, drawWickmereView } from './wickmere.js';
+import { drawShallows } from './shallows.js';
 import { drawColumnVista } from './balloon.js';
 import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel, shipName } from './crossing.js';
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
@@ -1619,6 +1621,7 @@ function render() {
   if (view === FJORD) drawFjordView(ctx, camX, time);
   else if (view === FORGEHOLD) drawForgeView(ctx, camX, time);
   else if (view === SKYCAMP && room !== SKYCAMP) drawSkycampView(ctx, camX, time); // (the camp paints its own sky)
+  else if (view === WICKMERE && room !== WICKMERE) drawWickmereView(ctx, camX, time); // (so does Wickmere)
   else if (view === VILLAGE || view === FIELD) drawBackground(ctx, camX, time, ENV, roomDef(room).width);
 
   ctx.save();
@@ -1658,6 +1661,7 @@ function render() {
     else if (room === RIM) drawRim(ctx, camX, W, time);
     else if (room === UNDERFLUES) drawUnderFlues(ctx, camX, W, time);
     else if (room === SKYDOCKS) drawSkydocks(ctx, camX, W, time, net.renderTick()); // (its gusts follow the server tick)
+    else if (room === SHALLOWS) drawShallows(ctx, camX, W, time);
     else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
       if (near(SUMMIT_LOOKOUT_X)) drawSummitLookout(ctx, SUMMIT_LOOKOUT_X, ROOMS[HIGHLANDS].ground, time);
@@ -1674,6 +1678,7 @@ function render() {
   else if (room === FJORD) drawFjord(ctx, camX, W, time);
   else if (room === FORGEHOLD) drawForgehold(ctx, camX, W, time);
   else if (room === SKYCAMP) drawSkycamp(ctx, camX, W, time);
+  else if (room === WICKMERE) drawWickmere(ctx, camX, W, time);
   else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
   else if (room === LONGFLUE) drawLongFlue(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === LONGSTAIR) drawLongStair(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
@@ -1781,6 +1786,7 @@ function render() {
     else if (status === 'online' && room === FJORD) drawPill(16, 14, 300, `Icefang Hamlet · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === FORGEHOLD) drawPill(16, 14, 300, `Forgehold · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === SKYCAMP) drawPill(16, 14, 300, `The Skydocks Camp · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === WICKMERE) drawPill(16, 14, 300, `Wickmere · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CLIFFS) drawPill(16, 14, 300, `The East Cliffs · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === ROADSEND) drawPill(16, 14, 300, `The Road's End · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === LONGFLUE) drawPill(16, 14, 300, `The Long Flue · ${here} slime${here === 1 ? '' : 's'}`);

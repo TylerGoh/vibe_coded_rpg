@@ -38,7 +38,9 @@ ship, Pickles, superstitions, cards at the Inn. Slapping him gets `SLAP_QUIPS.br
 - `drawDistantIslands` draws each other island's landmark: Frostpeak's snowy peaks under the aurora,
   Emberdeep's volcano and smoke column, the Aether Citadel hanging in the sky, Greenhollow's green hump with
   the apple tree. Called from every outdoor sky: the village, Wildwood and house windows (`drawBackground`
-  in `src/background.js`), the harbour, the Highlands, the Caldera and the Citadel. Dens don't (enclosed).
+  in `src/background.js`), the harbour, the Highlands, the Caldera and the Citadel. Dens don't (enclosed). Since atlas
+  Phase 8, Lantern Fen too (`drawLanternFen`: a low dark island in violet mist with lights hovering over it), east of
+  home, and Wickmere and the Shallows have a view of their own (`fen`, facing west over the mere).
 - **Each island's view faces the middle of the Glass Sea**, so compass bearings become left/right: from
   home, Frostpeak (north) is left, Emberdeep (south) right, the Citadel middle (`VIEWS`). The panorama
   turns a little as you walk (`PAN`).

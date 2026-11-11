@@ -18,6 +18,7 @@ import { drawCollierDress } from './ashwood-art.js';
 import { THIN_PALETTE, drawThinFolk, drawGlasscutterDress } from './coast-art.js';
 import { drawPickerDress } from './brimstone-art.js';
 import { drawCampDress } from './skycamp-art.js';
+import { FEN_PALETTE, drawFenFolk, drawFenDress } from './wickmere-art.js';
 import { drawPetkeeperDress } from './pet-art.js';
 
 // yr's laptop notifications: icon colours, and how long each one floats
@@ -115,13 +116,15 @@ export class Slime {
   // Another island's people (story/characters/people.md): 'fjord' = Frostpeak's fjord folk, pale and
   // frosted, half-solid in the cold, with a slow wobble; 'forge' = Emberdeep's forge folk, dark, dense and
   // ember-flecked, just as stiff (lively: a child or a youngster, who still bounces); 'thinned' = fjord folk thinned
-  // nearly clear by years of heat (Liv, docs/places/coast.md): see-through, a cool glint or two, the same slow wobble
+  // nearly clear by years of heat (Liv, docs/places/coast.md): see-through, a cool glint or two, the same slow wobble;
+  // 'fen' = Lantern Fen's fen folk (atlas Phase 8): pale see-through violet-grey with a soft light deep inside
   setFolk(folk, lively = false) {
     this.folk = folk;
     this.lively = lively;
     if (folk === 'fjord') this.palette = FOLK_PALETTE(this.hue);
     if (folk === 'forge') this.palette = FORGE_PALETTE(this.hue);
     if (folk === 'thinned') this.palette = THIN_PALETTE(this.hue);
+    if (folk === 'fen') this.palette = FEN_PALETTE(this.hue);
   }
 
   setName(name) {
@@ -503,6 +506,7 @@ export class Slime {
       ctx.clip();
       if (this.folk === 'fjord') drawFolk(ctx, w, h, this.t);
       else if (this.folk === 'thinned') drawThinFolk(ctx, w, h, this.t);
+      else if (this.folk === 'fen') drawFenFolk(ctx, w, h, this.t);
       else drawForgeFolk(ctx, w, h, this.t);
       ctx.restore();
     }
@@ -1011,6 +1015,7 @@ export class Slime {
     if (this.has('glasscutter')) drawGlasscutterDress(ctx, w, h, fx, this.t); // the Smoking Coast's Liv
     if (this.has('picker')) drawPickerDress(ctx, w, h, fx, this.t); // the Brimstone Fields' Picker Ochre
     for (const kind of ['aeronaut', 'pilgrim', 'tinker', 'porter']) if (this.has(kind)) drawCampDress(ctx, kind, w, h, fx, this.t); // the Skydocks camp's visitors (Kestrel, Ione, Tamp) and the Dockwarden
+    for (const kind of ['eelskipper', 'lamplady', 'ferryman', 'reedweaver']) if (this.has(kind)) drawFenDress(ctx, kind, w, h, fx, this.t); // Wickmere's people (atlas Phase 8)
     if (this.has('petkeeper')) drawPetkeeperDress(ctx, w, h, fx, this.t, bodyPath); // the Pet Shop's Auntie Clover
     if (this.has('captain')) {
       // Captain Brine: a salt-white beard, a navy captain's cap with a gold anchor badge, and a brass spyglass

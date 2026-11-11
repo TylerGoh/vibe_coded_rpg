@@ -127,6 +127,7 @@ const SHOT = {
   log: { glow: '255,130,60', core: '#ffd27a', mid: '#3a3034', rim: '#1e1a1e' }, // Greyback's burning log (the Ashwood)
   sulphur: { glow: '240,220,90', core: '#fffbd0', mid: '#ffe04a', rim: '#b08a1e' }, // the chimney spitter's glob of burning sulphur (the Brimstone Fields)
   molten: { glow: '255,150,60', core: '#fff6d0', mid: '#ffb040', rim: '#c84a1e' },
+  mud: { glow: '150,130,90', core: '#c8b890', mid: '#6a5640', rim: '#3a2c22' }, // the mire frog's gobbet of bog mud (the Shallows, atlas Phase 8)
   swap: { glow: '190,140,255', core: '#ffffff', mid: '#c9a6ff', rim: '#6a3ea8' }, // a boss's controls-swap orb (src/challenge.js) // molten metal: the crucible newt's and Old Crucible's (the Old Foundry)
 };
 function drawShot(ctx, h, now) {
@@ -369,6 +370,24 @@ function drawShot(ctx, h, now) {
     ctx.fill();
     ctx.fillStyle = 'rgba(46,90,138,0.35)';
     ctx.fillRect(s2 * 0.1, s2 * 0.1, s2 * 0.8, s2 * 0.8);
+  } else if (h.style === 'mud') {
+    // a wobbling gobbet of black-brown bog mud, a strand of weed trailing off it
+    ctx.translate(p.x, p.y);
+    const wob = Math.sin(now * 18) * 0.12;
+    ctx.fillStyle = st.mid;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * (1 + wob), r * (1 - wob), Math.atan2(uy, ux), 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = st.rim;
+    disc(ctx, r * 0.3, r * 0.25, r * 0.35);
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    disc(ctx, -r * 0.35, -r * 0.35, r * 0.22);
+    ctx.strokeStyle = '#6e8a4e';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(-ux * r, -uy * r);
+    ctx.quadraticCurveTo(-ux * r * 2 + Math.sin(now * 9) * 3, -uy * r * 2, -ux * r * 2.6, -uy * r * 2.6 + 3);
+    ctx.stroke();
   } else if (h.style === 'log') {
     // a charred log end over end, its ends burning, sparks flying off it
     ctx.translate(p.x, p.y);
@@ -468,6 +487,7 @@ function drawPuddle(ctx, h, now) {
   if (h.style === 'steam') return drawSteamPuff(ctx, h, now);
   if (h.style === 'acid') return drawAcid(ctx, h, now);
   if (h.style === 'goo') return drawGoo(ctx, h, now);
+  if (h.style === 'bog') return drawBogMuck(ctx, h, now);
   if (h.style === 'silk') return drawSilk(ctx, h, now);
   if (h.style === 'glow') return drawGlowThread(ctx, h, now);
   const start = h.warnAt ?? h.at;
@@ -618,6 +638,35 @@ function drawGoo(ctx, h, now) {
     const ph = (now * (0.5 + hash(seed + i) * 0.4) + hash(seed + i * 3)) % 1;
     ctx.fillStyle = `rgba(230,215,250,${0.9 * Math.sin(ph * Math.PI)})`;
     disc(ctx, x + (hash(seed + i * 5) - 0.5) * rx * 1.3 * grow, y - 2 - ph * 5, 2.4 + ph * 1.6);
+  }
+  ctx.restore();
+}
+
+// The bog slime's trail (the Shallows, atlas Phase 8): peat-black muck with a sour green scum, slow fat bubbles
+function drawBogMuck(ctx, h, now) {
+  const start = h.warnAt ?? h.at, end = h.end ?? h.at + 5, age = now - start;
+  const a = clamp01(age / 0.25) * clamp01((end - now) / Math.min(1.2, (end - start) * 0.4));
+  if (a <= 0) return;
+  const x = h.x, y = h.y ?? GROUND, rx = (h.w || 60) / 2, grow = 0.6 + 0.4 * easeOut(clamp01(age / 0.4));
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.fillStyle = '#3a2c22';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, rx * grow, 7, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#5a4636';
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx * grow * 0.84, 4.6, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(140,170,90,0.55)'; // scum
+  ctx.beginPath();
+  ctx.ellipse(x + rx * 0.2, y - 0.5, rx * grow * 0.36, 1.8, 0, 0, TAU);
+  ctx.fill();
+  const seed = x * 0.37;
+  for (let i = 0; i < 3; i++) {
+    const ph = (now * (0.4 + hash(seed + i) * 0.4) + hash(seed + i * 3)) % 1;
+    ctx.fillStyle = `rgba(122,100,80,${0.9 * Math.sin(ph * Math.PI)})`;
+    disc(ctx, x + (hash(seed + i * 5) - 0.5) * rx * 1.3 * grow, y - 2 - ph * 4, 2.6 + ph * 2);
   }
   ctx.restore();
 }

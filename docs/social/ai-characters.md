@@ -45,6 +45,13 @@ one shared corner feed).
   name and counts your arrivals through its ordinary per-player memory (the persona asks it to; `first` opens a new
   entry), knows the port and its hazards and nothing of "the hour" (`docs/places/skydocks.md`). A
   character who stands in more than one room (`also`) trades only where its shop is (`src/npc.js`).
+  **Lantern Fen's people** (atlas Phase 8, L0, `docs/places/fen.md`), all fen folk (`folk: 'fen'`): **Skipper Netta**
+  (`netta`, the Hush's crossing, at her eel boxes and at the tiller via `also`), **Wren the Lamplady** (`wren`, tends the
+  Lamp Walk, trades potions as "lamp oil"), **Ferryman Hob** (`hob`, his punt is the Still Mere's gate; no trade) and
+  **Sedge** (`sedge`, the reed-weaver, trades the Fen's first gear tier). No `lore` cap: Tier 0, their island and their
+  trades; Wren knows funeral songs that name "the Keepers" without knowing who they were. None says the Wickmother's
+  name ("the Mother", and a change of subject). The update also taught Runa about Netta and the Hush, and Pilgrim Ione
+  (now in the fen folk's look) that the way home is open.
   **Atlas Phase 7 (story progress, `docs/social/story.md`)**: a character with a `lore` cap gets the canon up to the
   asking slime's lore tier (from its story record); Mochi and Clio have cap 4 and know it themselves; since (c) every
   island's people have their island's tier as a cap, as hearsay (Greenhollow 1, Frostpeak 2, Emberdeep 3; Kestrel,

@@ -34,7 +34,8 @@ music scene in `src/audio.js`, wiring in `src/main.js`.
 
 ## The telescope
 - E at `CLIFFS_SCOPE_X` opens a lens drawn over the game (`Telescope` in `src/cliffs.js`, drawn after the
-  world in screen space). ←/→ (or A/D) swing it between Frostpeak, the Citadel and Emberdeep; E or Esc
+  world in screen space). ←/→ (or A/D) swing it between Frostpeak, the Citadel, Lantern Fen (atlas Phase 8) and
+  Emberdeep; E or Esc
   steps back. While it's up your slime stands still (`keys()` returns 0).
 - Phones: the movement pad stays visible and does the same thing; a tap on the canvas's sides swings, a
   tap in the middle steps back. The usage line sits inside the lens there (the top edge has buttons).

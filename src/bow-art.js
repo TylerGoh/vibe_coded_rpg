@@ -78,6 +78,7 @@ export const BOWS = {
   greyback_bow: { len: 32, wood: ['#3a3236', '#1a1618'], w: 4, tip: 'fang', c: '#2a2426', grip: '#7a7478', gem: '#ffa050', string: '#c8b8a8', glow: '255,160,90', curve: 0.38 },
   // the Brimstone Fields (E3a, docs/places/brimstone.md)
   picker_bow: { len: 30, wood: ['#8a8490', '#4e4a56'], w: 3.2, tip: 'rivet', c: '#6a5a40', grip: '#8a6a48', gem: '#ffe060', string: '#e8dcb8', glow: '255,230,110' }, // (two basket hoops)
+  wicker_bow: { len: 30, wood: ['#c8b890', '#7e7058'], w: 3, tip: 'reed', c: '#8a7aa8', grip: '#9a8a62', string: '#e0d8c8', glow: '214,190,255' }, // (Sedge's: willow staves bound in split reed)
   kitetalon_bow: { len: 30, wood: ['#9a8a5a', '#5a4e30'], w: 3.2, tip: 'fang', c: '#2a2426', grip: '#6a4a30', gem: '#ffd040', string: '#d8ccb0', glow: '255,220,100', curve: 0.46 },
   condor_bow: { len: 34, wood: ['#4a4448', '#24202a'], w: 4, tip: 'feather', c: '#7a7278', c2: '#c8c0b8', grip: '#6a5a48', gem: '#ffd060', string: '#c8bca8', glow: '255,214,120', curve: 0.36 },
   // the Old Foundry (E3b, docs/places/foundry.md)

@@ -16,7 +16,9 @@ look, dress, the later Frostpeak mobs and Runa's gear in `src/fjord-art.js`, the
 - **Room 23, a town and a safe room** (no mobs, like every harbour and hometown: atlas). West to east: the
   stone quay where the Puddle Jumper ties up (her gangway, `FJORD_DOCK_X`, boards `FERRY_S` after the usual
   "Set sail?" card), the **Lodestar** with her gangway (`FJORD_LODESTAR_X`, boards `STEAM_N` south to
-  Emberdeep, `docs/places/crossings.md`) and Arne's notice, **Runa's net shed**, the turf hut whose door
+  Emberdeep, `docs/places/crossings.md`) and Arne's notice, **the Hush's lantern post** between the two ships (atlas
+  Phase 8: a ladder down to Skipper Netta's eel-boat, at anchor far out in the fjord, `FJORD_HUSH_X`, boards `FEN_OUT`
+  east to Lantern Fen: `docs/places/fen.md`; `drawHushAtAnchor`, `drawHushPost`), **Runa's net shed**, the turf hut whose door
   is **everyone's own front door** (`FJORD_HOME_X`), the **lamp-fire** where Old Skaldi stands and where you
   wake up, Tove with her bucket, the smokehouse, and the **path up to Frostpine Ridge** (`FJORD_EXIT_X`,
   into the stage's west end at `HIGHLANDS_EXIT_X`).

@@ -8,7 +8,9 @@
 // `after`). One room type, themed per route (`crossing.route`): 'cold' (Greenhollow–Frostpeak: icebergs, snow,
 // the aurora) and 'steam' (Frostpeak–Emberdeep through the Steam Straits: the last icebergs, fog banks, warm
 // green water, geysers out of the sea, steam, ash settling, Emberdeep's black cliffs), and 'sky' (atlas Phase 6: the
-// balloon Kite up Emberdeep's thermal column to the Skydocks, drawn by src/balloon.js). SHIPS: each route's ship.
+// balloon Kite up Emberdeep's thermal column to the Skydocks, drawn by src/balloon.js), and 'fen' (atlas Phase 8: the
+// eel-boat Hush east from Icefang Hamlet to Lantern Fen: grey water stilling, mist, the dead's lanterns adrift, lily
+// pads and fireflies, Reedwater's jetty in the fog). SHIPS: each route's ship.
 // This room paints its own sky.
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
 import { DECK_W, DECK_GROUND, DECK_PLATFORMS, DECK_GANGWAY_X, roomDef, voyage } from './shared/sim.js';
@@ -35,25 +37,29 @@ function text(ctx, str, x, y, size, color, align = 'center') {
   ctx.fillText(str, x, y);
 }
 
-const ISLAND_NAME = { green: 'Greenhollow', frost: 'Frostpeak', ember: 'Emberdeep', citadel: 'the Skydocks' };
+const ISLAND_NAME = { green: 'Greenhollow', frost: 'Frostpeak', ember: 'Emberdeep', citadel: 'the Skydocks', fen: 'Lantern Fen' };
 // How each route's ship looks on deck (the deck's platforms are the same for every ship). paddle: a paddle
 // box amidships (else portholes all along); funnel: [pipe, band, width]
 const SHIPS = {
   cold: { name: 'Puddle Jumper', short: 'Ferry', hull: '#4f6b9a', band: '#fff1dc', label: 'PUDDLE JUMPER', ink: '#4f6b9a', paddle: true, funnel: ['#4f6b9a', '#e86f86', 36], cabin: '#fff8f0', roof: ['#7fc8c0', '#5aa9a1'], sail: '#fff6ea', stripe: 'rgba(244,166,180,0.55)', pennant: '#9fd8ff', smoke: '240,236,246' },
   sky: { name: 'Kite', short: 'Kite' }, // (the balloon: her look is src/balloon.js's own)
+  // the Hush (atlas Phase 8): Skipper Netta's eel-boat, black-hulled, a little stove pipe, a dun sail with a violet
+  // stripe, and a lantern on a pole at the bow (drawBowLantern)
+  fen: { name: 'Hush', short: 'Hush', hull: '#2e2a3a', band: '#8a7aa8', label: 'HUSH', ink: '#2e2a3a', paddle: false, funnel: ['#3a3446', '#8a7aa8', 14], cabin: '#d8cfc0', roof: ['#6a6280', '#4e4862'], sail: '#cfc4ae', stripe: 'rgba(122,96,168,0.4)', pennant: '#9a7ac8', smoke: '196,190,206', lantern: true },
   steam: { name: 'Lodestar', short: 'Lodestar', hull: '#3e4258', band: '#c9a07a', label: 'LODESTAR', ink: '#3e4258', paddle: false, funnel: ['#4a4450', '#c9a07a', 18], cabin: '#e2d6c2', roof: ['#8a9a7e', '#6a7a60'], sail: '#efe4cc', stripe: 'rgba(208,72,90,0.42)', pennant: '#d0485a', smoke: '200,196,200' },
 };
 export const shipName = (cr, short = false) => (SHIPS[cr.route] ?? SHIPS.cold)[short ? 'short' : 'name'];
 // The crossing a room is, plus how far along you are: k 0..1 (0 = just cast off), d the sea scrolled so far,
 // u how far toward Frostpeak you are (0 = at Greenhollow, 1 = at Frostpeak: the cold route's palette) · on the
-// steam route, w how far toward Emberdeep (0 = at Frostpeak, 1 = at Emberdeep)
+// steam route, w how far toward Emberdeep (0 = at Frostpeak, 1 = at Emberdeep) · on the fen route, f how far toward
+// Lantern Fen
 export function crossingAt(room, me) {
   const c = roomDef(room)?.crossing;
   if (!c) return null;
   const k = me ? voyage(me) : 0;
   const ease = smooth(0, 1, k);
   const u = c.route === 'steam' ? 1 : c.to === 'frost' ? k : 1 - k;
-  return { ...c, k, d: DIST * ease, u, w: c.to === 'ember' ? k : 1 - k, docked: k >= 1, left: Math.max(0, Math.ceil((c.ticks - (me?.vt | 0)) / 60)) };
+  return { ...c, k, d: DIST * ease, u, w: c.to === 'ember' ? k : 1 - k, f: c.to === 'fen' ? k : 1 - k, docked: k >= 1, left: Math.max(0, Math.ceil((c.ticks - (me?.vt | 0)) / 60)) };
 }
 // "Frostpeak in 42 s" for the HUD
 export const crossingLabel = (cr) => {
@@ -92,6 +98,7 @@ export function drawCrossing(ctx, room, camX, viewW, time, me) {
   ctx.translate(camX, 0); // sky, sea and coasts in screen space
   if (cr.route === 'sky') drawSkyRoute(ctx, cr, camX, time);
   else if (cr.route === 'steam') drawSteamSea(ctx, cr, camX, time);
+  else if (cr.route === 'fen') drawFenSea(ctx, cr, camX, time);
   else drawSea(ctx, cr, camX, time);
   ctx.restore();
   const L = camX - 80, R = camX + viewW + 80;
@@ -105,7 +112,7 @@ export function drawCrossingFront(ctx, room, camX, viewW, time, me) {
   if (!cr) return;
   if (cr.route === 'sky') return drawSkyFront(ctx, cr, camX, viewW, time); // (no water up there: cloud wisps under the gondola)
   const speed = cr.docked ? 0 : Math.sin(Math.PI * Math.min(1, cr.k * 1.05));
-  const top = GROUND + 62, col = cr.route === 'steam' ? mix('#5d7f9e', '#5f9c88', smooth(0.35, 0.85, cr.w)) : mix('#7cc0d6', '#5d7f9e', cr.u);
+  const top = GROUND + 62, col = cr.route === 'fen' ? mix('#5d7092', '#3a3650', smooth(0.3, 0.9, cr.f)) : cr.route === 'steam' ? mix('#5d7f9e', '#5f9c88', smooth(0.35, 0.85, cr.w)) : mix('#7cc0d6', '#5d7f9e', cr.u);
   ctx.fillStyle = col;
   ctx.beginPath();
   ctx.moveTo(camX - 10, H);
@@ -448,6 +455,166 @@ function drawSteamSea(ctx, cr, camX, time) {
   }
 }
 
+// ——— the fen route (the Hush, Icefang Hamlet–Lantern Fen; atlas Phase 8) ———
+// the dead's lanterns set adrift on the water (at: how far toward the Fen, y: depth 0 far .. 1 near), mist banks lying
+// on the still water, lily pads near the end, fireflies off Reedwater
+const driftLamps = (() => {
+  const r = mulberry32(241);
+  return Array.from({ length: 34 }, () => ({ at: 0.3 + Math.pow(r(), 0.7) * 0.68, y: r(), p: r() * TAU, hue: r() }));
+})();
+const fenBanks = (() => {
+  const r = mulberry32(251);
+  return Array.from({ length: 10 }, () => ({ at: 0.15 + r() * 0.75, y: r(), s: 0.8 + r() * 0.9, seed: Math.floor(r() * 1e6) }));
+})();
+const pads = (() => {
+  const r = mulberry32(257);
+  return Array.from({ length: 30 }, () => ({ at: 0.78 + r() * 0.22, y: r(), s: 0.6 + r() * 0.8, a: r() * TAU, bloom: r() < 0.25 }));
+})();
+const flies = (() => {
+  const r = mulberry32(263);
+  return Array.from({ length: 30 }, () => ({ x: r() * W, y: 140 + r() * 260, p: r() * TAU, v: 0.4 + r() * 0.6 }));
+})();
+
+function drawFenSea(ctx, cr, camX, time) {
+  const f = cr.f; // 0 at Frostpeak, 1 at Lantern Fen
+  const dusk = smooth(0.25, 0.85, f), mist = smooth(0.2, 0.5, f) * (1 - smooth(0.85, 0.98, f) * 0.6);
+  const swell = Math.sin(time * 0.8) * 3 * (1 - dusk * 0.8); // (the water stills toward the Fen)
+  const hz = HORIZON + swell;
+  const sky = ctx.createLinearGradient(0, 0, 0, hz);
+  sky.addColorStop(0, mix('#5f6f9e', '#2e2a4a', dusk));
+  sky.addColorStop(0.6, mix('#a7b4d6', '#6a5a8e', dusk));
+  sky.addColorStop(1, mix('#e4dcea', '#cdb8d8', dusk));
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, hz + 1);
+  // stars come out over the Fen
+  if (dusk > 0.3) {
+    for (let i = 0; i < 24; i++) {
+      ctx.fillStyle = `rgba(255,250,235,${(dusk - 0.3) * (0.4 + 0.3 * Math.sin(time * 2 + i))})`;
+      circle(ctx, (i * 197 + 30 - camX * 0.02 + W * 4) % W, 20 + ((i * 61) % 130), 0.8 + (i % 3) * 0.3);
+    }
+  }
+  // the aurora fading astern; a low moon over the Fen
+  const au = 1 - smooth(0.05, 0.35, f);
+  if (au > 0.01) {
+    ctx.globalAlpha = 0.28 * au;
+    for (const [c, off, y0] of [['#8fffd0', 0, 70], ['#c4a0ff', 2, 100], ['#9fd8ff', 4, 52]]) {
+      ctx.fillStyle = c;
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 40) {
+        const y = y0 + Math.sin(x * 0.006 + time * 0.3 + off) * 26 + Math.sin(x * 0.013 - time * 0.2) * 10;
+        x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      for (let x = W; x >= 0; x -= 40) ctx.lineTo(x, y0 + 30 + Math.sin(x * 0.006 + time * 0.3 + off + 0.6) * 26);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  const mx = W - 200 - camX * 0.01, my = 110;
+  ctx.globalAlpha = dusk;
+  const mg = ctx.createRadialGradient(mx, my, 10, mx, my, 110);
+  mg.addColorStop(0, 'rgba(240,230,255,0.4)');
+  mg.addColorStop(1, 'rgba(240,230,255,0)');
+  ctx.fillStyle = mg;
+  ctx.fillRect(mx - 110, my - 110, 220, 220);
+  ctx.fillStyle = '#efe8f8';
+  circle(ctx, mx, my, 22);
+  ctx.globalAlpha = 1;
+  // the two islands' landmarks: Frostpeak astern, the Fen's lights growing over the bow
+  const haze = mix('#e4dcea', '#cdb8d8', dusk);
+  ctx.save();
+  ctx.globalAlpha = smooth(0.08, 0.3, cr.k) * (1 - mist * 0.7);
+  drawLandmark(ctx, cr.from, 150 - camX * 0.02, hz, 1.3 - 0.8 * cr.k, { time, haze, fade: 0.25 + 0.4 * cr.k, sky: 200, night: cr.from === 'frost' ? au : dusk });
+  ctx.globalAlpha = (1 - smooth(0.88, 0.98, cr.k)) * (1 - mist * 0.7);
+  drawLandmark(ctx, cr.to, W - 210 - camX * 0.02, hz, 0.45 + 0.9 * cr.k, { time, haze, fade: 0.65 - 0.45 * cr.k, sky: 200, night: cr.to === 'frost' ? 1 - dusk : dusk });
+  ctx.restore();
+  // the water: grey-blue in the north, then black and still, the sky in it
+  const sea = ctx.createLinearGradient(0, hz, 0, H);
+  sea.addColorStop(0, mix('#c4cfe2', '#7a6c96', dusk));
+  sea.addColorStop(0.35, mix('#8aa0c0', '#4a4466', dusk));
+  sea.addColorStop(1, mix('#5a7698', '#2a2840', dusk));
+  ctx.fillStyle = sea;
+  ctx.fillRect(0, hz, W, H - hz);
+  ctx.fillStyle = `rgba(255,255,255,${0.6 - dusk * 0.4})`;
+  ctx.fillRect(0, hz, W, 1.5);
+  if (dusk > 0.1) { // the moon's path on the still water
+    ctx.fillStyle = `rgba(240,230,255,${0.18 * dusk})`;
+    for (let i = 0; i < 9; i++) {
+      const y = hz + 6 + i * i * 2.4;
+      ctx.beginPath();
+      ctx.roundRect(mx - 30 - i * 3 + Math.sin(time + i) * 4, y, 60 + i * 6, 2, 1);
+      ctx.fill();
+    }
+  }
+  const leave = COAST_AT - cr.d, reach = COAST_AT + (DIST - cr.d);
+  if (leave > -40) drawCoast(ctx, cr.from, leave, hz, -1, time);
+  if (reach < W + 40) drawCoast(ctx, cr.to, reach, hz, 1, time);
+  // mist banks lying on the water
+  for (const b of fenBanks) {
+    const at = cr.to === 'fen' ? b.at : 1 - b.at;
+    const fx = 0.25 + b.y * 0.5;
+    const x = COAST_AT + (at * DIST - cr.d) * fx;
+    if (x < -400 || x > W + 400) continue;
+    const y = hz + 4 + b.y * (GROUND - hz - 60), r = mulberry32(b.seed);
+    ctx.fillStyle = `rgba(${Math.round(232 - dusk * 40)},${Math.round(230 - dusk * 44)},${Math.round(240 - dusk * 20)},0.5)`;
+    for (let i = 0; i < 6; i++) ellipse(ctx, x + (r() - 0.5) * 260 * b.s, y - r() * 30, (90 + r() * 90) * b.s, (18 + r() * 16) * b.s);
+  }
+  // lily pads, then the lanterns: the dead's lights set adrift, each in its own ring on the water. She goes round them
+  for (const pd of pads) {
+    const at = cr.to === 'fen' ? pd.at : 1 - pd.at;
+    const fx = 0.3 + pd.y * 0.6;
+    const x = COAST_AT + (at * DIST - cr.d) * fx;
+    if (x < -40 || x > W + 40) continue;
+    const y = hz + 8 + pd.y * pd.y * (GROUND - hz - 30), sz = pd.s * (0.4 + pd.y * 0.8);
+    ctx.fillStyle = '#4e6e52';
+    ctx.beginPath();
+    ctx.ellipse(x, y, 14 * sz, 5 * sz, 0, pd.a, pd.a + TAU - 0.5);
+    ctx.lineTo(x, y);
+    ctx.fill();
+    if (pd.bloom) {
+      ctx.fillStyle = '#f2d8ec';
+      circle(ctx, x + 3 * sz, y - 3 * sz, 3.5 * sz);
+    }
+  }
+  for (const lp of driftLamps) {
+    const at = cr.to === 'fen' ? lp.at : 1 - lp.at;
+    const fx = 0.3 + lp.y * 0.6;
+    const x = COAST_AT + (at * DIST - cr.d) * fx + Math.sin(time * 0.3 + lp.p) * 10;
+    if (x < -60 || x > W + 60) continue;
+    const y = hz + 6 + lp.y * lp.y * (GROUND - hz - 30) + Math.sin(time * 1.1 + lp.p) * 1.5, sz = 0.4 + lp.y * 0.8;
+    const warm = lp.hue < 0.6, glow = 0.5 + 0.2 * Math.sin(time * 2 + lp.p * 3);
+    const g = ctx.createRadialGradient(x, y - 6 * sz, 2, x, y - 6 * sz, 34 * sz);
+    g.addColorStop(0, warm ? `rgba(255,214,150,${0.5 * glow})` : `rgba(206,184,255,${0.5 * glow})`);
+    g.addColorStop(1, 'rgba(255,214,150,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - 34 * sz, y - 40 * sz, 68 * sz, 68 * sz);
+    ctx.fillStyle = 'rgba(255,230,190,0.3)'; // its light on the water
+    ellipse(ctx, x, y + 2 * sz, 12 * sz, 2.5 * sz);
+    ctx.fillStyle = '#3a3446';
+    ctx.beginPath();
+    ctx.roundRect(x - 5 * sz, y - 13 * sz, 10 * sz, 13 * sz, 2 * sz);
+    ctx.fill();
+    ctx.fillStyle = warm ? '#ffe2a8' : '#e2d4ff';
+    ctx.beginPath();
+    ctx.roundRect(x - 3.4 * sz, y - 11 * sz, 6.8 * sz, 9 * sz, 1.5 * sz);
+    ctx.fill();
+  }
+  // fireflies off Reedwater
+  const ff = smooth(0.82, 0.95, f);
+  if (ff > 0.01) {
+    for (const fl of flies) {
+      const x = (fl.x + Math.sin(time * fl.v + fl.p) * 30 - camX * 0.1 + W * 4) % W, y = fl.y + Math.sin(time * fl.v * 1.3 + fl.p) * 14;
+      ctx.fillStyle = `rgba(230,255,160,${ff * (0.3 + 0.5 * (0.5 + 0.5 * Math.sin(time * 4 + fl.p * 5)))})`;
+      circle(ctx, x, y, 1.6);
+    }
+  }
+  // the mist itself, over everything for the middle of the crossing
+  if (mist > 0.01) {
+    ctx.fillStyle = `rgba(214,206,228,${0.32 * mist})`;
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
 // A geyser out of the sea: a white column that shoots up and falls back into a cloud of steam
 function drawGeyser(ctx, x, y, s, ph) {
   ctx.fillStyle = 'rgba(255,255,255,0.4)';
@@ -613,6 +780,60 @@ function drawCoast(ctx, key, edge, hz, side, time) {
       ctx.fillStyle = `rgba(245,240,238,${0.5 * (1 - k)})`;
       circle(ctx, at(260 + i * 50) + Math.sin(k * 4 + i) * 6, base - 10 - k * 50, 6 + k * 14);
     }
+  } else if (key === 'fen') {
+    // Lantern Fen: a low dark shore of reeds and willows in the mist, Wickmere's stilt houses with a lantern in every
+    // window, and Reedwater's one jetty running out into the water, where she ties up
+    ctx.fillStyle = '#4a4262';
+    ctx.beginPath();
+    ctx.moveTo(inland, base);
+    ctx.lineTo(inland, hz - 40);
+    ctx.quadraticCurveTo(at(span * 0.6), hz - 70, at(300), hz - 34);
+    ctx.quadraticCurveTo(at(140), hz - 14, tip, base - 4);
+    ctx.lineTo(tip, base);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#3e3856'; // willows, rounded and drooping
+    for (let i = 0; i < 6; i++) {
+      const wx = at(380 + i * 120), wy = hz - 56 - (i % 2) * 12;
+      ellipse(ctx, wx, wy, 44, 30);
+      ctx.fillRect(wx - 3, wy, 6, 30);
+    }
+    ctx.strokeStyle = '#5a5276'; // reeds along the water
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let d = 20; d < span; d += 9) {
+      const rx = at(d), lean = Math.sin(d * 0.3 + time) * 2;
+      ctx.moveTo(rx, base);
+      ctx.lineTo(rx + lean, base - 12 - (d % 5) * 3);
+    }
+    ctx.stroke();
+    for (let i = 0; i < 5; i++) { // stilt houses with a lantern in every window
+      const hx = at(150 + i * 64), hy = base - 30 - (i % 2) * 6;
+      ctx.strokeStyle = '#2e2a3a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(hx - 10, hy);
+      ctx.lineTo(hx - 10, base);
+      ctx.moveTo(hx + 10, hy);
+      ctx.lineTo(hx + 10, base);
+      ctx.stroke();
+      ctx.fillStyle = '#6a6080';
+      ctx.fillRect(hx - 15, hy - 18, 30, 18);
+      ctx.fillStyle = '#8a7e6a'; // reed thatch
+      ctx.beginPath();
+      ctx.moveTo(hx - 20, hy - 16);
+      ctx.lineTo(hx, hy - 34);
+      ctx.lineTo(hx + 20, hy - 16);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = `rgba(255,220,160,${0.75 + 0.2 * Math.sin(time * 2 + i)})`;
+      ctx.fillRect(hx - 5, hy - 13, 8, 7);
+    }
+    ctx.fillStyle = '#5a5070'; // Reedwater's jetty on its posts, a lantern at the end
+    ctx.fillRect(Math.min(at(-60), at(140)), base - 7, 200, 5);
+    for (let k = -50; k <= 130; k += 36) ctx.fillRect(at(k) - 1.5, base - 4, 3, 8);
+    ctx.fillStyle = `rgba(214,190,255,${0.6 + 0.2 * Math.sin(time * 3)})`;
+    circle(ctx, at(-50), base - 22, 4);
   } else {
     ctx.fillStyle = '#4a4d66';
     ctx.beginPath();
@@ -767,6 +988,46 @@ function drawShip(ctx, cr, L, R, time) {
   if (visible(cr8.x - 20, cr8.x + cr8.w + 20, L, R)) drawCrates(ctx, cr8);
   if (visible(BELL_X - 40, BELL_X + 40, L, R)) drawBell(ctx, time, speed);
   if (visible(DECK_GANGWAY_X - 120, DECK_GANGWAY_X + 120, L, R)) drawGangway(ctx, cr, time);
+  if (look.lantern && visible(DECK_W - 140, DECK_W + 20, L, R)) drawBowLantern(ctx, time);
+}
+
+// The Hush's bow lantern (atlas Phase 8): a tall pole at the bow with a lantern swinging off its crook, violet-glassed,
+// always lit. Netta says it's so the dead's lanterns can see her coming and get out of the way.
+function drawBowLantern(ctx, time) {
+  const x = DECK_W - 70, y = GROUND - 150, sw = Math.sin(time * 1.3) * 0.12;
+  ctx.save();
+  ctx.strokeStyle = '#3a3446';
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x - 30, GROUND);
+  ctx.lineTo(x, y);
+  ctx.quadraticCurveTo(x + 26, y - 14, x + 34, y + 4);
+  ctx.stroke();
+  ctx.translate(x + 34, y + 4);
+  ctx.rotate(sw);
+  ctx.strokeStyle = '#2e2a3a';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(0, 12);
+  ctx.stroke();
+  const g = ctx.createRadialGradient(0, 24, 3, 0, 24, 46);
+  g.addColorStop(0, `rgba(214,190,255,${0.45 + 0.1 * Math.sin(time * 3)})`);
+  g.addColorStop(1, 'rgba(214,190,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(-46, -22, 92, 92);
+  ctx.fillStyle = '#2e2a3a';
+  ctx.beginPath();
+  ctx.roundRect(-9, 12, 18, 24, 4);
+  ctx.fill();
+  ctx.fillStyle = '#e4d4ff';
+  ctx.beginPath();
+  ctx.roundRect(-6, 16, 12, 16, 3);
+  ctx.fill();
+  ctx.fillStyle = '#fff4d8';
+  ellipse(ctx, 0, 25, 2.2, 3.8);
+  ctx.restore();
 }
 
 // The hull below the deck line: her colour with a band, her name near the bow, portholes

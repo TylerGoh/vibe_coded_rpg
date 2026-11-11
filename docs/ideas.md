@@ -105,7 +105,8 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 - The Skydocks have no rare gear drop and no field boss (the plan's default); a Dockwarden-themed cosmetic could come
   later. The Dockwarden's arrival count is only as good as its chat memory (it can drift once memories fold).
 - Soot, Arne, Brine, Ochre and Pitch don't mention the balloon yet (only Ash and Slag do).
-- No Citadel island map (the World map's tap goes nowhere on the Citadel); Lantern Fen's folk look (Ione is plain).
+- No Citadel island map (the World map's tap goes nowhere on the Citadel). (Lantern Fen's folk look came with atlas
+  Phase 8's L0; Ione has it.)
 - Kestrel sells no weapon of her own (only the goggles).
 
 ## Classes (S1–S4) left for later
@@ -133,3 +134,14 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   lets any Warrior's Power Strike crack armour, `WEAK_HP`, `CURSE_DOT`), whether the weak point's default spot
   (`weakOf`) is reachable on tall bosses without Flash Jump, whether the curse's sigil reads in dark dens, and a
   stagger on a field boss mid-lunge (it waits for the lunge to end).
+
+## Atlas Phase 8, L0 (Lantern Fen's landing) left for later
+- Untested by people: the Hush both ways, Wickmere, the four characters' chat and the two shops, the Shallows' mobs and
+  numbers, the drowned signpost's jump, the World map's Fen. Nothing was playtested headless (owner's rule): a build, the
+  sheet, a server boot and a Node draw check of every new drawing function against a fake canvas. Nobody has looked at
+  the art by eye.
+- The bog slime's "sticky: slows you" (the plan) is a trail of bog muck instead; a real slow needs a field in `step()`.
+- The Hush's deck is the shared ship, the ferry's size; an eel-boat of her own size would need her own deck platforms.
+- Soot, Arne, Brine, Skaldi and Kestrel don't mention the Hush or the Fen yet (Runa and Ione do).
+- L1–L5 are on the roadmap: Firefly Hollow and the Drowned Grove (L1), the Still Mere (L2), the Sunk Barrows and the field
+  bosses (L3), the Causeway and Grandfather Mire (L4), the Wickmother (L5).

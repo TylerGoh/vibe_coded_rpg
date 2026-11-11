@@ -4,16 +4,18 @@
 // Each island's view faces the middle of the Glass Sea (the Maelstrom, where the Citadel circles), so from
 // home Frostpeak sits on the left (north), Emberdeep's smoke on the right (south) and the Citadel hangs
 // high in the middle. Drawn in screen space, after a room's sky and before its own hills and mountains.
-import { W, TAU, circle, mix } from './util.js';
+import { W, TAU, circle, ellipse, mix } from './util.js';
 
 // For each island you can stand on: the compass bearing its view faces, and the bearing (degrees,
 // 0 = north, clockwise) and distance (1 = far, bigger = nearer) of every other island's landmark.
 const VIEWS = {
-  green: { face: 90, sees: { frost: [40, 1], citadel: [92, 1], ember: [140, 1] } },
-  greenSouth: { face: 180, sees: { frost: [40, 1], citadel: [92, 1], ember: [140, 1] } }, // Greenhollow's south shore (Saltspray Coves): Emberdeep's smoke ahead
-  frost: { face: 180, sees: { citadel: [165, 1], ember: [190, 0.8], green: [240, 0.9] } },
-  ember: { face: 0, sees: { frost: [335, 0.8], citadel: [345, 1.1], green: [300, 0.9] } },
+  green: { face: 90, sees: { frost: [40, 1], citadel: [92, 1], ember: [140, 1], fen: [104, 0.7] } },
+  greenSouth: { face: 180, sees: { frost: [40, 1], citadel: [92, 1], ember: [140, 1], fen: [104, 0.7] } }, // Greenhollow's south shore (Saltspray Coves): Emberdeep's smoke ahead
+  frost: { face: 180, sees: { citadel: [165, 1], ember: [190, 0.8], green: [240, 0.9], fen: [132, 0.8] } },
+  ember: { face: 0, sees: { frost: [335, 0.8], citadel: [345, 1.1], green: [300, 0.9], fen: [42, 0.8] } },
   citadel: { face: 270, sees: { green: [270, 0.9], frost: [0, 0.9], ember: [180, 0.9] } },
+  // Lantern Fen (atlas Phase 8), looking west over the mere toward the middle of the sea
+  fen: { face: 270, sees: { citadel: [282, 1], frost: [322, 0.8], ember: [218, 0.8], green: [268, 0.6] } },
 };
 const PX_PER_DEG = 4.4; // how wide the panorama is
 const PAN = 160; // walking from one end of a room to the other turns the panorama this many px
@@ -31,7 +33,7 @@ export function drawDistantIslands(ctx, o) {
     let rel = (((bearing - view.face) % 360) + 540) % 360 - 180; // -180..180, negative = to the left
     const x = W / 2 + rel * PX_PER_DEG + pan, s = scale * near;
     if (x < -260 || x > W + 260) continue;
-    const draw = { frost: drawFrostpeak, ember: drawEmberdeep, citadel: drawCitadel, green: drawGreenhollow }[key];
+    const draw = { frost: drawFrostpeak, ember: drawEmberdeep, citadel: drawCitadel, green: drawGreenhollow, fen: drawLanternFen }[key];
     draw(ctx, x, o.horizon, s, o, tint);
   }
 }
@@ -41,7 +43,7 @@ export function drawDistantIslands(ctx, o) {
 export function drawLandmark(ctx, key, x, y, s, o) {
   const fade = o.fade ?? 0.5, haze = o.haze ?? '#f0faff';
   const tint = (c, more = 0) => mix(c, haze, Math.max(0, Math.min(1, fade + more)));
-  ({ frost: drawFrostpeak, ember: drawEmberdeep, citadel: drawCitadel, green: drawGreenhollow })[key](ctx, x, y, s, o, tint);
+  ({ frost: drawFrostpeak, ember: drawEmberdeep, citadel: drawCitadel, green: drawGreenhollow, fen: drawLanternFen })[key](ctx, x, y, s, o, tint);
 }
 
 // Frostpeak: a cluster of snowy peaks under the aurora (its landmark), faint by day
@@ -162,4 +164,28 @@ function drawGreenhollow(ctx, x, y, s, o, tint) {
   circle(ctx, x + 2 * s, y - 56 * s, 13 * s);
   ctx.fillStyle = tint('#f4eee4');
   ctx.fillRect(x - 86 * s, y - 34 * s, 5 * s, 22 * s);
+}
+
+// Lantern Fen, seen from away (atlas Phase 8): a low dark island lying in its own violet mist, nothing standing up out of
+// it, and lights hovering over it that nobody names (its landmark: the lights, not a shape)
+function drawLanternFen(ctx, x, y, s, o, tint) {
+  const t = o.time, night = o.night ?? 0;
+  ctx.fillStyle = tint('#b8a8d0', 0.05);
+  ctx.globalAlpha = 0.6;
+  ellipse(ctx, x, y - 10 * s, 120 * s, 22 * s);
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = tint('#6a5e86');
+  ctx.beginPath();
+  ctx.moveTo(x - 96 * s, y);
+  ctx.quadraticCurveTo(x - 60 * s, y - 18 * s, x - 10 * s, y - 16 * s);
+  ctx.quadraticCurveTo(x + 50 * s, y - 22 * s, x + 96 * s, y);
+  ctx.closePath();
+  ctx.fill();
+  for (let i = 0; i < 9; i++) {
+    const lx = x + (-70 + i * 17 + Math.sin(t * 0.4 + i * 2.1) * 5) * s, ly = y - (24 + ((i * 37) % 30) + Math.sin(t * 0.7 + i) * 4) * s;
+    ctx.globalAlpha = (0.35 + 0.45 * night) * (0.6 + 0.4 * Math.sin(t * 1.5 + i * 1.7));
+    ctx.fillStyle = i % 3 ? '#ffe6b0' : '#dcc8ff';
+    circle(ctx, lx, ly, Math.max(1, 2.2 * s));
+  }
+  ctx.globalAlpha = 1;
 }

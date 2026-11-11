@@ -42,6 +42,7 @@ export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
 export const FJORD_LODESTAR_X = 1180; // the Lodestar's gangway, south to Emberdeep (boards STEAM_N, sim.js)
+export const FJORD_HUSH_X = 1000; // the ladder down to the Hush's skiff, east to Lantern Fen (atlas Phase 8: boards FEN_OUT, sim.js)
 export const FJORD_EXIT_X = FJORD_W - 90; // up to Frostpine Ridge
 export const RUNA_X = 1560; // Netmender Runa, at her net shed (she trades: SHOPS)
 export const FJORD_PLATFORMS = [
@@ -198,6 +199,63 @@ export const SKYDOCKS_PLATFORMS = [
 // server hurts (GUST_DOT of max HP every PATCH_HIT_EVERY ticks, a flat 'dot': no knockback, no step() change). On the
 // planks only: a ledge over the gap or a jump is out of it.
 export const GUSTS = [{ x: 1180, w: 200 }, { x: 3560, w: 220 }, { x: 4720, w: 200 }];
+
+// ——— atlas Phase 8, L0: Lantern Fen's landing (story/phase8-plan.md; docs/places/fen.md, docs/places/shallows.md) ———
+// Wickmere (room 70): the Fen's town, with Reedwater as its waterfront. A safe room. West to east: Reedwater's jetty in
+// the fog, where Skipper Netta's eel-boat the Hush ties up (her gangway boards FEN_HOME, sim.js; Netta stands by her eel
+// boxes, x matching her spot at the tiller on the decks), the waystone on the landing, Wren's lamp-oil stall where the
+// Lamp Walk begins (she trades: SHOPS), the Lamp Walk's landing (you wake there), the stilt house whose door is
+// everyone's own front door, Ferryman Hob by his punt (drawn up on the boards: the Still Mere's gate, branches.js),
+// Sedge's reed-weaving shed (she trades), and the boardwalk's east end, off into the Shallows. Lanterns everywhere.
+export const WICKMERE = 70; // room id
+export const WICK_W = 2800;
+export const NETTA_X = 190; // Skipper Netta, by her eel boxes on the jetty
+export const WICK_DOCK_X = 420; // the Hush's gangway
+export const WICK_WAY_X = 760; // the waystone, on the landing
+export const WREN_X = 1000; // Wren the Lamplady, at her stall
+export const WICK_SPAWN_X = 1190; // where you wake up, on the Lamp Walk's landing
+export const WICK_HOME_X = 1430; // the stilt house whose door is everyone's own front door
+export const HOB_X = 1720; // Ferryman Hob, by his punt
+export const STILLMERE_GATE_X = 1830; // his punt, drawn up on the boards (the Still Mere's way, L2)
+export const SEDGE_X = 2120; // Sedge, at her reed shed
+export const WICK_EXIT_X = WICK_W - 90; // off the boardwalk into the Shallows
+// eel boxes on the jetty, stilt-house porches, a rope bridge between two of them, the lantern gallery
+export const WICK_PLATFORMS = [
+  { x: 520, y: 372, w: 120, kind: 'boxes' },
+  { x: 850, y: 304, w: 200, kind: 'porch' },
+  { x: 1300, y: 314, w: 250, kind: 'porch' }, // the home stilt house's porch
+  { x: 1580, y: 236, w: 170, kind: 'bridge' },
+  { x: 2330, y: 292, w: 200, kind: 'porch' },
+];
+// The Shallows (room 73): Lantern Fen's first wilds, east off Wickmere's boardwalk: knee-deep water, reed beds, lily
+// pads and half-sunk boardwalk. You come in at the WEST end (SHALLOWS_EXIT_X) and go east, harder: the Landing Stage (no
+// mobs: a waystone), the Reedbeds, the Lily Flats and the Sunken Boardwalk. Its gates (branches.js): a fallen willow
+// across the side path to Firefly Hollow (FIREFLY_GATE_X), and the far end, where the water's up over the boardwalk
+// rails toward the Drowned Grove (GROVE_GATE_X). The drowned signpost (last in SHALLOWS_PLATFORMS) is the find.
+export const SHALLOWS = 73; // room id
+export const SHALLOWS_W = 4600;
+export const SHALLOWS_EXIT_X = 70; // back along the boardwalk to Wickmere
+export const SHALLOWS_WAY_X = 380; // the Landing Stage's waystone
+export const FIREFLY_GATE_X = 1300; // the side path to Firefly Hollow (L1), a fallen willow across it
+export const GROVE_GATE_X = SHALLOWS_W - 130; // the Drowned Grove's path (L1), under water to the rails
+export const SHALLOWS_ZONES = [
+  { name: 'The Landing Stage', x0: 0, x1: 620, lvl: null }, // (no mobs)
+  { name: 'The Reedbeds', x0: 620, x1: 1800, lvl: '150–152' },
+  { name: 'The Lily Flats', x0: 1800, x1: 3000, lvl: '152–155' },
+  { name: 'The Sunken Boardwalk', x0: 3000, x1: SHALLOWS_W, lvl: '155–158' },
+];
+// tussocks of reed and peat, stretches of old boardwalk still up on their posts; the drowned signpost high on its post
+export const SHALLOWS_PLATFORMS = [
+  { x: 760, y: 352, w: 180, kind: 'tussock' },
+  { x: 1060, y: 278, w: 180, kind: 'boardwalk' },
+  { x: 1980, y: 344, w: 200, kind: 'tussock' },
+  { x: 2340, y: 262, w: 190, kind: 'boardwalk' },
+  { x: 2720, y: 346, w: 180, kind: 'tussock' },
+  { x: 3180, y: 330, w: 210, kind: 'boardwalk' },
+  { x: 3560, y: 256, w: 190, kind: 'boardwalk' },
+  { x: 4000, y: 342, w: 200, kind: 'tussock' },
+  { x: 3610, y: 164, w: 92, kind: 'signpost' }, // the drowned signpost, up off the high boardwalk: easy to miss
+];
 export const GUST_CYCLE = 540, GUST_WARN = 120, GUST_BLOW = 100; // (ticks)
 export const GUST_DOT = 0.05;
 // gap i at server tick t → { k: 0..1 how hard the wind is getting up, blow: whether it's blowing (and hurts) }
@@ -1048,6 +1106,7 @@ export const STAGES = {
   [RIM]: { name: 'The Caldera Rim', zones: RIM_ZONES, band: '135–150', pill: 'Caldera Rim' },
   [UNDERFLUES]: { name: 'The Under-Flues', zones: UNDERFLUES_ZONES, band: '145–150', hard: true, pill: 'Under-Flues' },
   [SKYDOCKS]: { name: 'The Skydocks', zones: SKYDOCKS_ZONES, band: '135–145' },
+  [SHALLOWS]: { name: 'The Shallows', zones: SHALLOWS_ZONES, band: '150–158' }, // (atlas Phase 8, L0: Lantern Fen)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -2563,6 +2622,31 @@ MOBS.mooring_hook = {
 // marine iguana, drawn as one). Only her clutch makes them, so like a split minion its EXP and gold stay small
 MOBS.grown_hatchling = { ...elite('marine_iguana', 'Grown Hatchling'), exp: 900, drops: [['coin', 1, 80, 150]] };
 
+// ——— atlas Phase 8, L0: the Shallows (art: src/shallows-art.js; docs/places/shallows.md). On the frozen curve; no
+// elites, no field boss (L3) ———
+// Lantern moths drift over the reeds with a light in their bellies and never hurt anyone; bog slimes are the fen's own
+// jelly gone to peat, slow, leaving a trail of stinging bog muck (a puddle trail; the plan's "sticky" slow would need
+// step(), so it's the muck instead); mire frogs sit on the lily flats and lob gobbets of mud; mudskippers run at you
+// across the shallows on their fins, quick and low
+MOBS.lantern_moth = {
+  name: 'Lantern Moth', lvl: 150, hp: 19800, atk: 521, exp: 12746, speed: 70, w: 64, h: 44, aggro: false, hops: false, fly: 40,
+  drops: [['coin', 1, 1205, 1810], ['lamp_dust', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
+};
+MOBS.bog_slime = {
+  name: 'Bog Slime', lvl: 152, hp: 25500, atk: 529, exp: 13036, speed: 40, w: 62, h: 48, aggro: true, hops: true,
+  ai: { kind: 'trail', every: 0.8, life: 4.5, w: 58, style: 'bog' },
+  drops: [['coin', 1, 1230, 1845], ['bog_jelly', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
+};
+MOBS.mire_frog = {
+  name: 'Mire Frog', lvl: 154, hp: 21400, atk: 538, exp: 13329, speed: 60, w: 58, h: 46, aggro: true, hops: true,
+  ai: { kind: 'lob', range: 400, every: 2.6, keep: 140, warn: 0.5, style: 'mud' },
+  drops: [['coin', 1, 1255, 1885], ['mire_skin', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
+};
+MOBS.mudskipper = {
+  name: 'Mudskipper', lvl: 156, hp: 20600, atk: 546, exp: 13625, speed: 130, w: 50, h: 32, aggro: true, hops: true,
+  drops: [['coin', 1, 1280, 1925], ['skipper_fin', 0.5, 1, 2], ['mega_elixir', 0.2, 1, 1], ['reed_hood', 0.004, 1, 1]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -2779,6 +2863,7 @@ const onBfPlat = onRoomPlat(BRIM_PLATFORMS, BRIMSTONE);
 const onRmPlat = onRoomPlat(RIM_PLATFORMS, RIM);
 const onUfPlat = onRoomPlat(UNDERFLUES_PLATFORMS, UNDERFLUES);
 const onSdPlat = onRoomPlat(SKYDOCKS_PLATFORMS, SKYDOCKS);
+const onShPlat = onRoomPlat(SHALLOWS_PLATFORMS, SHALLOWS);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -3239,6 +3324,23 @@ export const SPAWNS = [
   ...strip('loose_bolt', 4350, 5000, FIELD_GROUND, 2, SKYDOCKS),
   ...onSdPlat('mooring_hook', 7, 1),
   ...onSdPlat('rigging_moth', 8, 1),
+  // atlas Phase 8, L0: the Shallows (the Landing Stage has none)
+  ...strip('lantern_moth', 700, 1780, FIELD_GROUND, 3, SHALLOWS),
+  ...strip('bog_slime', 700, 1780, FIELD_GROUND, 4, SHALLOWS),
+  ...onShPlat('bog_slime', 0, 1),
+  ...onShPlat('lantern_moth', 1, 1),
+  ...strip('mire_frog', 1850, 2950, FIELD_GROUND, 4, SHALLOWS),
+  ...strip('bog_slime', 1850, 2950, FIELD_GROUND, 2, SHALLOWS),
+  ...strip('lantern_moth', 1850, 2950, FIELD_GROUND, 2, SHALLOWS),
+  ...onShPlat('mire_frog', 2, 1),
+  ...onShPlat('mire_frog', 3, 1),
+  ...onShPlat('bog_slime', 4, 1),
+  ...strip('mudskipper', 3050, 4400, FIELD_GROUND, 5, SHALLOWS),
+  ...strip('mire_frog', 3050, 4400, FIELD_GROUND, 2, SHALLOWS),
+  ...strip('lantern_moth', 3050, 4400, FIELD_GROUND, 2, SHALLOWS),
+  ...onShPlat('mudskipper', 5, 1),
+  ...onShPlat('mire_frog', 6, 1),
+  ...onShPlat('mudskipper', 7, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -3600,6 +3702,9 @@ export const ITEMS = {
   fume_mask: { name: "Picker's Fume Mask", price: 170000, lvl: 131, aim: 135, kind: 'helmet', def: 92, desc: 'A leather hood with a pad of wet cloth over the mouth and two smoked-glass eyes. It does not stop the smell. Nothing does.' },
   // Pilot Kestrel's own, at the Skydocks camp (atlas Phase 6, docs/places/skydocks.md)
   aeronaut_goggles: { name: "Aeronaut's Goggles", price: 185000, lvl: 136, aim: 140, kind: 'helmet', def: 95, desc: 'A padded leather flying cap with brass goggles and ear-flaps that tie under the chin. The lenses are scratched from looking down.' },
+  // atlas Phase 8, L0: Sedge's tier in Wickmere (woven reed and bog-iron), and the reed hood a mudskipper may drop
+  reedcutter: { name: 'Reedcutter', price: 265000, lvl: 151, aim: 155, kind: 'sword', atk: 209, reach: 60, desc: "A long, thin blade of bog-iron, black and pitted, with a hook at the tip for pulling the cut reeds to you. Sedge's mother cut a whole roof with it." },
+  reed_hood: { name: 'Reed Hood', price: 205000, lvl: 151, aim: 155, kind: 'helmet', def: 102, desc: 'A deep hood woven from split reed so tight it turns rain, a fringe of seed-heads round the rim. Sedge wove this one twice; the first had a hole she could see the moon through.' },
   fumarole_helm: { name: 'Fumarole Helm', price: 613000, lvl: 132, kind: 'helmet', def: 92, desc: "An iron helm crusted over with a vent crab's sulphur crystals, yellow on black. It steams a little in the rain. Forged for a wheel that never got it." },
   kitetalon: { name: 'Kitetalon', price: 857000, lvl: 136, kind: 'sword', atk: 195, reach: 60, desc: "A hooked iron blade shaped like a kite's talon, its edge stained yellow. It comes down the way the bird does." },
   condor_pinion: { name: 'Condor Pinion', price: 935000, lvl: 142, kind: 'sword', atk: 201, reach: 66, desc: "A long blade beaten from slag iron in the shape of a condor's flight feather, the vanes cut into its edge. Forged for a wheel that never got it." },
@@ -3623,6 +3728,10 @@ export const ITEMS = {
   stray_bolt: { name: 'Stray Bolt', price: 1300, kind: 'loot', desc: 'A brass bolt as long as your hand, its thread still bright. It stopped hopping when you picked it up. Mostly.' },
   rigging_silk: { name: 'Rigging Silk', price: 1345, kind: 'loot', desc: "A hank of pale silk spun through old sailcloth by a rigging moth. Stronger than the rope it was holding together." },
   mooring_link: { name: 'Mooring Link', price: 1390, kind: 'loot', desc: 'One iron link off a mooring chain, as big as your head, worn bright on the inside where a ship once pulled at it.' },
+  lamp_dust: { name: 'Lamp Dust', price: 1450, kind: 'loot', desc: "A pinch of glowing scales off a lantern moth's wings, in a twist of reed paper. It goes on glowing for days, then just stops." },
+  bog_jelly: { name: 'Bog Jelly', price: 1470, kind: 'loot', desc: "A lump of brown jelly from a bog slime, peat-dark and smelling of rain. It isn't quite dead. It isn't quite anything." },
+  mire_skin: { name: 'Mire Frog Skin', price: 1490, kind: 'loot', desc: "A green-gold frog skin, cool and soft as wet leather. Wickmere's lamp-makers stretch it over the windows of their lanterns." },
+  skipper_fin: { name: 'Mudskipper Fin', price: 1510, kind: 'loot', desc: 'A stiff, spined fin like a little fan, still muddy. Mudskippers walk on these. You would think they would have chosen feet.' },
   roc_feather: { name: 'Crag Roc Feather', price: 1445, kind: 'loot', desc: "A great dark flight feather, its shaft as thick as your finger, grey with the rim's dust. The wind tugs at it even indoors." },
   glassback_helm: { name: 'Glassback Helm', price: 700000, lvl: 141, kind: 'helmet', def: 97, desc: "An iron helm plated in a glass scorpion's black scutes, a curled sting for a crest. Forged for a wheel that never got it." },
   cragbeak: { name: 'Cragbeak', price: 990000, lvl: 146, kind: 'sword', atk: 204, reach: 64, desc: "A heavy black-iron blade hooked at the end like a roc's beak, its edge chipped where it hit rock. It comes down out of the wind." },
@@ -3745,6 +3854,7 @@ export const ITEMS = {
   hundred_staff: { name: 'Hundredfoot Staff', price: 745000, lvl: 127, kind: 'staff', magic: 186, mp: 111, reach: 66, twin: 'hundred_saw', desc: "A jointed iron staff made of Hundredfoot's segments, glowing at every joint. It shifts in your hand, very slightly, as if walking." },
   brand_staff: { name: 'Smoulder Staff', price: 806000, lvl: 132, kind: 'staff', magic: 191, mp: 114, reach: 66, twin: 'greyback_brand', desc: "One of Greyback's logs, banded with iron, smouldering at the head. Its bolts come out trailing sparks and smelling of pine." },
   pick_staff: { name: "Picker's Staff", price: 215000, lvl: 131, aim: 135, kind: 'staff', magic: 190, mp: 114, reach: 56, twin: 'brimstone_pick', desc: 'An old yoke pole cut down to a staff, a lump of clear yellow sulphur bound to its head with wire. It hums when the vents breathe.' },
+  willow_staff: { name: 'Willow Staff', price: 265000, lvl: 151, aim: 155, kind: 'staff', magic: 209, mp: 124, reach: 60, twin: 'reedcutter', desc: 'A peeled willow wand as tall as you, a little lantern of frog-skin hung from its crook with a moth-light inside. It sways when you cast.' },
   kitetalon_staff: { name: 'Kitetalon Staff', price: 857000, lvl: 136, kind: 'staff', magic: 195, mp: 117, reach: 60, twin: 'kitetalon', desc: "An iron staff hooked at the head like a kite's foot, clutching a yellow crystal. Its bolts stoop on whatever they're aimed at." },
   pinion_staff: { name: 'Pinion Staff', price: 935000, lvl: 142, kind: 'staff', magic: 201, mp: 121, reach: 66, twin: 'condor_pinion', desc: 'A long iron staff with a fan of slag-iron feathers at its head, singed at the tips. A hot wind follows its bolts.' },
   sootfang_staff: { name: 'Sootfang Staff', price: 896000, lvl: 139, kind: 'staff', magic: 198, mp: 119, reach: 60, twin: 'sootfang', desc: "A black iron rod with a hound's fang at its head, soot smoking off it. Its bolts run low and fast." },
@@ -3829,6 +3939,7 @@ const BOW_LIST = [
   ['twinfang_bow', 'twinfang', 'Twinfang Bow', 'A black iron bow with a fang at each tip, its grip wound in soot-stiff hide. Loose one arrow and you hear two.'],
   ['bearer_bow', 'bearer_blade', "Bearer's Bow", 'Two old carrying straps of iron-hard leather, bent and riveted, a buckle at the grip. Draw it and it creaks like something taking a weight.'],
   ['spring_bow', 'slag_maul', 'Ironspring Bow', 'Two leaf-springs off an old forge bellows, riveted together and strung with wire. Forged for a wheel that never got it.'],
+  ['wicker_bow', 'reedcutter', 'Wicker Bow', "Three willow staves bound in split reed and strung with eel-gut. It bends like the reeds do in the wind, and doesn't break either."],
 ];
 for (const [id, twin, name, desc] of BOW_LIST) {
   const sw = ITEMS[twin];
@@ -3935,6 +4046,8 @@ export const SHOPS = {
   // the Brimstone Fields (E3a): Picker Ochre's sulphur-picker's gear and potions at her lean-to
   ochre: { name: "Ochre's Lean-to", room: BRIMSTONE, x: OCHRE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'brimstone_pick', 'pick_staff', 'picker_bow', 'fume_mask'] },
   kestrel: { name: "Kestrel's Stall", room: SKYCAMP, x: KESTREL_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'aeronaut_goggles'] },
+  wren: { name: "Wren's Lamp Stall", room: WICKMERE, x: WREN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir'] }, // (atlas Phase 8: she calls it all lamp oil)
+  sedge: { name: "Sedge's Reed Shed", room: WICKMERE, x: SEDGE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'reedcutter', 'willow_staff', 'wicker_bow', 'reed_hood'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };
 // Boss gear is better than anything else at its level (owner, 2026-11-06: "bossing is not worth it ... because the

@@ -141,7 +141,11 @@ No quests, no hard level gates.
 - [ ] The Last Echo (AI, Tier 4) in the Chrono Spire.
 - [ ] The Slime Ages wing in the museum.
 - [ ] **Atlas Phase 8: Lantern Fen** (the Wickmother), the next island (owner, 2026-11-10). (a) on paper 2026-11-10:
-      `phase8-plan.md` (Lv 70–110 side island, the Hush from Icefang Hamlet, Wickmere, L0–L5), waiting for the owner.
+      `phase8-plan.md`; approved 2026-11-11 with Lv 150–180 (the owner's change), the rest as written.
+  - [x] L0 (2026-11-11, live): the landing: the Hush, the `'fen'` crossing, Wickmere, its four people, the fen folk look,
+        the Fen in every sky and on the World map, the Shallows (`docs/places/fen.md`, `docs/places/shallows.md`).
+        Unplayed. Next: **L1** (Firefly Hollow and the Drowned Grove, Long-Neck's Heronry).
+  - [ ] L1–L4: the branches, dens, field bosses, the party den. L5: the Wickmother.
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

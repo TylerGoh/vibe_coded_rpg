@@ -217,6 +217,10 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   Bearer's Strap (material).
   Emberdeep's gear names: basalt, black glass, iron, slag,
   charcoal, sulphur, ember, never ice, fur, shell or leaf.
+- Atlas Phase 8's Wickmere adds **Sedge** (`SHOPS.sedge`: the basic potions, the **Reedcutter** with its **Willow
+  Staff** and **Wicker Bow**, and the **Reed Hood**, aimed at Lv 155; art in `src/wickmere-art.js`, `FEN_*`, and the
+  staff and bow tables) and **Wren** (`SHOPS.wren`: potions only). A mudskipper in the Shallows drops the Reed Hood very
+  rarely (`docs/places/fen.md`).
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
   are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.
