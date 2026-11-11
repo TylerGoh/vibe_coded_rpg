@@ -37,7 +37,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 6050; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), and the mini Bog Bloat and Sleeper (L3): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 6350; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), and the mini Will-Queen and Grandfather Mire (L4): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -380,6 +380,42 @@ export const BARROWS_PLATFORMS = [
   { x: 3760, y: 252, w: 170, kind: 'root' },
   { x: 4180, y: 334, w: 180, kind: 'capstone' },
   { x: 2395, y: 168, w: 90, kind: 'nameless' }, // a niche with no name over it, a lantern with no tag, still lit: easy to miss
+];
+// ——— atlas Phase 8, L4: the Lantern Causeway (story/phase8-plan.md; docs/places/causeway.md) ———
+// The Lantern Causeway (room 80): the Fen's main trail at its top, on east from the Drowned Grove's far end, where the
+// causeway's near end had sunk under the mere (CAUSEWAY_GATE_X: the update raised it again, the sunk paving hauled back up
+// onto new bog-oak piles). An old stone causeway straight across the open mere toward the Hall of Lamps, posts both sides
+// with a lantern on every one, all lit, and the dead's lights drifting thick on the water either side. Entered at its WEST
+// end. West to east: the Causeway Foot (no mobs: the raised stretch, a waystone), the Lamp Posts, the Open Mere (the
+// Will-Queen's reach) and the Toad's Reach, where Grandfather Mire sits in his pool beside the causeway (his den, MIRE_DEN_X).
+// At the far end the causeway runs up to the Hall of Lamps' door, shut with moth-silk (a gate, HALL_GATE_X: L5's).
+// The hidden spot (last in CAUSEWAY_PLATFORMS): on top of the broken arch over the Open Mere, a small lantern set facing
+// back toward Wickmere when every other lamp faces the Hall. No trader.
+export const CAUSEWAY = 80; // room id
+export const CAUSEWAY_W = 5600;
+export const CAUSEWAY_EXIT_X = 70; // back down the raised stretch to the Drowned Grove
+export const CAUSEWAY_WAY_X = 380; // the Causeway Foot's waystone
+export const MIRE_DEN_X = 4700; // Grandfather's Pool beside the causeway, the way into his den (room MIRE_DEN, its DENS row)
+export const MIRE_DEN = 81; // Grandfather Mire's den, the party den
+export const HALL_GATE_X = CAUSEWAY_W - 130; // the Hall of Lamps' door, shut with moth-silk (L5)
+export const CAUSEWAY_ZONES = [
+  { name: 'The Causeway Foot', x0: 0, x1: 600, lvl: null }, // (no mobs)
+  { name: 'The Lamp Posts', x0: 600, x1: 2000, lvl: '168–171' },
+  { name: 'The Open Mere', x0: 2000, x1: 3500, lvl: '171–175' },
+  { name: "The Toad's Reach", x0: 3500, x1: CAUSEWAY_W, lvl: '175–180' },
+];
+// fallen paving blocks and islets of peat beside the causeway, the old arches over it; the lantern facing home (hidden, last)
+export const CAUSEWAY_PLATFORMS = [
+  { x: 760, y: 340, w: 190, kind: 'slab' },
+  { x: 1150, y: 270, w: 170, kind: 'arch' },
+  { x: 1700, y: 336, w: 200, kind: 'islet' },
+  { x: 2250, y: 330, w: 190, kind: 'slab' },
+  { x: 2640, y: 256, w: 180, kind: 'arch' },
+  { x: 3200, y: 340, w: 200, kind: 'islet' },
+  { x: 3750, y: 330, w: 190, kind: 'slab' },
+  { x: 4150, y: 262, w: 180, kind: 'arch' },
+  { x: 5000, y: 338, w: 180, kind: 'slab' },
+  { x: 2680, y: 150, w: 100, kind: 'homeward' }, // the top of the broken arch: a lantern facing back toward Wickmere, easy to miss
 ];
 export const GUST_CYCLE = 540, GUST_WARN = 120, GUST_BLOW = 100; // (ticks)
 export const GUST_DOT = 0.05;
@@ -1236,6 +1272,7 @@ export const STAGES = {
   [GROVE]: { name: 'The Drowned Grove', zones: GROVE_ZONES, band: '156–166', pill: 'Drowned Grove' }, // (L1)
   [STILLMERE]: { name: 'The Still Mere', zones: STILLMERE_ZONES, band: '160–170', pill: 'Still Mere' }, // (L2)
   [BARROWS]: { name: 'The Sunk Barrows', zones: BARROWS_ZONES, band: '170–178', hard: true, pill: 'Sunk Barrows' }, // (L3)
+  [CAUSEWAY]: { name: 'The Lantern Causeway', zones: CAUSEWAY_ZONES, band: '168–180', pill: 'Lantern Causeway' }, // (L4)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -2946,6 +2983,76 @@ MOBS.peat_sleeper = {
   drops: [['coin', 1, 77100, 111500], ['bog_bronze', 1, 4, 8], ['barrow_peat', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['sleeper_blade', 0.25, 1, 1], ['sleeper_hood', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 
+// ——— atlas Phase 8, L4: the Lantern Causeway (art: src/causeway-art.js; docs/places/causeway.md). On the frozen curve; no
+// elites (not a hard pocket) ———
+// Lamp moths are the lantern moths grown huge on the causeway's lamps, wings like old parchment with an eye on each, that
+// hang over the posts and stoop on anything that moves (`dive`); drifting lights are little flames come loose from the
+// lanterns adrift, that wander up off the water and over the causeway, harmless and far too many (passive fliers); the
+// causeway guards are old stilt-legged fen slimes in reed armour who stood the causeway for the Mother so long they
+// forgot why, a woven reed shield held across their front (`shell`: get round behind them); mire toads are Grandfather
+// Mire's, squat and warty, that hop the paving and flick their tongues across it (a `lob`)
+MOBS.lamp_moth = {
+  name: 'Lamp Moth', lvl: 169, hp: 24200, atk: 599, exp: 15611, speed: 115, w: 74, h: 54, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.3, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 1416, 2129], ['moth_silk', 0.5, 1, 2], ['mega_elixir', 0.21, 1, 1]],
+};
+MOBS.drifting_light = {
+  name: 'Drifting Light', lvl: 170, hp: 24400, atk: 603, exp: 15768, speed: 40, w: 40, h: 48, aggro: false, hops: false, fly: 40,
+  drops: [['coin', 1, 1427, 2145], ['stray_flame', 0.5, 1, 2], ['mega_elixir', 0.21, 1, 1]],
+};
+MOBS.causeway_guard = {
+  name: 'Causeway Guard', lvl: 174, hp: 32600, atk: 620, exp: 16404, speed: 45, w: 58, h: 86, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.6, lunge: 460, time: 0.32 }, // (the lamp crab's: hit it from behind)
+  drops: [['coin', 1, 1470, 2209], ['guard_reed', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1], ['causeway_helm', 0.004, 1, 1]],
+};
+MOBS.mire_toad = {
+  name: 'Mire Toad', lvl: 178, hp: 28900, atk: 637, exp: 17050, speed: 60, w: 64, h: 52, aggro: true, hops: true,
+  ai: { kind: 'lob', range: 420, every: 2.6, keep: 140, warn: 0.5, style: 'mud' }, // (the mire frog's tongue-flick)
+  drops: [['coin', 1, 1512, 2272], ['toadstone', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1]],
+};
+// The Will-Queen: a field boss (small: no story), a great will-o'-wisp as tall as a house, a cold white flame with a crown of
+// smaller flames round her head and a long trailing veil of light, who drifts over the Open Mere drawing travellers off
+// the causeway. Passive until hit; then she rises and stoops on you (the dive), throws rings of wisp-light, and from her
+// second third sends a slow light at you that turns you round (the controls swap: what a will-o'-wisp does)
+MOBS.will_queen = {
+  name: 'The Will-Queen', field: true, lvl: 176, hp: 3950000, atk: 570, exp: 649000, speed: 70, w: 150, h: 170, aggro: false, hops: false, fly: 80,
+  ai: { kind: 'dive', every: 3.0, warn: 0.85, time: 0.55 },
+  // S5.4: with two or more on her, she picks one slime to stoop on (focus), and the mere's cold mist gathers round her till
+  // it breaks (a pulse, the Narwhal's `breath`)
+  party: ['focus', 'pulse'], partyLive: true, looks: { pulse: 'breath', rings: 'wisplight' },
+  // T3: rings of wisp-light, and from her second third the turning light (`swap`); the punish window on a stoop that misses
+  ch: ['rings', 'swap'], chf: [['rings', 0], ['swap', 1]],
+  desc: 'The Will-Queen is drifting over the Open Mere. Stay on the causeway.',
+  drops: [['coin', 1, 76000, 109900], ['queen_glow', 1, 4, 8], ['stray_flame', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['queenlight', 0.25, 1, 1], ['willqueen_veil', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+// Grandfather Mire (L4; his den, Grandfather's Pool, opens beside the causeway at MIRE_DEN_X): the Fen's party den boss,
+// with a story (story/phase8-plan.md). A toad as big as a boathouse, older than the causeway, green-brown and warty, a
+// lily pad grown on his head like a cap, eyes like two gold lamps. Long ago the Mother asked him to sit across the
+// causeway and let nobody by to the Hall, and he promised; she has never come to say he can stop. Holding on to a
+// promise. He doesn't hate anyone; he is sorry, and he will not move. His ultimate, The Long Promise, is the `wave` ult as
+// the mire heaving along the causeway when he settles his whole weight (the Tidemother's water, src/dens.js waterMass).
+// party (S5; PARTY above, a party den, `partyLive`): focus: he turns his great head to one slime · armour: his hide puffs
+// and hardens, warts like stones (the Colossus's armour, `looks.shell: 'scute'`): heavy hits crack it · pulse: his croak,
+// a boom that rolls out over the pool (`looks.pulse: 'croak'`) · weakpoint: the shard in his throat sac, which shows when
+// he puffs it out to croak (from the front, `weak.front`) · adds: mire toads · interrupt: freeze The Long Promise as he
+// heaves up
+// His challenges (docs/combat/challenges.md): the causeway stones sink into the mire (`arena`, every phase), the chorus of
+// his toads croaking on the beat binds you (`fetter`, the rhythm lock, from phase 2, drawn `looks.snare: 'mire'`) and from
+// phase 3 he takes one slime into his mouth and sits on them (`cage`, 2+ fighting: a friend lets them out)
+MOBS.grandfather_mire = {
+  name: 'Grandfather Mire', boss: true, lvl: 179, hp: 49500000, atk: 700, exp: 3240000, speed: 60, w: 210, h: 170, aggro: true, hops: false,
+  phases: [['slam', 'charge', 'leap', 'arena'], ['slam', 'charge', 'rain', 'summon', 'leap', 'arena', 'fetter'], ['slam', 'charge', 'rain', 'summon', 'leap', 'barrage', 'grid', 'arena', 'fetter', 'cage']],
+  ch: ['arena', 'rhythm', 'rescue'],
+  ult: { name: 'The Long Promise', kind: 'wave' }, minion: 'mire_toad', looks: { grid: 'mire', shell: 'scute', pulse: 'croak', snare: 'mire' }, // (how they're drawn: src/hazards.js, src/party.js, src/challenge.js)
+  party: ['focus', 'armour', 'pulse', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, top: true, weak: { dx: 0.34, dy: -0.22, r: 22, front: true },
+  lines: {
+    enter: ['Hrrm. No further, little ones. Not past me. I promised.', 'Ah. Someone on the causeway again. I am sorry. I cannot let you by. I said I would sit here, and here I sit.'],
+    phase: [null, 'She asked me so kindly. "Sit here, old friend, and let nobody through." How could I say no to her?', 'She will come back and tell me I may get up. She will. Until she does I do not move. I do NOT move!'],
+    freed: '...Hrrm. She is not coming to tell me, is she. Then I shall tell myself. There. I have got up. Oh, my old legs. Go by, little ones. Go by.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['promise_blade', 1, 1, 1], ['grandfather_cap', 0.6, 1, 1], ['coin', 1, 2050000, 3190000], ['mega_elixir', 1, 4, 6], ['mire_pearl', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -3167,6 +3274,7 @@ const onFfPlat = onRoomPlat(FIREFLY_PLATFORMS, FIREFLY);
 const onGvPlat = onRoomPlat(GROVE_PLATFORMS, GROVE);
 const onSmPlat = onRoomPlat(STILLMERE_PLATFORMS, STILLMERE);
 const onBaPlat = onRoomPlat(BARROWS_PLATFORMS, BARROWS);
+const onCwPlat = onRoomPlat(CAUSEWAY_PLATFORMS, CAUSEWAY);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -3708,6 +3816,25 @@ export const SPAWNS = [
   ...onBaPlat('barrow_hound', 8, 1),
   { kind: 'barrowhound_elite', x0: 3300, x1: 4300, y: FIELD_GROUND, room: BARROWS },
   { kind: 'peat_sleeper', x0: 3400, x1: 4300, y: FIELD_GROUND, room: BARROWS },
+  // atlas Phase 8, L4: the Lantern Causeway (the Will-Queen over the Open Mere)
+  ...strip('lamp_moth', 660, 1950, FIELD_GROUND, 4, CAUSEWAY),
+  ...strip('drifting_light', 660, 1950, FIELD_GROUND, 4, CAUSEWAY),
+  ...onCwPlat('lamp_moth', 0, 1),
+  ...onCwPlat('drifting_light', 1, 1),
+  ...onCwPlat('lamp_moth', 2, 1),
+  ...strip('causeway_guard', 2050, 3450, FIELD_GROUND, 4, CAUSEWAY),
+  ...strip('lamp_moth', 2050, 3450, FIELD_GROUND, 2, CAUSEWAY),
+  ...strip('drifting_light', 2050, 3450, FIELD_GROUND, 2, CAUSEWAY),
+  ...onCwPlat('causeway_guard', 3, 1),
+  ...onCwPlat('drifting_light', 4, 1),
+  ...onCwPlat('causeway_guard', 5, 1),
+  { kind: 'will_queen', x0: 2200, x1: 3300, y: FIELD_GROUND, room: CAUSEWAY },
+  ...strip('mire_toad', 3550, 4550, FIELD_GROUND, 4, CAUSEWAY),
+  ...strip('causeway_guard', 3550, 4550, FIELD_GROUND, 2, CAUSEWAY),
+  ...strip('mire_toad', 4850, 5350, FIELD_GROUND, 2, CAUSEWAY),
+  ...onCwPlat('mire_toad', 6, 1),
+  ...onCwPlat('causeway_guard', 7, 1),
+  ...onCwPlat('mire_toad', 8, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -3736,6 +3863,7 @@ export const DENS = [
   { room: HATCH_DEN, boss: 'hatchkeeper', name: 'The Buried Clutch', from: COAST, entranceX: HATCH_DEN_X, theme: 'hatch' }, // (E2; art: src/dens-hatch.js)
   { room: HERON_DEN, boss: 'long_neck', name: 'The Stone Nest', from: GROVE, entranceX: HERON_DEN_X, theme: 'heron' }, // (atlas Phase 8, L1; art: src/dens-heron.js)
   { room: GULLET_DEN, boss: 'old_gullet', name: 'The Eel Pit', from: STILLMERE, entranceX: GULLET_DEN_X, theme: 'gullet' }, // (atlas Phase 8, L2; art: src/dens-gullet.js)
+  { room: MIRE_DEN, boss: 'grandfather_mire', name: "Grandfather's Pool", from: CAUSEWAY, entranceX: MIRE_DEN_X, theme: 'mire' }, // (atlas Phase 8, L4, the Fen's party den; art: src/dens-mire.js)
   { room: BRENNA_DEN, boss: 'brenna', name: "The Bearer's Hoist", from: RIM, entranceX: BRENNA_DEN_X, theme: 'hoist' }, // (E4b; art: src/dens-rim.js)
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
   { room: TYPHON_DEN, boss: 'typhon', name: TYPHON_DEN_NAME, from: LONGFLUE, fromName: 'the Long Flue', entranceX: TYPHON_DEN_X, theme: 'hearth', platforms: TYPHON_PLATFORMS, final: true }, // (E5 (c); art: src/dens-typhon.js; the door's art: src/longflue.js)
@@ -4133,6 +4261,18 @@ export const ITEMS = {
   bogiron_helm: { name: 'Bog-Iron Helm', price: 1084000, lvl: 175, kind: 'helmet', def: 115, desc: 'A round helm of black bog-iron that came up out of a peat mound, a band of plaited reed round the rim. Whoever it was buried with, it kept.' },
   barrowfang: { name: 'Barrowfang', price: 1465000, lvl: 177, kind: 'sword', atk: 234, reach: 62, desc: "A short dark bronze blade with a hooked point like a hound's tooth, out of a barrow hound's keeping. It comes in low and quiet." },
   sleeper_blade: { name: "Sleeper's Blade", price: 1516000, lvl: 180, kind: 'sword', atk: 236, reach: 68, desc: 'A long leaf-shaped blade of old bronze, laid in the peat beside the Sleeper long ago. The bog kept it. It never rusted, it only went brown.' },
+  // atlas Phase 8, L4: the Lantern Causeway, the Will-Queen and Grandfather Mire (docs/places/causeway.md)
+  moth_silk: { name: 'Moth-Silk', price: 1650, kind: 'loot', desc: "A hank of grey silk spun by a lamp moth, fine as a breath and strong as wire. The fen folk say the Hall of Lamps is roofed with it." },
+  stray_flame: { name: 'Stray Flame', price: 1660, kind: 'loot', desc: "A little flame that came loose from a lantern adrift, caught in a twist of glass. It leans east, toward the Hall, however you hold it." },
+  guard_reed: { name: "Guard's Reed", price: 1700, kind: 'loot', desc: "A bundle of woven reed off a causeway guard's armour, so old it has gone grey and hard as horn. It still smells of the mere." },
+  toadstone: { name: 'Toadstone', price: 1740, kind: 'loot', desc: "A little round stone from inside a mire toad's head, green-brown and cool. The old fen folk set them in rings against bad water." },
+  queen_glow: { name: "Will-Queen's Glow", price: 1750, kind: 'loot', desc: "A wisp of the Will-Queen's veil, caught in a jar. It is cold, and in the dark it moves toward the door, as if it wants you to follow." },
+  mire_pearl: { name: 'Mire Pearl', price: 1900, kind: 'loot', desc: "A cloudy green pearl from Grandfather Mire's throat sac, big as a plum. Hold it to your ear and you can hear him croak, very far off." },
+  causeway_helm: { name: 'Causeway Helm', price: 1071000, lvl: 174, kind: 'helmet', def: 115, desc: "A tall helm of grey woven reed over a bog-iron cap, the causeway guards' own, a lantern-hook on the crest. Whoever wore it never moved from their post." },
+  queenlight: { name: 'Queenlight', price: 1482000, lvl: 178, kind: 'sword', atk: 234, reach: 66, desc: 'A long pale blade that burns cold white along its edge, like a wisp drawn out thin. In the dark it shows the way. Not always the right one.' },
+  willqueen_veil: { name: "Will-Queen's Veil", price: 1122000, lvl: 178, kind: 'helmet', def: 117, desc: 'A crown of small cold flames over a veil of pale light that trails behind you. Travellers keep thinking you are a lamp, and following.' },
+  promise_blade: { name: "Grandfather's Promise", price: 1533000, lvl: 181, slots: 10, kind: 'sword', atk: 237, reach: 68, desc: "A broad blade of black bog-iron, wide as a toad's grin, a toadstone set in the pommel. It does not move once it is planted. Neither did he." },
+  grandfather_cap: { name: "Grandfather's Cap", price: 1160000, lvl: 181, slots: 10, kind: 'helmet', def: 118, desc: "An old lily pad gone leathery and green-gold, worn on Grandfather Mire's head for longer than the causeway has stood. A flower still opens on it in summer." },
   sleeper_hood: { name: "Sleeper's Hood", price: 1147000, lvl: 180, kind: 'helmet', def: 118, desc: "A hood of woven wool the peat has turned the colour of tea, a bronze pin at the throat. It is warm, and it smells of rain on a hill a long time ago." },
   nest_stone: { name: 'Nest Stone', price: 1830, kind: 'loot', desc: "A smooth grey pebble from Long-Neck's nest, worn round by being turned and turned. It is never quite warm, however long you hold it." },
   roc_feather: { name: 'Crag Roc Feather', price: 1445, kind: 'loot', desc: "A great dark flight feather, its shaft as thick as your finger, grey with the rim's dust. The wind tugs at it even indoors." },
@@ -4262,6 +4402,8 @@ export const ITEMS = {
   sunklamp_staff: { name: 'Sunken Lamp Staff', price: 1350000, lvl: 170, slots: 9, kind: 'staff', magic: 227, mp: 135, reach: 68, twin: 'gullet_tooth', desc: 'A staff of black bog-oak, a drowned lantern caged at its head, glowing from the inside. Its bolts come up from below, like bubbles.' },
   bogglass_staff: { name: 'Bog-Glass Staff', price: 1193000, lvl: 160, kind: 'staff', magic: 218, mp: 131, reach: 66, twin: 'bloat_cleaver', desc: "A staff of black bog-oak with a ball of the Bog Bloat's jelly set hard at its head, something small and green still floating in it." },
   barrowfang_staff: { name: 'Barrowfang Staff', price: 1465000, lvl: 177, kind: 'staff', magic: 234, mp: 140, reach: 62, twin: 'barrowfang', desc: "A dark rod of peat-oak with a hound's bronze tooth at its head. Its bolts run low and quiet." },
+  queenlight_staff: { name: 'Queenlight Staff', price: 1482000, lvl: 178, kind: 'staff', magic: 234, mp: 141, reach: 66, twin: 'queenlight', desc: 'A slender white-wood staff with a cold flame burning at its head that never needs trimming. Its bolts wander a little, then find you.' },
+  promise_staff: { name: 'Toadstone Staff', price: 1533000, lvl: 181, slots: 10, kind: 'staff', magic: 237, mp: 143, reach: 68, twin: 'promise_blade', desc: "A crooked staff of bog-oak with a great toadstone held in its knot, green-brown and warm. Its bolts land with a deep, patient croak." },
   barrowoak_staff: { name: 'Barrow-Oak Staff', price: 1516000, lvl: 180, kind: 'staff', magic: 236, mp: 142, reach: 68, twin: 'sleeper_blade', desc: 'A staff of black oak from the roof of the Peat Hall, a little grave lamp hung at its head, still lit. Its bolts come slow, then all at once.' },
   stillwater_staff: { name: 'Stillwater Staff', price: 1300000, lvl: 167, slots: 9, kind: 'staff', magic: 224, mp: 134, reach: 68, twin: 'heron_bill', desc: "A tall grey staff, jointed like a heron's leg, a smooth nest stone held in its crook. Its bolts leave the air very still behind them." },
   kitetalon_staff: { name: 'Kitetalon Staff', price: 857000, lvl: 136, kind: 'staff', magic: 195, mp: 117, reach: 60, twin: 'kitetalon', desc: "An iron staff hooked at the head like a kite's foot, clutching a yellow crystal. Its bolts stoop on whatever they're aimed at." },
@@ -4353,6 +4495,8 @@ const BOW_LIST = [
   ['eelbone_bow', 'gullet_tooth', 'Eelbone Bow', "A long bow of the old eel's spine, every little bone of it pale and fine, strung with eel-gut. It bends like something swimming."],
   ['bogwood_bow', 'bloat_cleaver', 'Bogwood Bow', 'A bow of black bog-oak out of the Bog Bloat, bound with weed that has dried hard as wire. It draws heavy and lets go with a wet slap.'],
   ['barrowfang_bow', 'barrowfang', 'Barrowfang Bow', "A short dark bow with a hound's bronze tooth at each tip. Its arrows fly low, like a hound running."],
+  ['queenlight_bow', 'queenlight', 'Queenlight Bow', 'A pale bow that glows faintly along its belly, strung with a thread of cold light. Its arrows fly like wisps: bright, and a little crooked.'],
+  ['promise_bow', 'promise_blade', 'Long-Promise Bow', "A great slow bow of bog-oak bound in reed, a mire pearl set in the grip. It takes all your weight to draw, and it does not let go until you mean it."],
   ['peatyew_bow', 'sleeper_blade', 'Peat-Yew Bow', 'A long yew bow the bog kept, brown as tea, its grip bound in old bronze wire. Strung again after a very long time, it seems glad of it.'],
   ['greywing_bow', 'heron_bill', 'Greywing Bow', "A long bow of grey willow shaped like a heron's spread wing, fletched at the tips. It draws slow and looses all at once."],
 ];

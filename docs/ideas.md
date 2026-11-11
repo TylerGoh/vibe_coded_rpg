@@ -144,8 +144,15 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 - The Hush's deck is the shared ship, the ferry's size; an eel-boat of her own size would need her own deck platforms.
 - Soot, Arne, Brine, Skaldi and Kestrel don't mention the Hush or the Fen yet (Runa and Ione do).
 - L1–L5 are on the roadmap: Firefly Hollow and the Drowned Grove (L1), the Still Mere (L2), the Sunk Barrows and the field
-  bosses (L3, done), the Causeway and Grandfather Mire (L4), the Wickmother (L5).
+  bosses (L3, done), the Causeway and Grandfather Mire (L4, done), the Wickmother (L5).
 - **L3 left for later:** the Will-Queen (the Causeway's field boss) comes with L4. The Bog Bloat's boglings aren't on the
   sheet (it can't model `shed`), so its real fight is a little longer than the sheet's 2:56. The Sleeper "rising when you
   near it" is drawn (asleep at full HP) rather than a new brain. No freed moments for field bosses. Nobody has seen the
   Barrows' art by eye.
+- **L4 left for later:** nobody has fought Grandfather Mire or the Will-Queen; his party split (armour breakers and the
+  throat from the front, no front wall) and his three challenges are on paper only. His gear's effects (The Promise, Sit
+  Tight) are untested, including whether the Promise's broken hit makes AoE too costly to bother with. The Toad's Reach
+  still shows his eyes in the pool after you've freed him (no per-character freed changes on the Fen). The drifting light
+  is a passive mob that is also the sheet's "own level" farm at 170. L5 (a) must decide whether the Hall's moth-silk door
+  at the Causeway's end opens onto the Lamp Road or the Road comes up from the Peat Barrows as the plan's map has it.
+  The art was seen once, in static screenshots, not in play.

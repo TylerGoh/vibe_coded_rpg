@@ -130,6 +130,7 @@ const SHOT = {
   molten: { glow: '255,150,60', core: '#fff6d0', mid: '#ffb040', rim: '#c84a1e' },
   mud: { glow: '150,130,90', core: '#c8b890', mid: '#6a5640', rim: '#3a2c22' }, // the mire frog's gobbet of bog mud (the Shallows, atlas Phase 8)
   lampoil: { glow: '255,214,150', core: '#fffbe8', mid: '#ffd696', rim: '#a8743a' }, // the grave lamp's drop of burning lamp oil (the Sunk Barrows, atlas Phase 8 L3)
+  wisplight: { glow: '220,236,255', core: '#ffffff', mid: '#e4f0ff', rim: '#7a9ac8' }, // the Will-Queen's rings of wisp-light (the Lantern Causeway, atlas Phase 8 L4)
   swap: { glow: '190,140,255', core: '#ffffff', mid: '#c9a6ff', rim: '#6a3ea8' }, // a boss's controls-swap orb (src/challenge.js) // molten metal: the crucible newt's and Old Crucible's (the Old Foundry)
 };
 function drawShot(ctx, h, now) {
@@ -1178,6 +1179,7 @@ const GRID = {
   root: { rgb: '255,205,120', bolt: '#fff0c8', rim: '#6a4c36', fill: '140,110,70', edge: '#7aa05e' }, // the Root Warden: roots heaving the floor, amber light in the cracks
   seam: { rgb: '190,230,255', bolt: '#ffffff', rim: '#3e6294', fill: '120,170,220', edge: '#e2f0fc' }, // Sigrun: the deck heaving along the seam, cold light in the cracks
   briar: { rgb: '170,230,120', bolt: '#e4dcc4', rim: '#22301e', fill: '52,72,44', edge: '#7aa05e' }, // Ladon's Thorn Rows: necks bursting up out of the road (FB1)
+  mire: { rgb: '210,224,140', bolt: '#f0f4d8', rim: '#2a3022', fill: '70,82,52', edge: '#8aa05e' }, // Grandfather Mire: the pool welling up between the stones as he settles his weight (atlas Phase 8 L4)
   rimrock: { rgb: '255,150,80', bolt: '#ffe8c8', rim: '#221e22', fill: '90,80,84', edge: '#ff8a4a' }, // Brenna: the rim's basalt cracking under the tooth's weight, the vent's glow in the cracks (E4b)
 };
 const STRIP = 30; // the floor strip of a low grid zap

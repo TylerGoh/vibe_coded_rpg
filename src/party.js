@@ -292,6 +292,7 @@ const PULSES = {
   thorn: { ring: '120,190,80', glow: '170,230,120', hit: '96,160,60', word: 'BREATH', fill: '#eaffd8', edge: 'rgba(24,40,16,0.82)' }, // Ladon's green hiss of thorn dust (FB1)
   howl: { ring: '190,214,250', glow: '220,234,255', hit: '160,190,240', word: 'HOWL', fill: '#f4f8ff', edge: 'rgba(16,24,48,0.85)' }, // Fenrir's Howl (FB2)
   ash: { ring: '176,168,166', glow: '214,206,200', hit: '150,140,138', word: 'ASH', fill: '#f4eeea', edge: 'rgba(40,30,30,0.85)', foam: true }, // Brenna's den: the column's ash blown over the rim (E4b)
+  croak: { ring: '170,190,100', glow: '210,224,150', hit: '140,160,80', word: 'CROAK', fill: '#f4f8e4', edge: 'rgba(30,40,18,0.85)', foam: true }, // Grandfather Mire's croak, a boom over the pool (atlas Phase 8 L4)
   bellows: { ring: '255,130,50', glow: '255,170,90', hit: '255,110,40', word: 'BELLOWS', fill: '#fff0dc', edge: 'rgba(60,16,4,0.88)', shimmer: true }, // Typhon's breath out, a wave of heat (E5)
 };
 function drawPulseWarn(ctx, x, y, kind, reach, k, t, left) {

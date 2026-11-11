@@ -106,7 +106,7 @@ island shows what's coming.
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 80 after atlas Phase 8's L3 (the Sunk Barrows 79); 79 after L2 (the Still Mere 77, Old Gullet's den 78); 77 after L1 (Firefly Hollow 74, the Drowned Grove 75, Long-Neck's den 76); 74 after L0 (Wickmere 70, the Hush's decks 71–72, the Shallows 73); 70 after atlas Phase 6 (c)'s Skydocks (69), which followed (b)'s balloon decks (66, 67) and the
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 82 after atlas Phase 8's L4 (the Lantern Causeway 80, Grandfather Mire's den 81); 80 after L3 (the Sunk Barrows 79); 79 after L2 (the Still Mere 77, Old Gullet's den 78); 77 after L1 (Firefly Hollow 74, the Drowned Grove 75, Long-Neck's den 76); 74 after L0 (Wickmere 70, the Hush's decks 71–72, the Shallows 73); 70 after atlas Phase 6 (c)'s Skydocks (69), which followed (b)'s balloon decks (66, 67) and the
   Skydocks camp (68); 66 after E5 (b)'s Under-Flues (63) and Long Flue (64) and the Hearth it keeps (65, E5 (c)); before that, E4a's Caldera Rim (61) and the Bearer's Hoist it keeps (62, E4b), E3b's Old Foundry (60), E3a's Brimstone Fields (59), E2's Smoking Coast (56), the Hatchkeeper's den (57) and the Drained Tubes (58), E1's Ashwood (55) and Black Sands (54); 53 is the dev sandbox's Training Yard; ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, the Wolf's Hold)), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last; `onRoomPlat` helper names must be new: F2 first clashed with
@@ -155,11 +155,14 @@ Gotchas already hit:
   `LANTERN_FEN` has Wickmere and the Shallows (L0), Firefly Hollow and the Drowned Grove (L1: `docs/places/firefly.md`,
   `docs/places/grove.md`; their old gates drawn open by `drawWillowfallOpen` and `drawFloodwaterOpen`), the Still Mere (L2:
   `docs/places/stillmere.md`; Hob's punt afloat, `drawPuntOpen`, `OPEN.punt`), the Sunk Barrows (L3: `docs/places/barrows.md`;
-  the water down out of the passage, `drawBarrowMouth`'s open look, its door in `ROOMS[GROVE]`), and two gates: the Lantern
-  Causeway (`sunkcauseway` at the Grove's east end, `CAUSEWAY_GATE_X`: its near end sunk), L4; and the Peat Barrows (`peat`,
-  laid by L3: `peatfall` at the Barrows' east end, `PEAT_GATE_X`: the old peat cuts caved in), L5's deep room.
-  `drawSunkCauseway` and `drawPeatFall` already take an `open` flag and have their `OPEN` rows, so shipping either is data
-  (the node's `rooms` and `entry`) plus its door. Every new Fen room needs its `ISLAND_OF_STAGE` row (`'fen'`), its
+  the water down out of the passage, `drawBarrowMouth`'s open look, its door in `ROOMS[GROVE]`), the Lantern Causeway (L4:
+  `docs/places/causeway.md`; its near end raised on new piles, `drawSunkCauseway`'s open look, its door in `ROOMS[GROVE]`;
+  Grandfather Mire's party den comes through `denDoors(CAUSEWAY)`), and two gates, both L5's: the Peat Barrows (`peat`,
+  laid by L3: `peatfall` at the Barrows' east end, `PEAT_GATE_X`: the old peat cuts caved in), the deep room; and the Hall
+  of Lamps (`hall`, laid by L4: `mothsilk` at the Causeway's east end, `HALL_GATE_X`: its door shut with moth-silk), the
+  Wickmother's den. `drawPeatFall` and `drawMothSilk` already take an `open` flag and have their `OPEN` rows, so shipping
+  either is data (the node's `rooms` and `entry`) plus its door. The plan's map brings the Lamp Road up from the Peat
+  Barrows; L5 (a) decides how that meets the moth-silk door (a final den's door usually stands at its approach's end). Every new Fen room needs its `ISLAND_OF_STAGE` row (`'fen'`), its
   waystone `isle: 'fen'`, and the people's personas updated (they list what's blocked).
 - **Greenhollow's way to its final boss** (FB1 (b), `docs/places/sunkenroad.md`): the `sunkenroad` node under the
   Thornheart (two rooms, entry `rootsplit`). A deep room and an approach follow the branch checklist above, except

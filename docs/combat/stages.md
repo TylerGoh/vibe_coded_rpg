@@ -111,6 +111,10 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    chasers), peat mounds (`split` into peat clods), barrow hounds (fast chasers); two elites. L3 also gave the Shallows its
    field boss, the Bog Bloat (`trail` of bog muck, and `shed`: it sheds boglings each time its HP drops a third, new in L3,
    `shedTick` in `server/rpg.js`).
+35. **The Lantern Causeway**: atlas Phase 8 (L4), the Fen's main trail at its top, on from the Drowned Grove (Lv 168–180, a
+   waystone, the Will-Queen, Grandfather Mire's party den; `docs/places/causeway.md`). Lamp moths (`dive`), drifting lights
+   (passive fliers), causeway guards (`shell` with `cut`: hit them from behind), mire toads (`lob`, style `mud`). The
+   Will-Queen: a field boss that stoops (`dive`), with rings of `wisplight`. No new brains.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

@@ -24,6 +24,8 @@ export const REWIND_HP = 0.8, REWIND_CD_S = 300, REWIND_SAFE_S = 2; // Chronos's
 export const STOMP_VY = 1000, STOMP_R = 160, STOMP_MULT = 1.5; // Brenna's helm (a fall faster than this stomps)
 export const BULWARK_WALK = 0.85; // Sigrun's helm (no knockback)
 export const REST_HEAL = 0.03; // the Root Warden's helm (a second, standing still)
+export const PROMISE_STEP = 0.05, PROMISE_MAX = 1.6, PROMISE_BROKEN = 0.6; // Grandfather Mire's weapons: each hit on the same mob +STEP, up to MAX; a different mob first: BROKEN
+export const SIT_S = 1, SIT_CUT = 0.75; // Grandfather Mire's cap: still this long, damage taken × CUT (server/rpg.js hurt)
 export const RUSH_S = 3, RUSH_SPEED = 1.15, SHATTERER = 1.2, BREWER = 1.5, PHASE_IFR = 30; // the small ones
 
 // gx: the movement effects, as bits in the slime's physics state (sim.js step reads them; the server sets them from
@@ -40,6 +42,7 @@ export const GEAR_FX = {
   unbound: { name: 'Unbound', sword: 'Dashing through mobs slashes each one.', staff: 'Blink leaves a frost nova where you were.', bow: `Retreat Shot fires ${1 + VOLLEY} arrows.`, cost: `Max HP −${Math.round((1 - UNBOUND_HP) * 100)}%.` },
   rooted: { name: 'Rooted', all: `Stand still for ${ROOTED_S} s: +${Math.round((ROOTED_DMG - 1) * 100)}% damage until you move.`, cost: 'Standing still, in a game of jumping.' },
   oath: { name: 'Oath of the Shield', all: `Blocks one hit every ${OATH_EVERY} s; your next hit after a block does ${OATH_BONUS}×.`, cost: `${Math.round((1 - OATH_DMG) * 100)}% less damage otherwise.` },
+  promise: { name: 'The Promise', all: `Every hit on the mob you hit last does ${Math.round(PROMISE_STEP * 100)}% more than the one before, up to +${Math.round((PROMISE_MAX - 1) * 100)}%.`, cost: `Hitting a different mob breaks it: that hit does ${Math.round((1 - PROMISE_BROKEN) * 100)}% less.` },
   piston: { name: 'Clockwork', sword: `Every swing also fires a piston shot ahead (${PISTON_MULT * 100}%).`, staff: `Every ${PISTON_FREE}th spell is free.`, bow: `Arrows go through ${PISTON_PIERCE} more mobs.`, cost: `Every attack costs ${PISTON_HP * 100}% of your HP.` },
   // helmets of the top and final bosses
   pack: { name: 'Pack Runner', all: 'A third jump in mid-air.', cost: `DEF −${Math.round((1 - PACK_DEF) * 100)}%.` },
@@ -49,6 +52,7 @@ export const GEAR_FX = {
   rewind: { name: 'Rewind', all: `Once every ${REWIND_CD_S / 60} min a killing blow leaves you at 1 HP, untouchable for ${REWIND_SAFE_S} s while time slows round you.`, cost: `Max HP −${Math.round((1 - REWIND_HP) * 100)}%.` },
   quake: { name: 'Last Delivery', all: 'Landing from a long fall stomps the ground: damage and knockback.', cost: 'No dash.' },
   bulwark: { name: 'Unmoved', all: 'Nothing knocks you back.', cost: `Walk ${Math.round((1 - BULWARK_WALK) * 100)}% slower.` },
+  sittight: { name: 'Sit Tight', all: `Stand still for ${SIT_S} s: take ${Math.round((1 - SIT_CUT) * 100)}% less damage until you move.`, cost: `Walk ${Math.round((1 - BULWARK_WALK) * 100)}% slower.` },
   rest: { name: 'Deep Roots', all: `Standing still heals ${REST_HEAL * 100}% of your HP a second.` },
   // the den and field bosses' small ones (every piece they drop)
   rush: { name: 'Rush', all: `A kill gives +${Math.round((RUSH_SPEED - 1) * 100)}% speed for ${RUSH_S} s.` },
@@ -61,7 +65,7 @@ export const GEAR_FX = {
 // boss → [its weapons' effect, its helmet's effect] (one id: every piece)
 const BOSS_FX = {
   ladon: ['hydra', 'briar'], chronos: ['hours', 'rewind'], typhon: ['hearth', 'furnace'], brenna: ['burden', 'quake'],
-  fenrir: ['unbound', 'pack'], root_warden: ['rooted', 'rest'], sigrun: ['oath', 'bulwark'], colossus: ['piston', 'glide'],
+  fenrir: ['unbound', 'pack'], root_warden: ['rooted', 'rest'], sigrun: ['oath', 'bulwark'], colossus: ['piston', 'glide'], grandfather_mire: ['promise', 'sittight'],
   knotmole: 'rush', hornet_queen: 'rush', snapjaw: 'firstcrit', thorn_hart: 'firstcrit', frost_queen: 'shatterer', ignis: 'shatterer',
   old_narwhal: 'wall', hall_troll: 'wall', tidemother: 'brewer', hatchkeeper: 'brewer', pale_wyrm: 'phase', brimstone_condor: 'phase',
 };
@@ -99,6 +103,7 @@ export function gearMoves(c) {
   if (f.furnace) gx |= GX.FAST20;
   if (f.quake) gx |= GX.NODASH;
   if (f.bulwark) gx |= GX.SLOW15 | GX.KNOCKFREE;
+  if (f.sittight) gx |= GX.SLOW15; // (Grandfather Mire's cap: Sigrun's helm's slower walk)
   if (f.rush) gx |= GX.RUSH;
   if (f.wall) gx |= GX.WALL;
   if (f.phase) gx |= GX.PHASE;

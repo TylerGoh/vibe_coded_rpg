@@ -848,3 +848,23 @@ the Bog-Iron Cleaver and twins (Lv 160, 1.193M) and Bloat Cap (904k); the Sleepe
 Hood (1.147M), on the curve × `BOSS_GEAR.field`. Materials: Bloat Jelly 1,520, Bog Bronze 1,760. Pets by level: the mini
 Bog Bloat 249k (between the Colossus's 248k and Long-Neck's 250k), the mini Sleeper 282k (above Chronos's 270k, the
 dearest); `PETSHOP_W` 5750 → 6050. `--check` green on the first run.
+
+## Lantern Fen, L4 (atlas Phase 8, 2026-11-11)
+The Lantern Causeway (`docs/places/causeway.md`) puts four mobs on the frozen curve: the lamp moth (169, HP 93% for a
+flier), drifting light (170, 93%, a passive flier like the lantern moth), causeway guard (174, 120% like the other `shell`
+mobs) and mire toad (178, 103%); EXP 100%, gold 100–101% (coins read off the Barrows' by the gold curve; materials on the
+ladder: Moth-Silk 1,650, Stray Flame 1,660, Guard's Reed 1,700, Toadstone 1,740). "Farming your own level" picks the
+drifting light at 170 and the mire toad at 200: **gold earned by** Lv 170 ~13.21M → ~13.20M, Lv 200 ~22.29M → ~22.27M;
+**play time** to Lv 200 36.2 h → 36.1 h (target 34.9 h); `rebirthCost` at 200 1.16× → 1.15× the sheet's hour of gold.
+Rare gear: the Causeway Helm (`helmetPrice` at 174, 1.071M). **The Will-Queen** (field, Lv 176): the Sleeper's numbers by
+the curve (written HP 3.95M, solo median ~3:03, a kill pays 1.50× / 1.64× a minute of its fight, `FIELD_PAY`); Queenlight
+and twins (Lv 178, 1.482M) and the Will-Queen's Veil (1.122M), Will-Queen's Glow 1,750. **Grandfather Mire** (`top` party
+den, Lv 179) sized by the TOP BOSSES table like Brenna: written HP 49.5M (a first try at 58M, Brenna's scaled by the curve,
+put the party of four at 32:47, the top of `TOP_PARTY_MIN`), party of four ~28:03 (Brenna 27:50), the lopsided party
+~25:38, alone a median ~63 min, 2.3× the party (`TOP_SOLO`); ATK 700 (Brenna's ratio to the curve); EXP 3.24M and coins
+2.05–3.19M (Brenna's by the curve): BOSS PAY 0.76× EXP / 6.18× gold an hour of farming (Brenna 0.88× / 5.90×, Chronos
+0.82× / 6.94×). His gear a step over (Lv 181, 10 slots: Grandfather's Promise and twins 1.533M, Grandfather's Cap 1.160M)
+carries effects (`docs/combat/items.md`), not on the sheet like every boss gear effect; Mire Pearl 1,900. Pets by level:
+the mini Will-Queen 276k (between Chronos's 270k and the Sleeper's 282k), the mini Grandfather Mire 288k (the dearest);
+`PETSHOP_W` 6050 → 6350. Nothing older moved but a few "vs farming" ratios at 168–170 (the new own-level farm). `--check`
+green.

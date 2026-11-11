@@ -153,8 +153,13 @@ No quests, no hard level gates.
   - [x] L3 (2026-11-11, live): the Sunk Barrows (79, a hard pocket off the Grove: grave lamps, lantern leeches, peat mounds,
         barrow hounds, two elites, the nameless niche), the Sleeper in the Peat (field boss, late hands and the peat) and the
         Shallows' Bog Bloat (field boss, sheds boglings as it's hit: `shed`); the Peat Barrows' gate laid early
-        (`docs/places/barrows.md`). Unplayed. Next: **L4** (the Causeway, Grandfather Mire, the Will-Queen).
-  - [ ] L4: the Causeway and Grandfather Mire (and the Will-Queen). L5: the Wickmother.
+        (`docs/places/barrows.md`). Unplayed.
+  - [x] L4 (2026-11-11, live): the Lantern Causeway (80, its near end raised: lamp moths, drifting lights, causeway guards,
+        mire toads, the lantern facing home), the Will-Queen (field boss: rings, the turning light) and Grandfather Mire,
+        the Fen's party den (81, Grandfather's Pool: sinking stones, the chorus on the beat, cages; his gear's effects);
+        the Hall of Lamps' moth-silk door laid as L5's gate (`docs/places/causeway.md`). Unplayed. Next: **L5** (a), the
+        Wickmother on paper (`l5-plan.md`).
+  - [ ] L5: the Wickmother: (a) her plan on paper, (b) the Peat Barrows and the Lamp Road, (c) the Hall and the fight.
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

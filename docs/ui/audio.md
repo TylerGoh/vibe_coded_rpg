@@ -24,7 +24,11 @@ through for the lights he keeps; its mobs borrow the wisp's, knot spider's and o
 L3's Sunk Barrows (`barrows`, slot 79: F minor, slower and lower than the Still Mere and closed in, a dark drone bed, the
 music box a few notes at a time as if from another niche, a low knock, drips left and right, something breathing deep in
 the peat; its mobs and the Bog Bloat borrow the magma slug's, wisp's, golem's and soot hound's voices, the Sleeper the
-Colossus's; field bosses have no scene of their own); E5 (c2)'s Hearth (`typhon`, slot 65: E phrygian, heavy and grieving, the Long Flue's bellows breath and its hammer going again on the anvil, a low horn lament; layered in by phase like Fenrir's: a drum and bass in phase 2, the Pour's toms and a rising glide in phase 3, the lead sung in a hundred voices in phase 4, a tone sliding up for the pressure when enraged); the Hatchkeeper's den (slot 57) reuses the Old Narwhal's `narwhal`: the same story, a mother holding on; new mobs borrow legacy mob voices; boss tracks in dens, intensified in a boss's last
+Colossus's; field bosses have no scene of their own); L4's Lantern Causeway (`causeway`, slot 80: E minor at a walk,
+footsteps on the stones, Wickmere's music box out ahead like a lamp you follow, lanterns knocking on their posts, a croak
+far off across the water) and Grandfather Mire's den (`mire`, slot 81: E minor, heavy and patient, his croak on the one,
+the toads' chorus on the off-beats, a slow low line, the music box high above in the second half; the Causeway's mobs and
+the Will-Queen borrow the cinder bat's, wisp's, golem's and magma slug's voices, he the Colossus's); E5 (c2)'s Hearth (`typhon`, slot 65: E phrygian, heavy and grieving, the Long Flue's bellows breath and its hammer going again on the anvil, a low horn lament; layered in by phase like Fenrir's: a drum and bass in phase 2, the Pour's toms and a rising glide in phase 3, the lead sung in a hundred voices in phase 4, a tone sliding up for the pressure when enraged); the Hatchkeeper's den (slot 57) reuses the Old Narwhal's `narwhal`: the same story, a mother holding on; new mobs borrow legacy mob voices; boss tracks in dens, intensified in a boss's last
   stage (`setIntensity`).
 - Effects for slaps, swings, hits, every skill, boss attacks, coming out of the Rebirth Pool (`reborn`: a splash, bubbles, a rising shimmer, a warm chord; quieter and panned for someone else), per-mob hurt/death voices
   (`sfx('mobHurt', {kind})`), the shop, scrolls, level up, doors, splats.

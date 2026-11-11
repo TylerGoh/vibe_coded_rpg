@@ -99,5 +99,6 @@ Bow and the Reed Hood, a step above the Skydocks' and Kestrel's, within `GEAR_FI
   build, the sheet, a server boot and a draw check of every new drawing function in Node against a fake canvas.
 - Where the Hush ties up at the hamlet: the quay was full (the ferry, the Lodestar, the Skerries path), so she rides at
   anchor out in the fjord and the door is a lantern post and ladder on the quay between the two ships.
-- Rough edges: the Hush's deck is the shared ship (the same size as the ferry, not a small eel-boat); the town's
-  Lantern Causeway is a line of lights in the sky band, not yet a place.
+- Rough edges: the Hush's deck is the shared ship (the same size as the ferry, not a small eel-boat). The town's line of
+  Causeway lights in the sky band is a drawing; since L4 the Causeway itself is a place, reached through the Drowned Grove
+  (`docs/places/causeway.md`).

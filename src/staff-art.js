@@ -86,6 +86,8 @@ export const STAFFS = {
   sunklamp_staff: { len: 70, shaft: ['#2e2a30', '#16141c'], w: 3.2, head: 'lantern', gem: '#ffd696', gem2: '#2a2832', glow: '255,214,150' }, // (Old Gullet's: black bog-oak, a drowned lantern caged at its head)
   bogglass_staff: { len: 70, shaft: ['#2e2a26', '#16120e'], w: 3.2, head: 'crystal', gem: '#6a5636', gem2: '#c8b890', glow: '200,180,120' }, // (the Bog Bloat's: bog-oak, a ball of its jelly set hard)
   barrowfang_staff: { len: 64, shaft: ['#3a2c20', '#1e1610'], w: 2.8, head: 'crystal', gem: '#8a6a3a', gem2: '#d8b070', glow: '220,180,110' }, // (a barrow hound's bronze tooth)
+  queenlight_staff: { len: 70, shaft: ['#e8e4dc', '#a8a49c'], w: 2.8, head: 'ember', gem: '#ffffff', gem2: '#cfe0ff', glow: '220,236,255' }, // (the Will-Queen's: white wood, a cold flame at its head)
+  promise_staff: { len: 70, shaft: ['#3a3426', '#1e1a12'], w: 3.4, head: 'crystal', gem: '#6a7a46', gem2: '#c8d8a0', glow: '200,214,130' }, // (Grandfather Mire's: crooked bog-oak, a great toadstone in its knot)
   barrowoak_staff: { len: 72, shaft: ['#2a2420', '#120e0c'], w: 3.4, head: 'lantern', gem: '#ffd696', gem2: '#3a2c20', glow: '255,214,150' }, // (the Sleeper's: roof oak from the Peat Hall, a grave lamp hung on it)
   willow_staff: { len: 66, shaft: ['#d8ccb0', '#9a8a68'], w: 2.8, head: 'lantern', gem: '#ffe2a8', gem2: '#5e4e84', glow: '214,190,255' }, // (Sedge's: a peeled willow wand, a frog-skin lantern with a moth-light in it)
   kitetalon_staff: { len: 66, shaft: ['#8a8490', '#4e4a56'], w: 2.8, head: 'crystal', gem: '#a8781e', gem2: '#ffe060', glow: '255,220,100' },

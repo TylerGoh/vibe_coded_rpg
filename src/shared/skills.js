@@ -1,6 +1,6 @@
 // Docs: docs/combat/skills.md
 import { attackFor, defenseFor, maxHpFor, reachFor, ITEMS, STAFF_BOLT_RANGE, BOW_RANGE, heavyHit } from './rpg.js';
-import { fxOf, HYDRA_CRIT, HOURS_MP, HEARTH_TAKEN, BURDEN_DMG, UNBOUND_HP, ROOTED_DMG, OATH_BONUS, OATH_DMG, PACK_DEF, REWIND_HP, SHATTERER } from './gearfx.js';
+import { fxOf, HYDRA_CRIT, HOURS_MP, HEARTH_TAKEN, BURDEN_DMG, UNBOUND_HP, ROOTED_DMG, OATH_BONUS, OATH_DMG, PACK_DEF, REWIND_HP, SHATTERER, PROMISE_MAX } from './gearfx.js';
 import { DASH_CD, DASH_TICKS, DASH_V, BLINK_DIST, BLINK_CD, FJ_VX, IFR_DASH, IFR_BLINK, IFR_PHANTOM, PHANTOM_CD, SLAM_CD, UPCUT_CD, CHARGE_RESET, HOOK_CD, HOOK_RANGE } from './sim.js';
 
 // Shared by client and server: classes, their skill trees, mana, and the hotbar (story/progression.md,
@@ -1074,7 +1074,7 @@ export function statsFor(c, buffs = {}) {
   const fx = fxOf(c), fxDmg = (fx.burden ? BURDEN_DMG : 1) * (fx.oath ? OATH_DMG : 1);
   return {
     fx,
-    gearCap: (fx.rooted ? ROOTED_DMG : 1) * (fx.oath ? OATH_BONUS : 1) * (fx.shatterer ? SHATTERER : 1),
+    gearCap: (fx.rooted ? ROOTED_DMG : 1) * (fx.oath ? OATH_BONUS : 1) * (fx.shatterer ? SHATTERER : 1) * (fx.promise ? PROMISE_MAX : 1),
     mpX: fx.hours ? HOURS_MP : 1, // what skills cost in MP, × (Chronos's weapons)
     taken: fx.hearth ? HEARTH_TAKEN : 1, // damage taken × (Typhon's weapons; server/rpg.js hurt)
     atk: Math.round((attackFor(c.lvl, c.gear?.weapon) + enh('atk') + (bow ? 0.2 * str + 0.6 * dex : 0.6 * str + 0.2 * dex)) * rage * rally * might * push * (bow ? 1 + STEADY * rankOf(c.skills, 'steady_hands') : 1) * (!bow && !staff ? 1 + SWORD_MASTERY_ATK * mastery : 1) * (1 + (long.atk ?? 0)) * (1 + lust) * fxDmg),

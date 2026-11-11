@@ -8,7 +8,7 @@ import { SKILLS, rankOf } from './shared/skills.js';
 import {
   fxOf, GX, HYDRA_HIT, HEARTH_EVERY, ERUPT_R, ERUPT_MULT, EXPLODE_R, EXPLODE_MULT, GROUND_S, GROUND_W, GROUND_MULT, GROUND_EVERY,
   DASH_SLASH_MULT, NOVA_R, NOVA_MULT, VOLLEY, ROOTED_S, ROOTED_DMG, OATH_BONUS, PISTON_RANGE, PISTON_MULT, PISTON_PIERCE, PISTON_FREE,
-  TRAIL_EVERY, TRAIL_S, TRAIL_W, TRAIL_MULT, STOMP_VY, STOMP_R, STOMP_MULT, RUSH_S, SHATTERER,
+  TRAIL_EVERY, TRAIL_S, TRAIL_W, TRAIL_MULT, STOMP_VY, STOMP_R, STOMP_MULT, RUSH_S, SHATTERER, PROMISE_STEP, PROMISE_MAX, PROMISE_BROKEN,
 } from './shared/gearfx.js';
 import { audio } from './audio.js';
 import { bowTint } from './bow-art.js';
@@ -23,6 +23,7 @@ export class Gear {
     this.swings = 0; // normal hits landed (Typhon's sword: every HEARTH_EVERY-th erupts)
     this.casts = 0; // spells cast (the Colossus's staff: every PISTON_FREE-th is free; the server counts the same)
     this.oath = false; // Sigrun's weapons: a hit was blocked, our next hit does OATH_BONUS×
+    this.promise = { id: null, n: 0 }; // Grandfather Mire's weapons: the mob we hit last, and how many hits on it in a row
     this.grounds = []; // burning ground (Typhon's staff): { x, y, until }
     this.trail = []; // the fire trail (Typhon's mask): { x, y, until }
     this.tickAt = 0;
@@ -38,7 +39,7 @@ export class Gear {
     return fxOf(this.g.me);
   }
   // ——— damage ———
-  // what boss gear adds to a hit on v (Rooted, Oath, Shatterer; First Blood sets a sure crit for the roll)
+  // what boss gear adds to a hit on v (Rooted, Oath, Shatterer, the Promise; First Blood sets a sure crit for the roll)
   mult(v) {
     const f = this.fx, k = v ? MOBS[v.kind] : null;
     let x = 1;
@@ -49,6 +50,14 @@ export class Gear {
       if (v) this.g.pop(v.x, v.y - (k?.h ?? 40) - 40, 'OATH!', '#ffe08a', 16);
     }
     if (f.shatterer && (k?.boss || k?.field) && (v.frozen || v.burning)) x *= SHATTERER;
+    if (f.promise && v) { // the same mob again: one step stronger; another mob first: broken (that hit weaker), start over
+      const p = this.promise;
+      if (p.id === v.id) x *= Math.min(PROMISE_MAX, 1 + PROMISE_STEP * ++p.n);
+      else {
+        if (p.id != null) x *= PROMISE_BROKEN;
+        this.promise = { id: v.id, n: 0 };
+      }
+    }
     if (f.firstcrit && v && !this.hitBefore.has(v.id)) this.g.sureNext = true;
     if (v) this.hitBefore.add(v.id);
     return x;

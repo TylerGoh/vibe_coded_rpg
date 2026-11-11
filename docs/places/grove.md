@@ -34,9 +34,10 @@ West to east (`GROVE_ZONES`):
 - **The Heronry** (163–166): nest rocks streaked white, dead trees with herons' nests in their forks. **Long-Neck's den**
   opens at `HERON_DEN_X`: a gap between two great drowned willow roots, nest stones heaped in its mouth, grey feathers
   caught on the bark, and now and then a long grey neck rising over the reeds behind it to look out.
-- **The Lantern Causeway's near end** (`CAUSEWAY_GATE_X`, a gate, L4), the room's east end: the stone causeway goes off
-  across the mere, lamps on posts all lit, but its first stretch has sunk, the paving going down under the water, the
-  first posts leaning, their lanterns drowned and still glowing.
+- **The Lantern Causeway's near end** (`CAUSEWAY_GATE_X`), the room's east end: the stone causeway goes off across the
+  mere, lamps on posts all lit. Until L4 its first stretch had sunk, the paving going down under the water, the first posts
+  leaning, their lanterns drowned and still glowing (a gate); L4 raised it on new bog-oak piles (`drawSunkCauseway`'s open
+  look), and its door is in `ROOMS[GROVE]` (`docs/places/causeway.md`).
 - **The hidden spot** (last in `GROVE_PLATFORMS`): the high crook of the oldest willow, up off a bough in the Root Halls,
   a heron's moulted feathers lodged in it.
 

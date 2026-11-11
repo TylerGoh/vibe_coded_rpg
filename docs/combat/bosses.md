@@ -88,7 +88,7 @@ the pulse; S5.2 the curse (and Cleanse), the barrier, the armour, weak points, t
   switches every one on from the first slime (the final bosses: below, "Final bosses").
 - **It ships dark.** Nothing switches on unless the boss also has `partyLive` (S5.3 gave it to the party dens,
   S5.4 gives it to the retrofitted bosses, a stage at a time). Tests use `TEST_PARTY` (`docs/testing.md`).
-- **The party dens (S5.3)**: the Root Warden and Sigrun (and since E4b Brenna) have `partyLive` with focus, pulse, barrier, weak point,
+- **The party dens (S5.3)**: the Root Warden and Sigrun (and since E4b Brenna, since atlas Phase 8 L4 Grandfather Mire) have `partyLive` with focus, pulse, barrier, weak point,
   adds and the interrupt (added here: the Frostbinder's payoff), all but the focus on from the first slime. Their
   HP is never under `PARTY_DEN_HP_FLOOR` slimes' worth (since SP6 two, and for every top boss; `bossMaxHp`, shared: spawn and the den's growth in
   `bossBrain`), so a lone slime faces a party's HP and every mechanic; the barrier's and weak point's HP stay shares
@@ -273,9 +273,11 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | The Brimstone Condor (field, 140; E3a) | focus, pulse (a gust of fumes) | the Colossus's steam rings (`looks.pulse: 'steam'`): its wingbeats whipping up the fumes |
 | The Bog Bloat (field, 158; atlas Phase 8 L3) | adds (boglings, its `minion`), focus | its boglings (on top of the ones it sheds as it's hit: `shed`, `docs/places/barrows.md`) |
 | The Sleeper in the Peat (field, 178; L3) | focus, pulse (the barrow's cold breath) | the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
+| The Will-Queen (field, 176; L4) | focus, pulse (the mere's cold mist) | the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
 | Old Crucible (field, 145; E3b) | armour, curse (smouldering) | Ignis's basalt plates (`looks.shell: 'cinder'`): the slag on its skin setting; Pyra's charred sigil (`looks.curse: 'ember'`): its splashes of metal |
 | Greyback (field, 130; E1) | focus, curse (smouldering) | Pyra's charred sigil (`looks.curse: 'ember'`): his burning logs leave you smouldering |
 | Chronos, Keeper of Hours (den, `top`, 170) | barrier, curse (borrowed time), interrupt | a gold dome with hour marks and two clock hands turning inside (`looks.dome: 'hours'`); a dial of gold light on the floor, its hand sweeping round (`looks.curse: 'hours'`) |
+| Grandfather Mire (party den, `top`, 179; atlas Phase 8 L4, built with them) | focus, armour (his hide puffed hard), pulse (his croak), weakpoint (the shard in his throat sac, `weak.front`), adds (mire toads), interrupt | the Colossus's armour in mossy scutes (`looks.shell: 'scute'`); green rings, "CROAK" (`looks.pulse: 'croak'`); the S5.2 crystal in his throat (`docs/places/causeway.md`) |
 | Brenna, the Last Bearer (party den, `top`, 149; E4b, not a retrofit: built with them, the party den gates) | focus, barrier (the tooth swung down in front: `barrierFront`), pulse (ash), weakpoint (the strap buckle, `weak.back`), adds (crag rocs), interrupt | Sigrun's front wall in warm iron-ember (`looks.dome: 'ember'`); grey rings with ash in them, "ASH" (`looks.pulse: 'ash'`); the S5.2 crystal on her back |
 - **Swaps and additions:** Pyra has no `interrupt` (Rebirth's egg is its own answer; `interruptUlt` skips it). The
   Colossus got a **pulse** on top of the draft's armour + weak point: a top boss is meant to punish a party with no
@@ -298,7 +300,7 @@ alone they fight as before too). The armour and barrier use the shared numbers (
   Cleanse's job) and his curse stacking. Not tried: Ignis's and Chronos's interrupts, people.
 
 ## Top bosses (SP6, owner 2026-10-25)
-`top` on a boss: the party dens (the Root Warden, Sigrun, Brenna), the final bosses (FB1, FB2, E5) and the
+`top` on a boss: the party dens (the Root Warden, Sigrun, Brenna, Grandfather Mire), the final bosses (FB1, FB2, E5) and the
 end-game capstones, the Clockwork Colossus and Chronos. Built for a party of four (~45 min on the sheet), hard-hitting and
 punishing; alone possible but 2–3× as long (their HP floor, `PARTY_DEN_HP_FLOOR`). Every class still has an answer to
 every mechanic (S5's rule), but a weak answer costs more here than on an ordinary den (which keeps the S5 numbers):

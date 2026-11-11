@@ -1460,6 +1460,7 @@ const PAL = {
   sand: { body: '#c8a46a', crack: '#ff9a4a', glow: [255, 150, 70], pool: '230,190,120' },
   wax: { body: 'rgba(242,190,80,0.92)', crack: '#a8701c', glow: [255, 200, 80], pool: '255,214,110' }, // (the Hornet Queen's wax cell, T3)
   gullet: { body: '#2a2832', crack: '#ffd696', glow: [255, 214, 150], pool: '42,40,50' }, // (Old Gullet's jaws round you, the lights inside showing through: atlas Phase 8 L2)
+  mire: { body: '#3a4626', crack: '#c8d8a0', glow: [200, 214, 130], pool: '58,70,38' }, // (Grandfather Mire's toads' chorus: weed and spawn wound round you on the beat, atlas Phase 8 L4)
   peat: { body: '#3a2c20', crack: '#c8a060', glow: [200, 160, 96], pool: '58,44,32' }, // (the Sleeper in the Peat pulls you down into the peat with it: atlas Phase 8 L3)
 };
 function drawIron(ctx, x, y, h, t, left, style = 'iron') {

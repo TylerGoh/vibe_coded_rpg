@@ -29,7 +29,7 @@ are read from `ITEMS` at runtime, so pieces already owned got stronger too.
 
 ## Boss gear's unique effects (owner, 2026-11-06)
 Owner: "big impact stuff, so people have to actually think if it's worth it", movement changes and changes to how you
-attack included. The owner approved all 22. Each top and final boss's weapons (sword, staff and bow each their own
+attack included. The owner approved all 22; atlas Phase 8 L4 added Grandfather Mire's two (The Promise, Sit Tight) the same way. Each top and final boss's weapons (sword, staff and bow each their own
 version) share one effect and its helmet another, most with a cost; twelve den and field bosses give a small one, no
 cost, to every piece they drop. Shop stock never carries one. The item card shows it (`fxLine`).
 - **Where it lives**: `src/shared/gearfx.js` holds every number (named constants), `GEAR_FX` (name, text, cost),
@@ -62,6 +62,7 @@ cost, to every piece they drop. Shop stock never carries one. The item card show
 | Fenrir | dashing through mobs slashes · Blink leaves a frost nova · Retreat Shot + `VOLLEY` arrows | max HP × `UNBOUND_HP` | a third jump | DEF × `PACK_DEF` |
 | Root Warden | still `ROOTED_S`: damage × `ROOTED_DMG` (all) | standing still | still: heal `REST_HEAL`/s | none |
 | Sigrun | block a hit every `OATH_EVERY` s, next hit × `OATH_BONUS` (all) | damage × `OATH_DMG` | no knockback (both sides skip it) | walk × `BULWARK_WALK` |
+| Grandfather Mire | each hit on the mob you hit last × (1 + `PROMISE_STEP` per hit in a row), up to `PROMISE_MAX` (all) | another mob first breaks it: that hit × `PROMISE_BROKEN` | still `SIT_S`: damage taken × `SIT_CUT` (`hurt`, from the once-a-second `stillSince`) | walk × `BULWARK_WALK` (Sigrun's `SLOW15` bit) |
 | Colossus | piston shot ahead · every `PISTON_FREE`th spell free · arrows pierce `PISTON_PIERCE` more | `PISTON_HP` of HP an attack | jump × `GLIDE_JUMP`, hold Jump to glide | none on paper (slow falls) |
 
 Small ones (every piece): Knotmole, Hornet Queen: **Rush** (a kill: walk × `RUSH_SPEED` for `RUSH_S`). Snapjaw (its
@@ -231,7 +232,11 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   the Sunk Barrows a peat mound drops the **Bog-Iron Helm** and a barrow hound **Barrowfang** (twins: the **Barrowfang
   Staff**, the **Barrowfang Bow**) very rarely, and **the Sleeper in the Peat** drops the **Sleeper's Blade** (twins: the
   **Barrow-Oak Staff**, the **Peat-Yew Bow**) and the **Sleeper's Hood** (Lv 180) (art `src/barrows-art.js`, `BARROWS_*`;
-  `docs/places/barrows.md`).
+  `docs/places/barrows.md`). L4: on the Lantern Causeway a causeway guard drops the **Causeway Helm** (Lv 174) very rarely,
+  **the Will-Queen** drops **Queenlight** (twins: the **Queenlight Staff**, the **Queenlight Bow**) and the **Will-Queen's
+  Veil** (Lv 178), and Grandfather Mire (a `top` party den) **Grandfather's Promise** (twins: the **Toadstone Staff**, the
+  **Long-Promise Bow**) and **Grandfather's Cap** (Lv 181, 10 slots, with effects, below) (art `src/causeway-art.js`,
+  `CAUSEWAY_*`; `docs/places/causeway.md`).
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
   are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.

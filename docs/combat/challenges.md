@@ -75,6 +75,9 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
   (A9: `u.to`).
 - **Fenrir** (its loop): `fetter` (the rhythm lock, every other loop in phase 1), `blackout` (the dark, from phase 2),
   `gaps` (from phase 3, sliding in phase 4) and `hunt` (phases 3–4, when Skoll and Hati are up).
+- **Grandfather Mire** (`bossBrain`, atlas Phase 8 L4, from day one: `docs/places/causeway.md`): `arena` in every phase (the
+  causeway stones in his pool sink, more each phase, the pool welling up between them from phase 2: `GRID.mire`), `fetter`
+  (the rhythm lock: his toads' chorus, drawn `PAL.mire`) from phase 2, `cage` (2+) in phase 3.
 - **Brenna** (`bossBrain`, T1b): `tilt` in every phase (the hoist leans the floor, steeper each phase: `TILT_V`), `tooth`
   (a chip to throw back at her) and `cage` (2+) from phase 2.
 - **The Clockwork Colossus** (`bossBrain`, T1b): `lasers` (the laser grid) in every phase, standing still for it in phase
@@ -268,6 +271,8 @@ its HP in thirds (`fieldStage`).
   - **The Bog Bloat** (atlas Phase 8 L3, from day one): rings of mud gobbets (`rings`, style `mud`, the mire frog's shot).
   - **The Sleeper in the Peat** (L3, from day one): late hands from its first third (`late`), and from its second it pulls
     you down into the peat (`mash`, `PAL.peat`).
+  - **The Will-Queen** (L4, from day one): rings of wisp-light (`rings`, style `wisplight`), and from her second third a
+    slow light that turns you round (`swap`, the controls swap: what a will-o'-wisp does to travellers).
   - **The Sprout King and Mother Mushroom** (`bossBrain`): the gentle first meeting: a snare of three arrows (`snareLen`)
     from their phase 2, and the punish window.
 
