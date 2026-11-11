@@ -37,7 +37,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 5450; // (the plinths need about 5330 since the mini Typhon (E5 (c2)): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 5600; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -255,6 +255,65 @@ export const SHALLOWS_PLATFORMS = [
   { x: 3560, y: 256, w: 190, kind: 'boardwalk' },
   { x: 4000, y: 342, w: 200, kind: 'tussock' },
   { x: 3610, y: 164, w: 92, kind: 'signpost' }, // the drowned signpost, up off the high boardwalk: easy to miss
+];
+// ——— atlas Phase 8, L1: Firefly Hollow, the Drowned Grove and Long-Neck (story/phase8-plan.md; docs/places/firefly.md,
+// docs/places/grove.md) ———
+// Firefly Hollow (room 74): the Fen's easy pocket, down the side path off the Shallows' Reedbeds (the fallen willow
+// sawn through: FIREFLY_GATE_X). A calm glade of fireflies over still water under old willows. You come in at the WEST
+// end; the east end is the Sitting Stones (no mobs), the ring where the fen folk come to sit. No waystone (next to the
+// Shallows' own, like the Black Sands by Forgehold). The high willow crook is the hidden spot (last in the platforms).
+export const FIREFLY = 74; // room id
+export const FIREFLY_W = 2600;
+export const FIREFLY_EXIT_X = 70; // back up the side path to the Shallows
+export const FIREFLY_RING_X = 2380; // the Sitting Stones' middle
+export const FIREFLY_ZONES = [
+  { name: 'The Willow Gap', x0: 0, x1: 520, lvl: null }, // (no mobs: where the trunk was sawn through)
+  { name: 'The Glade', x0: 520, x1: 1500, lvl: '150–152' },
+  { name: 'The Still Pool', x0: 1500, x1: 2200, lvl: '152–155' },
+  { name: 'The Sitting Stones', x0: 2200, x1: FIREFLY_W, lvl: null }, // (no mobs: the fen folk's ring)
+];
+// mossy logs, a low willow bough, a peat tussock; the high willow crook, glow-worms in it (hidden)
+export const FIREFLY_PLATFORMS = [
+  { x: 620, y: 350, w: 190, kind: 'log' },
+  { x: 960, y: 280, w: 170, kind: 'bough' },
+  { x: 1380, y: 348, w: 200, kind: 'log' },
+  { x: 1760, y: 300, w: 180, kind: 'tussock' },
+  { x: 2040, y: 344, w: 150, kind: 'log' },
+  { x: 1000, y: 194, w: 100, kind: 'crook' }, // the high willow crook, glow-worms in the bark: easy to miss
+];
+// The Drowned Grove (room 75): the Fen's main trail on from the Shallows' far end (the water let down off the
+// boardwalk: GROVE_GATE_X). A flooded willow wood, roots like ribs, the light green and dim. Entered at its WEST end.
+// West to east: the Drowned Gate (no mobs: a waystone), the Weeping Rows (the Sunk Stone, a Keeper stone sunk to its
+// shoulders: GROVE_STONE_X), the Root Halls (the Sunk Barrows' flooded passage, a gate: BARROWS_GATE_X, L3), the
+// Heronry (Long-Neck's den at HERON_DEN_X), and at the far end the Lantern Causeway's near end, sunk (a gate, L4).
+export const GROVE = 75; // room id
+export const GROVE_W = 5200;
+export const GROVE_EXIT_X = 70; // back along the boardwalk to the Shallows
+export const GROVE_WAY_X = 400; // the Drowned Gate's waystone
+export const GROVE_STONE_X = 1500; // the Sunk Stone (src/ruins.js)
+export const BARROWS_GATE_X = 2900; // the Sunk Barrows' passage, flooded to the lintel (L3)
+export const HERON_DEN_X = 4500; // the way into Long-Neck's den (room HERON_DEN, its DENS row)
+export const HERON_DEN = 76; // Long-Neck's den, the Stone Nest
+export const CAUSEWAY_GATE_X = GROVE_W - 130; // the Lantern Causeway's near end, sunk under the mere (L4)
+export const GROVE_ZONES = [
+  { name: 'The Drowned Gate', x0: 0, x1: 640, lvl: null }, // (no mobs)
+  { name: 'The Weeping Rows', x0: 640, x1: 2000, lvl: '156–159' },
+  { name: 'The Root Halls', x0: 2000, x1: 3500, lvl: '159–163' },
+  { name: 'The Heronry', x0: 3500, x1: GROVE_W, lvl: '163–166' },
+];
+// willow roots arched up out of the water like ribs, low boughs, a stretch of old boardwalk, the herons' nest rocks;
+// the high crook of the oldest willow (hidden, last)
+export const GROVE_PLATFORMS = [
+  { x: 760, y: 346, w: 190, kind: 'root' },
+  { x: 1100, y: 272, w: 180, kind: 'bough' },
+  { x: 1700, y: 340, w: 200, kind: 'boardwalk' },
+  { x: 2150, y: 330, w: 200, kind: 'root' },
+  { x: 2460, y: 252, w: 180, kind: 'bough' },
+  { x: 3200, y: 340, w: 190, kind: 'root' },
+  { x: 3700, y: 300, w: 200, kind: 'nestrock' },
+  { x: 4040, y: 236, w: 170, kind: 'bough' },
+  { x: 4800, y: 330, w: 160, kind: 'nestrock' },
+  { x: 2500, y: 164, w: 96, kind: 'crook' }, // the old willow's crook, a heron's moulted feathers in it: easy to miss
 ];
 export const GUST_CYCLE = 540, GUST_WARN = 120, GUST_BLOW = 100; // (ticks)
 export const GUST_DOT = 0.05;
@@ -1107,6 +1166,8 @@ export const STAGES = {
   [UNDERFLUES]: { name: 'The Under-Flues', zones: UNDERFLUES_ZONES, band: '145–150', hard: true, pill: 'Under-Flues' },
   [SKYDOCKS]: { name: 'The Skydocks', zones: SKYDOCKS_ZONES, band: '135–145' },
   [SHALLOWS]: { name: 'The Shallows', zones: SHALLOWS_ZONES, band: '150–158' }, // (atlas Phase 8, L0: Lantern Fen)
+  [FIREFLY]: { name: 'Firefly Hollow', zones: FIREFLY_ZONES, band: '150–155', pill: 'Firefly Hollow' }, // (L1)
+  [GROVE]: { name: 'The Drowned Grove', zones: GROVE_ZONES, band: '156–166', pill: 'Drowned Grove' }, // (L1)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -2647,6 +2708,62 @@ MOBS.mudskipper = {
   drops: [['coin', 1, 1280, 1925], ['skipper_fin', 0.5, 1, 2], ['mega_elixir', 0.2, 1, 1], ['reed_hood', 0.004, 1, 1]],
 };
 
+// ——— atlas Phase 8, L1: Firefly Hollow and the Drowned Grove (art: src/grove-art.js; docs/places/firefly.md,
+// docs/places/grove.md). On the frozen curve; no elites, no field boss (L3) ———
+// Fen newts potter about Firefly Hollow's glade, small and spotted orange, and nip; the Hollow's other mobs are the
+// Shallows' moths and bog slimes. In the Grove: will-o'-wisps drift in the dim and fade out, coming back with a pulse;
+// reed stalkers (a great bittern, striped like the reeds) stand stock still and lunge; willow wights (a stump of drowned
+// willow got up and walking) heave their roots up round them; marsh herons stand in the shallows and stab down from above
+MOBS.fen_newt = {
+  name: 'Fen Newt', lvl: 151, hp: 21000, atk: 525, exp: 12891, speed: 80, w: 54, h: 30, aggro: true, hops: true,
+  drops: [['coin', 1, 1228, 1847], ['newt_tail', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
+};
+MOBS.will_wisp = {
+  name: "Will-o'-Wisp", lvl: 157, hp: 22000, atk: 550, exp: 13774, speed: 70, w: 44, h: 56, aggro: true, hops: false, fly: 44,
+  ai: { kind: 'phase', every: 6.3, dur: 1.9, r: 180 },
+  drops: [['coin', 1, 1290, 1941], ['wisp_light', 0.5, 1, 2], ['mega_elixir', 0.2, 1, 1]],
+};
+MOBS.reed_stalker = {
+  name: 'Reed Stalker', lvl: 160, hp: 24000, atk: 562, exp: 14224, speed: 95, w: 64, h: 70, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0, every: 2.8, warn: 0.5, lunge: 620, time: 0.4 }, // (stock still, then the lunge: the black-ice wolf's)
+  drops: [['coin', 1, 1322, 1988], ['stalker_plume', 0.5, 1, 2], ['mega_elixir', 0.2, 1, 1]],
+};
+MOBS.willow_wight = {
+  name: 'Willow Wight', lvl: 163, hp: 27400, atk: 574, exp: 14681, speed: 40, w: 80, h: 84, aggro: true, hops: false,
+  ai: { kind: 'stomp', every: 4.2, warn: 0.85, r: 150, range: 200, jump: 380 }, // (it heaves up, and its roots come up round it)
+  drops: [['coin', 1, 1353, 2035], ['wight_bark', 0.5, 1, 2], ['mega_elixir', 0.21, 1, 1], ['wight_crown', 0.004, 1, 1]],
+};
+MOBS.marsh_heron = {
+  name: 'Marsh Heron', lvl: 166, hp: 23580, atk: 587, exp: 15143, speed: 115, w: 66, h: 60, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.3, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 1385, 2082], ['heron_feather', 0.5, 1, 2], ['mega_elixir', 0.21, 1, 1]],
+};
+// Long-Neck (L1; her den, the Stone Nest, opens in the Grove's Heronry at HERON_DEN_X). A big boss with a story
+// (story/phase8-plan.md): a great grey heron, older than the willows, standing guard over a nest of stones with one egg
+// in it that never hatched. Every spring her young flew off over the mere and none came back, so this one she keeps:
+// with a shard in her breast she holds it, and holds it, and it is a stone. The Fen's register: grief, holding on.
+// She stands like herons do and strikes late (`late`: her stillness is the tell), and the mere comes up through the
+// den in waves (`flood`, style `mire`). Her ultimate, The Long Wait, is the `lanes` ult as the still water closing
+// over everything but one lane. Freed, she flies (the den's bossDie)
+MOBS.long_neck = {
+  name: 'Long-Neck', boss: true, lvl: 166, hp: 11400000, atk: 633, exp: 970000, speed: 85, w: 180, h: 200, aggro: true, hops: false,
+  phases: [['charge', 'feathers', 'slam', 'late'], ['charge', 'feathers', 'slam', 'rain', 'summon', 'late', 'flood'], ['charge', 'feathers', 'rain', 'summon', 'leap', 'barrage', 'late', 'flood']],
+  // T2-style challenges from day one (docs/combat/challenges.md): the late strike (`late`, every phase: she goes still
+  // and grey, then the bill comes down where you stood) and the mere flooding the floor in waves (`flood`, phase 2 on)
+  ch: ['late', 'lava'],
+  ult: { name: 'The Long Wait', kind: 'lanes' }, minion: 'marsh_heron',
+  // S5.4: the shard in her breast glints (the weak point, in reach from the floor), the nest breathes cold mist off the
+  // water (a pulse, the Narwhal's `breath`), and freezing The Long Wait as it gathers cancels it
+  party: ['weakpoint', 'pulse', 'interrupt'], partyLive: true, weak: { dx: 0.22, dy: -0.42, r: 20 },
+  looks: { flood: 'mire', pulse: 'breath', feathers: 'heronfeather' },
+  lines: {
+    enter: ['Hush. Off my nest. It will hatch. It only wants a little more warmth. A little longer.', 'Another one come wading in after my egg. No. I have stood here longer than the willows. I can stand longer than you.'],
+    phase: [null, 'Every spring they flew. Off over the mere, every one, and the mere is wide, and none came back. This one stays.', 'It is NOT a stone. It is only cold. I will stand here until it is warm. I will stand here for ever!'],
+    freed: '...It is a stone. It was always a stone. I think I knew. ...How wide the mere is this morning. I had forgotten.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['heron_bill', 1, 1, 1], ['heron_crest', 0.6, 1, 1], ['coin', 1, 251000, 379000], ['mega_elixir', 1, 4, 6], ['nest_stone', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -2864,6 +2981,8 @@ const onRmPlat = onRoomPlat(RIM_PLATFORMS, RIM);
 const onUfPlat = onRoomPlat(UNDERFLUES_PLATFORMS, UNDERFLUES);
 const onSdPlat = onRoomPlat(SKYDOCKS_PLATFORMS, SKYDOCKS);
 const onShPlat = onRoomPlat(SHALLOWS_PLATFORMS, SHALLOWS);
+const onFfPlat = onRoomPlat(FIREFLY_PLATFORMS, FIREFLY);
+const onGvPlat = onRoomPlat(GROVE_PLATFORMS, GROVE);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -3341,6 +3460,32 @@ export const SPAWNS = [
   ...onShPlat('mudskipper', 5, 1),
   ...onShPlat('mire_frog', 6, 1),
   ...onShPlat('mudskipper', 7, 1),
+  // atlas Phase 8, L1: Firefly Hollow (the Willow Gap and the Sitting Stones have none) and the Drowned Grove (the
+  // Drowned Gate has none)
+  ...strip('fen_newt', 600, 1480, FIELD_GROUND, 4, FIREFLY),
+  ...strip('lantern_moth', 600, 1480, FIELD_GROUND, 2, FIREFLY),
+  ...onFfPlat('fen_newt', 0, 1),
+  ...onFfPlat('lantern_moth', 1, 1),
+  ...strip('bog_slime', 1520, 2160, FIELD_GROUND, 3, FIREFLY),
+  ...strip('fen_newt', 1520, 2160, FIELD_GROUND, 2, FIREFLY),
+  ...onFfPlat('fen_newt', 2, 1),
+  ...onFfPlat('bog_slime', 3, 1),
+  ...strip('reed_stalker', 700, 1980, FIELD_GROUND, 4, GROVE),
+  ...strip('will_wisp', 700, 1980, FIELD_GROUND, 3, GROVE),
+  ...onGvPlat('reed_stalker', 0, 1),
+  ...onGvPlat('will_wisp', 1, 1),
+  ...onGvPlat('reed_stalker', 2, 1),
+  ...strip('willow_wight', 2050, 3480, FIELD_GROUND, 4, GROVE),
+  ...strip('will_wisp', 2050, 3480, FIELD_GROUND, 2, GROVE),
+  ...strip('reed_stalker', 2050, 3480, FIELD_GROUND, 1, GROVE),
+  ...onGvPlat('willow_wight', 3, 1),
+  ...onGvPlat('will_wisp', 4, 1),
+  ...onGvPlat('willow_wight', 5, 1),
+  ...strip('marsh_heron', 3550, 5000, FIELD_GROUND, 4, GROVE),
+  ...strip('willow_wight', 3550, 5000, FIELD_GROUND, 2, GROVE),
+  ...onGvPlat('marsh_heron', 6, 1),
+  ...onGvPlat('marsh_heron', 7, 1),
+  ...onGvPlat('willow_wight', 8, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -3367,6 +3512,7 @@ export const DENS = [
   { room: 43, boss: 'sigrun', name: 'The Seam', from: QBRIDGE, entranceX: SIGRUN_DEN_X, theme: 'oath' }, // (art: src/dens-qbridge.js)
   { room: LADON_DEN, boss: 'ladon', name: 'The Root of the Road', from: ROADSEND, fromName: "the Road's End", entranceX: LADON_DEN_X, theme: 'hydra', platforms: LADON_PLATFORMS, final: true }, // (art: src/dens-ladon.js; the door's art: src/roadsend.js)
   { room: HATCH_DEN, boss: 'hatchkeeper', name: 'The Buried Clutch', from: COAST, entranceX: HATCH_DEN_X, theme: 'hatch' }, // (E2; art: src/dens-hatch.js)
+  { room: HERON_DEN, boss: 'long_neck', name: 'The Stone Nest', from: GROVE, entranceX: HERON_DEN_X, theme: 'heron' }, // (atlas Phase 8, L1; art: src/dens-heron.js)
   { room: BRENNA_DEN, boss: 'brenna', name: "The Bearer's Hoist", from: RIM, entranceX: BRENNA_DEN_X, theme: 'hoist' }, // (E4b; art: src/dens-rim.js)
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
   { room: TYPHON_DEN, boss: 'typhon', name: TYPHON_DEN_NAME, from: LONGFLUE, fromName: 'the Long Flue', entranceX: TYPHON_DEN_X, theme: 'hearth', platforms: TYPHON_PLATFORMS, final: true }, // (E5 (c); art: src/dens-typhon.js; the door's art: src/longflue.js)
@@ -3705,6 +3851,10 @@ export const ITEMS = {
   // atlas Phase 8, L0: Sedge's tier in Wickmere (woven reed and bog-iron), and the reed hood a mudskipper may drop
   reedcutter: { name: 'Reedcutter', price: 265000, lvl: 151, aim: 155, kind: 'sword', atk: 209, reach: 60, desc: "A long, thin blade of bog-iron, black and pitted, with a hook at the tip for pulling the cut reeds to you. Sedge's mother cut a whole roof with it." },
   reed_hood: { name: 'Reed Hood', price: 205000, lvl: 151, aim: 155, kind: 'helmet', def: 102, desc: 'A deep hood woven from split reed so tight it turns rain, a fringe of seed-heads round the rim. Sedge wove this one twice; the first had a hole she could see the moon through.' },
+  // L1: the willow wight's (very rare), and Long-Neck's
+  wight_crown: { name: 'Wight Crown', price: 940000, lvl: 163, kind: 'helmet', def: 109, desc: "A crown of drowned willow root, black and slick, grown round and round itself. Something in the Grove wore it a very long time and didn't notice." },
+  heron_bill: { name: "Long-Neck's Bill", price: 1300000, lvl: 167, slots: 9, kind: 'sword', atk: 224, reach: 68, desc: "A long straight blade of grey bog-iron, drawn to a point like a heron's bill. It goes in fast and comes out clean, and you never see it move." },
+  heron_crest: { name: 'Heron Crest', price: 986000, lvl: 167, slots: 9, kind: 'helmet', def: 111, desc: 'A close grey cap with two long black plumes swept back from the crown. Wearing it, you find you can stand still for a very long time.' },
   fumarole_helm: { name: 'Fumarole Helm', price: 613000, lvl: 132, kind: 'helmet', def: 92, desc: "An iron helm crusted over with a vent crab's sulphur crystals, yellow on black. It steams a little in the rain. Forged for a wheel that never got it." },
   kitetalon: { name: 'Kitetalon', price: 857000, lvl: 136, kind: 'sword', atk: 195, reach: 60, desc: "A hooked iron blade shaped like a kite's talon, its edge stained yellow. It comes down the way the bird does." },
   condor_pinion: { name: 'Condor Pinion', price: 935000, lvl: 142, kind: 'sword', atk: 201, reach: 66, desc: "A long blade beaten from slag iron in the shape of a condor's flight feather, the vanes cut into its edge. Forged for a wheel that never got it." },
@@ -3732,6 +3882,13 @@ export const ITEMS = {
   bog_jelly: { name: 'Bog Jelly', price: 1470, kind: 'loot', desc: "A lump of brown jelly from a bog slime, peat-dark and smelling of rain. It isn't quite dead. It isn't quite anything." },
   mire_skin: { name: 'Mire Frog Skin', price: 1490, kind: 'loot', desc: "A green-gold frog skin, cool and soft as wet leather. Wickmere's lamp-makers stretch it over the windows of their lanterns." },
   skipper_fin: { name: 'Mudskipper Fin', price: 1510, kind: 'loot', desc: 'A stiff, spined fin like a little fan, still muddy. Mudskippers walk on these. You would think they would have chosen feet.' },
+  // atlas Phase 8, L1: Firefly Hollow's and the Drowned Grove's (docs/economy.md: the ladder on above the Shallows')
+  newt_tail: { name: 'Fen Newt Tail', price: 1460, kind: 'loot', desc: 'A little orange-spotted tail, dropped the way newts drop them when you grab. The newt has already started another.' },
+  wisp_light: { name: 'Wisp Light', price: 1530, kind: 'loot', desc: "A cold blue glow caught in a stoppered reed. Hold it close and it isn't there; hold it at arm's length and it is." },
+  stalker_plume: { name: 'Stalker Plume', price: 1560, kind: 'loot', desc: 'A long striped feather, reed-gold and brown. Stood upright in a jar of reeds, you would never find it again.' },
+  wight_bark: { name: 'Wight Bark', price: 1590, kind: 'loot', desc: 'A curl of black willow bark, sodden through and heavy as iron. Pressed to your ear, it creaks, very slowly, like something turning over in its sleep.' },
+  heron_feather: { name: 'Heron Feather', price: 1620, kind: 'loot', desc: 'A long grey flight feather, dusty white along its edge. It smells of cold water and patience.' },
+  nest_stone: { name: 'Nest Stone', price: 1830, kind: 'loot', desc: "A smooth grey pebble from Long-Neck's nest, worn round by being turned and turned. It is never quite warm, however long you hold it." },
   roc_feather: { name: 'Crag Roc Feather', price: 1445, kind: 'loot', desc: "A great dark flight feather, its shaft as thick as your finger, grey with the rim's dust. The wind tugs at it even indoors." },
   glassback_helm: { name: 'Glassback Helm', price: 700000, lvl: 141, kind: 'helmet', def: 97, desc: "An iron helm plated in a glass scorpion's black scutes, a curled sting for a crest. Forged for a wheel that never got it." },
   cragbeak: { name: 'Cragbeak', price: 990000, lvl: 146, kind: 'sword', atk: 204, reach: 64, desc: "A heavy black-iron blade hooked at the end like a roc's beak, its edge chipped where it hit rock. It comes down out of the wind." },
@@ -3855,6 +4012,7 @@ export const ITEMS = {
   brand_staff: { name: 'Smoulder Staff', price: 806000, lvl: 132, kind: 'staff', magic: 191, mp: 114, reach: 66, twin: 'greyback_brand', desc: "One of Greyback's logs, banded with iron, smouldering at the head. Its bolts come out trailing sparks and smelling of pine." },
   pick_staff: { name: "Picker's Staff", price: 215000, lvl: 131, aim: 135, kind: 'staff', magic: 190, mp: 114, reach: 56, twin: 'brimstone_pick', desc: 'An old yoke pole cut down to a staff, a lump of clear yellow sulphur bound to its head with wire. It hums when the vents breathe.' },
   willow_staff: { name: 'Willow Staff', price: 265000, lvl: 151, aim: 155, kind: 'staff', magic: 209, mp: 124, reach: 60, twin: 'reedcutter', desc: 'A peeled willow wand as tall as you, a little lantern of frog-skin hung from its crook with a moth-light inside. It sways when you cast.' },
+  stillwater_staff: { name: 'Stillwater Staff', price: 1300000, lvl: 167, slots: 9, kind: 'staff', magic: 224, mp: 134, reach: 68, twin: 'heron_bill', desc: "A tall grey staff, jointed like a heron's leg, a smooth nest stone held in its crook. Its bolts leave the air very still behind them." },
   kitetalon_staff: { name: 'Kitetalon Staff', price: 857000, lvl: 136, kind: 'staff', magic: 195, mp: 117, reach: 60, twin: 'kitetalon', desc: "An iron staff hooked at the head like a kite's foot, clutching a yellow crystal. Its bolts stoop on whatever they're aimed at." },
   pinion_staff: { name: 'Pinion Staff', price: 935000, lvl: 142, kind: 'staff', magic: 201, mp: 121, reach: 66, twin: 'condor_pinion', desc: 'A long iron staff with a fan of slag-iron feathers at its head, singed at the tips. A hot wind follows its bolts.' },
   sootfang_staff: { name: 'Sootfang Staff', price: 896000, lvl: 139, kind: 'staff', magic: 198, mp: 119, reach: 60, twin: 'sootfang', desc: "A black iron rod with a hound's fang at its head, soot smoking off it. Its bolts run low and fast." },
@@ -3940,6 +4098,7 @@ const BOW_LIST = [
   ['bearer_bow', 'bearer_blade', "Bearer's Bow", 'Two old carrying straps of iron-hard leather, bent and riveted, a buckle at the grip. Draw it and it creaks like something taking a weight.'],
   ['spring_bow', 'slag_maul', 'Ironspring Bow', 'Two leaf-springs off an old forge bellows, riveted together and strung with wire. Forged for a wheel that never got it.'],
   ['wicker_bow', 'reedcutter', 'Wicker Bow', "Three willow staves bound in split reed and strung with eel-gut. It bends like the reeds do in the wind, and doesn't break either."],
+  ['greywing_bow', 'heron_bill', 'Greywing Bow', "A long bow of grey willow shaped like a heron's spread wing, fletched at the tips. It draws slow and looses all at once."],
 ];
 for (const [id, twin, name, desc] of BOW_LIST) {
   const sw = ITEMS[twin];

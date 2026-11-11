@@ -81,6 +81,7 @@ export const STAFFS = {
   nestfire_staff: { len: 68, shaft: ['#6a6470', '#2e2a32'], w: 3, head: 'ember', gem: '#1e1c26', gem2: '#ff9a5a', glow: '255,160,110' }, // (the Hatchkeeper's: a black-glass egg, an ember inside)
   // the Brimstone Fields (E3a, docs/places/brimstone.md)
   pick_staff: { len: 64, shaft: ['#8a6a48', '#5a4430'], w: 3, head: 'crystal', gem: '#c8a020', gem2: '#fff07a', glow: '255,230,110' }, // (Ochre's: an old yoke pole, a lump of sulphur)
+  stillwater_staff: { len: 70, shaft: ['#a8acb4', '#5e626c'], w: 3, head: 'crook', gem: '#8a8e96', gem2: '#e4e6ea', glow: '200,215,235' }, // (Long-Neck's: jointed like a heron's leg, a nest stone in the crook)
   willow_staff: { len: 66, shaft: ['#d8ccb0', '#9a8a68'], w: 2.8, head: 'lantern', gem: '#ffe2a8', gem2: '#5e4e84', glow: '214,190,255' }, // (Sedge's: a peeled willow wand, a frog-skin lantern with a moth-light in it)
   kitetalon_staff: { len: 66, shaft: ['#8a8490', '#4e4a56'], w: 2.8, head: 'crystal', gem: '#a8781e', gem2: '#ffe060', glow: '255,220,100' },
   pinion_staff: { len: 70, shaft: ['#4a4448', '#24202a'], w: 3.2, head: 'feather', gem: '#6a6268', gem2: '#9a9298', glow: '255,214,120' }, // (the Condor's: slag-iron feathers)

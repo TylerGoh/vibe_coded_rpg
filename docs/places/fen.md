@@ -74,6 +74,9 @@ All four are fen folk. None says the Wickmother's name ("the Mother", and a chan
   lost no one and keeps a lantern lit "for practice". Wants to see snow.
 - **Changed by the update:** Runa (Icefang Hamlet) buys Netta's eels and tells travellers about the Hush; Ione may now
   say the way home is open (and still never names the Wickmother).
+- **Changed by L1:** all four know Firefly Hollow is open again (Hob and his two eldest sawed the willow through) and the
+  Grove's water is down; Wren, Hob and Sedge speak of the Sitting Stones, and of Long-Neck on her nest (Wren understands
+  her better than she says). The mere itself is still too high for Hob's punt (L2).
 
 ## Gates here (`LANTERN_FEN`, `docs/places/branches.md`)
 - **The Still Mere** (L2): Hob's punt at `STILLMERE_GATE_X`, drawn up on the boards, his pole laid along it, the mere

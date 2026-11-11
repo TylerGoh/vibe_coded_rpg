@@ -1,4 +1,4 @@
-// Docs: docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md, docs/places/blacksands.md, docs/places/ashwood.md, docs/places/coast.md, docs/places/brimstone.md, docs/places/rim.md, docs/places/foundry.md
+// Docs: docs/places/grove.md, docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md, docs/places/blacksands.md, docs/places/ashwood.md, docs/places/coast.md, docs/places/brimstone.md, docs/places/rim.md, docs/places/foundry.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
@@ -17,7 +17,7 @@
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X, COAST, COAST_STONE_X, BRIMSTONE, BRIM_STONE_X, FOUNDRY, FOUNDRY_TALLY_X, FOUNDRY_LEDGER_X, RIM, RIM_STONE_X } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X, COAST, COAST_STONE_X, BRIMSTONE, BRIM_STONE_X, FOUNDRY, FOUNDRY_TALLY_X, FOUNDRY_LEDGER_X, RIM, RIM_STONE_X, GROVE, GROVE_STONE_X } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -150,6 +150,14 @@ export const RUIN_STONES = [
     note: 'Two grooves are worn into the rock at its foot, a load\'s width apart, as if something heavy was set down here and lifted again, many times.',
   },
   {
+    // the Drowned Grove's (atlas Phase 8, L1, docs/places/grove.md): the Fen adds no canon tier, so it says no more than
+    // Tier 1 (the Keepers made it, gears) and leans into the island's own theme: letting a light go
+    room: GROVE, place: 'the Drowned Grove', x: GROVE_STONE_X, shape: 'sunk', name: 'the Sunk Stone', title: 'The Sunk Stone',
+    look: 'A Keeper stone standing in the black water between the willows, sunk to its shoulders: only its top half shows, green with weed below a tide line. A ring of gear teeth goes round it, half of them under the water. Above them, on its face, a small figure kneels at a shore and sets something on the water: a little boat, or a leaf, with a light in it.',
+    legible: ['...AND SET IT ON THE WATER... AND LET IT...', 'Beside the figure the same light is cut again further off, and again further off, smaller each time, until the last is only a dot.', 'Under the water, where you can just see, more carving goes on down. Nobody has read it in a very long time.'],
+    note: 'Someone has tied a lantern to the stone with reed string, its tag turned to the stone so you cannot read the name. It is lit.',
+  },
+  {
     // the Old Foundry's tally board (E3b, docs/places/foundry.md): a reading, not a Keeper stone (wing / when, like the log)
     room: FOUNDRY, place: 'the Old Foundry', x: FOUNDRY_TALLY_X, shape: 'tally', name: 'the tally board', title: 'The Tally Board',
     wing: 'the Old Foundry · by the big casting pit', when: 'Chalk on charred planks · read by the glow of the pit',
@@ -202,7 +210,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone, landing: drawLandingStone, breathing: drawBreathingStone, tally: drawTally, ledger: drawLedger, hoist: drawHoistStone })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone, landing: drawLandingStone, breathing: drawBreathingStone, tally: drawTally, ledger: drawLedger, hoist: drawHoistStone, sunk: drawSunkStone })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -1776,4 +1784,62 @@ function drawTally(ctx, time, glow) {
   ctx.stroke();
   ctx.fillStyle = chalk;
   circle(ctx, -1.5, -69, 1.2);
+}
+
+// The Sunk Stone (the Drowned Grove): a Keeper stone sunk to its shoulders in the black water, a weed line round it,
+// the gear ring half drowned, a figure on its face setting a light on the water, the light cut again smaller and
+// smaller; a lantern tied to it with reed string, lit
+function drawSunkStone(ctx, time, glow) {
+  slab(ctx, -46, -92, 92, 96, 14);
+  ctx.fillStyle = 'rgba(30,40,32,0.75)'; // the water over its lower half
+  ctx.fillRect(-56, -10, 112, 16);
+  ctx.fillStyle = 'rgba(110,138,78,0.75)'; // the weed line
+  for (let x = -42; x <= 42; x += 8) ellipse(ctx, x, -14, 5, 3);
+  ctx.strokeStyle = 'rgba(200,214,190,0.4)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(0, -9, 54 + Math.sin(time) * 2, 4, 0, 0, TAU);
+  ctx.stroke();
+  const ink = glow ? '#c9a24a' : CARVE;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
+  ctx.lineWidth = 1.6;
+  ctx.lineCap = 'round';
+  carvedGear(ctx, 0, -14, 30, 10, glow); // (half under the water: the water is drawn over it next)
+  ctx.fillStyle = 'rgba(30,40,32,0.75)';
+  ctx.fillRect(-44, -10, 88, 6);
+  ctx.strokeStyle = ink;
+  // the kneeling figure at a shore, setting a light on the water
+  ctx.beginPath();
+  ctx.moveTo(-34, -46);
+  ctx.lineTo(-10, -46); // the shore
+  ctx.moveTo(-10, -46);
+  ctx.quadraticCurveTo(10, -44, 36, -46); // the water
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(-22, -60, 4, 0, TAU); // the head
+  ctx.moveTo(-22, -56);
+  ctx.lineTo(-24, -48);
+  ctx.lineTo(-16, -48);
+  ctx.moveTo(-22, -53);
+  ctx.lineTo(-12, -50); // the arm, reaching out
+  ctx.stroke();
+  for (const [x, r] of [[-8, 2.4], [6, 1.8], [18, 1.3], [28, 0.8]]) { // the light, going away smaller and smaller
+    ctx.beginPath();
+    ctx.arc(x, -50, r, 0, TAU);
+    ctx.fill();
+  }
+  // the lantern tied to it
+  ctx.strokeStyle = '#9a8a62';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(36, -78);
+  ctx.lineTo(44, -66);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,214,150,0.3)';
+  circle(ctx, 46, -58, 12);
+  ctx.fillStyle = '#4a4058';
+  ctx.fillRect(41, -66, 10, 2);
+  ctx.fillStyle = '#ffe2a8';
+  ctx.fillRect(42, -64, 8, 10);
 }

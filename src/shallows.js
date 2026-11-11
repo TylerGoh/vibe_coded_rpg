@@ -68,7 +68,7 @@ export function drawShallows(ctx, camX, viewW, time) {
 }
 
 // The shallows themselves: a skin of still dark water over peat, the walking line where your feet go in
-function drawWater(ctx, L, R, time) {
+export function drawWater(ctx, L, R, time) {
   if (R <= L) return;
   ctx.fillStyle = '#2e2838'; // peat, under everything
   ctx.fillRect(L, GROUND + 6, R - L, H - GROUND);
@@ -122,7 +122,7 @@ function drawStage(ctx, L, R) {
 }
 
 // A clump of reeds and bulrushes, swaying (back ones dimmer, behind the water line; front ones in front of it)
-function drawReeds(ctx, c, time, back) {
+export function drawReeds(ctx, c, time, back) {
   ctx.save();
   ctx.lineWidth = back ? 1.6 : 2.2;
   for (let i = 0; i < c.n; i++) {
@@ -141,7 +141,7 @@ function drawReeds(ctx, c, time, back) {
 }
 
 // A tussock: a hump of peat and reed roots standing up out of the water, flat-topped (the platform), reeds on top
-function drawTussock(ctx, p, time) {
+export function drawTussock(ctx, p, time) {
   const x = p.x, w = p.w, y = p.y;
   ctx.fillStyle = '#4a3c30';
   ctx.beginPath();
@@ -174,7 +174,7 @@ function drawTussock(ctx, p, time) {
 }
 
 // A stretch of old boardwalk still up on its posts (the platform), a rail broken off at one end
-function drawOldBoardwalk(ctx, p) {
+export function drawOldBoardwalk(ctx, p) {
   const x = p.x, w = p.w, y = p.y;
   ctx.fillStyle = '#3e3650';
   for (const px of [x + 12, x + w / 2, x + w - 16]) ctx.fillRect(px - 4, y + 6, 8, GROUND - y - 6);
@@ -215,7 +215,7 @@ function drawStub(ctx, s) {
 }
 
 // A lily pad on the water (sometimes with a pale flower)
-function drawPad(ctx, pd, time) {
+export function drawPad(ctx, pd, time) {
   const y = GROUND - 3 + Math.sin(time * 0.8 + pd.x) * 0.6;
   ctx.fillStyle = '#4e6e52';
   ctx.beginPath();

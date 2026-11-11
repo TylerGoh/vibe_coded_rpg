@@ -1755,6 +1755,7 @@ const FLOOD_LOOK = {
   tide: { warn: '120,200,230', fill: 'rgba(90,170,210,0.75)', top: 'rgba(220,245,255,0.9)' },
   floe: { warn: '170,215,240', fill: 'rgba(60,110,160,0.8)', top: 'rgba(235,248,255,0.95)' },
   magma: { warn: '255,140,70', fill: 'rgba(230,90,40,0.85)', top: 'rgba(255,220,120,0.95)' },
+  mire: { warn: '190,200,170', fill: 'rgba(46,52,40,0.85)', top: 'rgba(200,214,190,0.8)' }, // (Long-Neck's: the mere coming up black through the den)
 };
 export function drawFloodHz(ctx, h, now) {
   const L = FLOOD_LOOK[h.style] ?? FLOOD_LOOK.tide, w = 1500 / h.segs, t = now - h.at;

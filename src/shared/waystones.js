@@ -6,7 +6,7 @@
 // branch's entrance hub and one on Keeper's Spine, the Queen's Bridge and the Caldera Rim, and the Citadel's two (the camp, the Skydocks) (story/world/island-depth.md); none in the hard pockets.
 // The stones only reach stones on their own island (isle): islands are reached by their crossings.
 import { VILLAGE, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, CANOPY, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, ASHWOOD, COAST, BRIMSTONE, RIM } from './sim.js';
-import { CALDERA, SKYCAMP, CAMP_WAY_X, SKYDOCKS, DOCKS_WAY_X, WICKMERE, WICK_WAY_X, SHALLOWS, SHALLOWS_WAY_X } from './rpg.js';
+import { CALDERA, SKYCAMP, CAMP_WAY_X, SKYDOCKS, DOCKS_WAY_X, WICKMERE, WICK_WAY_X, SHALLOWS, SHALLOWS_WAY_X, GROVE, GROVE_WAY_X } from './rpg.js';
 
 // x: the stone, on its room's ground (where you arrive is a little beside it, ARRIVE_DX) · isle: its island
 // (Greenhollow when left out)
@@ -32,6 +32,7 @@ export const WAYSTONES = [
   { id: 'skydocks', name: 'The Skydocks', room: SKYDOCKS, x: DOCKS_WAY_X, isle: 'citadel' }, // (on the Warden's Pier, past the Dockwarden's post; Phase 6 (c))
   { id: 'wickmere', name: 'Wickmere', room: WICKMERE, x: WICK_WAY_X, isle: 'fen' }, // (on Reedwater's landing; Lantern Fen's first stone, atlas Phase 8)
   { id: 'shallows', name: 'The Shallows', room: SHALLOWS, x: SHALLOWS_WAY_X, isle: 'fen' }, // (on the Landing Stage)
+  { id: 'grove', name: 'The Drowned Grove', room: GROVE, x: GROVE_WAY_X, isle: 'fen' }, // (at the Drowned Gate; L1. None in Firefly Hollow: it's beside the Shallows' own)
 ];
 export const isleOf = (w) => w.isle ?? 'green';
 export const sameIsle = (a, b) => isleOf(a) === isleOf(b);

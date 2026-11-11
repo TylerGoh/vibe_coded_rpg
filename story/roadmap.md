@@ -144,8 +144,13 @@ No quests, no hard level gates.
       `phase8-plan.md`; approved 2026-11-11 with Lv 150–180 (the owner's change), the rest as written.
   - [x] L0 (2026-11-11, live): the landing: the Hush, the `'fen'` crossing, Wickmere, its four people, the fen folk look,
         the Fen in every sky and on the World map, the Shallows (`docs/places/fen.md`, `docs/places/shallows.md`).
-        Unplayed. Next: **L1** (Firefly Hollow and the Drowned Grove, Long-Neck's Heronry).
-  - [ ] L1–L4: the branches, dens, field bosses, the party den. L5: the Wickmother.
+        Unplayed.
+  - [x] L1 (2026-11-11, live): Firefly Hollow (74), the Drowned Grove (75), Long-Neck and her den the Stone Nest (76,
+        challenges from day one: late tells, the mire flood), the Sunk Stone, gates laid to the Sunk Barrows (L3) and the
+        Lantern Causeway (L4) (`docs/places/firefly.md`, `docs/places/grove.md`). Unplayed. Next: **L2** (the Still Mere,
+        Hob's punt in the water, Old Gullet's Eel Pit).
+  - [ ] L2–L4: the Still Mere and Old Gullet, the Sunk Barrows and the field bosses, the Causeway and Grandfather Mire.
+        L5: the Wickmother.
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

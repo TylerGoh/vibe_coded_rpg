@@ -69,7 +69,8 @@ Old Crucible (E3b's Old Foundry field boss, its art shrunk, between the Condor's
 Brenna (E4b's party den boss, her art shrunk, tooth and all, between Old Crucible's and the Colossus's). The third with
 art of its own is the **mini Typhon** (E5 (c2): `drawTyphonPet` in `src/typhon-art.js`): a little slag serpent coiled
 with its head up, its chest glowing gold-white; every few seconds it breathes in, puffs a smoke ring and watches it go.
-Priced between the Colossus's and Chronos's (the shop's top stays Chronos), it raised `PETSHOP_W` once more.
+Priced between the Colossus's and Chronos's (the shop's top stays Chronos), it raised `PETSHOP_W` once more, and so did
+the mini Long-Neck (atlas Phase 8 L1, her art shrunk, between the Colossus's and Typhon's by level).
 
 ## Testing
 - `TEST_PET_FAST=1440` makes a full belly last 2 minutes (test servers only, never live).

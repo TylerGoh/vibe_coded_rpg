@@ -2013,7 +2013,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
           const ang = base + (i / (n - 1) - 0.5) * 1.2 + (w ? 0.09 : 0);
           shots.push([Math.round(head.x), Math.round(head.y), Math.round(Math.cos(ang) * 430), Math.round(Math.sin(ang) * 430), 0, 12, w * 0.45]);
         }
-      bossEvent(m, 'shots', { style: 'feather', shots });
+      bossEvent(m, 'shots', { style: k.looks?.feathers ?? 'feather', shots }); // (Long-Neck's are grey: looks.feathers)
       m.timer = 0.9;
     } else if (a === 'spiral') {
       // a slow spiral of bullets in two (or three) arms

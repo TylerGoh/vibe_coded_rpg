@@ -4,7 +4,7 @@
 // routes and fog where the charts run out, plus a bouncing "you are here" slime. Tapping an island that has
 // one (ISLAND_MAPS) opens its own map: its places as a graph, shipped ones solid, blocked ones dashed
 // (src/shared/branches.js). It sends nothing to the server.
-import { FJORD, FORGEHOLD, HIGHLANDS, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, OLDICE, LONGSTAIR, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, CALDERA, CITADEL, DENS, UNDERFLUES, LONGFLUE, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS } from './shared/rpg.js';
+import { FJORD, FORGEHOLD, HIGHLANDS, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, OLDICE, LONGSTAIR, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, CALDERA, CITADEL, DENS, UNDERFLUES, LONGFLUE, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS, FIREFLY, GROVE } from './shared/rpg.js';
 import { roomDef } from './shared/sim.js';
 import { ISLAND_MAPS, nodeAt, shipped } from './shared/branches.js';
 import { TOUCH } from './touch.js';
@@ -16,7 +16,7 @@ const INK = '#5b4a6b';
 // Which island a room is on. Everything not listed (the village, its buildings, houses, the Wildwood) is home.
 // Aboard a crossing you're out on its route: 'sea' (the ferry's), 'straits' (the Lodestar's), 'sky' (the balloon's) or
 // 'fenroute' (the Hush's, east to Lantern Fen).
-const ISLAND_OF_STAGE = { [FORGEHOLD]: 'ember', [BLACKSANDS]: 'ember', [ASHWOOD]: 'ember', [COAST]: 'ember', [TUBES]: 'ember', [BRIMSTONE]: 'ember', [FOUNDRY]: 'ember', [RIM]: 'ember', [UNDERFLUES]: 'ember', [LONGFLUE]: 'ember', [HIGHLANDS]: 'frost', [FJORD]: 'frost', [GLACIER]: 'frost', [SKERRIES]: 'frost', [GROTTO]: 'frost', [HEIGHTS]: 'frost', [BLUEHALLS]: 'frost', [QBRIDGE]: 'frost', [OLDICE]: 'frost', [LONGSTAIR]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel', [SKYCAMP]: 'citadel', [SKYDOCKS]: 'citadel', [WICKMERE]: 'fen', [SHALLOWS]: 'fen' };
+const ISLAND_OF_STAGE = { [FORGEHOLD]: 'ember', [BLACKSANDS]: 'ember', [ASHWOOD]: 'ember', [COAST]: 'ember', [TUBES]: 'ember', [BRIMSTONE]: 'ember', [FOUNDRY]: 'ember', [RIM]: 'ember', [UNDERFLUES]: 'ember', [LONGFLUE]: 'ember', [HIGHLANDS]: 'frost', [FJORD]: 'frost', [GLACIER]: 'frost', [SKERRIES]: 'frost', [GROTTO]: 'frost', [HEIGHTS]: 'frost', [BLUEHALLS]: 'frost', [QBRIDGE]: 'frost', [OLDICE]: 'frost', [LONGSTAIR]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel', [SKYCAMP]: 'citadel', [SKYDOCKS]: 'citadel', [WICKMERE]: 'fen', [SHALLOWS]: 'fen', [FIREFLY]: 'fen', [GROVE]: 'fen' };
 export function islandOf(room) {
   if (roomDef(room)?.crossing) return { steam: 'straits', sky: 'sky', fen: 'fenroute' }[roomDef(room).crossing.route] ?? 'sea';
   const den = DENS.find((d) => d.room === room);

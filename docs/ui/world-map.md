@@ -25,8 +25,8 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
   names the camp. No Citadel island map yet.
 - **Lantern Fen** (atlas Phase 8) is charted where the eastern fog was: a low violet island with meres, Wickmere's stilt
   houses at its west end, a thinner mist and the lights still flickering over it; the Hush's dashed route runs to it
-  from Frostpeak. Its own map is `LANTERN_FEN` (`src/shared/branches.js`; `LOOK.fen`): Wickmere, the Shallows, the gated
-  Firefly Hollow, Drowned Grove and Still Mere, and the Sunk Barrows and Causeway dashed further in (`past`).
+  from Frostpeak. Its own map is `LANTERN_FEN` (`src/shared/branches.js`; `LOOK.fen`): Wickmere, the Shallows, Firefly Hollow
+  and the Drowned Grove (L1), the gated Still Mere, and the Sunk Barrows and Causeway gated in the Grove (L1 gave them gates).
 - Emberdeep's sub-label names Forgehold; it sits near the chart's bottom edge, so its "tap for its map" hint
   goes beside it, not under it.
 - Frostpeak shows Icefang Hamlet where the ferry comes in (turf huts, a fire) and the Queen's cracked ice

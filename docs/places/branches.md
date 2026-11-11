@@ -106,7 +106,7 @@ island shows what's coming.
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 74 after atlas Phase 8's L0 (Wickmere 70, the Hush's decks 71–72, the Shallows 73); 70 after atlas Phase 6 (c)'s Skydocks (69), which followed (b)'s balloon decks (66, 67) and the
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 77 after atlas Phase 8's L1 (Firefly Hollow 74, the Drowned Grove 75, Long-Neck's den 76); 74 after L0 (Wickmere 70, the Hush's decks 71–72, the Shallows 73); 70 after atlas Phase 6 (c)'s Skydocks (69), which followed (b)'s balloon decks (66, 67) and the
   Skydocks camp (68); 66 after E5 (b)'s Under-Flues (63) and Long Flue (64) and the Hearth it keeps (65, E5 (c)); before that, E4a's Caldera Rim (61) and the Bearer's Hoist it keeps (62, E4b), E3b's Old Foundry (60), E3a's Brimstone Fields (59), E2's Smoking Coast (56), the Hatchkeeper's den (57) and the Drained Tubes (58), E1's Ashwood (55) and Black Sands (54); 53 is the dev sandbox's Training Yard; ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, the Wolf's Hold)), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last; `onRoomPlat` helper names must be new: F2 first clashed with
@@ -152,10 +152,13 @@ Gotchas already hit:
 
 ## The next phases' loose ends (where things already are)
 - **Lantern Fen** (atlas Phase 8, plan `story/phase8-plan.md`; L0 shipped: `docs/places/fen.md`, `docs/places/shallows.md`):
-  `LANTERN_FEN` has Wickmere and the Shallows, and three gates: Firefly Hollow (`willowfall` in the Shallows at
-  `FIREFLY_GATE_X`) and the Drowned Grove (`floodwater` at `GROVE_GATE_X`), both L1, and the Still Mere (`punt` in Wickmere
-  at `STILLMERE_GATE_X`), L2; the Sunk Barrows and the Causeway are `past`. Each needs an `OPEN` look when it ships (the
-  draw function with an `open` flag, the F3 pattern). Every new Fen room needs its `ISLAND_OF_STAGE` row (`'fen'`), its
+  `LANTERN_FEN` has Wickmere and the Shallows (L0), Firefly Hollow and the Drowned Grove (L1: `docs/places/firefly.md`,
+  `docs/places/grove.md`; their old gates drawn open by `drawWillowfallOpen` and `drawFloodwaterOpen`), and three gates:
+  the Still Mere (`punt` in Wickmere at `STILLMERE_GATE_X`), L2; the Sunk Barrows (`barrowmouth` in the Grove's Root Halls
+  at `BARROWS_GATE_X`: the passage flooded to the lintel), L3; the Lantern Causeway (`sunkcauseway` at the Grove's east
+  end, `CAUSEWAY_GATE_X`: its near end sunk), L4. `drawBarrowMouth` and `drawSunkCauseway` already take an `open` flag and
+  have their `OPEN` rows, so shipping either is data (the node's `rooms` and `entry`) plus its door. `drawPunt` still needs
+  its open look. Every new Fen room needs its `ISLAND_OF_STAGE` row (`'fen'`), its
   waystone `isle: 'fen'`, and the people's personas updated (they list what's blocked).
 - **Greenhollow's way to its final boss** (FB1 (b), `docs/places/sunkenroad.md`): the `sunkenroad` node under the
   Thornheart (two rooms, entry `rootsplit`). A deep room and an approach follow the branch checklist above, except

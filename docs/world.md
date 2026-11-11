@@ -22,7 +22,9 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | The Skydocks Camp | 68 `SKYCAMP` | the Kite's gangway (`CAMP_DOCK_X`, boards `SKY_DOWN`) · your house (`CAMP_HOME_X`) · the plank across to the Skydocks at the pier's end (`CAMP_END_X`) (`docs/places/skydocks.md`) |
 | The Hush's deck, out / home | 71 `FEN_OUT`, 72 `FEN_HOME` | ashore at Wickmere's jetty / Icefang Hamlet, once she's in; back while she casts off (`docs/places/crossings.md`, `docs/places/fen.md`) |
 | Wickmere | 70 `WICKMERE` | the Hush's gangway (`WICK_DOCK_X`, boards `FEN_HOME`) · your house (`WICK_HOME_X`) · the boardwalk's east end into the Shallows (`WICK_EXIT_X`); Hob's punt is a gate (`docs/places/fen.md`) |
-| The Shallows | 73 `SHALLOWS` | back to Wickmere (west end); Firefly Hollow and the Drowned Grove are gates (`docs/places/shallows.md`) |
+| The Shallows | 73 `SHALLOWS` | back to Wickmere (west end) · the side path to Firefly Hollow (`FIREFLY_GATE_X`) · the boardwalk on into the Drowned Grove (`GROVE_GATE_X`, east end) (`docs/places/shallows.md`) |
+| Firefly Hollow | 74 `FIREFLY` | back to the Shallows (west end) (`docs/places/firefly.md`) |
+| The Drowned Grove | 75 `GROVE` | back to the Shallows (west end) · Long-Neck's den (`HERON_DEN_X`, room 76 `HERON_DEN`); the Sunk Barrows and the Lantern Causeway are gates (`docs/places/grove.md`) |
 | The Skydocks | 69 `SKYDOCKS` | the plank back to the camp (west end) · the loading ramp up into the Aether Citadel (`SKYDOCKS_RAMP_X`, at the ramp's foot) (`docs/places/skydocks.md`) |
 | Greenhollow's East Cliffs | 20 `CLIFFS` | back into the Wildwood (west end); a vista, no mobs (`docs/places/cliffs.md`) |
 | Greenhollow Harbour | 19 `HARBOUR` | back up to the village (east end) · the ferry's gangway (`GANGWAY_X`, boards `FERRY_N`) (`docs/places/harbour.md`) |

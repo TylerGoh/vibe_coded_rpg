@@ -796,3 +796,20 @@ The owner put the Fen at Lv 150–180, past the Citadel. L0 adds the Shallows' f
 other `trail` mobs), their four materials (priced on the ladder above the Skydocks'), and Sedge's tier (the Reedcutter,
 Willow Staff, Wicker Bow and Reed Hood, `aim` 155, on the gear curve at Lv 151). No bosses yet. The sheet's checks pass;
 nothing older moved.
+
+## Lantern Fen, L1 (atlas Phase 8, 2026-11-11)
+Firefly Hollow and the Drowned Grove (`docs/places/firefly.md`, `docs/places/grove.md`) put five mobs on the frozen curve:
+the fen newt (151, HP 95%), will-o'-wisp (157, 94% for a phasing flier), reed stalker (160, 100%), willow wight (163, 111%
+like the other `stomp` mobs' bulk) and marsh heron (166, 93% for a flier); EXP 100%, gold 101% (coins and materials read
+off the Shallows' by the gold curve: Fen Newt Tail 1,460, Wisp Light 1,530, Stalker Plume 1,560, Wight Bark 1,590, Heron
+Feather 1,620). "Farming your own level" from 166 on now picks the marsh heron over the legacy chrono wraith (a little
+more gold per EXP): **gold earned by** Lv 170 ~13.07M → ~13.21M, Lv 200 ~22.05M → ~22.58M; **play time** to Lv 170 26.1 h →
+26.2 h, to Lv 200 37.2 h → 37.3 h (targets 25.7 h, 34.9 h; both within `LEVEL_PACE`). Below 166 nothing moved.
+**Long-Neck** (den 76, Lv 166): an ordinary den modelled on the Hatchkeeper's, HP set so the sheet solos her in a median
+~9:25 (`DEN_SOLO_MIN`; a first try at the Hatchkeeper's ratio ran 11:08, over the band, so her written HP came down 15%).
+Her EXP camps at 0.74× / 5.39× an hour of farming (under `BOSS_CAMP_MAX`); a kill pays ~1.09M (~24× a minute of farming,
+like the other dens): coins ~315k and Nest Stones (1,830 each), Long-Neck's Bill and its twins (Lv 167, 1.3M:
+`swordPrice`) and the Heron Crest (Lv 167, 986k: `helmetPrice`), on the curve × `BOSS_GEAR.den`. The willow wight's Wight
+Crown (Lv 163, 940k) is a rare drop on the helmet curve. Her pet is 250k, between the Colossus's (248k, Lv 150) and
+Typhon's (258k, Lv 170): by level (the first try at 264k failed the check against Typhon's). `PETSHOP_W` 5450 → 5600.
+No trader. `--check` green.

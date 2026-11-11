@@ -51,7 +51,9 @@ one shared corner feed).
   **Sedge** (`sedge`, the reed-weaver, trades the Fen's first gear tier). No `lore` cap: Tier 0, their island and their
   trades; Wren knows funeral songs that name "the Keepers" without knowing who they were. None says the Wickmother's
   name ("the Mother", and a change of subject). The update also taught Runa about Netta and the Hush, and Pilgrim Ione
-  (now in the fen folk's look) that the way home is open.
+  (now in the fen folk's look) that the way home is open. L1 told all four that Firefly Hollow and the Drowned Grove are
+  open (the willow sawn through, the water down) and gave Wren, Hob and Sedge the Sitting Stones and Long-Neck
+  (`docs/places/grove.md`); the next phases' blocks (the barrows flooded, the Causeway sunk, the mere too high) they know too.
   **Atlas Phase 7 (story progress, `docs/social/story.md`)**: a character with a `lore` cap gets the canon up to the
   asking slime's lore tier (from its story record); Mochi and Clio have cap 4 and know it themselves; since (c) every
   island's people have their island's tier as a cap, as hearsay (Greenhollow 1, Frostpeak 2, Emberdeep 3; Kestrel,

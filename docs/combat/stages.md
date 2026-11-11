@@ -99,6 +99,10 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
 30. **The Shallows**: atlas Phase 8 (L0), Lantern Fen's first wilds, east off Wickmere (Lv 150–158, no trader, elites or
    field boss; the Landing Stage is mob-free with a waystone) (`docs/places/shallows.md`). Lantern moths (passive,
    flying), bog slimes (a `trail` of bog muck), mire frogs (`lob`, mud), mudskippers (fast hoppers).
+31. **Firefly Hollow** and 32. **the Drowned Grove**: atlas Phase 8 (L1), off the Shallows: the Fen's easy pocket (Lv
+   150–155, fen newts and the Shallows' moths and bog slimes, no waystone; `docs/places/firefly.md`) and its main trail on
+   east (Lv 156–166, a waystone, Long-Neck's den; `docs/places/grove.md`). Will-o'-wisps (`phase`), reed stalkers (`shell`
+   with `cut: 0`), willow wights (a small `stomp`), marsh herons (`dive`). No new brains or styles.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

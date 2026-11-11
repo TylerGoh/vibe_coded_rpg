@@ -105,6 +105,9 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
     across the den while it gathers (`zoneX`): if nobody breaks the egg, standing in the ring as it bursts, you live.
   - **The Hatchkeeper**: buried in hot sand (`bury`: mash free); her clutch (`clutch`, phase 2 on): hatchlings (her
     minion) that grow into Grown Hatchlings (`grows: 'grown_hatchling'`, an elite of the marine iguana) if left `JOB_S`.
+  - **Long-Neck** (atlas Phase 8 L1, the first boss built with its challenges from day one): late tells every phase
+    (`late`: she goes still, then the bill comes down where you stood) and the mere flooding the den from phase 2
+    (`flood`, style `mire`: `FLOOD_LOOK.mire`). The punish window.
 - **The punish window** (A19, T2, every boss with a `ch` list that isn't a final boss: the dens and T1's five `bossBrain`
   bosses): a slam, leap, charge, burrow or ultimate that hit nobody leaves it dazed `PUNISH_S` (`watchMiss`: no accepted
   ouch from that boss since the move began, `PUNISH_JUDGE_MS` after it ends; a stagger, so with party mechanics on it

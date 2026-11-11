@@ -8,7 +8,8 @@ Files: the room in `src/shared/rpg.js` (`SHALLOWS`, `SHALLOWS_W`, `SHALLOWS_EXIT
 `FIREFLY_GATE_X`, `GROVE_GATE_X`, `SHALLOWS_ZONES`, `SHALLOWS_PLATFORMS`, the `STAGES` row, the four mobs, their
 materials and spawns), `ROOMS[SHALLOWS]` in `src/shared/sim.js`, its drawing in `src/shallows.js` (`drawShallows`; the
 sky and the mere are Wickmere's `drawFenSky` / `drawFenAir`), its creatures and materials in `src/shallows-art.js`
-(`SHALLOWS_MOB_ART`, `SHALLOWS_ICONS`), the frog's mud and the bog slime's muck in `src/hazards.js` (shot style `mud`,
+(`SHALLOWS_MOB_ART`, `SHALLOWS_ICONS`; `drawWater`, `drawReeds`, `drawTussock`, `drawOldBoardwalk` and `drawPad` in
+`src/shallows.js` are exported for Firefly Hollow and the Drowned Grove), the frog's mud and the bog slime's muck in `src/hazards.js` (shot style `mud`,
 puddle style `bog`), the gates' art in `src/branch-gates.js` (`drawWillowfall`, `drawFloodwater`), the waystone in
 `src/shared/waystones.js`, the `shallows` music scene and the mobs' voices in `src/audio.js`.
 
@@ -35,13 +36,13 @@ West to east (`SHALLOWS_ZONES`):
   Hood now and then (very rarely).
 Materials: lamp dust, bog jelly, mire frog skin, mudskipper fins (`docs/economy.md`).
 
-## Gates here (`LANTERN_FEN`, `docs/places/branches.md`; lifted by L1)
-- **Firefly Hollow** (`FIREFLY_GATE_X`, kind `willowfall`): a great willow down across the side path, its root plate
-  torn up, dead fronds in the water, a few fireflies on the far side: "A great willow came down across the side path.
-  Too rotten to climb, too big to shift."
-- **The Drowned Grove** (`GROVE_GATE_X`, kind `floodwater`): the boardwalk runs on east under a sheet of risen water up
-  to its rails, a lantern post half drowned with its light still going under the water: "The water's up over the
-  boardwalk rails. Nobody wades the Grove path like this."
+## Its ways on (`LANTERN_FEN`, `docs/places/branches.md`; gates in L0, opened by L1)
+- **Firefly Hollow** (`FIREFLY_GATE_X`, kind `willowfall`, `docs/places/firefly.md`): until L1 a great willow lay across
+  the side path ("Too rotten to climb, too big to shift"). L1 sawed it through (Hob and his two eldest, the personas say):
+  its two ends pushed back off the path, the cut faces pale, sawdust on the peat (`drawWillowfallOpen`).
+- **The Drowned Grove** (`GROVE_GATE_X`, kind `floodwater`, `docs/places/grove.md`): until L1 the boardwalk ran on east
+  under risen water up to its rails. L1 let the water down: the boardwalk is out again, wet, a weed line high on its posts,
+  the lantern post standing clear and lit (`drawFloodwaterOpen`).
 
 ## Decisions and history
 - 2026-11-11: built in L0 with the town. **Not played yet** (`docs/places/fen.md`, "Decisions").

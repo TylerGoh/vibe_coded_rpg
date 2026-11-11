@@ -110,6 +110,7 @@ function bolt(ctx, x0, y0, x1, y1, seed, jag, segs = 6) {
 const SHOT = {
   ember: { glow: '255,140,60', core: '#fff3b0', mid: '#ffb34d', rim: '#ff6a3d' },
   feather: { glow: '255,120,70', core: '#fff1c4', mid: '#ffa04a', rim: '#ff5a4a' },
+  heronfeather: { glow: '200,215,235', core: '#ffffff', mid: '#e4e6ea', rim: '#6e727c' }, // Long-Neck's (looks.feathers)
   clock: { glow: '255,214,120', core: '#fff8dc', mid: '#ffd36b', rim: '#b98cff' },
   spark: { glow: '130,225,255', core: '#ffffff', mid: '#aef0ff', rim: '#5fc8ff' },
   water: { glow: '150,220,255', core: '#ffffff', mid: '#bfeaff', rim: '#5fb0e0' }, // the snapshrimp's
@@ -158,7 +159,7 @@ function drawShot(ctx, h, now) {
     disc(ctx, p.x - ux * d + Math.sin(now * 20 + i) * 1.5, p.y - uy * d, r * (1 - i * 0.17));
   }
   ctx.globalAlpha = a;
-  if (h.style === 'feather') {
+  if (h.style === 'feather' || h.style === 'heronfeather') {
     const ang = Math.atan2(uy, ux);
     ctx.translate(p.x, p.y);
     ctx.rotate(ang);
