@@ -160,6 +160,11 @@ No quests, no hard level gates.
         the Hall of Lamps' moth-silk door laid as L5's gate (`docs/places/causeway.md`). Unplayed. Next: **L5** (a), the
         Wickmother on paper (`l5-plan.md`).
   - [ ] L5: the Wickmother: (a) her plan on paper, (b) the Peat Barrows and the Lamp Road, (c) the Hall and the fight.
+- [ ] **The Citadel's depth pass, C0–C6** (owner, 2026-11-11: "why does Aether Citadel just end abruptly?"), after
+      the Wickmother, before Amberdune. Plan `citadel-plan.md` (on paper 2026-11-11, waiting for the owner's okay): Lv
+      140–200, room 13 kept, branches (the Keepers' Gardens, the Orrery, the Archive, the Engine Halls, the Bell Walks,
+      the Keel, the Undercroft), eight new bosses (Meridian, the Indexer, four field bosses, the Helmsman, the
+      Escapement as the final boss), the Last Echo, the island map.
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

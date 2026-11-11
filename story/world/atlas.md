@@ -236,7 +236,7 @@ The missing desert. Reached by ship from Black Sand Shore once Emberdeep's bosse
 | Lantern Fen | | The Wickmother `[proposed]` |
 | Emberdeep | Ignis, Pyra | none needed |
 | Amberdune | | Old Carapace `[proposed]` |
-| Citadel | Clockwork Colossus, Chronos | none: Chronos is the end |
+| Citadel | Clockwork Colossus, Chronos | its depth pass (`../citadel-plan.md`): Meridian, the Indexer, the Helmsman (party den), the Escapement (final boss), four field bosses |
 | Sunken Reach | | the other Keepers' guardians `[proposed]` |
 **Final bosses** (owner, 2026-10-24; `../final-bosses.md`): one per island, for four or more players:
 Greenhollow's in the Thornheart, Frostpeak's in the Blue Halls, Emberdeep's in the Old Foundry `[default]`,
