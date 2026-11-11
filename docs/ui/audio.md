@@ -13,10 +13,14 @@ high voice like wind over a bottle), Wickmere (`wickmere`, slot 70: D minor, ver
 drone, frogs and a far heron, the wicks hissing) and the Shallows (`shallows`, slot 73: D dorian at a wade, a plucked
 pulse, frogs on the off-beats, a whistled reedy line; its mobs borrow the wisp's, magma slug's, pond frog's and
 mushling's voices); L1's Firefly Hollow (`firefly`, slot 74: F major for once, a music box and a harp going round each
-other, fireflies blinking in glassy notes, the peat fire), the Drowned Grove (`grove`, slot 75: D minor under the willows,
-a bowed drone, a careful plucked line, drips, a heron far off) and Long-Neck's den (`longneck`, slot 76: D minor at a walk,
+other, fireflies blinking in glassy notes, the peat fire), the Drowned Grove (`drownedgrove`, slot 75: D minor under the willows,
+a bowed drone, a careful plucked line, drips, a heron far off; L1 keyed it `grove`, the Mushroom Grove's own key further down
+`SONGS`, so it played the Mushroom Grove's tune until L2 renamed it: keys in `SONGS` must be unique) and Long-Neck's den (`longneck`, slot 76: D minor at a walk,
 wingbeat kicks, a bowed line reaching up and falling back, Wickmere's music box through it; its mobs borrow the pond
-frog's, wisp's, cinder bat's and golem's voices, hers the Colossus's); E5 (c2)'s Hearth (`typhon`, slot 65: E phrygian, heavy and grieving, the Long Flue's bellows breath and its hammer going again on the anvil, a low horn lament; layered in by phase like Fenrir's: a drum and bass in phase 2, the Pour's toms and a rising glide in phase 3, the lead sung in a hundred voices in phase 4, a tone sliding up for the pressure when enraged); the Hatchkeeper's den (slot 57) reuses the Old Narwhal's `narwhal`: the same story, a mother holding on; new mobs borrow legacy mob voices; boss tracks in dens, intensified in a boss's last
+frog's, wisp's, cinder bat's and golem's voices, hers the Colossus's); L2's Still Mere (`stillmere`, slot 77: B-flat minor,
+very slow and wet, the punt pole's push, Wickmere's music box a phrase at a time, water lapping, something turning over far
+down) and Old Gullet's den (`gullet`, slot 78: deep and close, a sliding sub line for the eel, the music box all the way
+through for the lights he keeps; its mobs borrow the wisp's, knot spider's and obsidian crab's voices, his the Colossus's); E5 (c2)'s Hearth (`typhon`, slot 65: E phrygian, heavy and grieving, the Long Flue's bellows breath and its hammer going again on the anvil, a low horn lament; layered in by phase like Fenrir's: a drum and bass in phase 2, the Pour's toms and a rising glide in phase 3, the lead sung in a hundred voices in phase 4, a tone sliding up for the pressure when enraged); the Hatchkeeper's den (slot 57) reuses the Old Narwhal's `narwhal`: the same story, a mother holding on; new mobs borrow legacy mob voices; boss tracks in dens, intensified in a boss's last
   stage (`setIntensity`).
 - Effects for slaps, swings, hits, every skill, boss attacks, coming out of the Rebirth Pool (`reborn`: a splash, bubbles, a rising shimmer, a warm chord; quieter and panned for someone else), per-mob hurt/death voices
   (`sfx('mobHurt', {kind})`), the shop, scrolls, level up, doors, splats.

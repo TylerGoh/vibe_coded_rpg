@@ -15,7 +15,8 @@ and gear in `src/grove-art.js` (`GROVE_MOB_ART`, `GROVE_ICONS`, `GROVE_SWORDS`, 
 (theme `heron`, registered in `src/dens.js`), the Sunk Stone in `src/ruins.js`, the gates' art in `src/branch-gates.js`
 (`drawFloodwaterOpen`, `drawBarrowMouth`, `drawSunkCauseway`), the waystone in `src/shared/waystones.js`, her grey
 feathers (`heronfeather` in `src/hazards.js`, `looks.feathers`) and the mire flood (`FLOOD_LOOK.mire` in
-`src/challenge.js`), the `grove` and `longneck` music scenes in `src/audio.js`, her pet in `src/shared/house.js`.
+`src/challenge.js`), the `drownedgrove` and `longneck` music scenes in `src/audio.js` (keyed `grove` until L2, which the Mushroom Grove's
+scene overwrote), her pet in `src/shared/house.js`.
 
 ## The room
 West to east (`GROVE_ZONES`):
@@ -70,7 +71,7 @@ Materials: wisp light, stalker plume, wight bark, heron feather; Long-Neck's nes
 - 2026-11-11: built in L1 with Firefly Hollow. **Not played by anyone yet**; no headless test (owner's rule), only a build,
   the sheet, a server boot and a draw check of every new drawing function in Node against a fake canvas.
 - The way in: the plan's "the water's up; the update lets it down". The boardwalk is out again, wet, the weed line high on
-  its posts (`drawFloodwaterOpen`); Hob's punt still waits for the mere itself to go down (L2).
+  its posts (`drawFloodwaterOpen`); Hob's punt waited for the mere itself to go down (L2, `docs/places/stillmere.md`).
 - The plan's "reed stalkers wait in the reeds" is drawn (reed stems in front of it, neck up like a hiding bittern), not a
   new brain; "willow wights' roots grab: a short slow" would need `step()`, so it's the stomp's ring of roots instead.
 - Her late strike is drawn as the shared late-tell blade (`src/challenge.js`, Chronos's), and the first-time banner for

@@ -103,6 +103,9 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    150–155, fen newts and the Shallows' moths and bog slimes, no waystone; `docs/places/firefly.md`) and its main trail on
    east (Lv 156–166, a waystone, Long-Neck's den; `docs/places/grove.md`). Will-o'-wisps (`phase`), reed stalkers (`shell`
    with `cut: 0`), willow wights (a small `stomp`), marsh herons (`dive`). No new brains or styles.
+33. **The Still Mere**: atlas Phase 8 (L2), by Hob's punt from Wickmere (Lv 160–170, a waystone, Old Gullet's den;
+   `docs/places/stillmere.md`). Mist shades (`phase`), mere eels (`blink`: under the water, then up behind you), lamp crabs
+   (`shell` with `cut`: hit them from behind). No new brains or styles.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

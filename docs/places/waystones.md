@@ -18,8 +18,8 @@ Data `src/shared/waystones.js` (`WAYSTONES`, `wayAt`), server `way` in `server/r
   glints and a warm crack (`drawStone` takes the stone's `isle`). The Citadel's (`isle: 'citadel'`, atlas Phase 6: the
   Skydocks camp's, by the brazier, and since Phase 6 (c) the Skydocks' own on the Warden's Pier: the two reach each
   other) is wind-scoured, rimed and bolted down with brass collars. Lantern Fen's (`isle: 'fen'`, atlas Phase 8: Wickmere's,
-  on Reedwater's landing, the Shallows' on the Landing Stage and, since L1, the Drowned Grove's at the Drowned Gate; none in
-  Firefly Hollow, beside the Shallows') are peat-dark and wet, with a green slime tide line,
+  on Reedwater's landing, the Shallows' on the Landing Stage, since L1 the Drowned Grove's at the Drowned Gate, and since L2 the Still Mere's
+  on the Punt Landing; none in Firefly Hollow, beside the Shallows') are peat-dark and wet, with a green slime tide line,
   duckweed at the foot and a candle stub kept lit on top.
 - E at a stone you don't know → `{t:'way'}` attunes (saved as `ways` on the character). E at one you know
   → the card lists your other stones (tap, click or number keys) → `{t:'way', to}`; the server checks you

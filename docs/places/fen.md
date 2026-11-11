@@ -42,8 +42,8 @@ landmark in every sky in `src/distant.js` (`drawLanternFen`, the `fen` view), th
   lantern post every few steps along the boardwalk, each with a name tag on a string, every one lit), **the great
   lantern stand** on its landing (you wake by it, `WICK_SPAWN_X`), **the stilt house whose door is everyone's own
   front door** (`WICK_HOME_X`; its balcony is a platform, like the other houses'), **the lantern gallery** (a plank
-  walkway on two tall poles, hung with lanterns: a platform), **Ferryman Hob's punt** drawn up on the boards (a gate,
-  below), **Sedge's reed shed**, and the boardwalk's east end running off into the reeds (`WICK_EXIT_X`, into the
+  walkway on two tall poles, hung with lanterns: a platform), **Ferryman Hob's punt** (drawn up on the boards until L2;
+  afloat since, the way to the Still Mere, below), **Sedge's reed shed**, and the boardwalk's east end running off into the reeds (`WICK_EXIT_X`, into the
   Shallows). Behind: a violet dusk, a low moon, the still mere with the dead's lights drifting far out on it, and far
   across the water the line of the **Lantern Causeway's** lamps going off into the mist (drawing only: seen, not
   reached, `story/phase8-plan.md`).
@@ -68,20 +68,23 @@ All four are fen folk. None says the Wickmother's name ("the Mother", and a chan
 - **Wren the Lamplady** (`wren`, trades: `SHOPS.wren`, potions she calls lamp oil): tends every lantern on the Lamp Walk.
   Her husband's lantern is the oldest on the Walk; she has wanted for years to let it go out and can't. Nobody's lantern
   in Wickmere has ever gone out, and she doesn't let herself think about why.
-- **Ferryman Hob** (`hob`, no trade): his punt is the way to the Still Mere (L2), drawn up on the boards "with the mere
-  this high". Twelve grandchildren and no lantern for any of them; carves willow ducks; can't swim.
+- **Ferryman Hob** (`hob`, trades since L2: `SHOPS.hob`, his own tier and the potions): his punt is the way to the Still
+  Mere (`docs/places/stillmere.md`); until L2 it was drawn up on the boards "with the mere this high". Twelve grandchildren and no lantern for any of them; carves willow ducks; can't swim.
 - **Sedge** (`sedge`, trades: `SHOPS.sedge`, the island's first gear tier and the potions): a young reed-weaver who has
   lost no one and keeps a lantern lit "for practice". Wants to see snow.
 - **Changed by the update:** Runa (Icefang Hamlet) buys Netta's eels and tells travellers about the Hush; Ione may now
   say the way home is open (and still never names the Wickmother).
 - **Changed by L1:** all four know Firefly Hollow is open again (Hob and his two eldest sawed the willow through) and the
   Grove's water is down; Wren, Hob and Sedge speak of the Sitting Stones, and of Long-Neck on her nest (Wren understands
-  her better than she says). The mere itself is still too high for Hob's punt (L2).
+  her better than she says). The mere itself was still too high for Hob's punt.
+- **Changed by L2:** the mere's down and Hob poles again (and trades from the punt); Wren speaks of Old Gullet, Netta and
+  Sedge of Hob being back on the water.
 
-## Gates here (`LANTERN_FEN`, `docs/places/branches.md`)
-- **The Still Mere** (L2): Hob's punt at `STILLMERE_GATE_X`, drawn up on the boards, his pole laid along it, the mere
-  lapping over the boardwalk's edge behind (`drawPunt`): "Hob's punt is drawn up on the boards. 'Not with the mere this
-  high,' he says." L2's update puts it in the water.
+## Ways out of town (`LANTERN_FEN`, `docs/places/branches.md`)
+- **The Still Mere** (shipped in L2, `docs/places/stillmere.md`): Hob's punt at `STILLMERE_GATE_X`. Until L2 it was a gate,
+  drawn up on the boards with his pole laid along it and the mere lapping over the boardwalk's edge (`drawPunt`: "Hob's
+  punt is drawn up on the boards. 'Not with the mere this high,' he says."); L2's update put it in the water
+  (`drawPuntOpen`), and its door is in `ROOMS[WICKMERE]`. Wickmere has no gates left.
 
 ## Numbers and the sheet
 Sedge's tier is aimed at the island's start (`aim`, `docs/economy.md`): the Reedcutter, the Willow Staff, the Wicker

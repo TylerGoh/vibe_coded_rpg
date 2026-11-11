@@ -37,7 +37,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 5600; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 5750; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) and the mini Old Gullet (L2): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -216,7 +216,7 @@ export const WREN_X = 1000; // Wren the Lamplady, at her stall
 export const WICK_SPAWN_X = 1190; // where you wake up, on the Lamp Walk's landing
 export const WICK_HOME_X = 1430; // the stilt house whose door is everyone's own front door
 export const HOB_X = 1720; // Ferryman Hob, by his punt
-export const STILLMERE_GATE_X = 1830; // his punt, drawn up on the boards (the Still Mere's way, L2)
+export const STILLMERE_GATE_X = 1830; // his punt, afloat since L2: the way over to the Still Mere (STILLMERE)
 export const SEDGE_X = 2120; // Sedge, at her reed shed
 export const WICK_EXIT_X = WICK_W - 90; // off the boardwalk into the Shallows
 // eel boxes on the jetty, stilt-house porches, a rope bridge between two of them, the lantern gallery
@@ -314,6 +314,40 @@ export const GROVE_PLATFORMS = [
   { x: 4040, y: 236, w: 170, kind: 'bough' },
   { x: 4800, y: 330, w: 160, kind: 'nestrock' },
   { x: 2500, y: 164, w: 96, kind: 'crook' }, // the old willow's crook, a heron's moulted feathers in it: easy to miss
+];
+// ——— atlas Phase 8, L2: the Still Mere and Old Gullet (story/phase8-plan.md; docs/places/stillmere.md) ———
+// The Still Mere (room 77): the Fen's side branch, reached by Ferryman Hob's punt from Wickmere (STILLMERE_GATE_X; the
+// mere went down in L2 and he poles again). Open black water, islets of peat joined by stepping stones, mist, and the
+// drifting lanterns thickest here. You land at the WEST end, at the Punt Landing (no mobs: a waystone). West to east: the
+// Stepping Stones, the Lantern Drift, and the Gullet, the deep reach over the old eel pit (Old Gullet's den at
+// GULLET_DEN_X). The far end is open water. The hidden spot (last in STILLMERE_PLATFORMS): an old eel-trap stake standing
+// up out of the mist, a lantern tied to it whose tag the weather has washed blank.
+export const STILLMERE = 77; // room id
+export const STILLMERE_W = 4800;
+export const MERE_EXIT_X = 70; // the punt, tied up at the landing: back to Wickmere
+export const MERE_WAY_X = 400; // the Punt Landing's waystone
+export const GULLET_DEN_X = 4250; // the way down into the old eel pit (room GULLET_DEN, its DENS row)
+export const GULLET_DEN = 78; // Old Gullet's den, the Eel Pit
+export const STILLMERE_ZONES = [
+  { name: 'The Punt Landing', x0: 0, x1: 600, lvl: null }, // (no mobs)
+  { name: 'The Stepping Stones', x0: 600, x1: 1900, lvl: '160–163' },
+  { name: 'The Lantern Drift', x0: 1900, x1: 3300, lvl: '163–166' },
+  { name: 'The Gullet', x0: 3300, x1: STILLMERE_W, lvl: '166–170' },
+];
+// islets of peat with a willow stump or reeds on them, runs of stepping stones, old eel-trap staging on stakes; the
+// blank-tagged lantern's stake (hidden, last)
+export const STILLMERE_PLATFORMS = [
+  { x: 720, y: 352, w: 180, kind: 'islet' },
+  { x: 1020, y: 290, w: 130, kind: 'stones' },
+  { x: 1320, y: 342, w: 200, kind: 'islet' },
+  { x: 1700, y: 272, w: 170, kind: 'staging' },
+  { x: 2100, y: 346, w: 190, kind: 'islet' },
+  { x: 2480, y: 282, w: 150, kind: 'stones' },
+  { x: 2860, y: 336, w: 200, kind: 'islet' },
+  { x: 3450, y: 300, w: 180, kind: 'staging' },
+  { x: 3800, y: 244, w: 140, kind: 'stones' },
+  { x: 4560, y: 340, w: 170, kind: 'islet' },
+  { x: 1745, y: 182, w: 80, kind: 'stake' }, // the old eel-trap stake, a blank-tagged lantern tied on: easy to miss
 ];
 export const GUST_CYCLE = 540, GUST_WARN = 120, GUST_BLOW = 100; // (ticks)
 export const GUST_DOT = 0.05;
@@ -1168,6 +1202,7 @@ export const STAGES = {
   [SHALLOWS]: { name: 'The Shallows', zones: SHALLOWS_ZONES, band: '150–158' }, // (atlas Phase 8, L0: Lantern Fen)
   [FIREFLY]: { name: 'Firefly Hollow', zones: FIREFLY_ZONES, band: '150–155', pill: 'Firefly Hollow' }, // (L1)
   [GROVE]: { name: 'The Drowned Grove', zones: GROVE_ZONES, band: '156–166', pill: 'Drowned Grove' }, // (L1)
+  [STILLMERE]: { name: 'The Still Mere', zones: STILLMERE_ZONES, band: '160–170', pill: 'Still Mere' }, // (L2)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -2764,6 +2799,53 @@ MOBS.long_neck = {
   drops: [['royal_sap', 1, 2, 3], ['heron_bill', 1, 1, 1], ['heron_crest', 0.6, 1, 1], ['coin', 1, 251000, 379000], ['mega_elixir', 1, 4, 6], ['nest_stone', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
+// ——— atlas Phase 8, L2: the Still Mere (art: src/stillmere-art.js; docs/places/stillmere.md). On the frozen curve; no
+// elites, no field boss (L3) ———
+// Mist shades are the mere's mist got up into a hooded shape, faceless but for two pale eyes; they thin to nothing and
+// come back with a cold pulse (`phase`). Mere eels lie under the black water and come up behind you to snap (`blink`:
+// gone is under the water, the slash is the bite). Lamp crabs are big black mere crabs, each wearing a lantern stolen off
+// the water on its back, claws up in front: the claws turn most of a blow from the front (`shell` with `cut`), so get
+// round behind them
+MOBS.mist_shade = {
+  name: 'Mist Shade', lvl: 161, hp: 22800, atk: 566, exp: 14375, speed: 55, w: 56, h: 74, aggro: true, hops: false,
+  ai: { kind: 'phase', every: 5.8, dur: 2.1, r: 200 },
+  drops: [['coin', 1, 1332, 2004], ['shade_veil', 0.5, 1, 2], ['mega_elixir', 0.2, 1, 1]],
+};
+MOBS.mere_eel = {
+  name: 'Mere Eel', lvl: 164, hp: 23900, atk: 579, exp: 14834, speed: 110, w: 88, h: 40, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.6, warn: 0.5, slashWarn: 0.5, r: 120 },
+  drops: [['coin', 1, 1364, 2052], ['mere_eelskin', 0.5, 1, 2], ['mega_elixir', 0.21, 1, 1]],
+};
+MOBS.lamp_crab = {
+  name: 'Lamp Crab', lvl: 168, hp: 30960, atk: 595, exp: 15454, speed: 45, w: 72, h: 64, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.6, lunge: 440, time: 0.3 }, // (the stoker warden's: hit it from behind)
+  drops: [['coin', 1, 1406, 2113], ['crab_glass', 0.5, 1, 2], ['mega_elixir', 0.21, 1, 1], ['crab_lantern', 0.004, 1, 1]],
+};
+// Old Gullet (L2; his den, the Eel Pit, opens in the Still Mere's Gullet at GULLET_DEN_X). A big boss with a story
+// (story/phase8-plan.md): an eel older than Wickmere, as long as a street, lying at the bottom of the old eel pit where
+// the mere is deepest. Every lantern the fen folk set adrift that sinks at last, he swallows and keeps, and he glows from
+// the inside with all of them. Holding on: the lights. He swallows you too (`gulp`: mash free, his jaws round you,
+// `looks.snare: 'gullet'`), and from phase 2 the pit's lamps sink and the den goes dark but for the lights inside him
+// (`dark`). His ultimate, The Undertow, is the `wave` ult as the pit's water dragged across (the Tidemother's water).
+// Freed, he opens his jaws and lets them go, and they float up out of the pit (the den's bossDie)
+MOBS.old_gullet = {
+  name: 'Old Gullet', boss: true, lvl: 169, hp: 11700000, atk: 646, exp: 1000000, speed: 80, w: 230, h: 170, aggro: true, hops: false,
+  phases: [['charge', 'slam', 'rain', 'gulp'], ['charge', 'slam', 'rain', 'summon', 'gulp', 'dark'], ['charge', 'rain', 'summon', 'leap', 'barrage', 'gulp', 'dark']],
+  // challenges from day one (docs/combat/challenges.md): swallowed (`gulp`: mash free, every phase) and the dark (phase 2 on)
+  ch: ['mash', 'dark'],
+  ult: { name: 'The Undertow', kind: 'wave' }, minion: 'mere_eel',
+  // S5.4: the shard glints among the lights in his belly (the weak point, in reach from the floor), the pit breathes up
+  // cold (a pulse, the Narwhal's `breath`), and freezing The Undertow as it gathers cancels it
+  party: ['weakpoint', 'pulse', 'interrupt'], partyLive: true, weak: { dx: 0.04, dy: -0.34, r: 22 },
+  looks: { snare: 'gullet', pulse: 'breath' },
+  lines: {
+    enter: ['Mm. Another light come down to the bottom? ...No. Only a little cold thing. Go back up.', 'Who is splashing over my pit? Every light that sinks is mine. Every one. Go away.'],
+    phase: [null, 'Down here they would go out, and nobody would know. Nobody comes down for them. In me they are warm.', 'You want me to let them go? Up there they drift and drift and nobody comes. Here they are KEPT!'],
+    freed: '...They were never mine to keep, were they. Go on, then, little lights. Up you go. Up. ...Oh. They look so pretty, going.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['gullet_tooth', 1, 1, 1], ['eelskin_cowl', 0.6, 1, 1], ['coin', 1, 257000, 388000], ['mega_elixir', 1, 4, 6], ['swallowed_lamp', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -2983,6 +3065,7 @@ const onSdPlat = onRoomPlat(SKYDOCKS_PLATFORMS, SKYDOCKS);
 const onShPlat = onRoomPlat(SHALLOWS_PLATFORMS, SHALLOWS);
 const onFfPlat = onRoomPlat(FIREFLY_PLATFORMS, FIREFLY);
 const onGvPlat = onRoomPlat(GROVE_PLATFORMS, GROVE);
+const onSmPlat = onRoomPlat(STILLMERE_PLATFORMS, STILLMERE);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -3486,6 +3569,23 @@ export const SPAWNS = [
   ...onGvPlat('marsh_heron', 6, 1),
   ...onGvPlat('marsh_heron', 7, 1),
   ...onGvPlat('willow_wight', 8, 1),
+  // the Still Mere (L2): shades and eels on the stepping stones, eels and a crab or two in the drift, crabs over the pit
+  ...strip('mist_shade', 700, 1880, FIELD_GROUND, 4, STILLMERE),
+  ...strip('mere_eel', 700, 1880, FIELD_GROUND, 2, STILLMERE),
+  ...onSmPlat('mist_shade', 0, 1),
+  ...onSmPlat('mist_shade', 2, 1),
+  ...onSmPlat('mere_eel', 3, 1),
+  ...strip('mere_eel', 1950, 3280, FIELD_GROUND, 4, STILLMERE),
+  ...strip('mist_shade', 1950, 3280, FIELD_GROUND, 2, STILLMERE),
+  ...strip('lamp_crab', 1950, 3280, FIELD_GROUND, 1, STILLMERE),
+  ...onSmPlat('mere_eel', 4, 1),
+  ...onSmPlat('mist_shade', 5, 1),
+  ...onSmPlat('lamp_crab', 6, 1),
+  ...strip('lamp_crab', 3350, 4700, FIELD_GROUND, 4, STILLMERE),
+  ...strip('mere_eel', 3350, 4700, FIELD_GROUND, 2, STILLMERE),
+  ...onSmPlat('lamp_crab', 7, 1),
+  ...onSmPlat('mere_eel', 8, 1),
+  ...onSmPlat('lamp_crab', 9, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -3513,6 +3613,7 @@ export const DENS = [
   { room: LADON_DEN, boss: 'ladon', name: 'The Root of the Road', from: ROADSEND, fromName: "the Road's End", entranceX: LADON_DEN_X, theme: 'hydra', platforms: LADON_PLATFORMS, final: true }, // (art: src/dens-ladon.js; the door's art: src/roadsend.js)
   { room: HATCH_DEN, boss: 'hatchkeeper', name: 'The Buried Clutch', from: COAST, entranceX: HATCH_DEN_X, theme: 'hatch' }, // (E2; art: src/dens-hatch.js)
   { room: HERON_DEN, boss: 'long_neck', name: 'The Stone Nest', from: GROVE, entranceX: HERON_DEN_X, theme: 'heron' }, // (atlas Phase 8, L1; art: src/dens-heron.js)
+  { room: GULLET_DEN, boss: 'old_gullet', name: 'The Eel Pit', from: STILLMERE, entranceX: GULLET_DEN_X, theme: 'gullet' }, // (atlas Phase 8, L2; art: src/dens-gullet.js)
   { room: BRENNA_DEN, boss: 'brenna', name: "The Bearer's Hoist", from: RIM, entranceX: BRENNA_DEN_X, theme: 'hoist' }, // (E4b; art: src/dens-rim.js)
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
   { room: TYPHON_DEN, boss: 'typhon', name: TYPHON_DEN_NAME, from: LONGFLUE, fromName: 'the Long Flue', entranceX: TYPHON_DEN_X, theme: 'hearth', platforms: TYPHON_PLATFORMS, final: true }, // (E5 (c); art: src/dens-typhon.js; the door's art: src/longflue.js)
@@ -3888,6 +3989,16 @@ export const ITEMS = {
   stalker_plume: { name: 'Stalker Plume', price: 1560, kind: 'loot', desc: 'A long striped feather, reed-gold and brown. Stood upright in a jar of reeds, you would never find it again.' },
   wight_bark: { name: 'Wight Bark', price: 1590, kind: 'loot', desc: 'A curl of black willow bark, sodden through and heavy as iron. Pressed to your ear, it creaks, very slowly, like something turning over in its sleep.' },
   heron_feather: { name: 'Heron Feather', price: 1620, kind: 'loot', desc: 'A long grey flight feather, dusty white along its edge. It smells of cold water and patience.' },
+  // L2: Ferryman Hob's tier (bog-iron, oilcloth and carved willow), the lamp crab's (very rare), and Old Gullet's
+  boathook: { name: "Hob's Boathook", price: 287000, lvl: 161, aim: 165, kind: 'sword', atk: 219, reach: 64, desc: 'A long bog-iron hook on a short ash haft, for fending off and pulling in. Hob forged a dozen one winter and has used none: he fends off with his feet.' },
+  oilskin_hat: { name: 'Oilskin Hat', price: 222000, lvl: 161, aim: 165, kind: 'helmet', def: 108, desc: 'A wide-brimmed hat of oiled cloth, black and stiff, a carved willow duck stitched on the band. The rain runs off the back of it and down your neck.' },
+  crab_lantern: { name: 'Crab Lantern', price: 998000, lvl: 168, kind: 'helmet', def: 111, desc: "A lamp crab's stolen lantern on a harness of eelskin, made to sit on your head. It is still lit. It was never the crab's, either." },
+  gullet_tooth: { name: "Old Gullet's Tooth", price: 1350000, lvl: 170, slots: 9, kind: 'sword', atk: 227, reach: 68, desc: "One long, backward-curving tooth from the old eel's jaw, set in a grip of black eelskin. Whatever it catches, it keeps." },
+  eelskin_cowl: { name: 'Eelskin Cowl', price: 1022000, lvl: 170, slots: 9, kind: 'helmet', def: 112, desc: "A close hood of the old eel's black skin, slick and cool, a little light sewn deep in the lining where nobody else can see it." },
+  shade_veil: { name: 'Shade Veil', price: 1570, kind: 'loot', desc: 'A scrap of grey mist that stayed behind when its shade went, folded small. It weighs nothing at all, and it is always a little damp.' },
+  mere_eelskin: { name: 'Mere Eelskin', price: 1600, kind: 'loot', desc: "A long strip of black eel hide, slick as wet slate. Wickmere's lantern-makers hinge their lantern doors with it: it never cracks." },
+  crab_glass: { name: 'Crab Glass', price: 1640, kind: 'loot', desc: "A curved pane of lantern glass off a lamp crab's back, smoked dark inside. A name is scratched in one corner, too worn to read." },
+  swallowed_lamp: { name: 'Swallowed Lamp', price: 1860, kind: 'loot', desc: 'A little lantern from inside Old Gullet, its tag long gone, still lit. It is warm, which a lantern from the bottom of a mere has no business being.' },
   nest_stone: { name: 'Nest Stone', price: 1830, kind: 'loot', desc: "A smooth grey pebble from Long-Neck's nest, worn round by being turned and turned. It is never quite warm, however long you hold it." },
   roc_feather: { name: 'Crag Roc Feather', price: 1445, kind: 'loot', desc: "A great dark flight feather, its shaft as thick as your finger, grey with the rim's dust. The wind tugs at it even indoors." },
   glassback_helm: { name: 'Glassback Helm', price: 700000, lvl: 141, kind: 'helmet', def: 97, desc: "An iron helm plated in a glass scorpion's black scutes, a curled sting for a crest. Forged for a wheel that never got it." },
@@ -4012,6 +4123,8 @@ export const ITEMS = {
   brand_staff: { name: 'Smoulder Staff', price: 806000, lvl: 132, kind: 'staff', magic: 191, mp: 114, reach: 66, twin: 'greyback_brand', desc: "One of Greyback's logs, banded with iron, smouldering at the head. Its bolts come out trailing sparks and smelling of pine." },
   pick_staff: { name: "Picker's Staff", price: 215000, lvl: 131, aim: 135, kind: 'staff', magic: 190, mp: 114, reach: 56, twin: 'brimstone_pick', desc: 'An old yoke pole cut down to a staff, a lump of clear yellow sulphur bound to its head with wire. It hums when the vents breathe.' },
   willow_staff: { name: 'Willow Staff', price: 265000, lvl: 151, aim: 155, kind: 'staff', magic: 209, mp: 124, reach: 60, twin: 'reedcutter', desc: 'A peeled willow wand as tall as you, a little lantern of frog-skin hung from its crook with a moth-light inside. It sways when you cast.' },
+  punt_staff: { name: 'Punt-Pole Staff', price: 287000, lvl: 161, aim: 165, kind: 'staff', magic: 219, mp: 130, reach: 64, twin: 'boathook', desc: 'A punt pole cut down to staff height, its iron shoe worn bright, a lantern hung from a peg at the top. It knows the way across without being told.' },
+  sunklamp_staff: { name: 'Sunken Lamp Staff', price: 1350000, lvl: 170, slots: 9, kind: 'staff', magic: 227, mp: 135, reach: 68, twin: 'gullet_tooth', desc: 'A staff of black bog-oak, a drowned lantern caged at its head, glowing from the inside. Its bolts come up from below, like bubbles.' },
   stillwater_staff: { name: 'Stillwater Staff', price: 1300000, lvl: 167, slots: 9, kind: 'staff', magic: 224, mp: 134, reach: 68, twin: 'heron_bill', desc: "A tall grey staff, jointed like a heron's leg, a smooth nest stone held in its crook. Its bolts leave the air very still behind them." },
   kitetalon_staff: { name: 'Kitetalon Staff', price: 857000, lvl: 136, kind: 'staff', magic: 195, mp: 117, reach: 60, twin: 'kitetalon', desc: "An iron staff hooked at the head like a kite's foot, clutching a yellow crystal. Its bolts stoop on whatever they're aimed at." },
   pinion_staff: { name: 'Pinion Staff', price: 935000, lvl: 142, kind: 'staff', magic: 201, mp: 121, reach: 66, twin: 'condor_pinion', desc: 'A long iron staff with a fan of slag-iron feathers at its head, singed at the tips. A hot wind follows its bolts.' },
@@ -4098,6 +4211,8 @@ const BOW_LIST = [
   ['bearer_bow', 'bearer_blade', "Bearer's Bow", 'Two old carrying straps of iron-hard leather, bent and riveted, a buckle at the grip. Draw it and it creaks like something taking a weight.'],
   ['spring_bow', 'slag_maul', 'Ironspring Bow', 'Two leaf-springs off an old forge bellows, riveted together and strung with wire. Forged for a wheel that never got it.'],
   ['wicker_bow', 'reedcutter', 'Wicker Bow', "Three willow staves bound in split reed and strung with eel-gut. It bends like the reeds do in the wind, and doesn't break either."],
+  ['decoy_bow', 'boathook', 'Decoy Bow', "A short willow bow with a carved duck set in its grip, the way Hob carves them. It shoots straight, and the duck looks very pleased about it."],
+  ['eelbone_bow', 'gullet_tooth', 'Eelbone Bow', "A long bow of the old eel's spine, every little bone of it pale and fine, strung with eel-gut. It bends like something swimming."],
   ['greywing_bow', 'heron_bill', 'Greywing Bow', "A long bow of grey willow shaped like a heron's spread wing, fletched at the tips. It draws slow and looses all at once."],
 ];
 for (const [id, twin, name, desc] of BOW_LIST) {
@@ -4206,6 +4321,7 @@ export const SHOPS = {
   ochre: { name: "Ochre's Lean-to", room: BRIMSTONE, x: OCHRE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'brimstone_pick', 'pick_staff', 'picker_bow', 'fume_mask'] },
   kestrel: { name: "Kestrel's Stall", room: SKYCAMP, x: KESTREL_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'aeronaut_goggles'] },
   wren: { name: "Wren's Lamp Stall", room: WICKMERE, x: WREN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir'] }, // (atlas Phase 8: she calls it all lamp oil)
+  hob: { name: "Hob's Punt", room: WICKMERE, x: HOB_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'boathook', 'punt_staff', 'decoy_bow', 'oilskin_hat'] }, // (atlas Phase 8, L2: he trades from his punt)
   sedge: { name: "Sedge's Reed Shed", room: WICKMERE, x: SEDGE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'reedcutter', 'willow_staff', 'wicker_bow', 'reed_hood'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
 };

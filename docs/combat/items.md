@@ -222,7 +222,11 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   staff and bow tables) and **Wren** (`SHOPS.wren`: potions only). A mudskipper in the Shallows drops the Reed Hood very
   rarely (`docs/places/fen.md`). L1's Drowned Grove: a willow wight drops the **Wight Crown** very rarely, and **Long-Neck**
   drops **Long-Neck's Bill** (twins: the **Stillwater Staff**, the **Greywing Bow**) and the **Heron Crest**, boss gear at Lv
-  167 (art `src/grove-art.js`, `GROVE_*`; `docs/places/grove.md`).
+  167 (art `src/grove-art.js`, `GROVE_*`; `docs/places/grove.md`). L2: **Ferryman Hob** trades from his punt in Wickmere
+  (`SHOPS.hob`: the potions, **Hob's Boathook** with its **Punt-Pole Staff** and **Decoy Bow**, and the **Oilskin Hat**,
+  aimed at Lv 165); in the Still Mere a lamp crab drops the **Crab Lantern** very rarely, and **Old Gullet** drops **Old
+  Gullet's Tooth** (twins: the **Sunken Lamp Staff**, the **Eelbone Bow**) and the **Eelskin Cowl**, boss gear at Lv 170
+  (art `src/stillmere-art.js`, `STILLMERE_*`; `docs/places/stillmere.md`).
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
   are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.

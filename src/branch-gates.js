@@ -2617,7 +2617,8 @@ const OPEN = { flue: drawFlue, fallenwall: drawFallenWall, icestair: (ctx, time,
   lavatongue: (ctx, time, g) => drawLavaTongue(ctx, time, g, true), tubemouth: (ctx, time, g) => drawTubeMouth(ctx, time, g, true),
   fumes: (ctx, time, g) => drawFumes(ctx, time, g, true), bearerstair: (ctx, time, g) => drawBearerStair(ctx, time, g, true), balloon: drawBalloonUp,
   adit: (ctx, time, g) => drawAdit(ctx, time, g, true), willowfall: drawWillowfallOpen, floodwater: drawFloodwaterOpen,
-  barrowmouth: (ctx, time, g) => drawBarrowMouth(ctx, time, g, true), sunkcauseway: (ctx, time, g) => drawSunkCauseway(ctx, time, g, true) }; // (the last two: L3 and L4 ship them open)
+  barrowmouth: (ctx, time, g) => drawBarrowMouth(ctx, time, g, true), sunkcauseway: (ctx, time, g) => drawSunkCauseway(ctx, time, g, true), // (these two: L3 and L4 ship them open)
+  punt: drawPuntOpen }; // (L2: Hob's punt in the water)
 
 // ——— Lantern Fen's gates (atlas Phase 8, L0: story/phase8-plan.md; L1 and L2 lift them) ———
 // The side path to Firefly Hollow off the Shallows' Reedbeds: a great willow come down right across it, lying on its
@@ -2805,6 +2806,70 @@ function drawPunt(ctx, time) {
   ctx.fill();
   ctx.fillStyle = '#6a6278';
   ctx.fillRect(113, -71, 6, 10);
+}
+
+// L2: Hob's punt in the water at last (the mere went down: a green weed line on the boardwalk's posts where it stood),
+// tied to a post, rocking, its bow lantern lit; his pole stood upright in the water at the stern, ready
+function drawPuntOpen(ctx, time) {
+  const rock = Math.sin(time * 0.9) * 1.6, tilt = Math.sin(time * 0.7) * 0.012;
+  ctx.fillStyle = 'rgba(110,138,78,0.55)'; // the weed line, high on the posts
+  for (const px of [-120, 120]) ctx.fillRect(px - 6, -2, 12, 4);
+  ctx.save();
+  ctx.translate(0, 6 + rock);
+  ctx.rotate(tilt);
+  ctx.fillStyle = '#2e2a3a'; // the punt, afloat alongside
+  ctx.beginPath();
+  ctx.moveTo(-100, -30);
+  ctx.lineTo(100, -30);
+  ctx.lineTo(92, 0);
+  ctx.lineTo(-92, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#4a4058';
+  ctx.fillRect(-98, -32, 196, 5);
+  ctx.fillStyle = '#6a5a42'; // the oiled cloth, folded on the stern seat
+  ctx.beginPath();
+  ctx.roundRect(-86, -40, 40, 9, 3);
+  ctx.fill();
+  ctx.strokeStyle = '#3a3446'; // the bow lantern on its crook, lit
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(96, -30);
+  ctx.lineTo(104, -70);
+  ctx.quadraticCurveTo(112, -76, 116, -66);
+  ctx.stroke();
+  const lg = ctx.createRadialGradient(116, -54, 2, 116, -54, 34);
+  lg.addColorStop(0, `rgba(255,214,150,${0.45 + 0.08 * Math.sin(time * 3)})`);
+  lg.addColorStop(1, 'rgba(255,214,150,0)');
+  ctx.fillStyle = lg;
+  ctx.fillRect(82, -88, 68, 68);
+  ctx.fillStyle = '#2e2a3a';
+  ctx.beginPath();
+  ctx.roundRect(110, -64, 12, 16, 3);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,226,168,0.9)';
+  ctx.fillRect(113, -61, 6, 10);
+  ctx.restore();
+  ctx.strokeStyle = '#8a6a48'; // his pole, stood up in the water at the stern
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(-108, 14);
+  ctx.lineTo(-118, -150);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(168,154,120,0.85)'; // the painter, to a post
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(-90, -22 + rock);
+  ctx.quadraticCurveTo(-120, -6, -132, -34);
+  ctx.stroke();
+  ctx.fillStyle = '#4a4058';
+  ctx.fillRect(-138, -44, 10, 44);
+  ctx.strokeStyle = 'rgba(214,204,232,0.3)'; // rings off the hull
+  ctx.lineWidth = 1;
+  const k = (time * 0.5) % 1;
+  ctx.beginPath();
+  ctx.ellipse(0, 8, 110 + k * 40, 4 + k * 4, 0, 0, TAU);
+  ctx.stroke();
 }
 
 // ——— atlas Phase 8, L1: the Shallows' two gates lifted, and the Drowned Grove's two ———

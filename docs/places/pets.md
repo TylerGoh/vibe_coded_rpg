@@ -70,7 +70,8 @@ Brenna (E4b's party den boss, her art shrunk, tooth and all, between Old Crucibl
 art of its own is the **mini Typhon** (E5 (c2): `drawTyphonPet` in `src/typhon-art.js`): a little slag serpent coiled
 with its head up, its chest glowing gold-white; every few seconds it breathes in, puffs a smoke ring and watches it go.
 Priced between the Colossus's and Chronos's (the shop's top stays Chronos), it raised `PETSHOP_W` once more, and so did
-the mini Long-Neck (atlas Phase 8 L1, her art shrunk, between the Colossus's and Typhon's by level).
+the mini Long-Neck (atlas Phase 8 L1, her art shrunk, between the Colossus's and Typhon's by level), and the mini Old
+Gullet (L2, his art shrunk, lights and all, between Long-Neck's and Typhon's: Lv 169, under Typhon's 170).
 
 ## Testing
 - `TEST_PET_FAST=1440` makes a full belly last 2 minutes (test servers only, never live).

@@ -79,6 +79,8 @@ export const BOWS = {
   // the Brimstone Fields (E3a, docs/places/brimstone.md)
   picker_bow: { len: 30, wood: ['#8a8490', '#4e4a56'], w: 3.2, tip: 'rivet', c: '#6a5a40', grip: '#8a6a48', gem: '#ffe060', string: '#e8dcb8', glow: '255,230,110' }, // (two basket hoops)
   greywing_bow: { len: 34, wood: ['#a8acb4', '#5e626c'], w: 3.4, tip: 'feather', c: '#3a3e46', grip: '#e8b040', string: '#e4e6ea', glow: '200,215,235' }, // (Long-Neck's: a heron's spread wing)
+  decoy_bow: { len: 30, wood: ['#c8a870', '#8a6a48'], w: 3, tip: 'reed', c: '#6a5a42', grip: '#e8b040', string: '#e0d8c8', glow: '255,214,150' }, // (Hob's: willow, a carved duck in the grip)
+  eelbone_bow: { len: 34, wood: ['#efe6d0', '#a89a78'], w: 3.4, tip: 'fang', c: '#2a2832', grip: '#2a2832', gem: '#ffd696', string: '#c8c0d8', glow: '255,214,150', curve: 0.42 }, // (Old Gullet's: the old eel's spine)
   wicker_bow: { len: 30, wood: ['#c8b890', '#7e7058'], w: 3, tip: 'reed', c: '#8a7aa8', grip: '#9a8a62', string: '#e0d8c8', glow: '214,190,255' }, // (Sedge's: willow staves bound in split reed)
   kitetalon_bow: { len: 30, wood: ['#9a8a5a', '#5a4e30'], w: 3.2, tip: 'fang', c: '#2a2426', grip: '#6a4a30', gem: '#ffd040', string: '#d8ccb0', glow: '255,220,100', curve: 0.46 },
   condor_bow: { len: 34, wood: ['#4a4448', '#24202a'], w: 4, tip: 'feather', c: '#7a7278', c2: '#c8c0b8', grip: '#6a5a48', gem: '#ffd060', string: '#c8bca8', glow: '255,214,120', curve: 0.36 },

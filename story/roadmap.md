@@ -147,10 +147,11 @@ No quests, no hard level gates.
         Unplayed.
   - [x] L1 (2026-11-11, live): Firefly Hollow (74), the Drowned Grove (75), Long-Neck and her den the Stone Nest (76,
         challenges from day one: late tells, the mire flood), the Sunk Stone, gates laid to the Sunk Barrows (L3) and the
-        Lantern Causeway (L4) (`docs/places/firefly.md`, `docs/places/grove.md`). Unplayed. Next: **L2** (the Still Mere,
-        Hob's punt in the water, Old Gullet's Eel Pit).
-  - [ ] L2–L4: the Still Mere and Old Gullet, the Sunk Barrows and the field bosses, the Causeway and Grandfather Mire.
-        L5: the Wickmother.
+        Lantern Causeway (L4) (`docs/places/firefly.md`, `docs/places/grove.md`). Unplayed.
+  - [x] L2 (2026-11-11, live): the Still Mere (77, by Hob's punt, now afloat; Hob trades from it), Old Gullet and his den the
+        Eel Pit (78, challenges from day one: swallowed and the dark) (`docs/places/stillmere.md`). Unplayed. Next: **L3**
+        (the Sunk Barrows and the field bosses).
+  - [ ] L3–L4: the Sunk Barrows and the field bosses, the Causeway and Grandfather Mire. L5: the Wickmother.
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

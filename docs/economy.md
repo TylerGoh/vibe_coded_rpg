@@ -813,3 +813,19 @@ like the other dens): coins ~315k and Nest Stones (1,830 each), Long-Neck's Bill
 Crown (Lv 163, 940k) is a rare drop on the helmet curve. Her pet is 250k, between the Colossus's (248k, Lv 150) and
 Typhon's (258k, Lv 170): by level (the first try at 264k failed the check against Typhon's). `PETSHOP_W` 5450 → 5600.
 No trader. `--check` green.
+
+## Lantern Fen, L2 (atlas Phase 8, 2026-11-11)
+The Still Mere (`docs/places/stillmere.md`) puts three mobs on the frozen curve: the mist shade (161, HP 94% for a phaser),
+mere eel (164, 96%) and lamp crab (168, 120% like the other `shell` mobs' bulk); EXP 100%, gold 101% (coins read off the
+Grove's by the gold curve; materials on the ladder: Shade Veil 1,570, Mere Eelskin 1,600, Crab Glass 1,640). "Farming your
+own level" from 168 on now picks the lamp crab over the marsh heron: **gold earned by** Lv 170 ~13.21M (same), Lv 200
+~22.58M → ~22.51M; **play time** to Lv 170 26.2 h → 26.1 h, to Lv 200 37.3 h → 37.0 h (targets 25.7 h, 34.9 h; within
+`LEVEL_PACE`). Below 168 nothing moved. **Hob's tier** is aimed at Lv 165 (`lvl` 161 on the gear curve, like Sedge's four
+under its aim): Hob's Boathook, the Punt-Pole Staff and the Decoy Bow 287k (~21 min of farming at the aim), the Oilskin Hat
+222k (~16 min): Sedge's 265k and 205k carried up by the gold curve. **Old Gullet** (den 78, Lv 169): Long-Neck's numbers
+times the curve's ratio from 166 to 169; the sheet solos him in a median ~9:31 (`DEN_SOLO_MIN`), his EXP camps at 0.75× /
+5.48× an hour of farming, a kill pays ~1.13M: coins ~322k and Swallowed Lamps (1,860), Old Gullet's Tooth and twins (Lv 170,
+1.35M: `swordPrice`) and the Eelskin Cowl (Lv 170, 1.02M: `helmetPrice`), on the curve × `BOSS_GEAR.den`. The lamp crab's
+Crab Lantern (Lv 168, 998k) is a rare drop on the helmet curve. His pet is 254k, between Long-Neck's (250k, Lv 166) and
+Typhon's (258k, Lv 170), so he's Lv 169, not 170. `PETSHOP_W` 5600 → 5750. `--check` green. (A first try named the crab's
+material `lamp_glass`, which overwrote Wreck Cave's 270-gold Lamp Glass and failed the check on the Lv 33 drowned lamp's gold.)

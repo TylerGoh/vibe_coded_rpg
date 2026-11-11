@@ -108,6 +108,9 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
   - **Long-Neck** (atlas Phase 8 L1, the first boss built with its challenges from day one): late tells every phase
     (`late`: she goes still, then the bill comes down where you stood) and the mere flooding the den from phase 2
     (`flood`, style `mire`: `FLOOD_LOOK.mire`). The punish window.
+  - **Old Gullet** (atlas Phase 8 L2, from day one): swallowed every phase (`gulp`, a move name of its own in `CHAL_MOVE` for
+    the mash free, drawn as his dark jaws with the lights showing through: `looks.snare: 'gullet'`, `PAL.gullet`) and the
+    dark from phase 2 (`dark` as a plain move: both need their `WARN` row, or the boss's timer is `NaN`). The punish window.
 - **The punish window** (A19, T2, every boss with a `ch` list that isn't a final boss: the dens and T1's five `bossBrain`
   bosses): a slam, leap, charge, burrow or ultimate that hit nobody leaves it dazed `PUNISH_S` (`watchMiss`: no accepted
   ouch from that boss since the move began, `PUNISH_JUDGE_MS` after it ends; a stagger, so with party mechanics on it

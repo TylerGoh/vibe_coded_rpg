@@ -1698,12 +1698,14 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     // boss challenges (T1a, T1b; server/challenge.js: each carries its own telegraph)
     bash: 0.2, tether: 0.3, cage: 0.3, arena: 0.3, tilt: 0.3, tooth: 0.4, lasers: 0.3, offslam: 0.2, late: 0.2, reverse: 0.3, rewind: 0.3,
     coffin: 0.3, bury: 0.3, orbs: 0.5, flood: 0.3, clutch: 0.4, tusk: TUSK_WIND, burrow: 0.4, rock: 0.4, // (T2)
+    gulp: 0.4, dark: 0.3, // (atlas Phase 8 L2: Old Gullet swallows you, and sinks the pit's lamps)
   };
   // a move in a boss's `phases` that starts a challenge (docs/combat/challenges.md) → its type
   const CHAL_MOVE = {
     bash: 'parry', tether: 'tether', cage: 'rescue', arena: 'arena', snare: 'snare', fetter: 'rhythm', gaps: 'gaps', dark: 'dark',
     tilt: 'tilt', tooth: 'carry', lasers: 'grid', offslam: 'feint', late: 'late', reverse: 'swap', rewind: 'rewind', // (T1b)
     coffin: 'mash', bury: 'mash', orbs: 'rings', flood: 'lava', clutch: 'jobs', rock: 'carry', // (T2; `tusk` and `burrow` are newMove's own)
+    gulp: 'mash', // (L2: Old Gullet's jaws; `dark` above is the plain darkness as a move of its own)
   };
   // how long the boss stands for each (else 0.8 s). G1: the laser grid stands still the phase it's taught, then the boss
   // fights on through it; the tilt and Rewind always fight on (Rewind's whole point: attacks to dodge twice)

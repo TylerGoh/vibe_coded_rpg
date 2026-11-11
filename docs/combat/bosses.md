@@ -26,6 +26,9 @@ freeing is a longer `bossDie` for her theme (`drawHatchFreed`: the eggs hatch an
 Atlas Phase 8's L1 added **The Stone Nest** (room 76, `HERON_DEN`, the Drowned Grove's Heronry, art `src/dens-heron.js`,
 theme `heron`; `docs/places/grove.md`), Long-Neck (Lv 166): grey feathers (`looks.feathers: 'heronfeather'`, which
 `feathers` now reads), the shared `lanes` ult, and her freeing (`drawHeronFreed`: she flies off over the mere).
+L2 added **The Eel Pit** (room 78, `GULLET_DEN`, the Still Mere's Gullet, art `src/dens-gullet.js`, theme `gullet`;
+`docs/places/stillmere.md`), Old Gullet (Lv 169): the shared `wave` ult drawn with the Tidemother's water (`waterMass`
+takes his theme), and his freeing (`drawGulletFreed`: the lights go up out of him and out of the pit).
 E4b added **The Bearer's Hoist** (room 62, `BRENNA_DEN`, the Caldera Rim, art `src/dens-rim.js`, theme `hoist`;
 `docs/places/rim.md`), Brenna, the Last Bearer, Emberdeep's party den (Lv 149): her `wave` ult, Last Delivery, is the
 tooth rolled end to end of the den (`HOIST_ULT` through `ULT_LOOKS`, `toothMass`; jump it) and her freeing a longer
@@ -265,6 +268,7 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | The Bellower (field, 100; E1) | armour, focus | Ignis's basalt plates with a glowing seam (`looks.shell: 'cinder'`): the black sand on its back baked hard |
 | The Hatchkeeper (den, 115; E2) | weakpoint (the shard under her crest), pulse (the nest's heat), interrupt | the S5.2 crystal over her neck; Ignis's ember rings, "HEAT" (`looks.pulse: 'heat'`) |
 | Long-Neck (den, 166; atlas Phase 8 L1) | weakpoint (the shard in her breast), pulse (the nest's cold mist), interrupt | the S5.2 crystal; the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
+| Old Gullet (den, 169; atlas Phase 8 L2) | weakpoint (the shard among the lights in his belly), pulse (the pit's cold breath), interrupt | the S5.2 crystal; the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
 | Hundredfoot (field, 125; E2) | armour, pulse (the heat) | Ignis's basalt plates (`looks.shell: 'cinder'`): its clinker closing up; Ignis's ember rings, "HEAT" (`looks.pulse: 'heat'`) |
 | The Brimstone Condor (field, 140; E3a) | focus, pulse (a gust of fumes) | the Colossus's steam rings (`looks.pulse: 'steam'`): its wingbeats whipping up the fumes |
 | Old Crucible (field, 145; E3b) | armour, curse (smouldering) | Ignis's basalt plates (`looks.shell: 'cinder'`): the slag on its skin setting; Pyra's charred sigil (`looks.curse: 'ember'`): its splashes of metal |

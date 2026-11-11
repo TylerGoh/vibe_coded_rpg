@@ -2,7 +2,7 @@
 
 **Status: approved by the owner 2026-11-11: Lv 150–180 (not the 70–110 default), the Hush from Icefang Hamlet, the
 full island with the Wickmother as its final boss, every other default. L0 built 2026-11-11 (`docs/places/fen.md`,
-`docs/places/shallows.md`); L1 built 2026-11-11 (`docs/places/firefly.md`, `docs/places/grove.md`); next is L2.** Phase 8 of `world/atlas.md`: the east side island, a
+`docs/places/shallows.md`); L1 built 2026-11-11 (`docs/places/firefly.md`, `docs/places/grove.md`); L2 built 2026-11-11 (`docs/places/stillmere.md`); next is L3.** Phase 8 of `world/atlas.md`: the east side island, a
 marsh of ghost lights, and the Wickmother. It follows `world/island-depth.md` (the method and the "deep" checklist)
 the way `world/emberdeep-depth.md` did for the south, and the owner's story rules in `roadmap.md`. Read
 `world/atlas.md` ("Lantern Fen"), `world/regions/uncharted.md` and Pilgrim Ione's persona (`server/characters.js`,
