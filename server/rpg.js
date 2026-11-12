@@ -14,7 +14,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { SANDBOX_PARTY } from '../src/shared/sandbox.js';
 import { cleanKeys } from '../src/shared/keys.js';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, INTERRUPT_CHANCE, EGG_HP, FIELD_GROUND, THORNHEART, THORN_PATCHES, patchAt, PATCH_DOT, PATCH_HIT_EVERY, ROADSEND, LADON_MARK_X, LADON_LINE, BLUEHALLS, THIN_ICE, THIN_ICE_HOLD, THIN_ICE_DOT, LONGSTAIR, FENRIR_MARK_X, FENRIR_LINE, FOUNDRY, HOT_GRATES, grateAt, GRATE_DOT, LONGFLUE, TYPHON_MARK_X, TYPHON_LINE, SKYDOCKS, GUSTS, gustAt, GUST_DOT } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, INTERRUPT_CHANCE, EGG_HP, FIELD_GROUND, THORNHEART, THORN_PATCHES, patchAt, PATCH_DOT, PATCH_HIT_EVERY, ROADSEND, LADON_MARK_X, LADON_LINE, BLUEHALLS, THIN_ICE, THIN_ICE_HOLD, THIN_ICE_DOT, LONGSTAIR, FENRIR_MARK_X, FENRIR_LINE, FOUNDRY, HOT_GRATES, grateAt, GRATE_DOT, LONGFLUE, TYPHON_MARK_X, TYPHON_LINE, LAMPROAD, WICK_MARK_X, WICK_LINE, SKYDOCKS, GUSTS, gustAt, GUST_DOT } from '../src/shared/rpg.js';
 import { HYDRA_HIT, PISTON_RANGE, PISTON_MULT, PISTON_PIERCE, ERUPT_R, ERUPT_MULT, EXPLODE_R, EXPLODE_MULT, GROUND_MULT, TRAIL_MULT, DASH_SLASH_MULT, NOVA_R, NOVA_MULT, VOLLEY, STOMP_R, STOMP_MULT } from '../src/shared/gearfx.js';
 import { fxOf, gearMoves, GX, OATH_EVERY, REWIND_CD_S, REWIND_SAFE_S, FURNACE_DRAIN, FURNACE_STILL, REST_HEAL, SIT_S, SIT_CUT, BREWER, PISTON_HP, PISTON_FREE, HYDRA_ECHO, HOURS_RESET } from '../src/shared/gearfx.js';
 import { mpCost, BLAST_MAX } from '../src/shared/skills.js';
@@ -164,6 +164,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   let roadsEndSaid = false; // (the Road's End: Ladon has spoken since it last emptied)
   let longStairSaid = false; // (the Long Stair: Fenrir has spoken since it last emptied)
   let longFlueSaid = false; // (the Long Flue: Typhon has spoken since it last emptied)
+  let lampRoadSaid = false; // (the Lamp Road: the Wickmother has spoken since it last emptied)
   const inRoom = (room) => [...players.entries()].filter(([, q]) => q.joined && q.rpg && q.state.room === room);
   const now = () => Date.now();
 
@@ -2770,6 +2771,13 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         else if (!longFlueSaid && onFlue.some(([, q]) => q.state.x > TYPHON_MARK_X)) {
           longFlueSaid = true;
           toRoom(LONGFLUE)({ t: 'boss', a: 'voice', who: 'Typhon', text: TYPHON_LINE });
+        }
+        // the Lamp Road (L5 (b)): the same for the Wickmother's line, past WICK_MARK_X
+        const onRoad = inRoom(LAMPROAD);
+        if (!onRoad.length) lampRoadSaid = false;
+        else if (!lampRoadSaid && onRoad.some(([, q]) => q.state.x > WICK_MARK_X)) {
+          lampRoadSaid = true;
+          toRoom(LAMPROAD)({ t: 'boss', a: 'voice', who: 'The Wickmother', text: WICK_LINE });
         }
       }
       summons.tick(dt, tick); // the Cleric's spirits, wisps and totems (server/summons.js)

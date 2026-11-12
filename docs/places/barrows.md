@@ -31,10 +31,11 @@ West to east (`BARROWS_ZONES`); you come in at the WEST end and go deeper and da
   the weather washed blank.)
 - **The Peat Hall** (175–178): the deepest mound, cut down into the peat itself (spade marks in rows), roots thick
   overhead, the Sleeper's bed scooped in the floor with bronze grave goods and a ring of small lanterns round it.
-- **The Peat Barrows' way down** (`PEAT_GATE_X`, a gate, L5): at the far end the old peat cuts go on down, but the roof has
-  come in over them: a heap of black peat and turf, roots through it, a roof timber across, and lamplight showing through
-  the cracks from below (`drawPeatFall`, which already has its `open` look and its `OPEN` row for L5). The plan put this
-  block in L4; it's laid in L3 because the Barrows are its room (the "next shows but doesn't open" rule).
+- **The Peat Barrows' way down** (`PEAT_GATE_X`): at the far end the old peat cuts go on down. Until L5 (b) the roof had
+  come in over them (a gate: a heap of black peat and turf, roots through it, a roof timber across, lamplight through the
+  cracks, `drawPeatFall`); L5 (b) dug it out (Sedge and Hob's two eldest), the timber propped up as a lintel, and its door
+  is in `ROOMS[BARROWS]`: `docs/places/peatbarrows.md`. The plan put this block in L4; it was laid in L3 because the
+  Barrows are its room (the "next shows but doesn't open" rule).
 
 ## Its mobs (on the frozen curve; elites only here)
 - **Grave lamp** (171): one of the dead's lanterns grown into the barrow wall, a grey grave-post with an iron cage on top

@@ -157,12 +157,13 @@ Gotchas already hit:
   `docs/places/stillmere.md`; Hob's punt afloat, `drawPuntOpen`, `OPEN.punt`), the Sunk Barrows (L3: `docs/places/barrows.md`;
   the water down out of the passage, `drawBarrowMouth`'s open look, its door in `ROOMS[GROVE]`), the Lantern Causeway (L4:
   `docs/places/causeway.md`; its near end raised on new piles, `drawSunkCauseway`'s open look, its door in `ROOMS[GROVE]`;
-  Grandfather Mire's party den comes through `denDoors(CAUSEWAY)`), and two gates, both L5's: the Peat Barrows (`peat`,
-  laid by L3: `peatfall` at the Barrows' east end, `PEAT_GATE_X`: the old peat cuts caved in), the deep room; and the Hall
-  of Lamps (`hall`, laid by L4: `mothsilk` at the Causeway's east end, `HALL_GATE_X`: its door shut with moth-silk), the
-  Wickmother's den. `drawPeatFall` and `drawMothSilk` already take an `open` flag and have their `OPEN` rows, so shipping
-  either is data (the node's `rooms` and `entry`) plus its door. The plan's map brings the Lamp Road up from the Peat
-  Barrows; L5 (a) decides how that meets the moth-silk door (a final den's door usually stands at its approach's end). Every new Fen room needs its `ISLAND_OF_STAGE` row (`'fen'`), its
+  Grandfather Mire's party den comes through `denDoors(CAUSEWAY)`), the Peat Barrows (L5 (b): `docs/places/peatbarrows.md`;
+  the `peat` node, two rooms, entry `peatfall` at the Barrows' east end, dug out, `drawPeatFall`'s open look), and the Hall of
+  Lamps (`hall`, the Wickmother's den), a node with **two gates** (a node's `gate` may be a list; `GATES` flattens it): the
+  Lamp Road's inner door (`silkdoor` at `WICK_DEN_X`, `sign: false`: the Lamp Road draws it) and the front door at the
+  Causeway's end (`mothsilk`, `HALL_GATE_X`, laid by L4). L5 (c) gives the den its `DENS` row (`from: LAMPROAD`) and drops
+  the `silkdoor` gate, as E5 (c) did the furnace door; the front door stays a gate until a freed slime's world change opens
+  it (`story/l5-plan.md`). Every new Fen room needs its `ISLAND_OF_STAGE` row (`'fen'`), its
   waystone `isle: 'fen'`, and the people's personas updated (they list what's blocked).
 - **Greenhollow's way to its final boss** (FB1 (b), `docs/places/sunkenroad.md`): the `sunkenroad` node under the
   Thornheart (two rooms, entry `rootsplit`). A deep room and an approach follow the branch checklist above, except

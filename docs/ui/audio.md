@@ -28,7 +28,12 @@ Colossus's; field bosses have no scene of their own); L4's Lantern Causeway (`ca
 footsteps on the stones, Wickmere's music box out ahead like a lamp you follow, lanterns knocking on their posts, a croak
 far off across the water) and Grandfather Mire's den (`mire`, slot 81: E minor, heavy and patient, his croak on the one,
 the toads' chorus on the off-beats, a slow low line, the music box high above in the second half; the Causeway's mobs and
-the Will-Queen borrow the cinder bat's, wisp's, golem's and magma slug's voices, he the Colossus's); E5 (c2)'s Hearth (`typhon`, slot 65: E phrygian, heavy and grieving, the Long Flue's bellows breath and its hammer going again on the anvil, a low horn lament; layered in by phase like Fenrir's: a drum and bass in phase 2, the Pour's toms and a rising glide in phase 3, the lead sung in a hundred voices in phase 4, a tone sliding up for the pressure when enraged); the Hatchkeeper's den (slot 57) reuses the Old Narwhal's `narwhal`: the same story, a mother holding on; new mobs borrow legacy mob voices; boss tracks in dens, intensified in a boss's last
+the Will-Queen borrow the cinder bat's, wisp's, golem's and magma slug's voices, he the Colossus's); L5 (b)'s Peat Barrows
+(`peatbarrows`, slot 82: D minor, slower and lower than the Sunk Barrows, the music box further off, a spade into peat with
+nobody there, drips, a papery flutter of wings) and the Lamp Road (`lamproad`, slot 83: a music box waltz in A minor over a
+held note, the pad and its left hand falling away the higher you climb, its notes ringing longer, her wingbeat a deep whump
+every two bars, louder near the top: `audio.setDepth` from `roadDepth` in `src/lamproad.js`; the Peat Barrows' mobs borrow
+the magma slug's, wisp's, golem's and cinder bat's voices, the Eldest the Colossus's); E5 (c2)'s Hearth (`typhon`, slot 65: E phrygian, heavy and grieving, the Long Flue's bellows breath and its hammer going again on the anvil, a low horn lament; layered in by phase like Fenrir's: a drum and bass in phase 2, the Pour's toms and a rising glide in phase 3, the lead sung in a hundred voices in phase 4, a tone sliding up for the pressure when enraged); the Hatchkeeper's den (slot 57) reuses the Old Narwhal's `narwhal`: the same story, a mother holding on; new mobs borrow legacy mob voices; boss tracks in dens, intensified in a boss's last
   stage (`setIntensity`).
 - Effects for slaps, swings, hits, every skill, boss attacks, coming out of the Rebirth Pool (`reborn`: a splash, bubbles, a rising shimmer, a warm chord; quieter and panned for someone else), per-mob hurt/death voices
   (`sfx('mobHurt', {kind})`), the shop, scrolls, level up, doors, splats.

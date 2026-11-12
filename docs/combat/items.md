@@ -236,7 +236,10 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   **the Will-Queen** drops **Queenlight** (twins: the **Queenlight Staff**, the **Queenlight Bow**) and the **Will-Queen's
   Veil** (Lv 178), and Grandfather Mire (a `top` party den) **Grandfather's Promise** (twins: the **Toadstone Staff**, the
   **Long-Promise Bow**) and **Grandfather's Cap** (Lv 181, 10 slots, with effects, below) (art `src/causeway-art.js`,
-  `CAUSEWAY_*`; `docs/places/causeway.md`).
+  `CAUSEWAY_*`; `docs/places/causeway.md`). L5 (b): in the Peat Barrows a lamp-bearer drops the **Lamp-Carrier's Hood** (Lv
+  186) very rarely, and the Eldest (a named elite) the **Cradle-Silk Blade** (twins: the **Cradle-Silk Staff**, the
+  **Cradle-Silk Bow**; Lv 190), mob gear on the curve (art `src/peatbarrows-art.js`, `PEATBARROWS_*`;
+  `docs/places/peatbarrows.md`).
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
   are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.

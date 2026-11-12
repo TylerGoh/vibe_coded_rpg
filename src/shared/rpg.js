@@ -417,6 +417,59 @@ export const CAUSEWAY_PLATFORMS = [
   { x: 5000, y: 338, w: 180, kind: 'slab' },
   { x: 2680, y: 150, w: 100, kind: 'homeward' }, // the top of the broken arch: a lantern facing back toward Wickmere, easy to miss
 ];
+// ——— L5 (b): the way to the Wickmother (story/l5-plan.md; docs/places/peatbarrows.md) ———
+// The Peat Barrows (room 82): the old peat workings under the bog, down the cuts at the Sunk Barrows' far end (the cave-in
+// dug out and its roof timber propped up as a lintel: Sedge and Hob's two eldest did it, the update itself, no quest;
+// PEAT_GATE_X). Where the fen folk once cut their fuel, and later
+// carried their dead's lanterns down and set them on every ledge. A deep room past the hard pocket, on hard-pocket rules
+// (a red chip, no waystone, no trader, elites throughout), and the Fen's first place past Lv 180 (owner, 2026-11-12: "don't
+// be afraid to make the levels go past 200"). You come in at the WEST end, down the cutters' ladder, and go east: the
+// Cuttings (no mobs: spades left in the face, a peat barrow, a lantern on a hook), the Bog Roads (the old log trackways
+// laid over the soft peat), the Carriers' Way (lanterns set on every ledge by the families who carried them down) and the
+// Moth Cradle, the Wickmother's brood: silk thickening on the roots, cocoons hanging, and the Eldest coiled across the
+// foot of the root stair up (PEATBARROWS_END_X: the Lamp Road). The hidden spot (last in PEATBARROWS_PLATFORMS): a high
+// root shelf with a child's small lantern on it, its tag in a child's hand.
+export const PEATBARROWS = 82; // room id
+export const PEATBARROWS_W = 4600;
+export const PEATBARROWS_EXIT_X = 70; // back up the cutters' ladder into the Sunk Barrows
+export const PEATBARROWS_END_X = PEATBARROWS_W - 90; // the foot of the root stair: the Lamp Road
+export const PEATBARROWS_ZONES = [
+  { name: 'The Cuttings', x0: 0, x1: 520, lvl: null }, // (no mobs)
+  { name: 'The Bog Roads', x0: 520, x1: 1900, lvl: '180–183' },
+  { name: "The Carriers' Way", x0: 1900, x1: 3300, lvl: '183–186' },
+  { name: 'The Moth Cradle', x0: 3300, x1: PEATBARROWS_W, lvl: '186–190' },
+];
+// the old log trackways raised over the soft peat, peat shelves cut in the walls (lanterns on them), roots; the child's
+// lantern (hidden, last)
+export const PEATBARROWS_PLATFORMS = [
+  { x: 700, y: 342, w: 200, kind: 'trackway' },
+  { x: 1080, y: 262, w: 170, kind: 'shelf' },
+  { x: 1500, y: 338, w: 210, kind: 'trackway' },
+  { x: 2050, y: 330, w: 190, kind: 'trackway' },
+  { x: 2420, y: 254, w: 180, kind: 'shelf' },
+  { x: 2850, y: 336, w: 200, kind: 'shelf' },
+  { x: 3400, y: 326, w: 200, kind: 'root' },
+  { x: 3800, y: 250, w: 170, kind: 'root' },
+  { x: 4200, y: 334, w: 180, kind: 'trackway' },
+  { x: 2460, y: 160, w: 90, kind: 'childlamp' }, // a child's small lantern on a high root shelf, its tag in a child's hand: easy to miss
+];
+// The Lamp Road (room 83): the approach. No mobs, no combat, no STAGES row: safe ground where the party gathers. The way
+// the dead's lanterns were carried up into the Hall of Lamps from below: a stair of roots climbing under a roof of
+// moth-silk strung with every lantern the fen has ever lit, all burning, their name tags turning in a draught. Everything
+// cinematic is drawing and sound (src/lamproad.js, the `lamproad` music scene), never step(): going east the lanterns
+// thicken, the silk comes lower, a huge shadow walks across the silk overhead (the Wickmother on the Hall's roof), and at
+// the top two great eyes of lamplight look down through it; the silk draws closed behind you (art only).
+// WICK_MARK_X: the first slime past it in an empty Lamp Road hears her (WICK_LINE, server/rpg.js). WICK_DEN_X: the
+// Hall's inner door, a curtain of moth-silk across a doorway in the willow's root (it holds until L5 (c) gives the den its
+// DENS row: a gate in LANTERN_FEN, `silkdoor`).
+export const LAMPROAD = 83; // room id
+export const LAMPROAD_W = 2600;
+export const LAMPROAD_EXIT_X = 70; // back down the root stair to the Peat Barrows
+export const WICK_MARK_X = 1000;
+export const WICK_DEN_X = LAMPROAD_W - 240;
+export const WICK_DEN = 84; // the den's room id (L5 (c): the Hall of Lamps, its DENS row)
+export const WICK_DEN_NAME = 'The Hall of Lamps';
+export const WICK_LINE = 'Who are you carrying? ...No one? Then why have you come so far?';
 export const GUST_CYCLE = 540, GUST_WARN = 120, GUST_BLOW = 100; // (ticks)
 export const GUST_DOT = 0.05;
 // gap i at server tick t → { k: 0..1 how hard the wind is getting up, blow: whether it's blowing (and hurts) }
@@ -680,6 +733,7 @@ export const FINAL_LVL_OVER = 20, FINAL_MIN_PLAYERS = 4;
 export const GREEN_TOP = 60; // Greenhollow's top level
 export const FROST_TOP = 100; // Frostpeak's top level (FB2: Fenrir's door and sign)
 export const EMBER_TOP = 150; // Emberdeep's top level (E5: Typhon's door and sign)
+export const FEN_TOP = 190; // Lantern Fen's top level, past the approved 180 (owner, 2026-11-12: levels past 200; L5: the Wickmother's door and sign)
 export const finalTag = (top) => `Lv ${top + FINAL_LVL_OVER} · recommended Lv ${top}, ${FINAL_MIN_PLAYERS}+ players`;
 // ——— island depth G5 (docs/places/spine.md) ———
 // Keeper's Spine (room 34): the bare stone ridge along the top of Greenhollow, above the Old Oak Canopy, over
@@ -1273,6 +1327,7 @@ export const STAGES = {
   [STILLMERE]: { name: 'The Still Mere', zones: STILLMERE_ZONES, band: '160–170', pill: 'Still Mere' }, // (L2)
   [BARROWS]: { name: 'The Sunk Barrows', zones: BARROWS_ZONES, band: '170–178', hard: true, pill: 'Sunk Barrows' }, // (L3)
   [CAUSEWAY]: { name: 'The Lantern Causeway', zones: CAUSEWAY_ZONES, band: '168–180', pill: 'Lantern Causeway' }, // (L4)
+  [PEATBARROWS]: { name: 'The Peat Barrows', zones: PEATBARROWS_ZONES, band: '180–190', hard: true, pill: 'Peat Barrows' }, // (L5 (b))
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -3053,6 +3108,47 @@ MOBS.grandfather_mire = {
   drops: [['royal_sap', 1, 2, 3], ['promise_blade', 1, 1, 1], ['grandfather_cap', 0.6, 1, 1], ['coin', 1, 2050000, 3190000], ['mega_elixir', 1, 4, 6], ['mire_pearl', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
+// ——— L5 (b): the Peat Barrows (art: src/peatbarrows-art.js; docs/places/peatbarrows.md). On the frozen curve, elites
+// throughout ———
+// Wick grubs are the Wickmother's caterpillars, fat and pale, each with a lit wick standing up out of its back like a
+// candle's, dripping hot tallow behind it (`trail`, style `tallow`); peat wraiths are mourners made of peat-smoke, each
+// carrying a lantern, that sink into the peat and come up behind you (`blink`); lamp-bearers are old fen slimes gone
+// peat-dark, still carrying a lantern down for someone, holding it out in front of them (`shell`: get behind them); dusk
+// moths are great grey moths asleep on the roof, that drop on anything carrying a light (`dive`)
+MOBS.wick_grub = {
+  name: 'Wick Grub', lvl: 181, hp: 27310, atk: 649, exp: 17542, speed: 55, w: 72, h: 36, aggro: true, hops: false,
+  ai: { kind: 'trail', every: 0.8, life: 4.5, w: 58, style: 'tallow' },
+  drops: [['coin', 1, 1545, 2322], ['grub_tallow', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1]],
+};
+MOBS.peat_wraith = {
+  name: 'Peat Wraith', lvl: 183, hp: 27750, atk: 658, exp: 17872, speed: 100, w: 56, h: 72, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 4.6, warn: 0.5, slashWarn: 0.5, r: 120 },
+  drops: [['coin', 1, 1566, 2354], ['peat_smoke', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1]],
+};
+MOBS.lamp_bearer = {
+  name: 'Lamp-Bearer', lvl: 186, hp: 35885, atk: 670, exp: 18373, speed: 45, w: 60, h: 80, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.6, lunge: 460, time: 0.32 },
+  drops: [['coin', 1, 1599, 2403], ['carrier_tag', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1], ['carrier_hood', 0.004, 1, 1]],
+};
+MOBS.dusk_moth = {
+  name: 'Dusk Moth', lvl: 188, hp: 28246, atk: 679, exp: 18710, speed: 115, w: 82, h: 60, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.3, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 1621, 2435], ['dusk_scale', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1]],
+};
+MOBS.grub_elite = elite('wick_grub', 'Great Wick Grub');
+MOBS.bearer_elite = elite('lamp_bearer', 'Old Lamp-Bearer');
+MOBS.duskmoth_elite = elite('dusk_moth', 'Dusk Moth Matron');
+// The Eldest: a named elite (not a boss: no den, no phases, an ordinary respawn), the Wickmother's first child, a wick
+// grub grown to the size of a barge that never turned into a moth, coiled across the foot of the root stair up to the
+// Lamp Road. It heaves itself at whoever comes near (the shell brain's lunge with no shell, `cut: 0`, like Garm and
+// Orthrus), its great wick flaring. Drawn with its own art (`art`); checked as an elite of the dusk moth (the room's top
+// mob), as Orthrus is of the stoker warden; on the ground, not flying
+MOBS.eldest = {
+  ...elite('dusk_moth', 'The Eldest'), art: 'eldest', w: 230, h: 100, fly: undefined, speed: 60,
+  ai: { kind: 'shell', cut: 0, every: 2.6, warn: 0.7, lunge: 620, time: 0.5 },
+};
+MOBS.eldest.drops = [...MOBS.eldest.drops, ['cradle_blade', 0.04, 1, 1]];
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -3275,6 +3371,7 @@ const onGvPlat = onRoomPlat(GROVE_PLATFORMS, GROVE);
 const onSmPlat = onRoomPlat(STILLMERE_PLATFORMS, STILLMERE);
 const onBaPlat = onRoomPlat(BARROWS_PLATFORMS, BARROWS);
 const onCwPlat = onRoomPlat(CAUSEWAY_PLATFORMS, CAUSEWAY);
+const onPbPlat = onRoomPlat(PEATBARROWS_PLATFORMS, PEATBARROWS);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -3835,6 +3932,26 @@ export const SPAWNS = [
   ...onCwPlat('mire_toad', 6, 1),
   ...onCwPlat('causeway_guard', 7, 1),
   ...onCwPlat('mire_toad', 8, 1),
+  // L5 (b): the Peat Barrows (the Eldest at the foot of the root stair)
+  ...strip('wick_grub', 600, 1850, FIELD_GROUND, 4, PEATBARROWS),
+  ...strip('peat_wraith', 1100, 1850, FIELD_GROUND, 2, PEATBARROWS),
+  ...onPbPlat('wick_grub', 0, 1),
+  ...onPbPlat('peat_wraith', 1, 1),
+  ...onPbPlat('wick_grub', 2, 1),
+  { kind: 'grub_elite', x0: 800, x1: 1700, y: FIELD_GROUND, room: PEATBARROWS },
+  ...strip('peat_wraith', 1950, 3250, FIELD_GROUND, 3, PEATBARROWS),
+  ...strip('lamp_bearer', 1950, 3250, FIELD_GROUND, 4, PEATBARROWS),
+  ...onPbPlat('lamp_bearer', 3, 1),
+  ...onPbPlat('peat_wraith', 4, 1),
+  ...onPbPlat('lamp_bearer', 5, 1),
+  { kind: 'bearer_elite', x0: 2100, x1: 3100, y: FIELD_GROUND, room: PEATBARROWS },
+  ...strip('dusk_moth', 3350, 4300, FIELD_GROUND, 4, PEATBARROWS),
+  ...strip('lamp_bearer', 3350, 4300, FIELD_GROUND, 2, PEATBARROWS),
+  ...onPbPlat('dusk_moth', 6, 1),
+  ...onPbPlat('dusk_moth', 7, 1),
+  ...onPbPlat('lamp_bearer', 8, 1),
+  { kind: 'duskmoth_elite', x0: 3400, x1: 4200, y: FIELD_GROUND, room: PEATBARROWS },
+  { kind: 'eldest', x0: 4250, x1: 4450, y: FIELD_GROUND, room: PEATBARROWS },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -4272,6 +4389,13 @@ export const ITEMS = {
   queenlight: { name: 'Queenlight', price: 1482000, lvl: 178, kind: 'sword', atk: 234, reach: 66, desc: 'A long pale blade that burns cold white along its edge, like a wisp drawn out thin. In the dark it shows the way. Not always the right one.' },
   willqueen_veil: { name: "Will-Queen's Veil", price: 1122000, lvl: 178, kind: 'helmet', def: 117, desc: 'A crown of small cold flames over a veil of pale light that trails behind you. Travellers keep thinking you are a lamp, and following.' },
   promise_blade: { name: "Grandfather's Promise", price: 1533000, lvl: 181, slots: 10, kind: 'sword', atk: 237, reach: 68, desc: "A broad blade of black bog-iron, wide as a toad's grin, a toadstone set in the pommel. It does not move once it is planted. Neither did he." },
+  // ——— L5 (b): the Peat Barrows (art: src/peatbarrows-art.js; docs/places/peatbarrows.md). No trader: drops only ———
+  grub_tallow: { name: 'Grub Tallow', price: 1760, kind: 'loot', desc: "A lump of pale tallow off a wick grub's back, soft and warm, smelling of honey and smoke. The fen folk's best candles were made of it, once." },
+  peat_smoke: { name: 'Peat Smoke', price: 1780, kind: 'loot', desc: "A twist of a peat wraith's smoke, caught in a stoppered jar. It curls round and round looking for the way out, and it smells of a kitchen fire." },
+  carrier_tag: { name: "Carrier's Tag", price: 1800, kind: 'loot', desc: "A lantern's paper name tag, soft as cloth from being held, off a lamp-bearer's lantern. The name has rubbed away. Somebody carried it a long way." },
+  dusk_scale: { name: 'Dusk Scale', price: 1820, kind: 'loot', desc: "A pinch of a dusk moth's wing-dust in a twist of paper, grey and silver. Blow on it and the room goes a little darker for a moment." },
+  carrier_hood: { name: "Lamp-Carrier's Hood", price: 1226000, lvl: 186, kind: 'helmet', def: 121, desc: "A deep hood of peat-brown wool with a hook stitched in at the brow for a lantern, worn by whoever carried the lights down. It keeps the rain off and the dark out." },
+  cradle_blade: { name: 'Cradle-Silk Blade', price: 1693000, lvl: 190, kind: 'sword', atk: 245, reach: 66, desc: "A long pale blade wrapped from hilt to point in the Eldest's silk, wound so tight and so long it has gone hard as horn. It is warm, like something asleep." },
   grandfather_cap: { name: "Grandfather's Cap", price: 1160000, lvl: 181, slots: 10, kind: 'helmet', def: 118, desc: "An old lily pad gone leathery and green-gold, worn on Grandfather Mire's head for longer than the causeway has stood. A flower still opens on it in summer." },
   sleeper_hood: { name: "Sleeper's Hood", price: 1147000, lvl: 180, kind: 'helmet', def: 118, desc: "A hood of woven wool the peat has turned the colour of tea, a bronze pin at the throat. It is warm, and it smells of rain on a hill a long time ago." },
   nest_stone: { name: 'Nest Stone', price: 1830, kind: 'loot', desc: "A smooth grey pebble from Long-Neck's nest, worn round by being turned and turned. It is never quite warm, however long you hold it." },
@@ -4401,6 +4525,7 @@ export const ITEMS = {
   punt_staff: { name: 'Punt-Pole Staff', price: 287000, lvl: 161, aim: 165, kind: 'staff', magic: 219, mp: 130, reach: 64, twin: 'boathook', desc: 'A punt pole cut down to staff height, its iron shoe worn bright, a lantern hung from a peg at the top. It knows the way across without being told.' },
   sunklamp_staff: { name: 'Sunken Lamp Staff', price: 1350000, lvl: 170, slots: 9, kind: 'staff', magic: 227, mp: 135, reach: 68, twin: 'gullet_tooth', desc: 'A staff of black bog-oak, a drowned lantern caged at its head, glowing from the inside. Its bolts come up from below, like bubbles.' },
   bogglass_staff: { name: 'Bog-Glass Staff', price: 1193000, lvl: 160, kind: 'staff', magic: 218, mp: 131, reach: 66, twin: 'bloat_cleaver', desc: "A staff of black bog-oak with a ball of the Bog Bloat's jelly set hard at its head, something small and green still floating in it." },
+  cradle_staff: { name: 'Cradle-Silk Staff', price: 1693000, lvl: 190, kind: 'staff', magic: 245, mp: 147, reach: 66, twin: 'cradle_blade', desc: "A willow staff with a cocoon bound to its head in the Eldest's silk, a small light moving inside it. Its bolts come out soft and land hard." },
   barrowfang_staff: { name: 'Barrowfang Staff', price: 1465000, lvl: 177, kind: 'staff', magic: 234, mp: 140, reach: 62, twin: 'barrowfang', desc: "A dark rod of peat-oak with a hound's bronze tooth at its head. Its bolts run low and quiet." },
   queenlight_staff: { name: 'Queenlight Staff', price: 1482000, lvl: 178, kind: 'staff', magic: 234, mp: 141, reach: 66, twin: 'queenlight', desc: 'A slender white-wood staff with a cold flame burning at its head that never needs trimming. Its bolts wander a little, then find you.' },
   promise_staff: { name: 'Toadstone Staff', price: 1533000, lvl: 181, slots: 10, kind: 'staff', magic: 237, mp: 143, reach: 68, twin: 'promise_blade', desc: "A crooked staff of bog-oak with a great toadstone held in its knot, green-brown and warm. Its bolts land with a deep, patient croak." },
@@ -4494,6 +4619,7 @@ const BOW_LIST = [
   ['decoy_bow', 'boathook', 'Decoy Bow', "A short willow bow with a carved duck set in its grip, the way Hob carves them. It shoots straight, and the duck looks very pleased about it."],
   ['eelbone_bow', 'gullet_tooth', 'Eelbone Bow', "A long bow of the old eel's spine, every little bone of it pale and fine, strung with eel-gut. It bends like something swimming."],
   ['bogwood_bow', 'bloat_cleaver', 'Bogwood Bow', 'A bow of black bog-oak out of the Bog Bloat, bound with weed that has dried hard as wire. It draws heavy and lets go with a wet slap.'],
+  ['cradle_bow', 'cradle_blade', 'Cradle-Silk Bow', "A pale bow wound end to end in the Eldest's silk, strung with a single strand of it. It draws soft and sings when it looses."],
   ['barrowfang_bow', 'barrowfang', 'Barrowfang Bow', "A short dark bow with a hound's bronze tooth at each tip. Its arrows fly low, like a hound running."],
   ['queenlight_bow', 'queenlight', 'Queenlight Bow', 'A pale bow that glows faintly along its belly, strung with a thread of cold light. Its arrows fly like wisps: bright, and a little crooked.'],
   ['promise_bow', 'promise_blade', 'Long-Promise Bow', "A great slow bow of bog-oak bound in reed, a mire pearl set in the grip. It takes all your weight to draw, and it does not let go until you mean it."],

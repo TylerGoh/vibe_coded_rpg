@@ -60,7 +60,9 @@ one shared corner feed).
   of the Bog Bloat in the Shallows (`docs/places/barrows.md`). L4 raised the Causeway (Hob's two eldest and Sedge drove the
   piles): all four know it's walkable, of the Will-Queen and of Grandfather Mire by the far end (Wren and Sedge took him
   crickets as girls, Hob a carved duck he ate), and of the Hall of Lamps' moth-silk door nobody has been through
-  (`docs/places/causeway.md`).
+  (`docs/places/causeway.md`). L5 (b) dug out the peat cuts under the barrows (Sedge and Hob's two eldest): all four know of
+  the Peat Barrows and the Lamp Road up into the Hall from below (Wren carried her husband's lantern up it once, as far as
+  the door; Hob cut peat there as a boy; Sedge wants the Eldest's silk; Netta changes the subject) (`docs/places/peatbarrows.md`).
   **Atlas Phase 7 (story progress, `docs/social/story.md`)**: a character with a `lore` cap gets the canon up to the
   asking slime's lore tier (from its story record); Mochi and Clio have cap 4 and know it themselves; since (c) every
   island's people have their island's tier as a cap, as hearsay (Greenhollow 1, Frostpeak 2, Emberdeep 3; Kestrel,

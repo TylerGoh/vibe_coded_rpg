@@ -32,6 +32,10 @@ points straight at the finale without closing anything in canon.
   155–200. Its middle overlaps Lantern Fen (150–180), so from 150 to 180 there are two islands to choose between;
   **180–200 is the Citadel's alone**, the game's new top. The frozen curve already runs to Lv 200
   (`src/shared/curve.js`).
+- **Owner, 2026-11-12: "don't be afraid to make the levels go past 200."** Lantern Fen's deep room now runs to 190 (L5 (b),
+  the Wickmother at Lv 190, tag 210), so 180–190 is shared and the Citadel's top can go well past 200: when this plan is
+  revisited, stretch its last places (the Bell Walks, the Keel, the Undercroft) and the Escapement to ~200–220 or beyond
+  rather than squeezing into 200. The curve carries on past its last knot as a power law, and the sheet reads past 200.
 - **No new canon tier.** The Citadel is Tier 4 already (`canon.md`); the new places show Tier 2–4 things (fallen
   stars, the Wheel, the Keepers' city) without anyone saying them. The "deliberately open" list stays open (who the
   other Keepers were: records with names scratched out, never named).
@@ -164,7 +168,8 @@ day one (`docs/combat/challenges.md`: each new boss gets a `ch` list as it ships
 
 ## Open decisions (each has a default)
 1. **Order.** Settled (owner, 2026-11-11): after the Wickmother. Default: before Amberdune.
-2. **The band.** Default **Lv 140–200** (the atlas's), making the Citadel the game's top. Alternative: stop at 190.
+2. **The band.** Default **Lv 140–200** (the atlas's), making the Citadel the game's top; since the owner's 2026-11-12 note,
+   past 200 is welcome (~140–220). Alternative: stop at 200.
 3. **Room 13.** Default: **stays one room**, branches off it. Alternative: split the Bastion and the Spire into two
    rooms (more space for each; moves den doors and saved positions).
 4. **Chronos.** Default: **stays as he is** (Lv 170, the story's climax). Alternative: rebuild him as the final boss

@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X, PEATBARROWS, LAMPROAD, WICK_DEN_X, WICK_DEN_NAME } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -89,13 +89,21 @@ export const LANTERN_FEN = [
   { id: 'stillmere', name: 'The Still Mere', band: '160–170', at: [130, 300], from: 'wickmere', rooms: [STILLMERE], entry: { room: WICKMERE, x: STILLMERE_GATE_X, kind: 'punt' } },
   // L3: the water went down out of the barrow's passage (the update did it)
   { id: 'barrows', name: 'The Sunk Barrows', band: '170–178', hard: true, at: [450, 300], from: 'grove', rooms: [BARROWS], entry: { room: GROVE, x: BARROWS_GATE_X, kind: 'barrowmouth' } },
-  { id: 'peat', name: 'The Peat Barrows', band: '175–180', hard: true, at: [600, 330], from: 'barrows', block: 'caved in',
-    gate: { room: BARROWS, x: PEAT_GATE_X, kind: 'peatfall', look: 'look down the old peat cuts', says: 'The peat cuts go on down, but the roof has come in. Lamplight shows through the cracks.' } },
+  // L5 (b): the cave-in at the Peat Hall's far end dug out, its timber propped up as a lintel (the update did it). One node for the
+  // deep room and the approach (the Lamp Road is its end), like the Under-Flues
+  { id: 'peat', name: 'The Peat Barrows', band: '180–190', hard: true, at: [610, 320], from: 'barrows', rooms: [PEATBARROWS, LAMPROAD], entry: { room: BARROWS, x: PEAT_GATE_X, kind: 'peatfall' } },
   // L4: the causeway's sunk near end hauled back up onto new piles (the update did it)
   { id: 'causeway', name: 'The Lantern Causeway', band: '168–180', at: [610, 200], from: 'grove', rooms: [CAUSEWAY], entry: { room: GROVE, x: CAUSEWAY_GATE_X, kind: 'sunkcauseway' } },
-  // the Wickmother's den (L5): the causeway runs up to its door, and moth-silk has it shut
-  { id: 'hall', name: 'The Hall of Lamps', at: [610, 100], from: 'causeway', block: 'shut with moth-silk',
-    gate: { room: CAUSEWAY, x: HALL_GATE_X, kind: 'mothsilk', look: 'look at the door', says: 'The Hall\'s door is shut with moth-silk, thick as felt. Lights move behind it.' } },
+  // the Wickmother's den (L5 (c)): two ways shut. The Hall's inner door at the top of the Lamp Road, a curtain of moth-silk
+  // that breathes with her wings but holds until (c) gives the den its DENS row (then that gate goes: the door comes with
+  // the row, like Typhon's; `sign: false`: the Lamp Road draws the door and its own sign, src/lamproad.js); and its front
+  // door at the Causeway's end, shut with moth-silk, which the Mother keeps shut (story/l5-plan.md: it opens in (c) for a
+  // slime who has freed her)
+  { id: 'hall', name: WICK_DEN_NAME, at: [455, 92], from: 'peat', block: 'the silk holds',
+    gate: [
+      { room: LAMPROAD, x: WICK_DEN_X, kind: 'silkdoor', sign: false, look: 'look at the door', says: 'The silk across the doorway stirs, as if something huge breathed behind it. It holds.' },
+      { room: CAUSEWAY, x: HALL_GATE_X, kind: 'mothsilk', look: 'look at the door', says: 'The Hall\'s door is shut with moth-silk, thick as felt. Lights move behind it.' },
+    ] },
 ];
 export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK, ember: EMBERDEEP, fen: LANTERN_FEN };
 const ALL = Object.values(ISLAND_MAPS).flat();
@@ -103,7 +111,8 @@ export const shipped = (n) => !n.gate && !n.past;
 export const ENTRIES = ALL.filter((n) => n.entry).map((n) => ({ ...n.entry, branch: n.id, name: n.name, band: n.band, hard: !!n.hard }));
 
 // Blocked ways in, and the one you're standing at (on the ground, close enough to look)
-export const GATES = ALL.filter((n) => n.gate).map((n) => ({ ...n.gate, branch: n.id, name: n.name, hard: !!n.hard }));
+// (a node's gate may be a list: the Hall of Lamps has two shut doors)
+export const GATES = ALL.filter((n) => n.gate).flatMap((n) => [].concat(n.gate).map((g) => ({ ...g, branch: n.id, name: n.name, hard: !!n.hard })));
 export const GATE_RANGE = 60;
 export const gateAt = (me, room) => (me && me.grounded && !me.onPlat ? GATES.find((g) => g.room === room && Math.abs(me.x - g.x) < GATE_RANGE) : null) ?? null;
 

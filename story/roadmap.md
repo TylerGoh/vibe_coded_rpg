@@ -157,9 +157,17 @@ No quests, no hard level gates.
   - [x] L4 (2026-11-11, live): the Lantern Causeway (80, its near end raised: lamp moths, drifting lights, causeway guards,
         mire toads, the lantern facing home), the Will-Queen (field boss: rings, the turning light) and Grandfather Mire,
         the Fen's party den (81, Grandfather's Pool: sinking stones, the chorus on the beat, cages; his gear's effects);
-        the Hall of Lamps' moth-silk door laid as L5's gate (`docs/places/causeway.md`). Unplayed. Next: **L5** (a), the
-        Wickmother on paper (`l5-plan.md`).
-  - [ ] L5: the Wickmother: (a) her plan on paper, (b) the Peat Barrows and the Lamp Road, (c) the Hall and the fight.
+        the Hall of Lamps' moth-silk door laid as L5's gate (`docs/places/causeway.md`). Unplayed.
+  - [ ] L5: the Wickmother. Owner, 2026-11-12: "don't be afraid to make the levels go past 200".
+    - [x] (a) on paper 2026-11-12 (`l5-plan.md`, every default standing unless the owner changes it): the Hold (lit
+          lanterns shield her; you let them go), Kindle and her moths relighting, the silk walls, phase 4 dark but for her,
+          All Souls' Night and The Long Night; the Fen's top raised to 190, her tag Lv 210 (`FEN_TOP`); the Lamp Road comes up
+          from below and the Causeway's moth-silk door stays her front door (opens for a slime who has freed her).
+    - [x] (b) live 2026-11-12: the peat cuts dug out, the Peat Barrows (82, Lv 180–190: wick grubs, peat wraiths,
+          lamp-bearers, dusk moths, three elites, the Eldest, the child's lantern), the Lamp Road (83: the silk roof, her
+          shadow and eyes, her line, the Hall's inner door holding); the sheet reads past 200 (`docs/places/peatbarrows.md`).
+          Unplayed.
+    - [ ] (c) the Hall of Lamps (84) and the fight, then her art, music, drops and the freed changes (c1/c2, as E5).
 - [ ] **The Citadel's depth pass, C0–C6** (owner, 2026-11-11: "why does Aether Citadel just end abruptly?"), after
       the Wickmother, before Amberdune. Plan `citadel-plan.md` (on paper 2026-11-11, waiting for the owner's okay): Lv
       140–200, room 13 kept, branches (the Keepers' Gardens, the Orrery, the Archive, the Engine Halls, the Bell Walks,

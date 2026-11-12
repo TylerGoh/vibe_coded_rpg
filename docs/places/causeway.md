@@ -118,7 +118,8 @@ helped haul the stones; the guards' reed armour, the best moth-silk, and who wov
   light (`swap`: the plan only named her), Grandfather's armour-and-throat party split (no front wall, unlike Sigrun and
   Brenna), his three challenges (sinking stones, the chorus on the beat, swallowed and sat on), the Hall's door laid at
   the room's east end as L5's gate (the plan's "the Hall of Lamps' door shut by moth-silk"; the plan's map also has the
-  Lamp Road coming up from the Peat Barrows: L5 (a) decides whether the door opens onto it or the Road comes in another
-  way), his gear's effects (`promise`, `sittight`).
+  Lamp Road coming up from the Peat Barrows: L5 (a) decided the Road comes up from below and this door stays the Hall's
+  front door, which the Mother keeps shut, opening in (c) for a slime who has freed her: `story/l5-plan.md`; since L5 (b)
+  it is one of the `hall` node's two gates, `docs/places/peatbarrows.md`), his gear's effects (`promise`, `sittight`).
 - His freeing doesn't change the room (Phase 7's freed world changes go with story tiers; the Fen has none). Rough edge:
   the Toad's Reach still shows his eyes in the pool after you've freed him.

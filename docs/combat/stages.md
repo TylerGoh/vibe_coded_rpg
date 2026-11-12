@@ -115,6 +115,10 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    waystone, the Will-Queen, Grandfather Mire's party den; `docs/places/causeway.md`). Lamp moths (`dive`), drifting lights
    (passive fliers), causeway guards (`shell` with `cut`: hit them from behind), mire toads (`lob`, style `mud`). The
    Will-Queen: a field boss that stoops (`dive`), with rings of `wisplight`. No new brains.
+36. **The Peat Barrows**: L5 (b), Lantern Fen's deep room under the Sunk Barrows (Lv 180–190, hard-pocket rules, three elites
+   and the Eldest, a named elite with its own `art`, charging like Garm and Orthrus), and past it the Lamp Road, the mob-free
+   approach to the Wickmother's den (`docs/places/peatbarrows.md`). Wick grubs (`trail`, the new puddle style `tallow`), peat
+   wraiths (`blink`), lamp-bearers (`shell` with `cut`), dusk moths (`dive`). No new brains.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

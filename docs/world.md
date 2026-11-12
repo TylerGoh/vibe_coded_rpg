@@ -26,7 +26,9 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Firefly Hollow | 74 `FIREFLY` | back to the Shallows (west end) (`docs/places/firefly.md`) |
 | The Drowned Grove | 75 `GROVE` | back to the Shallows (west end) · down under the lintel into the Sunk Barrows (`BARROWS_GATE_X`, since L3) · Long-Neck's den (`HERON_DEN_X`, room 76 `HERON_DEN`) · out along the Lantern Causeway (`CAUSEWAY_GATE_X`, east end, since L4) (`docs/places/grove.md`) |
 | The Lantern Causeway | 80 `CAUSEWAY` | back down the raised stretch to the Grove (west end) · Grandfather Mire's den (`MIRE_DEN_X`, room 81 `MIRE_DEN`, a party den); the Hall of Lamps' door is a gate (`HALL_GATE_X`) (`docs/places/causeway.md`) |
-| The Sunk Barrows | 79 `BARROWS` | back up the Lintel Steps to the Grove (west end); the Peat Barrows' way down is a gate (`PEAT_GATE_X`) (`docs/places/barrows.md`) |
+| The Sunk Barrows | 79 `BARROWS` | back up the Lintel Steps to the Grove (west end) · down the dug-out peat cuts to the Peat Barrows (`PEAT_GATE_X`, east end, since L5 (b)) (`docs/places/barrows.md`) |
+| The Peat Barrows | 82 `PEATBARROWS` | back up the cutters' ladder to the Sunk Barrows (west end) · up the root stair to the Lamp Road (east end); a deep room on hard-pocket rules (`docs/places/peatbarrows.md`) |
+| The Lamp Road | 83 `LAMPROAD` | back down to the Peat Barrows (west end); the Hall of Lamps' inner door at `WICK_DEN_X` holds (a gate) until L5 (c) gives the den (room 84, `WICK_DEN`) its `DENS` row; no mobs, not a combat room (`docs/places/peatbarrows.md`) |
 | The Still Mere | 77 `STILLMERE` | Hob's punt back to Wickmere (west end) · Old Gullet's den (`GULLET_DEN_X`, room 78 `GULLET_DEN`) (`docs/places/stillmere.md`) |
 | The Skydocks | 69 `SKYDOCKS` | the plank back to the camp (west end) · the loading ramp up into the Aether Citadel (`SKYDOCKS_RAMP_X`, at the ramp's foot) (`docs/places/skydocks.md`) |
 | Greenhollow's East Cliffs | 20 `CLIFFS` | back into the Wildwood (west end); a vista, no mobs (`docs/places/cliffs.md`) |

@@ -2376,7 +2376,9 @@ function drawBalloonUp(ctx, time) {
   ctx.fillRect(-10, gy + 6, 20, 38);
 }
 
-const DRAW = { tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair, willowfall: drawWillowfall, floodwater: drawFloodwater, punt: drawPunt, barrowmouth: drawBarrowMouth, sunkcauseway: drawSunkCauseway, peatfall: drawPeatFall, mothsilk: drawMothSilk };
+// (the Hall of Lamps' inner door at the top of the Lamp Road, `silkdoor`, has no art here: the Lamp Road draws it and
+// its own sign, src/lamproad.js)
+const DRAW = { silkdoor: () => {}, tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair, willowfall: drawWillowfall, floodwater: drawFloodwater, punt: drawPunt, barrowmouth: drawBarrowMouth, sunkcauseway: drawSunkCauseway, peatfall: drawPeatFall, mothsilk: drawMothSilk };
 // The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
 // going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
 // white rose petal or two drifting into it. The update itself split it: no quest
@@ -2622,7 +2624,7 @@ const OPEN = { flue: drawFlue, fallenwall: drawFallenWall, icestair: (ctx, time,
   fumes: (ctx, time, g) => drawFumes(ctx, time, g, true), bearerstair: (ctx, time, g) => drawBearerStair(ctx, time, g, true), balloon: drawBalloonUp,
   adit: (ctx, time, g) => drawAdit(ctx, time, g, true), willowfall: drawWillowfallOpen, floodwater: drawFloodwaterOpen,
   barrowmouth: (ctx, time, g) => drawBarrowMouth(ctx, time, g, true), sunkcauseway: (ctx, time, g) => drawSunkCauseway(ctx, time, g, true), // (L3 opened the first; L4 ships the second)
-  peatfall: (ctx, time, g) => drawPeatFall(ctx, time, g, true), // (L5 ships it open)
+  peatfall: (ctx, time, g) => drawPeatFall(ctx, time, g, true), // (L5 (b): dug out, the timber propped up as a lintel)
   mothsilk: (ctx, time, g) => drawMothSilk(ctx, time, g, true), // (L5's: the silk cut down)
   punt: drawPuntOpen }; // (L2: Hob's punt in the water)
 

@@ -868,3 +868,18 @@ carries effects (`docs/combat/items.md`), not on the sheet like every boss gear 
 the mini Will-Queen 276k (between Chronos's 270k and the Sleeper's 282k), the mini Grandfather Mire 288k (the dearest);
 `PETSHOP_W` 6050 → 6350. Nothing older moved but a few "vs farming" ratios at 168–170 (the new own-level farm). `--check`
 green.
+
+## Lantern Fen, L5 (b): the Peat Barrows, past 180 (2026-11-12)
+The owner's note with L5: "don't be afraid to make the levels go past 200". The Peat Barrows (`docs/places/peatbarrows.md`, a
+deep room on hard-pocket rules) put four mobs on the frozen curve at 181–188 (past its last knot the curve is a power law,
+so nothing new was needed to price past 180 or 200): wick grub (181, HP 95%), peat wraith (183, 95%, a `blink` mob like the
+mere eel), lamp-bearer (186, 120% like the other `shell` mobs) and dusk moth (188, 93% for a flier); EXP 100%, gold 100%
+(coins read off the barrow hound's by the gold curve; materials on the ladder: Grub Tallow 1,760, Peat Smoke 1,780,
+Carrier's Tag 1,800, Dusk Scale 1,820). Three elites from `elite()` and the Eldest (an elite of the dusk moth, Lv 190, checked
+as one, as Orthrus is of the stoker warden). "Farming your own level" picks the dusk moth from 188: **gold earned by** Lv 170
+unchanged (~13.20M), Lv 200 ~22.27M → ~22.10M (-0.7%); **play time** to Lv 200 36.1 h → 35.6 h (target 34.9 h), to 190 32.2 h
+(31.7 h). Rare gear on the curve at its mob's level: the Lamp-Carrier's Hood (`helmetPrice` at 186, 1.226M) and the
+Cradle-Silk Blade with its twins (`swordPrice` at 190, 1.693M, off the Eldest only, 4%). The Lamp Road has no mobs.
+**The sheet now reads past 200**: PROGRESS adds Lv 190 and 220 (220: 44.0 h, target 41.9 h, the dusk moth still the farm:
+the Citadel's pass fills 190 and up), CURVES adds Lv 250, and "first affordable" looks to Lv 300. `--check` green.
+
