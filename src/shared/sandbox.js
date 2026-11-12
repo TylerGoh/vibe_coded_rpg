@@ -34,9 +34,10 @@ export const SANDBOX_POTS = 999;
 // the Bosses tab's party switch: a boss's party mechanics come on as if this many slimes were fighting it
 export const SANDBOX_PARTY = 4;
 // the Bosses tab's headliners: each island's biggest boss (Emberdeep's is Typhon since E5 (c); Brenna moved under
-// "Other dens" with the rest of DENS)
+// "Other dens" with the rest of DENS; Lantern Fen's the Wickmother since L5 (c))
 export const SANDBOX_HEADLINERS = [
   { island: 'Greenhollow', boss: 'ladon' },
   { island: 'Frostpeak', boss: 'fenrir' },
   { island: 'Emberdeep', boss: 'typhon' },
+  { island: 'Lantern Fen', boss: 'wickmother' },
 ];

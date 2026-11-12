@@ -92,10 +92,15 @@ export class Party {
     const pt = kk.heads ? v.part ?? 'body' : null, off = !!pt && pt !== 'body';
     if (pt) weak = !!pt.weak && !!(b.wk && b.wk.until > t);
     if (off) sh = null;
-    const k = partyHitMult({ stag: b.stUntil > t, shield: sh, phys: barrierOf(kk).phys }, { magic, heavy, weak }) * (pt?.throat ? THROAT_MULT : 1); // (SP6: a top boss's barrier lets less through)
+    const held = kk.final && !off ? this.rpg.final.hold(v) : 1; // (L5: the Wickmother's Hold, her lit lanterns: the server cuts it the same)
+    const k = partyHitMult({ stag: b.stUntil > t, shield: sh, phys: barrierOf(kk).phys }, { magic, heavy, weak }) * (pt?.throat ? THROAT_MULT : 1) * held; // (SP6: a top boss's barrier lets less through)
     // a word over it now and then: what cut the hit, or that it found the spot
     const warded = (sh === 'barrier' || sh === 'both') && !magic, armoured = (sh === 'armour' || sh === 'both') && !heavy;
-    if (t - this.said > 0.7 && (warded || armoured || weak || pt?.throat)) {
+    if (t - this.said > 0.7 && held < 0.65 && !weak && !warded && !armoured) {
+      this.said = t;
+      this.rpg.pop(v.x, v.y - kk.h - 30, 'HELD', '#ffe2a8', 14);
+      audio.sfx('shellBlock', { vol: 0.4 });
+    } else if (t - this.said > 0.7 && (warded || armoured || weak || pt?.throat)) {
       this.said = t;
       const at = pt?.x !== undefined ? pt : { x: v.x, y: v.y - kk.h - 30 };
       if (weak) this.rpg.pop(at.x, at.y - 16, 'WEAK POINT!', '#ffe08a', 17);
@@ -294,6 +299,7 @@ const PULSES = {
   ash: { ring: '176,168,166', glow: '214,206,200', hit: '150,140,138', word: 'ASH', fill: '#f4eeea', edge: 'rgba(40,30,30,0.85)', foam: true }, // Brenna's den: the column's ash blown over the rim (E4b)
   croak: { ring: '170,190,100', glow: '210,224,150', hit: '140,160,80', word: 'CROAK', fill: '#f4f8e4', edge: 'rgba(30,40,18,0.85)', foam: true }, // Grandfather Mire's croak, a boom over the pool (atlas Phase 8 L4)
   bellows: { ring: '255,130,50', glow: '255,170,90', hit: '255,110,40', word: 'BELLOWS', fill: '#fff0dc', edge: 'rgba(60,16,4,0.88)', shimmer: true }, // Typhon's breath out, a wave of heat (E5)
+  hush: { ring: '196,182,228', glow: '236,228,252', hit: '168,150,212', word: 'HUSH', fill: '#f6f2ff', edge: 'rgba(30,22,48,0.86)', foam: true }, // the Wickmother's Hush: one slow wingbeat, a wave of wing-dust (L5)
 };
 function drawPulseWarn(ctx, x, y, kind, reach, k, t, left) {
   if (k > 1) return;
@@ -385,6 +391,7 @@ const CURSES = {
   hours: { fill: '255,206,110', rim: '255,226,140', inner: '255,255,236', star: '255,236,170', smoke: '196,158,84' },
   paw: { fill: '120,170,230', rim: '220,240,255', inner: '250,252,255', star: '200,226,255', smoke: '80,110,160' }, // Fenrir's frost paw print (FB2)
   scorch: { fill: '60,16,6', rim: '255,150,60', inner: '255,236,180', star: '255,120,40', smoke: '70,40,30' }, // Typhon's scorch ring: great heat thins slimes out (E5)
+  tag: { fill: '120,100,76', rim: '255,214,150', inner: '255,248,230', star: '236,224,196', smoke: '90,76,64' }, // the Wickmother's name tags: a lantern's paper tag hangs off you, a name written on it (L5)
 };
 function drawSigil(ctx, s, t) {
   const L = s.look ?? CURSES.dark;
@@ -573,11 +580,12 @@ const SHELLS = {
   cinder: { edge: 'rgba(20,14,12,0.96)', face: 'rgba(78,64,58,0.96)', seam: 'rgba(255,136,44,0.95)' },
   brass: { edge: 'rgba(44,22,10,0.96)', face: 'rgba(140,76,38,0.96)', rivets: 'rgba(255,230,150,0.98)' },
   slag: { edge: 'rgba(12,6,6,0.96)', face: 'rgba(58,46,44,0.96)', seam: 'rgba(255,120,40,0.9)' }, // Typhon's Slag Crust: its cracks gone dark and set hard (E5)
+  wings: { edge: 'rgba(36,28,48,0.96)', face: 'rgba(122,110,140,0.95)', seam: 'rgba(255,214,150,0.85)' }, // the Wickmother's Folded Wings: furred grey-violet, an eye spot's gold at every seam (L5)
 };
 // S5.4: Glacia's (`queen`): ice blue, deep enough to read in her white throne room, snowflakes turning round it; the Astral Wyrm's (`star`): starlight, violet with
 // little gold stars for runes; Chronos's (`hours`): a dome of wound-up hours, gold, an hour mark for every rune and a
 // clock hand sweeping round inside it
-const DOMES = { fetter: ['226,236,255', '255,255,255', '240,246,255'], hours: ['255,200,100', '255,226,150', '255,240,200'], rose: ['250,244,240', '255,255,255', '246,226,236'], keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'], ember: ['255,150,90', '255,206,150', '255,230,200'], haze: ['255,170,110', '255,214,170', '255,236,210'] }; // (haze: Typhon's Heat Haze, E5) // (ember: Brenna's, the tooth swung down in front of her, E4b)
+const DOMES = { cocoon: ['232,224,240', '255,255,255', '255,236,200'], fetter: ['226,236,255', '255,255,255', '240,246,255'], hours: ['255,200,100', '255,226,150', '255,240,200'], rose: ['250,244,240', '255,255,255', '246,226,236'], keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'], ember: ['255,150,90', '255,206,150', '255,230,200'], haze: ['255,170,110', '255,214,170', '255,236,210'] }; // (haze: Typhon's Heat Haze, E5) // (ember: Brenna's, the tooth swung down in front of her, E4b)
 function drawShield(ctx, v, k, sh, t) {
   const fade = Math.max(0, Math.min(1, 1 - (sh.from - t) / 1.5)), end = Math.min(1, (sh.until - t) / 0.6);
   const a = fade * end, cx = v.x, cy = v.y - k.h * 0.5, rx = k.w * 0.72, ry = k.h * 0.68;

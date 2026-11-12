@@ -1,4 +1,4 @@
-// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md, docs/places/typhon.md
+// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md, docs/places/typhon.md, docs/places/wickmother.md
 // The final bosses' machinery (FB1 (c), story/fb1-plan.md; the pattern in story/final-bosses.md), shared by client
 // and server: the FINAL table (each final boss's phases, its written loops, its heads), the heads' geometry (where
 // each head hangs, bites, lowers; where its stump is), the coils, and the arena's ledges. The brain is
@@ -75,6 +75,24 @@ export const FINAL = {
       ['glare', 'burst', 'bellows', 'breath', 'hammer', 'lava', 'haze:2'],
       ['bellows', 'glare', 'hammer', 'iron', 'burst', 'breath', 'shield', 'lava', 'pour'],
       ['ult', 'glare', 'sweep', 'mirror', 'bellows', 'hammer', 'hammer', 'lava', 'inhale', 'both'],
+    ],
+  },
+  // The Wickmother (L5 (c), story/l5-plan.md; her own constants: src/shared/wickmother.js). 'eyes': Watching Eyes (the
+  // focus), 'stoop': Stoop (fake-outs in it), 'kindle': she relights an out lantern, 'hush': the pulse, 'wings': Folded
+  // Wings (the armour), 'cocoon': the barrier, 'line': Silk Line, 'rain': Lantern Rain, 'draw': Drawing the Light (the
+  // shard, phase 4). Her challenges (docs/combat/challenges.md): the Stoop's strand (a snare) and fake-outs from phase 1,
+  // 'tether' and 'rings' from phase 2, 'rescue' (cocooned, 2+) in phase 3, 'dark' in phase 4
+  wickmother: {
+    brain: 'moth',
+    at: [0.75, 0.5, 0.25],
+    ultEvery: [80, 65, 55, 0],
+    ults: [{ name: "All Souls' Night", kind: 'souls' }, { name: 'The Long Night', kind: 'night' }],
+    alternateFrom: 2,
+    loops: [
+      ['eyes', 'stoop', 'kindle', 'hush', 'wings:2'],
+      ['eyes', 'stoop', 'line', 'tether:2', 'kindle', 'hush', 'rain', 'rings:2', 'cocoon:2'],
+      ['hush', 'eyes', 'stoop', 'rescue', 'kindle', 'kindle', 'line', 'rain', 'shield'],
+      ['ult', 'eyes', 'stoop', 'dark', 'hush', 'rain', 'draw', 'both'],
     ],
   },
 };

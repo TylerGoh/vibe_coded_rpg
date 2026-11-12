@@ -34,23 +34,25 @@
 // den its DENS row (the Long Flue draws the door, src/longflue.js).
 // Lantern Fen's (atlas Phase 8): the willow across Firefly Hollow's path, the flooded Grove boardwalk, Hob's punt drawn up,
 // the barrow's passage under water, the Causeway's sunk near end (all lifted, L1–L4: their open looks in OPEN), the Peat
-// Barrows' caved-in cuts (L3 laid it) and the Hall of Lamps' door shut with moth-silk at the Causeway's end (L4 laid it):
-// both L5's, both drawn open already.
+// Barrows' caved-in cuts (L3 laid it, dug out in L5 (b)) and the Hall of Lamps' door shut with moth-silk at the Causeway's
+// end (L4 laid it): the Mother keeps that one shut, and for a slime who has freed her (L5 (c)) it's drawn open, the silk
+// cut down (OPEN.mothsilk; drawGates' `me`).
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, circle, ellipse, clamp } from './util.js';
-import { GATES, ENTRIES } from './shared/branches.js';
+import { GATES, ENTRIES, gateLifted } from './shared/branches.js';
 
 const INK = '#5b4a6b';
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
 
-export function drawGates(ctx, room, ground, L, R, time, near) {
+// me: your own slime's state (a gate with `freed` you've lifted is drawn open, for you alone: the Hall of Lamps' front door)
+export function drawGates(ctx, room, ground, L, R, time, near, me = null) {
   for (const g of GATES) {
     if (g.room !== room || g.x + 160 < L || g.x - 160 > R) continue;
     ctx.save();
     ctx.translate(g.x, ground);
     ctx.save();
     ctx.scale(SCALE[g.kind] ?? 1, SCALE[g.kind] ?? 1);
-    DRAW[g.kind](ctx, time, g);
+    (gateLifted(g, me) ? OPEN : DRAW)[g.kind](ctx, time, g);
     ctx.restore();
     if (g.sign !== false) sign(ctx, SIGN_AT[g.kind], g.name, g.hard, near === g); // (a gate whose room draws its own sign: Fenrir's door)
     ctx.restore();
@@ -2376,9 +2378,9 @@ function drawBalloonUp(ctx, time) {
   ctx.fillRect(-10, gy + 6, 20, 38);
 }
 
-// (the Hall of Lamps' inner door at the top of the Lamp Road, `silkdoor`, has no art here: the Lamp Road draws it and
-// its own sign, src/lamproad.js)
-const DRAW = { silkdoor: () => {}, tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair, willowfall: drawWillowfall, floodwater: drawFloodwater, punt: drawPunt, barrowmouth: drawBarrowMouth, sunkcauseway: drawSunkCauseway, peatfall: drawPeatFall, mothsilk: drawMothSilk };
+// (the Hall of Lamps' inner door at the top of the Lamp Road was a gate with no art here until L5 (c) gave the den its
+// DENS row: the Lamp Road draws it and its own sign, src/lamproad.js)
+const DRAW = { tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair, willowfall: drawWillowfall, floodwater: drawFloodwater, punt: drawPunt, barrowmouth: drawBarrowMouth, sunkcauseway: drawSunkCauseway, peatfall: drawPeatFall, mothsilk: drawMothSilk };
 // The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
 // going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
 // white rose petal or two drifting into it. The update itself split it: no quest

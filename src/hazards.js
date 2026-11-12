@@ -131,6 +131,7 @@ const SHOT = {
   mud: { glow: '150,130,90', core: '#c8b890', mid: '#6a5640', rim: '#3a2c22' }, // the mire frog's gobbet of bog mud (the Shallows, atlas Phase 8)
   lampoil: { glow: '255,214,150', core: '#fffbe8', mid: '#ffd696', rim: '#a8743a' }, // the grave lamp's drop of burning lamp oil (the Sunk Barrows, atlas Phase 8 L3)
   wisplight: { glow: '220,236,255', core: '#ffffff', mid: '#e4f0ff', rim: '#7a9ac8' }, // the Will-Queen's rings of wisp-light (the Lantern Causeway, atlas Phase 8 L4)
+  souls: { glow: '255,214,150', core: '#fffbe8', mid: '#ffe2a8', rim: '#b8945a' }, // the Wickmother's rings of the dead's little lights (L5)
   swap: { glow: '190,140,255', core: '#ffffff', mid: '#c9a6ff', rim: '#6a3ea8' }, // a boss's controls-swap orb (src/challenge.js) // molten metal: the crucible newt's and Old Crucible's (the Old Foundry)
 };
 function drawShot(ctx, h, now) {
@@ -1133,6 +1134,7 @@ const BEAM = {
   tooth: { glow: '214,232,255', outer: 'rgba(200,214,240,0.88)', mid: '#ffffff', aim: '255,96,110' }, // Brenna: the shard's cold light thrown off the tooth's face (E4b)
   hearth: { glow: '255,150,60', outer: 'rgba(255,120,40,0.9)', mid: '#fff0b0', aim: '255,96,80' }, // Typhon's Fire Breath (E5)
   vent: { glow: '255,180,90', outer: 'rgba(255,150,60,0.92)', mid: '#fff6d0', aim: '255,110,80' }, // a vent's column of fire in the Hearth (E5)
+  silk: { glow: '240,232,252', outer: 'rgba(226,218,238,0.9)', mid: '#ffffff', aim: '255,96,120' }, // the Wickmother's Silk Line, a strand drawn across the Hall (L5)
 };
 function drawBeam(ctx, h, now) {
   const B = BEAM[h.style] || BEAM.sentry;

@@ -60,6 +60,8 @@ export const FREED = {
   knotmole: { near: ['truffle'], name: 'the Knotmole', seen: "the Knotmole's knots are untied, and the glow runs west along the great threads in full again, past the Knotted Halls and off under the sea" },
   old_narwhal: { near: ['hakon', 'skaldi', 'runa', 'tove'], name: 'the Old Narwhal', seen: "the pack ice across the outer sound has broken up: she sang the floes out, they drift away to sea and fish leap in the open water" },
   root_warden: { near: ['acorn'], name: 'the Root Warden', seen: "up on Keeper's Spine the great roots have drawn back off the Crest's stones into the turf, heather growing over them" },
+  // L5 (c): Lantern Fen's final boss. Nobody in Wickmere says her name; "the Mother" is as far as the songs go
+  wickmother: { near: ['wren', 'hob', 'sedge', 'netta'], name: 'the Mother in the Hall of Lamps', seen: "the Lamp Walk burns low: a few of its lanterns have gone out and their tags are gone, as if they were let go (Wren's husband's is one of them), and the Hall of Lamps' front door at the Causeway's end stands open, its silk cut down. Be gentle about it: it is grief, and a relief" },
 };
 
 // The prompt lines for character `id` about what `user` has freed (freed: the boss kinds in their story record)

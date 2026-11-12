@@ -52,7 +52,7 @@ The sandbox only adds a room, two mob kinds, a panel and a readout; it never cha
     at any level), up to `DUMMY_MAX`; Clear. Dummies never die and give nothing (`dummy` on their `MOBS` rows, kept up
     in `damage()`); their HP stays at the yard's setting (`DUMMY_HP_SHARES`), for skills that care about a target's HP.
   - *Bosses* (reworked 2026-10-29, owner: "jump me into boss fights… I only need the biggest boss of each region"):
-    each island's headliner up top (`SANDBOX_HEADLINERS`: Ladon, Fenrir, Typhon; Brenna is under "Other dens" since
+    each island's headliner up top (`SANDBOX_HEADLINERS`: Ladon, Fenrir, Typhon, the Wickmother since L5 (c); Brenna is under "Other dens" since
     E5 (c)), every other `DENS` row folded under "Other dens". Start at phase 1–4 or near death:
     Fight resets that boss (`resetBoss`), sets its HP to the share that phase starts at (`PHASE_AT`, a final boss's
     `FINAL` row), and puts you in its den. Two switches go with Fight:

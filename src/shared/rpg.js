@@ -6,6 +6,7 @@ import { curve } from './curve.js';
 import { LADON_PLATFORMS, LADON_BODY_X } from './final.js';
 import { FENRIR_PLATFORMS, FEN_MID } from './fenrir.js';
 import { TYPHON_PLATFORMS, TY_MID } from './typhon.js';
+import { HALL_PLATFORMS, WM_MID } from './wickmother.js';
 import { ARENA, DUMMY_HP, SPAR_HIT_PCT } from './sandbox.js';
 import { uptimeOf } from './challenge.js';
 
@@ -37,7 +38,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 6350; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), and the mini Will-Queen and Grandfather Mire (L4): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 6450; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) and the mini Wickmother (L5, 6366): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -460,8 +461,9 @@ export const PEATBARROWS_PLATFORMS = [
 // thicken, the silk comes lower, a huge shadow walks across the silk overhead (the Wickmother on the Hall's roof), and at
 // the top two great eyes of lamplight look down through it; the silk draws closed behind you (art only).
 // WICK_MARK_X: the first slime past it in an empty Lamp Road hears her (WICK_LINE, server/rpg.js). WICK_DEN_X: the
-// Hall's inner door, a curtain of moth-silk across a doorway in the willow's root (it holds until L5 (c) gives the den its
-// DENS row: a gate in LANTERN_FEN, `silkdoor`).
+// Hall's inner door, a curtain of moth-silk across a doorway in the willow's root (it held until L5 (c) gave the den its
+// DENS row; now it parts as you come near). LAMP_FRONT_X: L5 (c)'s way out through the Hall's outer roots to its front
+// door at the Causeway's end (HALL_GATE_X), open only for a slime who has freed her (doors with `freed`, sim.js).
 export const LAMPROAD = 83; // room id
 export const LAMPROAD_W = 2600;
 export const LAMPROAD_EXIT_X = 70; // back down the root stair to the Peat Barrows
@@ -469,6 +471,7 @@ export const WICK_MARK_X = 1000;
 export const WICK_DEN_X = LAMPROAD_W - 240;
 export const WICK_DEN = 84; // the den's room id (L5 (c): the Hall of Lamps, its DENS row)
 export const WICK_DEN_NAME = 'The Hall of Lamps';
+export const LAMP_FRONT_X = WICK_DEN_X - 420;
 export const WICK_LINE = 'Who are you carrying? ...No one? Then why have you come so far?';
 export const GUST_CYCLE = 540, GUST_WARN = 120, GUST_BLOW = 100; // (ticks)
 export const GUST_DOT = 0.05;
@@ -3149,6 +3152,43 @@ MOBS.eldest = {
 };
 MOBS.eldest.drops = [...MOBS.eldest.drops, ['cradle_blade', 0.04, 1, 1]];
 
+// The Wickmother (L5 (c), story/l5-plan.md; docs/places/wickmother.md): Lantern Fen's final boss, in the Hall of Lamps
+// (room WICK_DEN, up the Lamp Road). A moth as big as a boathouse wrapped round the Crown of Lamps, who can't bear to let a
+// single light go out. Her own brain (FINAL.wickmother, brain 'moth': server/wickmother.js; her constants in
+// src/shared/wickmother.js): the eight hall lanterns and the Hold (`hold`: the sheet's share of a party's damage that goes
+// on lanterns or is held off, taken off her HP with the challenges' uptime, uptimeOf), Kindle and her moths, the silk walls
+// in phase 3, phase 4's dark with her the only light. Fixed HP for four, no reward window; her stats are FINAL's, never
+// the Lv 210 on her tag. `h`: her body's box runs from the floor up past the Crown (she hangs wrapped round it, her wings
+// trailing to the floor), so the floor and every ledge can reach her. `weak`: the shard in her thorax, open while she
+// draws the light (phase 4).
+MOBS.wickmother = {
+  name: 'The Wickmother', boss: true, top: true, final: 'wickmother', heads: true, touchW: 170, touchH: 200, denX: WM_MID,
+  lvl: 210, hp: 158000000, atk: 700, exp: 4600000, speed: 70, w: 280, h: 320, aggro: true, hops: false,
+  phases: [[], [], []], minion: 'hall_moth', petWH: [62, 56], hold: 0.75,
+  looks: { beam: 'silk', shell: 'wings', dome: 'cocoon', curse: 'tag', pulse: 'hush', snare: 'silk', rings: 'souls' },
+  // her challenges (in her loops, server/wickmother.js; docs/combat/challenges.md): the Stoop's strand (`snare`) and
+  // fake-outs (`feint`) from phase 1, tethers and bullet rings from phase 2, cocooned (`rescue`, 2+) in phase 3, the dark in phase 4
+  ch: ['snare', 'feint', 'tether', 'rings', 'rescue', 'dark'],
+  party: ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'], partyAll: true, partyLive: true,
+  weak: { dx: 0.02, dy: -0.52, r: 34, front: true }, // (the shard in her thorax, like a flame behind glass)
+  lines: {
+    enter: ['Hush. Hush now. Who have you come to see? They\'re all here. I\'ve kept them all.'],
+    phase: ['Every one of them was loved. Do you know how many people are loved? I do. I counted.', 'If I let them go, who will remember them? You won\'t. You\'re only passing through.', 'Then I\'ll hold them myself. All of them. I\'ll be the only light there is.'],
+    shield: 'No. Not this one. Not yet. Just a little longer.',
+    freed: '...Oh. They\'re going home. All this time I thought they\'d be lost without me.',
+  },
+  // one of her four class weapons a kill (twinPick chooses by who fought); the Mothwing Hood on a shared chance
+  drops: [['coin', 1, 7000000, 10500000], ['last_wick', 1, 1, 1], ['mothwing_hood', 0.5, 1, 1], ['mega_elixir', 1, 9, 13], ['royal_sap', 1, 4, 6], ['dusk_scale', 1, 6, 10], ['grub_tallow', 1, 4, 6], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.7, 1, 2]],
+};
+// Her moths (phase 2 on): the Causeway's lamp moths, called down out of the Hall's roof to relight the lanterns the party
+// lets go (`son: 'moth'`: their own brain, son() in server/wickmother.js; drawn as lamp moths). Each flies to an out
+// lantern and relights it unless it's killed, frozen, stunned or knocked back first. Little EXP and no drops: they're
+// hers, not the room's.
+MOBS.hall_moth = {
+  name: 'Lamp Moth', son: 'moth', art: 'lamp_moth', base: 'lamp_moth', lvl: 190, hp: 160000, atk: 640, exp: 12000, speed: 150, w: 74, h: 54, aggro: true, hops: false, fly: 62,
+  drops: [['coin', 1, 1500, 2200]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -3983,6 +4023,7 @@ export const DENS = [
   { room: MIRE_DEN, boss: 'grandfather_mire', name: "Grandfather's Pool", from: CAUSEWAY, entranceX: MIRE_DEN_X, theme: 'mire' }, // (atlas Phase 8, L4, the Fen's party den; art: src/dens-mire.js)
   { room: BRENNA_DEN, boss: 'brenna', name: "The Bearer's Hoist", from: RIM, entranceX: BRENNA_DEN_X, theme: 'hoist' }, // (E4b; art: src/dens-rim.js)
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
+  { room: WICK_DEN, boss: 'wickmother', name: WICK_DEN_NAME, from: LAMPROAD, fromName: 'the Lamp Road', entranceX: WICK_DEN_X, theme: 'lamps', platforms: HALL_PLATFORMS, final: true }, // (L5 (c); art: src/dens-wick.js; the door's art: src/lamproad.js)
   { room: TYPHON_DEN, boss: 'typhon', name: TYPHON_DEN_NAME, from: LONGFLUE, fromName: 'the Long Flue', entranceX: TYPHON_DEN_X, theme: 'hearth', platforms: TYPHON_PLATFORMS, final: true }, // (E5 (c); art: src/dens-typhon.js; the door's art: src/longflue.js)
 ];
 export const DEN_EXIT_X = 80;
@@ -4395,6 +4436,10 @@ export const ITEMS = {
   carrier_tag: { name: "Carrier's Tag", price: 1800, kind: 'loot', desc: "A lantern's paper name tag, soft as cloth from being held, off a lamp-bearer's lantern. The name has rubbed away. Somebody carried it a long way." },
   dusk_scale: { name: 'Dusk Scale', price: 1820, kind: 'loot', desc: "A pinch of a dusk moth's wing-dust in a twist of paper, grey and silver. Blow on it and the room goes a little darker for a moment." },
   carrier_hood: { name: "Lamp-Carrier's Hood", price: 1226000, lvl: 186, kind: 'helmet', def: 121, desc: "A deep hood of peat-brown wool with a hook stitched in at the brow for a lantern, worn by whoever carried the lights down. It keeps the rain off and the dark out." },
+  // The Wickmother's set (L5 (c), docs/places/wickmother.md): the Fen's best, a step above Grandfather Mire's (lvl 199 on
+  // the frozen curve); one class weapon a kill, the Mothwing Hood on a shared chance
+  last_wick: { name: 'The Last Wick', price: 1860000, lvl: 199, slots: 10, kind: 'sword', atk: 253, reach: 70, desc: 'A long grey blade with a flame sealed in glass at the hilt. The flame never moves, however you swing it. Somebody asked her to keep it lit.' },
+  mothwing_hood: { name: 'The Mothwing Hood', price: 1380000, lvl: 199, slots: 10, kind: 'helmet', def: 127, desc: 'Soft grey fur with two feathered antennae, warm as a sleeping moth. Wearing it you feel light, and the dark is not so dark.' },
   cradle_blade: { name: 'Cradle-Silk Blade', price: 1693000, lvl: 190, kind: 'sword', atk: 245, reach: 66, desc: "A long pale blade wrapped from hilt to point in the Eldest's silk, wound so tight and so long it has gone hard as horn. It is warm, like something asleep." },
   grandfather_cap: { name: "Grandfather's Cap", price: 1160000, lvl: 181, slots: 10, kind: 'helmet', def: 118, desc: "An old lily pad gone leathery and green-gold, worn on Grandfather Mire's head for longer than the causeway has stood. A flower still opens on it in summer." },
   sleeper_hood: { name: "Sleeper's Hood", price: 1147000, lvl: 180, kind: 'helmet', def: 118, desc: "A hood of woven wool the peat has turned the colour of tea, a bronze pin at the throat. It is warm, and it smells of rain on a hill a long time ago." },
@@ -4525,6 +4570,8 @@ export const ITEMS = {
   punt_staff: { name: 'Punt-Pole Staff', price: 287000, lvl: 161, aim: 165, kind: 'staff', magic: 219, mp: 130, reach: 64, twin: 'boathook', desc: 'A punt pole cut down to staff height, its iron shoe worn bright, a lantern hung from a peg at the top. It knows the way across without being told.' },
   sunklamp_staff: { name: 'Sunken Lamp Staff', price: 1350000, lvl: 170, slots: 9, kind: 'staff', magic: 227, mp: 135, reach: 68, twin: 'gullet_tooth', desc: 'A staff of black bog-oak, a drowned lantern caged at its head, glowing from the inside. Its bolts come up from below, like bubbles.' },
   bogglass_staff: { name: 'Bog-Glass Staff', price: 1193000, lvl: 160, kind: 'staff', magic: 218, mp: 131, reach: 66, twin: 'bloat_cleaver', desc: "A staff of black bog-oak with a ball of the Bog Bloat's jelly set hard at its head, something small and green still floating in it." },
+  mothers_staff: { name: "The Mother's Staff", price: 1860000, lvl: 199, slots: 10, kind: 'staff', magic: 253, mp: 152, reach: 70, twin: 'last_wick', desc: 'A willow staff with a moth asleep at its head, her wings folded round a light. Now and then the wings open a little, and the light comes out.' },
+  lantern_crook: { name: 'The Lantern Crook', price: 1860000, lvl: 199, slots: 10, kind: 'staff', magic: 253, mp: 152, reach: 70, twin: 'last_wick', cls: 'cleric', desc: 'A carrier\'s crook of pale willow with a small lantern hung from its hook, a blank tag tied to it. Its light is the kind you can let go of.' },
   cradle_staff: { name: 'Cradle-Silk Staff', price: 1693000, lvl: 190, kind: 'staff', magic: 245, mp: 147, reach: 66, twin: 'cradle_blade', desc: "A willow staff with a cocoon bound to its head in the Eldest's silk, a small light moving inside it. Its bolts come out soft and land hard." },
   barrowfang_staff: { name: 'Barrowfang Staff', price: 1465000, lvl: 177, kind: 'staff', magic: 234, mp: 140, reach: 62, twin: 'barrowfang', desc: "A dark rod of peat-oak with a hound's bronze tooth at its head. Its bolts run low and quiet." },
   queenlight_staff: { name: 'Queenlight Staff', price: 1482000, lvl: 178, kind: 'staff', magic: 234, mp: 141, reach: 66, twin: 'queenlight', desc: 'A slender white-wood staff with a cold flame burning at its head that never needs trimming. Its bolts wander a little, then find you.' },
@@ -4619,6 +4666,7 @@ const BOW_LIST = [
   ['decoy_bow', 'boathook', 'Decoy Bow', "A short willow bow with a carved duck set in its grip, the way Hob carves them. It shoots straight, and the duck looks very pleased about it."],
   ['eelbone_bow', 'gullet_tooth', 'Eelbone Bow', "A long bow of the old eel's spine, every little bone of it pale and fine, strung with eel-gut. It bends like something swimming."],
   ['bogwood_bow', 'bloat_cleaver', 'Bogwood Bow', 'A bow of black bog-oak out of the Bog Bloat, bound with weed that has dried hard as wire. It draws heavy and lets go with a wet slap.'],
+  ['mothwing_bow', 'last_wick', 'The Moth-Wing Bow', 'A bow strung with moth-silk, an eye spot on each limb like a lantern seen through fog. It draws without a sound, and its arrows go where the light is.'],
   ['cradle_bow', 'cradle_blade', 'Cradle-Silk Bow', "A pale bow wound end to end in the Eldest's silk, strung with a single strand of it. It draws soft and sings when it looses."],
   ['barrowfang_bow', 'barrowfang', 'Barrowfang Bow', "A short dark bow with a hound's bronze tooth at each tip. Its arrows fly low, like a hound running."],
   ['queenlight_bow', 'queenlight', 'Queenlight Bow', 'A pale bow that glows faintly along its belly, strung with a thread of cold light. Its arrows fly like wisps: bright, and a little crooked.'],

@@ -2,7 +2,8 @@
 
 **Status: written 2026-11-12 at the owner's "continue with next phase. Also don't be afraid to make the levels go past
 200"; every `[default]` stands unless the owner changes it (the standing "make liberal decisions" instruction). (b)
-built 2026-11-12 (`docs/places/peatbarrows.md`); (c) waits for the owner's look at this page.** Step (a) of L5
+built 2026-11-12 (`docs/places/peatbarrows.md`); (c) built 2026-11-12 at the owner's "all defaults are fine, build the
+fight" (`docs/places/wickmother.md`: what was built and every liberal decision on top of this page).** Step (a) of L5
 (`phase8-plan.md`, `final-bosses.md`): the boss, its move set and its phase order before the fight is built. Numbers
 are aims, not code: the economy sheet sets the real ones. Built on the final-boss engine (`docs/combat/bosses.md`
 "Final bosses", `src/shared/final.js`, `server/final.js`): a FINAL row, written loops, the enrage, fixed HP for four,

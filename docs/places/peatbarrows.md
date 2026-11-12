@@ -2,7 +2,7 @@
 
 L5 (b): the way to Lantern Fen's final boss, the Wickmother (`story/l5-plan.md`, "On the way there"; the pattern is E5's
 `docs/places/underflues.md`, FB2's `docs/places/oldice.md` and FB1's `docs/places/sunkenroad.md`). Deep room, then approach,
-then den (room 84, `WICK_DEN`, `WICK_DEN_NAME` "The Hall of Lamps": L5 (c)). The Fen's first place past Lv 180, and the
+then den (room 84, `WICK_DEN`, `WICK_DEN_NAME` "The Hall of Lamps": L5 (c), `docs/places/wickmother.md`). The Fen's first place past Lv 180, and the
 game's first numbers past 200 (the Wickmother's tag, Lv 210): owner, 2026-11-12, "don't be afraid to make the levels go past
 200". `FEN_TOP` is 190 (the Fen was approved at 150–180; its deep room goes on to 190).
 
@@ -70,9 +70,10 @@ everything cinematic here is drawing and sound, never `step()`, never a cutscene
   `{t:'boss', a:'voice', who, text}` to the room (`lampRoadSaid` in `server/rpg.js`, reset when the room empties), as Typhon's
   and Fenrir's. A dark violet bubble with lamplit writing.
 - **The Hall's inner door** at `WICK_DEN_X`: a tall pointed doorway in the great willow's root, grey ribbed bark round it,
-  a curtain of moth-silk across it with moths asleep on it and light moving behind. **In (b) it holds**: it breathes with
-  her wings (the curtain bellying in on each downstroke) and doesn't part; a gate (`silkdoor`, above). `WICK_DOOR_OPEN`
-  (true once the den has a `DENS` row, L5 (c)) parts it to both sides as you come near. The sign beside it:
+  a curtain of moth-silk across it with moths asleep on it and light moving behind. In (b) it held, breathing with her
+  wings; since (c) (`WICK_DOOR_OPEN`: the den has its `DENS` row) it parts to both sides as you come near and leads into
+  the Hall of Lamps. **The way out through the roots** (`LAMP_FRONT_X`, `drawFrontWay`): for a slime who has freed her
+  only, a low opening to the Hall's front door on the Causeway, its silk cut and slack (a door with `freed`). The sign beside it:
   `WICK_DEN_NAME`, `finalTag(FEN_TOP)` ("Lv 210 · recommended Lv 190, 4+ players") and a live count: a count, never a lock.
 
 ## Personas that changed with it

@@ -41,7 +41,10 @@ West to east (`CAUSEWAY_ZONES`); you come in at the WEST end:
   water two great gold eyes that blink, slowly, and the hump of a warty back with a lily pad on it.
 - **The Hall of Lamps' door** (`HALL_GATE_X`, a gate, L5): the causeway runs up to a great pointed doorway in a wall of
   grey willow bark, and the door is shut with moth-silk, sheet over sheet, moths asleep on it, lights moving slowly
-  behind it (`drawMothSilk`, which already has its `open` look and its `OPEN` row: the silk cut down). On the horizon the
+  behind it (`drawMothSilk`, which already has its `open` look and its `OPEN` row: the silk cut down). The Mother keeps
+  it shut: since L5 (c) it's a `shut` gate with `freed` on the `hall` node, and for a slime who has freed her (`fw`) it's
+  drawn open and a door (`freed` in `ROOMS[CAUSEWAY]`) goes through to the Lamp Road's top, `LAMP_FRONT_X`
+  (`docs/places/wickmother.md`). On the horizon the
   Hall itself (a great hollow willow lit from inside, its crown hung with silk) grows as you walk east and ends up behind
   its own door (`drawHall` in `src/causeway.js`).
 

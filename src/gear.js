@@ -7,7 +7,7 @@ import { MOBS, BOW_SHOT_MULT, BOW_SHOT_SPEED, isCombat } from './shared/rpg.js';
 import { SKILLS, rankOf } from './shared/skills.js';
 import {
   fxOf, GX, HYDRA_HIT, HEARTH_EVERY, ERUPT_R, ERUPT_MULT, EXPLODE_R, EXPLODE_MULT, GROUND_S, GROUND_W, GROUND_MULT, GROUND_EVERY,
-  DASH_SLASH_MULT, NOVA_R, NOVA_MULT, VOLLEY, ROOTED_S, ROOTED_DMG, OATH_BONUS, PISTON_RANGE, PISTON_MULT, PISTON_PIERCE, PISTON_FREE,
+  LAST_AT, LAST_DMG, DASH_SLASH_MULT, NOVA_R, NOVA_MULT, VOLLEY, ROOTED_S, ROOTED_DMG, OATH_BONUS, PISTON_RANGE, PISTON_MULT, PISTON_PIERCE, PISTON_FREE,
   TRAIL_EVERY, TRAIL_S, TRAIL_W, TRAIL_MULT, STOMP_VY, STOMP_R, STOMP_MULT, RUSH_S, SHATTERER, PROMISE_STEP, PROMISE_MAX, PROMISE_BROKEN,
 } from './shared/gearfx.js';
 import { audio } from './audio.js';
@@ -50,6 +50,7 @@ export class Gear {
       if (v) this.g.pop(v.x, v.y - (k?.h ?? 40) - 40, 'OATH!', '#ffe08a', 16);
     }
     if (f.shatterer && (k?.boss || k?.field) && (v.frozen || v.burning)) x *= SHATTERER;
+    if (f.lastlight && this.g.me && this.g.me.hp < this.g.me.maxHp * LAST_AT) x *= LAST_DMG; // (the Wickmother's weapons: below half your HP)
     if (f.promise && v) { // the same mob again: one step stronger; another mob first: broken (that hit weaker), start over
       const p = this.promise;
       if (p.id === v.id) x *= Math.min(PROMISE_MAX, 1 + PROMISE_STEP * ++p.n);

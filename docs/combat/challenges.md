@@ -4,7 +4,7 @@ Files: `src/shared/challenge.js` (the table `CHALLENGES`, every challenge number
 `server/challenge.js` (starting, judging, ending: `createChallenges`, `KIND`), `src/challenge.js` (the client: hazards,
 the combo, the touch arrow pad, the art, G2's banner, `drawSunk`). Physics: `tr` / `cs` / `pf` in `step()`
 (`src/shared/sim.js`); T1b adds `tl` (the tilting floor). The final bosses' own: `server/final.js` (Ladon),
-`server/fenrir.js` (Fenrir), `server/typhon.js` (Typhon's iron, its second Hammer, the lava waves), `src/ladon.js` (Head
+`server/fenrir.js` (Fenrir), `server/typhon.js` (Typhon's iron, its second Hammer, the lava waves), `server/wickmother.js` (the Wickmother's, L5), `src/ladon.js` (Head
 Swap's marks), `src/dens-ladon.js` (the moving gaps). The bosses using `bossBrain` (the Root Warden, Sigrun, Brenna, the
 Colossus, Chronos) start theirs from `server/rpg.js` (`CHAL_MOVE`, and the fake-out in `newMove`). The plan, every type (A1–A23) and every boss's set
 (B1–B21): `story/tricky-plan.md`.
@@ -89,6 +89,11 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
 - **Typhon** (its loop, T1b): from phase 2 a Coil Burst or a Breath comes with a Hammer from its other arm at someone
   else (`alsoHammer`, A13) and the plates heat in a wave (`lava`, A12); phase 3 adds the Pour's iron setting round
   everyone (`iron`: a snare with `looks.snare: 'iron'`); phase 4 the mirror trap (`mirror`) and a faster wave.
+- **The Wickmother** (her loop, L5 (c), from day one: `docs/places/wickmother.md`): the Stoop's strand (`snare`,
+  `looks.snare: 'silk'`, either side of where she lands) and fake-outs (`feint`: a Stoop pulls up short and comes again
+  where the watched slime went) from phase 1; `tether` and `rings` (the dead's little lights, `looks.rings: 'souls'`)
+  from phase 2; cocooned (`rescue`, 2+) in phase 3; the dark in phase 4. Her HP takes `hold` as well as her uptime share
+  (`uptimeOf`).
 - **The den bosses** (`bossBrain`, T2; every type here works alone: dens stay soloable by any class):
   - **The Bramble Behemoth**: roots that snare (`snare`, phase 2 on, combos of 4); its back bark opens mid-leap (A21: the
     leap comes from phase 2 now).

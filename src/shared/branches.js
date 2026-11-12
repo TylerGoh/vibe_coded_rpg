@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X, PEATBARROWS, LAMPROAD, WICK_DEN_X, WICK_DEN_NAME } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X, PEATBARROWS, LAMPROAD, WICK_DEN_X, WICK_DEN_NAME, WICK_DEN } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -94,16 +94,11 @@ export const LANTERN_FEN = [
   { id: 'peat', name: 'The Peat Barrows', band: '180–190', hard: true, at: [610, 320], from: 'barrows', rooms: [PEATBARROWS, LAMPROAD], entry: { room: BARROWS, x: PEAT_GATE_X, kind: 'peatfall' } },
   // L4: the causeway's sunk near end hauled back up onto new piles (the update did it)
   { id: 'causeway', name: 'The Lantern Causeway', band: '168–180', at: [610, 200], from: 'grove', rooms: [CAUSEWAY], entry: { room: GROVE, x: CAUSEWAY_GATE_X, kind: 'sunkcauseway' } },
-  // the Wickmother's den (L5 (c)): two ways shut. The Hall's inner door at the top of the Lamp Road, a curtain of moth-silk
-  // that breathes with her wings but holds until (c) gives the den its DENS row (then that gate goes: the door comes with
-  // the row, like Typhon's; `sign: false`: the Lamp Road draws the door and its own sign, src/lamproad.js); and its front
-  // door at the Causeway's end, shut with moth-silk, which the Mother keeps shut (story/l5-plan.md: it opens in (c) for a
-  // slime who has freed her)
-  { id: 'hall', name: WICK_DEN_NAME, at: [455, 92], from: 'peat', block: 'the silk holds',
-    gate: [
-      { room: LAMPROAD, x: WICK_DEN_X, kind: 'silkdoor', sign: false, look: 'look at the door', says: 'The silk across the doorway stirs, as if something huge breathed behind it. It holds.' },
-      { room: CAUSEWAY, x: HALL_GATE_X, kind: 'mothsilk', look: 'look at the door', says: 'The Hall\'s door is shut with moth-silk, thick as felt. Lights move behind it.' },
-    ] },
+  // the Wickmother's den (L5 (c)): the Hall's inner door at the top of the Lamp Road parts now that the den has its DENS
+  // row (its gate, `silkdoor`, went with it). Its front door at the Causeway's end, shut with moth-silk, the Mother keeps
+  // shut: `shut` is a gate on a shipped node, and `freed` lifts it for a slime who has freed her (its door: sim.js, fw)
+  { id: 'hall', name: WICK_DEN_NAME, at: [455, 92], from: 'peat', rooms: [WICK_DEN],
+    shut: [{ room: CAUSEWAY, x: HALL_GATE_X, kind: 'mothsilk', freed: 'wickmother', look: 'look at the door', says: 'The Hall\'s door is shut with moth-silk, thick as felt. Lights move behind it.' }] },
 ];
 export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK, ember: EMBERDEEP, fen: LANTERN_FEN };
 const ALL = Object.values(ISLAND_MAPS).flat();
@@ -111,10 +106,12 @@ export const shipped = (n) => !n.gate && !n.past;
 export const ENTRIES = ALL.filter((n) => n.entry).map((n) => ({ ...n.entry, branch: n.id, name: n.name, band: n.band, hard: !!n.hard }));
 
 // Blocked ways in, and the one you're standing at (on the ground, close enough to look)
-// (a node's gate may be a list: the Hall of Lamps has two shut doors)
-export const GATES = ALL.filter((n) => n.gate).flatMap((n) => [].concat(n.gate).map((g) => ({ ...g, branch: n.id, name: n.name, hard: !!n.hard })));
+// (a node's gate may be a list; `shut`: gates on a node that has shipped, the Hall of Lamps' front door. A gate with
+// `freed` is lifted for a slime who has freed that boss: `fw` in its state, the Wickmother's)
+export const GATES = ALL.filter((n) => n.gate || n.shut).flatMap((n) => [].concat(n.gate ?? [], n.shut ?? []).map((g) => ({ ...g, branch: n.id, name: n.name, hard: !!n.hard })));
 export const GATE_RANGE = 60;
-export const gateAt = (me, room) => (me && me.grounded && !me.onPlat ? GATES.find((g) => g.room === room && Math.abs(me.x - g.x) < GATE_RANGE) : null) ?? null;
+export const gateLifted = (g, me) => !!g.freed && !!me?.fw;
+export const gateAt = (me, room) => (me && me.grounded && !me.onPlat ? GATES.find((g) => g.room === room && Math.abs(me.x - g.x) < GATE_RANGE && !gateLifted(g, me)) : null) ?? null;
 
 // The island-map node a room (and x in it) is, on whichever island's map, or null when it isn't one of them
 // (the village's buildings and houses: the map pins those on Slimeville)

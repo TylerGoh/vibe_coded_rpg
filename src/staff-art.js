@@ -88,6 +88,8 @@ export const STAFFS = {
   barrowfang_staff: { len: 64, shaft: ['#3a2c20', '#1e1610'], w: 2.8, head: 'crystal', gem: '#8a6a3a', gem2: '#d8b070', glow: '220,180,110' }, // (a barrow hound's bronze tooth)
   queenlight_staff: { len: 70, shaft: ['#e8e4dc', '#a8a49c'], w: 2.8, head: 'ember', gem: '#ffffff', gem2: '#cfe0ff', glow: '220,236,255' }, // (the Will-Queen's: white wood, a cold flame at its head)
   promise_staff: { len: 70, shaft: ['#3a3426', '#1e1a12'], w: 3.4, head: 'crystal', gem: '#6a7a46', gem2: '#c8d8a0', glow: '200,214,130' }, // (Grandfather Mire's: crooked bog-oak, a great toadstone in its knot)
+  mothers_staff: { len: 72, shaft: ['#c8c0b0', '#8a8272'], w: 3, head: 'moth', gem: '#fff2c8', gem2: '#8a7e98', glow: '255,214,150' }, // (the Wickmother's: willow, a moth asleep at its head round a light)
+  lantern_crook: { len: 72, shaft: ['#d8d0c0', '#9a9282'], w: 3, head: 'lantern', gem: '#ffe2a8', gem2: '#4a4058', glow: '255,214,150' }, // (the Wickmother's, the Cleric's: a carrier's crook of pale willow, a small lantern on its hook)
   cradle_staff: { len: 70, shaft: ['#b8b0a4', '#7a7268'], w: 3, head: 'lantern', gem: '#ffe2a6', gem2: '#e2dce8', glow: '255,214,150' }, // (L5 (b): the Eldest's: willow, a cocoon bound at its head, a light inside)
   barrowoak_staff: { len: 72, shaft: ['#2a2420', '#120e0c'], w: 3.4, head: 'lantern', gem: '#ffd696', gem2: '#3a2c20', glow: '255,214,150' }, // (the Sleeper's: roof oak from the Peat Hall, a grave lamp hung on it)
   willow_staff: { len: 66, shaft: ['#d8ccb0', '#9a8a68'], w: 2.8, head: 'lantern', gem: '#ffe2a8', gem2: '#5e4e84', glow: '214,190,255' }, // (Sedge's: a peeled willow wand, a frog-skin lantern with a moth-light in it)
@@ -773,6 +775,40 @@ const HEADS = {
     ctx.fillStyle = s.gem2;
     ctx.fillRect(-4, y + 8, 8, 2);
     ctx.restore();
+  },
+  // the Wickmother's Staff (L5 (c)): a moth asleep at the head, her grey wings folded round a light; now and then they
+  // open a little and the light comes out
+  moth(ctx, s, y, t, glow) {
+    const o = Math.max(0, Math.sin(t * 0.6)) ** 6; // (the wings opening, now and then)
+    halo(ctx, s, y - 8, 9 + glow * 4 + o * 6, 0.45 + glow * 0.3 + o * 0.35);
+    ctx.fillStyle = s.gem;
+    ctx.beginPath();
+    ctx.ellipse(0, y - 8, 2.4, 3.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = s.gem2;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1;
+    for (const sd of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(0, y - 15);
+      ctx.quadraticCurveTo(sd * (7 + o * 6), y - 15, sd * (6 + o * 5), y - 4);
+      ctx.quadraticCurveTo(sd * 2, y - 1, 0, y - 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(214,190,150,0.9)'; // (an eye spot)
+      ctx.beginPath();
+      ctx.arc(sd * (4 + o * 3), y - 9, 1.4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = s.gem2;
+    }
+    ctx.strokeStyle = '#d8d0e4'; // (her feathered antennae)
+    ctx.beginPath();
+    ctx.moveTo(-1, y - 15);
+    ctx.quadraticCurveTo(-4, y - 19, -6, y - 20);
+    ctx.moveTo(1, y - 15);
+    ctx.quadraticCurveTo(4, y - 19, 6, y - 20);
+    ctx.stroke();
   },
   // Sigrun's: a little round shield of clear ice on the shaft's head, a silver boss in it, a pale pennant
   shield(ctx, s, y) {

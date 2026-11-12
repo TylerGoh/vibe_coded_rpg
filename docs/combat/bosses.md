@@ -324,17 +324,22 @@ A boss with `final` (a key into `FINAL`, `src/shared/final.js`) runs a final-bos
 generalised FB1's engine: each FINAL row names its `brain` and `createFinal` (`server/final.js`) routes `tick`, `part`,
 `hitHead`, `send` to it (`hydra`: Ladon's heads and coils, in that file; `wolf`: Fenrir's fetters, lanterns and sons,
 `server/fenrir.js`, `docs/places/fenrir.md`; `fire`: Typhon's plates, pressure and vents, `server/typhon.js`,
-`docs/places/typhon.md`), plus `son` for an add with `son` (stepMob) and `frost` (any frost hit landing in its den:
-`applyHits` calls it; only Typhon's brain has one). On the client `src/finals.js`
-routes to one object per boss with the same face (`src/ladon.js`, `src/fenrir.js`, `src/typhon.js`): the `final` message by its `fb`, a
+`docs/places/typhon.md`; `moth`: the Wickmother's hall lanterns, moths, silk walls and dark, `server/wickmother.js`,
+`docs/places/wickmother.md`), plus `son` for an add with `son` (stepMob: `son: 'moth'` goes to the Wickmother's brain,
+any other to Fenrir's), `frost` (any frost hit landing in its den: `applyHits` calls it; only Typhon's brain has one) and
+`hold` (what's left of a hit on its body: the Wickmother's lit lanterns take a share, `applyHits` multiplies it into the
+cap and `Party.mod` into the client's hit; 1 for the others). On the client `src/finals.js`
+routes to one object per boss with the same face (`src/ladon.js`, `src/fenrir.js`, `src/typhon.js`, `src/wickmother.js`): the `final` message by its `fb`, a
 hit by the boss's kind, events, ultimates and drawing by room. What every brain shares: the loop runner (phases,
 `name:2`, `shield`, `ult` with `alternateFrom`), the enrage clock, the S5 hookup below, and other targets on the boss
 (`heads` on the mob: `h[4] = 2 + slot`, re-checked with `headReach`). A target can be a **prop** (`{ prop }` from
-`part`, Fenrir's anchors and lanterns, Typhon's vents and plates): `applyHits` then fills its ring but doesn't damage
-the boss or touch its shields, elements and dots (the hit still counts as fighting it), and the client doesn't predict
-the boss's HP down; `hitHead` gets `fire` and `frost` (a frost hit crusts one of Typhon's plates).
+`part`, Fenrir's anchors and lanterns, Typhon's vents and plates, the Wickmother's hall lanterns): `applyHits` then fills
+its ring but doesn't damage the boss or touch its shields, elements and dots (the hit still counts as fighting it), and the
+client doesn't predict the boss's HP down; `hitHead` gets `fire`, `frost` (a frost hit crusts one of Typhon's plates, lets
+one of the Wickmother's lanterns go) and `holy` (a holy hit: lets one of hers go).
 - **An ultimate with `noFreeze`** (Typhon's full-pressure Eruption) can't be interrupted (`element` skips
-  `interruptUlt`); its banner still warns. A `lastpour` lasts as long as its wave, like `wave` (`ultGoesOff`).
+  `interruptUlt`); its banner still warns. A `lastpour` or a `night` (the Wickmother's Long Night) lasts as long as its
+  wave, like `wave` (`ultGoesOff`).
 - **Owner's rules**: HP fixed for four (`bossMaxHp` returns `k.hp`: no `BOSS_HP_PER_PLAYER`, no floor), no reward
   window (`kill` pays every kill in full), every S5 mechanic on from the first slime (`partyAll`), Lv on the tag from
   `finalTag`, stats from the FINAL table. The economy sheet doesn't hold a final boss to `TOP_SOLO`.

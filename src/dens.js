@@ -15,6 +15,7 @@ import { DEN_ART as QBRIDGE_DENS, ENTRANCE_ART as QBRIDGE_ENTRANCES, BOSS_ART as
 import { DEN_ART as LADON_DENS, BOSS_ART as LADON_BOSSES, FX2 as LADON_FX } from './dens-ladon.js';
 import { DEN_ART as FENRIR_DENS, BOSS_ART as FENRIR_BOSSES, FX2 as FENRIR_FX } from './dens-fenrir.js';
 import { DEN_ART as TYPHON_DENS, BOSS_ART as TYPHON_BOSSES, FX2 as TYPHON_FX } from './dens-typhon.js';
+import { DEN_ART as WICK_DENS, BOSS_ART as WICK_BOSSES, FX2 as WICK_FX } from './dens-wick.js';
 import { DEN_ART as HATCH_DENS, ENTRANCE_ART as HATCH_ENTRANCES, BOSS_ART as HATCH_BOSSES, ULT_LOOKS as HATCH_ULT_LOOKS, HATCH_FREED_S, drawHatchFreed } from './dens-hatch.js';
 import { DEN_ART as HERON_DENS, ENTRANCE_ART as HERON_ENTRANCES, BOSS_ART as HERON_BOSSES, ULT_LOOKS as HERON_ULT_LOOKS, HERON_FREED_S, drawHeronFreed } from './dens-heron.js';
 import { DEN_ART as GULLET_DENS, ENTRANCE_ART as GULLET_ENTRANCES, BOSS_ART as GULLET_BOSSES, ULT_LOOKS as GULLET_ULT_LOOKS, GULLET_FREED_S, drawGulletFreed } from './dens-gullet.js';
@@ -23,10 +24,10 @@ import { DEN_ART as HOIST_DENS, ENTRANCE_ART as HOIST_ENTRANCES, BOSS_ART as HOI
 import { glow as radialGlow } from './glow.js';
 import { drawSunk } from './challenge.js';
 // the third and fourth stages' dens, bosses and boss effects live in their own files (same contracts as here)
-const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS, ...LADON_DENS, ...FENRIR_DENS, ...TYPHON_DENS, ...HATCH_DENS, ...HOIST_DENS, ...HERON_DENS, ...GULLET_DENS, ...MIRE_DENS };
+const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS, ...LADON_DENS, ...FENRIR_DENS, ...TYPHON_DENS, ...WICK_DENS, ...HATCH_DENS, ...HOIST_DENS, ...HERON_DENS, ...GULLET_DENS, ...MIRE_DENS };
 const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES, ...SPINE_ENTRANCES, ...SKERRIES_ENTRANCES, ...QBRIDGE_ENTRANCES, ...HATCH_ENTRANCES, ...HOIST_ENTRANCES, ...HERON_ENTRANCES, ...GULLET_ENTRANCES, ...MIRE_ENTRANCES };
-const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES, ...QBRIDGE_BOSSES, ...LADON_BOSSES, ...FENRIR_BOSSES, ...TYPHON_BOSSES, ...HATCH_BOSSES, ...HOIST_BOSSES, ...HERON_BOSSES, ...GULLET_BOSSES, ...MIRE_BOSSES };
-const FX2 = { ...CALDERA_FX, ...CITADEL_FX, ...LADON_FX, ...FENRIR_FX, ...TYPHON_FX };
+const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES, ...QBRIDGE_BOSSES, ...LADON_BOSSES, ...FENRIR_BOSSES, ...TYPHON_BOSSES, ...WICK_BOSSES, ...HATCH_BOSSES, ...HOIST_BOSSES, ...HERON_BOSSES, ...GULLET_BOSSES, ...MIRE_BOSSES };
+const FX2 = { ...CALDERA_FX, ...CITADEL_FX, ...LADON_FX, ...FENRIR_FX, ...TYPHON_FX, ...WICK_FX };
 // a den's own look for a shared ultimate, by theme (the Hatchkeeper's Boiling Sand is the spores ult as boiling sand)
 const ULT_LOOKS = { ...HATCH_ULT_LOOKS, ...HOIST_ULT_LOOKS, ...HERON_ULT_LOOKS, ...GULLET_ULT_LOOKS, ...MIRE_ULT_LOOKS }; // (Brenna's Last Delivery: the wave ult as the tooth rolling)
 
@@ -2369,8 +2370,9 @@ const FXPAL = {
   mire: { debris: ['#5a6a3a', '#6e6878', '#c8c09a', '#3a4626'], dust: '170,180,150', crack: '#1e2418', warn: '255,96,110', jelly: ['#5a6a3a', '#3a4626', '#e8b84a', '#c8c09a'] }, // (Grandfather Mire's den, atlas Phase 8 L4: toad skin, causeway stone, his belly, his gold eyes)
   heron: { debris: ['#4a4e46', '#6e727c', '#e4e6ea', '#7a8a5a'], dust: '170,180,170', crack: '#22261e', warn: '255,96,110', jelly: ['#a8acb4', '#4a4e46', '#e4e6ea', '#7a8a5a'] }, // (Long-Neck's den, atlas Phase 8 L1: wet stone, grey feathers, willow)
   hearth: { debris: ['#2a2022', '#4a3a38', '#ff9a40', '#ffd27a'], dust: '170,130,110', crack: '#ff7a2a', warn: '255,96,80', jelly: ['#2a2022', '#4a3a38', '#ffb040', '#fff0b0'] }, // (Typhon's den, E5: basalt, slag, molten iron)
+  lamps: { debris: ['#3a2e2c', '#8a7e98', '#ffe2a8', '#eadcc0'], dust: '226,222,240', crack: '#1e1626', warn: '255,96,110', jelly: ['#8a7e98', '#5a4e6a', '#ffd696', '#eadcc0'] }, // (the Wickmother's den, L5: peat and root, her wings, lamplight, paper tags)
 };
-const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250', oath: '190,226,255', hydra: '170,230,120', wolf: '200,226,255', hatch: '255,160,110', hoist: '255,170,120', hearth: '255,150,70', heron: '200,215,235', gullet: '255,214,150', mire: '200,214,130' };
+const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250', oath: '190,226,255', hydra: '170,230,120', wolf: '200,226,255', hatch: '255,160,110', hoist: '255,170,120', hearth: '255,150,70', heron: '200,215,235', gullet: '255,214,150', mire: '200,214,130', lamps: '255,214,150' };
 const DUR = {
   slamWarn: 1, shockwave: 0.55, chargeWarn: 0.8, rainWarn: 1, rainHit: 0.45, summon: 0.9, roar: 0.8, bossDie: 1.6,
   leap: 1.1, phase: 1.5,

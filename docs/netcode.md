@@ -37,12 +37,14 @@ protocol is documented in the comment at the top of that file: keep it updated**
   spring inside out (the old "glitch after tabbing away" bug).
 - New fields in the physics state must go through `pack` / `unpack` and `src/shared/wire.js`, unless they never change during a
   session: `home` (your house's room) is sent once in welcome / join info instead, and `reconcile()`
-  keeps it.
+  keeps it. `fw` (L5 (c): you've freed the Wickmother, so doors with `freed` open for you) stays out of snapshots too: the
+  server sets it from your story record at login and on the kill, and the client copies it every frame from the `me`
+  message's `freed` list (`src/main.js`), so a door with `freed` is predicted as the server has it; `placeAt` keeps it.
 - `state.vt`, the voyage clock (ticks aboard a crossing, `docs/places/crossings.md`), is a physics field:
   `step()` counts it and a door's `after` / `before` read it, so arriving at the far side is predicted.
 - `state.town`, your town (`TOWNS`, `docs/world.md`), is a physics field too: `step()` sets it in a town
   room and a house's front door (`to: TOWN`) reads it. The server's teleports (waking up, invites, tests)
-  go through `placeAt`, which keeps `home`, `mv` and `town`; don't hand-roll `Object.assign(newState…)`.
+  go through `placeAt`, which keeps `home`, `fw`, `mv` and `town`; don't hand-roll `Object.assign(newState…)`.
 - A door with `ask` (a ship's gangway) is confirmed on the client first; its Set sail button sends the E
   press as an ordinary input (`sail` in `src/main.js`), so the door is still taken inside `step()`.
 

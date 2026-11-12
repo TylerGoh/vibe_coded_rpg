@@ -74,7 +74,8 @@ the mini Long-Neck (atlas Phase 8 L1, her art shrunk, between the Colossus's and
 Gullet (L2, his art shrunk, lights and all, between Long-Neck's and Typhon's: Lv 169, under Typhon's 170), and L3's two
 field bosses': the mini Bog Bloat (Lv 158, between the Colossus's and Long-Neck's) and the mini Sleeper in the Peat (Lv
 178, above Chronos's), asleep under its peat as long as nothing hits it; and L4's: the mini Will-Queen (Lv 176, between
-Chronos's and the Sleeper's) and the mini Grandfather Mire (Lv 179, now the dearest). `PETSHOP_W` went up again.
+Chronos's and the Sleeper's) and the mini Grandfather Mire (Lv 179). L5 (c)'s **mini Wickmother** has art of its own (`drawWickPet` in `src/wick-art.js`: a
+small furry moth circling a tiny lantern on a stand), Lv 210, now the dearest. `PETSHOP_W` went up again.
 
 ## Testing
 - `TEST_PET_FAST=1440` makes a full belly last 2 minutes (test servers only, never live).

@@ -1692,7 +1692,7 @@ function render() {
   else if (room === FJORD) drawFjord(ctx, camX, W, time);
   else if (room === FORGEHOLD) drawForgehold(ctx, camX, W, time);
   else if (room === SKYCAMP) drawSkycamp(ctx, camX, W, time);
-  else if (room === WICKMERE) drawWickmere(ctx, camX, W, time);
+  else if (room === WICKMERE) drawWickmere(ctx, camX, W, time, !!rpg.me?.freed?.includes('wickmother')); // (L5 (c): her freed change)
   else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
   else if (room === LONGFLUE) drawLongFlue(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === LAMPROAD) drawLampRoad(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
@@ -1707,7 +1707,7 @@ function render() {
   }
   drawRuins(ctx, room, camX - 80, camX + W + 80, time, online() ? ruinStoneAt(net.me) : null); // Keeper stones (Bramble Woods, the branches)
   drawWaystones(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time, online() ? wayAt(net.me) : null, rpg.me?.ways);
-  drawGates(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time, online() ? gateAt(net.me, room) : null); // blocked ways into branches
+  drawGates(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time, online() ? gateAt(net.me, room) : null, online() ? net.me : null); // blocked ways into branches
   drawEntries(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time); // and the open ways into shipped ones
   // doors into combat rooms say who they're for (their level band), over the door (a den's mouth has its own sign)
   for (const d of roomDef(room)?.doors ?? []) if (d.band && STAGES[d.to] && Math.abs(d.x - camX - W / 2) < W / 2 + 60) drawDoorBand(ctx, d.x, roomDef(room).ground - DOOR_BAND_Y, d.band, d.hard);
@@ -1892,6 +1892,7 @@ function frame(now) {
   last = now;
   gfx.sample(gap / 1000);
   const t0 = performance.now();
+  if (net.me) net.me.fw = rpg.me?.freed?.includes('wickmother') ? 1 : 0; // (L5 (c): the Hall's front door, predicted as the server has it: sim.js doorOpen)
   if (speed > 1) {
     // TEST_SPEED test servers only: a sped-up frame is several 1/30 s animation steps, so every client
     // clock (rpg.time, cooldowns, phase timers) keeps pace with the server instead of being held by the cap

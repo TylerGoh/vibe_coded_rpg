@@ -52,7 +52,7 @@ Keeper", Chronos the little one who swept the leaves under a tree (never Pell's 
 ## The freed world changes (Phase 7 (d))
 Once **you** have beaten one of four den bosses, its place is drawn changed for you alone (owner's default: per player;
 other slimes see their own world). The client gets your record's bosses as `me.freed` and `src/main.js` passes a
-`freed` flag to the room's draw. Drawing only: no platforms, mobs or sim change.
+`freed` flag to the room's draw. Drawing only: no platforms, mobs or sim change (but the Wickmother's front door, below).
 - **The Tidemother** → Saltspray Coves' Tide Pools (`drawPool` in `src/coves.js`): stale before (green water, scum,
   driftwood and weed, drooping anemones), clear after (the tide washing in, waving anemones, a little fish).
 - **The Knotmole** → the Mycelium Deep's threads (`drawThreads` in `src/deep.js`): her knots untied (a slack kink left)
@@ -64,5 +64,11 @@ other slimes see their own world). The client gets your record's bosses as `me.f
 - The characters who live by each place (`FREED` in `server/lore.js`: Moss; Truffle; Hakon, Skaldi, Runa and Tove;
   Acorn) get a line for a slime who has freed it (`freedFor`), so they don't describe it as stuck to the one who
   freed it. Their personas still describe the old state for everyone else: keep both in step.
+- **The Wickmother** (L5 (c), `docs/places/wickmother.md`; in `BOSS_TIER` at 0: the Fen adds no canon tier, she's in the
+  record for her changes only, so the story checks are `k in BOSS_TIER`, not truthy) → Wickmere's Lamp Walk burns low
+  (`drawWickmere`'s `freed`: a third of its lanterns out, their tags gone, Wren's husband's always among them), and the
+  Hall of Lamps' front door at the Causeway's end opens: a gate with `freed` drawn open, and a door with `freed` through
+  it, the one freed change that isn't drawing only (its slime state flag `fw`: `docs/netcode.md`). Wren, Hob, Sedge and
+  Netta know (`FREED.wickmother`).
 - Later, if wanted (plan): Ladon, Fenrir (the cutters finish the Long Stair), Typhon (the Foundry's pits go cold). The
   one world-wide flag stays for the finale (`story/delivery.md`).

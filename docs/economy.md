@@ -869,6 +869,21 @@ the mini Will-Queen 276k (between Chronos's 270k and the Sleeper's 282k), the mi
 `PETSHOP_W` 6050 → 6350. Nothing older moved but a few "vs farming" ratios at 168–170 (the new own-level farm). `--check`
 green.
 
+## Lantern Fen, L5 (c): the Wickmother, the fourth final boss (2026-11-12)
+FINAL BOSSES gains `wickmother`, fought at Lv 190 (`fightLvl`: her Lv 210 tag less `FINAL_LVL_OVER`), the first fight
+past 200 on a tag. Her written HP (158M) takes `BOSS_HP_SCALE`, her uptime share (`UPTIME_TOP`: she has challenges) and
+`hold` (0.75, new in `uptimeOf`: about a quarter of a party's damage goes on letting lanterns go or into the Hold), 56.88M
+live: a party of four kills her in ~26:24 (no potions), every three of them past the enrage (no Knight 33:50, no Priest
+37:04, no Frostbinder 39:16, no Sniper 37:12). The first try (190M, ATK 760) took 31:57 and the party drank 16 potions;
+HP 158M put it in `FINAL_PARTY_MIN`, ATK 700 brought the potions to 0 (Typhon's 600, Grandfather Mire's 700). Pay a
+member: 1.05x farming's EXP, 4.03x its gold an hour at Lv 190 (in `FINAL_PAY`). Her set (`last_wick` and twins, the
+Mothwing Hood) is on the frozen curve at Lv 199 (`swordPrice` 1.86M, `helmetPrice` 1.38M; `BOSS_GEAR.final` on the
+stats), a step above the Eldest's Lv 190 and Grandfather Mire's Lv 181. Her moths (`hall_moth`, Lv 190) pay little and
+drop only coins: they're adds. The **mini Wickmother** 312k, the Pet Shop's dearest (Grandfather Mire's 288k);
+`PETSHOP_W` 6350 → 6450 (the plinths needed 6366). Nothing else moved: mob farming, gold earned by and play time are as
+L5 (b) left them (a boss isn't in PROGRESS); the CLASSES table's toughness for one row (the Lv 30 Elementalist) went
+30 → 33 s because its boss's ATK is the dens' median against the curve and her den joined them. `--check` green.
+
 ## Lantern Fen, L5 (b): the Peat Barrows, past 180 (2026-11-12)
 The owner's note with L5: "don't be afraid to make the levels go past 200". The Peat Barrows (`docs/places/peatbarrows.md`, a
 deep room on hard-pocket rules) put four mobs on the frozen curve at 181–188 (past its last knot the curve is a power law,

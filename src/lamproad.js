@@ -10,11 +10,11 @@
 // down through the silk and follow you. Her wings beat slowly (WING_S): with each beat the lanterns sway, the silk
 // bellies and the dust comes down. The silk draws closed behind you over the way back (art only: the door back always
 // works). At the east end the Hall's inner door: a curtain of moth-silk across a doorway in the willow's root, moths
-// asleep on it, breathing with her wings and holding (until the den is there: WICK_DOOR_OPEN, then it parts by itself as
+// asleep on it, breathing with her wings and holding (until the den was there: WICK_DOOR_OPEN, since L5 (c); it parts by itself as
 // you come near), with a sign beside it: both levels (finalTag) and a live count of slimes on the road. Her one line
 // (WICK_LINE, sent by the server: say) is a bubble out of the light overhead.
 import { W, H, TAU, mulberry32, circle, clamp } from './util.js';
-import { LAMPROAD_EXIT_X, WICK_DEN_X, WICK_DEN, WICK_DEN_NAME, FEN_TOP, FINAL_MIN_PLAYERS, finalTag, FIELD_GROUND, DENS } from './shared/rpg.js';
+import { LAMPROAD_EXIT_X, WICK_DEN_X, WICK_DEN, WICK_DEN_NAME, FEN_TOP, FINAL_MIN_PLAYERS, finalTag, FIELD_GROUND, DENS, LAMP_FRONT_X } from './shared/rpg.js';
 import { glow as softGlow } from './glow.js';
 
 const GROUND = FIELD_GROUND;
@@ -79,6 +79,7 @@ export function drawLampRoad(ctx, camX, viewW, time, me, here) {
   for (const x of LANDINGS) if (x + 40 > L && x - 240 < R) drawFlight(ctx, x, k);
   drawSilk(ctx, camX, L, R, k, b, time, me ? me.x : camX + W / 2);
   drawDoor(ctx, nearK, b, time);
+  if (me?.fw && Math.abs(LAMP_FRONT_X - camX - viewW / 2) < viewW / 2 + 120) drawFrontWay(ctx, time); // (L5 (c): freed her)
   if (Math.abs(WICK_DEN_X - 260 - camX - viewW / 2) < viewW / 2 + 160) drawSign(ctx, WICK_DEN_X - 260, here, time);
   drawFloor(ctx, Math.max(0, L), R);
   if (LAMPROAD_EXIT_X + 360 > L) drawWayDown(ctx, k);
@@ -340,6 +341,40 @@ function drawDoor(ctx, near, b, time) {
 }
 
 // The sign by the door: the den's name, both levels (finalTag) and a live count of slimes here. A count, never a lock
+// L5 (c): for a slime who has freed her, a low way out through the Hall's outer roots (LAMP_FRONT_X) to its front door at
+// the Causeway's end: the silk that wove it shut lies cut and slack, night air and the causeway's lamps beyond
+function drawFrontWay(ctx, time) {
+  const x = LAMP_FRONT_X, top = GROUND - 150;
+  ctx.save();
+  ctx.fillStyle = '#0a0c18'; // (the night through the opening)
+  ctx.beginPath();
+  ctx.moveTo(x - 38, GROUND + 2);
+  ctx.lineTo(x - 36, top + 40);
+  ctx.quadraticCurveTo(x, top - 6, x + 36, top + 40);
+  ctx.lineTo(x + 38, GROUND + 2);
+  ctx.closePath();
+  ctx.fill();
+  for (let i = 0; i < 3; i++) glow(ctx, x - 16 + i * 16, top + 70 + i * 18, 9, 9, LAMP, 0.35 + 0.15 * Math.sin(time * 2 + i)); // (the causeway's lamps, far off)
+  ctx.strokeStyle = '#3a2c26'; // the roots framing it
+  ctx.lineWidth = 9;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x - 44, GROUND);
+  ctx.quadraticCurveTo(x - 44, top + 20, x, top + 4);
+  ctx.quadraticCurveTo(x + 44, top + 20, x + 44, GROUND);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(236,226,240,0.55)'; // the cut silk, hanging slack
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 5; i++) {
+    const sx = x - 30 + i * 15, sw = Math.sin(time * 0.8 + i) * 3;
+    ctx.beginPath();
+    ctx.moveTo(sx, top + 20);
+    ctx.quadraticCurveTo(sx + sw, top + 50, sx + sw * 1.6, top + 62 + (i % 2) * 14);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function drawSign(ctx, x, here, time) {
   ctx.fillStyle = ROOT_D;
   ctx.beginPath();

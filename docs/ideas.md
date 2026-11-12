@@ -158,5 +158,10 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   The art was seen once, in static screenshots, not in play.
 - **L5 (b) left for later:** nobody has walked the Peat Barrows or the Lamp Road, or seen their art by eye (a Node draw check
   only). Between Lv 180 and 190 the Peat Barrows is the only place to farm (the island-depth checklist wants two a slice: the
-  Citadel's pass is the second), and past 190 nothing new until the Citadel's pass. No room hazard in the Peat Barrows. The
-  Wickmother's fight (L5 (c)) waits for the owner's look at `story/l5-plan.md`.
+  Citadel's pass is the second), and past 190 nothing new until the Citadel's pass. No room hazard in the Peat Barrows.
+- **L5 (c) left for later** (`docs/places/wickmother.md`): nobody has fought the Wickmother or seen her, the Hall or her
+  rewards by eye (an offline brain tick-through and a fake-canvas draw check only): her poses, the lanterns' heights for
+  every class's reach, the moths' flight to the high lanterns, the Hold's HELD pop, the silk walls and phase 4's dark on
+  real slimes, the front door for a freed slime, the den on a phone. Her track wasn't rendered or measured offline. Old
+  Gullet, Long-Neck and Grandfather Mire aren't in the story record (no Fen tier), so only the Wickmother has freed changes
+  on the Fen.

@@ -4,6 +4,7 @@
 import { drawLadonPet } from './ladon-art.js';
 import { drawFenrirPet } from './fenrir-art.js';
 import { drawTyphonPet } from './typhon-art.js';
+import { drawWickPet } from './wick-art.js';
 import { TAU, circle, ellipse, mix } from './util.js';
 import { FURNITURE, WALLPAPERS, FLOORS, PET_SCALE } from './shared/house.js';
 import { MOBS } from './shared/rpg.js';
@@ -756,6 +757,7 @@ export function drawPet(ctx, kind, x, y, facing, walking, time, seed = 0, mood =
   if (kind === 'ladon') { ctx.scale(1 / PET_SCALE, 1 / PET_SCALE); drawLadonPet(ctx, 0, 0, facing, walking, time, seed); } // (its own art: src/ladon-art.js)
   else if (kind === 'fenrir') { ctx.scale(1 / PET_SCALE, 1 / PET_SCALE); drawFenrirPet(ctx, 0, 0, facing, walking, time, seed); } // (its own art: src/fenrir-art.js)
   else if (kind === 'typhon') { ctx.scale(1 / PET_SCALE, 1 / PET_SCALE); drawTyphonPet(ctx, 0, 0, facing, walking, time, seed); } // (its own art: src/typhon-art.js)
+  else if (kind === 'wickmother') { ctx.scale(1 / PET_SCALE, 1 / PET_SCALE); drawWickPet(ctx, 0, 0, facing, walking, time, seed); } // (its own art: src/wick-art.js)
   else if (MOBS[kind].boss) drawBoss(ctx, m, time);
   else drawMob(ctx, m, time);
   ctx.restore();

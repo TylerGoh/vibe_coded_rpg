@@ -283,4 +283,6 @@ export const sameCombo = (a, b) => Array.isArray(a) && a.length === b.length && 
 // The economy sheet's downtime (scripts/economy.mjs): a snared or carrying slime isn't hitting, so a boss with
 // challenges (`ch` on its MOBS row: the types it uses) takes longer by 1 / uptime. 1 for a boss without any yet.
 export const UPTIME_DEN = 0.9, UPTIME_TOP = 0.8;
-export const uptimeOf = (m) => (m?.ch?.length ? (m.top || m.final ? UPTIME_TOP : UPTIME_DEN) : 1);
+// (× hold: a boss whose own mechanic soaks a set share of a party's damage, the Wickmother's Hold, L5 (c): her lit
+// lanterns, and the hits spent letting them go)
+export const uptimeOf = (m) => (m?.ch?.length ? (m.top || m.final ? UPTIME_TOP : UPTIME_DEN) : 1) * (m?.hold ?? 1);

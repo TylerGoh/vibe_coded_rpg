@@ -11,6 +11,9 @@ export const BOSS_TIER = {
   ignis: 3, pyra: 3, hatchkeeper: 3, brenna: 3, typhon: 3,
   // the Aether Citadel (Tier 4: the endgame)
   colossus: 4, chronos: 4,
+  // Lantern Fen adds no canon tier (story/phase8-plan.md): its final boss is in the record only for her freed changes
+  // (the Hall's front door, Wickmere's Lamp Walk: docs/social/story.md)
+  wickmother: 0,
 };
 export const TOP_TIER = 4;
 
@@ -18,4 +21,4 @@ export const TOP_TIER = 4;
 export const tierOf = (story) => Object.keys(story ?? {}).reduce((t, k) => Math.max(t, BOSS_TIER[k] ?? 0), 0);
 
 // A saved record, cleaned: only bosses that give a tier, each with a sane time
-export const cleanStory = (s, now) => Object.fromEntries(Object.entries(s && typeof s === 'object' ? s : {}).filter(([k, at]) => BOSS_TIER[k] && Number.isFinite(at) && at > 0 && at <= now));
+export const cleanStory = (s, now) => Object.fromEntries(Object.entries(s && typeof s === 'object' ? s : {}).filter(([k, at]) => k in BOSS_TIER && Number.isFinite(at) && at > 0 && at <= now));

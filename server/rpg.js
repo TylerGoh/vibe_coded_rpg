@@ -130,6 +130,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     mobById: (id) => (id ? mobs.find((q) => q.id === id) : undefined), alive: (id) => mobs.some((q) => q.id === id && !q.dead),
     challenge: (m, type, opts) => chal.start(m, type, opts), chalSeen: (p, type) => chal.seen(p, type), // (T1a: its challenges, server/challenge.js)
     inRoom: (r) => inRoom(r),
+    mobsIn: (r) => mobs.filter((q) => q.room === r), // (L5: the Wickmother's moths see each other's lanterns)
     minionsOf: (m, kind) => mobs.filter((q) => q.minion && !q.dead && q.room === m.room && q.kind === kind).length,
     // a named add of its own (FB2: Skoll and Hati): a minion of kind `kind`, at x
     addAdd: (m, kind, x) => addAdd(m, kind, x),
@@ -721,10 +722,11 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       const q = players.get(qid);
       if (!q?.joined || q.state.room !== m.room || t - at >= (k.boss || k.field ? 600_000 : 20000)) continue;
       let scale = expFalloff(q.rpg.lvl, k) * (1 + (brewOf(q.rpg)?.exp ?? 0)) * (1 + stats(q).exp); // (a brewed EXP buff; a long buff's, SP1)
-      if (k.boss && BOSS_TIER[m.kind] && !q.rpg.story[m.kind]) { // atlas Phase 7: the first time you beat it goes in your story
+      if (k.boss && m.kind in BOSS_TIER && !q.rpg.story[m.kind]) { // atlas Phase 7: the first time you beat it goes in your story
         const was = tierOf(q.rpg.story);
         q.rpg.story[m.kind] = t;
         q.dirty = true;
+        if (m.kind === 'wickmother') q.state.fw = 1; // (L5 (c): the Hall's front door opens for you: sim.js doorOpen)
         if (tierOf(q.rpg.story) > was) setTimeout(() => q.joined && toast(q, STORY_TOAST), 4000); // (after the kill's own toasts)
       }
       if (k.final) fresh = true; // (FB1: no reward window on a final boss, owner 2026-10-26: every kill pays in full)
@@ -921,7 +923,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       const marked = m.mark && m.mark.until > now() - SHATTER_GRACE_MS ? 1 + m.mark.boost : 1; // Hunter's Mark (S4): everyone's hits
       const ps0 = m.partyOn ? partyHit(m, p.state.x) : null, ps = off && ps0 ? { ...ps0, shield: null } : ps0; // (a head is outside the bark and the roses)
       const weak = k.heads ? !!pt?.weak && !!ps?.weakOpen : !!h[4] && !!ps?.weakOpen && weakReach(weakOf(k, m.x, m.y, m.dir), p.state.y, arrow, 40);
-      const pm = (ps ? partyHitMult(ps, { magic, heavy: heavy || shatter, weak }) : 1) * (pt?.throat ? THROAT_MULT : 1);
+      const pm = (ps ? partyHitMult(ps, { magic, heavy: heavy || shatter, weak }) : 1) * (pt?.throat ? THROAT_MULT : 1) * (k.final && !off ? final.hold(m) : 1); // (L5: the Wickmother's Hold)
       const low = exec && m.hp <= m.maxHp * EXEC_AT * 1.05 ? exec : 1;
       const comb = combust && m.burn && m.burn.until > now() - SHATTER_GRACE_MS ? combust : 1; // (SP3: Combustion)
       if (comb > 1) { // (the burn is set off: spent)
@@ -934,7 +936,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       const hit = prop ? [m.id, dmg, h[2] ? 1 : 0, 0] : damage(m, dmg, !!h[2], id, p, Math.sign(m.x - p.state.x) || dir, knock, src);
       if (shatter) hit.push(1);
       if (!prop && !m.dead && k.ch) chal.hitLanded(m, id, p); // (A21: its weak spot up high)
-      if ((pt?.head || pt?.stump || prop) && !m.dead) final.hitHead(m, pt, dmg, id, p, { fire: fire || el === 'fire' || dot?.kind === 'burn', throatFill: THROAT_FILL, frost: el === 'frost' }); // (fire seals a stump, relights a lantern; frost crusts a plate)
+      if ((pt?.head || pt?.stump || prop) && !m.dead) final.hitHead(m, pt, dmg, id, p, { fire: fire || el === 'fire' || dot?.kind === 'burn', throatFill: THROAT_FILL, frost: el === 'frost', holy: fire }); // (fire seals a stump, relights a lantern; frost crusts a plate; L5: holy or frost lets a hall lantern go)
       if (ps && !m.dead && !prop) partyHitLanded(m, dmg, { magic: magic && !off, heavy: (heavy || shatter) && !cracked.has(m) && !off, weak, onShield: ps.onShield && !off }) && cracked.add(m);
       if (el && !m.dead && !prop) element(m, el, dmg, id, shatter);
       if (dot && !m.dead && !prop) dotOn(m, dot.kind, dmg * dot.share, id);
@@ -2173,7 +2175,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   }
   function ultGoesOff(m, k, t) {
     const u = m.ult;
-    const lasts = u.kind === 'wave' || u.kind === 'lastpour' ? (DEN_W / (u.speed ?? WAVE_SPEED)) * 1000 + 600 : u.kind === 'overclock' ? u.gap * 2000 + 900 : u.kind === 'timestop' ? u.still * 1000 + 700
+    const lasts = u.kind === 'wave' || u.kind === 'lastpour' || u.kind === 'night' ? (DEN_W / (u.speed ?? WAVE_SPEED)) * 1000 + 600 : u.kind === 'overclock' ? u.gap * 2000 + 900 : u.kind === 'timestop' ? u.still * 1000 + 700
       : u.kind === 'collapse' ? (DEN_W / u.speed) * 1000 + 700 : 1500;
     if (u.kind === 'rebirth') {
       m.egg = null;

@@ -168,7 +168,7 @@
 //   shields, with the cracks as a 5th element) · a hit's h[4] may be 2 + slot (aimed at that head or its stump) ·
 //   ouch kinds bite and coil · boss events watch {to}, bite {slot, tx, dur}, biteHit {slot, tx}, coil {dur},
 //   coilStep {n, dir}, headFall {slot, hx, hy}, regrow {slot, also}, seal {slot}, gaze {dur}, finalRage; ultWarn /
-//   ultHit kinds heads {gaps} and strangle. Every 'final' message has fb ('ladon' | 'fenrir' | 'typhon': whose it is).
+//   ultHit kinds heads {gaps} and strangle. Every 'final' message has fb ('ladon' | 'fenrir' | 'typhon' | 'wickmother': whose it is).
 //   Fenrir (FB2, server/fenrir.js): ← {t:'final', fb:'fenrir', id, ph, enr, rc (the reach, px from the middle), po (its
 //   pose), an: [[state 'h'|'c'|'s', ring %, ms]], ln: [[lit 1|0, ring %]]} · h[4] = 2 + slot: an anchor (0–3) or a
 //   lantern (4–9) · boss events lunge {tx, dur, rc} / lungeHit {tx}, claw {x0, x1, dur} / clawHit, strain {slot, dur,
@@ -181,6 +181,12 @@
 //   bulge {i, dur} / burst {i}, sweep {x0, x1, warn, dur}, inhale {dur} / inhaleOut / inhaleBroken, crust {i, by},
 //   ventOpen {slot}, ladle {tip}, unburied, brood {px}; beam styles hearth (Fire Breath) and vent (a vent's blast);
 //   ultWarn / ultHit kinds eruption {dark, safe, noFreeze} and lastpour {dir, x0, speed, safe}.
+//   The Wickmother (L5 (c), server/wickmother.js): ← {t:'final', fb:'wickmother', id, ph, enr, po (her pose), sw (the silk
+//   walls' reach from each end, px), kd (the lantern she's kindling, -1: none), lp: [[state 'l'|'o'|'p', ring %, ms]] (the
+//   eight hall lanterns)} · h[4] = 2 + slot: a hall lantern (0–7) · boss events stoop {tx, dur, r} / stoopFeint {tx} /
+//   stoopHit {tx, r}, kindle {i, dur} / kindleStopped {i}, lampOut / lampLit {i, by, party, who}, silkStep {n, dir}, moths
+//   {px}, mothRelight {i, sid, dur} / mothStopped {i}, draw {dur} / drawn / drawBroken, lastLight; beam style silk (Silk
+//   Line); ultWarn / ultHit kinds souls {dark, safe} and night {dir, x0, speed}.
 //   The Cleric's summons (S3, server/summons.js): ← {t:'summons', s: [[id, what, owner, x, y, hp, maxHp, dir]]}
 //   ~20 Hz to rooms with any (an empty one when the last goes) · ← {t:'sumhit', h: [[summonId, hits]]} ·
 //   ← {t:'sumhurt', id, dmg} · ← {t:'sumgone', id, how: 'faded'|'broke', x, y}. A skill echo may carry
@@ -702,6 +708,7 @@ async function login(id, p, m) {
   state.home = houses.homeOf(acc.user);
   if (old) p.invites = old.invites;
   if (!p.rpg) rpg.load(p);
+  state.fw = p.rpg.story?.wickmother ? 1 : 0; // (L5 (c): freed the Wickmother: the Hall's front door opens for you)
   sandbox?.login(p, old);
   if (!old && sandbox) placeAt(state, ARENA, ARENA_SPAWN_X + Math.floor(Math.random() * 120)); // (the sandbox: always the Training Yard)
   else if (!old) {

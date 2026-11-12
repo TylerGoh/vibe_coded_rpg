@@ -39,7 +39,8 @@ landmark in every sky in `src/distant.js` (`drawLanternFen`, the `fen` view), th
   Forgehold: stilt houses on a boardwalk over black still water, a lantern in every window. West to east:
   **Reedwater's jetty** with the Hush tied up alongside (her gangway, `WICK_DOCK_X`, boards `FEN_HOME`) and **Netta's
   eel boxes** (a platform), the **waystone** on the landing, **Wren's lamp stall** where **the Lamp Walk** begins (a
-  lantern post every few steps along the boardwalk, each with a name tag on a string, every one lit), **the great
+  lantern post every few steps along the boardwalk, each with a name tag on a string, every one lit; for a slime who has
+  freed the Wickmother it burns low, a third of them out and their tags gone, Wren's husband's among them: `docs/places/wickmother.md`), **the great
   lantern stand** on its landing (you wake by it, `WICK_SPAWN_X`), **the stilt house whose door is everyone's own
   front door** (`WICK_HOME_X`; its balcony is a platform, like the other houses'), **the lantern gallery** (a plank
   walkway on two tall poles, hung with lanterns: a platform), **Ferryman Hob's punt** (drawn up on the boards until L2;

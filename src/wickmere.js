@@ -22,6 +22,11 @@ const plat = (kind) => plats(kind)[0];
 // the Lamp Walk's posts, kept clear of the stall, the lantern stand, the home door, Hob's punt and Sedge's shed
 const POSTS = Array.from({ length: 22 }, (_, i) => 880 + i * 70).filter((x) => ![[WICK_HOME_X, 50], [WREN_X, 80], [WICK_SPAWN_X, 60], [STILLMERE_GATE_X, 80], [SEDGE_X, 130]].some(([c, r]) => Math.abs(x - c) < r));
 
+// freed (L5 (c)): the posts whose lanterns have gone out (a seeded third of them, and always the one nearest Wren's stall:
+// her husband's)
+const WREN_POST = POSTS.reduce((b, x) => (Math.abs(x - WREN_X - 90) < Math.abs(b - WREN_X - 90) ? x : b), POSTS[0]);
+const OUT_POSTS = new Set(POSTS.filter((x) => x === WREN_POST || mulberry32(Math.round(x) + 77)() < 0.3));
+
 function text(ctx, str, x, y, size, color) {
   ctx.font = `700 ${size}px Fredoka, 'Trebuchet MS', sans-serif`;
   ctx.textAlign = 'center';
@@ -48,7 +53,9 @@ const mists = (() => {
 })();
 
 // Everything in Wickmere behind the slimes
-export function drawWickmere(ctx, camX, viewW, time) {
+// freed: you've freed the Wickmother (L5 (c), docs/social/story.md): for you the Lamp Walk burns low, a few of its lanterns
+// out and their tags gone (OUT_POSTS: Wren's husband's, the one nearest her stall, among them)
+export function drawWickmere(ctx, camX, viewW, time, freed = false) {
   ctx.save();
   ctx.translate(camX, 0); // the sky and the far mere in screen space
   drawFenSky(ctx, camX, time, WICK_W);
@@ -61,7 +68,7 @@ export function drawWickmere(ctx, camX, viewW, time) {
   if (visible(g.x - 40, g.x + g.w + 40, L, R)) drawGallery(ctx, g, time);
   const bx = plat('boxes');
   if (visible(bx.x - 20, bx.x + bx.w + 20, L, R)) drawEelBoxes(ctx, bx, time);
-  for (const x of POSTS) if (visible(x - 30, x + 30, L, R)) drawLampPost(ctx, x, time);
+  for (const x of POSTS) if (visible(x - 30, x + 30, L, R)) drawLampPost(ctx, x, time, freed && OUT_POSTS.has(x), freed);
   if (visible(WREN_X - 120, WREN_X + 140, L, R)) drawWrenStall(ctx, time);
   if (visible(WICK_SPAWN_X - 80, WICK_SPAWN_X + 80, L, R)) drawLampStand(ctx, WICK_SPAWN_X, time);
   if (visible(SEDGE_X - 160, SEDGE_X + 160, L, R)) drawReedShed(ctx, time);
@@ -328,7 +335,8 @@ function drawEelBoxes(ctx, p, time) {
 }
 
 // A lantern post on the Lamp Walk: a lantern hung off its crook, and a name tag on a string turning in the draught
-function drawLampPost(ctx, x, time) {
+// (out: let go, L5 (c), for a slime who freed her: cold glass, no tag; low: the rest burn a little lower for them)
+function drawLampPost(ctx, x, time, out = false, low = false) {
   const r = mulberry32(Math.round(x));
   const warm = r() < 0.75, hh = 104 + r() * 20, top = GROUND - hh;
   ctx.fillStyle = '#4a4058';
@@ -340,19 +348,22 @@ function drawLampPost(ctx, x, time) {
   ctx.quadraticCurveTo(x + 12, top - 8, x + 16, top + 6);
   ctx.stroke();
   const ly = top + 18, sw = Math.sin(time * 1.2 + x) * 1.5;
-  const g = ctx.createRadialGradient(x + 16 + sw, ly, 2, x + 16 + sw, ly, 40);
-  g.addColorStop(0, warm ? `rgba(255,214,150,${0.42 + 0.1 * Math.sin(time * 2.3 + x)})` : 'rgba(214,190,255,0.4)');
-  g.addColorStop(1, 'rgba(255,214,150,0)');
-  ctx.fillStyle = g;
-  ctx.fillRect(x - 24 + sw, ly - 40, 80, 80);
+  if (!out) {
+    const dim = low ? 0.7 : 1, g = ctx.createRadialGradient(x + 16 + sw, ly, 2, x + 16 + sw, ly, 40);
+    g.addColorStop(0, warm ? `rgba(255,214,150,${(0.42 + 0.1 * Math.sin(time * 2.3 + x)) * dim})` : `rgba(214,190,255,${0.4 * dim})`);
+    g.addColorStop(1, 'rgba(255,214,150,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - 24 + sw, ly - 40, 80, 80);
+  }
   ctx.fillStyle = '#2e2a3a';
   ctx.beginPath();
   ctx.roundRect(x + 10 + sw, ly - 9, 12, 17, 3);
   ctx.fill();
-  ctx.fillStyle = warm ? '#ffe2a8' : '#e4d4ff';
+  ctx.fillStyle = out ? '#4a4660' : warm ? '#ffe2a8' : '#e4d4ff';
   ctx.beginPath();
   ctx.roundRect(x + 12.5 + sw, ly - 6.5, 7, 12, 2);
   ctx.fill();
+  if (out) return; // (its tag gone with its light)
   const ta = Math.sin(time * 0.9 + x * 0.1) * 0.5; // the name tag, turning on its string
   ctx.strokeStyle = 'rgba(200,190,170,0.7)';
   ctx.lineWidth = 0.8;
