@@ -238,7 +238,9 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   **the Will-Queen** drops **Queenlight** (twins: the **Queenlight Staff**, the **Queenlight Bow**) and the **Will-Queen's
   Veil** (Lv 178), and Grandfather Mire (a `top` party den) **Grandfather's Promise** (twins: the **Toadstone Staff**, the
   **Long-Promise Bow**) and **Grandfather's Cap** (Lv 181, 10 slots, with effects, below) (art `src/causeway-art.js`,
-  `CAUSEWAY_*`; `docs/places/causeway.md`). The Citadel's C0: **the Siege Engine** (field) drops the **Siege Ram** (twins:
+  `CAUSEWAY_*`; `docs/places/causeway.md`). The Citadel's C3: **Number Nine** (`SHOPS.nine`, aim 185) sells the **Stoker's Slice-Bar**, the **Damper Rod**, the **Firegrate
+  Bow** and the **Stoker's Goggles** (Lv 181), and **the Stormcoil** (field) drops the **Coil Lance** (twins: the **Coil Staff**,
+  the **Arc Bow**) and the **Stormcoil Helm** (Lv 188; art `src/engine-art.js`, `ENGINE_*`; `docs/places/engine.md`). The Citadel's C0: **the Siege Engine** (field) drops the **Siege Ram** (twins:
   the **Siege Staff**, the **Siege Bow**) and the **Siege Helm** (Lv 156), and **the Commissary** sells the **Bastion
   Guard's Saber**, **Staff**, **Bow** and **Helm** (Lv 146, aim 150) (art `src/bastion-art.js`, `BASTION_*`;
   `docs/places/citadel.md`). C1: **Meridian** drops **Meridian's Arm** (twins: the **Orrery Staff**, the **Ecliptic Bow**) and

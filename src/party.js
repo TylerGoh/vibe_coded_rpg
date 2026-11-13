@@ -290,6 +290,7 @@ function drawFocus(ctx, v, k, s, t, me) {
 // plume of it off its smokestacks, "STEAM")
 const PULSES = {
   heat: { ring: '255,118,40', glow: '255,150,60', hit: '255,96,30', word: 'HEAT', fill: '#fff1d6', edge: 'rgba(70,18,4,0.85)', shimmer: true },
+  arc: { ring: '150,240,234', glow: '190,250,246', hit: '120,220,230', word: 'ARC', fill: '#ffffff', edge: 'rgba(20,40,52,0.85)' }, // (the Stormcoil's charge, the Citadel's C3)
   steam: { ring: '214,224,230', glow: '236,242,246', hit: '196,208,218', word: 'STEAM', fill: '#ffffff', edge: 'rgba(70,44,30,0.85)', foam: true, plume: true },
   violet: { ring: '176,110,255', glow: '190,130,255', hit: '160,100,250', word: 'PULSE', fill: '#f1e4ff', edge: 'rgba(40,20,70,0.75)' },
   tide: { ring: '80,196,214', glow: '120,220,232', hit: '60,170,206', word: 'TIDE', fill: '#e2fbff', edge: 'rgba(8,48,66,0.78)', foam: true },

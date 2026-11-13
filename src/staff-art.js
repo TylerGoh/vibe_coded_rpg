@@ -69,6 +69,8 @@ export const STAFFS = {
   blackglass_staff: { len: 64, shaft: ['#6a6470', '#36323c'], w: 2.8, head: 'crystal', gem: '#3a3446', gem2: '#8ad0c0', glow: '160,230,215' },
   // the Citadel's depth pass, C0 (docs/places/citadel.md): the Commissary's issue and the Siege Engine's
   guard_staff: { len: 64, shaft: ['#f0c470', '#c8904a'], w: 2.8, head: 'lantern', gem: '#9ff0ea', gem2: '#8a5a2e', glow: '150,240,234' },
+  damper_rod: { len: 66, shaft: ['#5a5460', '#2e2a32'], w: 2.8, head: 'crook', gem: '#9ff0ea', gem2: '#c8904a', glow: '150,240,234' }, // (Number Nine's issue, C3: a damper rod, its hook)
+  coil_staff: { len: 70, shaft: ['#c8e8f0', '#5a8a9a'], w: 3, head: 'ring', gem: '#e8fffc', gem2: '#c87a3a', glow: '150,240,234' }, // (the Stormcoil's, C3: copper wound round its glass head)
   archivist_pointer: { len: 66, shaft: ['#3a3236', '#1e1a20'], w: 2.6, head: 'pointer', gem: '#f0c470', gem2: '#8a5a2e', glow: '255,236,200' }, // (Folio's issue, C2: a reading-room pointer, a brass tip)
   stamp_staff: { len: 70, shaft: ['#f0c470', '#8a5a2e'], w: 3.2, head: 'stamp', gem: '#c8302a', gem2: '#5a3a2a', glow: '255,140,120' }, // (the Indexer's, C2: a long brass stamp, its red die)
   orrery_staff: { len: 70, shaft: ['#f0c470', '#8a5a2e'], w: 3, head: 'ring', gem: '#d6e4ff', gem2: '#5a6aa8', glow: '214,228,255' }, // (Meridian's, C1: three little rings round a bead of star-glass)

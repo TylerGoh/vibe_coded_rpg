@@ -27,7 +27,8 @@ waystones keep working; the branches open off it through gates. West to east:
   whose three lock rings turned by themselves and never lined up; **C1 stopped them**: now an `entry`, drawn lined up and
   open, its door in `ROOMS[CITADEL]`: `docs/places/orrery.md`), **the Last Echo** (`ECHO_X`, AI, a Keeper's echo:
   `docs/places/orrery.md`), **the Engine Halls' blast door** (`ENGINE_GATE_X`,
-  gate `blastdoor`: steam jetting from its seams, a turbine glowing through its porthole; C3) and **the stair above the
+  `blastdoor`: steam jetted from its seams, a turbine glowing through its porthole; **C3 opened it**: now an `entry`, drawn
+  open on a turbine turning, its door in `ROOMS[CITADEL]`: `docs/places/engine.md`) and **the stair above the
   Hour Sanctum** (`BELLS_GATE_X`, gate `frozenrain`: rain hanging on the steps, every drop stopped; C4, the Bell Walks).
 - The Keel's far end (the way down to the Undercroft, C6) is in a room that doesn't exist yet: the `undercroft` node is
   `past`. Each gate's draw function takes an `open` flag (the F3 pattern), so shipping a branch is data plus its rooms.
@@ -37,8 +38,8 @@ waystones keep working; the branches open off it through gates. West to east:
 ## The island map
 `CITADEL_MAP` (`ISLAND_MAPS.citadel`, `docs/ui/world-map.md`): the Skydocks Camp (town), the Skydocks, the Bastion and the
 Spire (room 13's zones, `zr: CITADEL`), the Keepers' Gardens (open), the Orrery (open since C1), the Archive (open since C2),
-and dashed with their block: the Keel (hatch jammed, hard), the Undercroft (below the Keel, hard), the Engine Halls
-(venting steam), the Bell Walks (frozen rain). Bands on the dashed nodes follow the plan, stretched past 200 at the owner's
+the Engine Halls (open since C3), and dashed with their block: the Keel (hatch jammed, hard), the Undercroft (below the Keel,
+hard), the Helm (its bulkhead sealed, off the Engine Halls: C4), the Bell Walks (frozen rain). Bands on the dashed nodes follow the plan, stretched past 200 at the owner's
 note (2026-11-12): the Keel 188–200, the Bell Walks 195–208, the Undercroft 205–215; the plan's revision says the rest.
 
 ## The Siege Engine (field boss, Lv 154)
@@ -61,6 +62,8 @@ notes the shut ways as stores matters; it knows nothing of Keepers, wheels or th
 cap: like the Dockwarden it has no canon to give. Plan decision 6 (traders are automata still on duty) stands.
 
 ## Decisions and history
+- 2026-11-13: C3 built (the Engine Halls, the Stormcoil, Number Nine: `docs/places/engine.md`); the Last Echo knows the blast
+  door opened and asks after Nine; the Helm's gate (`bulkhead`) is laid in the Engine Halls.
 - 2026-11-13: C2 built (the Archive, the Indexer, Folio: `docs/places/archive.md`); the Commissary says the shutter went up
   and knows of Folio.
 - 2026-11-13: C1 built (the Orrery, Meridian, the Last Echo: `docs/places/orrery.md`); the Commissary heard the lock stop and logs
@@ -71,4 +74,5 @@ cap: like the Dockwarden it has no canon to give. Plan decision 6 (traders are a
   code (owner's rule: no headless bot tests).
 - The Dockwarden's persona now mentions the Commissary. No other persona lists the Citadel's shut ways yet; when a branch
   ships, add it to the Commissary's (it names the Foundry's hatch; since C1 it notes the star-hall's lock has stopped, since C2 that the Archive's shutter went up). The Last
-  Echo (C1) remembers the Spire's other two shut ways as they were in the Stopped Hour: keep it in step when they open.
+  Echo (C1) remembers the Spire's other two shut ways as they were in the Stopped Hour: keep it in step when they open (since C3
+  it knows the blast door opened; the rain on the stair is left).

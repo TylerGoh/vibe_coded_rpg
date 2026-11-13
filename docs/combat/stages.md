@@ -131,6 +131,11 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
 39. **The Archive**: the Citadel's C2, the Keepers' records down the stair off Cogwork Bastion (Lv 165–178, a waystone and
    Folio's desk in the Reading Room; `docs/places/archive.md`). Page swarms (plain fliers), ink slimes (`trail`, the new
    puddle style `ink`), binder automata (`shell`), index moths (`dive`); the Indexer's den at its east end. No new brains.
+40. **The Engine Halls**: the Citadel's C3, through the Spire's blast door (Lv 175–190, a waystone and Number Nine in the
+   Boiler Gallery; `docs/places/engine.md`). Stoker automata (`lob`, the new style `cinder`), arc jellies (`beam` fliers,
+   the new style `arc`), governor balls (`stomp`); the Stormcoil (field boss, Lv 186: `beam` style `arc`, rings, late
+   tells). A room hazard: the turbine blades through the catwalk floor, on a cycle like the gusts (`TURBINES`,
+   `turbineAt`). No new brains.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

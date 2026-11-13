@@ -39,7 +39,9 @@ cogling's, chrono wraith's and sentry drone's voices, Meridian the Colossus's); 
 slot 88: a hush in D dorian, a soft plucked figure like pages turned one at a time, a clock ticking a beat late, now and
 then a rustle that rises instead of falling) and the Indexer's den (`indexer`, slot 89: D minor at a brisk four, a dry
 clatter of keys on every step, a stamp on the beat, drawers slammed in at full intensity; the Archive's mobs borrow the
-wisp's, magma slug's, golem's and cinder bat's voices, the Indexer the Colossus's); L5 (b)'s Peat Barrows (`peatbarrows`, slot 82: D minor, slower and lower than the Sunk Barrows, the music box further off, a spade into peat with
+wisp's, magma slug's, golem's and cinder bat's voices, the Indexer the Colossus's); C3: the Engine Halls (`engine`, slot 90: A minor at a steady mechanical four, pumping
+pistons, a pinging rivet, a turbine whooshing round every other bar, and Number Nine's slow hummed tune over it; the halls'
+mobs borrow the golem's, wisp's and cogling's voices, the Stormcoil the Colossus's); L5 (b)'s Peat Barrows (`peatbarrows`, slot 82: D minor, slower and lower than the Sunk Barrows, the music box further off, a spade into peat with
 nobody there, drips, a papery flutter of wings) and the Lamp Road (`lamproad`, slot 83: a music box waltz in A minor over a
 held note, the pad and its left hand falling away the higher you climb, its notes ringing longer, her wingbeat a deep whump
 every two bars, louder near the top: `audio.setDepth` from `roadDepth` in `src/lamproad.js`; the Peat Barrows' mobs borrow

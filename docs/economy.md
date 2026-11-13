@@ -883,6 +883,19 @@ farming gold / EXP (`FIELD_PAY`). Its set a step over (Lv 156: the Siege Ram and
 859k, `helmetPrice`), on the curve × `BOSS_GEAR.field`; Siege Bolt 1,490. Its pet 248.5k, between the Colossus's (248k, Lv
 150) and the Bog Bloat's (249k, Lv 158); `PETSHOP_W` 6450 → 6600. Nothing else moved. `--check` green on the first run.
 
+## The Citadel's depth pass, C3 (2026-11-13)
+The Engine Halls (`docs/places/engine.md`) put three mobs on the frozen curve, read off the Fen's deep room at the same
+levels: the stoker automaton (177, HP 96%, a `lob` shooter), arc jelly (182, 87% for a `beam` flier) and governor ball (187,
+93%, a `stomp`er); EXP 100%, gold 100% (coins between the Fen's neighbours; materials on the ladder: Aether-Coke 1,725, Arc
+Filament 1,775, Governor Weight 1,825, so "farming your own level" still picks the dusk moth from 188). **Gold earned by and
+play time are unchanged** (gold earned by Lv 190–220 ~1k lower). **The Stormcoil** (field, Lv 186): written HP 4.35M, ATK 625,
+EXP 713k, coins 83.6–120.9k (the Will-Queen's ×1.1); the sheet solos it in a median ~3:11 and it pays 1.42× / 1.60× a minute of
+farming (`FIELD_PAY`; the Siege Engine 1.57× / 1.68×), a kill ~435k: the Coil Lance and twins (Lv 188, 1.6M) and the Stormcoil
+Helm (Lv 188, 1.21M) on the curve × `BOSS_GEAR.field`. **Number Nine**'s tier, aimed at Lv 185 (`lvl` 181 on the gear curve):
+the Stoker's Slice-Bar (and its staff and bow twins) 330k, ~21 min of farming at the aim, the Stoker's Goggles 254k, ~16 min.
+Its pet 300k, between Grandfather Mire's (288k, Lv 179) and the Wickmother's (312k); `PETSHOP_W` 6900 → 7050 (the plinths
+need 6986). `--check` green.
+
 ## The Citadel's depth pass, C2 (2026-11-13)
 The Archive (`docs/places/archive.md`) puts four mobs on the frozen curve, read off the Fen's at the same levels: the page
 swarm (166, HP 93% for a flier), ink slime (169, 95%, a `trail` dropper), binder automaton (173, 120% like every `shell` mob)

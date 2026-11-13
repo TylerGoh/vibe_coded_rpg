@@ -284,6 +284,8 @@ its HP in thirds (`fieldStage`).
     you down into the peat (`mash`, `PAL.peat`).
   - **The Will-Queen** (L4, from day one): rings of wisp-light (`rings`, style `wisplight`), and from her second third a
     slow light that turns you round (`swap`, the controls swap: what a will-o'-wisp does to travellers).
+  - **The Stormcoil** (the Citadel's C3, from day one, `docs/places/engine.md`): rings of sparks from the start (`rings`,
+    style `spark`) and late tells from its second third (`late`).
   - **The Siege Engine** (the Citadel's C0, from day one, `docs/places/citadel.md`): an empty wind-up now and then, the
     real bolt after (`feint`, the lob's), and from its second third rings of bolts with a gap (`rings`, style `bolt`).
   - **The Sprout King and Mother Mushroom** (`bossBrain`): the gentle first meeting: a snare of three arrows (`snareLen`)

@@ -38,7 +38,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 6900; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) and the mini Indexer (C2, 6856): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 7050; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) and the mini Stormcoil (C3, 6986): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -139,7 +139,7 @@ export const KEEL_GATE_X = 2080; // the Grand Foundry's maintenance hatch, clamp
 export const SPIRE_WAY_X = 2760; // the Spire's waystone
 export const ORRERY_GATE_X = 3020; // the Orrery's door (its combination lock turned by itself until C1 stopped it: the way into ORRERY)
 export const ECHO_X = 3250; // the Last Echo, a Keeper's echo on the Spire's floor between the Orrery's door and the blast door (C1)
-export const ENGINE_GATE_X = 3520; // the Engine Halls' catwalk, a blast door venting steam (C3)
+export const ENGINE_GATE_X = 3520; // the Engine Halls' catwalk (its blast door vented steam until C3 opened it: the way into ENGINE)
 export const BELLS_GATE_X = 4180; // the stair above the Hour Sanctum, frozen rain hanging on it (C4)
 export const CITADEL_ZONES = [
   { name: 'Cogwork Bastion', x0: 0, x1: 2400, lvl: '140–155' },
@@ -574,6 +574,53 @@ export const ARCHIVE_PLATFORMS = [
   { x: 3760, y: 248, w: 170, kind: 'gallery' },
   { x: 1110, y: 178, w: 100, kind: 'ledger' }, // the ledger on the top of the tallest stack, the names scratched out: easy to miss
 ];
+// ——— the Citadel's depth pass, C3 (story/citadel-plan.md; docs/places/engine.md) ———
+// The Engine Halls (room 90): the engines that keep the city in the sky, through the blast door in the Chrono Spire
+// (ENGINE_GATE_X: it stopped venting in C3). Huge aether turbines behind glass burning blue, catwalks over a drop to the
+// clouds, wind through every grating. You come in at the WEST end, in the Boiler Gallery (no mobs): the Engine Halls'
+// waystone and Number Nine at its furnace. West to east: the Stoke Hold, the Turbine Walk (the turbine blades: TURBINES)
+// and the Governor's Deck, where the Stormcoil hangs loose (a field boss) and the Helm's bulkhead is sealed at the far end
+// (HELM_GATE_X: the Helm, C4). The find (last in ENGINE_PLATFORMS): up on the top gantry, the engine-room telegraph.
+export const ENGINE = 90; // room id
+export const ENGINE_W = 4800;
+export const ENGINE_EXIT_X = 70; // back out through the blast door to the Spire
+export const ENGINE_WAY_X = 240; // the Engine Halls' waystone, in the Boiler Gallery
+export const NINE_X = 520; // Number Nine, at its furnace (it trades: SHOPS)
+export const HELM_GATE_X = 4580; // the Helm's bulkhead, sealed while the city is under way (C4)
+export const ENGINE_ZONES = [
+  { name: 'The Boiler Gallery', x0: 0, x1: 700, lvl: null }, // (no mobs)
+  { name: 'The Stoke Hold', x0: 700, x1: 2000, lvl: '175–180' },
+  { name: 'The Turbine Walk', x0: 2000, x1: 3400, lvl: '180–185' },
+  { name: "The Governor's Deck", x0: 3400, x1: ENGINE_W, lvl: '185–190' },
+];
+// the catwalks and gantries over the drop; the telegraph on the top gantry (hidden)
+export const ENGINE_PLATFORMS = [
+  { x: 820, y: 344, w: 190, kind: 'catwalk' },
+  { x: 1180, y: 262, w: 180, kind: 'gantry' },
+  { x: 1560, y: 340, w: 200, kind: 'catwalk' },
+  { x: 2060, y: 300, w: 170, kind: 'catwalk' },
+  { x: 2520, y: 262, w: 190, kind: 'gantry' },
+  { x: 3000, y: 330, w: 200, kind: 'catwalk' },
+  { x: 3560, y: 300, w: 200, kind: 'catwalk' },
+  { x: 4000, y: 250, w: 180, kind: 'gantry' },
+  { x: 1220, y: 176, w: 96, kind: 'telegraph' }, // the engine-room telegraph on the top gantry, its handle stopped: easy to miss
+];
+// The turbine blades (a room hazard, like the Skydocks' gusts): where the great turbines' blades come round through slots in
+// the catwalk floor. On each one's own offset in a TURBINE_CYCLE the turbine spins up (TURBINE_WARN: the slot glows, the
+// grating shakes), the blades sweep through (TURBINE_SPIN: they hurt whoever stands on the floor over them, TURBINE_DOT of
+// max HP every PATCH_HIT_EVERY ticks) and it slows. Both sides read the server tick (turbineAt), so nothing goes over the
+// wire; a flat 'dot' (no knockback), so no step() change. Get up on a catwalk, or wait it out.
+export const TURBINES = [{ x: 2300, w: 200 }, { x: 2860, w: 220 }, { x: 3320, w: 200 }, { x: 3900, w: 200 }];
+export const TURBINE_CYCLE = 480, TURBINE_WARN = 110, TURBINE_SPIN = 90; // (ticks)
+export const TURBINE_DOT = 0.05;
+// turbine i at server tick t → { k: 0..1 how fast it's turning, spin: whether the blades are through the floor (and hurt) }
+export function turbineAt(i, t) {
+  const c = (((t + i * 151) % TURBINE_CYCLE) + TURBINE_CYCLE) % TURBINE_CYCLE;
+  if (c < TURBINE_WARN) return { k: c / TURBINE_WARN, spin: false };
+  if (c < TURBINE_WARN + TURBINE_SPIN) return { k: 1, spin: true };
+  if (c < TURBINE_WARN + TURBINE_SPIN + 60) return { k: 1 - (c - TURBINE_WARN - TURBINE_SPIN) / 60, spin: false };
+  return { k: 0, spin: false };
+}
 export const WICK_DEN_NAME = 'The Hall of Lamps';
 export const LAMP_FRONT_X = WICK_DEN_X - 420;
 export const WICK_LINE = 'Who are you carrying? ...No one? Then why have you come so far?';
@@ -1438,6 +1485,7 @@ export const STAGES = {
   [GARDENS]: { name: "The Keepers' Gardens", zones: GARDENS_ZONES, band: '145–152', pill: "Keepers' Gardens" }, // (the Citadel, C0)
   [ORRERY]: { name: 'The Orrery', zones: ORRERY_ZONES, band: '160–170', pill: 'The Orrery' }, // (the Citadel, C1)
   [ARCHIVE]: { name: 'The Archive', zones: ARCHIVE_ZONES, band: '165–178', pill: 'The Archive' }, // (the Citadel, C2)
+  [ENGINE]: { name: 'The Engine Halls', zones: ENGINE_ZONES, band: '175–190', pill: 'Engine Halls' }, // (the Citadel, C3)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -3432,6 +3480,43 @@ MOBS.indexer = {
   drops: [['royal_sap', 1, 2, 3], ['indexer_spike', 1, 1, 1], ['drawer_crown', 0.6, 1, 1], ['coin', 1, 280000, 420000], ['mega_elixir', 1, 4, 6], ['last_card', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
+// ——— the Citadel's depth pass, C3: the Engine Halls (art: src/engine-art.js; docs/places/engine.md). On the frozen curve,
+// read off the Fen's deep room at the same levels; no elites ———
+// Stoker automata are the halls' firemen, squat iron machines with a shovel for one arm and a furnace door in the chest,
+// still feeding the engines; they shovel a scoop of burning aether-coke at you (`lob`, style `cinder`). Arc jellies are
+// sparks of loose aether gone soft and round, drifting over the catwalks trailing filaments, that throw a crackling arc
+// along the grating (`beam`, style `arc`: the sentry drone's). Governor balls are the engines' flyweight governors come off
+// their spindles, two heavy brass balls on a bent arm, that bound along the deck and come down with a clang (`stomp`)
+MOBS.stoker_automaton = {
+  name: 'Stoker Automaton', lvl: 177, hp: 26600, atk: 633, exp: 16888, speed: 50, w: 66, h: 76, aggro: true, hops: false,
+  ai: { kind: 'lob', range: 420, every: 2.8, keep: 160, warn: 0.6, style: 'cinder' },
+  drops: [['coin', 1, 1502, 2257], ['aether_coke', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1]],
+};
+MOBS.arc_jelly = {
+  name: 'Arc Jelly', lvl: 182, hp: 25300, atk: 654, exp: 17707, speed: 50, w: 50, h: 54, aggro: true, hops: false, fly: 40,
+  ai: { kind: 'beam', range: 520, every: 4.6, warn: 1, dur: 0.45, y0: 418, y1: 450, style: 'arc' },
+  drops: [['coin', 1, 1556, 2338], ['arc_filament', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1]],
+};
+MOBS.governor_ball = {
+  name: 'Governor Ball', lvl: 187, hp: 28100, atk: 675, exp: 18540, speed: 55, w: 72, h: 70, aggro: true, hops: false,
+  ai: { kind: 'stomp', every: 3.8, warn: 0.9, r: 210, range: 260, jump: 500 },
+  drops: [['coin', 1, 1610, 2419], ['governor_weight', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1]],
+};
+// The Stormcoil: a field boss (small: no story), one of the great aether coils that drive the turbines, come loose of its
+// housing and hanging over the Governor's Deck on its torn cables, arcing. Passive until hit; then it throws arcs along the
+// deck (`beam`, style `arc`), rings of sparks (from the start), and from its second third its tells come late (the hands
+// of the hour: what a thing in a stopped city does). With two or more on it, the charge builds round it till it breaks (a
+// pulse, `looks.pulse: 'arc'`) and it picks one slime to arc at (focus)
+MOBS.stormcoil = {
+  name: 'The Stormcoil', field: true, lvl: 186, hp: 4350000, atk: 625, exp: 713000, speed: 40, w: 150, h: 180, aggro: false, hops: false, fly: 70,
+  ai: { kind: 'beam', range: 620, every: 3.4, warn: 0.9, dur: 0.5, y0: 410, y1: 450, style: 'arc' },
+  party: ['pulse', 'focus'], partyLive: true, looks: { pulse: 'arc', rings: 'spark' },
+  // T3: rings of sparks, and from its second third late tells; the punish window as every field boss's
+  ch: ['rings', 'late'], chf: [['rings', 0], ['late', 1]],
+  desc: "The Stormcoil has torn loose over the Governor's Deck. The air tastes of it.",
+  drops: [['coin', 1, 83600, 120900], ['coil_winding', 1, 4, 8], ['arc_filament', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['coil_lance', 0.25, 1, 1], ['coil_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -3658,6 +3743,7 @@ const onPbPlat = onRoomPlat(PEATBARROWS_PLATFORMS, PEATBARROWS);
 const onKgPlat = onRoomPlat(GARDENS_PLATFORMS, GARDENS);
 const onOrPlat = onRoomPlat(ORRERY_PLATFORMS, ORRERY);
 const onArPlat = onRoomPlat(ARCHIVE_PLATFORMS, ARCHIVE);
+const onEnPlat = onRoomPlat(ENGINE_PLATFORMS, ENGINE);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -4282,6 +4368,24 @@ export const SPAWNS = [
   ...strip('index_moth', 3250, 4150, FIELD_GROUND, 3, ARCHIVE),
   ...onArPlat('index_moth', 6, 1),
   ...onArPlat('binder_automaton', 7, 1),
+  // the Engine Halls (C3): stokers and jellies in the stoke hold, jellies and governors on the turbine walk, governors and
+  // jellies on the governor's deck; the Stormcoil over the deck
+  ...strip('stoker_automaton', 760, 1980, FIELD_GROUND, 4, ENGINE),
+  ...strip('arc_jelly', 760, 1980, FIELD_GROUND, 2, ENGINE),
+  ...onEnPlat('stoker_automaton', 0, 1),
+  ...onEnPlat('arc_jelly', 1, 1),
+  ...onEnPlat('stoker_automaton', 2, 1),
+  ...strip('arc_jelly', 2040, 3380, FIELD_GROUND, 4, ENGINE),
+  ...strip('governor_ball', 2040, 3380, FIELD_GROUND, 2, ENGINE),
+  ...strip('stoker_automaton', 2040, 3380, FIELD_GROUND, 1, ENGINE),
+  ...onEnPlat('arc_jelly', 3, 1),
+  ...onEnPlat('governor_ball', 4, 1),
+  ...onEnPlat('arc_jelly', 5, 1),
+  ...strip('governor_ball', 3440, 4400, FIELD_GROUND, 4, ENGINE),
+  ...strip('arc_jelly', 3440, 4400, FIELD_GROUND, 2, ENGINE),
+  ...onEnPlat('governor_ball', 6, 1),
+  ...onEnPlat('arc_jelly', 7, 1),
+  { kind: 'stormcoil', x0: 3500, x1: 4300, y: FIELD_GROUND, room: ENGINE },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -5006,6 +5110,24 @@ Object.assign(ITEMS, {
   index_tab: { name: 'Index Tab', price: 1715, kind: 'loot', desc: 'A grey tab off an index moth\'s wing, the size of a catalogue card, a letter on it worn away. It flutters when nobody is looking.' },
   last_card: { name: 'Last Index Card', price: 1935, kind: 'loot', desc: 'A card out of the Indexer\'s drawer, the date of the last day typed at the top, and nothing under it at all.' },
 });
+// the Citadel, C3 (docs/places/engine.md): Number Nine's issue (aim 185: on the gear curve at Lv 181, under its aim like
+// the other traders'), the Stormcoil's set (Lv 188, a step over its Lv 186), the Engine Halls' materials and the Stormcoil's
+Object.assign(ITEMS, {
+  slice_bar: { name: "Stoker's Slice-Bar", price: 330000, lvl: 181, aim: 185, kind: 'sword', atk: 238, reach: 64, desc: 'A long iron fire-bar with a flattened, sharpened end, for breaking up clinker in the grate. Number Nine has a spare. It has always had a spare.' },
+  damper_rod: { name: 'Damper Rod', price: 330000, lvl: 181, aim: 185, kind: 'staff', magic: 238, mp: 143, reach: 64, twin: 'slice_bar', desc: 'The rod that opens a furnace damper, a brass handle at one end, a hook at the other. Turn it and something somewhere breathes.' },
+  stoker_goggles: { name: "Stoker's Goggles", price: 254000, lvl: 181, aim: 185, kind: 'helmet', def: 118, desc: 'A leather cap with two round goggles of smoked aether-glass. You can look straight into the blue fire. It looks back.' },
+  coil_lance: { name: 'Coil Lance', price: 1600000, lvl: 188, kind: 'sword', atk: 245, reach: 66, desc: "A long spike of the Stormcoil's copper core, still wound, still humming. Your hair stands up when you hold it." },
+  coil_staff: { name: 'Coil Staff', price: 1600000, lvl: 188, kind: 'staff', magic: 245, mp: 147, reach: 66, twin: 'coil_lance', desc: 'A rod of aether-glass with copper wound round its head, a spark caught going round and round inside.' },
+  coil_helm: { name: 'Stormcoil Helm', price: 1210000, lvl: 188, kind: 'helmet', def: 122, desc: 'A domed helm of copper windings over a glass cap, a little blue arc jumping between two pins on the crown. It never quite stops.' },
+  aether_coke: { name: 'Aether-Coke', price: 1725, kind: 'loot', desc: 'A lump of the blue-burning fuel the stokers shovel, cooled to grey. It is warm again by morning.' },
+  arc_filament: { name: 'Arc Filament', price: 1775, kind: 'loot', desc: 'A thread of an arc jelly, gone stiff and glassy, a spark running up and down it. It finds your fingers.' },
+  governor_weight: { name: 'Governor Weight', price: 1825, kind: 'loot', desc: "One brass ball off a governor's arm, heavy for its size. It still wants to swing out when it spins." },
+  coil_winding: { name: 'Coil Winding', price: 1800, kind: 'loot', desc: "A hank of the Stormcoil's copper wire, scorched at the ends. Coiled up, it hums." },
+});
+BOW_LIST.push(
+  ['firegrate_bow', 'slice_bar', 'Firegrate Bow', 'A bow bent from a furnace grate bar and strung with copper wire. It is warm to hold, always.'],
+  ['arc_bow', 'coil_lance', 'Arc Bow', 'A bow of two copper coil-springs, a thread of blue light for its string. Its arrows land with a crack.'],
+);
 BOW_LIST.push(
   ['archivist_bow', 'archivist_rule', "Archivist's Bow", "A slim bow of two brass rules bound back to back with bookbinder's thread. Its arrows land exactly where it says on the label."],
   ['catalogue_bow', 'indexer_spike', 'Catalogue Bow', "A bow bent from a catalogue drawer's runners, a brass label frame at the grip. Every arrow it lets go is filed somewhere, eventually."],
@@ -5130,6 +5252,8 @@ export const SHOPS = {
   commissary: { name: 'The Commissary', room: CITADEL, x: COMMISSARY_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'guard_saber', 'guard_staff', 'guard_bow', 'guard_helm'] },
   // (C2): Folio, the Archive's little issuing automaton at the Reading Room's desk
   folio: { name: "Folio's Issue Desk", room: ARCHIVE, x: FOLIO_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'archivist_rule', 'archivist_pointer', 'archivist_bow', 'reading_visor'] },
+  // (C3): Number Nine, the last stoker automaton on shift, at its furnace in the Engine Halls' Boiler Gallery
+  nine: { name: "Number Nine's Locker", room: ENGINE, x: NINE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'slice_bar', 'damper_rod', 'firegrate_bow', 'stoker_goggles'] },
 };
 // Boss gear is better than anything else at its level (owner, 2026-11-06: "bossing is not worth it ... because the
 // equipment isn't strictly better"). A piece with a `lvl` that a boss drops gets BOSS_GEAR of the stats written for it

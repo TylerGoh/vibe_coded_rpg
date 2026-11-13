@@ -188,7 +188,10 @@ No quests, no hard level gates.
         automata, index moths, the pages drifting up, the ledger with one name left), the Indexer and its den the Last
         Drawer (89, Lv 177: grid, snare and swap from day one, Closing Time, its freed pages), Folio at the issue desk
         (AI, trades, Tier 4 hearsay) (`docs/places/archive.md`). Unplayed.
-  - [ ] C3: the Engine Halls, the Stormcoil and Number Nine (the blast door vents).
+  - [x] C3 (2026-11-13, live): the blast door stopped venting; the Engine Halls (90, Lv 175–190: stoker automata, arc
+        jellies, governor balls, the turbine blades through the catwalk floor, the telegraph tagged HOLD), the Stormcoil
+        (field boss, Lv 186), Number Nine at its furnace (AI, trades), the Helm's bulkhead laid (`docs/places/engine.md`). Unplayed.
+  - [ ] C4: the Helm (the Helmsman, the party den) and the Bell Walks with the Great Bell (the bulkhead opens, the rain falls).
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

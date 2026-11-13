@@ -21,6 +21,7 @@ import { drawCampDress } from './skycamp-art.js';
 import { drawIssuerDress } from './bastion-art.js';
 import { ECHO_PALETTE, drawEchoFolk, drawKeeperDress } from './orrery-art.js';
 import { drawArchivistDress } from './archive-art.js';
+import { drawStokerDress } from './engine-art.js';
 import { FEN_PALETTE, drawFenFolk, drawFenDress } from './wickmere-art.js';
 import { drawPetkeeperDress } from './pet-art.js';
 
@@ -1023,6 +1024,7 @@ export class Slime {
     for (const kind of ['eelskipper', 'lamplady', 'ferryman', 'reedweaver']) if (this.has(kind)) drawFenDress(ctx, kind, w, h, fx, this.t); // Wickmere's people (atlas Phase 8)
     if (this.has('keeper')) drawKeeperDress(ctx, w, h, fx, this.t); // the Last Echo, by the Orrery's door (C1)
     if (this.has('archivist')) drawArchivistDress(ctx, w, h, fx, this.t); // Folio, at the Archive's issue desk (C2)
+    if (this.has('stoker')) drawStokerDress(ctx, w, h, fx, this.t); // Number Nine, at its furnace in the Engine Halls (C3)
     if (this.has('issuer')) drawIssuerDress(ctx, w, h, fx, this.t); // Cogwork Bastion's Commissary (the Citadel's depth pass, C0)
     if (this.has('petkeeper')) drawPetkeeperDress(ctx, w, h, fx, this.t, bodyPath); // the Pet Shop's Auntie Clover
     if (this.has('captain')) {

@@ -166,6 +166,14 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   Gullet, Long-Neck and Grandfather Mire aren't in the story record (no Fen tier), so only the Wickmother has freed changes
   on the Fen.
 
+## The Citadel's depth pass, C3 (2026-11-13)
+- Unplayed: the Engine Halls (its three mobs, the `cinder` lob and `arc` beam, the turbine blades), the Stormcoil (rings, late
+  tells, its pulse with a party), Number Nine's chat and Trade button, the Helm's bulkhead E message and the map's `helm`
+  node; the art and the music weren't seen or heard (no headless test; the draw functions ran against a stub canvas). The
+  telegraph's tag (HOLD) is 5 px text: check it reads on a phone.
+- The turbine blades only hurt; an idea not built: a slime caught by one is flung along the catwalk (needs knockback, so a
+  `step()` change and the owner's say).
+
 ## The Citadel's depth pass, C2 (2026-11-13)
 - Unplayed: the Archive (its four mobs, the `ink` trail), the Indexer (the grid, the paper snare, the swap, Closing Time,
   the weak point and armour with a party, its freeing), Folio's chat and Trade button, the Archive's waystone, the freed

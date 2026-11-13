@@ -93,6 +93,9 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
   desk, prim and dry, shushes; opens a reader's card for everyone; catalogued every record and read none. One volume still
   out on loan from before the day stopped; it works out the fine every morning. Sells the archivists' kit; Tier 4 at most,
   hearsay only.
+- **Number Nine** (the Engine Halls' Boiler Gallery, **exists** since the Citadel's C3): the last of twelve stoker automata on
+  shift, never relieved; takes everyone for its relief; counts shovels, keeps the other eleven tags in a tin, hums with the
+  turbines. Sells the stokers' kit; no lore. The Last Echo asks after it.
 - **Pell** (post-game, by the apple tree): see `mochi-and-chronos.md`.
 
 ## Existing villagers

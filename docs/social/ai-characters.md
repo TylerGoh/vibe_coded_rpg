@@ -54,7 +54,11 @@ one shared corner feed).
   Room, the Citadel's C2, `docs/places/archive.md`) is a small, prim archive automaton (not in capitals) that opens a
   reader's card for every slime, trades (the potions and the archivists' kit) and guides you through the Archive and to the
   Indexer; `lore: 4` without `loreKnows` (it catalogued the records and never read them). Since C2 the Commissary says the
-  Archive's shutter went up and sends Folio requisitions by pneumatic tube. A
+  Archive's shutter went up and sends Folio requisitions by pneumatic tube. **Number Nine** (`nine`, the Engine Halls' Boiler
+  Gallery, the Citadel's C3, `docs/places/engine.md`) is the last stoker automaton on shift, gruff and kind, who takes every
+  slime for its relief; it trades (the potions and the stokers' kit), knows the halls, the turbine blades, "Coil Four" (the
+  Stormcoil) and the Helm's sealed bulkhead, and has no `lore` cap. Since C3 the Last Echo knows the blast door opened and
+  asks after Nine. A
   character who stands in more than one room (`also`) trades only where its shop is (`src/npc.js`).
   **Lantern Fen's people** (atlas Phase 8, L0, `docs/places/fen.md`), all fen folk (`folk: 'fen'`): **Skipper Netta**
   (`netta`, the Hush's crossing, at her eel boxes and at the tiller via `also`), **Wren the Lamplady** (`wren`, tends the

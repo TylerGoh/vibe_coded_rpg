@@ -128,6 +128,7 @@ const SHOT = {
   seed: { glow: '190,255,150', core: '#fbffe8', mid: '#c8f0a0', rim: '#3e5a30' }, // the seed-pod lantern's glowing seed
   log: { glow: '255,130,60', core: '#ffd27a', mid: '#3a3034', rim: '#1e1a1e' }, // Greyback's burning log (the Ashwood)
   sulphur: { glow: '240,220,90', core: '#fffbd0', mid: '#ffe04a', rim: '#b08a1e' }, // the chimney spitter's glob of burning sulphur (the Brimstone Fields)
+  cinder: { glow: '150,240,234', core: '#e8fffc', mid: '#6ad8d0', rim: '#1e3440' }, // the stoker automaton's scoop of burning aether-coke (the Citadel's C3)
   molten: { glow: '255,150,60', core: '#fff6d0', mid: '#ffb040', rim: '#c84a1e' },
   mud: { glow: '150,130,90', core: '#c8b890', mid: '#6a5640', rim: '#3a2c22' }, // the mire frog's gobbet of bog mud (the Shallows, atlas Phase 8)
   lampoil: { glow: '255,214,150', core: '#fffbe8', mid: '#ffd696', rim: '#a8743a' }, // the grave lamp's drop of burning lamp oil (the Sunk Barrows, atlas Phase 8 L3)
@@ -1174,6 +1175,7 @@ const BEAM = {
   tooth: { glow: '214,232,255', outer: 'rgba(200,214,240,0.88)', mid: '#ffffff', aim: '255,96,110' }, // Brenna: the shard's cold light thrown off the tooth's face (E4b)
   hearth: { glow: '255,150,60', outer: 'rgba(255,120,40,0.9)', mid: '#fff0b0', aim: '255,96,80' }, // Typhon's Fire Breath (E5)
   vent: { glow: '255,180,90', outer: 'rgba(255,150,60,0.92)', mid: '#fff6d0', aim: '255,110,80' }, // a vent's column of fire in the Hearth (E5)
+  arc: { glow: '150,240,234', outer: 'rgba(150,240,234,0.85)', mid: '#ffffff', aim: '255,110,120' }, // the arc jelly's and the Stormcoil's arc along the grating (the Citadel's C3)
   astro: { glow: '214,228,255', outer: 'rgba(214,228,255,0.85)', mid: '#ffffff', aim: '255,110,140' }, // the astrolabe sentry's line of starlight (the Orrery, the Citadel's C1)
   silk: { glow: '240,232,252', outer: 'rgba(226,218,238,0.9)', mid: '#ffffff', aim: '255,96,120' }, // the Wickmother's Silk Line, a strand drawn across the Hall (L5)
 };

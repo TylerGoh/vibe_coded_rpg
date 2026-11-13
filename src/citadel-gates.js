@@ -10,6 +10,8 @@
 //   round and round, never stopping.
 // - `blastdoor` (the Engine Halls, C3): a riveted blast door onto the catwalks, venting steam too hot to pass; behind it,
 //   the glow of something huge turning.
+// - `bulkhead` (the Helm, C4; in the Engine Halls, room 90, laid in C3): a steel bulkhead at the halls' east end, sealed
+//   while the city is under way, a pressure gauge's needle in the red; through its porthole, a great wheel's spokes turning.
 // - `frozenrain` (the Bell Walks, C4): a stair going up toward the top of the Spire, rain hanging on it in the air, every
 //   drop stopped.
 // The Citadel's register: brass, verdigris, iron, aether-glass; solemn, nothing whimsical.
@@ -435,12 +437,113 @@ function drawFrozenRain(ctx, time, g, open = false) {
   ctx.fillRect(-60, -230, 150, 230);
 }
 
-export const CITADEL_DRAW = { shutter: drawShutter, hatch: drawHatch, combolock: drawComboLock, blastdoor: drawBlastDoor, frozenrain: drawFrozenRain };
+// The Helm's bulkhead at the Engine Halls' east end (C3 laid it; C4 opens it): a tall steel door in a heavy frame, a locking
+// wheel, a gauge with its needle shivering in the red, a brass plate stamped UNDER WAY, and through the porthole the
+// spokes of a great ship's wheel turning slowly past. Open: the door swung back, a corridor lit blue going up
+function drawBulkhead(ctx, time, g, open = false) {
+  ctx.fillStyle = IRON_D;
+  ctx.beginPath();
+  ctx.roundRect(-78, -222, 156, 224, 22);
+  ctx.fill();
+  ctx.strokeStyle = BRASS_E;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  if (open) {
+    ctx.fillStyle = '#16202a';
+    ctx.beginPath();
+    ctx.roundRect(-62, -206, 124, 206, 18);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(150,240,234,0.18)';
+    for (let i = 0; i < 6; i++) ctx.fillRect(-40 + i * 4, -30 - i * 28, 80 - i * 8, 6); // a stair going up, lit
+    ctx.fillStyle = IRON; // the door swung back against the frame
+    ctx.beginPath();
+    ctx.roundRect(58, -206, 18, 206, 6);
+    ctx.fill();
+    return;
+  }
+  const dg = ctx.createLinearGradient(-62, 0, 62, 0);
+  dg.addColorStop(0, IRON);
+  dg.addColorStop(0.5, IRON_L);
+  dg.addColorStop(1, IRON);
+  ctx.fillStyle = dg;
+  ctx.beginPath();
+  ctx.roundRect(-62, -206, 124, 206, 18);
+  ctx.fill();
+  ctx.fillStyle = IRON_D;
+  for (let y = -196; y < 0; y += 20) for (const x of [-52, 52]) circle(ctx, x, y, 2.4);
+  // the porthole, a great wheel's spokes going slowly past behind it
+  ctx.fillStyle = BRASS_D;
+  circle(ctx, 0, -160, 26);
+  ctx.fillStyle = '#1e3440';
+  circle(ctx, 0, -160, 20);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(0, -160, 20, 0, TAU);
+  ctx.clip();
+  ctx.fillStyle = 'rgba(150,240,234,0.25)';
+  ctx.fillRect(-20, -180, 40, 40);
+  ctx.strokeStyle = 'rgba(200,144,74,0.85)';
+  ctx.lineWidth = 4;
+  const a0 = time * 0.15;
+  for (let i = 0; i < 8; i++) {
+    const a = a0 + (i / 8) * TAU;
+    ctx.beginPath();
+    ctx.moveTo(-10, -120);
+    ctx.lineTo(-10 + Math.cos(a) * 80, -120 + Math.sin(a) * 80);
+    ctx.stroke();
+  }
+  ctx.restore();
+  // the locking wheel
+  ctx.strokeStyle = BRASS_D;
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.arc(0, -90, 22, 0, TAU);
+  ctx.stroke();
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * TAU;
+    ctx.beginPath();
+    ctx.moveTo(0, -90);
+    ctx.lineTo(Math.cos(a) * 22, -90 + Math.sin(a) * 22);
+    ctx.stroke();
+  }
+  // the gauge, its needle shivering in the red
+  ctx.fillStyle = '#efe4c8';
+  circle(ctx, -36, -40, 13);
+  ctx.strokeStyle = BRASS_E;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(-36, -40, 13, 0, TAU);
+  ctx.stroke();
+  ctx.strokeStyle = '#c8302a';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(-36, -40, 9, -0.4, 0.5);
+  ctx.stroke();
+  const na = 0.15 + Math.sin(time * 9) * 0.06;
+  ctx.strokeStyle = '#1a1630';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(-36, -40);
+  ctx.lineTo(-36 + Math.cos(na) * 10, -40 + Math.sin(na) * 10);
+  ctx.stroke();
+  // the plate
+  ctx.fillStyle = BRASS_D;
+  ctx.beginPath();
+  ctx.roundRect(-8, -50, 50, 18, 3);
+  ctx.fill();
+  ctx.font = "700 8px Fredoka, 'Trebuchet MS', sans-serif";
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#2a1e14';
+  ctx.fillText('UNDER WAY', 17, -41);
+}
+
+export const CITADEL_DRAW = { shutter: drawShutter, hatch: drawHatch, combolock: drawComboLock, blastdoor: drawBlastDoor, frozenrain: drawFrozenRain, bulkhead: drawBulkhead };
 export const CITADEL_OPEN = {
   gardenstair: drawGardenStair,
   shutter: (ctx, time, g) => drawShutter(ctx, time, g, true), hatch: (ctx, time, g) => drawHatch(ctx, time, g, true),
   combolock: (ctx, time, g) => drawComboLock(ctx, time, g, true), blastdoor: (ctx, time, g) => drawBlastDoor(ctx, time, g, true),
-  frozenrain: (ctx, time, g) => drawFrozenRain(ctx, time, g, true),
+  frozenrain: (ctx, time, g) => drawFrozenRain(ctx, time, g, true), bulkhead: (ctx, time, g) => drawBulkhead(ctx, time, g, true),
 };
 // where each one's sign stands, relative to it
-export const CITADEL_SIGN_AT = { gardenstair: 96, shutter: -118, hatch: 104, combolock: -126, blastdoor: 122, frozenrain: -136 };
+export const CITADEL_SIGN_AT = { gardenstair: 96, shutter: -118, hatch: 104, combolock: -126, blastdoor: 122, frozenrain: -136, bulkhead: -120 };
