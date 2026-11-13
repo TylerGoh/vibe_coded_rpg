@@ -241,7 +241,8 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   `CAUSEWAY_*`; `docs/places/causeway.md`). The Citadel's C0: **the Siege Engine** (field) drops the **Siege Ram** (twins:
   the **Siege Staff**, the **Siege Bow**) and the **Siege Helm** (Lv 156), and **the Commissary** sells the **Bastion
   Guard's Saber**, **Staff**, **Bow** and **Helm** (Lv 146, aim 150) (art `src/bastion-art.js`, `BASTION_*`;
-  `docs/places/citadel.md`). L5 (b): in the Peat Barrows a lamp-bearer drops the **Lamp-Carrier's Hood** (Lv
+  `docs/places/citadel.md`). C1: **Meridian** drops **Meridian's Arm** (twins: the **Orrery Staff**, the **Ecliptic Bow**) and
+  the **Armillary Crown**, boss gear at Lv 169 (art `src/orrery-art.js`, `ORRERY_*`; `docs/places/orrery.md`). L5 (b): in the Peat Barrows a lamp-bearer drops the **Lamp-Carrier's Hood** (Lv
   186) very rarely, and the Eldest (a named elite) the **Cradle-Silk Blade** (twins: the **Cradle-Silk Staff**, the
   **Cradle-Silk Bow**; Lv 190), mob gear on the curve (art `src/peatbarrows-art.js`, `PEATBARROWS_*`;
   `docs/places/peatbarrows.md`).

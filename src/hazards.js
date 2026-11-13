@@ -1135,6 +1135,7 @@ const BEAM = {
   tooth: { glow: '214,232,255', outer: 'rgba(200,214,240,0.88)', mid: '#ffffff', aim: '255,96,110' }, // Brenna: the shard's cold light thrown off the tooth's face (E4b)
   hearth: { glow: '255,150,60', outer: 'rgba(255,120,40,0.9)', mid: '#fff0b0', aim: '255,96,80' }, // Typhon's Fire Breath (E5)
   vent: { glow: '255,180,90', outer: 'rgba(255,150,60,0.92)', mid: '#fff6d0', aim: '255,110,80' }, // a vent's column of fire in the Hearth (E5)
+  astro: { glow: '214,228,255', outer: 'rgba(214,228,255,0.85)', mid: '#ffffff', aim: '255,110,140' }, // the astrolabe sentry's line of starlight (the Orrery, the Citadel's C1)
   silk: { glow: '240,232,252', outer: 'rgba(226,218,238,0.9)', mid: '#ffffff', aim: '255,96,120' }, // the Wickmother's Silk Line, a strand drawn across the Hall (L5)
 };
 function drawBeam(ctx, h, now) {

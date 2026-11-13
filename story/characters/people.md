@@ -85,8 +85,10 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
   arrivals that never came, until the camp's travellers; speaks in capitals and ledger entries, logs every traveller by
   name with an arrival number, knows "the port is open; departures are suspended pending the hour" and nothing more.
   Logged Kestrel's cargo as "OPINIONS" and Tamp as "TAMPE"; Ione keeps asking it about the one who went up.
-- **The Last Echo** (the Citadel): a Keeper echo stuck repeating, who becomes briefly lucid when players
-  bring Mochi's name. Holds Tier 4.
+- **The Last Echo** (the Chrono Spire, by the Orrery's door, **exists** since the Citadel's C1): a Keeper echo stuck repeating
+  its last hour (hurrying to the star-hall as the stars began to move, the lock turning), who becomes briefly lucid when
+  players bring Mochi's name: it remembers a small green apprentice who swept the leaves and was always late. Holds Tier
+  4; has lost its own name, never names the other Keepers.
 - **Pell** (post-game, by the apple tree): see `mochi-and-chronos.md`.
 
 ## Existing villagers

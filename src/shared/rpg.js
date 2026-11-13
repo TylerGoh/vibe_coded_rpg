@@ -38,7 +38,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 6600; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) and the mini Wickmother (L5, 6366): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 6750; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0) and the mini Meridian (C1, 6694): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -137,7 +137,8 @@ export const GARDENS_GATE_X = 1260; // the brass stair up to the Keepers' Garden
 export const ARCHIVE_GATE_X = 1800; // the Archive's stair down, an iron shutter over it (C2)
 export const KEEL_GATE_X = 2080; // the Grand Foundry's maintenance hatch, clamped under a jammed gear (C5)
 export const SPIRE_WAY_X = 2760; // the Spire's waystone
-export const ORRERY_GATE_X = 3020; // the Orrery's door, its combination lock turning by itself (C1)
+export const ORRERY_GATE_X = 3020; // the Orrery's door (its combination lock turned by itself until C1 stopped it: the way into ORRERY)
+export const ECHO_X = 3250; // the Last Echo, a Keeper's echo on the Spire's floor between the Orrery's door and the blast door (C1)
 export const ENGINE_GATE_X = 3520; // the Engine Halls' catwalk, a blast door venting steam (C3)
 export const BELLS_GATE_X = 4180; // the stair above the Hour Sanctum, frozen rain hanging on it (C4)
 export const CITADEL_ZONES = [
@@ -510,6 +511,36 @@ export const GARDENS_PLATFORMS = [
   { x: 2080, y: 266, w: 180, kind: 'pergola' },
   { x: 2560, y: 352, w: 170, kind: 'bench' },
   { x: 1004, y: 184, w: 92, kind: 'urn' }, // the cracked urn on the broken pergola's top, a sapling in it: easy to miss
+];
+// ——— the Citadel's depth pass, C1 (story/citadel-plan.md; docs/places/orrery.md) ———
+// The Orrery (room 86): the Keepers' star-hall, a side branch off the Chrono Spire's foot (ORRERY_GATE_X: its lock stopped
+// turning in C1). A long hall under a cracked glass dome, a great orrery's brass arms sweeping overhead with the planets on
+// them, a floor of dark glass set with stars. You come in at the WEST end, at the Star Door (no mobs; the Spire's waystone
+// is just outside). West to east: the Ring Gallery, the Glass Floor and the Dome's Heart, under the dome's crown, where
+// the way down to the orrery's engine opens (Meridian's den at MERIDIAN_DEN_X). The find (last in ORRERY_PLATFORMS): the
+// chart table up on the gallery's top arm, a star chart with every star drawn twice, in two inks.
+export const ORRERY = 86; // room id
+export const ORRERY_W = 4200;
+export const ORRERY_EXIT_X = 70; // back out through the round door to the Spire
+export const MERIDIAN_DEN_X = 3900; // the way down under the dome's crown into the orrery's engine (room MERIDIAN_DEN, its DENS row)
+export const MERIDIAN_DEN = 87; // Meridian's den, the Armillary
+export const ORRERY_ZONES = [
+  { name: 'The Star Door', x0: 0, x1: 480, lvl: null }, // (no mobs)
+  { name: 'The Ring Gallery', x0: 480, x1: 1700, lvl: '160–163' },
+  { name: 'The Glass Floor', x0: 1700, x1: 3000, lvl: '163–166' },
+  { name: "The Dome's Heart", x0: 3000, x1: ORRERY_W, lvl: '166–170' },
+];
+// the orrery's lower arms (brass, the planets riding them), lens plinths, the gallery's walk; the chart table (hidden)
+export const ORRERY_PLATFORMS = [
+  { x: 640, y: 348, w: 190, kind: 'plinth' },
+  { x: 960, y: 270, w: 200, kind: 'gallery' },
+  { x: 1340, y: 344, w: 180, kind: 'arm' },
+  { x: 1820, y: 340, w: 200, kind: 'plinth' },
+  { x: 2200, y: 266, w: 190, kind: 'arm' },
+  { x: 2600, y: 342, w: 200, kind: 'plinth' },
+  { x: 3150, y: 300, w: 190, kind: 'arm' },
+  { x: 3500, y: 250, w: 160, kind: 'gallery' },
+  { x: 1010, y: 184, w: 96, kind: 'chart' }, // the chart table on the gallery's top, the stars drawn twice: easy to miss
 ];
 export const WICK_DEN_NAME = 'The Hall of Lamps';
 export const LAMP_FRONT_X = WICK_DEN_X - 420;
@@ -1373,6 +1404,7 @@ export const STAGES = {
   [CAUSEWAY]: { name: 'The Lantern Causeway', zones: CAUSEWAY_ZONES, band: '168–180', pill: 'Lantern Causeway' }, // (L4)
   [PEATBARROWS]: { name: 'The Peat Barrows', zones: PEATBARROWS_ZONES, band: '180–190', hard: true, pill: 'Peat Barrows' }, // (L5 (b))
   [GARDENS]: { name: "The Keepers' Gardens", zones: GARDENS_ZONES, band: '145–152', pill: "Keepers' Gardens" }, // (the Citadel, C0)
+  [ORRERY]: { name: 'The Orrery', zones: ORRERY_ZONES, band: '160–170', pill: 'The Orrery' }, // (the Citadel, C1)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -3265,6 +3297,52 @@ MOBS.hedge_shears = {
   drops: [['coin', 1, 1228, 1847], ['shear_pin', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
 };
 
+// ——— the Citadel's depth pass, C1: the Orrery (art: src/orrery-art.js; docs/places/orrery.md). On the frozen curve, read
+// off the Still Mere's at the same levels; no elites, no field boss ———
+// Armillary rings are the orrery's small rings come loose, three brass hoops nested round a little glass bead, rolling
+// the floor the way they used to turn (a plain chaser, fast). Star-glass wisps are fallen stars' glass come up off the
+// floor in a cold point of light, a shell of glass shards round it; they go to nothing and back (`phase`). Astrolabe
+// sentries are the star-hall's sighting machines on tripods, a brass disc with a pointer that turns to you and throws a
+// line of starlight along the floor (`beam`, style `astro`: the sentry drone's, on a slow turn)
+MOBS.armillary_ring = {
+  name: 'Armillary Ring', lvl: 161, hp: 24300, atk: 566, exp: 14375, speed: 132, w: 56, h: 56, aggro: true, hops: false,
+  drops: [['coin', 1, 1332, 2004], ['armillary_pin', 0.5, 1, 2], ['mega_elixir', 0.2, 1, 1]],
+};
+MOBS.starglass_wisp = {
+  name: 'Star-Glass Wisp', lvl: 164, hp: 23400, atk: 579, exp: 14834, speed: 60, w: 44, h: 50, aggro: true, hops: false, fly: 30,
+  ai: { kind: 'phase', every: 6, dur: 2.1, r: 195 },
+  drops: [['coin', 1, 1364, 2052], ['starglass_mote', 0.5, 1, 2], ['mega_elixir', 0.21, 1, 1]],
+};
+MOBS.astrolabe_sentry = {
+  name: 'Astrolabe Sentry', lvl: 168, hp: 23740, atk: 595, exp: 15454, speed: 40, w: 58, h: 72, aggro: true, hops: false,
+  ai: { kind: 'beam', range: 580, every: 4.4, warn: 1.1, dur: 0.45, y0: 418, y1: 450, style: 'astro' },
+  drops: [['coin', 1, 1406, 2113], ['astrolabe_plate', 0.5, 1, 2], ['mega_elixir', 0.21, 1, 1]],
+};
+// Meridian (C1; its den, the Armillary, opens under the Orrery's dome at MERIDIAN_DEN_X). A den boss with a story
+// (story/citadel-plan.md): the orrery's engine, a brass armillary sphere the size of a house, its rings turning round a
+// glass heart, that keeps dragging the stars back to where they were before they fell. Holding on: the old sky. It throws
+// stars in rings with a gap (`orbs`: bullet rings, every phase) and from phase 2 drags the room back a few seconds (`rewind`:
+// everyone snaps back to where they stood and its attacks of those seconds come again, Chronos's). Its ultimate, The Old
+// Sky, is the starlight `nova` (the Astral Wyrm's). Freed, its rings come to rest and the dome shows the sky as it is now
+// (the den's bossDie; and the Orrery's dome, per slime, after: docs/social/story.md)
+MOBS.meridian = {
+  name: 'Meridian', boss: true, lvl: 168, hp: 11600000, atk: 642, exp: 990000, speed: 75, w: 220, h: 210, aggro: true, hops: false,
+  phases: [['charge', 'slam', 'rain', 'orbs'], ['charge', 'slam', 'rain', 'summon', 'orbs', 'rewind'], ['charge', 'rain', 'summon', 'leap', 'barrage', 'orbs', 'rewind']],
+  // challenges from day one (docs/combat/challenges.md): bullet rings of stars (`orbs`, every phase) and Rewind (phase 2 on)
+  ch: ['rings', 'rewind'],
+  ult: { name: 'The Old Sky', kind: 'nova' }, minion: 'starglass_wisp',
+  // S5.4: the shard in its glass heart flares (the weak point, at the sphere's middle, in reach with a jump), its rings
+  // close round it in a shell of starlight (a barrier, the Astral Wyrm's), and freezing The Old Sky as it gathers cancels it
+  party: ['weakpoint', 'barrier', 'interrupt'], partyLive: true, weak: { dx: 0, dy: -0.5, r: 22 },
+  looks: { weak: 'star', dome: 'star', rings: 'star', feathers: 'star' },
+  lines: {
+    enter: ['Hold still. You are out of place. Everything is out of place. I am putting it back.', 'The Wanderer was here. And here, the Lamp. And here. Not there. I will draw them back. I have nearly done it.'],
+    phase: [null, 'Again. The sky slips. I have only to go back a little and it will be right. A little further. A little further.', 'They read me, once, to know the hour! Every ship. Every Keeper. Now they look up, and it is WRONG!'],
+    freed: '...They will not go back. They were never going to. ...Oh. Look at them, where they are now. It is a different sky. It is still a sky.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['meridian_arm', 1, 1, 1], ['armillary_crown', 0.6, 1, 1], ['coin', 1, 255000, 385000], ['mega_elixir', 1, 4, 6], ['orrery_bead', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -3489,6 +3567,7 @@ const onBaPlat = onRoomPlat(BARROWS_PLATFORMS, BARROWS);
 const onCwPlat = onRoomPlat(CAUSEWAY_PLATFORMS, CAUSEWAY);
 const onPbPlat = onRoomPlat(PEATBARROWS_PLATFORMS, PEATBARROWS);
 const onKgPlat = onRoomPlat(GARDENS_PLATFORMS, GARDENS);
+const onOrPlat = onRoomPlat(ORRERY_PLATFORMS, ORRERY);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -4081,6 +4160,22 @@ export const SPAWNS = [
   ...strip('gardener_drone', 1540, 2360, FIELD_GROUND, 1, GARDENS),
   ...onKgPlat('hedge_shears', 3, 1),
   ...onKgPlat('seed_moth', 4, 1),
+  // the Orrery (C1): rings and wisps in the gallery, wisps and sentries on the glass floor, sentries and rings under the dome
+  ...strip('armillary_ring', 560, 1680, FIELD_GROUND, 4, ORRERY),
+  ...strip('starglass_wisp', 560, 1680, FIELD_GROUND, 2, ORRERY),
+  ...onOrPlat('armillary_ring', 0, 1),
+  ...onOrPlat('starglass_wisp', 1, 1),
+  ...onOrPlat('armillary_ring', 2, 1),
+  ...strip('starglass_wisp', 1750, 2980, FIELD_GROUND, 4, ORRERY),
+  ...strip('armillary_ring', 1750, 2980, FIELD_GROUND, 2, ORRERY),
+  ...strip('astrolabe_sentry', 1750, 2980, FIELD_GROUND, 1, ORRERY),
+  ...onOrPlat('starglass_wisp', 3, 1),
+  ...onOrPlat('astrolabe_sentry', 4, 1),
+  ...onOrPlat('starglass_wisp', 5, 1),
+  ...strip('astrolabe_sentry', 3050, 3800, FIELD_GROUND, 4, ORRERY),
+  ...strip('armillary_ring', 3050, 3800, FIELD_GROUND, 2, ORRERY),
+  ...onOrPlat('astrolabe_sentry', 6, 1),
+  ...onOrPlat('starglass_wisp', 7, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -4108,6 +4203,7 @@ export const DENS = [
   { room: LADON_DEN, boss: 'ladon', name: 'The Root of the Road', from: ROADSEND, fromName: "the Road's End", entranceX: LADON_DEN_X, theme: 'hydra', platforms: LADON_PLATFORMS, final: true }, // (art: src/dens-ladon.js; the door's art: src/roadsend.js)
   { room: HATCH_DEN, boss: 'hatchkeeper', name: 'The Buried Clutch', from: COAST, entranceX: HATCH_DEN_X, theme: 'hatch' }, // (E2; art: src/dens-hatch.js)
   { room: HERON_DEN, boss: 'long_neck', name: 'The Stone Nest', from: GROVE, entranceX: HERON_DEN_X, theme: 'heron' }, // (atlas Phase 8, L1; art: src/dens-heron.js)
+  { room: MERIDIAN_DEN, boss: 'meridian', name: 'The Armillary', from: ORRERY, entranceX: MERIDIAN_DEN_X, theme: 'orrery' }, // (the Citadel, C1; art: src/dens-orrery.js)
   { room: GULLET_DEN, boss: 'old_gullet', name: 'The Eel Pit', from: STILLMERE, entranceX: GULLET_DEN_X, theme: 'gullet' }, // (atlas Phase 8, L2; art: src/dens-gullet.js)
   { room: MIRE_DEN, boss: 'grandfather_mire', name: "Grandfather's Pool", from: CAUSEWAY, entranceX: MIRE_DEN_X, theme: 'mire' }, // (atlas Phase 8, L4, the Fen's party den; art: src/dens-mire.js)
   { room: BRENNA_DEN, boss: 'brenna', name: "The Bearer's Hoist", from: RIM, entranceX: BRENNA_DEN_X, theme: 'hoist' }, // (E4b; art: src/dens-rim.js)
@@ -4777,6 +4873,20 @@ Object.assign(ITEMS, {
   seed_fluff: { name: 'Seed-Fluff', price: 1425, kind: 'loot', desc: 'A pinch of white fluff off a seed moth, light as nothing. There are no seeds in it.' },
   shear_pin: { name: 'Shear Pin', price: 1460, kind: 'loot', desc: 'The brass pin out of a pair of hedge shears, worn shiny. They had been clipping the same long-gone hedge.' },
 });
+// the Citadel, C1 (docs/places/orrery.md): Meridian's set (Lv 169, a step over its Lv 168 like the other dens'), the
+// Orrery's materials and Meridian's
+Object.assign(ITEMS, {
+  meridian_arm: { name: "Meridian's Arm", price: 1333000, lvl: 169, slots: 9, kind: 'sword', atk: 226, reach: 68, desc: "One of the orrery's lesser arms, brass ground to an edge, a little glass planet still riding its pommel. It swings the way it used to turn: true, and round." },
+  orrery_staff: { name: 'Orrery Staff', price: 1333000, lvl: 169, slots: 9, kind: 'staff', magic: 226, mp: 135, reach: 68, twin: 'meridian_arm', desc: "A brass rod with three little rings nested at its head round a bead of star-glass. When you cast, the rings turn, and stop where they please." },
+  armillary_crown: { name: 'Armillary Crown', price: 1010000, lvl: 169, slots: 9, kind: 'helmet', def: 112, desc: 'A crown of brass hoops crossed over the head like a sky drawn in rings, a star-glass bead at the top. It keeps very good time, and no other kind.' },
+  armillary_pin: { name: 'Armillary Pin', price: 1565, kind: 'loot', desc: 'The brass pivot out of an armillary ring, worn bright on one side. It turned the same way for an age, and still wants to.' },
+  starglass_mote: { name: 'Star-Glass Mote', price: 1595, kind: 'loot', desc: 'A bead of cold glass with a point of light caught in it, left where a wisp went out. It is always pointing at somewhere in the sky that is not there.' },
+  astrolabe_plate: { name: 'Astrolabe Plate', price: 1635, kind: 'loot', desc: 'A thin brass disc scored with circles and the names of stars, the names filed off. It sights true. On what, nobody can say.' },
+  orrery_bead: { name: 'Orrery Bead', price: 1845, kind: 'loot', desc: "A little glass planet off one of Meridian's arms, clouded inside. Held up to the light, it turns, very slowly, by itself." },
+});
+BOW_LIST.push(
+  ['ecliptic_bow', 'meridian_arm', 'Ecliptic Bow', "A long bow of two curved orrery arms, brass and glass, a small star set where they meet. Its arrows go round a little before they go straight."],
+);
 BOW_LIST.push(
   ['guard_bow', 'guard_saber', "Bastion Guard's Bow", 'A short brass-bound crossbow-bow off a wall rack, issue stamped on the stock. It has been oiled every day and never shot.'],
   ['siege_bow', 'siege_ram', 'Siege Bow', "A heavy bow of laminated brass off the Siege Engine's rack, wound like a spring. Every arrow goes like a bolt off a wall."],

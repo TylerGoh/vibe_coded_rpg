@@ -125,6 +125,9 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    145–152, no waystone; `docs/places/gardens.md`). Gardener drones (passive fliers), seed moths (fliers), hedge shears
    (passive, `shell` with `cut`). Room 13's new field boss, the Siege Engine (Lv 154: `lob`, style `bolt`;
    `docs/places/citadel.md`). No new brains.
+38. **The Orrery**: the Citadel's C1, the star-hall through the round door at the Spire's foot (Lv 160–170, no waystone;
+   `docs/places/orrery.md`). Armillary rings (plain chasers, fast), star-glass wisps (`phase` fliers), astrolabe sentries
+   (`beam`, the new style `astro`); Meridian's den at its east end. No new brains.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

@@ -29,6 +29,9 @@ theme `heron`; `docs/places/grove.md`), Long-Neck (Lv 166): grey feathers (`look
 L2 added **The Eel Pit** (room 78, `GULLET_DEN`, the Still Mere's Gullet, art `src/dens-gullet.js`, theme `gullet`;
 `docs/places/stillmere.md`), Old Gullet (Lv 169): the shared `wave` ult drawn with the Tidemother's water (`waterMass`
 takes his theme), and his freeing (`drawGulletFreed`: the lights go up out of him and out of the pit).
+The Citadel's C1 added **The Armillary** (room 87, `MERIDIAN_DEN`, under the Orrery's dome, art `src/dens-orrery.js`, theme
+`orrery`; `docs/places/orrery.md`), Meridian (Lv 168): the shared `nova` ult as The Old Sky, star shots (`looks.feathers:
+'star'`), and its freeing (`drawMeridianFreed`: its rings stop and the stars let go, out across the roof).
 E4b added **The Bearer's Hoist** (room 62, `BRENNA_DEN`, the Caldera Rim, art `src/dens-rim.js`, theme `hoist`;
 `docs/places/rim.md`), Brenna, the Last Bearer, Emberdeep's party den (Lv 149): her `wave` ult, Last Delivery, is the
 tooth rolled end to end of the den (`HOIST_ULT` through `ULT_LOOKS`, `toothMass`; jump it) and her freeing a longer
@@ -268,6 +271,7 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | The Bellower (field, 100; E1) | armour, focus | Ignis's basalt plates with a glowing seam (`looks.shell: 'cinder'`): the black sand on its back baked hard |
 | The Hatchkeeper (den, 115; E2) | weakpoint (the shard under her crest), pulse (the nest's heat), interrupt | the S5.2 crystal over her neck; Ignis's ember rings, "HEAT" (`looks.pulse: 'heat'`) |
 | Long-Neck (den, 166; atlas Phase 8 L1) | weakpoint (the shard in her breast), pulse (the nest's cold mist), interrupt | the S5.2 crystal; the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
+| Meridian (den, 168; the Citadel's C1) | weakpoint (the shard in its glass heart), barrier (its rings close in starlight), interrupt | the S5.2 crystal as a star (`looks.weak: 'star'`); the Astral Wyrm's shell of starlight (`looks.dome: 'star'`) |
 | Old Gullet (den, 169; atlas Phase 8 L2) | weakpoint (the shard among the lights in his belly), pulse (the pit's cold breath), interrupt | the S5.2 crystal; the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
 | Hundredfoot (field, 125; E2) | armour, pulse (the heat) | Ignis's basalt plates (`looks.shell: 'cinder'`): its clinker closing up; Ignis's ember rings, "HEAT" (`looks.pulse: 'heat'`) |
 | The Brimstone Condor (field, 140; E3a) | focus, pulse (a gust of fumes) | the Colossus's steam rings (`looks.pulse: 'steam'`): its wingbeats whipping up the fumes |

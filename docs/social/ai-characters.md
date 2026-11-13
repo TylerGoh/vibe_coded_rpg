@@ -46,7 +46,11 @@ one shared corner feed).
   entry), knows the port and its hazards and nothing of "the hour" (`docs/places/skydocks.md`). **The Commissary**
   (`commissary`, Cogwork Bastion, the Citadel's C0) is its kin: a vending automaton that takes every slime for a guard,
   gives each a guard number, trades (the potions and the guards' issue) and knows nothing past its stores
-  (`docs/places/citadel.md`). A
+  (`docs/places/citadel.md`). **The Last Echo** (`echo`, the Chrono Spire by the Orrery's door, the Citadel's C1,
+  `docs/places/orrery.md`) is the plan's Tier 4 character: a Keeper's echo stuck in its last hour (`folk: 'echo'`), `lore: 4`
+  with `loreKnows` (it was there), lucid for a line or two when a slime brings up Mochi; it has lost its name and never
+  names the other Keepers (canon's open list). It guides you into the Orrery and to Meridian, in pieces. Since C1 the
+  Commissary notes the star-hall's lock stopped and logs the Echo as "UNISSUED". A
   character who stands in more than one room (`also`) trades only where its shop is (`src/npc.js`).
   **Lantern Fen's people** (atlas Phase 8, L0, `docs/places/fen.md`), all fen folk (`folk: 'fen'`): **Skipper Netta**
   (`netta`, the Hush's crossing, at her eel boxes and at the tiller via `also`), **Wren the Lamplady** (`wren`, tends the

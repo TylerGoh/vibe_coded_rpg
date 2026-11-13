@@ -31,7 +31,11 @@ the toads' chorus on the off-beats, a slow low line, the music box high above in
 the Will-Queen borrow the cinder bat's, wisp's, golem's and magma slug's voices, he the Colossus's); L5 (b)'s Peat Barrows
 the Citadel's C0: the Keepers' Gardens (`gardens`, slot 85: A major, slow and bare over a high wind, a music box over the
 dead beds and the fountain's spout ticking round; its automata borrow the sentry drone's, cinder bat's and cogling's
-voices, the Siege Engine the Colossus's); L5 (b)'s Peat Barrows (`peatbarrows`, slot 82: D minor, slower and lower than the Sunk Barrows, the music box further off, a spade into peat with
+voices, the Siege Engine the Colossus's); the Citadel's C1: the Orrery (`orrery`, slot 86: a slow E minor waltz, glass bells
+for the planets going round, a bowed note for the pivot, its gearing ticking, now and then a high pair of notes sliding
+down and back: a star dragged and slipping) and Meridian's den (`meridian`, slot 87: the waltz pulled taut, a low brass
+ostinato for the rings, the bells racing a half-step ahead, a drag back every fourth bar; its machines borrow the
+cogling's, chrono wraith's and sentry drone's voices, Meridian the Colossus's); L5 (b)'s Peat Barrows (`peatbarrows`, slot 82: D minor, slower and lower than the Sunk Barrows, the music box further off, a spade into peat with
 nobody there, drips, a papery flutter of wings) and the Lamp Road (`lamproad`, slot 83: a music box waltz in A minor over a
 held note, the pad and its left hand falling away the higher you climb, its notes ringing longer, her wingbeat a deep whump
 every two bars, louder near the top: `audio.setDepth` from `roadDepth` in `src/lamproad.js`; the Peat Barrows' mobs borrow

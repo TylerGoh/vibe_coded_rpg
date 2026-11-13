@@ -96,6 +96,7 @@ export const BOWS = {
   crucible_bow: { len: 33, wood: ['#5a5460', '#2e2a32'], w: 4, tip: 'rivet', c: '#e8701e', grip: '#1e1618', gem: '#ffb040', string: '#c8b8a8', glow: '255,150,60', curve: 0.38 },
   // the Citadel's depth pass, C0: the Commissary's issue and the Siege Engine's laminated brass
   guard_bow: { len: 30, wood: ['#f0c470', '#c8904a'], w: 3, tip: 'rivet', c: '#8a5a2e', grip: '#5a3a2a', gem: '#9ff0ea', string: '#e8e0cc', glow: '150,240,234' },
+  ecliptic_bow: { len: 34, wood: ['#fde3a0', '#c8904a'], w: 3.4, tip: 'gear', c: '#8a5a2e', grip: '#2a2a4a', gem: '#d6e4ff', string: '#d8dcf0', glow: '214,228,255', curve: 0.4 }, // (Meridian's, C1: two orrery arms, a star where they meet)
   siege_bow: { len: 34, wood: ['#c8904a', '#8a5a2e'], w: 4, tip: 'gear', c: '#4a4656', grip: '#2a2834', gem: '#9ff0ea', string: '#d8d0c0', glow: '150,240,234', curve: 0.36 },
   bellower_bow: { len: 31, wood: ['#5a5058', '#2e2830'], w: 3.8, tip: 'rivet', c: '#a8a0a8', grip: '#3a3038', gem: '#ffb46a', string: '#c8b8a8', glow: '255,170,110', curve: 0.36 },
   // the Caldera Rim (E4a, docs/places/rim.md)

@@ -69,6 +69,7 @@ export const STAFFS = {
   blackglass_staff: { len: 64, shaft: ['#6a6470', '#36323c'], w: 2.8, head: 'crystal', gem: '#3a3446', gem2: '#8ad0c0', glow: '160,230,215' },
   // the Citadel's depth pass, C0 (docs/places/citadel.md): the Commissary's issue and the Siege Engine's
   guard_staff: { len: 64, shaft: ['#f0c470', '#c8904a'], w: 2.8, head: 'lantern', gem: '#9ff0ea', gem2: '#8a5a2e', glow: '150,240,234' },
+  orrery_staff: { len: 70, shaft: ['#f0c470', '#8a5a2e'], w: 3, head: 'ring', gem: '#d6e4ff', gem2: '#5a6aa8', glow: '214,228,255' }, // (Meridian's, C1: three little rings round a bead of star-glass)
   siege_staff: { len: 66, shaft: ['#c8904a', '#8a5a2e'], w: 3.2, head: 'gear', gem: '#9ff0ea', gem2: '#4a4656', glow: '150,240,234' },
   bellower_staff: { len: 66, shaft: ['#5a5058', '#2e2830'], w: 3.2, head: 'ember', gem: '#3a3240', gem2: '#ffb46a', glow: '255,170,110' },
   // the Ashwood (E1, docs/places/ashwood.md)

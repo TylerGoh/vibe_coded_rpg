@@ -19,6 +19,7 @@ import { THIN_PALETTE, drawThinFolk, drawGlasscutterDress } from './coast-art.js
 import { drawPickerDress } from './brimstone-art.js';
 import { drawCampDress } from './skycamp-art.js';
 import { drawIssuerDress } from './bastion-art.js';
+import { ECHO_PALETTE, drawEchoFolk, drawKeeperDress } from './orrery-art.js';
 import { FEN_PALETTE, drawFenFolk, drawFenDress } from './wickmere-art.js';
 import { drawPetkeeperDress } from './pet-art.js';
 
@@ -126,6 +127,7 @@ export class Slime {
     if (folk === 'forge') this.palette = FORGE_PALETTE(this.hue);
     if (folk === 'thinned') this.palette = THIN_PALETTE(this.hue);
     if (folk === 'fen') this.palette = FEN_PALETTE(this.hue);
+    if (folk === 'echo') this.palette = ECHO_PALETTE(this.hue); // (the Last Echo, a Keeper's echo: the Citadel, C1)
   }
 
   setName(name) {
@@ -508,6 +510,7 @@ export class Slime {
       if (this.folk === 'fjord') drawFolk(ctx, w, h, this.t);
       else if (this.folk === 'thinned') drawThinFolk(ctx, w, h, this.t);
       else if (this.folk === 'fen') drawFenFolk(ctx, w, h, this.t);
+      else if (this.folk === 'echo') drawEchoFolk(ctx, w, h, this.t);
       else drawForgeFolk(ctx, w, h, this.t);
       ctx.restore();
     }
@@ -1017,6 +1020,7 @@ export class Slime {
     if (this.has('picker')) drawPickerDress(ctx, w, h, fx, this.t); // the Brimstone Fields' Picker Ochre
     for (const kind of ['aeronaut', 'pilgrim', 'tinker', 'porter']) if (this.has(kind)) drawCampDress(ctx, kind, w, h, fx, this.t); // the Skydocks camp's visitors (Kestrel, Ione, Tamp) and the Dockwarden
     for (const kind of ['eelskipper', 'lamplady', 'ferryman', 'reedweaver']) if (this.has(kind)) drawFenDress(ctx, kind, w, h, fx, this.t); // Wickmere's people (atlas Phase 8)
+    if (this.has('keeper')) drawKeeperDress(ctx, w, h, fx, this.t); // the Last Echo, by the Orrery's door (C1)
     if (this.has('issuer')) drawIssuerDress(ctx, w, h, fx, this.t); // Cogwork Bastion's Commissary (the Citadel's depth pass, C0)
     if (this.has('petkeeper')) drawPetkeeperDress(ctx, w, h, fx, this.t, bodyPath); // the Pet Shop's Auntie Clover
     if (this.has('captain')) {

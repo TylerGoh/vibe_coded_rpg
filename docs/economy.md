@@ -883,6 +883,20 @@ farming gold / EXP (`FIELD_PAY`). Its set a step over (Lv 156: the Siege Ram and
 859k, `helmetPrice`), on the curve × `BOSS_GEAR.field`; Siege Bolt 1,490. Its pet 248.5k, between the Colossus's (248k, Lv
 150) and the Bog Bloat's (249k, Lv 158); `PETSHOP_W` 6450 → 6600. Nothing else moved. `--check` green on the first run.
 
+## The Citadel's depth pass, C1 (2026-11-13)
+The Orrery (`docs/places/orrery.md`) puts three mobs on the frozen curve, read off the Still Mere's at the same levels: the
+armillary ring (161, HP 100%, a plain chaser), star-glass wisp (164, 94% for a phasing flier) and astrolabe sentry (168, 92%
+for a `beam` shooter, like the sentry drone's 84%); EXP 100%, gold 101% (coins the Still Mere's; materials on the ladder a
+step under theirs: Armillary Pin 1,565, Star-Glass Mote 1,595, Astrolabe Plate 1,635, so "farming your own level" still
+picks the lamp crab at 168 and nothing moves). **Gold earned by and play time are unchanged** at every level. **Meridian**
+(den 87, Lv 168): between Long-Neck's (166) and Old Gullet's (169) numbers (written HP 11.6M, ATK 642, EXP 990k, coins
+255–385k); the sheet solos it in a median ~9:29 (`DEN_SOLO_MIN`; Old Gullet 9:31), its EXP camps at 0.74× / 5.43× an hour of
+farming, a kill pays ~1.11M (~23.7× a minute of farming, like the other dens): coins ~320k and Orrery Beads (1,845),
+Meridian's Arm and its twins (Lv 169, 1.333M: `swordPrice`) and the Armillary Crown (Lv 169, 1.01M: `helmetPrice`), on the
+curve × `BOSS_GEAR.den`. Its pet 252k, between Long-Neck's (250k, Lv 166) and Old Gullet's (254k, Lv 169); `PETSHOP_W` 6600 →
+6750 (the plinths need 6694). The CLASSES tables' toughness column moved by a second or two in a few rows (the dens' median
+boss ATK against the curve, which Meridian joined). `--check` green.
+
 ## Lantern Fen, L5 (c): the Wickmother, the fourth final boss (2026-11-12)
 FINAL BOSSES gains `wickmother`, fought at Lv 190 (`fightLvl`: her Lv 210 tag less `FINAL_LVL_OVER`), the first fight
 past 200 on a tag. Her written HP (158M) takes `BOSS_HP_SCALE`, her uptime share (`UPTIME_TOP`: she has challenges) and

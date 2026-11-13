@@ -1,7 +1,7 @@
 # The Citadel's depth pass (C0–C6), on paper (for the owner to approve)
 
 **Status: approved 2026-11-13 (the owner's "continue with next phase": every default stands); C0 built the same day
-(`docs/places/citadel.md`, `docs/places/gardens.md`). Revisions at C0: the band stretched past 200 as the owner's 2026-11-12
+(`docs/places/citadel.md`, `docs/places/gardens.md`), and C1 (`docs/places/orrery.md`). Revisions at C0: the band stretched past 200 as the owner's 2026-11-12
 note asked (the Keel 188–200, the Bell Walks 195–208, the Undercroft 205–215, the Escapement fought at ~215; the Engine
 Halls 175–190 and the Helm ~190 as written), and the Engine Halls' blast door is in the Spire (room 13), not the Orrery.
 Written 2026-11-11 at the owner's ask ("why does Aether Citadel just end abruptly? why aren't there a

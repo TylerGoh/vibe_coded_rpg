@@ -166,6 +166,12 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   Gullet, Long-Neck and Grandfather Mire aren't in the story record (no Fen tier), so only the Wickmother has freed changes
   on the Fen.
 
+## The Citadel's depth pass, C1 (2026-11-13)
+- Unplayed: the Orrery (its three mobs, the astrolabe sentry's `astro` beam), Meridian (its rings, Rewind in a den, The Old
+  Sky, the barrier and weak point with a party, its freeing), the Last Echo's chat (its lucid moments when Mochi comes up),
+  the freed dome; the art and the two music scenes weren't seen or heard (no headless test, owner's rule).
+- The dome's dragged stars are drawing only; an idea not built: let a freed slime's dome show a constellation it can name.
+
 ## The Citadel's depth pass, C0 (2026-11-13)
 - Unplayed: the Keepers' Gardens, the Siege Engine (its feints and rings), the Commissary's chat and Trade button, the five gates' E messages and the Citadel's island map; no phone screenshot taken (no headless test, owner's rule).
 - The Siege Engine's armour reuses the Colossus's bronze plates (`looks.shell: 'brass'`) rather than drawing its own shutters coming down.

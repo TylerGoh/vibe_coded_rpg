@@ -14,7 +14,8 @@ Files: the boss → tier table and helpers in `src/shared/story.js` (`BOSS_TIER`
   `hitters` the EXP and loot use, so healers count), with the time of the first kill. **Never reset**: rebirth, a class
   change and the rollback leave it alone (unlike `bossAt`, which only remembers the reward window).
 - **The lore tier** (`tierOf`): the highest tier among your bosses in `BOSS_TIER`, and every tier under it comes with it.
-  Tier 1: any Greenhollow den boss · 2: any Frostpeak one · 3: any Emberdeep one · 4: the Colossus or Chronos. Field
+  Tier 1: any Greenhollow den boss · 2: any Frostpeak one · 3: any Emberdeep one · 4: the Colossus, Chronos or (since the
+  Citadel's C1) Meridian. Field
   bosses don't count. **A new den boss needs its `BOSS_TIER` row** or it gives nothing.
 - **Backfill (owner, 2026-11-04: "from now on")**: a character saved before Phase 7 starts from the bosses still in its
   reward window (`bossAt`); nothing older is known. At launch that was nobody: everyone started at Tier 0.
@@ -29,7 +30,8 @@ Files: the boss → tier table and helpers in `src/shared/story.js` (`BOSS_TIER`
   (`loreFor`), told to share it freely in its own voice, a little at a time, as things the slime found out, and to
   deflect anything deeper without hinting; plus the open questions, which nobody may answer. At tier 0 it's told the
   slime knows nothing of the old story yet.
-- Caps so far: **Elder Mochi 4** (he knows it all and never volunteers it; at Tier 4 his persona lets him say he was
+- Caps so far: **the Last Echo 4** (the Citadel's C1, `loreKnows`: it was there; it never names itself or the other Keepers)
+  and **Elder Mochi 4** (he knows it all and never volunteers it; at Tier 4 his persona lets him say he was
   Pell's apprentice and the tree is a cutting of the Heartroot) and **Curator Clio 4** (the slimes' own past is a
   separate subject from the museum's wings; she states only what the visitor has found). Every other character has no
   cap yet (their personas hold Tier 0 plus their trade, as before): Phase 7 (c) gives them island caps.
@@ -70,5 +72,7 @@ other slimes see their own world). The client gets your record's bosses as `me.f
   Hall of Lamps' front door at the Causeway's end opens: a gate with `freed` drawn open, and a door with `freed` through
   it, the one freed change that isn't drawing only (its slime state flag `fw`: `docs/netcode.md`). Wren, Hob, Sedge and
   Netta know (`FREED.wickmother`).
+- **Meridian** (the Citadel's C1, `docs/places/orrery.md`) → the Orrery's dome (`drawOrrery`'s `freed`): the stars sit where
+  they are now with no lines dragging them back, the orrery's arms hang still. The Last Echo knows (`FREED.meridian`).
 - Later, if wanted (plan): Ladon, Fenrir (the cutters finish the Long Stair), Typhon (the Foundry's pits go cold). The
   one world-wide flag stays for the finale (`story/delivery.md`).

@@ -8,7 +8,7 @@
 // Skydocks (drawExit; until Phase 6 (c) a skylift ran down to the Caldera from there). Also here: the Citadel's mobs
 // (CITADEL_MOB_ART, called by drawMob in field.js).
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
-import { CITADEL_W, CITADEL_EXIT_X, CITADEL_ZONES, CITADEL_PLATFORMS, CITADEL, FIELD_GROUND, DENS, CIT_WAY_X, COMMISSARY_X, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, SPIRE_WAY_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X } from './shared/rpg.js';
+import { CITADEL_W, CITADEL_EXIT_X, CITADEL_ZONES, CITADEL_PLATFORMS, CITADEL, FIELD_GROUND, DENS, CIT_WAY_X, COMMISSARY_X, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, SPIRE_WAY_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X, ECHO_X } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
 
 const GROUND = FIELD_GROUND;
@@ -22,7 +22,7 @@ const spireK = (x) => smooth(B - 350, B + 350, x); // 0 = bright brass bastion, 
 const visible = (x0, x1, L, R) => x1 > L && x0 < R;
 const DEN_XS = DENS.filter((d) => d.from === CITADEL).map((d) => d.entranceX);
 // (the depth pass, C0: the gates, waystones and the Commissary's counter, drawn elsewhere, get the same room)
-const FEATURE_XS = [CIT_WAY_X, COMMISSARY_X, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, SPIRE_WAY_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X];
+const FEATURE_XS = [CIT_WAY_X, COMMISSARY_X, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, SPIRE_WAY_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X, ECHO_X];
 const clearOfDens = (x, pad = 150) => DEN_XS.every((d) => Math.abs(x - d) > pad) && FEATURE_XS.every((d) => Math.abs(x - d) > pad * 0.75);
 const SIGN_XS = [330, B + 170];
 const clearOfSigns = (x, pad = 80) => SIGN_XS.every((s) => Math.abs(x - s) > pad);

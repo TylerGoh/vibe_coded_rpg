@@ -116,6 +116,9 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
   - **Long-Neck** (atlas Phase 8 L1, the first boss built with its challenges from day one): late tells every phase
     (`late`: she goes still, then the bill comes down where you stood) and the mere flooding the den from phase 2
     (`flood`, style `mire`: `FLOOD_LOOK.mire`). The punish window.
+  - **Meridian** (the Citadel's C1, from day one, `docs/places/orrery.md`): bullet rings of stars every phase (`orbs`,
+    `looks.rings: 'star'`) and Rewind from phase 2 (`rewind`, Chronos's: the orrery dragging the room back, as it drags the
+    stars). The punish window.
   - **Old Gullet** (atlas Phase 8 L2, from day one): swallowed every phase (`gulp`, a move name of its own in `CHAL_MOVE` for
     the mash free, drawn as his dark jaws with the lights showing through: `looks.snare: 'gullet'`, `PAL.gullet`) and the
     dark from phase 2 (`dark` as a plain move: both need their `WARN` row, or the boss's timer is `NaN`). The punish window.

@@ -138,7 +138,7 @@ No quests, no hard level gates.
   - [ ] rewrite flavor text in each region's register: items, mobs, zone names, door labels
 
 ## Later
-- [ ] The Last Echo (AI, Tier 4) in the Chrono Spire.
+- [x] The Last Echo (AI, Tier 4) in the Chrono Spire (the Citadel's C1, 2026-11-13: `docs/places/orrery.md`).
 - [ ] The Slime Ages wing in the museum.
 - [ ] **Atlas Phase 8: Lantern Fen** (the Wickmother), the next island (owner, 2026-11-10). (a) on paper 2026-11-10:
       `phase8-plan.md`; approved 2026-11-11 with Lv 150–180 (the owner's change), the rest as written.
@@ -180,7 +180,11 @@ No quests, no hard level gates.
   - [x] C0 (2026-11-13, live): the island map, the Bastion's and the Spire's waystones, every gate laid in room 13, the
         Siege Engine (field boss) and the Commissary (trader) in the Bastion, the Keepers' Gardens (85, easy pocket)
         (`docs/places/citadel.md`, `docs/places/gardens.md`). Unplayed.
-  - [ ] C1: the Orrery and Meridian, and the Last Echo in the Spire (the lock on the Orrery's door stops).
+  - [x] C1 (2026-11-13, live): the lock on the Orrery's door stopped; the Orrery (86, Lv 160–170: armillary rings, star-glass
+        wisps, astrolabe sentries, the dragged stars in its dome, the chart with the stars drawn twice), Meridian and its den
+        the Armillary (87, Lv 168: rings and Rewind from day one, The Old Sky, its freed dome), the Last Echo in the Spire
+        (AI, Tier 4, lucid at Mochi's name) (`docs/places/orrery.md`). Unplayed.
+  - [ ] C2: the Archive and the Indexer, and Folio (the Archive's shutter rises).
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,
