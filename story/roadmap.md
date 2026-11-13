@@ -184,7 +184,11 @@ No quests, no hard level gates.
         wisps, astrolabe sentries, the dragged stars in its dome, the chart with the stars drawn twice), Meridian and its den
         the Armillary (87, Lv 168: rings and Rewind from day one, The Old Sky, its freed dome), the Last Echo in the Spire
         (AI, Tier 4, lucid at Mochi's name) (`docs/places/orrery.md`). Unplayed.
-  - [ ] C2: the Archive and the Indexer, and Folio (the Archive's shutter rises).
+  - [x] C2 (2026-11-13, live): the Archive's shutter rose; the Archive (88, Lv 165–178: page swarms, ink slimes, binder
+        automata, index moths, the pages drifting up, the ledger with one name left), the Indexer and its den the Last
+        Drawer (89, Lv 177: grid, snare and swap from day one, Closing Time, its freed pages), Folio at the issue desk
+        (AI, trades, Tier 4 hearsay) (`docs/places/archive.md`). Unplayed.
+  - [ ] C3: the Engine Halls, the Stormcoil and Number Nine (the blast door vents).
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

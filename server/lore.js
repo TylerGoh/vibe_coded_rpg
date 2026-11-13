@@ -62,6 +62,8 @@ export const FREED = {
   root_warden: { near: ['acorn'], name: 'the Root Warden', seen: "up on Keeper's Spine the great roots have drawn back off the Crest's stones into the turf, heather growing over them" },
   // the Citadel, C1: the Orrery's den (its dome drawn changed for the slime who freed it: src/orrery.js)
   meridian: { near: ['echo'], name: 'Meridian, the orrery\'s engine', seen: "in the Orrery the great arms hang still at last and the stars in the dome sit where they are now, scattered; nothing pulls them back any more. It frightens you and eases you at once" },
+  // the Citadel, C2: the Archive's den (its pages drawn come to rest for the slime who freed it: src/archive.js)
+  indexer: { near: ['folio'], name: 'the Indexer', seen: "in the Archive the loose pages have stopped drifting up: they came down and lie still on the floor and the shelves, and the great catalogue's top drawer is shut. Folio has begun, very quietly, to file again" },
   // L5 (c): Lantern Fen's final boss. Nobody in Wickmere says her name; "the Mother" is as far as the songs go
   wickmother: { near: ['wren', 'hob', 'sedge', 'netta'], name: 'the Mother in the Hall of Lamps', seen: "the Lamp Walk burns low: a few of its lanterns have gone out and their tags are gone, as if they were let go (Wren's husband's is one of them), and the Hall of Lamps' front door at the Causeway's end stands open, its silk cut down. Be gentle about it: it is grief, and a relief" },
 };

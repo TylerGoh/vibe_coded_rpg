@@ -883,6 +883,21 @@ farming gold / EXP (`FIELD_PAY`). Its set a step over (Lv 156: the Siege Ram and
 859k, `helmetPrice`), on the curve × `BOSS_GEAR.field`; Siege Bolt 1,490. Its pet 248.5k, between the Colossus's (248k, Lv
 150) and the Bog Bloat's (249k, Lv 158); `PETSHOP_W` 6450 → 6600. Nothing else moved. `--check` green on the first run.
 
+## The Citadel's depth pass, C2 (2026-11-13)
+The Archive (`docs/places/archive.md`) puts four mobs on the frozen curve, read off the Fen's at the same levels: the page
+swarm (166, HP 93% for a flier), ink slime (169, 95%, a `trail` dropper), binder automaton (173, 120% like every `shell` mob)
+and index moth (176, 93%, a `dive` flier); EXP 100%, gold 101% (coins between the Fen's neighbours; materials on the ladder:
+Loose Leaf 1,615, Archive Ink 1,645, Binder Clasp 1,685, Index Tab 1,715, so "farming your own level" picks the same mobs as
+before). **Gold earned by and play time are unchanged** to the hour (gold earned by Lv 190–220 ~1k lower, from the farm's
+neighbours re-sorting). **The Indexer** (den 89, Lv 177): written HP 12.4M (first tried at 13.6M: the solo median came out
+10:31, a minute over the other dens, so it was cut), ATK 676, EXP 1.085M, coins 280–420k; the sheet solos it in a median
+~9:35 (`DEN_SOLO_MIN`; Meridian 9:29), its EXP camps at 0.74× / 5.64× an hour of farming, a kill pays ~1.23M (~24.2× a
+minute of farming, like the other dens): coins ~350k and Last Index Cards (1,935), the Indexer's Spike and twins (Lv 178,
+1.49M) and the Drawer Crown (Lv 178, 1.125M), on the curve × `BOSS_GEAR.den`. **Folio**'s tier, aimed at Lv 172 (`lvl` 168
+on the gear curve): the Archivist's Rule (and its staff and bow twins) 298k, ~20 min of farming at the aim, the Reading
+Visor 228k, ~16 min, inside the gear band. Its pet 279k, between the Will-Queen's (276k, Lv 176) and the Sleeper's (282k,
+Lv 178); `PETSHOP_W` 6750 → 6900 (the plinths need 6856). `--check` green.
+
 ## The Citadel's depth pass, C1 (2026-11-13)
 The Orrery (`docs/places/orrery.md`) puts three mobs on the frozen curve, read off the Still Mere's at the same levels: the
 armillary ring (161, HP 100%, a plain chaser), star-glass wisp (164, 94% for a phasing flier) and astrolabe sentry (168, 92%

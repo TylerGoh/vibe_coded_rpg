@@ -166,6 +166,15 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   Gullet, Long-Neck and Grandfather Mire aren't in the story record (no Fen tier), so only the Wickmother has freed changes
   on the Fen.
 
+## The Citadel's depth pass, C2 (2026-11-13)
+- Unplayed: the Archive (its four mobs, the `ink` trail), the Indexer (the grid, the paper snare, the swap, Closing Time,
+  the weak point and armour with a party, its freeing), Folio's chat and Trade button, the Archive's waystone, the freed
+  pages; the art and the two music scenes weren't seen or heard (no headless test, owner's rule; the draw functions were run
+  against a stub canvas in Node, which catches thrown errors only). The ledger's one legible name is 5 px text: check it
+  reads on a phone.
+- The laser grid draws the Colossus's pistons whatever `looks.laser` says: the Indexer's index lines are pistons too. An
+  idea not built: a `looks.laser` look of its own (drawers on the roof, ruled ink lines).
+
 ## The Citadel's depth pass, C1 (2026-11-13)
 - Unplayed: the Orrery (its three mobs, the astrolabe sentry's `astro` beam), Meridian (its rings, Rewind in a den, The Old
   Sky, the barrier and weak point with a party, its freeing), the Last Echo's chat (its lucid moments when Mochi comes up),

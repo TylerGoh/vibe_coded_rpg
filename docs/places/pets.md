@@ -75,7 +75,7 @@ Gullet (L2, his art shrunk, lights and all, between Long-Neck's and Typhon's: Lv
 field bosses': the mini Bog Bloat (Lv 158, between the Colossus's and Long-Neck's) and the mini Sleeper in the Peat (Lv
 178, above Chronos's), asleep under its peat as long as nothing hits it; and L4's: the mini Will-Queen (Lv 176, between
 Chronos's and the Sleeper's) and the mini Grandfather Mire (Lv 179); the Citadel's C0: the mini Siege Engine (Lv 154, between
-the Colossus's and the Bog Bloat's); C1: the mini Meridian (Lv 168, between Long-Neck's and Old Gullet's). L5 (c)'s **mini Wickmother** has art of its own (`drawWickPet` in `src/wick-art.js`: a
+the Colossus's and the Bog Bloat's); C1: the mini Meridian (Lv 168, between Long-Neck's and Old Gullet's); C2: the mini Indexer (Lv 177, between the Will-Queen's and the Sleeper's). L5 (c)'s **mini Wickmother** has art of its own (`drawWickPet` in `src/wick-art.js`: a
 small furry moth circling a tiny lantern on a stand), Lv 210, now the dearest. `PETSHOP_W` went up again.
 
 ## Testing

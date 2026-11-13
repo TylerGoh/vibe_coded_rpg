@@ -18,7 +18,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, COLUMN_VISTA_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS, FIREFLY, GROVE, STILLMERE, BARROWS, CAUSEWAY, PEATBARROWS, LAMPROAD, GARDENS, ORRERY } from './shared/rpg.js';
+import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, COLUMN_VISTA_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS, FIREFLY, GROVE, STILLMERE, BARROWS, CAUSEWAY, PEATBARROWS, LAMPROAD, GARDENS, ORRERY, ARCHIVE } from './shared/rpg.js';
 import { drawHighlands, drawSummitLookout } from './highlands.js';
 import { drawCaldera } from './caldera.js';
 import { drawCitadel } from './citadel.js';
@@ -48,6 +48,7 @@ import { drawShallows } from './shallows.js';
 import { drawFirefly } from './firefly.js';
 import { drawGardens } from './gardens.js';
 import { drawOrrery } from './orrery.js';
+import { drawArchive } from './archive.js';
 import { drawGrove, drawGroveFront } from './grove.js';
 import { drawStillMere, drawStillMereFront } from './stillmere.js';
 import { drawBarrows, drawBarrowsFront } from './barrows.js';
@@ -1680,6 +1681,7 @@ function render() {
     else if (room === PEATBARROWS) drawPeatBarrows(ctx, camX, W, time);
     else if (room === GARDENS) drawGardens(ctx, camX, W, time); // (the Citadel's depth pass, C0)
     else if (room === ORRERY) drawOrrery(ctx, camX, W, time, freed('meridian')); // (C1: freed, its arms at rest and the dome's stars where they are now)
+    else if (room === ARCHIVE) drawArchive(ctx, camX, W, time, freed('indexer')); // (C2: freed, its pages come down to rest)
     else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
       if (near(SUMMIT_LOOKOUT_X)) drawSummitLookout(ctx, SUMMIT_LOOKOUT_X, ROOMS[HIGHLANDS].ground, time);

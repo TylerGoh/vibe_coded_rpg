@@ -89,6 +89,10 @@ All `[proposed]`. Each needs a persona in `server/characters.js` that's fed cano
   its last hour (hurrying to the star-hall as the stars began to move, the lock turning), who becomes briefly lucid when
   players bring Mochi's name: it remembers a small green apprentice who swept the leaves and was always late. Holds Tier
   4; has lost its own name, never names the other Keepers.
+- **Folio** (the Archive's Reading Room, **exists** since the Citadel's C2): a small brass archive automaton at the issue
+  desk, prim and dry, shushes; opens a reader's card for everyone; catalogued every record and read none. One volume still
+  out on loan from before the day stopped; it works out the fine every morning. Sells the archivists' kit; Tier 4 at most,
+  hearsay only.
 - **Pell** (post-game, by the apple tree): see `mochi-and-chronos.md`.
 
 ## Existing villagers

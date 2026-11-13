@@ -69,6 +69,8 @@ export const STAFFS = {
   blackglass_staff: { len: 64, shaft: ['#6a6470', '#36323c'], w: 2.8, head: 'crystal', gem: '#3a3446', gem2: '#8ad0c0', glow: '160,230,215' },
   // the Citadel's depth pass, C0 (docs/places/citadel.md): the Commissary's issue and the Siege Engine's
   guard_staff: { len: 64, shaft: ['#f0c470', '#c8904a'], w: 2.8, head: 'lantern', gem: '#9ff0ea', gem2: '#8a5a2e', glow: '150,240,234' },
+  archivist_pointer: { len: 66, shaft: ['#3a3236', '#1e1a20'], w: 2.6, head: 'pointer', gem: '#f0c470', gem2: '#8a5a2e', glow: '255,236,200' }, // (Folio's issue, C2: a reading-room pointer, a brass tip)
+  stamp_staff: { len: 70, shaft: ['#f0c470', '#8a5a2e'], w: 3.2, head: 'stamp', gem: '#c8302a', gem2: '#5a3a2a', glow: '255,140,120' }, // (the Indexer's, C2: a long brass stamp, its red die)
   orrery_staff: { len: 70, shaft: ['#f0c470', '#8a5a2e'], w: 3, head: 'ring', gem: '#d6e4ff', gem2: '#5a6aa8', glow: '214,228,255' }, // (Meridian's, C1: three little rings round a bead of star-glass)
   siege_staff: { len: 66, shaft: ['#c8904a', '#8a5a2e'], w: 3.2, head: 'gear', gem: '#9ff0ea', gem2: '#4a4656', glow: '150,240,234' },
   bellower_staff: { len: 66, shaft: ['#5a5058', '#2e2830'], w: 3.2, head: 'ember', gem: '#3a3240', gem2: '#ffb46a', glow: '255,170,110' },
@@ -135,6 +137,41 @@ function gem(ctx, x, y, r, c, shine = true) {
 
 // The heads: (ctx, s, top y, time, glow 0..1)
 const HEADS = {
+  // a reading-room pointer's brass tip, a little collar of brass rings under it (Folio's, the Citadel's C2)
+  pointer(ctx, s, y) {
+    ctx.fillStyle = s.gem;
+    ctx.beginPath();
+    ctx.moveTo(-3.2, y + 2);
+    ctx.lineTo(0, y - 13);
+    ctx.lineTo(3.2, y + 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.fillStyle = s.gem2;
+    for (const dy of [3, 6]) ctx.fillRect(-3.6, y + dy, 7.2, 1.8);
+  },
+  // a stamp: a brass block on a neck, its red die underneath turned up to the sky, a little knob on the side (the Indexer's)
+  stamp(ctx, s, y) {
+    ctx.fillStyle = '#c8904a';
+    ctx.fillRect(-2.5, y - 4, 5, 6);
+    ctx.fillStyle = '#f0c470';
+    ctx.beginPath();
+    ctx.roundRect(-9, y - 14, 18, 10, 2.5);
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+    ctx.fillStyle = s.gem;
+    ctx.beginPath();
+    ctx.roundRect(-10, y - 19, 20, 5, 1.5);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = s.gem2;
+    circle(ctx, 10.5, y - 9, 2.2);
+    ctx.fill();
+  },
   // a bent twig with a little spark caught in its fork
   twig(ctx, s, y, t) {
     ctx.strokeStyle = s.shaft[1];

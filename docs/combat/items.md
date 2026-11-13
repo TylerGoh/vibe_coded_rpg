@@ -242,7 +242,11 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   the **Siege Staff**, the **Siege Bow**) and the **Siege Helm** (Lv 156), and **the Commissary** sells the **Bastion
   Guard's Saber**, **Staff**, **Bow** and **Helm** (Lv 146, aim 150) (art `src/bastion-art.js`, `BASTION_*`;
   `docs/places/citadel.md`). C1: **Meridian** drops **Meridian's Arm** (twins: the **Orrery Staff**, the **Ecliptic Bow**) and
-  the **Armillary Crown**, boss gear at Lv 169 (art `src/orrery-art.js`, `ORRERY_*`; `docs/places/orrery.md`). L5 (b): in the Peat Barrows a lamp-bearer drops the **Lamp-Carrier's Hood** (Lv
+  the **Armillary Crown**, boss gear at Lv 169 (art `src/orrery-art.js`, `ORRERY_*`; `docs/places/orrery.md`). C2: **Folio**
+  (`SHOPS.folio`, aim 172) sells the **Archivist's Rule**, **Pointer** and **Bow** and the **Reading Visor** (Lv 168), and the
+  **Indexer** drops **the Indexer's Spike** (twins: the **Sentinel Stamp**, a new staff head `stamp`, and the **Catalogue
+  Bow**) and the **Drawer Crown**, boss gear at Lv 178 (art `src/archive-art.js`, `ARCHIVE_*`; the Pointer's head `pointer`;
+  `docs/places/archive.md`). L5 (b): in the Peat Barrows a lamp-bearer drops the **Lamp-Carrier's Hood** (Lv
   186) very rarely, and the Eldest (a named elite) the **Cradle-Silk Blade** (twins: the **Cradle-Silk Staff**, the
   **Cradle-Silk Bow**; Lv 190), mob gear on the curve (art `src/peatbarrows-art.js`, `PEATBARROWS_*`;
   `docs/places/peatbarrows.md`).

@@ -1463,6 +1463,7 @@ const PAL = {
   mire: { body: '#3a4626', crack: '#c8d8a0', glow: [200, 214, 130], pool: '58,70,38' }, // (Grandfather Mire's toads' chorus: weed and spawn wound round you on the beat, atlas Phase 8 L4)
   peat: { body: '#3a2c20', crack: '#c8a060', glow: [200, 160, 96], pool: '58,44,32' }, // (the Sleeper in the Peat pulls you down into the peat with it: atlas Phase 8 L3)
   silk: { body: 'rgba(236,228,242,0.94)', crack: '#a898bc', glow: [255, 214, 150], pool: '226,218,236' }, // (the Wickmother's moth-silk wound round you: the Stoop's strand, the cocoon, L5)
+  paper: { body: 'rgba(239,228,200,0.95)', crack: '#a8302a', glow: [255, 236, 200], pool: '239,228,200' }, // (the Indexer's index card pinned over you, its number in red: the Citadel's C2)
 };
 function drawIron(ctx, x, y, h, t, left, style = 'iron') {
   const H = h * (0.45 + 0.2 * Math.min(1, left * 1.5)) * (style === 'ice' ? 1.6 : 1), W = 30, heat = Math.max(0, Math.min(1, left)), P = PAL[style] ?? PAL.iron;

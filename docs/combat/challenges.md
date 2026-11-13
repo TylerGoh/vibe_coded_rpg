@@ -119,6 +119,9 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
   - **Meridian** (the Citadel's C1, from day one, `docs/places/orrery.md`): bullet rings of stars every phase (`orbs`,
     `looks.rings: 'star'`) and Rewind from phase 2 (`rewind`, Chronos's: the orrery dragging the room back, as it drags the
     stars). The punish window.
+  - **The Indexer** (the Citadel's C2, from day one, `docs/places/archive.md`): the laser grid every phase (`lasers`, index
+    lines ruled down off its drawers), the snare from phase 2 (`snare`: an index card pinned over you, `looks.snare:
+    'paper'`, a new `PAL` row) and the controls swap in phase 3 (`reverse`: filed back to front). The punish window.
   - **Old Gullet** (atlas Phase 8 L2, from day one): swallowed every phase (`gulp`, a move name of its own in `CHAL_MOVE` for
     the mash free, drawn as his dark jaws with the lights showing through: `looks.snare: 'gullet'`, `PAL.gullet`) and the
     dark from phase 2 (`dark` as a plain move: both need their `WARN` row, or the boss's timer is `NaN`). The punish window.

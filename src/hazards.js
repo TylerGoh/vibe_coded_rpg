@@ -111,6 +111,7 @@ const SHOT = {
   ember: { glow: '255,140,60', core: '#fff3b0', mid: '#ffb34d', rim: '#ff6a3d' },
   feather: { glow: '255,120,70', core: '#fff1c4', mid: '#ffa04a', rim: '#ff5a4a' },
   heronfeather: { glow: '200,215,235', core: '#ffffff', mid: '#e4e6ea', rim: '#6e727c' }, // Long-Neck's (looks.feathers)
+  page: { glow: '255,236,200', core: '#ffffff', mid: '#efe4c8', rim: '#8a6a4a' }, // the Indexer's flung cards (looks.feathers, the Citadel's C2)
   clock: { glow: '255,214,120', core: '#fff8dc', mid: '#ffd36b', rim: '#b98cff' },
   spark: { glow: '130,225,255', core: '#ffffff', mid: '#aef0ff', rim: '#5fc8ff' },
   water: { glow: '150,220,255', core: '#ffffff', mid: '#bfeaff', rim: '#5fb0e0' }, // the snapshrimp's
@@ -487,8 +488,10 @@ function drawShot(ctx, h, now) {
 // 'brine' = a slick of freezing brine, salt crystals growing in it (the brine slug's) · 'steam' = a scalded wet
 // patch with puffs of steam boiling up off it (the steam toad's, the Black Sands) · 'acid' = a pale green-yellow
 // pool of acid, smoking and pitting the crust (the acid slug's, the Brimstone Fields) · 'tallow' = a pale pool of hot
-// tallow, a little flame or two still on it (the wick grub's, the Peat Barrows)
+// tallow, a little flame or two still on it (the wick grub's, the Peat Barrows) · 'ink' = a wet black slick of the Archive's
+// ink, its edge feathering out, a date or two floating in it (the ink slime's, the Citadel's C2)
 function drawPuddle(ctx, h, now) {
+  if (h.style === 'ink') return drawInk(ctx, h, now);
   if (h.style === 'brine') return drawBrine(ctx, h, now);
   if (h.style === 'steam') return drawSteamPuff(ctx, h, now);
   if (h.style === 'acid') return drawAcid(ctx, h, now);
@@ -706,6 +709,42 @@ function drawTallow(ctx, h, now) {
     ctx.fillStyle = 'rgba(255,214,150,0.9)';
     tongue(ctx, bx, y - 1, 2.6, fh, Math.sin(now * 7 + i) * 1.4);
   }
+  ctx.restore();
+}
+
+// the Archive's spilt ink, off an ink slime: a wet black slick, blue-violet where the light catches it, its edge feathering
+// out into the floor like ink into blotting paper, little ruled marks floating in it (the Citadel, C2)
+function drawInk(ctx, h, now) {
+  const start = h.warnAt ?? h.at, end = h.end ?? h.at + 5, age = now - start;
+  const a = clamp01(age / 0.25) * clamp01((end - now) / Math.min(1.2, (end - start) * 0.4));
+  if (a <= 0) return;
+  const x = h.x, y = h.y ?? GROUND, rx = (h.w || 60) / 2, grow = 0.6 + 0.4 * easeOut(clamp01(age / 0.4)), seed = x * 0.37;
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.fillStyle = 'rgba(40,34,70,0.35)'; // the feathered edge, soaking out
+  for (let i = 0; i < 5; i++) {
+    const bx = x + (hash(seed + i * 3) - 0.5) * rx * 1.6 * grow;
+    ctx.beginPath();
+    ctx.ellipse(bx, y + 1, rx * 0.36 * grow, 4, 0, 0, TAU);
+    ctx.fill();
+  }
+  ctx.fillStyle = '#1a1630';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, rx * grow * 0.9, 5.4, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(120,110,200,0.45)'; // the sheen
+  ctx.beginPath();
+  ctx.ellipse(x - rx * 0.25, y - 0.5, rx * grow * 0.32, 1.4, 0, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(200,190,240,0.4)'; // a few ruled marks drifting in it
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i < 3; i++) {
+    const mx = x + (hash(seed + i * 7 + 1) - 0.5) * rx * 1.1 * grow + Math.sin(now * 0.8 + i) * 2;
+    ctx.moveTo(mx - 4, y + 1);
+    ctx.lineTo(mx + 4, y + 1);
+  }
+  ctx.stroke();
   ctx.restore();
 }
 

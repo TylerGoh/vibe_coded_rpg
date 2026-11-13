@@ -38,7 +38,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 6750; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0) and the mini Meridian (C1, 6694): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 6900; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) and the mini Indexer (C2, 6856): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -134,7 +134,7 @@ export const COLUMN_VISTA_X = 4230; // Magma Heart's east end, where the skylift
 export const CIT_WAY_X = 560; // the Bastion's waystone
 export const COMMISSARY_X = 800; // the Commissary, at its counter
 export const GARDENS_GATE_X = 1260; // the brass stair up to the Keepers' Gardens (C0: open)
-export const ARCHIVE_GATE_X = 1800; // the Archive's stair down, an iron shutter over it (C2)
+export const ARCHIVE_GATE_X = 1800; // the Archive's stair down (an iron shutter was down over it until C2 raised it: the way into ARCHIVE)
 export const KEEL_GATE_X = 2080; // the Grand Foundry's maintenance hatch, clamped under a jammed gear (C5)
 export const SPIRE_WAY_X = 2760; // the Spire's waystone
 export const ORRERY_GATE_X = 3020; // the Orrery's door (its combination lock turned by itself until C1 stopped it: the way into ORRERY)
@@ -541,6 +541,38 @@ export const ORRERY_PLATFORMS = [
   { x: 3150, y: 300, w: 190, kind: 'arm' },
   { x: 3500, y: 250, w: 160, kind: 'gallery' },
   { x: 1010, y: 184, w: 96, kind: 'chart' }, // the chart table on the gallery's top, the stars drawn twice: easy to miss
+];
+// ——— the Citadel's depth pass, C2 (story/citadel-plan.md; docs/places/archive.md) ———
+// The Archive (room 88): the Keepers' records, down the stair off Cogwork Bastion (ARCHIVE_GATE_X: its shutter rose in
+// C2). Shelving out of sight in every direction, ladders and reading galleries, and loose pages drifting UPWARD out of
+// the stacks (time is wrong here too). You come in at the WEST end, in the Reading Room (no mobs): the Archive's waystone
+// and Folio at the issue desk. West to east: the Stacks, the Long Shelves and the Index Hall, where the card catalogue
+// stands to the roof and the way down to the Indexer opens (its den at INDEXER_DEN_X). The find (last in
+// ARCHIVE_PLATFORMS): up on the top of the tallest stack, a ledger of Keepers with every name but one scratched out.
+export const ARCHIVE = 88; // room id
+export const ARCHIVE_W = 4600;
+export const ARCHIVE_EXIT_X = 70; // back up the stair to the Bastion
+export const ARCHIVE_WAY_X = 230; // the Archive's waystone, in the Reading Room
+export const FOLIO_X = 470; // Folio, behind the issue desk (it trades: SHOPS)
+export const INDEXER_DEN_X = 4300; // the way down between the catalogue's cabinets (room INDEXER_DEN, its DENS row)
+export const INDEXER_DEN = 89; // the Indexer's den, the Last Drawer
+export const ARCHIVE_ZONES = [
+  { name: 'The Reading Room', x0: 0, x1: 640, lvl: null }, // (no mobs)
+  { name: 'The Stacks', x0: 640, x1: 1900, lvl: '165–169' },
+  { name: 'The Long Shelves', x0: 1900, x1: 3200, lvl: '169–173' },
+  { name: 'The Index Hall', x0: 3200, x1: ARCHIVE_W, lvl: '173–178' },
+];
+// the tops of the stacks, the rolling ladders' landings, the reading galleries; the ledger on the tallest stack (hidden)
+export const ARCHIVE_PLATFORMS = [
+  { x: 760, y: 346, w: 190, kind: 'stack' },
+  { x: 1080, y: 262, w: 180, kind: 'gallery' },
+  { x: 1420, y: 342, w: 200, kind: 'stack' },
+  { x: 2000, y: 338, w: 200, kind: 'stack' },
+  { x: 2360, y: 258, w: 190, kind: 'gallery' },
+  { x: 2760, y: 340, w: 190, kind: 'stack' },
+  { x: 3360, y: 300, w: 200, kind: 'cabinet' },
+  { x: 3760, y: 248, w: 170, kind: 'gallery' },
+  { x: 1110, y: 178, w: 100, kind: 'ledger' }, // the ledger on the top of the tallest stack, the names scratched out: easy to miss
 ];
 export const WICK_DEN_NAME = 'The Hall of Lamps';
 export const LAMP_FRONT_X = WICK_DEN_X - 420;
@@ -1405,6 +1437,7 @@ export const STAGES = {
   [PEATBARROWS]: { name: 'The Peat Barrows', zones: PEATBARROWS_ZONES, band: '180–190', hard: true, pill: 'Peat Barrows' }, // (L5 (b))
   [GARDENS]: { name: "The Keepers' Gardens", zones: GARDENS_ZONES, band: '145–152', pill: "Keepers' Gardens" }, // (the Citadel, C0)
   [ORRERY]: { name: 'The Orrery', zones: ORRERY_ZONES, band: '160–170', pill: 'The Orrery' }, // (the Citadel, C1)
+  [ARCHIVE]: { name: 'The Archive', zones: ARCHIVE_ZONES, band: '165–178', pill: 'The Archive' }, // (the Citadel, C2)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -3343,6 +3376,62 @@ MOBS.meridian = {
   drops: [['royal_sap', 1, 2, 3], ['meridian_arm', 1, 1, 1], ['armillary_crown', 0.6, 1, 1], ['coin', 1, 255000, 385000], ['mega_elixir', 1, 4, 6], ['orrery_bead', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
+// ——— the Citadel's depth pass, C2: the Archive (art: src/archive-art.js; docs/places/archive.md). On the frozen curve,
+// read off the Fen's at the same levels; no elites, no field boss ———
+// Page swarms are loose pages got up out of the stacks in a flock, turning over and over, that drift upward the way
+// everything here does and come down on you in a rustle (a flier, a plain chaser). Ink slimes are the Archive's spilt
+// ink, gone to slime in the wells, leaving a wet black trail that stings (`trail`, style `ink`). Binder automata are the
+// rebinding machines, squat brass presses with a great leather-bound board held up in front like a shield (`shell`: get
+// round behind them). Index moths are grey moths with card-catalogue tabs for wings, asleep on the top drawers, that drop
+// on anything that moves (`dive`)
+MOBS.page_swarm = {
+  name: 'Page Swarm', lvl: 166, hp: 23580, atk: 587, exp: 15143, speed: 95, w: 60, h: 52, aggro: true, hops: false, fly: 34,
+  drops: [['coin', 1, 1385, 2082], ['loose_leaf', 0.5, 1, 2], ['mega_elixir', 0.21, 1, 1]],
+};
+MOBS.ink_slime = {
+  name: 'Ink Slime', lvl: 169, hp: 24600, atk: 599, exp: 15611, speed: 60, w: 64, h: 42, aggro: true, hops: true,
+  ai: { kind: 'trail', every: 0.8, life: 4.5, w: 56, style: 'ink' },
+  drops: [['coin', 1, 1416, 2129], ['archive_ink', 0.5, 1, 2], ['mega_elixir', 0.21, 1, 1]],
+};
+MOBS.binder_automaton = {
+  name: 'Binder Automaton', lvl: 173, hp: 32300, atk: 616, exp: 16244, speed: 45, w: 62, h: 80, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.6, lunge: 460, time: 0.32 }, // (the causeway guard's: hit it from behind)
+  drops: [['coin', 1, 1459, 2193], ['binder_clasp', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1]],
+};
+MOBS.index_moth = {
+  name: 'Index Moth', lvl: 176, hp: 25700, atk: 629, exp: 16726, speed: 115, w: 76, h: 56, aggro: true, hops: false, fly: 62,
+  ai: { kind: 'dive', every: 3.3, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 1491, 2241], ['index_tab', 0.5, 1, 2], ['mega_elixir', 0.22, 1, 1]],
+};
+// The Indexer (C2; its den, the Last Drawer, opens between the catalogue's cabinets at INDEXER_DEN_X). A den boss with a
+// story (story/citadel-plan.md): the Archive's cataloguing automaton, a great brass card cabinet the size of a house on six
+// short legs, its front all little drawers, many thin arms with pens and stamps, one reading lens on a stalk for an eye.
+// Since the Stopped Hour it has been filing the same last day, and filing it again, and it will not let the record of it
+// close. Holding on: the record of the last day, kept perfect. It rules index lines of light down the den off its drawers
+// (`lasers`, the laser grid, every phase), from phase 2 pins one slime under a card with its catalogue number (`snare`,
+// drawn `looks.snare: 'paper'`), and from phase 3 files you back to front (`reverse`, the controls swap). Its ultimate,
+// Closing Time, is the shared `lanes` ult (drawers slamming shut along the floor, but one lane in each wave). Freed, it
+// files the last page and shuts the drawer, and the Archive's pages come down to rest (per slime, after: docs/social/story.md)
+MOBS.indexer = {
+  name: 'The Indexer', boss: true, lvl: 177, hp: 12400000, atk: 676, exp: 1085000, speed: 70, w: 230, h: 200, aggro: true, hops: false,
+  phases: [['charge', 'slam', 'rain', 'lasers'], ['charge', 'slam', 'rain', 'summon', 'lasers', 'snare'], ['charge', 'rain', 'summon', 'leap', 'barrage', 'lasers', 'snare', 'reverse']],
+  // challenges from day one (docs/combat/challenges.md): the laser grid (every phase), the snare (phase 2 on) and the
+  // controls swap (phase 3)
+  ch: ['grid', 'snare', 'swap'],
+  ult: { name: 'Closing Time', kind: 'lanes' }, minion: 'page_swarm',
+  // S5.4: the shard in its open top drawer flares (the weak point, on its front: hit it from the front, with a jump), its
+  // binding boards close round it (armour, `looks.shell: 'brass'`: heavy hits crack it), and freezing Closing Time as it
+  // gathers cancels it
+  party: ['weakpoint', 'armour', 'interrupt'], partyLive: true, weak: { dx: 0.22, dy: -0.66, r: 22, front: true },
+  looks: { snare: 'paper', shell: 'brass', feathers: 'page' },
+  lines: {
+    enter: ['Quiet, please. The last day is being filed. It has been being filed for some time.', 'You are not in the record of the last day. Nothing is to be added to the last day. Nothing is to be taken away.'],
+    phase: [null, 'A page is out of order. A page is always out of order. I will begin again from the morning.', 'Everything that happened on the last day is here. Everything! If I close the drawer, it is over. I will not close the drawer.'],
+    freed: '...The last page. There. Filed under its date, with the others. ...Then it happened, and it is over. Close the drawer. Gently, please.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['indexer_spike', 1, 1, 1], ['drawer_crown', 0.6, 1, 1], ['coin', 1, 280000, 420000], ['mega_elixir', 1, 4, 6], ['last_card', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -3568,6 +3657,7 @@ const onCwPlat = onRoomPlat(CAUSEWAY_PLATFORMS, CAUSEWAY);
 const onPbPlat = onRoomPlat(PEATBARROWS_PLATFORMS, PEATBARROWS);
 const onKgPlat = onRoomPlat(GARDENS_PLATFORMS, GARDENS);
 const onOrPlat = onRoomPlat(ORRERY_PLATFORMS, ORRERY);
+const onArPlat = onRoomPlat(ARCHIVE_PLATFORMS, ARCHIVE);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -4176,6 +4266,22 @@ export const SPAWNS = [
   ...strip('armillary_ring', 3050, 3800, FIELD_GROUND, 2, ORRERY),
   ...onOrPlat('astrolabe_sentry', 6, 1),
   ...onOrPlat('starglass_wisp', 7, 1),
+  // the Archive (C2): pages and ink in the stacks, ink and binders along the long shelves, binders and moths in the Index Hall
+  ...strip('page_swarm', 700, 1880, FIELD_GROUND, 4, ARCHIVE),
+  ...strip('ink_slime', 700, 1880, FIELD_GROUND, 2, ARCHIVE),
+  ...onArPlat('page_swarm', 0, 1),
+  ...onArPlat('ink_slime', 1, 1),
+  ...onArPlat('page_swarm', 2, 1),
+  ...strip('ink_slime', 1950, 3180, FIELD_GROUND, 4, ARCHIVE),
+  ...strip('binder_automaton', 1950, 3180, FIELD_GROUND, 2, ARCHIVE),
+  ...strip('page_swarm', 1950, 3180, FIELD_GROUND, 1, ARCHIVE),
+  ...onArPlat('ink_slime', 3, 1),
+  ...onArPlat('binder_automaton', 4, 1),
+  ...onArPlat('ink_slime', 5, 1),
+  ...strip('binder_automaton', 3250, 4150, FIELD_GROUND, 3, ARCHIVE),
+  ...strip('index_moth', 3250, 4150, FIELD_GROUND, 3, ARCHIVE),
+  ...onArPlat('index_moth', 6, 1),
+  ...onArPlat('binder_automaton', 7, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -4204,6 +4310,7 @@ export const DENS = [
   { room: HATCH_DEN, boss: 'hatchkeeper', name: 'The Buried Clutch', from: COAST, entranceX: HATCH_DEN_X, theme: 'hatch' }, // (E2; art: src/dens-hatch.js)
   { room: HERON_DEN, boss: 'long_neck', name: 'The Stone Nest', from: GROVE, entranceX: HERON_DEN_X, theme: 'heron' }, // (atlas Phase 8, L1; art: src/dens-heron.js)
   { room: MERIDIAN_DEN, boss: 'meridian', name: 'The Armillary', from: ORRERY, entranceX: MERIDIAN_DEN_X, theme: 'orrery' }, // (the Citadel, C1; art: src/dens-orrery.js)
+  { room: INDEXER_DEN, boss: 'indexer', name: 'The Last Drawer', from: ARCHIVE, entranceX: INDEXER_DEN_X, theme: 'archive' }, // (the Citadel, C2; art: src/dens-archive.js)
   { room: GULLET_DEN, boss: 'old_gullet', name: 'The Eel Pit', from: STILLMERE, entranceX: GULLET_DEN_X, theme: 'gullet' }, // (atlas Phase 8, L2; art: src/dens-gullet.js)
   { room: MIRE_DEN, boss: 'grandfather_mire', name: "Grandfather's Pool", from: CAUSEWAY, entranceX: MIRE_DEN_X, theme: 'mire' }, // (atlas Phase 8, L4, the Fen's party den; art: src/dens-mire.js)
   { room: BRENNA_DEN, boss: 'brenna', name: "The Bearer's Hoist", from: RIM, entranceX: BRENNA_DEN_X, theme: 'hoist' }, // (E4b; art: src/dens-rim.js)
@@ -4884,6 +4991,25 @@ Object.assign(ITEMS, {
   astrolabe_plate: { name: 'Astrolabe Plate', price: 1635, kind: 'loot', desc: 'A thin brass disc scored with circles and the names of stars, the names filed off. It sights true. On what, nobody can say.' },
   orrery_bead: { name: 'Orrery Bead', price: 1845, kind: 'loot', desc: "A little glass planet off one of Meridian's arms, clouded inside. Held up to the light, it turns, very slowly, by itself." },
 });
+// the Citadel, C2 (docs/places/archive.md): Folio's issue (aim 172: on the gear curve at Lv 168, under its aim like the
+// other traders'), the Indexer's set (Lv 178, a step over its Lv 177), the Archive's materials and the Indexer's
+Object.assign(ITEMS, {
+  archivist_rule: { name: "Archivist's Rule", price: 298000, lvl: 168, aim: 172, kind: 'sword', atk: 225, reach: 64, desc: 'A long brass rule, its edge ground sharp, every inch marked and numbered. For measuring margins. It has been used for other things since.' },
+  archivist_pointer: { name: "Archivist's Pointer", price: 298000, lvl: 168, aim: 172, kind: 'staff', magic: 225, mp: 135, reach: 64, twin: 'archivist_rule', desc: 'A reading-room pointer of black wood with a brass tip, for showing patrons the right shelf. It always knows which one.' },
+  reading_visor: { name: 'Reading Visor', price: 228000, lvl: 168, aim: 172, kind: 'helmet', def: 111, desc: 'A green glass eyeshade on a brass band, a little lens on an arm that swings down over one eye. Small print has never been so legible.' },
+  indexer_spike: { name: "The Indexer's Spike", price: 1490000, lvl: 178, slots: 9, kind: 'sword', atk: 235, reach: 68, desc: 'A filing spike as long as a sword, brass on an iron foot, a few last pages still caught on it. Whatever it goes through stays filed.' },
+  stamp_staff: { name: 'Sentinel Stamp', price: 1490000, lvl: 178, slots: 9, kind: 'staff', magic: 235, mp: 141, reach: 68, twin: 'indexer_spike', desc: "A long brass stamp off the Indexer's arm, its red die at the head. Every bolt lands with a thump and leaves its mark." },
+  drawer_crown: { name: 'Drawer Crown', price: 1125000, lvl: 178, slots: 9, kind: 'helmet', def: 117, desc: 'A crown of little brass card drawers, each with a label frame and no label. One of them will not quite close.' },
+  loose_leaf: { name: 'Loose Leaf', price: 1615, kind: 'loot', desc: 'A page out of a page swarm, written close in a hand nobody reads now. Let go of it and it drifts up, not down.' },
+  archive_ink: { name: 'Archive Ink', price: 1645, kind: 'loot', desc: 'A stoppered drop of the Archive\'s black ink, still wet. It writes, but only the date, over and over.' },
+  binder_clasp: { name: 'Binder Clasp', price: 1685, kind: 'loot', desc: 'A heavy brass clasp off a binder automaton\'s board, made to hold a volume shut. It is very good at it.' },
+  index_tab: { name: 'Index Tab', price: 1715, kind: 'loot', desc: 'A grey tab off an index moth\'s wing, the size of a catalogue card, a letter on it worn away. It flutters when nobody is looking.' },
+  last_card: { name: 'Last Index Card', price: 1935, kind: 'loot', desc: 'A card out of the Indexer\'s drawer, the date of the last day typed at the top, and nothing under it at all.' },
+});
+BOW_LIST.push(
+  ['archivist_bow', 'archivist_rule', "Archivist's Bow", "A slim bow of two brass rules bound back to back with bookbinder's thread. Its arrows land exactly where it says on the label."],
+  ['catalogue_bow', 'indexer_spike', 'Catalogue Bow', "A bow bent from a catalogue drawer's runners, a brass label frame at the grip. Every arrow it lets go is filed somewhere, eventually."],
+);
 BOW_LIST.push(
   ['ecliptic_bow', 'meridian_arm', 'Ecliptic Bow', "A long bow of two curved orrery arms, brass and glass, a small star set where they meet. Its arrows go round a little before they go straight."],
 );
@@ -5002,6 +5128,8 @@ export const SHOPS = {
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
   // the Citadel (C0): the Commissary, a vending automaton in Cogwork Bastion still issuing kit to Keepers' guards
   commissary: { name: 'The Commissary', room: CITADEL, x: COMMISSARY_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'guard_saber', 'guard_staff', 'guard_bow', 'guard_helm'] },
+  // (C2): Folio, the Archive's little issuing automaton at the Reading Room's desk
+  folio: { name: "Folio's Issue Desk", room: ARCHIVE, x: FOLIO_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'archivist_rule', 'archivist_pointer', 'archivist_bow', 'reading_visor'] },
 };
 // Boss gear is better than anything else at its level (owner, 2026-11-06: "bossing is not worth it ... because the
 // equipment isn't strictly better"). A piece with a `lvl` that a boss drops gets BOSS_GEAR of the stats written for it

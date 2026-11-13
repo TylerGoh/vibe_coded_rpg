@@ -50,7 +50,11 @@ one shared corner feed).
   `docs/places/orrery.md`) is the plan's Tier 4 character: a Keeper's echo stuck in its last hour (`folk: 'echo'`), `lore: 4`
   with `loreKnows` (it was there), lucid for a line or two when a slime brings up Mochi; it has lost its name and never
   names the other Keepers (canon's open list). It guides you into the Orrery and to Meridian, in pieces. Since C1 the
-  Commissary notes the star-hall's lock stopped and logs the Echo as "UNISSUED". A
+  Commissary notes the star-hall's lock stopped and logs the Echo as "UNISSUED". **Folio** (`folio`, the Archive's Reading
+  Room, the Citadel's C2, `docs/places/archive.md`) is a small, prim archive automaton (not in capitals) that opens a
+  reader's card for every slime, trades (the potions and the archivists' kit) and guides you through the Archive and to the
+  Indexer; `lore: 4` without `loreKnows` (it catalogued the records and never read them). Since C2 the Commissary says the
+  Archive's shutter went up and sends Folio requisitions by pneumatic tube. A
   character who stands in more than one room (`also`) trades only where its shop is (`src/npc.js`).
   **Lantern Fen's people** (atlas Phase 8, L0, `docs/places/fen.md`), all fen folk (`folk: 'fen'`): **Skipper Netta**
   (`netta`, the Hush's crossing, at her eel boxes and at the tiller via `also`), **Wren the Lamplady** (`wren`, tends the

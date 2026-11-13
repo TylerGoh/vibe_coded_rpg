@@ -15,7 +15,7 @@ Files: the boss → tier table and helpers in `src/shared/story.js` (`BOSS_TIER`
   change and the rollback leave it alone (unlike `bossAt`, which only remembers the reward window).
 - **The lore tier** (`tierOf`): the highest tier among your bosses in `BOSS_TIER`, and every tier under it comes with it.
   Tier 1: any Greenhollow den boss · 2: any Frostpeak one · 3: any Emberdeep one · 4: the Colossus, Chronos or (since the
-  Citadel's C1) Meridian. Field
+  Citadel's C1 and C2) Meridian or the Indexer. Field
   bosses don't count. **A new den boss needs its `BOSS_TIER` row** or it gives nothing.
 - **Backfill (owner, 2026-11-04: "from now on")**: a character saved before Phase 7 starts from the bosses still in its
   reward window (`bossAt`); nothing older is known. At launch that was nobody: everyone started at Tier 0.
@@ -30,7 +30,8 @@ Files: the boss → tier table and helpers in `src/shared/story.js` (`BOSS_TIER`
   (`loreFor`), told to share it freely in its own voice, a little at a time, as things the slime found out, and to
   deflect anything deeper without hinting; plus the open questions, which nobody may answer. At tier 0 it's told the
   slime knows nothing of the old story yet.
-- Caps so far: **the Last Echo 4** (the Citadel's C1, `loreKnows`: it was there; it never names itself or the other Keepers)
+- Caps so far: **the Last Echo 4** (the Citadel's C1, `loreKnows`: it was there; it never names itself or the other Keepers),
+  **Folio 4** (the Citadel's C2, no `loreKnows`: it catalogued the records and never read them)
   and **Elder Mochi 4** (he knows it all and never volunteers it; at Tier 4 his persona lets him say he was
   Pell's apprentice and the tree is a cutting of the Heartroot) and **Curator Clio 4** (the slimes' own past is a
   separate subject from the museum's wings; she states only what the visitor has found). Every other character has no
@@ -74,5 +75,7 @@ other slimes see their own world). The client gets your record's bosses as `me.f
   Netta know (`FREED.wickmother`).
 - **Meridian** (the Citadel's C1, `docs/places/orrery.md`) → the Orrery's dome (`drawOrrery`'s `freed`): the stars sit where
   they are now with no lines dragging them back, the orrery's arms hang still. The Last Echo knows (`FREED.meridian`).
+- **The Indexer** (the Citadel's C2, `docs/places/archive.md`) → the Archive (`drawArchive`'s `freed`): no pages drift up;
+  they lie still on the floor. Folio knows (`FREED.indexer`).
 - Later, if wanted (plan): Ladon, Fenrir (the cutters finish the Long Stair), Typhon (the Foundry's pits go cold). The
   one world-wide flag stays for the finale (`story/delivery.md`).
