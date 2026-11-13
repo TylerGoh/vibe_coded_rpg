@@ -22,7 +22,9 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
 - Aboard a crossing, `islandOf` says `'sea'` and the pin sits on the ferry's route, or `'straits'` aboard the
   Lodestar, in the Steam Straits, `'sky'` aboard the balloon, on its climb, or `'fenroute'` aboard the Hush, on her way
   east (`PINS`). The Skydocks camp and the Skydocks are on the Citadel (`docs/places/skydocks.md`), whose sub-label
-  names the camp. No Citadel island map yet.
+  names the camp. Since the Citadel's depth pass (C0) it has its own map, `CITADEL_MAP` (`LOOK.citadel`: cream and brass on
+  clouds; `docs/places/citadel.md`): the camp, the Skydocks, the Bastion and the Spire, the Keepers' Gardens, and the six
+  branches still shut, dashed with their reasons.
 - **Lantern Fen** (atlas Phase 8) is charted where the eastern fog was: a low violet island with meres, Wickmere's stilt
   houses at its west end, a thinner mist and the lights still flickering over it; the Hush's dashed route runs to it
   from Frostpeak. Its own map is `LANTERN_FEN` (`src/shared/branches.js`; `LOOK.fen`): Wickmere, the Shallows, Firefly Hollow
@@ -34,7 +36,7 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
   goes beside it, not under it.
 - Frostpeak shows Icefang Hamlet where the ferry comes in (turf huts, a fire) and the Queen's cracked ice
   bridge running out to sea (`docs/places/fjord.md`).
-- **Island maps:** tapping (or clicking) an island that has one (`ISLAND_MAPS`: Greenhollow, Frostpeak since its depth pass, Emberdeep since atlas Phase 5) opens its own map: its places as cards joined by paths, drawn from `GREENHOLLOW` / `FROSTPEAK` / `EMBERDEEP` in `src/shared/branches.js` (`docs/places/branches.md`), coloured per island (`LOOK`: Frostpeak is snow on a grey-blue sea, Emberdeep dark sand on warm green water). `TAP` says where to tap each island on the chart. Open places are solid with their level band;
+- **Island maps:** tapping (or clicking) an island that has one (`ISLAND_MAPS`: Greenhollow, Frostpeak since its depth pass, Emberdeep since atlas Phase 5, Lantern Fen, the Citadel since C0) opens its own map: its places as cards joined by paths, drawn from `GREENHOLLOW` / `FROSTPEAK` / `EMBERDEEP` in `src/shared/branches.js` (`docs/places/branches.md`), coloured per island (`LOOK`: Frostpeak is snow on a grey-blue sea, Emberdeep dark sand on warm green water). `TAP` says where to tap each island on the chart. Open places are solid with their level band;
   ones not open yet are dashed with a short reason ("bridge out"), hard pockets red with a "!". Your pin (its "you are here" moves beside it when a card sits right above)
   sits on the place you're in (`nodeAt`: the Wildwood and Frostpeak's stage by zone, a den by its stage; the village's
   buildings and houses count as Slimeville). The pink pill top-left goes back to the chart. Taps are

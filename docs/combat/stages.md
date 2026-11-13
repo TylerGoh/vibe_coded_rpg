@@ -22,6 +22,8 @@ Data: `src/shared/rpg.js` (`ZONES`, `HIGHLAND_ZONES`, `CALDERA_ZONES`, `CITADEL_
    Its branches' gates are in Cinder Flats and Magma Heart (`docs/places/branches.md`).
 4. **Aether Citadel** (`CITADEL`, `src/citadel.js`): Cogwork Bastion, Chrono Spire. Reached since atlas Phase 6 (c) by
    the balloon, the Skydocks camp and the Skydocks (its west end is the top of their loading ramp; the skylift is gone).
+   Its depth pass (C0, 2026-11-13: `docs/places/citadel.md`) keeps it one room with branches off it through gates, the
+   Spire's zone labelled 156–170, and adds the Siege Engine (a field boss on the Bastion's wall) and the Commissary.
 Stages 3 and 4 were added because players were Lv 35–88 and out of content.
 **The rebalance (R, 2026-10-23, `story/world/island-depth.md`):** once Greenhollow covered Lv 1–60, stages
 2–4 moved up to the bottom of their islands' new bands, keeping their order and spacing: Frostpeak 40–60
@@ -119,6 +121,10 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    and the Eldest, a named elite with its own `art`, charging like Garm and Orthrus), and past it the Lamp Road, the mob-free
    approach to the Wickmother's den (`docs/places/peatbarrows.md`). Wick grubs (`trail`, the new puddle style `tallow`), peat
    wraiths (`blink`), lamp-bearers (`shell` with `cut`), dusk moths (`dive`). No new brains.
+37. **The Keepers' Gardens**: the Citadel's depth pass (C0), its easy pocket up the brass stair off Cogwork Bastion (Lv
+   145–152, no waystone; `docs/places/gardens.md`). Gardener drones (passive fliers), seed moths (fliers), hedge shears
+   (passive, `shell` with `cut`). Room 13's new field boss, the Siege Engine (Lv 154: `lob`, style `bolt`;
+   `docs/places/citadel.md`). No new brains.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

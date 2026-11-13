@@ -67,6 +67,9 @@ export const STAFFS = {
   bellows_rod: { len: 62, shaft: ['#8a8490', '#4e4a56'], w: 2.8, head: 'ring', gem: '#ff8a3c', gem2: '#5e5a66', glow: '255,150,80' },
   // the Black Sands (E1, docs/places/blacksands.md)
   blackglass_staff: { len: 64, shaft: ['#6a6470', '#36323c'], w: 2.8, head: 'crystal', gem: '#3a3446', gem2: '#8ad0c0', glow: '160,230,215' },
+  // the Citadel's depth pass, C0 (docs/places/citadel.md): the Commissary's issue and the Siege Engine's
+  guard_staff: { len: 64, shaft: ['#f0c470', '#c8904a'], w: 2.8, head: 'lantern', gem: '#9ff0ea', gem2: '#8a5a2e', glow: '150,240,234' },
+  siege_staff: { len: 66, shaft: ['#c8904a', '#8a5a2e'], w: 3.2, head: 'gear', gem: '#9ff0ea', gem2: '#4a4656', glow: '150,240,234' },
   bellower_staff: { len: 66, shaft: ['#5a5058', '#2e2830'], w: 3.2, head: 'ember', gem: '#3a3240', gem2: '#ffb46a', glow: '255,170,110' },
   // the Ashwood (E1, docs/places/ashwood.md)
   deadwood_staff: { len: 64, shaft: ['#4a4248', '#24202a'], w: 3, head: 'twig', gem: '#ff8a4a', gem2: '#3a3238', glow: '255,140,80' },

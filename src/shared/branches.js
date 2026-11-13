@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X, PEATBARROWS, LAMPROAD, WICK_DEN_X, WICK_DEN_NAME, WICK_DEN } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X, PEATBARROWS, LAMPROAD, WICK_DEN_X, WICK_DEN_NAME, WICK_DEN, CITADEL, SKYCAMP, SKYDOCKS, GARDENS, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -100,7 +100,29 @@ export const LANTERN_FEN = [
   { id: 'hall', name: WICK_DEN_NAME, at: [455, 92], from: 'peat', rooms: [WICK_DEN],
     shut: [{ room: CAUSEWAY, x: HALL_GATE_X, kind: 'mothsilk', freed: 'wickmother', look: 'look at the door', says: 'The Hall\'s door is shut with moth-silk, thick as felt. Lights move behind it.' }] },
 ];
-export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK, ember: EMBERDEEP, fen: LANTERN_FEN };
+// The Aether Citadel (its depth pass, C0 on: story/citadel-plan.md, docs/places/citadel.md): the camp, the Skydocks, room
+// 13's two zones, and every branch's gate laid in C0 (all in room 13), each lifted by the phase that ships it. The Keel's
+// far end (the Undercroft's way down, C6) is in a room that doesn't exist yet: `past`
+export const CITADEL_MAP = [
+  { id: 'skycamp', name: 'Skydocks Camp', at: [80, 245], rooms: [SKYCAMP], town: true },
+  { id: 'skydocks', name: 'The Skydocks', band: '135–145', at: [210, 245], from: 'skycamp', rooms: [SKYDOCKS] },
+  { id: 'bastion', name: 'Cogwork Bastion', band: '140–155', at: [345, 245], from: 'skydocks', zone: 0, zr: CITADEL },
+  { id: 'spire', name: 'Chrono Spire', band: '156–170', at: [505, 245], from: 'bastion', zone: 1, zr: CITADEL },
+  // C0: the brass stair up to the roof gardens, open from the start
+  { id: 'gardens', name: "Keepers' Gardens", band: '145–152', at: [300, 140], from: 'bastion', rooms: [GARDENS], entry: { room: CITADEL, x: GARDENS_GATE_X, kind: 'gardenstair' } },
+  { id: 'archive', name: 'The Archive', band: '165–178', at: [265, 335], from: 'bastion', block: 'shutter down',
+    gate: { room: CITADEL, x: ARCHIVE_GATE_X, kind: 'shutter', look: 'look at the shutter', says: "An iron shutter is down over the stair, a sentinel's stamp on it. It won't lift." } },
+  { id: 'keel', name: 'The Keel', band: '188–200', hard: true, at: [420, 335], from: 'bastion', block: 'hatch jammed',
+    gate: { room: CITADEL, x: KEEL_GATE_X, kind: 'hatch', look: 'look at the hatch', says: 'The maintenance hatch is clamped under a jammed gear. It ticks, one beat slow.' } },
+  { id: 'undercroft', name: 'The Undercroft', band: '205–215', hard: true, at: [580, 340], from: 'keel', past: true, block: 'below the Keel' },
+  { id: 'orrery', name: 'The Orrery', band: '160–170', at: [450, 140], from: 'spire', block: 'the lock turns',
+    gate: { room: CITADEL, x: ORRERY_GATE_X, kind: 'combolock', look: 'look at the lock', says: 'A combination lock turns on the door by itself, round and round. It never stops.' } },
+  { id: 'engine', name: 'The Engine Halls', band: '175–190', at: [640, 165], from: 'spire', block: 'venting steam',
+    gate: { room: CITADEL, x: ENGINE_GATE_X, kind: 'blastdoor', look: 'look at the blast door', says: 'The blast door vents steam too hot to pass. Behind it something huge turns.' } },
+  { id: 'bells', name: 'The Bell Walks', band: '195–208', at: [560, 55], from: 'spire', block: 'frozen rain',
+    gate: { room: CITADEL, x: BELLS_GATE_X, kind: 'frozenrain', look: 'look at the stair', says: "Rain hangs on the stair, every drop stopped in the air. You can't push through." } },
+];
+export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK, ember: EMBERDEEP, fen: LANTERN_FEN, citadel: CITADEL_MAP };
 const ALL = Object.values(ISLAND_MAPS).flat();
 export const shipped = (n) => !n.gate && !n.past;
 export const ENTRIES = ALL.filter((n) => n.entry).map((n) => ({ ...n.entry, branch: n.id, name: n.name, band: n.band, hard: !!n.hard }));

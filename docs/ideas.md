@@ -165,3 +165,7 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   real slimes, the front door for a freed slime, the den on a phone. Her track wasn't rendered or measured offline. Old
   Gullet, Long-Neck and Grandfather Mire aren't in the story record (no Fen tier), so only the Wickmother has freed changes
   on the Fen.
+
+## The Citadel's depth pass, C0 (2026-11-13)
+- Unplayed: the Keepers' Gardens, the Siege Engine (its feints and rings), the Commissary's chat and Trade button, the five gates' E messages and the Citadel's island map; no phone screenshot taken (no headless test, owner's rule).
+- The Siege Engine's armour reuses the Colossus's bronze plates (`looks.shell: 'brass'`) rather than drawing its own shutters coming down.

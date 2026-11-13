@@ -869,6 +869,20 @@ the mini Will-Queen 276k (between Chronos's 270k and the Sleeper's 282k), the mi
 `PETSHOP_W` 6050 → 6350. Nothing older moved but a few "vs farming" ratios at 168–170 (the new own-level farm). `--check`
 green.
 
+## The Citadel's depth pass, C0 (2026-11-13)
+The Keepers' Gardens (`docs/places/gardens.md`, an easy pocket) put three mobs on the frozen curve: the gardener drone (146, HP
+90% for a passive flier, like the lantern moth), seed moth (148, 93% for a flier) and hedge shears (151, 120% like the other
+`shell` mobs); EXP 100%, gold 101% (coins read off the fen newt's by the gold curve; materials on the ladder: Brass Nozzle
+1,400, Seed-Fluff 1,425, Shear Pin 1,460). They sit under the Shallows' and the Bastion's own farms, so "farming your own
+level" didn't change: **gold earned by and play time are unchanged** at every level. **The Commissary**'s tier (Cogwork
+Bastion) is aimed at Lv 150 (`lvl` 146 on the gear curve, under its aim like the other traders'): the Bastion Guard's Saber,
+Staff and Bow 254k (~21 min of farming at the aim), the Helm 196k (~16 min): Sedge's 265k and 205k carried down by the gold
+curve. **The Siege Engine** (field, Lv 154): the Bog Bloat's numbers by the curve (written HP 3.27M, ATK 488, EXP 517k, coins
+64.2–92.8k); the sheet solos it in a median ~2:53 (`FIELD_SOLO_MIN`) and a kill pays 1.57× / 1.68× a minute of its fight in
+farming gold / EXP (`FIELD_PAY`). Its set a step over (Lv 156: the Siege Ram and twins 1.133M, `swordPrice`; the Siege Helm
+859k, `helmetPrice`), on the curve × `BOSS_GEAR.field`; Siege Bolt 1,490. Its pet 248.5k, between the Colossus's (248k, Lv
+150) and the Bog Bloat's (249k, Lv 158); `PETSHOP_W` 6450 → 6600. Nothing else moved. `--check` green on the first run.
+
 ## Lantern Fen, L5 (c): the Wickmother, the fourth final boss (2026-11-12)
 FINAL BOSSES gains `wickmother`, fought at Lv 190 (`fightLvl`: her Lv 210 tag less `FINAL_LVL_OVER`), the first fight
 past 200 on a tag. Her written HP (158M) takes `BOSS_HP_SCALE`, her uptime share (`UPTIME_TOP`: she has challenges) and

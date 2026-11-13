@@ -38,7 +38,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 6450; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) and the mini Wickmother (L5, 6366): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 6600; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) and the mini Wickmother (L5, 6366): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -124,9 +124,25 @@ export const CITADEL = 13; // room id
 export const CITADEL_W = 4800;
 export const CITADEL_EXIT_X = 70; // back down the loading ramp to the Skydocks
 export const COLUMN_VISTA_X = 4230; // Magma Heart's east end, where the skylift stood: the thermal column roaring up (drawing only)
+// The Citadel's depth pass, C0 (story/citadel-plan.md, docs/places/citadel.md): room 13 stays one room; its branches open
+// off it through gates (src/shared/branches.js, CITADEL_MAP), all laid in C0 so the city shows its whole shape. West to
+// east: the Bastion's waystone, the Commissary (a vending automaton still issuing kit: SHOPS), the brass stair up to the
+// Keepers' Gardens (open since C0), the Archive's iron shutter (C2), the Siege Engine's stretch of wall (its field boss,
+// in SPAWNS), the Grand Foundry's maintenance hatch (the Keel, C5) by the Colossus's den, and in the Spire its waystone,
+// the Orrery's door with its combination lock still turning (C1), the Engine Halls' blast door venting steam (C3) and
+// the stair above the Hour Sanctum, a wall of frozen rain on it (the Bell Walks, C4)
+export const CIT_WAY_X = 560; // the Bastion's waystone
+export const COMMISSARY_X = 800; // the Commissary, at its counter
+export const GARDENS_GATE_X = 1260; // the brass stair up to the Keepers' Gardens (C0: open)
+export const ARCHIVE_GATE_X = 1800; // the Archive's stair down, an iron shutter over it (C2)
+export const KEEL_GATE_X = 2080; // the Grand Foundry's maintenance hatch, clamped under a jammed gear (C5)
+export const SPIRE_WAY_X = 2760; // the Spire's waystone
+export const ORRERY_GATE_X = 3020; // the Orrery's door, its combination lock turning by itself (C1)
+export const ENGINE_GATE_X = 3520; // the Engine Halls' catwalk, a blast door venting steam (C3)
+export const BELLS_GATE_X = 4180; // the stair above the Hour Sanctum, frozen rain hanging on it (C4)
 export const CITADEL_ZONES = [
   { name: 'Cogwork Bastion', x0: 0, x1: 2400, lvl: '140–155' },
-  { name: 'Chrono Spire', x0: 2400, x1: CITADEL_W, lvl: '156+' },
+  { name: 'Chrono Spire', x0: 2400, x1: CITADEL_W, lvl: '156–170' },
 ];
 export const CITADEL_PLATFORMS = [
   { x: 420, y: 330, w: 220, kind: 'gear' },
@@ -470,6 +486,31 @@ export const LAMPROAD_EXIT_X = 70; // back down the root stair to the Peat Barro
 export const WICK_MARK_X = 1000;
 export const WICK_DEN_X = LAMPROAD_W - 240;
 export const WICK_DEN = 84; // the den's room id (L5 (c): the Hall of Lamps, its DENS row)
+// ——— the Citadel's depth pass, C0 (story/citadel-plan.md; docs/places/gardens.md) ———
+// The Keepers' Gardens (room 85): the Citadel's easy pocket, up the brass stair off Cogwork Bastion (GARDENS_GATE_X).
+// Roof gardens open to the wind: dead beds, dry fountains, brass watering automata still tending soil where nothing
+// grows. You come in at the WEST end; the east end is the Wind Terrace (no mobs), a balustrade over the whole archipelago,
+// for sitting. No waystone (the Bastion's is at the stair's foot). The sapling in the cracked urn, high on the broken
+// pergola, is the find (last in the platforms): the one living thing up here.
+export const GARDENS = 85; // room id
+export const GARDENS_W = 2800;
+export const GARDENS_EXIT_X = 70; // back down the brass stair to the Bastion
+export const GARDENS_ZONES = [
+  { name: 'The Stair Head', x0: 0, x1: 480, lvl: null }, // (no mobs)
+  { name: 'The Dry Beds', x0: 480, x1: 1500, lvl: '145–148' },
+  { name: 'The Fountain Court', x0: 1500, x1: 2400, lvl: '148–152' },
+  { name: 'The Wind Terrace', x0: 2400, x1: GARDENS_W, lvl: null }, // (no mobs: the view)
+];
+// raised beds, a pergola, the dry fountain's rim, a second pergola, the terrace bench; the cracked urn (hidden)
+export const GARDENS_PLATFORMS = [
+  { x: 620, y: 350, w: 190, kind: 'planter' },
+  { x: 960, y: 270, w: 180, kind: 'pergola' },
+  { x: 1320, y: 344, w: 200, kind: 'planter' },
+  { x: 1700, y: 336, w: 240, kind: 'fountain' },
+  { x: 2080, y: 266, w: 180, kind: 'pergola' },
+  { x: 2560, y: 352, w: 170, kind: 'bench' },
+  { x: 1004, y: 184, w: 92, kind: 'urn' }, // the cracked urn on the broken pergola's top, a sapling in it: easy to miss
+];
 export const WICK_DEN_NAME = 'The Hall of Lamps';
 export const LAMP_FRONT_X = WICK_DEN_X - 420;
 export const WICK_LINE = 'Who are you carrying? ...No one? Then why have you come so far?';
@@ -1331,6 +1372,7 @@ export const STAGES = {
   [BARROWS]: { name: 'The Sunk Barrows', zones: BARROWS_ZONES, band: '170–178', hard: true, pill: 'Sunk Barrows' }, // (L3)
   [CAUSEWAY]: { name: 'The Lantern Causeway', zones: CAUSEWAY_ZONES, band: '168–180', pill: 'Lantern Causeway' }, // (L4)
   [PEATBARROWS]: { name: 'The Peat Barrows', zones: PEATBARROWS_ZONES, band: '180–190', hard: true, pill: 'Peat Barrows' }, // (L5 (b))
+  [GARDENS]: { name: "The Keepers' Gardens", zones: GARDENS_ZONES, band: '145–152', pill: "Keepers' Gardens" }, // (the Citadel, C0)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -3189,6 +3231,40 @@ MOBS.hall_moth = {
   drops: [['coin', 1, 1500, 2200]],
 };
 
+// ——— the Citadel's depth pass, C0 (story/citadel-plan.md; art: src/bastion-art.js; docs/places/citadel.md,
+// docs/places/gardens.md). On the frozen curve; no elites (the Gardens are an easy pocket) ———
+// The Siege Engine: Cogwork Bastion's field boss (small: no story), a wall engine on iron tracks still defending the
+// Bastion against an attack that never came. It rolls up and down its stretch of wall winding and loosing great bolts
+// (`lob`, style 'bolt'), now and then winding one and not loosing it (the fake-out, A11). Passive until hit. From its
+// second third it looses a ring of bolts all round with a gap in it (rings). S5.4: with two or more on it, its brass
+// shutters come down (armour) and it lays its sights on one slime (focus)
+MOBS.siege_engine = {
+  name: 'The Siege Engine', field: true, lvl: 154, hp: 3270000, atk: 488, exp: 517000, speed: 30, w: 250, h: 170, aggro: false, hops: false,
+  ai: { kind: 'lob', range: 560, every: 2.6, keep: 200, warn: 0.75, style: 'bolt' },
+  party: ['armour', 'focus'], partyLive: true, looks: { shell: 'brass', rings: 'bolt' },
+  // T3: the empty wind-up (feint), then rings of bolts from its second third; the punish window as every field boss's
+  ch: ['feint', 'rings'], chf: [['rings', 1]],
+  desc: 'The Siege Engine has rolled out along the Bastion wall. Its bolts are already wound.',
+  drops: [['coin', 1, 64200, 92800], ['siege_bolt', 1, 4, 8], ['cog', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['siege_ram', 0.25, 1, 1], ['siege_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+// The Keepers' Gardens: gardener drones are little brass watering automata that drift over the dead beds sprinkling
+// soil where nothing grows (passive fliers: they only mind you if you hit them); seed moths are paper-white moths of
+// brass wire and seed-fluff, the gardens' only pests, that come at you; hedge shears are a pair of walking topiary
+// shears still clipping hedges that are long gone, who snip if you start it (passive; armoured in front, `shell`)
+MOBS.gardener_drone = {
+  name: 'Gardener Drone', lvl: 146, hp: 18900, atk: 505, exp: 12174, speed: 60, w: 56, h: 46, aggro: false, hops: false, fly: 40,
+  drops: [['coin', 1, 1178, 1771], ['brass_nozzle', 0.5, 1, 2], ['mega_elixir', 0.18, 1, 1]],
+};
+MOBS.seed_moth = {
+  name: 'Seed Moth', lvl: 148, hp: 19960, atk: 513, exp: 12458, speed: 80, w: 58, h: 40, aggro: true, hops: false, fly: 36,
+  drops: [['coin', 1, 1197, 1801], ['seed_fluff', 0.5, 1, 2], ['mega_elixir', 0.18, 1, 1]],
+};
+MOBS.hedge_shears = {
+  name: 'Hedge Shears', lvl: 151, hp: 26500, atk: 525, exp: 12891, speed: 50, w: 60, h: 66, aggro: false, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.6, lunge: 420, time: 0.3 }, // (the lamp crab's: hit it from behind)
+  drops: [['coin', 1, 1228, 1847], ['shear_pin', 0.5, 1, 2], ['mega_elixir', 0.19, 1, 1]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -3412,6 +3488,7 @@ const onSmPlat = onRoomPlat(STILLMERE_PLATFORMS, STILLMERE);
 const onBaPlat = onRoomPlat(BARROWS_PLATFORMS, BARROWS);
 const onCwPlat = onRoomPlat(CAUSEWAY_PLATFORMS, CAUSEWAY);
 const onPbPlat = onRoomPlat(PEATBARROWS_PLATFORMS, PEATBARROWS);
+const onKgPlat = onRoomPlat(GARDENS_PLATFORMS, GARDENS);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -3992,6 +4069,18 @@ export const SPAWNS = [
   ...onPbPlat('lamp_bearer', 8, 1),
   { kind: 'duskmoth_elite', x0: 3400, x1: 4200, y: FIELD_GROUND, room: PEATBARROWS },
   { kind: 'eldest', x0: 4250, x1: 4450, y: FIELD_GROUND, room: PEATBARROWS },
+  // the Citadel, C0: the Siege Engine on the Bastion's wall, and the Keepers' Gardens
+  { kind: 'siege_engine', x0: 1380, x1: 2000, y: FIELD_GROUND, room: CITADEL },
+  ...strip('gardener_drone', 560, 1460, FIELD_GROUND, 4, GARDENS),
+  ...strip('seed_moth', 560, 1460, FIELD_GROUND, 2, GARDENS),
+  ...onKgPlat('gardener_drone', 0, 1),
+  ...onKgPlat('seed_moth', 1, 1),
+  ...onKgPlat('gardener_drone', 2, 1),
+  ...strip('hedge_shears', 1540, 2360, FIELD_GROUND, 3, GARDENS),
+  ...strip('seed_moth', 1540, 2360, FIELD_GROUND, 2, GARDENS),
+  ...strip('gardener_drone', 1540, 2360, FIELD_GROUND, 1, GARDENS),
+  ...onKgPlat('hedge_shears', 3, 1),
+  ...onKgPlat('seed_moth', 4, 1),
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -4674,6 +4763,24 @@ const BOW_LIST = [
   ['peatyew_bow', 'sleeper_blade', 'Peat-Yew Bow', 'A long yew bow the bog kept, brown as tea, its grip bound in old bronze wire. Strung again after a very long time, it seems glad of it.'],
   ['greywing_bow', 'heron_bill', 'Greywing Bow', "A long bow of grey willow shaped like a heron's spread wing, fletched at the tips. It draws slow and looses all at once."],
 ];
+// the Citadel, C0 (docs/places/citadel.md, docs/places/gardens.md): the Commissary's issue (aim 150: on the gear curve at
+// Lv 146, under its aim like the other traders'), the Siege Engine's set (a step over its Lv 154), the Gardens' materials
+Object.assign(ITEMS, {
+  guard_saber: { name: "Bastion Guard's Saber", price: 254000, lvl: 146, aim: 150, kind: 'sword', atk: 204, reach: 62, desc: 'A plain brass-hilted saber, issue stamped on the blade and a number filed off. Still in its oilpaper. Nobody ever drew it.' },
+  guard_staff: { name: "Bastion Guard's Staff", price: 254000, lvl: 146, aim: 150, kind: 'staff', magic: 204, mp: 122, reach: 62, twin: 'guard_saber', desc: 'A signal staff of brass tube with an aether lamp at its head, for calling the watch. The watch never came.' },
+  guard_helm: { name: "Bastion Guard's Helm", price: 196000, lvl: 146, aim: 150, kind: 'helmet', def: 100, desc: 'A round brass helm with a little visor and a crest of verdigris. It came out of the Commissary\'s slot warm, as if it had been waiting.' },
+  siege_ram: { name: 'Siege Ram', price: 1133000, lvl: 156, kind: 'sword', atk: 214, reach: 66, desc: "A great bolt-head of black iron on a brass haft, taken off the Siege Engine's rack. It was wound for a wall that never got attacked." },
+  siege_staff: { name: 'Siege Staff', price: 1133000, lvl: 156, kind: 'staff', magic: 214, mp: 128, reach: 66, twin: 'siege_ram', desc: "A brass winding-rod off the Siege Engine with its sight-glass at the head. Its bolts fly straight and land hard." },
+  siege_helm: { name: 'Siege Helm', price: 859000, lvl: 156, kind: 'helmet', def: 105, desc: "The Siege Engine's sighting hood, bolted down into a helm: brass shutters over a slit of aether-glass. You see one thing at a time through it, very clearly." },
+  siege_bolt: { name: 'Siege Bolt', price: 1490, kind: 'loot', desc: "An iron bolt as long as your arm, its brass fletching stamped with the Bastion's mark. Wound, and never fired at anyone who meant it." },
+  brass_nozzle: { name: 'Brass Nozzle', price: 1400, kind: 'loot', desc: 'A rose of a watering nozzle, still damp. The drone it came off had been watering the same dead bed for an age.' },
+  seed_fluff: { name: 'Seed-Fluff', price: 1425, kind: 'loot', desc: 'A pinch of white fluff off a seed moth, light as nothing. There are no seeds in it.' },
+  shear_pin: { name: 'Shear Pin', price: 1460, kind: 'loot', desc: 'The brass pin out of a pair of hedge shears, worn shiny. They had been clipping the same long-gone hedge.' },
+});
+BOW_LIST.push(
+  ['guard_bow', 'guard_saber', "Bastion Guard's Bow", 'A short brass-bound crossbow-bow off a wall rack, issue stamped on the stock. It has been oiled every day and never shot.'],
+  ['siege_bow', 'siege_ram', 'Siege Bow', "A heavy bow of laminated brass off the Siege Engine's rack, wound like a spring. Every arrow goes like a bolt off a wall."],
+);
 for (const [id, twin, name, desc] of BOW_LIST) {
   const sw = ITEMS[twin];
   ITEMS[id] = { name, price: sw.price, ...(sw.lvl ? { lvl: sw.lvl } : {}), ...(sw.aim ? { aim: sw.aim } : {}), ...(sw.slots ? { slots: sw.slots } : {}), kind: 'bow', atk: sw.atk, reach: sw.reach, twin, desc };
@@ -4783,6 +4890,8 @@ export const SHOPS = {
   hob: { name: "Hob's Punt", room: WICKMERE, x: HOB_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'boathook', 'punt_staff', 'decoy_bow', 'oilskin_hat'] }, // (atlas Phase 8, L2: he trades from his punt)
   sedge: { name: "Sedge's Reed Shed", room: WICKMERE, x: SEDGE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'reedcutter', 'willow_staff', 'wicker_bow', 'reed_hood'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
+  // the Citadel (C0): the Commissary, a vending automaton in Cogwork Bastion still issuing kit to Keepers' guards
+  commissary: { name: 'The Commissary', room: CITADEL, x: COMMISSARY_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'guard_saber', 'guard_staff', 'guard_bow', 'guard_helm'] },
 };
 // Boss gear is better than anything else at its level (owner, 2026-11-06: "bossing is not worth it ... because the
 // equipment isn't strictly better"). A piece with a `lvl` that a boss drops gets BOSS_GEAR of the stats written for it

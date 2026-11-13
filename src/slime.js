@@ -18,6 +18,7 @@ import { drawCollierDress } from './ashwood-art.js';
 import { THIN_PALETTE, drawThinFolk, drawGlasscutterDress } from './coast-art.js';
 import { drawPickerDress } from './brimstone-art.js';
 import { drawCampDress } from './skycamp-art.js';
+import { drawIssuerDress } from './bastion-art.js';
 import { FEN_PALETTE, drawFenFolk, drawFenDress } from './wickmere-art.js';
 import { drawPetkeeperDress } from './pet-art.js';
 
@@ -1016,6 +1017,7 @@ export class Slime {
     if (this.has('picker')) drawPickerDress(ctx, w, h, fx, this.t); // the Brimstone Fields' Picker Ochre
     for (const kind of ['aeronaut', 'pilgrim', 'tinker', 'porter']) if (this.has(kind)) drawCampDress(ctx, kind, w, h, fx, this.t); // the Skydocks camp's visitors (Kestrel, Ione, Tamp) and the Dockwarden
     for (const kind of ['eelskipper', 'lamplady', 'ferryman', 'reedweaver']) if (this.has(kind)) drawFenDress(ctx, kind, w, h, fx, this.t); // Wickmere's people (atlas Phase 8)
+    if (this.has('issuer')) drawIssuerDress(ctx, w, h, fx, this.t); // Cogwork Bastion's Commissary (the Citadel's depth pass, C0)
     if (this.has('petkeeper')) drawPetkeeperDress(ctx, w, h, fx, this.t, bodyPath); // the Pet Shop's Auntie Clover
     if (this.has('captain')) {
       // Captain Brine: a salt-white beard, a navy captain's cap with a gold anchor badge, and a brass spyglass

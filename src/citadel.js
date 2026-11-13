@@ -3,11 +3,12 @@
 // and up the Skydocks' loading ramp (atlas Phase 6 (c), docs/places/skydocks.md; data in src/shared/rpg.js). Cogwork Bastion is brass towers, turning
 // gears and puffing steam pipes under a bright sky; the Chrono Spire is floating crystal clock towers in a
 // twilight teal-violet aether. This room draws its own sky (all 540 px). The den mouths (x 2280 and 4620)
-// are drawn elsewhere, so the scenery leaves room round them. Its west end is the top of the loading ramp down to the
+// are drawn elsewhere, so the scenery leaves room round them, and round the depth pass's gates, waystones and the
+// Commissary (C0: docs/places/citadel.md; the gates are src/citadel-gates.js). Its west end is the top of the loading ramp down to the
 // Skydocks (drawExit; until Phase 6 (c) a skylift ran down to the Caldera from there). Also here: the Citadel's mobs
 // (CITADEL_MOB_ART, called by drawMob in field.js).
 import { W, H, TAU, mulberry32, circle, ellipse, mix, clamp } from './util.js';
-import { CITADEL_W, CITADEL_EXIT_X, CITADEL_ZONES, CITADEL_PLATFORMS, CITADEL, FIELD_GROUND, DENS } from './shared/rpg.js';
+import { CITADEL_W, CITADEL_EXIT_X, CITADEL_ZONES, CITADEL_PLATFORMS, CITADEL, FIELD_GROUND, DENS, CIT_WAY_X, COMMISSARY_X, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, SPIRE_WAY_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
 
 const GROUND = FIELD_GROUND;
@@ -20,7 +21,9 @@ const smooth = (a, b, x) => {
 const spireK = (x) => smooth(B - 350, B + 350, x); // 0 = bright brass bastion, 1 = twilight spire
 const visible = (x0, x1, L, R) => x1 > L && x0 < R;
 const DEN_XS = DENS.filter((d) => d.from === CITADEL).map((d) => d.entranceX);
-const clearOfDens = (x, pad = 150) => DEN_XS.every((d) => Math.abs(x - d) > pad);
+// (the depth pass, C0: the gates, waystones and the Commissary's counter, drawn elsewhere, get the same room)
+const FEATURE_XS = [CIT_WAY_X, COMMISSARY_X, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, SPIRE_WAY_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X];
+const clearOfDens = (x, pad = 150) => DEN_XS.every((d) => Math.abs(x - d) > pad) && FEATURE_XS.every((d) => Math.abs(x - d) > pad * 0.75);
 const SIGN_XS = [330, B + 170];
 const clearOfSigns = (x, pad = 80) => SIGN_XS.every((s) => Math.abs(x - s) > pad);
 

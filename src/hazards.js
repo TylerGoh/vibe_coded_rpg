@@ -132,6 +132,7 @@ const SHOT = {
   lampoil: { glow: '255,214,150', core: '#fffbe8', mid: '#ffd696', rim: '#a8743a' }, // the grave lamp's drop of burning lamp oil (the Sunk Barrows, atlas Phase 8 L3)
   wisplight: { glow: '220,236,255', core: '#ffffff', mid: '#e4f0ff', rim: '#7a9ac8' }, // the Will-Queen's rings of wisp-light (the Lantern Causeway, atlas Phase 8 L4)
   souls: { glow: '255,214,150', core: '#fffbe8', mid: '#ffe2a8', rim: '#b8945a' }, // the Wickmother's rings of the dead's little lights (L5)
+  bolt: { glow: '253,227,160', core: '#f4f6fa', mid: '#8a8e9e', rim: '#2a2834' }, // the Siege Engine's iron bolts (Cogwork Bastion, the Citadel's C0), and its rings
   swap: { glow: '190,140,255', core: '#ffffff', mid: '#c9a6ff', rim: '#6a3ea8' }, // a boss's controls-swap orb (src/challenge.js) // molten metal: the crucible newt's and Old Crucible's (the Old Foundry)
 };
 function drawShot(ctx, h, now) {

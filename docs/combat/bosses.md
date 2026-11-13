@@ -274,6 +274,7 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | The Bog Bloat (field, 158; atlas Phase 8 L3) | adds (boglings, its `minion`), focus | its boglings (on top of the ones it sheds as it's hit: `shed`, `docs/places/barrows.md`) |
 | The Sleeper in the Peat (field, 178; L3) | focus, pulse (the barrow's cold breath) | the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
 | The Will-Queen (field, 176; L4) | focus, pulse (the mere's cold mist) | the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
+| The Siege Engine (field, 154; the Citadel's C0) | armour (its shutters down), focus (its sights on one slime) | the Colossus's bronze plates (`looks.shell: 'brass'`) |
 | Old Crucible (field, 145; E3b) | armour, curse (smouldering) | Ignis's basalt plates (`looks.shell: 'cinder'`): the slag on its skin setting; Pyra's charred sigil (`looks.curse: 'ember'`): its splashes of metal |
 | Greyback (field, 130; E1) | focus, curse (smouldering) | Pyra's charred sigil (`looks.curse: 'ember'`): his burning logs leave you smouldering |
 | Chronos, Keeper of Hours (den, `top`, 170) | barrier, curse (borrowed time), interrupt | a gold dome with hour marks and two clock hands turning inside (`looks.dome: 'hours'`); a dial of gold light on the floor, its hand sweeping round (`looks.curse: 'hours'`) |

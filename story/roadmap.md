@@ -173,10 +173,14 @@ No quests, no hard level gates.
           and twins, the Mothwing Hood (The Last Light, Moth-Wing), the mini Wickmother, and her freed changes (the front
           door, the Lamp Walk) (`docs/places/wickmother.md`). Unplayed. **Atlas Phase 8 done.**
 - [ ] **The Citadel's depth pass, C0–C6** (owner, 2026-11-11: "why does Aether Citadel just end abruptly?"), after
-      the Wickmother, before Amberdune. Plan `citadel-plan.md` (on paper 2026-11-11, waiting for the owner's okay): Lv
-      140–200, room 13 kept, branches (the Keepers' Gardens, the Orrery, the Archive, the Engine Halls, the Bell Walks,
-      the Keel, the Undercroft), eight new bosses (Meridian, the Indexer, four field bosses, the Helmsman, the
-      Escapement as the final boss), the Last Echo, the island map.
+      the Wickmother, before Amberdune. Plan `citadel-plan.md` (approved 2026-11-13 at the owner's "continue with next
+      phase", every default; the band stretched past 200: ~140–215): room 13 kept, branches (the Keepers' Gardens, the
+      Orrery, the Archive, the Engine Halls, the Bell Walks, the Keel, the Undercroft), eight new bosses (Meridian, the
+      Indexer, four field bosses, the Helmsman, the Escapement as the final boss), the Last Echo, the island map.
+  - [x] C0 (2026-11-13, live): the island map, the Bastion's and the Spire's waystones, every gate laid in room 13, the
+        Siege Engine (field boss) and the Commissary (trader) in the Bastion, the Keepers' Gardens (85, easy pocket)
+        (`docs/places/citadel.md`, `docs/places/gardens.md`). Unplayed.
+  - [ ] C1: the Orrery and Meridian, and the Last Echo in the Spire (the lock on the Orrery's door stops).
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

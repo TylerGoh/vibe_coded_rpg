@@ -94,6 +94,9 @@ export const BOWS = {
   // the Old Foundry (E3b, docs/places/foundry.md)
   sootfang_bow: { len: 30, wood: ['#3a3436', '#1a1618'], w: 3.2, tip: 'fang', c: '#d8d0c8', grip: '#4a3a34', gem: '#ff5a40', string: '#c8b8a8', glow: '255,100,80', curve: 0.44 },
   crucible_bow: { len: 33, wood: ['#5a5460', '#2e2a32'], w: 4, tip: 'rivet', c: '#e8701e', grip: '#1e1618', gem: '#ffb040', string: '#c8b8a8', glow: '255,150,60', curve: 0.38 },
+  // the Citadel's depth pass, C0: the Commissary's issue and the Siege Engine's laminated brass
+  guard_bow: { len: 30, wood: ['#f0c470', '#c8904a'], w: 3, tip: 'rivet', c: '#8a5a2e', grip: '#5a3a2a', gem: '#9ff0ea', string: '#e8e0cc', glow: '150,240,234' },
+  siege_bow: { len: 34, wood: ['#c8904a', '#8a5a2e'], w: 4, tip: 'gear', c: '#4a4656', grip: '#2a2834', gem: '#9ff0ea', string: '#d8d0c0', glow: '150,240,234', curve: 0.36 },
   bellower_bow: { len: 31, wood: ['#5a5058', '#2e2830'], w: 3.8, tip: 'rivet', c: '#a8a0a8', grip: '#3a3038', gem: '#ffb46a', string: '#c8b8a8', glow: '255,170,110', curve: 0.36 },
   // the Caldera Rim (E4a, docs/places/rim.md)
   cragbeak_bow: { len: 34, wood: ['#3a3438', '#1c181e'], w: 4, tip: 'feather', c: '#4a4248', c2: '#c8c0b8', grip: '#5a4a40', gem: '#c8d0f0', string: '#c8bca8', glow: '230,236,255', curve: 0.38 },

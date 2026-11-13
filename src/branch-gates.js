@@ -37,9 +37,12 @@
 // Barrows' caved-in cuts (L3 laid it, dug out in L5 (b)) and the Hall of Lamps' door shut with moth-silk at the Causeway's
 // end (L4 laid it): the Mother keeps that one shut, and for a slime who has freed her (L5 (c)) it's drawn open, the silk
 // cut down (OPEN.mothsilk; drawGates' `me`).
+// The Aether Citadel's (its depth pass, C0): five gates in room 13 and the Keepers' Gardens' brass stair, drawn by
+// src/citadel-gates.js and merged in here.
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, circle, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES, gateLifted } from './shared/branches.js';
+import { CITADEL_DRAW, CITADEL_OPEN, CITADEL_SIGN_AT } from './citadel-gates.js'; // (the Citadel's, C0: its own file)
 
 const INK = '#5b4a6b';
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
@@ -75,7 +78,7 @@ export function drawEntries(ctx, room, ground, L, R, time) {
 }
 
 // where each gate's sign stands, relative to the gate, and how big its art is drawn
-const SIGN_AT = { fallenwall: -178, rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, adit: 92, flue: -122, fumes: -130, balloon: -190, tubemouth: 130, bearerstair: 130, willowfall: 150, floodwater: -150, punt: 128, barrowmouth: 172, sunkcauseway: -110, peatfall: -150, mothsilk: -150 };
+const SIGN_AT = { fallenwall: -178, rootsplit: 58, bridge: -130, stump: -100, ladder: 78, thorns: -128, shore: 104, flooded: 110, crack: -120, trunk: -170, snowslide: 110, icestair: -120, crevasse: 104, icefall: -150, snout: -130, grotto: 118, geyser: 120, lavatongue: -150, ironbridge: -150, adit: 92, flue: -122, fumes: -130, balloon: -190, tubemouth: 130, bearerstair: 130, willowfall: 150, floodwater: -150, punt: 128, barrowmouth: 172, sunkcauseway: -110, peatfall: -150, mothsilk: -150, ...CITADEL_SIGN_AT };
 const SCALE = { bridge: 1.5, thorns: 1.15, balloon: 0.82 };
 
 // A little wooden signpost with the place's name; it glows a touch when you're close enough to look
@@ -2380,7 +2383,7 @@ function drawBalloonUp(ctx, time) {
 
 // (the Hall of Lamps' inner door at the top of the Lamp Road was a gate with no art here until L5 (c) gave the den its
 // DENS row: the Lamp Road draws it and its own sign, src/lamproad.js)
-const DRAW = { tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair, willowfall: drawWillowfall, floodwater: drawFloodwater, punt: drawPunt, barrowmouth: drawBarrowMouth, sunkcauseway: drawSunkCauseway, peatfall: drawPeatFall, mothsilk: drawMothSilk };
+const DRAW = { tubemouth: drawTubeMouth, bridge: drawBridge, stump: drawStump, ladder: drawLadder, thorns: drawThorns, flooded: drawFlooded, trunk: drawTrunk, snowslide: drawSnowslide, icestair: drawIcestair, crevasse: drawCrevasse, icefall: drawIcefall, geyser: drawGeyser, lavatongue: drawLavaTongue, ironbridge: drawIronBridge, fumes: drawFumes, balloon: drawBalloon, adit: drawAdit, bearerstair: drawBearerStair, willowfall: drawWillowfall, floodwater: drawFloodwater, punt: drawPunt, barrowmouth: drawBarrowMouth, sunkcauseway: drawSunkCauseway, peatfall: drawPeatFall, mothsilk: drawMothSilk, ...CITADEL_DRAW };
 // The Thornheart's root knot, split open at its east end (FB1 (b)): two great roots pried apart into a dark slot
 // going down, torn bark pale along the edges, a faint green glow far below (the Sunken Road's seed pods) and a
 // white rose petal or two drifting into it. The update itself split it: no quest
@@ -2628,7 +2631,7 @@ const OPEN = { flue: drawFlue, fallenwall: drawFallenWall, icestair: (ctx, time,
   barrowmouth: (ctx, time, g) => drawBarrowMouth(ctx, time, g, true), sunkcauseway: (ctx, time, g) => drawSunkCauseway(ctx, time, g, true), // (L3 opened the first; L4 ships the second)
   peatfall: (ctx, time, g) => drawPeatFall(ctx, time, g, true), // (L5 (b): dug out, the timber propped up as a lintel)
   mothsilk: (ctx, time, g) => drawMothSilk(ctx, time, g, true), // (L5's: the silk cut down)
-  punt: drawPuntOpen }; // (L2: Hob's punt in the water)
+  punt: drawPuntOpen, ...CITADEL_OPEN }; // (L2: Hob's punt in the water; the Citadel's, C0 on: src/citadel-gates.js)
 
 // ——— Lantern Fen's gates (atlas Phase 8, L0: story/phase8-plan.md; L1, L2 and L3 lift them; L3 lays the peat fall) ———
 // The side path to Firefly Hollow off the Shallows' Reedbeds: a great willow come down right across it, lying on its

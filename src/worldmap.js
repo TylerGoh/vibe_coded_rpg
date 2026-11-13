@@ -4,7 +4,7 @@
 // routes and fog where the charts run out, plus a bouncing "you are here" slime. Tapping an island that has
 // one (ISLAND_MAPS) opens its own map: its places as a graph, shipped ones solid, blocked ones dashed
 // (src/shared/branches.js). It sends nothing to the server.
-import { FJORD, FORGEHOLD, HIGHLANDS, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, OLDICE, LONGSTAIR, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, CALDERA, CITADEL, DENS, UNDERFLUES, LONGFLUE, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS, FIREFLY, GROVE, STILLMERE, BARROWS, CAUSEWAY, PEATBARROWS, LAMPROAD } from './shared/rpg.js';
+import { FJORD, FORGEHOLD, HIGHLANDS, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, OLDICE, LONGSTAIR, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, CALDERA, CITADEL, DENS, UNDERFLUES, LONGFLUE, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS, FIREFLY, GROVE, STILLMERE, BARROWS, CAUSEWAY, PEATBARROWS, LAMPROAD, GARDENS } from './shared/rpg.js';
 import { roomDef } from './shared/sim.js';
 import { ISLAND_MAPS, nodeAt, shipped } from './shared/branches.js';
 import { TOUCH } from './touch.js';
@@ -16,7 +16,7 @@ const INK = '#5b4a6b';
 // Which island a room is on. Everything not listed (the village, its buildings, houses, the Wildwood) is home.
 // Aboard a crossing you're out on its route: 'sea' (the ferry's), 'straits' (the Lodestar's), 'sky' (the balloon's) or
 // 'fenroute' (the Hush's, east to Lantern Fen).
-const ISLAND_OF_STAGE = { [FORGEHOLD]: 'ember', [BLACKSANDS]: 'ember', [ASHWOOD]: 'ember', [COAST]: 'ember', [TUBES]: 'ember', [BRIMSTONE]: 'ember', [FOUNDRY]: 'ember', [RIM]: 'ember', [UNDERFLUES]: 'ember', [LONGFLUE]: 'ember', [HIGHLANDS]: 'frost', [FJORD]: 'frost', [GLACIER]: 'frost', [SKERRIES]: 'frost', [GROTTO]: 'frost', [HEIGHTS]: 'frost', [BLUEHALLS]: 'frost', [QBRIDGE]: 'frost', [OLDICE]: 'frost', [LONGSTAIR]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel', [SKYCAMP]: 'citadel', [SKYDOCKS]: 'citadel', [WICKMERE]: 'fen', [SHALLOWS]: 'fen', [FIREFLY]: 'fen', [GROVE]: 'fen', [STILLMERE]: 'fen', [BARROWS]: 'fen', [CAUSEWAY]: 'fen', [PEATBARROWS]: 'fen', [LAMPROAD]: 'fen' };
+const ISLAND_OF_STAGE = { [FORGEHOLD]: 'ember', [BLACKSANDS]: 'ember', [ASHWOOD]: 'ember', [COAST]: 'ember', [TUBES]: 'ember', [BRIMSTONE]: 'ember', [FOUNDRY]: 'ember', [RIM]: 'ember', [UNDERFLUES]: 'ember', [LONGFLUE]: 'ember', [HIGHLANDS]: 'frost', [FJORD]: 'frost', [GLACIER]: 'frost', [SKERRIES]: 'frost', [GROTTO]: 'frost', [HEIGHTS]: 'frost', [BLUEHALLS]: 'frost', [QBRIDGE]: 'frost', [OLDICE]: 'frost', [LONGSTAIR]: 'frost', [CALDERA]: 'ember', [CITADEL]: 'citadel', [SKYCAMP]: 'citadel', [SKYDOCKS]: 'citadel', [GARDENS]: 'citadel', [WICKMERE]: 'fen', [SHALLOWS]: 'fen', [FIREFLY]: 'fen', [GROVE]: 'fen', [STILLMERE]: 'fen', [BARROWS]: 'fen', [CAUSEWAY]: 'fen', [PEATBARROWS]: 'fen', [LAMPROAD]: 'fen' };
 export function islandOf(room) {
   if (roomDef(room)?.crossing) return { steam: 'straits', sky: 'sky', fen: 'fenroute' }[roomDef(room).crossing.route] ?? 'sea';
   const den = DENS.find((d) => d.room === room);
@@ -33,7 +33,7 @@ const ISLANDS = {
 };
 const PINS = { ...ISLANDS, sea: { x: 205, y: 150 }, straits: { x: 334, y: 214 }, sky: { x: 512, y: 240 }, fenroute: { x: 600, y: 112 } }; // (out on the ferry's route, out in the Steam Straits, up the balloon's climb, east with the Hush)
 // Where to tap for an island's own map (on the chart), and the way back from it
-const TAP = { green: { x: 150, y: 215, rx: 85, ry: 85 }, frost: { x: 395, y: 112, rx: 72, ry: 64 }, ember: { x: 400, y: 300, rx: 72, ry: 56 }, fen: { x: 650, y: 236, rx: 60, ry: 46 } };
+const TAP = { green: { x: 150, y: 215, rx: 85, ry: 85 }, frost: { x: 395, y: 112, rx: 72, ry: 64 }, ember: { x: 400, y: 300, rx: 72, ry: 56 }, fen: { x: 650, y: 236, rx: 60, ry: 46 }, citadel: { x: 545, y: 150, rx: 54, ry: 44 } };
 const BACK = { x: 16, y: 16, w: 132, h: 30 };
 
 // Small seeded random, so the coastlines and waves are the same every time the page opens
@@ -389,6 +389,7 @@ const LOOK = {
   frost: { sea: ['#aec8de', '#a4c2d6'], land: '#eef6fb', rim: '#c6dbea', edge: '#7fa8d4', ok: '#4e7ea8', path: '#a8b8c8' },
   ember: { sea: ['#b8d4c4', '#a8ccb8'], land: '#e2cfc8', rim: '#c4a8a4', edge: '#c07a6a', ok: '#a0503e', path: '#9a7a70' },
   fen: { sea: ['#b6c2d6', '#aab8cc'], land: '#dcd6e6', rim: '#bcb2cc', edge: '#8a7aa8', ok: '#5e4e84', path: '#9a90aa' },
+  citadel: { sea: ['#d4dcf0', '#c8d2ea'], land: '#f2ead8', rim: '#dccca6', edge: '#b8945a', ok: '#7a5c2a', path: '#b4a27c' }, // (clouds under brass, C0)
 };
 function drawIslandMap(ctx, t, key, here, hue) {
   const nodes = ISLAND_MAPS[key], byId = Object.fromEntries(nodes.map((n) => [n.id, n])), lk = LOOK[key] ?? LOOK.green;

@@ -43,7 +43,10 @@ one shared corner feed).
   Tamp lashed it) and each of the three has met the Dockwarden; none of them has been into the city. **The Dockwarden**
   (`dockwarden`, the Skydocks' Warden's Pier) is a brass porter automaton in capitals and ledger entries; it logs you by
   name and counts your arrivals through its ordinary per-player memory (the persona asks it to; `first` opens a new
-  entry), knows the port and its hazards and nothing of "the hour" (`docs/places/skydocks.md`). A
+  entry), knows the port and its hazards and nothing of "the hour" (`docs/places/skydocks.md`). **The Commissary**
+  (`commissary`, Cogwork Bastion, the Citadel's C0) is its kin: a vending automaton that takes every slime for a guard,
+  gives each a guard number, trades (the potions and the guards' issue) and knows nothing past its stores
+  (`docs/places/citadel.md`). A
   character who stands in more than one room (`also`) trades only where its shop is (`src/npc.js`).
   **Lantern Fen's people** (atlas Phase 8, L0, `docs/places/fen.md`), all fen folk (`folk: 'fen'`): **Skipper Netta**
   (`netta`, the Hush's crossing, at her eel boxes and at the tiller via `also`), **Wren the Lamplady** (`wren`, tends the

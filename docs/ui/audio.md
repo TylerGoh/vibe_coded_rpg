@@ -29,7 +29,9 @@ footsteps on the stones, Wickmere's music box out ahead like a lamp you follow, 
 far off across the water) and Grandfather Mire's den (`mire`, slot 81: E minor, heavy and patient, his croak on the one,
 the toads' chorus on the off-beats, a slow low line, the music box high above in the second half; the Causeway's mobs and
 the Will-Queen borrow the cinder bat's, wisp's, golem's and magma slug's voices, he the Colossus's); L5 (b)'s Peat Barrows
-(`peatbarrows`, slot 82: D minor, slower and lower than the Sunk Barrows, the music box further off, a spade into peat with
+the Citadel's C0: the Keepers' Gardens (`gardens`, slot 85: A major, slow and bare over a high wind, a music box over the
+dead beds and the fountain's spout ticking round; its automata borrow the sentry drone's, cinder bat's and cogling's
+voices, the Siege Engine the Colossus's); L5 (b)'s Peat Barrows (`peatbarrows`, slot 82: D minor, slower and lower than the Sunk Barrows, the music box further off, a spade into peat with
 nobody there, drips, a papery flutter of wings) and the Lamp Road (`lamproad`, slot 83: a music box waltz in A minor over a
 held note, the pad and its left hand falling away the higher you climb, its notes ringing longer, her wingbeat a deep whump
 every two bars, louder near the top: `audio.setDepth` from `roadDepth` in `src/lamproad.js`; the Peat Barrows' mobs borrow
