@@ -57,8 +57,9 @@ one shared corner feed).
   Archive's shutter went up and sends Folio requisitions by pneumatic tube. **Number Nine** (`nine`, the Engine Halls' Boiler
   Gallery, the Citadel's C3, `docs/places/engine.md`) is the last stoker automaton on shift, gruff and kind, who takes every
   slime for its relief; it trades (the potions and the stokers' kit), knows the halls, the turbine blades, "Coil Four" (the
-  Stormcoil) and the Helm's sealed bulkhead, and has no `lore` cap. Since C3 the Last Echo knows the blast door opened and
-  asks after Nine. A
+  Stormcoil) and the Helm's bulkhead (unsealed since C4; the Helmsman beyond it), and has no `lore` cap. Since C3 the Last
+  Echo knows the blast door opened and asks after Nine; since C4 it heard the rain on the stair fall and knows the Bell
+  Walks, and the Commissary logs the wet stair and a bell. A
   character who stands in more than one room (`also`) trades only where its shop is (`src/npc.js`).
   **Lantern Fen's people** (atlas Phase 8, L0, `docs/places/fen.md`), all fen folk (`folk: 'fen'`): **Skipper Netta**
   (`netta`, the Hush's crossing, at her eel boxes and at the tiller via `also`), **Wren the Lamplady** (`wren`, tends the

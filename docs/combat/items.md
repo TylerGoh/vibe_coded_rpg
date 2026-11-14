@@ -29,7 +29,7 @@ are read from `ITEMS` at runtime, so pieces already owned got stronger too.
 
 ## Boss gear's unique effects (owner, 2026-11-06)
 Owner: "big impact stuff, so people have to actually think if it's worth it", movement changes and changes to how you
-attack included. The owner approved all 22; atlas Phase 8 L4 added Grandfather Mire's two (The Promise, Sit Tight) the same way, and L5 (c) the Wickmother's (The Last Light, Moth-Wing). Each top and final boss's weapons (sword, staff and bow each their own
+attack included. The owner approved all 22; atlas Phase 8 L4 added Grandfather Mire's two (The Promise, Sit Tight) the same way, L5 (c) the Wickmother's (The Last Light, Moth-Wing), and the Citadel's C4 the Helmsman's (Steady As She Goes, Even Keel). Each top and final boss's weapons (sword, staff and bow each their own
 version) share one effect and its helmet another, most with a cost; twelve den and field bosses give a small one, no
 cost, to every piece they drop. Shop stock never carries one. The item card shows it (`fxLine`).
 - **Where it lives**: `src/shared/gearfx.js` holds every number (named constants), `GEAR_FX` (name, text, cost),
@@ -60,6 +60,7 @@ cost, to every piece they drop. Shop stock never carries one. The item card show
 | Typhon | every `HEARTH_EVERY`th hit erupts · burning ground under spells · arrows explode | damage taken × `HEARTH_TAKEN` | walk × `FURNACE_WALK`, fire trail | standing still burns `FURNACE_DRAIN`/s |
 | Brenna | damage × `BURDEN_DMG` (all) | walk × `BURDEN_WALK`, no air jumps | landing from a fall faster than `STOMP_VY` stomps | no Dash (nor Hook) |
 | Fenrir | dashing through mobs slashes · Blink leaves a frost nova · Retreat Shot + `VOLLEY` arrows | max HP × `UNBOUND_HP` | a third jump | DEF × `PACK_DEF` |
+| the Helmsman (C4) | Steady As She Goes: not hurt for `STEADY_S`, hits × `STEADY_DMG` (all; the client's own `hurtAt`) | max HP × `STEADY_HP` | Even Keel: no knockback (`GX.KNOCKFREE`), a tilting floor doesn't slide you (`GX.NOTILT`, `step()`) | no Dash (`GX.NODASH`) |
 | the Wickmother | The Last Light: below `LAST_AT` of your max HP, hits × `LAST_DMG` (all) | max HP × `LAST_HP` | Moth-Wing: the Colossus's glide (`GX.GLIDE`) | DEF × `MOTH_DEF` |
 | Root Warden | still `ROOTED_S`: damage × `ROOTED_DMG` (all) | standing still | still: heal `REST_HEAL`/s | none |
 | Sigrun | block a hit every `OATH_EVERY` s, next hit × `OATH_BONUS` (all) | damage × `OATH_DMG` | no knockback (both sides skip it) | walk × `BULWARK_WALK` |
@@ -240,7 +241,7 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   **Long-Promise Bow**) and **Grandfather's Cap** (Lv 181, 10 slots, with effects, below) (art `src/causeway-art.js`,
   `CAUSEWAY_*`; `docs/places/causeway.md`). The Citadel's C3: **Number Nine** (`SHOPS.nine`, aim 185) sells the **Stoker's Slice-Bar**, the **Damper Rod**, the **Firegrate
   Bow** and the **Stoker's Goggles** (Lv 181), and **the Stormcoil** (field) drops the **Coil Lance** (twins: the **Coil Staff**,
-  the **Arc Bow**) and the **Stormcoil Helm** (Lv 188; art `src/engine-art.js`, `ENGINE_*`; `docs/places/engine.md`). The Citadel's C0: **the Siege Engine** (field) drops the **Siege Ram** (twins:
+  the **Arc Bow**) and the **Stormcoil Helm** (Lv 188; art `src/engine-art.js`, `ENGINE_*`; `docs/places/engine.md`). The Citadel's C4: **the Great Bell** (field) drops the **Toll Hammer** (twins: the **Toll Staff**, the **Toll Bow**) and the **Bell Helm** (Lv 206), clapper knights rarely the **Clapper Helm** (Lv 202), and **the Helmsman** (a `top` party den) **The Last Heading** (twins: the **Compass Staff**, the **Wheelwood Bow**) and the **Helmsman's Cap** (Lv 193, 10 slots, with effects, below) (art `src/bells-art.js`, `BELLS_*`; `docs/places/bellwalks.md`, `docs/places/helm.md`). The Citadel's C0: **the Siege Engine** (field) drops the **Siege Ram** (twins:
   the **Siege Staff**, the **Siege Bow**) and the **Siege Helm** (Lv 156), and **the Commissary** sells the **Bastion
   Guard's Saber**, **Staff**, **Bow** and **Helm** (Lv 146, aim 150) (art `src/bastion-art.js`, `BASTION_*`;
   `docs/places/citadel.md`). C1: **Meridian** drops **Meridian's Arm** (twins: the **Orrery Staff**, the **Ecliptic Bow**) and

@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X, PEATBARROWS, LAMPROAD, WICK_DEN_X, WICK_DEN_NAME, WICK_DEN, CITADEL, SKYCAMP, SKYDOCKS, GARDENS, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X, ORRERY, ARCHIVE, ENGINE, HELM_GATE_X } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X, PEATBARROWS, LAMPROAD, WICK_DEN_X, WICK_DEN_NAME, WICK_DEN, CITADEL, SKYCAMP, SKYDOCKS, GARDENS, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X, ORRERY, ARCHIVE, ENGINE, HELM_GATE_X, BELLS, HELM_DEN } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -117,12 +117,13 @@ export const CITADEL_MAP = [
   { id: 'undercroft', name: 'The Undercroft', band: '205–215', hard: true, at: [580, 340], from: 'keel', past: true, block: 'below the Keel' },
   // C1: the lock on the Orrery's door stopped turning (the update did it), its rings lined up
   { id: 'orrery', name: 'The Orrery', band: '160–170', at: [450, 140], from: 'spire', rooms: [ORRERY], entry: { room: CITADEL, x: ORRERY_GATE_X, kind: 'combolock' } },
-  // C3: the blast door stopped venting and stands open (the update did it); the Helm's bulkhead is the next gate (C4)
+  // C3: the blast door stopped venting and stands open (the update did it)
   { id: 'engine', name: 'The Engine Halls', band: '175–190', at: [640, 165], from: 'spire', rooms: [ENGINE], entry: { room: CITADEL, x: ENGINE_GATE_X, kind: 'blastdoor' } },
-  { id: 'helm', name: 'The Helm', band: '190', at: [690, 250], from: 'engine', block: 'bulkhead sealed',
-    gate: { room: ENGINE, x: HELM_GATE_X, kind: 'bulkhead', look: 'look at the bulkhead', says: 'The bulkhead is sealed while under way. Behind it, something turns a great wheel.' } },
-  { id: 'bells', name: 'The Bell Walks', band: '195–208', at: [560, 55], from: 'spire', block: 'frozen rain',
-    gate: { room: CITADEL, x: BELLS_GATE_X, kind: 'frozenrain', look: 'look at the stair', says: "Rain hangs on the stair, every drop stopped in the air. You can't push through." } },
+  // C4: the Helm's bulkhead unsealed and swung back (the update did it). The Helm is a den (the Helmsman's, the party den),
+  // so its door is the den's own (denDoors(ENGINE), drawn by the den's entrance art as the bulkhead standing open): no entry
+  { id: 'helm', name: 'The Helm', band: '191', at: [690, 250], from: 'engine', rooms: [HELM_DEN] },
+  // C4: the rain hanging on the stair above the Hour Sanctum fell (the update did it)
+  { id: 'bells', name: 'The Bell Walks', band: '195–208', at: [560, 55], from: 'spire', rooms: [BELLS], entry: { room: CITADEL, x: BELLS_GATE_X, kind: 'frozenrain' } },
 ];
 export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK, ember: EMBERDEEP, fen: LANTERN_FEN, citadel: CITADEL_MAP };
 const ALL = Object.values(ISLAND_MAPS).flat();

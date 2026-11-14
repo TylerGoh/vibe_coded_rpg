@@ -70,6 +70,8 @@ export const STAFFS = {
   // the Citadel's depth pass, C0 (docs/places/citadel.md): the Commissary's issue and the Siege Engine's
   guard_staff: { len: 64, shaft: ['#f0c470', '#c8904a'], w: 2.8, head: 'lantern', gem: '#9ff0ea', gem2: '#8a5a2e', glow: '150,240,234' },
   damper_rod: { len: 66, shaft: ['#5a5460', '#2e2a32'], w: 2.8, head: 'crook', gem: '#9ff0ea', gem2: '#c8904a', glow: '150,240,234' }, // (Number Nine's issue, C3: a damper rod, its hook)
+  toll_staff: { len: 70, shaft: ['#7a5426', '#4a3018'], w: 3, head: 'ring', gem: '#fff4dc', gem2: '#b8863a', glow: '255,226,170' }, // (the Great Bell's, C4: a little bell with no clapper)
+  heading_staff: { len: 72, shaft: ['#f0c470', '#8a5a2e'], w: 3, head: 'ring', gem: '#efe4c8', gem2: '#c8302a', glow: '150,240,234' }, // (the Helmsman's, C4: the binnacle's compass)
   coil_staff: { len: 70, shaft: ['#c8e8f0', '#5a8a9a'], w: 3, head: 'ring', gem: '#e8fffc', gem2: '#c87a3a', glow: '150,240,234' }, // (the Stormcoil's, C3: copper wound round its glass head)
   archivist_pointer: { len: 66, shaft: ['#3a3236', '#1e1a20'], w: 2.6, head: 'pointer', gem: '#f0c470', gem2: '#8a5a2e', glow: '255,236,200' }, // (Folio's issue, C2: a reading-room pointer, a brass tip)
   stamp_staff: { len: 70, shaft: ['#f0c470', '#8a5a2e'], w: 3.2, head: 'stamp', gem: '#c8302a', gem2: '#5a3a2a', glow: '255,140,120' }, // (the Indexer's, C2: a long brass stamp, its red die)

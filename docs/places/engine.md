@@ -13,7 +13,7 @@ spawns, `SHOPS.nine`), `ROOMS[ENGINE]`, its door in `ROOMS[CITADEL]` and Number 
 nodes in `CITADEL_MAP` (`src/shared/branches.js`: `engine`, and `helm`, the next gate), the waystone
 (`src/shared/waystones.js`), the turbines' damage in `server/rpg.js`, the room's drawing in `src/engine.js`
 (`drawEngineHalls`, which takes the render tick), the mobs, gear, icons and Nine's look in `src/engine-art.js`, the Helm's
-bulkhead in `src/citadel-gates.js` (`bulkhead`), the `cinder` shot and `arc` beam in `src/hazards.js`, the `arc` pulse in
+bulkhead in `src/citadel-gates.js` (`bulkhead`, drawn open since C4 as the Helm's den door: `docs/places/helm.md`), the `cinder` shot and `arc` beam in `src/hazards.js`, the `arc` pulse in
 `src/party.js`, the `engine` music scene in `src/audio.js`, Nine's persona in `server/characters.js`.
 
 ## The room
@@ -24,9 +24,9 @@ You come in at the WEST end, through the blast door. West to east (`ENGINE_ZONES
 - **The Stoke Hold** (175–180): catwalks and a gantry; stoker automata and arc jellies.
 - **The Turbine Walk** (180–185): arc jellies, governor balls, a stoker; the first turbine slots.
 - **The Governor's Deck** (185–190): governor balls and jellies, a turbine slot, **the Stormcoil** hanging over it (field
-  boss), and at the far end **the Helm's bulkhead** (`HELM_GATE_X`, gate `bulkhead`: a steel door sealed while the city is
-  under way, its gauge in the red, UNDER WAY on its plate, a great wheel's spokes turning past its porthole). C4 opens it:
-  the Helm, the party den (`docs/places/citadel.md`, the plan's map). The `helm` node is on the map, dashed.
+  boss), and at the far end **the Helm's bulkhead** (`HELM_GATE_X`, `bulkhead`: a steel door sealed while the city was
+  under way, its gauge in the red, UNDER WAY on its plate, a great wheel's spokes turning past its porthole). **C4 opened
+  it**: swung back on a lit stair, the door into the Helmsman's den (the party den, `docs/places/helm.md`).
 - **The turbine blades** (`TURBINES`, a room hazard: the Skydocks' gusts' pattern). The great turbines' blades come round
   up through slots in the catwalk floor (a dark slot, hazard stripes either side). On each slot's own offset in a
   `TURBINE_CYCLE` the turbine spins up (`TURBINE_WARN`: the slot glows blue, the grating shakes), the blades sweep through
@@ -45,7 +45,7 @@ You come in at the WEST end, through the blast door. West to east (`ENGINE_ZONES
   grating (`beam`, a new `BEAM` style `arc`, the sentry drone's way). A flier (`fly` 40), HP 87%. Material: the Arc Filament.
 - **Governor ball** (187): an engine's flyweight governor off its spindle, two brass balls on a bent arm; it bounds and comes
   down with a clang (`stomp`). HP 93%. Material: the Governor Weight.
-- Voices borrowed (the golem's, the wisp's, the cogling's). No elites, no den here (the Helm, C4, is the halls' den).
+- Voices borrowed (the golem's, the wisp's, the cogling's). No elites; the halls' den is the Helm (C4), through the bulkhead.
 
 ## The Stormcoil (field boss, Lv 186)
 One of the great aether coils that drive the turbines, come loose of its housing: a tall drum of copper windings round a

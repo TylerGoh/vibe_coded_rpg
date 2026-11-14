@@ -283,6 +283,8 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | The Sleeper in the Peat (field, 178; L3) | focus, pulse (the barrow's cold breath) | the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
 | The Will-Queen (field, 176; L4) | focus, pulse (the mere's cold mist) | the Narwhal's spray, "BREATH" (`looks.pulse: 'breath'`) |
 | The Stormcoil (field, 186; the Citadel's C3) | pulse (its charge breaking, "ARC"), focus | a new `PULSES` look (`looks.pulse: 'arc'`) |
+| The Great Bell (field, 204; the Citadel's C4) | pulse (its bronze ringing up, "TOLL"), armour (its mouth shut on itself) | a new `PULSES` look (`looks.pulse: 'toll'`); the Colossus's bronze plates (`looks.shell: 'brass'`) |
+| The Helmsman (party den, `top`, 191; the Citadel's C4, built with them: `docs/places/helm.md`) | focus, armour (+ the gear lock), pulse (the city's horn), weakpoint (the shard in the open hatch at his back, `weak.back`), adds (governor balls), interrupt | the Colossus's brass plates (`looks.shell: 'brass'`); grey-white rings, "HOLD" (`looks.pulse: 'horn'`) |
 | The Siege Engine (field, 154; the Citadel's C0) | armour (its shutters down), focus (its sights on one slime) | the Colossus's bronze plates (`looks.shell: 'brass'`) |
 | Old Crucible (field, 145; E3b) | armour, curse (smouldering) | Ignis's basalt plates (`looks.shell: 'cinder'`): the slag on its skin setting; Pyra's charred sigil (`looks.curse: 'ember'`): its splashes of metal |
 | Greyback (field, 130; E1) | focus, curse (smouldering) | Pyra's charred sigil (`looks.curse: 'ember'`): his burning logs leave you smouldering |

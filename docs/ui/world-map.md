@@ -24,7 +24,7 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
   east (`PINS`). The Skydocks camp and the Skydocks are on the Citadel (`docs/places/skydocks.md`), whose sub-label
   names the camp. Since the Citadel's depth pass (C0) it has its own map, `CITADEL_MAP` (`LOOK.citadel`: cream and brass on
   clouds; `docs/places/citadel.md`): the camp, the Skydocks, the Bastion and the Spire, the Keepers' Gardens, the Orrery (C1), the Archive (C2), the Engine Halls (C3),
-  and the four branches still shut (the Helm off the Engine Halls since C3), dashed with their reasons.
+  the Helm and the Bell Walks (C4), and the branches still shut (the Keel and the Undercroft), dashed with their reasons.
 - **Lantern Fen** (atlas Phase 8) is charted where the eastern fog was: a low violet island with meres, Wickmere's stilt
   houses at its west end, a thinner mist and the lights still flickering over it; the Hush's dashed route runs to it
   from Frostpeak. Its own map is `LANTERN_FEN` (`src/shared/branches.js`; `LOOK.fen`): Wickmere, the Shallows, Firefly Hollow

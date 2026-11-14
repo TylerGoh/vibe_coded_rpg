@@ -28,11 +28,12 @@ export const PROMISE_STEP = 0.05, PROMISE_MAX = 1.6, PROMISE_BROKEN = 0.6; // Gr
 export const SIT_S = 1, SIT_CUT = 0.75; // Grandfather Mire's cap: still this long, damage taken × CUT (server/rpg.js hurt)
 export const LAST_AT = 0.5, LAST_DMG = 1.5, LAST_HP = 0.85; // the Wickmother's weapons: below LAST_AT of your max HP, hits × LAST_DMG; max HP × LAST_HP
 export const MOTH_DEF = 0.9; // the Wickmother's hood (Moth-Wing: the Colossus's glide; DEF ×)
+export const STEADY_S = 4, STEADY_DMG = 1.35, STEADY_HP = 0.9; // the Helmsman's weapons: not hurt for STEADY_S, hits × STEADY_DMG; max HP × STEADY_HP
 export const RUSH_S = 3, RUSH_SPEED = 1.15, SHATTERER = 1.2, BREWER = 1.5, PHASE_IFR = 30; // the small ones
 
 // gx: the movement effects, as bits in the slime's physics state (sim.js step reads them; the server sets them from
 // the worn gear and, for the Skirmisher's Backflip Volley, the skills: server/rpg.js moves)
-export const GX = { SLOW25: 1, NOAIR: 2, TRIPLE: 4, AIRDASH: 8, GLIDE: 16, FAST20: 32, NODASH: 64, SLOW15: 128, KNOCKFREE: 256, RUSH: 512, WALL: 1024, PHASE: 2048, FLIP: 4096 };
+export const GX = { SLOW25: 1, NOAIR: 2, TRIPLE: 4, AIRDASH: 8, GLIDE: 16, FAST20: 32, NODASH: 64, SLOW15: 128, KNOCKFREE: 256, RUSH: 512, WALL: 1024, PHASE: 2048, FLIP: 4096, NOTILT: 8192 };
 
 // ——— the effects: name, what it does by weapon kind (or `all`), and its cost ———
 export const GEAR_FX = {
@@ -46,6 +47,7 @@ export const GEAR_FX = {
   oath: { name: 'Oath of the Shield', all: `Blocks one hit every ${OATH_EVERY} s; your next hit after a block does ${OATH_BONUS}×.`, cost: `${Math.round((1 - OATH_DMG) * 100)}% less damage otherwise.` },
   promise: { name: 'The Promise', all: `Every hit on the mob you hit last does ${Math.round(PROMISE_STEP * 100)}% more than the one before, up to +${Math.round((PROMISE_MAX - 1) * 100)}%.`, cost: `Hitting a different mob breaks it: that hit does ${Math.round((1 - PROMISE_BROKEN) * 100)}% less.` },
   piston: { name: 'Clockwork', sword: `Every swing also fires a piston shot ahead (${PISTON_MULT * 100}%).`, staff: `Every ${PISTON_FREE}th spell is free.`, bow: `Arrows go through ${PISTON_PIERCE} more mobs.`, cost: `Every attack costs ${PISTON_HP * 100}% of your HP.` },
+  steady: { name: 'Steady As She Goes', all: `Go ${STEADY_S} s without being hurt: +${Math.round((STEADY_DMG - 1) * 100)}% damage until something hits you.`, cost: `Max HP −${Math.round((1 - STEADY_HP) * 100)}%.` },
   lastlight: { name: 'The Last Light', all: `Below half your HP, +${Math.round((LAST_DMG - 1) * 100)}% damage.`, cost: `Max HP −${Math.round((1 - LAST_HP) * 100)}%.` },
   // helmets of the top and final bosses
   pack: { name: 'Pack Runner', all: 'A third jump in mid-air.', cost: `DEF −${Math.round((1 - PACK_DEF) * 100)}%.` },
@@ -56,6 +58,7 @@ export const GEAR_FX = {
   quake: { name: 'Last Delivery', all: 'Landing from a long fall stomps the ground: damage and knockback.', cost: 'No dash.' },
   bulwark: { name: 'Unmoved', all: 'Nothing knocks you back.', cost: `Walk ${Math.round((1 - BULWARK_WALK) * 100)}% slower.` },
   sittight: { name: 'Sit Tight', all: `Stand still for ${SIT_S} s: take ${Math.round((1 - SIT_CUT) * 100)}% less damage until you move.`, cost: `Walk ${Math.round((1 - BULWARK_WALK) * 100)}% slower.` },
+  keel: { name: 'Even Keel', all: 'Nothing knocks you back, and a tilting floor doesn\'t slide you.', cost: 'No dash.' },
   moth: { name: 'Moth-Wing', all: 'Jump a quarter higher; hold Jump while falling to flutter down.', cost: `DEF −${Math.round((1 - MOTH_DEF) * 100)}%.` },
   rest: { name: 'Deep Roots', all: `Standing still heals ${REST_HEAL * 100}% of your HP a second.` },
   // the den and field bosses' small ones (every piece they drop)
@@ -69,7 +72,7 @@ export const GEAR_FX = {
 // boss → [its weapons' effect, its helmet's effect] (one id: every piece)
 const BOSS_FX = {
   ladon: ['hydra', 'briar'], chronos: ['hours', 'rewind'], typhon: ['hearth', 'furnace'], brenna: ['burden', 'quake'],
-  fenrir: ['unbound', 'pack'], root_warden: ['rooted', 'rest'], sigrun: ['oath', 'bulwark'], colossus: ['piston', 'glide'], grandfather_mire: ['promise', 'sittight'], wickmother: ['lastlight', 'moth'],
+  fenrir: ['unbound', 'pack'], root_warden: ['rooted', 'rest'], sigrun: ['oath', 'bulwark'], colossus: ['piston', 'glide'], grandfather_mire: ['promise', 'sittight'], wickmother: ['lastlight', 'moth'], helmsman: ['steady', 'keel'],
   knotmole: 'rush', hornet_queen: 'rush', snapjaw: 'firstcrit', thorn_hart: 'firstcrit', frost_queen: 'shatterer', ignis: 'shatterer',
   old_narwhal: 'wall', hall_troll: 'wall', tidemother: 'brewer', hatchkeeper: 'brewer', pale_wyrm: 'phase', brimstone_condor: 'phase',
 };
@@ -108,6 +111,7 @@ export function gearMoves(c) {
   if (f.quake) gx |= GX.NODASH;
   if (f.bulwark) gx |= GX.SLOW15 | GX.KNOCKFREE;
   if (f.sittight) gx |= GX.SLOW15; // (Grandfather Mire's cap: Sigrun's helm's slower walk)
+  if (f.keel) gx |= GX.KNOCKFREE | GX.NOTILT | GX.NODASH; // (the Helmsman's cap: Sigrun's no knockback, the tilt doesn't slide you; no dash)
   if (f.rush) gx |= GX.RUSH;
   if (f.wall) gx |= GX.WALL;
   if (f.phase) gx |= GX.PHASE;

@@ -128,6 +128,7 @@ const SHOT = {
   seed: { glow: '190,255,150', core: '#fbffe8', mid: '#c8f0a0', rim: '#3e5a30' }, // the seed-pod lantern's glowing seed
   log: { glow: '255,130,60', core: '#ffd27a', mid: '#3a3034', rim: '#1e1a1e' }, // Greyback's burning log (the Ashwood)
   sulphur: { glow: '240,220,90', core: '#fffbd0', mid: '#ffe04a', rim: '#b08a1e' }, // the chimney spitter's glob of burning sulphur (the Brimstone Fields)
+  raindrop: { glow: '210,226,255', core: '#ffffff', mid: '#d2e2ff', rim: '#6a7ab0' }, // the rain shard's stopped raindrop, flicked (the Citadel's C4)
   cinder: { glow: '150,240,234', core: '#e8fffc', mid: '#6ad8d0', rim: '#1e3440' }, // the stoker automaton's scoop of burning aether-coke (the Citadel's C3)
   molten: { glow: '255,150,60', core: '#fff6d0', mid: '#ffb040', rim: '#c84a1e' },
   mud: { glow: '150,130,90', core: '#c8b890', mid: '#6a5640', rim: '#3a2c22' }, // the mire frog's gobbet of bog mud (the Shallows, atlas Phase 8)

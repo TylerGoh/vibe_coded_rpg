@@ -883,6 +883,27 @@ farming gold / EXP (`FIELD_PAY`). Its set a step over (Lv 156: the Siege Ram and
 859k, `helmetPrice`), on the curve × `BOSS_GEAR.field`; Siege Bolt 1,490. Its pet 248.5k, between the Colossus's (248k, Lv
 150) and the Bog Bloat's (249k, Lv 158); `PETSHOP_W` 6450 → 6600. Nothing else moved. `--check` green on the first run.
 
+## The Citadel's depth pass, C4 (2026-11-14)
+The Bell Walks (`docs/places/bellwalks.md`) put the first mobs past 190 on the frozen curve (its power-law tail): the bell
+wraith (197, HP 94% for a phasing flier), clapper knight (202, 95%, a `blink` mob) and rain shard (206, 92%, a rooted `lob`
+like the pitcher plant); EXP 100%, gold 98–99% (coins the governor ball's ratio to the gold curve; materials on the ladder:
+Wraith's Chime 1,850, Clapper Plate 1,880, Stopped Raindrop 1,910). "Farming your own level" now picks the bell wraith at 200
+and the rain shard at 220: **gold earned by** Lv 200 ~22.10M → ~22.07M, Lv 220 ~30.29M → ~29.85M; **play time** to Lv 200
+35.6 h → 35.5 h (target 34.9 h), to 220 44.0 h → 42.8 h (target 41.9 h); `rebirthCost` at 200 1.09× → 1.03× the sheet's
+hour of gold. Rare gear: the Clapper Helm (`helmetPrice` at 202, 1.449M). **The Great Bell** (field, Lv 204): the Stormcoil's
+numbers carried up by the curve (written HP 4.97M, ATK 696, EXP 834k, coins 94.0–135.9k); the sheet solos it in a median
+~3:19 and it pays 1.39× / 1.57× a minute of farming (`FIELD_PAY`); its pulse and armour make a duo's kill +22% / +12%
+(RETROFIT, like the other armoured field bosses). The Toll Hammer and twins (Lv 206, 1.928M, `swordPrice` × 0.966 like the
+Stormcoil's) and the Bell Helm (1.456M); Bell Bronze 1,900. **The Helmsman** (`top` party den, Lv 191) sized by the TOP
+BOSSES table: Grandfather Mire's numbers carried up by the curve put the party of four at 30:45 (54M written), so HP was cut
+to 49.5M written: party of four ~28:11 (Mire 28:03), the lopsided party ~25:51, alone a median ~60 min, 2.1× the party
+(`TOP_SOLO`); ATK 740; EXP 3.62M and coins 2.23–3.46M: BOSS PAY 0.77× EXP / 6.38× gold an hour of farming (Mire 0.76× /
+6.18×). His gear a step over (Lv 193, 10 slots: The Last Heading and twins 1.748M, the Helmsman's Cap 1.321M) carries
+effects (`docs/combat/items.md`), not on the sheet, like every boss gear effect; Wheel Peg 1,960. Pets by level: the mini
+Helmsman 305k and the mini Great Bell 309k, between the Stormcoil's (300k) and the Wickmother's (312k, Lv 210); `PETSHOP_W`
+7050 → 7300 (the plinths need 7258). The CLASSES tables' Lv 10 rows moved by a second (the dens' median boss ATK against
+the curve). `--check` green.
+
 ## The Citadel's depth pass, C3 (2026-11-13)
 The Engine Halls (`docs/places/engine.md`) put three mobs on the frozen curve, read off the Fen's deep room at the same
 levels: the stoker automaton (177, HP 96%, a `lob` shooter), arc jelly (182, 87% for a `beam` flier) and governor ball (187,

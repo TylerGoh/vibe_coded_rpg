@@ -290,6 +290,8 @@ function drawFocus(ctx, v, k, s, t, me) {
 // plume of it off its smokestacks, "STEAM")
 const PULSES = {
   heat: { ring: '255,118,40', glow: '255,150,60', hit: '255,96,30', word: 'HEAT', fill: '#fff1d6', edge: 'rgba(70,18,4,0.85)', shimmer: true },
+  toll: { ring: '224,180,100', glow: '255,226,170', hit: '184,134,58', word: 'TOLL', fill: '#fff4dc', edge: 'rgba(60,36,16,0.85)' }, // (the Great Bell's bronze ringing up, the Citadel's C4)
+  horn: { ring: '214,214,228', glow: '240,240,250', hit: '160,160,190', word: 'HOLD', fill: '#ffffff', edge: 'rgba(30,28,40,0.85)' }, // (the Helmsman's horn over the bridge, C4)
   arc: { ring: '150,240,234', glow: '190,250,246', hit: '120,220,230', word: 'ARC', fill: '#ffffff', edge: 'rgba(20,40,52,0.85)' }, // (the Stormcoil's charge, the Citadel's C3)
   steam: { ring: '214,224,230', glow: '236,242,246', hit: '196,208,218', word: 'STEAM', fill: '#ffffff', edge: 'rgba(70,44,30,0.85)', foam: true, plume: true },
   violet: { ring: '176,110,255', glow: '190,130,255', hit: '160,100,250', word: 'PULSE', fill: '#f1e4ff', edge: 'rgba(40,20,70,0.75)' },

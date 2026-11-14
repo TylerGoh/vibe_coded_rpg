@@ -191,7 +191,11 @@ No quests, no hard level gates.
   - [x] C3 (2026-11-13, live): the blast door stopped venting; the Engine Halls (90, Lv 175–190: stoker automata, arc
         jellies, governor balls, the turbine blades through the catwalk floor, the telegraph tagged HOLD), the Stormcoil
         (field boss, Lv 186), Number Nine at its furnace (AI, trades), the Helm's bulkhead laid (`docs/places/engine.md`). Unplayed.
-  - [ ] C4: the Helm (the Helmsman, the party den) and the Bell Walks with the Great Bell (the bulkhead opens, the rain falls).
+  - [x] C4 (2026-11-14, live): the bulkhead unsealed and the rain on the stair fell; the Helm (den 92: the Helmsman, the party
+        den, Lv 191: the tilting deck, fake-outs, hard about, the gear lock, The Last Heading, his wheel spinning free; Steady As
+        She Goes and Even Keel) and the Bell Walks (91, Lv 195–208: bell wraiths, clapper knights, rain shards, the cut rope) with
+        the Great Bell (field boss, Lv 204) (`docs/places/helm.md`, `docs/places/bellwalks.md`). Unplayed.
+  - [ ] C5: the Keel (hard pocket through the Grand Foundry's hatch, elites, the Rustwyrm).
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

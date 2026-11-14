@@ -38,7 +38,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 7050; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) and the mini Stormcoil (C3, 6986): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 7300; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), and the mini Helmsman and Great Bell (C4, 7258): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -140,7 +140,7 @@ export const SPIRE_WAY_X = 2760; // the Spire's waystone
 export const ORRERY_GATE_X = 3020; // the Orrery's door (its combination lock turned by itself until C1 stopped it: the way into ORRERY)
 export const ECHO_X = 3250; // the Last Echo, a Keeper's echo on the Spire's floor between the Orrery's door and the blast door (C1)
 export const ENGINE_GATE_X = 3520; // the Engine Halls' catwalk (its blast door vented steam until C3 opened it: the way into ENGINE)
-export const BELLS_GATE_X = 4180; // the stair above the Hour Sanctum, frozen rain hanging on it (C4)
+export const BELLS_GATE_X = 4180; // the stair above the Hour Sanctum (frozen rain hung on it until C4 let it fall: the way into BELLS)
 export const CITADEL_ZONES = [
   { name: 'Cogwork Bastion', x0: 0, x1: 2400, lvl: '140–155' },
   { name: 'Chrono Spire', x0: 2400, x1: CITADEL_W, lvl: '156–170' },
@@ -586,7 +586,7 @@ export const ENGINE_W = 4800;
 export const ENGINE_EXIT_X = 70; // back out through the blast door to the Spire
 export const ENGINE_WAY_X = 240; // the Engine Halls' waystone, in the Boiler Gallery
 export const NINE_X = 520; // Number Nine, at its furnace (it trades: SHOPS)
-export const HELM_GATE_X = 4580; // the Helm's bulkhead, sealed while the city is under way (C4)
+export const HELM_GATE_X = 4580; // the Helm's bulkhead (sealed while the city was under way until C4 opened it: the Helm's door, HELM_DEN)
 export const ENGINE_ZONES = [
   { name: 'The Boiler Gallery', x0: 0, x1: 700, lvl: null }, // (no mobs)
   { name: 'The Stoke Hold', x0: 700, x1: 2000, lvl: '175–180' },
@@ -614,6 +614,38 @@ export const TURBINES = [{ x: 2300, w: 200 }, { x: 2860, w: 220 }, { x: 3320, w:
 export const TURBINE_CYCLE = 480, TURBINE_WARN = 110, TURBINE_SPIN = 90; // (ticks)
 export const TURBINE_DOT = 0.05;
 // turbine i at server tick t → { k: 0..1 how fast it's turning, spin: whether the blades are through the floor (and hurt) }
+// ——— the Citadel's depth pass, C4 (story/citadel-plan.md; docs/places/bellwalks.md, docs/places/helm.md) ———
+// The Bell Walks (room 91): up the stair above the Hour Sanctum (BELLS_GATE_X in room 13: the rain hanging on it fell in
+// C4), open galleries round the top of the Chrono Spire, the great bells stopped mid-swing in their frames, rain hanging in
+// the air everywhere up here (every drop stopped), the whole archipelago tiny below. You come in at the WEST end, at the top
+// of the Rain Stair (no mobs): the Bell Walks' waystone. West to east: the Lower Gallery, the Bell Loft and the Crown Walk,
+// where the Great Bell (a field boss) has come down out of its frame. No trader. The find (last in BELLS_PLATFORMS): up on
+// the Bell Loft's top beam, the bell-ringers' rope, cut.
+export const BELLS = 91; // room id
+export const BELLS_W = 4600;
+export const BELLS_EXIT_X = 70; // back down the Rain Stair to the Spire
+export const BELLS_WAY_X = 260; // the Bell Walks' waystone, at the stair head
+export const BELLS_ZONES = [
+  { name: 'The Rain Stair', x0: 0, x1: 600, lvl: null }, // (no mobs)
+  { name: 'The Lower Gallery', x0: 600, x1: 1900, lvl: '195–199' },
+  { name: 'The Bell Loft', x0: 1900, x1: 3200, lvl: '199–204' },
+  { name: 'The Crown Walk', x0: 3200, x1: BELLS_W, lvl: '204–208' },
+];
+// the galleries' balconies and the bell frames' beams; the cut rope on the loft's top beam (hidden)
+export const BELLS_PLATFORMS = [
+  { x: 760, y: 340, w: 190, kind: 'gallery' },
+  { x: 1140, y: 262, w: 180, kind: 'beam' },
+  { x: 1540, y: 336, w: 200, kind: 'gallery' },
+  { x: 2060, y: 300, w: 180, kind: 'gallery' },
+  { x: 2480, y: 250, w: 190, kind: 'beam' },
+  { x: 2960, y: 332, w: 200, kind: 'gallery' },
+  { x: 3420, y: 300, w: 190, kind: 'gallery' },
+  { x: 3880, y: 256, w: 180, kind: 'beam' },
+  { x: 2524, y: 166, w: 96, kind: 'rope' }, // the bell-ringers' rope on the loft's top beam, cut: easy to miss
+];
+// The Helm (room 92): the Engine Halls' party den, through the bulkhead at the halls' east end (HELM_GATE_X: it was sealed
+// while the city was under way; C4 opened it). Its DENS row puts the door there (denDoors(ENGINE)).
+export const HELM_DEN = 92;
 export function turbineAt(i, t) {
   const c = (((t + i * 151) % TURBINE_CYCLE) + TURBINE_CYCLE) % TURBINE_CYCLE;
   if (c < TURBINE_WARN) return { k: c / TURBINE_WARN, spin: false };
@@ -1486,6 +1518,7 @@ export const STAGES = {
   [ORRERY]: { name: 'The Orrery', zones: ORRERY_ZONES, band: '160–170', pill: 'The Orrery' }, // (the Citadel, C1)
   [ARCHIVE]: { name: 'The Archive', zones: ARCHIVE_ZONES, band: '165–178', pill: 'The Archive' }, // (the Citadel, C2)
   [ENGINE]: { name: 'The Engine Halls', zones: ENGINE_ZONES, band: '175–190', pill: 'Engine Halls' }, // (the Citadel, C3)
+  [BELLS]: { name: 'The Bell Walks', zones: BELLS_ZONES, band: '195–208', pill: 'Bell Walks' }, // (the Citadel, C4)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -3517,6 +3550,71 @@ MOBS.stormcoil = {
   drops: [['coin', 1, 83600, 120900], ['coil_winding', 1, 4, 8], ['arc_filament', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['coil_lance', 0.25, 1, 1], ['coil_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 
+// ——— the Citadel's depth pass, C4: the Bell Walks (art: src/bells-art.js; docs/places/bellwalks.md). On the frozen curve
+// past 190 (the curve's power-law tail); no elites ———
+// Bell wraiths are echoes of the bell-ringers, grey shapes in hoods with a rope's end in their hands, still going round the
+// galleries to ring a change that never comes; they go to nothing and back (`phase`, the star-glass wisp's). Clapper
+// knights are the aether knights' heavier kin, armour cast in bell bronze with a clapper for a mace, that blink to you and
+// strike (`blink`). Rain shards are where the stopped rain has grown together on the balconies, a spike of clear ice
+// rooted to the stone, that flicks its hanging drops at you (`lob`, style `raindrop`; rooted: `anchored`, it never moves)
+MOBS.bell_wraith = {
+  name: 'Bell Wraith', lvl: 197, hp: 30550, atk: 717, exp: 20259, speed: 60, w: 46, h: 62, aggro: true, hops: false, fly: 30,
+  ai: { kind: 'phase', every: 6, dur: 2.1, r: 200 },
+  drops: [['coin', 1, 1721, 2581], ['wraith_chime', 0.5, 1, 2], ['mega_elixir', 0.23, 1, 1]],
+};
+MOBS.clapper_knight = {
+  name: 'Clapper Knight', lvl: 202, hp: 32020, atk: 738, exp: 21140, speed: 80, w: 56, h: 72, aggro: true, hops: false,
+  ai: { kind: 'blink', every: 5, warn: 0.4, slashWarn: 0.55, r: 125 },
+  drops: [['coin', 1, 1776, 2664], ['clapper_plate', 0.5, 1, 2], ['mega_elixir', 0.23, 1, 1], ['clapper_helm', 0.004, 1, 1]],
+};
+MOBS.rain_shard = {
+  name: 'Rain Shard', lvl: 206, hp: 31900, atk: 755, exp: 21857, speed: 0, w: 48, h: 76, aggro: true, hops: false, anchored: true,
+  ai: { kind: 'lob', range: 460, every: 2.6, keep: 0, warn: 0.55, style: 'raindrop' }, // (the pitcher plant's: rooted, it throws)
+  drops: [['coin', 1, 1821, 2731], ['stopped_drop', 0.5, 1, 2], ['mega_elixir', 0.23, 1, 1]],
+};
+// The Great Bell: a field boss (small: no story), the biggest of the Spire's bells, come down out of its frame onto the Crown
+// Walk and rolling itself along the galleries on its lip. Passive until hit; then it heaves up and comes down with a toll
+// (`stomp`: the ring along the floor, jump it). T3: from the start, time stops in a ring round it when it tolls (the late
+// tells); from its second third the toll is a wall of sound with one gap (thin gaps). With two or more on it, its bronze
+// rings up round it till it breaks (a pulse, `looks.pulse: 'toll'`) and it shuts its mouth on itself (armour, the Colossus's
+// brass plates: heavy hits crack it)
+MOBS.great_bell = {
+  name: 'The Great Bell', field: true, lvl: 204, hp: 4970000, atk: 696, exp: 834000, speed: 60, w: 160, h: 170, aggro: false, hops: false,
+  ai: { kind: 'stomp', every: 3.6, warn: 1, r: 260, range: 320, jump: 520 },
+  party: ['pulse', 'armour'], partyLive: true, looks: { pulse: 'toll', shell: 'brass' },
+  // T3: late tells, and from its second third thin gaps; the punish window as every field boss's
+  ch: ['late', 'gaps'], chf: [['late', 0], ['gaps', 1]],
+  desc: 'The Great Bell has come down off its frame onto the Crown Walk. Mind its toll.',
+  drops: [['coin', 1, 94000, 135900], ['bell_bronze', 1, 4, 8], ['wraith_chime', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['toll_hammer', 0.25, 1, 1], ['bell_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+// The Helmsman (C4; its den, the Helm, through the bulkhead at the Engine Halls' east end, HELM_GATE_X): the Citadel's party
+// den boss, with a story (story/citadel-plan.md). A great brass automaton at a ship's wheel the size of a house, on the
+// city's bridge behind a long window over the clouds, still holding the city on its last heading, circling over the place
+// Pangelea's heart used to be, because nobody ever came up to tell it to land. Holding on: the course. Its ultimate, The
+// Last Heading, is the `wave` ult drawn as a bank of cloud driven down the bridge as it puts the wheel hard over (the den's
+// own look: HELM_ULT in src/dens-helm.js).
+// party (S5; a party den, `partyLive`): focus: it fixes one slime with its compass eye · armour: it battens its plates
+// (the Colossus's brass, `looks.shell: 'brass'`): heavy hits crack it, and the gear lock (`lock`: everyone's arrows at
+// once) breaks it · pulse: the city's horn, a blast from the stacks over the bridge (`looks.pulse: 'horn'`, "HOLD") ·
+// weakpoint: the shard, in the open hatch in its back where its clockwork turns (`weak.back`) · adds: governor balls
+// shaken loose from the engines below · interrupt: freeze The Last Heading as it heaves on the wheel
+// Its challenges (docs/combat/challenges.md): the deck heels over as it turns the wheel (`tilt`, every phase, steeper each),
+// fake-outs (`offslam`: it heaves on the wheel and doesn't turn, from phase 2) and in phase 3 hard about (`reverse`, the
+// controls swap: the whole bridge comes round, left is right)
+MOBS.helmsman = {
+  name: 'The Helmsman', boss: true, lvl: 191, hp: 49500000, atk: 740, exp: 3620000, speed: 55, w: 170, h: 210, aggro: true, hops: false,
+  phases: [['slam', 'charge', 'beam', 'tilt'], ['slam', 'charge', 'beam', 'rain', 'summon', 'tilt', 'offslam'], ['slam', 'charge', 'beam', 'rain', 'summon', 'barrage', 'grid', 'tilt', 'offslam', 'reverse']],
+  ch: ['tilt', 'feint', 'swap', 'lock'],
+  ult: { name: 'The Last Heading', kind: 'wave' }, minion: 'governor_ball', looks: { shell: 'brass', pulse: 'horn', beam: 'arc' }, // (how they're drawn: src/hazards.js, src/party.js)
+  party: ['focus', 'armour', 'pulse', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, top: true, weak: { dx: -0.34, dy: -0.5, r: 20, back: true },
+  lines: {
+    enter: ['Clear the bridge. We hold this heading. We have always held this heading.', 'Who is on my bridge? No one has come up those stairs since... Steady. Steady as she goes.'],
+    phase: [null, 'No order to land. No order to turn. Then we hold the course. We HOLD.', 'Hard over! HARD OVER! ...No. No. Back to the heading. Back to the heading. HOLD!'],
+    freed: '...No one is coming up to tell me. No one ever was. Then I will take my hands off the wheel. There. She will go round on her own. She always could.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['heading_blade', 1, 1, 1], ['helmsman_cap', 0.6, 1, 1], ['coin', 1, 2230000, 3460000], ['mega_elixir', 1, 4, 6], ['wheel_peg', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -3744,6 +3842,7 @@ const onKgPlat = onRoomPlat(GARDENS_PLATFORMS, GARDENS);
 const onOrPlat = onRoomPlat(ORRERY_PLATFORMS, ORRERY);
 const onArPlat = onRoomPlat(ARCHIVE_PLATFORMS, ARCHIVE);
 const onEnPlat = onRoomPlat(ENGINE_PLATFORMS, ENGINE);
+const onBwPlat = onRoomPlat(BELLS_PLATFORMS, BELLS);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -4386,6 +4485,23 @@ export const SPAWNS = [
   ...onEnPlat('governor_ball', 6, 1),
   ...onEnPlat('arc_jelly', 7, 1),
   { kind: 'stormcoil', x0: 3500, x1: 4300, y: FIELD_GROUND, room: ENGINE },
+  // the Bell Walks (C4): wraiths in the lower gallery with a knight or two, knights and wraiths in the bell loft, shards and
+  // knights on the crown walk; the Great Bell on the crown walk
+  ...strip('bell_wraith', 660, 1860, FIELD_GROUND, 4, BELLS),
+  ...strip('clapper_knight', 660, 1860, FIELD_GROUND, 1, BELLS),
+  ...onBwPlat('bell_wraith', 0, 1),
+  ...onBwPlat('bell_wraith', 1, 1),
+  ...onBwPlat('clapper_knight', 2, 1),
+  ...strip('clapper_knight', 1960, 3160, FIELD_GROUND, 4, BELLS),
+  ...strip('bell_wraith', 1960, 3160, FIELD_GROUND, 2, BELLS),
+  ...onBwPlat('clapper_knight', 3, 1),
+  ...onBwPlat('bell_wraith', 4, 1),
+  ...onBwPlat('rain_shard', 5, 1),
+  ...strip('rain_shard', 3260, 4400, FIELD_GROUND, 4, BELLS),
+  ...strip('clapper_knight', 3260, 4400, FIELD_GROUND, 2, BELLS),
+  ...onBwPlat('rain_shard', 6, 1),
+  ...onBwPlat('clapper_knight', 7, 1),
+  { kind: 'great_bell', x0: 3500, x1: 4300, y: FIELD_GROUND, room: BELLS },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -4416,6 +4532,7 @@ export const DENS = [
   { room: MERIDIAN_DEN, boss: 'meridian', name: 'The Armillary', from: ORRERY, entranceX: MERIDIAN_DEN_X, theme: 'orrery' }, // (the Citadel, C1; art: src/dens-orrery.js)
   { room: INDEXER_DEN, boss: 'indexer', name: 'The Last Drawer', from: ARCHIVE, entranceX: INDEXER_DEN_X, theme: 'archive' }, // (the Citadel, C2; art: src/dens-archive.js)
   { room: GULLET_DEN, boss: 'old_gullet', name: 'The Eel Pit', from: STILLMERE, entranceX: GULLET_DEN_X, theme: 'gullet' }, // (atlas Phase 8, L2; art: src/dens-gullet.js)
+  { room: HELM_DEN, boss: 'helmsman', name: 'The Helm', from: ENGINE, entranceX: HELM_GATE_X, theme: 'helm' }, // (the Citadel, C4, its party den: through the bulkhead; art: src/dens-helm.js)
   { room: MIRE_DEN, boss: 'grandfather_mire', name: "Grandfather's Pool", from: CAUSEWAY, entranceX: MIRE_DEN_X, theme: 'mire' }, // (atlas Phase 8, L4, the Fen's party den; art: src/dens-mire.js)
   { room: BRENNA_DEN, boss: 'brenna', name: "The Bearer's Hoist", from: RIM, entranceX: BRENNA_DEN_X, theme: 'hoist' }, // (E4b; art: src/dens-rim.js)
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
@@ -5124,6 +5241,26 @@ Object.assign(ITEMS, {
   governor_weight: { name: 'Governor Weight', price: 1825, kind: 'loot', desc: "One brass ball off a governor's arm, heavy for its size. It still wants to swing out when it spins." },
   coil_winding: { name: 'Coil Winding', price: 1800, kind: 'loot', desc: "A hank of the Stormcoil's copper wire, scorched at the ends. Coiled up, it hums." },
 });
+// the Citadel, C4 (docs/places/bellwalks.md, docs/places/helm.md): the Great Bell's set (Lv 206, a step over its Lv 204), the
+// Helmsman's (Lv 193, 10 slots, a step over its Lv 191: a top boss's), the Bell Walks' materials and the bosses'
+Object.assign(ITEMS, {
+  toll_hammer: { name: 'Toll Hammer', price: 1928000, lvl: 206, kind: 'sword', atk: 259, reach: 66, desc: "A long-hafted hammer with a head of bell bronze, the Great Bell's own tolling hammer. Every blow rings, and goes on ringing." },
+  toll_staff: { name: 'Toll Staff', price: 1928000, lvl: 206, kind: 'staff', magic: 259, mp: 155, reach: 66, twin: 'toll_hammer', desc: 'A rod of dark bronze with a little bell hung in its head, no clapper in it. It rings anyway, when you cast.' },
+  bell_helm: { name: 'Bell Helm', price: 1456000, lvl: 206, kind: 'helmet', def: 131, desc: "A helm cast in bell bronze, flared at the rim like the Great Bell's lip. Tap it and it hums for a long time." },
+  clapper_helm: { name: 'Clapper Helm', price: 1449000, lvl: 202, kind: 'helmet', def: 129, desc: "A clapper knight's great helm, cast in one piece of bell bronze, a slot for the eyes. Inside, it is very quiet." },
+  heading_blade: { name: 'The Last Heading', price: 1748000, lvl: 193, slots: 10, kind: 'sword', atk: 248, reach: 68, desc: "A long straight blade of brass and star-iron, the Helmsman's own, a compass set in the cross-guard. Its needle has pointed the same way for a very long time." },
+  heading_staff: { name: 'Compass Staff', price: 1748000, lvl: 193, slots: 10, kind: 'staff', magic: 248, mp: 150, reach: 68, twin: 'heading_blade', desc: 'A brass staff with the binnacle off the bridge at its head, the compass in it lit from below. Its bolts keep their course.' },
+  helmsman_cap: { name: "Helmsman's Cap", price: 1321000, lvl: 193, slots: 10, kind: 'helmet', def: 124, desc: "A peaked cap of brass plate with a lamp at the brow, the Helmsman's, a gyroscope turning in its crown. Whatever the deck does, it stays level." },
+  wraith_chime: { name: "Wraith's Chime", price: 1850, kind: 'loot', desc: "A little silver chime that a bell wraith let go of. It makes no sound, but your ears ring after you hold it." },
+  clapper_plate: { name: 'Clapper Plate', price: 1880, kind: 'loot', desc: "A plate of bell bronze off a clapper knight, green with age. Strike it and the note goes on and on." },
+  stopped_drop: { name: 'Stopped Raindrop', price: 1910, kind: 'loot', desc: "A raindrop that stopped in the air and never fell, cold and perfect. Put it down and it stays exactly where you put it, an inch off the table." },
+  bell_bronze: { name: 'Bell Bronze', price: 1900, kind: 'loot', desc: 'A shard off the Great Bell\'s lip, dark gold and heavy. It is still ringing, very faintly, if you hold it to your ear.' },
+  wheel_peg: { name: 'Wheel Peg', price: 1960, kind: 'loot', desc: "One of the turned handles off the Helmsman's great wheel, brass worn bright by a grip that never let go. It is still warm." },
+});
+BOW_LIST.push(
+  ['toll_bow', 'toll_hammer', 'Toll Bow', "A heavy bow bent from a bell frame's bronze strap. Each arrow goes off with a note, low and long."],
+  ['heading_bow', 'heading_blade', 'Wheelwood Bow', "A bow of two spokes off the great wheel, brass-shod and worn smooth. Its arrows don't drift. They hold the course they were given."],
+);
 BOW_LIST.push(
   ['firegrate_bow', 'slice_bar', 'Firegrate Bow', 'A bow bent from a furnace grate bar and strung with copper wire. It is warm to hold, always.'],
   ['arc_bow', 'coil_lance', 'Arc Bow', 'A bow of two copper coil-springs, a thread of blue light for its string. Its arrows land with a crack.'],

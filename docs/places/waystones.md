@@ -18,7 +18,7 @@ Data `src/shared/waystones.js` (`WAYSTONES`, `wayAt`), server `way` in `server/r
   glints and a warm crack (`drawStone` takes the stone's `isle`). The Citadel's (`isle: 'citadel'`, atlas Phase 6: the
   Skydocks camp's, by the brazier, and since Phase 6 (c) the Skydocks' own on the Warden's Pier: the two reach each
   other; since the depth pass's C0 Cogwork Bastion's by the Commissary and the Chrono Spire's at its foot, both in room 13,
-  none in the Keepers' Gardens or the Orrery; since C2 the Archive's in its Reading Room, the stair being a long walk from the Bastion's; since C3 the Engine Halls' in its Boiler Gallery) is wind-scoured, rimed and bolted down with brass collars. Lantern Fen's (`isle: 'fen'`, atlas Phase 8: Wickmere's,
+  none in the Keepers' Gardens or the Orrery; since C2 the Archive's in its Reading Room, the stair being a long walk from the Bastion's; since C3 the Engine Halls' in its Boiler Gallery; since C4 the Bell Walks' at the head of the Rain Stair) is wind-scoured, rimed and bolted down with brass collars. Lantern Fen's (`isle: 'fen'`, atlas Phase 8: Wickmere's,
   on Reedwater's landing, the Shallows' on the Landing Stage, since L1 the Drowned Grove's at the Drowned Gate, since L2 the Still Mere's
   on the Punt Landing, and since L4 the Lantern Causeway's at the Causeway Foot; none in Firefly Hollow, beside the Shallows') are peat-dark and wet, with a green slime tide line,
   duckweed at the foot and a candle stub kept lit on top.

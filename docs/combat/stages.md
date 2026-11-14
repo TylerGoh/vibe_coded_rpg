@@ -135,7 +135,11 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    Boiler Gallery; `docs/places/engine.md`). Stoker automata (`lob`, the new style `cinder`), arc jellies (`beam` fliers,
    the new style `arc`), governor balls (`stomp`); the Stormcoil (field boss, Lv 186: `beam` style `arc`, rings, late
    tells). A room hazard: the turbine blades through the catwalk floor, on a cycle like the gusts (`TURBINES`,
-   `turbineAt`). No new brains.
+   `turbineAt`). No new brains. The Helm (den 92, the Helmsman, the party den) through the bulkhead at its east end (C4).
+41. **The Bell Walks**: the Citadel's C4, up the stair above the Hour Sanctum (Lv 195–208, a waystone at the stair head;
+   `docs/places/bellwalks.md`). Bell wraiths (`phase` fliers), clapper knights (`blink`, the rare Clapper Helm), rain shards
+   (rooted `lob`, the new style `raindrop`); the Great Bell (field boss, Lv 204: `stomp`, late tells, thin gaps). No new
+   brains.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

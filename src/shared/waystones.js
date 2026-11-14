@@ -6,7 +6,7 @@
 // branch's entrance hub and one on Keeper's Spine, the Queen's Bridge and the Caldera Rim, and the Citadel's four (the camp, the Skydocks, the Bastion and the Spire) (story/world/island-depth.md); none in the hard pockets.
 // The stones only reach stones on their own island (isle): islands are reached by their crossings.
 import { VILLAGE, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, CANOPY, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, ASHWOOD, COAST, BRIMSTONE, RIM } from './sim.js';
-import { CALDERA, SKYCAMP, CAMP_WAY_X, SKYDOCKS, DOCKS_WAY_X, WICKMERE, WICK_WAY_X, SHALLOWS, SHALLOWS_WAY_X, GROVE, GROVE_WAY_X, STILLMERE, MERE_WAY_X, CAUSEWAY, CAUSEWAY_WAY_X, CITADEL, CIT_WAY_X, SPIRE_WAY_X, ARCHIVE, ARCHIVE_WAY_X, ENGINE, ENGINE_WAY_X } from './rpg.js';
+import { CALDERA, SKYCAMP, CAMP_WAY_X, SKYDOCKS, DOCKS_WAY_X, WICKMERE, WICK_WAY_X, SHALLOWS, SHALLOWS_WAY_X, GROVE, GROVE_WAY_X, STILLMERE, MERE_WAY_X, CAUSEWAY, CAUSEWAY_WAY_X, CITADEL, CIT_WAY_X, SPIRE_WAY_X, ARCHIVE, ARCHIVE_WAY_X, ENGINE, ENGINE_WAY_X, BELLS, BELLS_WAY_X } from './rpg.js';
 
 // x: the stone, on its room's ground (where you arrive is a little beside it, ARRIVE_DX) · isle: its island
 // (Greenhollow when left out)
@@ -33,6 +33,7 @@ export const WAYSTONES = [
   { id: 'bastion', name: 'Cogwork Bastion', room: CITADEL, x: CIT_WAY_X, isle: 'citadel' }, // (by the Commissary; the Citadel's depth pass, C0)
   { id: 'archive', name: 'The Archive', room: ARCHIVE, x: ARCHIVE_WAY_X, isle: 'citadel' }, // (in the Reading Room, by Folio's desk; C2: the stair down is a long walk from the Bastion's stone)
   { id: 'engine', name: 'The Engine Halls', room: ENGINE, x: ENGINE_WAY_X, isle: 'citadel' }, // (in the Boiler Gallery by Number Nine's furnace; C3)
+  { id: 'bells', name: 'The Bell Walks', room: BELLS, x: BELLS_WAY_X, isle: 'citadel' }, // (at the head of the Rain Stair; C4)
   { id: 'spire', name: 'Chrono Spire', room: CITADEL, x: SPIRE_WAY_X, isle: 'citadel' }, // (at the Spire's foot, C0. None in the Keepers' Gardens: the Bastion's is at the stair)
   { id: 'wickmere', name: 'Wickmere', room: WICKMERE, x: WICK_WAY_X, isle: 'fen' }, // (on Reedwater's landing; Lantern Fen's first stone, atlas Phase 8)
   { id: 'shallows', name: 'The Shallows', room: SHALLOWS, x: SHALLOWS_WAY_X, isle: 'fen' }, // (on the Landing Stage)

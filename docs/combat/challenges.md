@@ -78,6 +78,10 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
 - **Grandfather Mire** (`bossBrain`, atlas Phase 8 L4, from day one: `docs/places/causeway.md`): `arena` in every phase (the
   causeway stones in his pool sink, more each phase, the pool welling up between them from phase 2: `GRID.mire`), `fetter`
   (the rhythm lock: his toads' chorus, drawn `PAL.mire`) from phase 2, `cage` (2+) in phase 3.
+- **The Helmsman** (`bossBrain`, the Citadel's C4, from day one: `docs/places/helm.md`): `tilt` in every phase (the deck heels
+  over as he turns the wheel), `offslam` (the fake-out: he heaves and doesn't turn) from phase 2, `reverse` (hard about, the
+  controls swap) in phase 3, and the gear lock on his armour (2+: `ch` lists `lock`). His cap's Even Keel (`GX.NOTILT`)
+  stops the tilt sliding you.
 - **Brenna** (`bossBrain`, T1b): `tilt` in every phase (the hoist leans the floor, steeper each phase: `TILT_V`), `tooth`
   (a chip to throw back at her) and `cage` (2+) from phase 2.
 - **The Clockwork Colossus** (`bossBrain`, T1b): `lasers` (the laser grid) in every phase, standing still for it in phase
@@ -286,6 +290,8 @@ its HP in thirds (`fieldStage`).
     slow light that turns you round (`swap`, the controls swap: what a will-o'-wisp does to travellers).
   - **The Stormcoil** (the Citadel's C3, from day one, `docs/places/engine.md`): rings of sparks from the start (`rings`,
     style `spark`) and late tells from its second third (`late`).
+  - **The Great Bell** (the Citadel's C4, from day one, `docs/places/bellwalks.md`): time stops round it as it tolls
+    (`late`) from the start, and from its second third the toll is a wall of sound with one gap (`gaps`).
   - **The Siege Engine** (the Citadel's C0, from day one, `docs/places/citadel.md`): an empty wind-up now and then, the
     real bolt after (`feint`, the lob's), and from its second third rings of bolts with a gap (`rings`, style `bolt`).
   - **The Sprout King and Mother Mushroom** (`bossBrain`): the gentle first meeting: a snare of three arrows (`snareLen`)

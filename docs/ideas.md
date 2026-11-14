@@ -166,6 +166,16 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   Gullet, Long-Neck and Grandfather Mire aren't in the story record (no Fen tier), so only the Wickmother has freed changes
   on the Fen.
 
+## The Citadel's depth pass, C4 (2026-11-14)
+- Unplayed: the Bell Walks (its three mobs, the `raindrop` lob, the stair's door and waystone), the Great Bell (its stomp,
+  late tells, thin gaps, its pulse and armour with a party), the Helm and the Helmsman (the tilt every phase, fake-outs,
+  hard about, the gear lock, the weak point at his back, The Last Heading, his freeing), his gear's effects (Steady As She
+  Goes, Even Keel's `GX.NOTILT`), and the music. The art was seen in a static screenshot only; nothing was heard.
+- The cut rope's sally is small (about 30 px): check it reads on a phone. The hanging rain is drawn in front of the slimes'
+  scenery but behind the slimes; on a slow laptop the Bell Walks' ~360 drops may want the Graphics setting to thin them
+  (`docs/performance.md`), not done.
+- The Helm has no freed world change: the city keeps circling until the finale (the plan). An idea not built: after his
+  freeing the Engine Halls' telegraph could swing to STOP for that slime.
 ## The Citadel's depth pass, C3 (2026-11-13)
 - Unplayed: the Engine Halls (its three mobs, the `cinder` lob and `arc` beam, the turbine blades), the Stormcoil (rings, late
   tells, its pulse with a party), Number Nine's chat and Trade button, the Helm's bulkhead E message and the map's `helm`

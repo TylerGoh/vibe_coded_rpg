@@ -41,7 +41,7 @@ then a rustle that rises instead of falling) and the Indexer's den (`indexer`, s
 clatter of keys on every step, a stamp on the beat, drawers slammed in at full intensity; the Archive's mobs borrow the
 wisp's, magma slug's, golem's and cinder bat's voices, the Indexer the Colossus's); C3: the Engine Halls (`engine`, slot 90: A minor at a steady mechanical four, pumping
 pistons, a pinging rivet, a turbine whooshing round every other bar, and Number Nine's slow hummed tune over it; the halls'
-mobs borrow the golem's, wisp's and cogling's voices, the Stormcoil the Colossus's); L5 (b)'s Peat Barrows (`peatbarrows`, slot 82: D minor, slower and lower than the Sunk Barrows, the music box further off, a spade into peat with
+mobs borrow the golem's, wisp's and cogling's voices, the Stormcoil the Colossus's); C4: the Bell Walks (`bells`, slot 91: D minor, very slow, a great bell's hum never struck, the change rung on small bells, the rain catching the light; the walks' mobs borrow the chrono wraith's, aether knight's and wisp's voices, the Great Bell the Colossus's) and the Helm (`helm`, slot 92: A minor in a marching four, the wheel's pawl on the beat, the city's horn every other bar, a stern tune; the Helmsman the Colossus's voice); L5 (b)'s Peat Barrows (`peatbarrows`, slot 82: D minor, slower and lower than the Sunk Barrows, the music box further off, a spade into peat with
 nobody there, drips, a papery flutter of wings) and the Lamp Road (`lamproad`, slot 83: a music box waltz in A minor over a
 held note, the pad and its left hand falling away the higher you climb, its notes ringing longer, her wingbeat a deep whump
 every two bars, louder near the top: `audio.setDepth` from `roadDepth` in `src/lamproad.js`; the Peat Barrows' mobs borrow

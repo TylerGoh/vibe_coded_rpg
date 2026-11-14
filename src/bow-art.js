@@ -97,6 +97,8 @@ export const BOWS = {
   // the Citadel's depth pass, C0: the Commissary's issue and the Siege Engine's laminated brass
   guard_bow: { len: 30, wood: ['#f0c470', '#c8904a'], w: 3, tip: 'rivet', c: '#8a5a2e', grip: '#5a3a2a', gem: '#9ff0ea', string: '#e8e0cc', glow: '150,240,234' },
   firegrate_bow: { len: 31, wood: ['#5a5460', '#2e2a32'], w: 3.6, tip: 'rivet', c: '#c87a3a', grip: '#3a3236', gem: '#9ff0ea', string: '#c87a3a', glow: '150,240,234' }, // (Number Nine's issue, C3: a grate bar)
+  toll_bow: { len: 34, wood: ['#b8863a', '#7a5426'], w: 3.6, tip: 'rivet', c: '#4a3018', grip: '#3a2a20', gem: '#fff4dc', string: '#e0b464', glow: '255,226,170' }, // (the Great Bell's, C4: a bell frame's bronze strap)
+  heading_bow: { len: 35, wood: ['#f0c470', '#8a5a2e'], w: 3.4, tip: 'gear', c: '#5a3a2a', grip: '#2e2a32', gem: '#efe4c8', string: '#fde3a0', glow: '150,240,234', curve: 0.35 }, // (the Helmsman's, C4: two spokes off the great wheel)
   arc_bow: { len: 34, wood: ['#e0a070', '#a8643a'], w: 3.4, tip: 'gear', c: '#5a3a2a', grip: '#2e2a32', gem: '#e8fffc', string: '#9ff0ea', glow: '150,240,234', curve: 0.4 }, // (the Stormcoil's, C3: two copper coil-springs)
   archivist_bow: { len: 30, wood: ['#fde3a0', '#c8904a'], w: 3, tip: 'rivet', c: '#8a5a2e', grip: '#3a3236', gem: '#efe4c8', string: '#e8e0cc', glow: '255,236,200' }, // (Folio's issue, C2: two brass rules bound back to back)
   catalogue_bow: { len: 34, wood: ['#f0c470', '#8a5a2e'], w: 3.6, tip: 'gear', c: '#5a3a2a', grip: '#c8302a', gem: '#efe4c8', string: '#d8d0c0', glow: '255,236,200', curve: 0.38 }, // (the Indexer's, C2: a drawer's runners)
