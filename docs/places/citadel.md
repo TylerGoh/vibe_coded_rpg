@@ -22,7 +22,9 @@ waystones keep working; the branches open off it through gates. West to east:
   raised it**: now an `entry`, drawn rolled up with pages drifting up out of the stair, its door in `ROOMS[CITADEL]`
   (`docs/places/archive.md`).
 - **The Siege Engine's stretch of wall** (its spawn strip), then **the Grand Foundry's maintenance hatch** (`KEEL_GATE_X`,
-  gate `hatch`): clamped under a jammed gear that rocks a tooth once a beat, late. C5 frees it (the Keel, a hard pocket).
+  `hatch`): clamped under a jammed gear that rocked a tooth once a beat, late; **C5 freed it**: now an `entry`, drawn open
+  with the gear propped against the housing and the ladder's top showing, its door in `ROOMS[CITADEL]` (the Keel, a hard
+  pocket: `docs/places/keel.md`).
 - In the Spire: **its waystone** (`SPIRE_WAY_X`), **the Orrery's door** (`ORRERY_GATE_X`, `combolock`: a round brass door
   whose three lock rings turned by themselves and never lined up; **C1 stopped them**: now an `entry`, drawn lined up and
   open, its door in `ROOMS[CITADEL]`: `docs/places/orrery.md`), **the Last Echo** (`ECHO_X`, AI, a Keeper's echo:
@@ -31,16 +33,17 @@ waystones keep working; the branches open off it through gates. West to east:
   open on a turbine turning, its door in `ROOMS[CITADEL]`: `docs/places/engine.md`) and **the stair above the
   Hour Sanctum** (`BELLS_GATE_X`, `frozenrain`: rain hung on the steps, every drop stopped; **C4 let it fall**: now an
   `entry`, drawn wet, its door in `ROOMS[CITADEL]`: `docs/places/bellwalks.md`).
-- The Keel's far end (the way down to the Undercroft, C6) is in a room that doesn't exist yet: the `undercroft` node is
-  `past`. Each gate's draw function takes an `open` flag (the F3 pattern), so shipping a branch is data plus its rooms.
+- The Keel's far end (the way down to the Undercroft, C6): since C5 the `undercroft` node has its gate there (`fallentooth`,
+  `UNDERCROFT_GATE_X` in room 93: a tooth of the Wheel fallen across the shaft). Each gate's draw function takes an `open`
+  flag (the F3 pattern), so shipping a branch is data plus its rooms.
 - **Changed from the plan:** the Engine Halls' blast door is in the Spire, not in the Orrery (the plan's map hung the Engine
   Halls off the Orrery, but its own C0 list lays every gate in room 13; one way in from the Spire is simpler to find).
 
 ## The island map
 `CITADEL_MAP` (`ISLAND_MAPS.citadel`, `docs/ui/world-map.md`): the Skydocks Camp (town), the Skydocks, the Bastion and the
 Spire (room 13's zones, `zr: CITADEL`), the Keepers' Gardens (open), the Orrery (open since C1), the Archive (open since C2),
-the Engine Halls (open since C3), and dashed with their block: the Keel (hatch jammed, hard), the Undercroft (below the Keel,
-hard). The Helm (off the Engine Halls, the Helmsman's den) and the Bell Walks are open since C4. Bands on the dashed nodes follow the plan, stretched past 200 at the owner's
+the Engine Halls (open since C3), the Helm (off the Engine Halls, the Helmsman's den) and the Bell Walks (open since C4), the
+Keel (open since C5, hard), and dashed with its block: the Undercroft (a tooth fallen, hard). Bands on the dashed nodes follow the plan, stretched past 200 at the owner's
 note (2026-11-12): the Keel 188–200, the Bell Walks 195–208, the Undercroft 205–215; the plan's revision says the rest.
 
 ## The Siege Engine (field boss, Lv 154)
@@ -63,6 +66,9 @@ notes the shut ways as stores matters; it knows nothing of Keepers, wheels or th
 cap: like the Dockwarden it has no canon to give. Plan decision 6 (traders are automata still on duty) stands.
 
 ## Decisions and history
+- 2026-11-14: C5 built (the Keel and the Rustwyrm: `docs/places/keel.md`); the Commissary logs the gear coming free and the
+  keel watch, the Last Echo heard the hatch go. Every gate in room 13 is open; the Citadel's last gate is the fallen tooth
+  in the Keel (C6).
 - 2026-11-14: C4 built (the Helm, the Helmsman's party den: `docs/places/helm.md`; the Bell Walks and the Great Bell:
   `docs/places/bellwalks.md`); the Last Echo heard the rain fall, the Commissary logs the wet stair, Number Nine knows the
   bulkhead opened. Only the Keel's hatch (C5) is left shut in room 13.
@@ -77,6 +83,6 @@ cap: like the Dockwarden it has no canon to give. Plan decision 6 (traders are a
   **Not played by anyone yet**; checked by a build, the economy sheet, a start-up of a throwaway server and reading the
   code (owner's rule: no headless bot tests).
 - The Dockwarden's persona now mentions the Commissary. No other persona lists the Citadel's shut ways yet; when a branch
-  ships, add it to the Commissary's (it names the Foundry's hatch; since C1 it notes the star-hall's lock has stopped, since C2 that the Archive's shutter went up). The Last
+  ships, add it to the Commissary's (since C1 it notes the star-hall's lock has stopped, since C2 that the Archive's shutter went up, since C5 that the hatch's gear came free and the keel watch). The Last
   Echo (C1) remembers the Spire's other two shut ways as they were in the Stopped Hour: keep it in step when they open (since C3
-  it knows the blast door opened; the rain on the stair is left).
+  it knows the blast door opened, since C4 the rain fell, since C5 the hatch went).

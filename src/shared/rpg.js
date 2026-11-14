@@ -38,7 +38,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 7300; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), and the mini Helmsman and Great Bell (C4, 7258): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 7450; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), the mini Helmsman and Great Bell (C4, 7258), and the mini Rustwyrm (C5, 7416): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -646,6 +646,54 @@ export const BELLS_PLATFORMS = [
 // The Helm (room 92): the Engine Halls' party den, through the bulkhead at the halls' east end (HELM_GATE_X: it was sealed
 // while the city was under way; C4 opened it). Its DENS row puts the door there (denDoors(ENGINE)).
 export const HELM_DEN = 92;
+// ——— the Citadel's depth pass, C5 (story/citadel-plan.md; docs/places/keel.md) ———
+// The Keel (room 93): a hard pocket, the hollow under the city among the Wheel's lowest teeth, down the ladder under the
+// Grand Foundry's maintenance hatch in Cogwork Bastion (KEEL_GATE_X in room 13: clamped under a jammed gear until C5 freed
+// it). Dark, closed in, iron ribs and chain, ticking that is always one beat slow. You come in at the WEST end, at the foot
+// of the Hatch Ladder (no mobs, no waystone: a hard pocket). West to east: the Bilge Walk, the Chain Locker and the
+// Lowest Teeth, where the Rustwyrm (a field boss) hangs out of the dark and, at the far end, a tooth of the Wheel has come
+// down across the way on to the Undercroft (UNDERCROFT_GATE_X: C6). The grinds (GRINDS): where the jammed Wheel strains on
+// its slow tick and its lowest teeth heave up through slots in the keel's deck. The find (last in KEEL_PLATFORMS): high on a
+// rib, the snapped tooth's empty socket.
+export const KEEL = 93; // room id
+export const KEEL_W = 4800;
+export const KEEL_EXIT_X = 70; // back up the Hatch Ladder to Cogwork Bastion
+export const UNDERCROFT_GATE_X = KEEL_W - 160; // the way down to the Undercroft, a fallen tooth of the Wheel across it (C6)
+export const KEEL_ZONES = [
+  { name: 'The Hatch Ladder', x0: 0, x1: 600, lvl: null }, // (no mobs)
+  { name: 'The Bilge Walk', x0: 600, x1: 1900, lvl: '188–192' },
+  { name: 'The Chain Locker', x0: 1900, x1: 3300, lvl: '192–196' },
+  { name: 'The Lowest Teeth', x0: 3300, x1: KEEL_W, lvl: '196–200' },
+];
+// the keel's iron ribs and the hanging chain-stages; the empty socket high on a rib (hidden)
+export const KEEL_PLATFORMS = [
+  { x: 760, y: 344, w: 190, kind: 'rib' },
+  { x: 1140, y: 262, w: 180, kind: 'stage' },
+  { x: 1540, y: 338, w: 200, kind: 'rib' },
+  { x: 2080, y: 300, w: 180, kind: 'stage' },
+  { x: 2500, y: 254, w: 190, kind: 'rib' },
+  { x: 2960, y: 334, w: 200, kind: 'stage' },
+  { x: 3480, y: 300, w: 190, kind: 'tooth' },
+  { x: 3960, y: 250, w: 180, kind: 'tooth' },
+  { x: 1180, y: 172, w: 100, kind: 'socket' }, // the snapped tooth's empty socket, high on a rib over the chain-stage: easy to miss
+];
+// The grinds (a room hazard, the turbine blades' pattern): slots in the keel's deck where the Wheel's lowest teeth pass under
+// it. The Wheel is jammed but it still strains on its tick, one beat slow: on each slot's own offset in a GRIND_CYCLE the
+// deck over it shudders (GRIND_WARN: dust sifts down, the slot glows with the aether below), a tooth heaves up through it
+// (GRIND_UP: it hurts whoever stands on the deck over it, GRIND_DOT of max HP every PATCH_HIT_EVERY ticks) and it sinks
+// back. Both sides read the server tick (grindAt), so nothing goes over the wire; a flat 'dot' (no knockback), so no
+// step() change. Get up on a rib, or wait it out.
+export const GRINDS = [{ x: 1340, w: 180 }, { x: 2300, w: 200 }, { x: 2760, w: 180 }, { x: 3700, w: 200 }, { x: 4240, w: 200 }];
+export const GRIND_CYCLE = 500, GRIND_WARN = 120, GRIND_UP = 80; // (ticks: the beat is slow on purpose)
+export const GRIND_DOT = 0.05;
+// grind i at server tick t → { k: 0..1 how far the tooth is up, up: whether it's through the deck (and hurts) }
+export function grindAt(i, t) {
+  const c = (((t + i * 173) % GRIND_CYCLE) + GRIND_CYCLE) % GRIND_CYCLE;
+  if (c < GRIND_WARN) return { k: c / GRIND_WARN, up: false, warn: true };
+  if (c < GRIND_WARN + GRIND_UP) return { k: 1, up: true, warn: false };
+  if (c < GRIND_WARN + GRIND_UP + 50) return { k: 1 - (c - GRIND_WARN - GRIND_UP) / 50, up: false, warn: false };
+  return { k: 0, up: false, warn: false };
+}
 export function turbineAt(i, t) {
   const c = (((t + i * 151) % TURBINE_CYCLE) + TURBINE_CYCLE) % TURBINE_CYCLE;
   if (c < TURBINE_WARN) return { k: c / TURBINE_WARN, spin: false };
@@ -1519,6 +1567,7 @@ export const STAGES = {
   [ARCHIVE]: { name: 'The Archive', zones: ARCHIVE_ZONES, band: '165–178', pill: 'The Archive' }, // (the Citadel, C2)
   [ENGINE]: { name: 'The Engine Halls', zones: ENGINE_ZONES, band: '175–190', pill: 'Engine Halls' }, // (the Citadel, C3)
   [BELLS]: { name: 'The Bell Walks', zones: BELLS_ZONES, band: '195–208', pill: 'Bell Walks' }, // (the Citadel, C4)
+  [KEEL]: { name: 'The Keel', zones: KEEL_ZONES, band: '188–200', hard: true }, // (the Citadel, C5)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -3615,6 +3664,46 @@ MOBS.helmsman = {
   drops: [['royal_sap', 1, 2, 3], ['heading_blade', 1, 1, 1], ['helmsman_cap', 0.6, 1, 1], ['coin', 1, 2230000, 3460000], ['mega_elixir', 1, 4, 6], ['wheel_peg', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
 
+// ——— the Citadel's depth pass, C5: the Keel (art: src/keel-art.js; docs/places/keel.md), a hard pocket. On the frozen
+// curve past 190, a little tougher than the open rooms' (like the other hard pockets'), and two elites ———
+// Gear lice are the keel's vermin, brass mites the size of a dog that live in the Wheel's teeth and eat the grease off
+// them; they scuttle along the deck leaving a black slick of old grease behind (`trail`, style `grease`). Chain hounds are
+// the keel's watchdogs, built of linked chain on an iron frame, a padlock for a heart, still running their rounds of the
+// chain locker; quick and low, they run you down. Keel wardens are the hollow's great iron keepers, a riveted bulkhead
+// plate held across their front like a door (`shell`: get round behind them), still standing their watch over the teeth
+MOBS.gear_louse = {
+  name: 'Gear Louse', lvl: 190, hp: 29300, atk: 687, exp: 19050, speed: 70, w: 58, h: 40, aggro: true, hops: false,
+  ai: { kind: 'trail', every: 0.8, life: 4.5, w: 56, style: 'grease' },
+  drops: [['coin', 1, 1644, 2465], ['louse_plate', 0.5, 1, 2], ['mega_elixir', 0.23, 1, 1]],
+};
+MOBS.chain_hound = {
+  name: 'Chain Hound', lvl: 194, hp: 33060, atk: 704, exp: 19737, speed: 120, w: 68, h: 52, aggro: true, hops: false,
+  drops: [['coin', 1, 1687, 2531], ['hound_link', 0.5, 1, 2], ['mega_elixir', 0.23, 1, 1]],
+};
+MOBS.keel_warden = {
+  name: 'Keel Warden', lvl: 198, hp: 39290, atk: 721, exp: 20434, speed: 45, w: 70, h: 84, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.6, lunge: 460, time: 0.32 }, // (the causeway guard's: hit it from behind)
+  drops: [['coin', 1, 1732, 2597], ['keel_rivet', 0.5, 1, 2], ['mega_elixir', 0.23, 1, 1], ['warden_visor', 0.004, 1, 1]],
+};
+MOBS.chainhound_elite = elite('chain_hound', 'Old Chain Hound');
+MOBS.keelwarden_elite = elite('keel_warden', 'Elder Keel Warden');
+// The Rustwyrm: a field boss (small: no story), a serpent of linked chain as thick as a slime, rusted red, that hangs down
+// out of the dark between the Wheel's teeth over the Lowest Teeth, a hook for a head and two lamps of aether in it for
+// eyes. Passive until hit; then it drops on you out of the dark (`dive`). T3: some drops are feints (it pulls up and comes
+// down where you went), and from its second third it wraps you in its chain (`mash`, `looks.snare: 'chain'`). With two or
+// more on it, it picks one slime to hunt (focus) and its links close up into plate (armour, the Colossus's brass: heavy
+// hits crack it)
+MOBS.rustwyrm = {
+  name: 'The Rustwyrm', field: true, lvl: 196, hp: 4690000, atk: 664, exp: 779000, speed: 55, w: 220, h: 110, aggro: false, hops: false, fly: 80,
+  ai: { kind: 'dive', every: 3.2, warn: 0.9, time: 0.55 },
+  party: ['focus', 'armour'], partyLive: true, looks: { snare: 'chain', shell: 'brass' },
+  // T3: feint drops from the start (in mobAi), and from its second third its chain (a mash free); the punish window as
+  // every field boss's
+  ch: ['feint', 'mash'], chf: [['mash', 1]],
+  desc: 'The Rustwyrm has come down out of the dark in the Keel. Listen for the chain.',
+  drops: [['coin', 1, 89300, 129200], ['wyrm_link', 1, 4, 8], ['hound_link', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['rust_flail', 0.25, 1, 1], ['rustwyrm_coif', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -3843,6 +3932,7 @@ const onOrPlat = onRoomPlat(ORRERY_PLATFORMS, ORRERY);
 const onArPlat = onRoomPlat(ARCHIVE_PLATFORMS, ARCHIVE);
 const onEnPlat = onRoomPlat(ENGINE_PLATFORMS, ENGINE);
 const onBwPlat = onRoomPlat(BELLS_PLATFORMS, BELLS);
+const onKlPlat = onRoomPlat(KEEL_PLATFORMS, KEEL);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -4502,6 +4592,25 @@ export const SPAWNS = [
   ...onBwPlat('rain_shard', 6, 1),
   ...onBwPlat('clapper_knight', 7, 1),
   { kind: 'great_bell', x0: 3500, x1: 4300, y: FIELD_GROUND, room: BELLS },
+  // the Keel (the Citadel's C5, a hard pocket): lice along the Bilge Walk, hounds in the Chain Locker, wardens on the Lowest
+  // Teeth, an elite in each of the last two, and the Rustwyrm hanging over the teeth
+  ...strip('gear_louse', 660, 1860, FIELD_GROUND, 5, KEEL),
+  ...strip('chain_hound', 1200, 1860, FIELD_GROUND, 1, KEEL),
+  ...onKlPlat('gear_louse', 0, 1),
+  ...onKlPlat('gear_louse', 1, 1),
+  ...onKlPlat('chain_hound', 2, 1),
+  ...strip('chain_hound', 1960, 3260, FIELD_GROUND, 4, KEEL),
+  ...strip('gear_louse', 1960, 3260, FIELD_GROUND, 2, KEEL),
+  ...strip('chainhound_elite', 2400, 3100, FIELD_GROUND, 1, KEEL),
+  ...onKlPlat('chain_hound', 3, 1),
+  ...onKlPlat('gear_louse', 4, 1),
+  ...onKlPlat('keel_warden', 5, 1),
+  ...strip('keel_warden', 3360, 4500, FIELD_GROUND, 4, KEEL),
+  ...strip('chain_hound', 3360, 4500, FIELD_GROUND, 2, KEEL),
+  ...strip('keelwarden_elite', 3800, 4400, FIELD_GROUND, 1, KEEL),
+  ...onKlPlat('keel_warden', 6, 1),
+  ...onKlPlat('chain_hound', 7, 1),
+  { kind: 'rustwyrm', x0: 3500, x1: 4300, y: FIELD_GROUND, room: KEEL },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -5241,6 +5350,21 @@ Object.assign(ITEMS, {
   governor_weight: { name: 'Governor Weight', price: 1825, kind: 'loot', desc: "One brass ball off a governor's arm, heavy for its size. It still wants to swing out when it spins." },
   coil_winding: { name: 'Coil Winding', price: 1800, kind: 'loot', desc: "A hank of the Stormcoil's copper wire, scorched at the ends. Coiled up, it hums." },
 });
+// the Citadel, C5 (docs/places/keel.md): the Rustwyrm's set (Lv 198, a step over its Lv 196), the keel wardens' rare visor,
+// the Keel's materials
+Object.assign(ITEMS, {
+  rust_flail: { name: 'Rust Flail', price: 1778000, lvl: 198, kind: 'sword', atk: 252, reach: 66, desc: "Three links of the Rustwyrm's chain on an iron haft, its hook at the end. It rattles when you swing it, a long way down into the dark." },
+  rust_staff: { name: 'Linkwork Staff', price: 1778000, lvl: 198, kind: 'staff', magic: 252, mp: 151, reach: 66, twin: 'rust_flail', desc: "An iron staff wound round with the Rustwyrm's links, one of its aether lamps caught in the head. It looks back at you." },
+  rustwyrm_coif: { name: 'Rustwyrm Coif', price: 1344000, lvl: 198, kind: 'helmet', def: 127, desc: "A hood of the Rustwyrm's fine chain, rust-red, heavy as a wet coat. It goes on with a long, slow rattle." },
+  warden_visor: { name: "Keel Warden's Visor", price: 1391000, lvl: 198, kind: 'helmet', def: 127, desc: "A keel warden's helm, a riveted iron box with one narrow slot. Through it, everything looks like a watch to be stood." },
+  louse_plate: { name: 'Louse Plate', price: 1835, kind: 'loot', desc: "A curved brass plate off a gear louse's back, black with old grease. Turn it over: tooth marks, the Wheel's." },
+  hound_link: { name: "Hound's Link", price: 1845, kind: 'loot', desc: "A link off a chain hound, worn thin where it ran against the others. It is still warm from running." },
+  keel_rivet: { name: 'Keel Rivet', price: 1860, kind: 'loot', desc: "A rivet as big as your fist, popped out of a keel warden's plate. Its head is stamped with a mark nobody can read any more." },
+  wyrm_link: { name: 'Rustwyrm Link', price: 1880, kind: 'loot', desc: "One link of the Rustwyrm's chain, rust flaking off it in red scales. It swings by itself, a little, one beat slow." },
+});
+BOW_LIST.push(
+  ['rust_bow', 'rust_flail', 'Chainstring Bow', "A bow of two curved keel ribs strung with fine chain. It creaks, and then it doesn't, and the arrow is gone."],
+);
 // the Citadel, C4 (docs/places/bellwalks.md, docs/places/helm.md): the Great Bell's set (Lv 206, a step over its Lv 204), the
 // Helmsman's (Lv 193, 10 slots, a step over its Lv 191: a top boss's), the Bell Walks' materials and the bosses'
 Object.assign(ITEMS, {

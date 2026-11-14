@@ -491,9 +491,11 @@ function drawShot(ctx, h, now) {
 // patch with puffs of steam boiling up off it (the steam toad's, the Black Sands) · 'acid' = a pale green-yellow
 // pool of acid, smoking and pitting the crust (the acid slug's, the Brimstone Fields) · 'tallow' = a pale pool of hot
 // tallow, a little flame or two still on it (the wick grub's, the Peat Barrows) · 'ink' = a wet black slick of the Archive's
-// ink, its edge feathering out, a date or two floating in it (the ink slime's, the Citadel's C2)
+// ink, its edge feathering out, a date or two floating in it (the ink slime's, the Citadel's C2) · 'grease' = a black slick of
+// old gear grease, brass filings glinting in it (the gear louse's, the Keel, the Citadel's C5)
 function drawPuddle(ctx, h, now) {
   if (h.style === 'ink') return drawInk(ctx, h, now);
+  if (h.style === 'grease') return drawGrease(ctx, h, now);
   if (h.style === 'brine') return drawBrine(ctx, h, now);
   if (h.style === 'steam') return drawSteamPuff(ctx, h, now);
   if (h.style === 'acid') return drawAcid(ctx, h, now);
@@ -710,6 +712,39 @@ function drawTallow(ctx, h, now) {
     const bx = x + (hash(seed + i * 5) - 0.5) * rx * 1.2 * grow, fh = 6 + 4 * Math.sin(now * 9 + i * 2);
     ctx.fillStyle = 'rgba(255,214,150,0.9)';
     tongue(ctx, bx, y - 1, 2.6, fh, Math.sin(now * 7 + i) * 1.4);
+  }
+  ctx.restore();
+}
+
+// the Keel's old gear grease, off a gear louse: a black slick with a brown rim, a dull rainbow sheen, brass filings glinting
+// in it (the Citadel, C5)
+function drawGrease(ctx, h, now) {
+  const start = h.warnAt ?? h.at, end = h.end ?? h.at + 5, age = now - start;
+  const a = clamp01(age / 0.25) * clamp01((end - now) / Math.min(1.2, (end - start) * 0.4));
+  if (a <= 0) return;
+  const x = h.x, y = h.y ?? GROUND, rx = (h.w || 60) / 2, grow = 0.6 + 0.4 * easeOut(clamp01(age / 0.4)), seed = x * 0.41;
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.fillStyle = 'rgba(90,60,30,0.55)'; // the brown rim
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, rx * grow, 6.4, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#16120e';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, rx * grow * 0.86, 5, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(150,120,200,0.25)'; // a dull rainbow sheen, sliding
+  ctx.beginPath();
+  ctx.ellipse(x - rx * 0.2 + Math.sin(now * 0.7 + seed) * rx * 0.15, y - 0.4, rx * grow * 0.3, 1.4, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(150,240,234,0.18)';
+  ctx.beginPath();
+  ctx.ellipse(x + rx * 0.25, y + 0.2, rx * grow * 0.2, 1.1, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(253,227,160,0.8)'; // brass filings
+  for (let i = 0; i < 4; i++) {
+    const fx = x + (hash(seed + i * 5 + 2) - 0.5) * rx * 1.3 * grow;
+    if ((now * 2 + i) % 2 < 1.4) ctx.fillRect(fx, y, 1.6, 1.2);
   }
   ctx.restore();
 }

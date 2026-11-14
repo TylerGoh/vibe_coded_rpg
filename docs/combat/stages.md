@@ -140,6 +140,11 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    `docs/places/bellwalks.md`). Bell wraiths (`phase` fliers), clapper knights (`blink`, the rare Clapper Helm), rain shards
    (rooted `lob`, the new style `raindrop`); the Great Bell (field boss, Lv 204: `stomp`, late tells, thin gaps). No new
    brains.
+42. **The Keel**: the Citadel's C5, a hard pocket down the ladder under the Grand Foundry's hatch (Lv 188–200, no waystone;
+   `docs/places/keel.md`). Gear lice (`trail`, the new puddle style `grease`), chain hounds (plain chasers), keel wardens
+   (`shell`, the rare Keel Warden's Visor), two elites (the Old Chain Hound, the Elder Keel Warden); the Rustwyrm (field
+   boss, Lv 196: `dive`, feints, a mash free in its chain). A room hazard: the grinds, the Wheel's teeth heaving up through
+   slots in the deck on its slow tick (`GRINDS`, `grindAt`, the turbines' pattern). No new brains.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

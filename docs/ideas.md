@@ -166,6 +166,14 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   Gullet, Long-Neck and Grandfather Mire aren't in the story record (no Fen tier), so only the Wickmother has freed changes
   on the Fen.
 
+## The Citadel's depth pass, C5 (2026-11-14)
+- Unplayed: the Keel (its three mobs and two elites, the `grease` trail, the hatch's door, the grinds), the Rustwyrm (its
+  dives and feints, the chain mash, focus and armour with a party), and the music. The art was run against a stub canvas
+  only; nobody has looked at it. Check the Rustwyrm's chain (it hangs ~520 px up out of the frame) reads, and that the
+  grinds' tooth is clear enough on a phone.
+- The Keel is dark by its drawing only; the plan's "trapped" mood could use real darkness round the slimes (A16's
+  light circles) in the Undercroft (C6).
+
 ## The Citadel's depth pass, C4 (2026-11-14)
 - Unplayed: the Bell Walks (its three mobs, the `raindrop` lob, the stair's door and waystone), the Great Bell (its stomp,
   late tells, thin gaps, its pulse and armour with a party), the Helm and the Helmsman (the tilt every phase, fake-outs,

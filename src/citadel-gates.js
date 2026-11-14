@@ -12,6 +12,8 @@
 //   the glow of something huge turning.
 // - `bulkhead` (the Helm, C4; in the Engine Halls, room 90, laid in C3): a steel bulkhead at the halls' east end, sealed
 //   while the city is under way, a pressure gauge's needle in the red; through its porthole, a great wheel's spokes turning.
+// - `fallentooth` (the Undercroft, C6; in the Keel, room 93, laid in C5): one of the Wheel's lowest teeth, come down out of
+//   the dark across the way down at the Keel's far end, big as a house, wedged; aether leaking up round its edges.
 // - `frozenrain` (the Bell Walks, C4): a stair going up toward the top of the Spire, rain hanging on it in the air, every
 //   drop stopped.
 // The Citadel's register: brass, verdigris, iron, aether-glass; solemn, nothing whimsical.
@@ -202,6 +204,17 @@ function drawHatch(ctx, time, g, open = false) {
   if (open) {
     ctx.fillStyle = 'rgba(150,240,234,0.15)'; // aether leaking up from far down
     ellipse(ctx, 0, -6, 40, 8);
+    ctx.strokeStyle = IRON_L; // the ladder's top rails, going down
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-14, -4);
+    ctx.lineTo(-14, -26);
+    ctx.moveTo(14, -4);
+    ctx.lineTo(14, -26);
+    ctx.moveTo(-14, -20);
+    ctx.quadraticCurveTo(0, -30, 14, -20);
+    ctx.stroke();
+    gear(ctx, -96, -6, 26, 10, 1.1, BRASS_D, BRASS_E); // the jammed gear, knocked free and propped against the housing
     return;
   }
   // the clamp: an iron bar across it, and the jammed gear wedged in its jaw, rocking a tooth and back, once a beat late
@@ -538,12 +551,81 @@ function drawBulkhead(ctx, time, g, open = false) {
   ctx.fillText('UNDER WAY', 17, -41);
 }
 
-export const CITADEL_DRAW = { shutter: drawShutter, hatch: drawHatch, combolock: drawComboLock, blastdoor: drawBlastDoor, frozenrain: drawFrozenRain, bulkhead: drawBulkhead };
+// The Undercroft's way, in the Keel (C6 lifts it): a tooth of the Wheel fallen across the way down, big as a house, its
+// root sheared, its working face worn bright; aether leaks up round it from below, and something under it ticks
+function drawFallenTooth(ctx, time, g, open = false) {
+  const k = 0.6 + 0.4 * Math.sin(time * 1.3);
+  const glow = ctx.createRadialGradient(0, -10, 4, 0, -10, 150);
+  glow.addColorStop(0, `rgba(150,240,234,${0.22 * k})`);
+  glow.addColorStop(1, 'rgba(150,240,234,0)');
+  ctx.fillStyle = glow;
+  circle(ctx, 0, -10, 150);
+  ctx.fillStyle = '#060608'; // the way down: a black shaft in the deck
+  ctx.beginPath();
+  ctx.ellipse(0, 2, 90, 12, 0, 0, TAU);
+  ctx.fill();
+  if (open) { // the tooth levered aside, a stair cut down beside it
+    ctx.save();
+    ctx.translate(120, 0);
+    ctx.rotate(0.35);
+    ctx.fillStyle = '#24202c';
+    ctx.fillRect(-30, -150, 60, 150);
+    ctx.restore();
+    ctx.fillStyle = IRON_L;
+    for (let i = 0; i < 4; i++) ctx.fillRect(-50 + i * 22, -2 + i * 2, 18, 3);
+    return;
+  }
+  // the tooth: lying across the shaft on its side, root to the west (sheared), point to the east
+  ctx.fillStyle = '#24202c';
+  ctx.beginPath();
+  ctx.moveTo(-120, -6);
+  ctx.lineTo(-110, -150);
+  ctx.lineTo(60, -130);
+  ctx.quadraticCurveTo(128, -80, 112, -10);
+  ctx.lineTo(-120, -6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = BRASS_E;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(253,227,160,0.25)'; // the worn working face
+  ctx.beginPath();
+  ctx.moveTo(60, -126);
+  ctx.quadraticCurveTo(118, -80, 104, -14);
+  ctx.lineTo(92, -16);
+  ctx.quadraticCurveTo(102, -76, 52, -120);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#c8b090'; // the sheared root, bright where it broke, bolt stumps in it
+  ctx.fillRect(-122, -150, 8, 144);
+  ctx.fillStyle = IRON_D;
+  for (let i = 0; i < 4; i++) circle(ctx, -118, -130 + i * 36, 3);
+  ctx.strokeStyle = 'rgba(42,40,52,0.9)'; // cracks
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-60, -140);
+  ctx.lineTo(-40, -90);
+  ctx.lineTo(-56, -40);
+  ctx.moveTo(20, -132);
+  ctx.lineTo(30, -96);
+  ctx.stroke();
+  ctx.strokeStyle = `rgba(150,240,234,${0.5 * k})`; // aether leaking up round its edges
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(-100, -4);
+  ctx.lineTo(-80, -10);
+  ctx.moveTo(70, -6);
+  ctx.lineTo(96, -12);
+  ctx.stroke();
+}
+
+export const CITADEL_DRAW = { shutter: drawShutter, hatch: drawHatch, combolock: drawComboLock, blastdoor: drawBlastDoor, frozenrain: drawFrozenRain, bulkhead: drawBulkhead, fallentooth: drawFallenTooth };
 export const CITADEL_OPEN = {
   gardenstair: drawGardenStair,
   shutter: (ctx, time, g) => drawShutter(ctx, time, g, true), hatch: (ctx, time, g) => drawHatch(ctx, time, g, true),
   combolock: (ctx, time, g) => drawComboLock(ctx, time, g, true), blastdoor: (ctx, time, g) => drawBlastDoor(ctx, time, g, true),
   frozenrain: (ctx, time, g) => drawFrozenRain(ctx, time, g, true), bulkhead: (ctx, time, g) => drawBulkhead(ctx, time, g, true),
+  fallentooth: (ctx, time, g) => drawFallenTooth(ctx, time, g, true),
 };
 // where each one's sign stands, relative to it
-export const CITADEL_SIGN_AT = { gardenstair: 96, shutter: -118, hatch: 104, combolock: -126, blastdoor: 122, frozenrain: -136, bulkhead: -120 };
+export const CITADEL_SIGN_AT = { gardenstair: 96, shutter: -118, hatch: 104, combolock: -126, blastdoor: 122, frozenrain: -136, bulkhead: -120, fallentooth: -170 };

@@ -292,6 +292,8 @@ its HP in thirds (`fieldStage`).
     style `spark`) and late tells from its second third (`late`).
   - **The Great Bell** (the Citadel's C4, from day one, `docs/places/bellwalks.md`): time stops round it as it tolls
     (`late`) from the start, and from its second third the toll is a wall of sound with one gap (`gaps`).
+  - **The Rustwyrm** (the Citadel's C5, from day one, `docs/places/keel.md`): feint drops from the start (`feint`, the dive's,
+    like the Pale Wyrm's), and from its second third it wraps you in its chain (`mash`, `PAL.chain`).
   - **The Siege Engine** (the Citadel's C0, from day one, `docs/places/citadel.md`): an empty wind-up now and then, the
     real bolt after (`feint`, the lob's), and from its second third rings of bolts with a gap (`rings`, style `bolt`).
   - **The Sprout King and Mother Mushroom** (`bossBrain`): the gentle first meeting: a snare of three arrows (`snareLen`)

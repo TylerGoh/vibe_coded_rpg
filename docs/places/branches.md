@@ -103,12 +103,14 @@ island shows what's coming.
 - **The Aether Citadel (its depth pass, C0, 2026-11-13):** `CITADEL_MAP`, every gate laid in room 13 (`docs/places/citadel.md`;
   art `src/citadel-gates.js`, merged into `DRAW` / `OPEN` / `SIGN_AT` here): the Archive (`shutter`, `ARCHIVE_GATE_X`: shipped
   in C2, its `entry` the shutter rolled up; `docs/places/archive.md`),
-  the Keel (`hatch`, `KEEL_GATE_X`, C5, hard), the Orrery (`combolock`, `ORRERY_GATE_X`: shipped in C1, its `entry` the lock's
+  the Keel (`hatch`, `KEEL_GATE_X`: shipped in C5, a hard pocket, its `entry` the hatch open, the gear knocked free; `docs/places/keel.md`;
+  its child the Undercroft's gate `fallentooth` at `UNDERCROFT_GATE_X` in room 93, C6), the Orrery (`combolock`, `ORRERY_GATE_X`: shipped in C1, its `entry` the lock's
   open look; `docs/places/orrery.md`), the Engine Halls (`blastdoor`,
   `ENGINE_GATE_X`: shipped in C3, its `entry` the door open on a turbine; `docs/places/engine.md`; its child the Helm's `bulkhead`
   at `HELM_GATE_X` in room 90: opened in C4, the Helmsman's den, so the node has `rooms` and no `entry` and the den's door,
   through `denDoors(ENGINE)`, is drawn as the bulkhead open; `docs/places/helm.md`) and the Bell Walks (`frozenrain`,
-  `BELLS_GATE_X`: shipped in C4, its `entry` the stair wet, the rain fallen; `docs/places/bellwalks.md`); the Undercroft is `past` (behind the Keel, C6).
+  `BELLS_GATE_X`: shipped in C4, its `entry` the stair wet, the rain fallen; `docs/places/bellwalks.md`). The Undercroft lost `past` in C5:
+  its gate is in the Keel (C6 lifts it).
   Shipped: the Keepers' Gardens (`docs/places/gardens.md`), its `entry` the brass stair (`gardenstair`). Every gate's draw
   function has its `open` look already. Every new Citadel room needs its `ISLAND_OF_STAGE` row (`'citadel'`) and its
   waystone `isle: 'citadel'`; update the Commissary's persona (it names the shut ways).
@@ -118,7 +120,7 @@ island shows what's coming.
 ## Shipping a branch: the checklist (from G1–G5, for Frostpeak's pass)
 Each phase so far touched the same places. Work in a dev copy (`Agent.md`); the Mycelium Deep (G2) is the
 fullest example, the Canopy (G3) the last with a trader, G5's Spine the latest (a den, no trader).
-- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 93 after the Citadel's C4 (the Bell Walks 91, the Helm 92); 91 after the Citadel's C3 (the Engine Halls 90); 90 after the Citadel's C2 (the Archive 88, the Indexer's den 89); 88 after the Citadel's C1 (the Orrery 86, Meridian's den 87); 86 after the Citadel's C0 (the Keepers' Gardens 85; 83–84 are L5's Lamp Road and the Wickmother's den); 82 after atlas Phase 8's L4 (the Lantern Causeway 80, Grandfather Mire's den 81); 80 after L3 (the Sunk Barrows 79); 79 after L2 (the Still Mere 77, Old Gullet's den 78); 77 after L1 (Firefly Hollow 74, the Drowned Grove 75, Long-Neck's den 76); 74 after L0 (Wickmere 70, the Hush's decks 71–72, the Shallows 73); 70 after atlas Phase 6 (c)'s Skydocks (69), which followed (b)'s balloon decks (66, 67) and the
+- **Data, `src/shared/rpg.js`:** a room id (the next free number below `HOUSE_BASE`: 94 after the Citadel's C5 (the Keel 93); 93 after the Citadel's C4 (the Bell Walks 91, the Helm 92); 91 after the Citadel's C3 (the Engine Halls 90); 90 after the Citadel's C2 (the Archive 88, the Indexer's den 89); 88 after the Citadel's C1 (the Orrery 86, Meridian's den 87); 86 after the Citadel's C0 (the Keepers' Gardens 85; 83–84 are L5's Lamp Road and the Wickmother's den); 82 after atlas Phase 8's L4 (the Lantern Causeway 80, Grandfather Mire's den 81); 80 after L3 (the Sunk Barrows 79); 79 after L2 (the Still Mere 77, Old Gullet's den 78); 77 after L1 (Firefly Hollow 74, the Drowned Grove 75, Long-Neck's den 76); 74 after L0 (Wickmere 70, the Hush's decks 71–72, the Shallows 73); 70 after atlas Phase 6 (c)'s Skydocks (69), which followed (b)'s balloon decks (66, 67) and the
   Skydocks camp (68); 66 after E5 (b)'s Under-Flues (63) and Long Flue (64) and the Hearth it keeps (65, E5 (c)); before that, E4a's Caldera Rim (61) and the Bearer's Hoist it keeps (62, E4b), E3b's Old Foundry (60), E3a's Brimstone Fields (59), E2's Smoking Coast (56), the Hatchkeeper's den (57) and the Drained Tubes (58), E1's Ashwood (55) and Black Sands (54); 53 is the dev sandbox's Training Yard; ids 27, 31–52 are the Pet Shop, the Canopy, Wreck Cave, the Thornheart, the Spine, the Warden's den, the Glacier, the Skerries, the Narwhal's den, the Grotto, the Aurora Heights, the Blue Halls, the Queen's Bridge, Sigrun's den, Forgehold, the Lodestar's two decks, the Sunken Road, the Road's End, Ladon's den (49), the Old Ice, the Long Stair and Fenrir's den (52, the Wolf's Hold)), `*_W`, `*_EXIT_X`, the way in's x in the parent room (`*_GATE_X`,
   where the gate stood), the trader's x, `*_ZONES` (the first one a mob-free hub, `lvl: null`),
   `*_PLATFORMS` (put the hidden spot last; `onRoomPlat` helper names must be new: F2 first clashed with

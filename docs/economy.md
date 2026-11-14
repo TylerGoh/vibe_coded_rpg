@@ -883,6 +883,22 @@ farming gold / EXP (`FIELD_PAY`). Its set a step over (Lv 156: the Siege Ram and
 859k, `helmetPrice`), on the curve × `BOSS_GEAR.field`; Siege Bolt 1,490. Its pet 248.5k, between the Colossus's (248k, Lv
 150) and the Bog Bloat's (249k, Lv 158); `PETSHOP_W` 6450 → 6600. Nothing else moved. `--check` green on the first run.
 
+## The Citadel's depth pass, C5 (2026-11-14)
+The Keel (`docs/places/keel.md`, a hard pocket) put three mobs on the frozen curve: the gear louse (190, HP 95%, a `trail`
+dropper like the ink slime), chain hound (194, 104%, a plain chaser like the barrow hound) and keel warden (198, 120% like
+every `shell` mob); EXP 100%, gold 99–100% (coins the clapper knight's carried down the gold curve; materials on the ladder:
+Louse Plate 1,835, Hound's Link 1,845, Keel Rivet 1,860, Rustwyrm Link 1,880). Two elites from `elite()`. "Farming your own
+level" now picks the gear louse at 190 and the keel warden at 200: **gold earned by** Lv 200 ~22.07M → ~22.04M, Lv 220
+~29.85M → ~29.82M; **play time** to Lv 200 35.5 h → 35.4 h (target 34.9 h), to 220 42.8 h → 42.7 h; `rebirthCost` at 200
+still 1.03× the sheet's hour of gold. Rare gear: the Keel Warden's Visor (`helmetPrice` at 198, 1.391M). **The Rustwyrm**
+(field, Lv 196): the Stormcoil's numbers carried up by the curve (written HP 4.69M, ATK 664, EXP 779k, coins 89.3–129.2k);
+the sheet solos it in a median ~3:15 and it pays 1.41× / 1.59× a minute of farming (`FIELD_PAY`; the Stormcoil 1.42× /
+1.60×, the Great Bell 1.39× / 1.57×); its armour makes a duo's kill +20% / +12% (RETROFIT, like the other armoured field
+bosses). The Rust Flail and twins (Lv 198, 1.778M, `swordPrice` × 0.966 like the Stormcoil's) and the Rustwyrm Coif
+(1.344M), on the curve × `BOSS_GEAR.field`. Its pet 307k, between the mini Helmsman (305k) and the mini Great Bell (309k);
+`PETSHOP_W` 7300 → 7450. The Helmsman's and the Wickmother's "vs farming" ratios moved a hair (the new own-level farm at
+190–200). `--check` green on the first run.
+
 ## The Citadel's depth pass, C4 (2026-11-14)
 The Bell Walks (`docs/places/bellwalks.md`) put the first mobs past 190 on the frozen curve (its power-law tail): the bell
 wraith (197, HP 94% for a phasing flier), clapper knight (202, 95%, a `blink` mob) and rain shard (206, 92%, a rooted `lob`
