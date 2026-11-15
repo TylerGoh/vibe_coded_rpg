@@ -303,6 +303,7 @@ const PULSES = {
   croak: { ring: '170,190,100', glow: '210,224,150', hit: '140,160,80', word: 'CROAK', fill: '#f4f8e4', edge: 'rgba(30,40,18,0.85)', foam: true }, // Grandfather Mire's croak, a boom over the pool (atlas Phase 8 L4)
   bellows: { ring: '255,130,50', glow: '255,170,90', hit: '255,110,40', word: 'BELLOWS', fill: '#fff0dc', edge: 'rgba(60,16,4,0.88)', shimmer: true }, // Typhon's breath out, a wave of heat (E5)
   hush: { ring: '196,182,228', glow: '236,228,252', hit: '168,150,212', word: 'HUSH', fill: '#f6f2ff', edge: 'rgba(30,22,48,0.86)', foam: true }, // the Wickmother's Hush: one slow wingbeat, a wave of wing-dust (L5)
+  tock: { ring: '150,240,234', glow: '220,255,250', hit: '120,190,186', word: 'TOCK', fill: '#e8fffb', edge: 'rgba(10,16,20,0.88)' }, // the Escapement's Tock: one great tick through the hub's casing (C6 (c))
 };
 function drawPulseWarn(ctx, x, y, kind, reach, k, t, left) {
   if (k > 1) return;
@@ -395,6 +396,7 @@ const CURSES = {
   paw: { fill: '120,170,230', rim: '220,240,255', inner: '250,252,255', star: '200,226,255', smoke: '80,110,160' }, // Fenrir's frost paw print (FB2)
   scorch: { fill: '60,16,6', rim: '255,150,60', inner: '255,236,180', star: '255,120,40', smoke: '70,40,30' }, // Typhon's scorch ring: great heat thins slimes out (E5)
   tag: { fill: '120,100,76', rim: '255,214,150', inner: '255,248,230', star: '236,224,196', smoke: '90,76,64' }, // the Wickmother's name tags: a lantern's paper tag hangs off you, a name written on it (L5)
+  count: { fill: '40,70,72', rim: '150,240,234', inner: '230,255,252', star: '190,255,250', smoke: '40,56,60' }, // the Escapement's Count: a numeral of light hangs over you, counting down with the beat (C6 (c))
 };
 function drawSigil(ctx, s, t) {
   const L = s.look ?? CURSES.dark;
@@ -588,7 +590,7 @@ const SHELLS = {
 // S5.4: Glacia's (`queen`): ice blue, deep enough to read in her white throne room, snowflakes turning round it; the Astral Wyrm's (`star`): starlight, violet with
 // little gold stars for runes; Chronos's (`hours`): a dome of wound-up hours, gold, an hour mark for every rune and a
 // clock hand sweeping round inside it
-const DOMES = { cocoon: ['232,224,240', '255,255,255', '255,236,200'], fetter: ['226,236,255', '255,255,255', '240,246,255'], hours: ['255,200,100', '255,226,150', '255,240,200'], rose: ['250,244,240', '255,255,255', '246,226,236'], keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'], ember: ['255,150,90', '255,206,150', '255,230,200'], haze: ['255,170,110', '255,214,170', '255,236,210'] }; // (haze: Typhon's Heat Haze, E5) // (ember: Brenna's, the tooth swung down in front of her, E4b)
+const DOMES = { brake: ['224,176,102', '253,227,160', '150,240,234'], cocoon: ['232,224,240', '255,255,255', '255,236,200'], fetter: ['226,236,255', '255,255,255', '240,246,255'], hours: ['255,200,100', '255,226,150', '255,240,200'], rose: ['250,244,240', '255,255,255', '246,226,236'], keeper: ['255,200,110', '255,236,190', '255,246,220'], ice: ['170,220,255', '214,240,255', '240,250,255'], queen: ['130,196,245', '92,156,220', '104,166,230'], star: ['150,120,240', '255,224,140', '255,236,170'], ember: ['255,150,90', '255,206,150', '255,230,200'], haze: ['255,170,110', '255,214,170', '255,236,210'] }; // (haze: Typhon's Heat Haze, E5) // (ember: Brenna's, the tooth swung down in front of her, E4b)
 function drawShield(ctx, v, k, sh, t) {
   const fade = Math.max(0, Math.min(1, 1 - (sh.from - t) / 1.5)), end = Math.min(1, (sh.until - t) / 0.6);
   const a = fade * end, cx = v.x, cy = v.y - k.h * 0.5, rx = k.w * 0.72, ry = k.h * 0.68;

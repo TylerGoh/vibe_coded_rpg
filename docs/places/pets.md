@@ -76,7 +76,8 @@ field bosses': the mini Bog Bloat (Lv 158, between the Colossus's and Long-Neck'
 178, above Chronos's), asleep under its peat as long as nothing hits it; and L4's: the mini Will-Queen (Lv 176, between
 Chronos's and the Sleeper's) and the mini Grandfather Mire (Lv 179); the Citadel's C0: the mini Siege Engine (Lv 154, between
 the Colossus's and the Bog Bloat's); C1: the mini Meridian (Lv 168, between Long-Neck's and Old Gullet's); C2: the mini Indexer (Lv 177, between the Will-Queen's and the Sleeper's); C3: the mini Stormcoil (Lv 186, between Grandfather Mire's and the Wickmother's); C4: the mini Helmsman (Lv 191) and the mini Great Bell (Lv 204), both between the Stormcoil's and the Wickmother's; C5: the mini Rustwyrm (Lv 196, between those two). L5 (c)'s **mini Wickmother** has art of its own (`drawWickPet` in `src/wick-art.js`: a
-small furry moth circling a tiny lantern on a stand), Lv 210, now the dearest. `PETSHOP_W` went up again.
+small furry moth circling a tiny lantern on a stand), Lv 210, now the dearest. `PETSHOP_W` went up again. The Citadel's C6 (c) **mini Escapement** has art of its own too (`drawEscPet` in `src/esc-art.js`: a little anchor
+rocking tick, tock, a tiny bob swinging under it), Lv 235, now the dearest; `PETSHOP_W` up again.
 
 ## Testing
 - `TEST_PET_FAST=1440` makes a full belly last 2 minutes (test servers only, never live).

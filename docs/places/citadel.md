@@ -35,8 +35,8 @@ waystones keep working; the branches open off it through gates. West to east:
   `entry`, drawn wet, its door in `ROOMS[CITADEL]`: `docs/places/bellwalks.md`).
 - The Keel's far end (the way down to the Undercroft): C5 laid the `undercroft` node's gate there (`fallentooth`,
   `UNDERCROFT_GATE_X` in room 93: a tooth of the Wheel fallen across the shaft); **C6 (b) lifted it** (the tooth levered
-  aside, a stair cut down beside it: `docs/places/undercroft.md`). The Citadel's last gate is the Catch's door at the end of
-  the Spoke (`catchdoor`, the `catch` node, C6 (c)). Each gate's draw function takes an `open` flag (the F3 pattern), so
+  aside, a stair cut down beside it: `docs/places/undercroft.md`). The Citadel's last gate was the Catch's door at the end of
+  the Spoke (`catchdoor`, the `catch` node), gone with the den's `DENS` row in C6 (c) (`docs/places/escapement.md`). Each gate's draw function takes an `open` flag (the F3 pattern), so
   shipping a branch is data plus its rooms.
 - **Changed from the plan:** the Engine Halls' blast door is in the Spire, not in the Orrery (the plan's map hung the Engine
   Halls off the Orrery, but its own C0 list lays every gate in room 13; one way in from the Spire is simpler to find).
@@ -45,8 +45,8 @@ waystones keep working; the branches open off it through gates. West to east:
 `CITADEL_MAP` (`ISLAND_MAPS.citadel`, `docs/ui/world-map.md`): the Skydocks Camp (town), the Skydocks, the Bastion and the
 Spire (room 13's zones, `zr: CITADEL`), the Keepers' Gardens (open), the Orrery (open since C1), the Archive (open since C2),
 the Engine Halls (open since C3), the Helm (off the Engine Halls, the Helmsman's den) and the Bell Walks (open since C4), the
-Keel (open since C5, hard), the Undercroft (open since C6 (b), hard: the deep room and the Spoke), and dashed with its
-block: the Catch (the Escapement's den, the door holds). Bands follow the plan, stretched past 200 at the owner's
+Keel (open since C5, hard), the Undercroft (open since C6 (b), hard: the deep room and the Spoke), and the Catch (the
+Escapement's den, open since C6 (c)). Bands follow the plan, stretched past 200 at the owner's
 note (2026-11-12): the Keel 188–200, the Bell Walks 195–208, the Undercroft 205–215 (`CITADEL_TOP`); the plan's revision says the rest.
 
 ## The Siege Engine (field boss, Lv 154)
@@ -92,3 +92,5 @@ cap: like the Dockwarden it has no canon to give. Plan decision 6 (traders are a
 - 2026-11-15: C6 (b) built (the Undercroft and the Spoke: `docs/places/undercroft.md`), with the Escapement's plan
   (`story/c6-plan.md`). The Commissary, the Last Echo, Folio and Number Nine know something moved under the keel. The
   Citadel's last gate is the Catch's door (C6 (c)).
+- 2026-11-15: C6 (c) built: the Catch and the Escapement, the Citadel's final boss (`docs/places/escapement.md`). The depth
+  pass is done.

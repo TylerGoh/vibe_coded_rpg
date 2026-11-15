@@ -29,7 +29,7 @@ are read from `ITEMS` at runtime, so pieces already owned got stronger too.
 
 ## Boss gear's unique effects (owner, 2026-11-06)
 Owner: "big impact stuff, so people have to actually think if it's worth it", movement changes and changes to how you
-attack included. The owner approved all 22; atlas Phase 8 L4 added Grandfather Mire's two (The Promise, Sit Tight) the same way, L5 (c) the Wickmother's (The Last Light, Moth-Wing), and the Citadel's C4 the Helmsman's (Steady As She Goes, Even Keel). Each top and final boss's weapons (sword, staff and bow each their own
+attack included. The owner approved all 22; atlas Phase 8 L4 added Grandfather Mire's two (The Promise, Sit Tight) the same way, L5 (c) the Wickmother's (The Last Light, Moth-Wing), and the Citadel's C4 the Helmsman's (Steady As She Goes, Even Keel), C6 (c) the Escapement's (The Tick, Keep Time). Each top and final boss's weapons (sword, staff and bow each their own
 version) share one effect and its helmet another, most with a cost; twelve den and field bosses give a small one, no
 cost, to every piece they drop. Shop stock never carries one. The item card shows it (`fxLine`).
 - **Where it lives**: `src/shared/gearfx.js` holds every number (named constants), `GEAR_FX` (name, text, cost),
@@ -61,6 +61,7 @@ cost, to every piece they drop. Shop stock never carries one. The item card show
 | Brenna | damage × `BURDEN_DMG` (all) | walk × `BURDEN_WALK`, no air jumps | landing from a fall faster than `STOMP_VY` stomps | no Dash (nor Hook) |
 | Fenrir | dashing through mobs slashes · Blink leaves a frost nova · Retreat Shot + `VOLLEY` arrows | max HP × `UNBOUND_HP` | a third jump | DEF × `PACK_DEF` |
 | the Helmsman (C4) | Steady As She Goes: not hurt for `STEADY_S`, hits × `STEADY_DMG` (all; the client's own `hurtAt`) | max HP × `STEADY_HP` | Even Keel: no knockback (`GX.KNOCKFREE`), a tilting floor doesn't slide you (`GX.NOTILT`, `step()`) | no Dash (`GX.NODASH`) |
+| the Escapement (C6 (c)) | The Tick: every `TICK_EVERY`rd hit × `TICK_DMG` (all; the client's own count, `Gear.tickN`) | the others × `TICK_OTHER` | Keep Time: the dash cooldown × `KEEP_DASH` (`GX.QUICKDASH`, `step()`) | DEF × `KEEP_DEF` |
 | the Wickmother | The Last Light: below `LAST_AT` of your max HP, hits × `LAST_DMG` (all) | max HP × `LAST_HP` | Moth-Wing: the Colossus's glide (`GX.GLIDE`) | DEF × `MOTH_DEF` |
 | Root Warden | still `ROOTED_S`: damage × `ROOTED_DMG` (all) | standing still | still: heal `REST_HEAL`/s | none |
 | Sigrun | block a hit every `OATH_EVERY` s, next hit × `OATH_BONUS` (all) | damage × `OATH_DMG` | no knockback (both sides skip it) | walk × `BULWARK_WALK` |
@@ -101,7 +102,8 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   fought the rod and a Mage the staff (S5's loot by class: a fighter's class, not just the kind they hold). Same price,
   MAGIC, slots and `lvl` as the sword (checked like any staff). So far: Ladon's White Rose Rod, beside the Unsleeping
   Staff (`docs/places/ladon.md`), Fenrir's Lantern Rod, beside the Gleipnir Staff (`docs/places/fenrir.md`), Typhon's Hearthstone Rod, beside the Pour
-  Staff (`docs/places/typhon.md`), and the Wickmother's Lantern Crook, beside the Mother's Staff (`docs/places/wickmother.md`).
+  Staff (`docs/places/typhon.md`), the Wickmother's Lantern Crook, beside the Mother's Staff (`docs/places/wickmother.md`), and the Escapement's Pendulum
+  Rod, beside the Arbor Staff (`docs/places/escapement.md`).
 
 ## Bows (S4, 2026-10-24: `story/progression.md` 4)
 - Every sword with a staff twin has a **bow twin** too (`BOW_LIST`, `BOW_OF`): the bow is *made from the sword*
@@ -188,7 +190,8 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   the Moon-Chaser Bow are rows), Typhon's in `src/typhon-art.js` (`TYPHON_*`: the Last Hammer and the Furnace Mask; the
   Pour Staff, the Hearthstone Rod and the Bellows Bow, its `bellows` and `ember` tip, are rows), the Wickmother's in
   `src/wick-art.js` (`WICK_*`: the Last Wick and the Mothwing Hood; the Mother's Staff, its `moth` head, the Lantern Crook
-  and the Moth-Wing Bow are rows). All on the gear curve at their `lvl`, priced on it.
+  and the Moth-Wing Bow are rows), the Escapement's in `src/esc-art.js` (`ESC_*`: the Last Tick and
+  the Arbor Crown; the Arbor Staff, the Pendulum Rod, its `pendulum` head, and the Anchor Bow are rows). All on the gear curve at their `lvl`, priced on it.
   Emberdeep's E0 (atlas Phase 5) adds **Slag** (`SHOPS.slag`, Forgehold: the **Slag Maul**, its twin the
   **Bellows Rod** and the **Smith's Iron Cap**, aimed at Lv 92, the island's start; register "forged for a
   wheel that never got it"), art in `src/forgehold-art.js` (`FORGE_*`; the rod is a row in `STAFFS`), and

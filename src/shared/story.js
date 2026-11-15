@@ -11,6 +11,7 @@ export const BOSS_TIER = {
   ignis: 3, pyra: 3, hatchkeeper: 3, brenna: 3, typhon: 3,
   // the Aether Citadel (Tier 4: the endgame)
   colossus: 4, chronos: 4, meridian: 4, indexer: 4, // (the Citadel's depth pass, C1: the Orrery's den; C2: the Archive's)
+  escapement: 4, // (C6 (c): the Citadel's final boss; freed, the city ticks once for you: docs/places/escapement.md)
   // Lantern Fen adds no canon tier (story/phase8-plan.md): its final boss is in the record only for her freed changes
   // (the Hall's front door, Wickmere's Lamp Walk: docs/social/story.md)
   wickmother: 0,

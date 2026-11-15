@@ -3,7 +3,7 @@
 The Citadel's depth pass, C6 (b): the way to the Citadel's final boss, the Escapement. The plan is `story/c6-plan.md`, "On
 the way there". The pattern is L5's `docs/places/peatbarrows.md`, E5's `docs/places/underflues.md` and FB2's
 `docs/places/oldice.md`: deep room, then approach, then den. The den is room 96, `CATCH_DEN`, `CATCH_DEN_NAME` "The Catch",
-and it comes in C6 (c).
+built in C6 (c): `docs/places/escapement.md`.
 
 The band, at the owner's 2026-11-12 "past 200" note:
 - The Undercroft is Lv 205–215. That's C0's stretch of the plan's 192–200.
@@ -17,9 +17,9 @@ The band, at the owner's 2026-11-12 "past 200" note:
   `fallentooth`'s open look in `src/citadel-gates.js`. The update did it, no quest, and nobody says who.
 - **The door** is in `ROOMS[KEEL]`.
 - **On the island map** it's one node, `undercroft`, under the Keel (`CITADEL_MAP` in `src/shared/branches.js`), with both
-  rooms as its `rooms`. Its child is the `catch` node: the Catch's door at the Spoke's end, a gate (`catchdoor`,
-  `sign: false`, no art in `src/citadel-gates.js`, because the Spoke draws the door and its own sign). It holds until C6 (c)
-  gives the den its `DENS` row; then the gate goes, like the Wickmother's inner door.
+  rooms as its `rooms`. Its child is the `catch` node, the Catch (room 96). Until C6 (c) gave the den its `DENS` row that
+  node was a gate at the Spoke's end (`catchdoor`, `sign: false`); the gate went with the row, like the Wickmother's inner
+  door, and the door is the den's own (`denDoors(SPOKE)`).
 
 ## The Undercroft (Lv 205–215, a deep room on hard-pocket rules)
 - **Files.** Data: the `UNDERCROFT_*` constants, the mobs, the items and the spawns in `src/shared/rpg.js`; the room in
@@ -91,8 +91,8 @@ rule: everything cinematic here is drawing and sound, never `step()`, never a cu
   `{t:'boss', a:'voice', who, text}` to the room (`spokeSaid` in `server/rpg.js`, reset when the room empties), like the
   Wickmother's. It shows as a dark iron bubble with pale aether writing.
 - **The Catch's door** at `ESC_DEN_X`: a round iron door in the hub's casing, its edge geared like a wheel, a boss at its
-  middle, on a bronze track. In (b) it shudders on every tick and holds. With the den (`CATCH_DOOR_OPEN`: the den has its
-  `DENS` row, C6 (c)) it rolls aside along its track by itself as you come near.
+  middle, on a bronze track. In (b) it shuddered on every tick and held. Since C6 (c) gave the den its `DENS` row
+  (`CATCH_DOOR_OPEN`) it rolls aside along its track by itself as you come near.
 - **The sign beside it:** `CATCH_DEN_NAME`, `finalTag(CITADEL_TOP)` and a live count. A count, never a lock.
 
 ## Who knows (personas that changed with it)

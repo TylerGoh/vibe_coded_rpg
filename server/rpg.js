@@ -924,7 +924,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       const marked = m.mark && m.mark.until > now() - SHATTER_GRACE_MS ? 1 + m.mark.boost : 1; // Hunter's Mark (S4): everyone's hits
       const ps0 = m.partyOn ? partyHit(m, p.state.x) : null, ps = off && ps0 ? { ...ps0, shield: null } : ps0; // (a head is outside the bark and the roses)
       const weak = k.heads ? !!pt?.weak && !!ps?.weakOpen : !!h[4] && !!ps?.weakOpen && weakReach(weakOf(k, m.x, m.y, m.dir), p.state.y, arrow, 40);
-      const pm = (ps ? partyHitMult(ps, { magic, heavy: heavy || shatter, weak }) : 1) * (pt?.throat ? THROAT_MULT : 1) * (k.final && !off ? final.hold(m) : 1); // (L5: the Wickmother's Hold)
+      const pm = (ps ? partyHitMult(ps, { magic, heavy: heavy || shatter, weak }) : 1) * (pt?.throat ? THROAT_MULT : 1) * (k.final && !off ? final.hold(m) : 1); // (L5: the Wickmother's Hold; C6 (c): the Escapement's Tick, wider)
       const low = exec && m.hp <= m.maxHp * EXEC_AT * 1.05 ? exec : 1;
       const comb = combust && m.burn && m.burn.until > now() - SHATTER_GRACE_MS ? combust : 1; // (SP3: Combustion)
       if (comb > 1) { // (the burn is set off: spent)
@@ -2176,7 +2176,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   }
   function ultGoesOff(m, k, t) {
     const u = m.ult;
-    const lasts = u.kind === 'wave' || u.kind === 'lastpour' || u.kind === 'night' ? (DEN_W / (u.speed ?? WAVE_SPEED)) * 1000 + 600 : u.kind === 'overclock' ? u.gap * 2000 + 900 : u.kind === 'timestop' ? u.still * 1000 + 700
+    const lasts = u.kind === 'wave' || u.kind === 'lastpour' || u.kind === 'night' || u.kind === 'counter' ? (DEN_W / (u.speed ?? WAVE_SPEED)) * 1000 + 600 : u.kind === 'overclock' ? u.gap * 2000 + 900 : u.kind === 'timestop' ? u.still * 1000 + 700
       : u.kind === 'collapse' ? (DEN_W / u.speed) * 1000 + 700 : 1500;
     if (u.kind === 'rebirth') {
       m.egg = null;

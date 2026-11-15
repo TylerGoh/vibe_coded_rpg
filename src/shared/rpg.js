@@ -7,6 +7,7 @@ import { LADON_PLATFORMS, LADON_BODY_X } from './final.js';
 import { FENRIR_PLATFORMS, FEN_MID } from './fenrir.js';
 import { TYPHON_PLATFORMS, TY_MID } from './typhon.js';
 import { HALL_PLATFORMS, WM_MID } from './wickmother.js';
+import { CATCH_PLATFORMS, ESC_MID } from './escapement.js';
 import { ARENA, DUMMY_HP, SPAR_HIT_PCT } from './sandbox.js';
 import { uptimeOf } from './challenge.js';
 
@@ -38,7 +39,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 7450; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), the mini Helmsman and Great Bell (C4, 7258), and the mini Rustwyrm (C5, 7416): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 7550; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), the mini Helmsman and Great Bell (C4, 7258), the mini Rustwyrm (C5, 7416) and the mini Escapement (C6 (c), 7542): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -3798,6 +3799,45 @@ MOBS.mainspring = {
 };
 MOBS.mainspring.drops = [...MOBS.mainspring.drops, ['spring_blade', 0.04, 1, 1]];
 
+// The Escapement (the Citadel's C6 (c), story/c6-plan.md; docs/places/escapement.md): the Citadel's final boss, in the
+// Catch (room CATCH_DEN, at the end of the Spoke). The Wheel's catch: a great toothed anchor on its arbor under the hub,
+// both pallets clamped on the escape wheel since Chronos told it to hold, its pendulum swinging under it. Its own brain
+// (FINAL.escapement, brain 'catch': server/escapement.js; its constants in src/shared/escapement.js): the Beat (the
+// pendulum's sweep), the Tick (both pallets struck in one tick: a stagger and an open window, `hold` on the sheet: the
+// share of a party's damage it nets after the hits spent on the pallets and the time spent off the bob's arc, with the
+// windows' extra, taken off its HP with the challenges' uptime, uptimeOf), its pawls, phase 3's widening swing, phase 4's
+// Stopping. Fixed HP for four, no reward window; its stats are FINAL's, never the Lv 235 on its tag. It never moves (it
+// hangs off the hub): its body is the anchor, the crutch and the bob's column in the middle, from the floor up to the
+// arbor (`h`), so the floor and the inner ledges reach it; nothing about it hurts to touch but the bob (`noTouch`: the
+// Beat is the server's). `weak`: the shard in its arbor, open while it's Rewound (phase 4)
+MOBS.escapement = {
+  name: 'The Escapement', boss: true, top: true, final: 'escapement', heads: true, touchW: 60, touchH: 40, noTouch: true, denX: ESC_MID,
+  lvl: 235, hp: 181000000, atk: 780, exp: 5600000, speed: 0, w: 300, h: 360, aggro: true, hops: false,
+  phases: [[], [], []], minion: 'catch_pawl', petWH: [56, 60], hold: 0.82,
+  looks: { shell: 'brass', dome: 'brake', curse: 'count', pulse: 'tock', snare: 'chain', rings: 'teeth' },
+  // its challenges (in its loops, server/escapement.js; docs/combat/challenges.md): the strike's chain (`snare`) and late
+  // strikes and hands (`late`) from phase 1, tethers and bullet rings from phase 2, held (`rescue`, 2+) in phase 3, the
+  // Stopping (`rhythm`) and the hour run backward (`swap`) in phase 4
+  ch: ['snare', 'late', 'tether', 'rings', 'rescue', 'rhythm', 'swap'],
+  party: ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'], partyAll: true, partyLive: true,
+  weak: { dx: 0, dy: -0.83, r: 40 }, // (the shard in the arbor, pale aether-blue)
+  lines: {
+    enter: ['Hold. I was told to hold. I am holding.'],
+    phase: ['One tooth, and the hour moves. The hour must not move. Hold.', 'Every tick is an hour gone. I keep them. I keep all of them.', 'Then nothing moves. Nothing. Not you. Not me. Hold.'],
+    shield: 'No. No slip. Not one tooth.',
+    freed: '...No one is holding the order. Then I let go. One. ...There. That is all I was for.',
+  },
+  // one of its four class weapons a kill (twinPick chooses by who fought); the Arbor Crown on a shared chance
+  drops: [['coin', 1, 8600000, 12900000], ['last_tick', 1, 1, 1], ['arbor_crown', 0.5, 1, 1], ['mega_elixir', 1, 10, 14], ['royal_sap', 1, 4, 6], ['pawl_spring', 1, 6, 10], ['weight_lead', 1, 4, 6], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.7, 1, 2]],
+};
+// Its pawls (phase 2 on): the Undercroft's loose pawls, shaken out of the escape wheel's teeth to crawl to a pallet and jam
+// it (`son: 'pawl'`: their own brain, son() in server/escapement.js; drawn as loose pawls). Killed, frozen, stunned,
+// netted or knocked back off it, the pallet comes free. Little EXP and no drops: they're the Wheel's, not the room's.
+MOBS.catch_pawl = {
+  name: 'Loose Pawl', son: 'pawl', art: 'loose_pawl', lvl: 215, hp: 190000, atk: 700, exp: 13500, speed: 70, w: 62, h: 74, aggro: true, hops: false,
+  drops: [['coin', 1, 1700, 2500]],
+};
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -4762,6 +4802,7 @@ export const DENS = [
   { room: BRENNA_DEN, boss: 'brenna', name: "The Bearer's Hoist", from: RIM, entranceX: BRENNA_DEN_X, theme: 'hoist' }, // (E4b; art: src/dens-rim.js)
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
   { room: WICK_DEN, boss: 'wickmother', name: WICK_DEN_NAME, from: LAMPROAD, fromName: 'the Lamp Road', entranceX: WICK_DEN_X, theme: 'lamps', platforms: HALL_PLATFORMS, final: true }, // (L5 (c); art: src/dens-wick.js; the door's art: src/lamproad.js)
+  { room: CATCH_DEN, boss: 'escapement', name: CATCH_DEN_NAME, from: SPOKE, fromName: 'the Spoke', entranceX: ESC_DEN_X, theme: 'catch', platforms: CATCH_PLATFORMS, final: true }, // (the Citadel's C6 (c); art: src/dens-esc.js; the door's art: src/spoke.js)
   { room: TYPHON_DEN, boss: 'typhon', name: TYPHON_DEN_NAME, from: LONGFLUE, fromName: 'the Long Flue', entranceX: TYPHON_DEN_X, theme: 'hearth', platforms: TYPHON_PLATFORMS, final: true }, // (E5 (c); art: src/dens-typhon.js; the door's art: src/longflue.js)
 ];
 export const DEN_EXIT_X = 80;
@@ -5492,6 +5533,17 @@ Object.assign(ITEMS, {
   pawl_spring: { name: 'Pawl Spring', price: 1935, kind: 'loot', desc: "The spring off a loose pawl, still tight. It wants to push something into a tooth, and there's nothing to push." },
   weight_lead: { name: 'Weight Lead', price: 1950, kind: 'loot', desc: "A cast slug of lead off a counterweight, stamped with its weight in a measure nobody uses now. It's heavier than it looks, and it always pulls down." },
 });
+// the Citadel, C6 (c) (docs/places/escapement.md): the Escapement's set, the Citadel's best (lvl 224 on the frozen curve, a
+// step over the Mainspring's 215); one class weapon a kill, the Arbor Crown on a shared chance
+Object.assign(ITEMS, {
+  last_tick: { name: 'The Last Tick', price: 2290000, lvl: 224, slots: 10, kind: 'sword', atk: 274, reach: 70, desc: "A broad blade shaped like a pallet off the great anchor, dark brass, its edge worn bright where it bit the Wheel's teeth. It hits on the beat whether you mean it to or not." },
+  arbor_staff: { name: 'The Arbor Staff', price: 2290000, lvl: 224, slots: 10, kind: 'staff', magic: 274, mp: 164, reach: 70, twin: 'last_tick', desc: 'A rod of black iron with a dark shard set where a pivot was. It used to hold something. Now it only turns, very slowly, when you cast.' },
+  pendulum_rod: { name: 'The Pendulum Rod', price: 2290000, lvl: 224, slots: 10, kind: 'staff', magic: 274, mp: 164, reach: 70, twin: 'last_tick', cls: 'cleric', desc: "A staff of dark brass with a little bronze bob hung under its head, always swinging, even when you hold it still. Somebody has to keep the time." },
+  arbor_crown: { name: 'The Arbor Crown', price: 1700000, lvl: 224, slots: 10, kind: 'helmet', def: 137, desc: 'A ring of fine teeth in dark brass, cut from the escape wheel\'s rim. One tooth is missing. It sits lighter than it should.' },
+});
+BOW_LIST.push(
+  ['anchor_bow', 'last_tick', 'The Anchor Bow', "A bow whose limbs are the anchor's two flukes, the string drawn between them where the arbor was. It lets go one arrow at a time, exactly on the tick."],
+);
 BOW_LIST.push(
   ['mainspring_bow', 'spring_blade', 'Springsteel Bow', "A bow of two leaves of the Mainspring's steel. It draws stiff and lets go all at once, the way a spring does when it's finally allowed."],
 );

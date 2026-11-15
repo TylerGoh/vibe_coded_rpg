@@ -101,6 +101,8 @@ export const STAFFS = {
   queenlight_staff: { len: 70, shaft: ['#e8e4dc', '#a8a49c'], w: 2.8, head: 'ember', gem: '#ffffff', gem2: '#cfe0ff', glow: '220,236,255' }, // (the Will-Queen's: white wood, a cold flame at its head)
   promise_staff: { len: 70, shaft: ['#3a3426', '#1e1a12'], w: 3.4, head: 'crystal', gem: '#6a7a46', gem2: '#c8d8a0', glow: '200,214,130' }, // (Grandfather Mire's: crooked bog-oak, a great toadstone in its knot)
   mothers_staff: { len: 72, shaft: ['#c8c0b0', '#8a8272'], w: 3, head: 'moth', gem: '#fff2c8', gem2: '#8a7e98', glow: '255,214,150' }, // (the Wickmother's: willow, a moth asleep at its head round a light)
+  arbor_staff: { len: 72, shaft: ['#3a3644', '#15131b'], w: 3.2, head: 'crystal', gem: '#2a5a58', gem2: '#e8fffb', glow: '150,240,234' }, // (the Escapement's: black iron, a dark shard set where the pivot was)
+  pendulum_rod: { len: 72, shaft: ['#9a6c36', '#4e341a'], w: 3, head: 'pendulum', gem: '#e0b066', gem2: '#8a6a3a', glow: '150,240,234' }, // (the Escapement's, the Cleric's: dark brass, a little bronze bob always swinging under its head)
   lantern_crook: { len: 72, shaft: ['#d8d0c0', '#9a9282'], w: 3, head: 'lantern', gem: '#ffe2a8', gem2: '#4a4058', glow: '255,214,150' }, // (the Wickmother's, the Cleric's: a carrier's crook of pale willow, a small lantern on its hook)
   cradle_staff: { len: 70, shaft: ['#b8b0a4', '#7a7268'], w: 3, head: 'lantern', gem: '#ffe2a6', gem2: '#e2dce8', glow: '255,214,150' }, // (L5 (b): the Eldest's: willow, a cocoon bound at its head, a light inside)
   barrowoak_staff: { len: 72, shaft: ['#2a2420', '#120e0c'], w: 3.4, head: 'lantern', gem: '#ffd696', gem2: '#3a2c20', glow: '255,214,150' }, // (the Sleeper's: roof oak from the Peat Hall, a grave lamp hung on it)
@@ -825,6 +827,36 @@ const HEADS = {
   },
   // the Wickmother's Staff (L5 (c)): a moth asleep at the head, her grey wings folded round a light; now and then they
   // open a little and the light comes out
+  // the Pendulum Rod (the Citadel's C6 (c)): a little anchor at the head and a bronze bob under it, always swinging
+  pendulum(ctx, s, y, t, glow) {
+    halo(ctx, s, y - 8, 8 + glow * 4, 0.35 + glow * 0.3);
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 3.4;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-8, y - 12);
+    ctx.quadraticCurveTo(0, y - 20, 8, y - 12);
+    ctx.stroke();
+    ctx.strokeStyle = s.gem;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    const a = Math.sin(t * Math.PI) * 0.45, bx = Math.sin(a) * 10, by = y - 14 + Math.cos(a) * 10;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(0, y - 16);
+    ctx.lineTo(bx, by);
+    ctx.stroke();
+    ctx.fillStyle = s.gem2;
+    ctx.beginPath();
+    ctx.arc(bx, by, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#e8fffb';
+    ctx.beginPath();
+    ctx.arc(0, y - 16, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+  },
   moth(ctx, s, y, t, glow) {
     const o = Math.max(0, Math.sin(t * 0.6)) ** 6; // (the wings opening, now and then)
     halo(ctx, s, y - 8, 9 + glow * 4 + o * 6, 0.45 + glow * 0.3 + o * 0.35);

@@ -899,6 +899,24 @@ bosses). The Rust Flail and twins (Lv 198, 1.778M, `swordPrice` × 0.966 like th
 `PETSHOP_W` 7300 → 7450. The Helmsman's and the Wickmother's "vs farming" ratios moved a hair (the new own-level farm at
 190–200). `--check` green on the first run.
 
+## The Citadel's depth pass, C6 (c): the Escapement, the fifth final boss (2026-11-15)
+FINAL BOSSES gains `escapement`, fought at Lv 215 (`fightLvl`: its Lv 235 tag less `FINAL_LVL_OVER`), the Citadel's top.
+- **HP.** Its written HP (181M) takes `BOSS_HP_SCALE`, its uptime share (`UPTIME_TOP`) and `hold` 0.82 (`uptimeOf`: what a
+  party nets after the hits spent on the pallets and the time spent off the bob's arc, with the Tick's windows' extra
+  taken back), 71.24M live.
+- **Kill times.** A party of four kills it in ~26:40 with no potions. Every three of them are past the enrage: no Knight
+  33:53, no Priest 37:46, no Frostbinder 40:03, no Sniper 37:53. The first try (190M) took 27:55; 181M put it near
+  `FINAL_PARTY_MIN`'s middle.
+- **Pay** a member: 1.02x farming's EXP and 4.26x its gold an hour at Lv 215 (in `FINAL_PAY`).
+- **Its set** (`last_tick` and twins, the Arbor Crown) is at Lv 224 on the frozen curve (`BOSS_GEAR.final` on the stats), a
+  step over the Mainspring's Lv 215.
+- **Its pawls** (`catch_pawl`, Lv 215) pay little and drop only coins: they're adds.
+- **The mini Escapement** costs 320k, the Pet Shop's dearest (the Wickmother's 312k). `PETSHOP_W` 7450 → 7550 (the
+  plinths needed 7542).
+
+Nothing else moved: mob farming, gold earned by and play time are as C6 (b) left them (a boss isn't in PROGRESS).
+`--check` green.
+
 ## The Citadel's depth pass, C6 (b) (2026-11-15)
 The Undercroft (`docs/places/undercroft.md`, a deep room on hard-pocket rules, Lv 205–215, `CITADEL_TOP` 215) put four mobs on
 the frozen curve: the sump slime (205, HP 95%, a `lob` like the stoker automaton), wheelwright echo (207, 100%, a `phase`

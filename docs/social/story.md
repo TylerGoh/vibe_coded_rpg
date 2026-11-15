@@ -77,5 +77,9 @@ other slimes see their own world). The client gets your record's bosses as `me.f
   they are now with no lines dragging them back, the orrery's arms hang still. The Last Echo knows (`FREED.meridian`).
 - **The Indexer** (the Citadel's C2, `docs/places/archive.md`) → the Archive (`drawArchive`'s `freed`): no pages drift up;
   they lie still on the floor. Folio knows (`FREED.indexer`).
+- **The Escapement** (the Citadel's C6 (c), `docs/places/escapement.md`; `BOSS_TIER` 4, the Citadel's) → the city ticks once:
+  the next time that slime is in any Citadel room after freeing it, one great tick is heard and the light jumps (`cityTick`
+  in `src/escapement.js`, once, kept in the browser). Sound only, no room drawn changed. The Last Echo, the Commissary,
+  Folio and Number Nine know (`FREED.escapement`). The Wheel stays jammed for the finale (atlas Phase 10).
 - Later, if wanted (plan): Ladon, Fenrir (the cutters finish the Long Stair), Typhon (the Foundry's pits go cold). The
   one world-wide flag stays for the finale (`story/delivery.md`).

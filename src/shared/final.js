@@ -1,4 +1,4 @@
-// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md, docs/places/typhon.md, docs/places/wickmother.md
+// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md, docs/places/typhon.md, docs/places/wickmother.md, docs/places/escapement.md
 // The final bosses' machinery (FB1 (c), story/fb1-plan.md; the pattern in story/final-bosses.md), shared by client
 // and server: the FINAL table (each final boss's phases, its written loops, its heads), the heads' geometry (where
 // each head hangs, bites, lowers; where its stump is), the coils, and the arena's ledges. The brain is
@@ -93,6 +93,26 @@ export const FINAL = {
       ['eyes', 'stoop', 'line', 'tether:2', 'kindle', 'hush', 'rain', 'rings:2', 'cocoon:2'],
       ['hush', 'eyes', 'stoop', 'rescue', 'kindle', 'kindle', 'line', 'rain', 'shield'],
       ['ult', 'eyes', 'stoop', 'dark', 'hush', 'rain', 'draw', 'both'],
+    ],
+  },
+  // The Escapement (the Citadel's C6 (c), story/c6-plan.md; its own constants: src/shared/escapement.js). 'count': the
+  // Count (the focus), 'strike': Pallet Strike (some land a tick late), 'tock': the pulse, 'locked': the armour, 'brake':
+  // the barrier, 'teeth': the Wheel's teeth driving down, 'rewound': the shard open (phase 4; unfilled, the Drop). Its
+  // ultimates by phase (server/escapement.js picks): Hold in phases 1–2, Hold and Counter-Swing by turns in phase 3,
+  // Counter-Swing and The Stopped Hour by turns in phase 4. Its challenges (docs/combat/challenges.md): the strike's chain
+  // (a snare) and late tells from phase 1, 'tether' and 'rings' from phase 2, 'rescue' (held, 2+) in phase 3, the
+  // Stopping (the rhythm lock, every beat) and 'swap' in phase 4
+  escapement: {
+    brain: 'catch',
+    at: [0.75, 0.5, 0.25],
+    ultEvery: [80, 65, 55, 0],
+    ults: [{ name: 'Hold', kind: 'hold' }, { name: 'Counter-Swing', kind: 'counter' }, { name: 'The Stopped Hour', kind: 'stopped' }],
+    alternateFrom: 2,
+    loops: [
+      ['count', 'strike', 'tock', 'late:2', 'locked:2'],
+      ['count', 'strike', 'teeth', 'tether:2', 'tock', 'rings:2', 'brake', 'locked:2'],
+      ['tock', 'count', 'strike', 'rescue', 'teeth', 'teeth', 'shield'],
+      ['ult', 'count', 'strike', 'tock', 'teeth', 'swap', 'rewound', 'both'],
     ],
   },
 };

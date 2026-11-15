@@ -668,11 +668,7 @@ function drawToothLevered(ctx, time, k) {
   ctx.stroke();
 }
 
-// The Catch's door, at the end of the Spoke (C6 (b), held until (c)): no art here, the Spoke draws it and its own sign
-// (src/spoke.js)
-const drawCatchDoor = () => {};
-
-export const CITADEL_DRAW = { catchdoor: drawCatchDoor, shutter: drawShutter, hatch: drawHatch, combolock: drawComboLock, blastdoor: drawBlastDoor, frozenrain: drawFrozenRain, bulkhead: drawBulkhead, fallentooth: drawFallenTooth };
+export const CITADEL_DRAW = { shutter: drawShutter, hatch: drawHatch, combolock: drawComboLock, blastdoor: drawBlastDoor, frozenrain: drawFrozenRain, bulkhead: drawBulkhead, fallentooth: drawFallenTooth };
 export const CITADEL_OPEN = {
   gardenstair: drawGardenStair,
   shutter: (ctx, time, g) => drawShutter(ctx, time, g, true), hatch: (ctx, time, g) => drawHatch(ctx, time, g, true),

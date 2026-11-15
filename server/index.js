@@ -169,7 +169,7 @@
 //   shields, with the cracks as a 5th element) · a hit's h[4] may be 2 + slot (aimed at that head or its stump) ·
 //   ouch kinds bite and coil · boss events watch {to}, bite {slot, tx, dur}, biteHit {slot, tx}, coil {dur},
 //   coilStep {n, dir}, headFall {slot, hx, hy}, regrow {slot, also}, seal {slot}, gaze {dur}, finalRage; ultWarn /
-//   ultHit kinds heads {gaps} and strangle. Every 'final' message has fb ('ladon' | 'fenrir' | 'typhon' | 'wickmother': whose it is).
+//   ultHit kinds heads {gaps} and strangle. Every 'final' message has fb ('ladon' | 'fenrir' | 'typhon' | 'wickmother' | 'escapement': whose it is).
 //   Fenrir (FB2, server/fenrir.js): ← {t:'final', fb:'fenrir', id, ph, enr, rc (the reach, px from the middle), po (its
 //   pose), an: [[state 'h'|'c'|'s', ring %, ms]], ln: [[lit 1|0, ring %]]} · h[4] = 2 + slot: an anchor (0–3) or a
 //   lantern (4–9) · boss events lunge {tx, dur, rc} / lungeHit {tx}, claw {x0, x1, dur} / clawHit, strain {slot, dur,
@@ -188,6 +188,14 @@
 //   stoopHit {tx, r}, kindle {i, dur} / kindleStopped {i}, lampOut / lampLit {i, by, party, who}, silkStep {n, dir}, moths
 //   {px}, mothRelight {i, sid, dur} / mothStopped {i}, draw {dur} / drawn / drawBroken, lastLight; beam style silk (Silk
 //   Line); ultWarn / ultHit kinds souls {dark, safe} and night {dir, x0, speed}.
+//   The Escapement (the Citadel's C6 (c), server/escapement.js): ← {t:'final', fb:'escapement', id, ph, enr, po (its pose), bp
+//   (the beat's phase, 0–1), bs (its period, s), ba (the bob's amplitude, px), sw (phase 3's swing steps), hl (the haul: 0, ±1
+//   the bob held up at that end, 2 stopped in the middle), pl: [[jammed 0|1, ms since struck (-1 never), jamming %]] (the two
+//   pallets), op (ms of the Tick's open window left), tk (Ticks made)} · h[4] = 2 + slot: a pallet (0–1) · boss events
+//   strike {tx, side, dur, r} / strikeLate {tx, dur} / strikeHit {tx, side, r}, struck {i, who}, tick {n, dur, who}, bite,
+//   jamming {i, sid, dur} / jam {i, sid} / jamStopped {i} / unjam {i}, pawls {px}, swingStep {n, dir}, rewound {dur, side} /
+//   rewoundBroken / drop, stopping, tickBeat; rain / rainHit with style teeth; ultWarn / ultHit kinds hold {side}, counter
+//   {side, dir, x0, speed} and stopped.
 //   The Cleric's summons (S3, server/summons.js): ← {t:'summons', s: [[id, what, owner, x, y, hp, maxHp, dir]]}
 //   ~20 Hz to rooms with any (an empty one when the last goes) · ← {t:'sumhit', h: [[summonId, hits]]} ·
 //   ← {t:'sumhurt', id, dmg} · ← {t:'sumgone', id, how: 'faded'|'broke', x, y}. A skill echo may carry

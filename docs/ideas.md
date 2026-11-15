@@ -181,7 +181,19 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   that holds, the sign) and both music scenes. The art was run against a stub canvas only; nobody has looked at it.
   Check the Spoke's silhouette reads at the door (the hub is drawn in screen space and grows to ~270 px), and that the
   counterweights' chains and the wheelwright echoes are visible enough in the dark on a phone.
-- C6 (c) is next: the Catch and the fight, on paper in `story/c6-plan.md`.
+- C6 (c) is done (below).
+
+## The Citadel's depth pass, C6 (c): the Escapement (2026-11-15)
+- Unplayed: the whole fight (`docs/places/escapement.md`): nobody has seen the Catch, the anchor or the pendulum by eye.
+  Check, in the sandbox first: that the bob's swing reads (and that the Beat's hurt lands where the bob is drawn on a real
+  connection: the server carries the phase, the client eases toward it); that the pallets can be reached from the housings
+  and with a jump; that two slimes can make a Tick in time; that the pawls walk to the pallets and the JAMMED / FREE pops
+  are clear; that phase 4's Stopping (still on the beat: fettered) feels fair and not random; the three ultimates' safe
+  places; the Drop; the music's loudness; the den on a phone (the beat ring round you, the strike's mark).
+- The Spire's clock face standing a minute later for a slime who freed it (the plan) wasn't built: the Citadel's clocks
+  were never drawn still. If the owner wants it, the Chrono Spire could get a great stopped clock face first.
+- The city's one tick is kept per browser (`TICK_KEY`), not per character: a second character freed on the same browser
+  won't hear it. Fine for now; a per-character flag would need the server.
 
 ## The Citadel's depth pass, C4 (2026-11-14)
 - Unplayed: the Bell Walks (its three mobs, the `raindrop` lob, the stair's door and waystone), the Great Bell (its stomp,

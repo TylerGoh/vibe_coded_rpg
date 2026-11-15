@@ -172,7 +172,7 @@ No quests, no hard level gates.
           Light's dark, Drawing the Light, both ultimates, her challenges from day one), her look and track, the Last Wick
           and twins, the Mothwing Hood (The Last Light, Moth-Wing), the mini Wickmother, and her freed changes (the front
           door, the Lamp Walk) (`docs/places/wickmother.md`). Unplayed. **Atlas Phase 8 done.**
-- [ ] **The Citadel's depth pass, C0–C6** (owner, 2026-11-11: "why does Aether Citadel just end abruptly?"), after
+- [x] **The Citadel's depth pass, C0–C6** (owner, 2026-11-11: "why does Aether Citadel just end abruptly?"), after
       the Wickmother, before Amberdune. Plan `citadel-plan.md` (approved 2026-11-13 at the owner's "continue with next
       phase", every default; the band stretched past 200: ~140–215): room 13 kept, branches (the Keepers' Gardens, the
       Orrery, the Archive, the Engine Halls, the Bell Walks, the Keel, the Undercroft), eight new bosses (Meridian, the
@@ -198,14 +198,18 @@ No quests, no hard level gates.
   - [x] C5 (2026-11-14, live): the hatch's gear came free; the Keel (93, Lv 188–200, a hard pocket: gear lice, chain hounds, keel
         wardens, two elites, the grinds through the deck, the empty socket) and the Rustwyrm (field boss, Lv 196: feints and its
         chain), the Undercroft's gate laid (a fallen tooth) (`docs/places/keel.md`). Unplayed.
-  - [ ] C6: the Escapement: (a) its plan on paper (`c6-plan.md`), (b) the Undercroft and the Spoke, (c) the Catch and the fight.
+  - [x] C6: the Escapement: (a) its plan on paper (`c6-plan.md`), (b) the Undercroft and the Spoke, (c) the Catch and the fight.
     - [x] (a) and (b) (2026-11-15, live): the plan (`c6-plan.md`, every default standing: the Beat, the Tick, the pawls, the
           Count, the Stopping in phase 4, Hold / Counter-Swing / The Stopped Hour, the city ticks once when freed); the
           fallen tooth levered aside; the Undercroft (94, Lv 205–215, the deep room: sump slimes, wheelwright echoes, loose
           pawls, counterweights, three elites, the Mainspring, the brake lever chained at HOLD) and the Spoke (95, the
           approach: the hub and the Escapement's silhouette, the slowing tick, its line, the Catch's door holding)
           (`docs/places/undercroft.md`). `CITADEL_TOP` 215. Unplayed.
-    - [ ] (c) the Catch (den 96) and the fight: (c1) the den, the FINAL row, its brain; (c2) its art, music, rewards, the freed tick.
+    - [x] (c) live 2026-11-15 at the owner's "continue with next phase and the phase after" (c1 and c2 in one): the Catch (den
+          96) and the whole fight (the Beat, the Tick, the pawls, the widening swing, the Stopping, Rewound and the Drop,
+          Hold / Counter-Swing / The Stopped Hour, its challenges from day one), its look and track, the Last Tick and twins,
+          the Arbor Crown (The Tick, Keep Time), the mini Escapement, the city's one tick when freed
+          (`docs/places/escapement.md`). Unplayed. **The Citadel's depth pass is done.**
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

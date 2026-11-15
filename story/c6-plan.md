@@ -1,8 +1,9 @@
 # C6: the Citadel's final boss, the Escapement, on paper
 
 **Status: written 2026-11-15 at the owner's "continue with next phase". Every `[default]` stands unless the owner changes
-it (the standing "make liberal decisions" instruction). (b) built the same day (`docs/places/undercroft.md`); (c) is
-next.** Step (a) of C6 (`citadel-plan.md`, `final-bosses.md`): the boss, its moves and its phase order, before the fight
+it (the standing "make liberal decisions" instruction). (b) built the same day (`docs/places/undercroft.md`); (c) built the
+same day too, at "continue with next phase and the phase after" (`docs/places/escapement.md`, its liberal decisions
+there). C6 is done.** Step (a) of C6 (`citadel-plan.md`, `final-bosses.md`): the boss, its moves and its phase order, before the fight
 is built. Numbers here are aims, not code; the economy sheet sets the real ones. It's built on the final-boss engine
 (`docs/combat/bosses.md` "Final bosses", `src/shared/final.js`, `server/final.js`): a FINAL row, written loops, the
 enrage, fixed HP for four, no reward window. What's new is marked *new*.

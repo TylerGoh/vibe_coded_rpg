@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X, PEATBARROWS, LAMPROAD, WICK_DEN_X, WICK_DEN_NAME, WICK_DEN, CITADEL, SKYCAMP, SKYDOCKS, GARDENS, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X, ORRERY, ARCHIVE, ENGINE, HELM_GATE_X, BELLS, HELM_DEN, KEEL, UNDERCROFT_GATE_X, UNDERCROFT, SPOKE, ESC_DEN_X, CATCH_DEN_NAME } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X, PEATBARROWS, LAMPROAD, WICK_DEN_X, WICK_DEN_NAME, WICK_DEN, CITADEL, SKYCAMP, SKYDOCKS, GARDENS, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X, ORRERY, ARCHIVE, ENGINE, HELM_GATE_X, BELLS, HELM_DEN, KEEL, UNDERCROFT_GATE_X, UNDERCROFT, SPOKE, CATCH_DEN, CATCH_DEN_NAME } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -116,11 +116,9 @@ export const CITADEL_MAP = [
   // C6 (b): the fallen tooth levered aside and a stair cut down beside it (the update did it). One node for the deep room
   // and the approach (the Spoke is its end), like the Peat Barrows
   { id: 'undercroft', name: 'The Undercroft', band: '205–215', hard: true, at: [560, 335], from: 'keel', rooms: [UNDERCROFT, SPOKE], entry: { room: KEEL, x: UNDERCROFT_GATE_X, kind: 'fallentooth' } },
-  // the Escapement's den (C6 (c)): the Catch's door at the end of the Spoke, a round iron door in the hub's casing that
-  // shudders on every tick and holds until (c) gives the den its DENS row (then this gate goes: the door comes with the row,
-  // like the Wickmother's; `sign: false`: the Spoke draws the door and its own sign, src/spoke.js)
-  { id: 'catch', name: CATCH_DEN_NAME, at: [672, 340], from: 'undercroft', block: 'the door holds',
-    gate: { room: SPOKE, x: ESC_DEN_X, kind: 'catchdoor', sign: false, look: 'look at the door', says: 'The round door shudders on every tick, as if something behind it were holding it shut. It holds.' } },
+  // the Escapement's den (C6 (c)): the Catch's door at the end of the Spoke, a round iron door in the hub's casing, rolls
+  // aside now that the den has its DENS row (its gate, `catchdoor`, went with it; the Spoke draws the door, src/spoke.js)
+  { id: 'catch', name: CATCH_DEN_NAME, at: [672, 340], from: 'undercroft', rooms: [CATCH_DEN] },
   // C1: the lock on the Orrery's door stopped turning (the update did it), its rings lined up
   { id: 'orrery', name: 'The Orrery', band: '160–170', at: [450, 140], from: 'spire', rooms: [ORRERY], entry: { room: CITADEL, x: ORRERY_GATE_X, kind: 'combolock' } },
   // C3: the blast door stopped venting and stands open (the update did it)
