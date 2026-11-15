@@ -21,7 +21,9 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | The Keepers' Gardens | 85 `GARDENS` | back down the brass stair to Cogwork Bastion (west end) (`docs/places/gardens.md`) |
 | The Engine Halls | 90 `ENGINE` | back out through the blast door to the Chrono Spire (west end) · through the Helm's bulkhead at the east end to the Helmsman's den (92, the Helm, `HELM_GATE_X`, since C4: `docs/places/helm.md`) (`docs/places/engine.md`) |
 | The Bell Walks | 91 `BELLS` | back down the Rain Stair to the Chrono Spire (west end) (`docs/places/bellwalks.md`) |
-| The Keel | 93 `KEEL` (hard) | back up the Hatch Ladder to Cogwork Bastion (west end) · the way down to the Undercroft at the east end, a gate until C6 (`UNDERCROFT_GATE_X`) (`docs/places/keel.md`) |
+| The Keel | 93 `KEEL` (hard) | back up the Hatch Ladder to Cogwork Bastion (west end) · down the Tooth Stair to the Undercroft at the east end (`UNDERCROFT_GATE_X`, a gate until C6 (b)) (`docs/places/keel.md`) |
+| The Undercroft | 94 `UNDERCROFT` (hard, a deep room) | back up the Tooth Stair to the Keel (west end) · out along the Spoke at the east end (`UNDERCROFT_END_X`) (`docs/places/undercroft.md`) |
+| The Spoke | 95 `SPOKE` (the approach, not a stage) | back to the Undercroft (west end) · the Catch's door at `ESC_DEN_X` (the Escapement's den, room 96, comes with its `DENS` row in C6 (c); a gate until then) (`docs/places/undercroft.md`) |
 | The Archive | 88 `ARCHIVE` | back up the stair to Cogwork Bastion (west end) · down between the catalogue's cabinets to the Indexer's den (89, the Last Drawer, `INDEXER_DEN_X`) (`docs/places/archive.md`) |
 | The Orrery | 86 `ORRERY` | back out through the round door to the Chrono Spire (west end) · down under the dome's crown to Meridian's den (87, the Armillary, `MERIDIAN_DEN_X`) (`docs/places/orrery.md`) |
 | The Kite's gondola, up / down | 66 `SKY_UP`, 67 `SKY_DOWN` | ashore at the Skydocks camp / Magma Heart's ledge, once she's in; back while she casts off (`docs/places/crossings.md`, `docs/places/skydocks.md`) |

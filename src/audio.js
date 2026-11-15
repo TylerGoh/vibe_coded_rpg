@@ -989,6 +989,58 @@ const SONGS = {
       if (m) e.voice(pass % 2 ? p.l : p.c, t, p.f(m.d, 0), { type: 'square', vol: 0.016, a: 0.08, hold: m.len * 0.7, rel: 0.5, cutoff: 700 });
     },
   },
+  // ——— the Citadel's depth pass, C6 (b) (docs/places/undercroft.md) ———
+  // The Undercroft: the bottom of the city, right under the Wheel. B-flat minor, slower and heavier than the Keel: a drone
+  // so low it's mostly felt, a long strain swelling up through each bar to a heavy thud on the last beat (the Wheel heaving
+  // against the catch, UC_BEAT in src/undercroft.js), the tick far off and late, a drip of aether now and then, and a slow
+  // tune on a low, hollow horn that keeps stopping short, like the wrights' last job
+  undercroft: {
+    bpm: 56, beats: 4, spb: 4, melSteps: 4, key: 46, scale: MINOR, gain: 0.74, send: 0.62, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5], [7, 9, 11], [6, 8, 10], [5, 7, 9]],
+    mel: melody(
+      '5 - - . . . . .', '6 - 5 - . . . .', '4 - - . 3 - . .', '2 - - . . . . .',
+      '5 - - . 8 - . .', '7 - - . . . . .', '6 - 5 . 4 . 3 .', '1 - - . . . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 90, 0.024); // the Wheel straining, everywhere overhead
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar);
+      if (s === 0) pad(p, ch, t, p.stepDur * 16, 0.007, { type: 'sawtooth', a: 2.2, cutoff: 380, unison: 3, rel: 1.8 });
+      if (s === 0) e.voice(p.c, t, p.f(ch[0], -3), { type: 'sine', vol: 0.06, a: 2.4, hold: p.stepDur * 12, rel: 1.2 }); // the strain, swelling
+      if (s === 12) e.kick(p.c, t, 0.34, 60, 26, 0.36); // the heave against the catch
+      if (s === 13) clockTick(p, t + p.stepDur * 0.4, false, 0.004); // the tick, far off and late
+      if (s % 4 === 2 && chance(0.18)) e.voice(chance(0.5) ? p.l : p.r, t, 1500 + Math.random() * 600, { type: 'sine', vol: 0.006, a: 0.001, tau: 0.12, glide: 0.6, glideT: 0.1 }); // a drip of aether
+      if (s % 4 === 1 && chance(0.12)) chainClink(p, chance(0.5) ? p.l : p.r, t, 0.006); // a weight's chain
+      const m = p.mel(bar, s);
+      if (m) e.voice(pass % 2 ? p.l : p.c, t, p.f(m.d, -1), { type: 'triangle', vol: 0.022, a: 0.12, hold: m.len * 0.55, rel: 0.6, cutoff: 600 });
+    },
+  },
+  // The Spoke: the approach (C6 (b)). Hardly music at all: one held low note, a cold pad that thins and goes, and the
+  // tick. Going in (setDepth: spokeDepth) the tick gets louder and slower: every beat, then every other, then once a
+  // bar, until from about halfway it's a heartbeat, two thumps under the tick; the tune is three notes on a glass bell,
+  // further apart the nearer you are
+  spoke: {
+    bpm: 60, beats: 4, spb: 4, melSteps: 4, key: 46, scale: MINOR, gain: 0.8, send: 0.78, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5], [6, 8, 10], [2, 4, 6], [5, 7, 9]],
+    mel: melody(
+      '5 . . . . . . .', '. . . . 4 . . .', '3 . . . . . . .', '. . . . . . . .',
+      '5 . . . . . . .', '. . . . 6 . . .', '5 . . . . . . .', '. . . . . . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 110, 0.014);
+    },
+    play(p, bar, s, t) {
+      const e = p.eng, d = e.depth ?? 0, ch = p.chord(bar);
+      if (s === 0) e.voice(p.c, t, p.f(1, -3), { type: 'sine', vol: 0.05 + 0.03 * d, a: 1.4, hold: p.stepDur * 14, rel: 1.4, partials: [[2, 0.15]] });
+      if (s === 0 && d < 0.6) pad(p, ch, t, p.stepDur * 16, 0.006 * (1 - d / 0.6), { type: 'sine', a: 2, cutoff: 500, rel: 2 }); // (the pad goes first)
+      const every = d < 0.25 ? 4 : d < 0.5 ? 8 : 16; // the tick, slower the nearer you are
+      if (s % every === 0) clockTick(p, t, s === 0, 0.006 + 0.014 * d, p.c);
+      if (d > 0.45 && (s === 0 || s === 3)) e.kick(p.c, t + 0.02, (s === 0 ? 0.2 : 0.14) * (0.4 + d), 70, 34, 0.2); // the heartbeat
+      const m = p.mel(bar, s);
+      if (m && (d < 0.7 || bar % 2 === 0)) e.voice(p.c, t, p.f(m.d, 1), { ...GLOCK, vol: 0.018, tau: 1.4 + 1.4 * d });
+    },
+  },
   // ——— the Citadel's depth pass, C4 (docs/places/bellwalks.md, docs/places/helm.md) ———
   // The Bell Walks: the top of the Spire in the open, every bell stopped. D minor, very slow, hardly a beat at all: long
   // bell tones that never quite strike (a soft attack, a long ring), a high glassy shimmer now and then (the hanging rain
@@ -3967,7 +4019,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon', 'sky', 'sky', 'skycamp', 'skydocks', 'wickmere', 'fenroute', 'fenroute', 'shallows', 'firefly', 'drownedgrove', 'longneck', 'stillmere', 'gullet', 'barrows', 'causeway', 'mire', 'peatbarrows', 'lamproad', 'wickmother', 'gardens', 'orrery', 'meridian', 'archive', 'indexer', 'engine', 'bells', 'helm', 'keel']; // (90: the Engine Halls, the Citadel's C3; 88: the Archive, 89: the Indexer's den, the Last Drawer, the Citadel's C2; 86: the Orrery, 87: Meridian's den, the Armillary, the Citadel's C1; 85: the Keepers' Gardens, the Citadel's depth pass C0; 84: the Wickmother's den, the Hall of Lamps, her own track, L5 (c); 82-83: the Peat Barrows and the Lamp Road, L5 (b); 80: the Lantern Causeway, 81: Grandfather Mire's den, Grandfather's Pool, L4; 79: the Sunk Barrows, L3; 70: Wickmere, 71-72: the Hush's deck, out and home, 73: the Shallows, atlas Phase 8; 74: Firefly Hollow, 75: the Drowned Grove, 76: Long-Neck's den, the Stone Nest, L1; 77: the Still Mere, 78: Old Gullet's den, the Eel Pit, L2) // (66-67: the Kite's gondola, up and down, 68: the Skydocks camp, atlas Phase 6, and 69: the Skydocks, Phase 6 (c); 63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon', 'sky', 'sky', 'skycamp', 'skydocks', 'wickmere', 'fenroute', 'fenroute', 'shallows', 'firefly', 'drownedgrove', 'longneck', 'stillmere', 'gullet', 'barrows', 'causeway', 'mire', 'peatbarrows', 'lamproad', 'wickmother', 'gardens', 'orrery', 'meridian', 'archive', 'indexer', 'engine', 'bells', 'helm', 'keel', 'undercroft', 'spoke']; // (94: the Undercroft, 95: the Spoke, the Citadel's C6 (b); 90: the Engine Halls, the Citadel's C3; 88: the Archive, 89: the Indexer's den, the Last Drawer, the Citadel's C2; 86: the Orrery, 87: Meridian's den, the Armillary, the Citadel's C1; 85: the Keepers' Gardens, the Citadel's depth pass C0; 84: the Wickmother's den, the Hall of Lamps, her own track, L5 (c); 82-83: the Peat Barrows and the Lamp Road, L5 (b); 80: the Lantern Causeway, 81: Grandfather Mire's den, Grandfather's Pool, L4; 79: the Sunk Barrows, L3; 70: Wickmere, 71-72: the Hush's deck, out and home, 73: the Shallows, atlas Phase 8; 74: Firefly Hollow, 75: the Drowned Grove, 76: Long-Neck's den, the Stone Nest, L1; 77: the Still Mere, 78: Old Gullet's den, the Eel Pit, L2) // (66-67: the Kite's gondola, up and down, 68: the Skydocks camp, atlas Phase 6, and 69: the Skydocks, Phase 6 (c); 63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -4152,6 +4204,8 @@ Object.assign(MOB_DEATH, { bell_wraith: MOB_DEATH.chrono_wraith ?? MOB_DEATH.wis
 // the Keel (C5): voices borrowed
 Object.assign(MOB_HURT, { gear_louse: MOB_HURT.obsidian_crab ?? MOB_HURT.cogling, chain_hound: MOB_HURT.soot_hound ?? MOB_HURT.cogling, keel_warden: MOB_HURT.aether_knight ?? MOB_HURT.golem, rustwyrm: MOB_HURT.astral_wyrm ?? MOB_HURT.colossus });
 Object.assign(MOB_DEATH, { gear_louse: MOB_DEATH.obsidian_crab ?? MOB_DEATH.cogling, chain_hound: MOB_DEATH.soot_hound ?? MOB_DEATH.cogling, keel_warden: MOB_DEATH.aether_knight ?? MOB_DEATH.golem, rustwyrm: MOB_DEATH.astral_wyrm ?? MOB_DEATH.colossus });
+Object.assign(MOB_HURT, { sump_slime: MOB_HURT.bog_slime ?? MOB_HURT.cogling, wright_echo: MOB_HURT.bell_wraith ?? MOB_HURT.wisp, loose_pawl: MOB_HURT.governor_ball ?? MOB_HURT.cogling, counterweight: MOB_HURT.keel_warden ?? MOB_HURT.golem, mainspring: MOB_HURT.governor_ball ?? MOB_HURT.golem }); // (the Undercroft's, C6 (b): borrowed voices)
+Object.assign(MOB_DEATH, { sump_slime: MOB_DEATH.bog_slime ?? MOB_DEATH.cogling, wright_echo: MOB_DEATH.bell_wraith ?? MOB_DEATH.wisp, loose_pawl: MOB_DEATH.governor_ball ?? MOB_DEATH.cogling, counterweight: MOB_DEATH.keel_warden ?? MOB_DEATH.golem, mainspring: MOB_DEATH.governor_ball ?? MOB_DEATH.golem });
 Object.assign(MOB_HURT, { stoker_automaton: MOB_HURT.golem, arc_jelly: MOB_HURT.wisp, governor_ball: MOB_HURT.cogling ?? MOB_HURT.golem, stormcoil: MOB_HURT.colossus });
 Object.assign(MOB_DEATH, { stoker_automaton: MOB_DEATH.golem, arc_jelly: MOB_DEATH.wisp, governor_ball: MOB_DEATH.cogling ?? MOB_DEATH.golem, stormcoil: MOB_DEATH.colossus });
 Object.assign(MOB_HURT, { siege_engine: MOB_HURT.colossus, gardener_drone: MOB_HURT.sentry, seed_moth: MOB_HURT.cinder_bat, hedge_shears: MOB_HURT.cogling ?? MOB_HURT.sentry });

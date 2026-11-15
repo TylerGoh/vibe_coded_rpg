@@ -130,6 +130,7 @@ const SHOT = {
   sulphur: { glow: '240,220,90', core: '#fffbd0', mid: '#ffe04a', rim: '#b08a1e' }, // the chimney spitter's glob of burning sulphur (the Brimstone Fields)
   raindrop: { glow: '210,226,255', core: '#ffffff', mid: '#d2e2ff', rim: '#6a7ab0' }, // the rain shard's stopped raindrop, flicked (the Citadel's C4)
   cinder: { glow: '150,240,234', core: '#e8fffc', mid: '#6ad8d0', rim: '#1e3440' }, // the stoker automaton's scoop of burning aether-coke (the Citadel's C3)
+  sump: { glow: '120,220,220', core: '#dffffb', mid: '#2a6a74', rim: '#0a1c22' }, // the sump slime's glob of leaked aether, thick and blue-black (the Citadel's C6 (b))
   molten: { glow: '255,150,60', core: '#fff6d0', mid: '#ffb040', rim: '#c84a1e' },
   mud: { glow: '150,130,90', core: '#c8b890', mid: '#6a5640', rim: '#3a2c22' }, // the mire frog's gobbet of bog mud (the Shallows, atlas Phase 8)
   lampoil: { glow: '255,214,150', core: '#fffbe8', mid: '#ffd696', rim: '#a8743a' }, // the grave lamp's drop of burning lamp oil (the Sunk Barrows, atlas Phase 8 L3)

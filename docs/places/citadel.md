@@ -33,9 +33,11 @@ waystones keep working; the branches open off it through gates. West to east:
   open on a turbine turning, its door in `ROOMS[CITADEL]`: `docs/places/engine.md`) and **the stair above the
   Hour Sanctum** (`BELLS_GATE_X`, `frozenrain`: rain hung on the steps, every drop stopped; **C4 let it fall**: now an
   `entry`, drawn wet, its door in `ROOMS[CITADEL]`: `docs/places/bellwalks.md`).
-- The Keel's far end (the way down to the Undercroft, C6): since C5 the `undercroft` node has its gate there (`fallentooth`,
-  `UNDERCROFT_GATE_X` in room 93: a tooth of the Wheel fallen across the shaft). Each gate's draw function takes an `open`
-  flag (the F3 pattern), so shipping a branch is data plus its rooms.
+- The Keel's far end (the way down to the Undercroft): C5 laid the `undercroft` node's gate there (`fallentooth`,
+  `UNDERCROFT_GATE_X` in room 93: a tooth of the Wheel fallen across the shaft); **C6 (b) lifted it** (the tooth levered
+  aside, a stair cut down beside it: `docs/places/undercroft.md`). The Citadel's last gate is the Catch's door at the end of
+  the Spoke (`catchdoor`, the `catch` node, C6 (c)). Each gate's draw function takes an `open` flag (the F3 pattern), so
+  shipping a branch is data plus its rooms.
 - **Changed from the plan:** the Engine Halls' blast door is in the Spire, not in the Orrery (the plan's map hung the Engine
   Halls off the Orrery, but its own C0 list lays every gate in room 13; one way in from the Spire is simpler to find).
 
@@ -43,8 +45,9 @@ waystones keep working; the branches open off it through gates. West to east:
 `CITADEL_MAP` (`ISLAND_MAPS.citadel`, `docs/ui/world-map.md`): the Skydocks Camp (town), the Skydocks, the Bastion and the
 Spire (room 13's zones, `zr: CITADEL`), the Keepers' Gardens (open), the Orrery (open since C1), the Archive (open since C2),
 the Engine Halls (open since C3), the Helm (off the Engine Halls, the Helmsman's den) and the Bell Walks (open since C4), the
-Keel (open since C5, hard), and dashed with its block: the Undercroft (a tooth fallen, hard). Bands on the dashed nodes follow the plan, stretched past 200 at the owner's
-note (2026-11-12): the Keel 188–200, the Bell Walks 195–208, the Undercroft 205–215; the plan's revision says the rest.
+Keel (open since C5, hard), the Undercroft (open since C6 (b), hard: the deep room and the Spoke), and dashed with its
+block: the Catch (the Escapement's den, the door holds). Bands follow the plan, stretched past 200 at the owner's
+note (2026-11-12): the Keel 188–200, the Bell Walks 195–208, the Undercroft 205–215 (`CITADEL_TOP`); the plan's revision says the rest.
 
 ## The Siege Engine (field boss, Lv 154)
 A wall engine on six iron wheels, a ballista on a turntable on top, a rack of bolts along its side, a sighting hood with
@@ -86,3 +89,6 @@ cap: like the Dockwarden it has no canon to give. Plan decision 6 (traders are a
   ships, add it to the Commissary's (since C1 it notes the star-hall's lock has stopped, since C2 that the Archive's shutter went up, since C5 that the hatch's gear came free and the keel watch). The Last
   Echo (C1) remembers the Spire's other two shut ways as they were in the Stopped Hour: keep it in step when they open (since C3
   it knows the blast door opened, since C4 the rain fell, since C5 the hatch went).
+- 2026-11-15: C6 (b) built (the Undercroft and the Spoke: `docs/places/undercroft.md`), with the Escapement's plan
+  (`story/c6-plan.md`). The Commissary, the Last Echo, Folio and Number Nine know something moved under the keel. The
+  Citadel's last gate is the Catch's door (C6 (c)).

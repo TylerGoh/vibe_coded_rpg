@@ -899,6 +899,19 @@ bosses). The Rust Flail and twins (Lv 198, 1.778M, `swordPrice` × 0.966 like th
 `PETSHOP_W` 7300 → 7450. The Helmsman's and the Wickmother's "vs farming" ratios moved a hair (the new own-level farm at
 190–200). `--check` green on the first run.
 
+## The Citadel's depth pass, C6 (b) (2026-11-15)
+The Undercroft (`docs/places/undercroft.md`, a deep room on hard-pocket rules, Lv 205–215, `CITADEL_TOP` 215) put four mobs on
+the frozen curve: the sump slime (205, HP 95%, a `lob` like the stoker automaton), wheelwright echo (207, 100%, a `phase`
+like the bell wraith), loose pawl (210, 110%, a `stomp`) and counterweight (213, 98%, a `dive` like the dusk moth); EXP
+100%, gold 98–99% (coins at 0.6–0.9 of the curve's gold like the Keel's; materials on the ladder: Sump Glass 1,900,
+Wheelwright's Chalk 1,915, Pawl Spring 1,935, Weight Lead 1,950). Three elites from `elite()`, and the Mainspring (a named
+elite of the counterweight, like the Eldest of the dusk moth). "Farming your own level" now picks the counterweight at 220
+(was the rain shard): **gold earned by** Lv 200 unchanged (~22.04M), Lv 220 ~29.82M → ~29.77M (−0.2%); **play time** to Lv 220
+42.7 h → 42.5 h. Rare gear: the Wheelwright's Cap (`helmetPrice` at 207, 1.522M). The Mainspring's set (Lv 215, 4%: the
+Mainspring Blade and twins at `swordPrice` 215, 2.177M), on the curve like the Eldest's (no `BOSS_GEAR` multiplier: it's
+an elite). The Wickmother's "vs farming" ratio moved a hair (343× → 334×, the new farm at 220). No bosses, no pets, no
+shop stock. `--check` green (after renaming the bow twin: `spring_bow` was Slag's Ironspring Bow's id).
+
 ## The Citadel's depth pass, C4 (2026-11-14)
 The Bell Walks (`docs/places/bellwalks.md`) put the first mobs past 190 on the frozen curve (its power-law tail): the bell
 wraith (197, HP 94% for a phasing flier), clapper knight (202, 95%, a `blink` mob) and rain shard (206, 92%, a rooted `lob`

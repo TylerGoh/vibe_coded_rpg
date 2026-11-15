@@ -8,7 +8,7 @@ is the hollow under the city, among the Wheel's lowest teeth. It is dark and clo
 up into the black, and chains hang out of it. Overhead is the jammed Wheel's underside, its teeth as big as houses, one
 tooth missing from the row. The only light is aether leaking up through cracks in the deck. Everything ticks, and each
 tick lands late in its beat. Tone: the Citadel's (solemn, no living people), and darker than anywhere else in it so far:
-the plan's "trapped" mood starts here and the Undercroft (C6) finishes it.
+the plan's "trapped" mood starts here and the Undercroft (C6 (b), `docs/places/undercroft.md`) finishes it.
 
 Files: the room in `src/shared/rpg.js` (`KEEL`, `KEEL_W`, `KEEL_EXIT_X`, `UNDERCROFT_GATE_X`, `KEEL_ZONES`,
 `KEEL_PLATFORMS`, `GRINDS` and `grindAt`, the `STAGES` row with `hard`, the three mobs and two elites, the Rustwyrm, their
@@ -29,7 +29,7 @@ You come in at the WEST end, at the foot of the Hatch Ladder. West to east (`KEE
 - **The Lowest Teeth** (196–200): keel wardens on the deck and on the flat tops of teeth come down through it, hounds, **an
   Elder Keel Warden** (elite), and **the Rustwyrm** hanging out of the dark over it (field boss). At the far end is **the
   way down to the Undercroft** (`UNDERCROFT_GATE_X`, gate `fallentooth`): one of the Wheel's teeth, big as a house, has come
-  down across the shaft, its root sheared, aether leaking up round it. It's C6's gate ("Below, something holds.").
+  down across the shaft, its root sheared, aether leaking up round it. It was C6's gate ("Below, something holds."); since C6 (b) the tooth stands levered aside and a stair goes down beside it to the Undercroft.
 - **The grinds** (`GRINDS`, a room hazard: the Engine Halls' turbine blades' pattern). These are slots in the deck where the
   Wheel's lowest teeth pass under it. The Wheel is jammed but still strains on its tick. On each slot's own offset in a
   `GRIND_CYCLE`:
@@ -90,7 +90,8 @@ boss with no story (a `desc`). Passive until hit; then it draws its head up into
 - The plan names no hazard for the Keel; the grinds were added for "ticking that is always one beat slow", so the Wheel's
   tick is something you have to mind down here.
 - The plan's chain hounds and keel wardens became the two elites (a hard pocket's).
-- The Undercroft lost `past`: its gate (`fallentooth`) is laid at the Keel's east end with its open look ready (the tooth
-  levered aside, a stair down beside it), so C6 (b) is data plus the room.
+- The Undercroft lost `past`: its gate (`fallentooth`) was laid at the Keel's east end with its open look ready, so C6 (b) was
+  data plus the room. 2026-11-15, C6 (b): lifted. The tooth now leans on end against the hull, the lever still under it, a
+  stair cut down beside it (`drawToothLevered`); the door is in `ROOMS[KEEL]` (`docs/places/undercroft.md`).
 - Tamp (the Skydocks camp) is still looking for his master's gear and hasn't been in; nobody tells him about the hatch's
   gear yet (it isn't his).

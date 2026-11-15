@@ -694,6 +694,58 @@ export function grindAt(i, t) {
   if (c < GRIND_WARN + GRIND_UP + 50) return { k: 1 - (c - GRIND_WARN - GRIND_UP) / 50, up: false, warn: false };
   return { k: 0, up: false, warn: false };
 }
+// ——— the Citadel's depth pass, C6 (b) (story/c6-plan.md; docs/places/undercroft.md) ———
+// The Citadel's top level: the Undercroft runs to it and the Escapement (C6 (c)) is fought at it (its door and sign read
+// finalTag(CITADEL_TOP): "Lv 235 · recommended Lv 215, 4+ players"). Past the plan's 200 at the owner's 2026-11-12 note
+export const CITADEL_TOP = 215;
+// The Undercroft (room 94): the Citadel's deep room, down the stair cut beside the tooth that had fallen across the Keel's
+// far end (UNDERCROFT_GATE_X: levered aside in C6 (b), the update did it). The floor of the city's underside right under the
+// Wheel, its teeth as big as houses overhead and its spokes going off into the dark toward the hub; no light but aether
+// leaking from cracks, darker going east; everything on the Wheel's slow, heavy beat. Hard-pocket rules (a red chip, no
+// waystone, no trader, elites throughout). You come in at the WEST end, at the foot of the Tooth Stair (no mobs), and go
+// east: the Sump (leaked aether standing in pools), the Wrights' Gallery (the wheelwrights' scaffold still hung against the
+// Wheel's face) and the Weight Pit (the clock's drive weights hanging on chains out of the dark), the Mainspring (a named
+// elite) lying across the foot of the Spoke at the far end (UNDERCROFT_END_X). The find (last in UNDERCROFT_PLATFORMS): high
+// on the scaffold, the Wheel's brake lever chained at HOLD, an hourglass on the padlock, a chalk tally stopped mid-stroke.
+export const UNDERCROFT = 94; // room id
+export const UNDERCROFT_W = 4600;
+export const UNDERCROFT_EXIT_X = 70; // back up the Tooth Stair to the Keel
+export const UNDERCROFT_END_X = UNDERCROFT_W - 90; // the foot of the Spoke
+export const UNDERCROFT_ZONES = [
+  { name: 'The Tooth Stair', x0: 0, x1: 520, lvl: null }, // (no mobs)
+  { name: 'The Sump', x0: 520, x1: 1900, lvl: '205–208' },
+  { name: "The Wrights' Gallery", x0: 1900, x1: 3300, lvl: '208–211' },
+  { name: 'The Weight Pit', x0: 3300, x1: UNDERCROFT_W, lvl: '211–215' },
+];
+// the sump's rims and broken gear-housings, the wheelwrights' scaffold, the weights' cradles; the brake lever (hidden, last)
+export const UNDERCROFT_PLATFORMS = [
+  { x: 720, y: 344, w: 200, kind: 'housing' },
+  { x: 1120, y: 266, w: 170, kind: 'housing' },
+  { x: 1520, y: 336, w: 210, kind: 'housing' },
+  { x: 2040, y: 330, w: 200, kind: 'scaffold' },
+  { x: 2440, y: 252, w: 190, kind: 'scaffold' },
+  { x: 2880, y: 334, w: 200, kind: 'scaffold' },
+  { x: 3440, y: 316, w: 200, kind: 'cradle' },
+  { x: 3860, y: 248, w: 170, kind: 'cradle' },
+  { x: 4220, y: 336, w: 180, kind: 'cradle' },
+  { x: 2470, y: 164, w: 96, kind: 'brake' }, // the Wheel's brake lever chained at HOLD, high on the scaffold: easy to miss
+];
+// The Spoke (room 95): the approach. No mobs, no combat, no STAGES row: safe ground where the party gathers. A walk down
+// one of the Wheel's spokes toward its hub, a beam of black iron as wide as a road over the dark. Everything cinematic is
+// drawing and sound (src/spoke.js, the `spoke` music scene), never step(): going east the spokes either side draw together,
+// the Escapement's shape hangs bigger through the teeth ahead with its pendulum swinging under it, and the ticking gets
+// louder and slower until it's a heartbeat; behind you the rim's teeth close over the way back (art only).
+// ESC_MARK_X: the first slime past it in an empty Spoke hears it (ESC_LINE, server/rpg.js). ESC_DEN_X: the Catch's door, a
+// round iron door in the hub's casing with a geared edge, shuddering on every tick; it holds until C6 (c) gives the den its
+// DENS row (then it rolls aside as you come near).
+export const SPOKE = 95; // room id
+export const SPOKE_W = 2600;
+export const SPOKE_EXIT_X = 70; // back along the Spoke to the Undercroft
+export const ESC_MARK_X = 1000;
+export const ESC_DEN_X = SPOKE_W - 240;
+export const CATCH_DEN = 96; // the den's room id (C6 (c): the Catch, its DENS row)
+export const CATCH_DEN_NAME = 'The Catch';
+export const ESC_LINE = 'Hold. ...Who comes down? No one comes down. Hold.';
 export function turbineAt(i, t) {
   const c = (((t + i * 151) % TURBINE_CYCLE) + TURBINE_CYCLE) % TURBINE_CYCLE;
   if (c < TURBINE_WARN) return { k: c / TURBINE_WARN, spin: false };
@@ -1568,6 +1620,7 @@ export const STAGES = {
   [ENGINE]: { name: 'The Engine Halls', zones: ENGINE_ZONES, band: '175–190', pill: 'Engine Halls' }, // (the Citadel, C3)
   [BELLS]: { name: 'The Bell Walks', zones: BELLS_ZONES, band: '195–208', pill: 'Bell Walks' }, // (the Citadel, C4)
   [KEEL]: { name: 'The Keel', zones: KEEL_ZONES, band: '188–200', hard: true }, // (the Citadel, C5)
+  [UNDERCROFT]: { name: 'The Undercroft', zones: UNDERCROFT_ZONES, band: '205–215', hard: true }, // (the Citadel, C6 (b): its deep room)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -3704,6 +3757,47 @@ MOBS.rustwyrm = {
   drops: [['coin', 1, 89300, 129200], ['wyrm_link', 1, 4, 8], ['hound_link', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['rust_flail', 0.25, 1, 1], ['rustwyrm_coif', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
 };
 
+// ——— the Citadel's depth pass, C6 (b): the Undercroft (art: src/undercroft-art.js; docs/places/undercroft.md), its deep room.
+// On the frozen curve past 205, elites throughout ———
+// Sump slimes are leaked aether gone thick and alive in the sump under the Wheel, blue-black, drowned gear teeth turning
+// in them, that spit globs of it (`lob`, style `sump`). Wheelwright echoes are echoes of the Keepers' wheelwrights who went
+// down in the Stopped Hour to free the Wheel and never came up, each with a great spanner, replaying its last hour; they go
+// to nothing and back (`phase`, the bell wraith's). Loose pawls are the Wheel's ratchet pawls come off their pins, iron
+// hooks on coiled springs that spring up and slam down like a pawl dropping into a ratchet (`stomp`). Counterweights are
+// the clock's drive weights, great bells of lead on chains out of the dark, that drop on you (`dive`)
+MOBS.sump_slime = {
+  name: 'Sump Slime', lvl: 205, hp: 32715, atk: 751, exp: 21677, speed: 50, w: 70, h: 52, aggro: true, hops: true,
+  ai: { kind: 'lob', range: 440, every: 2.7, keep: 150, warn: 0.6, style: 'sump' },
+  drops: [['coin', 1, 1819, 2729], ['sump_glass', 0.5, 1, 2], ['mega_elixir', 0.24, 1, 1]],
+};
+MOBS.wright_echo = {
+  name: 'Wheelwright Echo', lvl: 207, hp: 34926, atk: 760, exp: 22038, speed: 65, w: 50, h: 70, aggro: true, hops: false, fly: 20,
+  ai: { kind: 'phase', every: 6, dur: 2.1, r: 205 },
+  drops: [['coin', 1, 1841, 2762], ['wright_chalk', 0.5, 1, 2], ['mega_elixir', 0.24, 1, 1], ['wright_cap', 0.004, 1, 1]],
+};
+MOBS.loose_pawl = {
+  name: 'Loose Pawl', lvl: 210, hp: 39228, atk: 772, exp: 22583, speed: 55, w: 62, h: 74, aggro: true, hops: false,
+  ai: { kind: 'stomp', every: 3.7, warn: 0.9, r: 220, range: 280, jump: 540 },
+  drops: [['coin', 1, 1876, 2813], ['pawl_spring', 0.5, 1, 2], ['mega_elixir', 0.24, 1, 1]],
+};
+MOBS.counterweight = {
+  name: 'Counterweight', lvl: 213, hp: 35676, atk: 785, exp: 23135, speed: 105, w: 78, h: 70, aggro: true, hops: false, fly: 74,
+  ai: { kind: 'dive', every: 3.4, warn: 0.7, time: 0.46 },
+  drops: [['coin', 1, 1909, 2864], ['weight_lead', 0.5, 1, 2], ['mega_elixir', 0.24, 1, 1]],
+};
+MOBS.sump_elite = elite('sump_slime', 'Great Sump Slime');
+MOBS.pawl_elite = elite('loose_pawl', 'Master Pawl');
+MOBS.weight_elite = elite('counterweight', 'Great Counterweight');
+// The Mainspring: a named elite (not a boss: no den, no phases, an ordinary respawn), the clock's mainspring, a coil of blue
+// steel as big as a house wound tight for an age (holding on: it never let go of being wound), lying across the foot of the
+// Spoke. It lunges by uncoiling at whoever comes near (the shell brain's lunge with no shell, `cut: 0`, like the Eldest,
+// Garm and Orthrus). Drawn with its own art; checked as an elite of the counterweight (the room's top mob); on the ground
+MOBS.mainspring = {
+  ...elite('counterweight', 'The Mainspring'), art: 'mainspring', w: 240, h: 100, fly: undefined, speed: 60,
+  ai: { kind: 'shell', cut: 0, every: 2.6, warn: 0.75, lunge: 640, time: 0.5 },
+};
+MOBS.mainspring.drops = [...MOBS.mainspring.drops, ['spring_blade', 0.04, 1, 1]];
+
 // Owner, 2026-11-06: bosses were long because they were tanky, not because they were hard. Every den, field, top and
 // final boss has BOSS_HP_SCALE of the HP written above (the numbers above are the pre-cut ones; their rewards weren't
 // cut). The difficulty is meant to come from their moves instead (docs/combat/bosses.md "Tanky to tricky").
@@ -3933,6 +4027,7 @@ const onArPlat = onRoomPlat(ARCHIVE_PLATFORMS, ARCHIVE);
 const onEnPlat = onRoomPlat(ENGINE_PLATFORMS, ENGINE);
 const onBwPlat = onRoomPlat(BELLS_PLATFORMS, BELLS);
 const onKlPlat = onRoomPlat(KEEL_PLATFORMS, KEEL);
+const onUcPlat = onRoomPlat(UNDERCROFT_PLATFORMS, UNDERCROFT);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -4611,6 +4706,27 @@ export const SPAWNS = [
   ...onKlPlat('keel_warden', 6, 1),
   ...onKlPlat('chain_hound', 7, 1),
   { kind: 'rustwyrm', x0: 3500, x1: 4300, y: FIELD_GROUND, room: KEEL },
+  // the Undercroft (C6 (b), the Citadel's deep room): sump slimes in the Sump, echoes on the Wrights' Gallery, pawls and
+  // weights in the Weight Pit, an elite in each, and the Mainspring across the foot of the Spoke
+  ...strip('sump_slime', 640, 1860, FIELD_GROUND, 5, UNDERCROFT),
+  ...strip('wright_echo', 1200, 1860, FIELD_GROUND, 1, UNDERCROFT),
+  ...strip('sump_elite', 1300, 1800, FIELD_GROUND, 1, UNDERCROFT),
+  ...onUcPlat('sump_slime', 0, 1),
+  ...onUcPlat('sump_slime', 1, 1),
+  ...onUcPlat('wright_echo', 2, 1),
+  ...strip('wright_echo', 1960, 3260, FIELD_GROUND, 4, UNDERCROFT),
+  ...strip('loose_pawl', 1960, 3260, FIELD_GROUND, 2, UNDERCROFT),
+  ...strip('pawl_elite', 2400, 3100, FIELD_GROUND, 1, UNDERCROFT),
+  ...onUcPlat('wright_echo', 3, 1),
+  ...onUcPlat('loose_pawl', 4, 1),
+  ...onUcPlat('wright_echo', 5, 1),
+  ...strip('loose_pawl', 3360, 4100, FIELD_GROUND, 3, UNDERCROFT),
+  ...strip('counterweight', 3360, 4200, FIELD_GROUND, 4, UNDERCROFT),
+  ...strip('weight_elite', 3700, 4150, FIELD_GROUND, 1, UNDERCROFT),
+  ...onUcPlat('counterweight', 6, 1),
+  ...onUcPlat('loose_pawl', 7, 1),
+  ...onUcPlat('counterweight', 8, 1),
+  { kind: 'mainspring', x0: 4280, x1: 4440, y: FIELD_GROUND, room: UNDERCROFT },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -5364,6 +5480,20 @@ Object.assign(ITEMS, {
 });
 BOW_LIST.push(
   ['rust_bow', 'rust_flail', 'Chainstring Bow', "A bow of two curved keel ribs strung with fine chain. It creaks, and then it doesn't, and the arrow is gone."],
+);
+// the Citadel, C6 (b) (docs/places/undercroft.md): the Mainspring's set (Lv 215, the room's top, like the Eldest's), the
+// wheelwright echoes' rare cap, the Undercroft's materials
+Object.assign(ITEMS, {
+  spring_blade: { name: 'Mainspring Blade', price: 2177000, lvl: 215, kind: 'sword', atk: 267, reach: 66, desc: "A long blade of the Mainspring's blue steel, never quite straight: it still wants to curl. Let go of it and it would." },
+  spring_staff: { name: 'Coilspring Staff', price: 2177000, lvl: 215, kind: 'staff', magic: 267, mp: 160, reach: 66, twin: 'spring_blade', desc: 'A rod of blue steel with a tight coil of the Mainspring wound at its head. It hums, wound, waiting for the word.' },
+  wright_cap: { name: "Wheelwright's Cap", price: 1522000, lvl: 207, kind: 'helmet', def: 131, desc: "A wheelwright's close leather cap, a lamp on a brass arm at the brow and a stub of chalk tucked in the band. Whoever wore it went down to see to the Wheel." },
+  sump_glass: { name: 'Sump Glass', price: 1900, kind: 'loot', desc: "A lump of leaked aether gone hard, blue-black, a tiny gear tooth caught in it. Hold it up to a light and the light slows." },
+  wright_chalk: { name: "Wheelwright's Chalk", price: 1915, kind: 'loot', desc: 'A stub of chalk worn to a point. The wrights marked every tooth they saw to. This one stopped in the middle of a mark.' },
+  pawl_spring: { name: 'Pawl Spring', price: 1935, kind: 'loot', desc: "The spring off a loose pawl, still tight. It wants to push something into a tooth, and there's nothing to push." },
+  weight_lead: { name: 'Weight Lead', price: 1950, kind: 'loot', desc: "A cast slug of lead off a counterweight, stamped with its weight in a measure nobody uses now. It's heavier than it looks, and it always pulls down." },
+});
+BOW_LIST.push(
+  ['mainspring_bow', 'spring_blade', 'Springsteel Bow', "A bow of two leaves of the Mainspring's steel. It draws stiff and lets go all at once, the way a spring does when it's finally allowed."],
 );
 // the Citadel, C4 (docs/places/bellwalks.md, docs/places/helm.md): the Great Bell's set (Lv 206, a step over its Lv 204), the
 // Helmsman's (Lv 193, 10 slots, a step over its Lv 191: a top boss's), the Bell Walks' materials and the bosses'

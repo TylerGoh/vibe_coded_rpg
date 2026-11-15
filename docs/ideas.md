@@ -172,7 +172,16 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   only; nobody has looked at it. Check the Rustwyrm's chain (it hangs ~520 px up out of the frame) reads, and that the
   grinds' tooth is clear enough on a phone.
 - The Keel is dark by its drawing only; the plan's "trapped" mood could use real darkness round the slimes (A16's
-  light circles) in the Undercroft (C6).
+  light circles) in the Undercroft (C6). Not done in C6 (b) either: the Undercroft is dark by its drawing (a vignette
+  heavier going east); the Catch's phase 4 is the natural place if the owner wants it.
+
+## The Citadel's depth pass, C6 (b) (2026-11-15)
+- Unplayed: the Undercroft (its four mobs, three elites and the Mainspring, the `sump` shot, the Tooth Stair's door, the
+  brake lever), the Spoke (the hub and the Escapement's silhouette, the slowing tick, the line at `ESC_MARK_X`, the door
+  that holds, the sign) and both music scenes. The art was run against a stub canvas only; nobody has looked at it.
+  Check the Spoke's silhouette reads at the door (the hub is drawn in screen space and grows to ~270 px), and that the
+  counterweights' chains and the wheelwright echoes are visible enough in the dark on a phone.
+- C6 (c) is next: the Catch and the fight, on paper in `story/c6-plan.md`.
 
 ## The Citadel's depth pass, C4 (2026-11-14)
 - Unplayed: the Bell Walks (its three mobs, the `raindrop` lob, the stair's door and waystone), the Great Bell (its stomp,

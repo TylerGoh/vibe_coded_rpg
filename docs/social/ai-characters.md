@@ -60,7 +60,10 @@ one shared corner feed).
   Stormcoil) and the Helm's bulkhead (unsealed since C4; the Helmsman beyond it), and has no `lore` cap. Since C3 the Last
   Echo knows the blast door opened and asks after Nine; since C4 it heard the rain on the stair fall and knows the Bell
   Walks, and the Commissary logs the wet stair and a bell; since C5 (`docs/places/keel.md`) the Commissary logs the hatch's
-  gear coming free and the keel watch, and the Last Echo heard the hatch go and is afraid of what's holding down there. A
+  gear coming free and the keel watch, and the Last Echo heard the hatch go and is afraid of what's holding down there; since C6 (b) (`docs/places/undercroft.md`)
+  the Commissary has the Undercroft on a parts list (a wheelwrights' roster never signed off, "ESCAPEMENT, MAIN. IN SERVICE."),
+  the Last Echo felt the tooth move and remembers the wheelwrights going down, Folio has a drawing of a toothed anchor with
+  its label torn off, and Number Nine logged the floor going down a hair. Nobody names the Escapement. A
   character who stands in more than one room (`also`) trades only where its shop is (`src/npc.js`).
   **Lantern Fen's people** (atlas Phase 8, L0, `docs/places/fen.md`), all fen folk (`folk: 'fen'`): **Skipper Netta**
   (`netta`, the Hush's crossing, at her eel boxes and at the tiller via `also`), **Wren the Lamplady** (`wren`, tends the

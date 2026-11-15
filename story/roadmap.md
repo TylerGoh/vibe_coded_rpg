@@ -199,6 +199,13 @@ No quests, no hard level gates.
         wardens, two elites, the grinds through the deck, the empty socket) and the Rustwyrm (field boss, Lv 196: feints and its
         chain), the Undercroft's gate laid (a fallen tooth) (`docs/places/keel.md`). Unplayed.
   - [ ] C6: the Escapement: (a) its plan on paper (`c6-plan.md`), (b) the Undercroft and the Spoke, (c) the Catch and the fight.
+    - [x] (a) and (b) (2026-11-15, live): the plan (`c6-plan.md`, every default standing: the Beat, the Tick, the pawls, the
+          Count, the Stopping in phase 4, Hold / Counter-Swing / The Stopped Hour, the city ticks once when freed); the
+          fallen tooth levered aside; the Undercroft (94, Lv 205–215, the deep room: sump slimes, wheelwright echoes, loose
+          pawls, counterweights, three elites, the Mainspring, the brake lever chained at HOLD) and the Spoke (95, the
+          approach: the hub and the Escapement's silhouette, the slowing tick, its line, the Catch's door holding)
+          (`docs/places/undercroft.md`). `CITADEL_TOP` 215. Unplayed.
+    - [ ] (c) the Catch (den 96) and the fight: (c1) the den, the FINAL row, its brain; (c2) its art, music, rewards, the freed tick.
 - [ ] Atlas Phase 9: Amberdune (Old Carapace).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

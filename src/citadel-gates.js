@@ -564,17 +564,7 @@ function drawFallenTooth(ctx, time, g, open = false) {
   ctx.beginPath();
   ctx.ellipse(0, 2, 90, 12, 0, 0, TAU);
   ctx.fill();
-  if (open) { // the tooth levered aside, a stair cut down beside it
-    ctx.save();
-    ctx.translate(120, 0);
-    ctx.rotate(0.35);
-    ctx.fillStyle = '#24202c';
-    ctx.fillRect(-30, -150, 60, 150);
-    ctx.restore();
-    ctx.fillStyle = IRON_L;
-    for (let i = 0; i < 4; i++) ctx.fillRect(-50 + i * 22, -2 + i * 2, 18, 3);
-    return;
-  }
+  if (open) return drawToothLevered(ctx, time, k);
   // the tooth: lying across the shaft on its side, root to the west (sheared), point to the east
   ctx.fillStyle = '#24202c';
   ctx.beginPath();
@@ -619,7 +609,70 @@ function drawFallenTooth(ctx, time, g, open = false) {
   ctx.stroke();
 }
 
-export const CITADEL_DRAW = { shutter: drawShutter, hatch: drawHatch, combolock: drawComboLock, blastdoor: drawBlastDoor, frozenrain: drawFrozenRain, bulkhead: drawBulkhead, fallentooth: drawFallenTooth };
+// C6 (b): the tooth levered aside (the update did it). It leans on end against the hull east of the shaft, root down, the
+// long iron bar it was levered with still wedged under it; a stair cut down into the shaft beside it, its first steps lit
+// by the aether coming up, and the dark below getting bluer the deeper you look
+function drawToothLevered(ctx, time, k) {
+  ctx.save(); // the tooth, on end, leaning east
+  ctx.translate(150, 0);
+  ctx.rotate(0.22);
+  ctx.fillStyle = '#24202c';
+  ctx.beginPath();
+  ctx.moveTo(-40, 0);
+  ctx.lineTo(-46, -170);
+  ctx.quadraticCurveTo(0, -236, 40, -176);
+  ctx.lineTo(36, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = BRASS_E;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(253,227,160,0.22)'; // its worn working face
+  ctx.beginPath();
+  ctx.moveTo(-44, -168);
+  ctx.quadraticCurveTo(-6, -226, 20, -206);
+  ctx.quadraticCurveTo(-10, -200, -36, -150);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#c8b090'; // the sheared root, down now
+  ctx.fillRect(-40, -8, 76, 6);
+  ctx.restore();
+  ctx.strokeStyle = IRON_L; // the lever, still wedged under it
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(96, -4);
+  ctx.lineTo(40, -70);
+  ctx.stroke();
+  // the stair, cut down into the shaft: steps going down and away, lit from below
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(0, 2, 90, 12, 0, 0, TAU);
+  ctx.clip();
+  const g = ctx.createLinearGradient(0, -10, 0, 14);
+  g.addColorStop(0, '#060608');
+  g.addColorStop(1, `rgba(150,240,234,${0.35 * k})`);
+  ctx.fillStyle = g;
+  ctx.fillRect(-90, -10, 180, 24);
+  ctx.fillStyle = IRON_L;
+  for (let i = 0; i < 5; i++) ctx.fillRect(-64 + i * 24, -4 + i * 3, 20, 2.5);
+  ctx.restore();
+  ctx.strokeStyle = `rgba(150,240,234,${0.45 * k})`; // aether coming up round the stair's mouth
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  for (let i = 0; i < 3; i++) {
+    const x = -50 + i * 46, w = Math.sin(time * 1.6 + i) * 4;
+    ctx.moveTo(x, -2);
+    ctx.quadraticCurveTo(x + w, -30, x - w, -60 - i * 8);
+  }
+  ctx.stroke();
+}
+
+// The Catch's door, at the end of the Spoke (C6 (b), held until (c)): no art here, the Spoke draws it and its own sign
+// (src/spoke.js)
+const drawCatchDoor = () => {};
+
+export const CITADEL_DRAW = { catchdoor: drawCatchDoor, shutter: drawShutter, hatch: drawHatch, combolock: drawComboLock, blastdoor: drawBlastDoor, frozenrain: drawFrozenRain, bulkhead: drawBulkhead, fallentooth: drawFallenTooth };
 export const CITADEL_OPEN = {
   gardenstair: drawGardenStair,
   shutter: (ctx, time, g) => drawShutter(ctx, time, g, true), hatch: (ctx, time, g) => drawHatch(ctx, time, g, true),

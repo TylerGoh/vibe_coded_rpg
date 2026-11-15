@@ -145,6 +145,11 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    (`shell`, the rare Keel Warden's Visor), two elites (the Old Chain Hound, the Elder Keel Warden); the Rustwyrm (field
    boss, Lv 196: `dive`, feints, a mash free in its chain). A room hazard: the grinds, the Wheel's teeth heaving up through
    slots in the deck on its slow tick (`GRINDS`, `grindAt`, the turbines' pattern). No new brains.
+43. **The Undercroft**: the Citadel's C6 (b), its deep room down the Tooth Stair at the Keel's far end (Lv 205–215, no
+   waystone; `docs/places/undercroft.md`). Sump slimes (`lob`, the new shot style `sump`), wheelwright echoes (`phase`, the
+   rare Wheelwright's Cap), loose pawls (`stomp`), counterweights (`dive`), three elites (the Great Sump Slime, the Master
+   Pawl, the Great Counterweight) and the Mainspring (a named elite, the Eldest's kind: a lunge with no shell). No hazard,
+   no new brains. The Spoke beyond it is the approach to the Escapement's den (not a stage).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

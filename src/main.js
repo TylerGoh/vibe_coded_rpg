@@ -18,7 +18,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, COLUMN_VISTA_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS, FIREFLY, GROVE, STILLMERE, BARROWS, CAUSEWAY, PEATBARROWS, LAMPROAD, GARDENS, ORRERY, ARCHIVE, ENGINE, BELLS, KEEL } from './shared/rpg.js';
+import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, COLUMN_VISTA_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS, FIREFLY, GROVE, STILLMERE, BARROWS, CAUSEWAY, PEATBARROWS, LAMPROAD, GARDENS, ORRERY, ARCHIVE, ENGINE, BELLS, KEEL, UNDERCROFT, SPOKE } from './shared/rpg.js';
 import { drawHighlands, drawSummitLookout } from './highlands.js';
 import { drawCaldera } from './caldera.js';
 import { drawCitadel } from './citadel.js';
@@ -52,6 +52,8 @@ import { drawArchive } from './archive.js';
 import { drawEngineHalls } from './engine.js';
 import { drawBellWalks } from './bells.js';
 import { drawKeel } from './keel.js';
+import { drawUndercroft, drawUndercroftFront } from './undercroft.js';
+import { drawSpoke, drawSpokeFront, spokeDepth, say as spokeSay } from './spoke.js';
 import { drawGrove, drawGroveFront } from './grove.js';
 import { drawStillMere, drawStillMereFront } from './stillmere.js';
 import { drawBarrows, drawBarrowsFront } from './barrows.js';
@@ -243,6 +245,7 @@ const net = new Net(wsUrl, {
       if (room === LONGSTAIR) stairSay(m.text, time); // (Fenrir's, on the Long Stair: docs/places/oldice.md)
       if (room === LONGFLUE) flueSay(m.text, time); // (Typhon's, in the Long Flue: docs/places/underflues.md)
       if (room === LAMPROAD) lampSay(m.text, time); // (the Wickmother's, on the Lamp Road: docs/places/peatbarrows.md)
+      if (room === SPOKE) spokeSay(m.text, time); // (the Escapement's, on the Spoke: docs/places/undercroft.md)
       chat.announce(`${m.who}: "${m.text}"`);
       return;
     }
@@ -1433,7 +1436,7 @@ function update(realDt) {
     if (online()) audio.sfx('door');
   }
   if (online()) audio.setScene(room, STAGES[room] ? zoneAt(net.me.x, room).name : null);
-  audio.setDepth(online() && room === ROADSEND ? roadsDepth(net.me.x) : online() && room === LONGSTAIR ? stairDepth(net.me.x) : online() && room === LONGFLUE ? flueDepth(net.me.x) : online() && room === LAMPROAD ? roadDepth(net.me.x) : 0); // (the Road's End's heartbeats, the Long Stair's hum and chain, the Long Flue's bellows and hammer, the Lamp Road's music box)
+  audio.setDepth(online() && room === ROADSEND ? roadsDepth(net.me.x) : online() && room === LONGSTAIR ? stairDepth(net.me.x) : online() && room === LONGFLUE ? flueDepth(net.me.x) : online() && room === LAMPROAD ? roadDepth(net.me.x) : online() && room === SPOKE ? spokeDepth(net.me.x) : 0); // (the Road's End's heartbeats, the Long Stair's hum and chain, the Long Flue's bellows and hammer, the Lamp Road's music box, the Spoke's tick)
   rpg.update(dt, online() ? net.me : null, room);
   skillTree.tick(); // (the K panel's cooldown sweeps while it's open, SP1)
   if ((room === STORE || room === PETSHOP) && online()) store.update(net.me, room);
@@ -1688,6 +1691,7 @@ function render() {
     else if (room === ENGINE) drawEngineHalls(ctx, camX, W, time, net.renderTick()); // (C3: its turbine blades follow the server tick)
     else if (room === BELLS) drawBellWalks(ctx, camX, W, time); // (C4)
     else if (room === KEEL) drawKeel(ctx, camX, W, time, net.renderTick()); // (C5: its grinds follow the server tick)
+    else if (room === UNDERCROFT) drawUndercroft(ctx, camX, W, time); // (C6 (b))
     else if (room === HIGHLANDS) {
       drawHighlands(ctx, camX, W, time);
       if (near(SUMMIT_LOOKOUT_X)) drawSummitLookout(ctx, SUMMIT_LOOKOUT_X, ROOMS[HIGHLANDS].ground, time);
@@ -1707,6 +1711,7 @@ function render() {
   else if (room === WICKMERE) drawWickmere(ctx, camX, W, time, !!rpg.me?.freed?.includes('wickmother')); // (L5 (c): her freed change)
   else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
   else if (room === LONGFLUE) drawLongFlue(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
+  else if (room === SPOKE) drawSpoke(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === LAMPROAD) drawLampRoad(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === LONGSTAIR) drawLongStair(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === ROADSEND) drawRoadsEnd(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
@@ -1750,6 +1755,8 @@ function render() {
   if (room === CAUSEWAY) drawCausewayFront(ctx, camX, W, time); // the near side's lamp posts and mist, in front of everyone
   if (room === PEATBARROWS) drawPeatBarrowsFront(ctx, camX, W, time); // roots and the brood's silk hanging in front of everyone
   if (room === LAMPROAD) drawLampRoadFront(ctx, camX, W, time, online() ? net.me : null); // the wing-dust, the silk closing behind, the Wickmother's line
+  if (room === UNDERCROFT) drawUndercroftFront(ctx, camX, W, time); // the dark closing in, heavier going east
+  if (room === SPOKE) drawSpokeFront(ctx, camX, W, time, online() ? net.me : null); // the dark, the rim's teeth closing behind, the Escapement's line
   for (const s of all) nameTag(s, false);
   if (meShown) nameTag(mine, true);
   if (roomDef(room)?.crossing) drawCrossingFront(ctx, room, camX, W, time, online() ? net.me : null); // the near water, over the hull's foot
@@ -1825,6 +1832,7 @@ function render() {
     else if (status === 'online' && room === LONGFLUE) drawPill(16, 14, 300, `The Long Flue · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === LONGSTAIR) drawPill(16, 14, 300, `The Long Stair · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === LAMPROAD) drawPill(16, 14, 300, `The Lamp Road · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === SPOKE) drawPill(16, 14, 300, `The Spoke · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && crossingAt(room, net.me)) {
       // aboard: where she's bound, how long till she's in, and a little track of the voyage
       const cr = crossingAt(room, net.me);
