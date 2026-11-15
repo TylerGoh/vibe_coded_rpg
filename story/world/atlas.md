@@ -321,7 +321,7 @@ stand-in door into an existing area.
       (Plan `../phase7-plan.md`. (b) shipped 2026-11-04: the story record, tiers, Mochi and Clio fed by tier; (c) the same day: every
       character's island cap, the seven older bosses' lines.)
 - [ ] **Phase 8: Lantern Fen** (side island, the Wickmother). (Plan `../phase8-plan.md`, approved 2026-11-11 at Lv 150–180; L0, the landing, built 2026-11-11.)
-- [ ] **Phase 9: Amberdune** (side island, Old Carapace).
+- [ ] **Phase 9: Amberdune** (side island, Old Carapace). (Plan `../phase9-plan.md`, written 2026-11-15, waiting for the owner.)
 - [ ] **Phase 10: the finale and the post-game**: the Wheel event, the Maelstrom rim, swim physics, the
       Sunken Reach.
 

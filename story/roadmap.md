@@ -210,7 +210,11 @@ No quests, no hard level gates.
           Hold / Counter-Swing / The Stopped Hour, its challenges from day one), its look and track, the Last Tick and twins,
           the Arbor Crown (The Tick, Keep Time), the mini Escapement, the city's one tick when freed
           (`docs/places/escapement.md`). Unplayed. **The Citadel's depth pass is done.**
-- [ ] Atlas Phase 9: Amberdune (Old Carapace).
+- [ ] **Atlas Phase 9: Amberdune** (Old Carapace), the next island (owner, 2026-11-15: "continue with next phase and the
+      phase after", after C6). (a) on paper 2026-11-15: `phase9-plan.md`, **waiting for the owner**: the band (default
+      Lv 215–250, past the Citadel's top; Old Carapace recommended at 250), the Saltwind from the Black Sands, Caravanserai and
+      its four (Mother Dune, Tally, Asra, Kesh), the branches, three bosses and a party den, Old Carapace as the final boss,
+      phases A0–A5. Next: A0, the landing, once the owner has read it.
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,
       uncharted islands (`world/regions/uncharted.md`, `expansion.md`).
