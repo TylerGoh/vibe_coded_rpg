@@ -138,14 +138,14 @@ table('FAUCETS: one boss kill (loot is shared: one set per kill, whoever picks i
 const LEVEL_PACE = [0.85, 1.25];
 const targetTo = (L) => { let t = 0; for (let l = 1; l < L; l++) t += LEVEL_MIN(l); return t; };
 // (past 200 since L5 (b): the owner, 2026-11-12, "don't be afraid to make the levels go past 200"; nothing caps levels)
-const PROGRESS_AT = [5, 10, 13, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 170, 190, 200, 220];
+const PROGRESS_AT = [5, 10, 13, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 170, 190, 200, 220, 230, 250];
 table(`PROGRESS: farming your own level at ${KILLS_PER_MIN} kills/min (mobs only, no bosses)`, Object.fromEntries(PROGRESS_AT.map((L) => [`lvl ${L}`, {
   farming: farmed(L)[0], 'gold/min': fmt(goldPerMin(L)), 'min a level': (expToNext(L) / farmed(L)[1].exp / KILLS_PER_MIN).toFixed(1), 'play time to reach': hrs(minutesTo(L)), [`with Holy Symbol (+${Math.round(HS_TOP * 100)}%)`]: hrs(minutesWithSymbol(L)), 'target (LEVEL_MIN)': hrs(targetTo(L)), 'gold earned by then': fmt(earnedBy(L)),
 }])));
 
 // The frozen curves, extended to where the later islands' bands will go (Frostpeak 40–100, Emberdeep
 // ~90–150, Lantern Fen 150–190, the Citadel ~140–200 and past), and how each spawning mob sits on them (100% = on the curve)
-table('CURVES (frozen; gold = what a kill is worth)', Object.fromEntries([1, 5, 10, 15, 20, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250].map((L) => [`lvl ${L}`, {
+table('CURVES (frozen; gold = what a kill is worth)', Object.fromEntries([1, 5, 10, 15, 20, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300].map((L) => [`lvl ${L}`, {
   'mob hp': fmt(curve('hp', L)), 'mob atk': fmt(curve('atk', L)), 'mob exp': fmt(curve('exp', L)), 'mob gold': fmt(curve('gold', L)), 'kills/lvl': (expToNext(L) / curve('exp', L)).toFixed(1),
   'sword atk': fmt(curve('sword', L)), 'helmet def': fmt(curve('helmet', L)), 'sword price': fmt(curve('swordPrice', L)), 'helmet price': fmt(curve('helmetPrice', L)),
 }])));

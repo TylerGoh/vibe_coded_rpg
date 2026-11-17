@@ -138,6 +138,7 @@ const SHOT = {
   souls: { glow: '255,214,150', core: '#fffbe8', mid: '#ffe2a8', rim: '#b8945a' }, // the Wickmother's rings of the dead's little lights (L5)
   teeth: { glow: '224,176,102', core: '#fff0c8', mid: '#e0b066', rim: '#5e4020' }, // the Escapement's rings of sheared gear teeth flung off the Wheel (C6 (c))
   bolt: { glow: '253,227,160', core: '#f4f6fa', mid: '#8a8e9e', rim: '#2a2834' }, // the Siege Engine's iron bolts (Cogwork Bastion, the Citadel's C0), and its rings
+  sun: { glow: '255,214,110', core: '#fffdf0', mid: '#ffe08a', rim: '#d89a2a' }, // the Sunroller's rings of sunlight off its stone sun (atlas Phase 9, A1: looks.rings)
   swap: { glow: '190,140,255', core: '#ffffff', mid: '#c9a6ff', rim: '#6a3ea8' }, // a boss's controls-swap orb (src/challenge.js) // molten metal: the crucible newt's and Old Crucible's (the Old Foundry)
 };
 function drawShot(ctx, h, now) {
@@ -1214,6 +1215,7 @@ const BEAM = {
   hearth: { glow: '255,150,60', outer: 'rgba(255,120,40,0.9)', mid: '#fff0b0', aim: '255,96,80' }, // Typhon's Fire Breath (E5)
   vent: { glow: '255,180,90', outer: 'rgba(255,150,60,0.92)', mid: '#fff6d0', aim: '255,110,80' }, // a vent's column of fire in the Hearth (E5)
   arc: { glow: '150,240,234', outer: 'rgba(150,240,234,0.85)', mid: '#ffffff', aim: '255,110,120' }, // the arc jelly's and the Stormcoil's arc along the grating (the Citadel's C3)
+  sunbeam: { glow: '255,226,140', outer: 'rgba(255,226,140,0.85)', mid: '#fffbe8', aim: '255,110,90' }, // the dial sentry's beam of sun through its glass eye (the Buried Observatory, atlas Phase 9 A1)
   astro: { glow: '214,228,255', outer: 'rgba(214,228,255,0.85)', mid: '#ffffff', aim: '255,110,140' }, // the astrolabe sentry's line of starlight (the Orrery, the Citadel's C1)
   silk: { glow: '240,232,252', outer: 'rgba(226,218,238,0.9)', mid: '#ffffff', aim: '255,96,120' }, // the Wickmother's Silk Line, a strand drawn across the Hall (L5)
 };

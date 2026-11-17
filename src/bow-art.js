@@ -89,6 +89,8 @@ export const BOWS = {
   anchor_bow: { len: 37, wood: ['#9a6c36', '#4e341a'], w: 4, tip: 'gear', c: '#e0b066', grip: '#2a2632', gem: '#e8fffb', string: '#c8f0ec', glow: '150,240,234', curve: 0.46 }, // (the Citadel's C6 (c): the Escapement's, the anchor's two flukes for limbs)
   cradle_bow: { len: 33, wood: ['#e2dce8', '#a8a0b0'], w: 3.2, tip: 'curl', c: '#ece6f0', grip: '#6a5a4a', gem: '#ffd696', string: '#f4f0f8', glow: '255,214,150', curve: 0.4 }, // (L5 (b): the Eldest's, wound in its silk)
   peatyew_bow: { len: 35, wood: ['#7a5a3a', '#4a3422'], w: 3.4, tip: 'rivet', c: '#a8783a', grip: '#a8783a', gem: '#ffd696', string: '#d8ccb0', glow: '255,214,150', curve: 0.38 }, // (the Sleeper's: yew the bog kept, bronze wire)
+  drover_bow: { len: 30, wood: ['#c89a62', '#7e5a34'], w: 3.4, tip: 'rivet', c: '#d8a84a', grip: '#5a3a24', gem: '#e8a040', string: '#e8dcc0', glow: '255,214,140' }, // (Tally's, atlas Phase 9: horn and drover's leather, caravan bells)
+  scarab_bow: { len: 34, wood: ['#2a3058', '#141830'], w: 4, tip: 'fang', c: '#d8a84a', grip: '#6a4418', gem: '#f4d68a', string: '#e8d8b0', glow: '255,226,140', curve: 0.4 }, // (the Sunroller's wing-cases)
   wicker_bow: { len: 30, wood: ['#c8b890', '#7e7058'], w: 3, tip: 'reed', c: '#8a7aa8', grip: '#9a8a62', string: '#e0d8c8', glow: '214,190,255' }, // (Sedge's: willow staves bound in split reed)
   kitetalon_bow: { len: 30, wood: ['#9a8a5a', '#5a4e30'], w: 3.2, tip: 'fang', c: '#2a2426', grip: '#6a4a30', gem: '#ffd040', string: '#d8ccb0', glow: '255,220,100', curve: 0.46 },
   condor_bow: { len: 34, wood: ['#4a4448', '#24202a'], w: 4, tip: 'feather', c: '#7a7278', c2: '#c8c0b8', grip: '#6a5a48', gem: '#ffd060', string: '#c8bca8', glow: '255,214,120', curve: 0.36 },

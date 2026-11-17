@@ -39,10 +39,15 @@
 // cut down (OPEN.mothsilk; drawGates' `me`).
 // The Aether Citadel's (its depth pass, C0): five gates in room 13 and the Keepers' Gardens' brass stair, drawn by
 // src/citadel-gates.js and merged in here.
+// Amberdune's (atlas Phase 9, A0 and A1, shipped together): the Saltwind drawn up on the Black Sands (an entry, like the
+// balloon: OPEN.saltwind), and the gates the next phases lift: the old seabed's wet salt off Caravanserai to the Salt Flats
+// (`softsalt`, A2), the fall of sand down the stair under the Observatory's dial ring (`sandfall`, A3) and the standing
+// storm across the old caravan road at the Observatory's east end (`redstorm`, A4).
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, circle, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES, gateLifted } from './shared/branches.js';
 import { CITADEL_DRAW, CITADEL_OPEN, CITADEL_SIGN_AT } from './citadel-gates.js'; // (the Citadel's, C0: its own file)
+import { drawSaltwindHull } from './caravan.js'; // (the Saltwind on the Black Sands, atlas Phase 9)
 
 const INK = '#5b4a6b';
 const FONT = "Fredoka, 'Trebuchet MS', sans-serif";
@@ -3313,3 +3318,145 @@ function drawSunkCauseway(ctx, time, g, open = false) {
     ctx.stroke();
   }
 }
+
+// ——— Amberdune's (atlas Phase 9, A0 and A1: story/phase9-plan.md) ———
+// The Saltwind on the Black Sands: Kesh's caravan skiff drawn up on the black sand by the Beach Path, a plank down from her
+// side, her ochre sail furled, a lantern on a post by the plank. The update brought her: no quest
+function drawSaltwindBeached(ctx, time) {
+  ctx.save(); // riding in the shallows just behind the beach's edge, her bow run up on the sand
+  ctx.scale(0.56, 0.56);
+  drawSaltwindHull(ctx, 10, -20, time);
+  ctx.restore();
+  ctx.fillStyle = '#8a6a48'; // the plank down to the sand
+  ctx.save();
+  ctx.translate(-14, -34);
+  ctx.rotate(0.9);
+  ctx.fillRect(0, 0, 40, 6);
+  ctx.restore();
+  ctx.fillStyle = 'rgba(255,255,255,0.35)'; // foam where she sits
+  ellipse(ctx, 6, -10, 110, 3);
+}
+
+// The old seabed off Caravanserai's west end, the way to the Salt Flats: a path of planks laid out over the salt and
+// sinking, the crust wet and dark in patches, a pole leaning where someone went in to the knee, a little salt water
+// shining in the footprints
+function drawSoftSalt(ctx, time) {
+  ctx.fillStyle = '#efe8d8';
+  ctx.beginPath();
+  ctx.ellipse(40, 2, 150, 12, 0, Math.PI, 0);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(150,160,150,0.6)'; // wet patches
+  for (const [x, r] of [[-40, 30], [30, 40], [110, 26]]) ellipse(ctx, x, -1, r, 5);
+  ctx.fillStyle = 'rgba(150,220,220,0.7)'; // salt water in the footprints
+  for (let i = 0; i < 5; i++) ellipse(ctx, -70 + i * 34, -2 + (i % 2) * 2, 4, 1.6);
+  ctx.fillStyle = '#9a8a78'; // planks, tilting and sinking
+  for (let i = 0; i < 5; i++) {
+    ctx.save();
+    ctx.translate(-60 + i * 40, -3 + i * 1.2);
+    ctx.rotate((i % 2 ? 0.12 : -0.1) * (1 + i * 0.2));
+    ctx.fillRect(-16, -3, 32, 6);
+    ctx.restore();
+  }
+  ctx.strokeStyle = '#6a5040'; // the pole someone left, leaning
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(90, 0);
+  ctx.lineTo(70 + Math.sin(time * 0.4) * 1, -70);
+  ctx.stroke();
+  ctx.fillStyle = '#c8583a'; // a rag on it
+  ctx.beginPath();
+  ctx.moveTo(71, -68);
+  ctx.quadraticCurveTo(84 + Math.sin(time * 3) * 3, -70, 88, -62);
+  ctx.lineTo(72, -60);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// The stair down under the Observatory's dial ring to the Buried Caravanserai: a dark doorway in the sand between two
+// bronze ring-ends, steps going down into it, and sand pouring down over them from a crack above in a steady fall
+function drawSandfall(ctx, time) {
+  ctx.fillStyle = '#2a1e18'; // the doorway
+  ctx.beginPath();
+  ctx.moveTo(-50, 0);
+  ctx.lineTo(-44, -96);
+  ctx.quadraticCurveTo(0, -122, 44, -96);
+  ctx.lineTo(50, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#b8823a'; // the ring-ends framing it
+  ctx.lineWidth = 10;
+  ctx.beginPath();
+  ctx.moveTo(-60, 4);
+  ctx.quadraticCurveTo(-66, -110, 0, -134);
+  ctx.quadraticCurveTo(66, -110, 60, 4);
+  ctx.stroke();
+  ctx.fillStyle = '#c8aa82'; // the top steps, going down
+  for (let i = 0; i < 3; i++) ctx.fillRect(-40 + i * 6, -14 + i * 5, 80 - i * 12, 4);
+  const g = ctx.createLinearGradient(0, -128, 0, 0); // the fall of sand
+  g.addColorStop(0, 'rgba(232,200,138,0.95)');
+  g.addColorStop(1, 'rgba(232,200,138,0.75)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(-14, -130);
+  ctx.quadraticCurveTo(-22, -60, -34, 0);
+  ctx.lineTo(30, 0);
+  ctx.quadraticCurveTo(18, -60, 12, -130);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(184,146,78,0.6)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const x = -10 + i * 4, ph = (time * 1.6 + i * 0.3) % 1;
+    ctx.moveTo(x, -130 + ph * 40);
+    ctx.lineTo(x - 3 - i * 0.6, -60 + ph * 40);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#e0bc84'; // the heap it's making
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 54, 20, 0, Math.PI, 0);
+  ctx.fill();
+}
+
+// The old caravan road at the Observatory's east end, going on into a standing storm: a wall of red sand from the ground
+// to the sky, churning and roaring and not moving, the road's marker stones vanishing into it, a pack-saddle half buried
+// in front of it
+function drawRedStorm(ctx, time) {
+  const g = ctx.createLinearGradient(-60, 0, 260, 0);
+  g.addColorStop(0, 'rgba(184,90,60,0)');
+  g.addColorStop(0.25, 'rgba(184,90,60,0.75)');
+  g.addColorStop(1, 'rgba(150,60,40,0.98)');
+  ctx.fillStyle = g;
+  ctx.fillRect(-60, -460, 340, 470);
+  for (let i = 0; i < 16; i++) { // the churn
+    const y = -30 - i * 28, ph = time * (0.8 + (i % 3) * 0.3) + i;
+    ctx.fillStyle = `rgba(${i % 2 ? '214,120,80' : '170,70,46'},0.55)`;
+    ellipse(ctx, 40 + Math.sin(ph) * 30 + (i % 4) * 20, y, 90 + Math.sin(ph * 1.3) * 20, 18);
+  }
+  ctx.strokeStyle = 'rgba(255,200,150,0.35)'; // streaks of sand going round
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const y = -20 - i * 40, k = (time * 1.4 + i * 0.37) % 1;
+    ctx.moveTo(-20 + k * 200, y);
+    ctx.lineTo(20 + k * 200, y - 6);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#9a8a6a'; // the road's marker stones, going in
+  for (const [x, h, a] of [[-60, 30, 1], [-10, 26, 0.8], [40, 22, 0.5], [90, 18, 0.25]]) {
+    ctx.globalAlpha = a;
+    ctx.fillRect(x - 6, -h, 12, h);
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#6a4a2e'; // a pack-saddle half buried
+  ctx.beginPath();
+  ctx.ellipse(-90, -4, 26, 14, 0, Math.PI, 0);
+  ctx.fill();
+  ctx.fillStyle = '#e0bc84';
+  ctx.beginPath();
+  ctx.ellipse(-80, 0, 40, 9, 0, Math.PI, 0);
+  ctx.fill();
+}
+Object.assign(DRAW, { softsalt: drawSoftSalt, sandfall: drawSandfall, redstorm: drawRedStorm });
+Object.assign(OPEN, { saltwind: drawSaltwindBeached });
+Object.assign(SIGN_AT, { saltwind: 0, softsalt: -150, sandfall: 110, redstorm: -170 });

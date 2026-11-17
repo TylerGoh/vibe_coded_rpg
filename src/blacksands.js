@@ -70,7 +70,7 @@ export function drawBlackSands(ctx, camX, viewW, time) {
     const sx = z.x1 - 30; // you walk in from the east: each zone's sign stands at its east edge
     if (visible(sx - 90, sx + 90, L, R)) drawZoneSign(ctx, sx, z, i, time);
   });
-  if (visible(SANDS_EXIT_X - 260, SANDS_W, L, R)) drawExitSign(ctx, SANDS_EXIT_X - 110, time);
+  if (visible(SANDS_EXIT_X - 260, SANDS_W, L, R)) drawExitSign(ctx, SANDS_EXIT_X - 40, time); // (moved east in atlas Phase 9 to make room for the Saltwind)
   ctx.save();
   ctx.translate(camX, 0);
   drawAir(ctx, camX, time);

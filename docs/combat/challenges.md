@@ -132,6 +132,11 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
   - **The Indexer** (the Citadel's C2, from day one, `docs/places/archive.md`): the laser grid every phase (`lasers`, index
     lines ruled down off its drawers), the snare from phase 2 (`snare`: an index card pinned over you, `looks.snare:
     'paper'`, a new `PAL` row) and the controls swap in phase 3 (`reverse`: filed back to front). The punish window.
+  - **The Sunroller** (atlas Phase 9 A1, from day one, `docs/places/observatory.md`): late tells every phase (`late`: the
+    shadow on the dial comes too late), bullet rings of sunlight off its stone sun from phase 2 (`orbs`, `looks.rings:
+    'sun'`), and in phase 3 thin gaps as the glare (`gaps`, `looks.gaps: 'glare'`: the dial floor white with glare but for
+    one strip of shade, the gnomon's shadow; `drawGlare` in `src/challenge.js`, its warning a long cool shadow and heat
+    lifting off the floor). The punish window.
   - **Old Gullet** (atlas Phase 8 L2, from day one): swallowed every phase (`gulp`, a move name of its own in `CHAL_MOVE` for
     the mash free, drawn as his dark jaws with the lights showing through: `looks.snare: 'gullet'`, `PAL.gullet`) and the
     dark from phase 2 (`dark` as a plain move: both need their `WARN` row, or the boss's timer is `NaN`). The punish window.

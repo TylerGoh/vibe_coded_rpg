@@ -32,6 +32,10 @@ and harder, so its zones run hard → easy by x (`SANDS_ZONES`), like the Whale 
   on one side, spread on the other) that someone lays again every morning. Emberdeep's tier by showing only:
   never the Tidewheel, the Stopped Hour, Chronos or Pell. Ash knows it's there and doesn't pretend to know more.
 - No trader (Soot is next door), no waystone (the town's is a short walk), no elites (not a hard pocket).
+- **The Saltwind** (atlas Phase 9, `docs/places/amberdune.md`): Skipper Kesh's caravan skiff rides in the shallows on the
+  Beach Path between the Turning Stone and the sign back to Forgehold (moved east to `SANDS_EXIT_X - 40` to make room),
+  her bow run up on the sand and a plank down (`drawSaltwindBeached` in `src/branch-gates.js`: an entry on Emberdeep's
+  island map, like the balloon). Her door (`SANDS_SALTWIND_X`, "Lv 215+") sails west to Amberdune.
 
 ## Mobs (on the frozen curve)
 - black-sand crab (passive, Lv 91) · steam toad = `trail`, `style: 'steam'` (puffs of scalding steam where it's

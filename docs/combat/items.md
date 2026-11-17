@@ -256,6 +256,13 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   186) very rarely, and the Eldest (a named elite) the **Cradle-Silk Blade** (twins: the **Cradle-Silk Staff**, the
   **Cradle-Silk Bow**; Lv 190), mob gear on the curve (art `src/peatbarrows-art.js`, `PEATBARROWS_*`;
   `docs/places/peatbarrows.md`).
+- Atlas Phase 9's Caravanserai adds **Tally** (`SHOPS.tally`: the basic potions, the **Salt-Iron Tulwar** with its
+  **Sandstone Rod** and **Drover's Bow**, and the **Drover's Wrap**, Lv 216, aimed at Lv 220) and **Mother Dune**
+  (`SHOPS.mother_dune`: potions only, "water"). A0's Glass Dunes: a fulgurite scorpion drops the **Fulgurite Crest** (Lv
+  222) very rarely. A1's Buried Observatory: a dial sentry drops the **Dialwatch Helm** (Lv 227) very rarely, and **the
+  Sunroller** drops the **Gnomon Blade** (twins: the **Sundial Staff**, the **Scarab Bow**) and the **Scarab Crown**, boss
+  gear at Lv 233 (art `src/dune-art.js`, `DUNE_*`, and the staff and bow tables; `docs/places/observatory.md`).
+  Amberdune's gear names: salt-iron, sandstone, sun-glass, amber, bronze, caravan brass, drover's leather.
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these
   are the copies (`fur_hood_n`, `bone_harpoon_n`, aimed at Frostpeak's new band); the old ones are Legacy.

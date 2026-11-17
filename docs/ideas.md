@@ -166,6 +166,18 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   Gullet, Long-Neck and Grandfather Mire aren't in the story record (no Fen tier), so only the Wickmother has freed changes
   on the Fen.
 
+## Atlas Phase 9, A0 and A1: Amberdune's landing, the Glass Dunes, the Mirage Oasis, the Buried Observatory (2026-11-17)
+- Unplayed: the Saltwind both ways, Caravanserai, the four characters' chat and the two shops, the Glass Dunes' and the
+  Observatory's mobs, the Oasis, the Dial Stone and the carved palm, the Sunroller (late tells, sun rings, the glare, The
+  Long Day, the weak point / pulse / interrupt with a party, its freeing) and the freed gnomon. The art was looked at in
+  still frames rendered headless from a static page (no game server, no bots), not in motion; the music wasn't heard.
+- Asra has no shop: the plan's water-plant seeds would be a new crop (seeds are bought at the garden plot). An idea not
+  built: a desert crop (a water-lily or a date palm) and a recipe, with Asra as the one who tells you about it.
+- The Saltwind's deck is the shared ship, the ferry's size, like the Hush's; a skiff of her own size would need her own
+  deck platforms.
+- Old Carapace's walking hill moves with the hour of the day, the same for everyone; nothing more is done with it until A5.
+- Brine, Arne, Netta and the Citadel's characters don't mention Amberdune yet (Soot and Liv do).
+
 ## The Citadel's depth pass, C5 (2026-11-14)
 - Unplayed: the Keel (its three mobs and two elites, the `grease` trail, the hatch's door, the grinds), the Rustwyrm (its
   dives and feints, the chain mash, focus and armour with a party), and the music. The art was run against a stub canvas

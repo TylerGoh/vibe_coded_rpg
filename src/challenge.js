@@ -1335,6 +1335,7 @@ export function drawGapsHz(ctx, h, now) {
   // (a, b: a field boss's wall covers only that stretch, T3; a den's, the whole den)
   const X0 = h.a ?? 0, W = h.b ?? 1500, G = 450, gx = gapX(h, now), a = gx - h.w / 2, b = gx + h.w / 2, cinder = h.style === 'cinder';
   ctx.save();
+  if (h.style === 'glare') return drawGlare(ctx, h, now, X0, W, G, a, b), ctx.restore();
   if (now < h.at) {
     const k = Math.max(0, Math.min(1, (now - h.warnAt) / Math.max(0.05, h.at - h.warnAt))), pulse = 0.5 + 0.5 * Math.sin(now * (8 + 12 * k));
     ctx.fillStyle = cinder ? `rgba(255,140,60,${0.05 + 0.09 * k})` : `rgba(150,200,255,${0.06 + 0.1 * k})`;
@@ -1413,6 +1414,58 @@ export function drawGapsHz(ctx, h, now) {
     ctx.fillRect(b, G - 8, W - b, 10);
   }
   ctx.restore();
+}
+
+// The Sunroller's (atlas Phase 9, A1: looks.gaps 'glare'): the stone sun flares and the dial floor goes white with glare
+// everywhere but one strip of shade, the gnomon's shadow, falling across the floor. Warning: the light hardens, the shadow
+// drawn in long; live: the glare itself, shimmering, heat lines going up off the floor
+function drawGlare(ctx, h, now, X0, W, G, a, b) {
+  if (now < h.at) {
+    const k = Math.max(0, Math.min(1, (now - h.warnAt) / Math.max(0.05, h.at - h.warnAt))), pulse = 0.5 + 0.5 * Math.sin(now * (8 + 12 * k));
+    ctx.fillStyle = `rgba(255,236,170,${0.06 + 0.12 * k})`;
+    ctx.fillRect(X0, 0, a - X0, G);
+    ctx.fillRect(b, 0, W - b, G);
+    ctx.fillStyle = `rgba(60,40,80,${0.12 + 0.14 * k})`; // the shadow, long and cool
+    ctx.beginPath();
+    ctx.moveTo(a, G);
+    ctx.lineTo(b, G);
+    ctx.lineTo(b + 30, 40);
+    ctx.lineTo(a + 30, 40);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = `rgba(140,255,190,${0.6 + 0.35 * pulse})`;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 8]);
+    ctx.strokeRect(a, 40, b - a, G - 40);
+    ctx.setLineDash([]);
+    for (let x = X0 + 30; x < W; x += 64) { // heat starting to lift off the floor
+      if (x > a - 20 && x < b + 20) continue;
+      ctx.strokeStyle = `rgba(255,240,200,${0.2 + 0.3 * k})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let y = G; y > G - 60 - 60 * k; y -= 6) ctx.lineTo(x + Math.sin(y * 0.15 + now * 6 + x) * 3, y);
+      ctx.stroke();
+    }
+    return;
+  }
+  const k = (now - h.at) / Math.max(0.05, h.dur);
+  if (k > 1.4) return;
+  const f = k > 1 ? 1 - (k - 1) / 0.4 : 1;
+  ctx.fillStyle = `rgba(255,250,226,${0.62 * f})`;
+  ctx.fillRect(X0, 0, a - X0, G);
+  ctx.fillRect(b, 0, W - b, G);
+  for (let x = X0 + 14; x < W; x += 28) { // the glare shimmering
+    if (x > a - 6 && x < b + 6) continue;
+    ctx.strokeStyle = `rgba(255,214,110,${0.5 * f})`;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    const ph = (now * 2 + x * 0.013) % 1;
+    for (let y = G; y > 0; y -= 12) ctx.lineTo(x + Math.sin(y * 0.08 + now * 9 + x) * 4, y - ph * 12);
+    ctx.stroke();
+  }
+  ctx.fillStyle = `rgba(255,190,80,${0.35 * f})`;
+  ctx.fillRect(X0, G - 8, a - X0, 10);
+  ctx.fillRect(b, G - 8, W - b, 10);
 }
 
 // A20: the shield bash: the shield glowing brighter (a ring closing in on the moment), the reach on the floor; then a

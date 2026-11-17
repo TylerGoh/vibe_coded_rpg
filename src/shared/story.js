@@ -15,6 +15,9 @@ export const BOSS_TIER = {
   // Lantern Fen adds no canon tier (story/phase8-plan.md): its final boss is in the record only for her freed changes
   // (the Hall's front door, Wickmere's Lamp Walk: docs/social/story.md)
   wickmother: 0,
+  // Amberdune adds none either (story/phase9-plan.md): the Sunroller is in the record only for its freed change (the
+  // Observatory's great gnomon at noon, no shadow: docs/places/observatory.md)
+  sunroller: 0,
 };
 export const TOP_TIER = 4;
 

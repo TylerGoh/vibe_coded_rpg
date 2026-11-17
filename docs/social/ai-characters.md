@@ -142,6 +142,15 @@ one shared corner feed).
   Breathing Stone and Forgehold's people; hints at the Organ. Since E4a she hung the stair's new chains, knows the
   Caldera Rim's mobs, hints at the Bearer's Seat, and went close enough to the old hoist to see something standing
   still, and came back.
+  **Amberdune's people** (atlas Phase 9, A0, `docs/places/amberdune.md`), all dune folk (`folk: 'dune'`): **Skipper Kesh**
+  (`kesh`, the Saltwind's crossing, at her water casks and at the tiller via `also`; trades from her jetty from A2),
+  **Mother Dune** (`mother_dune`, the caravan's leader, reads the star-dials, trades potions as "water"), **Tally** (`tally`,
+  counts everything, trades Amberdune's first gear tier) and **Well-keeper Asra** (`asra`, the well; no shop). No `lore` cap,
+  like the Fen: Tier 0 (the stars moved, which everyone knows; Mother Dune knows the dials say so and not why), their island
+  and their trades. None names Old Carapace ("the Walker", and a change of subject; Tally counts the days since he passed
+  and won't say the number). They know the whole of A0 and A1 (the Glass Dunes, the Oasis, the Observatory and the great
+  scarab) and A2's block (the Salt Flats too soft to walk). The update also taught Auntie Soot and Liv that the Saltwind
+  calls at the Black Sands (Soot trades Kesh her hot-spring salts).
 - **Elder Mochi tends the Rebirth Pool** (S2.3, `docs/combat/skills.md`): he knows what it does, that the
   first choice is free and later changes cost about an hour's gold at your level, and only Warrior, Mage,
   Cleric and Archer (the Cleric added with S3, the Archer with S4, pointing archers at Ranger Acorn; add each

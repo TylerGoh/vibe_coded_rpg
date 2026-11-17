@@ -39,7 +39,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 7550; // (the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), the mini Helmsman and Great Bell (C4, 7258), the mini Rustwyrm (C5, 7416) and the mini Escapement (C6 (c), 7542): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 7750; // (the mini Sunroller (atlas Phase 9, A1) too; the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), the mini Helmsman and Great Bell (C4, 7258), the mini Rustwyrm (C5, 7416) and the mini Escapement (C6 (c), 7542): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -747,6 +747,128 @@ export const ESC_DEN_X = SPOKE_W - 240;
 export const CATCH_DEN = 96; // the den's room id (C6 (c): the Catch, its DENS row)
 export const CATCH_DEN_NAME = 'The Catch';
 export const ESC_LINE = 'Hold. ...Who comes down? No one comes down. Hold.';
+
+// ——— atlas Phase 9, A0 and A1: Amberdune's landing, the Glass Dunes, the Mirage Oasis, the Buried Observatory and the
+// Sunroller (story/phase9-plan.md; docs/places/amberdune.md, glassdunes.md, oasis.md, observatory.md) ———
+// The Saltwind's gangway on the Black Sands: Skipper Kesh's caravan skiff, drawn up on the black sand by the Beach Path
+// (boards DUNE_OUT, sim.js; the skiff is src/blacksands.js's). Come round the coast for Forgehold coal, the update brought her
+export const SANDS_SALTWIND_X = 4330; // (between the Turning Stone and the way back to Forgehold)
+// Caravanserai (room 97): Amberdune's town, with Saltmouth's dry piers as its waterfront. A safe room. West to east: the
+// new jetty where the sea is now, Kesh by her water casks (x matching her spot at the tiller on the decks) and the
+// Saltwind's gangway; the walk in across the old seabed past a careened boat, and the way off south-west across it to the
+// Salt Flats (SALTFLATS_GATE_X, a gate: the salt's wet this season, A2); Saltmouth's stone piers standing high and dry, a
+// salt line on every wall, the waystone at their foot; Tally's counting-stall (he trades: SHOPS); the deep stone well with
+// its windlass (WELL_X; you wake beside it) and Asra by it; the striped tent whose flap is everyone's own front door; the
+// Star Court, a ring of half-buried Keeper star-dials where Mother Dune sits (she trades); the east end, out onto the Glass
+// Dunes. Every tent is half struck. Its platforms are CARAVAN_PLATFORMS.
+export const CARAVAN = 97; // room id
+export const CARAVAN_W = 2900;
+export const KESH_X = 200; // Skipper Kesh, by her water casks on the jetty
+export const DUNE_DOCK_X = 400; // the Saltwind's gangway
+export const SALTFLATS_GATE_X = 760; // the way down onto the old seabed to the Salt Flats (A2): soft wet salt
+export const DUNE_WAY_X = 1040; // the waystone, at the foot of Saltmouth's piers
+export const TALLY_X = 1460; // Tally, at his counting-stall
+export const DUNE_SPAWN_X = 1650; // where you wake up, by the well
+export const WELL_X = 1770; // the deep stone well and its windlass (drawing)
+export const ASRA_X = 1890; // Well-keeper Asra, at the well's far side
+export const DUNE_HOME_X = 2110; // the striped tent whose flap is everyone's own front door
+export const MOTHER_X = 2430; // Mother Dune, in the Star Court
+export const CARAVAN_EXIT_X = CARAVAN_W - 90; // out onto the Glass Dunes
+// a careened boat on its side, the top of Saltmouth's driest pier, a stack of packs, a tent's awning, a star-dial's rim
+export const CARAVAN_PLATFORMS = [
+  { x: 560, y: 360, w: 150, kind: 'hull' },
+  { x: 1130, y: 316, w: 230, kind: 'pier' },
+  { x: 1960, y: 334, w: 110, kind: 'packs' },
+  { x: 2230, y: 300, w: 170, kind: 'awning' },
+  { x: 2560, y: 346, w: 160, kind: 'dial' },
+];
+// The Glass Dunes (room 100): Amberdune's first wilds, the main trail east out of Caravanserai: gold dunes, wind-polished
+// sandstone shelves, and patches where lightning fused the sand to glass. You come in at the WEST end (GDUNES_EXIT_X) and go
+// east, harder: the Dune Gate (no mobs: a waystone), the Wind Shelves (the side path down to the Mirage Oasis between two
+// dunes, OASIS_GATE_X), the Glass Fields and the High Dunes; its east end (GDUNES_END_X) goes on down into the Buried
+// Observatory. The caravan milestone (last in GDUNES_PLATFORMS) is the find.
+export const GLASSDUNES = 100; // room id
+export const GDUNES_W = 4800;
+export const GDUNES_EXIT_X = 70; // back to Caravanserai
+export const GDUNES_WAY_X = 380; // the Dune Gate's waystone
+export const OASIS_GATE_X = 1480; // the side path down between the dunes to the Mirage Oasis
+export const GDUNES_END_X = GDUNES_W - 90; // on east, down the sunken steps into the Buried Observatory
+export const GDUNES_ZONES = [
+  { name: 'The Dune Gate', x0: 0, x1: 600, lvl: null }, // (no mobs)
+  { name: 'The Wind Shelves', x0: 600, x1: 1900, lvl: '215–218' },
+  { name: 'The Glass Fields', x0: 1900, x1: 3300, lvl: '218–221' },
+  { name: 'The High Dunes', x0: 3300, x1: GDUNES_W, lvl: '221–224' },
+];
+// wind-polished sandstone shelves and slabs of lightning glass; the caravan milestone high on a shelf (hidden, last)
+export const GDUNES_PLATFORMS = [
+  { x: 760, y: 350, w: 190, kind: 'shelf' },
+  { x: 1100, y: 276, w: 170, kind: 'shelf' },
+  { x: 2050, y: 340, w: 200, kind: 'glass' },
+  { x: 2420, y: 262, w: 180, kind: 'shelf' },
+  { x: 2860, y: 344, w: 190, kind: 'glass' },
+  { x: 3460, y: 330, w: 200, kind: 'shelf' },
+  { x: 3880, y: 252, w: 180, kind: 'shelf' },
+  { x: 4300, y: 342, w: 180, kind: 'glass' },
+  { x: 3920, y: 160, w: 96, kind: 'milestone' }, // the caravan milestone, every mile scratched out but the last: easy to miss
+];
+// The Mirage Oasis (room 103): the island's easy pocket, down the side path off the Glass Dunes' Wind Shelves (A1). Palms
+// round a still pool that shows a different sky in it (green, with rain). You come in at the WEST end; the east end is
+// the Far Shade (no mobs), where someone carved rain stories into a palm (OASIS_PALM_X, a reading: src/ruins.js). No
+// waystone (next to the Dune Gate's, like Firefly Hollow by the Shallows'). The high palm crown is the hidden spot.
+export const OASIS = 103; // room id
+export const OASIS_W = 2600;
+export const OASIS_EXIT_X = 70; // back up the side path to the Glass Dunes
+export const OASIS_POOL_X = 1820; // the still pool's middle (drawing)
+export const OASIS_PALM_X = 2380; // the carved palm in the Far Shade
+export const OASIS_ZONES = [
+  { name: 'The Slip', x0: 0, x1: 480, lvl: null }, // (no mobs: the sand path down)
+  { name: 'The Palms', x0: 480, x1: 1450, lvl: '215–218' },
+  { name: 'The Still Pool', x0: 1450, x1: 2200, lvl: '218–220' },
+  { name: 'The Far Shade', x0: 2200, x1: OASIS_W, lvl: null }, // (no mobs)
+];
+export const OASIS_PLATFORMS = [
+  { x: 600, y: 350, w: 180, kind: 'rock' },
+  { x: 930, y: 276, w: 160, kind: 'frond' },
+  { x: 1300, y: 346, w: 190, kind: 'rock' },
+  { x: 1660, y: 296, w: 160, kind: 'frond' },
+  { x: 2030, y: 346, w: 140, kind: 'rock' },
+  { x: 980, y: 188, w: 96, kind: 'crown' }, // the tallest palm's crown, a weaver bird's empty nest in it: easy to miss
+];
+// The Buried Observatory (room 101): the Keepers' star-dials half swallowed by sand, on east from the Glass Dunes (A1):
+// great bronze rings, a sundial's gnomon as tall as a tower, steps going down into the sand. Entered at its WEST end. West
+// to east: the Sunken Steps (no mobs: a waystone, and the Dial Stone, a Keeper stone readable to the shoulders:
+// OBS_STONE_X), the Ring Walk, the Gnomon (the stair down under the dial ring to the Buried Caravanserai, choked by a fall
+// of sand: BURIED_GATE_X, A3), the Dial Court (the Sunroller's den at SUN_DEN_X), and at the far end the old caravan road
+// going on east into a standing storm (STORM_GATE_X, A4). The noon mark on the gnomon's top is the hidden spot.
+export const OBSERVATORY = 101; // room id
+export const OBS_W = 5200;
+export const OBS_EXIT_X = 70; // back up to the Glass Dunes
+export const OBS_WAY_X = 400; // the Sunken Steps' waystone
+export const OBS_STONE_X = 1240; // the Dial Stone (src/ruins.js)
+export const GNOMON_X = 2600; // the great gnomon's foot (drawing; its ledges are OBS_PLATFORMS)
+export const BURIED_GATE_X = 3120; // the stair down under the dial ring to the Buried Caravanserai (A3), sand pouring down it
+export const SUN_DEN_X = 4480; // the way down to the Dial Floor (room SUN_DEN, its DENS row)
+export const SUN_DEN = 102; // the Sunroller's den, the Dial Floor
+export const STORM_GATE_X = OBS_W - 130; // the old caravan road east, into the standing storm (the Storm Road, A4)
+export const OBS_ZONES = [
+  { name: 'The Sunken Steps', x0: 0, x1: 640, lvl: null }, // (no mobs)
+  { name: 'The Ring Walk', x0: 640, x1: 2000, lvl: '222–225' },
+  { name: 'The Gnomon', x0: 2000, x1: 3500, lvl: '225–229' },
+  { name: 'The Dial Court', x0: 3500, x1: OBS_W, lvl: '229–232' },
+];
+// the sunken steps, arcs of the great bronze rings, ledges up the gnomon; the noon mark on its top (hidden, last)
+export const OBS_PLATFORMS = [
+  { x: 760, y: 346, w: 190, kind: 'steps' },
+  { x: 1500, y: 272, w: 180, kind: 'ring' },
+  { x: 1800, y: 342, w: 180, kind: 'steps' },
+  { x: 2200, y: 330, w: 190, kind: 'ring' },
+  { x: 2520, y: 252, w: 160, kind: 'gnomon' },
+  { x: 3360, y: 340, w: 180, kind: 'steps' },
+  { x: 3720, y: 300, w: 200, kind: 'ring' },
+  { x: 4060, y: 236, w: 170, kind: 'ring' },
+  { x: 4800, y: 330, w: 160, kind: 'steps' },
+  { x: 2560, y: 158, w: 96, kind: 'noonmark' }, // the noon mark, a bronze plate on the gnomon's top: easy to miss
+];
 export function turbineAt(i, t) {
   const c = (((t + i * 151) % TURBINE_CYCLE) + TURBINE_CYCLE) % TURBINE_CYCLE;
   if (c < TURBINE_WARN) return { k: c / TURBINE_WARN, spin: false };
@@ -1622,6 +1744,9 @@ export const STAGES = {
   [BELLS]: { name: 'The Bell Walks', zones: BELLS_ZONES, band: '195–208', pill: 'Bell Walks' }, // (the Citadel, C4)
   [KEEL]: { name: 'The Keel', zones: KEEL_ZONES, band: '188–200', hard: true }, // (the Citadel, C5)
   [UNDERCROFT]: { name: 'The Undercroft', zones: UNDERCROFT_ZONES, band: '205–215', hard: true }, // (the Citadel, C6 (b): its deep room)
+  [GLASSDUNES]: { name: 'The Glass Dunes', zones: GDUNES_ZONES, band: '215–224', pill: 'Glass Dunes' }, // (atlas Phase 9, A0: Amberdune)
+  [OASIS]: { name: 'The Mirage Oasis', zones: OASIS_ZONES, band: '215–220', pill: 'Mirage Oasis' }, // (A1)
+  [OBSERVATORY]: { name: 'The Buried Observatory', zones: OBS_ZONES, band: '222–232', pill: 'Observatory' }, // (A1)
 };
 export const zoneAt = (x, room = FIELD) => {
   const zones = STAGES[room]?.zones ?? ZONES;
@@ -3799,6 +3924,81 @@ MOBS.mainspring = {
 };
 MOBS.mainspring.drops = [...MOBS.mainspring.drops, ['spring_blade', 0.04, 1, 1]];
 
+
+// ——— atlas Phase 9, A0 and A1: the Glass Dunes, the Mirage Oasis and the Buried Observatory (art: src/glassdunes-art.js,
+// src/observatory-art.js; docs/places/glassdunes.md, docs/places/observatory.md). On the frozen curve; no elites, no field
+// boss yet (the Glassjaw is A3's) ———
+// Sand skippers are little sand lizards that run on their toes, quick and low, in bunches; heat mirages are the shimmer
+// over hot sand got up and wandering, harmless and everywhere (the drifting light's kind: passive); dune beetles burrow
+// and come up under you (the `phase` brain: under the sand, then a pulse as they burst out); fulgurite scorpions wear a
+// shell of lightning glass over their front and claws (`shell`: hit them from behind). The Glass Dunes' four; the Oasis
+// has the skippers and the mirages
+MOBS.sand_skipper = {
+  name: 'Sand Skipper', lvl: 215, hp: 36900, atk: 794, exp: 23505, speed: 140, w: 52, h: 34, aggro: true, hops: true,
+  drops: [['coin', 1, 1947, 2921], ['skipper_frill', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.heat_mirage = {
+  name: 'Heat Mirage', lvl: 216, hp: 34920, atk: 798, exp: 23691, speed: 40, w: 46, h: 58, aggro: false, hops: false, fly: 34,
+  drops: [['coin', 1, 1961, 2942], ['bottled_shimmer', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.dune_beetle = {
+  name: 'Dune Beetle', lvl: 219, hp: 36010, atk: 811, exp: 24253, speed: 60, w: 72, h: 50, aggro: true, hops: false,
+  ai: { kind: 'phase', every: 6, dur: 1.8, r: 170 }, // (under the sand, then up under you)
+  drops: [['coin', 1, 2002, 3003], ['beetle_wingcase', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.fulgurite_scorpion = {
+  name: 'Fulgurite Scorpion', lvl: 222, hp: 46390, atk: 824, exp: 24821, speed: 48, w: 78, h: 46, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.6, lunge: 460, time: 0.3 }, // (the lamp crab's: hit it from behind)
+  drops: [['coin', 1, 2042, 3063], ['fulgurite_sting', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1], ['fulgurite_crest', 0.004, 1, 1]],
+};
+// The Buried Observatory's: dust wraiths are the dust the old astronomers left, drifting in the rings, fading out and
+// back with a pulse (`phase`); dial sentries are Keeper-made watchmen still on watch, a sun-glass lens in the head that
+// throws a beam (`beam`, style `sunbeam`; the rare Dialwatch Helm); sand asps lie under the sand and lunge (`shell` with
+// no shell, `cut: 0`, like the reed stalker); amber moths are big and slow and golden and stoop from above (`dive`)
+MOBS.dust_wraith = {
+  name: 'Dust Wraith', lvl: 224, hp: 36810, atk: 833, exp: 25202, speed: 65, w: 46, h: 60, aggro: true, hops: false, fly: 30,
+  ai: { kind: 'phase', every: 6.2, dur: 1.9, r: 180 },
+  drops: [['coin', 1, 2070, 3105], ['wraith_dust', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.dial_sentry = {
+  name: 'Dial Sentry', lvl: 227, hp: 36730, atk: 846, exp: 25779, speed: 40, w: 58, h: 78, aggro: true, hops: false,
+  ai: { kind: 'beam', range: 600, every: 4.3, warn: 1.1, dur: 0.45, y0: 418, y1: 450, style: 'sunbeam' },
+  drops: [['coin', 1, 2111, 3167], ['dial_cog', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1], ['dialwatch_helm', 0.004, 1, 1]],
+};
+MOBS.sand_asp = {
+  name: 'Sand Asp', lvl: 229, hp: 40440, atk: 855, exp: 26166, speed: 90, w: 72, h: 40, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0, every: 2.8, warn: 0.5, lunge: 640, time: 0.4 }, // (still under the sand, then the lunge)
+  drops: [['coin', 1, 2138, 3207], ['asp_skin', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.amber_moth = {
+  name: 'Amber Moth', lvl: 231, hp: 38080, atk: 863, exp: 26556, speed: 115, w: 66, h: 54, aggro: true, hops: false, fly: 60,
+  ai: { kind: 'dive', every: 3.3, warn: 0.6, time: 0.42 },
+  drops: [['coin', 1, 2164, 3246], ['amber_scale', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+// The Sunroller (A1; its den, the Dial Floor, opens in the Observatory's Dial Court at SUN_DEN_X). A den boss with a story
+// (story/phase9-plan.md): a great scarab as big as a wagon, rolling a stone sun round the observatory's dial floor to keep
+// the hours turning, because the Keepers who read the dials told the hours by it and nobody has told it to stop. With a
+// shard in its back it rolls, and rolls. Holding on: the old sky's time. Its sun goes round in charges and rolls the den's
+// length as its ultimate, The Long Day (the `wave` ult, drawn as the sun rolling: ULT_LOOKS). Challenges from day one: late
+// tells (every phase: the shadow on the dial comes too late), bullet rings of sunlight off the sun (phase 2 on, `orbs`),
+// and in phase 3 a wall of glare down the whole den with one strip of shade, the gnomon's shadow (`gaps`, style `glare`).
+// Freed, it lets the stone sun come to rest at noon (the den's bossDie)
+MOBS.sunroller = {
+  name: 'The Sunroller', boss: true, lvl: 232, hp: 16200000, atk: 928, exp: 1720000, speed: 85, w: 250, h: 190, aggro: true, hops: false,
+  phases: [['charge', 'slam', 'rain', 'late'], ['charge', 'slam', 'rain', 'summon', 'late', 'orbs'], ['charge', 'rain', 'summon', 'leap', 'barrage', 'late', 'orbs', 'gaps']],
+  ch: ['late', 'rings', 'gaps'],
+  ult: { name: 'The Long Day', kind: 'wave' }, minion: 'amber_moth',
+  // S5.4: the shard in its back glints between the wing-cases (the weak point, up on its back: in reach with a jump), the
+  // dial floor gives off a pulse of heat (a pulse), and freezing The Long Day as it gathers cancels it
+  party: ['weakpoint', 'pulse', 'interrupt'], partyLive: true, weak: { dx: -0.12, dy: -0.78, r: 22 },
+  looks: { gaps: 'glare', rings: 'sun', pulse: 'noon' },
+  lines: {
+    enter: ['Mind the dial. The hour is coming round. It is always coming round. I see to it.', 'You are standing on the third hour. Step off it, please. It has to come round.'],
+    phase: [null, 'They read the hours off me, once. Every caravan. Every Keeper on the steps. If I stop, there are no hours!', 'The sky is wrong, the stars are wrong, the sun is wrong. THIS one is right. I will roll it till the sky agrees!'],
+    freed: '...Noon. There. It has come to noon. ...And it can stay there. It is a very good hour. I think I will rest in it.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['gnomon_blade', 1, 1, 1], ['scarab_crown', 0.6, 1, 1], ['coin', 1, 394000, 591000], ['mega_elixir', 1, 4, 6], ['sunstone_chip', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
 // The Escapement (the Citadel's C6 (c), story/c6-plan.md; docs/places/escapement.md): the Citadel's final boss, in the
 // Catch (room CATCH_DEN, at the end of the Spoke). The Wheel's catch: a great toothed anchor on its arbor under the hub,
 // both pallets clamped on the escape wheel since Chronos told it to hold, its pendulum swinging under it. Its own brain
@@ -4068,6 +4268,9 @@ const onEnPlat = onRoomPlat(ENGINE_PLATFORMS, ENGINE);
 const onBwPlat = onRoomPlat(BELLS_PLATFORMS, BELLS);
 const onKlPlat = onRoomPlat(KEEL_PLATFORMS, KEEL);
 const onUcPlat = onRoomPlat(UNDERCROFT_PLATFORMS, UNDERCROFT);
+const onGdPlat = onRoomPlat(GDUNES_PLATFORMS, GLASSDUNES);
+const onOaPlat = onRoomPlat(OASIS_PLATFORMS, OASIS);
+const onObPlat = onRoomPlat(OBS_PLATFORMS, OBSERVATORY);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -4766,6 +4969,50 @@ export const SPAWNS = [
   ...onUcPlat('counterweight', 6, 1),
   ...onUcPlat('loose_pawl', 7, 1),
   ...onUcPlat('counterweight', 8, 1),
+  // atlas Phase 9, A0: the Glass Dunes (the Dune Gate has none)
+  ...strip('sand_skipper', 700, 1880, FIELD_GROUND, 5, GLASSDUNES),
+  ...strip('heat_mirage', 700, 1880, FIELD_GROUND, 2, GLASSDUNES),
+  ...onGdPlat('sand_skipper', 0, 1),
+  ...onGdPlat('heat_mirage', 1, 1),
+  ...strip('dune_beetle', 1950, 3280, FIELD_GROUND, 4, GLASSDUNES),
+  ...strip('sand_skipper', 1950, 3280, FIELD_GROUND, 2, GLASSDUNES),
+  ...strip('heat_mirage', 1950, 3280, FIELD_GROUND, 1, GLASSDUNES),
+  ...onGdPlat('dune_beetle', 2, 1),
+  ...onGdPlat('heat_mirage', 3, 1),
+  ...onGdPlat('dune_beetle', 4, 1),
+  ...strip('fulgurite_scorpion', 3350, 4650, FIELD_GROUND, 4, GLASSDUNES),
+  ...strip('dune_beetle', 3350, 4650, FIELD_GROUND, 2, GLASSDUNES),
+  ...strip('heat_mirage', 3350, 4650, FIELD_GROUND, 1, GLASSDUNES),
+  ...onGdPlat('fulgurite_scorpion', 5, 1),
+  ...onGdPlat('heat_mirage', 6, 1),
+  ...onGdPlat('fulgurite_scorpion', 7, 1),
+  // A1: the Mirage Oasis (the Slip and the Far Shade have none)
+  ...strip('sand_skipper', 560, 1430, FIELD_GROUND, 4, OASIS),
+  ...strip('heat_mirage', 560, 1430, FIELD_GROUND, 2, OASIS),
+  ...onOaPlat('sand_skipper', 0, 1),
+  ...onOaPlat('heat_mirage', 1, 1),
+  ...strip('heat_mirage', 1480, 2160, FIELD_GROUND, 2, OASIS),
+  ...strip('sand_skipper', 1480, 2160, FIELD_GROUND, 2, OASIS),
+  ...strip('dune_beetle', 1480, 2160, FIELD_GROUND, 1, OASIS),
+  ...onOaPlat('heat_mirage', 3, 1),
+  ...onOaPlat('sand_skipper', 2, 1),
+  // A1: the Buried Observatory (the Sunken Steps have none)
+  ...strip('dust_wraith', 700, 1980, FIELD_GROUND, 4, OBSERVATORY),
+  ...strip('fulgurite_scorpion', 700, 1980, FIELD_GROUND, 2, OBSERVATORY),
+  ...onObPlat('dust_wraith', 0, 1),
+  ...onObPlat('dust_wraith', 1, 1),
+  ...onObPlat('fulgurite_scorpion', 2, 1),
+  ...strip('dial_sentry', 2050, 3480, FIELD_GROUND, 3, OBSERVATORY),
+  ...strip('sand_asp', 2050, 3480, FIELD_GROUND, 3, OBSERVATORY),
+  ...strip('dust_wraith', 2050, 3480, FIELD_GROUND, 1, OBSERVATORY),
+  ...onObPlat('dial_sentry', 3, 1),
+  ...onObPlat('dial_sentry', 4, 1),
+  ...onObPlat('sand_asp', 5, 1),
+  ...strip('amber_moth', 3550, 5000, FIELD_GROUND, 4, OBSERVATORY),
+  ...strip('sand_asp', 3550, 5000, FIELD_GROUND, 2, OBSERVATORY),
+  ...onObPlat('amber_moth', 6, 1),
+  ...onObPlat('amber_moth', 7, 1),
+  ...onObPlat('sand_asp', 8, 1),
   { kind: 'mainspring', x0: 4280, x1: 4440, y: FIELD_GROUND, room: UNDERCROFT },
 ];
 export const MOB_RESPAWN_MS = 9000;
@@ -4803,6 +5050,7 @@ export const DENS = [
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
   { room: WICK_DEN, boss: 'wickmother', name: WICK_DEN_NAME, from: LAMPROAD, fromName: 'the Lamp Road', entranceX: WICK_DEN_X, theme: 'lamps', platforms: HALL_PLATFORMS, final: true }, // (L5 (c); art: src/dens-wick.js; the door's art: src/lamproad.js)
   { room: CATCH_DEN, boss: 'escapement', name: CATCH_DEN_NAME, from: SPOKE, fromName: 'the Spoke', entranceX: ESC_DEN_X, theme: 'catch', platforms: CATCH_PLATFORMS, final: true }, // (the Citadel's C6 (c); art: src/dens-esc.js; the door's art: src/spoke.js)
+  { room: SUN_DEN, boss: 'sunroller', name: 'The Dial Floor', from: OBSERVATORY, entranceX: SUN_DEN_X, theme: 'sundial' }, // (atlas Phase 9, A1; art: src/dens-sun.js)
   { room: TYPHON_DEN, boss: 'typhon', name: TYPHON_DEN_NAME, from: LONGFLUE, fromName: 'the Long Flue', entranceX: TYPHON_DEN_X, theme: 'hearth', platforms: TYPHON_PLATFORMS, final: true }, // (E5 (c); art: src/dens-typhon.js; the door's art: src/longflue.js)
 ];
 export const DEN_EXIT_X = 80;
@@ -5484,6 +5732,16 @@ Object.assign(ITEMS, {
   archivist_rule: { name: "Archivist's Rule", price: 298000, lvl: 168, aim: 172, kind: 'sword', atk: 225, reach: 64, desc: 'A long brass rule, its edge ground sharp, every inch marked and numbered. For measuring margins. It has been used for other things since.' },
   archivist_pointer: { name: "Archivist's Pointer", price: 298000, lvl: 168, aim: 172, kind: 'staff', magic: 225, mp: 135, reach: 64, twin: 'archivist_rule', desc: 'A reading-room pointer of black wood with a brass tip, for showing patrons the right shelf. It always knows which one.' },
   reading_visor: { name: 'Reading Visor', price: 228000, lvl: 168, aim: 172, kind: 'helmet', def: 111, desc: 'A green glass eyeshade on a brass band, a little lens on an arm that swings down over one eye. Small print has never been so legible.' },
+  // atlas Phase 9, A0: Tally's tier in Caravanserai (salt-iron and sandstone, `aim` 220), the fulgurite scorpion's rare crest;
+  // A1: the dial sentry's rare helm and the Sunroller's set (Lv 233, on the curve like the other dens')
+  salt_tulwar: { name: 'Salt-Iron Tulwar', price: 380000, lvl: 216, aim: 220, kind: 'sword', atk: 268, reach: 62, desc: "A curved blade of salt-iron, grey and frosted white along the spine where the salt comes out of it in the sun. Tally has counted its nicks. There are nineteen." },
+  sandstone_rod: { name: 'Sandstone Rod', price: 380000, lvl: 216, aim: 220, kind: 'staff', magic: 268, mp: 161, reach: 62, twin: 'salt_tulwar', desc: 'A rod of banded red and gold sandstone, smoothed by a thousand hands, a bead of amber glass wired to its head. It is warm even in the shade.' },
+  drover_wrap: { name: "Drover's Wrap", price: 293000, lvl: 216, aim: 220, kind: 'helmet', def: 136, desc: 'A long scarf of undyed wool wound round and round into a hood, a fold to pull over the mouth, a brass ring to hold it. Tally sells them by the length and measures twice.' },
+  fulgurite_crest: { name: 'Fulgurite Crest', price: 1753000, lvl: 222, kind: 'helmet', def: 139, desc: "A crest of lightning glass off a fulgurite scorpion's shell, branching like the strike that made it. It hums before a storm." },
+  dialwatch_helm: { name: 'Dialwatch Helm', price: 1834000, lvl: 227, kind: 'helmet', def: 141, desc: "A dial sentry's bronze head, hollowed out, its sun-glass eye still in the brow. Now and then it turns a little on its own, toward the sun." },
+  gnomon_blade: { name: 'Gnomon Blade', price: 2565000, lvl: 233, slots: 9, kind: 'sword', atk: 282, reach: 68, desc: "A long straight blade of bronze, cut in the shape of a sundial's gnomon, the hours notched along its back. At noon it casts no shadow at all." },
+  sundial_staff: { name: 'Sundial Staff', price: 2565000, lvl: 233, slots: 9, kind: 'staff', magic: 282, mp: 169, reach: 68, twin: 'gnomon_blade', desc: 'A tall bronze staff with a little sundial at its head, its shadow going round. Its bolts leave the air shimmering, like noon over sand.' },
+  scarab_crown: { name: 'Scarab Crown', price: 1934000, lvl: 233, slots: 9, kind: 'helmet', def: 144, desc: "A crown of the Sunroller's wing-case, blue-black and gold, a stone sun no bigger than a pea held in the front. Wearing it, you always know the hour." },
   indexer_spike: { name: "The Indexer's Spike", price: 1490000, lvl: 178, slots: 9, kind: 'sword', atk: 235, reach: 68, desc: 'A filing spike as long as a sword, brass on an iron foot, a few last pages still caught on it. Whatever it goes through stays filed.' },
   stamp_staff: { name: 'Sentinel Stamp', price: 1490000, lvl: 178, slots: 9, kind: 'staff', magic: 235, mp: 141, reach: 68, twin: 'indexer_spike', desc: "A long brass stamp off the Indexer's arm, its red die at the head. Every bolt lands with a thump and leaves its mark." },
   drawer_crown: { name: 'Drawer Crown', price: 1125000, lvl: 178, slots: 9, kind: 'helmet', def: 117, desc: 'A crown of little brass card drawers, each with a label frame and no label. One of them will not quite close.' },
@@ -5491,6 +5749,16 @@ Object.assign(ITEMS, {
   archive_ink: { name: 'Archive Ink', price: 1645, kind: 'loot', desc: 'A stoppered drop of the Archive\'s black ink, still wet. It writes, but only the date, over and over.' },
   binder_clasp: { name: 'Binder Clasp', price: 1685, kind: 'loot', desc: 'A heavy brass clasp off a binder automaton\'s board, made to hold a volume shut. It is very good at it.' },
   index_tab: { name: 'Index Tab', price: 1715, kind: 'loot', desc: 'A grey tab off an index moth\'s wing, the size of a catalogue card, a letter on it worn away. It flutters when nobody is looking.' },
+  // atlas Phase 9, A0 and A1: Amberdune's (docs/economy.md: the ladder on above the Undercroft's)
+  skipper_frill: { name: 'Skipper Frill', price: 1960, kind: 'loot', desc: "A sand skipper's neck frill, thin as paper and striped like a sunset. They spread them to look bigger. It mostly works on other sand skippers." },
+  bottled_shimmer: { name: 'Bottled Shimmer', price: 1965, kind: 'loot', desc: 'A stoppered flask with nothing in it but a wobble. Hold it to the light and the far side of the room swims.' },
+  beetle_wingcase: { name: 'Beetle Wing-Case', price: 1980, kind: 'loot', desc: "A dune beetle's wing-case, glossy black with a gold sheen, curved like a bowl. The caravan folk drink out of them." },
+  fulgurite_sting: { name: 'Fulgurite Sting', price: 2000, kind: 'loot', desc: 'The tip of a fulgurite scorpion\'s tail, a hooked branch of lightning glass. It still tingles if you touch the point.' },
+  wraith_dust: { name: 'Wraith Dust', price: 2010, kind: 'loot', desc: 'A pinch of very fine dust in a twist of cloth that never settles: it turns slowly round inside, like stars.' },
+  dial_cog: { name: 'Dial Cog', price: 2030, kind: 'loot', desc: 'A bronze cog off a dial sentry, each tooth engraved with a star nobody can find in the sky any more.' },
+  asp_skin: { name: 'Sand Asp Skin', price: 2045, kind: 'loot', desc: 'A shed asp skin the colour of the dunes at evening, every scale perfect. It weighs nothing. The wind wants it back.' },
+  amber_scale: { name: 'Amber Scale', price: 2060, kind: 'loot', desc: "A wing scale off an amber moth, gold and clear as honey, a speck of something very old caught inside." },
+  sunstone_chip: { name: 'Sunstone Chip', price: 2330, kind: 'loot', desc: "A chip off the Sunroller's stone sun, gold-veined and warm. It is warmest at noon, wherever you are." },
   last_card: { name: 'Last Index Card', price: 1935, kind: 'loot', desc: 'A card out of the Indexer\'s drawer, the date of the last day typed at the top, and nothing under it at all.' },
 });
 // the Citadel, C3 (docs/places/engine.md): Number Nine's issue (aim 185: on the gear curve at Lv 181, under its aim like
@@ -5573,6 +5841,8 @@ BOW_LIST.push(
 );
 BOW_LIST.push(
   ['archivist_bow', 'archivist_rule', "Archivist's Bow", "A slim bow of two brass rules bound back to back with bookbinder's thread. Its arrows land exactly where it says on the label."],
+  ['drover_bow', 'salt_tulwar', "Drover's Bow", 'A short horn bow bound in drover\'s leather, a string of caravan bells at one tip. The pack-beasts know its twang and come.'],
+  ['scarab_bow', 'gnomon_blade', 'Scarab Bow', "Two curved wing-cases of the Sunroller's, bound at the grip with bronze, strung with sun-dried gut. Its arrows go round, the long way, and get there."],
   ['catalogue_bow', 'indexer_spike', 'Catalogue Bow', "A bow bent from a catalogue drawer's runners, a brass label frame at the grip. Every arrow it lets go is filed somewhere, eventually."],
 );
 BOW_LIST.push(
@@ -5690,6 +5960,10 @@ export const SHOPS = {
   wren: { name: "Wren's Lamp Stall", room: WICKMERE, x: WREN_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir'] }, // (atlas Phase 8: she calls it all lamp oil)
   hob: { name: "Hob's Punt", room: WICKMERE, x: HOB_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'boathook', 'punt_staff', 'decoy_bow', 'oilskin_hat'] }, // (atlas Phase 8, L2: he trades from his punt)
   sedge: { name: "Sedge's Reed Shed", room: WICKMERE, x: SEDGE_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'reedcutter', 'willow_staff', 'wicker_bow', 'reed_hood'] },
+  // Caravanserai (atlas Phase 9, A0): Mother Dune's water-skins and potions in the Star Court (she calls it all water,
+  // and sells it dear), Tally's salt-iron and sandstone at his counting-stall
+  mother_dune: { name: "Mother Dune's Water", room: CARAVAN, x: MOTHER_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir'] },
+  tally: { name: "Tally's Counting-Stall", room: CARAVAN, x: TALLY_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'salt_tulwar', 'sandstone_rod', 'drover_bow', 'drover_wrap'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
   // the Citadel (C0): the Commissary, a vending automaton in Cogwork Bastion still issuing kit to Keepers' guards
   commissary: { name: 'The Commissary', room: CITADEL, x: COMMISSARY_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'guard_saber', 'guard_staff', 'guard_bow', 'guard_helm'] },

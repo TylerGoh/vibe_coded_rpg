@@ -9,13 +9,15 @@ import { W, TAU, circle, ellipse, mix } from './util.js';
 // For each island you can stand on: the compass bearing its view faces, and the bearing (degrees,
 // 0 = north, clockwise) and distance (1 = far, bigger = nearer) of every other island's landmark.
 const VIEWS = {
-  green: { face: 90, sees: { frost: [40, 1], citadel: [92, 1], ember: [140, 1], fen: [104, 0.7] } },
-  greenSouth: { face: 180, sees: { frost: [40, 1], citadel: [92, 1], ember: [140, 1], fen: [104, 0.7] } }, // Greenhollow's south shore (Saltspray Coves): Emberdeep's smoke ahead
-  frost: { face: 180, sees: { citadel: [165, 1], ember: [190, 0.8], green: [240, 0.9], fen: [132, 0.8] } },
-  ember: { face: 0, sees: { frost: [335, 0.8], citadel: [345, 1.1], green: [300, 0.9], fen: [42, 0.8] } },
-  citadel: { face: 270, sees: { green: [270, 0.9], frost: [0, 0.9], ember: [180, 0.9] } },
+  green: { face: 90, sees: { frost: [40, 1], citadel: [92, 1], ember: [140, 1], fen: [104, 0.7], dune: [168, 0.6] } },
+  greenSouth: { face: 180, sees: { frost: [40, 1], citadel: [92, 1], ember: [140, 1], fen: [104, 0.7], dune: [196, 0.6] } }, // Greenhollow's south shore (Saltspray Coves): Emberdeep's smoke ahead
+  frost: { face: 180, sees: { citadel: [165, 1], ember: [190, 0.8], green: [240, 0.9], fen: [132, 0.8], dune: [214, 0.55] } },
+  ember: { face: 0, sees: { frost: [335, 0.8], citadel: [345, 1.1], green: [300, 0.9], fen: [42, 0.8], dune: [268, 0.85] } },
+  citadel: { face: 270, sees: { green: [270, 0.9], frost: [0, 0.9], ember: [180, 0.9], dune: [240, 0.7] } },
   // Lantern Fen (atlas Phase 8), looking west over the mere toward the middle of the sea
-  fen: { face: 270, sees: { citadel: [282, 1], frost: [322, 0.8], ember: [218, 0.8], green: [268, 0.6] } },
+  fen: { face: 270, sees: { citadel: [282, 1], frost: [322, 0.8], ember: [218, 0.8], green: [268, 0.6], dune: [255, 0.4] } },
+  // Amberdune (atlas Phase 9), the south-west side island, looking north-east toward the middle of the sea
+  dune: { face: 60, sees: { green: [15, 0.8], frost: [40, 0.6], citadel: [64, 1], ember: [84, 1], fen: [98, 0.4] } },
 };
 const PX_PER_DEG = 4.4; // how wide the panorama is
 const PAN = 160; // walking from one end of a room to the other turns the panorama this many px
@@ -33,7 +35,7 @@ export function drawDistantIslands(ctx, o) {
     let rel = (((bearing - view.face) % 360) + 540) % 360 - 180; // -180..180, negative = to the left
     const x = W / 2 + rel * PX_PER_DEG + pan, s = scale * near;
     if (x < -260 || x > W + 260) continue;
-    const draw = { frost: drawFrostpeak, ember: drawEmberdeep, citadel: drawCitadel, green: drawGreenhollow, fen: drawLanternFen }[key];
+    const draw = { frost: drawFrostpeak, ember: drawEmberdeep, citadel: drawCitadel, green: drawGreenhollow, fen: drawLanternFen, dune: drawAmberdune }[key];
     draw(ctx, x, o.horizon, s, o, tint);
   }
 }
@@ -43,7 +45,7 @@ export function drawDistantIslands(ctx, o) {
 export function drawLandmark(ctx, key, x, y, s, o) {
   const fade = o.fade ?? 0.5, haze = o.haze ?? '#f0faff';
   const tint = (c, more = 0) => mix(c, haze, Math.max(0, Math.min(1, fade + more)));
-  ({ frost: drawFrostpeak, ember: drawEmberdeep, citadel: drawCitadel, green: drawGreenhollow, fen: drawLanternFen })[key](ctx, x, y, s, o, tint);
+  ({ frost: drawFrostpeak, ember: drawEmberdeep, citadel: drawCitadel, green: drawGreenhollow, fen: drawLanternFen, dune: drawAmberdune })[key](ctx, x, y, s, o, tint);
 }
 
 // Frostpeak: a cluster of snowy peaks under the aurora (its landmark), faint by day
@@ -188,4 +190,38 @@ function drawLanternFen(ctx, x, y, s, o, tint) {
     circle(ctx, lx, ly, Math.max(1, 2.2 * s));
   }
   ctx.globalAlpha = 1;
+}
+
+// Amberdune, seen from away (atlas Phase 9): a long low gold line of dunes with heat shimmer over it, and sometimes a far
+// hill on its skyline that has moved since you last looked (Old Carapace walking: where depends on the hour; never named)
+function drawAmberdune(ctx, x, y, s, o, tint) {
+  const t = o.time;
+  ctx.fillStyle = tint('#e8c890', 0.05);
+  ctx.beginPath();
+  ctx.moveTo(x - 120 * s, y);
+  for (let i = 0; i <= 8; i++) {
+    const dx = -120 + i * 30;
+    ctx.quadraticCurveTo(x + (dx + 15) * s, y - (14 + (i % 3) * 6) * s, x + (dx + 30) * s, y - (4 + (i % 2) * 3) * s);
+  }
+  ctx.lineTo(x + 120 * s, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = tint('#c89a60', 0.12); // the shadow sides
+  for (let i = 0; i < 8; i += 2) ellipse(ctx, x + (-100 + i * 30) * s, y - 4 * s, 10 * s, 3 * s);
+  const hour = (Date.now() / 3.6e6) % 24, hx = x + (-80 + (hour / 24) * 160) * s;
+  if (Math.floor(hour) % 3 !== 2) { // (now and then it's out of sight)
+    ctx.fillStyle = tint('#b08c6e', 0.1);
+    ctx.beginPath();
+    ctx.moveTo(hx - 14 * s, y - 10 * s);
+    ctx.quadraticCurveTo(hx, y - 26 * s, hx + 14 * s, y - 10 * s);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.strokeStyle = 'rgba(255,248,226,0.35)'; // heat shimmer over it
+  ctx.lineWidth = Math.max(1, 1.2 * s);
+  for (let k = 0; k < 2; k++) {
+    ctx.beginPath();
+    for (let dx = -110; dx <= 110; dx += 10) ctx.lineTo(x + dx * s, y - (28 + k * 8) * s + Math.sin(dx * 0.2 + t * 3 + k) * 1.5 * s);
+    ctx.stroke();
+  }
 }

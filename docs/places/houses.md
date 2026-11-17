@@ -109,7 +109,8 @@ home, `grow`). `src/store.js` (the furniture store's showroom, its buy card, its
 - The layout carries its `size` (an index into `HOUSE_SIZES`). Only the server changes it, and only when
   you pay (`grow`, which spends gold through `pay` in `server/rpg.js` and saves both at once); `house-set`
   keeps the stored size whatever the client sends.
-- House rooms aren't in `ROOMS`. Their ids start at `HOUSE_BASE`; the server hands each account one at
+- House rooms aren't in `ROOMS`. Their ids start at `HOUSE_BASE` (1000 since atlas Phase 9: it was 100 until Amberdune's rooms
+  needed ids 100 and up; house ids are handed out fresh at every server start and never saved, so moving it lost nothing); the server hands each account one at
   its first login after a start (`homeOf`), so the ids only mean something for this run. Layouts are saved
   by username in the `houses` table of the accounts DB. `roomDef(room)` is the way to look up any room
   now; code that does `ROOMS[room]` for a room that might be a house is a bug.

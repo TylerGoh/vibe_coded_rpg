@@ -150,6 +150,14 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    rare Wheelwright's Cap), loose pawls (`stomp`), counterweights (`dive`), three elites (the Great Sump Slime, the Master
    Pawl, the Great Counterweight) and the Mainspring (a named elite, the Eldest's kind: a lunge with no shell). No hazard,
    no new brains. The Spoke beyond it is the approach to the Escapement's den (not a stage).
+44. **The Glass Dunes**: atlas Phase 9 (A0), Amberdune's first wilds, east off Caravanserai (Lv 215–224, a waystone at the
+   Dune Gate; `docs/places/glassdunes.md`). Sand skippers (quick chasers), heat mirages (passive fliers), dune beetles
+   (`phase` as burrowing), fulgurite scorpions (`shell`: hit from behind; the rare Fulgurite Crest). No hazard, no new brains.
+45. **The Mirage Oasis**: A1, the easy pocket off the Glass Dunes (Lv 215–220, no waystone; `docs/places/oasis.md`). The Dunes'
+   skippers, mirages and a beetle or two; no new mob.
+46. **The Buried Observatory**: A1, on east from the Glass Dunes (Lv 222–232, a waystone on the Sunken Steps, the Sunroller's
+   den; `docs/places/observatory.md`). Dust wraiths (`phase`), dial sentries (`beam`, the new beam style `sunbeam`; the rare
+   Dialwatch Helm), sand asps (`shell` with `cut: 0`), amber moths (`dive`). No hazard, no new brains.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

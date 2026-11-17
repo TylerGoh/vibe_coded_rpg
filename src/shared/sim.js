@@ -15,7 +15,7 @@ export const DT = 1 / TICK_RATE;
 export const WORLD_W = 5100; // the village
 export const GROUND_Y = 450;
 export const SPAWN_X = 220; // where you start in the village
-import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_PLATFORMS, FORGEHOLD, FORGE_W, FORGE_DOCK_X, FORGE_HOME_X, FORGE_SPAWN_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X, ASH_X, SLAG_X, FJORD_LODESTAR_X, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X, SUNKEN, SUNKEN_W, SUNKEN_EXIT_X, SUNKEN_GATE_X, SUNKEN_END_X, SUNKEN_PLATFORMS, ROADSEND, ROADSEND_W, ROADSEND_EXIT_X, OLDICE, OLDICE_W, OLDICE_EXIT_X, OLDICE_GATE_X, OLDICE_END_X, OLDICE_PLATFORMS, LONGSTAIR, LONGSTAIR_W, LONGSTAIR_EXIT_X, BLACKSANDS, SANDS_W, SANDS_EXIT_X, SANDS_PLATFORMS, SANDS_GATE_X, ASHWOOD, ASH_W, ASH_EXIT_X, ASH_PLATFORMS, ASHWOOD_GATE_X, PITCH_X, COAST, COAST_W, COAST_EXIT_X, COAST_PLATFORMS, COAST_GATE_X, LIV_X, TUBES, TUBES_W, TUBES_EXIT_X, TUBES_PLATFORMS, TUBES_GATE_X, BRIMSTONE, BRIM_W, BRIM_EXIT_X, BRIM_PLATFORMS, BRIMSTONE_GATE_X, OCHRE_X, FOUNDRY, FOUNDRY_W, FOUNDRY_EXIT_X, FOUNDRY_PLATFORMS, RIM, RIM_W, RIM_EXIT_X, RIM_PLATFORMS, RIM_GATE_X, FOUNDRY_GATE_X, UNDERFLUES, UNDERFLUES_W, UNDERFLUES_EXIT_X, UNDERFLUES_GATE_X, UNDERFLUES_END_X, UNDERFLUES_PLATFORMS, LONGFLUE, LONGFLUE_W, LONGFLUE_EXIT_X, BALLOON_X, SKYCAMP, CAMP_W, CAMP_DOCK_X, CAMP_HOME_X, CAMP_SPAWN_X, CAMP_PLATFORMS, KESTREL_X, IONE_X, TAMP_X, CAMP_END_X, SKYDOCKS, SKYDOCKS_W, SKYDOCKS_EXIT_X, SKYDOCKS_RAMP_X, SKYDOCKS_PLATFORMS, WARDEN_X, FJORD_HUSH_X, WICKMERE, WICK_W, NETTA_X, WICK_DOCK_X, WREN_X, WICK_SPAWN_X, WICK_HOME_X, HOB_X, SEDGE_X, WICK_EXIT_X, WICK_PLATFORMS, SHALLOWS, SHALLOWS_W, SHALLOWS_EXIT_X, SHALLOWS_PLATFORMS, FIREFLY_GATE_X, GROVE_GATE_X, FIREFLY, FIREFLY_W, FIREFLY_EXIT_X, FIREFLY_PLATFORMS, GROVE, GROVE_W, GROVE_EXIT_X, GROVE_PLATFORMS, STILLMERE, STILLMERE_W, MERE_EXIT_X, STILLMERE_PLATFORMS, STILLMERE_GATE_X, BARROWS, BARROWS_W, BARROWS_EXIT_X, BARROWS_PLATFORMS, BARROWS_GATE_X, CAUSEWAY, CAUSEWAY_W, CAUSEWAY_EXIT_X, CAUSEWAY_PLATFORMS, CAUSEWAY_GATE_X, PEAT_GATE_X, PEATBARROWS, PEATBARROWS_W, PEATBARROWS_EXIT_X, PEATBARROWS_END_X, PEATBARROWS_PLATFORMS, LAMPROAD, LAMPROAD_W, LAMPROAD_EXIT_X, HALL_GATE_X, LAMP_FRONT_X, GARDENS, GARDENS_W, GARDENS_EXIT_X, GARDENS_PLATFORMS, GARDENS_GATE_X, COMMISSARY_X, ORRERY, ORRERY_W, ORRERY_EXIT_X, ORRERY_PLATFORMS, ORRERY_GATE_X, ECHO_X, ARCHIVE, ARCHIVE_W, ARCHIVE_EXIT_X, ARCHIVE_PLATFORMS, ARCHIVE_GATE_X, FOLIO_X, ENGINE, ENGINE_W, ENGINE_EXIT_X, ENGINE_PLATFORMS, BELLS, BELLS_W, BELLS_EXIT_X, BELLS_PLATFORMS, BELLS_GATE_X, ENGINE_GATE_X, NINE_X, KEEL, KEEL_W, KEEL_EXIT_X, KEEL_PLATFORMS, KEEL_GATE_X, UNDERCROFT_GATE_X, UNDERCROFT, UNDERCROFT_W, UNDERCROFT_EXIT_X, UNDERCROFT_END_X, UNDERCROFT_PLATFORMS, SPOKE, SPOKE_W, SPOKE_EXIT_X } from './rpg.js';
+import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE_X, CLIFFS_PATH_X, DENS, DEN_W, DEN_PLATFORMS, DEN_EXIT_X, MOBS, HIGHLANDS, HIGHLANDS_W, HIGHLANDS_EXIT_X, HIGHLAND_PLATFORMS, FJORD, FJORD_W, FJORD_DOCK_X, FJORD_EXIT_X, FJORD_HOME_X, FJORD_SPAWN_X, FJORD_PLATFORMS, RUNA_X, STAGES, CALDERA, CALDERA_W, CALDERA_EXIT_X, CALDERA_PLATFORMS, FORGEHOLD, FORGE_W, FORGE_DOCK_X, FORGE_HOME_X, FORGE_SPAWN_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X, ASH_X, SLAG_X, FJORD_LODESTAR_X, CITADEL, CITADEL_W, CITADEL_EXIT_X, CITADEL_PLATFORMS, WILLOWMERE, WILLOWMERE_W, WILLOWMERE_EXIT_X, WILLOWMERE_GATE_X, WILLOWMERE_PLATFORMS, BUN_X, COVES, COVES_W, COVES_EXIT_X, COVES_GATE_X, COVES_PLATFORMS, MOSS_X, PETSHOP, PETSHOP_W, PETSHOP_EXIT_X, CLOVER_X, MYCELIUM, MYCELIUM_W, MYCELIUM_EXIT_X, MYCELIUM_GATE_X, MYCELIUM_PLATFORMS, TRUFFLE_X, GLOWROOT, GLOWROOT_W, GLOWROOT_EXIT_X, GLOWROOT_GATE_X, GLOWROOT_PLATFORMS, CANOPY, CANOPY_W, CANOPY_EXIT_X, CANOPY_GATE_X, CANOPY_PLATFORMS, ACORN_X, WRECK, WRECK_W, WRECK_EXIT_X, WRECK_GATE_X, WRECK_PLATFORMS, THORNHEART, THORN_W, THORN_EXIT_X, THORN_GATE_X, THORN_PLATFORMS, SPINE, SPINE_W, SPINE_EXIT_X, SPINE_GATE_X, SPINE_PLATFORMS, GLACIER, GLACIER_W, GLACIER_EXIT_X, GLACIER_GATE_X, GLACIER_PLATFORMS, EYVIND_X, SKERRIES, SKERRIES_W, SKERRIES_EXIT_X, SKERRIES_GATE_X, SKERRIES_PLATFORMS, HAKON_X, GROTTO, GROTTO_W, GROTTO_EXIT_X, GROTTO_GATE_X, GROTTO_PLATFORMS, HEIGHTS, HEIGHTS_W, HEIGHTS_EXIT_X, HEIGHTS_GATE_X, HEIGHTS_PLATFORMS, BLUEHALLS, BLUEHALLS_W, BLUEHALLS_EXIT_X, BLUEHALLS_GATE_X, BLUEHALLS_PLATFORMS, QBRIDGE, QBRIDGE_W, QBRIDGE_EXIT_X, QBRIDGE_PLATFORMS, BRIDGE_GATE_X, SUNKEN, SUNKEN_W, SUNKEN_EXIT_X, SUNKEN_GATE_X, SUNKEN_END_X, SUNKEN_PLATFORMS, ROADSEND, ROADSEND_W, ROADSEND_EXIT_X, OLDICE, OLDICE_W, OLDICE_EXIT_X, OLDICE_GATE_X, OLDICE_END_X, OLDICE_PLATFORMS, LONGSTAIR, LONGSTAIR_W, LONGSTAIR_EXIT_X, BLACKSANDS, SANDS_W, SANDS_EXIT_X, SANDS_PLATFORMS, SANDS_GATE_X, ASHWOOD, ASH_W, ASH_EXIT_X, ASH_PLATFORMS, ASHWOOD_GATE_X, PITCH_X, COAST, COAST_W, COAST_EXIT_X, COAST_PLATFORMS, COAST_GATE_X, LIV_X, TUBES, TUBES_W, TUBES_EXIT_X, TUBES_PLATFORMS, TUBES_GATE_X, BRIMSTONE, BRIM_W, BRIM_EXIT_X, BRIM_PLATFORMS, BRIMSTONE_GATE_X, OCHRE_X, FOUNDRY, FOUNDRY_W, FOUNDRY_EXIT_X, FOUNDRY_PLATFORMS, RIM, RIM_W, RIM_EXIT_X, RIM_PLATFORMS, RIM_GATE_X, FOUNDRY_GATE_X, UNDERFLUES, UNDERFLUES_W, UNDERFLUES_EXIT_X, UNDERFLUES_GATE_X, UNDERFLUES_END_X, UNDERFLUES_PLATFORMS, LONGFLUE, LONGFLUE_W, LONGFLUE_EXIT_X, BALLOON_X, SKYCAMP, CAMP_W, CAMP_DOCK_X, CAMP_HOME_X, CAMP_SPAWN_X, CAMP_PLATFORMS, KESTREL_X, IONE_X, TAMP_X, CAMP_END_X, SKYDOCKS, SKYDOCKS_W, SKYDOCKS_EXIT_X, SKYDOCKS_RAMP_X, SKYDOCKS_PLATFORMS, WARDEN_X, FJORD_HUSH_X, WICKMERE, WICK_W, NETTA_X, WICK_DOCK_X, WREN_X, WICK_SPAWN_X, WICK_HOME_X, HOB_X, SEDGE_X, WICK_EXIT_X, WICK_PLATFORMS, SHALLOWS, SHALLOWS_W, SHALLOWS_EXIT_X, SHALLOWS_PLATFORMS, FIREFLY_GATE_X, GROVE_GATE_X, FIREFLY, FIREFLY_W, FIREFLY_EXIT_X, FIREFLY_PLATFORMS, GROVE, GROVE_W, GROVE_EXIT_X, GROVE_PLATFORMS, STILLMERE, STILLMERE_W, MERE_EXIT_X, STILLMERE_PLATFORMS, STILLMERE_GATE_X, BARROWS, BARROWS_W, BARROWS_EXIT_X, BARROWS_PLATFORMS, BARROWS_GATE_X, CAUSEWAY, CAUSEWAY_W, CAUSEWAY_EXIT_X, CAUSEWAY_PLATFORMS, CAUSEWAY_GATE_X, PEAT_GATE_X, PEATBARROWS, PEATBARROWS_W, PEATBARROWS_EXIT_X, PEATBARROWS_END_X, PEATBARROWS_PLATFORMS, LAMPROAD, LAMPROAD_W, LAMPROAD_EXIT_X, HALL_GATE_X, LAMP_FRONT_X, GARDENS, GARDENS_W, GARDENS_EXIT_X, GARDENS_PLATFORMS, GARDENS_GATE_X, COMMISSARY_X, ORRERY, ORRERY_W, ORRERY_EXIT_X, ORRERY_PLATFORMS, ORRERY_GATE_X, ECHO_X, ARCHIVE, ARCHIVE_W, ARCHIVE_EXIT_X, ARCHIVE_PLATFORMS, ARCHIVE_GATE_X, FOLIO_X, ENGINE, ENGINE_W, ENGINE_EXIT_X, ENGINE_PLATFORMS, BELLS, BELLS_W, BELLS_EXIT_X, BELLS_PLATFORMS, BELLS_GATE_X, ENGINE_GATE_X, NINE_X, KEEL, KEEL_W, KEEL_EXIT_X, KEEL_PLATFORMS, KEEL_GATE_X, UNDERCROFT_GATE_X, UNDERCROFT, UNDERCROFT_W, UNDERCROFT_EXIT_X, UNDERCROFT_END_X, UNDERCROFT_PLATFORMS, SPOKE, SPOKE_W, SPOKE_EXIT_X, SANDS_SALTWIND_X, CARAVAN, CARAVAN_W, KESH_X, DUNE_DOCK_X, TALLY_X, DUNE_SPAWN_X, ASRA_X, DUNE_HOME_X, MOTHER_X, CARAVAN_EXIT_X, CARAVAN_PLATFORMS, GLASSDUNES, GDUNES_W, GDUNES_EXIT_X, OASIS_GATE_X, GDUNES_END_X, GDUNES_PLATFORMS, OASIS, OASIS_W, OASIS_EXIT_X, OASIS_PLATFORMS, OBSERVATORY, OBS_W, OBS_EXIT_X, OBS_PLATFORMS } from './rpg.js';
 import { ARENA, ARENA_W, ARENA_PLATFORMS } from './sandbox.js';
 import { GX, walkOf, AIR_UP_V, AIR_DOWN_V, AIRDASH_CD, KEEP_DASH, GLIDE_JUMP, GLIDE_FALL, PHASE_IFR } from './gearfx.js';
 import { TRAP_HOLD, tiltV } from './challenge.js';
@@ -28,6 +28,8 @@ export const STEAM_N = 45, STEAM_S = 46; // the Lodestar's deck, south through t
 export const SKY_UP = 66, SKY_DOWN = 67; // the balloon Kite's gondola, up Emberdeep's thermal column to the Skydocks and back down (atlas Phase 6)
 export { SKYCAMP, SKYDOCKS } from './rpg.js';
 export const FEN_OUT = 71, FEN_HOME = 72; // the Hush's deck, east from Icefang Hamlet to Lantern Fen and back (atlas Phase 8)
+export const DUNE_OUT = 98, DUNE_HOME = 99; // the Saltwind's deck, west from the Black Sands to Amberdune and back (atlas Phase 9)
+export { CARAVAN, GLASSDUNES, OASIS, OBSERVATORY } from './rpg.js';
 export { WICKMERE, SHALLOWS, FIREFLY, GROVE, STILLMERE, BARROWS, CAUSEWAY, PEATBARROWS, LAMPROAD, GARDENS, ORRERY, ARCHIVE, ENGINE, BELLS, HELM_DEN, KEEL, UNDERCROFT, SPOKE } from './rpg.js';
 export { FIELD, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, UNDERFLUES, LONGFLUE };
 
@@ -70,7 +72,7 @@ export const STORE_W = 9200; // the showroom: every piece of FURNITURE on displa
 // demand. Their width (the house's size, bought bigger with gold) and platforms (the tops of the
 // furniture inside) come from its layout (src/shared/house.js houseRoom), which the server and the client
 // both apply with setHouseRoom() whenever a house's layout arrives or changes.
-export const HOUSE_BASE = 100;
+export const HOUSE_BASE = 1000; // (was 100 until atlas Phase 9 needed room ids 100 and up: house ids are handed out fresh at every start, never saved)
 export const HOUSE_W = 1680; // until its layout arrives: the smallest house (src/shared/house.js HOUSE_SIZES)
 export const HOUSE_GROUND = 470;
 export const HOUSE_EXIT_X = 80;
@@ -386,6 +388,47 @@ ROOMS[FEN_OUT] = deck('The Hush, bound for Lantern Fen', { route: 'fen', from: '
   { to: WICKMERE, toX: WICK_DOCK_X, label: 'step ashore at Reedwater' }, { to: FJORD, toX: FJORD_HUSH_X });
 ROOMS[FEN_HOME] = deck('The Hush, bound for Frostpeak', { route: 'fen', from: 'fen', to: 'frost', ticks: 55 * TICK_RATE },
   { to: FJORD, toX: FJORD_HUSH_X, label: 'go ashore at Icefang Hamlet' }, { to: WICKMERE, toX: WICK_DOCK_X });
+// The Saltwind (atlas Phase 9, docs/places/amberdune.md): Skipper Kesh's caravan skiff, west from the Black Sands round
+// Emberdeep's coast to Amberdune ('dune' route: the green sea paling to turquoise, sandbars, dunes, Saltmouth's piers high
+// and dry). A side trip off Emberdeep, a little longer than the Hush's
+ROOMS[DUNE_OUT] = deck('The Saltwind, bound for Amberdune', { route: 'dune', from: 'ember', to: 'dune', ticks: 80 * TICK_RATE },
+  { to: CARAVAN, toX: DUNE_DOCK_X, label: 'step ashore on the new jetty' }, { to: BLACKSANDS, toX: SANDS_SALTWIND_X });
+ROOMS[DUNE_HOME] = deck('The Saltwind, bound for Emberdeep', { route: 'dune', from: 'dune', to: 'ember', ticks: 60 * TICK_RATE },
+  { to: BLACKSANDS, toX: SANDS_SALTWIND_X, label: 'jump down onto the Black Sands (mobs!)' }, { to: CARAVAN, toX: DUNE_DOCK_X });
+// room 97 (atlas Phase 9, A0, docs/places/amberdune.md): Caravanserai, Amberdune's town, with Saltmouth's dry piers as its
+// waterfront. A safe room: the Saltwind's gangway at the new jetty near the west end, Saltmouth, the well, the tents and the
+// Star Court, and the east end, out onto the Glass Dunes. The way down to the Salt Flats (A2) is a gate (branches.js).
+// Its platforms are CARAVAN_PLATFORMS (rpg.js).
+ROOMS[CARAVAN] = {
+  name: 'Caravanserai', width: CARAVAN_W, ground: FIELD_GROUND, platforms: CARAVAN_PLATFORMS,
+  doors: [
+    { x: DUNE_DOCK_X, w: 80, to: DUNE_HOME, toX: DECK_GANGWAY_X, label: 'board the Saltwind back to Emberdeep', ask: 'Sail back east to the Black Sands? About a minute on the water.' },
+    { x: DUNE_HOME_X, w: 60, to: HOME, toX: HOUSE_EXIT_X, label: 'go into your house' },
+    { x: CARAVAN_EXIT_X, w: 80, to: GLASSDUNES, toX: GDUNES_EXIT_X, label: 'walk out onto the Glass Dunes (mobs!)' },
+  ],
+};
+// room 100 (atlas Phase 9, A0, docs/places/glassdunes.md): the Glass Dunes, entered at its WEST end from the town. The side
+// path down to the Mirage Oasis (A1) and its east end, down into the Buried Observatory (A1), are open
+ROOMS[GLASSDUNES] = {
+  name: 'The Glass Dunes', width: GDUNES_W, ground: FIELD_GROUND, platforms: GDUNES_PLATFORMS,
+  doors: [
+    { x: GDUNES_EXIT_X, w: 80, to: CARAVAN, toX: CARAVAN_EXIT_X, label: 'walk back to Caravanserai' },
+    { x: OASIS_GATE_X, w: 80, to: OASIS, toX: OASIS_EXIT_X, label: 'slide down between the dunes to the Mirage Oasis' },
+    { x: GDUNES_END_X, w: 80, to: OBSERVATORY, toX: OBS_EXIT_X, label: 'go down the sunken steps into the Buried Observatory (mobs!)' },
+  ],
+};
+// room 103 (atlas Phase 9, A1, docs/places/oasis.md): the Mirage Oasis, the easy pocket off the Glass Dunes' Wind Shelves
+ROOMS[OASIS] = {
+  name: 'The Mirage Oasis', width: OASIS_W, ground: FIELD_GROUND, platforms: OASIS_PLATFORMS,
+  doors: [{ x: OASIS_EXIT_X, w: 80, to: GLASSDUNES, toX: OASIS_GATE_X, label: 'climb back up the slip to the Glass Dunes (mobs!)' }],
+};
+// room 101 (atlas Phase 9, A1, docs/places/observatory.md): the Buried Observatory, entered at its WEST end. The Sunroller's
+// den door comes with its DENS row (denDoors); the stair down to the Buried Caravanserai (A3) and the Storm Road (A4) are
+// gates (branches.js)
+ROOMS[OBSERVATORY] = {
+  name: 'The Buried Observatory', width: OBS_W, ground: FIELD_GROUND, platforms: OBS_PLATFORMS,
+  doors: [{ x: OBS_EXIT_X, w: 80, to: GLASSDUNES, toX: GDUNES_END_X, label: 'climb back up to the Glass Dunes (mobs!)' }, ...denDoors(OBSERVATORY)],
+};
 export const VOYAGE_MAX = 65535; // state.vt stops counting here (it's a u16 on the wire)
 // room 23: Icefang Fjord, Frostpeak's landing, and its town, Icefang Hamlet (docs/places/fjord.md). A safe
 // room: the ferry's dock at the west end, the hamlet round its lamp-fire, the path up to Frostpine Ridge
@@ -524,7 +567,10 @@ ROOMS[SKYDOCKS] = {
 // the springs (the geyser gone quiet), entered at its EAST end
 ROOMS[BLACKSANDS] = {
   name: 'The Black Sands', width: SANDS_W, ground: FIELD_GROUND, platforms: SANDS_PLATFORMS,
-  doors: [{ x: SANDS_EXIT_X, w: 80, to: FORGEHOLD, toX: SANDS_GATE_X, label: 'back along the beach path to Forgehold' }],
+  doors: [
+    { x: SANDS_EXIT_X, w: 80, to: FORGEHOLD, toX: SANDS_GATE_X, label: 'back along the beach path to Forgehold' },
+    { x: SANDS_SALTWIND_X, w: 80, to: DUNE_OUT, toX: DECK_GANGWAY_X, label: 'board the Saltwind west to Amberdune (Lv 215+)', ask: 'Sail west with the Saltwind to Amberdune? About a minute and a half.' }, // (atlas Phase 9)
+  ],
 };
 // room 55 (Emberdeep's depth pass E1, docs/places/ashwood.md): the Ashwood, up the old charcoal road north out of
 // Cinder Flats (its iron bridge hauled back up), entered at its EAST end. The Old Foundry's adit at its west end
@@ -714,6 +760,7 @@ export const TOWNS = [
   { room: FORGEHOLD, name: 'Forgehold', x: FORGE_SPAWN_X, homeX: FORGE_HOME_X },
   { room: SKYCAMP, name: 'The Skydocks Camp', x: CAMP_SPAWN_X, homeX: CAMP_HOME_X },
   { room: WICKMERE, name: 'Wickmere', x: WICK_SPAWN_X, homeX: WICK_HOME_X }, // (atlas Phase 8)
+  { room: CARAVAN, name: 'Caravanserai', x: DUNE_SPAWN_X, homeX: DUNE_HOME_X }, // (atlas Phase 9)
 ];
 TOWNS.forEach((t, i) => (ROOMS[t.room].town = i)); // (step() reads room.town)
 export const townOf = (room) => ROOMS[room]?.town ?? -1; // -1: not a town
@@ -1162,6 +1209,11 @@ export const NPCS = [
   { id: 'truffle', name: 'Forager Truffle', short: 'Truffle', room: MYCELIUM, x: TRUFFLE_X, hue: 330, range: 120, size: 1.05, accessory: 'forager', faces: 1, blurb: 'forages the Deep and trades at her camp', shop: 'truffle', hello: 'Shh, the puffcaps are napping. Buying or chatting? Trade is the button. (Everyone can hear you.)' },
   { id: 'acorn', name: 'Ranger Acorn', short: 'Acorn', room: CANOPY, x: ACORN_X, hue: 95, range: 120, size: 1.05, accessory: 'ranger', faces: 1, blurb: 'watches over the Old Oak Canopy and trades at her treehouse', shop: 'acorn', hello: "Feet on the bough, eyes on the branches! Buying or chatting? Trade is the button. (Everyone can hear you.)" },
   { id: 'moss', name: 'Beachcomber Moss', short: 'Moss', room: COVES, x: MOSS_X, hue: 150, range: 120, size: 1.05, accessory: 'beachcomber', faces: -1, blurb: 'keeps what the sea washes in, and trades it', shop: 'moss', hello: 'Oh! A visitor. Mind the shells. Trade is the button. (Everyone can hear you.)' },
+  // Caravanserai's dune folk (atlas Phase 9, docs/places/amberdune.md), and Skipper Kesh at the Saltwind's tiller
+  { id: 'kesh', name: 'Skipper Kesh', short: 'Kesh', room: CARAVAN, also: [DUNE_OUT, DUNE_HOME], x: KESH_X, hue: 28, range: 125, size: 1.05, accessory: 'saltskipper', folk: 'dune', lively: true, faces: 1, blurb: 'sails the caravan skiff Saltwind between Caravanserai and the Black Sands', hello: "Mind the casks. And the boom, it swings. Sailing or talking? (Everyone can hear you.)" },
+  { id: 'mother_dune', name: 'Mother Dune', short: 'Mother Dune', room: CARAVAN, x: MOTHER_X, hue: 36, range: 125, size: 1.25, accessory: 'matriarch', folk: 'dune', faces: -1, blurb: "leads the caravan, reads the old star-dials, and sells water (potions), dear", shop: 'mother_dune', hello: 'Sit, if you like. The stars are coming out. Buying water, or only talking? Trade is the button. (Everyone can hear you.)' },
+  { id: 'tally', name: 'Tally', short: 'Tally', room: CARAVAN, x: TALLY_X, hue: 44, range: 120, size: 1.05, accessory: 'counter', folk: 'dune', faces: 1, blurb: 'counts everything, and trades salt-iron and sandstone at his stall', shop: 'tally', hello: "One customer. Good. Buying, selling, or counting? Trade is the button. (Everyone can hear you.)" },
+  { id: 'asra', name: 'Well-keeper Asra', short: 'Asra', room: CARAVAN, x: ASRA_X, hue: 20, range: 120, size: 1.0, accessory: 'wellkeeper', folk: 'dune', lively: true, faces: -1, blurb: "keeps the caravan's well, and collects stories about rain", hello: "Oh! A traveller. Have you ever seen rain? Tell me everything. (Everyone can hear you.)" },
   // the Pet Shop's keeper: sells pet food (the pets are on plinths), and knows everything about keeping them
   { id: 'clover', name: 'Auntie Clover', short: 'Clover', room: PETSHOP, x: CLOVER_X, hue: 330, range: 130, size: 1.15, accessory: 'petkeeper', faces: 1, blurb: 'runs the Pet Shop and raises the little ones', shop: 'clover', hello: 'Oh, hello, dear! Mind the little ones. Food is the Trade button. (Everyone can hear you.)' },
   { id: 'clio', name: 'Curator Clio', short: 'Clio', room: MUSEUM, x: 300, hue: 32, range: 80, size: 1.15, accessory: 'curator', faces: 1, blurb: 'historian of the Grand Museum · ask from anywhere in the museum', anywhere: true, hello: 'Welcome to the museum! Ask Clio anything about history. (Everyone can hear you.)' },
@@ -1184,6 +1236,10 @@ export const PROF_X = 215;
 export const SLAP_REACH = 72; // px in front of the slapper's centre
 export const SLAP_COOLDOWN_MS = 350;
 export const SLAP_QUIPS = {
+  kesh: ['Oi! Mind the boom!', "That's going over the side, that is.", 'Sand in my eye and now this.', "Do that on deck and you're swimming home."],
+  mother_dune: ['Child. Sit down.', 'I have walked further than you will ever walk. Sit.', '...The stars saw that.', 'Hm. The young are always in such a hurry.'],
+  tally: ['One. That is one slap. Noted.', "Two, if you do it again. I'm counting.", 'Ow! That is going in the ledger.', 'I lost count. I never lose count. Look what you did.'],
+  asra: ['Hey! I nearly dropped the bucket!', 'Was that a raindrop? No. It was you.', "Ow! Rude, for someone who hasn't told me about rain.", 'Mind the rope, mind the rope!'],
   clover: ['Not in front of the little ones!', 'Ow! Now you\'ve upset the kibble.', 'Shoo! Even Turnipop has better manners.', 'Gentle hands, dear. GENTLE.'],
   clio: ['Excuse me! This is a museum!', 'Ow! Please don\'t touch the curator.', 'History will remember that, you know.', 'Hmph! Security!'],
   mochi: ['Oof! Respect your elders, young one!', 'Hmph! My poor old jelly…', 'Ow! What was that for?', 'Goodness! Is that how they greet folks nowadays?'],

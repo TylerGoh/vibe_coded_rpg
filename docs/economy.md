@@ -790,6 +790,35 @@ the moves instead (ideas go to the owner as a list to approve, `story/roadmap.md
   items (its own sell rate), more prestige sinks (furniture colours, garden extras, cosmetics with a
   late-game price), or a gold cost on scroll re-tries.
 
+## Amberdune, A0 and A1 (atlas Phase 9, 2026-11-17)
+Every default in `story/phase9-plan.md` stood: Amberdune is Lv 215–250, past the Citadel's top. A0 and A1 shipped together.
+- **Mobs**: eight on the frozen curve, read off the Undercroft's by level (coins at about three quarters of the curve's
+  gold, materials on the ladder above the Undercroft's): the Glass Dunes' sand skipper (215, HP 100%), heat mirage (216, 94%,
+  a passive flier), dune beetle (219, 95%, a `phase`) and fulgurite scorpion (222, 120% like the other `shell` mobs), and the
+  Buried Observatory's dust wraith (224, 94%), dial sentry (227, 92% for a `beam` shooter), sand asp (229, 100%) and amber moth
+  (231, 93% for a flier); EXP 100%, gold 98–99%. Materials: Skipper Frill 1,960, Bottled Shimmer 1,965, Beetle Wing-Case 1,980,
+  Fulgurite Sting 2,000, Wraith Dust 2,010, Dial Cog 2,030, Sand Asp Skin 2,045, Amber Scale 2,060. The Mirage Oasis has no
+  mob of its own. Rare gear on the helmet curve at its mob's level: the Fulgurite Crest (222, 1.753M), the Dialwatch Helm
+  (227, 1.834M).
+- **What moved**: "farming your own level" at 220 now picks the dune beetle (was the counterweight): **gold earned by** Lv 220
+  ~29.770M → ~29.768M (−0.005%), **play time** to Lv 220 42.5 h → 42.4 h (target 41.9 h). Below 215 nothing moved. The
+  Escapement's pay against farming at its fight level went 1.02x / 4.26x → 1.00x / 4.18x an hour (a better farm at 215); its
+  "vs 1 min" ratio 404× → 362× for the same reason.
+- **The sheet now reads past 250**: PROGRESS adds Lv 230 (46.2 h, target 45.6 h; the sand asp) and Lv 250 (54.7 h, target
+  53.6 h; still the amber moth, until A2–A5 fill 232–250), CURVES adds Lv 300. Both within `LEVEL_PACE`.
+- **Tally's tier** (`SHOPS.tally`, `aim` 220, `lvl` 216 on the gear curve, like every trader's tier under its aim): the
+  Salt-Iron Tulwar, the Sandstone Rod and the Drover's Bow 380k (~20 min of farming at the aim), the Drover's Wrap 293k (~15
+  min): Number Nine's 330k and 254k carried up by the gold curve.
+- **The Sunroller** (den 102, Lv 232): the Indexer's numbers times the curve's ratio from 177 to 232, then its written HP cut
+  from 18.4M to 16.2M (the first try soloed in a median 10:52, at the top of `DEN_SOLO_MIN`; now 9:33, the Indexer's 9:35).
+  Its EXP camps at 0.75× / 6.67× an hour of farming (under `BOSS_CAMP_MAX`); a kill pays ~2.0M (~24.5× a minute of farming,
+  like the other dens): coins ~492k and Sunstone Chips (2,330), the Gnomon Blade and its twins (Lv 233, 2.565M:
+  `swordPrice`) and the Scarab Crown (Lv 233, 1.934M: `helmetPrice`), stats on the curve like the other dens' (`BOSS_GEAR.den`
+  is the ceiling the check allows). Its pet is 316k: by level it sits between the mini Wickmother (312k) and the mini
+  Escapement (320k, Lv 235 on its tag), so it's cheaper than a pet at 330k would be (the first try, 330k, failed the
+  "later boss cheaper" check). `PETSHOP_W` 7550 → 7750 (the plinths need 7712).
+- `--check` green.
+
 ## Lantern Fen, L0 (atlas Phase 8, 2026-11-11)
 The owner put the Fen at Lv 150–180, past the Citadel. L0 adds the Shallows' four mobs on the frozen curve (lantern moth
 150, bog slime 152, mire frog 154, mudskipper 156; HP within `MOB_FIT`, the bog slime a little over the curve like the

@@ -23,6 +23,7 @@ import { ECHO_PALETTE, drawEchoFolk, drawKeeperDress } from './orrery-art.js';
 import { drawArchivistDress } from './archive-art.js';
 import { drawStokerDress } from './engine-art.js';
 import { FEN_PALETTE, drawFenFolk, drawFenDress } from './wickmere-art.js';
+import { DUNE_PALETTE, drawDuneFolk, drawDuneDress } from './dune-art.js';
 import { drawPetkeeperDress } from './pet-art.js';
 
 // yr's laptop notifications: icon colours, and how long each one floats
@@ -129,6 +130,7 @@ export class Slime {
     if (folk === 'forge') this.palette = FORGE_PALETTE(this.hue);
     if (folk === 'thinned') this.palette = THIN_PALETTE(this.hue);
     if (folk === 'fen') this.palette = FEN_PALETTE(this.hue);
+    if (folk === 'dune') this.palette = DUNE_PALETTE(this.hue); // (Amberdune's dune folk, atlas Phase 9: amber-gold, sand drifting down inside)
     if (folk === 'echo') this.palette = ECHO_PALETTE(this.hue); // (the Last Echo, a Keeper's echo: the Citadel, C1)
   }
 
@@ -512,6 +514,7 @@ export class Slime {
       if (this.folk === 'fjord') drawFolk(ctx, w, h, this.t);
       else if (this.folk === 'thinned') drawThinFolk(ctx, w, h, this.t);
       else if (this.folk === 'fen') drawFenFolk(ctx, w, h, this.t);
+      else if (this.folk === 'dune') drawDuneFolk(ctx, w, h, this.t);
       else if (this.folk === 'echo') drawEchoFolk(ctx, w, h, this.t);
       else drawForgeFolk(ctx, w, h, this.t);
       ctx.restore();
@@ -1022,6 +1025,7 @@ export class Slime {
     if (this.has('picker')) drawPickerDress(ctx, w, h, fx, this.t); // the Brimstone Fields' Picker Ochre
     for (const kind of ['aeronaut', 'pilgrim', 'tinker', 'porter']) if (this.has(kind)) drawCampDress(ctx, kind, w, h, fx, this.t); // the Skydocks camp's visitors (Kestrel, Ione, Tamp) and the Dockwarden
     for (const kind of ['eelskipper', 'lamplady', 'ferryman', 'reedweaver']) if (this.has(kind)) drawFenDress(ctx, kind, w, h, fx, this.t); // Wickmere's people (atlas Phase 8)
+    for (const kind of ['saltskipper', 'matriarch', 'counter', 'wellkeeper']) if (this.has(kind)) drawDuneDress(ctx, kind, w, h, fx, this.t); // Caravanserai's people (atlas Phase 9)
     if (this.has('keeper')) drawKeeperDress(ctx, w, h, fx, this.t); // the Last Echo, by the Orrery's door (C1)
     if (this.has('archivist')) drawArchivistDress(ctx, w, h, fx, this.t); // Folio, at the Archive's issue desk (C2)
     if (this.has('stoker')) drawStokerDress(ctx, w, h, fx, this.t); // Number Nine, at its furnace in the Engine Halls (C3)

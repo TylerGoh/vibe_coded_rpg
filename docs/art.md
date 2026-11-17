@@ -29,4 +29,6 @@
   flecks that pulse, a warm glow low down, the same stiff wobble, no leaf (`FORGE_PALETTE`, `drawForgeFolk`
   in `src/forgehold-art.js`; `docs/places/forgehold.md`), and Lantern Fen's fen folk (`folk: 'fen'`, atlas Phase 8):
   pale see-through violet-grey with a soft warm light deep inside and a faint mist line, the same slow wobble
-  (`FEN_PALETTE`, `drawFenFolk` in `src/wickmere-art.js`; `docs/places/fen.md`).
+  (`FEN_PALETTE`, `drawFenFolk` in `src/wickmere-art.js`; `docs/places/fen.md`), and Amberdune's dune folk (`folk: 'dune'`, atlas
+  Phase 9): warm amber-gold jelly with grains of sand drifting slowly down inside like an hourglass's (`DUNE_PALETTE`,
+  `drawDuneFolk` in `src/dune-art.js`; `docs/places/amberdune.md`).

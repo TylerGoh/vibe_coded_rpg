@@ -38,6 +38,11 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | The Peat Barrows | 82 `PEATBARROWS` | back up the cutters' ladder to the Sunk Barrows (west end) · up the root stair to the Lamp Road (east end); a deep room on hard-pocket rules (`docs/places/peatbarrows.md`) |
 | The Lamp Road | 83 `LAMPROAD` | back down to the Peat Barrows (west end) · the Wickmother's den, the Hall of Lamps (room 84, `WICK_DEN`, `docs/places/wickmother.md`), through the inner door at `WICK_DEN_X` (it parts since L5 (c)'s `DENS` row) · for a slime who has freed her, out through the roots at `LAMP_FRONT_X` to the Hall's front door on the Causeway (a door with `freed`); no mobs, not a combat room (`docs/places/peatbarrows.md`) |
 | The Still Mere | 77 `STILLMERE` | Hob's punt back to Wickmere (west end) · Old Gullet's den (`GULLET_DEN_X`, room 78 `GULLET_DEN`) (`docs/places/stillmere.md`) |
+| The Saltwind's deck, out / home | 98 `DUNE_OUT`, 99 `DUNE_HOME` | ashore at Caravanserai's jetty / the Black Sands, once she's in; back while she casts off (`docs/places/crossings.md`, `docs/places/amberdune.md`) |
+| Caravanserai | 97 `CARAVAN` | the Saltwind's gangway (`DUNE_DOCK_X`, boards `DUNE_HOME`) · your house (`DUNE_HOME_X`) · out onto the Glass Dunes (east end); the way down to the Salt Flats is a gate (`SALTFLATS_GATE_X`, A2) (`docs/places/amberdune.md`) |
+| The Glass Dunes | 100 `GLASSDUNES` | back to Caravanserai (west end) · down the side path to the Mirage Oasis (`OASIS_GATE_X`) · down the sunken steps into the Buried Observatory (`GDUNES_END_X`, east end) (`docs/places/glassdunes.md`) |
+| The Mirage Oasis | 103 `OASIS` | back up the slip to the Glass Dunes (west end) (`docs/places/oasis.md`) |
+| The Buried Observatory | 101 `OBSERVATORY` | back up to the Glass Dunes (west end) · the Sunroller's den (`SUN_DEN_X`, room 102 `SUN_DEN`); the stair down to the Buried Caravanserai (`BURIED_GATE_X`, A3) and the Storm Road (`STORM_GATE_X`, A4) are gates (`docs/places/observatory.md`) |
 | The Skydocks | 69 `SKYDOCKS` | the plank back to the camp (west end) · the loading ramp up into the Aether Citadel (`SKYDOCKS_RAMP_X`, at the ramp's foot) (`docs/places/skydocks.md`) |
 | Greenhollow's East Cliffs | 20 `CLIFFS` | back into the Wildwood (west end); a vista, no mobs (`docs/places/cliffs.md`) |
 | Greenhollow Harbour | 19 `HARBOUR` | back up to the village (east end) · the ferry's gangway (`GANGWAY_X`, boards `FERRY_N`) (`docs/places/harbour.md`) |
@@ -66,7 +71,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17, 26, 30, 35 | exit, back to the stage it's in (`DENS[].from`) |
 | The Training Yard | 53 `ARENA` | no doors: only the dev sandbox's server puts anyone there, and its panel is the way out (`docs/sandbox.md`); a combat room |
-| Personal houses | `HOUSE_BASE` and up, one per account | out to your town (`docs/places/houses.md`) |
+| Personal houses | `HOUSE_BASE` (1000 since atlas Phase 9, which needed ids 100 and up) and up, one per account | out to your town (`docs/places/houses.md`) |
 
 Look rooms up with `roomDef(room)`, not `ROOMS[room]`: houses aren't in `ROOMS`.
 

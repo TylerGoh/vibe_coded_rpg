@@ -37,7 +37,7 @@ function text(ctx, str, x, y, size, color, align = 'center') {
   ctx.fillText(str, x, y);
 }
 
-const ISLAND_NAME = { green: 'Greenhollow', frost: 'Frostpeak', ember: 'Emberdeep', citadel: 'the Skydocks', fen: 'Lantern Fen' };
+const ISLAND_NAME = { green: 'Greenhollow', frost: 'Frostpeak', ember: 'Emberdeep', citadel: 'the Skydocks', fen: 'Lantern Fen', dune: 'Amberdune' };
 // How each route's ship looks on deck (the deck's platforms are the same for every ship). paddle: a paddle
 // box amidships (else portholes all along); funnel: [pipe, band, width]
 const SHIPS = {
@@ -45,6 +45,9 @@ const SHIPS = {
   sky: { name: 'Kite', short: 'Kite' }, // (the balloon: her look is src/balloon.js's own)
   // the Hush (atlas Phase 8): Skipper Netta's eel-boat, black-hulled, a little stove pipe, a dun sail with a violet
   // stripe, and a lantern on a pole at the bow (drawBowLantern)
+  // the Saltwind (atlas Phase 9): Skipper Kesh's caravan skiff, a sand-brown hull with a rust-red band, a patched ochre
+  // sail, a little stove pipe, casks and bales lashed on deck
+  dune: { name: 'Saltwind', short: 'Saltwind', hull: '#8a6a48', band: '#c8583a', label: 'SALTWIND', ink: '#4a3424', paddle: false, funnel: ['#5a4030', '#c8583a', 10], cabin: '#e8dcc0', roof: ['#d89a3a', '#b87a2a'], sail: '#e0a048', stripe: 'rgba(200,88,58,0.45)', pennant: '#3e4a7a', smoke: '224,214,198' },
   fen: { name: 'Hush', short: 'Hush', hull: '#2e2a3a', band: '#8a7aa8', label: 'HUSH', ink: '#2e2a3a', paddle: false, funnel: ['#3a3446', '#8a7aa8', 14], cabin: '#d8cfc0', roof: ['#6a6280', '#4e4862'], sail: '#cfc4ae', stripe: 'rgba(122,96,168,0.4)', pennant: '#9a7ac8', smoke: '196,190,206', lantern: true },
   steam: { name: 'Lodestar', short: 'Lodestar', hull: '#3e4258', band: '#c9a07a', label: 'LODESTAR', ink: '#3e4258', paddle: false, funnel: ['#4a4450', '#c9a07a', 18], cabin: '#e2d6c2', roof: ['#8a9a7e', '#6a7a60'], sail: '#efe4cc', stripe: 'rgba(208,72,90,0.42)', pennant: '#d0485a', smoke: '200,196,200' },
 };
@@ -59,7 +62,7 @@ export function crossingAt(room, me) {
   const k = me ? voyage(me) : 0;
   const ease = smooth(0, 1, k);
   const u = c.route === 'steam' ? 1 : c.to === 'frost' ? k : 1 - k;
-  return { ...c, k, d: DIST * ease, u, w: c.to === 'ember' ? k : 1 - k, f: c.to === 'fen' ? k : 1 - k, docked: k >= 1, left: Math.max(0, Math.ceil((c.ticks - (me?.vt | 0)) / 60)) };
+  return { ...c, k, d: DIST * ease, u, w: c.to === 'ember' ? k : 1 - k, f: c.to === 'fen' ? k : 1 - k, a: c.to === 'dune' ? k : 1 - k, docked: k >= 1, left: Math.max(0, Math.ceil((c.ticks - (me?.vt | 0)) / 60)) };
 }
 // "Frostpeak in 42 s" for the HUD
 export const crossingLabel = (cr) => {
@@ -99,6 +102,7 @@ export function drawCrossing(ctx, room, camX, viewW, time, me) {
   if (cr.route === 'sky') drawSkyRoute(ctx, cr, camX, time);
   else if (cr.route === 'steam') drawSteamSea(ctx, cr, camX, time);
   else if (cr.route === 'fen') drawFenSea(ctx, cr, camX, time);
+  else if (cr.route === 'dune') drawDuneSea(ctx, cr, camX, time);
   else drawSea(ctx, cr, camX, time);
   ctx.restore();
   const L = camX - 80, R = camX + viewW + 80;
@@ -112,7 +116,7 @@ export function drawCrossingFront(ctx, room, camX, viewW, time, me) {
   if (!cr) return;
   if (cr.route === 'sky') return drawSkyFront(ctx, cr, camX, viewW, time); // (no water up there: cloud wisps under the gondola)
   const speed = cr.docked ? 0 : Math.sin(Math.PI * Math.min(1, cr.k * 1.05));
-  const top = GROUND + 62, col = cr.route === 'fen' ? mix('#5d7092', '#3a3650', smooth(0.3, 0.9, cr.f)) : cr.route === 'steam' ? mix('#5d7f9e', '#5f9c88', smooth(0.35, 0.85, cr.w)) : mix('#7cc0d6', '#5d7f9e', cr.u);
+  const top = GROUND + 62, col = cr.route === 'dune' ? mix('#5f9c88', '#6acac0', smooth(0.25, 0.9, cr.a)) : cr.route === 'fen' ? mix('#5d7092', '#3a3650', smooth(0.3, 0.9, cr.f)) : cr.route === 'steam' ? mix('#5d7f9e', '#5f9c88', smooth(0.35, 0.85, cr.w)) : mix('#7cc0d6', '#5d7f9e', cr.u);
   ctx.fillStyle = col;
   ctx.beginPath();
   ctx.moveTo(camX - 10, H);
@@ -455,6 +459,92 @@ function drawSteamSea(ctx, cr, camX, time) {
   }
 }
 
+// ——— the dune route (the Saltwind, the Black Sands–Amberdune; atlas Phase 9) ———
+// sandbars (at: how far toward Amberdune, y: depth 0 far .. 1 near) showing as the sea goes shallow, gulls, the glare
+const duneBars = (() => {
+  const r = mulberry32(271);
+  return Array.from({ length: 26 }, () => ({ at: 0.45 + Math.pow(r(), 0.8) * 0.55, y: r(), w: 60 + r() * 160 }));
+})();
+const duneGulls = (() => {
+  const r = mulberry32(277);
+  return Array.from({ length: 6 }, () => ({ x: r() * W, y: 60 + r() * 120, p: r() * TAU, v: 0.6 + r() * 0.5 }));
+})();
+function drawDuneSea(ctx, cr, camX, time) {
+  const a = cr.a; // 0 at Emberdeep, 1 at Amberdune
+  const clear = smooth(0.1, 0.4, a), hot = smooth(0.6, 0.95, a), shallow = smooth(0.4, 0.9, a);
+  const swell = Math.sin(time * 0.8) * 3 * (1 - shallow * 0.8);
+  const hz = HORIZON + swell;
+  const tone = (e, m, d) => mix(mix(e, m, clear), d, hot); // the ash-hazed south → clear blue → the desert's pale heat
+  const sky = ctx.createLinearGradient(0, 0, 0, hz);
+  sky.addColorStop(0, tone('#8a5a66', '#3a78c0', '#4a86c8'));
+  sky.addColorStop(0.6, tone('#c98468', '#8ec0e4', '#a8d0e8'));
+  sky.addColorStop(1, tone('#efb486', '#e8f2f4', '#f6e6c4'));
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, hz + 1);
+  const sx = W * 0.62 - camX * 0.01, sy = 80 - clear * 10; // the sun, getting whiter and higher
+  const g = ctx.createRadialGradient(sx, sy, 14, sx, sy, 140);
+  g.addColorStop(0, `rgba(255,${Math.round(220 + clear * 30)},${Math.round(180 + clear * 50)},0.45)`);
+  g.addColorStop(1, 'rgba(255,240,220,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(sx - 140, sy - 140, 280, 280);
+  ctx.fillStyle = mix('#ffb27a', '#fffcf0', clear);
+  circle(ctx, sx, sy, 24);
+  // the two islands' landmarks: Emberdeep's smoke column astern, Amberdune's dunes growing over the bow
+  const haze = tone('#efb486', '#e8f2f4', '#f6e6c4');
+  ctx.save();
+  ctx.globalAlpha = smooth(0.08, 0.3, cr.k);
+  drawLandmark(ctx, cr.from, 150 - camX * 0.02, hz, 1.3 - 0.8 * cr.k, { time, haze, fade: 0.25 + 0.4 * cr.k, sky: 200, night: 0 });
+  ctx.globalAlpha = 1 - smooth(0.88, 0.98, cr.k);
+  drawLandmark(ctx, cr.to, W - 210 - camX * 0.02, hz, 0.45 + 0.9 * cr.k, { time, haze, fade: 0.65 - 0.45 * cr.k, sky: 200, night: 0 });
+  ctx.restore();
+  // the water: Emberdeep's warm green, paling to turquoise, then so shallow the sand shows through
+  const sea = ctx.createLinearGradient(0, hz, 0, H);
+  sea.addColorStop(0, mix('#a8ccb8', '#bfeee4', shallow));
+  sea.addColorStop(0.35, mix('#5f9c88', '#5ac8c0', clear));
+  sea.addColorStop(1, mix(mix('#3e7a6a', '#2e8a98', clear), '#8ad4c0', shallow));
+  ctx.fillStyle = sea;
+  ctx.fillRect(0, hz, W, H - hz);
+  ctx.fillStyle = `rgba(255,255,255,${0.5 + hot * 0.3})`;
+  ctx.fillRect(0, hz, W, 1.5);
+  for (let i = 0; i < 9; i++) { // the sun's glare on the water
+    ctx.fillStyle = `rgba(255,252,236,${0.15 + 0.15 * clear})`;
+    ctx.beginPath();
+    ctx.roundRect(sx - 30 - i * 3 + Math.sin(time + i) * 5, hz + 6 + i * i * 2.4, 60 + i * 6, 2, 1);
+    ctx.fill();
+  }
+  const leave = COAST_AT - cr.d, reach = COAST_AT + (DIST - cr.d);
+  if (leave > -40) drawCoast(ctx, cr.from, leave, hz, -1, time);
+  if (reach < W + 40) drawCoast(ctx, cr.to, reach, hz, 1, time);
+  // sandbars coming up through the shallows, the keel hissing over them near the end
+  for (const b of duneBars) {
+    const at = cr.to === 'dune' ? b.at : 1 - b.at;
+    const fx = 0.3 + b.y * 0.6;
+    const x = COAST_AT + (at * DIST - cr.d) * fx;
+    if (x < -200 || x > W + 200) continue;
+    const y = hz + 8 + b.y * b.y * (GROUND - hz - 30), sz = 0.4 + b.y * 0.8;
+    ctx.fillStyle = 'rgba(240,220,170,0.75)';
+    ellipse(ctx, x, y, b.w * sz, 3 + 3 * sz);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ellipse(ctx, x - b.w * sz * 0.3, y - 1, b.w * sz * 0.4, 1.2);
+  }
+  if (shallow > 0.5) { // the sand showing through right under her
+    ctx.fillStyle = `rgba(232,210,150,${0.25 * (shallow - 0.5) * 2})`;
+    for (let i = 0; i < 12; i++) ellipse(ctx, ((i * 97 - cr.d * 0.9) % (W + 200) + W + 200) % (W + 200) - 100, GROUND + 30 + (i % 3) * 14, 40, 4);
+  }
+  for (const gl of duneGulls) { // gulls, once she's out of the ash
+    if (clear < 0.3) break;
+    const x = (gl.x + Math.sin(time * gl.v + gl.p) * 40 - camX * 0.1 + W * 4) % W, y = gl.y + Math.sin(time * gl.v * 1.4 + gl.p) * 10;
+    const fl = Math.sin(time * 6 + gl.p) * 4;
+    ctx.strokeStyle = `rgba(90,80,90,${0.6 * clear})`;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(x - 8, y - fl);
+    ctx.quadraticCurveTo(x - 4, y - 3, x, y);
+    ctx.quadraticCurveTo(x + 4, y - 3, x + 8, y - fl);
+    ctx.stroke();
+  }
+}
+
 // ——— the fen route (the Hush, Icefang Hamlet–Lantern Fen; atlas Phase 8) ———
 // the dead's lanterns set adrift on the water (at: how far toward the Fen, y: depth 0 far .. 1 near), mist banks lying
 // on the still water, lily pads near the end, fireflies off Reedwater
@@ -780,6 +870,42 @@ function drawCoast(ctx, key, edge, hz, side, time) {
       ctx.fillStyle = `rgba(245,240,238,${0.5 * (1 - k)})`;
       circle(ctx, at(260 + i * 50) + Math.sin(k * 4 + i) * 6, base - 10 - k * 50, 6 + k * 14);
     }
+  } else if (key === 'dune') {
+    // Amberdune: a whole coast of gold dunes, the sea pulled back from it, Saltmouth's stone piers standing high and dry a
+    // long way inland of the water, striped tents round the well behind them, and the new jetty out at the water's edge
+    ctx.fillStyle = '#e8c890'; // the dunes
+    ctx.beginPath();
+    ctx.moveTo(inland, base);
+    ctx.lineTo(inland, hz - 50);
+    for (let d = span; d > 200; d -= 120) ctx.quadraticCurveTo(at(d - 60), hz - 70 - (d % 240 ? 18 : 0), at(d - 120), hz - 44);
+    ctx.quadraticCurveTo(at(120), hz - 10, tip, base - 4);
+    ctx.lineTo(tip, base);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = 'rgba(200,150,90,0.35)';
+    for (let d = 300; d < span; d += 120) ellipse(ctx, at(d), hz - 40, 40, 10);
+    ctx.fillStyle = '#efe8d8'; // the old seabed, white with salt, between the water and the piers
+    ctx.fillRect(Math.min(at(0), at(260)), base - 8, 260, 8);
+    for (let i = 0; i < 4; i++) { // Saltmouth's piers, high and dry
+      const px = at(270 + i * 44);
+      ctx.fillStyle = '#c8a478';
+      ctx.fillRect(px - 12, hz - 26 - (i % 2) * 6, 24, 30 + (i % 2) * 6);
+      ctx.fillStyle = 'rgba(244,240,226,0.9)';
+      ctx.fillRect(px - 12, hz - 6, 24, 2);
+    }
+    for (let i = 0; i < 6; i++) { // tents round the well
+      const tx = at(500 + i * 40), c = ['#c8583a', '#3e4a7a', '#d89a3a'][i % 3];
+      ctx.fillStyle = c;
+      ctx.beginPath();
+      ctx.moveTo(tx - 14, hz - 30);
+      ctx.lineTo(tx, hz - 52 + (i % 2) * 6);
+      ctx.lineTo(tx + 14, hz - 30);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.fillStyle = '#9a8a78'; // the new jetty out at the water
+    ctx.fillRect(Math.min(at(-60), at(30)), base - 7, 90, 4);
+    for (let k = -50; k <= 20; k += 24) ctx.fillRect(at(k) - 1.5, base - 4, 3, 8);
   } else if (key === 'fen') {
     // Lantern Fen: a low dark shore of reeds and willows in the mist, Wickmere's stilt houses with a lantern in every
     // window, and Reedwater's one jetty running out into the water, where she ties up

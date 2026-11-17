@@ -32,11 +32,17 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
   under the Barrows (L5 (b), its node covers the Lamp Road too), and the Hall of Lamps, top left of the Peat Barrows (its
   path comes up from them), dashed "the silk holds": two gates, the Lamp Road's inner door and the front door at the
   Causeway's end.
+- **Amberdune** (atlas Phase 9) is charted where the south-west's sandy smudge was: a long gold island with dune ridges,
+  Caravanserai's tents at its east end, and a little dark hill out on it that moves a step every hour (Old Carapace,
+  never named); the Saltwind's dashed route runs to it from Emberdeep. It sits in the chart's bottom corner, so its name
+  goes up beside it. Its own map is `AMBERDUNE` (`LOOK.dune`): Caravanserai, the Glass Dunes, the Mirage Oasis and the
+  Buried Observatory, and dashed with their reasons the Salt Flats, the Buried Caravanserai, the Storm Road and the Dry
+  Wells. Aboard the Saltwind the pin is `'duneroute'`. Emberdeep's map gains the Saltwind off the Black Sands.
 - Emberdeep's sub-label names Forgehold; it sits near the chart's bottom edge, so its "tap for its map" hint
   goes beside it, not under it.
 - Frostpeak shows Icefang Hamlet where the ferry comes in (turf huts, a fire) and the Queen's cracked ice
   bridge running out to sea (`docs/places/fjord.md`).
-- **Island maps:** tapping (or clicking) an island that has one (`ISLAND_MAPS`: Greenhollow, Frostpeak since its depth pass, Emberdeep since atlas Phase 5, Lantern Fen, the Citadel since C0) opens its own map: its places as cards joined by paths, drawn from `GREENHOLLOW` / `FROSTPEAK` / `EMBERDEEP` in `src/shared/branches.js` (`docs/places/branches.md`), coloured per island (`LOOK`: Frostpeak is snow on a grey-blue sea, Emberdeep dark sand on warm green water). `TAP` says where to tap each island on the chart. Open places are solid with their level band;
+- **Island maps:** tapping (or clicking) an island that has one (`ISLAND_MAPS`: Greenhollow, Frostpeak since its depth pass, Emberdeep since atlas Phase 5, Lantern Fen, the Citadel since C0, Amberdune since atlas Phase 9) opens its own map: its places as cards joined by paths, drawn from `GREENHOLLOW` / `FROSTPEAK` / `EMBERDEEP` in `src/shared/branches.js` (`docs/places/branches.md`), coloured per island (`LOOK`: Frostpeak is snow on a grey-blue sea, Emberdeep dark sand on warm green water). `TAP` says where to tap each island on the chart. Open places are solid with their level band;
   ones not open yet are dashed with a short reason ("bridge out"), hard pockets red with a "!". Your pin (its "you are here" moves beside it when a card sits right above)
   sits on the place you're in (`nodeAt`: the Wildwood and Frostpeak's stage by zone, a den by its stage; the village's
   buildings and houses count as Slimeville). The pink pill top-left goes back to the chart. Taps are

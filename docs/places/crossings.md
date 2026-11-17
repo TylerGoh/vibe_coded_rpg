@@ -91,6 +91,16 @@ pin at sea in `src/worldmap.js`, Brine's and Arne's personas in
   stilt houses with lit windows and Reedwater's jetty (`drawCoast`'s `fen`). Skipper Netta at the tiller on both decks
   (`also`). Details: `docs/places/fen.md`.
 
+## The dune route (the Saltwind, atlas Phase 9)
+- `DUNE_OUT` (room 98: the Black Sands' Beach Path, her plank at `SANDS_SALTWIND_X`, west to Caravanserai's new jetty,
+  `DUNE_DOCK_X`) and `DUNE_HOME` (99, back). Out is the slow one; both a little longer than the Hush's (a side trip). The
+  shared deck in the Saltwind's look (`SHIPS.dune`: sand-brown hull, rust-red band, ochre sail, a little stove pipe).
+  The sea (`drawDuneSea`, driven by `a`, how far toward Amberdune): Emberdeep's smoke column and ash haze astern, the sky
+  clearing to a high hot blue, the green sea paling to turquoise, gulls, sandbars coming up through it more and more and
+  the sand showing under her near the end; Amberdune's coast is dunes, Saltmouth's piers high and dry inland, tents round
+  the well and the new jetty at the water (`drawCoast`'s `dune`). Skipper Kesh at the tiller on both decks (`also`).
+  Details: `docs/places/amberdune.md`.
+
 ## HUD, hints and phones
 - A pill at the top left: where she's bound, seconds to go (or "In at …"), who's aboard, and a thin track
   of the voyage. On phones it's narrower ("Ferry · …") so it clears the top buttons.

@@ -116,3 +116,21 @@ none has ever gone out. Nobody says the Wickmother's name: "the Mother", and a c
   no lantern for any of them; carves willow ducks; can't swim. Calls the thing in the mere "the old eel".
 - **Sedge**: a young reed-weaver who makes armour of reed and bog-iron (trades the Fen's first gear). Has lost no one
   and keeps a lantern lit "for practice". Wants to see snow.
+
+## Amberdune: Caravanserai (atlas Phase 9, A0, **exist**; `../phase9-plan.md`, `docs/places/amberdune.md`)
+The **dune folk**: warm amber-gold jelly with a little sand drifting slowly down inside like an hourglass's; a slow, steady
+wobble (they walk a long way every day; the young still bounce); long scarves, wrapped hoods and veils, brass rings and
+beads. Always about to leave, and never leaving: every tent half struck. Nobody names Old Carapace: "the Walker", if
+anything, and a change of subject. No canon tier.
+- **Skipper Kesh**: sails the caravan skiff Saltwind between Caravanserai and the Black Sands for Forgehold coal; the only
+  one who likes water; moves the jetty out every season and takes it as an insult; trades sand-glass beads to Auntie Soot
+  for hot-spring salts (for a bath, her one extravagance; she tells only a friend). Trades from her jetty from A2.
+- **Mother Dune**: the caravan's leader, very old, reads the Keepers' star-dials in the Star Court and knows the stars are
+  wrong without knowing why; sells water (potions), dear. Has led the caravan out a hundred times in her head and never
+  once in fact, because the well still gives a little. Won't look east at sundown.
+- **Tally**: counts everything (the tents, the stars, the drops in the bucket, your coins twice); trades salt-iron and
+  sandstone. Counts the days since the Walker last passed close and won't say the number; sets a cup at supper for
+  everyone who ever left the caravan.
+- **Well-keeper Asra**: keeps the well, lowers the bucket a little further every morning and knots the rope; in love with
+  the idea of rain, never seen it, gets its details wrong on purpose so travellers will tell it again. The carved palm in
+  the Mirage Oasis is hers (she'd never say).

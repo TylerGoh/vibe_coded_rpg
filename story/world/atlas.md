@@ -193,7 +193,7 @@ A detour for players between Frostpeak and Emberdeep, and the theme from another
    - Dens: Ignis, Pyra (exist).
 5. **The thermal column** `[proposed vista]`: the balloon launch, replacing the skylift.
 
-### Amberdune (south-west desert island) `[proposed]`: dry, ancient, quietly grand
+### Amberdune (south-west desert island) `[A0–A1 built, 2026-11-17: Lv 215–250; story/phase9-plan.md]`: dry, ancient, quietly grand
 The missing desert. Reached by ship from Black Sand Shore once Emberdeep's bosses are beaten.
 1. **Saltmouth**: a dry harbour; the sea has pulled back from the old piers (the Drift, made visible).
 2. **Caravanserai** (hometown): tents and a well, people always packing to move on. Cast: **Mother

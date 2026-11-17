@@ -67,6 +67,9 @@ export const FREED = {
   // the Citadel, C6 (c): its final boss. Nobody names it but as a part number; for the slime who freed it the city ticked
   // once and the Spire's clock stands a minute on (src/escapement.js, src/citadel.js)
   escapement: { near: ['echo', 'commissary', 'folio', 'nine'], name: 'the great catch under the Wheel\'s hub (the parts lists call it ESCAPEMENT, MAIN)', seen: "the whole city ticked, once: one great tick heard in every hall, the Wheel overhead slipping round by a single tooth, and then still again. The great clock face in the Chrono Spire, which has always stood at the same minute, now stands one minute later. The Wheel is still jammed; nothing else moved. To the Last Echo it is the first next minute it has ever remembered; the Commissary logs it as a fault cleared; Folio files it; Number Nine felt the floor go round a hair" },
+  // atlas Phase 9, A1: Amberdune's first den. For the slime who freed it the Observatory's great gnomon stands at noon,
+  // casting no shadow at all (src/observatory.js)
+  sunroller: { near: ['mother_dune', 'tally', 'asra', 'kesh'], name: 'the Sunroller, the great scarab in the Buried Observatory', seen: "out in the Buried Observatory the stone sun has come to rest in the middle of the dial floor, and the great gnomon there stands at noon and casts no shadow at all, whatever the hour" },
   // L5 (c): Lantern Fen's final boss. Nobody in Wickmere says her name; "the Mother" is as far as the songs go
   wickmother: { near: ['wren', 'hob', 'sedge', 'netta'], name: 'the Mother in the Hall of Lamps', seen: "the Lamp Walk burns low: a few of its lanterns have gone out and their tags are gone, as if they were let go (Wren's husband's is one of them), and the Hall of Lamps' front door at the Causeway's end stands open, its silk cut down. Be gentle about it: it is grief, and a relief" },
 };

@@ -21,7 +21,10 @@ Data `src/shared/waystones.js` (`WAYSTONES`, `wayAt`), server `way` in `server/r
   none in the Keepers' Gardens or the Orrery; since C2 the Archive's in its Reading Room, the stair being a long walk from the Bastion's; since C3 the Engine Halls' in its Boiler Gallery; since C4 the Bell Walks' at the head of the Rain Stair) is wind-scoured, rimed and bolted down with brass collars. Lantern Fen's (`isle: 'fen'`, atlas Phase 8: Wickmere's,
   on Reedwater's landing, the Shallows' on the Landing Stage, since L1 the Drowned Grove's at the Drowned Gate, since L2 the Still Mere's
   on the Punt Landing, and since L4 the Lantern Causeway's at the Causeway Foot; none in Firefly Hollow, beside the Shallows') are peat-dark and wet, with a green slime tide line,
-  duckweed at the foot and a candle stub kept lit on top.
+  duckweed at the foot and a candle stub kept lit on top. Amberdune's (`isle: 'dune'`, atlas Phase 9: Caravanserai's at the foot
+  of Saltmouth's piers, the Glass Dunes' at the Dune Gate, since A1 the Buried Observatory's on the Sunken Steps; none in the
+  Mirage Oasis, beside the Dune Gate's) are wind-scoured gold, half buried in a drift of sand, with a string of the caravan
+  folk's blue beads round the neck and an amber lamp on top.
 - E at a stone you don't know → `{t:'way'}` attunes (saved as `ways` on the character). E at one you know
   → the card lists your other stones (tap, click or number keys) → `{t:'way', to}`; the server checks you
   stand at an attuned stone and moves you with `placeAt` (like invites), then sends `warp` to both rooms.

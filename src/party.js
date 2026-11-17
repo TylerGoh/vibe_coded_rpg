@@ -289,6 +289,7 @@ function drawFocus(ctx, v, k, s, t, me) {
 // shimmer of heat wavering up off him, "HEAT"; the Clockwork Colossus's boiler blowing off: white steam rings and a
 // plume of it off its smokestacks, "STEAM")
 const PULSES = {
+  noon: { ring: '255,214,110', glow: '255,236,170', hit: '240,180,70', word: 'NOON', fill: '#fffbe8', edge: 'rgba(70,46,10,0.85)', shimmer: true }, // the Sunroller's dial floor giving off the day's heat (atlas Phase 9, A1)
   heat: { ring: '255,118,40', glow: '255,150,60', hit: '255,96,30', word: 'HEAT', fill: '#fff1d6', edge: 'rgba(70,18,4,0.85)', shimmer: true },
   toll: { ring: '224,180,100', glow: '255,226,170', hit: '184,134,58', word: 'TOLL', fill: '#fff4dc', edge: 'rgba(60,36,16,0.85)' }, // (the Great Bell's bronze ringing up, the Citadel's C4)
   horn: { ring: '214,214,228', glow: '240,240,250', hit: '160,160,190', word: 'HOLD', fill: '#ffffff', edge: 'rgba(30,28,40,0.85)' }, // (the Helmsman's horn over the bridge, C4)

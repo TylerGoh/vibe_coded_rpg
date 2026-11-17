@@ -81,5 +81,8 @@ other slimes see their own world). The client gets your record's bosses as `me.f
   the next time that slime is in any Citadel room after freeing it, one great tick is heard and the light jumps (`cityTick`
   in `src/escapement.js`, once, kept in the browser). Sound only, no room drawn changed. The Last Echo, the Commissary,
   Folio and Number Nine know (`FREED.escapement`). The Wheel stays jammed for the finale (atlas Phase 10).
+- **The Sunroller** (atlas Phase 9 A1, `docs/places/observatory.md`; in `BOSS_TIER` at 0 like the Wickmother: Amberdune adds no
+  canon tier) → the Buried Observatory's great gnomon stands at noon (`drawObservatory`'s `freed`): no shadow across the dial
+  floor, only a pool of shade at its foot. Mother Dune, Tally, Asra and Kesh know (`FREED.sunroller`).
 - Later, if wanted (plan): Ladon, Fenrir (the cutters finish the Long Stair), Typhon (the Foundry's pits go cold). The
   one world-wide flag stays for the finale (`story/delivery.md`).

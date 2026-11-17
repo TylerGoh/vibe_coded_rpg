@@ -1,4 +1,4 @@
-// Docs: docs/places/grove.md, docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md, docs/places/blacksands.md, docs/places/ashwood.md, docs/places/coast.md, docs/places/brimstone.md, docs/places/rim.md, docs/places/foundry.md
+// Docs: docs/places/observatory.md, docs/places/oasis.md, docs/places/grove.md, docs/places/cliffs.md, docs/places/willowmere.md, docs/places/coves.md, docs/places/deep.md, docs/places/canopy.md, docs/places/wreck.md, docs/places/thornheart.md, docs/places/spine.md, docs/places/glacier.md, docs/places/skerries.md, docs/places/heights.md, docs/places/queensbridge.md, docs/places/blacksands.md, docs/places/ashwood.md, docs/places/coast.md, docs/places/brimstone.md, docs/places/rim.md, docs/places/foundry.md
 // The Keeper ruins in Bramble Woods (the Wildwood, room FIELD): four mossy old stones with carvings you
 // can read (E), the first clue that someone else lived on Greenhollow long ago. The branches have a stone
 // each too (the weir stone under Willowmere's mill wheel, the tide post in Saltspray Coves, the Listening
@@ -17,7 +17,7 @@
 // story/world/regions/greenhollow.md; keep what they say to canon Tier 1 (story/canon.md): the Keepers,
 // gears, an hourglass scratched out.
 import { TAU, mulberry32, circle, ellipse } from './util.js';
-import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X, COAST, COAST_STONE_X, BRIMSTONE, BRIM_STONE_X, FOUNDRY, FOUNDRY_TALLY_X, FOUNDRY_LEDGER_X, RIM, RIM_STONE_X, GROVE, GROVE_STONE_X } from './shared/rpg.js';
+import { FIELD, FIELD_GROUND, WILLOWMERE, COVES, MYCELIUM, CANOPY, WRECK, THORNHEART, THORN_W, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, BLACKSANDS, SANDS_STONE_X, ASHWOOD, ASH_STONE_X, COAST, COAST_STONE_X, BRIMSTONE, BRIM_STONE_X, FOUNDRY, FOUNDRY_TALLY_X, FOUNDRY_LEDGER_X, RIM, RIM_STONE_X, GROVE, GROVE_STONE_X, OBSERVATORY, OBS_STONE_X, OASIS, OASIS_PALM_X } from './shared/rpg.js';
 
 const READ_RANGE = 56;
 
@@ -158,6 +158,27 @@ export const RUIN_STONES = [
     note: 'Someone has tied a lantern to the stone with reed string, its tag turned to the stone so you cannot read the name. It is lit.',
   },
   {
+    // the Buried Observatory's (atlas Phase 9, A1, docs/places/observatory.md): Amberdune adds no canon tier, so it says no
+    // more than Tier 1 (the Keepers made it, gears) and Tier 0 (the stars moved: everyone knows), and leans into the island's
+    // own theme: moving on. The big shape walking beside the caravan is the atlas's hint at the finale, shown, never told
+    room: OBSERVATORY, place: 'the Buried Observatory', x: OBS_STONE_X, shape: 'dial', name: 'the Dial Stone', title: 'The Dial Stone',
+    look: "A Keeper stone buried in the sand to its shoulders, a dial cut into its face like the great ones round it: a ring of gear teeth with a sun in the middle, and stars marked all round the ring. Below the dial, where the sand has been scooped away by someone's hands, a line of small figures walks east.",
+    legible: ['...READ THE HOUR... AND WALK ON...', "The stars round the ring are cut twice: once where they are, and once a little further round, the second set lighter, as if added later.", "Beside the walking figures there is a bigger shape walking the same way, much bigger, too worn to make out. The sand covers the rest."],
+    note: 'Someone has tied a string of blue beads round the stone at the sand line, the kind the caravan folk wear. Fresh tracks lead up to it and away again.',
+  },
+  {
+    // the Mirage Oasis's carved palm (A1, docs/places/oasis.md): a reading, not a Keeper stone (wing / when, like the log)
+    room: OASIS, place: 'the Mirage Oasis', x: OASIS_PALM_X, shape: 'rainpalm', name: 'the carved palm', title: 'The Carved Palm',
+    wing: 'the Mirage Oasis · the Far Shade', when: 'Cut into a date palm with a knife · old cuts and new',
+    look: 'A date palm in the shade at the far end of the oasis, its trunk cut all over, from the roots to as high as a slime can reach, in small careful letters. Some cuts are grey and healed over; some are fresh and pale.',
+    legible: [
+      'RAIN COMES DOWN FROM THE SKY IN STRINGS. YOU CAN CLIMB THEM.',
+      'Under that, in another hand: "You cannot climb them. It is water, in drops. Lots of drops." And under that, in the first hand again: "How many drops?"',
+      'Higher up: "In the north it comes down white and stays." Lower down: "That is snow. It is not rain. Stop writing things wrong." And at the very bottom, fresh: "Tell me again."',
+    ],
+    note: 'A water-skin hangs from a stub of frond at the bottom, half full, with a cup tied to it. Whoever left it wants you to stay and talk.',
+  },
+  {
     // the Old Foundry's tally board (E3b, docs/places/foundry.md): a reading, not a Keeper stone (wing / when, like the log)
     room: FOUNDRY, place: 'the Old Foundry', x: FOUNDRY_TALLY_X, shape: 'tally', name: 'the tally board', title: 'The Tally Board',
     wing: 'the Old Foundry · by the big casting pit', when: 'Chalk on charred planks · read by the glow of the pit',
@@ -210,7 +231,7 @@ export function drawRuins(ctx, room, L, R, time, near) {
       ctx.fillStyle = g;
       ctx.fillRect(-130, -200, 260, 200);
     }
-    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone, landing: drawLandingStone, breathing: drawBreathingStone, tally: drawTally, ledger: drawLedger, hoist: drawHoistStone, sunk: drawSunkStone })[s.shape](ctx, time, s === near);
+    ({ waystone: drawWaystone, gate: drawGate, roll: drawRoll, root: drawRoot, weir: drawWeir, tidepost: drawTidePost, listening: drawListening, lifted: drawLifted, log: drawLog, hedge: drawHedge, road: drawRoadStone, rime: drawRimeStone, sounding: drawSoundingStone, serpent: drawSerpentStone, strait: drawStraitStone, turning: drawTurningStone, kiln: drawKilnStone, landing: drawLandingStone, breathing: drawBreathingStone, tally: drawTally, ledger: drawLedger, hoist: drawHoistStone, sunk: drawSunkStone, dial: drawDialStone, rainpalm: drawRainPalm })[s.shape](ctx, time, s === near);
     ctx.restore();
   }
 }
@@ -1842,4 +1863,101 @@ function drawSunkStone(ctx, time, glow) {
   ctx.fillRect(41, -66, 10, 2);
   ctx.fillStyle = '#ffe2a8';
   ctx.fillRect(42, -64, 8, 10);
+}
+
+// The Dial Stone (the Buried Observatory): a Keeper stone sunk in the sand to its shoulders, a dial cut on its face (a
+// ring of gear teeth, a sun in the middle, stars round it cut twice, the second set lighter), a line of small walking
+// figures below where the sand's been scooped away, and something much bigger walking beside them, too worn to read
+function drawDialStone(ctx, time, glow) {
+  slab(ctx, -46, -100, 92, 104, 14);
+  const ink = glow ? '#c9a24a' : CARVE;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
+  ctx.lineWidth = 1.6;
+  ctx.lineCap = 'round';
+  carvedGear(ctx, 0, -66, 24, 12, glow);
+  ctx.beginPath();
+  ctx.arc(0, -66, 7, 0, TAU); // the sun
+  ctx.stroke();
+  for (let i = 0; i < 8; i++) { // the stars, cut twice
+    const a = (i / 8) * TAU;
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * 32, -66 + Math.sin(a) * 32, 1.6, 0, TAU);
+    ctx.fill();
+    ctx.globalAlpha = 0.45;
+    ctx.beginPath();
+    ctx.arc(Math.cos(a + 0.22) * 32, -66 + Math.sin(a + 0.22) * 32, 1.4, 0, TAU);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  ctx.beginPath(); // the walking figures, small, and the bigger worn shape beside them
+  for (let i = 0; i < 4; i++) {
+    const x = -32 + i * 12;
+    ctx.moveTo(x, -26);
+    ctx.lineTo(x + 2, -20);
+    ctx.moveTo(x + 1, -30);
+    ctx.arc(x + 1, -32, 2, Math.PI / 2, Math.PI / 2 + TAU);
+  }
+  ctx.stroke();
+  ctx.globalAlpha = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(18, -20);
+  ctx.quadraticCurveTo(26, -42, 40, -38);
+  ctx.lineTo(42, -20);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#e0bc84'; // the sand, up to its shoulders, a hollow scooped out in front
+  ctx.beginPath();
+  ctx.moveTo(-70, 4);
+  ctx.quadraticCurveTo(-60, -40, -46, -44);
+  ctx.quadraticCurveTo(-40, -14, 0, -14);
+  ctx.quadraticCurveTo(40, -14, 46, -44);
+  ctx.quadraticCurveTo(60, -40, 70, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#3e4a7a'; // the blue beads at the sand line
+  for (let i = 0; i < 9; i++) circle(ctx, -40 + i * 10, -16 + Math.sin(i) * 1.5, 1.8);
+}
+
+// The carved palm (the Mirage Oasis): a date palm's trunk cut all over in small letters, old grey cuts and fresh pale
+// ones, a water-skin and a cup hung from a stub of frond at the bottom
+function drawRainPalm(ctx, time, glow) {
+  ctx.strokeStyle = '#8a6a48';
+  ctx.lineWidth = 16;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(6, -120, -4, -240);
+  ctx.stroke();
+  ctx.fillStyle = '#5a8a4a';
+  for (let i = 0; i < 7; i++) {
+    const a = Math.PI + (i / 6) * Math.PI + Math.sin(time * 0.8 + i) * 0.05;
+    ctx.beginPath();
+    ctx.ellipse(-4 + Math.cos(a) * 34, -238 + Math.sin(a) * 14 + 14, 38, 7, a, 0, TAU);
+    ctx.fill();
+  }
+  const ink = glow ? '#c9a24a' : 'rgba(60,40,24,0.7)';
+  ctx.fillStyle = ink; // the cut letters, row on row
+  for (let row = 0; row < 18; row++) {
+    const y = -12 - row * 7, x0 = -6 + Math.sin(row) * 1.5;
+    for (let k = 0; k < 4; k++) {
+      ctx.globalAlpha = row % 3 === 0 ? 1 : 0.55;
+      ctx.fillRect(x0 + k * 3.2, y, 2, 1.4);
+    }
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = 'rgba(255,248,226,0.8)'; // the fresh ones, pale
+  for (let row = 0; row < 4; row++) ctx.fillRect(-5, -8 - row * 7, 9, 1.4);
+  ctx.strokeStyle = '#5a4030'; // the water-skin and its cup
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(8, -40);
+  ctx.lineTo(16, -32);
+  ctx.stroke();
+  ctx.fillStyle = '#9a6a42';
+  ctx.beginPath();
+  ctx.ellipse(18, -22, 7, 10, 0.2, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#c8b48a';
+  ctx.fillRect(10, -14, 6, 5);
 }

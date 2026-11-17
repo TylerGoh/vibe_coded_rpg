@@ -6,7 +6,7 @@
 // When a branch ships: give it its room(s), set `rooms`, remove its `gate` (and the block's art goes with
 // it: the update itself lifts the block), give it an `entry` (the open way in, drawn where the gate was),
 // and make its children's gates the next ones.
-import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X, PEATBARROWS, LAMPROAD, WICK_DEN_X, WICK_DEN_NAME, WICK_DEN, CITADEL, SKYCAMP, SKYDOCKS, GARDENS, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X, ORRERY, ARCHIVE, ENGINE, HELM_GATE_X, BELLS, HELM_DEN, KEEL, UNDERCROFT_GATE_X, UNDERCROFT, SPOKE, CATCH_DEN, CATCH_DEN_NAME } from './rpg.js';
+import { FIELD, STAGES, DENS, zoneAt, HIGHLANDS, FJORD, CALDERA, FORGEHOLD, SANDS_GATE_X, ASHWOOD, FOUNDRY_GATE_X, COAST_GATE_X, ASHWOOD_GATE_X, BRIMSTONE_GATE_X, BALLOON_X, GLACIER, GLACIER_GATE_X, BLUEHALLS_GATE_X, HEIGHTS_GATE_X, SKERRIES_GATE_X, BRIDGE_GATE_X, SKERRIES, GROTTO, GROTTO_GATE_X, HEIGHTS, BLUEHALLS, QBRIDGE, WILLOWMERE, WILLOWMERE_GATE_X, COVES, COVES_GATE_X, MYCELIUM, MYCELIUM_GATE_X, GLOWROOT, GLOWROOT_GATE_X, CANOPY, CANOPY_GATE_X, SPINE, SPINE_GATE_X, WRECK, WRECK_GATE_X, THORNHEART, THORN_GATE_X, SUNKEN, ROADSEND, SUNKEN_GATE_X, OLDICE, LONGSTAIR, OLDICE_GATE_X, BLACKSANDS, COAST, TUBES, TUBES_GATE_X, BRIMSTONE, RIM_GATE_X, RIM, FOUNDRY, UNDERFLUES, LONGFLUE, UNDERFLUES_GATE_X, WICKMERE, SHALLOWS, FIREFLY_GATE_X, GROVE_GATE_X, STILLMERE_GATE_X, FIREFLY, GROVE, BARROWS_GATE_X, CAUSEWAY_GATE_X, STILLMERE, BARROWS, PEAT_GATE_X, CAUSEWAY, HALL_GATE_X, PEATBARROWS, LAMPROAD, WICK_DEN_X, WICK_DEN_NAME, WICK_DEN, CITADEL, SKYCAMP, SKYDOCKS, GARDENS, GARDENS_GATE_X, ARCHIVE_GATE_X, KEEL_GATE_X, ORRERY_GATE_X, ENGINE_GATE_X, BELLS_GATE_X, ORRERY, ARCHIVE, ENGINE, HELM_GATE_X, BELLS, HELM_DEN, KEEL, UNDERCROFT_GATE_X, UNDERCROFT, SPOKE, CATCH_DEN, CATCH_DEN_NAME, SANDS_SALTWIND_X, CARAVAN, SALTFLATS_GATE_X, GLASSDUNES, OASIS, OBSERVATORY, BURIED_GATE_X, STORM_GATE_X } from './rpg.js';
 import { VILLAGE, HARBOUR, CLIFFS } from './sim.js';
 
 // at: where the node sits on the island map (map pixels, 720×380) · from: the node it branches off (an edge
@@ -57,6 +57,9 @@ export const EMBERDEEP = [
   { id: 'heart', name: 'Magma Heart', band: '100–115', at: [505, 215], from: 'flats', zone: 1, zr: CALDERA },
   // E1: the geyser across the beach path has gone quiet (the update itself lifted it)
   { id: 'sands', name: 'Black Sands', band: '90–100', at: [76, 215], from: 'forgehold', rooms: [BLACKSANDS], entry: { room: FORGEHOLD, x: SANDS_GATE_X, kind: 'geyser' } },
+  // atlas Phase 9: the Saltwind, Skipper Kesh's caravan skiff, drawn up on the Black Sands by the Beach Path (the update
+  // brought her). Her gangway is a door (sim.js, west to Amberdune); like the balloon, the node has no rooms of its own
+  { id: 'saltwind', name: 'The Saltwind', at: [76, 300], from: 'sands', entry: { room: BLACKSANDS, x: SANDS_SALTWIND_X, kind: 'saltwind' } },
   // E2: the lava tongue down the gully has crusted hard, and someone cut steps in it (the update itself lifted it)
   { id: 'coast', name: 'Smoking Coast', band: '100–115', at: [355, 295], from: 'flats', rooms: [COAST], entry: { room: CALDERA, x: COAST_GATE_X, kind: 'lavatongue' } },
   // E2 (piece 3): the old lava tube in the Coast's sea cliff has drained, the steam gone (the update itself lifted it)
@@ -129,7 +132,23 @@ export const CITADEL_MAP = [
   // C4: the rain hanging on the stair above the Hour Sanctum fell (the update did it)
   { id: 'bells', name: 'The Bell Walks', band: '195–208', at: [560, 55], from: 'spire', rooms: [BELLS], entry: { room: CITADEL, x: BELLS_GATE_X, kind: 'frozenrain' } },
 ];
-export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK, ember: EMBERDEEP, fen: LANTERN_FEN, citadel: CITADEL_MAP };
+// Amberdune (atlas Phase 9: story/phase9-plan.md, A0 on): Caravanserai, the Glass Dunes, the Mirage Oasis and the Buried
+// Observatory (A0 and A1 shipped together, so their own blocks never went live), and every gate the next phases lift (each
+// with an in-world reason); places further in (the Dry Wells) are `past` until a room leads there
+export const AMBERDUNE = [
+  { id: 'caravan', name: 'Caravanserai', at: [120, 200], rooms: [CARAVAN], town: true },
+  { id: 'dunes', name: 'The Glass Dunes', band: '215–224', at: [280, 200], from: 'caravan', rooms: [GLASSDUNES] },
+  { id: 'oasis', name: 'The Mirage Oasis', band: '215–220', at: [280, 305], from: 'dunes', rooms: [OASIS] },
+  { id: 'observatory', name: 'The Buried Observatory', band: '222–232', at: [440, 200], from: 'dunes', rooms: [OBSERVATORY] },
+  { id: 'saltflats', name: 'The Salt Flats', band: '226–236', at: [120, 305], from: 'caravan', block: 'the salt is soft',
+    gate: { room: CARAVAN, x: SALTFLATS_GATE_X, kind: 'softsalt', look: 'look out over the old seabed', says: "Out on the old seabed the salt crust's wet this season: a step off the path and you're in to the knee. Kesh says wait for it to dry." } },
+  { id: 'buried', name: 'The Buried Caravanserai', band: '234–242', hard: true, at: [440, 305], from: 'observatory', block: 'a fall of sand',
+    gate: { room: OBSERVATORY, x: BURIED_GATE_X, kind: 'sandfall', look: 'look down the stair', says: 'Sand pours down the stair under the dial ring in a steady fall. The steps are buried a little deeper every hour.' } },
+  { id: 'storm', name: 'The Storm Road', band: '236–250', at: [600, 200], from: 'observatory', block: 'a standing storm',
+    gate: { room: OBSERVATORY, x: STORM_GATE_X, kind: 'redstorm', look: 'look down the old road', says: 'The old caravan road runs east into a wall of red sand, standing still and roaring. Nothing walks into that.' } },
+  { id: 'drywells', name: 'The Dry Wells', band: '244–250', hard: true, at: [600, 95], from: 'storm', past: true },
+];
+export const ISLAND_MAPS = { green: GREENHOLLOW, frost: FROSTPEAK, ember: EMBERDEEP, fen: LANTERN_FEN, citadel: CITADEL_MAP, dune: AMBERDUNE };
 const ALL = Object.values(ISLAND_MAPS).flat();
 export const shipped = (n) => !n.gate && !n.past;
 export const ENTRIES = ALL.filter((n) => n.entry).map((n) => ({ ...n.entry, branch: n.id, name: n.name, band: n.band, hard: !!n.hard }));

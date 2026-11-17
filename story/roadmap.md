@@ -211,10 +211,20 @@ No quests, no hard level gates.
           the Arbor Crown (The Tick, Keep Time), the mini Escapement, the city's one tick when freed
           (`docs/places/escapement.md`). Unplayed. **The Citadel's depth pass is done.**
 - [ ] **Atlas Phase 9: Amberdune** (Old Carapace), the next island (owner, 2026-11-15: "continue with next phase and the
-      phase after", after C6). (a) on paper 2026-11-15: `phase9-plan.md`, **waiting for the owner**: the band (default
-      Lv 215–250, past the Citadel's top; Old Carapace recommended at 250), the Saltwind from the Black Sands, Caravanserai and
-      its four (Mother Dune, Tally, Asra, Kesh), the branches, three bosses and a party den, Old Carapace as the final boss,
-      phases A0–A5. Next: A0, the landing, once the owner has read it.
+      phase after", after C6). (a) on paper 2026-11-15: `phase9-plan.md`; the owner's go-ahead 2026-11-17 ("continue with the
+      next two phases") left every default standing: Lv 215–250, the Saltwind from the Black Sands, the whole pass, Old
+      Carapace the final boss at 250, no canon tier, all four characters AI.
+  - [x] A0 and A1 (2026-11-17, live, in one update): the Saltwind and the `'dune'` crossing (98/99), Caravanserai (97: Kesh,
+        Mother Dune, Tally, Asra, the dune folk, the walking hill in every sky), the Glass Dunes (100), the Mirage Oasis
+        (103), the Buried Observatory (101) and the Sunroller in the Dial Floor (102, challenges from day one: late tells,
+        sun rings, the glare; freed, the gnomon at noon). Gates laid: the Salt Flats (soft salt, A2), the Buried
+        Caravanserai (sand pouring down the stair, A3), the Storm Road (a standing storm, A4). `HOUSE_BASE` 100 → 1000
+        (`docs/places/amberdune.md`, `glassdunes.md`, `oasis.md`, `observatory.md`). Unplayed.
+  - [ ] A2: the Salt Flats and the Netwife (Kesh trades from her jetty).
+  - [ ] A3: the Buried Caravanserai (hard pocket) and the field bosses (the Glassjaw, the Last Drover).
+  - [ ] A4: the Storm Road, the Red Wall (party den) and the Sirocco; the dry well's mouth chained, Old Carapace walking on
+        the horizon out of reach.
+  - [ ] A5: Old Carapace ((a) his plan, (b) the Dry Wells and the Shell Road, (c) the Long Road and the fight).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,
       uncharted islands (`world/regions/uncharted.md`, `expansion.md`).

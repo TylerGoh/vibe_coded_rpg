@@ -106,6 +106,8 @@ export const STAFFS = {
   lantern_crook: { len: 72, shaft: ['#d8d0c0', '#9a9282'], w: 3, head: 'lantern', gem: '#ffe2a8', gem2: '#4a4058', glow: '255,214,150' }, // (the Wickmother's, the Cleric's: a carrier's crook of pale willow, a small lantern on its hook)
   cradle_staff: { len: 70, shaft: ['#b8b0a4', '#7a7268'], w: 3, head: 'lantern', gem: '#ffe2a6', gem2: '#e2dce8', glow: '255,214,150' }, // (L5 (b): the Eldest's: willow, a cocoon bound at its head, a light inside)
   barrowoak_staff: { len: 72, shaft: ['#2a2420', '#120e0c'], w: 3.4, head: 'lantern', gem: '#ffd696', gem2: '#3a2c20', glow: '255,214,150' }, // (the Sleeper's: roof oak from the Peat Hall, a grave lamp hung on it)
+  sandstone_rod: { len: 62, shaft: ['#d88a5a', '#a85a3a'], w: 3, head: 'crystal', gem: '#e8a040', gem2: '#ffe2a0', glow: '255,214,140', band: '#f4d68a' }, // (Tally's, atlas Phase 9: banded sandstone, an amber bead)
+  sundial_staff: { len: 70, shaft: ['#e8b85a', '#a8742a'], w: 3, head: 'star', gem: '#ffe9a8', gem2: '#fff8dc', glow: '255,226,140' }, // (the Sunroller's: a little sundial at its head)
   willow_staff: { len: 66, shaft: ['#d8ccb0', '#9a8a68'], w: 2.8, head: 'lantern', gem: '#ffe2a8', gem2: '#5e4e84', glow: '214,190,255' }, // (Sedge's: a peeled willow wand, a frog-skin lantern with a moth-light in it)
   kitetalon_staff: { len: 66, shaft: ['#8a8490', '#4e4a56'], w: 2.8, head: 'crystal', gem: '#a8781e', gem2: '#ffe060', glow: '255,220,100' },
   pinion_staff: { len: 70, shaft: ['#4a4448', '#24202a'], w: 3.2, head: 'feather', gem: '#6a6268', gem2: '#9a9298', glow: '255,214,120' }, // (the Condor's: slag-iron feathers)
