@@ -137,6 +137,10 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
     'sun'`), and in phase 3 thin gaps as the glare (`gaps`, `looks.gaps: 'glare'`: the dial floor white with glare but for
     one strip of shade, the gnomon's shadow; `drawGlare` in `src/challenge.js`, its warning a long cool shadow and heat
     lifting off the floor). The punish window.
+  - **The Netwife** (atlas Phase 9 A2, from day one, `docs/places/saltflats.md`): her thrown net every phase (`snare`,
+    `looks.snare: 'net'`, a new `PAL` row: salt-stiff twine, white knots), late tells from phase 2 (`late`: her shadow
+    comes too late as she drops out of her rigging), and the rescue cage from phase 2 with a party (`cage`: wound up in her
+    nets to mend later). The punish window.
   - **Old Gullet** (atlas Phase 8 L2, from day one): swallowed every phase (`gulp`, a move name of its own in `CHAL_MOVE` for
     the mash free, drawn as his dark jaws with the lights showing through: `looks.snare: 'gullet'`, `PAL.gullet`) and the
     dark from phase 2 (`dark` as a plain move: both need their `WARN` row, or the boss's timer is `NaN`). The punish window.
@@ -305,6 +309,10 @@ its HP in thirds (`fieldStage`).
     (`late`) from the start, and from its second third the toll is a wall of sound with one gap (`gaps`).
   - **The Rustwyrm** (the Citadel's C5, from day one, `docs/places/keel.md`): feint drops from the start (`feint`, the dive's,
     like the Pale Wyrm's), and from its second third it wraps you in its chain (`mash`, `PAL.chain`).
+  - **The Glassjaw** (atlas Phase 9 A3, from day one, `docs/places/glassdunes.md`): late tells from the start (`late`: the
+    sand bulges only after it's on its way), and from its second third rings of glass splinters (`rings`, style `glass`).
+  - **The Last Drover** (A3, from day one, `docs/places/buried.md`): the controls swap from the start (`swap`: turned round
+    in the dark), and from his second third his lead rope round you (`mash`, `looks.snare: 'rope'`, `PAL.rope`).
   - **The Siege Engine** (the Citadel's C0, from day one, `docs/places/citadel.md`): an empty wind-up now and then, the
     real bolt after (`feint`, the lob's), and from its second third rings of bolts with a gap (`rings`, style `bolt`).
   - **The Sprout King and Mother Mushroom** (`bossBrain`): the gentle first meeting: a snare of three arrows (`snareLen`)

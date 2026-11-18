@@ -158,6 +158,14 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
 46. **The Buried Observatory**: A1, on east from the Glass Dunes (Lv 222–232, a waystone on the Sunken Steps, the Sunroller's
    den; `docs/places/observatory.md`). Dust wraiths (`phase`), dial sentries (`beam`, the new beam style `sunbeam`; the rare
    Dialwatch Helm), sand asps (`shell` with `cut: 0`), amber moths (`dive`). No hazard, no new brains.
+47. **The Salt Flats**: A2, the old seabed west off Caravanserai (Lv 226–236, a waystone on the Salt Steps, the Netwife's den;
+   `docs/places/saltflats.md`). Salt crabs (hopping chasers), brine slimes (`trail`, the new puddle style `saltcrust`), flat
+   gulls (`dive`), wreck hermits (`shell`; the rare Prow Helm). No hazard, no new brains.
+48. **The Buried Caravanserai**: A3, a hard pocket down the stair under the Buried Observatory (Lv 234–242, no waystone;
+   `docs/places/buried.md`). Husk lizards (quick chasers; elite the Old Pack-Husk), buried lamplighters (`lob`, the new shot
+   style `amber`; the rare Lamplighter's Hood), stiff tents (`stomp`; elite the Great Pavilion), and the Last Drover, a `lob`
+   field boss whose phantom pack-beasts come with a party (adds). A3 also put the Glassjaw, a `stomp` field boss, under the
+   Glass Dunes' High Dunes (`docs/places/glassdunes.md`; rings style `glass`, armour `SHELLS.glass`).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

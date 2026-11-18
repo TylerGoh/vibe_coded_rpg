@@ -1,7 +1,9 @@
 // Docs: docs/places/glassdunes.md, docs/combat/stages.md
 // The Glass Dunes' art that isn't the room itself (src/glassdunes.js; atlas Phase 9, A0): its creatures (sand skipper,
 // heat mirage, dune beetle, fulgurite scorpion; DUNES_MOB_ART, called by drawMob in src/field.js; the Mirage Oasis has the
-// skippers and the mirages too) and its materials' icons (DUNES_ICONS). Amberdune's register: sun-bleached golds and
+// skippers and the mirages too; A3's field boss the Glassjaw) and its materials' icons (DUNES_ICONS), and the Glassjaw's gear
+// (the Glass Mandible and the Glassjaw Helm: DUNES_SWORDS, DUNES_HELMETS; its staff and bow are src/staff-art.js's and
+// src/bow-art.js's). Amberdune's register: sun-bleached golds and
 // ochres, sandstone reds, a deep sky blue; lightning glass where the sand fused; soft and rounded as ever.
 // Mob art: (ctx, w, h, t, seed, m, dying), feet at the origin, facing +x; returns its silhouette path.
 import { TAU, circle, ellipse } from './util.js';
@@ -327,7 +329,180 @@ function drawFulguriteScorpion(ctx, w, h, t, seed, m, dying) {
   return body;
 }
 
-export const DUNES_MOB_ART = { sand_skipper: drawSandSkipper, heat_mirage: drawHeatMirage, dune_beetle: drawDuneBeetle, fulgurite_scorpion: drawFulguriteScorpion };
+// The Glassjaw (A3, a field boss): a dune beetle grown as big as a house, black with a gold sheen, its great jaws fused to
+// lightning glass in some old storm, clear and branching. It lies under the High Dunes with only its back showing (passive
+// until hit); then it heaves up out of the sand (`stomp`: m.warn as it gathers, sand pouring off it; m.charging as it comes
+// down) and its jaws ring
+function drawGlassjaw(ctx, w, h, t, seed, m, dying) {
+  const live = dying < 0.05, wk = m?.warn ? (m.warn === true ? 1 : Math.max(0, Math.min(1, +m.warn || 0))) : 0, jump = !!m?.charging && live;
+  const walk = live && m?.walking ? Math.sin(t * 6 + seed) : 0;
+  const rise = wk * 10;
+  const body = () => {
+    ctx.beginPath();
+    ctx.ellipse(-w * 0.06, -h * 0.46 - rise, w * 0.4, h * 0.42, 0, Math.PI, 0);
+    ctx.lineTo(w * 0.34, -h * 0.2 - rise);
+    ctx.quadraticCurveTo(0, -h * 0.04 - rise, -w * 0.46, -h * 0.2 - rise);
+    ctx.closePath();
+  };
+  ctx.save();
+  ctx.fillStyle = 'rgba(40,30,20,0.3)';
+  ellipse(ctx, 0, 0, w * 0.5, 8);
+  ctx.strokeStyle = '#1e1a22'; // six legs, thick and spined
+  ctx.lineWidth = 7;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (let i = 0; i < 3; i++) {
+    const lx = -w * 0.32 + i * w * 0.24, ph = i % 2 ? 1 : -1;
+    ctx.moveTo(lx, -h * 0.26 - rise);
+    ctx.lineTo(lx - 14 + walk * ph * 10, -h * 0.14);
+    ctx.lineTo(lx - 6 + walk * ph * 14, -2);
+  }
+  ctx.stroke();
+  const g = ctx.createLinearGradient(-w * 0.4, -h * 0.9, w * 0.3, -h * 0.1);
+  g.addColorStop(0, '#4a4060');
+  g.addColorStop(0.5, '#26202e');
+  g.addColorStop(1, '#3a2a1e');
+  ctx.fillStyle = g;
+  ctx.strokeStyle = '#141018';
+  ctx.lineWidth = 3;
+  body();
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(232,184,90,0.6)'; // the gold sheen, the seam between its wing-cases
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.ellipse(-w * 0.18, -h * 0.54 - rise, w * 0.24, h * 0.24, -0.3, Math.PI * 1.1, Math.PI * 1.6);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(20,16,24,0.85)';
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.moveTo(-w * 0.1, -h * 0.88 - rise);
+  ctx.lineTo(-w * 0.1, -h * 0.18 - rise);
+  ctx.stroke();
+  // sand pouring off its back as it heaves up
+  if (wk > 0 || jump) {
+    ctx.fillStyle = 'rgba(232,200,138,0.85)';
+    for (let i = 0; i < 10; i++) {
+      const k = (t * 1.6 + i * 0.1) % 1;
+      circle(ctx, -w * 0.4 + i * w * 0.08, -h * 0.86 - rise + k * h * 0.7, 2.2);
+    }
+  } else { // at rest a cap of sand on it, like another dune
+    ctx.fillStyle = 'rgba(232,200,138,0.9)';
+    ctx.beginPath();
+    ctx.ellipse(-w * 0.1, -h * 0.82, w * 0.26, h * 0.08, 0, Math.PI, 0);
+    ctx.fill();
+  }
+  // the head and its great jaws of lightning glass, open a crack, ringing
+  ctx.fillStyle = '#26202e';
+  ellipse(ctx, w * 0.36, -h * 0.3 - rise, w * 0.14, h * 0.16);
+  const gape = jump ? 0.35 : 0.12 + wk * 0.2;
+  for (const s of [-1, 1]) {
+    ctx.save();
+    ctx.translate(w * 0.44, -h * 0.3 - rise);
+    ctx.rotate(s * gape);
+    ctx.fillStyle = GLASS;
+    ctx.strokeStyle = GLASS_D;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, s * 4);
+    ctx.quadraticCurveTo(w * 0.16, s * h * 0.08, w * 0.22, -s * h * 0.06);
+    ctx.quadraticCurveTo(w * 0.12, s * h * 0.02, 0, -s * 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(240,250,255,0.9)'; // the branching inside it, like frozen lightning
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(4, 0);
+    ctx.lineTo(w * 0.08, s * 4);
+    ctx.lineTo(w * 0.12, -s * 2);
+    ctx.moveTo(w * 0.08, s * 4);
+    ctx.lineTo(w * 0.15, s * 8);
+    ctx.stroke();
+    ctx.restore();
+  }
+  if (live) { // the glass catches the light
+    ctx.fillStyle = `rgba(255,255,255,${0.5 + 0.4 * Math.sin(t * 4 + seed)})`;
+    circle(ctx, w * 0.58, -h * 0.34 - rise, 2.4);
+  }
+  eyes(ctx, w * 0.38, -h * 0.36 - rise, 5, t, seed, { dying, size: 1, col: '#f4d68a' });
+  ctx.restore();
+  return body;
+}
+export const DUNES_MOB_ART = { sand_skipper: drawSandSkipper, heat_mirage: drawHeatMirage, dune_beetle: drawDuneBeetle, fulgurite_scorpion: drawFulguriteScorpion, glassjaw: drawGlassjaw };
+
+// ——— the Glassjaw's gear (A3) ———
+// The Glass Mandible: one of its jaws, lightning glass fused to black beetle-horn, curved like a scythe
+function drawGlassMandible(ctx, L, glow) {
+  ctx.save();
+  if (glow) {
+    ctx.shadowColor = 'rgba(220,240,255,0.9)';
+    ctx.shadowBlur = 12;
+  }
+  ctx.fillStyle = GLASS;
+  ctx.strokeStyle = GLASS_D;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(-4, -L * 0.24);
+  ctx.quadraticCurveTo(-8, -L * 0.7, 6, -L);
+  ctx.quadraticCurveTo(4, -L * 0.66, 5, -L * 0.24);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = GLASS_L;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, -L * 0.3);
+  ctx.lineTo(-2, -L * 0.5);
+  ctx.lineTo(2, -L * 0.62);
+  ctx.moveTo(-2, -L * 0.5);
+  ctx.lineTo(-4, -L * 0.6);
+  ctx.stroke();
+  ctx.fillStyle = '#26202e'; // the horn it's fused to, and the grip
+  ctx.beginPath();
+  ctx.roundRect(-5, -L * 0.28, 10, 8, 3);
+  ctx.fill();
+  ctx.fillStyle = '#3a2a1e';
+  ctx.beginPath();
+  ctx.roundRect(-2.4, -L * 0.22, 4.8, L * 0.2, 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(232,184,90,0.8)';
+  circle(ctx, 0, -L * 0.02, 3.4);
+  ctx.restore();
+}
+export const DUNES_SWORDS = { glass_mandible: drawGlassMandible };
+export const DUNES_SWORD_LEN = { glass_mandible: 66 };
+// The Glassjaw Helm: a helm of its wing-case, black and gold, a ridge of clear glass along the top like a crest
+function drawGlassjawHelm(ctx, w, h) {
+  const by = -h * 0.64, rx = w * 0.54;
+  ctx.fillStyle = '#26202e';
+  ctx.strokeStyle = '#141018';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-rx, by + 8);
+  ctx.bezierCurveTo(-rx * 1.08, by - h * 0.5, rx * 1.08, by - h * 0.5, rx, by + 8);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(232,184,90,0.6)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(-rx * 0.3, by - h * 0.18, rx * 0.4, h * 0.14, -0.3, Math.PI * 1.1, Math.PI * 1.7);
+  ctx.stroke();
+  ctx.fillStyle = GLASS; // the glass ridge
+  ctx.strokeStyle = GLASS_D;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(-rx * 0.6, by - h * 0.3);
+  for (let i = 0; i <= 6; i++) ctx.lineTo(-rx * 0.6 + (i / 6) * rx * 1.2, by - h * (0.42 + (i % 2) * 0.12));
+  ctx.lineTo(rx * 0.6, by - h * 0.3);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+}
+export const DUNES_HELMETS = { glassjaw_helm: drawGlassjawHelm };
 
 // ——— materials' icons (centred on the origin, about 28 px across) ———
 function iconSkipperFrill(ctx) {
@@ -418,5 +593,30 @@ function iconFulguriteSting(ctx) {
   ctx.stroke();
   ctx.restore();
 }
-export const DUNES_ICONS = { skipper_frill: iconSkipperFrill, bottled_shimmer: iconBottledShimmer, beetle_wingcase: iconBeetleWingcase, fulgurite_sting: iconFulguriteSting };
+function iconGlassjawShard(ctx) {
+  ctx.save();
+  ctx.fillStyle = GLASS;
+  ctx.strokeStyle = GLASS_D;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(-3, -11);
+  ctx.lineTo(7, -4);
+  ctx.lineTo(5, 9);
+  ctx.lineTo(-6, 7);
+  ctx.lineTo(-8, -3);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = GLASS_L;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(-2, -7);
+  ctx.lineTo(0, 0);
+  ctx.lineTo(-3, 5);
+  ctx.moveTo(0, 0);
+  ctx.lineTo(4, 3);
+  ctx.stroke();
+  ctx.restore();
+}
+export const DUNES_ICONS = { skipper_frill: iconSkipperFrill, bottled_shimmer: iconBottledShimmer, beetle_wingcase: iconBeetleWingcase, fulgurite_sting: iconFulguriteSting, glassjaw_shard: iconGlassjawShard };
 export { SAND, SAND_D, SAND_L, OCHRE, OCHRE_D };

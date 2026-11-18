@@ -58,6 +58,8 @@ Update this when the game changes. Source of truth for names is the code (`src/s
 | The Glass Dunes (atlas Phase 9, A0) | Lv 215–224: the Dune Gate, the Wind Shelves, the Glass Fields, the High Dunes; sand skippers, heat mirages, dune beetles, fulgurite scorpions; the caravan milestone (hidden) | none |
 | The Mirage Oasis (atlas Phase 9, A1) | Lv 215–220, the easy pocket: the pool with the other sky (green, raining), the carved palm of rain stories | none |
 | The Buried Observatory and the Dial Floor (atlas Phase 9, A1) | Lv 222–232: the Keepers' star-dials under the sand, the gnomon, the Dial Stone (stars cut twice; a big shape walking beside a caravan); dust wraiths, dial sentries, sand asps, amber moths; the Sunroller (den 102), holding on to the old sky's time | Tier 1 at most (the Keepers' dials); the finale hinted, shown only |
+| The Salt Flats and the Dry Harbour (atlas Phase 9, A2) | Lv 226–236: the old seabed, the beached fleet and its nets drying for nobody, the old breakwater; salt crabs, brine slimes, flat gulls, wreck hermits; the Netwife (den 105), holding on to the fleet; Kesh trades from her jetty | none (Tier 0) |
+| The Buried Caravanserai (atlas Phase 9, A3) | Lv 234–242, a hard pocket: the caravan's first town under a dune, the only place it ever moved on from; husk lizards, buried lamplighters, stiff tents; the Last Drover (field), left behind; the cut well-rope. The Glassjaw (field) under the Glass Dunes | none (Tier 0) |
 | Floating islands over the village | small chips of Pangelea that never landed | none; a nice detail for Mochi |
 | Lecture Hall, Music House, tutoring | village life | none |
 | Grand Museum of History | Clio's museum | maybe the Slime Ages wing |

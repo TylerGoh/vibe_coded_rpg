@@ -84,5 +84,8 @@ other slimes see their own world). The client gets your record's bosses as `me.f
 - **The Sunroller** (atlas Phase 9 A1, `docs/places/observatory.md`; in `BOSS_TIER` at 0 like the Wickmother: Amberdune adds no
   canon tier) → the Buried Observatory's great gnomon stands at noon (`drawObservatory`'s `freed`): no shadow across the dial
   floor, only a pool of shade at its foot. Mother Dune, Tally, Asra and Kesh know (`FREED.sunroller`).
+- **The Netwife** (A2, `docs/places/saltflats.md`; `BOSS_TIER` 0) → the nets that hung drying between the Salt Flats' beached
+  boats are gone, every one (`drawSaltFlats`'s `freed`): the poles stand bare, and one last net goes away high on the wind.
+  The same four know (`FREED.netwife`).
 - Later, if wanted (plan): Ladon, Fenrir (the cutters finish the Long Stair), Typhon (the Foundry's pits go cold). The
   one world-wide flag stays for the finale (`story/delivery.md`).

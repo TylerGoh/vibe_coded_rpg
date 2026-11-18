@@ -790,6 +790,39 @@ the moves instead (ideas go to the owner as a list to approve, `story/roadmap.md
   items (its own sell rate), more prestige sinks (furniture colours, garden extras, cosmetics with a
   late-game price), or a gold cost on scroll re-tries.
 
+## Amberdune, A2 and A3 (atlas Phase 9, 2026-11-18)
+The Salt Flats with the Netwife and Kesh's jetty (A2), the Buried Caravanserai with the Last Drover and the Glassjaw (A3),
+shipped together. Everything read off A1's and C5's neighbours by the curve.
+- **Mobs**: seven on the frozen curve, coins at about three quarters of the curve's gold (A1's ratio carried on), materials on
+  the ladder above A1's: the Salt Flats' salt crab (226, HP 104% like the other hopping chasers), brine slime (229, 95%, a
+  `trail`), flat gull (232, 93% for a flier) and wreck hermit (235, 120% like every `shell`), and the Buried Caravanserai's
+  husk lizard (236, 104%), buried lamplighter (238, 95%, a `lob`) and stiff tent (240, 110% like the loose pawl's `stomp`);
+  EXP 100%, gold 99%. Materials: Salt Claw 2,075, Brine Crust 2,090, Flat Gull Quill 2,105, Prow Splinter 2,120, Husk Scale
+  2,130, Buried Wick 2,145, Tent Peg 2,160. Two elites from `elite()`; the phantom pack-beast is a split-style minion (kept
+  small, unchecked). Rare gear on the helmet curve at its mob's level: the Prow Helm (235, 1.967M), the Lamplighter's Hood
+  (238, 2.018M).
+- **What moved**: "farming your own level" at 250 now picks the stiff tent (was the amber moth): **play time** to Lv 250 54.7 h
+  → 54.3 h (target 53.6 h), **gold earned by** Lv 250 ~44.92M → ~44.83M (−0.2%). Lv 230 and below didn't move. The
+  Escapement's "vs 1 min" ratio 362× → 354×, the Sunroller's pay 0.75× / 6.67× → 0.74× / 6.61× an hour (better farms near
+  their fight level).
+- **Kesh's tier** (`SHOPS.kesh`, `aim` 230, `lvl` 226 on the gear curve): the Skiff Gaff, Tiller Staff and Beadstring Bow 402k
+  (~19.5 min of farming at the aim, Tally's share), the Sailcloth Hood 309k (~15 min).
+- **The Netwife** (den 105, Lv 236): the Sunroller's numbers times the curve's ratio from 232 to 236 (written HP 16.6M, ATK 947,
+  EXP 1.771M, coins 403k–604k); the sheet solos her in a median 9:36 (the Sunroller 9:33, `DEN_SOLO_MIN`), her EXP camps at
+  0.74× / 6.67× an hour of farming, a kill pays ~2.06M (~24.3× a minute of farming, like the other dens): Netwife's Knots
+  2,360, the Needle and its twins (Lv 237, 2.655M: `swordPrice`) and the Saltnet Veil (2.001M: `helmetPrice`), on the curve
+  × `BOSS_GEAR.den`. Her pet 322k, above the mini Escapement's 320k (Lv 235 on its tag).
+- **Two field bosses**, the Rustwyrm's numbers carried up by the curve: **the Glassjaw** (the Glass Dunes, Lv 223: written HP
+  5.66M, ATK 772, EXP 970k, coins 105.1–152.1k; solo median 3:26, a kill pays 1.33× / 1.48× a minute of its fight,
+  `FIELD_PAY`; its armour makes a duo's kill +20% / +11%, RETROFIT) and **the Last Drover** (the Buried Caravanserai, Lv 241:
+  6.33M, 845, 1.107M, 116.0–167.8k; 3:32, 1.29× / 1.43×; his phantom string, the adds, isn't on the sheet, so a party's real
+  fight runs a little longer). Their gear a step over, `swordPrice` × 0.966 like the other field bosses': the Glass Mandible
+  and twins (Lv 225, 2.307M) and the Glassjaw Helm (1.740M); the Drover's Goad and twins (Lv 243, 2.698M) and the Last
+  Drover's Hood (2.033M). Materials: Glassjaw Shard 2,040, Drover's Bell 2,180. Pets by level: the mini Glassjaw 314k
+  (between the mini Wickmother's 312k and the mini Sunroller's 316k), the mini Last Drover 326k (the dearest).
+  `PETSHOP_W` 7750 → 8350 (the plinths need about 8170).
+- `--check` green on the first run.
+
 ## Amberdune, A0 and A1 (atlas Phase 9, 2026-11-17)
 Every default in `story/phase9-plan.md` stood: Amberdune is Lv 215–250, past the Citadel's top. A0 and A1 shipped together.
 - **Mobs**: eight on the frozen curve, read off the Undercroft's by level (coins at about three quarters of the curve's

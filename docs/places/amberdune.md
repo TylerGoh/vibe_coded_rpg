@@ -7,7 +7,9 @@ the south-west side island, a desert, and the theme from another angle again: **
 about to leave, and never does). A0 is its landing: the crossing, the town, its four people and its first wilds (the
 Glass Dunes, `docs/places/glassdunes.md`). A0 and A1 (the Mirage Oasis and the Buried Observatory with the Sunroller,
 `docs/places/oasis.md`, `docs/places/observatory.md`) shipped in one update, so A0's own blocks on those two never went
-live. The rest comes in A2–A5 (`story/roadmap.md`).
+live. A2 opened the Salt Flats and the Netwife (`docs/places/saltflats.md`) and set Kesh trading; A3 the Buried
+Caravanserai, the Last Drover and the Glassjaw (`docs/places/buried.md`, `docs/places/glassdunes.md`). The rest comes in A4
+and A5 (`story/roadmap.md`).
 
 Files: the town's layout in `src/shared/rpg.js` (`CARAVAN`, `CARAVAN_W`, `KESH_X`, `DUNE_DOCK_X`, `SALTFLATS_GATE_X`,
 `DUNE_WAY_X`, `TALLY_X`, `DUNE_SPAWN_X`, `WELL_X`, `ASRA_X`, `DUNE_HOME_X`, `MOTHER_X`, `CARAVAN_EXIT_X`,
@@ -70,7 +72,9 @@ island's coast in `drawCoast`, the Saltwind in `SHIPS`), the Saltwind on the Bla
 ## Its people (AI with memory, `docs/social/ai-characters.md`)
 None of them names Old Carapace: "the Walker", if anything, and a change of subject. No canon tier (like the Fen): Tier 0
 and their island.
-- **Skipper Kesh** (`kesh`, at her casks on the jetty and at the Saltwind's tiller): the crossing, no fare. The only one
+- **Skipper Kesh** (`kesh`, at her casks on the jetty and at the Saltwind's tiller): the crossing, no fare; since A2 she
+  **trades** salvage off the old fleet from her jetty (`SHOPS.kesh`: the Skiff Gaff and its twins, the Sailcloth Hood,
+  `aim` 230; `docs/places/saltflats.md`). The only one
   of the caravan who likes water; moves the jetty out every season and takes it as an insult; trades sand-glass beads to
   Auntie Soot for hot-spring salts and won't say what for (a bath: she tells only someone kind to her several times).
 - **Mother Dune** (`mother_dune`, in the Star Court): the caravan's leader and its lore-holder, very old; reads the
@@ -89,7 +93,7 @@ and their island.
 
 ## The way on, and the gate
 - **The Glass Dunes** (`docs/places/glassdunes.md`) off the town's east end: open.
-- **The Salt Flats** (A2), down onto the old seabed off the town's west end (`SALTFLATS_GATE_X`, kind `softsalt`): planks
-  laid out over the salt and sinking, wet dark patches in the crust, a pole leaning where someone went in to the knee.
-  E: "the salt crust's wet this season ... Kesh says wait for it to dry." A2 dries it (the update does it, no quest), and
-  Kesh starts trading from her jetty then.
+- **The Salt Flats** (`docs/places/saltflats.md`), down onto the old seabed off the town's west end (`SALTFLATS_GATE_X`,
+  kind `softsalt`): A0's gate was the salt crust wet that season, planks sinking, a pole leaning where someone went in to
+  the knee. A2 dried it (the update did it, no quest): the crust hard and white, the planks flat, the pole stood up with
+  Kesh's blue rag on it (its `open` look, now an `entry`), and Kesh started trading from her jetty.

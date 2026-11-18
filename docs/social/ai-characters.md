@@ -149,7 +149,11 @@ one shared corner feed).
   like the Fen: Tier 0 (the stars moved, which everyone knows; Mother Dune knows the dials say so and not why), their island
   and their trades. None names Old Carapace ("the Walker", and a change of subject; Tally counts the days since he passed
   and won't say the number). They know the whole of A0 and A1 (the Glass Dunes, the Oasis, the Observatory and the great
-  scarab) and A2's block (the Salt Flats too soft to walk). The update also taught Auntie Soot and Liv that the Saltwind
+  scarab), and since A2 and A3 the Salt Flats dry at last (the beached fleet, the Netwife mending its nets; Kesh's
+  grandmother's boat is out there), the Glassjaw under the High Dunes, and the stair under the dial ring clear of sand down
+  to the first Caravanserai, the town the caravan left when the dune came (Mother Dune doesn't like to talk about the drover
+  they left there; the Last Drover is the first name in Tally's ledger). Kesh **trades** since A2 (`SHOPS.kesh`, salvage off
+  the old fleet). The update also taught Auntie Soot and Liv that the Saltwind
   calls at the Black Sands (Soot trades Kesh her hot-spring salts).
 - **Elder Mochi tends the Rebirth Pool** (S2.3, `docs/combat/skills.md`): he knows what it does, that the
   first choice is free and later changes cost about an hour's gold at your level, and only Warrior, Mage,

@@ -107,6 +107,10 @@ export const STAFFS = {
   cradle_staff: { len: 70, shaft: ['#b8b0a4', '#7a7268'], w: 3, head: 'lantern', gem: '#ffe2a6', gem2: '#e2dce8', glow: '255,214,150' }, // (L5 (b): the Eldest's: willow, a cocoon bound at its head, a light inside)
   barrowoak_staff: { len: 72, shaft: ['#2a2420', '#120e0c'], w: 3.4, head: 'lantern', gem: '#ffd696', gem2: '#3a2c20', glow: '255,214,150' }, // (the Sleeper's: roof oak from the Peat Hall, a grave lamp hung on it)
   sandstone_rod: { len: 62, shaft: ['#d88a5a', '#a85a3a'], w: 3, head: 'crystal', gem: '#e8a040', gem2: '#ffe2a0', glow: '255,214,140', band: '#f4d68a' }, // (Tally's, atlas Phase 9: banded sandstone, an amber bead)
+  tiller_staff: { len: 62, shaft: ['#c8aa78', '#8a6a42'], w: 3, head: 'crystal', gem: '#9ad8d8', gem2: '#e8fafa', glow: '170,230,230', band: '#3e4a7a' }, // (Kesh's, atlas Phase 9 A2: an old tiller, a sea-glass bead in the end)
+  shuttle_staff: { len: 70, shaft: ['#f0e8d6', '#b8ac94'], w: 3, head: 'ring', gem: '#f6f2ea', gem2: '#d8c8a0', glow: '240,236,220' }, // (the Netwife's: bone wound with salt-stiff twine, a mesh gauge at its head)
+  mandible_staff: { len: 66, shaft: ['#3a3446', '#1e1a26'], w: 3.2, head: 'crystal', gem: '#e4f4f8', gem2: '#ffffff', glow: '220,240,255', band: '#d8a84a' }, // (the Glassjaw's, A3: beetle-horn, a knot of lightning glass)
+  crook_staff: { len: 66, shaft: ['#8a6440', '#4a3020'], w: 3, head: 'lantern', gem: '#e8a040', gem2: '#d8a84a', glow: '255,184,74' }, // (the Last Drover's, A3: his crook, his amber lantern on the hook)
   sundial_staff: { len: 70, shaft: ['#e8b85a', '#a8742a'], w: 3, head: 'star', gem: '#ffe9a8', gem2: '#fff8dc', glow: '255,226,140' }, // (the Sunroller's: a little sundial at its head)
   willow_staff: { len: 66, shaft: ['#d8ccb0', '#9a8a68'], w: 2.8, head: 'lantern', gem: '#ffe2a8', gem2: '#5e4e84', glow: '214,190,255' }, // (Sedge's: a peeled willow wand, a frog-skin lantern with a moth-light in it)
   kitetalon_staff: { len: 66, shaft: ['#8a8490', '#4e4a56'], w: 2.8, head: 'crystal', gem: '#a8781e', gem2: '#ffe060', glow: '255,220,100' },

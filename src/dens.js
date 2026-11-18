@@ -19,6 +19,7 @@ import { DEN_ART as WICK_DENS, BOSS_ART as WICK_BOSSES, FX2 as WICK_FX } from '.
 import { DEN_ART as ESC_DENS, BOSS_ART as ESC_BOSSES, FX2 as ESC_FX } from './dens-esc.js';
 import { DEN_ART as HATCH_DENS, ENTRANCE_ART as HATCH_ENTRANCES, BOSS_ART as HATCH_BOSSES, ULT_LOOKS as HATCH_ULT_LOOKS, HATCH_FREED_S, drawHatchFreed } from './dens-hatch.js';
 import { DEN_ART as HERON_DENS, ENTRANCE_ART as HERON_ENTRANCES, BOSS_ART as HERON_BOSSES, ULT_LOOKS as HERON_ULT_LOOKS, HERON_FREED_S, drawHeronFreed } from './dens-heron.js';
+import { DEN_ART as NET_DENS, ENTRANCE_ART as NET_ENTRANCES, BOSS_ART as NET_BOSSES, ULT_LOOKS as NET_ULT_LOOKS, NET_FREED_S, drawNetFreed } from './dens-net.js'; // (atlas Phase 9, A2: the Netwife)
 import { DEN_ART as SUN_DENS, ENTRANCE_ART as SUN_ENTRANCES, BOSS_ART as SUN_BOSSES, ULT_LOOKS as SUN_ULT_LOOKS, SUN_FREED_S, drawSunFreed } from './dens-sun.js'; // (atlas Phase 9, A1: the Sunroller)
 import { DEN_ART as ORRERY_DENS, ENTRANCE_ART as ORRERY_ENTRANCES, BOSS_ART as ORRERY_BOSSES, ULT_LOOKS as ORRERY_ULT_LOOKS, MERIDIAN_FREED_S, drawMeridianFreed } from './dens-orrery.js';
 import { DEN_ART as ARCHIVE_DENS, ENTRANCE_ART as ARCHIVE_ENTRANCES, BOSS_ART as ARCHIVE_BOSSES, ULT_LOOKS as ARCHIVE_ULT_LOOKS, INDEXER_FREED_S, drawIndexerFreed } from './dens-archive.js';
@@ -29,12 +30,12 @@ import { DEN_ART as HOIST_DENS, ENTRANCE_ART as HOIST_ENTRANCES, BOSS_ART as HOI
 import { glow as radialGlow } from './glow.js';
 import { drawSunk } from './challenge.js';
 // the third and fourth stages' dens, bosses and boss effects live in their own files (same contracts as here)
-const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS, ...LADON_DENS, ...FENRIR_DENS, ...TYPHON_DENS, ...WICK_DENS, ...ESC_DENS, ...HATCH_DENS, ...HOIST_DENS, ...HERON_DENS, ...GULLET_DENS, ...MIRE_DENS, ...HELM_DENS, ...ORRERY_DENS, ...ARCHIVE_DENS, ...SUN_DENS };
-const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES, ...SPINE_ENTRANCES, ...SKERRIES_ENTRANCES, ...QBRIDGE_ENTRANCES, ...HATCH_ENTRANCES, ...HOIST_ENTRANCES, ...HERON_ENTRANCES, ...GULLET_ENTRANCES, ...MIRE_ENTRANCES, ...HELM_ENTRANCES, ...ORRERY_ENTRANCES, ...ARCHIVE_ENTRANCES, ...SUN_ENTRANCES };
-const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES, ...QBRIDGE_BOSSES, ...LADON_BOSSES, ...FENRIR_BOSSES, ...TYPHON_BOSSES, ...WICK_BOSSES, ...ESC_BOSSES, ...HATCH_BOSSES, ...HOIST_BOSSES, ...HERON_BOSSES, ...GULLET_BOSSES, ...MIRE_BOSSES, ...HELM_BOSSES, ...ORRERY_BOSSES, ...ARCHIVE_BOSSES, ...SUN_BOSSES };
+const DEN_ART = { ...CALDERA_DENS, ...CITADEL_DENS, ...COVES_DENS, ...DEEP_DENS, ...SPINE_DENS, ...SKERRIES_DENS, ...QBRIDGE_DENS, ...LADON_DENS, ...FENRIR_DENS, ...TYPHON_DENS, ...WICK_DENS, ...ESC_DENS, ...HATCH_DENS, ...HOIST_DENS, ...HERON_DENS, ...GULLET_DENS, ...MIRE_DENS, ...HELM_DENS, ...ORRERY_DENS, ...ARCHIVE_DENS, ...SUN_DENS, ...NET_DENS };
+const ENTRANCE_ART = { ...CALDERA_ENTRANCES, ...CITADEL_ENTRANCES, ...COVES_ENTRANCES, ...DEEP_ENTRANCES, ...SPINE_ENTRANCES, ...SKERRIES_ENTRANCES, ...QBRIDGE_ENTRANCES, ...HATCH_ENTRANCES, ...HOIST_ENTRANCES, ...HERON_ENTRANCES, ...GULLET_ENTRANCES, ...MIRE_ENTRANCES, ...HELM_ENTRANCES, ...ORRERY_ENTRANCES, ...ARCHIVE_ENTRANCES, ...SUN_ENTRANCES, ...NET_ENTRANCES };
+const BOSS_ART = { ...CALDERA_BOSSES, ...CITADEL_BOSSES, ...COVES_BOSSES, ...DEEP_BOSSES, ...SPINE_BOSSES, ...SKERRIES_BOSSES, ...QBRIDGE_BOSSES, ...LADON_BOSSES, ...FENRIR_BOSSES, ...TYPHON_BOSSES, ...WICK_BOSSES, ...ESC_BOSSES, ...HATCH_BOSSES, ...HOIST_BOSSES, ...HERON_BOSSES, ...GULLET_BOSSES, ...MIRE_BOSSES, ...HELM_BOSSES, ...ORRERY_BOSSES, ...ARCHIVE_BOSSES, ...SUN_BOSSES, ...NET_BOSSES };
 const FX2 = { ...CALDERA_FX, ...CITADEL_FX, ...LADON_FX, ...FENRIR_FX, ...TYPHON_FX, ...WICK_FX, ...ESC_FX };
 // a den's own look for a shared ultimate, by theme (the Hatchkeeper's Boiling Sand is the spores ult as boiling sand)
-const ULT_LOOKS = { ...HATCH_ULT_LOOKS, ...HOIST_ULT_LOOKS, ...HERON_ULT_LOOKS, ...GULLET_ULT_LOOKS, ...MIRE_ULT_LOOKS, ...HELM_ULT_LOOKS, ...ORRERY_ULT_LOOKS, ...ARCHIVE_ULT_LOOKS, ...SUN_ULT_LOOKS }; // (Brenna's Last Delivery: the wave ult as the tooth rolling)
+const ULT_LOOKS = { ...HATCH_ULT_LOOKS, ...HOIST_ULT_LOOKS, ...HERON_ULT_LOOKS, ...GULLET_ULT_LOOKS, ...MIRE_ULT_LOOKS, ...HELM_ULT_LOOKS, ...ORRERY_ULT_LOOKS, ...ARCHIVE_ULT_LOOKS, ...SUN_ULT_LOOKS, ...NET_ULT_LOOKS }; // (Brenna's Last Delivery: the wave ult as the tooth rolling)
 
 const GROUND = FIELD_GROUND; // den floors sit at the same height as the field
 const INK = '#5b4a6b';
@@ -2371,6 +2372,7 @@ const FXPAL = {
   oath: { debris: ['#f4f8ff', '#e2f0fc', '#b4d4f0', '#d8dce8'], dust: '226,238,252', crack: '#3e6294', warn: '255,96,120', jelly: ['#e2f0fc', '#d8dce8', '#8ab8e0', '#f4f8ff'] },
   hatch: { debris: ['#2e2a32', '#4a4450', '#ff8a4a', '#eeeae4'], dust: '150,130,126', crack: '#ff7a3a', warn: '255,96,110', jelly: ['#3a3440', '#e8dcc4', '#ff9a5a', '#9adce8'] }, // (the Hatchkeeper's den, E2)
   hoist: { debris: ['#3a3438', '#5a5258', '#ff8a4a', '#b0a8a4'], dust: '180,170,166', crack: '#ff7a3a', warn: '255,96,110', jelly: ['#4a4048', '#6e6870', '#ff9a5a', '#b0a8a4'] }, // (Brenna's den, E4b: basalt, iron, ember, pumice)
+  nets: { debris: ['#f6f2ea', '#d8bc96', '#c8bca4', '#8a7258'], dust: '240,234,220', crack: '#8a7a5c', warn: '255,96,110', jelly: ['#f6f2ea', '#d8bc96', '#c8aa82', '#9ac8e8'] }, // (the Netwife's den, atlas Phase 9 A2: salt, sand-gold, bleached wood)
   sundial: { debris: ['#d8b878', '#b8823a', '#e8c88a', '#1e2440'], dust: '232,200,138', crack: '#5a3a1a', warn: '255,96,110', jelly: ['#d8b878', '#b8823a', '#3e4a7a', '#f4d68a'] }, // (the Sunroller's den, atlas Phase 9 A1: sandstone, bronze, the scarab's blue-black)
   orrery: { debris: ['#f0c470', '#c8904a', '#d6e4ff', '#2a2a4a'], dust: '200,196,226', crack: '#1e2440', warn: '255,96,110', jelly: ['#f0c470', '#c8904a', '#d6e4ff', '#5a6aa8'] },
   archive: { debris: ['#efe4c8', '#c8904a', '#6a4a32', '#1a1630'], dust: '226,214,190', crack: '#2a1e18', warn: '255,96,110', jelly: ['#efe4c8', '#c8904a', '#8a5a2e', '#c8302a'] }, // (the Indexer's den, the Citadel C2: paper, brass, oak drawers, ink) // (Meridian's den, the Citadel C1: brass, star-glass, the night under the dome)
@@ -2382,7 +2384,7 @@ const FXPAL = {
   hearth: { debris: ['#2a2022', '#4a3a38', '#ff9a40', '#ffd27a'], dust: '170,130,110', crack: '#ff7a2a', warn: '255,96,80', jelly: ['#2a2022', '#4a3a38', '#ffb040', '#fff0b0'] }, // (Typhon's den, E5: basalt, slag, molten iron)
   lamps: { debris: ['#3a2e2c', '#8a7e98', '#ffe2a8', '#eadcc0'], dust: '226,222,240', crack: '#1e1626', warn: '255,96,110', jelly: ['#8a7e98', '#5a4e6a', '#ffd696', '#eadcc0'] }, // (the Wickmother's den, L5: peat and root, her wings, lamplight, paper tags)
 };
-const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250', oath: '190,226,255', hydra: '170,230,120', wolf: '200,226,255', hatch: '255,160,110', hoist: '255,170,120', hearth: '255,150,70', heron: '200,215,235', gullet: '255,214,150', mire: '200,214,130', lamps: '255,214,150', orrery: '214,228,255', archive: '255,236,200', helm: '150,240,234', catch: '150,240,234', sundial: '255,214,110' };
+const THEME_RGB = { sprout: '160,240,140', mushroom: '200,160,255', bramble: '255,90,110', frost: '170,225,255', star: '255,214,106', magma: '255,140,60', phoenix: '255,180,90', clock: '232,192,112', chrono: '190,160,255', tide: '150,225,235', knot: '170,250,225', warden: '255,205,120', floe: '200,230,250', oath: '190,226,255', hydra: '170,230,120', wolf: '200,226,255', hatch: '255,160,110', hoist: '255,170,120', hearth: '255,150,70', heron: '200,215,235', gullet: '255,214,150', mire: '200,214,130', lamps: '255,214,150', orrery: '214,228,255', archive: '255,236,200', helm: '150,240,234', catch: '150,240,234', sundial: '255,214,110', nets: '240,232,214' };
 const DUR = {
   slamWarn: 1, shockwave: 0.55, chargeWarn: 0.8, rainWarn: 1, rainHit: 0.45, summon: 0.9, roar: 0.8, bossDie: 1.6,
   leap: 1.1, phase: 1.5,
@@ -2414,6 +2416,7 @@ export class BossFx {
     if (kind === 'bossDie' && theme === 'hatch') dur = HATCH_FREED_S; // (freed: the eggs hatch and the little ones run to the sea)
     if (kind === 'bossDie' && theme === 'hoist') dur = BRENNA_FREED_S; // (freed: Brenna sets the tooth down)
     if (kind === 'bossDie' && theme === 'heron') dur = HERON_FREED_S; // (freed: Long-Neck flies off over the mere)
+    if (kind === 'bossDie' && theme === 'nets') dur = NET_FREED_S; // (freed: the Netwife lets the nets go to the wind)
     if (kind === 'bossDie' && theme === 'sundial') dur = SUN_FREED_S; // (freed: the stone sun comes to rest at noon)
     if (kind === 'bossDie' && theme === 'orrery') dur = MERIDIAN_FREED_S; // (freed: Meridian's rings come to rest and the stars let go)
     if (kind === 'bossDie' && theme === 'archive') dur = INDEXER_FREED_S; // (freed: the Indexer files the last page and shuts the drawer)
@@ -2487,6 +2490,7 @@ export class BossFx {
           if (e.theme === 'heron') drawHeronFreed(ctx, e);
           if (e.theme === 'gullet') drawGulletFreed(ctx, e);
           if (e.theme === 'sundial') drawSunFreed(ctx, e);
+          if (e.theme === 'nets') drawNetFreed(ctx, e);
           if (e.theme === 'orrery') drawMeridianFreed(ctx, e);
           if (e.theme === 'archive') drawIndexerFreed(ctx, e);
           if (e.theme === 'mire') drawMireFreed(ctx, e);
@@ -3099,7 +3103,7 @@ function fxSummon(ctx, e, k) {
   const open = Math.sin(Math.PI * Math.min(1, k * 1.15));
   const rx = 40 * open, ry = 12 * open;
   glow(ctx, x, y - 20, 60 * open + 1, 50 * open + 1, rgb, 0.6);
-  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30', tide: '#1e4a58', knot: '#2a1e2c', warden: '#4e4a5e', floe: '#1e3e5a', oath: '#2e4e78', hatch: '#1a1416', hoist: '#1e1a20', heron: '#1e221c', gullet: '#0e0c14', orrery: '#12163a', archive: '#1a1418', mire: '#1e2418', helm: '#16141c', catch: '#0c0a10', sundial: '#3a2412' }[theme] ?? '#1c1020';
+  ctx.fillStyle = { bramble: '#1c1020', mushroom: '#1a1430', sprout: '#3a5a2a', frost: '#5a86b8', star: '#120e30', tide: '#1e4a58', knot: '#2a1e2c', warden: '#4e4a5e', floe: '#1e3e5a', oath: '#2e4e78', hatch: '#1a1416', hoist: '#1e1a20', heron: '#1e221c', gullet: '#0e0c14', orrery: '#12163a', archive: '#1a1418', mire: '#1e2418', helm: '#16141c', catch: '#0c0a10', sundial: '#3a2412', nets: '#4a3e30' }[theme] ?? '#1c1020';
   ellipse(ctx, x, y + 2, rx + 0.1, ry + 0.1);
   ctx.strokeStyle = `rgba(${rgb},0.9)`;
   ctx.lineWidth = 3;
@@ -3126,7 +3130,7 @@ function fxSummon(ctx, e, k) {
 
 function fxRoar(ctx, e, k) {
   const { x, y, theme } = e;
-  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255', tide: '140,220,240', knot: '170,250,225', warden: '255,200,110', floe: '190,225,250', oath: '190,226,255', hatch: '255,150,90', heron: '200,215,235', gullet: '255,214,150', mire: '220,200,110', orrery: '214,228,255', archive: '255,226,190', helm: '150,240,234', catch: '150,240,234', sundial: '255,214,110' }[theme] ?? '255,140,80';
+  const rgb = { mushroom: '255,120,170', bramble: '255,80,70', sprout: '255,140,80', frost: '150,210,255', star: '255,200,110', magma: '255,120,60', phoenix: '255,170,80', clock: '255,190,110', chrono: '190,150,255', tide: '140,220,240', knot: '170,250,225', warden: '255,200,110', floe: '190,225,250', oath: '190,226,255', hatch: '255,150,90', heron: '200,215,235', gullet: '255,214,150', mire: '220,200,110', orrery: '214,228,255', archive: '255,226,190', helm: '150,240,234', catch: '150,240,234', sundial: '255,214,110', nets: '240,232,214' }[theme] ?? '255,140,80';
   for (let i = 0; i < 3; i++) {
     const j = clamp(k * 1.4 - i * 0.18, 0, 1);
     if (j <= 0 || j >= 1) continue;

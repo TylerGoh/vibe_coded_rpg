@@ -1137,6 +1137,81 @@ const SONGS = {
       if (s === 0 && bar % 4 === 3) e.voice(p.c, t, p.f(1, 0), { ...GLOCK, vol: 0.06, tau: 1.8, partials: [[2.4, 0.3], [5.1, 0.1]] }); // the hour, coming round
     },
   },
+  // ——— atlas Phase 9, A2 and A3 (docs/places/saltflats.md, docs/places/buried.md) ———
+  // The Salt Flats: the old seabed, white and wide and empty. D dorian, unhurried, open fifths in the pad like a horizon, a
+  // slow rocking figure on a plucked string like a boat that isn't there, gulls far off, a wash of distant surf, and a long
+  // whistled tune on top that keeps looking back out to sea
+  saltflats: {
+    bpm: 70, spb: 4, melSteps: 4, key: 62, scale: DORIAN, gain: 0.7, send: 0.66, loop: 8,
+    chords: [[1, 5, 8], [7, 9, 11], [4, 8, 11], [1, 5, 8], [6, 8, 10], [4, 8, 11], [5, 9, 12], [1, 5, 8]],
+    mel: melody(
+      '5 - - 4', '3 - 2 .', '1 - 2 3', '5 - - .',
+      '6 - 5 4', '3 - 4 .', '2 - - 1', '1 - - .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'bandpass', 500, 0.006, 0.5); // the surf, a long way off
+      p.eng.bed(p, 'highpass', 5000, 0.0018); // the salt, ticking in the sun
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2, hot = e.intensity > 0.5;
+      if (s === 0) pad(p, ch, t, p.stepDur * 4, 0.009, { type: 'triangle', a: 1, cutoff: 900, rel: 1.4 });
+      if (s === 0 || s === 2) e.voice(s ? p.r : p.l, t, p.f(ch[s ? 1 : 0], -1), { ...PLUCK, vol: 0.034, tau: 0.45, cutoff: 1000 }); // rocking, like a boat
+      if (hot && s === 0) e.kick(p.c, t, 0.14, 80, 40, 0.14);
+      const m = p.mel(bar, s);
+      if (m) e.voice(p.c, t, p.f(m.d, 1), { type: 'sine', vol: part ? 0.03 : 0.024, a: 0.06, hold: m.len * 0.85, rel: 0.4, vib: 6, vibRate: 5 }); // the whistle
+      if (chance(0.06)) e.voice(chance(0.5) ? p.l : p.r, t + rand(0, p.stepDur), p.f(ch[2], 3), { type: 'sine', vol: 0.008, a: 0.01, tau: 0.25, glide: 0.7, glideT: 0.2 }); // a gull, far off
+    },
+  },
+  // The Netwife: the dry harbour and the spider mending in it. A harmonic minor at a steady six, a plucked ostinato going
+  // over and under like a netting needle, a low cello line, a dry rattle of floats on the off-beats, and a sad sea-song on top
+  // that the drums close in round as she gets angry
+  netwife: {
+    bpm: 128, beats: 3, spb: 6, melSteps: 6, key: 57, scale: HARM_MINOR, gain: 0.8, send: 0.42, loop: 8,
+    chords: [[1, 3, 5], [4, 6, 8], [7, 9, 11], [1, 3, 5], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5]],
+    mel: melody(
+      '5 - 6 . 5 3', '4 - 3 . 2 1', '7 - 1 . 2 3', '1 - - . . .',
+      '5 - 6 . 8 7', '6 - 5 . 4 3', '2 - 3 . 4 2', '1 - - . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 220, 0.01); // the empty harbour
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), hot = e.intensity > 0.5;
+      if (s === 0) pad(p, ch, t, p.stepDur * 6, 0.011, { type: 'sawtooth', a: 0.4, cutoff: 700, unison: 5, rel: 0.7 });
+      if (s === 0) e.kick(p.c, t, 0.28, 90, 36, 0.18);
+      if (hot && s === 3) e.kick(p.c, t, 0.18, 90, 40, 0.12);
+      if (s === 3 || (hot && s === 5)) snare(p, t, hot ? 0.045 : 0.03);
+      if (s % 2 === 1) e.noiseHit(s === 1 ? p.l : p.r, t, { type: 'bandpass', f: 2400, vol: 0.012, a: 0.002, tau: 0.06 }); // the floats, rattling
+      e.voice(s % 2 ? p.l : p.r, t, p.f(ch[[0, 2, 1, 2, 0, 1][s]], 0), { ...PLUCK, vol: 0.032, tau: 0.18, cutoff: 1500 }); // over and under
+      if (s === 0 || s === 3) e.voice(p.c, t, p.f(ch[0], -2), { type: 'sawtooth', vol: 0.04, a: 0.04, hold: p.stepDur * 2.6, rel: 0.3, cutoff: 500 }); // the cello
+      const m = p.mel(bar, s);
+      if (m) e.voice(p.c, t, p.f(m.d, 1), { type: 'triangle', vol: 0.034, a: 0.03, hold: m.len * 0.8, rel: 0.3, vib: 5, vibRate: 5.5 });
+    },
+  },
+  // The Buried Caravanserai: the first town, under the sand, in the dark. C minor, very slow, the air close: a low muffled
+  // drone, a little bell somewhere down a street that rings and stops (the Last Drover's string), sand sifting, a hand drum
+  // played far off like a caravan that never arrives, and a few notes of an old caravan song on a reed that doesn't finish
+  buried: {
+    bpm: 58, spb: 4, melSteps: 4, key: 48, scale: MINOR, gain: 0.72, send: 0.64, loop: 8,
+    chords: [[1, 3, 5], [6, 8, 10], [4, 6, 8], [5, 7, 9], [1, 3, 5], [7, 9, 11], [4, 6, 8], [5, 7, 9]],
+    mel: melody(
+      '5 - 4 .', '3 - . .', '4 - 3 2', '1 - . .',
+      '5 - 6 .', '5 - . .', '4 - 2 .', '. . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'lowpass', 120, 0.016); // the sand overhead, pressing
+      p.eng.bed(p, 'highpass', 3800, 0.002); // sand sifting down
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2, hot = e.intensity > 0.5;
+      if (s === 0) pad(p, ch, t, p.stepDur * 4, 0.008, { type: 'sawtooth', a: 1.6, cutoff: 420, unison: 3, rel: 1.4 });
+      if (s === 0) e.voice(p.c, t, p.f(ch[0], -3), { type: 'sine', vol: 0.05, a: 1.2, hold: p.stepDur * 3, rel: 1 });
+      if (s === 1 || s === 3) e.kick(s === 1 ? p.l : p.r, t, hot ? 0.12 : 0.07, 140, 70, 0.1); // a hand drum, far off
+      if (s === 2 && bar % 2 === part) e.voice(chance(0.5) ? p.l : p.r, t, p.f(ch[2], 2), { ...GLOCK, vol: 0.022, tau: 0.6 }); // a little bell down a street
+      const m = p.mel(bar, s);
+      if (m) e.voice(p.c, t, p.f(m.d, 0), { type: 'square', vol: 0.016, a: 0.05, hold: m.len * 0.7, rel: 0.3, cutoff: 1100, vib: 4, vibRate: 5 }); // the reed
+    },
+  },
   // ——— the Citadel's depth pass, C6 (b) (docs/places/undercroft.md) ———
   // The Undercroft: the bottom of the city, right under the Wheel. B-flat minor, slower and heavier than the Keel: a drone
   // so low it's mostly felt, a long strain swelling up through each bar to a heavy thud on the last beat (the Wheel heaving
@@ -4207,7 +4282,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon', 'sky', 'sky', 'skycamp', 'skydocks', 'wickmere', 'fenroute', 'fenroute', 'shallows', 'firefly', 'drownedgrove', 'longneck', 'stillmere', 'gullet', 'barrows', 'causeway', 'mire', 'peatbarrows', 'lamproad', 'wickmother', 'gardens', 'orrery', 'meridian', 'archive', 'indexer', 'engine', 'bells', 'helm', 'keel', 'undercroft', 'spoke', 'escapement', 'caravan', 'duneroute', 'duneroute', 'glassdunes', 'observatory', 'sunroller', 'oasis']; // (97: Caravanserai, 98-99: the Saltwind's deck, out and home, 100: the Glass Dunes, atlas Phase 9 A0; 101: the Buried Observatory, 102: the Sunroller's den, the Dial Floor, 103: the Mirage Oasis, A1; 96: the Escapement's den, the Catch, its own track, the Citadel's C6 (c); 94: the Undercroft, 95: the Spoke, the Citadel's C6 (b); 90: the Engine Halls, the Citadel's C3; 88: the Archive, 89: the Indexer's den, the Last Drawer, the Citadel's C2; 86: the Orrery, 87: Meridian's den, the Armillary, the Citadel's C1; 85: the Keepers' Gardens, the Citadel's depth pass C0; 84: the Wickmother's den, the Hall of Lamps, her own track, L5 (c); 82-83: the Peat Barrows and the Lamp Road, L5 (b); 80: the Lantern Causeway, 81: Grandfather Mire's den, Grandfather's Pool, L4; 79: the Sunk Barrows, L3; 70: Wickmere, 71-72: the Hush's deck, out and home, 73: the Shallows, atlas Phase 8; 74: Firefly Hollow, 75: the Drowned Grove, 76: Long-Neck's den, the Stone Nest, L1; 77: the Still Mere, 78: Old Gullet's den, the Eel Pit, L2) // (66-67: the Kite's gondola, up and down, 68: the Skydocks camp, atlas Phase 6, and 69: the Skydocks, Phase 6 (c); 63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon', 'sky', 'sky', 'skycamp', 'skydocks', 'wickmere', 'fenroute', 'fenroute', 'shallows', 'firefly', 'drownedgrove', 'longneck', 'stillmere', 'gullet', 'barrows', 'causeway', 'mire', 'peatbarrows', 'lamproad', 'wickmother', 'gardens', 'orrery', 'meridian', 'archive', 'indexer', 'engine', 'bells', 'helm', 'keel', 'undercroft', 'spoke', 'escapement', 'caravan', 'duneroute', 'duneroute', 'glassdunes', 'observatory', 'sunroller', 'oasis', 'saltflats', 'netwife', 'buried']; // (104: the Salt Flats, 105: the Netwife's den, the Dry Harbour, A2; 106: the Buried Caravanserai, A3; 97: Caravanserai, 98-99: the Saltwind's deck, out and home, 100: the Glass Dunes, atlas Phase 9 A0; 101: the Buried Observatory, 102: the Sunroller's den, the Dial Floor, 103: the Mirage Oasis, A1; 96: the Escapement's den, the Catch, its own track, the Citadel's C6 (c); 94: the Undercroft, 95: the Spoke, the Citadel's C6 (b); 90: the Engine Halls, the Citadel's C3; 88: the Archive, 89: the Indexer's den, the Last Drawer, the Citadel's C2; 86: the Orrery, 87: Meridian's den, the Armillary, the Citadel's C1; 85: the Keepers' Gardens, the Citadel's depth pass C0; 84: the Wickmother's den, the Hall of Lamps, her own track, L5 (c); 82-83: the Peat Barrows and the Lamp Road, L5 (b); 80: the Lantern Causeway, 81: Grandfather Mire's den, Grandfather's Pool, L4; 79: the Sunk Barrows, L3; 70: Wickmere, 71-72: the Hush's deck, out and home, 73: the Shallows, atlas Phase 8; 74: Firefly Hollow, 75: the Drowned Grove, 76: Long-Neck's den, the Stone Nest, L1; 77: the Still Mere, 78: Old Gullet's den, the Eel Pit, L2) // (66-67: the Kite's gondola, up and down, 68: the Skydocks camp, atlas Phase 6, and 69: the Skydocks, Phase 6 (c); 63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
@@ -4410,5 +4485,5 @@ Object.assign(MOB_DEATH, { lantern_moth: MOB_DEATH.wisp, bog_slime: MOB_DEATH.ma
 // atlas Phase 9 (A0, A1): Amberdune's mobs (a skipper squeaks like a mushling, a mirage and a wraith sigh like wisps, a
 // beetle and a scorpion clack like the obsidian crab, a sentry clanks like a cogling, an asp hisses like the cinder bat, a
 // moth like the cinder bat, the Sunroller grinds like the Colossus)
-Object.assign(MOB_HURT, { sand_skipper: MOB_HURT.mushling, heat_mirage: MOB_HURT.wisp, dune_beetle: MOB_HURT.obsidian_crab ?? MOB_HURT.golem, fulgurite_scorpion: MOB_HURT.obsidian_crab ?? MOB_HURT.golem, dust_wraith: MOB_HURT.wisp, dial_sentry: MOB_HURT.cogling ?? MOB_HURT.golem, sand_asp: MOB_HURT.cinder_bat, amber_moth: MOB_HURT.cinder_bat, sunroller: MOB_HURT.colossus });
-Object.assign(MOB_DEATH, { sand_skipper: MOB_DEATH.mushling, heat_mirage: MOB_DEATH.wisp, dune_beetle: MOB_DEATH.obsidian_crab ?? MOB_DEATH.golem, fulgurite_scorpion: MOB_DEATH.obsidian_crab ?? MOB_DEATH.golem, dust_wraith: MOB_DEATH.wisp, dial_sentry: MOB_DEATH.cogling ?? MOB_DEATH.golem, sand_asp: MOB_DEATH.cinder_bat, amber_moth: MOB_DEATH.cinder_bat, sunroller: MOB_DEATH.colossus });
+Object.assign(MOB_HURT, { sand_skipper: MOB_HURT.mushling, heat_mirage: MOB_HURT.wisp, dune_beetle: MOB_HURT.obsidian_crab ?? MOB_HURT.golem, fulgurite_scorpion: MOB_HURT.obsidian_crab ?? MOB_HURT.golem, dust_wraith: MOB_HURT.wisp, dial_sentry: MOB_HURT.cogling ?? MOB_HURT.golem, sand_asp: MOB_HURT.cinder_bat, amber_moth: MOB_HURT.cinder_bat, sunroller: MOB_HURT.colossus, salt_crab: MOB_HURT.obsidian_crab ?? MOB_HURT.golem, brine_slime: MOB_HURT.mushling, flat_gull: MOB_HURT.cinder_bat, wreck_hermit: MOB_HURT.obsidian_crab ?? MOB_HURT.golem, netwife: MOB_HURT.colossus, glassjaw: MOB_HURT.colossus, husk_lizard: MOB_HURT.mushling, buried_lamplighter: MOB_HURT.wisp, stiff_tent: MOB_HURT.golem, last_drover: MOB_HURT.golem, phantom_beast: MOB_HURT.wisp });
+Object.assign(MOB_DEATH, { sand_skipper: MOB_DEATH.mushling, heat_mirage: MOB_DEATH.wisp, dune_beetle: MOB_DEATH.obsidian_crab ?? MOB_DEATH.golem, fulgurite_scorpion: MOB_DEATH.obsidian_crab ?? MOB_DEATH.golem, dust_wraith: MOB_DEATH.wisp, dial_sentry: MOB_DEATH.cogling ?? MOB_DEATH.golem, sand_asp: MOB_DEATH.cinder_bat, amber_moth: MOB_DEATH.cinder_bat, sunroller: MOB_DEATH.colossus, salt_crab: MOB_DEATH.obsidian_crab ?? MOB_DEATH.golem, brine_slime: MOB_DEATH.mushling, flat_gull: MOB_DEATH.cinder_bat, wreck_hermit: MOB_DEATH.obsidian_crab ?? MOB_DEATH.golem, netwife: MOB_DEATH.colossus, glassjaw: MOB_DEATH.colossus, husk_lizard: MOB_DEATH.mushling, buried_lamplighter: MOB_DEATH.wisp, stiff_tent: MOB_DEATH.golem, last_drover: MOB_DEATH.golem, phantom_beast: MOB_DEATH.wisp });

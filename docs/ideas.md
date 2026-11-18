@@ -166,6 +166,19 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   Gullet, Long-Neck and Grandfather Mire aren't in the story record (no Fen tier), so only the Wickmother has freed changes
   on the Fen.
 
+## Atlas Phase 9, A2 and A3: the Salt Flats, the Netwife, the Buried Caravanserai, the Glassjaw, the Last Drover (2026-11-18)
+- Unplayed: the Salt Flats and the Buried Caravanserai, their seven mobs and two elites, Kesh's Trade button, the Netwife
+  (her net, late tells, the rescue cage with a party, The Last Haul, the weak point / focus / interrupt, her freeing and the
+  bare poles after), the Glassjaw (late tells, glass rings, armour and focus with a party) and the Last Drover (the swap,
+  his rope, the phantom string with a party). Not even looked at in a browser: the drawing was only run headless against a
+  stand-in canvas (every room at every camera position, every creature in every state, the den, the ult and the freeing)
+  to catch errors, and the music wasn't heard. Worth a look in the sandbox first.
+- The Last Drover's adds and the Netwife's cage aren't on the economy sheet (it can't model them), so a party's real fights
+  run a little longer than its numbers.
+- The Buried Caravanserai's well-rope is drawn only (no reading with E, like the Glass Dunes' milestone); a reading in
+  `src/ruins.js` could tell the drover's story if wanted.
+- Brine, Arne, Netta and the Citadel's characters still don't mention Amberdune.
+
 ## Atlas Phase 9, A0 and A1: Amberdune's landing, the Glass Dunes, the Mirage Oasis, the Buried Observatory (2026-11-17)
 - Unplayed: the Saltwind both ways, Caravanserai, the four characters' chat and the two shops, the Glass Dunes' and the
   Observatory's mobs, the Oasis, the Dial Stone and the carved palm, the Sunroller (late tells, sun rings, the glare, The

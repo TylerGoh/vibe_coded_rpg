@@ -32,9 +32,11 @@ West to east (`OBS_ZONES`):
   stone blocks (the `ring` platforms).
 - **The Gnomon** (225–229): the gnomon itself (`GNOMON_X`), a great wedge of bronze-clad stone with the hours cut down its
   edge, a bracket ledge on its side, its long shadow lying east across the dial floor. **The noon mark** on its top is the
-  hidden spot (last in `OBS_PLATFORMS`). **The stair down to the Buried Caravanserai** (`BURIED_GATE_X`, A3's): a dark
-  doorway between two bronze ring-ends, the steps going down, and **sand pouring down over them** from a crack above in a
-  steady fall (kind `sandfall`, "buried a little deeper every hour").
+  hidden spot (last in `OBS_PLATFORMS`). **The stair down to the Buried Caravanserai** (`BURIED_GATE_X`): a dark
+  doorway between two bronze ring-ends, the steps going down. A1's gate had **sand pouring down over them** from a crack
+  above in a steady fall (kind `sandfall`, "buried a little deeper every hour"); A3 stopped it (the crack dry, the heap
+  shovelled aside, an amber lamp hung in the doorway: the `open` look, now an `entry`), and the stair goes down to the hard
+  pocket (`docs/places/buried.md`).
 - **The Dial Court** (229–232): **the Sunroller's den** opens at `SUN_DEN_X`: a round opening in the sand under a bronze
   arch with a sun on its keystone, steps going down into the light, a groove worn in the sand round it, and now and then
   the top of the stone sun going by far down there.
@@ -54,7 +56,7 @@ West to east (`OBS_ZONES`):
   the reed stalker's).
 - **Amber moths** (231): big, slow and golden, old things caught in their wings; they hang high and stoop (`dive`). The
   Sunroller's minion.
-- No elites, no field boss (the Buried Caravanserai's are A3's).
+- No elites, no field boss (the Buried Caravanserai has both: `docs/places/buried.md`).
 
 ## The Sunroller (den 102, Lv 232)
 A den boss with a story (`story/phase9-plan.md`): a great scarab as big as a wagon, blue-black with a gold sheen, rolling a

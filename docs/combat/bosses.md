@@ -35,6 +35,12 @@ The Citadel's C1 added **The Armillary** (room 87, `MERIDIAN_DEN`, under the Orr
 Drawer** (room 89, `INDEXER_DEN`, at the Archive's east end, art `src/dens-archive.js`, theme `archive`;
 `docs/places/archive.md`), the Indexer (Lv 177): the shared `lanes` ult as Closing Time, flung cards (`looks.feathers:
 'page'`, a new `SHOT` style), and its freeing (`drawIndexerFreed`: the last page filed, the drawer shut, the pages down).
+Atlas Phase 9 A1 added **The Dial Floor** (room 102, `SUN_DEN`, art `src/dens-sun.js`, theme `sundial`;
+`docs/places/observatory.md`), the Sunroller (Lv 232): the `wave` ult as The Long Day, the stone sun rolled, and its freeing
+(`drawSunFreed`: the sun at rest at noon). A2 added **The Dry Harbour** (room 105, `NET_DEN`, under the Salt Flats' old
+breakwater, art `src/dens-net.js`, theme `nets`; `docs/places/saltflats.md`), the Netwife (Lv 236): the `wave` ult as The
+Last Haul, a net hauled the harbour's length (`NET_ULT` through `ULT_LOOKS`), and her freeing (`drawNetFreed`: the nets go
+up on the wind, `NET_FREED_S`).
 E4b added **The Bearer's Hoist** (room 62, `BRENNA_DEN`, the Caldera Rim, art `src/dens-rim.js`, theme `hoist`;
 `docs/places/rim.md`), Brenna, the Last Bearer, Emberdeep's party den (Lv 149): her `wave` ult, Last Delivery, is the
 tooth rolled end to end of the den (`HOIST_ULT` through `ULT_LOOKS`, `toothMass`; jump it) and her freeing a longer

@@ -586,6 +586,7 @@ const SHELLS = {
   cinder: { edge: 'rgba(20,14,12,0.96)', face: 'rgba(78,64,58,0.96)', seam: 'rgba(255,136,44,0.95)' },
   brass: { edge: 'rgba(44,22,10,0.96)', face: 'rgba(140,76,38,0.96)', rivets: 'rgba(255,230,150,0.98)' },
   slag: { edge: 'rgba(12,6,6,0.96)', face: 'rgba(58,46,44,0.96)', seam: 'rgba(255,120,40,0.9)' }, // Typhon's Slag Crust: its cracks gone dark and set hard (E5)
+  glass: { edge: 'rgba(80,110,124,0.9)', face: 'rgba(222,242,246,0.85)', icicles: 'rgba(250,255,255,0.95)' }, // the Glassjaw's glass jaw closing up over it, splinters standing off it (atlas Phase 9, A3)
   wings: { edge: 'rgba(36,28,48,0.96)', face: 'rgba(122,110,140,0.95)', seam: 'rgba(255,214,150,0.85)' }, // the Wickmother's Folded Wings: furred grey-violet, an eye spot's gold at every seam (L5)
 };
 // S5.4: Glacia's (`queen`): ice blue, deep enough to read in her white throne room, snowflakes turning round it; the Astral Wyrm's (`star`): starlight, violet with

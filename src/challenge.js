@@ -1517,6 +1517,8 @@ const PAL = {
   peat: { body: '#3a2c20', crack: '#c8a060', glow: [200, 160, 96], pool: '58,44,32' }, // (the Sleeper in the Peat pulls you down into the peat with it: atlas Phase 8 L3)
   silk: { body: 'rgba(236,228,242,0.94)', crack: '#a898bc', glow: [255, 214, 150], pool: '226,218,236' }, // (the Wickmother's moth-silk wound round you: the Stoop's strand, the cocoon, L5)
   chain: { body: '#7a3a22', crack: '#c8703e', glow: [150, 240, 234], pool: '94,42,26' }, // (the Rustwyrm's chain wound round you, rust flaking off it: the Citadel's C5)
+  net: { body: 'rgba(236,230,214,0.92)', crack: '#8a7a5a', glow: [240, 236, 220], pool: '236,230,214' }, // (the Netwife's net thrown over you, salt-stiff twine, its knots white: atlas Phase 9 A2)
+  rope: { body: '#8a6a42', crack: '#e8a040', glow: [255, 184, 74], pool: '138,106,66' }, // (the Last Drover's lead rope round you, dry as bone: A3)
   paper: { body: 'rgba(239,228,200,0.95)', crack: '#a8302a', glow: [255, 236, 200], pool: '239,228,200' }, // (the Indexer's index card pinned over you, its number in red: the Citadel's C2)
 };
 function drawIron(ctx, x, y, h, t, left, style = 'iron') {

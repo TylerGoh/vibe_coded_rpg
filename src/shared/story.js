@@ -18,6 +18,7 @@ export const BOSS_TIER = {
   // Amberdune adds none either (story/phase9-plan.md): the Sunroller is in the record only for its freed change (the
   // Observatory's great gnomon at noon, no shadow: docs/places/observatory.md)
   sunroller: 0,
+  netwife: 0, // (A2: the Salt Flats' nets let go to the wind, docs/places/saltflats.md)
 };
 export const TOP_TIER = 4;
 

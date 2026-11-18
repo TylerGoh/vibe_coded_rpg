@@ -139,6 +139,8 @@ const SHOT = {
   teeth: { glow: '224,176,102', core: '#fff0c8', mid: '#e0b066', rim: '#5e4020' }, // the Escapement's rings of sheared gear teeth flung off the Wheel (C6 (c))
   bolt: { glow: '253,227,160', core: '#f4f6fa', mid: '#8a8e9e', rim: '#2a2834' }, // the Siege Engine's iron bolts (Cogwork Bastion, the Citadel's C0), and its rings
   sun: { glow: '255,214,110', core: '#fffdf0', mid: '#ffe08a', rim: '#d89a2a' }, // the Sunroller's rings of sunlight off its stone sun (atlas Phase 9, A1: looks.rings)
+  amber: { glow: '255,184,74', core: '#fff4d0', mid: '#e8a040', rim: '#7a4a1e' }, // a lamp of hot amber, lobbed: the buried lamplighter's and the Last Drover's lantern (the Buried Caravanserai, A3)
+  glass: { glow: '220,240,255', core: '#ffffff', mid: '#e4f4f8', rim: '#7a9aa8' }, // the Glassjaw's rings of glass splinters off its jaws (the Glass Dunes, A3: looks.rings)
   swap: { glow: '190,140,255', core: '#ffffff', mid: '#c9a6ff', rim: '#6a3ea8' }, // a boss's controls-swap orb (src/challenge.js) // molten metal: the crucible newt's and Old Crucible's (the Old Foundry)
 };
 function drawShot(ctx, h, now) {
@@ -495,8 +497,10 @@ function drawShot(ctx, h, now) {
 // pool of acid, smoking and pitting the crust (the acid slug's, the Brimstone Fields) · 'tallow' = a pale pool of hot
 // tallow, a little flame or two still on it (the wick grub's, the Peat Barrows) · 'ink' = a wet black slick of the Archive's
 // ink, its edge feathering out, a date or two floating in it (the ink slime's, the Citadel's C2) · 'grease' = a black slick of
-// old gear grease, brass filings glinting in it (the gear louse's, the Keel, the Citadel's C5)
+// old gear grease, brass filings glinting in it (the gear louse's, the Keel, the Citadel's C5) · 'saltcrust' = a bitter
+// pink-white crust of brine drying in the sun, salt crystals standing up on it (the brine slime's, the Salt Flats, atlas Phase 9 A2)
 function drawPuddle(ctx, h, now) {
+  if (h.style === 'saltcrust') return drawSaltCrust(ctx, h, now);
   if (h.style === 'ink') return drawInk(ctx, h, now);
   if (h.style === 'grease') return drawGrease(ctx, h, now);
   if (h.style === 'brine') return drawBrine(ctx, h, now);
@@ -716,6 +720,34 @@ function drawTallow(ctx, h, now) {
     ctx.fillStyle = 'rgba(255,214,150,0.9)';
     tongue(ctx, bx, y - 1, 2.6, fh, Math.sin(now * 7 + i) * 1.4);
   }
+  ctx.restore();
+}
+
+// the Salt Flats' brine crust, off a brine slime: a wet pink sheen drying from its edge into a white crust, little cubes of
+// salt standing up on it and glinting (atlas Phase 9, A2)
+function drawSaltCrust(ctx, h, now) {
+  const start = h.warnAt ?? h.at, end = h.end ?? h.at + 5, age = now - start;
+  const a = clamp01(age / 0.25) * clamp01((end - now) / Math.min(1.2, (end - start) * 0.4));
+  if (a <= 0) return;
+  const x = h.x, y = h.y ?? GROUND, rx = (h.w || 60) / 2, grow = 0.6 + 0.4 * easeOut(clamp01(age / 0.4)), seed = x * 0.37;
+  const dry = clamp01(age / 2.5);
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.fillStyle = 'rgba(214,170,170,0.5)'; // the wet sheen at its edge
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, rx * grow, 6.2, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = `rgba(${Math.round(240 + 10 * dry)},${Math.round(214 + 30 * dry)},${Math.round(214 + 26 * dry)},0.92)`; // drying white
+  ctx.beginPath();
+  ctx.ellipse(x, y + 1, rx * grow * 0.84, 4.8, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.95)'; // salt cubes standing up on it
+  for (let i = 0; i < 6; i++) {
+    const fx = x + (hash(seed + i * 3 + 1) - 0.5) * rx * 1.4 * grow, s = 1.4 + hash(seed + i) * 1.8;
+    ctx.fillRect(fx - s / 2, y - s * 0.8, s, s);
+  }
+  ctx.fillStyle = `rgba(255,255,255,${0.4 + 0.4 * Math.sin(now * 5 + seed)})`; // a glint
+  ctx.fillRect(x + rx * 0.3 * Math.sin(seed), y - 2, 1.4, 1.4);
   ctx.restore();
 }
 

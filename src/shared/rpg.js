@@ -39,7 +39,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 7750; // (the mini Sunroller (atlas Phase 9, A1) too; the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), the mini Helmsman and Great Bell (C4, 7258), the mini Rustwyrm (C5, 7416) and the mini Escapement (C6 (c), 7542): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 8350; // (the mini Glassjaw, Netwife and Last Drover (A2, A3) too; the mini Sunroller (atlas Phase 9, A1) too; the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), the mini Helmsman and Great Bell (C4, 7258), the mini Rustwyrm (C5, 7416) and the mini Escapement (C6 (c), 7542): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -868,6 +868,70 @@ export const OBS_PLATFORMS = [
   { x: 4060, y: 236, w: 170, kind: 'ring' },
   { x: 4800, y: 330, w: 160, kind: 'steps' },
   { x: 2560, y: 158, w: 96, kind: 'noonmark' }, // the noon mark, a bronze plate on the gnomon's top: easy to miss
+];
+// ——— atlas Phase 9, A2: the Salt Flats and the Netwife (story/phase9-plan.md; docs/places/saltflats.md) ———
+// The Salt Flats (room 104): the old seabed west of Saltmouth, down off Caravanserai's west end (SALTFLATS_GATE_X there: the
+// salt was wet until A2 dried it). White salt crust to the horizon, the fleet's boats beached on their sides where the sea
+// left them, nets strung on poles between them to dry for boats that will never sail, and the sea a far bright line. You come
+// in at the WEST end (SFLATS_EXIT_X, up to the town) and go on, harder: the Salt Steps (no mobs: a waystone), the Crust, the
+// Beached Fleet (FLEET_X: the fleet's poles and nets, drawing) and the Harbour Mouth, where the Netwife's den opens under the
+// old breakwater (NET_DEN_X). The crow's nest on the tallest beached mast (last in SFLATS_PLATFORMS) is the find.
+export const SALTFLATS = 104; // room id
+export const SFLATS_W = 4600;
+export const SFLATS_EXIT_X = 70; // back up onto the jetty path at Caravanserai
+export const SFLATS_WAY_X = 380; // the Salt Steps' waystone
+export const FLEET_X = 2600; // the middle of the Beached Fleet (drawing)
+export const NET_DEN_X = 4180; // the gap under the nets over the old breakwater, down into the dry harbour (room NET_DEN)
+export const NET_DEN = 105; // the Netwife's den, the Dry Harbour
+export const SFLATS_ZONES = [
+  { name: 'The Salt Steps', x0: 0, x1: 600, lvl: null }, // (no mobs)
+  { name: 'The Crust', x0: 600, x1: 1900, lvl: '226–229' },
+  { name: 'The Beached Fleet', x0: 1900, x1: 3300, lvl: '229–233' },
+  { name: 'The Harbour Mouth', x0: 3300, x1: SFLATS_W, lvl: '233–236' },
+];
+// salt crust heaved up into shelves, beached hulls on their sides, the stumps of the old harbour's piers; the crow's nest on
+// the tallest beached mast (hidden, last)
+export const SFLATS_PLATFORMS = [
+  { x: 760, y: 350, w: 190, kind: 'crust' },
+  { x: 1120, y: 282, w: 170, kind: 'crust' },
+  { x: 1560, y: 344, w: 200, kind: 'hull' },
+  { x: 2080, y: 330, w: 190, kind: 'hull' },
+  { x: 2460, y: 258, w: 170, kind: 'crust' },
+  { x: 2900, y: 336, w: 200, kind: 'hull' },
+  { x: 3460, y: 330, w: 180, kind: 'pier' },
+  { x: 3840, y: 262, w: 170, kind: 'pier' },
+  { x: 2560, y: 150, w: 90, kind: 'nest' }, // the crow's nest on the tallest beached mast, a scrap of pennant still on it: easy to miss
+];
+// ——— atlas Phase 9, A3: the Buried Caravanserai, the Glassjaw and the Last Drover (docs/places/buried.md) ———
+// The Buried Caravanserai (room 106): a hard pocket, the first town of the caravan, swallowed by a dune an age ago, down the
+// stair under the Buried Observatory's dial ring (BURIED_GATE_X there: sand poured down it until A3). Its streets are dark
+// and close under ceilings of packed sand held up on old roof beams, its tents stiff as wood, its lamps out. You come in at
+// the WEST end at the foot of the Sand Stair (no mobs, no waystone: a hard pocket) and go east: Lantern Street, the Stiff
+// Tents and the Drovers' Yard, where the Last Drover (a field boss) drives his phantom string round and round the old
+// well (BURIED_WELL_X). The find (last in BURIED_PLATFORMS): up on the well's windlass beam, the rope cut and the bucket
+// still on it. A dead end: nothing goes on from here.
+export const BURIED = 106; // room id
+export const BURIED_W = 4800;
+export const BURIED_EXIT_X = 70; // back up the Sand Stair to the Buried Observatory
+export const BURIED_WELL_X = 4120; // the old well in the Drovers' Yard (drawing; its windlass beam is the find)
+export const BURIED_ZONES = [
+  { name: 'The Sand Stair', x0: 0, x1: 600, lvl: null }, // (no mobs)
+  { name: 'Lantern Street', x0: 600, x1: 1900, lvl: '234–237' },
+  { name: 'The Stiff Tents', x0: 1900, x1: 3300, lvl: '237–240' },
+  { name: "The Drovers' Yard", x0: 3300, x1: BURIED_W, lvl: '240–242' },
+];
+// the old roof beams holding up the sand, buried market stalls, the tops of tents gone stiff as boards; the well's windlass
+// beam (hidden, last)
+export const BURIED_PLATFORMS = [
+  { x: 740, y: 344, w: 190, kind: 'stall' },
+  { x: 1100, y: 268, w: 180, kind: 'beam' },
+  { x: 1540, y: 340, w: 190, kind: 'stall' },
+  { x: 2060, y: 318, w: 200, kind: 'tent' },
+  { x: 2480, y: 252, w: 180, kind: 'beam' },
+  { x: 2920, y: 324, w: 200, kind: 'tent' },
+  { x: 3480, y: 336, w: 180, kind: 'stall' },
+  { x: 3760, y: 260, w: 170, kind: 'beam' },
+  { x: BURIED_WELL_X - 50, y: 236, w: 100, kind: 'windlass' }, // the well's windlass beam, the rope cut, the bucket still on it: easy to miss
 ];
 export function turbineAt(i, t) {
   const c = (((t + i * 151) % TURBINE_CYCLE) + TURBINE_CYCLE) % TURBINE_CYCLE;
@@ -1746,6 +1810,8 @@ export const STAGES = {
   [UNDERCROFT]: { name: 'The Undercroft', zones: UNDERCROFT_ZONES, band: '205–215', hard: true }, // (the Citadel, C6 (b): its deep room)
   [GLASSDUNES]: { name: 'The Glass Dunes', zones: GDUNES_ZONES, band: '215–224', pill: 'Glass Dunes' }, // (atlas Phase 9, A0: Amberdune)
   [OASIS]: { name: 'The Mirage Oasis', zones: OASIS_ZONES, band: '215–220', pill: 'Mirage Oasis' }, // (A1)
+  [SALTFLATS]: { name: 'The Salt Flats', zones: SFLATS_ZONES, band: '226–236', pill: 'Salt Flats' }, // (A2)
+  [BURIED]: { name: 'The Buried Caravanserai', zones: BURIED_ZONES, band: '234–242', pill: 'Buried Town', hard: true }, // (A3)
   [OBSERVATORY]: { name: 'The Buried Observatory', zones: OBS_ZONES, band: '222–232', pill: 'Observatory' }, // (A1)
 };
 export const zoneAt = (x, room = FIELD) => {
@@ -3999,6 +4065,114 @@ MOBS.sunroller = {
   },
   drops: [['royal_sap', 1, 2, 3], ['gnomon_blade', 1, 1, 1], ['scarab_crown', 0.6, 1, 1], ['coin', 1, 394000, 591000], ['mega_elixir', 1, 4, 6], ['sunstone_chip', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
+// ——— atlas Phase 9, A2: the Salt Flats (art: src/saltflats-art.js; docs/places/saltflats.md). On the frozen curve ———
+// Salt crabs are the old harbour's crabs left high and dry, crusted white with salt, scuttling sideways in bunches; brine
+// slimes are the last of the sea gone thick and bitter, leaving a crust behind them that stings (`trail`, style `saltcrust`);
+// flat gulls hang over the flats on the hot air and stoop on anything that moves (`dive`); wreck hermits are hermit crabs
+// grown huge, each wearing the prow of a beached boat as its shell (`shell`: get round behind them; the rare Prow Helm)
+MOBS.salt_crab = {
+  name: 'Salt Crab', lvl: 226, hp: 41260, atk: 842, exp: 25586, speed: 110, w: 62, h: 40, aggro: true, hops: true,
+  drops: [['coin', 1, 2095, 3143], ['salt_claw', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.brine_slime = {
+  name: 'Brine Slime', lvl: 229, hp: 38420, atk: 855, exp: 26166, speed: 55, w: 66, h: 44, aggro: true, hops: true,
+  ai: { kind: 'trail', every: 0.8, life: 4.5, w: 56, style: 'saltcrust' },
+  drops: [['coin', 1, 2136, 3204], ['brine_crust', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.flat_gull = {
+  name: 'Flat Gull', lvl: 232, hp: 38320, atk: 868, exp: 26751, speed: 120, w: 70, h: 46, aggro: true, hops: false, fly: 60,
+  ai: { kind: 'dive', every: 3.2, warn: 0.55, time: 0.4 },
+  drops: [['coin', 1, 2178, 3266], ['gull_quill', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.wreck_hermit = {
+  name: 'Wreck Hermit', lvl: 235, hp: 50380, atk: 881, exp: 27342, speed: 45, w: 84, h: 70, aggro: true, hops: false,
+  ai: { kind: 'shell', cut: 0.75, every: 3.2, warn: 0.6, lunge: 460, time: 0.32 }, // (the keel warden's: hit it from behind)
+  drops: [['coin', 1, 2219, 3329], ['prow_splinter', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1], ['prow_helm', 0.004, 1, 1]],
+};
+// The Netwife (A2; her den, the Dry Harbour, opens under the old breakwater at the Salt Flats' Harbour Mouth, NET_DEN_X). A
+// den boss with a story (story/phase9-plan.md): a great sand spider crusted white with salt, as big as a boat, in the dried
+// harbour where Saltmouth's fleet used to come home. When the sea went out and the boats were left on their sides she kept
+// on mending the fleet's nets, every one, for boats that will never sail again. A shard in her back. Holding on: the
+// fleet. She throws nets over you (`snare`, drawn `looks.snare: 'net'`, every phase), drops on you out of her rigging with
+// her shadow coming too late (`late`, from phase 2), and with two or more fighting she winds one of you up in the nets to
+// mend later (`cage`, the rescue cage: a friend gets you out). Her ultimate, The Last Haul, is the shared `wave` ult drawn as
+// a great net hauled the length of the harbour (ULT_LOOKS: jump it or get up on a ledge). Freed, she lets the nets go to the
+// wind (the den's bossDie)
+MOBS.netwife = {
+  name: 'The Netwife', boss: true, lvl: 236, hp: 16600000, atk: 947, exp: 1771000, speed: 90, w: 250, h: 170, aggro: true, hops: false,
+  phases: [['charge', 'slam', 'rain', 'snare'], ['charge', 'slam', 'rain', 'summon', 'snare', 'late', 'cage'], ['charge', 'rain', 'summon', 'leap', 'barrage', 'snare', 'late', 'cage']],
+  // challenges from day one (docs/combat/challenges.md): her thrown nets (the snare, every phase), late tells (phase 2 on)
+  // and, with a party, the rescue cage (a slime wound up in her nets, phase 2 on)
+  ch: ['snare', 'late', 'rescue'],
+  ult: { name: 'The Last Haul', kind: 'wave' }, minion: 'salt_crab',
+  // S5.4: the shard glints in the salt on her back (the weak point, up on her back: in reach with a jump), she picks one
+  // slime to haul in (focus), and freezing The Last Haul as it gathers cancels it
+  party: ['weakpoint', 'focus', 'interrupt'], partyLive: true, weak: { dx: -0.16, dy: -0.74, r: 22 },
+  looks: { snare: 'net' },
+  lines: {
+    enter: ['Mind the nets. Mind where you put your feet, they are all laid out to dry. The fleet comes in on the evening tide.', 'Another hand for the mending? No? Then keep off the nets.'],
+    phase: [null, 'Every net in the fleet, mended. Every knot. When they come home they will want them whole!', 'The sea will come back. The boats will come back. And when they do the nets will be READY!'],
+    freed: '...The tide is not coming in. It has not come in for a long time, has it. ...Then let the wind have them. Let them go.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['net_needle', 1, 1, 1], ['saltnet_veil', 0.6, 1, 1], ['coin', 1, 403000, 604000], ['mega_elixir', 1, 4, 6], ['net_knot', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
+// ——— atlas Phase 9, A3: the Glassjaw (the Glass Dunes' field boss), and the Buried Caravanserai, a hard pocket (art:
+// src/buried-art.js; docs/places/buried.md, docs/places/glassdunes.md). On the frozen curve, two elites ———
+// The Glassjaw: a field boss (small: no story), a dune beetle grown as big as a house, its jaws fused to lightning glass in
+// some old storm. It lies under the High Dunes with only its back showing like another dune; hit, it heaves up out of the
+// sand and comes down on you (`stomp`). T3: late tells (the sand only bulges after it's already on its way), and from its
+// second third rings of glass splinters off its jaws. With two or more on it, its glass jaw closes up over it (armour,
+// `looks.shell: 'glass'`: heavy hits crack it) and it picks one slime to dig toward (focus)
+MOBS.glassjaw = {
+  name: 'The Glassjaw', field: true, lvl: 223, hp: 5660000, atk: 772, exp: 970000, speed: 55, w: 230, h: 130, aggro: false, hops: false,
+  ai: { kind: 'stomp', every: 3.6, warn: 1, r: 280, range: 330, jump: 560 },
+  party: ['armour', 'focus'], partyLive: true, looks: { shell: 'glass', rings: 'glass' },
+  // T3: late tells, and from its second third rings of glass; the punish window as every field boss's
+  ch: ['late', 'rings'], chf: [['late', 0], ['rings', 1]],
+  desc: 'The Glassjaw has come up out of the High Dunes. Watch the sand.',
+  drops: [['coin', 1, 105100, 152100], ['glassjaw_shard', 1, 4, 8], ['beetle_wingcase', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['glass_mandible', 0.25, 1, 1], ['glassjaw_helm', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+// The Buried Caravanserai's: husk lizards are pack-lizards dried out in the dark where their drovers left them, still
+// wearing their packs, quick and hungry (a plain chaser); buried lamplighters are the old town's lamplighters, gone dry as
+// paper, still going their rounds with a pole and lobbing lamps of hot amber at anything that isn't a lamp (`lob`, style
+// `amber`; the rare Lamplighter's Hood); stiff tents are tents gone as hard as boards under the sand, that get up on their
+// poles and come down on you (`stomp`)
+MOBS.husk_lizard = {
+  name: 'Husk Lizard', lvl: 236, hp: 43930, atk: 885, exp: 27540, speed: 125, w: 70, h: 44, aggro: true, hops: false,
+  drops: [['coin', 1, 2233, 3350], ['husk_scale', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.buried_lamplighter = {
+  name: 'Buried Lamplighter', lvl: 238, hp: 40630, atk: 894, exp: 27938, speed: 50, w: 50, h: 70, aggro: true, hops: false,
+  ai: { kind: 'lob', range: 520, every: 2.8, keep: 180, warn: 0.7, style: 'amber' },
+  drops: [['coin', 1, 2261, 3392], ['buried_wick', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1], ['lamplighter_hood', 0.004, 1, 1]],
+};
+MOBS.stiff_tent = {
+  name: 'Stiff Tent', lvl: 240, hp: 47620, atk: 903, exp: 28338, speed: 50, w: 74, h: 84, aggro: true, hops: false,
+  ai: { kind: 'stomp', every: 3.6, warn: 0.8, r: 150, range: 240, jump: 520 },
+  drops: [['coin', 1, 2289, 3434], ['tent_peg', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.husk_elite = elite('husk_lizard', 'Old Pack-Husk');
+MOBS.tent_elite = elite('stiff_tent', 'The Great Pavilion');
+// The Last Drover: a field boss (small: no story beyond the room's), a drover slime dried out under the sand to leather and
+// bone, still walking his string round and round the Drovers' Yard with his goad and his lantern, calling to pack-beasts that
+// are only dust now. Passive until hit; then he throws his lantern at you (`lob`, style `amber`). T3: he turns you round in
+// the dark (the controls swap, `swap`), and from his second third he lassoes you with his lead rope (`mash`, `looks.snare:
+// 'rope'`). With two or more on him his phantom string comes up out of the dust (adds: `minion`, the phantom pack-beast, a
+// split-style minion kept small) and he picks one slime to drive (focus)
+MOBS.last_drover = {
+  name: 'The Last Drover', field: true, lvl: 241, hp: 6330000, atk: 845, exp: 1107000, speed: 50, w: 130, h: 150, aggro: false, hops: false,
+  ai: { kind: 'lob', range: 560, every: 2.6, keep: 200, warn: 0.75, style: 'amber' },
+  party: ['adds', 'focus'], partyLive: true, minion: 'phantom_beast', looks: { snare: 'rope' },
+  // T3: the controls swap, and from his second third his lead rope (a mash free); the punish window as every field boss's
+  ch: ['swap', 'mash'], chf: [['swap', 0], ['mash', 1]],
+  desc: 'The Last Drover is walking his string round the Drovers\' Yard in the Buried Caravanserai. Listen for the bells.',
+  drops: [['coin', 1, 116000, 167800], ['drover_bell', 1, 4, 8], ['husk_scale', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['drover_goad', 0.25, 1, 1], ['last_drover_hood', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+// (a split minion: the economy sheet doesn't check these, so its EXP and gold stay small, like the boglings)
+MOBS.phantom_beast = {
+  name: 'Phantom Pack-Beast', lvl: 238, hp: 4000, atk: 820, exp: 900, speed: 140, w: 56, h: 40, aggro: true, hops: false,
+  drops: [['coin', 1, 80, 150]],
+};
 // The Escapement (the Citadel's C6 (c), story/c6-plan.md; docs/places/escapement.md): the Citadel's final boss, in the
 // Catch (room CATCH_DEN, at the end of the Spoke). The Wheel's catch: a great toothed anchor on its arbor under the hub,
 // both pallets clamped on the escape wheel since Chronos told it to hold, its pendulum swinging under it. Its own brain
@@ -4271,6 +4445,8 @@ const onUcPlat = onRoomPlat(UNDERCROFT_PLATFORMS, UNDERCROFT);
 const onGdPlat = onRoomPlat(GDUNES_PLATFORMS, GLASSDUNES);
 const onOaPlat = onRoomPlat(OASIS_PLATFORMS, OASIS);
 const onObPlat = onRoomPlat(OBS_PLATFORMS, OBSERVATORY);
+const onSfPlat = onRoomPlat(SFLATS_PLATFORMS, SALTFLATS);
+const onBcPlat = onRoomPlat(BURIED_PLATFORMS, BURIED);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -5014,6 +5190,44 @@ export const SPAWNS = [
   ...onObPlat('amber_moth', 7, 1),
   ...onObPlat('sand_asp', 8, 1),
   { kind: 'mainspring', x0: 4280, x1: 4440, y: FIELD_GROUND, room: UNDERCROFT },
+  // A2: the Salt Flats (the Salt Steps have none)
+  ...strip('salt_crab', 700, 1880, FIELD_GROUND, 5, SALTFLATS),
+  ...strip('brine_slime', 700, 1880, FIELD_GROUND, 2, SALTFLATS),
+  ...onSfPlat('salt_crab', 0, 1),
+  ...onSfPlat('brine_slime', 1, 1),
+  ...strip('brine_slime', 1950, 3280, FIELD_GROUND, 3, SALTFLATS),
+  ...strip('flat_gull', 1950, 3280, FIELD_GROUND, 3, SALTFLATS),
+  ...strip('salt_crab', 1950, 3280, FIELD_GROUND, 1, SALTFLATS),
+  ...onSfPlat('flat_gull', 2, 1),
+  ...onSfPlat('brine_slime', 3, 1),
+  ...onSfPlat('flat_gull', 4, 1),
+  ...onSfPlat('salt_crab', 5, 1),
+  ...strip('wreck_hermit', 3350, 4000, FIELD_GROUND, 3, SALTFLATS),
+  ...strip('flat_gull', 3350, 4000, FIELD_GROUND, 2, SALTFLATS),
+  ...strip('wreck_hermit', 4320, 4520, FIELD_GROUND, 1, SALTFLATS),
+  ...onSfPlat('wreck_hermit', 6, 1),
+  ...onSfPlat('flat_gull', 7, 1),
+  // A3: the Glassjaw, under the High Dunes
+  { kind: 'glassjaw', x0: 3500, x1: 4400, y: FIELD_GROUND, room: GLASSDUNES },
+  // A3: the Buried Caravanserai (a hard pocket; the Sand Stair has none): husk lizards along Lantern Street, stiff tents
+  // in the Stiff Tents, lamplighters everywhere, an elite in each of the last two, the Last Drover round the well
+  ...strip('husk_lizard', 660, 1860, FIELD_GROUND, 4, BURIED),
+  ...strip('buried_lamplighter', 900, 1860, FIELD_GROUND, 2, BURIED),
+  ...onBcPlat('husk_lizard', 0, 1),
+  ...onBcPlat('buried_lamplighter', 1, 1),
+  ...onBcPlat('husk_lizard', 2, 1),
+  ...strip('stiff_tent', 1960, 3260, FIELD_GROUND, 4, BURIED),
+  ...strip('husk_lizard', 1960, 3260, FIELD_GROUND, 2, BURIED),
+  ...strip('husk_elite', 2400, 3100, FIELD_GROUND, 1, BURIED),
+  ...onBcPlat('stiff_tent', 3, 1),
+  ...onBcPlat('buried_lamplighter', 4, 1),
+  ...onBcPlat('stiff_tent', 5, 1),
+  ...strip('buried_lamplighter', 3360, 4600, FIELD_GROUND, 3, BURIED),
+  ...strip('stiff_tent', 3360, 4600, FIELD_GROUND, 2, BURIED),
+  ...strip('tent_elite', 3500, 3900, FIELD_GROUND, 1, BURIED),
+  ...onBcPlat('buried_lamplighter', 6, 1),
+  ...onBcPlat('husk_lizard', 7, 1),
+  { kind: 'last_drover', x0: 3700, x1: 4500, y: FIELD_GROUND, room: BURIED },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -5050,6 +5264,7 @@ export const DENS = [
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
   { room: WICK_DEN, boss: 'wickmother', name: WICK_DEN_NAME, from: LAMPROAD, fromName: 'the Lamp Road', entranceX: WICK_DEN_X, theme: 'lamps', platforms: HALL_PLATFORMS, final: true }, // (L5 (c); art: src/dens-wick.js; the door's art: src/lamproad.js)
   { room: CATCH_DEN, boss: 'escapement', name: CATCH_DEN_NAME, from: SPOKE, fromName: 'the Spoke', entranceX: ESC_DEN_X, theme: 'catch', platforms: CATCH_PLATFORMS, final: true }, // (the Citadel's C6 (c); art: src/dens-esc.js; the door's art: src/spoke.js)
+  { room: NET_DEN, boss: 'netwife', name: 'The Dry Harbour', from: SALTFLATS, entranceX: NET_DEN_X, theme: 'nets' }, // (atlas Phase 9, A2; art: src/dens-net.js)
   { room: SUN_DEN, boss: 'sunroller', name: 'The Dial Floor', from: OBSERVATORY, entranceX: SUN_DEN_X, theme: 'sundial' }, // (atlas Phase 9, A1; art: src/dens-sun.js)
   { room: TYPHON_DEN, boss: 'typhon', name: TYPHON_DEN_NAME, from: LONGFLUE, fromName: 'the Long Flue', entranceX: TYPHON_DEN_X, theme: 'hearth', platforms: TYPHON_PLATFORMS, final: true }, // (E5 (c); art: src/dens-typhon.js; the door's art: src/longflue.js)
 ];
@@ -5741,6 +5956,23 @@ Object.assign(ITEMS, {
   dialwatch_helm: { name: 'Dialwatch Helm', price: 1834000, lvl: 227, kind: 'helmet', def: 141, desc: "A dial sentry's bronze head, hollowed out, its sun-glass eye still in the brow. Now and then it turns a little on its own, toward the sun." },
   gnomon_blade: { name: 'Gnomon Blade', price: 2565000, lvl: 233, slots: 9, kind: 'sword', atk: 282, reach: 68, desc: "A long straight blade of bronze, cut in the shape of a sundial's gnomon, the hours notched along its back. At noon it casts no shadow at all." },
   sundial_staff: { name: 'Sundial Staff', price: 2565000, lvl: 233, slots: 9, kind: 'staff', magic: 282, mp: 169, reach: 68, twin: 'gnomon_blade', desc: 'A tall bronze staff with a little sundial at its head, its shadow going round. Its bolts leave the air shimmering, like noon over sand.' },
+  // atlas Phase 9, A2: Kesh's tier from her jetty (`aim` 230, on the gear curve at Lv 226), the wreck hermit's rare helm,
+  // the Netwife's set (Lv 237, on the curve like the other dens'); A3: the Glassjaw's and the Last Drover's sets (a step
+  // over their Lv 223 and 241, on the curve like the other field bosses'), the buried lamplighter's rare hood
+  skiff_gaff: { name: 'Skiff Gaff', price: 402000, lvl: 226, aim: 230, kind: 'sword', atk: 276, reach: 62, desc: "A boat-hook's iron gaff on a short ash haft, filed to an edge along the curve. Kesh uses hers to fend off the jetty, which keeps moving." },
+  tiller_staff: { name: 'Tiller Staff', price: 402000, lvl: 226, aim: 230, kind: 'staff', magic: 276, mp: 166, reach: 62, twin: 'skiff_gaff', desc: "An old skiff's tiller, worn smooth where a hand has steered by it for years, a sea-glass bead pegged into the end. It always points into the wind." },
+  sailcloth_hood: { name: 'Sailcloth Hood', price: 309000, lvl: 226, aim: 230, kind: 'helmet', def: 141, desc: "A hood cut from an ochre sail past patching, its eyelets still in it, salt-stiff at the brim. It smells of tar and the sea, which nobody else in the caravan likes." },
+  prow_helm: { name: 'Prow Helm', price: 1967000, lvl: 235, kind: 'helmet', def: 145, desc: "The carved prow of a fishing boat, off a wreck hermit's back, hollowed out to fit a slime. Somebody painted an eye on each side of it, long ago, to see the way home." },
+  net_needle: { name: "Netwife's Needle", price: 2655000, lvl: 237, slots: 9, kind: 'sword', atk: 286, reach: 68, desc: "A netting needle as long as a sword, salt-white bone, the twine still wound on it. Everything it goes through, it mends a little on the way out." },
+  shuttle_staff: { name: 'Net Shuttle Staff', price: 2655000, lvl: 237, slots: 9, kind: 'staff', magic: 286, mp: 172, reach: 68, twin: 'net_needle', desc: "A tall staff wound round with the Netwife's salt-crusted twine, a mesh gauge of white bone at its head. Its bolts leave a knot in the air." },
+  saltnet_veil: { name: 'Saltnet Veil', price: 2001000, lvl: 237, slots: 9, kind: 'helmet', def: 146, desc: "A veil of the Netwife's finest mesh, stiff with salt, every knot of it perfect. It catches the light the way a net catches fish." },
+  glass_mandible: { name: 'Glass Mandible', price: 2307000, lvl: 225, kind: 'sword', atk: 276, reach: 66, desc: "One of the Glassjaw's jaws, lightning glass fused to black beetle-horn, curved like a scythe. It rings when it hits, a long clear note." },
+  mandible_staff: { name: 'Glassjaw Staff', price: 2307000, lvl: 225, kind: 'staff', magic: 276, mp: 166, reach: 66, twin: 'glass_mandible', desc: "A staff of beetle-horn with a branching knot of the Glassjaw's lightning glass at the head. Lightning likes it. You should stand clear." },
+  glassjaw_helm: { name: 'Glassjaw Helm', price: 1740000, lvl: 225, kind: 'helmet', def: 140, desc: "A helm of the Glassjaw's wing-case, black and gold, a ridge of clear glass along the top like a crest. Sand slides off it." },
+  lamplighter_hood: { name: "Lamplighter's Hood", price: 2018000, lvl: 238, kind: 'helmet', def: 147, desc: "A buried lamplighter's hood, dry as paper, a little amber lamp on a hook at the brow. It lights itself in the dark, and nobody knows how." },
+  drover_goad: { name: "Drover's Goad", price: 2698000, lvl: 243, kind: 'sword', atk: 291, reach: 66, desc: "The Last Drover's goad, a long pole of desert wood with a brass point, a string of little bells at the grip. The pack-beasts that knew its jingle are dust now. Something still comes when it rings." },
+  crook_staff: { name: 'Lantern Crook', price: 2698000, lvl: 243, kind: 'staff', magic: 291, mp: 175, reach: 66, twin: 'drover_goad', desc: "A drover's crook with his amber lantern hung off the hook, still lit after all this time under the sand. It shows the way to somewhere." },
+  last_drover_hood: { name: "Last Drover's Hood", price: 2033000, lvl: 243, kind: 'helmet', def: 149, desc: "A drover's wrap gone stiff as leather, dust in every fold, a brass ring at the throat. Wearing it you can almost hear the string behind you, bells and all." },
   scarab_crown: { name: 'Scarab Crown', price: 1934000, lvl: 233, slots: 9, kind: 'helmet', def: 144, desc: "A crown of the Sunroller's wing-case, blue-black and gold, a stone sun no bigger than a pea held in the front. Wearing it, you always know the hour." },
   indexer_spike: { name: "The Indexer's Spike", price: 1490000, lvl: 178, slots: 9, kind: 'sword', atk: 235, reach: 68, desc: 'A filing spike as long as a sword, brass on an iron foot, a few last pages still caught on it. Whatever it goes through stays filed.' },
   stamp_staff: { name: 'Sentinel Stamp', price: 1490000, lvl: 178, slots: 9, kind: 'staff', magic: 235, mp: 141, reach: 68, twin: 'indexer_spike', desc: "A long brass stamp off the Indexer's arm, its red die at the head. Every bolt lands with a thump and leaves its mark." },
@@ -5758,6 +5990,17 @@ Object.assign(ITEMS, {
   dial_cog: { name: 'Dial Cog', price: 2030, kind: 'loot', desc: 'A bronze cog off a dial sentry, each tooth engraved with a star nobody can find in the sky any more.' },
   asp_skin: { name: 'Sand Asp Skin', price: 2045, kind: 'loot', desc: 'A shed asp skin the colour of the dunes at evening, every scale perfect. It weighs nothing. The wind wants it back.' },
   amber_scale: { name: 'Amber Scale', price: 2060, kind: 'loot', desc: "A wing scale off an amber moth, gold and clear as honey, a speck of something very old caught inside." },
+  // atlas Phase 9, A2 and A3: the Salt Flats', the Buried Caravanserai's and their bosses' (the ladder on above A1's)
+  salt_claw: { name: 'Salt Claw', price: 2075, kind: 'loot', desc: "A salt crab's claw, crusted white so thick it squeaks. Lick it and you'll know why they're called that." },
+  brine_crust: { name: 'Brine Crust', price: 2090, kind: 'loot', desc: 'A cake of the bitter crust a brine slime leaves behind it, pink-white and stinging. The caravan folk cure leather with it.' },
+  gull_quill: { name: 'Flat Gull Quill', price: 2105, kind: 'loot', desc: "A flat gull's long grey flight feather, white at the tip. Tally writes his ledger with them, and goes through a lot." },
+  prow_splinter: { name: 'Prow Splinter', price: 2120, kind: 'loot', desc: "A splinter off a wreck hermit's prow, old painted wood bleached by the sun. There's half a letter of a boat's name on it." },
+  net_knot: { name: "Netwife's Knot", price: 2360, kind: 'loot', desc: "A knot cut out of the Netwife's mending, salt-stiff twine tied so neatly it looks carved. Nobody can untie it. Nobody wants to." },
+  glassjaw_shard: { name: 'Glassjaw Shard', price: 2040, kind: 'loot', desc: "A chip off the Glassjaw's glass jaw, clear and branching inside like frozen lightning. It is always a little warm." },
+  husk_scale: { name: 'Husk Scale', price: 2130, kind: 'loot', desc: "A scale off a husk lizard, dry as old leaf and the colour of dust. It crumbles if you squeeze it, so don't." },
+  buried_wick: { name: 'Buried Wick', price: 2145, kind: 'loot', desc: "A lamp wick out of the Buried Caravanserai, black at the end, an age old. Hold it up and it smokes a little, as if it remembers." },
+  tent_peg: { name: 'Tent Peg', price: 2160, kind: 'loot', desc: "A stiff tent's bone peg, its guy-rope still knotted on. It was pulled up to move on, and never knocked in anywhere else." },
+  drover_bell: { name: "Drover's Bell", price: 2180, kind: 'loot', desc: "A little brass bell off the Last Drover's string, its clapper worn thin. It rings by itself sometimes, very faintly, a long way off." },
   sunstone_chip: { name: 'Sunstone Chip', price: 2330, kind: 'loot', desc: "A chip off the Sunroller's stone sun, gold-veined and warm. It is warmest at noon, wherever you are." },
   last_card: { name: 'Last Index Card', price: 1935, kind: 'loot', desc: 'A card out of the Indexer\'s drawer, the date of the last day typed at the top, and nothing under it at all.' },
 });
@@ -5842,6 +6085,10 @@ BOW_LIST.push(
 BOW_LIST.push(
   ['archivist_bow', 'archivist_rule', "Archivist's Bow", "A slim bow of two brass rules bound back to back with bookbinder's thread. Its arrows land exactly where it says on the label."],
   ['drover_bow', 'salt_tulwar', "Drover's Bow", 'A short horn bow bound in drover\'s leather, a string of caravan bells at one tip. The pack-beasts know its twang and come.'],
+  ['beadstring_bow', 'skiff_gaff', 'Beadstring Bow', "A short bow of salt-bleached driftwood strung with tarred line, Kesh's blue sand-glass beads threaded on the string. They click when you draw it, like a rigging in the wind."],
+  ['netwife_bow', 'net_needle', 'Netting Bow', "A bow of two of the Netwife's legs bound at the grip, strung with her twine. Its arrows trail a fine line of mesh, and come back with something."],
+  ['mandible_bow', 'glass_mandible', 'Mandible Bow', "A bow of black beetle-horn with glass tips, the Glassjaw's. It hums when you draw it, the way the air does before a storm."],
+  ['dust_bow', 'drover_goad', 'Dustline Bow', "A drover's bow, dried out under the sand to bone and sinew, a bell at the tip. Its arrows go into the dark and the string keeps ringing after."],
   ['scarab_bow', 'gnomon_blade', 'Scarab Bow', "Two curved wing-cases of the Sunroller's, bound at the grip with bronze, strung with sun-dried gut. Its arrows go round, the long way, and get there."],
   ['catalogue_bow', 'indexer_spike', 'Catalogue Bow', "A bow bent from a catalogue drawer's runners, a brass label frame at the grip. Every arrow it lets go is filed somewhere, eventually."],
 );
@@ -5963,6 +6210,8 @@ export const SHOPS = {
   // Caravanserai (atlas Phase 9, A0): Mother Dune's water-skins and potions in the Star Court (she calls it all water,
   // and sells it dear), Tally's salt-iron and sandstone at his counting-stall
   mother_dune: { name: "Mother Dune's Water", room: CARAVAN, x: MOTHER_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir'] },
+  // A2: the salt dried, Kesh trades from her jetty (salvage off the old fleet: a gaff, a tiller, a hood of sailcloth)
+  kesh: { name: "Kesh's Jetty", room: CARAVAN, x: KESH_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'skiff_gaff', 'tiller_staff', 'beadstring_bow', 'sailcloth_hood'] },
   tally: { name: "Tally's Counting-Stall", room: CARAVAN, x: TALLY_X, stock: ['red_jelly', 'blue_jelly', 'mana_jelly', 'elixir', 'mega_elixir', 'salt_tulwar', 'sandstone_rod', 'drover_bow', 'drover_wrap'] },
   clover: { name: "Clover's Critters", room: PETSHOP, x: CLOVER_X, stock: ['pet_kibble', 'pet_stew'] },
   // the Citadel (C0): the Commissary, a vending automaton in Cogwork Bastion still issuing kit to Keepers' guards

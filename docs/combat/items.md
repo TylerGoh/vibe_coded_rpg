@@ -261,7 +261,15 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   (`SHOPS.mother_dune`: potions only, "water"). A0's Glass Dunes: a fulgurite scorpion drops the **Fulgurite Crest** (Lv
   222) very rarely. A1's Buried Observatory: a dial sentry drops the **Dialwatch Helm** (Lv 227) very rarely, and **the
   Sunroller** drops the **Gnomon Blade** (twins: the **Sundial Staff**, the **Scarab Bow**) and the **Scarab Crown**, boss
-  gear at Lv 233 (art `src/dune-art.js`, `DUNE_*`, and the staff and bow tables; `docs/places/observatory.md`).
+  gear at Lv 233 (art `src/dune-art.js`, `DUNE_*`, and the staff and bow tables; `docs/places/observatory.md`). A2: **Kesh**
+  trades from her jetty (`SHOPS.kesh`: the **Skiff Gaff** with its **Tiller Staff** and **Beadstring Bow**, and the
+  **Sailcloth Hood**, Lv 226, aimed at Lv 230); a wreck hermit drops the **Prow Helm** (Lv 235) very rarely, and **the
+  Netwife** drops **the Netwife's Needle** (twins: the **Net Shuttle Staff**, the **Netting Bow**) and the **Saltnet Veil**,
+  boss gear at Lv 237 (art `src/saltflats-art.js`, `SFLATS_*`; `docs/places/saltflats.md`). A3: **the Glassjaw** drops the
+  **Glass Mandible** (twins: the **Glassjaw Staff**, the **Mandible Bow**) and the **Glassjaw Helm** (Lv 225; `DUNES_SWORDS`,
+  `DUNES_HELMETS` in `src/glassdunes-art.js`), **the Last Drover** the **Drover's Goad** (twins: the **Lantern Crook**, the
+  **Dustline Bow**) and **the Last Drover's Hood** (Lv 243), and a buried lamplighter the **Lamplighter's Hood** (Lv 238)
+  very rarely (`src/buried-art.js`, `BURIED_*`; `docs/places/buried.md`).
   Amberdune's gear names: salt-iron, sandstone, sun-glass, amber, bronze, caravan brass, drover's leather.
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these

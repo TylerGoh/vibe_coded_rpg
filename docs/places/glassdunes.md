@@ -5,7 +5,7 @@ east out of Caravanserai: gold dunes, wind-polished sandstone shelves, and patch
 
 Files: the room in `src/shared/rpg.js` (`GLASSDUNES`, `GDUNES_W`, `GDUNES_EXIT_X`, `GDUNES_WAY_X`, `OASIS_GATE_X`,
 `GDUNES_END_X`, `GDUNES_ZONES`, `GDUNES_PLATFORMS`, the `STAGES` row, the four mobs, their materials, the fulgurite
-scorpion's rare crest, the spawns), `ROOMS[GLASSDUNES]` and its door in `ROOMS[CARAVAN]` (`src/shared/sim.js`), the room's
+scorpion's rare crest, A3's Glassjaw and its gear, the spawns), `ROOMS[GLASSDUNES]` and its door in `ROOMS[CARAVAN]` (`src/shared/sim.js`), the room's
 drawing in `src/glassdunes.js` (`drawGlassDunes`; its signpost, `drawDuneSign`, is borrowed by the Oasis and the
 Observatory), the creatures and materials in `src/glassdunes-art.js` (`DUNES_MOB_ART`, `DUNES_ICONS`), the crest in
 `src/dune-art.js`, the waystone in `src/shared/waystones.js`, the `glassdunes` music scene in `src/audio.js`. The sky is
@@ -35,4 +35,17 @@ You come in at the west end from the town and go east, harder (`GDUNES_ZONES`):
 - **Fulgurite scorpions** (222): a front, claws and all, crusted over in lightning glass (`shell`, the lamp crab's: hit
   them from behind); the rare **Fulgurite Crest** (Lv 222, on the helmet curve). (Emberdeep already had a Glass
   Scorpion, so these are named for the glass the lightning makes.)
-- No elites, no field boss yet: the Glassjaw is A3's.
+- No elites.
+
+## The Glassjaw (field boss, Lv 223; A3)
+A dune beetle grown as big as a house, black with a gold sheen, its great jaws fused to lightning glass in some old storm,
+clear and branching inside. It lies under the High Dunes with a cap of sand on its back like another dune (spawn strip in
+the High Dunes), passive until hit; then it heaves up out of the sand, sand pouring off it, and comes down on you (`stomp`).
+Art: `drawGlassjaw` in `src/glassdunes-art.js` (in `DUNES_MOB_ART`), with its gear (`DUNES_SWORDS`, `DUNES_HELMETS`).
+- **Challenges** (T3, `chf`): **late tells** from the start (the sand only bulges after it's already on its way), and from
+  its second third **bullet rings** of glass splinters off its jaws (`looks.rings: 'glass'`, the `glass` shot style in
+  `src/hazards.js`); the punish window like every field boss's.
+- **Party** (S5.4): with two or more on it its glass jaw closes up over it (**armour**, `looks.shell: 'glass'`, `SHELLS.glass`
+  in `src/party.js`: heavy hits crack it) and it picks one slime to dig toward (**focus**).
+- **Rewards**: **the Glass Mandible** and its twins the **Glassjaw Staff** and the **Mandible Bow** (Lv 225), **the Glassjaw
+  Helm**, Glassjaw Shards, Beetle Wing-Cases, coins, scrolls; the **mini Glassjaw** at the Pet Shop.

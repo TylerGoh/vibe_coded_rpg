@@ -35,9 +35,9 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
 - **Amberdune** (atlas Phase 9) is charted where the south-west's sandy smudge was: a long gold island with dune ridges,
   Caravanserai's tents at its east end, and a little dark hill out on it that moves a step every hour (Old Carapace,
   never named); the Saltwind's dashed route runs to it from Emberdeep. It sits in the chart's bottom corner, so its name
-  goes up beside it. Its own map is `AMBERDUNE` (`LOOK.dune`): Caravanserai, the Glass Dunes, the Mirage Oasis and the
-  Buried Observatory, and dashed with their reasons the Salt Flats, the Buried Caravanserai, the Storm Road and the Dry
-  Wells. Aboard the Saltwind the pin is `'duneroute'`. Emberdeep's map gains the Saltwind off the Black Sands.
+  goes up beside it. Its own map is `AMBERDUNE` (`LOOK.dune`): Caravanserai, the Glass Dunes, the Mirage Oasis, the
+  Buried Observatory, the Salt Flats (A2) and the Buried Caravanserai (A3, red-trimmed: a hard pocket), and dashed with
+  their reasons the Storm Road and the Dry Wells. Aboard the Saltwind the pin is `'duneroute'`. Emberdeep's map gains the Saltwind off the Black Sands.
 - Emberdeep's sub-label names Forgehold; it sits near the chart's bottom edge, so its "tap for its map" hint
   goes beside it, not under it.
 - Frostpeak shows Icefang Hamlet where the ferry comes in (turf huts, a fire) and the Queen's cracked ice

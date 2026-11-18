@@ -220,8 +220,12 @@ No quests, no hard level gates.
         sun rings, the glare; freed, the gnomon at noon). Gates laid: the Salt Flats (soft salt, A2), the Buried
         Caravanserai (sand pouring down the stair, A3), the Storm Road (a standing storm, A4). `HOUSE_BASE` 100 → 1000
         (`docs/places/amberdune.md`, `glassdunes.md`, `oasis.md`, `observatory.md`). Unplayed.
-  - [ ] A2: the Salt Flats and the Netwife (Kesh trades from her jetty).
-  - [ ] A3: the Buried Caravanserai (hard pocket) and the field bosses (the Glassjaw, the Last Drover).
+  - [x] A2 and A3 (2026-11-18, live, in one update): the salt dried and the Salt Flats (104: salt crabs, brine slimes, flat
+        gulls, wreck hermits; the beached fleet and its nets) with the Netwife in the Dry Harbour (105, challenges from day
+        one: her thrown net, late tells, the rescue cage; The Last Haul; freed, the nets go on the wind), Kesh trading from her
+        jetty (aim 230); the sand stopped on the stair and the Buried Caravanserai (106, a hard pocket: husk lizards, buried
+        lamplighters, stiff tents, two elites; the cut well-rope) with the Last Drover (field, Lv 241), and the Glassjaw
+        under the High Dunes (field, Lv 223) (`docs/places/saltflats.md`, `buried.md`, `glassdunes.md`). Unplayed.
   - [ ] A4: the Storm Road, the Red Wall (party den) and the Sirocco; the dry well's mouth chained, Old Carapace walking on
         the horizon out of reach.
   - [ ] A5: Old Carapace ((a) his plan, (b) the Dry Wells and the Shell Road, (c) the Long Road and the fight).
