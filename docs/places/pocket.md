@@ -30,7 +30,10 @@ hooks in `src/main.js` and `src/fair.js`, the sandbox panel's **To the Gathering
   on the pocket's own controls card. The mouse buttons and the wheel aren't keys and stay as they are.
 - Leaving (owner, step 3: the old dark pause card was jarring): Leave is always top right. Esc (the browser takes it to
   let the mouse go) opens a small light menu over the world: Back to the world, Controls (the pocket tab, its own Reset),
-  Leave the pocket world. Esc again goes back to the world. Phones: the left
+  Leave the pocket world. Esc again closes it, back in the world with the "Click to look around" pill (a browser won't
+  capture the mouse again from a key straight after an Esc, so a click does that; Back to the world, a click, tries at
+  once). Past mistake: the first Esc both let the mouse go (opening the menu) and arrived as a key press a moment later
+  (closing it again): an Esc within `ESC_GAP` of the menu opening is ignored. Phones: the left
   thumb is a stick from wherever it lands, the right thumb drags to look and a quick still tap with it (`TAP_MS`, `TAP_PX`)
   breaks or builds at the crosshair, by the Break / Build button; tap a hotbar swatch to pick a block; Jump, Leave.
 

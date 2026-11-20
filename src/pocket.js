@@ -10,6 +10,7 @@ import { World, SIZE, HEIGHT, CHUNK, GROUND, BLOCKS, HOTBAR, collide, aim, boxIn
 
 const EYE = 1.6, SPEED = 6.5, GRAVITY = 26, JUMP_V = 8.6, REACH = 6, LOOK = 0.0024, TOUCH_LOOK = 0.006;
 const SKY = 0xbfe3ff, FOG = 0xe9d8f2;
+const ESC_GAP = 300; // ms: an Esc this soon after the menu opened is the same press (key)
 const ACT_GAP = 0.18; // s between breaks / places while a button is held
 const TAP_MS = 250, TAP_PX = 12; // a phone's look thumb that lifts this fast without moving is a tap: break or build
 
@@ -38,6 +39,7 @@ export class Pocket {
     this.stick = null;
     this.lookTouch = null;
     this.ui = null;
+    this.menuAt = -1e9; // when the Esc menu last opened
   }
 
   get isOpen() {
@@ -224,8 +226,12 @@ export class Pocket {
   key(e, down) {
     if (this.ui?.editor.listening) return; // (choosing a key on the controls card: it takes the press itself)
     if (down && e.code === 'Escape') {
-      // (with the mouse captured the browser takes the first Esc to let it go: that opens the menu instead)
-      if (this.menuOpen()) this.resume();
+      // The first Esc with the mouse captured: the browser lets the mouse go (pointerlockchange opens the menu), and the
+      // same press may still arrive here, just after: ignore it, or it would close the menu it just opened (the flicker).
+      // A later Esc closes the menu, back in the world with the "Click to look around" pill: a browser won't capture the
+      // mouse again from a key straight after an Esc, so a click does that.
+      if (e.repeat || performance.now() - this.menuAt < ESC_GAP) return;
+      if (this.menuOpen()) this.resume(false);
       else this.openMenu();
       return;
     }
@@ -250,16 +256,18 @@ export class Pocket {
     if (document.pointerLockElement) document.exitPointerLock();
     this.keys.clear();
     this.held.break = this.held.place = false;
+    if (!this.menuOpen()) this.menuAt = performance.now();
     show(this.ui.menu, true, 'flex');
     show(this.ui.look, false);
     this.showControls(false);
   }
-  resume() {
+  // back to the world. capture: try to take the mouse again (the Back to the world button: a click may); from Esc, no
+  resume(capture = true) {
     if (!this.ui) return;
     show(this.ui.menu, false);
     this.showControls(false);
     if (this.touch) return;
-    shared?.renderer.domElement.requestPointerLock?.();
+    if (capture) shared?.renderer.domElement.requestPointerLock?.()?.catch?.(() => {});
     show(this.ui.look, !document.pointerLockElement, 'block');
   }
   showControls(on) {
