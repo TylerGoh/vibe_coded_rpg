@@ -5,6 +5,7 @@
 // src/pocket-world.js). Nobody else in it, and what you build lasts until the page reloads.
 // Three.js draws it on its own full-window canvas (docs/performance.md), loaded only the first time someone steps in.
 // While it's open the game's own canvas stops drawing (main.js skips render()) and your slime stands still at the mirror.
+import { keys, KeyEditor } from './keys.js';
 import { World, SIZE, HEIGHT, CHUNK, GROUND, BLOCKS, HOTBAR, collide, aim, boxInCell, meshChunk } from './pocket-world.js';
 
 const EYE = 1.6, SPEED = 6.5, GRAVITY = 26, JUMP_V = 8.6, REACH = 6, LOOK = 0.0024, TOUCH_LOOK = 0.006;
@@ -66,7 +67,7 @@ export class Pocket {
     this.resize();
     this.last = performance.now();
     this.frame = requestAnimationFrame((t) => this.tick(t));
-    if (!this.touch) show(this.ui.paused, true); // click to play (pointer lock needs a click)
+    if (!this.touch) show(this.ui.look, true, 'block'); // click to look around (pointer lock needs a click)
   }
 
   close() {
@@ -79,6 +80,7 @@ export class Pocket {
     this.stick = this.lookTouch = null;
     window.removeEventListener('resize', this.onResize);
     if (this.onLock) document.removeEventListener('pointerlockchange', this.onLock);
+    this.ui?.editor.destroy();
     this.ui?.root.remove();
     this.ui = null;
     this.onOpenChange?.();
@@ -187,8 +189,8 @@ export class Pocket {
     const k = this.keys, playing = this.touch || (typeof document !== 'undefined' && document.pointerLockElement);
     let f = 0, s = 0;
     if (playing) {
-      f = (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0);
-      s = (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0);
+      f = (k.has('pk_fwd') ? 1 : 0) - (k.has('pk_back') ? 1 : 0);
+      s = (k.has('pk_right') ? 1 : 0) - (k.has('pk_left') ? 1 : 0);
     }
     if (this.stick) {
       // a phone's left thumb: how far it's pushed from where it went down, up to 60 px for full speed
@@ -217,19 +219,58 @@ export class Pocket {
     shared.camera.updateProjectionMatrix();
   }
 
-  // ——— input (main.js hands every key here while it's open) ———
+  // ——— input (main.js hands every key here while it's open). Keys are read on the pocket world's own tab of the
+  // Controls page (KEY_ACTIONS with tab 'pocket'), so they rebind apart from the game's ———
   key(e, down) {
+    if (this.ui?.editor.listening) return; // (choosing a key on the controls card: it takes the press itself)
     if (down && e.code === 'Escape') {
-      // (with the mouse captured the browser takes the first Esc to let it go: that shows the pause card instead)
-      if (!this.touch && this.ui.paused.style.display !== 'none') this.close();
+      // (with the mouse captured the browser takes the first Esc to let it go: that opens the menu instead)
+      if (this.menuOpen()) this.resume();
+      else this.openMenu();
       return;
     }
-    if (down) this.keys.add(e.code);
-    else this.keys.delete(e.code);
-    if (!down || e.repeat) return;
-    if (e.code === 'Space') this.jump();
-    const n = /^Digit([1-9])$/.exec(e.code);
-    if (n && +n[1] <= HOTBAR.length) this.pick(+n[1] - 1);
+    const id = keys.of(e, 'pocket');
+    if (!id) return;
+    if (down) this.keys.add(id);
+    else this.keys.delete(id);
+    if (!down || e.repeat || this.menuOpen()) return;
+    if (id === 'pk_jump') this.jump();
+    else if (id === 'pk_break') this.breakBlock();
+    else if (id === 'pk_place') this.placeBlock();
+    const n = /^pk_slot(\d)$/.exec(id);
+    if (n) this.pick(+n[1] - 1);
+  }
+
+  // ——— the Esc menu: small and light over the world (owner: the old dark card was jarring) ———
+  menuOpen() {
+    return !!this.ui && this.ui.menu.style.display !== 'none';
+  }
+  openMenu() {
+    if (!this.ui) return;
+    if (document.pointerLockElement) document.exitPointerLock();
+    this.keys.clear();
+    this.held.break = this.held.place = false;
+    show(this.ui.menu, true, 'flex');
+    show(this.ui.look, false);
+    this.showControls(false);
+  }
+  resume() {
+    if (!this.ui) return;
+    show(this.ui.menu, false);
+    this.showControls(false);
+    if (this.touch) return;
+    shared?.renderer.domElement.requestPointerLock?.();
+    show(this.ui.look, !document.pointerLockElement, 'block');
+  }
+  showControls(on) {
+    show(this.ui.ctl, on, 'block');
+    show(this.ui.menuBtns, !on, 'flex');
+    if (on) this.ui.editor.render();
+    else {
+      this.ui.editor?.stop();
+      this.labelHint(); // (in case a key changed)
+      this.drawHotbar();
+    }
   }
 
   buildUi() {
@@ -245,18 +286,51 @@ export class Pocket {
     const cross = el('div', 'position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; pointer-events: none;');
     cross.innerHTML = '<div style="position:absolute;left:8px;top:0;width:2px;height:18px;background:#fff;box-shadow:0 0 2px #5b4a6b"></div><div style="position:absolute;top:8px;left:0;height:2px;width:18px;background:#fff;box-shadow:0 0 2px #5b4a6b"></div>';
     const hint = el('div', 'position: absolute; left: 50%; bottom: 86px; transform: translateX(-50%); padding: 6px 14px; border-radius: 14px; background: rgba(255,255,255,0.7); color: #5b4a6b; font-size: 13px; white-space: nowrap;',
-      this.touch ? 'left thumb: walk · right thumb: look · tap: ' : 'WASD walk · mouse look · Space jump · left click break · right click place · 1-8 or wheel: block · Esc leave');
+      this.touch ? 'left thumb: walk · right thumb: look · tap: ' : '');
     const hotbar = el('div', 'position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 6px; padding: 6px; border-radius: 16px; background: rgba(255,255,255,0.6);');
     const leave = el('button', `position: absolute; top: 14px; right: 14px; padding: 10px 18px; border: 0; border-radius: 18px; background: #fff4e6; color: #5b4a6b; font-size: 16px; ${font}`, 'Leave');
     leave.onclick = () => this.close();
-    const paused = el('div', 'position: absolute; inset: 0; display: grid; place-items: center; background: rgba(40,30,60,0.35); cursor: pointer;');
-    const card = el('div', 'padding: 22px 30px; border-radius: 22px; background: #fff4e6; color: #5b4a6b; text-align: center;');
-    card.append(el('div', 'font-size: 26px; margin-bottom: 6px;', 'The pocket world'), el('div', 'font-size: 15px;', 'Click to walk about. Esc to leave.'));
-    paused.append(card);
-    show(paused, false);
-    paused.onclick = () => shared?.renderer.domElement.requestPointerLock?.();
-    root.append(loading, cross, hint, hotbar, paused, leave);
-    this.ui = { root, loading, paused, hint, hotbar };
+    // desktop: a small pill until you click into the world (the mouse has to be captured to look around)
+    const look = el('div', 'position: absolute; left: 50%; top: 18px; transform: translateX(-50%); padding: 8px 16px; border-radius: 16px; background: rgba(255,255,255,0.8); color: #5b4a6b; font-size: 14px; pointer-events: none;', 'Click to look around');
+    show(look, false);
+    // the Esc menu: a small card, the world still in view behind it
+    const menu = el('div', 'position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); flex-direction: column; gap: 8px; padding: 16px; border-radius: 22px; background: rgba(255,244,230,0.95); color: #5b4a6b; box-shadow: 0 8px 30px rgba(60,40,90,0.25); min-width: 240px;');
+    const mbtn = (text, fn) => {
+      const b = el('button', `padding: 10px 18px; border: 0; border-radius: 16px; background: #ffffff; color: #5b4a6b; font-size: 16px; cursor: pointer; ${font}`, text);
+      b.onclick = (e) => {
+        e.stopPropagation();
+        fn();
+      };
+      return b;
+    };
+    const menuBtns = el('div', 'display: flex; flex-direction: column; gap: 8px;');
+    menuBtns.append(el('div', 'text-align: center; font-size: 18px; padding: 2px 0 4px;', 'The pocket world'), mbtn('Back to the world', () => this.resume()), mbtn('Controls', () => this.showControls(true)), mbtn('Leave the pocket world', () => this.close()));
+    // its controls: the pocket world's own tab of the key editor (the same bindings as the Esc menu's Controls page)
+    const ctl = el('div', 'width: min(780px, 88vw); max-height: 76vh; overflow: auto;');
+    const grid = el('div', 'display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; align-items: flex-start;'), note = el('div', 'margin: 8px 0; font-size: 13px; text-align: center;');
+    const ctlRow = el('div', 'display: flex; gap: 8px; justify-content: center;');
+    const reset = mbtn('Reset keys', () => {
+      if (!reset.dataset.sure) {
+        reset.dataset.sure = '1';
+        reset.textContent = 'Click again to reset';
+        return;
+      }
+      reset.dataset.sure = '';
+      reset.textContent = 'Reset keys';
+      keys.reset('pocket');
+      editor.say('Every pocket world key is back to its default');
+      this.labelHint();
+    });
+    ctlRow.append(reset, mbtn('Back', () => this.showControls(false)));
+    ctl.append(grid, note, ctlRow);
+    menu.append(menuBtns, ctl);
+    menu.className = 'pocket-menu';
+    show(menu, false);
+    root.append(loading, cross, hint, hotbar, look, menu, leave);
+    const editor = new KeyEditor(grid, note, { tabs: ['pocket'] });
+    this.ui = { root, loading, look, menu, menuBtns, ctl, editor, hint, hotbar };
+    this.labelHint();
+    show(ctl, false);
     this.drawHotbar();
     if (this.touch) {
       const btn = (css, text, fn) => {
@@ -306,18 +380,31 @@ export class Pocket {
       root.addEventListener('wheel', (e) => {
         if (locked() && e.deltaY) this.pick(this.slot + Math.sign(e.deltaY));
       }, { passive: true });
+      // clicking into the world (not on the menu or a button) captures the mouse
+      root.addEventListener('click', (e) => {
+        if (locked() || this.menuOpen() || e.target.closest('button')) return;
+        shared?.renderer.domElement.requestPointerLock?.();
+      });
+      // the mouse let go (Esc: the browser takes that key itself): open the menu
       this.onLock = () => {
-        if (this.ui) show(this.ui.paused, !document.pointerLockElement);
-        if (!document.pointerLockElement) {
-          this.keys.clear();
-          this.held.break = this.held.place = false;
-        }
+        if (!this.ui) return;
+        if (document.pointerLockElement) {
+          show(this.ui.look, false);
+          show(this.ui.menu, false);
+        } else if (!this.menuOpen()) this.openMenu();
       };
       document.addEventListener('pointerlockchange', this.onLock);
     }
     this.onResize = () => this.resize();
     window.addEventListener('resize', this.onResize);
     document.body.append(root);
+  }
+
+  // the bottom line on a keyboard, in this account's pocket world keys
+  labelHint() {
+    if (this.touch || !this.ui) return;
+    const k = (id) => keys.label(id) || '—';
+    this.ui.hint.textContent = `${k('pk_fwd')}${k('pk_left')}${k('pk_back')}${k('pk_right')} walk · mouse look · ${k('pk_jump')} jump · left click / ${k('pk_break')} break · right click / ${k('pk_place')} place · wheel or 1-8: block · Esc menu`;
   }
 
   // the hotbar: one swatch per block you can place, the one in hand ringed (tap one on a phone to pick it)
@@ -332,7 +419,7 @@ export class Pocket {
       s.title = d.name;
       if (!this.touch) {
         const n = document.createElement('span');
-        n.textContent = i + 1;
+        n.textContent = keys.label(`pk_slot${i + 1}`);
         n.style.cssText = "position: absolute; left: 3px; top: 1px; font: 700 11px Fredoka, sans-serif; color: rgba(60,40,80,0.7);";
         s.append(n);
       }

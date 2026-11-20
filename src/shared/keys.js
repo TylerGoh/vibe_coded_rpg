@@ -5,6 +5,8 @@
 import { HOTBAR, POTBAR } from './skills.js';
 
 // group: the column on the Controls page · keys: the defaults (KEY_SLOTS of them at most; Jump keeps three)
+// tab: which set it's in ('game' unless said; 'pocket': the pocket world's own controls, docs/places/pocket.md). Each tab is
+// its own keyboard: a key does one thing within a tab, so W can be Jump in Slimeville and Forward in the pocket world.
 export const KEY_ACTIONS = [
   { id: 'left', group: 'Move', name: 'Walk left', keys: ['ArrowLeft', 'KeyA'] },
   { id: 'right', group: 'Move', name: 'Walk right', keys: ['ArrowRight', 'KeyD'] },
@@ -28,7 +30,19 @@ export const KEY_ACTIONS = [
   { id: 'courses', group: 'Other', name: 'Course menu', keys: ['KeyC'] },
   { id: 'hand', group: 'Other', name: 'Raise your hand', keys: ['KeyH'] },
   { id: 'clio', group: 'Other', name: 'Ask Clio', keys: ['KeyQ'] },
+  // the pocket world (dev sandbox experiment, src/pocket.js): first-person movement and building. The mouse buttons
+  // (left breaks, right places) and the wheel aren't keys, so they stay as they are
+  { id: 'pk_fwd', tab: 'pocket', group: 'Walk', name: 'Forward', keys: ['KeyW', 'ArrowUp'] },
+  { id: 'pk_back', tab: 'pocket', group: 'Walk', name: 'Back', keys: ['KeyS', 'ArrowDown'] },
+  { id: 'pk_left', tab: 'pocket', group: 'Walk', name: 'Left', keys: ['KeyA', 'ArrowLeft'] },
+  { id: 'pk_right', tab: 'pocket', group: 'Walk', name: 'Right', keys: ['KeyD', 'ArrowRight'] },
+  { id: 'pk_jump', tab: 'pocket', group: 'Walk', name: 'Jump', keys: ['Space'] },
+  { id: 'pk_break', tab: 'pocket', group: 'Build', name: 'Break a block', keys: ['KeyQ'] },
+  { id: 'pk_place', tab: 'pocket', group: 'Build', name: 'Place a block', keys: ['KeyE'] },
+  ...Array.from({ length: 8 }, (_, i) => ({ id: `pk_slot${i + 1}`, tab: 'pocket', group: 'Blocks', name: `Block ${i + 1}`, keys: [`Digit${i + 1}`] })),
 ];
+for (const a of KEY_ACTIONS) a.tab ??= 'game';
+export const KEY_TABS = [{ id: 'game', name: 'Slimeville' }, { id: 'pocket', name: 'Pocket world' }];
 export const KEY_ACTION = Object.fromEntries(KEY_ACTIONS.map((a) => [a.id, a]));
 export const KEY_SLOTS = 2; // keys per action (owner: a main key and a backup)
 export const slotsOf = (a) => Math.max(KEY_SLOTS, a.keys.length);

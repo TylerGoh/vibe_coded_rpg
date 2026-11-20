@@ -1,7 +1,7 @@
 // Docs: docs/ui/keybinds.md
 // Your keyboard bindings: which key does what (saved on your character, so they follow your account), the
 // name of each key for the HUD, and the editor on the Esc menu's Controls page.
-import { KEY_ACTIONS, KEY_ACTION, slotsOf, FIXED_KEYS, cleanKeys } from './shared/keys.js';
+import { KEY_ACTIONS, KEY_ACTION, KEY_TABS, slotsOf, FIXED_KEYS, cleanKeys } from './shared/keys.js';
 
 const NAMES = {
   ArrowLeft: '←', ArrowRight: '→', ArrowUp: '↑', ArrowDown: '↓', ShiftLeft: 'Shift', ShiftRight: 'R Shift',
@@ -22,17 +22,18 @@ export function keyText(code) {
 // one code for keys that are the same key twice on a keyboard
 const norm = (code) => (code === 'NumpadEnter' ? 'Enter' : code);
 
-const DEFAULTS = new Map(); // code → action id, the default bindings
-for (const a of KEY_ACTIONS) for (const c of a.keys) DEFAULTS.set(c, a.id);
+// (per tab, KEY_TABS: each tab is its own keyboard)
+const DEFAULTS = new Map(); // `${tab} ${code}` → action id, the default bindings
+for (const a of KEY_ACTIONS) for (const c of a.keys) DEFAULTS.set(`${a.tab} ${c}`, a.id);
 
 let saved = {}; // the overrides, as stored on the character
 let binds = new Map(); // action id → [code | null, …]
-let byCode = new Map(); // code → action id
+let byCode = new Map(); // `${tab} ${code}` → action id
 let changedAt = -1e9; // when you last changed a key here
 function rebuild() {
   binds = new Map(KEY_ACTIONS.map((a) => [a.id, Array.from({ length: slotsOf(a) }, (_, i) => (saved[a.id] ? saved[a.id][i] : a.keys[i]) ?? null)]));
   byCode = new Map();
-  for (const [id, codes] of binds) for (const c of codes) if (c && !byCode.has(c)) byCode.set(c, id);
+  for (const [id, codes] of binds) for (const c of codes) if (c && !byCode.has(`${KEY_ACTION[id].tab} ${c}`)) byCode.set(`${KEY_ACTION[id].tab} ${c}`, id);
 }
 rebuild();
 
@@ -41,12 +42,13 @@ export const keys = {
   send: null, // main.js: (overrides) => send them to the server
   // The action a key press means. Touch buttons send made-up key events (src/touch.js) with the default
   // codes, so those always read the defaults, whatever this account has rebound.
-  of(e) {
-    const c = norm(e.code);
+  // tab: which keyboard to read it on ('game', or 'pocket' in the pocket world)
+  of(e, tab = 'game') {
+    const c = `${tab} ${norm(e.code)}`;
     return e.isTrusted === false ? DEFAULTS.get(c) : byCode.get(c);
   },
   is(e, id) {
-    return this.of(e) === id;
+    return this.of(e, KEY_ACTION[id]?.tab) === id;
   },
   // what to call an action's key on screen: its first bound key, or '' if it has none
   label(id) {
@@ -74,8 +76,9 @@ export const keys = {
     const a = KEY_ACTION[id];
     let took = null;
     if (code) {
-      // a key does one thing: take it off whatever had it
+      // a key does one thing (in its tab): take it off whatever had it
       for (const [other, codes] of binds) {
+        if (KEY_ACTION[other].tab !== a.tab) continue;
         const j = codes.indexOf(code);
         if (j >= 0 && !(other === id && j === i)) {
           codes[j] = null;
@@ -93,10 +96,13 @@ export const keys = {
     changedAt = performance.now();
     this.send?.(saved);
     this.onChange?.();
+    for (const ed of editors) ed.render();
     return took && took !== id ? KEY_ACTION[took].name : null;
   },
-  reset() {
-    saved = {};
+  // tab: only that tab's keys back to their defaults (all of them without one)
+  reset(tab) {
+    if (tab) for (const id of Object.keys(saved)) if (KEY_ACTION[id].tab === tab) delete saved[id];
+    if (!tab) saved = {};
     rebuild();
     changedAt = performance.now();
     this.send?.(saved);
@@ -105,23 +111,46 @@ export const keys = {
 };
 
 // ——— the editor (desktop Controls page) ———
-let editor = null;
+// (there can be two: the Esc menu's, and the pocket world's own, which shows only its tab)
+const editors = new Set();
+const editor = { get listening() { return [...editors].some((e) => e.listening); } };
 export class KeyEditor {
-  constructor(box, note) {
-    editor = this;
+  // tabs: which KEY_TABS it offers (a row of tab buttons when more than one); onTab: told when the tab changes
+  constructor(box, note, { tabs = KEY_TABS.map((t) => t.id), onTab } = {}) {
+    editors.add(this);
     this.box = box;
     this.note = note;
     this.listening = null; // { id, i, b } while waiting for a key
     this.cells = [];
-    const groups = [...new Set(KEY_ACTIONS.map((a) => a.group))];
-    for (const g of groups) {
+    this.tab = tabs[0];
+    this.onTab = onTab;
+    this.cols = [];
+    if (tabs.length > 1) {
+      const bar = document.createElement('div');
+      bar.className = 'kb-tabs';
+      this.tabButtons = tabs.map((id) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'kb-tab';
+        b.textContent = KEY_TABS.find((t) => t.id === id).name;
+        b.onclick = () => this.show(id);
+        bar.append(b);
+        return [id, b];
+      });
+      box.before(bar);
+    }
+    const groups = [...new Set(KEY_ACTIONS.filter((a) => tabs.includes(a.tab)).map((a) => `${a.tab} ${a.group}`))];
+    for (const tg of groups) {
+      const [tab, g] = [tg.slice(0, tg.indexOf(' ')), tg.slice(tg.indexOf(' ') + 1)];
       const col = document.createElement('div');
+      col.dataset.tab = tab;
+      this.cols.push(col);
       col.className = 'kb-col';
       const h = document.createElement('div');
       h.className = 'kb-head';
       h.textContent = g;
       col.append(h);
-      for (const a of KEY_ACTIONS.filter((x) => x.group === g)) {
+      for (const a of KEY_ACTIONS.filter((x) => x.tab === tab && x.group === g)) {
         const row = document.createElement('div');
         row.className = 'kb-row';
         const name = document.createElement('span');
@@ -141,8 +170,8 @@ export class KeyEditor {
       box.append(col);
     }
     // the key press that picks a key: caught before the game's own keydown handler sees it
-    addEventListener('keydown', (e) => {
-      if (!this.listening) return;
+    addEventListener('keydown', (this.onKey = (e) => {
+      if (!this.listening || !this.box.isConnected) return;
       e.preventDefault();
       e.stopImmediatePropagation();
       if (e.repeat) return;
@@ -159,8 +188,21 @@ export class KeyEditor {
         this.say(`${keyText(code)} is now ${KEY_ACTION[id].name}${took ? ` (taken from ${took})` : ''}`);
       }
       this.render();
-    }, true);
-    this.render();
+    }), true);
+    this.show(this.tab);
+  }
+  // gone for good (the pocket world's editor, when you leave it)
+  destroy() {
+    editors.delete(this);
+    removeEventListener('keydown', this.onKey, true);
+  }
+  // which tab's keys are on show
+  show(tab) {
+    this.stop();
+    this.tab = tab;
+    for (const c of this.cols) c.hidden = c.dataset.tab !== tab;
+    for (const [id, b] of this.tabButtons ?? []) b.classList.toggle('on', id === tab);
+    this.onTab?.(tab);
   }
   listen(id, i, b) {
     this.listening = { id, i, b };

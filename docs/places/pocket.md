@@ -7,7 +7,7 @@ collisions, aiming, meshing: no Three.js or DOM, so it's tested in Node), `POCKE
 hooks in `src/main.js` and `src/fair.js`, the sandbox panel's **To the Gathering Fair** button (`src/sandbox.js`,
 `server/sandbox.js`: it puts you by the Hall of Mirrors).
 
-## What's in it (step 1, the flat world; step 2, breaking and placing blocks)
+## What's in it (step 1, the flat world; step 2, breaking and placing blocks; step 3, the menu and rebindable keys)
 - The way in: the Hall of Mirrors' upside-down mirror (`POCKET_X`, the `flip` one) in the Gathering Fair
   (`docs/places/fair.md`). E there: "step through the upside-down mirror".
 - A flat field (`World`: `SIZE` × `SIZE` columns, `HEIGHT` tall; grass on top at y = 0, dirt under it, unbreakable
@@ -23,10 +23,14 @@ hooks in `src/main.js` and `src/fair.js`, the sandbox panel's **To the Gathering
 - Solo and client-only: no server messages, nobody else in it. What you build lives in the page (`world`, one per tab):
   leave and come back and it's still there, reload and it's gone. Your slime stands still at the mirror meanwhile
   (`inputBits` sends nothing) and the fair keeps running under it.
-- Controls. Desktop: click to capture the mouse, WASD or the arrows walk, the mouse looks, Space jumps, left click breaks,
-  right click places, 1–8 or the wheel pick a block; Esc lets the mouse go (the browser takes that Esc) and shows the
-  pause card, a second Esc or Leave goes back. These keys are fixed,
-  not `KEY_ACTIONS` (first-person movement is its own scheme, like the waystone card's number keys). Phones: the left
+- Controls (step 3: rebindable, on their own tab). Desktop: click into the world to capture the mouse (a small "Click to
+  look around" pill until you do); by default WASD or the arrows walk, Space jumps, Q / left click breaks, E / right
+  click places, 1–8 or the wheel pick a block. The keys are `KEY_ACTIONS` rows with `tab: 'pocket'` (`pk_*`), read with
+  `keys.of(e, 'pocket')`, saved on the character with the rest, and shown on the Controls page's **Pocket world** tab and
+  on the pocket's own controls card. The mouse buttons and the wheel aren't keys and stay as they are.
+- Leaving (owner, step 3: the old dark pause card was jarring): Leave is always top right. Esc (the browser takes it to
+  let the mouse go) opens a small light menu over the world: Back to the world, Controls (the pocket tab, its own Reset),
+  Leave the pocket world. Esc again goes back to the world. Phones: the left
   thumb is a stick from wherever it lands, the right thumb drags to look and a quick still tap with it (`TAP_MS`, `TAP_PX`)
   breaks or builds at the crosshair, by the Break / Build button; tap a hotbar swatch to pick a block; Jump, Leave.
 

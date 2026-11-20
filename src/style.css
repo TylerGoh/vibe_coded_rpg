@@ -3104,6 +3104,46 @@ body.touch #hudbtns.combat ~ #chat {
 #menu .kb-key.on {
   background: #ffd34d;
 }
+/* the Controls page's tabs (Slimeville, the pocket world: docs/ui/keybinds.md) */
+.kb-col[hidden], #kb-combos[hidden] {
+  display: none;
+}
+.kb-tabs {
+  display: flex;
+  gap: calc(6px * var(--s));
+  justify-content: center;
+}
+#menu .kb-tab {
+  padding: calc(4px * var(--s)) calc(14px * var(--s));
+  font-size: calc(13px * var(--s));
+  opacity: 0.6;
+}
+#menu .kb-tab.on {
+  opacity: 1;
+  background: #ffd34d;
+}
+/* the pocket world's own Esc menu (src/pocket.js), outside #stage: real pixels */
+.pocket-menu {
+  --s: 1;
+  font: 600 13px Fredoka, 'Trebuchet MS', sans-serif;
+}
+.pocket-menu .kb-key {
+  width: 54px;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 7px;
+  font: 600 12px Fredoka, 'Trebuchet MS', sans-serif;
+  color: #5b4a6b;
+  background: #fff;
+  box-shadow: 0 0 0 1px #d9c3a8, 0 2px 0 #d9c3a8;
+  cursor: pointer;
+}
+.pocket-menu .kb-key.none {
+  opacity: 0.45;
+}
+.pocket-menu .kb-key.on {
+  background: #ffd34d;
+}
 #kb-note {
   min-height: calc(16px * var(--s));
   color: #8a6fc4;

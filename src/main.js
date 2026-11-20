@@ -907,7 +907,8 @@ const controlsList = document.getElementById('controls-list');
 const kbBox = document.getElementById('kb'), kbCombos = document.getElementById('kb-combos');
 const kbReset = document.getElementById('kb-reset'), kbSwitch = document.getElementById('kb-switch');
 fillList(controlsList, TOUCH_CONTROLS);
-const keyEditor = new KeyEditor(document.getElementById('kb-grid'), document.getElementById('kb-note'));
+// (two tabs: Slimeville's keys and the pocket world's, docs/ui/keybinds.md; the two-key moves list is Slimeville's)
+const keyEditor = new KeyEditor(document.getElementById('kb-grid'), document.getElementById('kb-note'), { onTab: (tab) => (document.getElementById('kb-combos').hidden = tab !== 'game') });
 keys.send = (k) => net.sendNpc({ t: 'keys', keys: k });
 keys.onChange = () => {
   held.clear(); // a key held across a rebind would stick
@@ -942,9 +943,9 @@ kbReset.onclick = () => {
     kbReset.textContent = 'Click again to reset';
     return;
   }
-  keys.reset();
+  keys.reset(keyEditor.tab); // (the tab on show only)
   showKeyEditor(true);
-  keyEditor.say('Every key is back to its default');
+  keyEditor.say(keyEditor.tab === 'pocket' ? 'Every pocket world key is back to its default' : 'Every key is back to its default');
 };
 function showControls(on) {
   menu.classList.toggle('help', on);
