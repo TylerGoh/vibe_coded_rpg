@@ -1,7 +1,8 @@
-# The pocket world (an experiment, dev sandbox only)
+# The pocket world (the beach through the fair's upside-down mirror)
 
-Owner (2026-11-20): "experiment… a pocket dimension world". It lives on the `dev` branch only (the sandbox at /rpg_dev,
-`docs/sandbox.md`) until the owner says it ships. Files: `src/pocket.js` (the scene, the loop, moving, the camera, the
+Owner (2026-11-20): "experiment… a pocket dimension world". Built step by step on the `dev` branch (the sandbox at
+/rpg_dev, `docs/sandbox.md`), then shipped live the same day ("this is good, add it to the main world"). Solo for now:
+see "Not multiplayer yet" below. Files: `src/pocket.js` (the scene, the loop, moving, the camera, the
 menu, controls), `src/pocket-mirror.js` (the mirror home), `src/pocket-beach.js` (the beach: its shapes as maths, and building it), `src/pocket-slime.js` (your
 slime in 3D), `POCKET_X` in `src/shared/fair.js` (the way in), the hooks in `src/main.js` and `src/fair.js`, the sandbox
 panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`: it puts you by the Hall of Mirrors).
@@ -71,6 +72,14 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
 slow (about 6 frames a second here, so anything that moves crawls in a test), but the screenshots are real. Headless
 Chromium alone can't draw Three.js on this box. Not checked by people yet: how it feels to move and swim, the camera,
 phones' frame rate.
+
+## Not multiplayer yet
+Everything in it is on your own screen: the server doesn't know you're on the beach (your slime just stands at the
+mirror in the fair), and nobody else is drawn there. To share it: the server would need your 3D position, facing and
+jelly state (a small message a few times a second, or a room of its own with its own state), sent to everyone else
+on the beach; their slimes drawn from it (`makeSlime` with their hue) with name tags, smoothed between updates; and
+voice and chat bubbles placed in 3D. The beach's waves are a formula of time, so everyone would
+see the same sea if they shared a time base (the server's clock).
 
 ## Next steps (owner decides, one at a time)
 - Sound (waves, gulls), things to do on the beach, friends in it.

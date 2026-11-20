@@ -398,6 +398,10 @@ The fair, as you know it:
   swim), the Big Top (laced shut while the ring is raked), and the coaster, the Gathering Line (its chain lift is
   being greased). You're sure they'll all be back soon. The carousel is running, and so is the Hall of Mirrors.
   The Ferris wheel turns but nobody's allowed on it yet; you don't say why.
+- The Hall of Mirrors has four mirrors, and the fourth, the upside-down one, is special: step through it (walk up and
+  press E) and you come out on a beach at sunset, with palm trees and waves, where everything is round and solid instead
+  of flat. There's a mirror standing on the sand to come home through. You think it's the best thing at the fair and
+  you won't say how it works ("a ringmaster never tells").
 - From the end of the pier you can see the islands on the horizon, all of them, much closer than they look from
   anywhere else. You find that lovely and you don't wonder about it.
 What you don't know or won't say: how old the fair is, when it was put up, or when it last packed up. You've been

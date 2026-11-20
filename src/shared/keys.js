@@ -30,7 +30,7 @@ export const KEY_ACTIONS = [
   { id: 'courses', group: 'Other', name: 'Course menu', keys: ['KeyC'] },
   { id: 'hand', group: 'Other', name: 'Raise your hand', keys: ['KeyH'] },
   { id: 'clio', group: 'Other', name: 'Ask Clio', keys: ['KeyQ'] },
-  // the pocket world (dev sandbox experiment, src/pocket.js): walking your slime round the beach (relative to the camera,
+  // the pocket world (the beach through the fair's mirror, src/pocket.js): walking your slime round the beach (relative to the camera,
   // which the mouse swings round) and jumping
   { id: 'pk_fwd', tab: 'pocket', group: 'Walk', name: 'Forward', keys: ['KeyW', 'ArrowUp'] },
   { id: 'pk_back', tab: 'pocket', group: 'Walk', name: 'Back', keys: ['KeyS', 'ArrowDown'] },

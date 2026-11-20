@@ -1,5 +1,5 @@
 // Docs: docs/places/pocket.md
-// The pocket world (an experiment, dev sandbox only for now): step through the Hall of Mirrors' upside-down mirror in the
+// The pocket world: step through the Hall of Mirrors' upside-down mirror in the
 // Gathering Fair and you're on a beach in 3D, as your own slime, seen from behind (third person). Step 4 (owner,
 // 2026-11-20: the block world wasn't fun; "real 3d… a palm tree and a beach with waves", third person, replace the
 // blocks): walk the sand, wade in, swim out on the swells, jump, splash. The beach and its maths are
