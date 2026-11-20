@@ -21,7 +21,7 @@ rebindable, **saved per account**, opened **only from the Esc menu** (no hotkey 
 - The Gathering Fair's booth games (`docs/places/fair.md`) add no actions: the walk / jump / down keys aim, attack or use
   fires, Esc stops; 1–9 bonk a hole straight away (not rebindable, inside the game's card, like the waystone card's).
 - **Tabs** (2026-11-20, owner: the pocket world's controls rebindable "in a separate tab"): every `KEY_ACTIONS` row has a
-  `tab` (`KEY_TABS`: `game`, Slimeville's, the default; `pocket`, the pocket world's `pk_*` rows, `docs/places/pocket.md`).
+  `tab` (`KEY_TABS`: `game`, Slimeville's, the default; `pocket`, the pocket world's `pk_*` rows (walk and jump), `docs/places/pocket.md`).
   Each tab is its own keyboard: `keys.of(e, tab)` reads a press on one tab, `keys.is` uses the action's own tab, a key
   does one thing only within its tab (W is Jump here and Forward there), and Reset keys resets the tab on show. The
   editor (`KeyEditor`, options `tabs`, `onTab`) draws a tab row when it offers more than one; the pocket world mounts its

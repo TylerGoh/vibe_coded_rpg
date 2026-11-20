@@ -1,24 +1,24 @@
 // Docs: docs/places/pocket.md
 // The pocket world (an experiment, dev sandbox only for now): step through the Hall of Mirrors' upside-down mirror in the
-// Gathering Fair and you're in a small blocky 3D world, first person. Step 1 (owner, 2026-11-20): a flat field in a pastel
-// sky; walk, look, jump. Step 2: break and place blocks from a hotbar (the grid, collisions and aiming are
-// src/pocket-world.js). Nobody else in it, and what you build lasts until the page reloads.
+// Gathering Fair and you're on a beach in 3D, as your own slime, seen from behind (third person). Step 4 (owner,
+// 2026-11-20: the block world wasn't fun; "real 3d… a palm tree and a beach with waves", third person, replace the
+// blocks): walk the sand, wade in, swim out on the swells, jump, splash. The beach and its maths are
+// src/pocket-beach.js, the slime src/pocket-slime.js.
 // Three.js draws it on its own full-window canvas (docs/performance.md), loaded only the first time someone steps in.
 // While it's open the game's own canvas stops drawing (main.js skips render()) and your slime stands still at the mirror.
 import { keys, KeyEditor } from './keys.js';
-import { World, SIZE, HEIGHT, CHUNK, GROUND, BLOCKS, HOTBAR, collide, aim, boxInCell, meshChunk } from './pocket-world.js';
+import { buildBeach, groundH, waterH, WORLD_R, PALMS, ROCKS, FOG, SUN_DIR } from './pocket-beach.js';
 
-const EYE = 1.6, SPEED = 6.5, GRAVITY = 26, JUMP_V = 8.6, REACH = 6, LOOK = 0.0024, TOUCH_LOOK = 0.006;
-const SKY = 0xbfe3ff, FOG = 0xe9d8f2;
+const SPEED = 6.5, WADE = 4.2, SWIM = 3.4, GRAVITY = 24, JUMP_V = 8.4, SWIM_JUMP_V = 5.5;
+const SWIM_DEPTH = 0.75; // water deeper than this over the sand and you float instead of standing
+const FLOAT = 0.28; // how far under the surface a floating slime's feet sit
+const CAM_DIST = 6.5, CAM_MIN = 2.5, CAM_MAX = 13, LOOK = 0.0024, TOUCH_LOOK = 0.006;
+const SPLASHES = 90;
 const ESC_GAP = 300; // ms: an Esc this soon after the menu opened is the same press (key)
-const ACT_GAP = 0.18; // s between breaks / places while a button is held
-const TAP_MS = 250, TAP_PX = 12; // a phone's look thumb that lifts this fast without moving is a tap: break or build
 
 let THREE = null; // the module, once loaded
-let shared = null; // { renderer, scene, camera, chunks, outline }: built once, kept for the next visit
-const world = new World(); // (kept for the session: come back and your building is still there)
+let shared = null; // { renderer, scene, camera, beach, sun, splash, slime, hue }: built once, kept for the next visit
 const show = (el, on, how = 'grid') => (el.style.display = on ? how : 'none'); // (display: grid beats `hidden`)
-const hex = (c) => `#${c.toString(16).padStart(6, '0')}`;
 
 export class Pocket {
   constructor({ touch, audio, onOpenChange }) {
@@ -29,13 +29,15 @@ export class Pocket {
     this.keys = new Set();
     this.pos = { x: 0, y: 0, z: 0 };
     this.vy = 0;
-    this.yaw = 0;
-    this.pitch = 0;
+    this.face = 0; // which way your slime faces (radians about y; 0 = +z, toward the sea)
+    this.camYaw = Math.PI; // the camera's angle round you (π: behind you, looking out to sea)
+    this.camPitch = 0.32;
+    this.camDist = CAM_DIST;
     this.grounded = true;
-    this.slot = 0; // the hotbar slot in hand
-    this.build = false; // phones: a tap builds (true) or breaks
-    this.held = { break: false, place: false, at: 0 }; // desktop: mouse buttons held
-    this.target = null; // what the crosshair is on (pocket-world.js aim)
+    this.swimming = false;
+    this.wasWet = false;
+    this.t = 0;
+    this.drops = [];
     this.stick = null;
     this.lookTouch = null;
     this.ui = null;
@@ -46,7 +48,8 @@ export class Pocket {
     return this.open;
   }
 
-  async show() {
+  // hue: your slime's colour (the 2D one's, src/slime.js)
+  async show(hue = 148) {
     if (this.open) return;
     this.open = true;
     this.onOpenChange?.();
@@ -54,7 +57,15 @@ export class Pocket {
     show(this.ui.loading, true);
     try {
       THREE ??= await import('three');
+      const { makeSlime } = await import('./pocket-slime.js');
       shared ??= this.buildScene();
+      if (shared.hue !== hue) {
+        // your slime, in your colour (made again if you come back a different colour)
+        if (shared.slime) shared.scene.remove(shared.slime.group);
+        shared.slime = makeSlime(THREE, hue);
+        shared.hue = hue;
+        shared.scene.add(shared.slime.group);
+      }
     } catch (e) {
       console.warn('pocket world:', e);
       this.ui.loading.textContent = "This browser can't draw the pocket world (no WebGL).";
@@ -78,7 +89,6 @@ export class Pocket {
     cancelAnimationFrame(this.frame);
     if (document.pointerLockElement) document.exitPointerLock();
     this.keys.clear();
-    this.held.break = this.held.place = false;
     this.stick = this.lookTouch = null;
     window.removeEventListener('resize', this.onResize);
     if (this.onLock) document.removeEventListener('pointerlockchange', this.onLock);
@@ -88,79 +98,53 @@ export class Pocket {
     this.onOpenChange?.();
   }
 
-  // back to the middle, standing on whatever's built there
+  // on the sand between the palms, facing the sea
   respawn() {
-    Object.assign(this.pos, { x: 0.5, y: world.topAt(0.5, 6.5), z: 6.5 });
+    Object.assign(this.pos, { x: 0, z: -4 });
+    this.pos.y = groundH(this.pos.x, this.pos.z);
     this.vy = 0;
-    this.yaw = 0;
-    this.pitch = -0.05;
+    this.face = 0;
+    this.camYaw = Math.PI;
+    this.camPitch = 0.32;
   }
 
-  // ——— the scene: one mesh per chunk of blocks (rebuilt when a block in it changes), the aim outline, the sky ———
+  // ——— the scene ———
   buildScene() {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(SKY);
-    scene.fog = new THREE.Fog(FOG, 30, 120);
-    const camera = new THREE.PerspectiveCamera(70, 16 / 9, 0.05, 400);
-    const material = new THREE.MeshBasicMaterial({ vertexColors: true }); // (the shading is baked into the colours)
-    const chunks = new Map();
-    for (let cx = 0; cx < SIZE / CHUNK; cx++) {
-      for (let cz = 0; cz < SIZE / CHUNK; cz++) {
-        const mesh = new THREE.Mesh(new THREE.BufferGeometry(), material);
-        scene.add(mesh);
-        chunks.set(`${cx},${cz}`, mesh);
-      }
-    }
-    const outline = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.004, 1.004, 1.004)), new THREE.LineBasicMaterial({ color: 0x5b4a6b }));
-    outline.visible = false;
-    scene.add(outline);
-    shared = { renderer, scene, camera, chunks, outline };
-    for (const key of chunks.keys()) this.remesh(...key.split(',').map(Number));
-    return shared;
-  }
-  remesh(cx, cz) {
-    const mesh = shared.chunks.get(`${cx},${cz}`);
-    if (!mesh) return;
-    const m = meshChunk(world, cx, cz), g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(m.positions, 3));
-    g.setAttribute('color', new THREE.BufferAttribute(m.colors, 3));
-    g.setIndex(new THREE.BufferAttribute(m.indices, 1));
-    g.computeBoundingSphere();
-    mesh.geometry.dispose();
-    mesh.geometry = g;
-  }
-  // a block changed at grid cell (x, z): its chunk, and the one next door if it's on the edge
-  changed(x, z) {
-    const cx = Math.floor(x / CHUNK), cz = Math.floor(z / CHUNK);
-    this.remesh(cx, cz);
-    if (x % CHUNK === 0) this.remesh(cx - 1, cz);
-    if (x % CHUNK === CHUNK - 1) this.remesh(cx + 1, cz);
-    if (z % CHUNK === 0) this.remesh(cx, cz - 1);
-    if (z % CHUNK === CHUNK - 1) this.remesh(cx, cz + 1);
+    scene.fog = new THREE.Fog(FOG, 60, 260);
+    const camera = new THREE.PerspectiveCamera(60, 16 / 9, 0.1, 1000);
+    scene.add(new THREE.HemisphereLight(0xfff0f6, 0xe9c9a0, 1.5));
+    // the low sun: warm light and soft shadows, its shadow box following you
+    const sun = new THREE.DirectionalLight(0xffe2bf, 2.2);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    Object.assign(sun.shadow.camera, { left: -18, right: 18, top: 18, bottom: -18, near: 1, far: 120 });
+    sun.shadow.bias = -0.0008;
+    sun.shadow.radius = 3;
+    scene.add(sun, sun.target);
+    const beach = buildBeach(THREE, scene);
+    // splashes: little white drops, one instanced mesh
+    const splash = new THREE.InstancedMesh(new THREE.SphereGeometry(0.07, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffffff }), SPLASHES);
+    splash.frustumCulled = false;
+    scene.add(splash);
+    this.drops = Array.from({ length: SPLASHES }, () => ({ life: 0, x: 0, y: -99, z: 0, vx: 0, vy: 0, vz: 0 }));
+    return { renderer, scene, camera, beach, sun, splash, slime: null, hue: null };
   }
 
-  // ——— breaking and placing ———
-  breakBlock() {
-    const t = this.target;
-    if (!t || BLOCKS[world.get(t.x, t.y, t.z)]?.fixed) return;
-    world.set(t.x, t.y, t.z, 0);
-    this.changed(t.x, t.z);
-    this.audio?.sfx('pop');
-  }
-  placeBlock() {
-    const t = this.target;
-    if (!t) return;
-    const x = t.x + t.nx, y = t.y + t.ny, z = t.z + t.nz;
-    if (y >= HEIGHT || world.get(x, y, z) || boxInCell(this.pos, x, y, z)) return; // (not inside yourself)
-    if (!world.set(x, y, z, HOTBAR[this.slot])) return;
-    this.changed(x, z);
-    this.audio?.sfx('bonk');
-  }
-  pick(i) {
-    this.slot = (i + HOTBAR.length) % HOTBAR.length;
-    this.drawHotbar();
+  // a ring of drops thrown up at (x, y, z), n of them, this hard
+  splashAt(x, y, z, n, power) {
+    let k = 0;
+    for (const d of this.drops) {
+      if (d.life > 0) continue;
+      const a = Math.random() * Math.PI * 2, s = (0.5 + Math.random()) * power;
+      Object.assign(d, { life: 0.6 + Math.random() * 0.5, x, y, z, vx: Math.cos(a) * s, vy: (1.5 + Math.random() * 2) * power, vz: Math.sin(a) * s });
+      if (++k >= n) break;
+    }
+    if (n > 5) this.audio?.sfx('plink');
   }
 
   // ——— the loop ———
@@ -169,48 +153,108 @@ export class Pocket {
     this.frame = requestAnimationFrame((t) => this.tick(t));
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
-    this.move(dt);
-    const { renderer, scene, camera, outline } = shared;
-    camera.position.set(this.pos.x, this.pos.y + EYE, this.pos.z);
-    camera.rotation.set(this.pitch, this.yaw, 0, 'YXZ');
-    // what the crosshair is on
-    const cp = Math.cos(this.pitch), dir = [-Math.sin(this.yaw) * cp, Math.sin(this.pitch), -Math.cos(this.yaw) * cp];
-    this.target = aim(world, this.pos.x, this.pos.y + EYE, this.pos.z, ...dir, REACH);
-    outline.visible = !!this.target;
-    if (this.target) outline.position.set(this.target.x - SIZE / 2 + 0.5, this.target.y - GROUND + 0.5, this.target.z - SIZE / 2 + 0.5);
-    // mouse buttons held: keep breaking / placing at a steady pace
-    if ((this.held.break || this.held.place) && now - this.held.at > ACT_GAP * 1000) {
-      this.held.at = now;
-      if (this.held.break) this.breakBlock();
-      else this.placeBlock();
-    }
+    this.t += dt;
+    const step = this.move(dt);
+    const { renderer, scene, camera, beach, sun, slime, splash } = shared;
+    // your slime
+    slime.group.position.set(this.pos.x, this.pos.y, this.pos.z);
+    slime.group.rotation.y = this.face;
+    slime.animate(dt, step);
+    // the camera, round you at camYaw / camPitch, kept above the sand and the water
+    const tx = this.pos.x, ty = this.pos.y + 1, tz = this.pos.z, cp = Math.cos(this.camPitch);
+    const cx = tx + Math.sin(this.camYaw) * cp * this.camDist, cz = tz + Math.cos(this.camYaw) * cp * this.camDist;
+    const cy = Math.max(ty + Math.sin(this.camPitch) * this.camDist, groundH(cx, cz) + 0.4, waterH(cx, cz, this.t) + 0.35);
+    camera.position.set(cx, cy, cz);
+    camera.lookAt(tx, ty, tz);
+    // the sun's shadow box follows you
+    sun.position.set(tx + SUN_DIR[0] * 50, ty + SUN_DIR[1] * 50 + 20, tz + SUN_DIR[2] * 50);
+    sun.target.position.set(tx, ty, tz);
+    beach.update(this.t, camera.position);
+    // the drops
+    const m = new THREE.Matrix4();
+    this.drops.forEach((d, i) => {
+      if (d.life > 0) {
+        d.life -= dt;
+        d.vy -= GRAVITY * 0.6 * dt;
+        d.x += d.vx * dt;
+        d.y += d.vy * dt;
+        d.z += d.vz * dt;
+        if (d.vy < 0 && d.y < waterH(d.x, d.z, this.t) - 0.1) d.life = 0;
+      }
+      m.makeTranslation(d.x, d.life > 0 ? d.y : -99, d.z);
+      splash.setMatrixAt(i, m);
+    });
+    splash.instanceMatrix.needsUpdate = true;
     renderer.render(scene, camera);
   }
 
+  // one frame of moving about: → what your slime's jelly needs to know (pocket-slime.js animate)
   move(dt) {
-    const k = this.keys, playing = this.touch || (typeof document !== 'undefined' && document.pointerLockElement);
-    let f = 0, s = 0;
-    if (playing) {
-      f = (k.has('pk_fwd') ? 1 : 0) - (k.has('pk_back') ? 1 : 0);
-      s = (k.has('pk_right') ? 1 : 0) - (k.has('pk_left') ? 1 : 0);
-    }
+    const k = this.keys;
+    let f = (k.has('pk_fwd') ? 1 : 0) - (k.has('pk_back') ? 1 : 0), s = (k.has('pk_right') ? 1 : 0) - (k.has('pk_left') ? 1 : 0);
     if (this.stick) {
       // a phone's left thumb: how far it's pushed from where it went down, up to 60 px for full speed
       const dx = this.stick.x - this.stick.x0, dy = this.stick.y - this.stick.y0, d = Math.hypot(dx, dy);
       if (d > 6) [s, f] = [dx / Math.max(d, 60), -dy / Math.max(d, 60)];
     }
-    const len = Math.hypot(f, s);
-    if (len > 1) [f, s] = [f / len, s / len];
-    const sin = Math.sin(this.yaw), cos = Math.cos(this.yaw);
-    this.vy = Math.max(-40, this.vy - GRAVITY * dt);
-    const hit = collide(world, this.pos, (-sin * f + cos * s) * SPEED * dt, this.vy * dt, (-cos * f - sin * s) * SPEED * dt);
-    if (hit.grounded || hit.bumped) this.vy = 0;
-    this.grounded = hit.grounded;
-    if (this.pos.y < -40) this.respawn(); // fell off the edge: back to the middle
+    const len = Math.min(1, Math.hypot(f, s));
+    if (Math.hypot(f, s) > 1) [f, s] = [f / Math.hypot(f, s), s / Math.hypot(f, s)];
+    // walk relative to the camera: forward is away from it
+    const fx = -Math.sin(this.camYaw), fz = -Math.cos(this.camYaw);
+    const mx = fx * f - fz * s, mz = fz * f + fx * s;
+    const depth = waterH(this.pos.x, this.pos.z, this.t) - groundH(this.pos.x, this.pos.z);
+    this.swimming = depth > SWIM_DEPTH;
+    const speed = this.swimming ? SWIM : depth > 0.15 ? WADE : SPEED;
+    let nx = this.pos.x + mx * speed * dt, nz = this.pos.z + mz * speed * dt;
+    // the palms' trunks and the rocks are in the way; the world ends in a ring
+    for (const o of OBSTACLES) {
+      const dx = nx - o.x, dz = nz - o.z, d = Math.hypot(dx, dz);
+      if (d < o.r) [nx, nz] = [o.x + (dx / (d || 1)) * o.r, o.z + (dz / (d || 1)) * o.r];
+    }
+    const r = Math.hypot(nx, nz);
+    if (r > WORLD_R) [nx, nz] = [(nx / r) * WORLD_R, (nz / r) * WORLD_R];
+    this.pos.x = nx;
+    this.pos.z = nz;
+    if (len > 0.05) {
+      // turn to face where you're going, smoothly
+      let d = Math.atan2(mx, mz) - this.face;
+      d = Math.atan2(Math.sin(d), Math.cos(d));
+      this.face += d * Math.min(1, dt * 12);
+    }
+    // up and down: floating on the swell in deep water, else falling onto the sand
+    const g = groundH(this.pos.x, this.pos.z), w = waterH(this.pos.x, this.pos.z, this.t), floatY = w - FLOAT;
+    let landed = 0;
+    const wasGrounded = this.grounded;
+    if (w - g > SWIM_DEPTH && this.pos.y <= floatY + 0.05 && this.vy <= 0) {
+      // floating: ride the surface
+      if (!this.wasWet || this.vy < -4) this.splashAt(this.pos.x, w, this.pos.z, 26, 1.1);
+      this.pos.y += (floatY - this.pos.y) * Math.min(1, dt * 10);
+      this.vy = 0;
+      this.grounded = true;
+      this.wasWet = true;
+    } else {
+      this.vy -= GRAVITY * dt;
+      this.pos.y += this.vy * dt;
+      this.grounded = false;
+      if (this.pos.y <= g) {
+        if (!wasGrounded) landed = -this.vy;
+        if (!wasGrounded && w > g + 0.05 && this.vy < -3) this.splashAt(this.pos.x, w, this.pos.z, 14, 0.8); // into the shallows
+        this.pos.y = g;
+        this.vy = 0;
+        this.grounded = true;
+      }
+      if (this.pos.y > floatY + 0.3) this.wasWet = false;
+    }
+    // wading in the shallows kicks up a little spray now and then
+    if (len > 0.3 && w - g > 0.08 && w - g < SWIM_DEPTH && Math.random() < dt * 6) this.splashAt(this.pos.x, w, this.pos.z, 3, 0.5);
+    return { moving: len > 0.05 ? len : 0, grounded: this.grounded, vy: this.vy, swimming: this.swimming, landed };
   }
 
   jump() {
-    if (this.grounded) this.vy = JUMP_V;
+    if (!this.grounded) return;
+    this.vy = this.swimming ? SWIM_JUMP_V : JUMP_V;
+    this.grounded = false;
+    if (this.swimming) this.splashAt(this.pos.x, this.pos.y + FLOAT, this.pos.z, 18, 1);
   }
 
   resize() {
@@ -219,6 +263,12 @@ export class Pocket {
     shared.renderer.setSize(w, h);
     shared.camera.aspect = w / h;
     shared.camera.updateProjectionMatrix();
+  }
+
+  // the camera swung round by (dx, dy) pixels of mouse or thumb
+  turn(dx, dy, rate) {
+    this.camYaw -= dx * rate;
+    this.camPitch = Math.max(-0.1, Math.min(1.25, this.camPitch + dy * rate));
   }
 
   // ——— input (main.js hands every key here while it's open). Keys are read on the pocket world's own tab of the
@@ -236,15 +286,10 @@ export class Pocket {
       return;
     }
     const id = keys.of(e, 'pocket');
-    if (!id) return;
+    if (!id || (down && this.menuOpen())) return;
     if (down) this.keys.add(id);
     else this.keys.delete(id);
-    if (!down || e.repeat || this.menuOpen()) return;
-    if (id === 'pk_jump') this.jump();
-    else if (id === 'pk_break') this.breakBlock();
-    else if (id === 'pk_place') this.placeBlock();
-    const n = /^pk_slot(\d)$/.exec(id);
-    if (n) this.pick(+n[1] - 1);
+    if (down && !e.repeat && id === 'pk_jump') this.jump();
   }
 
   // ——— the Esc menu: small and light over the world (owner: the old dark card was jarring) ———
@@ -255,7 +300,6 @@ export class Pocket {
     if (!this.ui) return;
     if (document.pointerLockElement) document.exitPointerLock();
     this.keys.clear();
-    this.held.break = this.held.place = false;
     if (!this.menuOpen()) this.menuAt = performance.now();
     show(this.ui.menu, true, 'flex');
     show(this.ui.look, false);
@@ -277,7 +321,6 @@ export class Pocket {
     else {
       this.ui.editor?.stop();
       this.labelHint(); // (in case a key changed)
-      this.drawHotbar();
     }
   }
 
@@ -289,13 +332,10 @@ export class Pocket {
       return d;
     };
     const font = "font-family: Fredoka, 'Trebuchet MS', sans-serif; font-weight: 700;";
-    const root = el('div', `position: fixed; inset: 0; z-index: 1000; background: #bfe3ff; overflow: hidden; touch-action: none; user-select: none; ${font}`);
+    const root = el('div', `position: fixed; inset: 0; z-index: 1000; background: #ffe0b3; overflow: hidden; touch-action: none; user-select: none; ${font}`);
     const loading = el('div', 'position: absolute; inset: 0; display: grid; place-items: center; color: #5b4a6b; font-size: 22px;', 'Stepping through the mirror...');
-    const cross = el('div', 'position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; pointer-events: none;');
-    cross.innerHTML = '<div style="position:absolute;left:8px;top:0;width:2px;height:18px;background:#fff;box-shadow:0 0 2px #5b4a6b"></div><div style="position:absolute;top:8px;left:0;height:2px;width:18px;background:#fff;box-shadow:0 0 2px #5b4a6b"></div>';
-    const hint = el('div', 'position: absolute; left: 50%; bottom: 86px; transform: translateX(-50%); padding: 6px 14px; border-radius: 14px; background: rgba(255,255,255,0.7); color: #5b4a6b; font-size: 13px; white-space: nowrap;',
-      this.touch ? 'left thumb: walk · right thumb: look · tap: ' : '');
-    const hotbar = el('div', 'position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 6px; padding: 6px; border-radius: 16px; background: rgba(255,255,255,0.6);');
+    const hint = el('div', 'position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); padding: 6px 14px; border-radius: 14px; background: rgba(255,255,255,0.7); color: #5b4a6b; font-size: 13px; white-space: nowrap;',
+      this.touch ? 'left thumb: walk · right thumb: look round' : '');
     const leave = el('button', `position: absolute; top: 14px; right: 14px; padding: 10px 18px; border: 0; border-radius: 18px; background: #fff4e6; color: #5b4a6b; font-size: 16px; ${font}`, 'Leave');
     leave.onclick = () => this.close();
     // desktop: a small pill until you click into the world (the mouse has to be captured to look around)
@@ -314,7 +354,7 @@ export class Pocket {
     const menuBtns = el('div', 'display: flex; flex-direction: column; gap: 8px;');
     menuBtns.append(el('div', 'text-align: center; font-size: 18px; padding: 2px 0 4px;', 'The pocket world'), mbtn('Back to the world', () => this.resume()), mbtn('Controls', () => this.showControls(true)), mbtn('Leave the pocket world', () => this.close()));
     // its controls: the pocket world's own tab of the key editor (the same bindings as the Esc menu's Controls page)
-    const ctl = el('div', 'width: min(780px, 88vw); max-height: 76vh; overflow: auto;');
+    const ctl = el('div', 'width: min(420px, 88vw); max-height: 76vh; overflow: auto;');
     const grid = el('div', 'display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; align-items: flex-start;'), note = el('div', 'margin: 8px 0; font-size: 13px; text-align: center;');
     const ctlRow = el('div', 'display: flex; gap: 8px; justify-content: center;');
     const reset = mbtn('Reset keys', () => {
@@ -334,64 +374,35 @@ export class Pocket {
     menu.append(menuBtns, ctl);
     menu.className = 'pocket-menu';
     show(menu, false);
-    root.append(loading, cross, hint, hotbar, look, menu, leave);
+    root.append(loading, hint, look, menu, leave);
     const editor = new KeyEditor(grid, note, { tabs: ['pocket'] });
-    this.ui = { root, loading, look, menu, menuBtns, ctl, editor, hint, hotbar };
+    this.ui = { root, loading, look, menu, menuBtns, ctl, editor, hint };
     this.labelHint();
     show(ctl, false);
-    this.drawHotbar();
     if (this.touch) {
-      const btn = (css, text, fn) => {
-        const b = el('button', `position: absolute; border: 0; border-radius: 50%; background: rgba(255,255,255,0.7); color: #5b4a6b; ${font} ${css}`, text);
-        b.addEventListener('touchstart', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          fn(b);
-        });
-        root.append(b);
-        return b;
-      };
-      btn('right: 26px; bottom: 96px; width: 84px; height: 84px; font-size: 18px;', 'Jump', () => this.jump());
-      // tap mode: what a quick tap with the look thumb does
-      const mode = btn('right: 120px; bottom: 110px; width: 70px; height: 70px; font-size: 14px;', 'Break', (b) => {
-        this.build = !this.build;
-        b.textContent = this.build ? 'Build' : 'Break';
-        this.ui.hint.textContent = `left thumb: walk · right thumb: look · tap: ${this.build ? 'build' : 'break'}`;
+      const jump = el('button', `position: absolute; right: 26px; bottom: 60px; width: 84px; height: 84px; border: 0; border-radius: 50%; background: rgba(255,255,255,0.7); color: #5b4a6b; font-size: 18px; ${font}`, 'Jump');
+      jump.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.jump();
       });
-      this.ui.hint.textContent += 'break';
-      this.ui.mode = mode;
+      root.append(jump);
       root.addEventListener('touchstart', (e) => this.touches(e, 'start'), { passive: false });
       root.addEventListener('touchmove', (e) => this.touches(e, 'move'), { passive: false });
       root.addEventListener('touchend', (e) => this.touches(e, 'end'));
-      root.addEventListener('touchcancel', (e) => this.touches(e, 'cancel'));
+      root.addEventListener('touchcancel', (e) => this.touches(e, 'end'));
     } else {
       const locked = () => document.pointerLockElement === shared?.renderer.domElement;
       root.addEventListener('mousemove', (e) => {
-        if (!locked()) return;
-        this.yaw -= e.movementX * LOOK;
-        this.pitch = Math.max(-1.5, Math.min(1.5, this.pitch - e.movementY * LOOK));
+        if (locked()) this.turn(e.movementX, e.movementY, LOOK);
       });
-      root.addEventListener('mousedown', (e) => {
-        if (!locked()) return;
-        if (e.button === 0) [this.held.break, this.held.place] = [true, false];
-        else if (e.button === 2) [this.held.place, this.held.break] = [true, false];
-        else return;
-        this.held.at = performance.now();
-        if (this.held.break) this.breakBlock();
-        else this.placeBlock();
-      });
-      root.addEventListener('mouseup', (e) => {
-        if (e.button === 0) this.held.break = false;
-        if (e.button === 2) this.held.place = false;
-      });
-      root.addEventListener('contextmenu', (e) => e.preventDefault());
       root.addEventListener('wheel', (e) => {
-        if (locked() && e.deltaY) this.pick(this.slot + Math.sign(e.deltaY));
+        if (e.deltaY && !this.menuOpen()) this.camDist = Math.max(CAM_MIN, Math.min(CAM_MAX, this.camDist * (e.deltaY > 0 ? 1.12 : 1 / 1.12)));
       }, { passive: true });
       // clicking into the world (not on the menu or a button) captures the mouse
       root.addEventListener('click', (e) => {
         if (locked() || this.menuOpen() || e.target.closest('button')) return;
-        shared?.renderer.domElement.requestPointerLock?.();
+        shared?.renderer.domElement.requestPointerLock?.()?.catch?.(() => {});
       });
       // the mouse let go (Esc: the browser takes that key itself): open the menu
       this.onLock = () => {
@@ -412,61 +423,30 @@ export class Pocket {
   labelHint() {
     if (this.touch || !this.ui) return;
     const k = (id) => keys.label(id) || '—';
-    this.ui.hint.textContent = `${k('pk_fwd')}${k('pk_left')}${k('pk_back')}${k('pk_right')} walk · mouse look · ${k('pk_jump')} jump · left click / ${k('pk_break')} break · right click / ${k('pk_place')} place · wheel or 1-8: block · Esc menu`;
+    this.ui.hint.textContent = `${k('pk_fwd')}${k('pk_left')}${k('pk_back')}${k('pk_right')} walk · mouse look round · wheel zoom · ${k('pk_jump')} jump · Esc menu`;
   }
 
-  // the hotbar: one swatch per block you can place, the one in hand ringed (tap one on a phone to pick it)
-  drawHotbar() {
-    const bar = this.ui?.hotbar;
-    if (!bar) return;
-    bar.replaceChildren();
-    HOTBAR.forEach((b, i) => {
-      const d = BLOCKS[b], on = i === this.slot, s = document.createElement('button');
-      s.style.cssText = `position: relative; width: 44px; height: 44px; border-radius: 10px; border: 3px solid ${on ? '#5b4a6b' : 'transparent'}; padding: 0;
-        background: linear-gradient(${hex(d.top)} 0 34%, ${hex(d.side)} 34% 100%); box-shadow: inset 0 -6px 0 rgba(0,0,0,0.08);`;
-      s.title = d.name;
-      if (!this.touch) {
-        const n = document.createElement('span');
-        n.textContent = keys.label(`pk_slot${i + 1}`);
-        n.style.cssText = "position: absolute; left: 3px; top: 1px; font: 700 11px Fredoka, sans-serif; color: rgba(60,40,80,0.7);";
-        s.append(n);
-      }
-      s.addEventListener(this.touch ? 'touchstart' : 'click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.pick(i);
-      });
-      bar.append(s);
-    });
-  }
-
-  // phones: the first thumb down on the left half walks (a stick from where it touched), on the right half looks; a quick
-  // still tap with the look thumb breaks or builds at the crosshair (the mode button)
+  // phones: the first thumb down on the left half walks (a stick from where it touched), on the right half swings the camera
   touches(e, type) {
     if (e.target.tagName === 'BUTTON') return;
     e.preventDefault();
     for (const t of e.changedTouches) {
       if (type === 'start') {
         if (t.clientX < window.innerWidth / 2 && !this.stick) this.stick = { id: t.identifier, x0: t.clientX, y0: t.clientY, x: t.clientX, y: t.clientY };
-        else if (!this.lookTouch) this.lookTouch = { id: t.identifier, x: t.clientX, y: t.clientY, x0: t.clientX, y0: t.clientY, at: performance.now() };
+        else if (!this.lookTouch) this.lookTouch = { id: t.identifier, x: t.clientX, y: t.clientY };
       } else if (type === 'move') {
         if (this.stick?.id === t.identifier) Object.assign(this.stick, { x: t.clientX, y: t.clientY });
         else if (this.lookTouch?.id === t.identifier) {
-          this.yaw -= (t.clientX - this.lookTouch.x) * TOUCH_LOOK;
-          this.pitch = Math.max(-1.5, Math.min(1.5, this.pitch - (t.clientY - this.lookTouch.y) * TOUCH_LOOK));
+          this.turn(t.clientX - this.lookTouch.x, t.clientY - this.lookTouch.y, TOUCH_LOOK);
           Object.assign(this.lookTouch, { x: t.clientX, y: t.clientY });
         }
       } else {
         if (this.stick?.id === t.identifier) this.stick = null;
-        const lt = this.lookTouch;
-        if (lt?.id === t.identifier) {
-          if (type === 'end' && performance.now() - lt.at < TAP_MS && Math.hypot(t.clientX - lt.x0, t.clientY - lt.y0) < TAP_PX) {
-            if (this.build) this.placeBlock();
-            else this.breakBlock();
-          }
-          this.lookTouch = null;
-        }
+        if (this.lookTouch?.id === t.identifier) this.lookTouch = null;
       }
     }
   }
 }
+
+// what you can't walk through: the palms' trunks, the rocks
+const OBSTACLES = [...PALMS.map((p) => ({ x: p.x, z: p.z, r: 0.55 })), ...ROCKS.map((r) => ({ x: r.x, z: r.z, r: r.s * 0.95 }))];
