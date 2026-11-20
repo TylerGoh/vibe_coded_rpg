@@ -53,4 +53,8 @@ Its movement and blocks are plain code, checked in Node (walking at speed, stopp
 aiming at the right block and face, bedrock staying put, meshing a chunk).
 
 ## Next steps (owner decides, one at a time)
+- **A mirror in the 3D world as the way out** (owner, 2026-11-20, future work): walk through it to step back into the
+  fair, instead of the menu's Leave.
+- The owner found the block-building concept less fun than hoped (2026-11-20) and asked to try smoother 3D instead: a
+  beach, a palm tree, waves.
 Terrain with hills and trees, saving what's built, other players in it, a bigger world.
