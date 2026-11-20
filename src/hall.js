@@ -7,6 +7,7 @@ import { Slime } from './slime.js';
 import { text } from './village.js';
 import { ROOMS, HALL, HALL_EXIT_X, PROF_X, TUTOR_DOOR_X } from './shared/sim.js';
 import { courseById } from './shared/courses.js';
+import { drawMasteryBoard } from './mastery-board.js';
 
 const ROOM = ROOMS[HALL];
 const FLOOR = ROOM.ground;
@@ -66,6 +67,7 @@ export class Hall {
       this.note.textContent = m.text;
     } else if (m.t === 'courses') {
       this.course = m.current;
+      if (m.leaders) this.leaders = m.leaders;
     } else {
       this.line = { topic: m.topic, topicIdx: m.topicIdx, text: m.text, n: m.n, ask: m.ask, typed: 0, at: this.time };
       if (m.course) this.course = m.course;
@@ -121,6 +123,9 @@ export class Hall {
   draw(ctx) {
     drawWalls(ctx, this.time);
     this.drawBoard(ctx);
+    // the Most Mastered sheet on the far wall past the last window, above the tutoring room's door: the course being
+    // lectured, then every course (the tutor's quiz scores, sent with the course state)
+    if (this.leaders) drawMasteryBoard(ctx, 1058, 52, 134, courseById(this.course ?? 'ml'), this.leaders.top, this.leaders.topCourse);
     drawSeats(ctx, 'back');
     drawSeats(ctx, 'front'); // everything stays behind the players
     drawStage(ctx);

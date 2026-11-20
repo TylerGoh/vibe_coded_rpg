@@ -35,7 +35,8 @@
 //   → {t:'ask', text} raise your hand with a question · → {t:'ask-cancel'} lower it
 // Courses (src/shared/courses.js), in the lecture hall and the tutoring room:
 //   → {t:'vote', course}   vote for a course (or 'break' in the tutoring room); a majority of the room wins
-//   ← {t:'courses', current, pending, votes:{course: n}}   to everyone in that room, whenever it changes
+//   ← {t:'courses', current, pending, votes:{course: n}, leaders?}   to everyone in that room, whenever it changes
+//       (leaders {top, topCourse}: the hall's Most Mastered sheet, also resent when someone masters a question)
 // Tutoring room (server/tutor.js): ← {t:'tutor', phase, course, turn, question, …} quiz state on every change;
 //   → {t:'tutor-answer', text}  from the student whose turn it is
 //   ← {t:'hands', users}  whose hands are up, in order · ← {t:'ask-error', text}  just to the asker
@@ -348,7 +349,8 @@ const toRoom = (room) => (msg) => {
 };
 // (when the lecture actually switches course, everyone in the hall gets the new course state)
 const lecture = createLecture((msg) => (msg.t === 'course-changed' ? toRoom(HALL)(courseState(HALL)) : toRoom(HALL)(msg)));
-const tutor = createTutor(toRoom(TUTOR), accounts.path); // what each student has answered correctly is kept here
+// what each student has answered correctly is kept in the accounts DB; when it changes, the hall's leaderboard is resent
+const tutor = createTutor(toRoom(TUTOR), accounts.path, () => toRoom(HALL)(courseState(HALL)));
 // Course votes: each room's votes, and what to do when a choice wins
 const votes = new Map([
   [HALL, { vote: createVote(), current: () => lecture.course(), pending: () => lecture.pending(), apply: (c) => lecture.setCourse(c) }],
@@ -358,7 +360,10 @@ const votes = new Map([
 const namesIn = (room) => inRoom(room).sort((a, b) => a.roomSince - b.roomSince).map((q) => q.name);
 function courseState(room) {
   const v = votes.get(room);
-  return { t: 'courses', current: v.current(), pending: v.pending(), votes: v.vote.counts(namesIn(room)) };
+  return {
+    t: 'courses', current: v.current(), pending: v.pending(), votes: v.vote.counts(namesIn(room)),
+    ...(room === HALL ? { leaders: tutor.leaders(v.current()) } : {}), // the Most Mastered sheet on the hall's wall
+  };
 }
 // Re-count a room's votes (after a vote, or someone leaving) and switch course if one has a majority
 function recount(room) {

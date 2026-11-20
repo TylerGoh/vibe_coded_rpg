@@ -1,7 +1,8 @@
 # Lecture hall, courses, votes, tutoring room
 
 Files: `server/lecture.js`, `server/tutor.js`, `server/vote.js`, `src/shared/courses.js` (the courses and
-their syllabi), `src/hall.js` (hall + building), `src/tutor.js`, `src/courses-ui.js` (course menu).
+their syllabi), `src/hall.js` (hall + building), `src/tutor.js`, `src/courses-ui.js` (course menu),
+`src/mastery-board.js` (the Most Mastered sheet).
 
 ## Lecture hall (Prof. Synapse)
 - Lectures while at least one slime is inside; an empty hall pauses with no API calls. He teaches the
@@ -41,6 +42,11 @@ their syllabi), `src/hall.js` (hall + building), `src/tutor.js`, `src/courses-ui
   first). On top, the course being quizzed (`topCourse`; hidden while there's no course or on a break); under it, every
   course together (`top`). The server reads both when it starts, when the course changes, when the room empties and
   whenever someone masters a new question, never per tick.
+- **The same sheet hangs in the lecture hall** (owner request, same day), on the far wall past the last window, above
+  the tutoring room's door: the board for the course Prof. Synapse is lecturing, then every course. It rides on the
+  hall's `{t:'courses'}` message as `leaders` (`tutor.leaders(course)`), so it's sent when you walk in and when the
+  course changes, and the tutor's `onMastered` hook resends it whenever someone masters a question. One drawing for
+  both rooms: `drawMasteryBoard` in `src/mastery-board.js`.
 - Besides the CS courses, the tutor runs quizzes marked `tutorOnly` in `COURSES` (General Trivia, World
   Geography, Biomedical Science; owner request). Their `quiz` field tells the question writer what kind
   of question fits (trivia and geography want one checkable fact, biomed is short-answer like CS). The

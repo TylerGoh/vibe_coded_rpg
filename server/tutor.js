@@ -54,7 +54,8 @@ const parseJson = (out) => {
 };
 const short = (s, n) => String(s ?? '').replace(/\s+/g, ' ').trim().slice(0, n);
 
-export function createTutor(broadcast, dbPath) {
+// onMastered(): someone mastered a new question (the lecture hall's copy of the leaderboards is sent again)
+export function createTutor(broadcast, dbPath, onMastered = () => {}) {
   const db = dbPath ? new DatabaseSync(dbPath) : null;
   db?.exec(`CREATE TABLE IF NOT EXISTS tutor_known (user TEXT NOT NULL, course TEXT NOT NULL, question TEXT NOT NULL,
              at INTEGER NOT NULL, PRIMARY KEY (user, course, question))`);
@@ -202,6 +203,7 @@ Keep each field under 30 words, plain text.` },
         if (remember?.run(user, course, question.text, Date.now()).changes) {
           result.mastered = masteredIn(user, course);
           readTop();
+          onMastered();
         }
       } catch (e) { console.error('tutor remember:', String(e)); }
     }
@@ -213,6 +215,12 @@ Keep each field under 30 words, plain text.` },
   return {
     state,
     course: () => course,
+    // the leaderboards for any course (the lecture hall's): every course together (cached) and that one's (read now)
+    leaders(c) {
+      let tc = [];
+      try { tc = topInKnown && c ? topInKnown.all(c, TOP_N).map((r) => [r.user, r.n]) : []; } catch { tc = []; }
+      return { top, topCourse: tc };
+    },
 
     // The room voted for a course (or BREAK): restart the quiz on it; scores carry on for the session
     setCourse(id) {
