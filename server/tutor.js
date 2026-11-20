@@ -3,10 +3,12 @@
 // the students in the room one at a time, in turn. On your turn DeepSeek writes a short-answer question
 // on the course; you type an answer; the tutor rates it out of 5 for how correct it is and explains what
 // you got right, what you missed and what a full answer looks like. Points add up for the session and are
-// wiped when the room empties.
+// wiped when the room empties. What each student has answered correctly (KNOWN_SCORE or better) is kept for good in
+// the accounts DB (tutor_known, per account and course), and the question writer is told not to ask them those again.
 //
 // Phases: idle (no course yet) · break · asking (writing a question) · answering (waiting for the student,
 // with a time limit) · marking · review (showing the verdict) → next student's turn.
+import { DatabaseSync } from 'node:sqlite';
 import { deepseek } from './npc.js';
 import { courseById, BREAK } from '../src/shared/courses.js';
 
@@ -14,6 +16,8 @@ const ANSWER_MS = 90000; // time to answer before the tutor moves on
 const ANSWER_MAX = 400; // characters per answer
 const REVIEW_MS = 14000; // how long the verdict stays up before the next turn
 const RECENT_QUESTIONS = 20; // questions remembered this session, so they aren't repeated
+const KNOWN_SCORE = 4; // an answer this good (of 5) counts as answered correctly: never asked of that student again
+const KNOWN_PROMPT = 60; // the most of a student's known questions put in the prompt (their latest)
 
 const PERSONA = `You are Tutor Byte, a friendly, encouraging slime tutor in Slimeville's tutoring room, running a
 quiz for slime students on university courses and trivia. You are accurate and fair.`;
@@ -28,7 +32,15 @@ const parseJson = (out) => {
 };
 const short = (s, n) => String(s ?? '').replace(/\s+/g, ' ').trim().slice(0, n);
 
-export function createTutor(broadcast) {
+export function createTutor(broadcast, dbPath) {
+  const db = dbPath ? new DatabaseSync(dbPath) : null;
+  db?.exec(`CREATE TABLE IF NOT EXISTS tutor_known (user TEXT NOT NULL, course TEXT NOT NULL, question TEXT NOT NULL,
+             at INTEGER NOT NULL, PRIMARY KEY (user, course, question))`);
+  const knownOf = db?.prepare('SELECT question FROM tutor_known WHERE user = ? AND course = ? ORDER BY at DESC LIMIT ?');
+  const remember = db?.prepare('INSERT OR REPLACE INTO tutor_known (user, course, question, at) VALUES (?, ?, ?, ?)');
+  const known = (user, c) => {
+    try { return knownOf ? knownOf.all(user, c, KNOWN_PROMPT).map((r) => r.question) : []; } catch { return []; }
+  };
   let course = null; // course id, BREAK, or null
   let phase = 'idle';
   let turn = null; // whose turn it is
@@ -67,6 +79,7 @@ export function createTutor(broadcast) {
     const topic = c.syllabus[qn++ % c.syllabus.length];
     send();
     let text = null;
+    const mastered = known(who, course);
     if (process.env.DEEPSEEK_API_KEY) {
       try {
         const out = await deepseek([
@@ -75,7 +88,8 @@ export function createTutor(broadcast) {
 ${c.quiz ? `It must be ${c.quiz}. Not multiple choice` : `It must be a short-answer question (not multiple choice) that can be answered well in 1–3 sentences: a definition,
 a "why" or "how", a tiny worked example, or a comparison. Introductory university level`}, accurate and unambiguous,
 under 35 words. Do not repeat or closely resemble these earlier questions: ${asked.length ? asked.map((q) => `"${q}"`).join('; ') : '(none yet)'}.
-Reply as JSON: {"question": "..."}` },
+${mastered.length ? `${who} has already answered these correctly in earlier sessions, so ask them something new (not these, nor the same fact reworded): ${mastered.map((q) => `"${q}"`).join('; ')}.
+` : ''}Reply as JSON: {"question": "..."}` },
         ], 150, { json: true, temperature: 1.0 });
         text = short(parseJson(out)?.question, 240) || null;
       } catch (e) {
@@ -125,6 +139,9 @@ Keep each field under 30 words, plain text.` },
       comment: short(verdict?.comment, 140),
     };
     scores.set(user, (scores.get(user) ?? 0) + score);
+    if (verdict && score >= KNOWN_SCORE) {
+      try { remember?.run(user, course, question.text, Date.now()); } catch (e) { console.error('tutor remember:', String(e)); }
+    }
     phase = 'review';
     reviewUntil = Date.now() + REVIEW_MS + Math.min(8000, (result.model.length + result.missed.length) * 25);
     send();

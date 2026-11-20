@@ -20,6 +20,12 @@ their syllabi), `src/hall.js` (hall + building), `src/tutor.js`, `src/courses-ui
 - Quizzes students one at a time in arrival order. DeepSeek (JSON mode) writes a short-answer question;
   the student on turn has a time limit; DeepSeek rates the answer 0–5 with right / missed / model answer.
   Session scoreboard, wiped when the room empties. "Take a break" is a vote.
+- **It remembers what you've got right** (owner request, 2026-11-20). An answer marked `KNOWN_SCORE` or better is saved for
+  good (table `tutor_known` in the accounts DB, per account and course), and when it's your turn again, in any later
+  session, the question writer gets your latest `KNOWN_PROMPT` correctly answered questions with orders not to ask them
+  or the same fact reworded. Wrong or partial answers aren't saved, so those may come up again. An answer that wasn't
+  marked because the AI was down is never saved. This is a prompt rule, so the AI could still slip and ask something
+  very close; there is no exact-text check.
 - Besides the CS courses, the tutor runs quizzes marked `tutorOnly` in `COURSES` (General Trivia, World
   Geography, Biomedical Science; owner request). Their `quiz` field tells the question writer what kind
   of question fits (trivia and geography want one checkable fact, biomed is short-answer like CS). The

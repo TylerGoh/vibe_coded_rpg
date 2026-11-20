@@ -348,7 +348,7 @@ const toRoom = (room) => (msg) => {
 };
 // (when the lecture actually switches course, everyone in the hall gets the new course state)
 const lecture = createLecture((msg) => (msg.t === 'course-changed' ? toRoom(HALL)(courseState(HALL)) : toRoom(HALL)(msg)));
-const tutor = createTutor(toRoom(TUTOR));
+const tutor = createTutor(toRoom(TUTOR), accounts.path); // what each student has answered correctly is kept here
 // Course votes: each room's votes, and what to do when a choice wins
 const votes = new Map([
   [HALL, { vote: createVote(), current: () => lecture.course(), pending: () => lecture.pending(), apply: (c) => lecture.setCourse(c) }],
