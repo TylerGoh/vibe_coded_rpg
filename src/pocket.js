@@ -23,7 +23,9 @@ let shared = null; // { renderer, scene, camera, beach, sun, splash, slime, hue 
 const show = (el, on, how = 'grid') => (el.style.display = on ? how : 'none'); // (display: grid beats `hidden`)
 
 export class Pocket {
-  constructor({ touch, audio, onOpenChange }) {
+  // paint2d: draws a frame of the 2D game and says where your slime is in it (src/main.js), for the mirror's window
+  constructor({ touch, audio, onOpenChange, paint2d }) {
+    this.paint2d = paint2d;
     this.touch = touch;
     this.audio = audio;
     this.onOpenChange = onOpenChange;
@@ -59,8 +61,8 @@ export class Pocket {
     show(this.ui.loading, true);
     try {
       THREE ??= await import('three');
-      const [{ makeSlime }, { Reflector }, { makeMirror }] = await Promise.all([import('./pocket-slime.js'), import('three/examples/jsm/objects/Reflector.js'), import('./pocket-mirror.js')]);
-      shared ??= this.buildScene(Reflector, makeMirror);
+      const [{ makeSlime }, { makeMirror }] = await Promise.all([import('./pocket-slime.js'), import('./pocket-mirror.js')]);
+      shared ??= this.buildScene(makeMirror);
       if (shared.hue !== hue) {
         // your slime, in your colour (made again if you come back a different colour)
         if (shared.slime) shared.scene.remove(shared.slime.group);
@@ -120,7 +122,7 @@ export class Pocket {
   }
 
   // ——— the scene ———
-  buildScene(Reflector, makeMirror) {
+  buildScene(makeMirror) {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.shadowMap.enabled = true;
@@ -138,7 +140,7 @@ export class Pocket {
     sun.shadow.radius = 3;
     scene.add(sun, sun.target);
     const beach = buildBeach(THREE, scene);
-    const mirror = makeMirror(THREE, Reflector, { x: MIRROR_AT.x, y: groundH(MIRROR_AT.x, MIRROR_AT.z), z: MIRROR_AT.z });
+    const mirror = makeMirror(THREE, { x: MIRROR_AT.x, y: groundH(MIRROR_AT.x, MIRROR_AT.z), z: MIRROR_AT.z });
     scene.add(mirror.group);
     // splashes: little white drops, one instanced mesh
     const splash = new THREE.InstancedMesh(new THREE.SphereGeometry(0.07, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffffff }), SPLASHES);
@@ -169,7 +171,7 @@ export class Pocket {
     this.t += dt;
     const step = this.move(dt);
     const { renderer, scene, camera, beach, mirror, sun, slime, splash } = shared;
-    mirror.update(this.t);
+    mirror.update(this.t, this.paint2d); // (the window back into the 2D fair: src/main.js draws a frame of it for us)
     const near = this.nearMirror() && !this.menuOpen();
     if (this.ui) {
       show(this.ui.home, near, 'block');

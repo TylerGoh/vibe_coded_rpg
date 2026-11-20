@@ -18,9 +18,14 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
   that sway, coconuts) with soft shadows, rocks (`ROCKS`), starfish, a sea of rolling swells with foam on the breakers and
   a lacy foam line that runs up the sand and back (the swash), a pastel sky dome with a low sun, clouds, haze.
 - **The mirror home** (step 5, owner 2026-11-20): the other side of the fair's upside-down mirror stands on the sand at
-  `MIRROR_AT`, facing the sea: a gold arched frame like the fair's, sparkles drifting round it, and glass that really
-  reflects (Three's `Reflector`, an extra render of the scene a frame) turned upside down about its middle, like the
-  mirror you came through. You arrive stepping out of it (the camera out front, looking back at you and it). It's solid.
+  `MIRROR_AT`, facing the sea: a gold arched frame like the fair's, sparkles drifting round it. **Its glass is a window
+  back into the 2D game** (owner, 2026-11-20: "display a 2d world on the other side"): the fair as the game draws it,
+  round where your 2D slime waits at the Hall of Mirrors (you see yourself standing there, and anyone passing). While the
+  pocket world is open, `paint2d` (from `src/main.js`) draws a frame of the 2D game into its canvas every `PAINT_EVERY`
+  and the mirror copies a slice of it (`CROP_H` tall, up from `CROP_BOTTOM`, centred on your slime, clear of the HUD's top
+  pill and bottom bar) into its own small canvas, the glass's texture, shown slightly rippled with a sheen. The 2D hints
+  aren't drawn while it's open (`drawHints` checks `pocket.isOpen`). (It was a real reflection, upside down, for a step;
+  the window replaced it, and saves a second 3D render a frame.) You arrive stepping out of it (the camera out front, looking back at you and it). It's solid.
   In front of it (within `MIRROR_USE`, `nearMirror`) a pill says "E  step back through the mirror", and E (`pk_use`, a
   pocket key, rebindable) takes you home (`goHome`); on phones an E button shows there. Walking into it used to take you
   home; the owner preferred an E (2026-11-20).
@@ -53,7 +58,7 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
   `docs/performance.md` foresaw. It's `import()`ed the first time someone steps in, so it's its own chunk (~190 KB
   gzipped) and the game's bundle doesn't grow. The renderer and scene are built once and kept for the next visit (your
   slime is made again only if your colour changed). While it's open, `frame()` in `src/main.js` skips the game's
-  `render()`.
+  `render()`, except the few frames a second the mirror's window asks for.
 - The sand is a heightfield with vertex colours (dry, wet near the water, tinted under it) and Lambert-ish standard
   shading; the sea is one big plane moved in its vertex shader, with its normal from the same function, a fresnel tint,
   the sun's glitter, and foam from two layers of drifting value noise (a grid of sine blobs looked tiled, so it went);

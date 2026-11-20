@@ -413,7 +413,15 @@ const charsHere = () => [...characters.values()].filter((c) => npcIn(c.cfg, room
 const museum = new Museum({ onOpenChange: () => held.clear() });
 const scope = new Telescope(); // the telescope on the east cliffs (src/cliffs.js)
 const fair = new Fair({ send: (m) => net.sendNpc(m), toast: (t) => rpg.toast(t), audio, onOpenChange: () => held.clear() }); // the Gathering Fair's booths (src/fair.js)
-const pocket = new Pocket({ touch: TOUCH, audio, onOpenChange: () => held.clear() }); // the pocket world through the fair's upside-down mirror (src/pocket.js)
+const pocket = new Pocket({
+  touch: TOUCH, audio, onOpenChange: () => held.clear(),
+  // the mirror on the beach is a window back into the 2D game: a fresh frame of it, and where your slime stands in it
+  paint2d: () => {
+    if (!online()) return null;
+    render();
+    return { canvas, scale, x: mine.x - camX };
+  },
+}); // the pocket world through the fair's upside-down mirror (src/pocket.js)
 fair.onPocket = () => pocket.show(mine?.hue); // (your slime, in 3D, in your colour)
 // Clio can be asked from anywhere in the museum (Q, the Ask button, or a fact sheet's "Ask Clio")
 const askClio = (prefill = '') => {
@@ -1628,7 +1636,7 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 const BEACON_RANGE = 420;
 const DOOR_BAND_Y = 160; // how high over the ground a door's level chip sits (under the beacon)
 function drawHints() {
-  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || pool.isOpen || sandbox.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || fair.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || houses.editing) return;
+  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || pool.isOpen || sandbox.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || fair.isOpen || pocket.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || houses.editing) return;
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);
