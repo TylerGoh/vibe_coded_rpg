@@ -37,6 +37,7 @@ export const KEY_ACTIONS = [
   { id: 'pk_left', tab: 'pocket', group: 'Walk', name: 'Left', keys: ['KeyA', 'ArrowLeft'] },
   { id: 'pk_right', tab: 'pocket', group: 'Walk', name: 'Right', keys: ['KeyD', 'ArrowRight'] },
   { id: 'pk_jump', tab: 'pocket', group: 'Walk', name: 'Jump', keys: ['Space'] },
+  { id: 'pk_use', tab: 'pocket', group: 'Walk', name: 'Use (the mirror home)', keys: ['KeyE'] },
 ];
 for (const a of KEY_ACTIONS) a.tab ??= 'game';
 export const KEY_TABS = [{ id: 'game', name: 'Slimeville' }, { id: 'pocket', name: 'Pocket world' }];

@@ -20,9 +20,10 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
 - **The mirror home** (step 5, owner 2026-11-20): the other side of the fair's upside-down mirror stands on the sand at
   `MIRROR_AT`, facing the sea: a gold arched frame like the fair's, sparkles drifting round it, and glass that really
   reflects (Three's `Reflector`, an extra render of the scene a frame) turned upside down about its middle, like the
-  mirror you came through. You arrive stepping out of it (the camera out front, looking back at you and it). Walk into it
-  and you're home at the fair (`atMirror`; not in your first `ARRIVE_S`, so arriving doesn't send you straight back).
-  Within `MIRROR_NEAR` a pill says so.
+  mirror you came through. You arrive stepping out of it (the camera out front, looking back at you and it). It's solid.
+  In front of it (within `MIRROR_USE`, `nearMirror`) a pill says "E  step back through the mirror", and E (`pk_use`, a
+  pocket key, rebindable) takes you home (`goHome`); on phones an E button shows there. Walking into it used to take you
+  home; the owner preferred an E (2026-11-20).
 - You're your own slime (`makeSlime`: your hue, so it matches your 2D one; shine, eyes, cheeks, smile, leaf) in third
   person. Walk (relative to the camera), jump, wade into the shallows (slower, a little spray), swim out where it's deeper
   than `SWIM_DEPTH` (you float on the swell, bobbing; slower still), jump out of the water, splash. The jelly squashes on
@@ -35,11 +36,11 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
 ## Controls and leaving
 - Desktop: click into the world to capture the mouse (a small "Click to look around" pill until you do); the mouse swings
   the camera round you, the wheel zooms; by default WASD or the arrows walk and Space jumps. The keys are `KEY_ACTIONS`
-  rows with `tab: 'pocket'` (`pk_fwd`, `pk_back`, `pk_left`, `pk_right`, `pk_jump`), read with `keys.of(e, 'pocket')`,
+  rows with `tab: 'pocket'` (`pk_fwd`, `pk_back`, `pk_left`, `pk_right`, `pk_jump`, `pk_use`), read with `keys.of(e, 'pocket')`,
   saved on the character with the rest, and shown on the Controls page's **Pocket world** tab and on the pocket's own
   controls card (`docs/ui/keybinds.md`). Phones: the left thumb is a stick from wherever it lands, the right thumb drags
   the camera, a Jump button, Leave.
-- Leaving: walk into the mirror (owner, step 5: the mirror is the way out, instead of the menu). The Leave button top
+- Leaving: E at the mirror (owner, step 5: the mirror is the way out, instead of the menu; an E, not walking into it). The Leave button top
   right stays as a fallback. Esc (the browser takes it to let the mouse go) opens a small light menu over the world (owner,
   step 3: the old dark card was jarring): Back to the world and Controls (the pocket tab, its own Reset); its Leave went in
   step 5. Esc again closes it, back in the world with the "Click to look around" pill (a browser won't

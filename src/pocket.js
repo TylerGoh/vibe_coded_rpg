@@ -16,8 +16,7 @@ const FLOAT = 0.28; // how far under the surface a floating slime's feet sit
 const CAM_DIST = 6.5, CAM_MIN = 2.5, CAM_MAX = 13, LOOK = 0.0024, TOUCH_LOOK = 0.006;
 const SPLASHES = 90;
 const ESC_GAP = 300; // ms: an Esc this soon after the menu opened is the same press (key)
-const MIRROR_NEAR = 4; // within this of the mirror, a pill says how to go home
-const ARRIVE_S = 1; // s after stepping out of the mirror before walking back into it takes you home
+const MIRROR_USE = 2.2; // within this of the mirror's front, E (pk_use) takes you home
 
 let THREE = null; // the module, once loaded
 let shared = null; // { renderer, scene, camera, beach, sun, splash, slime, hue }: built once, kept for the next visit
@@ -45,7 +44,6 @@ export class Pocket {
     this.lookTouch = null;
     this.ui = null;
     this.menuAt = -1e9; // when the Esc menu last opened
-    this.arrivedAt = 0; // when you stepped out of the mirror (this.t)
   }
 
   get isOpen() {
@@ -110,11 +108,15 @@ export class Pocket {
     this.face = 0;
     this.camYaw = 0.35;
     this.camPitch = 0.28;
-    this.arrivedAt = this.t;
   }
-  // walked into the mirror: home to the fair
-  atMirror() {
-    return this.t - this.arrivedAt > ARRIVE_S && Math.abs(this.pos.x - MIRROR_AT.x) < MIRROR_W / 2 - 0.1 && Math.abs(this.pos.z - MIRROR_AT.z) < 0.3 && this.pos.y < groundH(MIRROR_AT.x, MIRROR_AT.z) + 1.2;
+  // close enough to the mirror's front to step through it (E, pk_use: owner, not by walking into it)
+  nearMirror() {
+    return this.pos.z > MIRROR_AT.z && Math.hypot(this.pos.x - MIRROR_AT.x, this.pos.z - MIRROR_AT.z) < MIRROR_USE;
+  }
+  goHome() {
+    if (!this.nearMirror()) return;
+    this.audio?.sfx('door');
+    this.close(); // (through the mirror: back at the fair)
   }
 
   // ——— the scene ———
@@ -166,13 +168,13 @@ export class Pocket {
     this.last = now;
     this.t += dt;
     const step = this.move(dt);
-    if (this.atMirror()) {
-      this.audio?.sfx('door');
-      return this.close(); // (through the mirror: back at the fair)
-    }
     const { renderer, scene, camera, beach, mirror, sun, slime, splash } = shared;
     mirror.update(this.t);
-    if (this.ui) show(this.ui.home, Math.hypot(this.pos.x - MIRROR_AT.x, this.pos.z - MIRROR_AT.z) < MIRROR_NEAR && !this.menuOpen(), 'block');
+    const near = this.nearMirror() && !this.menuOpen();
+    if (this.ui) {
+      show(this.ui.home, near, 'block');
+      if (this.ui.useBtn) show(this.ui.useBtn, near, 'block');
+    }
     // your slime
     slime.group.position.set(this.pos.x, this.pos.y, this.pos.z);
     slime.group.rotation.y = this.face;
@@ -307,6 +309,7 @@ export class Pocket {
     if (down) this.keys.add(id);
     else this.keys.delete(id);
     if (down && !e.repeat && id === 'pk_jump') this.jump();
+    if (down && !e.repeat && id === 'pk_use') this.goHome();
   }
 
   // ——— the Esc menu: small and light over the world (owner: the old dark card was jarring) ———
@@ -359,7 +362,7 @@ export class Pocket {
     const look = el('div', 'position: absolute; left: 50%; top: 18px; transform: translateX(-50%); padding: 8px 16px; border-radius: 16px; background: rgba(255,255,255,0.8); color: #5b4a6b; font-size: 14px; pointer-events: none;', 'Click to look around');
     show(look, false);
     // near the mirror: how to go home
-    const home = el('div', 'position: absolute; left: 50%; top: 58px; transform: translateX(-50%); padding: 8px 16px; border-radius: 16px; background: rgba(255,244,230,0.9); color: #5b4a6b; font-size: 14px; pointer-events: none; white-space: nowrap;', 'Walk into the mirror to go back to the fair');
+    const home = el('div', 'position: absolute; left: 50%; top: 58px; transform: translateX(-50%); padding: 8px 16px; border-radius: 16px; background: rgba(255,244,230,0.9); color: #5b4a6b; font-size: 14px; pointer-events: none; white-space: nowrap;', '');
     show(home, false);
     // the Esc menu: a small card, the world still in view behind it
     const menu = el('div', 'position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); flex-direction: column; gap: 8px; padding: 16px; border-radius: 22px; background: rgba(255,244,230,0.95); color: #5b4a6b; box-shadow: 0 8px 30px rgba(60,40,90,0.25); min-width: 240px;');
@@ -407,6 +410,16 @@ export class Pocket {
         this.jump();
       });
       root.append(jump);
+      // E, by the mirror (shown only there)
+      const useBtn = el('button', `position: absolute; right: 124px; bottom: 120px; width: 66px; height: 66px; border: 0; border-radius: 50%; background: rgba(255,244,230,0.9); color: #5b4a6b; font-size: 20px; ${font}`, 'E');
+      useBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.goHome();
+      });
+      show(useBtn, false);
+      root.append(useBtn);
+      this.ui.useBtn = useBtn;
       root.addEventListener('touchstart', (e) => this.touches(e, 'start'), { passive: false });
       root.addEventListener('touchmove', (e) => this.touches(e, 'move'), { passive: false });
       root.addEventListener('touchend', (e) => this.touches(e, 'end'));
@@ -441,8 +454,10 @@ export class Pocket {
 
   // the bottom line on a keyboard, in this account's pocket world keys
   labelHint() {
+    if (this.ui && this.touch) this.ui.home.textContent = 'E  step back through the mirror to the fair';
     if (this.touch || !this.ui) return;
     const k = (id) => keys.label(id) || '—';
+    this.ui.home.textContent = `${k('pk_use')}  step back through the mirror to the fair`;
     this.ui.hint.textContent = `${k('pk_fwd')}${k('pk_left')}${k('pk_back')}${k('pk_right')} walk · mouse look round · wheel zoom · ${k('pk_jump')} jump · Esc menu`;
   }
 
@@ -469,4 +484,5 @@ export class Pocket {
 }
 
 // what you can't walk through: the palms' trunks, the rocks
-const OBSTACLES = [...PALMS.map((p) => ({ x: p.x, z: p.z, r: 0.55 })), ...ROCKS.map((r) => ({ x: r.x, z: r.z, r: r.s * 0.95 }))];
+const OBSTACLES = [...PALMS.map((p) => ({ x: p.x, z: p.z, r: 0.55 })), ...ROCKS.map((r) => ({ x: r.x, z: r.z, r: r.s * 0.95 })),
+  ...[-0.55, 0, 0.55].map((dx) => ({ x: MIRROR_AT.x + dx * MIRROR_W / 1.5, z: MIRROR_AT.z, r: 0.42 }))]; // (the mirror: solid, E takes you through)
