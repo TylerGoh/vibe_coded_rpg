@@ -91,6 +91,16 @@ protocol is documented in the comment at the top of that file: keep it updated**
   leaning under you: `tiltOf`, `pack` / `unpack` entry 29). `step()` slides you downhill at `tiltV(tl)` while you stand on
   the floor (not a ledge); a door clears it. Set only by `{t:'pf', s, tl}` (predicted, in input order); the server takes
   only the lean a boss in your room has going and levels you when it ends. Older tabs get version 9's records.
+- 2026-11-20: wire version 11 (a bug fix, no new feature): **mob kinds past 255 were drawn as the wrong mob.** The mob
+  record sent the kind (an index into `MOB_KINDS`, i.e. `Object.keys(MOBS)`) as one byte, and `MOBS` passed 256 kinds
+  with the Citadel's C2 (the Indexer is 256). From then on every later kind wrapped round to one 256 earlier: the Engine
+  Halls, the Bell Walks, the Keel, the Undercroft and all of Amberdune showed Greenhollow's and Frostpeak's mobs (Chronos
+  walking the Glass Dunes, dragonflies in the Observatory), and the client judged their hits with the wrong mob's
+  numbers. Found by the owner seeing "the time boss" at a dune gate. Version 11 adds the kind's high byte as a 24th
+  byte of each mob record (`KIND_HI_AT` in `src/shared/wire.js`, 65,536 kinds); slime records are version 10's. Older
+  tabs still get 23-byte records and the wrong mobs until they take the update. Nothing checked it because every check
+  read the JSON shape or the server's state, never a decoded binary message: **an index sent in a byte needs a check
+  that the list it indexes fits.**
 - 2026-10-24 (the Archer, S4): no wire version change. Two more mob flags in the same byte (2048 marked by
   Hunter's Mark, 4096 netted; the 7 bits there hold up to 16384), Retreat Shot's rank in `mw` bits 6–7 (it was
   6 bits used of the byte), the slap echo's `retreat`, the skill's `mob` / echo's `mark`, and

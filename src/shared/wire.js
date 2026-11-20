@@ -17,9 +17,10 @@ export const SNAP = 1, INPUT = 2, MOBS = 3;
 // · hk u8 · hc u16. Version 7 (boss gear's effects, the Skirmisher: gearfx.js) adds · gx u16 · aj u8, and an input can
 // carry a second keys byte (BOOST, FLIP: sim.js). Version 8 (boss challenges: challenge.js) adds · tr u8 (trapped) · cs u8
 // (controls swapped). Version 9 (T1a's moving arena) adds · pf u8 (platforms sunk for you). Version 10 (T1b's tilting
-// floor) adds · tl u8 (the floor leaning under you).
-export const BIN_VERSION = 10;
-const SLIME_BYTES = 55, BYTES_OF = { 1: 32, 2: 34, 3: 35, 4: 44, 5: 44, 6: 48, 7: 51, 8: 53, 9: 54, 10: 55 };
+// floor) adds · tl u8 (the floor leaning under you). Version 11 changed only the mobs (a kind's high byte, below): its
+// slime records are version 10's.
+export const BIN_VERSION = 11;
+const SLIME_BYTES = 55, BYTES_OF = { 1: 32, 2: 34, 3: 35, 4: 44, 5: 44, 6: 48, 7: 51, 8: 53, 9: 54, 10: 55, 11: 55 };
 const c = (v) => Math.round(v * 100);
 
 // The per-slime part of a snapshot, shared by every recipient: packed = [sim.js pack() arrays]
@@ -92,10 +93,15 @@ export function encodeInput(seq, keys) {
 // list: [[id, kind, x, y, hp, flags, maxHp, (eggHp, eggMax)?]] · b: seconds until a den's boss is back (0 = n/a).
 // flags past the low byte (the Mage's combos: 256 chilled · 512 frozen · 1024 burning) ride in the egg byte's
 // upper bits from version 5 (bit 0: an egg follows); a tab from before reads that byte as "egg or not", so
-// it gets the egg bit alone (version: what the recipient said in its hello)
+// it gets the egg bit alone (version: what the recipient said in its hello). The kind is an index into MOB_KINDS, which
+// passed 256 with the Citadel's C2 (the Indexer): version 11 adds its high byte as a 24th byte (KIND_HI_AT); a tab from
+// before reads the low byte alone, so it draws a kind past 255 as one 256 earlier (it's told to update)
+const MOB_BYTES = (version) => (version >= 11 ? 24 : 23);
+const KIND_HI_AT = 23;
 export function encodeMobs(tick, list, b = 0, version = BIN_VERSION) {
+  const rec = MOB_BYTES(version);
   let size = 9;
-  for (const m of list) size += m.length > 7 ? 31 : 23;
+  for (const m of list) size += rec + (m.length > 7 ? 8 : 0);
   const buf = new ArrayBuffer(size), v = new DataView(buf);
   v.setUint8(0, MOBS);
   v.setUint32(1, tick, true);
@@ -111,7 +117,8 @@ export function encodeMobs(tick, list, b = 0, version = BIN_VERSION) {
     v.setUint8(o + 17, m[5] & 255);
     v.setUint32(o + 18, Math.round(m[6]), true);
     v.setUint8(o + 22, (m.length > 7 ? 1 : 0) | (version >= 5 ? ((m[5] >> 8) & 127) << 1 : 0));
-    o += 23;
+    if (version >= 11) v.setUint8(o + KIND_HI_AT, (m[1] >> 8) & 255);
+    o += rec;
     if (m.length > 7) {
       v.setUint32(o, m[7], true);
       v.setUint32(o + 4, m[8], true);
@@ -141,8 +148,10 @@ export function decode(data) {
     let o = 9;
     for (let i = 0; i < n; i++) {
       const x = v.getUint8(o + 22), egg = x & 1;
-      const a = [v.getUint32(o, true), v.getUint8(o + 4), v.getInt32(o + 5, true), v.getInt32(o + 9, true), v.getUint32(o + 13, true), v.getUint8(o + 17) | ((x >> 1) << 8), v.getUint32(o + 18, true)];
-      o += 23;
+      // (this tab is BIN_VERSION, and the server encodes what each tab said it is: always the 24-byte record here)
+      const kind = v.getUint8(o + 4) | (v.getUint8(o + KIND_HI_AT) << 8);
+      const a = [v.getUint32(o, true), kind, v.getInt32(o + 5, true), v.getInt32(o + 9, true), v.getUint32(o + 13, true), v.getUint8(o + 17) | ((x >> 1) << 8), v.getUint32(o + 18, true)];
+      o += MOB_BYTES(BIN_VERSION);
       if (egg) {
         a.push(v.getUint32(o, true), v.getUint32(o + 4, true));
         o += 8;
