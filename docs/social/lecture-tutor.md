@@ -36,6 +36,10 @@ their syllabi), `src/hall.js` (hall + building), `src/tutor.js`, `src/courses-ui
   `tutor_known`, sent as the third value of each `scores` row). A verdict that masters a new question says so beside
   the score dots ("Mastered! N in this course", `result.mastered`): placed there, not at the bottom, so a long verdict
   can't push it off the board. Long names are cut short on the scoreboard to fit the extra column.
+- **The Most Mastered leaderboard** (owner request, same day): a second sheet pinned on the wall between the whiteboard
+  and the clock, the top `TOP_N` accounts by questions mastered in every course together, all time (ties: who got
+  there first). Sent as `top` in the tutor state; the server reads it at start and again whenever someone masters a
+  new question, never per tick.
 - Besides the CS courses, the tutor runs quizzes marked `tutorOnly` in `COURSES` (General Trivia, World
   Geography, Biomedical Science; owner request). Their `quiz` field tells the question writer what kind
   of question fits (trivia and geography want one checkable fact, biomed is short-answer like CS). The

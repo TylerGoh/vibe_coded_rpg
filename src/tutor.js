@@ -120,6 +120,7 @@ export class Tutor {
     this.drawExit(ctx);
     this.drawBoard(ctx);
     this.drawScores(ctx);
+    this.drawTop(ctx);
     // the tutor's desk, with the tutor behind it
     ctx.save();
     ctx.translate(TUTOR_X, FLOOR);
@@ -290,6 +291,37 @@ export class Tutor {
     if (r.right) py = para(`Right: ${r.right}`, py + 2, 12, '#2f8f5f', 3);
     if (r.missed) py = para(`Missed: ${r.missed}`, py + 2, 12, '#d03a3a', 3);
     para(`Answer: ${r.model}`, py + 2, 12, '#3c5a9a', 4);
+  }
+
+  // The all-time leaderboard, pinned to the wall right of the whiteboard: most questions mastered, every course together
+  drawTop(ctx) {
+    const x = 652, y = 44, w = 154;
+    const rows = this.state.top ?? [];
+    const h = 46 + Math.max(1, rows.length) * 18;
+    ctx.save();
+    ctx.translate(x + w / 2, y);
+    ctx.rotate(0.02);
+    ctx.fillStyle = '#e8f0ff';
+    ctx.fillRect(-w / 2, 0, w, h);
+    ctx.fillStyle = '#3c6ad0';
+    circle(ctx, 0, 4, 4); // pin
+    text(ctx, 'Most Mastered', 0, 20, 13, '#2c4f9e');
+    text(ctx, 'all courses, all time', 0, 34, 9, '#7a8bb3');
+    if (!rows.length) text(ctx, 'no one yet', 0, 54, 11, '#7a8bb3');
+    rows.forEach(([name, n], i) => {
+      const ry = 54 + i * 18;
+      ctx.font = `700 11px ${FONT}`;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = i === 0 ? '#d08a1a' : i < 3 ? '#3c6ad0' : '#3a3550';
+      let label = `${i + 1}. ${name}`;
+      while (label.length > 4 && ctx.measureText(label).width > w - 48) label = label.slice(0, -2) + '…';
+      ctx.fillText(label, -w / 2 + 8, ry);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#2f8f5f';
+      ctx.fillText(String(n), w / 2 - 8, ry);
+    });
+    ctx.restore();
   }
 
   // The session scoreboard, pinned to the wall
