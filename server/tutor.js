@@ -59,7 +59,13 @@ export function createTutor(broadcast, dbPath) {
              at INTEGER NOT NULL, PRIMARY KEY (user, course, question))`);
   const knownOf = db?.prepare('SELECT question FROM tutor_known WHERE user = ? AND course = ? ORDER BY at DESC LIMIT ?');
   const allKnown = db?.prepare('SELECT question FROM tutor_known WHERE user = ? AND course = ?');
-  const remember = db?.prepare('INSERT OR REPLACE INTO tutor_known (user, course, question, at) VALUES (?, ?, ?, ?)');
+  const remember = db?.prepare('INSERT OR IGNORE INTO tutor_known (user, course, question, at) VALUES (?, ?, ?, ?)');
+  const countKnown = db?.prepare('SELECT COUNT(*) AS n FROM tutor_known WHERE user = ? AND course = ?');
+  // how many questions a student has mastered (answered correctly, ever) in the course: on the scoreboard
+  const masteredIn = (user, c) => {
+    if (!countKnown || !c || c === BREAK) return 0;
+    try { return countKnown.get(user, c).n; } catch { return 0; }
+  };
   const known = (user, c) => {
     try { return knownOf ? knownOf.all(user, c, KNOWN_PROMPT).map((r) => r.question) : []; } catch { return []; }
   };
@@ -85,7 +91,8 @@ export function createTutor(broadcast, dbPath) {
   const state = () => ({
     t: 'tutor', phase, course, turn, question: question?.text ?? null, topic: question?.topic ?? null,
     answer: answerText, msLeft: phase === 'answering' ? Math.max(0, deadline - Date.now()) : 0, result,
-    scores: order.map((u) => [u, scores.get(u) ?? 0]),
+    // [name, points this session, questions mastered in this course ever]
+    scores: order.map((u) => [u, scores.get(u) ?? 0, masteredIn(u, course)]),
   });
   const send = () => broadcast(state());
 
@@ -176,7 +183,10 @@ Keep each field under 30 words, plain text.` },
     };
     scores.set(user, (scores.get(user) ?? 0) + score);
     if (verdict && score >= KNOWN_SCORE) {
-      try { remember?.run(user, course, question.text, Date.now()); } catch (e) { console.error('tutor remember:', String(e)); }
+      try {
+        // a new one (not one they'd had before, which only the last-resort fallback can repeat): the verdict says so
+        if (remember?.run(user, course, question.text, Date.now()).changes) result.mastered = masteredIn(user, course);
+      } catch (e) { console.error('tutor remember:', String(e)); }
     }
     phase = 'review';
     reviewUntil = Date.now() + REVIEW_MS + Math.min(8000, (result.model.length + result.missed.length) * 25);

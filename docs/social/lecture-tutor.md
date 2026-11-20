@@ -31,6 +31,11 @@ their syllabi), `src/hall.js` (hall + building), `src/tutor.js`, `src/courses-ui
   built-in questions (`FALLBACKS`, also used when the AI is down) skip known ones too: each template on the turn's topic,
   then on the course's other topics, the first not known nor asked this session; only a student who's had every one
   hears a repeat. A reworded repeat still gets past the check; only the prompt guards against those.
+- **Mastered counts are shown** (owner request, same day). The scoreboard on the wall has a `mastered` column beside the
+  session's points: each student's questions mastered in the current course, ever (`masteredIn`, a count of
+  `tutor_known`, sent as the third value of each `scores` row). A verdict that masters a new question says so beside
+  the score dots ("Mastered! N in this course", `result.mastered`): placed there, not at the bottom, so a long verdict
+  can't push it off the board. Long names are cut short on the scoreboard to fit the extra column.
 - Besides the CS courses, the tutor runs quizzes marked `tutorOnly` in `COURSES` (General Trivia, World
   Geography, Biomedical Science; owner request). Their `quiz` field tells the question writer what kind
   of question fits (trivia and geography want one checkable fact, biomed is short-answer like CS). The

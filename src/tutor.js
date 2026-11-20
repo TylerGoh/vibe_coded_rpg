@@ -277,6 +277,14 @@ export class Tutor {
       ctx.fillStyle = i < r.score ? '#ffcf3a' : '#e8e4dc';
       circle(ctx, x + 78 + i * 18, py + 16, 7);
     }
+    // a question newly mastered (never asked of them again), beside the dots so a long verdict can't push it off the board
+    if (r.mastered) {
+      ctx.font = `700 12px ${FONT}`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#2f8f5f';
+      ctx.fillText(`Mastered! ${r.mastered} in this course`, x + 176, py + 16);
+    }
     py += 32;
     if (r.comment) py = para(r.comment, py, 12, '#5b4a6b', 2);
     if (r.right) py = para(`Right: ${r.right}`, py + 2, 12, '#2f8f5f', 3);
@@ -286,9 +294,9 @@ export class Tutor {
 
   // The session scoreboard, pinned to the wall
   drawScores(ctx) {
-    const x = 34, y = 60, w = 130;
+    const x = 34, y = 60, w = 150;
     const rows = this.state.scores ?? [];
-    const h = 44 + Math.max(1, rows.length) * 20;
+    const h = 56 + Math.max(1, rows.length) * 20;
     ctx.fillStyle = '#fff6dc';
     ctx.save();
     ctx.translate(x + w / 2, y);
@@ -297,19 +305,30 @@ export class Tutor {
     ctx.fillStyle = '#e0567a';
     circle(ctx, 0, 4, 4); // pin
     text(ctx, 'Scoreboard', 0, 22, 14, '#8a6420');
-    if (!rows.length) text(ctx, 'no one yet', 0, 46, 11, '#a08bb3');
+    // column heads: points this session, questions mastered in this course (ever)
+    ctx.font = `700 9px ${FONT}`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#a08bb3';
+    ctx.fillText('pts', w / 2 - 46, 38);
+    ctx.fillText('mastered', w / 2 - 8, 38);
+    if (!rows.length) text(ctx, 'no one yet', 0, 58, 11, '#a08bb3');
     const best = Math.max(0, ...rows.map(([, p]) => p));
-    rows.forEach(([name, pts], i) => {
-      const ry = 46 + i * 20;
+    rows.forEach(([name, pts, mastered = 0], i) => {
+      const ry = 58 + i * 20;
       const isTurn = name === this.state.turn;
       ctx.font = `700 12px ${FONT}`;
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'left';
       ctx.fillStyle = isTurn ? '#3c6ad0' : '#3a3550';
-      ctx.fillText(`${isTurn ? '> ' : ''}${name}`, -w / 2 + 10, ry);
+      let label = `${isTurn ? '> ' : ''}${name}`;
+      while (label.length > 3 && ctx.measureText(label).width > w - 76) label = label.slice(0, -2) + '…';
+      ctx.fillText(label, -w / 2 + 10, ry);
       ctx.textAlign = 'right';
       ctx.fillStyle = pts === best && pts > 0 ? '#d08a1a' : '#3a3550';
-      ctx.fillText(String(pts), w / 2 - 10, ry);
+      ctx.fillText(String(pts), w / 2 - 46, ry);
+      ctx.fillStyle = mastered ? '#2f8f5f' : '#a08bb3';
+      ctx.fillText(String(mastered), w / 2 - 14, ry);
     });
     ctx.restore();
   }
