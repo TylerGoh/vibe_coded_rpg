@@ -9,7 +9,8 @@ Glass Dunes, `docs/places/glassdunes.md`). A0 and A1 (the Mirage Oasis and the B
 `docs/places/oasis.md`, `docs/places/observatory.md`) shipped in one update, so A0's own blocks on those two never went
 live. A2 opened the Salt Flats and the Netwife (`docs/places/saltflats.md`) and set Kesh trading; A3 the Buried
 Caravanserai, the Last Drover and the Glassjaw (`docs/places/buried.md`, `docs/places/glassdunes.md`); A4 the Storm Road, the
-Sirocco and the Red Wall, its party den (`docs/places/stormroad.md`). Old Carapace comes in A5 (`story/roadmap.md`).
+Sirocco and the Red Wall, its party den (`docs/places/stormroad.md`); A5 the Dry Wells, the Shell Road and Old Carapace, the
+final boss (`docs/places/drywells.md`, `docs/places/carapace.md`). Amberdune's depth pass is done.
 
 Files: the town's layout in `src/shared/rpg.js` (`CARAVAN`, `CARAVAN_W`, `KESH_X`, `DUNE_DOCK_X`, `SALTFLATS_GATE_X`,
 `DUNE_WAY_X`, `TALLY_X`, `DUNE_SPAWN_X`, `WELL_X`, `ASRA_X`, `DUNE_HOME_X`, `MOTHER_X`, `CARAVAN_EXIT_X`,
@@ -56,7 +57,8 @@ island's coast in `drawCoast`, the Saltwind in `SHIPS`), the Saltwind on the Bla
 - **Behind** (`drawDuneSky`): a high hot sky, a white sun with a wide ring, the far dunes, the other islands small over
   the sea to the north-east, in town the sea a bright far line out west past a glare of salt, and **a far hill on the
   horizon that isn't always in the same place** (Old Carapace walking: where depends on the hour of the day; the atlas's
-  hint at the finale, shown and never named; the World map's island dot does the same).
+  hint at the finale, shown and never named; the World map's island dot does the same). Freed (A5, per character) he lies
+  still, and Caravanserai's well comes up a little and Mother Dune strikes her tent (`docs/places/carapace.md`).
 - **A town** (owner's rule, `docs/world.md`): in `TOWNS`; you wake by the well, your house's front door lets you out
   here, houses can take Caravanserai as their window view (`drawCaravanView`). Its waystone has a new island,
   `isle: 'dune'` (Amberdune's stones: wind-scoured gold, half buried in a drift of sand, a string of blue beads round the

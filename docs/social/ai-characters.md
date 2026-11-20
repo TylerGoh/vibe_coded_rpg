@@ -157,7 +157,10 @@ one shared corner feed).
   Wall that took a caravan an age ago (everyone in town lost someone in it; Mother Dune a great-aunt's whole tent, Tally has
   every name in the ledger and sets their cups); the old well on the Red Rise chained shut by the caravan's rule (seven went
   down to dig when it failed and none came up), which Asra thinks about more than she should; and the lantern on the
-  tallest pillar, lit every night by nobody anyone knows. The update also taught Auntie Soot and Liv that the Saltwind
+  tallest pillar, lit every night by nobody anyone knows. Since A5: the well's chain cut and Asra's ladder down it (Mother
+  Dune let her: "someone should, before I die"), the Dry Wells and the Seventh Digger, the tin cup Asra brought up (she means
+  to give it to Tally), the Shell Road where the Walker passes close now (Tally's count of the days since is at zero, which
+  frightens him more), Kesh having seen him from the water at dusk. Nobody says his name. The update also taught Auntie Soot and Liv that the Saltwind
   calls at the Black Sands (Soot trades Kesh her hot-spring salts).
 - **Elder Mochi tends the Rebirth Pool** (S2.3, `docs/combat/skills.md`): he knows what it does, that the
   first choice is free and later changes cost about an hour's gold at your level, and only Warrior, Mage,

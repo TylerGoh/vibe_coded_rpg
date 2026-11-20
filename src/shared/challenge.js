@@ -38,7 +38,7 @@ export const CHALLENGES = {
   punish: { a: 19, name: 'Punish window', built: true, loop: true, min: 1, banner: 'It missed everyone: hit it now' },
   parry: { a: 20, name: 'Parry', built: true, min: 1, banner: 'A glowing hit: attack right as it lands' },
   airweak: { a: 21, name: 'Weak spot mid-air', built: true, min: 1, banner: 'A weak spot up high: jump and hit it' },
-  carry: { a: 22, name: 'Carry the thing', built: true, min: 1, banner: 'Pick it up (your loot key) and throw it back at the boss' },
+  carry: { a: 22, name: 'Carry the thing', built: true, min: 1, banner: 'Pick it up (your loot key) and throw it: back at the boss, or where it is wanted' },
   lock: { a: 23, name: 'Group key-lock', built: true, min: 2, banner: 'Everyone enter the arrows together' },
   // T3: A20 on thrown things (the Hall Troll's blocks): only its throws bring it, so `loop`
   deflect: { a: 20, name: 'Knock it back', built: true, loop: true, min: 1, banner: 'A glowing block: hold off, then attack right as it reaches you' },

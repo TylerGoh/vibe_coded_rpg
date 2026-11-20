@@ -170,6 +170,11 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    den; `docs/places/stormroad.md`). Sand jackals (quick chasers), storm riders (`dive`), sand golems (`stomp`; the rare
    Sandstone Mask), red wisps (`beam`, the new beam style `redbolt`), and the Sirocco, a `blink` field boss (gaps style
    `sandwall`, pulse `gust`). A room hazard, the squalls on the rises (`SQUALLS`, `squallAt`: the Skydocks' gusts' pattern).
+50. **The Dry Wells**: A5 (b), Amberdune's deep room down the old well on the Storm Road (Lv 244–250, hard-pocket rules, no
+   waystone; `docs/places/drywells.md`). Dry striders (quick chasers; elite the Old Strider), bucket mimics (`stomp`; the rare
+   Bucket Helm; elite the Great Bucket), tally wraiths (`phase`), dust drinkers (`lob`, the new shot style `grit`; elite the
+   Last Waterskin), and the Seventh Digger (a named elite: `stomp`). Its far end climbs out to the Shell Road, Old Carapace's
+   approach.
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

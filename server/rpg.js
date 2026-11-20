@@ -14,9 +14,9 @@
 import { DatabaseSync } from 'node:sqlite';
 import { SANDBOX_PARTY } from '../src/shared/sandbox.js';
 import { cleanKeys } from '../src/shared/keys.js';
-import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, INTERRUPT_CHANCE, EGG_HP, FIELD_GROUND, THORNHEART, THORN_PATCHES, patchAt, PATCH_DOT, PATCH_HIT_EVERY, ROADSEND, LADON_MARK_X, LADON_LINE, BLUEHALLS, THIN_ICE, THIN_ICE_HOLD, THIN_ICE_DOT, LONGSTAIR, FENRIR_MARK_X, FENRIR_LINE, FOUNDRY, HOT_GRATES, grateAt, GRATE_DOT, LONGFLUE, TYPHON_MARK_X, TYPHON_LINE, LAMPROAD, WICK_MARK_X, WICK_LINE, SPOKE, ESC_MARK_X, ESC_LINE, SKYDOCKS, GUSTS, gustAt, GUST_DOT, ENGINE, TURBINES, turbineAt, TURBINE_DOT, KEEL, GRINDS, grindAt, GRIND_DOT, STORMROAD, SQUALLS, squallAt, SQUALL_DOT } from '../src/shared/rpg.js';
+import { FIELD, MOBS, SPAWNS, MOB_RESPAWN_MS, ITEMS, STACKS, BAG_SLOTS, CHEST_SLOTS, PICKUP_RANGE, expToNext, HURT_INVULN_MS, DENS, DEN_W, BOSS_RESPAWN_MS, BOSS_WINDOW_MS, BOSS_REPEAT_SHARE, LEVEL_MIN, expFalloff, OVERLEVEL_GRACE, BOSS_HP_PER_PLAYER, bossMaxHp, FIELD_BOSS_RESPAWN_MS, PHASE_AT, COMBO_CHANCE, COMBO_MAX, ULT_FIRST, ULT_EVERY, ULT_WARN, NOVA_SAFE, WAVE_SPEED, isCombat, SHOPS, SHOP_RANGE, sellPrice, BUY_MAX, COSMETICS, canScroll, rollScroll, slotsOf, enhName, gearSlotOf, STAFF_OF, CLERIC_STAFF_OF, BOW_OF, STAFF_OFFKIND, lootFits, STAFF_BOLT_MULT, BOW_SHOT_MULT, rebirthCost, PARTY_MECHS, partyActive, partyBit, FOCUS_S, FOCUS_GAP, FOCUS_ATK, TAUNT_S, PULSE_EVERY, PULSE_WARN, PULSE_HP, CURSE_EVERY, CURSE_WARN, CURSE_R, CURSE_MAX, CURSE_DOT, CURSE_S, CURSE_FADE_R, CURSE_FADE_S, curseMult, BARRIER_EVERY, BARRIER_WARN, BARRIER_S, BARRIER_HP, ARMOUR_EVERY, ARMOUR_WARN, ARMOUR_S, ARMOUR_CRACKS, heavyHit, WEAK_EVERY, WEAK_OPEN_S, WEAK_MARK_S, WEAK_HP, weakOf, weakReach, STAGGER_S, partyHitMult, barrierCovers, weakFaces, BARRIER_TURN_S, ADDS_PER_FIGHTER, ADDS_MAX, FIELD_ADDS_EVERY, FIELD_ADDS_MAX, bossHitPct, pulseHpOf, barrierOf, weakHpOf, INTERRUPT_CHANCE, EGG_HP, FIELD_GROUND, THORNHEART, THORN_PATCHES, patchAt, PATCH_DOT, PATCH_HIT_EVERY, ROADSEND, LADON_MARK_X, LADON_LINE, BLUEHALLS, THIN_ICE, THIN_ICE_HOLD, THIN_ICE_DOT, LONGSTAIR, FENRIR_MARK_X, FENRIR_LINE, FOUNDRY, HOT_GRATES, grateAt, GRATE_DOT, LONGFLUE, TYPHON_MARK_X, TYPHON_LINE, LAMPROAD, WICK_MARK_X, WICK_LINE, SPOKE, ESC_MARK_X, ESC_LINE, SKYDOCKS, GUSTS, gustAt, GUST_DOT, ENGINE, TURBINES, turbineAt, TURBINE_DOT, KEEL, GRINDS, grindAt, GRIND_DOT, STORMROAD, SQUALLS, squallAt, SQUALL_DOT, SHELLROAD, CARAPACE_MARK_X, CARAPACE_LINE } from '../src/shared/rpg.js';
 import { HYDRA_HIT, PISTON_RANGE, PISTON_MULT, PISTON_PIERCE, ERUPT_R, ERUPT_MULT, EXPLODE_R, EXPLODE_MULT, GROUND_MULT, TRAIL_MULT, DASH_SLASH_MULT, NOVA_R, NOVA_MULT, VOLLEY, STOMP_R, STOMP_MULT } from '../src/shared/gearfx.js';
-import { fxOf, gearMoves, GX, OATH_EVERY, REWIND_CD_S, REWIND_SAFE_S, FURNACE_DRAIN, FURNACE_STILL, REST_HEAL, SIT_S, SIT_CUT, BREWER, PISTON_HP, PISTON_FREE, HYDRA_ECHO, HOURS_RESET } from '../src/shared/gearfx.js';
+import { fxOf, gearMoves, GX, OATH_EVERY, REWIND_CD_S, REWIND_SAFE_S, FURNACE_DRAIN, FURNACE_STILL, REST_HEAL, WAY_HEAL, SIT_S, SIT_CUT, BREWER, PISTON_HP, PISTON_FREE, HYDRA_ECHO, HOURS_RESET } from '../src/shared/gearfx.js';
 import { mpCost, BLAST_MAX } from '../src/shared/skills.js';
 import { SPLIT_R, SKILLS, ACTIVE, HOTBAR, POTBAR, AP_STATS, AP_PER_LVL, apOf, apTotal, apSpent, statsFor, cantLearn, cantUnlearn, rankOf, spLeft, spFree, cleanSkills, giftsOf, skillFor, GODS_DUR, GODS_BOOST, weaponOk, CLASSES, CLASS_LVL, ADVANCEMENTS, advanceText, mpRegen, cooldownOf, durOf, mobilityOf, chaseOf, MOMENTUM_MAX, MOMENTUM_DUR, MOMENTUM_STILL, CHILL_S, FREEZE_S, FREEZE_BOSS, FROZEN_BOSS_SLOW, SHATTER_MULT, SHATTER_GRACE_MS, BURN_DPS, BURN_SPREAD, ARCANE_MAX, ARCANE_DUR, spendsArcane, arcaneMult, hitKinds, healOf, classNames, HOLY_BOLT_MULT, HOLY_BOLT_HEAL, HOLY_BOLT_HEAL_R, BARB_SLOW, BARB_BONUS, FAR_BONUS, NET_BOSS_SLOW, aOrAn, isLongBuff, buffFx, DOTS, FIELD_TALL, FIELD_LOOKS, fieldLook, ONKILL_DEPTH, RICOCHET_MS, onKillFrom, PULL_MS, statOf, MAX_ROLL, enableTestSkills, giftFor, momentumMax, STUN_S, RETRI_HOLD, EXEC_AT, UNBROKEN_R, OATH_R, targetsOf, retriMult, staticS, DEVOTION_S, DEVOTION_CAP, JUDGMENT_R, JUDGMENT_AT, JUDGMENT_MAX, judgmentMult, RESOLVE_R } from '../src/shared/skills.js';
 import { createSummons } from './summons.js';
@@ -153,6 +153,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     lockBroken: (m) => (m.shield ? breakShield(m, m.shield.kind === 'armour' ? 'armour' : 'barrier') : stagger(m)),
     later: (m, ms, fn) => later(m, ms, fn),
     addAdd: (m, kind, x) => addAdd(m, kind, x),
+    poured: (m, id, p) => final.poured(m, id, p), // (A5 (c): a waterskin thrown into Old Carapace's well)
   });
   // a named add of a boss's own (Skoll and Hati; the Hatchkeeper's hatchlings): a minion of kind `kind`, at x
   function addAdd(m, kind, x) {
@@ -167,6 +168,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   let longFlueSaid = false; // (the Long Flue: Typhon has spoken since it last emptied)
   let lampRoadSaid = false; // (the Lamp Road: the Wickmother has spoken since it last emptied)
   let spokeSaid = false; // (the Spoke: the Escapement has spoken since it last emptied)
+  let shellSaid = false; // (the Shell Road: Old Carapace has spoken since it last emptied)
   const inRoom = (room) => [...players.entries()].filter(([, q]) => q.joined && q.rpg && q.state.room === room);
   const now = () => Date.now();
 
@@ -2807,6 +2809,13 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
           spokeSaid = true;
           toRoom(SPOKE)({ t: 'boss', a: 'voice', who: 'The Escapement', text: ESC_LINE });
         }
+        // the Shell Road (atlas Phase 9, A5 (b)): the same for Old Carapace's line, past CARAPACE_MARK_X
+        const onShell = inRoom(SHELLROAD);
+        if (!onShell.length) shellSaid = false;
+        else if (!shellSaid && onShell.some(([, q]) => q.state.x > CARAPACE_MARK_X)) {
+          shellSaid = true;
+          toRoom(SHELLROAD)({ t: 'boss', a: 'voice', who: 'Old Carapace', text: CARAPACE_LINE });
+        }
       }
       summons.tick(dt, tick); // the Cleric's spirits, wisps and totems (server/summons.js)
       // Mend (Cleric): a heal every second while it lasts, from its caster (gone if the caster left)
@@ -2909,6 +2918,10 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
           const stillS = p.stillSince ? (t - p.stillSince) / 1000 : 0;
           if (combat && st.fx.rest && stillS >= 1 && c.hp < st.maxHp) {
             c.hp = Math.min(st.maxHp, c.hp + st.maxHp * REST_HEAL);
+            changed = true;
+          }
+          if (combat && st.fx.wayfarer && p.state.grounded && Math.abs(p.state.vx) >= 1 && c.hp < st.maxHp) { // (Old Carapace's crown: walking heals)
+            c.hp = Math.min(st.maxHp, c.hp + st.maxHp * WAY_HEAL);
             changed = true;
           }
           if (combat && st.fx.furnace && stillS >= FURNACE_STILL && c.hp > 1) {

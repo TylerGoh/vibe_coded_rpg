@@ -11,6 +11,7 @@ import { createWolf } from './fenrir.js';
 import { createTyphon } from './typhon.js';
 import { createMoth } from './wickmother.js';
 import { createCatch } from './escapement.js';
+import { createShell } from './carapace.js';
 import { DOUBLE_DELAY, HEADSWAP_AT, HEADSWAP_SPREAD, SAFE_SHRINK_W, SAFE_DRIFT, SNARE_R } from '../src/shared/challenge.js';
 import { FINAL, finalPhase, FINAL_ENRAGE_MIN, COIL_ENRAGE_S, ENRAGE_BREATH_S, FINAL_ULT_WARN, FINAL_GAP_S, LADON_SLOTS, HEAD_MAX, HEAD_RING, HEAD_CHUNK, HEAD_ADDS, REGROW_S, SEALED_REGROW_S, WATCH_S, BITE_WARN, BITE_REST_S, BITE_STUCK_S, BITE_R, LASH_WARN, LASH_FLOOR, LASH_ARCH, COIL_S, GAZE_S, GAZE_HP, GAZE_WEAK, COIL_STEP, COIL_STEPS, HUNDRED_GAPS, HUNDRED_GAP_W, FIN_W, headSpot, headReach, headTarget, throatOpen, isStump } from '../src/shared/final.js';
 
@@ -22,23 +23,25 @@ const pick = (a) => a[Math.floor(Math.random() * a.length)];
 // The engine (FB2 generalised it): each FINAL row names its brain ('hydra': this file's, Ladon's heads and coils;
 // 'wolf': server/fenrir.js, Fenrir's fetters, lanterns and sons; 'fire': server/typhon.js, Typhon's plates, pressure and
 // vents, E5; 'moth': server/wickmother.js, the Wickmother's hall lanterns, moths, silk walls and dark, L5; 'catch':
-// server/escapement.js, the Escapement's pendulum, pallets, pawls and the Stopping, the Citadel's C6 (c)). They share one
+// server/escapement.js, the Escapement's pendulum, pallets, pawls and the Stopping, the Citadel's C6 (c); 'shell':
+// server/carapace.js, Old Carapace's stride, well, mirages and Lie Down, atlas Phase 9 A5 (c)). They share one
 // face, which server/rpg.js calls for any boss with `final`: tick (instead of bossBrain), part / hitHead (hits on its other
 // targets: h[4] = 2 + slot), send, son (stepMob, for an add with `son`: Skoll and Hati; `son: 'moth'`, the Wickmother's
 // moths; `son: 'pawl'`, the Escapement's pawls), frost (a frost hit landed in its den: Typhon's plates crust; the others ignore it) and hold (what's left of a
 // hit on its body: the Wickmother's lit lanterns take a share; the Escapement's Tick opens it wider, more than 1; 1 for
 // the others).
 export function createFinal(d) {
-  const brains = { hydra: createHydra(d), wolf: createWolf(d), fire: createTyphon(d), moth: createMoth(d), catch: createCatch(d) };
+  const brains = { hydra: createHydra(d), wolf: createWolf(d), fire: createTyphon(d), moth: createMoth(d), catch: createCatch(d), shell: createShell(d) };
   const of = (m) => brains[FINAL[d.MOBS[m.kind].final]?.brain ?? 'hydra'];
   return {
     tick: (m, ...a) => of(m).tick(m, ...a),
     part: (m, ...a) => of(m).part(m, ...a),
     hitHead: (m, ...a) => of(m).hitHead(m, ...a),
     send: (m) => of(m).send(m),
-    son: (m, k, ...a) => (k.son === 'moth' ? brains.moth : k.son === 'pawl' ? brains.catch : brains.wolf).son(m, k, ...a),
+    son: (m, k, ...a) => (k.son === 'moth' ? brains.moth : k.son === 'pawl' ? brains.catch : k.son === 'mirage' ? brains.shell : brains.wolf).son(m, k, ...a),
     frost: (m, ...a) => of(m).frost?.(m, ...a),
     hold: (m) => of(m).hold?.(m) ?? 1,
+    poured: (m, ...a) => of(m).poured?.(m, ...a), // (A5 (c): Old Carapace's well)
   };
 }
 

@@ -32,6 +32,8 @@ export const STEADY_S = 4, STEADY_DMG = 1.35, STEADY_HP = 0.9; // the Helmsman's
 export const TICK_EVERY = 3, TICK_DMG = 2.4, TICK_OTHER = 0.85; // the Escapement's weapons: every TICK_EVERYth hit × TICK_DMG, the rest × TICK_OTHER
 export const KEEP_DASH = 0.5, KEEP_DEF = 0.9; // the Escapement's crown (Keep Time): dash cooldown ×; DEF ×
 export const DRIVEN_DMG = 1.3, DRIVEN_STILL = 0.8, DRIVEN_STILL_S = 0.5; // the Red Wall's weapons (Driven Sand): moving or in the air, hits × DRIVEN_DMG; standing still DRIVEN_STILL_S or more, × DRIVEN_STILL
+export const MILES_EVERY = 10, MILES_STEP = 0.05, MILES_START = 0.8, MILES_MAX = 1.5; // Old Carapace's weapons (Miles): from MILES_START, +MILES_STEP every MILES_EVERY s you stay in a room, up to MILES_MAX
+export const WAY_HEAL = 0.02, WAY_DEF = 0.85; // Old Carapace's crown (Wayfarer): walking heals WAY_HEAL of your HP a second (in combat); DEF ×
 export const TAIL_DEF = 0.9; // the Red Wall's veil (Tailwind: Typhon's mask's quicker walk, no trail): DEF ×
 export const RUSH_S = 3, RUSH_SPEED = 1.15, SHATTERER = 1.2, BREWER = 1.5, PHASE_IFR = 30; // the small ones
 
@@ -53,6 +55,7 @@ export const GEAR_FX = {
   piston: { name: 'Clockwork', sword: `Every swing also fires a piston shot ahead (${PISTON_MULT * 100}%).`, staff: `Every ${PISTON_FREE}th spell is free.`, bow: `Arrows go through ${PISTON_PIERCE} more mobs.`, cost: `Every attack costs ${PISTON_HP * 100}% of your HP.` },
   steady: { name: 'Steady As She Goes', all: `Go ${STEADY_S} s without being hurt: +${Math.round((STEADY_DMG - 1) * 100)}% damage until something hits you.`, cost: `Max HP −${Math.round((1 - STEADY_HP) * 100)}%.` },
   tick: { name: 'The Tick', all: `Every ${TICK_EVERY}rd hit does ${TICK_DMG}×.`, cost: `The others do ${Math.round((1 - TICK_OTHER) * 100)}% less.` },
+  miles: { name: 'Miles', all: `Every ${MILES_EVERY} s you stay in a room, +${Math.round(MILES_STEP * 100)}% damage, up to +${Math.round((MILES_MAX - 1) * 100)}%.`, cost: `You start ${Math.round((1 - MILES_START) * 100)}% down; leaving the room starts it over.` },
   driven: { name: 'Driven Sand', all: `Moving or in the air, +${Math.round((DRIVEN_DMG - 1) * 100)}% damage.`, cost: `Standing still, ${Math.round((1 - DRIVEN_STILL) * 100)}% less.` },
   lastlight: { name: 'The Last Light', all: `Below half your HP, +${Math.round((LAST_DMG - 1) * 100)}% damage.`, cost: `Max HP −${Math.round((1 - LAST_HP) * 100)}%.` },
   // helmets of the top and final bosses
@@ -65,6 +68,7 @@ export const GEAR_FX = {
   bulwark: { name: 'Unmoved', all: 'Nothing knocks you back.', cost: `Walk ${Math.round((1 - BULWARK_WALK) * 100)}% slower.` },
   sittight: { name: 'Sit Tight', all: `Stand still for ${SIT_S} s: take ${Math.round((1 - SIT_CUT) * 100)}% less damage until you move.`, cost: `Walk ${Math.round((1 - BULWARK_WALK) * 100)}% slower.` },
   keel: { name: 'Even Keel', all: 'Nothing knocks you back, and a tilting floor doesn\'t slide you.', cost: 'No dash.' },
+  wayfarer: { name: 'Wayfarer', all: `Walking heals ${Math.round(WAY_HEAL * 100)}% of your HP a second.`, cost: `DEF −${Math.round((1 - WAY_DEF) * 100)}%.` },
   tailwind: { name: 'Tailwind', all: `Walk ${Math.round((FURNACE_WALK - 1) * 100)}% faster.`, cost: `DEF −${Math.round((1 - TAIL_DEF) * 100)}%.` },
   keeptime: { name: 'Keep Time', all: `Dash comes back ${Math.round(1 / KEEP_DASH)}× as fast.`, cost: `DEF −${Math.round((1 - KEEP_DEF) * 100)}%.` },
   moth: { name: 'Moth-Wing', all: 'Jump a quarter higher; hold Jump while falling to flutter down.', cost: `DEF −${Math.round((1 - MOTH_DEF) * 100)}%.` },
@@ -80,7 +84,7 @@ export const GEAR_FX = {
 // boss → [its weapons' effect, its helmet's effect] (one id: every piece)
 const BOSS_FX = {
   ladon: ['hydra', 'briar'], chronos: ['hours', 'rewind'], typhon: ['hearth', 'furnace'], brenna: ['burden', 'quake'],
-  fenrir: ['unbound', 'pack'], root_warden: ['rooted', 'rest'], sigrun: ['oath', 'bulwark'], colossus: ['piston', 'glide'], grandfather_mire: ['promise', 'sittight'], wickmother: ['lastlight', 'moth'], helmsman: ['steady', 'keel'], escapement: ['tick', 'keeptime'], red_wall: ['driven', 'tailwind'],
+  fenrir: ['unbound', 'pack'], root_warden: ['rooted', 'rest'], sigrun: ['oath', 'bulwark'], colossus: ['piston', 'glide'], grandfather_mire: ['promise', 'sittight'], wickmother: ['lastlight', 'moth'], helmsman: ['steady', 'keel'], escapement: ['tick', 'keeptime'], red_wall: ['driven', 'tailwind'], old_carapace: ['miles', 'wayfarer'],
   knotmole: 'rush', hornet_queen: 'rush', snapjaw: 'firstcrit', thorn_hart: 'firstcrit', frost_queen: 'shatterer', ignis: 'shatterer',
   old_narwhal: 'wall', hall_troll: 'wall', tidemother: 'brewer', hatchkeeper: 'brewer', pale_wyrm: 'phase', brimstone_condor: 'phase',
 };

@@ -13,6 +13,7 @@
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
 import { STORM_W, FIELD_GROUND, STORM_PLATFORMS, STORM_ZONES, STORM_EXIT_X, STORM_LAMP_X, RED_DEN_X, SQUALLS, squallAt } from './shared/rpg.js';
 import { drawDuneSky, drawDuneAir } from './caravan.js';
+import { isWalkerStill } from './distant.js';
 import { drawDuneSign } from './glassdunes.js';
 import { STONE, STONE_D, STONE_L } from './stormroad-art.js';
 
@@ -86,16 +87,17 @@ export function drawStormRoad(ctx, camX, viewW, time, tick, freed = false) {
 // out ahead, dust under him. Out of reach (drawing only). Where he is goes with the hour, like drawDuneSky's walker, but
 // here he's near enough to see walk.
 function drawWalker(ctx, camX, time, red) {
-  const hour = (Date.now() / 3.6e6) % 24;
+  const still = isWalkerStill(), hour = still ? 15 : (Date.now() / 3.6e6) % 24; // (freed, A5 (c): lying still)
   const x = ((hour / 24) * 2600 - camX * 0.04 + 900) % 2600 - 500, y = HORIZON + 6, s = 2.2;
   if (x < -260 || x > W + 260) return;
-  const a = 0.62 - red * 0.3, step = time * 0.35;
+  const a = 0.62 - red * 0.3, step = still ? 0 : time * 0.35;
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(s, s);
   ctx.globalAlpha = a;
   ctx.fillStyle = '#a07a5e';
-  for (let i = 0; i < 4; i++) { // four legs, slow, a pair at a time
+  if (still) ctx.translate(0, 16); // (lying on the sand, his legs drawn in)
+  else for (let i = 0; i < 4; i++) { // four legs, slow, a pair at a time
     const lx = -40 + i * 26, k = Math.sin(step + (i % 2) * Math.PI);
     ctx.beginPath();
     ctx.roundRect(lx - 5 + k * 3, -22 - Math.max(0, k) * 3, 10, 22 + Math.max(0, k) * 3, 4);
@@ -127,8 +129,8 @@ function drawWalker(ctx, camX, time, red) {
   ctx.ellipse(70, -22 + Math.sin(step * 2) * 1.5, 14, 9, 0.1, 0, TAU);
   ctx.fill();
   ctx.fillRect(56, -26, 10, 8);
-  ctx.fillStyle = 'rgba(232,206,170,0.55)'; // dust under him
-  for (let i = 0; i < 5; i++) ellipse(ctx, -50 + i * 26 + Math.sin(time + i) * 3, -2, 16, 4);
+  ctx.fillStyle = 'rgba(232,206,170,0.55)'; // dust under him (none, lying still)
+  if (!still) for (let i = 0; i < 5; i++) ellipse(ctx, -50 + i * 26 + Math.sin(time + i) * 3, -2, 16, 4);
   ctx.restore();
 }
 // the sky going red toward the storm, a dim sun through it

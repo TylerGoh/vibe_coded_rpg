@@ -9,7 +9,7 @@ import {
   fxOf, GX, HYDRA_HIT, HEARTH_EVERY, ERUPT_R, ERUPT_MULT, EXPLODE_R, EXPLODE_MULT, GROUND_S, GROUND_W, GROUND_MULT, GROUND_EVERY,
   LAST_AT, LAST_DMG, TICK_EVERY, TICK_DMG, TICK_OTHER, DASH_SLASH_MULT, NOVA_R, NOVA_MULT, VOLLEY, ROOTED_S, ROOTED_DMG, OATH_BONUS, PISTON_RANGE, PISTON_MULT, PISTON_PIERCE, PISTON_FREE,
   TRAIL_EVERY, TRAIL_S, TRAIL_W, TRAIL_MULT, STOMP_VY, STOMP_R, STOMP_MULT, RUSH_S, SHATTERER, PROMISE_STEP, PROMISE_MAX, PROMISE_BROKEN,
-  STEADY_S, STEADY_DMG, DRIVEN_DMG, DRIVEN_STILL, DRIVEN_STILL_S,
+  STEADY_S, STEADY_DMG, DRIVEN_DMG, DRIVEN_STILL, DRIVEN_STILL_S, MILES_EVERY, MILES_STEP, MILES_START, MILES_MAX,
 } from './shared/gearfx.js';
 import { audio } from './audio.js';
 import { bowTint } from './bow-art.js';
@@ -26,6 +26,7 @@ export class Gear {
     this.oath = false; // Sigrun's weapons: a hit was blocked, our next hit does OATH_BONUS×
     this.promise = { id: null, n: 0 }; // Grandfather Mire's weapons: the mob we hit last, and how many hits on it in a row
     this.tickN = 0; // the Escapement's weapons: hits since the last one on the tick
+    this.miles = { room: null, at: 0 }; // Old Carapace's weapons: the room we're in and since when
     this.grounds = []; // burning ground (Typhon's staff): { x, y, until }
     this.trail = []; // the fire trail (Typhon's mask): { x, y, until }
     this.tickAt = 0;
@@ -54,6 +55,10 @@ export class Gear {
     if (f.shatterer && (k?.boss || k?.field) && (v.frozen || v.burning)) x *= SHATTERER;
     if (f.lastlight && this.g.me && this.g.me.hp < this.g.me.maxHp * LAST_AT) x *= LAST_DMG; // (the Wickmother's weapons: below half your HP)
     if (f.steady && this.g.time - this.g.hurtAt >= STEADY_S) x *= STEADY_DMG; // (the Helmsman's weapons: nothing has hit us for a while)
+    if (f.miles) { // (Old Carapace's weapons: the longer you stay in a room, the more)
+      if (this.miles.room !== this.g.room) this.miles = { room: this.g.room, at: this.g.time };
+      x *= Math.min(MILES_MAX, MILES_START + MILES_STEP * Math.floor((this.g.time - this.miles.at) / MILES_EVERY));
+    }
     if (f.driven) x *= this.stillSince != null && this.g.time - this.stillSince >= DRIVEN_STILL_S ? DRIVEN_STILL : DRIVEN_DMG; // (the Red Wall's weapons: never stand still)
     if (f.tick && v) x *= ++this.tickN % TICK_EVERY === 0 ? TICK_DMG : TICK_OTHER; // (the Escapement's weapons: every third hit lands on the tick)
     if (f.promise && v) { // the same mob again: one step stronger; another mob first: broken (that hit weaker), start over

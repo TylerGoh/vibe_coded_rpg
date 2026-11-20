@@ -8,6 +8,7 @@ import { FENRIR_PLATFORMS, FEN_MID } from './fenrir.js';
 import { TYPHON_PLATFORMS, TY_MID } from './typhon.js';
 import { HALL_PLATFORMS, WM_MID } from './wickmother.js';
 import { CATCH_PLATFORMS, ESC_MID } from './escapement.js';
+import { CARAPACE_PLATFORMS, HEAD_X, WELL_X as SHELL_WELL_X } from './carapace.js';
 import { ARENA, DUMMY_HP, SPAR_HIT_PCT } from './sandbox.js';
 import { uptimeOf } from './challenge.js';
 
@@ -39,7 +40,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 8850; // (the mini Sirocco and Red Wall (A4) too; the mini Glassjaw, Netwife and Last Drover (A2, A3) too; the mini Sunroller (atlas Phase 9, A1) too; the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), the mini Helmsman and Great Bell (C4, 7258), the mini Rustwyrm (C5, 7416) and the mini Escapement (C6 (c), 7542): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 9150; // (the mini Old Carapace (A5) too; the mini Sirocco and Red Wall (A4) too; the mini Glassjaw, Netwife and Last Drover (A2, A3) too; the mini Sunroller (atlas Phase 9, A1) too; the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), the mini Helmsman and Great Bell (C4, 7258), the mini Rustwyrm (C5, 7416) and the mini Escapement (C6 (c), 7542): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -985,6 +986,53 @@ export function squallAt(i, t) {
   if (c < SQUALL_WARN + SQUALL_BLOW + 50) return { k: 1 - (c - SQUALL_WARN - SQUALL_BLOW) / 50, blow: false };
   return { k: 0, blow: false };
 }
+
+// ——— atlas Phase 9, A5 (b): the Dry Wells and the Shell Road (story/a5-plan.md; docs/places/drywells.md) ———
+// The Dry Wells (room 109): Amberdune's deep room (hard-pocket rules: elites throughout, no waystone, no trader), down the old
+// well on the Storm Road's Red Rise (DRYWELL_GATE_X there: chained shut until A5, the caravan's rule). Old well-shafts going up
+// to small rounds of daylight and the cisterns between them, dry an age, the walls scratched with tally marks of the days
+// without rain, darker going east. You come in at the WEST end at the foot of Asra's rope ladder (no mobs) and go east: the
+// Cisterns, the Tally Galleries and the Deep Cistern, where the Seventh Digger digs; out at the far end up the dry spring
+// (DRYW_END_X) onto the Shell Road. The find (last in DRYW_PLATFORMS): a tin cup full of sand on a ledge in the deepest
+// cistern, beside seven tally marks and an eighth begun.
+export const DRYWELLS = 109; // room id
+export const DRYW_W = 4600;
+export const DRYW_EXIT_X = 70; // back up Asra's rope ladder to the Storm Road
+export const DRYW_END_X = DRYW_W - 80; // up the dry spring onto the open desert (the Shell Road)
+export const DRYW_CUP_X = 4040; // the ledge with the tin cup (drawing; its top is the find)
+export const DRYW_ZONES = [
+  { name: 'The Well Foot', x0: 0, x1: 600, lvl: null }, // (no mobs)
+  { name: 'The Cisterns', x0: 600, x1: 1900, lvl: '244–246' },
+  { name: 'The Tally Galleries', x0: 1900, x1: 3300, lvl: '246–248' },
+  { name: 'The Deep Cistern', x0: 3300, x1: DRYW_W, lvl: '248–250' },
+];
+// the cisterns' vaulting shelves, fallen well-head stones, old bucket-beams across the shafts; the cup's ledge (hidden, last)
+export const DRYW_PLATFORMS = [
+  { x: 760, y: 348, w: 190, kind: 'stone' },
+  { x: 1120, y: 276, w: 170, kind: 'shelf' },
+  { x: 1580, y: 338, w: 190, kind: 'stone' },
+  { x: 2060, y: 300, w: 180, kind: 'beam' },
+  { x: 2520, y: 340, w: 190, kind: 'stone' },
+  { x: 2940, y: 262, w: 170, kind: 'shelf' },
+  { x: 3480, y: 336, w: 190, kind: 'stone' },
+  { x: 3820, y: 270, w: 170, kind: 'beam' },
+  { x: DRYW_CUP_X - 45, y: 176, w: 90, kind: 'cup' }, // the tin cup's ledge in the deepest cistern: easy to miss
+];
+// Amberdune's top (A5): the Dry Wells' top level, and Old Carapace's recommended level (his tag: finalTag(DUNE_TOP))
+export const DUNE_TOP = 250;
+// The Shell Road (room 110): the approach to Old Carapace's back. No mobs and no combat (no STAGES row): up out of the dry
+// spring onto the open desert at dusk, where he walks past, a hill moving, nearer at every step, until one great foreleg
+// plants in front of you, its scales stepped like a stair (CARAPACE_DEN_X: the climb, his den's door). Everything else is
+// drawn (src/shellroad.js). CARAPACE_MARK_X: the first slime past it in an empty Shell Road hears him (CARAPACE_LINE,
+// server/rpg.js).
+export const SHELLROAD = 110; // room id
+export const SHELL_W = 2600;
+export const SHELL_EXIT_X = 70; // back down the dry spring into the Dry Wells
+export const CARAPACE_MARK_X = 1000;
+export const CARAPACE_DEN_X = SHELL_W - 240;
+export const LONG_DEN = 111; // the den's room id (A5 (c): the Long Road, his back, its DENS row)
+export const LONG_DEN_NAME = 'The Long Road';
+export const CARAPACE_LINE = 'Who is that, down there? ...Come up, then. Come up. We have a long way to go.';
 export function turbineAt(i, t) {
   const c = (((t + i * 151) % TURBINE_CYCLE) + TURBINE_CYCLE) % TURBINE_CYCLE;
   if (c < TURBINE_WARN) return { k: c / TURBINE_WARN, spin: false };
@@ -1865,6 +1913,7 @@ export const STAGES = {
   [SALTFLATS]: { name: 'The Salt Flats', zones: SFLATS_ZONES, band: '226–236', pill: 'Salt Flats' }, // (A2)
   [BURIED]: { name: 'The Buried Caravanserai', zones: BURIED_ZONES, band: '234–242', pill: 'Buried Town', hard: true }, // (A3)
   [STORMROAD]: { name: 'The Storm Road', zones: STORM_ZONES, band: '236–250', pill: 'Storm Road' }, // (A4)
+  [DRYWELLS]: { name: 'The Dry Wells', zones: DRYW_ZONES, band: '244–250', pill: 'Dry Wells', hard: true }, // (A5 (b): the deep room)
   [OBSERVATORY]: { name: 'The Buried Observatory', zones: OBS_ZONES, band: '222–232', pill: 'Observatory' }, // (A1)
 };
 export const zoneAt = (x, room = FIELD) => {
@@ -4293,6 +4342,78 @@ MOBS.red_wall = {
   },
   drops: [['royal_sap', 1, 2, 3], ['long_wind', 1, 1, 1], ['storm_veil', 0.6, 1, 1], ['coin', 1, 3100000, 4810000], ['mega_elixir', 1, 4, 6], ['caught_bead', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
 };
+// ——— atlas Phase 9, A5 (b): the Dry Wells (art: src/drywells-art.js; docs/places/drywells.md), the deep room on hard-pocket
+// rules. On the frozen curve; elites throughout, and a named elite ———
+// Dry striders are the cisterns' water striders from when there was water, long legs skating on the dust now, quick (plain
+// chasers); bucket mimics are the wells' old buckets gone hungry, iron-bound, that hop and slam down on you (`stomp`; the rare
+// Bucket Helm); tally wraiths are the dust of the seven who went down to dig the well deeper, still scratching their marks
+// on the walls, fading and coming back with a pulse (`phase`); dust drinkers are old waterskins gone alive and dry, that
+// spit packed grit (`lob`, style `grit`)
+MOBS.dry_strider = {
+  name: 'Dry Strider', lvl: 244, hp: 46110, atk: 921, exp: 29146, speed: 130, w: 72, h: 46, aggro: true, hops: false,
+  drops: [['coin', 1, 2337, 3507], ['strider_leg', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.bucket_mimic = {
+  name: 'Bucket Mimic', lvl: 246, hp: 49350, atk: 929, exp: 29553, speed: 50, w: 62, h: 66, aggro: true, hops: false,
+  ai: { kind: 'stomp', every: 3.6, warn: 0.8, r: 150, range: 240, jump: 520 },
+  drops: [['coin', 1, 2362, 3543], ['bucket_rivet', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1], ['bucket_helm', 0.004, 1, 1]],
+};
+MOBS.tally_wraith = {
+  name: 'Tally Wraith', lvl: 248, hp: 45400, atk: 938, exp: 29963, speed: 65, w: 50, h: 64, aggro: true, hops: false, fly: 30,
+  ai: { kind: 'phase', every: 6.2, dur: 1.9, r: 180 },
+  drops: [['coin', 1, 2386, 3580], ['tally_stone', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.dust_drinker = {
+  name: 'Dust Drinker', lvl: 250, hp: 43630, atk: 947, exp: 30375, speed: 50, w: 62, h: 56, aggro: true, hops: false,
+  ai: { kind: 'lob', range: 520, every: 2.8, keep: 180, warn: 0.7, style: 'grit' },
+  drops: [['coin', 1, 2410, 3617], ['drinker_grit', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.strider_elite = elite('dry_strider', 'Old Strider');
+MOBS.bucket_elite = elite('bucket_mimic', 'The Great Bucket');
+MOBS.drinker_elite = elite('dust_drinker', 'The Last Waterskin');
+// The Seventh Digger: a named elite of the tally wraiths (holding on: still digging for water), the last of the seven who
+// went down, at the Deep Cistern's far end with his pick, bringing it down where you stand (`stomp`)
+MOBS.seventh_digger = {
+  ...elite('tally_wraith', 'The Seventh Digger'), art: 'seventh_digger', w: 96, h: 120, fly: undefined, speed: 55,
+  ai: { kind: 'stomp', every: 3.2, warn: 0.9, r: 200, range: 300, jump: 560 },
+};
+// Old Carapace (atlas Phase 9, A5 (c), story/a5-plan.md; docs/places/carapace.md): Amberdune's final boss, on the Long Road
+// (room LONG_DEN, up the Shell Road: his back). A tortoise as big as a hill carrying the empty caravan town of his people
+// toward where Pangelea's heart used to be; he won't stop, and the town is dying of thirst. Its own brain (FINAL.old_carapace,
+// brain 'shell': server/carapace.js; its constants in src/shared/carapace.js): the Stride (his footfalls jolting each half of
+// the shell), the Well (waterskins carried and thrown into the dry well until the town drinks: he stops, staggers, softens:
+// `hold` on the sheet is what a party nets after the time spent carrying and dodging, with the drinks' windows' extra), the
+// mirages that drink it back, phase 3's quickening walk, phase 4's Lie Down. Fixed HP for four, no reward window; its stats are
+// FINAL's, never the Lv 270 on its tag. It never moves: its body is his head and neck at the east end (`denX`); nothing
+// about it hurts to touch (`noTouch`: the Stride is the server's). `weak`: the shard at the bottom of the dry well, open while
+// he lies down (phase 4)
+MOBS.old_carapace = {
+  name: 'Old Carapace', boss: true, top: true, final: 'old_carapace', heads: true, touchW: 60, touchH: 40, noTouch: true, denX: HEAD_X,
+  lvl: 270, hp: 213000000, atk: 930, exp: 7240000, speed: 0, w: 220, h: 260, aggro: true, hops: false,
+  phases: [[], [], []], minion: 'thirst_mirage', petWH: [76, 50], hold: 0.85,
+  looks: { shell: 'carapace', dome: 'haze', curse: 'thirst', pulse: 'stamp', rings: 'grit', gaps: 'sandwall', carry: 'skin' },
+  // its challenges (in its loops, server/carapace.js; docs/combat/challenges.md): the Snap's late tells and the road's dust
+  // (`gaps`) from phase 1, sinking sand (`mash`) and gravel rings from phase 2, buried under a tent (`rescue`, 2+) in phase 3,
+  // the storm (`dark`) and the hour run backward (`swap`) in phase 4; the waterskins (`carry`) all fight
+  ch: ['late', 'gaps', 'mash', 'rings', 'rescue', 'dark', 'swap', 'carry'],
+  party: ['focus', 'pulse', 'curse', 'barrier', 'armour', 'weakpoint', 'adds', 'interrupt'], partyAll: true, partyLive: true,
+  weak: { dx: (SHELL_WELL_X - HEAD_X) / 220, dy: -0.06, r: 40 }, // (the shard at the bottom of the dry well, under the town)
+  lines: {
+    enter: ['Keep up, little ones. Keep up. It is a long road, and we are nearly there.'],
+    phase: ['The well is dry? It was always dry. Walk. There is water at the end of the road.', 'Faster, then. Faster! If we stop now, we stop forever!', 'There. The storm. Our road goes through it. It always went through it. Walk.'],
+    shield: 'Not now. Not now, we are so close.',
+    freed: '...Is this the end of the road? ...It is a good place. There is shade. ...Then I will lie down here, and you will all go on without me. That is how it is meant to go.',
+  },
+  // one of its four class weapons a kill (twinPick chooses by who fought); the Carapace Crown on a shared chance
+  drops: [['coin', 1, 10400000, 15600000], ['long_road_blade', 1, 1, 1], ['carapace_crown', 0.5, 1, 1], ['mega_elixir', 1, 10, 14], ['royal_sap', 1, 4, 6], ['tally_stone', 1, 6, 10], ['drinker_grit', 1, 4, 6], ['scroll_s60', 1, 3, 4], ['scroll_h60', 1, 3, 4], ['scroll_s30', 0.5, 1, 2], ['scroll_h30', 0.5, 1, 2], ['scroll_chaos', 0.7, 1, 2]],
+};
+// Its mirages (phase 2 on): the Glass Dunes' heat mirages gone thirsty, up off the road at the east end, drifting west to the
+// well to drink it back (`son: 'mirage'`: their own brain, son() in server/carapace.js; drawn as heat mirages). Little EXP
+// and no drops: they're the road's, not the room's.
+MOBS.thirst_mirage = {
+  name: 'Thirst Mirage', son: 'mirage', art: 'heat_mirage', lvl: 250, hp: 160000, atk: 900, exp: 15000, speed: 60, w: 54, h: 60, aggro: false, hops: false, fly: 20,
+  drops: [['coin', 1, 1900, 2800]],
+};
 // The Escapement (the Citadel's C6 (c), story/c6-plan.md; docs/places/escapement.md): the Citadel's final boss, in the
 // Catch (room CATCH_DEN, at the end of the Spoke). The Wheel's catch: a great toothed anchor on its arbor under the hub,
 // both pallets clamped on the escape wheel since Chronos told it to hold, its pendulum swinging under it. Its own brain
@@ -4568,6 +4689,7 @@ const onObPlat = onRoomPlat(OBS_PLATFORMS, OBSERVATORY);
 const onSfPlat = onRoomPlat(SFLATS_PLATFORMS, SALTFLATS);
 const onBcPlat = onRoomPlat(BURIED_PLATFORMS, BURIED);
 const onSrPlat = onRoomPlat(STORM_PLATFORMS, STORMROAD);
+const onDwPlat = onRoomPlat(DRYW_PLATFORMS, DRYWELLS);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -5367,6 +5489,27 @@ export const SPAWNS = [
   ...onSrPlat('red_wisp', 6, 1),
   ...onSrPlat('red_wisp', 7, 1),
   { kind: 'sirocco', x0: 3500, x1: 4400, y: FIELD_GROUND, room: STORMROAD },
+
+  // A5 (b): the Dry Wells (the deep room; the Well Foot has none): striders in the Cisterns, buckets and wraiths in the
+  // Galleries, drinkers deepest, an elite in each zone, the Seventh Digger at the far end
+  ...strip('dry_strider', 660, 1880, FIELD_GROUND, 4, DRYWELLS),
+  ...strip('bucket_mimic', 900, 1880, FIELD_GROUND, 2, DRYWELLS),
+  ...onDwPlat('dry_strider', 0, 1),
+  ...onDwPlat('tally_wraith', 1, 1),
+  ...onDwPlat('dry_strider', 2, 1),
+  ...strip('strider_elite', 1200, 1800, FIELD_GROUND, 1, DRYWELLS),
+  ...strip('bucket_mimic', 1960, 3280, FIELD_GROUND, 3, DRYWELLS),
+  ...strip('tally_wraith', 1960, 3280, FIELD_GROUND, 3, DRYWELLS),
+  ...strip('bucket_elite', 2400, 3100, FIELD_GROUND, 1, DRYWELLS),
+  ...onDwPlat('bucket_mimic', 3, 1),
+  ...onDwPlat('tally_wraith', 4, 1),
+  ...onDwPlat('dust_drinker', 5, 1),
+  ...strip('dust_drinker', 3360, 4300, FIELD_GROUND, 3, DRYWELLS),
+  ...strip('tally_wraith', 3360, 4300, FIELD_GROUND, 2, DRYWELLS),
+  ...strip('drinker_elite', 3500, 3900, FIELD_GROUND, 1, DRYWELLS),
+  ...onDwPlat('dust_drinker', 6, 1),
+  ...onDwPlat('tally_wraith', 7, 1),
+  { kind: 'seventh_digger', x0: 4180, x1: 4420, y: FIELD_GROUND, room: DRYWELLS },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -5403,6 +5546,7 @@ export const DENS = [
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
   { room: WICK_DEN, boss: 'wickmother', name: WICK_DEN_NAME, from: LAMPROAD, fromName: 'the Lamp Road', entranceX: WICK_DEN_X, theme: 'lamps', platforms: HALL_PLATFORMS, final: true }, // (L5 (c); art: src/dens-wick.js; the door's art: src/lamproad.js)
   { room: CATCH_DEN, boss: 'escapement', name: CATCH_DEN_NAME, from: SPOKE, fromName: 'the Spoke', entranceX: ESC_DEN_X, theme: 'catch', platforms: CATCH_PLATFORMS, final: true }, // (the Citadel's C6 (c); art: src/dens-esc.js; the door's art: src/spoke.js)
+  { room: LONG_DEN, boss: 'old_carapace', name: LONG_DEN_NAME, from: SHELLROAD, fromName: 'the Shell Road', entranceX: CARAPACE_DEN_X, theme: 'shell', platforms: CARAPACE_PLATFORMS, final: true }, // (atlas Phase 9, A5 (c); art: src/dens-carapace.js; the climb's art: src/shellroad.js)
   { room: RED_DEN, boss: 'red_wall', name: "The Storm's Eye", from: STORMROAD, entranceX: RED_DEN_X, theme: 'storm' }, // (atlas Phase 9, A4, Amberdune's party den: into the storm; art: src/dens-storm.js)
   { room: NET_DEN, boss: 'netwife', name: 'The Dry Harbour', from: SALTFLATS, entranceX: NET_DEN_X, theme: 'nets' }, // (atlas Phase 9, A2; art: src/dens-net.js)
   { room: SUN_DEN, boss: 'sunroller', name: 'The Dial Floor', from: OBSERVATORY, entranceX: SUN_DEN_X, theme: 'sundial' }, // (atlas Phase 9, A1; art: src/dens-sun.js)
@@ -6114,6 +6258,14 @@ Object.assign(ITEMS, {
   crook_staff: { name: 'Lantern Crook', price: 2698000, lvl: 243, kind: 'staff', magic: 291, mp: 175, reach: 66, twin: 'drover_goad', desc: "A drover's crook with his amber lantern hung off the hook, still lit after all this time under the sand. It shows the way to somewhere." },
   // atlas Phase 9, A4: the sand golem's rare mask (on the helmet curve at its level), the Sirocco's set (a step over its Lv
   // 245, on the curve like the other field bosses'), the Red Wall's (Lv 250, 10 slots, a top boss's: effects in gearfx.js)
+  // atlas Phase 9, A5: the bucket mimic's rare helm (on the helmet curve at its level); Old Carapace's set, Amberdune's best
+  // (lvl 259 on the frozen curve, a step over its fight's 250, like the Escapement's); one class weapon a kill, the Carapace
+  // Crown on a shared chance
+  bucket_helm: { name: 'Bucket Helm', price: 2158000, lvl: 246, kind: 'helmet', def: 151, desc: "An old well bucket, iron-bound, its handle under your chin. It went down a dry well a thousand times and came up empty every one. It's very patient." },
+  long_road_blade: { name: 'The Long Road', price: 3076000, lvl: 259, slots: 10, kind: 'sword', atk: 304, reach: 70, desc: "A broad blade of shell-horn, plated like his back and worn smooth where an age of the road's dust went over it. It gets better the further it goes." },
+  walking_staff: { name: 'The Walking Staff', price: 3076000, lvl: 259, slots: 10, kind: 'staff', magic: 304, mp: 182, reach: 70, twin: 'long_road_blade', desc: 'A staff of dark horn with a little dry well-ring for a head, and in the middle of it a single bead of water that never falls.' },
+  wellrope_staff: { name: 'The Well-Rope Staff', price: 3076000, lvl: 259, slots: 10, kind: 'staff', magic: 304, mp: 182, reach: 70, twin: 'long_road_blade', cls: 'cleric', desc: "A staff wound with the town's last well-rope, knotted where somebody marked it every morning, a bucket's iron handle at its head." },
+  carapace_crown: { name: 'The Carapace Crown', price: 2280000, lvl: 259, slots: 10, kind: 'helmet', def: 157, desc: 'A ring of worn shell plates, warm as a stone in the sun, a tiny striped tent standing on the top of it with its flap tied back.' },
   sandstone_mask: { name: 'Sandstone Mask', price: 2123000, lvl: 244, kind: 'helmet', def: 150, desc: "A sand golem's face, a slab of red sandstone with two eyeholes worn through it by the wind. It is heavier than it looks and it hums in a gale." },
   devil_scimitar: { name: 'Dust-Devil Scimitar', price: 2790000, lvl: 247, kind: 'sword', atk: 294, reach: 66, desc: "A curved blade of red glass fused out of the Sirocco's heart, the grain of the sand still in it going round. Swung, it whistles like the road at night." },
   whirl_rod: { name: 'Whirling Rod', price: 2790000, lvl: 247, kind: 'staff', magic: 294, mp: 177, reach: 66, twin: 'devil_scimitar', desc: "A rod of storm-glass with a little dust devil turning in a cage at its head. It never stops, and nobody has worked out how to make it." },
@@ -6150,6 +6302,11 @@ Object.assign(ITEMS, {
   buried_wick: { name: 'Buried Wick', price: 2145, kind: 'loot', desc: "A lamp wick out of the Buried Caravanserai, black at the end, an age old. Hold it up and it smokes a little, as if it remembers." },
   tent_peg: { name: 'Tent Peg', price: 2160, kind: 'loot', desc: "A stiff tent's bone peg, its guy-rope still knotted on. It was pulled up to move on, and never knocked in anywhere else." },
   // atlas Phase 9, A4: the Storm Road's and its bosses' (the ladder on above A3's)
+  // atlas Phase 9, A5 (b): the Dry Wells' (the ladder on above A4's)
+  strider_leg: { name: "Dry Strider's Leg", price: 2255, kind: 'loot', desc: "A dry strider's long jointed leg, light as straw, a little pad of hair at the foot for walking on water. There isn't any." },
+  bucket_rivet: { name: 'Bucket Rivet', price: 2270, kind: 'loot', desc: "An iron rivet off a bucket mimic's band, worn bright on one side by a thousand trips down a well that was already dry." },
+  tally_stone: { name: 'Tally Stone', price: 2285, kind: 'loot', desc: 'A flake of cistern wall with tally marks scratched in it, seven and a stroke through, seven and a stroke through. Someone was counting days.' },
+  drinker_grit: { name: "Drinker's Grit", price: 2300, kind: 'loot', desc: "A ball of packed grit a dust drinker spat. It's bone dry, and somehow still thirsty: it pulls at your fingers." },
   jackal_fang: { name: 'Jackal Fang', price: 2195, kind: 'loot', desc: "A sand jackal's long yellow fang, worn sharp by the sand. The caravan folk hang them over tent flaps against the wind, which doesn't care." },
   rider_rag: { name: "Storm Rider's Rag", price: 2210, kind: 'loot', desc: "A scrap of a storm rider's ragged wing, red cloth stiff with dust. It flutters in your hand when there's no wind at all." },
   red_sandstone: { name: 'Red Sandstone', price: 2225, kind: 'loot', desc: "A lump of a sand golem, packed red sand gone to stone. Tally once counted the grains in one. He won't say how many." },
@@ -6244,6 +6401,7 @@ BOW_LIST.push(
   ['beadstring_bow', 'skiff_gaff', 'Beadstring Bow', "A short bow of salt-bleached driftwood strung with tarred line, Kesh's blue sand-glass beads threaded on the string. They click when you draw it, like a rigging in the wind."],
   ['netwife_bow', 'net_needle', 'Netting Bow', "A bow of two of the Netwife's legs bound at the grip, strung with her twine. Its arrows trail a fine line of mesh, and come back with something."],
   ['mandible_bow', 'glass_mandible', 'Mandible Bow', "A bow of black beetle-horn with glass tips, the Glassjaw's. It hums when you draw it, the way the air does before a storm."],
+  ['wayfarer_bow', 'long_road_blade', "The Wayfarer's Bow", "Two of Old Carapace's worn claws for limbs, strung with caravan silk. Its arrows go a long way, slowly, and always arrive."],
   ['devil_bow', 'devil_scimitar', 'Sirocco Bow', "A bow of red storm-glass and drover's horn, the Sirocco's. Its arrows go out turning and come in from somewhere else."],
   ['redwall_bow', 'long_wind', 'Storm-Caught Bow', "A caravan bow the Red Wall kept going round an age, its horn scoured red, its string of new silk. Its arrows ride a wind of their own."],
   ['dust_bow', 'drover_goad', 'Dustline Bow', "A drover's bow, dried out under the sand to bone and sinew, a bell at the tip. Its arrows go into the dark and the string keeps ringing after."],

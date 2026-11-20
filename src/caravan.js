@@ -13,7 +13,7 @@
 // drawDuneAir), and so does a house looking out on it (drawCaravanView).
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
 import { CARAVAN_W, FIELD_GROUND, DUNE_DOCK_X, DUNE_HOME_X, DUNE_SPAWN_X, CARAVAN_EXIT_X, CARAVAN_PLATFORMS, TALLY_X, WELL_X, MOTHER_X, KESH_X, SALTFLATS_GATE_X, DUNE_WAY_X } from './shared/rpg.js';
-import { drawDistantIslands } from './distant.js';
+import { drawDistantIslands, isWalkerStill } from './distant.js';
 
 const GROUND = FIELD_GROUND;
 const HORIZON = 300;
@@ -54,7 +54,9 @@ const LANTERNS = [1240, 1590, 2000, 2290, 2620, 2760];
 const LIZARDS = [{ x: 1330, f: 1 }, { x: 2510, f: -1 }];
 
 // Everything in Caravanserai behind the slimes
-export function drawCaravan(ctx, camX, viewW, time) {
+// freed: you've freed Old Carapace (A5 (c), docs/social/story.md): the well has come up a little, and Mother Dune has struck her
+// tent at last, packed, the bundles beside her
+export function drawCaravan(ctx, camX, viewW, time, freed = false) {
   ctx.save();
   ctx.translate(camX, 0);
   drawDuneSky(ctx, camX, time, CARAVAN_W, { sea: true });
@@ -72,13 +74,13 @@ export function drawCaravan(ctx, camX, viewW, time) {
   for (const tn of TENTS) if (!tn.far && visible(tn.x - tn.w, tn.x + tn.w, L, R)) drawTent(ctx, tn, time, false);
   for (const lz of LIZARDS) if (visible(lz.x - 80, lz.x + 80, L, R)) drawPackLizard(ctx, lz, time);
   if (visible(TALLY_X - 120, TALLY_X + 120, L, R)) drawTallyStall(ctx, time);
-  if (visible(WELL_X - 100, WELL_X + 100, L, R)) drawWell(ctx, time);
+  if (visible(WELL_X - 100, WELL_X + 100, L, R)) drawWell(ctx, time, freed);
   const packs = plat('packs');
   if (visible(packs.x - 20, packs.x + packs.w + 20, L, R)) drawPacks(ctx, packs);
   if (visible(DUNE_HOME_X - 90, DUNE_HOME_X + 90, L, R)) drawHomeTent(ctx, time);
   const aw = plat('awning');
   if (visible(aw.x - 40, aw.x + aw.w + 40, L, R)) drawAwning(ctx, aw, time);
-  if (visible(MOTHER_X - 180, CARAVAN_W - 120, L, R)) drawStarCourt(ctx, plat('dial'), time);
+  if (visible(MOTHER_X - 180, CARAVAN_W - 120, L, R)) drawStarCourt(ctx, plat('dial'), time, freed);
   for (const x of LANTERNS) if (visible(x - 30, x + 30, L, R)) drawLantern(ctx, x, time);
   if (visible(CARAVAN_EXIT_X - 120, CARAVAN_W, L, R)) drawExitSign(ctx, CARAVAN_EXIT_X - 60, time);
   ctx.save();
@@ -139,9 +141,19 @@ export function drawDuneSky(ctx, camX, time, roomW, { sea = false, dusk = 0, wal
   // a hill far off on the horizon that has moved since you last looked: Old Carapace, walking (the hour of the day sets
   // where; the atlas's hint at the finale, shown, never told)
   if (walker) {
-    const hour = (Date.now() / 3.6e6) % 24;
+    const still = isWalkerStill(), hour = still ? 15 : (Date.now() / 3.6e6) % 24; // (freed, A5 (c): he lies still, always in the same place)
     const hx = ((hour / 24) * 1800 - camX * 0.03 + 600) % 1800 - 300, hy = HORIZON + 2;
-    if (hx > -120 && hx < W + 120) {
+    if (still && hx > -120 && hx < W + 120) {
+      ctx.fillStyle = 'rgba(190,156,124,0.55)'; // lying down: lower and longer, the dust settled
+      ctx.beginPath();
+      ctx.moveTo(hx - 40, hy);
+      ctx.quadraticCurveTo(hx - 30, hy - 15, hx, hy - 16);
+      ctx.quadraticCurveTo(hx + 30, hy - 15, hx + 40, hy);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = 'rgba(160,128,104,0.5)';
+      for (const dx of [-14, -4, 6, 16]) ctx.fillRect(hx + dx - 1.5, hy - 15 + Math.abs(dx) * 0.3, 3, 2.5);
+    } else if (hx > -120 && hx < W + 120) {
       ctx.fillStyle = 'rgba(190,156,124,0.55)';
       ctx.beginPath();
       ctx.moveTo(hx - 34, hy);
@@ -601,7 +613,7 @@ function drawTallyStall(ctx, time) {
 
 // The well: a deep ring of dressed stone, a windlass on two posts with the rope marked in knots (Asra marks it every
 // morning, a little further down), the bucket on the rim, a drinking trough beside it, and the dark going down
-function drawWell(ctx, time) {
+function drawWell(ctx, time, freed = false) {
   const x = WELL_X, y = GROUND;
   ctx.fillStyle = '#b89a72'; // the trough
   ctx.beginPath();
@@ -630,6 +642,14 @@ function drawWell(ctx, time) {
   ctx.beginPath();
   ctx.ellipse(x, y - 40, 40, 7, 0, 0, TAU);
   ctx.fill();
+  if (freed) { // (Old Carapace freed: the water's come up, near enough to see from the top, glinting)
+    ctx.fillStyle = 'rgba(90,170,190,0.9)';
+    ctx.beginPath();
+    ctx.ellipse(x, y - 39, 30, 4.5, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = `rgba(255,255,255,${0.5 + 0.4 * Math.sin(time * 3)})`;
+    ctx.fillRect(x - 8 + Math.sin(time * 1.3) * 6, y - 40, 7, 1.4);
+  }
   ctx.fillStyle = '#5a4030'; // the windlass
   ctx.fillRect(x - 40, y - 104, 6, 64);
   ctx.fillRect(x + 34, y - 104, 6, 64);
@@ -756,8 +776,28 @@ function drawAwning(ctx, p, time) {
 
 // The Star Court: a ring of Keeper star-dials half buried in the sand at the town's edge (great bronze rings and a tilted
 // dial face), a rug laid in the middle with cushions, where Mother Dune sits at night; the dials gone green
-function drawStarCourt(ctx, p, time) {
+function drawStarCourt(ctx, p, time, freed = false) {
   const cx = MOTHER_X + 120;
+  if (freed) { // (Old Carapace freed: her tent struck at last, rolled and tied, two packs and a pole beside it)
+    const bx = MOTHER_X - 120;
+    ctx.fillStyle = '#c8583a';
+    ctx.beginPath();
+    ctx.roundRect(bx - 34, GROUND - 18, 68, 18, 9);
+    ctx.fill();
+    ctx.fillStyle = '#e8c890';
+    for (const dx of [-20, 0, 20]) ctx.fillRect(bx + dx - 2, GROUND - 18, 4, 18);
+    ctx.fillStyle = '#7a4a2a';
+    ctx.beginPath();
+    ctx.roundRect(bx + 40, GROUND - 22, 26, 22, 6);
+    ctx.roundRect(bx - 66, GROUND - 18, 24, 18, 6);
+    ctx.fill();
+    ctx.strokeStyle = '#5a3a24';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(bx - 50, GROUND - 4);
+    ctx.lineTo(bx + 60, GROUND - 30);
+    ctx.stroke();
+  }
   ctx.fillStyle = '#c8583a'; // the rug
   ctx.beginPath();
   ctx.ellipse(MOTHER_X, GROUND + 6, 80, 9, 0, 0, TAU);

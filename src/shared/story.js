@@ -19,6 +19,7 @@ export const BOSS_TIER = {
   // Observatory's great gnomon at noon, no shadow: docs/places/observatory.md)
   sunroller: 0,
   netwife: 0, // (A2: the Salt Flats' nets let go to the wind, docs/places/saltflats.md)
+  old_carapace: 0, // (A5 (c): Amberdune's final boss, no canon tier; freed, the walking hill lies still, the well rises, Mother Dune strikes her tent: docs/places/carapace.md)
   red_wall: 0, // (A4: the Storm Road's east end lies clear, the caravan's things on the sand, docs/places/stormroad.md)
 };
 export const TOP_TIER = 4;

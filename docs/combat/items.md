@@ -29,7 +29,7 @@ are read from `ITEMS` at runtime, so pieces already owned got stronger too.
 
 ## Boss gear's unique effects (owner, 2026-11-06)
 Owner: "big impact stuff, so people have to actually think if it's worth it", movement changes and changes to how you
-attack included. The owner approved all 22; atlas Phase 8 L4 added Grandfather Mire's two (The Promise, Sit Tight) the same way, L5 (c) the Wickmother's (The Last Light, Moth-Wing), and the Citadel's C4 the Helmsman's (Steady As She Goes, Even Keel), C6 (c) the Escapement's (The Tick, Keep Time), atlas Phase 9 A4 the Red Wall's (Driven Sand, Tailwind). Each top and final boss's weapons (sword, staff and bow each their own
+attack included. The owner approved all 22; atlas Phase 8 L4 added Grandfather Mire's two (The Promise, Sit Tight) the same way, L5 (c) the Wickmother's (The Last Light, Moth-Wing), and the Citadel's C4 the Helmsman's (Steady As She Goes, Even Keel), C6 (c) the Escapement's (The Tick, Keep Time), atlas Phase 9 A4 the Red Wall's (Driven Sand, Tailwind), A5 Old Carapace's (Miles, Wayfarer). Each top and final boss's weapons (sword, staff and bow each their own
 version) share one effect and its helmet another, most with a cost; twelve den and field bosses give a small one, no
 cost, to every piece they drop. Shop stock never carries one. The item card shows it (`fxLine`).
 - **Where it lives**: `src/shared/gearfx.js` holds every number (named constants), `GEAR_FX` (name, text, cost),
@@ -63,6 +63,7 @@ cost, to every piece they drop. Shop stock never carries one. The item card show
 | the Helmsman (C4) | Steady As She Goes: not hurt for `STEADY_S`, hits × `STEADY_DMG` (all; the client's own `hurtAt`) | max HP × `STEADY_HP` | Even Keel: no knockback (`GX.KNOCKFREE`), a tilting floor doesn't slide you (`GX.NOTILT`, `step()`) | no Dash (`GX.NODASH`) |
 | the Escapement (C6 (c)) | The Tick: every `TICK_EVERY`rd hit × `TICK_DMG` (all; the client's own count, `Gear.tickN`) | the others × `TICK_OTHER` | Keep Time: the dash cooldown × `KEEP_DASH` (`GX.QUICKDASH`, `step()`) | DEF × `KEEP_DEF` |
 | the Red Wall (atlas Phase 9 A4) | Driven Sand: moving or in the air, hits × `DRIVEN_DMG` (all; the client's own `Gear.stillSince`) | standing still `DRIVEN_STILL_S` or more, × `DRIVEN_STILL` | Tailwind: walk × `FURNACE_WALK` (`GX.FAST20`, no trail) | DEF × `TAIL_DEF` |
+| Old Carapace (atlas Phase 9 A5) | Miles: from `MILES_START`, × `MILES_STEP` more every `MILES_EVERY` s you stay in a room, up to `MILES_MAX` (all; the client's own clock, `Gear.miles`) | the start, and leaving the room starts it over | Wayfarer: walking heals `WAY_HEAL` of your HP a second (server/rpg.js's once-a-second tick) | DEF × `WAY_DEF` |
 | the Wickmother | The Last Light: below `LAST_AT` of your max HP, hits × `LAST_DMG` (all) | max HP × `LAST_HP` | Moth-Wing: the Colossus's glide (`GX.GLIDE`) | DEF × `MOTH_DEF` |
 | Root Warden | still `ROOTED_S`: damage × `ROOTED_DMG` (all) | standing still | still: heal `REST_HEAL`/s | none |
 | Sigrun | block a hit every `OATH_EVERY` s, next hit × `OATH_BONUS` (all) | damage × `OATH_DMG` | no knockback (both sides skip it) | walk × `BULWARK_WALK` |
@@ -274,7 +275,10 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   244) very rarely, **the Sirocco** the **Dust-Devil Scimitar** (twins: the **Whirling Rod**, the **Sirocco Bow**) and the
   **Sirocco Wrap** (Lv 247), and **the Red Wall** **The Long Wind** (twins: the **Whirlwind Staff**, the **Storm-Caught Bow**)
   and **the Storm Veil**, top-boss gear at Lv 250 with 10 slots and effects (`src/stormroad-art.js`, `STORM_*`;
-  `docs/places/stormroad.md`).
+  `docs/places/stormroad.md`). A5: a bucket mimic drops the **Bucket Helm** (Lv 246) very rarely; **Old Carapace** drops one
+  class weapon a kill, **The Long Road** (Warrior), **the Walking Staff** (Mage), **the Well-Rope Staff** (Cleric) or **the
+  Wayfarer's Bow** (Archer), and on a shared chance **the Carapace Crown**, final-boss gear at Lv 259 with 10 slots and effects
+  (`src/drywells-art.js`, `DRYW_*`; `docs/places/carapace.md`).
   Amberdune's gear names: salt-iron, sandstone, sun-glass, amber, bronze, caravan brass, drover's leather.
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these

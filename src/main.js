@@ -18,7 +18,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, COLUMN_VISTA_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS, FIREFLY, GROVE, STILLMERE, BARROWS, CAUSEWAY, PEATBARROWS, LAMPROAD, GARDENS, ORRERY, ARCHIVE, ENGINE, BELLS, KEEL, UNDERCROFT, SPOKE, CARAVAN, GLASSDUNES, OASIS, OBSERVATORY, SALTFLATS, BURIED, STORMROAD } from './shared/rpg.js';
+import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, COLUMN_VISTA_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS, FIREFLY, GROVE, STILLMERE, BARROWS, CAUSEWAY, PEATBARROWS, LAMPROAD, GARDENS, ORRERY, ARCHIVE, ENGINE, BELLS, KEEL, UNDERCROFT, SPOKE, CARAVAN, GLASSDUNES, OASIS, OBSERVATORY, SALTFLATS, BURIED, STORMROAD, DRYWELLS, SHELLROAD } from './shared/rpg.js';
 import { drawHighlands, drawSummitLookout } from './highlands.js';
 import { drawCaldera } from './caldera.js';
 import { drawCitadel } from './citadel.js';
@@ -52,6 +52,9 @@ import { drawObservatory } from './observatory.js';
 import { drawSaltFlats } from './saltflats.js'; // (A2)
 import { drawBuried } from './buried.js'; // (A3)
 import { drawStormRoad } from './stormroad.js'; // (A4)
+import { drawDryWells } from './drywells.js'; // (A5 (b))
+import { setWalkerStill } from './distant.js'; // (A5 (c))
+import { drawShellRoad, drawShellRoadFront, shellDepth, say as shellSay } from './shellroad.js'; // (A5 (b))
 import { drawFirefly } from './firefly.js';
 import { drawGardens } from './gardens.js';
 import { drawOrrery } from './orrery.js';
@@ -253,6 +256,7 @@ const net = new Net(wsUrl, {
       if (room === LONGFLUE) flueSay(m.text, time); // (Typhon's, in the Long Flue: docs/places/underflues.md)
       if (room === LAMPROAD) lampSay(m.text, time); // (the Wickmother's, on the Lamp Road: docs/places/peatbarrows.md)
       if (room === SPOKE) spokeSay(m.text, time); // (the Escapement's, on the Spoke: docs/places/undercroft.md)
+      if (room === SHELLROAD) shellSay(m.text, time); // (Old Carapace's, on the Shell Road: docs/places/drywells.md)
       chat.announce(`${m.who}: "${m.text}"`);
       return;
     }
@@ -1443,7 +1447,7 @@ function update(realDt) {
     if (online()) audio.sfx('door');
   }
   if (online()) audio.setScene(room, STAGES[room] ? zoneAt(net.me.x, room).name : null);
-  audio.setDepth(online() && room === ROADSEND ? roadsDepth(net.me.x) : online() && room === LONGSTAIR ? stairDepth(net.me.x) : online() && room === LONGFLUE ? flueDepth(net.me.x) : online() && room === LAMPROAD ? roadDepth(net.me.x) : online() && room === SPOKE ? spokeDepth(net.me.x) : 0); // (the Road's End's heartbeats, the Long Stair's hum and chain, the Long Flue's bellows and hammer, the Lamp Road's music box, the Spoke's tick)
+  audio.setDepth(online() && room === ROADSEND ? roadsDepth(net.me.x) : online() && room === LONGSTAIR ? stairDepth(net.me.x) : online() && room === LONGFLUE ? flueDepth(net.me.x) : online() && room === LAMPROAD ? roadDepth(net.me.x) : online() && room === SPOKE ? spokeDepth(net.me.x) : online() && room === SHELLROAD ? shellDepth(net.me.x) : 0); // (the Road's End's heartbeats, the Long Stair's hum and chain, the Long Flue's bellows and hammer, the Lamp Road's music box, the Spoke's tick)
   rpg.update(dt, online() ? net.me : null, room);
   skillTree.tick(); // (the K panel's cooldown sweeps while it's open, SP1)
   if ((room === STORE || room === PETSHOP) && online()) store.update(net.me, room);
@@ -1649,6 +1653,7 @@ function render() {
   else if (view === CARAVAN && room !== CARAVAN) drawCaravanView(ctx, camX, time); // (and Caravanserai)
   else if (view === VILLAGE || view === FIELD) drawBackground(ctx, camX, time, ENV, roomDef(room).width);
 
+  setWalkerStill(!!rpg.me?.freed?.includes('old_carapace')); // (A5 (c): freed, Amberdune's walking hill lies still in every sky)
   ctx.save();
   ctx.translate(-Math.round(camX * scale) / scale, 0);
   if (room === HALL) hall.draw(ctx);
@@ -1692,6 +1697,7 @@ function render() {
     else if (room === OBSERVATORY) drawObservatory(ctx, camX, W, time, freed('sunroller')); // (A1; freed: its gnomon at noon)
     else if (room === SALTFLATS) drawSaltFlats(ctx, camX, W, time, freed('netwife')); // (A2; freed: the nets gone off the poles)
     else if (room === BURIED) drawBuried(ctx, camX, W, time); // (A3)
+    else if (room === DRYWELLS) drawDryWells(ctx, camX, W, time); // (A5 (b): the deep room)
     else if (room === STORMROAD) drawStormRoad(ctx, camX, W, time, net.renderTick(), freed('red_wall')); // (A4: its squalls follow the server tick; freed: the far end lies clear)
     else if (room === FIREFLY) drawFirefly(ctx, camX, W, time);
     else if (room === GROVE) drawGrove(ctx, camX, W, time);
@@ -1722,11 +1728,12 @@ function render() {
   else if (room === FJORD) drawFjord(ctx, camX, W, time);
   else if (room === FORGEHOLD) drawForgehold(ctx, camX, W, time);
   else if (room === SKYCAMP) drawSkycamp(ctx, camX, W, time);
-  else if (room === CARAVAN) drawCaravan(ctx, camX, W, time); // (atlas Phase 9, A0)
+  else if (room === CARAVAN) drawCaravan(ctx, camX, W, time, !!rpg.me?.freed?.includes('old_carapace')); // (atlas Phase 9, A0; freed (A5): the well up, Mother Dune's tent struck)
   else if (room === WICKMERE) drawWickmere(ctx, camX, W, time, !!rpg.me?.freed?.includes('wickmother')); // (L5 (c): her freed change)
   else if (room === CLIFFS) drawCliffs(ctx, camX, W, time);
   else if (room === LONGFLUE) drawLongFlue(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === SPOKE) drawSpoke(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
+  else if (room === SHELLROAD) drawShellRoad(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0)); // (A5 (b): the approach to Old Carapace's back)
   else if (room === LAMPROAD) drawLampRoad(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === LONGSTAIR) drawLongStair(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (room === ROADSEND) drawRoadsEnd(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
@@ -1772,6 +1779,7 @@ function render() {
   if (room === LAMPROAD) drawLampRoadFront(ctx, camX, W, time, online() ? net.me : null); // the wing-dust, the silk closing behind, the Wickmother's line
   if (room === UNDERCROFT) drawUndercroftFront(ctx, camX, W, time); // the dark closing in, heavier going east
   if (room === SPOKE) drawSpokeFront(ctx, camX, W, time, online() ? net.me : null); // the dark, the rim's teeth closing behind, the Escapement's line
+  if (room === SHELLROAD) drawShellRoadFront(ctx, camX, W, time, online() ? net.me : null); // the dusk at the edges, Old Carapace's line
   for (const s of all) nameTag(s, false);
   if (meShown) nameTag(mine, true);
   if (roomDef(room)?.crossing) drawCrossingFront(ctx, room, camX, W, time, online() ? net.me : null); // the near water, over the hull's foot
@@ -1849,6 +1857,7 @@ function render() {
     else if (status === 'online' && room === LONGSTAIR) drawPill(16, 14, 300, `The Long Stair · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === LAMPROAD) drawPill(16, 14, 300, `The Lamp Road · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === SPOKE) drawPill(16, 14, 300, `The Spoke · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === SHELLROAD) drawPill(16, 14, 300, `The Shell Road · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && crossingAt(room, net.me)) {
       // aboard: where she's bound, how long till she's in, and a little track of the voyage
       const cr = crossingAt(room, net.me);

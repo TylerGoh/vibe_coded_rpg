@@ -108,6 +108,7 @@ function bolt(ctx, x0, y0, x1, y1, seed, jag, segs = 6) {
 
 // ---- shots ------------------------------------------------------------------------------------------
 const SHOT = {
+  grit: { glow: '232,190,130', core: '#f4e0c0', mid: '#c8a070', rim: '#6a4a2a' }, // a ball of packed grit: the dust drinker's (the Dry Wells, atlas Phase 9 A5) and Old Carapace's rings of gravel off his shell
   ember: { glow: '255,140,60', core: '#fff3b0', mid: '#ffb34d', rim: '#ff6a3d' },
   feather: { glow: '255,120,70', core: '#fff1c4', mid: '#ffa04a', rim: '#ff5a4a' },
   heronfeather: { glow: '200,215,235', core: '#ffffff', mid: '#e4e6ea', rim: '#6e727c' }, // Long-Neck's (looks.feathers)

@@ -289,6 +289,7 @@ function drawFocus(ctx, v, k, s, t, me) {
 // shimmer of heat wavering up off him, "HEAT"; the Clockwork Colossus's boiler blowing off: white steam rings and a
 // plume of it off its smokestacks, "STEAM")
 const PULSES = {
+  stamp: { ring: '214,170,120', glow: '255,226,180', hit: '170,120,80', word: 'STAMP', fill: '#fff2dc', edge: 'rgba(60,36,20,0.88)', foam: true }, // Old Carapace's stamp, a quake through the whole shell (atlas Phase 9, A5)
   gust: { ring: '232,150,100', glow: '255,200,150', hit: '200,96,62', word: 'GUST', fill: '#fff0e0', edge: 'rgba(70,24,14,0.85)', foam: true }, // the Red Wall's and the Sirocco's wind breaking over everyone (atlas Phase 9, A4)
   noon: { ring: '255,214,110', glow: '255,236,170', hit: '240,180,70', word: 'NOON', fill: '#fffbe8', edge: 'rgba(70,46,10,0.85)', shimmer: true }, // the Sunroller's dial floor giving off the day's heat (atlas Phase 9, A1)
   heat: { ring: '255,118,40', glow: '255,150,60', hit: '255,96,30', word: 'HEAT', fill: '#fff1d6', edge: 'rgba(70,18,4,0.85)', shimmer: true },
@@ -398,6 +399,7 @@ const CURSES = {
   paw: { fill: '120,170,230', rim: '220,240,255', inner: '250,252,255', star: '200,226,255', smoke: '80,110,160' }, // Fenrir's frost paw print (FB2)
   scorch: { fill: '60,16,6', rim: '255,150,60', inner: '255,236,180', star: '255,120,40', smoke: '70,40,30' }, // Typhon's scorch ring: great heat thins slimes out (E5)
   tag: { fill: '120,100,76', rim: '255,214,150', inner: '255,248,230', star: '236,224,196', smoke: '90,76,64' }, // the Wickmother's name tags: a lantern's paper tag hangs off you, a name written on it (L5)
+  thirst: { fill: '120,80,50', rim: '232,190,130', inner: '255,240,210', star: '255,214,150', smoke: '90,60,40' }, // Old Carapace's Thirst: a ring of cracked earth under you, drying you out (atlas Phase 9, A5)
   count: { fill: '40,70,72', rim: '150,240,234', inner: '230,255,252', star: '190,255,250', smoke: '40,56,60' }, // the Escapement's Count: a numeral of light hangs over you, counting down with the beat (C6 (c))
 };
 function drawSigil(ctx, s, t) {
@@ -588,6 +590,7 @@ const SHELLS = {
   brass: { edge: 'rgba(44,22,10,0.96)', face: 'rgba(140,76,38,0.96)', rivets: 'rgba(255,230,150,0.98)' },
   slag: { edge: 'rgba(12,6,6,0.96)', face: 'rgba(58,46,44,0.96)', seam: 'rgba(255,120,40,0.9)' }, // Typhon's Slag Crust: its cracks gone dark and set hard (E5)
   glass: { edge: 'rgba(80,110,124,0.9)', face: 'rgba(222,242,246,0.85)', icicles: 'rgba(250,255,255,0.95)' }, // the Glassjaw's glass jaw closing up over it, splinters standing off it (atlas Phase 9, A3)
+  carapace: { edge: 'rgba(50,36,24,0.96)', face: 'rgba(138,106,74,0.96)', seam: 'rgba(232,200,150,0.85)' }, // Old Carapace drawn into his shell: plates of shell-horn, the road's dust in every seam (A5)
   sandstone: { edge: 'rgba(70,30,20,0.96)', face: 'rgba(184,104,74,0.95)', seam: 'rgba(255,200,150,0.8)' }, // the Red Wall's sand packing hard round it into red stone, the wind still glowing through the seams (atlas Phase 9, A4)
   wings: { edge: 'rgba(36,28,48,0.96)', face: 'rgba(122,110,140,0.95)', seam: 'rgba(255,214,150,0.85)' }, // the Wickmother's Folded Wings: furred grey-violet, an eye spot's gold at every seam (L5)
 };

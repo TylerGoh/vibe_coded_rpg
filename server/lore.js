@@ -72,6 +72,10 @@ export const FREED = {
   // A2: for the slime who freed her the nets strung between the Salt Flats' beached boats are gone, blown away on the wind
   // (src/saltflats.js)
   netwife: { near: ['kesh', 'mother_dune', 'tally', 'asra'], name: 'the Netwife, the great salt spider in the old harbour on the Salt Flats', seen: "out on the Salt Flats the nets that hung drying between the beached boats are gone, every one, let go to the wind, and the poles stand bare" },
+  // A5 (c): Amberdune's final boss. Nobody in Caravanserai says his name; "the Walker" is as far as Mother Dune goes. For the
+  // slime who freed him the hill on the horizon lies still, the well rises a little, and Mother Dune's tent is struck
+  // (src/caravan.js)
+  old_carapace: { near: ['mother_dune', 'tally', 'asra', 'kesh'], name: 'the Walker, the hill that walks the desert (never say his name)', seen: "the far hill on the horizon has stopped: it lies still now, every hour of the day, the dust settled round it. The well in town has come up a little, water you can see from the top for the first time in years. And Mother Dune has struck her tent at last and packed it, the bundles beside her in the Star Court; whether she goes anywhere is another thing. Be gentle and wondering about it: something very old has lain down" },
   // A4: for the slime who freed it the Storm Road's east end lies clear, the red wall gone, the caravan's things out on the
   // sand in the sun (src/stormroad.js)
   red_wall: { near: ['mother_dune', 'tally', 'asra', 'kesh'], name: 'the Red Wall, the standing storm at the end of the Storm Road', seen: "at the end of the Storm Road the red wall is down: the sky clear over it, and the caravan it took an age ago lying out on the sand in the sun, tents and packs and pack-saddles and little things, all still, all come down at last. Be gentle: everyone in Caravanserai lost someone to it, a long way back" },

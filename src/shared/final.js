@@ -1,4 +1,4 @@
-// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md, docs/places/typhon.md, docs/places/wickmother.md, docs/places/escapement.md
+// Docs: docs/combat/bosses.md, docs/places/ladon.md, docs/places/fenrir.md, docs/places/typhon.md, docs/places/wickmother.md, docs/places/escapement.md, docs/places/carapace.md
 // The final bosses' machinery (FB1 (c), story/fb1-plan.md; the pattern in story/final-bosses.md), shared by client
 // and server: the FINAL table (each final boss's phases, its written loops, its heads), the heads' geometry (where
 // each head hangs, bites, lowers; where its stump is), the coils, and the arena's ledges. The brain is
@@ -113,6 +113,26 @@ export const FINAL = {
       ['count', 'strike', 'teeth', 'tether:2', 'tock', 'rings:2', 'brake', 'locked:2'],
       ['tock', 'count', 'strike', 'rescue', 'teeth', 'teeth', 'shield'],
       ['ult', 'count', 'strike', 'tock', 'teeth', 'swap', 'rewound', 'both'],
+    ],
+  },
+  // Old Carapace (atlas Phase 9, A5 (c), story/a5-plan.md; its own constants: src/shared/carapace.js). 'look': the Look (the
+  // focus), 'snap': Snap (his head bites down; some a beat late), 'stamp': the pulse, 'drawn': Drawn In (the armour), 'dust':
+  // the barrier, 'stones': stones kicked up off the road, 'rest': Lie Down (the shard open, phase 4; unfilled, the Trample).
+  // Its ultimates (server/carapace.js picks): The Long Road in phases 1–2, The Long Road and Earthshaker by turns from phase
+  // 3. Its challenges (docs/combat/challenges.md): the Snap's late tells and the road's dust ('gaps') from phase 1, sinking
+  // sand ('mash') and 'rings' from phase 2, 'rescue' (buried under a tent, 2+) in phase 3, 'dark' (the storm) and 'swap' in
+  // phase 4; the Well's waterskins ('carry') all fight
+  old_carapace: {
+    brain: 'shell',
+    at: [0.75, 0.5, 0.25],
+    ultEvery: [80, 65, 55, 0],
+    ults: [{ name: 'The Long Road', kind: 'wave' }, { name: 'Earthshaker', kind: 'nova' }],
+    alternateFrom: 2,
+    loops: [
+      ['look', 'snap', 'stamp', 'gaps:2', 'drawn:2'],
+      ['look', 'snap', 'stones', 'mash:2', 'stamp', 'rings:2', 'dust', 'drawn:2'],
+      ['stamp', 'look', 'snap', 'rescue', 'stones', 'stones', 'shield'],
+      ['ult', 'look', 'snap', 'dark', 'stamp', 'stones', 'swap', 'rest', 'both'],
     ],
   },
 };

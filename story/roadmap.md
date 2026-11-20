@@ -210,7 +210,7 @@ No quests, no hard level gates.
           Hold / Counter-Swing / The Stopped Hour, its challenges from day one), its look and track, the Last Tick and twins,
           the Arbor Crown (The Tick, Keep Time), the mini Escapement, the city's one tick when freed
           (`docs/places/escapement.md`). Unplayed. **The Citadel's depth pass is done.**
-- [ ] **Atlas Phase 9: Amberdune** (Old Carapace), the next island (owner, 2026-11-15: "continue with next phase and the
+- [x] **Atlas Phase 9: Amberdune** (Old Carapace), the next island (owner, 2026-11-15: "continue with next phase and the
       phase after", after C6). (a) on paper 2026-11-15: `phase9-plan.md`; the owner's go-ahead 2026-11-17 ("continue with the
       next two phases") left every default standing: Lv 215–250, the Saltwind from the Black Sands, the whole pass, Old
       Carapace the final boss at 250, no canon tier, all four characters AI.
@@ -232,7 +232,14 @@ No quests, no hard level gates.
         swap; The Wall Comes On; freed, the caravan comes down on the sand; Driven Sand and Tailwind). Blocks: the old well's
         mouth chained shut (the Dry Wells, A5), Old Carapace walking on the horizon out of reach
         (`docs/places/stormroad.md`). Unplayed.
-  - [ ] A5: Old Carapace ((a) his plan, (b) the Dry Wells and the Shell Road, (c) the Long Road and the fight).
+  - [x] A5 (2026-11-20, live, in one update with A4's day): (a) Old Carapace on paper (`a5-plan.md`, every default standing);
+        (b) the well's chain cut and Asra's ladder down it, the Dry Wells (109, the deep room, Lv 244–250: dry striders, bucket
+        mimics, tally wraiths, dust drinkers, three elites, the Seventh Digger; the tin cup) and the Shell Road (110: he walks
+        past at dusk, his footfalls, his line, the climb up his foreleg); (c) Old Carapace on the Long Road (111, the sixth
+        final boss, fought at 250: the Stride, the waterskins and the well, the thirst mirages, the Look, Snap, Stones, Lie
+        Down and the Trample, The Long Road and Earthshaker, challenges from day one; Miles and Wayfarer; freed, the hill lies
+        still, the well comes up, Mother Dune strikes her tent) (`docs/places/drywells.md`, `carapace.md`). Unplayed.
+        **Amberdune is done.**
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,
       uncharted islands (`world/regions/uncharted.md`, `expansion.md`).

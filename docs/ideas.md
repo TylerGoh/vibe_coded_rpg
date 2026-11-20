@@ -166,6 +166,18 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   Gullet, Long-Neck and Grandfather Mire aren't in the story record (no Fen tier), so only the Wickmother has freed changes
   on the Fen.
 
+## Atlas Phase 9, A5: the Dry Wells, the Shell Road, Old Carapace (2026-11-20)
+- Unplayed: the Dry Wells (four mobs, three elites, the Seventh Digger), the Shell Road (his walk past, the footfalls, his
+  line, the climb), and the whole of Old Carapace: the Stride, the waterskins and the drink, the mirages, the Look and Snap,
+  Stones, Lie Down and the Trample, both ultimates, the enrage, his freeing and the freed sky, well and tent. Not looked at in
+  a browser: the drawing and the client fight object were run headless against a stand-in canvas through every pose and
+  event, and the brain was ticked headless through all four phases and the enrage (no players, no network); the music
+  wasn't heard.
+- The economy sheet models him like the other finals (uptime, `hold`); the Stride's real cost to a party, the mirages and the
+  carrying are guesses in `hold` (0.85).
+- Thrown waterskins arc up and away like Brenna's chip (`drawTooth`'s flight) rather than down into the well.
+- Brine, Arne, Netta and the Citadel's characters still don't mention Amberdune.
+
 ## Atlas Phase 9, A4: the Storm Road, the Sirocco, the Red Wall (2026-11-20)
 - Unplayed: the Storm Road, its four mobs and the squalls, the Sirocco (the swap, the wall of sand, the gust pulse and focus
   with a party) and the Red Wall (the wall of sand, the dark, tethers and the swap; armour, pulse, the weak point in front,
@@ -197,7 +209,8 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   built: a desert crop (a water-lily or a date palm) and a recipe, with Asra as the one who tells you about it.
 - The Saltwind's deck is the shared ship, the ferry's size, like the Hush's; a skiff of her own size would need her own
   deck platforms.
-- Old Carapace's walking hill moves with the hour of the day, the same for everyone; nothing more is done with it until A5.
+- Old Carapace's walking hill moves with the hour of the day, the same for everyone (until you've freed him: then for you
+  he lies still).
 - Brine, Arne, Netta and the Citadel's characters don't mention Amberdune yet (Soot and Liv do).
 
 ## The Citadel's depth pass, C5 (2026-11-14)

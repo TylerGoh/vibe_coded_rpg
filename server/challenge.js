@@ -32,7 +32,8 @@ const SLACK = 60; // px: a rescuer's or a parrier's distance, as the client saw 
 // faint(id, p, by), hurtFlat(id, p, share, m) (a share of max HP, no knockback), stagger(m, s), damage(m, n, id, p, dir),
 // lockBroken(m) (A23 done: the barrier breaks), later(m, ms, fn) (a timed follow-up on the boss), addAdd(m, kind, x) (a
 // minion of kind at x: the Hatchkeeper's hatchlings, T2) → the mob
-export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, mobById, faint, hurtFlat, stagger, damage, lockBroken, later, addAdd }) {
+// poured(m, id, p): a carry aimed at a target that isn't the boss landed in it (Old Carapace's well, A5 (c))
+export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, mobById, faint, hurtFlat, stagger, damage, lockBroken, later, addAdd, poured }) {
   const live = (m) => (m.ch ??= []);
   const newSeed = () => (Math.random() * 4294967296) >>> 0;
   const standing = (list) => list.filter(([, q]) => !q.faintUntil);
@@ -135,9 +136,12 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
       // A22: a chip of the tooth, knocked off to one side of her (the side with more room)
       const W = roomDef(m.room).width, far = CARRY_FAR[0] + Math.random() * (CARRY_FAR[1] - CARRY_FAR[0]);
       const side = m.x + far > W - 80 ? -1 : m.x - far < 80 ? 1 : Math.random() < 0.5 ? -1 : 1;
-      const x = Math.round(Math.max(80, Math.min(W - 80, m.x + side * far)));
-      live(m).push({ type, seed, x, holder: 0, until: t + CARRY_S * 1000, over: false });
-      bossEvent(m, 'chal', { type, x, ms: CARRY_S * 1000, seed, style: k.looks?.carry ?? 'tooth' });
+      // opts.x: where it drops instead; opts.target: { x } it's thrown into instead of the boss (Old Carapace's waterskins and
+      // his well, A5 (c): poured)
+      const x = opts.x != null ? Math.round(opts.x) : Math.round(Math.max(80, Math.min(W - 80, m.x + side * far)));
+      const tx = opts.target ? Math.round(opts.target.x) : undefined;
+      live(m).push({ type, seed, x, holder: 0, until: t + CARRY_S * 1000, over: false, tx });
+      bossEvent(m, 'chal', { type, x, ms: CARRY_S * 1000, seed, style: opts.style ?? k.looks?.carry ?? 'tooth', ...(tx != null ? { tx } : {}) });
     } else if (type === 'rewind') {
       // Rewind: everyone's ghost stays where they stand; REWIND_S later they're snapped back to it and the boss's attacks
       // since come again (its events are recorded meanwhile: m.rec, server/rpg.js bossEvent)
@@ -359,6 +363,21 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
     const dir = Math.sign(msg.dir) || p.state.facing || 1;
     for (const [m, c] of carries(p.state.room)) {
       if (c.holder !== id) continue;
+      if (c.tx != null) { // (thrown at its target, not the boss: Old Carapace's well)
+        const x = p.state.x, g = (c.tx - x) * dir;
+        c.holder = 0;
+        if (!m.dead && g >= -60 && g <= THROW_RANGE) {
+          c.over = true;
+          bossEvent(m, 'chal', { type: 'thrown', by: id, x0: Math.round(x), x1: c.tx, hit: 1, well: 1 });
+          firstTime(p, 'carry');
+          poured?.(m, id, p);
+        } else {
+          const W = roomDef(m.room).width;
+          c.x = Math.round(Math.max(80, Math.min(W - 80, x + dir * THROW_RANGE * 0.6)));
+          bossEvent(m, 'chal', { type: 'thrown', by: id, x0: Math.round(x), x1: c.x, hit: 0 });
+        }
+        return;
+      }
       const k = MOBS[m.kind], x = p.state.x, gap = (m.x - x) * dir - k.w / 2;
       if (!m.dead && gap <= THROW_RANGE && (m.x - x) * dir > -k.w / 2) {
         const back = (x - m.x) * m.dir < 0; // (thrown from behind her: the buckle where the straps cross)

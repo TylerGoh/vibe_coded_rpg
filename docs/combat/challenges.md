@@ -4,7 +4,7 @@ Files: `src/shared/challenge.js` (the table `CHALLENGES`, every challenge number
 `server/challenge.js` (starting, judging, ending: `createChallenges`, `KIND`), `src/challenge.js` (the client: hazards,
 the combo, the touch arrow pad, the art, G2's banner, `drawSunk`). Physics: `tr` / `cs` / `pf` in `step()`
 (`src/shared/sim.js`); T1b adds `tl` (the tilting floor). The final bosses' own: `server/final.js` (Ladon),
-`server/fenrir.js` (Fenrir), `server/typhon.js` (Typhon's iron, its second Hammer, the lava waves), `server/wickmother.js` (the Wickmother's, L5), `server/escapement.js` (the Escapement's, C6 (c)), `src/ladon.js` (Head
+`server/fenrir.js` (Fenrir), `server/typhon.js` (Typhon's iron, its second Hammer, the lava waves), `server/wickmother.js` (the Wickmother's, L5), `server/escapement.js` (the Escapement's, C6 (c)), `server/carapace.js` (Old Carapace's, A5 (c): the waterskins are A22's carry aimed at the well, `opts.target`), `src/ladon.js` (Head
 Swap's marks), `src/dens-ladon.js` (the moving gaps). The bosses using `bossBrain` (the Root Warden, Sigrun, Brenna, the
 Colossus, Chronos) start theirs from `server/rpg.js` (`CHAL_MOVE`, and the fake-out in `newMove`). The plan, every type (A1–A23) and every boss's set
 (B1–B21): `story/tricky-plan.md`.
@@ -141,6 +141,11 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
     `looks.snare: 'net'`, a new `PAL` row: salt-stiff twine, white knots), late tells from phase 2 (`late`: her shadow
     comes too late as she drops out of her rigging), and the rescue cage from phase 2 with a party (`cage`: wound up in her
     nets to mend later). The punish window.
+  - **Old Carapace** (atlas Phase 9 A5 (c), Amberdune's final boss, from day one, `docs/places/carapace.md`): the Snap's late
+    tells and the road's dust (`gaps`, `sandwall`) from phase 1; **the waterskins** all fight (`carry` with `opts.target` and
+    `opts.x`: picked up off a tent at one end and thrown into the dry well, `poured`, instead of at him; the banner says
+    "back at the boss, or where it is wanted" so it reads for both); sinking sand (`mash`) and gravel rings (`rings`, style
+    `grit`) from phase 2; buried under a tent (`rescue`, 2+) in phase 3; the storm (`dark`) and the swap in phase 4.
   - **The Red Wall** (atlas Phase 9 A4, Amberdune's party den, from day one, `docs/places/stormroad.md`): thin gaps every phase
     (`gaps`, a new look: a wall of blown red sand with one gap where the wind parts, `looks.gaps: 'sandwall'`,
     `drawSandWall`), the dark from phase 2 (`dark`: the storm closes over the sun), tethers from phase 2 with a party

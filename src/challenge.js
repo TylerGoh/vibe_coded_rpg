@@ -172,16 +172,18 @@ export class Challenges {
         if (m.hit) this.tooth.until = now + 0.45;
       }
       audio.sfx('dash', { vol: 0.6 });
-      if (m.hit) this.rpg.later(0.4, () => {
+      if (m.hit && m.well) this.rpg.later(0.4, () => audio.sfx('bubblePop', { vol: 0.8 })); // (Old Carapace's well: the pour's own pop is src/carapace.js's)
+      else if (m.hit) this.rpg.later(0.4, () => {
         this.rpg.pop(m.x1, 260, m.back ? (this.tooth?.style === 'tooth' || !this.tooth?.style ? 'THE STRAP!' : 'FROM BEHIND!') : 'HIT!', '#ffe28a', m.back ? 24 : 20);
         audio.sfx('bossSlam', { vol: 0.8 });
       });
     } else if (m.type === 'dropped') {
       if (this.tooth) [this.tooth.holder, this.tooth.x] = [0, m.x];
     } else if (m.type === 'carryBurst') {
+      const wet = this.tooth?.style === 'skin'; // (a waterskin bursting: it spills)
       this.tooth = null;
-      this.bursts.push([m.x, 450, this.time, 'ember']);
-      this.rpg.fx?.spawn?.('nova', { x: m.x, y: 430, radius: CARRY_BURST_R, tint: 'fire' });
+      this.bursts.push([m.x, 450, this.time, wet ? 'ice' : 'ember']);
+      this.rpg.fx?.spawn?.('nova', { x: m.x, y: 430, radius: CARRY_BURST_R, tint: wet ? 'mana' : 'fire' });
       audio.sfx('bombBoom', { vol: 0.8 });
     } else if (m.type === 'rewind') {
       const me = this.rpg.net.me, ghosts = new Map(m.ghosts.map(([id, x, y]) => [id, [x, y]]));
@@ -1666,6 +1668,33 @@ function drawChip(ctx, x, y, ang, t, style) {
     ctx.lineTo(5, -4);
     ctx.lineTo(10, 3);
     ctx.stroke();
+    ctx.restore();
+    return;
+  }
+  if (style === 'skin') { // (Old Carapace's waterskins, A5: a fat goatskin bag, sloshing, a cord at its neck, water beading on it)
+    const g = ctx.createRadialGradient(0, 0, 2, 0, 0, 34);
+    g.addColorStop(0, `rgba(170,220,255,${0.4 + 0.2 * Math.sin(t * 6)})`);
+    g.addColorStop(1, 'rgba(170,220,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(-34, -34, 68, 68);
+    ctx.fillStyle = '#a8784a';
+    ctx.strokeStyle = '#5a3a20';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-6, -14);
+    ctx.quadraticCurveTo(-18, -6, -14, 8);
+    ctx.quadraticCurveTo(-4, 16 + Math.sin(t * 5) * 1.5, 12, 8);
+    ctx.quadraticCurveTo(16, -4, 4, -14);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#5a3a20'; // its neck and cord
+    ctx.fillRect(-4, -19, 8, 6);
+    ctx.fillStyle = 'rgba(200,236,255,0.9)'; // water beading on it
+    ctx.beginPath();
+    ctx.arc(-6, 2, 1.8, 0, TAU);
+    ctx.arc(5, 6, 1.4, 0, TAU);
+    ctx.fill();
     ctx.restore();
     return;
   }

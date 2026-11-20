@@ -37,7 +37,7 @@ owner asked for it as a **teaser of where the world is heading**, so it shows th
   never named); the Saltwind's dashed route runs to it from Emberdeep. It sits in the chart's bottom corner, so its name
   goes up beside it. Its own map is `AMBERDUNE` (`LOOK.dune`): Caravanserai, the Glass Dunes, the Mirage Oasis, the
   Buried Observatory, the Salt Flats (A2), the Buried Caravanserai (A3, red-trimmed: a hard pocket), the Storm Road and the
-  Red Wall's den (A4), and dashed with its reason the Dry Wells (chained shut). Aboard the Saltwind the pin is `'duneroute'`. Emberdeep's map gains the Saltwind off the Black Sands.
+  Red Wall's den (A4), the Dry Wells (red-trimmed) and the Long Road (A5). Nothing is dashed: Amberdune has no gates left. Aboard the Saltwind the pin is `'duneroute'`. Emberdeep's map gains the Saltwind off the Black Sands.
 - Emberdeep's sub-label names Forgehold; it sits near the chart's bottom edge, so its "tap for its map" hint
   goes beside it, not under it.
 - Frostpeak shows Icefang Hamlet where the ferry comes in (turf huts, a fire) and the Queen's cracked ice

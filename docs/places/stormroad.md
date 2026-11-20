@@ -41,14 +41,15 @@ West to east (`STORM_ZONES`), redder going east (`drawRedSky`, `drawDuneAir`'s `
   and turned toward the storm; nobody in Caravanserai says who keeps it lit (Tally can't get that number). Its top is the
   hidden spot (last in `STORM_PLATFORMS`). **The old well** (`DRYWELL_GATE_X`): a ring of red dressed stone with a
   windlass frame and no rope, its mouth under an iron grating chained down and padlocked, the caravan's tally-mark
-  scratched on the lock (kind `drywell`, "chained shut": the Dry Wells' gate, A5; the caravan's rule, made by the mothers
-  before Mother Dune: nobody goes down, because the seven who went down to dig it deeper when it failed never came up).
+  scratched on the lock (kind `drywell`, "chained shut", the caravan's rule, made by the mothers before Mother Dune: nobody
+  goes down, because the seven who went down to dig it deeper when it failed never came up). **A5 opened it**: the chain
+  cut and coiled, the grating back, Asra's rope ladder down into the Dry Wells (`docs/places/drywells.md`, an `entry` now).
 - **The Wall's Foot** (245–250): the last of the marker stones, and the Red Wall standing across the road from the sand to
   the sky, churning, shapes going round deep in it (a tent, a pack-beast). **Its den** opens at `RED_DEN_X`: a parting in
   the churn where the road goes in, the last marker stones going in after it, sand pulling in toward it along the ground.
 - **Far off south on the horizon** a hill walks by with a town on its back, four slow legs and a head out ahead looking east,
   dust under it: Old Carapace, out of reach (`drawWalker`, drawing only; where he is goes with the hour, like
-  `drawDuneSky`'s walker; never named). A5 brings him.
+  `drawDuneSky`'s walker; never named; freed, he lies still: `isWalkerStill`). His fight is A5's (`docs/places/carapace.md`).
 - **The squalls** (a room hazard, `SQUALLS`, `squallAt`; the Skydocks' gusts' pattern): on each of the rises the wind gets
   up (`SQUALL_WARN`: sand streams off the crest, the lane darkens), blows (`SQUALL_BLOW`: it hurts whoever stands on the
   floor there, `SQUALL_DOT` of max HP every `PATCH_HIT_EVERY` ticks, a flat `dot`) and drops, on its own offset in a
@@ -129,5 +130,4 @@ thinks it's keeping them safe (the wells went dry, the sun came down, and it kep
   with a `blink` brain; the Red Wall at Lv 248 under Old Carapace's 250, its challenges (the plan named none: gaps, the
   dark, tethers, the swap) and the weak point in front; the squalls as the plan's "wind on every rise"; the find (the lit
   lantern on the tallest pillar); who made the dry well's rule and why (Mother Dune's and Tally's personas).
-- The well's gate is A5's: when the Dry Wells ship, `drawDryWell`'s `open` look (the chain cut, the grating back, a rope
-  ladder down) is already written and `OPEN.drywell` registered.
+- The well's gate was A5's: it opened with the Dry Wells (`drawDryWell`'s `open` look), the same day.

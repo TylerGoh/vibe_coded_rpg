@@ -296,6 +296,7 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | The Rustwyrm (field, 196; the Citadel's C5) | focus (it hunts one slime), armour (its links closing up into plate) | the Colossus's brass plates (`looks.shell: 'brass'`) |
 | The Helmsman (party den, `top`, 191; the Citadel's C4, built with them: `docs/places/helm.md`) | focus, armour (+ the gear lock), pulse (the city's horn), weakpoint (the shard in the open hatch at his back, `weak.back`), adds (governor balls), interrupt | the Colossus's brass plates (`looks.shell: 'brass'`); grey-white rings, "HOLD" (`looks.pulse: 'horn'`) |
 | The Red Wall (party den, `top`, 248; atlas Phase 9 A4, built with them: `docs/places/stormroad.md`) | focus, armour (the sand packing hard into red stone), pulse (its wind), weakpoint (the shard in its heart, `weak.front`), adds (storm riders), interrupt | new `SHELLS.sandstone` (red stone, the wind glowing in the seams); red rings, "GUST" (new `PULSES.gust`) |
+| Old Carapace (final, 250; atlas Phase 9 A5 (c): `docs/places/carapace.md`) | every S5 mechanic (`partyAll`): focus (the Look), pulse (his stamp), curse (Thirst), barrier (Dust), armour (Drawn In), weakpoint (the shard in the well, Lie Down), adds (thirst mirages), interrupt | `PULSES.stamp`, `SHELLS.carapace`, `CURSES.thirst` (new); Typhon's `haze` dome |
 | The Sirocco (field, 245; A4) | pulse (its wind breaking), focus | `looks.pulse: 'gust'` |
 | The Siege Engine (field, 154; the Citadel's C0) | armour (its shutters down), focus (its sights on one slime) | the Colossus's bronze plates (`looks.shell: 'brass'`) |
 | Old Crucible (field, 145; E3b) | armour, curse (smouldering) | Ignis's basalt plates (`looks.shell: 'cinder'`): the slag on its skin setting; Pyra's charred sigil (`looks.curse: 'ember'`): its splashes of metal |
@@ -324,7 +325,7 @@ alone they fight as before too). The armour and barrier use the shared numbers (
   Cleanse's job) and his curse stacking. Not tried: Ignis's and Chronos's interrupts, people.
 
 ## Top bosses (SP6, owner 2026-10-25)
-`top` on a boss: the party dens (the Root Warden, Sigrun, Brenna, Grandfather Mire, the Helmsman, the Red Wall), the final bosses (FB1, FB2, E5) and the
+`top` on a boss: the party dens (the Root Warden, Sigrun, Brenna, Grandfather Mire, the Helmsman, the Red Wall), the final bosses (FB1, FB2, E5, L5, C6, A5) and the
 end-game capstones, the Clockwork Colossus and Chronos. Built for a party of four (~45 min on the sheet), hard-hitting and
 punishing; alone possible but 2–3× as long (their HP floor, `PARTY_DEN_HP_FLOOR`). Every class still has an answer to
 every mechanic (S5's rule), but a weak answer costs more here than on an ordinary den (which keeps the S5 numbers):
@@ -350,11 +351,12 @@ generalised FB1's engine: each FINAL row names its `brain` and `createFinal` (`s
 `server/fenrir.js`, `docs/places/fenrir.md`; `fire`: Typhon's plates, pressure and vents, `server/typhon.js`,
 `docs/places/typhon.md`; `moth`: the Wickmother's hall lanterns, moths, silk walls and dark, `server/wickmother.js`,
 `docs/places/wickmother.md`; `catch`: the Escapement's pendulum, pallets, pawls and the Stopping, `server/escapement.js`,
-`docs/places/escapement.md`), plus `son` for an add with `son` (stepMob: `son: 'moth'` goes to the Wickmother's brain,
-`son: 'pawl'` to the Escapement's, any other to Fenrir's), `frost` (any frost hit landing in its den: `applyHits` calls it; only Typhon's brain has one) and
-`hold` (what's left of a hit on its body: the Wickmother's lit lanterns take a share, the Escapement's Tick opens it
+`docs/places/escapement.md`; `shell`: Old Carapace's stride, well, mirages and Lie Down, `server/carapace.js`,
+`docs/places/carapace.md`), plus `son` for an add with `son` (stepMob: `son: 'moth'` goes to the Wickmother's brain,
+`son: 'pawl'` to the Escapement's, `son: 'mirage'` to Old Carapace's, any other to Fenrir's), `frost` (any frost hit landing in its den: `applyHits` calls it; only Typhon's brain has one) and
+`hold` (what's left of a hit on its body: the Wickmother's lit lanterns take a share, the Escapement's Tick and Old Carapace's drink open it
 wider, more than 1; `applyHits` multiplies it into the cap and `Party.mod` into the client's hit; 1 for the others). On the client `src/finals.js`
-routes to one object per boss with the same face (`src/ladon.js`, `src/fenrir.js`, `src/typhon.js`, `src/wickmother.js`, `src/escapement.js`): the `final` message by its `fb`, a
+routes to one object per boss with the same face (`src/ladon.js`, `src/fenrir.js`, `src/typhon.js`, `src/wickmother.js`, `src/escapement.js`, `src/carapace.js`): the `final` message by its `fb`, a
 hit by the boss's kind, events, ultimates and drawing by room. What every brain shares: the loop runner (phases,
 `name:2`, `shield`, `ult` with `alternateFrom`), the enrage clock, the S5 hookup below, and other targets on the boss
 (`heads` on the mob: `h[4] = 2 + slot`, re-checked with `headReach`). A target can be a **prop** (`{ prop }` from

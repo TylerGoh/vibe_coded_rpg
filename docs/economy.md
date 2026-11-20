@@ -790,6 +790,29 @@ the moves instead (ideas go to the owner as a list to approve, `story/roadmap.md
   items (its own sell rate), more prestige sinks (furniture colours, garden extras, cosmetics with a
   late-game price), or a gold cost on scroll re-tries.
 
+## Amberdune, A5: the Dry Wells and Old Carapace, the sixth final boss (atlas Phase 9, 2026-11-20)
+The Dry Wells (`docs/places/drywells.md`, the deep room, Lv 244–250, `DUNE_TOP` 250) and Old Carapace on the Long Road
+(`docs/places/carapace.md`).
+- **Mobs**: four on the frozen curve, read off A4's by level: the dry strider (244, HP 104% like the other chasers), bucket
+  mimic (246, 110%, a `stomp`), tally wraith (248, 100%, a `phase`) and dust drinker (250, 95%, a `lob`); EXP 100%, gold 99%.
+  Materials on the ladder above A4's: Dry Strider's Leg 2,255, Bucket Rivet 2,270, Tally Stone 2,285, Drinker's Grit 2,300.
+  Three elites from `elite()` and the Seventh Digger (a named elite of the tally wraith, no gear). Rare: the Bucket Helm
+  (`helmetPrice` at 246, 2.158M).
+- **What moved**: "farming your own level" at 250 now picks the dust drinker (was the red wisp): **gold earned by** Lv 250
+  ~44.801M → ~44.799M (−0.005%); **play time** to Lv 250 54.2 h (unchanged). Lv 230 and below didn't move.
+- **Old Carapace** (FINAL BOSSES, fought at Lv 250: its Lv 270 tag less `FINAL_LVL_OVER`). Its written HP takes
+  `BOSS_HP_SCALE`, its uptime share and `hold` 0.85 (what a party nets after the time spent carrying waterskins and jumping
+  footfalls, with the drinks' windows' extra). The Escapement's numbers carried up the curve (201M written) put a party of
+  four at 25:07; 213M (86.9M live) puts it at **26:33** (the Escapement 26:40). Every three of them are past the enrage: no
+  Knight 33:49, no Priest 38:01, no Frostbinder 40:24, no Sniper 38:08. ATK 930, EXP 7.24M, coins 10.4–15.6M: **pay** a member
+  1.01× farming's EXP and 4.24× its gold an hour at Lv 250 (the Escapement 1.00× / 4.18×).
+- **Its set** (The Long Road and twins, the Carapace Crown) at Lv 259 on the frozen curve (`BOSS_GEAR.final` on the stats),
+  a step over its fight's 250 like the Escapement's: weapons 3.076M (`swordPrice` × ~0.967 like the Escapement's), the crown
+  2.280M. Its effects (Miles, Wayfarer) aren't on the sheet, like every boss gear effect.
+- **Its mirages** (`thirst_mirage`, Lv 250) pay little and drop only coins: they're adds.
+- **The mini Old Carapace** costs 340k, the Pet Shop's dearest (the mini Red Wall's 334k). `PETSHOP_W` 8850 → 9150.
+- `--check` green.
+
 ## Amberdune, A4 (atlas Phase 9, 2026-11-20)
 The Storm Road with the Sirocco and the Red Wall, Amberdune's party den (`docs/places/stormroad.md`). Read off A3's neighbours
 and the Helmsman by the curve.

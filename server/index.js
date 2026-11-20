@@ -196,6 +196,12 @@
 //   jamming {i, sid, dur} / jam {i, sid} / jamStopped {i} / unjam {i}, pawls {px}, swingStep {n, dir}, rewound {dur, side} /
 //   rewoundBroken / drop, stopping, tickBeat; rain / rainHit with style teeth; ultWarn / ultHit kinds hold {side}, counter
 //   {side, dir, x0, speed} and stopped.
+//   Old Carapace (atlas Phase 9, A5 (c), server/carapace.js): ← {t:'final', fb:'old_carapace', id, ph, enr, po (his pose), sp (the
+//   stride's phase, 0–1: the hind foot lands at 0, the fore at 0.5), ss (its period, s), wl (the well, 0–WELL_N), op (ms of the
+//   drink's window left), dr (drinks the town has had), st (phase 3's quickening steps)} · h[4] = 1: the shard (Lie Down) ·
+//   boss events snap {tx, dur, r} / snapLate {tx, dur} / snapHit {tx, r}, foot {i}, pour {wl, who}, drink {n, dur, who},
+//   drained, sip {wl, sid}, drinking {sid}, mirages {px}, walkStep {n, dir}, rest {dur} / restBroken / trample, storm; rain /
+//   rainHit with style stones; chal carry with tx (the well) and thrown with well; ultWarn / ultHit kinds wave and nova.
 //   The Cleric's summons (S3, server/summons.js): ← {t:'summons', s: [[id, what, owner, x, y, hp, maxHp, dir]]}
 //   ~20 Hz to rooms with any (an empty one when the last goes) · ← {t:'sumhit', h: [[summonId, hits]]} ·
 //   ← {t:'sumhurt', id, dmg} · ← {t:'sumgone', id, how: 'faded'|'broke', x, y}. A skill echo may carry

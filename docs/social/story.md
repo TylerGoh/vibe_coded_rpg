@@ -90,5 +90,9 @@ other slimes see their own world). The client gets your record's bosses as `me.f
 - **The Red Wall** (A4, `docs/places/stormroad.md`; `BOSS_TIER` 0) → the Storm Road's far end lies clear: the red wall down,
   the caravan it held lying out on the sand in the sun, the tallest pillar's lantern out with a blue bead on its pole
   (`drawStormRoad`'s `freed`). The same four know, gently (`FREED.red_wall`).
+- **Old Carapace** (A5 (c), Amberdune's final boss, `docs/places/carapace.md`; `BOSS_TIER` 0, no canon tier) → the hill on
+  Amberdune's horizon lies still in every sky (`isWalkerStill`, `src/distant.js`: `drawDuneSky`, `drawAmberdune`, the Storm
+  Road), Caravanserai's well comes up a little and Mother Dune strikes her tent (`drawCaravan`'s `freed`). The same four know
+  (`FREED.old_carapace`).
 - Later, if wanted (plan): Ladon, Fenrir (the cutters finish the Long Stair), Typhon (the Foundry's pits go cold). The
   one world-wide flag stays for the finale (`story/delivery.md`).

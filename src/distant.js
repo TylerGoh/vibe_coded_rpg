@@ -6,6 +6,13 @@
 // high in the middle. Drawn in screen space, after a room's sky and before its own hills and mountains.
 import { W, TAU, circle, ellipse, mix } from './util.js';
 
+// Old Carapace, the far hill that walks Amberdune's skyline (atlas Phase 9): freed (per character, A5 (c)), he lies still in
+// every sky. src/main.js sets it each frame from your story record; drawAmberdune here, drawDuneSky (src/caravan.js) and the
+// Storm Road's walker (src/stormroad.js) read it
+let walkerStill = false;
+export const setWalkerStill = (v) => (walkerStill = !!v);
+export const isWalkerStill = () => walkerStill;
+
 // For each island you can stand on: the compass bearing its view faces, and the bearing (degrees,
 // 0 = north, clockwise) and distance (1 = far, bigger = nearer) of every other island's landmark.
 const VIEWS = {
@@ -208,8 +215,8 @@ function drawAmberdune(ctx, x, y, s, o, tint) {
   ctx.fill();
   ctx.fillStyle = tint('#c89a60', 0.12); // the shadow sides
   for (let i = 0; i < 8; i += 2) ellipse(ctx, x + (-100 + i * 30) * s, y - 4 * s, 10 * s, 3 * s);
-  const hour = (Date.now() / 3.6e6) % 24, hx = x + (-80 + (hour / 24) * 160) * s;
-  if (Math.floor(hour) % 3 !== 2) { // (now and then it's out of sight)
+  const hour = walkerStill ? 15 : (Date.now() / 3.6e6) % 24, hx = x + (-80 + (hour / 24) * 160) * s; // (freed: lying still, always there)
+  if (walkerStill || Math.floor(hour) % 3 !== 2) { // (now and then it's out of sight)
     ctx.fillStyle = tint('#b08c6e', 0.1);
     ctx.beginPath();
     ctx.moveTo(hx - 14 * s, y - 10 * s);
