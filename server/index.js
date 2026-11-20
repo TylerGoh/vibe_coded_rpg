@@ -226,6 +226,11 @@
 //   of food from your bag, at a pet in the house you're in ← {t:'pet-fed', room, id, by, item}  to the room
 //   → {t:'invite', to}  (from a town or your own house, to a player in a town: TOWNS in sim.js)
 //       ← {t:'invite', from, name, ms}  to them · → {t:'visit', host, no?}  yes takes them into the host's house
+// The Gathering Fair (server/fair.js, docs/places/fair.md; every town's tent is a door, room FAIR): → {t:'fair', a:'hello'}
+//   ← {t:'fair', a:'bests', bests: {game: {name, score}}} (today's best at each booth; again whenever one's beaten) ·
+//   → {a:'start', g} at a booth  ← {a:'go', g, seed} to you, {a:'play', id, g} to the fair · → {a:'end', score}
+//   ← {a:'won', g, score (capped), tickets, total} to you, {a:'score', id, g, score} to the fair · → {a:'prize', id} at the
+//   prize counter ← {a:'prized', id, total} (then me / gear). `me` carries `tickets`.
 // Botting accusations, for fun (server/accuse.js, docs/social/accuse.md): → {t:'accuse', to}  (ACCUSE_COOLDOWN_MS
 //   per accuser) · → {t:'deny'}  ← {t:'accused', by?, ms?, caught?}  your state: open (ms of grace left), caught
 //   (until you deny it, your EXP goes nowhere but BOT_CUT of it to `by`), or nothing (no `by`)
@@ -515,6 +520,8 @@ wss.on('connection', (ws) => {
       rpg.skills(id, p, m);
     } else if ((m.t === 'buy' || m.t === 'sell' || m.t === 'buycos') && p.joined) {
       rpg.shop(id, p, m);
+    } else if (m.t === 'fair' && p.joined && typeof m.a === 'string') {
+      rpg.fair(id, p, m); // the Gathering Fair's booths and prize counter (server/fair.js)
     } else if (m.t === 'playtime' && p.joined) {
       rpg.playtime(p);
     } else if (m.t === 'wake' && p.joined) {

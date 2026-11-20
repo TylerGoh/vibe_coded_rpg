@@ -15,8 +15,9 @@ one shared corner feed).
   Brine; `docs/places/crossings.md`), Forgehold's Forgewarden Ash, Auntie Soot and Slag (forge folk; Soot and
   Slag trade; `docs/places/forgehold.md`), the Ashwood's Collier Pitch (forge folk, trades; `docs/places/ashwood.md`), the Skydocks camp's Pilot Kestrel
   (forge folk, trades at her stall, flies the balloon on both its decks), Pilgrim Ione and Tamp (`docs/places/skydocks.md`), and
-  the Pet Shop's Auntie Clover (sells pet food, preaches feeding; `docs/places/pets.md`). Press E
-  in range to talk.
+  the Pet Shop's Auntie Clover (sells pet food, preaches feeding; `docs/places/pets.md`), and the Gathering Fair's
+  Ringmaster Fizz (runs the prize counter, knows every game and why each closed ride is shut, `lore: 3` for the Keepers'
+  fair; `docs/places/fair.md`). Press E in range to talk.
 - When a place opens, update the personas that can see it, or they keep describing the block: Moss knows
   Wreck Cave's water is down and what lives in it, Acorn (who watches Bramble Woods from the treetops) knows
   the tunnel through the thorns and the Thorn Hart (G4), and that the trunk to Keeper's Spine is cut through (G5), and (FB1 (b)) that the Thornheart's root knot has split

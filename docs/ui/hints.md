@@ -12,6 +12,8 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
 - Doors into combat rooms add their level band to the prompt as a chip (`band`, `docs/world.md`); a hard
   pocket's is red. The blocked ways into branches (`docs/places/branches.md`) get an E prompt ("look at
   the washed-out footbridge") and a beacon.
+- The Gathering Fair (`docs/places/fair.md`): `fair.prompt` gives E's line at an open booth ("play Pop Gallery (free)"), a
+  shut one, a prize on the counter (its ticket price, or "you have it") and the closed rides; the open booths get beacons.
 - Waystones (`wayPrompt`) and every room's Keeper stones (`ruinStoneAt` is room-aware now) have prompts
   and beacons.
 - In combat rooms a Warrior also sees its chase moves while each is possible right now: "X Charge"

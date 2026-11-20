@@ -6,7 +6,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 ## Rooms
 | room | id | doors (press E) |
 |---|---|---|
-| Slimeville (village) | 0 `VILLAGE` | Harbour gate (west end) · Furniture store · your house · Pet Shop · Lecture Hall · Music House · Museum · Wildwood gate (east end) |
+| Slimeville (village) | 0 `VILLAGE` | Harbour gate (west end) · Furniture store · the fair's tent · your house · Pet Shop · Lecture Hall · Music House · Museum · Wildwood gate (east end) |
 | Lecture Hall | 1 `HALL` | exit · Tutoring Room (side door) |
 | Music House (piano) | 2 `PIANO` | exit |
 | Grand Museum of History | 3 `MUSEUM` | exit · wing portals in the lobby (`wingPortalX`) · back-to-lobby door at each wing (`wingReturnX`) |
@@ -73,6 +73,7 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | The Long Flue | 64 `LONGFLUE` | back up to the Under-Flues (west end) · Typhon's den, the Hearth (room 65, `TYPHON_DEN`, `docs/places/typhon.md`), through the furnace door at `TYPHON_DEN_X`; no mobs, not a combat room (`docs/places/underflues.md`) |
 | The Queen's Bridge | 42 `QBRIDGE` | back down the ice stair to Frostpine Ridge (west end) · Sigrun's den, the Seam (room 43), at the east end (`docs/places/queensbridge.md`) |
 | Pet Shop | 27 `PETSHOP` | exit (`docs/places/pets.md`) |
+| The Gathering Fair | 112 `FAIR` | the tent flap at the west end, back out at your town's tent (a `TOWN` door with `fair`); every town's striped tent leads in (`docs/places/fair.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17, 26, 30, 35 | exit, back to the stage it's in (`DENS[].from`) |
 | The Training Yard | 53 `ARENA` | no doors: only the dev sandbox's server puts anyone there, and its panel is the way out (`docs/sandbox.md`); a combat room |
@@ -89,12 +90,13 @@ band. Blocked ways into branches that haven't shipped: `docs/places/branches.md`
 
 ## Towns
 **Owner's rule (2026-10-20): every island's landing has a town, and every town works like Slimeville.**
-A town (`TOWNS` in `src/shared/sim.js`: Slimeville, Icefang Hamlet, Forgehold, the Skydocks Camp and Wickmere so far) has a door into your own
+A town (`TOWNS` in `src/shared/sim.js`: Slimeville, Icefang Hamlet, Forgehold, the Skydocks Camp, Wickmere and Caravanserai so far) has a door into your own
 house, and being in one makes it **your town** (`state.town`, set inside `step()`, in snapshots and saved
 with the character). You wake up there after fainting, start there when your spot from before a restart
 wasn't kept, your house's front door (`to: TOWN`) lets you out there, and invites work from any town. A
 toast says so when your town changes. A new town = a `TOWNS` entry (room, wake-up x, house door x) and a
-`HOME` door in its room. Towns are safe rooms (no mobs).
+`HOME` door in its room. Towns are safe rooms (no mobs). Every town also has a striped tent into the Gathering Fair
+(`FAIR_TENT_X`, given to each `TOWNS` entry as `fairX`; `docs/places/fair.md`): a new town needs a spot for it too.
 
 ## The village
 - Spawn at `SPAWN_X`. West to east: the harbour gate (`HARBOUR_GATE_X`), the furniture store (`STORE_DOOR_X`; a floating island was moved off

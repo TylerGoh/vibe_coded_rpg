@@ -18,6 +18,8 @@ rebindable, **saved per account**, opened **only from the Esc menu** (no hotkey 
 - **Esc is fixed** (`FIXED_KEYS`): it always opens the menu, so nobody can lock themselves out of this page. Also
   not rebindable on purpose: number keys picking a stone on the waystone card, Delete / F while decorating
   (`Houses.key`), O for the sandbox panel (dev only). They sit inside their own cards, so they don't clash.
+- The Gathering Fair's booth games (`docs/places/fair.md`) add no actions: the walk / jump / down keys aim, attack or use
+  fires, Esc stops; 1–9 bonk a hole straight away (not rebindable, inside the game's card, like the waystone card's).
 - **A key does one thing**: binding a key that another action had takes it off that action (the note says
   which). The defaults never overlap. Contextual uses follow the bindings: the bag's own key closes the bag,
   the use key closes the shop and the other E-panels, the walk keys browse the museum and turn the telescope.

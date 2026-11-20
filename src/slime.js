@@ -25,6 +25,7 @@ import { drawStokerDress } from './engine-art.js';
 import { FEN_PALETTE, drawFenFolk, drawFenDress } from './wickmere-art.js';
 import { DUNE_PALETTE, drawDuneFolk, drawDuneDress } from './dune-art.js';
 import { drawPetkeeperDress } from './pet-art.js';
+import { drawFairWear, drawRingmaster } from './fair-art.js';
 
 // yr's laptop notifications: icon colours, and how long each one floats
 const NOTIF_KINDS = ['#ff5a5f', '#4fbf86', '#5b8def', '#ffb020']; // alert, message, mail, calendar
@@ -1031,6 +1032,7 @@ export class Slime {
     if (this.has('stoker')) drawStokerDress(ctx, w, h, fx, this.t); // Number Nine, at its furnace in the Engine Halls (C3)
     if (this.has('issuer')) drawIssuerDress(ctx, w, h, fx, this.t); // Cogwork Bastion's Commissary (the Citadel's depth pass, C0)
     if (this.has('petkeeper')) drawPetkeeperDress(ctx, w, h, fx, this.t, bodyPath); // the Pet Shop's Auntie Clover
+    if (this.has('ringmaster')) drawRingmaster(ctx, w, h, fx, this.t); // the Gathering Fair's Ringmaster Fizz
     if (this.has('captain')) {
       // Captain Brine: a salt-white beard, a navy captain's cap with a gold anchor badge, and a brass spyglass
       const fy = -h * 0.42;
@@ -1539,6 +1541,7 @@ export class Slime {
       ctx.stroke();
       ctx.restore();
     }
+    drawFairWear(ctx, this, w, h, fx); // the Gathering Fair's prizes (src/fair-art.js)
   }
 
   // A red headband for the final push, tails fluttering behind.

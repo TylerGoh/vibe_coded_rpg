@@ -25,6 +25,9 @@ const VIEWS = {
   fen: { face: 270, sees: { citadel: [282, 1], frost: [322, 0.8], ember: [218, 0.8], green: [268, 0.6], dune: [255, 0.4] } },
   // Amberdune (atlas Phase 9), the south-west side island, looking north-east toward the middle of the sea
   dune: { face: 60, sees: { green: [15, 0.8], frost: [40, 0.6], citadel: [64, 1], ember: [84, 1], fen: [98, 0.4] } },
+  // the Gathering Fair (docs/places/fair.md): caught out of time at the last Gathering, so every island sits close round its
+  // horizon, as they did then; no Citadel in its sky (it was still on the ground)
+  fair: { face: 90, sees: { green: [22, 1.25], frost: [52, 1.15], fen: [84, 1.05], ember: [118, 1.2], dune: [150, 1.1] } },
 };
 const PX_PER_DEG = 4.4; // how wide the panorama is
 const PAN = 160; // walking from one end of a room to the other turns the panorama this many px

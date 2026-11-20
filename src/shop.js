@@ -179,6 +179,7 @@ export class Shop {
     this.list.replaceChildren();
     if (this.tab === 'cos') {
       for (const [id, cos] of Object.entries(COSMETICS)) {
+        if (!cos.price) continue; // (the fair's prizes cost tickets: its prize counter, docs/places/fair.md)
         const owned = m.cosmetics.includes(id);
         const r = document.createElement('div');
         r.className = 'shop-row';

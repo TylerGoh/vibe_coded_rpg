@@ -30,9 +30,9 @@ export function applyKick(s, kick) {
 }
 
 export class Net {
-  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime, onSandbox }) {
+  constructor(url, { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime, onSandbox, onFair }) {
     this.url = url;
-    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime, onSandbox };
+    this.cb = { onJoin, onLeave, onStatus, onDenied, onRtc, onNpc, onLecture, onSlap, onNote, onLand, onClass, onCast, onRpg, onStep, onChase, onHook, onHouse, onChat, onBuild, onPlaytime, onSandbox, onFair };
     this.id = null;
     this.me = newState(); // predicted state
     this.pending = []; // [seq, keys, kick?, charge?, hook?, edit?] not yet acknowledged
@@ -122,6 +122,8 @@ export class Net {
       this.cb.onChat(m); // text chat and private messages (src/chat.js)
     } else if (m.t === 'sbx-state' || m.t === 'sbx-dps') {
       this.cb.onSandbox?.(m); // the dev sandbox's panel and DPS readout (src/sandbox.js; only a SANDBOX server sends these)
+    } else if (m.t === 'fair') {
+      this.cb.onFair?.(m); // the Gathering Fair's booths and prizes (src/fair.js)
     } else if (m.t === 'playtime') {
       this.cb.onPlaytime?.(m); // the Esc menu's Play time page (src/playtime.js)
     } else if (m.t === 'slap') {

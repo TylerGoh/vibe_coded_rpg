@@ -19,6 +19,8 @@ import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE
 import { ARENA, ARENA_W, ARENA_PLATFORMS } from './sandbox.js';
 import { GX, walkOf, AIR_UP_V, AIR_DOWN_V, AIRDASH_CD, KEEP_DASH, GLIDE_JUMP, GLIDE_FALL, PHASE_IFR } from './gearfx.js';
 import { TRAP_HOLD, tiltV } from './challenge.js';
+import { FAIR, FAIR_W, FAIR_GROUND, FAIR_EXIT_X, FAIR_PLATFORMS, FAIR_TENT_X, TENT_W, FIZZ_X } from './fair.js';
+export { FAIR } from './fair.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
@@ -807,9 +809,21 @@ export const TOWNS = [
   { room: CARAVAN, name: 'Caravanserai', x: DUNE_SPAWN_X, homeX: DUNE_HOME_X }, // (atlas Phase 9)
 ];
 TOWNS.forEach((t, i) => (ROOMS[t.room].town = i)); // (step() reads room.town)
+// every town's striped tent into the Gathering Fair (docs/places/fair.md); its flap there brings you back out here
+TOWNS.forEach((t, i) => {
+  t.fairX = FAIR_TENT_X[i];
+  ROOMS[t.room].doors.push({ x: t.fairX, w: TENT_W, to: FAIR, toX: FAIR_EXIT_X, label: 'duck into the striped tent (the Gathering Fair)' });
+});
 export const townOf = (room) => ROOMS[room]?.town ?? -1; // -1: not a town
 export const TOWN = -2; // a door's `to` meaning "your town" (a house's front door)
 const townAt = (s) => TOWNS[s.town | 0] ?? TOWNS[0];
+// room 112 (docs/places/fair.md): the Gathering Fair, the Keepers' fair caught out of time. A safe room, reached through the
+// striped tent in every town (each TOWNS entry's `fairX`, below); its tent flap (`fair` on the door) lets you back out at
+// the tent of the town you came from (your town: the fair isn't one, so it stays the last town you were in)
+ROOMS[FAIR] = {
+  name: 'The Gathering Fair', width: FAIR_W, ground: FAIR_GROUND, platforms: FAIR_PLATFORMS,
+  doors: [{ x: FAIR_EXIT_X, w: 80, to: TOWN, fair: true, label: 'step back out through the tent flap' }],
+};
 
 // ——— level bands on doors (docs/world.md) ———
 // Every door into a combat room says who it's for: the stage's `band` (STAGES in rpg.js) or the den boss's
@@ -995,7 +1009,7 @@ export function step(s, keys) {
   if (door) {
     const town = door.to === TOWN && townAt(s);
     s.room = door.to === HOME ? s.home : town ? town.room : door.to;
-    s.x = town ? town.homeX : door.toX;
+    s.x = town ? (door.fair ? town.fairX : town.homeX) : door.toX; // (the fair's tent flap: back out at your town's tent)
     s.y = roomDef(s.room).ground;
     s.vx = s.vy = s.drop = s.dt = s.vt = s.cw = s.hk = s.pf = s.tl = 0;
     s.sl = false;
@@ -1260,6 +1274,8 @@ export const NPCS = [
   { id: 'asra', name: 'Well-keeper Asra', short: 'Asra', room: CARAVAN, x: ASRA_X, hue: 20, range: 120, size: 1.0, accessory: 'wellkeeper', folk: 'dune', lively: true, faces: -1, blurb: "keeps the caravan's well, and collects stories about rain", hello: "Oh! A traveller. Have you ever seen rain? Tell me everything. (Everyone can hear you.)" },
   // the Pet Shop's keeper: sells pet food (the pets are on plinths), and knows everything about keeping them
   { id: 'clover', name: 'Auntie Clover', short: 'Clover', room: PETSHOP, x: CLOVER_X, hue: 330, range: 130, size: 1.15, accessory: 'petkeeper', faces: 1, blurb: 'runs the Pet Shop and raises the little ones', shop: 'clover', hello: 'Oh, hello, dear! Mind the little ones. Food is the Trade button. (Everyone can hear you.)' },
+  // the Gathering Fair's ringmaster (docs/places/fair.md): runs the prize counter (tickets, not gold) and the show
+  { id: 'fizz', name: 'Ringmaster Fizz', short: 'Fizz', room: FAIR, x: FIZZ_X, hue: 350, range: 110, size: 1.2, accessory: 'ringmaster', lively: true, faces: 1, blurb: 'runs the Gathering Fair, and its prize counter', hello: 'Roll up, roll up! Every game is free, and the prizes are on the counter behind me. (Everyone can hear you.)' },
   { id: 'clio', name: 'Curator Clio', short: 'Clio', room: MUSEUM, x: 300, hue: 32, range: 80, size: 1.15, accessory: 'curator', faces: 1, blurb: 'historian of the Grand Museum · ask from anywhere in the museum', anywhere: true, hello: 'Welcome to the museum! Ask Clio anything about history. (Everyone can hear you.)' },
 ];
 export const NPC = NPCS[0]; // Elder Mochi
@@ -1284,6 +1300,7 @@ export const SLAP_QUIPS = {
   mother_dune: ['Child. Sit down.', 'I have walked further than you will ever walk. Sit.', '...The stars saw that.', 'Hm. The young are always in such a hurry.'],
   tally: ['One. That is one slap. Noted.', "Two, if you do it again. I'm counting.", 'Ow! That is going in the ledger.', 'I lost count. I never lose count. Look what you did.'],
   asra: ['Hey! I nearly dropped the bucket!', 'Was that a raindrop? No. It was you.', "Ow! Rude, for someone who hasn't told me about rain.", 'Mind the rope, mind the rope!'],
+  fizz: ['Ooh! A volunteer!', 'Ladies and jellies, a SLAP!', 'Save it for the High Striker, friend.', 'Ow! Mind the hat, it was my grandmother\'s.'],
   clover: ['Not in front of the little ones!', 'Ow! Now you\'ve upset the kibble.', 'Shoo! Even Turnipop has better manners.', 'Gentle hands, dear. GENTLE.'],
   clio: ['Excuse me! This is a museum!', 'Ow! Please don\'t touch the curator.', 'History will remember that, you know.', 'Hmph! Security!'],
   mochi: ['Oof! Respect your elders, young one!', 'Hmph! My poor old jelly…', 'Ow! What was that for?', 'Goodness! Is that how they greet folks nowadays?'],

@@ -278,3 +278,11 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 ## The Citadel's depth pass, C0 (2026-11-13)
 - Unplayed: the Keepers' Gardens, the Siege Engine (its feints and rings), the Commissary's chat and Trade button, the five gates' E messages and the Citadel's island map; no phone screenshot taken (no headless test, owner's rule).
 - The Siege Engine's armour reuses the Colossus's bronze plates (`looks.shell: 'brass'`) rather than drawing its own shutters coming down.
+
+## The Gathering Fair, F1 (2026-11-20)
+- Untested with people: how hard Pop Gallery and Bonk-a-Knotmole feel on a mouse, a keyboard and a phone, whether
+  `TICKETS_ROUND` and the prize prices (60–200 tickets) feel right, and the calliope waltz. A bot playing perfectly got
+  the full `TICKETS_ROUND`; a person should land near half.
+- Today's bests live in the server's memory only (a restart clears them); an all-time board would need a table.
+- The phases still to come: `story/fair-plan.md` (F2 the coaster, F3 the rides and the Big Top, F4 more games, Madame
+  Wobble, fireworks, more prizes).

@@ -2,7 +2,7 @@
 
 A small multiplayer 2D village (MapleStory-style side view) for a group of friends. Slimes walk and jump
 around, talk by proximity voice, text chat (public and private messages), trade coins and items, chat with AI characters, sit in on AI lectures and quizzes, slap each
-other, play a giant floor piano, tour a huge history museum, sail the ferry to Frostpeak, invite friends over to their own houses
+other, play a giant floor piano, tour a huge history museum, play carnival games at the Gathering Fair (a tent in every town), sail the ferry to Frostpeak, invite friends over to their own houses
 with gardens (furnished from a store, bought bigger with gold; farm herbs there and brew potions at an
 alchemy lab; keep pets from the Pet Shop fed or they die), and fight mobs and bosses across four
 stages (levels, skills, stats, loot, gear, scrolls, a shop). Canvas + Vite client, a Node server with WebSockets,
@@ -212,6 +212,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/drywells.md](docs/places/drywells.md) | A5 (b): the Dry Wells (room 109, Lv 244–250, Amberdune's deep room down the old well on the Storm Road, its chain cut, Asra's ladder: dry striders, bucket mimics, tally wraiths, dust drinkers, three elites, the Seventh Digger, the tin cup), the Shell Road (room 110, the approach: Old Carapace walking past, his footfalls, his line, the climb up his foreleg), `DUNE_TOP` |
 | [docs/places/carapace.md](docs/places/carapace.md) | A5 (c): Old Carapace (Amberdune's final boss) and his den, the Long Road (room 111, his back): the Stride (`FEET`), the Well (waterskins carried to it, the drink, `hold`), the thirst mirages (`thirst_mirage`), the Look, Snap, Stones, Lie Down and the Trample, The Long Road and Earthshaker, his look, music, rewards (The Long Road and twins, the Carapace Crown, Miles and Wayfarer, the mini Old Carapace) and his freed changes (the hill lies still, the well up, Mother Dune's tent struck) |
 | [docs/places/buried.md](docs/places/buried.md) | the Buried Caravanserai (room 106, Lv 234–242, A3: the hard pocket down the stair under the Observatory's dial ring): husk lizards, buried lamplighters, stiff tents, its elites, the Drovers' Yard and the cut well-rope, the Last Drover (field boss: the swap, his rope, the phantom string) |
+| [docs/places/fair.md](docs/places/fair.md) | the Gathering Fair (room 112, the Keepers' fair through the striped tent in every town): its layout, the tents (`FAIR_TENT_X`), Ringmaster Fizz, tickets and the prize counter (cosmetics with `tickets`), **booth mode** (the zoom-in minigames: Pop Gallery, Bonk-a-Knotmole, the seeded plans and the server's score cap), the carousel, the Hall of Mirrors, the closed rides and the next phases (`story/fair-plan.md`) |
 | [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel, within one island), attuning, the travel card |
 | [docs/places/pets.md](docs/places/pets.md) | pets' hunger, moods and dying, feeding, the Pet Shop, Auntie Clover, pet food |
 | [docs/places/alchemy.md](docs/places/alchemy.md) | farming (garden plots, crops), the alchemy lab, recipes, brewed potions and their buffs |

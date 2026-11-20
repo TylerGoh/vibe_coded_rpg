@@ -4,7 +4,7 @@ The settled facts. Short on purpose: AI characters get fed this text (sliced by 
 `delivery.md`; since atlas Phase 7 the server reads this file itself, `server/lore.js`, so keep the `## Tier N` and
 "Deliberately open" headings), and anything here they'll repeat as truth. Change it only with the owner's okay.
 
-Status: **reviewed by the owner (2026-10-24).**
+Status: **reviewed by the owner (2026-10-24).** The Gathering Fair lines: owner, 2026-11-20 ("keepers fair").
 
 ## Tier 0: what everyone in Slimeville knows
 - Slimeville sits on Greenhollow Bay, on the island of **Greenhollow**, in the **Glass Sea**.
@@ -13,6 +13,8 @@ Status: **reviewed by the owner (2026-10-24).**
 - East of the village the land rises into **the Wildwood**: meadow, mushroom lowlands, then the briar.
 - There are other islands far across the sea, more than anyone has counted. Few living slimes have
   visited one. Sailors' songs say the sea gets a little wider every year.
+- Every town has a striped tent whose flap opens onto the same fairground, **the Gathering Fair**, run by
+  Ringmaster Fizz. Nobody remembers it being put up, and nobody finds that odd.
 
 ## Tier 1: learned in the Wildwood
 - Old stones in the Wildwood carry the marks of the **Keepers**, an order from long ago.
@@ -33,6 +35,8 @@ Status: **reviewed by the owner (2026-10-24).**
 - The Keeper of Hours tried to stop the Wheel to prevent the Drift. It jammed, so the land breaks apart
   and never returns.
 - Pyra marks each turn of the cycle by dying and being reborn. With the Wheel jammed she can't finish.
+- The Gathering Fair was the Keepers' fair, held at every Gathering when the whole land met. It was caught out of
+  time in the Stopped Hour, so its gates still open on every shore, and from its pier the islands still sit close.
 
 ## Tier 4: learned in the Citadel (endgame)
 - The Aether Citadel was the Keepers' seat at the heart of Pangelea. It tore loose into the sky in the

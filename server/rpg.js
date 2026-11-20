@@ -34,6 +34,7 @@ import { BOSS_TIER, tierOf, cleanStory } from '../src/shared/story.js';
 // atlas Phase 7 (docs/social/story.md): said once, when a boss you beat for the first time opens a new lore tier
 const STORY_TOAST = 'Something has changed. Elder Mochi might have more to tell you now.';
 import { caughtBy, cleanBot, BOT_CUT } from './accuse.js';
+import { createFair } from './fair.js';
 
 export const MOB_KINDS = Object.keys(MOBS); // mob kinds go over the wire as an index into this
 const GRAVITY = 1400;
@@ -73,6 +74,7 @@ const newChar = () => ({
   alt: { hotbar: Array(HOTBAR).fill(null), potbar: Array(POTBAR).fill(null) }, set: 0, // the other hotbar setup (swapped from the Esc menu)
   ap: { str: 0, dex: 0, int: 0, luk: 0 }, // ability points (AP_STATS)
   cosmetics: [], wear: [], showHelmet: true, // the Boutique
+  tickets: 0, // the Gathering Fair's tickets (server/fair.js): prizes only, never gold
   ways: [], // the waystones you've attuned to (src/shared/waystones.js)
   bossAt: {}, // den boss kind → when you last got its full reward (BOSS_WINDOW_MS)
   story: {}, // atlas Phase 7: every den boss you've ever helped beat → when, the first time (src/shared/story.js); never reset
@@ -319,6 +321,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     r.cosmetics = (r.cosmetics ?? []).filter((id) => COSMETICS[id]);
     r.wear = (r.wear ?? []).filter((id) => r.cosmetics.includes(id));
     r.showHelmet = r.showHelmet !== false;
+    r.tickets = Math.max(0, Math.floor(Number(r.tickets) || 0));
     r.brew = ITEMS[r.brew?.id]?.buff && r.brew.until > now() ? { id: r.brew.id, until: r.brew.until } : null;
     r.town = TOWNS[r.town] ? r.town | 0 : 0;
     r.ways = [...new Set((Array.isArray(r.ways) ? r.ways : []).filter(wayById))];
@@ -415,9 +418,9 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   function save(p) {
     if (p.rpg && p.joined) clock(p);
     if (!p.rpg || !p.dirty) return;
-    const { lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, seen, cosmetics, wear, showHelmet, brew, ways, bossAt, story, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield } = p.rpg;
+    const { lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, seen, cosmetics, wear, showHelmet, tickets, brew, ways, bossAt, story, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield } = p.rpg;
     const town = p.state?.town | 0; // your town (TOWNS in sim.js) lives in the physics state, and is saved with you
-    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, seen, cosmetics, wear, showHelmet, brew, town, ways, bossAt, story, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield }), now());
+    saveRow.run(p.name, JSON.stringify({ lvl, exp, hp, mp, coins, bag, chest, gear, gearE, skills, hotbar, potbar, alt, set, ap, pvp, keys, seen, cosmetics, wear, showHelmet, tickets, brew, town, ways, bossAt, story, bot, accusedAt, played, active, days, lb, cls, reborn, gods, shield }), now());
     p.dirty = false;
   }
   setInterval(() => {
@@ -433,7 +436,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
       coins: c.coins, bag: c.bag, chest: c.chest, gear: c.gear, gearE: c.gearE, atk: st.atk, magic: st.magic, heal: st.heal, def: st.def, skills: c.skills, sp: spFree(c), spLeft: spLeft(c), cls: c.cls, reborn: c.reborn,
       hotbar: c.hotbar, potbar: c.potbar, alt: c.alt, set: c.set, pvp: c.pvp, keys: c.keys, crit: st.crit, critMult: st.critMult, minRoll: st.minRoll,
       ap: c.ap, apLeft: apTotal(c.lvl) - apSpent(c.ap),
-      cosmetics: c.cosmetics, wear: c.wear, showHelmet: c.showHelmet,
+      cosmetics: c.cosmetics, wear: c.wear, showHelmet: c.showHelmet, tickets: c.tickets | 0,
       momentum: momentumOf(p), momentumLeft: momentumOf(p) ? left(p.momentum.until) : 0, arcane: arcaneOf(p), retri: p.retri ? Math.round(p.retri) : undefined, // (SP2: Retribution's store)
       berserk: left(p.berserkUntil), shield: c.shield ? 1 : 0, barrier: p.barrier && p.barrier.until > now() ? Math.ceil(p.barrier.left) : 0, barrierLeft: left(p.barrier?.until), mend: left(p.mend?.until), fire: st.fire, rally: left(p.rallyUntil), bubble: left(p.bubbleUntil), aegis: left(p.aegisUntil), gods: left(p.godsUntil), secondWind: left(p.swReadyAt),
       brew: brewOf(c) ? { id: c.brew.id, left: left(c.brew.until) } : null,
@@ -448,6 +451,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   // What everyone else sees of you: gear, level and friendly fire (also part of join / welcome)
   const look = (p) => ({ cls: p.rpg.cls, gear: p.rpg.gear, lvl: p.rpg.lvl, pvp: p.rpg.pvp, wear: p.rpg.wear, showHelmet: p.rpg.showHelmet, plus: p.rpg.gearE?.weapon?.s ?? 0 });
   const showLook = (id, p, extra = {}) => broadcast({ t: 'gear', id, ...look(p), ...extra });
+  const fair = createFair({ send, toRoom: (r) => toRoom(r), sendMe: (p) => sendMe(p), showLook: (id, p) => showLook(id, p), toast: (p, t) => toast(p, t) }); // the Gathering Fair's booths and prizes
   const toast = (p, text) => send(p.ws, { t: 'toast', text });
 
   // e: a piece of gear's scroll enhancement (it travels with the item)
@@ -2634,6 +2638,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
     load,
     save,
     playtime,
+    fair: (id, p, m) => fair.receive(id, p, m), // {t:'fair'} (server/fair.js)
     // the dev sandbox's way in (server/sandbox.js, docs/sandbox.md): only a SANDBOX server's sandbox module calls these
     sandbox: {
       mobs: () => mobs,
@@ -3238,7 +3243,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
         send(p.ws, { t: 'shop', ok: 'buy', item: m.item, n, gold: cost });
       } else if (m.t === 'buycos') {
         const cos = keeper.boutique && COSMETICS[m.id];
-        if (!cos || c.cosmetics.includes(m.id)) return;
+        if (!cos?.price || c.cosmetics.includes(m.id)) return; // (the fair's prizes cost tickets: server/fair.js)
         if (c.coins < cos.price) return toast(p, `Not enough gold (that's ${cos.price})`);
         c.coins -= cos.price;
         c.cosmetics.push(m.id);

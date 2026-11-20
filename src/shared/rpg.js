@@ -6572,6 +6572,12 @@ export const COSMETICS = {
   bowtie: { name: 'Bowtie', price: 120, desc: "A dapper bowtie, qinxin's signature." },
   flute: { name: 'Flute', price: 200, desc: "darrell's flute: it toots when you jump." },
   laptop: { name: 'Laptop', price: 250, desc: "chenyirong's laptop, notifications and all." },
+  // the Gathering Fair's prize counter (docs/places/fair.md): `tickets` instead of a gold price, never in the Boutique
+  fair_balloon: { name: 'Fair Balloon', tickets: 60, desc: 'A round pink balloon on a string. It bobs along behind you.' },
+  candy_floss: { name: 'Candy Floss', tickets: 90, desc: 'A cloud of spun sugar on a stick. Do not share it with the wind.' },
+  paper_crown: { name: 'Paper Crown', tickets: 120, desc: 'Folded gold paper, a little crooked. Royalty, at last.' },
+  star_specs: { name: 'Star Specs', tickets: 150, desc: 'Star-shaped glasses with pink lenses. Everything looks like a fair.' },
+  jester_cap: { name: 'Jester Cap', tickets: 200, desc: 'Three floppy points with a bell on each. You will be heard coming.' },
 };
 export const PICKUP_RANGE = 55;
 

@@ -161,7 +161,7 @@ const levelFor = (price) => {
 };
 const sinks = [
   ...SHOP_STOCK.map((id) => ({ what: `shop: ${ITEMS[id].name}`, price: ITEMS[id].price, aim: ITEMS[id].aim, band: 'gear' })),
-  ...Object.values(COSMETICS).map((c) => ({ what: `boutique: ${c.name}`, price: c.price })),
+  ...Object.values(COSMETICS).filter((c) => c.price).map((c) => ({ what: `boutique: ${c.name}`, price: c.price })), // (the fair's prizes cost tickets, never gold)
   ...HOUSE_SIZES.slice(1).map((s) => ({ what: `house: ${s.name}`, price: s.price, aim: s.aim, band: 'house' })),
 ];
 // (not the free chest every house has: it isn't sold)

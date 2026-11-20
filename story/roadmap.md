@@ -83,6 +83,9 @@ No quests, no hard level gates.
    Typhon. **E5 done.** Next: **the owner plays** it with friends.
 
 ## Next
+- **The Gathering Fair, F2–F4** (plan: `fair-plan.md`; F1 shipped 2026-11-20): F2 the coaster (a ride clock in
+  `step()`), F3 the Ferris wheel, teacups, Big Top, High Striker and dunk tank, F4 the other booths, Madame Wobble,
+  fireworks and more prizes. Cosmetic only (owner).
 - [x] **Atlas Phase 6: the climb**: the thermal column vista, the balloon crossing (Slag's forge-burner lifts the
       block), the Skydocks zone, the Skydocks camp as the Citadel's town, the Dockwarden. **The skylift goes** once the
       balloon works, which ends the old back-door chain (`world/geography.md`).

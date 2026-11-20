@@ -470,6 +470,38 @@ const SONGS = {
     },
   },
 
+  // The Gathering Fair (docs/places/fair.md): a jaunty calliope waltz, oom-pah-pah, a glockenspiel answering, the crowd
+  // murmuring under it and a cheer now and then from somewhere down the midway
+  fair: {
+    bpm: 138, beats: 3, spb: 6, melSteps: 6, key: 67, scale: MAJOR, gain: 0.7, send: 0.22, loop: 16,
+    chords: [[1, 3, 5], [1, 3, 5], [5, 7, 9], [5, 7, 9], [4, 6, 8], [1, 3, 5], [2, 4, 6], [5, 7, 9],
+      [1, 3, 5], [3, 5, 7], [4, 6, 8], [4, 6, 8], [1, 3, 5], [5, 7, 9], [1, 3, 5], [5, 7, 9]],
+    mel: melody(
+      '5 - 8 . 7 6', '5 - 3 . 5 .', '7 - 9 . 8 7', '5 - - . . .',
+      '6 - 8 . 6 4', '3 - 5 . 3 1', '2 - 4 . 6 5', '5 - 7 . 9 .',
+      '8 - 10 . 9 8', '7 - 5 . 7 .', '6 - 8 . 10 8', '6 - 4 . 6 .',
+      '5 - 3 . 5 8', '7 - 9 . 7 5', '8 - - . 5 .', '1 - - . . .',
+    ),
+    setup(p) {
+      p.eng.bed(p, 'bandpass', 600, 0.01, 0.4); // the crowd's murmur
+    },
+    play(p, bar, s, t, pass) {
+      const e = p.eng, ch = p.chord(bar), part = pass % 2;
+      if (s === 0) e.voice(p.c, t, p.f(ch[0], -2), { type: 'triangle', vol: 0.17, tau: 0.22, cutoff: 800 }); // oom
+      if (s === 2 || s === 4) for (const d of ch) e.voice(s === 2 ? p.l : p.r, t, p.f(d), { type: 'square', vol: 0.011, a: 0.01, hold: p.stepDur * 0.9, rel: 0.08, cutoff: 1800 }); // pah pah
+      if (s === 0) e.kick(p.c, t, 0.08, 140, 60, 0.06);
+      if (s === 2 || s === 4) block(p, t, 1400, 0.025, s === 2 ? p.l : p.r);
+      const m = p.mel(bar, s);
+      // the calliope: bright reedy pipes with a wobble
+      if (m) e.voice(p.c, t, p.f(m.d, 1), { type: 'square', vol: part ? 0.022 : 0.03, a: 0.02, hold: m.len * 0.8, rel: 0.1, cutoff: 2600, unison: 2, vib: 7, vibRate: 6.5 });
+      if (m && part === 1) e.voice(p.r, t, p.f(m.d, 2), { ...GLOCK, vol: 0.05 });
+      if (s === 0 && chance(0.06)) {
+        const o = chance(0.5) ? p.l : p.r; // a cheer down the midway
+        e.noiseHit(o, t + rand(0, 0.6), { type: 'bandpass', f: 900, q: 0.6, vol: 0.05, a: 0.15, hold: 0.3, tau: 0.4 });
+      }
+    },
+  },
+
   // Greenhollow Harbour: a slow sea waltz on a wheezy squeezebox, waves washing in and gulls overhead
   harbour: {
     bpm: 84, beats: 3, spb: 6, melSteps: 6, key: 62, scale: MAJOR, gain: 0.75, send: 0.3, loop: 8,
@@ -3691,6 +3723,36 @@ const EFFECTS = {
     e.voice(o, t, 330, { type: 'square', vol: 0.07, a: 0.005, hold: 0.07, rel: 0.05, cutoff: 1200 });
     e.voice(o, t + 0.13, 247, { type: 'square', vol: 0.07, a: 0.005, hold: 0.12, rel: 0.08, cutoff: 1000 });
   },
+  // ——— the Gathering Fair's booths (docs/places/fair.md) ———
+  fairStart(e, o, t) { // a round starts: a rising toot on the calliope
+    [67, 71, 74, 79].forEach((m, i) => e.voice(o, t + i * 0.07, mtof(m), { type: 'square', vol: 0.05, a: 0.01, hold: 0.05, rel: 0.06, cutoff: 2600, vib: 6 }));
+  },
+  fairEnd(e, o, t) { // time's up: a bell
+    e.voice(o, t, 1568, { ...GLOCK, vol: 0.14, tau: 0.6 });
+    e.voice(o, t + 0.12, 1175, { ...GLOCK, vol: 0.1, tau: 0.7 });
+  },
+  pop(e, o, t) { // a tin target knocked flat
+    e.noiseHit(o, t, { type: 'highpass', f: 2000, vol: 0.18, tau: 0.02 });
+    e.voice(o, t, 1400, { type: 'triangle', glide: 0.6, glideT: 0.08, vol: 0.12, tau: 0.08, partials: [[2.7, 0.3]] });
+  },
+  plink(e, o, t) { // a cork that hit nothing
+    e.noiseHit(o, t, { type: 'bandpass', f: 1800, q: 2, vol: 0.06, tau: 0.015 });
+  },
+  bonk(e, o, t) { // a mallet on a mole
+    e.kick(o, t, 0.3, 300, 140, 0.05);
+    e.voice(o, t + 0.02, 880, { type: 'sine', glide: 1.6, glideT: 0.1, vol: 0.06, tau: 0.1 });
+  },
+  whiff(e, o, t) { // a mallet on bare ground
+    e.noiseHit(o, t, { type: 'lowpass', f: 500, vol: 0.12, tau: 0.04 });
+  },
+  tickets(e, o, t) { // tickets spooling out
+    for (let i = 0; i < 6; i++) e.noiseHit(o, t + i * 0.05, { type: 'highpass', f: 4000, vol: 0.07, tau: 0.01 });
+    e.voice(o, t + 0.32, 1319, { ...GLOCK, vol: 0.08, tau: 0.3 });
+  },
+  prize(e, o, t) { // a prize won: a little fanfare
+    [72, 76, 79, 84].forEach((m, i) => e.voice(o, t + i * 0.09, mtof(m), { type: 'square', vol: 0.05, a: 0.01, hold: 0.07, rel: 0.1, cutoff: 2800, vib: 6 }));
+    for (const m of [84, 88, 91]) e.voice(o, t + 0.38, mtof(m), { ...GLOCK, vol: 0.06, tau: 0.5 });
+  },
   // ——— skills ———
   powerStrike(e, o, t) {
     e.noiseHit(o, t, { f: 300, sweep: 2600, sweepT: 0.2, q: 1.2, vol: 0.5, a: 0.08, tau: 0.06 });
@@ -4417,7 +4479,7 @@ const ZONE_KEYS = {
   'Cinder Flats': 'cinder', 'Magma Heart': 'magma', 'Cogwork Bastion': 'cogwork', 'Chrono Spire': 'spire',
 };
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
-  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon', 'sky', 'sky', 'skycamp', 'skydocks', 'wickmere', 'fenroute', 'fenroute', 'shallows', 'firefly', 'drownedgrove', 'longneck', 'stillmere', 'gullet', 'barrows', 'causeway', 'mire', 'peatbarrows', 'lamproad', 'wickmother', 'gardens', 'orrery', 'meridian', 'archive', 'indexer', 'engine', 'bells', 'helm', 'keel', 'undercroft', 'spoke', 'escapement', 'caravan', 'duneroute', 'duneroute', 'glassdunes', 'observatory', 'sunroller', 'oasis', 'saltflats', 'netwife', 'buried', 'stormroad', 'redwall', 'drywells', 'shellroad', 'carapace']; // (109: the Dry Wells, 110: the Shell Road, 111: Old Carapace's den, the Long Road, its own track, A5; 107: the Storm Road, 108: the Red Wall's den, the Storm's Eye, A4; 104: the Salt Flats, 105: the Netwife's den, the Dry Harbour, A2; 106: the Buried Caravanserai, A3; 97: Caravanserai, 98-99: the Saltwind's deck, out and home, 100: the Glass Dunes, atlas Phase 9 A0; 101: the Buried Observatory, 102: the Sunroller's den, the Dial Floor, 103: the Mirage Oasis, A1; 96: the Escapement's den, the Catch, its own track, the Citadel's C6 (c); 94: the Undercroft, 95: the Spoke, the Citadel's C6 (b); 90: the Engine Halls, the Citadel's C3; 88: the Archive, 89: the Indexer's den, the Last Drawer, the Citadel's C2; 86: the Orrery, 87: Meridian's den, the Armillary, the Citadel's C1; 85: the Keepers' Gardens, the Citadel's depth pass C0; 84: the Wickmother's den, the Hall of Lamps, her own track, L5 (c); 82-83: the Peat Barrows and the Lamp Road, L5 (b); 80: the Lantern Causeway, 81: Grandfather Mire's den, Grandfather's Pool, L4; 79: the Sunk Barrows, L3; 70: Wickmere, 71-72: the Hush's deck, out and home, 73: the Shallows, atlas Phase 8; 74: Firefly Hollow, 75: the Drowned Grove, 76: Long-Neck's den, the Stone Nest, L1; 77: the Still Mere, 78: Old Gullet's den, the Eel Pit, L2) // (66-67: the Kite's gondola, up and down, 68: the Skydocks camp, atlas Phase 6, and 69: the Skydocks, Phase 6 (c); 63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
+  null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon', 'sky', 'sky', 'skycamp', 'skydocks', 'wickmere', 'fenroute', 'fenroute', 'shallows', 'firefly', 'drownedgrove', 'longneck', 'stillmere', 'gullet', 'barrows', 'causeway', 'mire', 'peatbarrows', 'lamproad', 'wickmother', 'gardens', 'orrery', 'meridian', 'archive', 'indexer', 'engine', 'bells', 'helm', 'keel', 'undercroft', 'spoke', 'escapement', 'caravan', 'duneroute', 'duneroute', 'glassdunes', 'observatory', 'sunroller', 'oasis', 'saltflats', 'netwife', 'buried', 'stormroad', 'redwall', 'drywells', 'shellroad', 'carapace', 'fair']; // (112: the Gathering Fair) // (109: the Dry Wells, 110: the Shell Road, 111: Old Carapace's den, the Long Road, its own track, A5; 107: the Storm Road, 108: the Red Wall's den, the Storm's Eye, A4; 104: the Salt Flats, 105: the Netwife's den, the Dry Harbour, A2; 106: the Buried Caravanserai, A3; 97: Caravanserai, 98-99: the Saltwind's deck, out and home, 100: the Glass Dunes, atlas Phase 9 A0; 101: the Buried Observatory, 102: the Sunroller's den, the Dial Floor, 103: the Mirage Oasis, A1; 96: the Escapement's den, the Catch, its own track, the Citadel's C6 (c); 94: the Undercroft, 95: the Spoke, the Citadel's C6 (b); 90: the Engine Halls, the Citadel's C3; 88: the Archive, 89: the Indexer's den, the Last Drawer, the Citadel's C2; 86: the Orrery, 87: Meridian's den, the Armillary, the Citadel's C1; 85: the Keepers' Gardens, the Citadel's depth pass C0; 84: the Wickmother's den, the Hall of Lamps, her own track, L5 (c); 82-83: the Peat Barrows and the Lamp Road, L5 (b); 80: the Lantern Causeway, 81: Grandfather Mire's den, Grandfather's Pool, L4; 79: the Sunk Barrows, L3; 70: Wickmere, 71-72: the Hush's deck, out and home, 73: the Shallows, atlas Phase 8; 74: Firefly Hollow, 75: the Drowned Grove, 76: Long-Neck's den, the Stone Nest, L1; 77: the Still Mere, 78: Old Gullet's den, the Eel Pit, L2) // (66-67: the Kite's gondola, up and down, 68: the Skydocks camp, atlas Phase 6, and 69: the Skydocks, Phase 6 (c); 63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
 const sceneKey = (room, zone) => {
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)

@@ -1131,3 +1131,7 @@ Cradle-Silk Blade with its twins (`swordPrice` at 190, 1.693M, off the Eldest on
 **The sheet now reads past 200**: PROGRESS adds Lv 190 and 220 (220: 44.0 h, target 41.9 h, the dusk moth still the farm:
 the Citadel's pass fills 190 and up), CURVES adds Lv 250, and "first affordable" looks to Lv 300. `--check` green.
 
+## The Gathering Fair (2026-11-20)
+Owner: cosmetic only. Its games are free and pay tickets (`c.tickets`), which buy only the fair's prizes (`COSMETICS`
+with `tickets` and no `price`), so no faucet or sink moved: the script lists only cosmetics with a gold `price`
+(`docs/places/fair.md`). Keep it that way: nothing at the fair may give or cost gold, EXP or power.

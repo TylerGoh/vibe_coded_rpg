@@ -73,6 +73,9 @@ import { drawLampRoad, drawLampRoadFront, roadDepth, say as lampSay } from './la
 import { drawColumnVista } from './balloon.js';
 import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel, shipName } from './crossing.js';
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
+import { Fair } from './fair.js';
+import { drawFair, drawFairTent } from './fair-art.js';
+import { FAIR, BOOTHS } from './shared/fair.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
 import { GATES, gateAt } from './shared/branches.js';
 import { drawGates, drawEntries } from './branch-gates.js';
@@ -116,7 +119,7 @@ import { ARENA } from './shared/sandbox.js';
 import { TOUCH, setupTouch, toggleFullscreen, fullscreenSupported, isIPhone } from './touch.js';
 import { HOTBAR, SKILLS, rankOf } from './shared/skills.js';
 import { attackSpeedOf } from './shared/gearfx.js';
-import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, BOOST, FLIP, chargeOpen, retreatOpen, chaseRank, HOOK_RANGE, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X, TOWNS } from './shared/sim.js';
+import { DT, WORLD_W, LEFT, RIGHT, JUMP, DOWN, USE, DASH, BLINK, ATTACK, BOOST, FLIP, chargeOpen, retreatOpen, chaseRank, HOOK_RANGE, cleanHue, ROOMS, roomDef, isHouse, VILLAGE, HALL, PIANO, MUSEUM, TUTOR, doorAt, pianoKeyAt, NPCS, PROF_X, SLAP_QUIPS, SLAP_COOLDOWN_MS, STORE, HARBOUR, CLIFFS, CLIFFS_SCOPE_X, doorOpen, npcIn, REBIRTH_X, TOWNS, townOf } from './shared/sim.js';
 
 const canvas = document.getElementById('game');
 const stage = document.getElementById('stage');
@@ -329,6 +332,10 @@ const net = new Net(wsUrl, {
     if (m.t === 'sbx-on') sandbox.enable();
     else sandbox.receive(m);
   },
+  // the Gathering Fair's booths, prizes and bests (src/fair.js)
+  onFair(m) {
+    fair.receive(m, net.id);
+  },
   // the Esc menu's Play time page (src/playtime.js)
   onPlaytime(m) {
     if (!document.getElementById('playtime').hidden) playTime.show(m);
@@ -404,6 +411,7 @@ const characters = new Map(NPCS.map((cfg) => [cfg.id, new Character(cfg, {
 const charsHere = () => [...characters.values()].filter((c) => npcIn(c.cfg, room));
 const museum = new Museum({ onOpenChange: () => held.clear() });
 const scope = new Telescope(); // the telescope on the east cliffs (src/cliffs.js)
+const fair = new Fair({ send: (m) => net.sendNpc(m), toast: (t) => rpg.toast(t), audio, onOpenChange: () => held.clear() }); // the Gathering Fair's booths (src/fair.js)
 // Clio can be asked from anywhere in the museum (Q, the Ask button, or a fact sheet's "Ask Clio")
 const askClio = (prefill = '') => {
   museum.close();
@@ -1067,6 +1075,7 @@ canvas.addEventListener('pointerdown', (e) => {
   if (online()) {
     const r = canvas.getBoundingClientRect();
     if (accuse.tap(((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H)) return; // "Not a bot!"
+    if (fair.isOpen) return fair.pointer('down', ((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H); // a booth's game
   }
   if (!online() || !menu.hidden || dialogOpen() || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || sandbox.isOpen || e.button > 0) return;
   const r = canvas.getBoundingClientRect();
@@ -1075,6 +1084,12 @@ canvas.addEventListener('pointerdown', (e) => {
   if (houses.editing) return houses.pointer('down', worldX, ((e.clientY - r.top) / r.height) * H); // decorating: put down / pick up
   if (isCombat(room)) clickHeld = { x: e.clientX }; // held: update() keeps firing toward the cursor, like holding X
   slapToward(Math.sign(worldX - mine.x) || mine.facing, true);
+});
+// a mouse moving over a booth's game aims it (src/fair.js)
+canvas.addEventListener('pointermove', (e) => {
+  if (!fair.isOpen || e.pointerType !== 'mouse') return;
+  const r = canvas.getBoundingClientRect();
+  fair.pointer('move', ((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H);
 });
 // where a held click aims, in world x (the camera moves while you hold)
 const clickAimX = () => {
@@ -1113,6 +1128,12 @@ addEventListener('keydown', (e) => {
       hall.closeAsk();
       document.activeElement?.blur();
     }
+    return;
+  }
+  // at a booth in the Gathering Fair: its game takes every key (src/fair.js)
+  if (fair.isOpen) {
+    e.preventDefault();
+    fair.key(e, true);
     return;
   }
   // the waystone card: Esc or E closes it, number keys pick a stone
@@ -1334,6 +1355,10 @@ addEventListener('keydown', (e) => {
     scope.show();
     return;
   }
+  if (keys.is(e, 'use') && !e.repeat && menu.hidden && online() && room === FAIR && fair.use(net.me, rpg.me)) {
+    e.preventDefault(); // a booth, a prize on the counter, a closed ride (docs/places/fair.md)
+    return;
+  }
   if (keys.is(e, 'use') && !e.repeat && menu.hidden && online() && doorAt(net.me)?.ask) {
     e.preventDefault();
     sail.open(doorAt(net.me)); // a ship's gangway: ask first (docs/places/crossings.md)
@@ -1370,6 +1395,7 @@ addEventListener('keydown', (e) => {
   }
 });
 addEventListener('keyup', (e) => {
+  if (fair.isOpen) fair.key(e, false);
   held.delete(heldKey(e));
   if (keys.is(e, 'attack')) attackHeld = false;
 });
@@ -1381,6 +1407,7 @@ addEventListener('blur', () => {
 const inputBits = () => {
   if (mine && splatted(mine)) return 0; // the server ignores us until we wake up anyway
   if (scope.isOpen) return 0; // standing still at the telescope
+  if (fair.isOpen) return 0; // or playing at a booth
   let k = 0;
   for (const bits of held.values()) k |= bits;
   if (rpg.gear.boost()) k |= BOOST; // (Rush: boss gear, src/gear.js)
@@ -1436,6 +1463,8 @@ function update(realDt) {
     hall.closeAsk();
     museum.close();
     scope.close();
+    if (room === FAIR) fair.enter();
+    else fair.leave();
     courseMenu.close();
     courseMenu.myVote = null;
     shop.close();
@@ -1479,6 +1508,7 @@ function update(realDt) {
   if (sail.door && !(online() && doorAt(net.me) === sail.door)) sail.close(); // walked off the gangway
   if (room === MUSEUM) museum.update(dt, online() ? net.me : null);
   if (scope.isOpen) scope.update(dt);
+  if (room === FAIR || fair.isOpen) fair.update(dt);
   tutor.update(dt, online() && room === TUTOR);
   players.showCard();
   trade.showCard();
@@ -1497,7 +1527,7 @@ function update(realDt) {
     field: isCombat(room),
     dash: !!rankOf(rpg.me?.skills, 'dash'),
     blink: !!rankOf(rpg.me?.skills, 'blink'),
-    overlay: dialogOpen() || pool.isOpen || sandbox.isOpen || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
+    overlay: fair.isOpen || dialogOpen() || pool.isOpen || sandbox.isOpen || hall.askOpen || museum.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || !menu.hidden || document.activeElement?.tagName === 'INPUT',
   });
   if (room === PIANO) piano.update(dt);
   if (room === HALL) hall.update(dt, [...slimes.values()].filter((s) => s.visible).length + 1);
@@ -1591,7 +1621,7 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 const BEACON_RANGE = 420;
 const DOOR_BAND_Y = 160; // how high over the ground a door's level chip sits (under the beacon)
 function drawHints() {
-  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || pool.isOpen || sandbox.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || houses.editing) return;
+  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || pool.isOpen || sandbox.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || fair.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || houses.editing) return;
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);
@@ -1607,6 +1637,7 @@ function drawHints() {
   else if (pets.prompt(room, me)) acts.push({ key: 'E', label: pets.prompt(room, me) });
   else if (chest.prompt(room, me)) acts.push({ key: 'E', label: chest.prompt(room, me) });
   else if (gateAt(me, room)) acts.push({ key: 'E', label: gateAt(me, room).look });
+  else if (room === FAIR && fair.prompt(me, rpg.me)) acts.push({ key: 'E', label: fair.prompt(me, rpg.me) });
   else if (door) acts.push({ key: 'E', label: door.label, band: door.band, hard: door.hard });
   if (isCombat(room)) {
     if (rpg.nearLoot) acts.push({ key: 'Z', label: 'pick up loot' });
@@ -1630,6 +1661,7 @@ function drawHints() {
   for (const st of RUIN_STONES) if (st.room === room) far.push({ x: st.x, y: ROOMS[room].ground - 180, near: st === ruinStoneAt(me) });
   far.push(...wayBeacons(room, roomDef(room).ground, me));
   if (room === CLIFFS) far.push({ x: CLIFFS_SCOPE_X, y: ROOMS[CLIFFS].ground - 110, near: scopeNear(me) });
+  if (room === FAIR) for (const b of BOOTHS) if (!b.shut) far.push({ x: b.x, y: ROOMS[FAIR].ground - 190, near: fair.near(me)?.b === b }); // (the open booths)
   for (const g of GATES) if (g.room === room) far.push({ x: g.x, y: roomDef(room).ground - 130, near: g === gateAt(me, room) });
   far.filter((b) => !b.near && Math.abs(b.x - me.x) < BEACON_RANGE).sort((a, b) => Math.abs(a.x - me.x) - Math.abs(b.x - me.x)).slice(0, 2)
     .forEach((b) => drawBeacon(ctx, b.x, b.y, 'E', clamp((BEACON_RANGE - Math.abs(b.x - me.x)) / 120, 0, 1), time, TOUCH));
@@ -1644,6 +1676,7 @@ function onFloor() {
 }
 function render() {
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  if (room === FAIR) fair.applyZoom(ctx, camX); // at a booth: the camera zooms in on it (src/fair.js)
   // (the Highlands and the dens paint their own sky; a house shows its town's backdrop, the owner's pick, through its windows)
   const view = isHouse(room) ? (TOWNS[houses.viewOf(room)] ?? TOWNS[0]).room : room;
   if (view === FJORD) drawFjordView(ctx, camX, time);
@@ -1739,11 +1772,14 @@ function render() {
   else if (room === ROADSEND) drawRoadsEnd(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (roomDef(room)?.crossing) drawCrossing(ctx, room, camX, W, time, online() ? net.me : null);
   else if (room === ARENA) drawArena(ctx, camX, W, time); // (the dev sandbox's Training Yard: docs/sandbox.md)
+  else if (room === FAIR) drawFair(ctx, camX, W, time, [...slimes.values()].filter((s) => s.visible && !splatted(s)).concat(mine && net.id !== null && !splatted(mine) ? [mine] : []), fair.bests); // (the mirrors show the slimes in front of them)
   else drawVillage(ctx, camX, W, time);
   if (room === VILLAGE && Math.abs(SHOP_X - camX - W / 2) < W / 2 + 80) {
     merchant.draw(ctx);
     nameTag(merchant, false);
   }
+  const tentX = TOWNS[townOf(room)]?.fairX; // every town's striped tent into the Gathering Fair (src/fair-art.js)
+  if (tentX && Math.abs(tentX - camX - W / 2) < W / 2 + 140) drawFairTent(ctx, tentX, roomDef(room).ground, time);
   drawRuins(ctx, room, camX - 80, camX + W + 80, time, online() ? ruinStoneAt(net.me) : null); // Keeper stones (Bramble Woods, the branches)
   drawWaystones(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time, online() ? wayAt(net.me) : null, rpg.me?.ways);
   drawGates(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time, online() ? gateAt(net.me, room) : null, online() ? net.me : null); // blocked ways into branches
@@ -1754,9 +1790,16 @@ function render() {
   for (const c of charsHere()) c.drawSlime(ctx);
   drawSplats();
   const all = [...slimes.values()].filter((s) => s.visible && !splatted(s));
-  // a slime on a house's swing swings with its seat
+  // a slime on a house's swing swings with its seat; one on a carousel horse bobs with it (src/fair.js)
   const drawSlime = (s) => {
-    const sw = isHouse(room) && houses.swingFor(room, s, time);
+    const sw = isHouse(room) && houses.swingFor(room, s, time), bob = fair.rideOf(s, room, time);
+    if (bob) {
+      ctx.save();
+      ctx.translate(0, bob);
+      s.draw(ctx);
+      ctx.restore();
+      return;
+    }
     if (!sw) return s.draw(ctx);
     ctx.save();
     ctx.translate(sw.x, sw.y);
@@ -1780,6 +1823,7 @@ function render() {
   if (room === UNDERCROFT) drawUndercroftFront(ctx, camX, W, time); // the dark closing in, heavier going east
   if (room === SPOKE) drawSpokeFront(ctx, camX, W, time, online() ? net.me : null); // the dark, the rim's teeth closing behind, the Escapement's line
   if (room === SHELLROAD) drawShellRoadFront(ctx, camX, W, time, online() ? net.me : null); // the dusk at the edges, Old Carapace's line
+  if (room === FAIR) fair.drawPlaying(ctx, (id) => (slimes.get(id)?.visible ? slimes.get(id) : null)); // who's at a booth
   for (const s of all) nameTag(s, false);
   if (meShown) nameTag(mine, true);
   if (roomDef(room)?.crossing) drawCrossingFront(ctx, room, camX, W, time, online() ? net.me : null); // the near water, over the hull's foot
@@ -1820,6 +1864,7 @@ function render() {
     ctx.restore();
   }
   ctx.restore();
+  ctx.setTransform(scale, 0, 0, scale, 0, 0); // (out of a booth's zoom)
   if (scope.isOpen) scope.draw(ctx, time, TOUCH);
 
   if (joined) {
@@ -1852,6 +1897,7 @@ function render() {
     else if (status === 'online' && room === WICKMERE) drawPill(16, 14, 300, `Wickmere · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CARAVAN) drawPill(16, 14, 300, `Caravanserai · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CLIFFS) drawPill(16, 14, 300, `The East Cliffs · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === FAIR) drawPill(16, 14, 330, `The Gathering Fair · ${rpg.me?.tickets ?? 0} tickets · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === ROADSEND) drawPill(16, 14, 300, `The Road's End · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === LONGFLUE) drawPill(16, 14, 300, `The Long Flue · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === LONGSTAIR) drawPill(16, 14, 300, `The Long Stair · ${here} slime${here === 1 ? '' : 's'}`);
@@ -1890,7 +1936,7 @@ function render() {
     if (status === 'online') accuse.draw(ctx);
     const a = clamp(1 - (hintTime - 8) / 1.5, 0, 1);
     if (!museum.isOpen && !chat.isOpen) drawFeed(ctx, TOUCH ? H - 112 : a > 0 ? H - 56 : isCombat(room) ? H - 72 : H - 14, TOUCH ? 520 : isCombat(room) ? 300 : 620); // on touch, above the controls; above the hotbar
-    if (a > 0 && !scope.isOpen) {
+    if (a > 0 && !scope.isOpen && !fair.isOpen) {
       ctx.globalAlpha = a;
       drawPill(W / 2 - 380, TOUCH ? 140 : H - 48, 760, TOUCH ? '◀ ▶  walk  ·  Jump  ·  E  doors, talk, read  ·  tap the game  slap  ·  Menu' : `${walkKeys()}  walk  ·  ${keys.all('jump') || '—'}  jump  ·  ${kl('use')}  use  ·  click  slap  ·  ${kl('bag')}  bag  ·  ${kl('skills')}  skills  ·  ${kl('players')}  players  ·  ${kl('mic')}  mic  ·  Esc  menu`);
       ctx.globalAlpha = 1;
@@ -1919,10 +1965,11 @@ function render() {
     preview.draw(ctx);
     ctx.restore();
   }
+  if (fair.isOpen) fair.drawGame(ctx, time, TOUCH); // a booth's game, over everything (src/fair.js)
 }
 
 // For tests and troubleshooting: open the game with #debug to reach its internals from the console.
-if (location.hash === '#debug') window.slimeville = { pool, news, REBIRTH_X, chat, net, voice, characters, museum, scope, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, pets, chest, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
+if (location.hash === '#debug') window.slimeville = { pool, news, REBIRTH_X, chat, net, voice, characters, museum, scope, fair, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, pets, chest, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
 
 // #debug also keeps frame timings (window.slimeville.perf: JS time in update() and render(), and the gap
 // between frames, which includes the browser's own drawing) and shows the frame rate in the corner.

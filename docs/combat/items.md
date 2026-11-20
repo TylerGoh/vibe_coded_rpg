@@ -301,3 +301,6 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   draws) sold cheaply as cosmetics (`COSMETICS`). Owned ones are worn in any mix from the bag's Style row,
   which also has "Helmet: shown/hidden" so cosmetics show over armour. `wear` and `showHelmet` ride along
   with gear in `gear` messages; `Slime.setLook()` combines everything.
+- The Gathering Fair's prizes are `COSMETICS` too, priced in `tickets` with no gold `price`: the Boutique tab, its
+  server check (`buycos`) and the economy sheet skip them, so they're only won at the fair's prize counter
+  (`docs/places/fair.md`).
