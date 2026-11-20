@@ -66,6 +66,8 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
   `setEmulatedMedia` pointer: coarse; tap HTML buttons with a dispatched `pointerdown`, the canvas with
   `Input.dispatchTouchEvent`. Always check a phone screenshot for any UI change.
 - Voice: `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream`.
+- **No Three.js headless on this box**: SwiftShader on ARM loses the WebGL context at Three's first draw, whatever ANGLE
+  backend (2026-11-20). Anything 3D (`docs/places/pocket.md`) is checked by a person in a real browser.
 - Programmatic clicks aren't user gestures, so audio contexts stay suspended in tests.
 - Frame rate: `#debug` shows fps in the corner and keeps `slimeville.perf`; for an old laptop use
   the DevTools CPU throttling command (Emulation.setCPUThrottlingRate) (`docs/performance.md`).

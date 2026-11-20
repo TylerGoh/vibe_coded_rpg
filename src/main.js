@@ -74,6 +74,7 @@ import { drawColumnVista } from './balloon.js';
 import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel, shipName } from './crossing.js';
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
 import { Fair } from './fair.js';
+import { Pocket } from './pocket.js';
 import { drawFair, drawFairTent } from './fair-art.js';
 import { FAIR, BOOTHS } from './shared/fair.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
@@ -412,6 +413,8 @@ const charsHere = () => [...characters.values()].filter((c) => npcIn(c.cfg, room
 const museum = new Museum({ onOpenChange: () => held.clear() });
 const scope = new Telescope(); // the telescope on the east cliffs (src/cliffs.js)
 const fair = new Fair({ send: (m) => net.sendNpc(m), toast: (t) => rpg.toast(t), audio, onOpenChange: () => held.clear() }); // the Gathering Fair's booths (src/fair.js)
+const pocket = new Pocket({ touch: TOUCH, onOpenChange: () => held.clear() }); // the pocket world through the fair's upside-down mirror (src/pocket.js)
+fair.onPocket = () => pocket.show();
 // Clio can be asked from anywhere in the museum (Q, the Ask button, or a fact sheet's "Ask Clio")
 const askClio = (prefill = '') => {
   museum.close();
@@ -1118,6 +1121,7 @@ addEventListener('keydown', (e) => {
   piano.unlock(); // any key press counts as the gesture browsers need before playing sound
   audio.unlock();
   voice.unlock();
+  if (pocket.isOpen) return pocket.key(e, true); // the pocket world takes every key (src/pocket.js)
   const typing = document.activeElement?.tagName === 'INPUT';
   if (dialogOpen() || hall.askOpen || typing) {
     // typing to a character, a question or an answer: keys go to the text box, Esc closes it / lets go
@@ -1395,6 +1399,7 @@ addEventListener('keydown', (e) => {
   }
 });
 addEventListener('keyup', (e) => {
+  if (pocket.isOpen) pocket.key(e, false);
   if (fair.isOpen) fair.key(e, false);
   held.delete(heldKey(e));
   if (keys.is(e, 'attack')) attackHeld = false;
@@ -1407,7 +1412,7 @@ addEventListener('blur', () => {
 const inputBits = () => {
   if (mine && splatted(mine)) return 0; // the server ignores us until we wake up anyway
   if (scope.isOpen) return 0; // standing still at the telescope
-  if (fair.isOpen) return 0; // or playing at a booth
+  if (fair.isOpen || pocket.isOpen) return 0; // or playing at a booth, or off in the pocket world
   let k = 0;
   for (const bits of held.values()) k |= bits;
   if (rpg.gear.boost()) k |= BOOST; // (Rush: boss gear, src/gear.js)
@@ -1465,6 +1470,7 @@ function update(realDt) {
     scope.close();
     if (room === FAIR) fair.enter();
     else fair.leave();
+    if (room !== FAIR) pocket.close(); // (warped away from the mirror)
     courseMenu.close();
     courseMenu.myVote = null;
     shop.close();
@@ -1969,7 +1975,7 @@ function render() {
 }
 
 // For tests and troubleshooting: open the game with #debug to reach its internals from the console.
-if (location.hash === '#debug') window.slimeville = { pool, news, REBIRTH_X, chat, net, voice, characters, museum, scope, fair, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, pets, chest, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
+if (location.hash === '#debug') window.slimeville = { pool, news, REBIRTH_X, chat, net, voice, characters, museum, scope, fair, pocket, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, pets, chest, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
 
 // #debug also keeps frame timings (window.slimeville.perf: JS time in update() and render(), and the gap
 // between frames, which includes the browser's own drawing) and shows the frame rate in the corner.
@@ -1992,7 +1998,7 @@ function frame(now) {
     for (let i = 0; i < n; i++) update(dt / n);
   } else update(dt);
   const t1 = performance.now();
-  render();
+  if (!pocket.isOpen) render(); // (the pocket world draws itself, on its own canvas over this one)
   const t2 = performance.now();
   perf.n++;
   perf.upd += t1 - t0;

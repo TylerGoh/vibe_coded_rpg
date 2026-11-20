@@ -76,6 +76,8 @@ The sandbox only adds a room, two mob kinds, a panel and a readout; it never cha
     Fenrir's loops, Typhon's lava waves in its loop and the Colossus's fake-outs in its brain (phase 2 on), the Knotmole's
     burrow and the Narwhal's tusk in theirs, and the punish window wherever a big move misses: restart those at a phase to
     see them (`docs/combat/challenges.md`).
+    Under the bosses, **Back to the yard** and **To the Gathering Fair** (by the Hall of Mirrors: the pocket world's way
+    in, `docs/places/pocket.md`).
     Everything else is the game's: leave and it heals after a few seconds, the switches stay on the boss until changed.
     Everyone in the sandbox shares the dens, as in the game. With god mode on, an ultimate still hits you (the
     number shows) but you stay up.

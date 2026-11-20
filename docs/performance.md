@@ -17,7 +17,8 @@ rules that keep art cheap. Files: `src/fastcanvas.js`, `src/glow.js`, `src/gfx.j
   next lever (below).
 - Why not PixiJS/WebGL (owner asked): the art is shapes rebuilt every frame, which WebGL has to rebuild
   too, and a blocklisted GPU runs WebGL in software as well. Stay on Canvas2D, keep authoring art as code,
-  and cache what's expensive. A 3D pocket dimension would get Three.js on its own canvas in that room only.
+  and cache what's expensive. A 3D pocket dimension would get Three.js on its own canvas in that room only (the pocket world does exactly that:
+  `docs/places/pocket.md`).
 
 ## The fixes in place
 - **`fastGradients(ctx)`** (`src/fastcanvas.js`) wraps the game canvas's context. A straight (vertical or

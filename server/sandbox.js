@@ -29,6 +29,7 @@ import { FINAL } from '../src/shared/final.js';
 import { CHALLENGES } from '../src/shared/challenge.js';
 import { SKILLS, CLASSES, ACTIVE, HOTBAR, AP_STATS, apTotal, apSpent, cantLearn, cleanSkills, giftsOf, rankOf, skillFor, weaponOk } from '../src/shared/skills.js';
 import { placeAt } from '../src/shared/sim.js';
+import { FAIR, POCKET_X } from '../src/shared/fair.js';
 import { ARENA, ARENA_W, ARENA_SPAWN_X, DUMMY_HP_SHARES, DUMMY_MAX, DUMMY_PACK, DUMMY_GAP, METER_EVERY_MS, SANDBOX_MAX_LVL, MAIN_STAT, SANDBOX_POTIONS, SANDBOX_POTS } from '../src/shared/sandbox.js';
 import { cleanUser } from './accounts.js';
 
@@ -265,7 +266,10 @@ export function createSandbox({ rpg, hooks, players, send, dbPath, livePath }) {
       if (b) bossOpts(b, m);
     } else if (m.a === 'ult') ultNow(p, m);
     else if (m.a === 'chal') chalNow(p, m);
-    else if (m.a === 'yard') {
+    else if (m.a === 'fair') {
+      if (p.faintUntil) return sb.toast(p, 'Wake up first');
+      placeAt(p.state, FAIR, POCKET_X - 70); // (by the Hall of Mirrors: the pocket world's way in, src/pocket.js)
+    } else if (m.a === 'yard') {
       if (p.faintUntil) return sb.toast(p, 'Wake up first');
       placeAt(p.state, ARENA, ARENA_SPAWN_X);
     } else if (m.a === 'toggle' && ['god', 'mp', 'nocd'].includes(m.what)) {

@@ -283,6 +283,9 @@ export class Sandbox {
       el('div', { className: 'sbx-btns' }, [el('button', { type: 'button', className: 'sbx-act', textContent: 'Back to the yard', onclick: () => {
         this.send({ t: 'sbx', a: 'yard' });
         this.close();
+      } }), el('button', { type: 'button', className: 'sbx-act', textContent: 'To the Gathering Fair', onclick: () => {
+        this.send({ t: 'sbx', a: 'fair' }); // (by the upside-down mirror, the pocket world's way in: src/pocket.js)
+        this.close();
       } })]),
       el('p', { className: 'sbx-note', textContent: 'Fight takes you into its den with the boss fresh at that phase. Ultimate now fires once the boss finishes what it is doing; Challenge now goes off at once, whether or not this boss uses it yet. God mode (Toggles) keeps you up through an ultimate: the hit still shows. Leave and it heals after a few seconds, as in the game. Everyone in the sandbox shares the dens.' }),
     );

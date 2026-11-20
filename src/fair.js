@@ -7,7 +7,7 @@
 // goes to the server ({a:'end', score}) and its {a:'won'} shows the tickets → 'out': the zoom back.
 import { W, H, clamp } from './util.js';
 import { text } from './village.js';
-import { FAIR, FAIR_GROUND, ROUND_S, FAIR_GAMES, GALLERY_W, GALLERY_H, BOOTHS, HORSES, boothAt, prizeAt, lookAt } from './shared/fair.js';
+import { FAIR, FAIR_GROUND, ROUND_S, FAIR_GAMES, GALLERY_W, GALLERY_H, BOOTHS, HORSES, POCKET_X, boothAt, prizeAt, lookAt } from './shared/fair.js';
 import { COSMETICS } from './shared/rpg.js';
 import { keys } from './keys.js';
 import { GAMES } from './fair-games.js';
@@ -60,6 +60,7 @@ export class Fair {
     if (b) return { b };
     const prize = prizeAt(me.x);
     if (prize) return { prize };
+    if (Math.abs(me.x - POCKET_X) < 36) return { pocket: true }; // (the upside-down mirror: src/pocket.js)
     const look = lookAt(me.x);
     return look ? { look } : null;
   }
@@ -67,6 +68,7 @@ export class Fair {
     const n = this.near(me);
     if (!n) return null;
     if (n.b) return n.b.shut ? `look at ${n.b.name}` : `play ${n.b.name} (free)`;
+    if (n.pocket) return 'step through the upside-down mirror';
     if (n.prize) {
       const c = COSMETICS[n.prize];
       return rpgMe?.cosmetics?.includes(n.prize) ? `the ${c.name} (you have it)` : `trade ${c.tickets} tickets for the ${c.name}`;
@@ -77,7 +79,8 @@ export class Fair {
   use(me, rpgMe) {
     const n = this.near(me);
     if (!n) return false;
-    if (n.b?.shut) this.toast(n.b.shut);
+    if (n.pocket) this.onPocket?.();
+    else if (n.b?.shut) this.toast(n.b.shut);
     else if (n.b) {
       if (performance.now() - this.askedAt < ASK_MS) return true;
       this.askedAt = performance.now();

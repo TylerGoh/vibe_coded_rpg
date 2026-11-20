@@ -12,6 +12,7 @@
     "economy": "node scripts/economy.mjs"
   },
   "dependencies": {
+    "three": "^0.187.0",
     "ws": "^8.22.0"
   },
   "devDependencies": {

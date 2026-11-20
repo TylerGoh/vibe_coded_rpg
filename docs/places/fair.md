@@ -83,6 +83,9 @@ booth's canopy, the carousel's horses and canopy rim, the mirrors' roof, crates 
   they're won, and drawn by `drawFairWear` (from `Slime.drawAccessory`). The Boutique, its server check and the economy
   sheet all skip cosmetics with no `price`, so a prize can never be bought with gold.
 
+## The upside-down mirror (dev sandbox only)
+On the `dev` branch the fourth mirror (`POCKET_X`) is a way into the pocket world, a 3D experiment: `docs/places/pocket.md`.
+
 ## Ringmaster Fizz
 `fizz` in `NPCS` and `server/characters.js`: a showman in a red top hat, tailcoat and painted moustache
 (`drawRingmaster`, accessory `ringmaster`). He runs the prize counter and knows every game, prize and closed ride (and

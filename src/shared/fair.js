@@ -36,7 +36,8 @@ export const MIRRORS = [ // each mirror: its middle, and how it bends you (src/f
   { x: 4230, bend: 'wobble' },
   { x: 4330, bend: 'flip' },
 ];
-export const PIER_X = 4480; // where the boardwalk goes out over the water
+export const PIER_X = 4480;
+export const POCKET_X = 4330; // the upside-down mirror: E steps through it into the pocket world (src/pocket.js; the dev sandbox's experiment) // where the boardwalk goes out over the water
 
 export const BOOTH_RANGE = 70;
 // The booths. game: what E starts (FAIR_GAMES below); shut: a stall the next phase opens, with its in-world reason (owner's
