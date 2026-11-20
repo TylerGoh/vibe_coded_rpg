@@ -22,12 +22,23 @@ export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export const wait = (ms) => sleep(ms / SPEED);
 let GAME = 3010, CDP = 9460;
 
-export async function launch({ game = 3010, cdp = 9460 } = {}) {
+// gl: draw WebGL / Three.js for real (docs/testing.md): headless Chromium here can't (SwiftShader on ARM loses the context),
+// so this starts a virtual display (Xvfb, its own, killed with the browser) and runs a windowed Chromium on it, which
+// draws through Mesa's software GL. Slower; only for tests that need to see 3D.
+export async function launch({ game = 3010, cdp = 9460, gl = false } = {}) {
   GAME = game;
   CDP = cdp;
   const dir = join(OUT, `chrome-${cdp}`);
   mkdirSync(dir, { recursive: true });
-  const proc = spawn(CHROMIUM, ['--headless=new', `--remote-debugging-port=${cdp}`, '--no-first-run', '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--user-data-dir=${dir}`, '--window-size=960,540', 'about:blank'], { stdio: 'ignore', detached: true }); // (its own process group: see kill)
+  let xvfb = null, env = process.env;
+  if (gl) {
+    const display = `:${90 + (cdp % 9)}`;
+    xvfb = spawn('Xvfb', [display, '-screen', '0', '1280x800x24'], { stdio: 'ignore', detached: true });
+    env = { ...process.env, DISPLAY: display };
+    await sleep(800);
+  }
+  const mode = gl ? ['--ignore-gpu-blocklist', '--window-position=0,0'] : ['--headless=new'];
+  const proc = spawn(CHROMIUM, [...mode, `--remote-debugging-port=${cdp}`, '--no-first-run', '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--user-data-dir=${dir}`, '--window-size=960,540', 'about:blank'], { stdio: 'ignore', detached: true, env }); // (its own process group: see kill)
   // never leave a headless Chromium running (owner, 2026-10-26): it dies with this script, even on a crash or Ctrl-C
   const kill = () => {
     // the whole group: chromium-browser is a shell wrapper, and killing just it left a dozen Chromiums behind
@@ -36,6 +47,11 @@ export async function launch({ game = 3010, cdp = 9460 } = {}) {
     } catch {
       try {
         proc.kill('SIGKILL');
+      } catch {}
+    }
+    if (xvfb) {
+      try {
+        process.kill(-xvfb.pid, 'SIGKILL');
       } catch {}
     }
   };

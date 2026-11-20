@@ -66,6 +66,10 @@ DB=<scratch>/test.sqlite node server/accounts.js add walker pw
   `setEmulatedMedia` pointer: coarse; tap HTML buttons with a dispatched `pointerdown`, the canvas with
   `Input.dispatchTouchEvent`. Always check a phone screenshot for any UI change.
 - Voice: `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream`.
+- **3D (WebGL, Three.js): `launch({ gl: true })`.** Headless Chromium on this box can't draw it (SwiftShader on ARM loses the
+  context at Three's first draw, every ANGLE backend tried, 2026-11-20). With `gl` the helper starts its own Xvfb (installed
+  2026-11-20 with the owner's OK: `xorg-x11-server-Xvfb`) and a windowed Chromium on it, which draws through Mesa's
+  software GL, and kills both when the script ends. Slow, so only for tests that need to see 3D.
 - Programmatic clicks aren't user gestures, so audio contexts stay suspended in tests.
 - Frame rate: `#debug` shows fps in the corner and keeps `slimeville.perf`; for an old laptop use
   the DevTools CPU throttling command (Emulation.setCPUThrottlingRate) (`docs/performance.md`).
