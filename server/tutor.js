@@ -18,6 +18,9 @@ const REVIEW_MS = 14000; // how long the verdict stays up before the next turn
 const RECENT_QUESTIONS = 20; // questions remembered this session, so they aren't repeated
 const KNOWN_SCORE = 4; // an answer this good (of 5) counts as answered correctly: never asked of that student again
 const KNOWN_PROMPT = 60; // the most of a student's known questions put in the prompt (their latest)
+const WRITE_TRIES = 3; // question writes before giving up on a fresh one (a write matching a known question is thrown away)
+// two questions are the same text if they match with case, punctuation and spacing ignored
+const sameText = (q) => String(q).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
 const PERSONA = `You are Tutor Byte, a friendly, encouraging slime tutor in Slimeville's tutoring room, running a
 quiz for slime students on university courses and trivia. You are accurate and fair.`;
@@ -37,9 +40,14 @@ export function createTutor(broadcast, dbPath) {
   db?.exec(`CREATE TABLE IF NOT EXISTS tutor_known (user TEXT NOT NULL, course TEXT NOT NULL, question TEXT NOT NULL,
              at INTEGER NOT NULL, PRIMARY KEY (user, course, question))`);
   const knownOf = db?.prepare('SELECT question FROM tutor_known WHERE user = ? AND course = ? ORDER BY at DESC LIMIT ?');
+  const allKnown = db?.prepare('SELECT question FROM tutor_known WHERE user = ? AND course = ?');
   const remember = db?.prepare('INSERT OR REPLACE INTO tutor_known (user, course, question, at) VALUES (?, ?, ?, ?)');
   const known = (user, c) => {
     try { return knownOf ? knownOf.all(user, c, KNOWN_PROMPT).map((r) => r.question) : []; } catch { return []; }
+  };
+  // every question this student has answered correctly in this course, as sameText keys (the exact-text check)
+  const knownKeys = (user, c) => {
+    try { return new Set(allKnown ? allKnown.all(user, c).map((r) => sameText(r.question)) : []); } catch { return new Set(); }
   };
   let course = null; // course id, BREAK, or null
   let phase = 'idle';
@@ -80,7 +88,12 @@ export function createTutor(broadcast, dbPath) {
     send();
     let text = null;
     const mastered = known(who, course);
-    if (process.env.DEEPSEEK_API_KEY) {
+    // The exact-text check: a write matching one of this student's known questions (or one already asked this session) is
+    // thrown away and the writer tries again, told about the rejected one too
+    const taken = knownKeys(who, course);
+    for (const q of asked) taken.add(sameText(q));
+    const rejected = [];
+    for (let i = 0; i < WRITE_TRIES && process.env.DEEPSEEK_API_KEY && !text; i++) {
       try {
         const out = await deepseek([
           { role: 'system', content: PERSONA },
@@ -89,12 +102,17 @@ ${c.quiz ? `It must be ${c.quiz}. Not multiple choice` : `It must be a short-ans
 a "why" or "how", a tiny worked example, or a comparison. Introductory university level`}, accurate and unambiguous,
 under 35 words. Do not repeat or closely resemble these earlier questions: ${asked.length ? asked.map((q) => `"${q}"`).join('; ') : '(none yet)'}.
 ${mastered.length ? `${who} has already answered these correctly in earlier sessions, so ask them something new (not these, nor the same fact reworded): ${mastered.map((q) => `"${q}"`).join('; ')}.
+` : ''}${rejected.length ? `These were already used, so write a different one: ${rejected.map((q) => `"${q}"`).join('; ')}.
 ` : ''}Reply as JSON: {"question": "..."}` },
         ], 150, { json: true, temperature: 1.0 });
-        text = short(parseJson(out)?.question, 240) || null;
+        const got = short(parseJson(out)?.question, 240) || null;
+        if (got && taken.has(sameText(got))) rejected.push(got);
+        else text = got;
       } catch (e) {
         console.error('tutor question:', String(e));
+        break;
       }
+      if (myGen !== gen) return;
     }
     if (myGen !== gen) return;
     text ||= `In your own words: what is "${topic.toLowerCase()}" in ${c.name}, and why does it matter?`;

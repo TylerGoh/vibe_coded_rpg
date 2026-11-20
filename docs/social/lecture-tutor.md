@@ -24,8 +24,11 @@ their syllabi), `src/hall.js` (hall + building), `src/tutor.js`, `src/courses-ui
   good (table `tutor_known` in the accounts DB, per account and course), and when it's your turn again, in any later
   session, the question writer gets your latest `KNOWN_PROMPT` correctly answered questions with orders not to ask them
   or the same fact reworded. Wrong or partial answers aren't saved, so those may come up again. An answer that wasn't
-  marked because the AI was down is never saved. This is a prompt rule, so the AI could still slip and ask something
-  very close; there is no exact-text check.
+  marked because the AI was down is never saved. On top of the prompt there's an **exact-text check** (owner request,
+  same day): a written question matching one of the student's known questions in that course (all of them, not only
+  the latest batch), or one already asked this session, is thrown away and the writer tries again, told about the
+  rejected one (`sameText`: case, punctuation and spacing ignored; up to `WRITE_TRIES` writes, then the topic fallback
+  question). A reworded repeat still gets past the check; only the prompt guards against those.
 - Besides the CS courses, the tutor runs quizzes marked `tutorOnly` in `COURSES` (General Trivia, World
   Geography, Biomedical Science; owner request). Their `quiz` field tells the question writer what kind
   of question fits (trivia and geography want one checkable fact, biomed is short-answer like CS). The
