@@ -8,8 +8,8 @@ about to leave, and never does). A0 is its landing: the crossing, the town, its 
 Glass Dunes, `docs/places/glassdunes.md`). A0 and A1 (the Mirage Oasis and the Buried Observatory with the Sunroller,
 `docs/places/oasis.md`, `docs/places/observatory.md`) shipped in one update, so A0's own blocks on those two never went
 live. A2 opened the Salt Flats and the Netwife (`docs/places/saltflats.md`) and set Kesh trading; A3 the Buried
-Caravanserai, the Last Drover and the Glassjaw (`docs/places/buried.md`, `docs/places/glassdunes.md`). The rest comes in A4
-and A5 (`story/roadmap.md`).
+Caravanserai, the Last Drover and the Glassjaw (`docs/places/buried.md`, `docs/places/glassdunes.md`); A4 the Storm Road, the
+Sirocco and the Red Wall, its party den (`docs/places/stormroad.md`). Old Carapace comes in A5 (`story/roadmap.md`).
 
 Files: the town's layout in `src/shared/rpg.js` (`CARAVAN`, `CARAVAN_W`, `KESH_X`, `DUNE_DOCK_X`, `SALTFLATS_GATE_X`,
 `DUNE_WAY_X`, `TALLY_X`, `DUNE_SPAWN_X`, `WELL_X`, `ASRA_X`, `DUNE_HOME_X`, `MOTHER_X`, `CARAVAN_EXIT_X`,

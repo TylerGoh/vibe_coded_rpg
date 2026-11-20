@@ -226,8 +226,12 @@ No quests, no hard level gates.
         jetty (aim 230); the sand stopped on the stair and the Buried Caravanserai (106, a hard pocket: husk lizards, buried
         lamplighters, stiff tents, two elites; the cut well-rope) with the Last Drover (field, Lv 241), and the Glassjaw
         under the High Dunes (field, Lv 223) (`docs/places/saltflats.md`, `buried.md`, `glassdunes.md`). Unplayed.
-  - [ ] A4: the Storm Road, the Red Wall (party den) and the Sirocco; the dry well's mouth chained, Old Carapace walking on
-        the horizon out of reach.
+  - [x] A4 (2026-11-20, live): the storm drawn back and the Storm Road (107: sand jackals, storm riders, sand golems, red
+        wisps; the squalls on the rises; the lantern on the tallest pillar), the Sirocco (field, Lv 245), the Red Wall in the
+        Storm's Eye (108, Amberdune's party den, Lv 248, challenges from day one: the wall of sand, the dark, tethers, the
+        swap; The Wall Comes On; freed, the caravan comes down on the sand; Driven Sand and Tailwind). Blocks: the old well's
+        mouth chained shut (the Dry Wells, A5), Old Carapace walking on the horizon out of reach
+        (`docs/places/stormroad.md`). Unplayed.
   - [ ] A5: Old Carapace ((a) his plan, (b) the Dry Wells and the Shell Road, (c) the Long Road and the fight).
 - [ ] Atlas Phase 10, the finale and the post-game: the Wheel restart (a server-wide event, the world flag,
       the changed skies), Pell by the apple tree, the Maelstrom rim, swim physics and the Sunken Reach,

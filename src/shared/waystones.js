@@ -6,7 +6,7 @@
 // branch's entrance hub and one on Keeper's Spine, the Queen's Bridge and the Caldera Rim, and the Citadel's four (the camp, the Skydocks, the Bastion and the Spire) (story/world/island-depth.md); none in the hard pockets.
 // The stones only reach stones on their own island (isle): islands are reached by their crossings.
 import { VILLAGE, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, CANOPY, SPINE, GLACIER, SKERRIES, HEIGHTS, QBRIDGE, ASHWOOD, COAST, BRIMSTONE, RIM } from './sim.js';
-import { CALDERA, SKYCAMP, CAMP_WAY_X, SKYDOCKS, DOCKS_WAY_X, WICKMERE, WICK_WAY_X, SHALLOWS, SHALLOWS_WAY_X, GROVE, GROVE_WAY_X, STILLMERE, MERE_WAY_X, CAUSEWAY, CAUSEWAY_WAY_X, CITADEL, CIT_WAY_X, SPIRE_WAY_X, ARCHIVE, ARCHIVE_WAY_X, ENGINE, ENGINE_WAY_X, BELLS, BELLS_WAY_X, CARAVAN, DUNE_WAY_X, GLASSDUNES, GDUNES_WAY_X, OBSERVATORY, OBS_WAY_X, SALTFLATS, SFLATS_WAY_X } from './rpg.js';
+import { CALDERA, SKYCAMP, CAMP_WAY_X, SKYDOCKS, DOCKS_WAY_X, WICKMERE, WICK_WAY_X, SHALLOWS, SHALLOWS_WAY_X, GROVE, GROVE_WAY_X, STILLMERE, MERE_WAY_X, CAUSEWAY, CAUSEWAY_WAY_X, CITADEL, CIT_WAY_X, SPIRE_WAY_X, ARCHIVE, ARCHIVE_WAY_X, ENGINE, ENGINE_WAY_X, BELLS, BELLS_WAY_X, CARAVAN, DUNE_WAY_X, GLASSDUNES, GDUNES_WAY_X, OBSERVATORY, OBS_WAY_X, SALTFLATS, SFLATS_WAY_X, STORMROAD, STORM_WAY_X } from './rpg.js';
 
 // x: the stone, on its room's ground (where you arrive is a little beside it, ARRIVE_DX) · isle: its island
 // (Greenhollow when left out)
@@ -44,6 +44,7 @@ export const WAYSTONES = [
   { id: 'glassdunes', name: 'The Glass Dunes', room: GLASSDUNES, x: GDUNES_WAY_X, isle: 'dune' }, // (at the Dune Gate. None in the Mirage Oasis: it's beside this one)
   { id: 'saltflats', name: 'The Salt Flats', room: SALTFLATS, x: SFLATS_WAY_X, isle: 'dune' }, // (on the Salt Steps; A2. None in the Buried Caravanserai: a hard pocket)
   { id: 'observatory', name: 'The Buried Observatory', room: OBSERVATORY, x: OBS_WAY_X, isle: 'dune' }, // (on the Sunken Steps; A1)
+  { id: 'stormroad', name: 'The Storm Road', room: STORMROAD, x: STORM_WAY_X, isle: 'dune' }, // (at the Road's End; A4)
 ];
 export const isleOf = (w) => w.isle ?? 'green';
 export const sameIsle = (a, b) => isleOf(a) === isleOf(b);

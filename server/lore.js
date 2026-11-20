@@ -72,6 +72,9 @@ export const FREED = {
   // A2: for the slime who freed her the nets strung between the Salt Flats' beached boats are gone, blown away on the wind
   // (src/saltflats.js)
   netwife: { near: ['kesh', 'mother_dune', 'tally', 'asra'], name: 'the Netwife, the great salt spider in the old harbour on the Salt Flats', seen: "out on the Salt Flats the nets that hung drying between the beached boats are gone, every one, let go to the wind, and the poles stand bare" },
+  // A4: for the slime who freed it the Storm Road's east end lies clear, the red wall gone, the caravan's things out on the
+  // sand in the sun (src/stormroad.js)
+  red_wall: { near: ['mother_dune', 'tally', 'asra', 'kesh'], name: 'the Red Wall, the standing storm at the end of the Storm Road', seen: "at the end of the Storm Road the red wall is down: the sky clear over it, and the caravan it took an age ago lying out on the sand in the sun, tents and packs and pack-saddles and little things, all still, all come down at last. Be gentle: everyone in Caravanserai lost someone to it, a long way back" },
   sunroller: { near: ['mother_dune', 'tally', 'asra', 'kesh'], name: 'the Sunroller, the great scarab in the Buried Observatory', seen: "out in the Buried Observatory the stone sun has come to rest in the middle of the dial floor, and the great gnomon there stands at noon and casts no shadow at all, whatever the hour" },
   // L5 (c): Lantern Fen's final boss. Nobody in Wickmere says her name; "the Mother" is as far as the songs go
   wickmother: { near: ['wren', 'hob', 'sedge', 'netta'], name: 'the Mother in the Hall of Lamps', seen: "the Lamp Walk burns low: a few of its lanterns have gone out and their tags are gone, as if they were let go (Wren's husband's is one of them), and the Hall of Lamps' front door at the Causeway's end stands open, its silk cut down. Be gentle about it: it is grief, and a relief" },

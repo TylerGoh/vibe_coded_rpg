@@ -166,6 +166,10 @@ Heights, 75–90, and the Blue Halls, 80–90; F4: the Queen's Bridge, 85–100,
    style `amber`; the rare Lamplighter's Hood), stiff tents (`stomp`; elite the Great Pavilion), and the Last Drover, a `lob`
    field boss whose phantom pack-beasts come with a party (adds). A3 also put the Glassjaw, a `stomp` field boss, under the
    Glass Dunes' High Dunes (`docs/places/glassdunes.md`; rings style `glass`, armour `SHELLS.glass`).
+49. **The Storm Road**: A4, on east from the Buried Observatory (Lv 236–250, a waystone at the Road's End, the Red Wall's party
+   den; `docs/places/stormroad.md`). Sand jackals (quick chasers), storm riders (`dive`), sand golems (`stomp`; the rare
+   Sandstone Mask), red wisps (`beam`, the new beam style `redbolt`), and the Sirocco, a `blink` field boss (gaps style
+   `sandwall`, pulse `gust`). A room hazard, the squalls on the rises (`SQUALLS`, `squallAt`: the Skydocks' gusts' pattern).
 
 Each spawn patrols its own strip (ground or a platform) and respawns after `MOB_RESPAWN_MS`.
 A mob can be chilled, frozen or burning (the Mage's combos, `docs/combat/skills.md`): a frozen ordinary mob

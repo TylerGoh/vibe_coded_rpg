@@ -9,7 +9,7 @@ import {
   fxOf, GX, HYDRA_HIT, HEARTH_EVERY, ERUPT_R, ERUPT_MULT, EXPLODE_R, EXPLODE_MULT, GROUND_S, GROUND_W, GROUND_MULT, GROUND_EVERY,
   LAST_AT, LAST_DMG, TICK_EVERY, TICK_DMG, TICK_OTHER, DASH_SLASH_MULT, NOVA_R, NOVA_MULT, VOLLEY, ROOTED_S, ROOTED_DMG, OATH_BONUS, PISTON_RANGE, PISTON_MULT, PISTON_PIERCE, PISTON_FREE,
   TRAIL_EVERY, TRAIL_S, TRAIL_W, TRAIL_MULT, STOMP_VY, STOMP_R, STOMP_MULT, RUSH_S, SHATTERER, PROMISE_STEP, PROMISE_MAX, PROMISE_BROKEN,
-  STEADY_S, STEADY_DMG,
+  STEADY_S, STEADY_DMG, DRIVEN_DMG, DRIVEN_STILL, DRIVEN_STILL_S,
 } from './shared/gearfx.js';
 import { audio } from './audio.js';
 import { bowTint } from './bow-art.js';
@@ -54,6 +54,7 @@ export class Gear {
     if (f.shatterer && (k?.boss || k?.field) && (v.frozen || v.burning)) x *= SHATTERER;
     if (f.lastlight && this.g.me && this.g.me.hp < this.g.me.maxHp * LAST_AT) x *= LAST_DMG; // (the Wickmother's weapons: below half your HP)
     if (f.steady && this.g.time - this.g.hurtAt >= STEADY_S) x *= STEADY_DMG; // (the Helmsman's weapons: nothing has hit us for a while)
+    if (f.driven) x *= this.stillSince != null && this.g.time - this.stillSince >= DRIVEN_STILL_S ? DRIVEN_STILL : DRIVEN_DMG; // (the Red Wall's weapons: never stand still)
     if (f.tick && v) x *= ++this.tickN % TICK_EVERY === 0 ? TICK_DMG : TICK_OTHER; // (the Escapement's weapons: every third hit lands on the tick)
     if (f.promise && v) { // the same mob again: one step stronger; another mob first: broken (that hit weaker), start over
       const p = this.promise;

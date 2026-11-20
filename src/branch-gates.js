@@ -42,7 +42,8 @@
 // Amberdune's (atlas Phase 9, A0 and A1, shipped together): the Saltwind drawn up on the Black Sands (an entry, like the
 // balloon: OPEN.saltwind), and the gates the next phases lift: the old seabed's wet salt off Caravanserai to the Salt Flats
 // (`softsalt`, A2: dried, drawn open), the fall of sand down the stair under the Observatory's dial ring (`sandfall`, A3:
-// stopped, drawn open) and the standing storm across the old caravan road at the Observatory's east end (`redstorm`, A4).
+// stopped, drawn open), the standing storm across the old caravan road at the Observatory's east end (`redstorm`, A4:
+// drawn back, drawn open) and the old well on the Storm Road chained shut (`drywell`, the Dry Wells, A5).
 // Feet on the ground at (g.x, ground).
 import { TAU, mulberry32, circle, ellipse, clamp } from './util.js';
 import { GATES, ENTRIES, gateLifted } from './shared/branches.js';
@@ -3466,8 +3467,11 @@ function drawSandfall(ctx, time, g, open = false) {
 
 // The old caravan road at the Observatory's east end, going on into a standing storm: a wall of red sand from the ground
 // to the sky, churning and roaring and not moving, the road's marker stones vanishing into it, a pack-saddle half buried
-// in front of it
-function drawRedStorm(ctx, time) {
+// in front of it. Open (A4: the storm drawn back east, the update did it): the road goes on clear between its marker
+// stones, the sand swept off its paving, the red standing far off down it (the Red Wall is still out there, on the Storm
+// Road) and the pack-saddle dug out and propped against the first stone
+function drawRedStorm(ctx, time, g0, open = false) {
+  if (open) return drawRedStormOpen(ctx, time);
   const g = ctx.createLinearGradient(-60, 0, 260, 0);
   g.addColorStop(0, 'rgba(184,90,60,0)');
   g.addColorStop(0.25, 'rgba(184,90,60,0.75)');
@@ -3503,6 +3507,133 @@ function drawRedStorm(ctx, time) {
   ctx.ellipse(-80, 0, 40, 9, 0, Math.PI, 0);
   ctx.fill();
 }
-Object.assign(DRAW, { softsalt: drawSoftSalt, sandfall: drawSandfall, redstorm: drawRedStorm });
-Object.assign(OPEN, { saltwind: drawSaltwindBeached, softsalt: (ctx, time, g) => drawSoftSalt(ctx, time, g, true), sandfall: (ctx, time, g) => drawSandfall(ctx, time, g, true) }); // (A2, A3: lifted)
-Object.assign(SIGN_AT, { saltwind: 0, softsalt: -150, sandfall: 110, redstorm: -170 });
+function drawRedStormOpen(ctx, time) {
+  const g = ctx.createLinearGradient(-60, 0, 300, 0); // the red, far off down the road now
+  g.addColorStop(0, 'rgba(200,110,70,0)');
+  g.addColorStop(1, 'rgba(184,90,60,0.45)');
+  ctx.fillStyle = g;
+  ctx.fillRect(-60, -300, 360, 300);
+  for (let i = 0; i < 6; i++) {
+    const ph = time * 0.6 + i;
+    ctx.fillStyle = 'rgba(200,100,66,0.25)';
+    ellipse(ctx, 200 + Math.sin(ph) * 20, -60 - i * 36, 70, 12);
+  }
+  ctx.fillStyle = 'rgba(200,160,120,0.7)'; // the road's paving, swept
+  for (let x = -120; x < 260; x += 44) ctx.fillRect(x, -2, 38, 6);
+  ctx.fillStyle = '#9a8a6a'; // the marker stones going on, all of them standing
+  for (const [x, h] of [[-60, 30], [10, 28], [80, 26], [150, 24], [220, 22]]) ctx.fillRect(x - 6, -h, 12, h);
+  ctx.fillStyle = 'rgba(62,90,154,0.6)';
+  for (const [x, h] of [[-60, 30], [10, 28], [80, 26], [150, 24], [220, 22]]) ctx.fillRect(x - 6, -h + 6, 12, 3);
+  ctx.save(); // the pack-saddle, dug out and propped against the first stone
+  ctx.translate(-80, -2);
+  ctx.rotate(-0.4);
+  ctx.fillStyle = '#6a4a2e';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 24, 13, 0, Math.PI, 0);
+  ctx.fill();
+  ctx.restore();
+}
+
+// The old well on the Storm Road's Red Rise, down to the Dry Wells (A5): a ring of red dressed stone with a windlass frame,
+// no rope on it, and over its mouth an iron grating chained down and padlocked, the caravan's tally-mark scratched on the
+// lock (the caravan's rule: nobody goes down). Open (A5): the chain cut and coiled beside it, the grating swung back, a
+// rope ladder going down into the dark
+function drawDryWell(ctx, time, g0, open = false) {
+  ctx.fillStyle = '#b8684a'; // the well's ring
+  ctx.strokeStyle = '#6a3424';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(-58, -34, 116, 36, 8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(106,52,36,0.5)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let x = -40; x < 58; x += 22) {
+    ctx.moveTo(x, -34);
+    ctx.lineTo(x, 2);
+  }
+  ctx.moveTo(-58, -18);
+  ctx.lineTo(58, -18);
+  ctx.stroke();
+  ctx.fillStyle = '#2a120c'; // its mouth
+  ctx.beginPath();
+  ctx.ellipse(0, -34, 50, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#5a3420'; // the windlass frame, no rope on it
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(-50, -34);
+  ctx.lineTo(-44, -110);
+  ctx.moveTo(50, -34);
+  ctx.lineTo(44, -110);
+  ctx.moveTo(-48, -104);
+  ctx.lineTo(48, -104);
+  ctx.stroke();
+  if (open) {
+    ctx.strokeStyle = '#8a6a4a'; // a rope ladder down into the dark
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-10, -104);
+    ctx.lineTo(-10, -34);
+    ctx.moveTo(10, -104);
+    ctx.lineTo(10, -34);
+    for (let y = -96; y < -34; y += 10) {
+      ctx.moveTo(-10, y);
+      ctx.lineTo(10, y);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = '#4a4a52'; // the grating swung back, the chain cut and coiled
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(48, -36);
+    ctx.lineTo(70, -90);
+    ctx.stroke();
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.ellipse(-74 + i * 4, -4 - i * 3, 9, 4, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    return;
+  }
+  ctx.strokeStyle = '#4a4a52'; // the grating over the mouth
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let x = -40; x <= 40; x += 13) {
+    ctx.moveTo(x, -40);
+    ctx.lineTo(x, -28);
+  }
+  ctx.moveTo(-48, -34);
+  ctx.lineTo(48, -34);
+  ctx.stroke();
+  ctx.strokeStyle = '#6a6a72'; // the chain, over and round, and the padlock
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 9; i++) {
+    ctx.beginPath();
+    ctx.ellipse(-44 + i * 11, -32 + Math.abs(i - 4) * 3, 5, 3, 0.4, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#7a7a82';
+  ctx.beginPath();
+  ctx.roundRect(-7, -22, 14, 14, 3);
+  ctx.fill();
+  ctx.strokeStyle = '#3a3a42';
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.arc(0, -22, 5, Math.PI, 0);
+  ctx.stroke();
+  ctx.strokeStyle = '#e8e0d0'; // the caravan's tally-mark scratched on the lock
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i < 4; i++) {
+    ctx.moveTo(-4 + i * 2.4, -19);
+    ctx.lineTo(-4 + i * 2.4, -12);
+  }
+  ctx.moveTo(-5, -13);
+  ctx.lineTo(5, -18);
+  ctx.stroke();
+}
+Object.assign(DRAW, { softsalt: drawSoftSalt, sandfall: drawSandfall, redstorm: drawRedStorm, drywell: drawDryWell });
+Object.assign(OPEN, { saltwind: drawSaltwindBeached, softsalt: (ctx, time, g) => drawSoftSalt(ctx, time, g, true), sandfall: (ctx, time, g) => drawSandfall(ctx, time, g, true), redstorm: (ctx, time, g) => drawRedStorm(ctx, time, g, true), drywell: (ctx, time, g) => drawDryWell(ctx, time, g, true) }); // (A2, A3, A4: lifted; the dry well's look waits for A5)
+Object.assign(SIGN_AT, { saltwind: 0, softsalt: -150, sandfall: 110, redstorm: -170, drywell: -130 });

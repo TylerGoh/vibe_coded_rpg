@@ -18,7 +18,7 @@ import { Rpg, bar } from './rpg.js';
 import { drawPrompts, drawBeacon, drawDoorBand } from './hints.js';
 import { drawField } from './field.js';
 import { audio } from './audio.js';
-import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, COLUMN_VISTA_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS, FIREFLY, GROVE, STILLMERE, BARROWS, CAUSEWAY, PEATBARROWS, LAMPROAD, GARDENS, ORRERY, ARCHIVE, ENGINE, BELLS, KEEL, UNDERCROFT, SPOKE, CARAVAN, GLASSDUNES, OASIS, OBSERVATORY, SALTFLATS, BURIED } from './shared/rpg.js';
+import { FIELD, FJORD, FORGEHOLD, CLIFFS_PATH_X, HIGHLANDS, CALDERA, SUMMIT_LOOKOUT_X, CITADEL, COLUMN_VISTA_X, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY, WRECK, THORNHEART, SUNKEN, ROADSEND, OLDICE, LONGSTAIR, SPINE, GLACIER, SKERRIES, GROTTO, HEIGHTS, BLUEHALLS, QBRIDGE, BLACKSANDS, ASHWOOD, COAST, TUBES, BRIMSTONE, FOUNDRY, RIM, STAGES, zoneAt, isCombat, denAt, DENS, SHOP_X, SHOP_RANGE, PETSHOP, ITEMS, UNDERFLUES, LONGFLUE, SHOPS, SKYCAMP, SKYDOCKS, WICKMERE, SHALLOWS, FIREFLY, GROVE, STILLMERE, BARROWS, CAUSEWAY, PEATBARROWS, LAMPROAD, GARDENS, ORRERY, ARCHIVE, ENGINE, BELLS, KEEL, UNDERCROFT, SPOKE, CARAVAN, GLASSDUNES, OASIS, OBSERVATORY, SALTFLATS, BURIED, STORMROAD } from './shared/rpg.js';
 import { drawHighlands, drawSummitLookout } from './highlands.js';
 import { drawCaldera } from './caldera.js';
 import { drawCitadel } from './citadel.js';
@@ -51,6 +51,7 @@ import { drawOasis } from './oasis.js';
 import { drawObservatory } from './observatory.js';
 import { drawSaltFlats } from './saltflats.js'; // (A2)
 import { drawBuried } from './buried.js'; // (A3)
+import { drawStormRoad } from './stormroad.js'; // (A4)
 import { drawFirefly } from './firefly.js';
 import { drawGardens } from './gardens.js';
 import { drawOrrery } from './orrery.js';
@@ -1691,6 +1692,7 @@ function render() {
     else if (room === OBSERVATORY) drawObservatory(ctx, camX, W, time, freed('sunroller')); // (A1; freed: its gnomon at noon)
     else if (room === SALTFLATS) drawSaltFlats(ctx, camX, W, time, freed('netwife')); // (A2; freed: the nets gone off the poles)
     else if (room === BURIED) drawBuried(ctx, camX, W, time); // (A3)
+    else if (room === STORMROAD) drawStormRoad(ctx, camX, W, time, net.renderTick(), freed('red_wall')); // (A4: its squalls follow the server tick; freed: the far end lies clear)
     else if (room === FIREFLY) drawFirefly(ctx, camX, W, time);
     else if (room === GROVE) drawGrove(ctx, camX, W, time);
     else if (room === STILLMERE) drawStillMere(ctx, camX, W, time);

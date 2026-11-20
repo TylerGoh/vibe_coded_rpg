@@ -153,7 +153,11 @@ one shared corner feed).
   grandmother's boat is out there), the Glassjaw under the High Dunes, and the stair under the dial ring clear of sand down
   to the first Caravanserai, the town the caravan left when the dune came (Mother Dune doesn't like to talk about the drover
   they left there; the Last Drover is the first name in Tally's ledger). Kesh **trades** since A2 (`SHOPS.kesh`, salvage off
-  the old fleet). The update also taught Auntie Soot and Liv that the Saltwind
+  the old fleet). Since A4 they know the Storm Road east of the Observatory open as far as the red, the Sirocco, and the Red
+  Wall that took a caravan an age ago (everyone in town lost someone in it; Mother Dune a great-aunt's whole tent, Tally has
+  every name in the ledger and sets their cups); the old well on the Red Rise chained shut by the caravan's rule (seven went
+  down to dig when it failed and none came up), which Asra thinks about more than she should; and the lantern on the
+  tallest pillar, lit every night by nobody anyone knows. The update also taught Auntie Soot and Liv that the Saltwind
   calls at the Black Sands (Soot trades Kesh her hot-spring salts).
 - **Elder Mochi tends the Rebirth Pool** (S2.3, `docs/combat/skills.md`): he knows what it does, that the
   first choice is free and later changes cost about an hour's gold at your level, and only Warrior, Mage,

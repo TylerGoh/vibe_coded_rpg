@@ -141,6 +141,11 @@ G1 holds throughout: a type shows up once, slowly, in the phase that introduces 
     `looks.snare: 'net'`, a new `PAL` row: salt-stiff twine, white knots), late tells from phase 2 (`late`: her shadow
     comes too late as she drops out of her rigging), and the rescue cage from phase 2 with a party (`cage`: wound up in her
     nets to mend later). The punish window.
+  - **The Red Wall** (atlas Phase 9 A4, Amberdune's party den, from day one, `docs/places/stormroad.md`): thin gaps every phase
+    (`gaps`, a new look: a wall of blown red sand with one gap where the wind parts, `looks.gaps: 'sandwall'`,
+    `drawSandWall`), the dark from phase 2 (`dark`: the storm closes over the sun), tethers from phase 2 with a party
+    (`tether`: the caravan's lead-rope), and the controls swap in phase 3 (`reverse`: turned round in the wind). The punish
+    window.
   - **Old Gullet** (atlas Phase 8 L2, from day one): swallowed every phase (`gulp`, a move name of its own in `CHAL_MOVE` for
     the mash free, drawn as his dark jaws with the lights showing through: `looks.snare: 'gullet'`, `PAL.gullet`) and the
     dark from phase 2 (`dark` as a plain move: both need their `WARN` row, or the boss's timer is `NaN`). The punish window.
@@ -313,6 +318,8 @@ its HP in thirds (`fieldStage`).
     sand bulges only after it's on its way), and from its second third rings of glass splinters (`rings`, style `glass`).
   - **The Last Drover** (A3, from day one, `docs/places/buried.md`): the controls swap from the start (`swap`: turned round
     in the dark), and from his second third his lead rope round you (`mash`, `looks.snare: 'rope'`, `PAL.rope`).
+  - **The Sirocco** (A4, from day one, `docs/places/stormroad.md`): the controls swap from the start (`swap`: turned round in
+    its wind), and from its second third the wall of sand over its own stretch (`gaps`, `looks.gaps: 'sandwall'`).
   - **The Siege Engine** (the Citadel's C0, from day one, `docs/places/citadel.md`): an empty wind-up now and then, the
     real bolt after (`feint`, the lob's), and from its second third rings of bolts with a gap (`rings`, style `bolt`).
   - **The Sprout King and Mother Mushroom** (`bossBrain`): the gentle first meeting: a snare of three arrows (`snareLen`)

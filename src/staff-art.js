@@ -110,6 +110,8 @@ export const STAFFS = {
   tiller_staff: { len: 62, shaft: ['#c8aa78', '#8a6a42'], w: 3, head: 'crystal', gem: '#9ad8d8', gem2: '#e8fafa', glow: '170,230,230', band: '#3e4a7a' }, // (Kesh's, atlas Phase 9 A2: an old tiller, a sea-glass bead in the end)
   shuttle_staff: { len: 70, shaft: ['#f0e8d6', '#b8ac94'], w: 3, head: 'ring', gem: '#f6f2ea', gem2: '#d8c8a0', glow: '240,236,220' }, // (the Netwife's: bone wound with salt-stiff twine, a mesh gauge at its head)
   mandible_staff: { len: 66, shaft: ['#3a3446', '#1e1a26'], w: 3.2, head: 'crystal', gem: '#e4f4f8', gem2: '#ffffff', glow: '220,240,255', band: '#d8a84a' }, // (the Glassjaw's, A3: beetle-horn, a knot of lightning glass)
+  whirl_rod: { len: 66, shaft: ['#e88a5a', '#8a2e1c'], w: 3, head: 'crystal', gem: '#e8946a', gem2: '#fff0e0', glow: '255,170,120', band: '#d8a84a' }, // (the Sirocco's, atlas Phase 9 A4: storm-glass, a dust devil in a cage)
+  whirl_staff: { len: 70, shaft: ['#8a5a3a', '#4a2c1a'], w: 3.2, head: 'orb', gem: '#c8603e', gem2: '#ffd0b0', glow: '255,150,100', band: '#7a2e1c' }, // (the Red Wall's: drover's wood in red cloth, a storm in a ball of glass)
   crook_staff: { len: 66, shaft: ['#8a6440', '#4a3020'], w: 3, head: 'lantern', gem: '#e8a040', gem2: '#d8a84a', glow: '255,184,74' }, // (the Last Drover's, A3: his crook, his amber lantern on the hook)
   sundial_staff: { len: 70, shaft: ['#e8b85a', '#a8742a'], w: 3, head: 'star', gem: '#ffe9a8', gem2: '#fff8dc', glow: '255,226,140' }, // (the Sunroller's: a little sundial at its head)
   willow_staff: { len: 66, shaft: ['#d8ccb0', '#9a8a68'], w: 2.8, head: 'lantern', gem: '#ffe2a8', gem2: '#5e4e84', glow: '214,190,255' }, // (Sedge's: a peeled willow wand, a frog-skin lantern with a moth-light in it)
@@ -151,6 +153,31 @@ function gem(ctx, x, y, r, c, shine = true) {
 
 // The heads: (ctx, s, top y, time, glow 0..1)
 const HEADS = {
+  // a ball of glass on a collar of red cloth with a little storm turning inside it, a speck or two going round (the Red
+  // Wall's, atlas Phase 9 A4)
+  orb(ctx, s, y, t = 0) {
+    ctx.fillStyle = s.band ?? LINE;
+    ctx.fillRect(-3.6, y + 2, 7.2, 4);
+    const g = ctx.createRadialGradient(-2, y - 9, 1, 0, y - 6, 8);
+    g.addColorStop(0, 'rgba(255,240,230,0.95)');
+    g.addColorStop(1, 'rgba(255,200,170,0.35)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, y - 6, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = s.gem;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(0, y - 6, 5.6, 2.4, (t || 0) * 3, 0, Math.PI * 1.4);
+    ctx.stroke();
+    ctx.fillStyle = s.gem2;
+    ctx.fillRect(Math.cos((t || 0) * 4) * 4 - 1, y - 7 + Math.sin((t || 0) * 4) * 2, 2, 2);
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(0, y - 6, 8, 0, Math.PI * 2);
+    ctx.stroke();
+  },
   // a reading-room pointer's brass tip, a little collar of brass rings under it (Folio's, the Citadel's C2)
   pointer(ctx, s, y) {
     ctx.fillStyle = s.gem;

@@ -1336,6 +1336,7 @@ export function drawGapsHz(ctx, h, now) {
   const X0 = h.a ?? 0, W = h.b ?? 1500, G = 450, gx = gapX(h, now), a = gx - h.w / 2, b = gx + h.w / 2, cinder = h.style === 'cinder';
   ctx.save();
   if (h.style === 'glare') return drawGlare(ctx, h, now, X0, W, G, a, b), ctx.restore();
+  if (h.style === 'sandwall') return drawSandWall(ctx, h, now, X0, W, G, a, b), ctx.restore();
   if (now < h.at) {
     const k = Math.max(0, Math.min(1, (now - h.warnAt) / Math.max(0.05, h.at - h.warnAt))), pulse = 0.5 + 0.5 * Math.sin(now * (8 + 12 * k));
     ctx.fillStyle = cinder ? `rgba(255,140,60,${0.05 + 0.09 * k})` : `rgba(150,200,255,${0.06 + 0.1 * k})`;
@@ -1414,6 +1415,50 @@ export function drawGapsHz(ctx, h, now) {
     ctx.fillRect(b, G - 8, W - b, 10);
   }
   ctx.restore();
+}
+
+// The Red Wall's and the Sirocco's (atlas Phase 9, A4: looks.gaps 'sandwall'): a wall of blown red sand comes along the
+// den from end to end with one gap in it where the wind parts. Warning: the sand lifts off the floor everywhere but the gap,
+// the air going red; live: the sand driving across at head height and below, streaks and grit
+function drawSandWall(ctx, h, now, X0, W, G, a, b) {
+  if (now < h.at) {
+    const k = Math.max(0, Math.min(1, (now - h.warnAt) / Math.max(0.05, h.at - h.warnAt))), pulse = 0.5 + 0.5 * Math.sin(now * (8 + 12 * k));
+    ctx.fillStyle = `rgba(200,96,62,${0.06 + 0.12 * k})`;
+    ctx.fillRect(X0, 0, a - X0, G);
+    ctx.fillRect(b, 0, W - b, G);
+    ctx.fillStyle = `rgba(232,160,110,${0.3 + 0.3 * k})`; // sand lifting off the floor
+    for (let x = X0 + 20; x < W; x += 40) {
+      if (x > a - 10 && x < b + 10) continue;
+      const y = G - 6 - ((now * 60 + x * 3) % (20 + 40 * k));
+      ctx.beginPath();
+      ctx.ellipse(x, y, 10, 4, 0, 0, TAU);
+      ctx.fill();
+    }
+    ctx.strokeStyle = `rgba(140,255,190,${0.6 + 0.35 * pulse})`;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 8]);
+    ctx.strokeRect(a, 40, b - a, G - 40);
+    ctx.setLineDash([]);
+  } else {
+    const k = (now - h.at) / Math.max(0.05, h.dur);
+    if (k > 1.4) return;
+    const fade = Math.min(1, (1.4 - k) / 0.4);
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = 'rgba(184,84,54,0.55)';
+    ctx.fillRect(X0, 60, a - X0, G - 60);
+    ctx.fillRect(b, 60, W - b, G - 60);
+    ctx.strokeStyle = 'rgba(255,210,170,0.7)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < 70; i++) {
+      const y = 70 + ((i * 53) % (G - 80)), x = X0 + (((now * 700 + i * 137) % (W - X0)) + (W - X0)) % (W - X0);
+      if (x > a - 30 && x < b + 6) continue;
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - 36, y + 2);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
 }
 
 // The Sunroller's (atlas Phase 9, A1: looks.gaps 'glare'): the stone sun flares and the dial floor goes white with glare

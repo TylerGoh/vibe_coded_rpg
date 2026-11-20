@@ -40,7 +40,10 @@ Atlas Phase 9 A1 added **The Dial Floor** (room 102, `SUN_DEN`, art `src/dens-su
 (`drawSunFreed`: the sun at rest at noon). A2 added **The Dry Harbour** (room 105, `NET_DEN`, under the Salt Flats' old
 breakwater, art `src/dens-net.js`, theme `nets`; `docs/places/saltflats.md`), the Netwife (Lv 236): the `wave` ult as The
 Last Haul, a net hauled the harbour's length (`NET_ULT` through `ULT_LOOKS`), and her freeing (`drawNetFreed`: the nets go
-up on the wind, `NET_FREED_S`).
+up on the wind, `NET_FREED_S`). A4 added **the Storm's Eye** (room 108, `RED_DEN`, the Red Wall's own front at the Storm Road's
+east end, art `src/dens-storm.js`, theme `storm`; `docs/places/stormroad.md`), the Red Wall (Lv 248, Amberdune's party den,
+`top`): the `wave` ult as The Wall Comes On, the storm's front rolling the den's length (`STORM_ULT` through `ULT_LOOKS`), and
+its freeing (`drawStormFreed`: the red thins, the caravan comes down on the sand, `STORM_FREED_S`).
 E4b added **The Bearer's Hoist** (room 62, `BRENNA_DEN`, the Caldera Rim, art `src/dens-rim.js`, theme `hoist`;
 `docs/places/rim.md`), Brenna, the Last Bearer, Emberdeep's party den (Lv 149): her `wave` ult, Last Delivery, is the
 tooth rolled end to end of the den (`HOIST_ULT` through `ULT_LOOKS`, `toothMass`; jump it) and her freeing a longer
@@ -292,6 +295,8 @@ alone they fight as before too). The armour and barrier use the shared numbers (
 | The Great Bell (field, 204; the Citadel's C4) | pulse (its bronze ringing up, "TOLL"), armour (its mouth shut on itself) | a new `PULSES` look (`looks.pulse: 'toll'`); the Colossus's bronze plates (`looks.shell: 'brass'`) |
 | The Rustwyrm (field, 196; the Citadel's C5) | focus (it hunts one slime), armour (its links closing up into plate) | the Colossus's brass plates (`looks.shell: 'brass'`) |
 | The Helmsman (party den, `top`, 191; the Citadel's C4, built with them: `docs/places/helm.md`) | focus, armour (+ the gear lock), pulse (the city's horn), weakpoint (the shard in the open hatch at his back, `weak.back`), adds (governor balls), interrupt | the Colossus's brass plates (`looks.shell: 'brass'`); grey-white rings, "HOLD" (`looks.pulse: 'horn'`) |
+| The Red Wall (party den, `top`, 248; atlas Phase 9 A4, built with them: `docs/places/stormroad.md`) | focus, armour (the sand packing hard into red stone), pulse (its wind), weakpoint (the shard in its heart, `weak.front`), adds (storm riders), interrupt | new `SHELLS.sandstone` (red stone, the wind glowing in the seams); red rings, "GUST" (new `PULSES.gust`) |
+| The Sirocco (field, 245; A4) | pulse (its wind breaking), focus | `looks.pulse: 'gust'` |
 | The Siege Engine (field, 154; the Citadel's C0) | armour (its shutters down), focus (its sights on one slime) | the Colossus's bronze plates (`looks.shell: 'brass'`) |
 | Old Crucible (field, 145; E3b) | armour, curse (smouldering) | Ignis's basalt plates (`looks.shell: 'cinder'`): the slag on its skin setting; Pyra's charred sigil (`looks.curse: 'ember'`): its splashes of metal |
 | Greyback (field, 130; E1) | focus, curse (smouldering) | Pyra's charred sigil (`looks.curse: 'ember'`): his burning logs leave you smouldering |
@@ -319,7 +324,7 @@ alone they fight as before too). The armour and barrier use the shared numbers (
   Cleanse's job) and his curse stacking. Not tried: Ignis's and Chronos's interrupts, people.
 
 ## Top bosses (SP6, owner 2026-10-25)
-`top` on a boss: the party dens (the Root Warden, Sigrun, Brenna, Grandfather Mire), the final bosses (FB1, FB2, E5) and the
+`top` on a boss: the party dens (the Root Warden, Sigrun, Brenna, Grandfather Mire, the Helmsman, the Red Wall), the final bosses (FB1, FB2, E5) and the
 end-game capstones, the Clockwork Colossus and Chronos. Built for a party of four (~45 min on the sheet), hard-hitting and
 punishing; alone possible but 2–3× as long (their HP floor, `PARTY_DEN_HP_FLOOR`). Every class still has an answer to
 every mechanic (S5's rule), but a weak answer costs more here than on an ordinary den (which keeps the S5 numbers):

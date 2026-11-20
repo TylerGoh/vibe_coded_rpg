@@ -23,7 +23,7 @@ Data `src/shared/waystones.js` (`WAYSTONES`, `wayAt`), server `way` in `server/r
   on the Punt Landing, and since L4 the Lantern Causeway's at the Causeway Foot; none in Firefly Hollow, beside the Shallows') are peat-dark and wet, with a green slime tide line,
   duckweed at the foot and a candle stub kept lit on top. Amberdune's (`isle: 'dune'`, atlas Phase 9: Caravanserai's at the foot
   of Saltmouth's piers, the Glass Dunes' at the Dune Gate, since A1 the Buried Observatory's on the Sunken Steps, since A2 the Salt
-  Flats' on the Salt Steps; none in the Mirage Oasis, beside the Dune Gate's, nor in the Buried Caravanserai, a hard pocket) are wind-scoured gold, half buried in a drift of sand, with a string of the caravan
+  Flats' on the Salt Steps; none in the Mirage Oasis, beside the Dune Gate's, nor in the Buried Caravanserai, a hard pocket; since A4 the Storm Road's at the Road's End) are wind-scoured gold, half buried in a drift of sand, with a string of the caravan
   folk's blue beads round the neck and an amber lamp on top.
 - E at a stone you don't know → `{t:'way'}` attunes (saved as `ways` on the character). E at one you know
   → the card lists your other stones (tap, click or number keys) → `{t:'way', to}`; the server checks you

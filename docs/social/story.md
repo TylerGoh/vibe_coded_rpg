@@ -87,5 +87,8 @@ other slimes see their own world). The client gets your record's bosses as `me.f
 - **The Netwife** (A2, `docs/places/saltflats.md`; `BOSS_TIER` 0) → the nets that hung drying between the Salt Flats' beached
   boats are gone, every one (`drawSaltFlats`'s `freed`): the poles stand bare, and one last net goes away high on the wind.
   The same four know (`FREED.netwife`).
+- **The Red Wall** (A4, `docs/places/stormroad.md`; `BOSS_TIER` 0) → the Storm Road's far end lies clear: the red wall down,
+  the caravan it held lying out on the sand in the sun, the tallest pillar's lantern out with a blue bead on its pole
+  (`drawStormRoad`'s `freed`). The same four know, gently (`FREED.red_wall`).
 - Later, if wanted (plan): Ladon, Fenrir (the cutters finish the Long Stair), Typhon (the Foundry's pits go cold). The
   one world-wide flag stays for the finale (`story/delivery.md`).

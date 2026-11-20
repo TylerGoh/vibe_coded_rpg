@@ -289,6 +289,7 @@ function drawFocus(ctx, v, k, s, t, me) {
 // shimmer of heat wavering up off him, "HEAT"; the Clockwork Colossus's boiler blowing off: white steam rings and a
 // plume of it off its smokestacks, "STEAM")
 const PULSES = {
+  gust: { ring: '232,150,100', glow: '255,200,150', hit: '200,96,62', word: 'GUST', fill: '#fff0e0', edge: 'rgba(70,24,14,0.85)', foam: true }, // the Red Wall's and the Sirocco's wind breaking over everyone (atlas Phase 9, A4)
   noon: { ring: '255,214,110', glow: '255,236,170', hit: '240,180,70', word: 'NOON', fill: '#fffbe8', edge: 'rgba(70,46,10,0.85)', shimmer: true }, // the Sunroller's dial floor giving off the day's heat (atlas Phase 9, A1)
   heat: { ring: '255,118,40', glow: '255,150,60', hit: '255,96,30', word: 'HEAT', fill: '#fff1d6', edge: 'rgba(70,18,4,0.85)', shimmer: true },
   toll: { ring: '224,180,100', glow: '255,226,170', hit: '184,134,58', word: 'TOLL', fill: '#fff4dc', edge: 'rgba(60,36,16,0.85)' }, // (the Great Bell's bronze ringing up, the Citadel's C4)
@@ -587,6 +588,7 @@ const SHELLS = {
   brass: { edge: 'rgba(44,22,10,0.96)', face: 'rgba(140,76,38,0.96)', rivets: 'rgba(255,230,150,0.98)' },
   slag: { edge: 'rgba(12,6,6,0.96)', face: 'rgba(58,46,44,0.96)', seam: 'rgba(255,120,40,0.9)' }, // Typhon's Slag Crust: its cracks gone dark and set hard (E5)
   glass: { edge: 'rgba(80,110,124,0.9)', face: 'rgba(222,242,246,0.85)', icicles: 'rgba(250,255,255,0.95)' }, // the Glassjaw's glass jaw closing up over it, splinters standing off it (atlas Phase 9, A3)
+  sandstone: { edge: 'rgba(70,30,20,0.96)', face: 'rgba(184,104,74,0.95)', seam: 'rgba(255,200,150,0.8)' }, // the Red Wall's sand packing hard round it into red stone, the wind still glowing through the seams (atlas Phase 9, A4)
   wings: { edge: 'rgba(36,28,48,0.96)', face: 'rgba(122,110,140,0.95)', seam: 'rgba(255,214,150,0.85)' }, // the Wickmother's Folded Wings: furred grey-violet, an eye spot's gold at every seam (L5)
 };
 // S5.4: Glacia's (`queen`): ice blue, deep enough to read in her white throne room, snowflakes turning round it; the Astral Wyrm's (`star`): starlight, violet with

@@ -29,7 +29,7 @@ are read from `ITEMS` at runtime, so pieces already owned got stronger too.
 
 ## Boss gear's unique effects (owner, 2026-11-06)
 Owner: "big impact stuff, so people have to actually think if it's worth it", movement changes and changes to how you
-attack included. The owner approved all 22; atlas Phase 8 L4 added Grandfather Mire's two (The Promise, Sit Tight) the same way, L5 (c) the Wickmother's (The Last Light, Moth-Wing), and the Citadel's C4 the Helmsman's (Steady As She Goes, Even Keel), C6 (c) the Escapement's (The Tick, Keep Time). Each top and final boss's weapons (sword, staff and bow each their own
+attack included. The owner approved all 22; atlas Phase 8 L4 added Grandfather Mire's two (The Promise, Sit Tight) the same way, L5 (c) the Wickmother's (The Last Light, Moth-Wing), and the Citadel's C4 the Helmsman's (Steady As She Goes, Even Keel), C6 (c) the Escapement's (The Tick, Keep Time), atlas Phase 9 A4 the Red Wall's (Driven Sand, Tailwind). Each top and final boss's weapons (sword, staff and bow each their own
 version) share one effect and its helmet another, most with a cost; twelve den and field bosses give a small one, no
 cost, to every piece they drop. Shop stock never carries one. The item card shows it (`fxLine`).
 - **Where it lives**: `src/shared/gearfx.js` holds every number (named constants), `GEAR_FX` (name, text, cost),
@@ -62,6 +62,7 @@ cost, to every piece they drop. Shop stock never carries one. The item card show
 | Fenrir | dashing through mobs slashes · Blink leaves a frost nova · Retreat Shot + `VOLLEY` arrows | max HP × `UNBOUND_HP` | a third jump | DEF × `PACK_DEF` |
 | the Helmsman (C4) | Steady As She Goes: not hurt for `STEADY_S`, hits × `STEADY_DMG` (all; the client's own `hurtAt`) | max HP × `STEADY_HP` | Even Keel: no knockback (`GX.KNOCKFREE`), a tilting floor doesn't slide you (`GX.NOTILT`, `step()`) | no Dash (`GX.NODASH`) |
 | the Escapement (C6 (c)) | The Tick: every `TICK_EVERY`rd hit × `TICK_DMG` (all; the client's own count, `Gear.tickN`) | the others × `TICK_OTHER` | Keep Time: the dash cooldown × `KEEP_DASH` (`GX.QUICKDASH`, `step()`) | DEF × `KEEP_DEF` |
+| the Red Wall (atlas Phase 9 A4) | Driven Sand: moving or in the air, hits × `DRIVEN_DMG` (all; the client's own `Gear.stillSince`) | standing still `DRIVEN_STILL_S` or more, × `DRIVEN_STILL` | Tailwind: walk × `FURNACE_WALK` (`GX.FAST20`, no trail) | DEF × `TAIL_DEF` |
 | the Wickmother | The Last Light: below `LAST_AT` of your max HP, hits × `LAST_DMG` (all) | max HP × `LAST_HP` | Moth-Wing: the Colossus's glide (`GX.GLIDE`) | DEF × `MOTH_DEF` |
 | Root Warden | still `ROOTED_S`: damage × `ROOTED_DMG` (all) | standing still | still: heal `REST_HEAL`/s | none |
 | Sigrun | block a hit every `OATH_EVERY` s, next hit × `OATH_BONUS` (all) | damage × `OATH_DMG` | no knockback (both sides skip it) | walk × `BULWARK_WALK` |
@@ -269,7 +270,11 @@ touching the room's edge). Tidemother, Hatchkeeper: **Brewer** (potions × `BREW
   **Glass Mandible** (twins: the **Glassjaw Staff**, the **Mandible Bow**) and the **Glassjaw Helm** (Lv 225; `DUNES_SWORDS`,
   `DUNES_HELMETS` in `src/glassdunes-art.js`), **the Last Drover** the **Drover's Goad** (twins: the **Lantern Crook**, the
   **Dustline Bow**) and **the Last Drover's Hood** (Lv 243), and a buried lamplighter the **Lamplighter's Hood** (Lv 238)
-  very rarely (`src/buried-art.js`, `BURIED_*`; `docs/places/buried.md`).
+  very rarely (`src/buried-art.js`, `BURIED_*`; `docs/places/buried.md`). A4: a sand golem drops the **Sandstone Mask** (Lv
+  244) very rarely, **the Sirocco** the **Dust-Devil Scimitar** (twins: the **Whirling Rod**, the **Sirocco Bow**) and the
+  **Sirocco Wrap** (Lv 247), and **the Red Wall** **The Long Wind** (twins: the **Whirlwind Staff**, the **Storm-Caught Bow**)
+  and **the Storm Veil**, top-boss gear at Lv 250 with 10 slots and effects (`src/stormroad-art.js`, `STORM_*`;
+  `docs/places/stormroad.md`).
   Amberdune's gear names: salt-iron, sandstone, sun-glass, amber, bronze, caravan brass, drover's leather.
 - Runa sells the fjord folk's own gear, the **Seal-Fur Hood** and **Whalebone Harpoon** (each with an
   `aim` level for the balance sheet); floe seals and snow owls drop them rarely. Since the rebalance these

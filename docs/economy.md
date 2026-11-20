@@ -790,6 +790,30 @@ the moves instead (ideas go to the owner as a list to approve, `story/roadmap.md
   items (its own sell rate), more prestige sinks (furniture colours, garden extras, cosmetics with a
   late-game price), or a gold cost on scroll re-tries.
 
+## Amberdune, A4 (atlas Phase 9, 2026-11-20)
+The Storm Road with the Sirocco and the Red Wall, Amberdune's party den (`docs/places/stormroad.md`). Read off A3's neighbours
+and the Helmsman by the curve.
+- **Mobs**: four on the frozen curve, coins at about three quarters of the curve's gold like A3's, materials on the ladder
+  above A3's: the sand jackal (237, HP 104% like the other chasers), storm rider (240, 93%, a flier), sand golem (244, 110%,
+  a `stomp`) and red wisp (248, 92%, a `beam` like the dial sentry); EXP 100%, gold 99–100%. Materials: Jackal Fang 2,195,
+  Storm Rider's Rag 2,210, Red Sandstone 2,225, Storm Glass 2,240. Rare gear: the Sandstone Mask (`helmetPrice` at 244,
+  2.123M).
+- **What moved**: "farming your own level" at 250 now picks the red wisp (was the stiff tent): **play time** to Lv 250 54.3 h
+  → 54.2 h (target 53.6 h), **gold earned by** Lv 250 ~44.83M → ~44.80M (−0.07%). Lv 230 and below didn't move.
+- **The Sirocco** (field, Lv 245): the Last Drover's numbers carried up the curve (written HP 6.48M, ATK 861, EXP 1.138M,
+  coins 118.4–171.3k); the sheet solos it in a median 3:34 and a kill pays 1.28× / 1.42× a minute of its fight
+  (`FIELD_PAY`); its pulse makes a duo's kill +2% (RETROFIT). Its gear a step over (Lv 247, `swordPrice` × 0.966 like the
+  other field bosses'): the Dust-Devil Scimitar and twins 2.790M, the Sirocco Wrap 2.102M; Dust-Devil Grit 2,250.
+- **The Red Wall** (`top` party den, Lv 248) sized by the TOP BOSSES table: the Helmsman's numbers carried up the curve
+  (72.3M written, ATK 1,000) put the party of four at 28:50 with 12 potions, so HP went to 70.6M and ATK to 960: party of
+  four 28:08 with none (the Helmsman 28:11), the lopsided party 25:52, alone a median 65:19, 2.3× the party (`TOP_SOLO`);
+  EXP 5.64M and coins 3.10–4.81M: BOSS PAY 0.75× EXP / 6.77× gold an hour of farming (the Helmsman 0.76× / 6.30×). Its gear
+  at Lv 250, 10 slots (The Long Wind and twins 2.961M, the Storm Veil 2.230M), on the curve × `BOSS_GEAR.top`, carries
+  effects (`docs/combat/items.md`), not on the sheet like every boss gear effect; Storm-Caught Bead 2,400.
+- **Pets** by level: the mini Sirocco 330k and the mini Red Wall 334k, above the mini Last Drover (326k), the Red Wall now the
+  dearest; `PETSHOP_W` 8350 → 8850.
+- `--check` green.
+
 ## Amberdune, A2 and A3 (atlas Phase 9, 2026-11-18)
 The Salt Flats with the Netwife and Kesh's jetty (A2), the Buried Caravanserai with the Last Drover and the Glassjaw (A3),
 shipped together. Everything read off A1's and C5's neighbours by the curve.

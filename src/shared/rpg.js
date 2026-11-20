@@ -39,7 +39,7 @@ export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
 // The Pet Shop (room 27), in the village: Auntie Clover's counter of pet food, then the pets on plinths
 // (docs/places/pets.md). Its layout: PET_DISPLAY in src/shared/house.js.
 export const PETSHOP = 27; // room id
-export const PETSHOP_W = 8350; // (the mini Glassjaw, Netwife and Last Drover (A2, A3) too; the mini Sunroller (atlas Phase 9, A1) too; the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), the mini Helmsman and Great Bell (C4, 7258), the mini Rustwyrm (C5, 7416) and the mini Escapement (C6 (c), 7542): src/shared/house.js warns if it's too small)
+export const PETSHOP_W = 8850; // (the mini Sirocco and Red Wall (A4) too; the mini Glassjaw, Netwife and Last Drover (A2, A3) too; the mini Sunroller (atlas Phase 9, A1) too; the plinths need about 5330 since the mini Typhon (E5 (c2)), more since the mini Long-Neck (atlas Phase 8, L1) the mini Old Gullet (L2), the mini Bog Bloat and Sleeper (L3), the mini Will-Queen and Grandfather Mire (L4) the mini Wickmother (L5, 6366), the mini Siege Engine (C0), the mini Meridian (C1, 6694) the mini Indexer (C2, 6856) the mini Stormcoil (C3, 6986), the mini Helmsman and Great Bell (C4, 7258), the mini Rustwyrm (C5, 7416) and the mini Escapement (C6 (c), 7542): src/shared/house.js warns if it's too small)
 export const PETSHOP_EXIT_X = 90;
 export const CLOVER_X = 420; // Auntie Clover, behind her counter (she trades: SHOPS)
 export const FJORD_FIRE_X = 2120;
@@ -933,6 +933,58 @@ export const BURIED_PLATFORMS = [
   { x: 3760, y: 260, w: 170, kind: 'beam' },
   { x: BURIED_WELL_X - 50, y: 236, w: 100, kind: 'windlass' }, // the well's windlass beam, the rope cut, the bucket still on it: easy to miss
 ];
+
+// ——— atlas Phase 9, A4: the Storm Road, the Sirocco and the Red Wall (story/phase9-plan.md; docs/places/stormroad.md) ———
+// The Storm Road (room 107): the old caravan road on east from the Buried Observatory's far end (STORM_GATE_X there: the
+// standing storm stood across it until A4 drew it back). The sky goes red, the wind gets up on every rise, and the road's
+// marker stones lead on east to where the storm still stands, the Red Wall, a sandstorm that swallowed a caravan an age ago
+// and holds it yet (its den, RED_DEN_X, the room's east end). You come in at the WEST end (STORM_EXIT_X) and go on, harder:
+// the Road's End (no mobs: a waystone), the Marker Road, the Red Rise (the old well, DRYWELL_GATE_X, its mouth chained shut:
+// the Dry Wells' gate, A5) and the Wall's Foot. Far off south on the horizon Old Carapace walks by, out of reach (drawing).
+// The find (last in STORM_PLATFORMS): a lantern on a pole on top of the tallest wind-carved pillar, lit, facing the storm.
+export const STORMROAD = 107; // room id
+export const STORM_W = 5000;
+export const STORM_EXIT_X = 70; // back west along the road to the Buried Observatory
+export const STORM_WAY_X = 380; // the Road's End waystone
+export const DRYWELL_GATE_X = 2900; // the old well on the Red Rise, its mouth chained shut (the Dry Wells, A5: a gate)
+export const STORM_LAMP_X = 2240; // the tallest pillar, the lantern on it (drawing; its top is the find)
+export const RED_DEN_X = 4600; // the way into the Red Wall itself (room RED_DEN, its DENS row)
+export const RED_DEN = 108; // the Red Wall's den, the Storm's Eye
+export const STORM_ZONES = [
+  { name: "The Road's End", x0: 0, x1: 600, lvl: null }, // (no mobs)
+  { name: 'The Marker Road', x0: 600, x1: 1900, lvl: '236–240' },
+  { name: 'The Red Rise', x0: 1900, x1: 3400, lvl: '240–245' },
+  { name: "The Wall's Foot", x0: 3400, x1: STORM_W, lvl: '245–250' },
+];
+// toppled marker stones lying along the road, the beds of caravan wagons half buried in the drifts, shelves of wind-carved
+// red rock; the tallest pillar's top, the lantern (hidden, last)
+export const STORM_PLATFORMS = [
+  { x: 760, y: 352, w: 190, kind: 'marker' },
+  { x: 1120, y: 282, w: 170, kind: 'rock' },
+  { x: 1600, y: 344, w: 200, kind: 'wagon' },
+  { x: 2040, y: 300, w: 180, kind: 'rock' },
+  { x: 2560, y: 342, w: 190, kind: 'marker' },
+  { x: 3240, y: 330, w: 200, kind: 'wagon' },
+  { x: 3620, y: 264, w: 170, kind: 'rock' },
+  { x: 4060, y: 340, w: 190, kind: 'wagon' },
+  { x: STORM_LAMP_X - 45, y: 162, w: 90, kind: 'pillar' }, // the tallest pillar's top, a lantern on a pole lit and facing the storm: easy to miss
+];
+// A room hazard: squalls on the rises (the Skydocks' gusts' pattern). Each rise's wind gets up (SQUALL_WARN: sand streams off
+// the crest, a warning), blows (SQUALL_BLOW: it hurts whoever stands on the floor there) and drops, on its own offset in a
+// SQUALL_CYCLE. Both sides read the server tick (squallAt), so nothing goes over the wire: the client draws it
+// (src/stormroad.js), the server hurts (SQUALL_DOT of max HP every PATCH_HIT_EVERY ticks, a flat 'dot': no knockback, no
+// step() change). Get up on a stone or a wagon, or jump it.
+export const SQUALLS = [{ x: 1420, w: 220 }, { x: 2380, w: 240 }, { x: 3440, w: 220 }, { x: 4300, w: 220 }];
+export const SQUALL_CYCLE = 480, SQUALL_WARN = 110, SQUALL_BLOW = 100; // (ticks)
+export const SQUALL_DOT = 0.05;
+// rise i at server tick t → { k: 0..1 how hard the wind is getting up, blow: whether it's blowing (and hurts) }
+export function squallAt(i, t) {
+  const c = (((t + i * 167) % SQUALL_CYCLE) + SQUALL_CYCLE) % SQUALL_CYCLE;
+  if (c < SQUALL_WARN) return { k: c / SQUALL_WARN, blow: false };
+  if (c < SQUALL_WARN + SQUALL_BLOW) return { k: 1, blow: true };
+  if (c < SQUALL_WARN + SQUALL_BLOW + 50) return { k: 1 - (c - SQUALL_WARN - SQUALL_BLOW) / 50, blow: false };
+  return { k: 0, blow: false };
+}
 export function turbineAt(i, t) {
   const c = (((t + i * 151) % TURBINE_CYCLE) + TURBINE_CYCLE) % TURBINE_CYCLE;
   if (c < TURBINE_WARN) return { k: c / TURBINE_WARN, spin: false };
@@ -1812,6 +1864,7 @@ export const STAGES = {
   [OASIS]: { name: 'The Mirage Oasis', zones: OASIS_ZONES, band: '215–220', pill: 'Mirage Oasis' }, // (A1)
   [SALTFLATS]: { name: 'The Salt Flats', zones: SFLATS_ZONES, band: '226–236', pill: 'Salt Flats' }, // (A2)
   [BURIED]: { name: 'The Buried Caravanserai', zones: BURIED_ZONES, band: '234–242', pill: 'Buried Town', hard: true }, // (A3)
+  [STORMROAD]: { name: 'The Storm Road', zones: STORM_ZONES, band: '236–250', pill: 'Storm Road' }, // (A4)
   [OBSERVATORY]: { name: 'The Buried Observatory', zones: OBS_ZONES, band: '222–232', pill: 'Observatory' }, // (A1)
 };
 export const zoneAt = (x, room = FIELD) => {
@@ -4173,6 +4226,73 @@ MOBS.phantom_beast = {
   name: 'Phantom Pack-Beast', lvl: 238, hp: 4000, atk: 820, exp: 900, speed: 140, w: 56, h: 40, aggro: true, hops: false,
   drops: [['coin', 1, 80, 150]],
 };
+
+// ——— atlas Phase 9, A4: the Storm Road (art: src/stormroad-art.js; docs/places/stormroad.md). On the frozen curve; a field
+// boss, no elites (the Dry Wells, A5, have those) ———
+// Sand jackals are the storm's dogs, lean and red-gold, running in packs along the road with their ears flat (plain
+// chasers); storm riders are hooded shapes of red dust on ragged cloth wings, riding the gusts high over the road and
+// stooping on anything that walks it (`dive`); sand golems are the road's old marker cairns, packed red sand and stone, that
+// got up and walk the road still, coming down on you (`stomp`; the rare Sandstone Mask); red wisps are sparks of the storm's
+// own lightning caught in a knot of dust, that hang over the drifts and throw a red bolt along the ground (`beam`, style
+// `redbolt`)
+MOBS.sand_jackal = {
+  name: 'Sand Jackal', lvl: 237, hp: 44200, atk: 890, exp: 27739, speed: 130, w: 66, h: 46, aggro: true, hops: false,
+  drops: [['coin', 1, 2253, 3380], ['jackal_fang', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.storm_rider = {
+  name: 'Storm Rider', lvl: 240, hp: 40260, atk: 903, exp: 28338, speed: 120, w: 70, h: 52, aggro: true, hops: false, fly: 60,
+  ai: { kind: 'dive', every: 3.2, warn: 0.55, time: 0.4 },
+  drops: [['coin', 1, 2289, 3434], ['rider_rag', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+MOBS.sand_golem = {
+  name: 'Sand Golem', lvl: 244, hp: 48770, atk: 921, exp: 29146, speed: 45, w: 80, h: 92, aggro: true, hops: false,
+  ai: { kind: 'stomp', every: 3.6, warn: 0.8, r: 150, range: 240, jump: 520 },
+  drops: [['coin', 1, 2337, 3507], ['red_sandstone', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1], ['sandstone_mask', 0.004, 1, 1]],
+};
+MOBS.red_wisp = {
+  name: 'Red Wisp', lvl: 248, hp: 41760, atk: 938, exp: 29963, speed: 60, w: 46, h: 52, aggro: true, hops: false,
+  ai: { kind: 'beam', range: 600, every: 4.3, warn: 1.1, dur: 0.45, y0: 418, y1: 450, style: 'redbolt' },
+  drops: [['coin', 1, 2386, 3580], ['storm_glass', 0.5, 1, 2], ['mega_elixir', 0.25, 1, 1]],
+};
+// The Sirocco: a field boss (small: no story beyond the road's), a great dust devil as tall as a tower, red sand turning
+// round an eye of hot still air, the road's grit and a few lost things going round in it. It walks up and down the Wall's
+// Foot, passive until hit; then it falls apart into dust and spins up again beside you (`blink`). T3: it turns you round
+// in its wind (the controls swap) from the start, and from its second third a wall of blown sand comes along the road with
+// one gap in it (`gaps`, style `sandwall`). With two or more on it, its wind gathers and breaks over the whole stretch (a
+// pulse, `looks.pulse: 'gust'`) and it picks one slime to chase (focus)
+MOBS.sirocco = {
+  name: 'The Sirocco', field: true, lvl: 245, hp: 6480000, atk: 861, exp: 1138000, speed: 70, w: 150, h: 230, aggro: false, hops: false,
+  ai: { kind: 'blink', every: 4.6, warn: 0.5, slashWarn: 0.55, r: 130 },
+  party: ['pulse', 'focus'], partyLive: true, looks: { pulse: 'gust', gaps: 'sandwall' },
+  // T3: the controls swap, and from its second third the wall of sand with one gap; the punish window as every field boss's
+  ch: ['swap', 'gaps'], chf: [['swap', 0], ['gaps', 1]],
+  desc: "The Sirocco is walking the Wall's Foot on the Storm Road. Keep your feet.",
+  drops: [['coin', 1, 118400, 171300], ['devil_grit', 1, 4, 8], ['red_sandstone', 1, 3, 5], ['mega_elixir', 1, 2, 3], ['devil_scimitar', 0.25, 1, 1], ['sirocco_wrap', 0.4, 1, 1], ['scroll_s60', 0.5, 1, 1], ['scroll_h60', 0.5, 1, 1], ['scroll_s10', 0.15, 1, 1], ['scroll_h10', 0.15, 1, 1], ['scroll_s30', 0.05, 1, 1]],
+};
+// The Red Wall (A4; its den, the Storm's Eye, is the storm itself at the Storm Road's east end, RED_DEN_X): Amberdune's party
+// den (story/phase9-plan.md). A sandstorm that swallowed a caravan an age ago and has held it inside ever since, the
+// pack-beasts and the tents and the people's things going round and round in it. Holding on: the caravan it took. Its body
+// is the storm's heart, a towering column of red sand with two dark hollows for eyes, the caravan's things turning round it
+// and the shard at its heart (the weak point, in front: in reach with a jump). Challenges from day one: a wall of blown sand
+// with one gap (`gaps`, every phase, style `sandwall`), from phase 2 the dark (the storm closes over the sun, `dark`) and,
+// with a party, the caravan's lead-rope (`tether`), in phase 3 turned round in the wind (`reverse`, the controls swap). Party:
+// focus, armour (the sand packs hard round it, `looks.shell: 'sandstone'`), pulse (its wind breaking over the den,
+// `looks.pulse: 'gust'`), the weak point, adds (storm riders) and interrupt. Its ultimate, The Wall Comes On, is the shared
+// `wave` ult drawn as the storm's front rolling the length of the den. Freed, the storm settles and the caravan's things
+// come down on the sand in the sun (the den's bossDie); per character, the Storm Road's east end lies clear
+MOBS.red_wall = {
+  name: 'The Red Wall', boss: true, lvl: 248, hp: 70600000, atk: 960, exp: 5640000, speed: 60, w: 230, h: 260, aggro: true, hops: false,
+  phases: [['slam', 'charge', 'rain', 'gaps'], ['slam', 'charge', 'rain', 'summon', 'gaps', 'dark', 'tether'], ['slam', 'charge', 'rain', 'summon', 'barrage', 'leap', 'gaps', 'dark', 'tether', 'reverse']],
+  ch: ['gaps', 'dark', 'tether', 'swap'],
+  ult: { name: 'The Wall Comes On', kind: 'wave' }, minion: 'storm_rider', looks: { shell: 'sandstone', pulse: 'gust', gaps: 'sandwall' }, // (how they're drawn: src/challenge.js, src/party.js)
+  party: ['focus', 'armour', 'pulse', 'weakpoint', 'adds', 'interrupt'], partyDen: true, partyLive: true, top: true, weak: { dx: 0.08, dy: -0.46, r: 22, front: true },
+  lines: {
+    enter: ['Come in. Come in out of the sun. We are all here. Everyone is here, going round.', 'Another one for the caravan? Stay. Stay with us. No one is lost in here.'],
+    phase: [null, 'Round and round. No one gets lost if no one gets out.', 'I KEPT THEM! The wells went dry and the sun came down and I KEPT THEM, every one! I KEEP THEM STILL!'],
+    freed: '...They were so tired. Round and round, all this time, and so tired. ...Lie down, then. Lie down in the sun. I will be quiet now.',
+  },
+  drops: [['royal_sap', 1, 2, 3], ['long_wind', 1, 1, 1], ['storm_veil', 0.6, 1, 1], ['coin', 1, 3100000, 4810000], ['mega_elixir', 1, 4, 6], ['caught_bead', 1, 4, 8], ['scroll_s60', 1, 2, 3], ['scroll_h60', 1, 2, 3], ['scroll_s10', 0.6, 1, 2], ['scroll_h10', 0.6, 1, 2], ['scroll_s30', 0.4, 1, 1], ['scroll_h30', 0.4, 1, 1], ['scroll_chaos', 0.4, 1, 2]],
+};
 // The Escapement (the Citadel's C6 (c), story/c6-plan.md; docs/places/escapement.md): the Citadel's final boss, in the
 // Catch (room CATCH_DEN, at the end of the Spoke). The Wheel's catch: a great toothed anchor on its arbor under the hub,
 // both pallets clamped on the escape wheel since Chronos told it to hold, its pendulum swinging under it. Its own brain
@@ -4447,6 +4567,7 @@ const onOaPlat = onRoomPlat(OASIS_PLATFORMS, OASIS);
 const onObPlat = onRoomPlat(OBS_PLATFORMS, OBSERVATORY);
 const onSfPlat = onRoomPlat(SFLATS_PLATFORMS, SALTFLATS);
 const onBcPlat = onRoomPlat(BURIED_PLATFORMS, BURIED);
+const onSrPlat = onRoomPlat(STORM_PLATFORMS, STORMROAD);
 export const SPAWNS = [
   ...strip('sprout', 250, 1550, FIELD_GROUND, 7),
   ...onPlat('sprout', 0, 2),
@@ -5228,6 +5349,24 @@ export const SPAWNS = [
   ...onBcPlat('buried_lamplighter', 6, 1),
   ...onBcPlat('husk_lizard', 7, 1),
   { kind: 'last_drover', x0: 3700, x1: 4500, y: FIELD_GROUND, room: BURIED },
+
+  // A4: the Storm Road (the Road's End has none): jackals along the Marker Road, riders over it and the Rise, golems on the
+  // Rise and at the Wall's Foot, wisps nearest the wall; the Sirocco walks the Wall's Foot
+  ...strip('sand_jackal', 660, 1880, FIELD_GROUND, 5, STORMROAD),
+  ...strip('storm_rider', 900, 1880, FIELD_GROUND, 2, STORMROAD),
+  ...onSrPlat('sand_jackal', 0, 1),
+  ...onSrPlat('storm_rider', 1, 1),
+  ...onSrPlat('sand_jackal', 2, 1),
+  ...strip('sand_golem', 1960, 3380, FIELD_GROUND, 4, STORMROAD),
+  ...strip('storm_rider', 1960, 3380, FIELD_GROUND, 3, STORMROAD),
+  ...onSrPlat('storm_rider', 3, 1),
+  ...onSrPlat('sand_golem', 4, 1),
+  ...onSrPlat('sand_golem', 5, 1),
+  ...strip('red_wisp', 3460, 4400, FIELD_GROUND, 4, STORMROAD),
+  ...strip('sand_golem', 3460, 4400, FIELD_GROUND, 2, STORMROAD),
+  ...onSrPlat('red_wisp', 6, 1),
+  ...onSrPlat('red_wisp', 7, 1),
+  { kind: 'sirocco', x0: 3500, x1: 4400, y: FIELD_GROUND, room: STORMROAD },
 ];
 export const MOB_RESPAWN_MS = 9000;
 
@@ -5264,6 +5403,7 @@ export const DENS = [
   { room: FENRIR_DEN, boss: 'fenrir', name: FENRIR_DEN_NAME, from: LONGSTAIR, fromName: 'the Long Stair', entranceX: FENRIR_DEN_X, theme: 'wolf', platforms: FENRIR_PLATFORMS, final: true }, // (FB2 (c); art: src/dens-fenrir.js; the door's art: src/longstair.js)
   { room: WICK_DEN, boss: 'wickmother', name: WICK_DEN_NAME, from: LAMPROAD, fromName: 'the Lamp Road', entranceX: WICK_DEN_X, theme: 'lamps', platforms: HALL_PLATFORMS, final: true }, // (L5 (c); art: src/dens-wick.js; the door's art: src/lamproad.js)
   { room: CATCH_DEN, boss: 'escapement', name: CATCH_DEN_NAME, from: SPOKE, fromName: 'the Spoke', entranceX: ESC_DEN_X, theme: 'catch', platforms: CATCH_PLATFORMS, final: true }, // (the Citadel's C6 (c); art: src/dens-esc.js; the door's art: src/spoke.js)
+  { room: RED_DEN, boss: 'red_wall', name: "The Storm's Eye", from: STORMROAD, entranceX: RED_DEN_X, theme: 'storm' }, // (atlas Phase 9, A4, Amberdune's party den: into the storm; art: src/dens-storm.js)
   { room: NET_DEN, boss: 'netwife', name: 'The Dry Harbour', from: SALTFLATS, entranceX: NET_DEN_X, theme: 'nets' }, // (atlas Phase 9, A2; art: src/dens-net.js)
   { room: SUN_DEN, boss: 'sunroller', name: 'The Dial Floor', from: OBSERVATORY, entranceX: SUN_DEN_X, theme: 'sundial' }, // (atlas Phase 9, A1; art: src/dens-sun.js)
   { room: TYPHON_DEN, boss: 'typhon', name: TYPHON_DEN_NAME, from: LONGFLUE, fromName: 'the Long Flue', entranceX: TYPHON_DEN_X, theme: 'hearth', platforms: TYPHON_PLATFORMS, final: true }, // (E5 (c); art: src/dens-typhon.js; the door's art: src/longflue.js)
@@ -5972,6 +6112,15 @@ Object.assign(ITEMS, {
   lamplighter_hood: { name: "Lamplighter's Hood", price: 2018000, lvl: 238, kind: 'helmet', def: 147, desc: "A buried lamplighter's hood, dry as paper, a little amber lamp on a hook at the brow. It lights itself in the dark, and nobody knows how." },
   drover_goad: { name: "Drover's Goad", price: 2698000, lvl: 243, kind: 'sword', atk: 291, reach: 66, desc: "The Last Drover's goad, a long pole of desert wood with a brass point, a string of little bells at the grip. The pack-beasts that knew its jingle are dust now. Something still comes when it rings." },
   crook_staff: { name: 'Lantern Crook', price: 2698000, lvl: 243, kind: 'staff', magic: 291, mp: 175, reach: 66, twin: 'drover_goad', desc: "A drover's crook with his amber lantern hung off the hook, still lit after all this time under the sand. It shows the way to somewhere." },
+  // atlas Phase 9, A4: the sand golem's rare mask (on the helmet curve at its level), the Sirocco's set (a step over its Lv
+  // 245, on the curve like the other field bosses'), the Red Wall's (Lv 250, 10 slots, a top boss's: effects in gearfx.js)
+  sandstone_mask: { name: 'Sandstone Mask', price: 2123000, lvl: 244, kind: 'helmet', def: 150, desc: "A sand golem's face, a slab of red sandstone with two eyeholes worn through it by the wind. It is heavier than it looks and it hums in a gale." },
+  devil_scimitar: { name: 'Dust-Devil Scimitar', price: 2790000, lvl: 247, kind: 'sword', atk: 294, reach: 66, desc: "A curved blade of red glass fused out of the Sirocco's heart, the grain of the sand still in it going round. Swung, it whistles like the road at night." },
+  whirl_rod: { name: 'Whirling Rod', price: 2790000, lvl: 247, kind: 'staff', magic: 294, mp: 177, reach: 66, twin: 'devil_scimitar', desc: "A rod of storm-glass with a little dust devil turning in a cage at its head. It never stops, and nobody has worked out how to make it." },
+  sirocco_wrap: { name: 'Sirocco Wrap', price: 2102000, lvl: 247, kind: 'helmet', def: 151, desc: "A drover's wrap the Sirocco took off someone an age ago and kept going round, red with its dust. The wind can't find a way in through it." },
+  long_wind: { name: 'The Long Wind', price: 2961000, lvl: 250, slots: 10, kind: 'sword', atk: 296, reach: 70, desc: "A long blade of red storm-glass, the Red Wall's, the sand inside it still blowing. It is never still, and it does not like you to be." },
+  whirl_staff: { name: 'Whirlwind Staff', price: 2961000, lvl: 250, slots: 10, kind: 'staff', magic: 296, mp: 178, reach: 70, twin: 'long_wind', desc: "A staff of drover's wood wound in red cloth, a storm turning in a ball of glass at its head, a caravan's little things going round in it." },
+  storm_veil: { name: 'The Storm Veil', price: 2230000, lvl: 250, slots: 10, kind: 'helmet', def: 153, desc: "A veil of red silk off a caravan the storm took, still stirring on a wind nobody else can feel. Wearing it, you are always going somewhere." },
   last_drover_hood: { name: "Last Drover's Hood", price: 2033000, lvl: 243, kind: 'helmet', def: 149, desc: "A drover's wrap gone stiff as leather, dust in every fold, a brass ring at the throat. Wearing it you can almost hear the string behind you, bells and all." },
   scarab_crown: { name: 'Scarab Crown', price: 1934000, lvl: 233, slots: 9, kind: 'helmet', def: 144, desc: "A crown of the Sunroller's wing-case, blue-black and gold, a stone sun no bigger than a pea held in the front. Wearing it, you always know the hour." },
   indexer_spike: { name: "The Indexer's Spike", price: 1490000, lvl: 178, slots: 9, kind: 'sword', atk: 235, reach: 68, desc: 'A filing spike as long as a sword, brass on an iron foot, a few last pages still caught on it. Whatever it goes through stays filed.' },
@@ -6000,6 +6149,13 @@ Object.assign(ITEMS, {
   husk_scale: { name: 'Husk Scale', price: 2130, kind: 'loot', desc: "A scale off a husk lizard, dry as old leaf and the colour of dust. It crumbles if you squeeze it, so don't." },
   buried_wick: { name: 'Buried Wick', price: 2145, kind: 'loot', desc: "A lamp wick out of the Buried Caravanserai, black at the end, an age old. Hold it up and it smokes a little, as if it remembers." },
   tent_peg: { name: 'Tent Peg', price: 2160, kind: 'loot', desc: "A stiff tent's bone peg, its guy-rope still knotted on. It was pulled up to move on, and never knocked in anywhere else." },
+  // atlas Phase 9, A4: the Storm Road's and its bosses' (the ladder on above A3's)
+  jackal_fang: { name: 'Jackal Fang', price: 2195, kind: 'loot', desc: "A sand jackal's long yellow fang, worn sharp by the sand. The caravan folk hang them over tent flaps against the wind, which doesn't care." },
+  rider_rag: { name: "Storm Rider's Rag", price: 2210, kind: 'loot', desc: "A scrap of a storm rider's ragged wing, red cloth stiff with dust. It flutters in your hand when there's no wind at all." },
+  red_sandstone: { name: 'Red Sandstone', price: 2225, kind: 'loot', desc: "A lump of a sand golem, packed red sand gone to stone. Tally once counted the grains in one. He won't say how many." },
+  storm_glass: { name: 'Storm Glass', price: 2240, kind: 'loot', desc: "A bead of red glass where a red wisp's bolt struck the sand. A spark of it is still inside, crawling round." },
+  devil_grit: { name: 'Dust-Devil Grit', price: 2250, kind: 'loot', desc: "A handful of the Sirocco's grit, red and fine, that won't stay in a heap. Set it down and it starts to turn." },
+  caught_bead: { name: 'Storm-Caught Bead', price: 2400, kind: 'loot', desc: "A caravan bead, blue glass, scoured pale by the Red Wall's sand an age of going round. There is a little scratch on it, like a name." },
   drover_bell: { name: "Drover's Bell", price: 2180, kind: 'loot', desc: "A little brass bell off the Last Drover's string, its clapper worn thin. It rings by itself sometimes, very faintly, a long way off." },
   sunstone_chip: { name: 'Sunstone Chip', price: 2330, kind: 'loot', desc: "A chip off the Sunroller's stone sun, gold-veined and warm. It is warmest at noon, wherever you are." },
   last_card: { name: 'Last Index Card', price: 1935, kind: 'loot', desc: 'A card out of the Indexer\'s drawer, the date of the last day typed at the top, and nothing under it at all.' },
@@ -6088,6 +6244,8 @@ BOW_LIST.push(
   ['beadstring_bow', 'skiff_gaff', 'Beadstring Bow', "A short bow of salt-bleached driftwood strung with tarred line, Kesh's blue sand-glass beads threaded on the string. They click when you draw it, like a rigging in the wind."],
   ['netwife_bow', 'net_needle', 'Netting Bow', "A bow of two of the Netwife's legs bound at the grip, strung with her twine. Its arrows trail a fine line of mesh, and come back with something."],
   ['mandible_bow', 'glass_mandible', 'Mandible Bow', "A bow of black beetle-horn with glass tips, the Glassjaw's. It hums when you draw it, the way the air does before a storm."],
+  ['devil_bow', 'devil_scimitar', 'Sirocco Bow', "A bow of red storm-glass and drover's horn, the Sirocco's. Its arrows go out turning and come in from somewhere else."],
+  ['redwall_bow', 'long_wind', 'Storm-Caught Bow', "A caravan bow the Red Wall kept going round an age, its horn scoured red, its string of new silk. Its arrows ride a wind of their own."],
   ['dust_bow', 'drover_goad', 'Dustline Bow', "A drover's bow, dried out under the sand to bone and sinew, a bell at the tip. Its arrows go into the dark and the string keeps ringing after."],
   ['scarab_bow', 'gnomon_blade', 'Scarab Bow', "Two curved wing-cases of the Sunroller's, bound at the grip with bronze, strung with sun-dried gut. Its arrows go round, the long way, and get there."],
   ['catalogue_bow', 'indexer_spike', 'Catalogue Bow', "A bow bent from a catalogue drawer's runners, a brass label frame at the grip. Every arrow it lets go is filed somewhere, eventually."],

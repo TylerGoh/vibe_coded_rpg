@@ -3,7 +3,8 @@
 **Status: written 2026-11-15 at the owner's "continue with next phase and the phase after", right after the Citadel's
 C6 (c). Approved 2026-11-17 ("continue with the next two phases": every default standing). A0 and A1 shipped together
 2026-11-17 (`docs/places/amberdune.md`, `glassdunes.md`, `oasis.md`, `observatory.md`); A2 and A3 together 2026-11-18
-(`docs/places/saltflats.md`, `buried.md`); A4 and A5 to come.** Like Lantern Fen's (`phase8-plan.md`), this phase starts on
+(`docs/places/saltflats.md`, `buried.md`); A4 2026-11-20 (`docs/places/stormroad.md`, at the owner's "continue with the
+next two phases"); A5 to come.** Like Lantern Fen's (`phase8-plan.md`), this phase starts on
 paper because the band and the island's shape are the owner's to settle.
 
 This is Phase 9 of `world/atlas.md`: the south-west side island, a desert, and Old Carapace. It follows

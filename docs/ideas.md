@@ -166,6 +166,15 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   Gullet, Long-Neck and Grandfather Mire aren't in the story record (no Fen tier), so only the Wickmother has freed changes
   on the Fen.
 
+## Atlas Phase 9, A4: the Storm Road, the Sirocco, the Red Wall (2026-11-20)
+- Unplayed: the Storm Road, its four mobs and the squalls, the Sirocco (the swap, the wall of sand, the gust pulse and focus
+  with a party) and the Red Wall (the wall of sand, the dark, tethers and the swap; armour, pulse, the weak point in front,
+  storm riders, interrupt; The Wall Comes On; its freeing and the clear far end after). Not looked at in a browser: the
+  drawing was run headless against a stand-in canvas (every camera position, every creature and the boss in every state,
+  the den, the ult, the freeing, the gates, the wall of sand) to catch errors, and the music wasn't heard.
+- The Red Wall's gear effects (Driven Sand, Tailwind) aren't on the sheet, like every boss gear effect.
+- The lantern on the tallest pillar and the dry well's chain are drawn only (no reading with E).
+
 ## Atlas Phase 9, A2 and A3: the Salt Flats, the Netwife, the Buried Caravanserai, the Glassjaw, the Last Drover (2026-11-18)
 - Unplayed: the Salt Flats and the Buried Caravanserai, their seven mobs and two elites, Kesh's Trade button, the Netwife
   (her net, late tells, the rescue cage with a party, The Last Haul, the weak point / focus / interrupt, her freeing and the

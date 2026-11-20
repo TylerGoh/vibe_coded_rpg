@@ -1247,6 +1247,7 @@ const BEAM = {
   hearth: { glow: '255,150,60', outer: 'rgba(255,120,40,0.9)', mid: '#fff0b0', aim: '255,96,80' }, // Typhon's Fire Breath (E5)
   vent: { glow: '255,180,90', outer: 'rgba(255,150,60,0.92)', mid: '#fff6d0', aim: '255,110,80' }, // a vent's column of fire in the Hearth (E5)
   arc: { glow: '150,240,234', outer: 'rgba(150,240,234,0.85)', mid: '#ffffff', aim: '255,110,120' }, // the arc jelly's and the Stormcoil's arc along the grating (the Citadel's C3)
+  redbolt: { glow: '255,150,110', outer: 'rgba(232,110,80,0.85)', mid: '#fff0e8', aim: '255,110,90' }, // the red wisp's bolt of the storm's lightning along the ground (the Storm Road, atlas Phase 9 A4)
   sunbeam: { glow: '255,226,140', outer: 'rgba(255,226,140,0.85)', mid: '#fffbe8', aim: '255,110,90' }, // the dial sentry's beam of sun through its glass eye (the Buried Observatory, atlas Phase 9 A1)
   astro: { glow: '214,228,255', outer: 'rgba(214,228,255,0.85)', mid: '#ffffff', aim: '255,110,140' }, // the astrolabe sentry's line of starlight (the Orrery, the Citadel's C1)
   silk: { glow: '240,232,252', outer: 'rgba(226,218,238,0.9)', mid: '#ffffff', aim: '255,96,120' }, // the Wickmother's Silk Line, a strand drawn across the Hall (L5)

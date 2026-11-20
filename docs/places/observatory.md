@@ -40,9 +40,11 @@ West to east (`OBS_ZONES`):
 - **The Dial Court** (229–232): **the Sunroller's den** opens at `SUN_DEN_X`: a round opening in the sand under a bronze
   arch with a sun on its keystone, steps going down into the light, a groove worn in the sand round it, and now and then
   the top of the stone sun going by far down there.
-- **The far end**: the old caravan road going on east into **a standing storm**, a wall of red sand from the ground to the
-  sky, churning and not moving, the road's marker stones going into it (`STORM_GATE_X`, kind `redstorm`: the Storm Road,
-  A4). The sky reddens toward it and the dust thickens.
+- **The far end**: the old caravan road going on east. A1's gate was **a standing storm** across it, a wall of red sand
+  from the ground to the sky, churning and not moving, the road's marker stones going into it (`STORM_GATE_X`, kind
+  `redstorm`). A4 drew it back east (the update did it): the road goes on clear between its marker stones with the red far
+  off down it (the `open` look, now an `entry`), onto the Storm Road (`docs/places/stormroad.md`). The sky still reddens
+  toward it and the dust thickens.
 - **Freed** (per character, `docs/social/story.md`): for a slime who has freed the Sunroller the gnomon stands at noon and
   casts no shadow, only a pool of shade at its foot; Caravanserai's four know.
 
