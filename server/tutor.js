@@ -18,7 +18,7 @@ const REVIEW_MS = 14000; // how long the verdict stays up before the next turn
 const RECENT_QUESTIONS = 20; // questions remembered this session, so they aren't repeated
 const KNOWN_SCORE = 4; // an answer this good (of 5) counts as answered correctly: never asked of that student again
 const KNOWN_PROMPT = 60; // the most of a student's known questions put in the prompt (their latest)
-const TOP_N = 8; // rows on the all-time leaderboard (most questions mastered, every course together)
+const TOP_N = 5; // rows on each leaderboard (most questions mastered: the current course, and every course together)
 const WRITE_TRIES = 3; // question writes before giving up on a fresh one (a write matching a known question is thrown away)
 // two questions are the same text if they match with case, punctuation and spacing ignored
 const sameText = (q) => String(q).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -64,11 +64,15 @@ export function createTutor(broadcast, dbPath) {
   const countKnown = db?.prepare('SELECT COUNT(*) AS n FROM tutor_known WHERE user = ? AND course = ?');
   const topKnown = db?.prepare('SELECT user, COUNT(*) AS n FROM tutor_known GROUP BY user ORDER BY n DESC, MIN(at) LIMIT ?');
   // the all-time leaderboard: [[name, questions mastered in every course]], read again whenever someone masters one
-  let top = [];
+  const topInKnown = db?.prepare('SELECT user, COUNT(*) AS n FROM tutor_known WHERE course = ? GROUP BY user ORDER BY n DESC, MIN(at) LIMIT ?');
+  // the per-course leaderboard: the same for the course being quizzed (read again when the course changes too)
+  let top = [], topCourse = [];
   const readTop = () => {
     try { top = topKnown ? topKnown.all(TOP_N).map((r) => [r.user, r.n]) : []; } catch { top = []; }
+    try {
+      topCourse = topInKnown && course && course !== BREAK ? topInKnown.all(course, TOP_N).map((r) => [r.user, r.n]) : [];
+    } catch { topCourse = []; }
   };
-  readTop();
   // how many questions a student has mastered (answered correctly, ever) in the course: on the scoreboard
   const masteredIn = (user, c) => {
     if (!countKnown || !c || c === BREAK) return 0;
@@ -95,13 +99,14 @@ export function createTutor(broadcast, dbPath) {
   let qn = 0; // questions asked this session (also picks the syllabus topic)
   let gen = 0; // bumps when the quiz is interrupted, so stale AI replies are ignored
   let session = false;
+  readTop();
 
   const state = () => ({
     t: 'tutor', phase, course, turn, question: question?.text ?? null, topic: question?.topic ?? null,
     answer: answerText, msLeft: phase === 'answering' ? Math.max(0, deadline - Date.now()) : 0, result,
     // [name, points this session, questions mastered in this course ever]
     scores: order.map((u) => [u, scores.get(u) ?? 0, masteredIn(u, course)]),
-    top,
+    top, topCourse,
   });
   const send = () => broadcast(state());
 
@@ -213,6 +218,7 @@ Keep each field under 30 words, plain text.` },
     setCourse(id) {
       if (id === course || (id !== BREAK && !courseById(id))) return;
       course = id;
+      readTop();
       reset();
       send();
     },
@@ -235,6 +241,7 @@ Keep each field under 30 words, plain text.` },
           scores.clear();
           asked.length = 0;
           qn = 0;
+          readTop();
           reset();
         }
         return;

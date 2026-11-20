@@ -293,11 +293,17 @@ export class Tutor {
     para(`Answer: ${r.model}`, py + 2, 12, '#3c5a9a', 4);
   }
 
-  // The all-time leaderboard, pinned to the wall right of the whiteboard: most questions mastered, every course together
+  // The leaderboards, one sheet pinned to the wall right of the whiteboard: most questions mastered in the course being
+  // quizzed (only while there is one), then in every course together, all time
   drawTop(ctx) {
     const x = 652, y = 44, w = 154;
-    const rows = this.state.top ?? [];
-    const h = 46 + Math.max(1, rows.length) * 18;
+    const course = courseById(this.state.course);
+    const sections = [
+      ...(course ? [{ title: 'Most Mastered', sub: `${course.code ?? course.name}, all time`, rows: this.state.topCourse ?? [] }] : []),
+      { title: course ? 'All Courses' : 'Most Mastered', sub: 'all courses, all time', rows: this.state.top ?? [] },
+    ];
+    const tall = (sec) => 42 + Math.max(1, sec.rows.length) * 17;
+    const h = sections.reduce((a, sec) => a + tall(sec), 8);
     ctx.save();
     ctx.translate(x + w / 2, y);
     ctx.rotate(0.02);
@@ -305,21 +311,32 @@ export class Tutor {
     ctx.fillRect(-w / 2, 0, w, h);
     ctx.fillStyle = '#3c6ad0';
     circle(ctx, 0, 4, 4); // pin
-    text(ctx, 'Most Mastered', 0, 20, 13, '#2c4f9e');
-    text(ctx, 'all courses, all time', 0, 34, 9, '#7a8bb3');
-    if (!rows.length) text(ctx, 'no one yet', 0, 54, 11, '#7a8bb3');
-    rows.forEach(([name, n], i) => {
-      const ry = 54 + i * 18;
-      ctx.font = `700 11px ${FONT}`;
-      ctx.textBaseline = 'middle';
-      ctx.textAlign = 'left';
-      ctx.fillStyle = i === 0 ? '#d08a1a' : i < 3 ? '#3c6ad0' : '#3a3550';
-      let label = `${i + 1}. ${name}`;
-      while (label.length > 4 && ctx.measureText(label).width > w - 48) label = label.slice(0, -2) + '…';
-      ctx.fillText(label, -w / 2 + 8, ry);
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#2f8f5f';
-      ctx.fillText(String(n), w / 2 - 8, ry);
+    let top = 0;
+    sections.forEach((sec, k) => {
+      if (k) {
+        ctx.fillStyle = '#c3d2f0';
+        ctx.fillRect(-w / 2 + 10, top + 2, w - 20, 1.5);
+      }
+      text(ctx, sec.title, 0, top + 18, 13, '#2c4f9e');
+      let sub = sec.sub;
+      ctx.font = `700 9px ${FONT}`;
+      while (sub.length > 4 && ctx.measureText(sub).width > w - 16) sub = sub.slice(0, -2) + '…';
+      text(ctx, sub, 0, top + 31, 9, '#7a8bb3');
+      if (!sec.rows.length) text(ctx, 'no one yet', 0, top + 50, 11, '#7a8bb3');
+      sec.rows.forEach(([name, n], i) => {
+        const ry = top + 50 + i * 17;
+        ctx.font = `700 11px ${FONT}`;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'left';
+        ctx.fillStyle = i === 0 ? '#d08a1a' : i < 3 ? '#3c6ad0' : '#3a3550';
+        let label = `${i + 1}. ${name}`;
+        while (label.length > 4 && ctx.measureText(label).width > w - 48) label = label.slice(0, -2) + '…';
+        ctx.fillText(label, -w / 2 + 8, ry);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#2f8f5f';
+        ctx.fillText(String(n), w / 2 - 8, ry);
+      });
+      top += tall(sec);
     });
     ctx.restore();
   }
