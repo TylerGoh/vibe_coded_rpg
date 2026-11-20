@@ -7,6 +7,7 @@
 // Three.js draws it on its own full-window canvas (docs/performance.md), loaded only the first time someone steps in.
 // While it's open the game's own canvas stops drawing (main.js skips render()) and your slime stands still at the mirror.
 import { keys, KeyEditor } from './keys.js';
+import { text } from './village.js';
 import { buildBeach, groundH, waterH, WORLD_R, PALMS, ROCKS, FOG, SUN_DIR, MIRROR_AT } from './pocket-beach.js';
 import { MIRROR_W } from './pocket-mirror.js';
 
@@ -15,6 +16,8 @@ const SWIM_DEPTH = 0.75; // water deeper than this over the sand and you float i
 const FLOAT = 0.28; // how far under the surface a floating slime's feet sit
 const CAM_DIST = 6.5, CAM_MIN = 2.5, CAM_MAX = 13, LOOK = 0.0024, TOUCH_LOOK = 0.006;
 const SPLASHES = 90;
+const SEND_EVERY = 0.1; // s between telling the server where you are (server/pocket.js PK_HZ sends everyone back)
+const LOST_S = 2; // s without news of someone on the beach before their slime goes
 const ESC_GAP = 300; // ms: an Esc this soon after the menu opened is the same press (key)
 const MIRROR_USE = 2.2; // within this of the mirror's front, E (pk_use) takes you home
 
@@ -23,9 +26,16 @@ let shared = null; // { renderer, scene, camera, beach, sun, splash, slime, hue 
 const show = (el, on, how = 'grid') => (el.style.display = on ? how : 'none'); // (display: grid beats `hidden`)
 
 export class Pocket {
-  // paint2d: draws a frame of the 2D game and says where your slime is in it (src/main.js), for the mirror's window
-  constructor({ touch, audio, onOpenChange, paint2d }) {
+  // paint2d: draws a frame of the 2D game and says where your slime is in it (src/main.js), for the mirror's window.
+  // send: a message to the server · who(id): a slime's { name, hue } · clock(): the server's tick (so the sea is shared)
+  constructor({ touch, audio, onOpenChange, paint2d, send, who, clock }) {
     this.paint2d = paint2d;
+    this.send = send;
+    this.who = who;
+    this.clock = clock;
+    this.away = new Set(); // who's on the beach (their 2D slimes get a mark at the fair)
+    this.remotes = new Map(); // id → { model, tag, target: [x, y, z, face, flags], pos, face, at, grounded, y0 }
+    this.sentAt = -1;
     this.touch = touch;
     this.audio = audio;
     this.onOpenChange = onOpenChange;
@@ -61,7 +71,7 @@ export class Pocket {
     show(this.ui.loading, true);
     try {
       THREE ??= await import('three');
-      const [{ makeSlime }, { makeMirror }] = await Promise.all([import('./pocket-slime.js'), import('./pocket-mirror.js')]);
+      const [{ makeSlime }, { makeMirror }] = (this.mods = await Promise.all([import('./pocket-slime.js'), import('./pocket-mirror.js')]));
       shared ??= this.buildScene(makeMirror);
       if (shared.hue !== hue) {
         // your slime, in your colour (made again if you come back a different colour)
@@ -81,6 +91,7 @@ export class Pocket {
     cv.style.cssText = 'position: absolute; inset: 0; display: block;'; // (not the game canvas's styles)
     this.ui.root.prepend(cv);
     this.respawn();
+    this.send?.({ t: 'pk', a: 'in' }); // (on the beach: the others see you, and you them)
     this.resize();
     this.last = performance.now();
     this.frame = requestAnimationFrame((t) => this.tick(t));
@@ -96,6 +107,8 @@ export class Pocket {
     this.stick = this.lookTouch = null;
     window.removeEventListener('resize', this.onResize);
     if (this.onLock) document.removeEventListener('pointerlockchange', this.onLock);
+    this.send?.({ t: 'pk', a: 'out' });
+    for (const id of [...this.remotes.keys()]) this.dropRemote(id);
     this.ui?.editor.destroy();
     this.ui?.root.remove();
     this.ui = null;
@@ -168,8 +181,16 @@ export class Pocket {
     this.frame = requestAnimationFrame((t) => this.tick(t));
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
-    this.t += dt;
+    // the sea's clock: the server's, so everyone floats on the same waves (an hour round, then it starts again)
+    const ct = this.clock?.();
+    this.t = ct == null ? this.t + dt : (ct / 60) % 3600;
     const step = this.move(dt);
+    if (this.t - this.sentAt >= SEND_EVERY || this.t < this.sentAt) {
+      this.sentAt = this.t;
+      const flags = (this.grounded ? 1 : 0) | (this.swimming ? 2 : 0) | (step.moving ? 4 : 0);
+      this.send?.({ t: 'pk', a: 'at', p: [this.pos.x, this.pos.y, this.pos.z, this.face, flags].map((v, i) => (i < 4 ? Math.round(v * 100) / 100 : v)) });
+    }
+    this.moveRemotes(dt);
     const { renderer, scene, camera, beach, mirror, sun, slime, splash } = shared;
     mirror.update(this.t, this.paint2d); // (the window back into the 2D fair: src/main.js draws a frame of it for us)
     const near = this.nearMirror() && !this.menuOpen();
@@ -269,6 +290,86 @@ export class Pocket {
     // wading in the shallows kicks up a little spray now and then
     if (len > 0.3 && w - g > 0.08 && w - g < SWIM_DEPTH && Math.random() < dt * 6) this.splashAt(this.pos.x, w, this.pos.z, 3, 0.5);
     return { moving: len > 0.05 ? len : 0, grounded: this.grounded, vy: this.vy, swimming: this.swimming, landed };
+  }
+
+  // ——— the others on the beach (server/pocket.js) ———
+  receive(m, myId) {
+    if (m.a === 'who') this.away = new Set(m.ids);
+    else if (m.a === 'in') this.away.add(m.id);
+    else if (m.a === 'out') {
+      this.away.delete(m.id);
+      this.dropRemote(m.id);
+    } else if (m.a === 'all' && this.open) {
+      const now = performance.now();
+      for (const [id, ...v] of m.s) {
+        if (id === myId) continue;
+        const r = this.remotes.get(id) ?? this.addRemote(id, v);
+        if (!r) continue;
+        r.target = v;
+        r.at = now;
+      }
+    }
+  }
+  // someone else's slime, in their colour, with their name over it
+  addRemote(id, v) {
+    if (!shared || !this.mods) return null;
+    const info = this.who?.(id) ?? { name: '?', hue: 148 };
+    const model = this.mods[0].makeSlime(THREE, info.hue ?? 148);
+    const tag = nameTag(info.name ?? '?');
+    tag.position.y = 1.45;
+    model.group.add(tag);
+    shared.scene.add(model.group);
+    const r = { model, target: v, pos: { x: v[0], y: v[1], z: v[2] }, face: v[3], at: performance.now(), grounded: true, vy: 0 };
+    this.remotes.set(id, r);
+    return r;
+  }
+  dropRemote(id) {
+    const r = this.remotes.get(id);
+    if (!r) return;
+    shared?.scene.remove(r.model.group);
+    r.model.group.traverse((o) => {
+      o.geometry?.dispose();
+      if (o.material?.map) o.material.map.dispose();
+    });
+    this.remotes.delete(id);
+  }
+  // each frame: ease everyone toward where they last said they were, and wobble their jelly the same way yours does
+  moveRemotes(dt) {
+    const now = performance.now(), k = Math.min(1, dt * 12);
+    for (const [id, r] of this.remotes) {
+      if (now - r.at > LOST_S * 1000) {
+        this.dropRemote(id);
+        continue;
+      }
+      const [x, y, z, face, fl] = r.target, y0 = r.pos.y;
+      r.pos.x += (x - r.pos.x) * k;
+      r.pos.y += (y - r.pos.y) * k;
+      r.pos.z += (z - r.pos.z) * k;
+      let d = face - r.face;
+      d = Math.atan2(Math.sin(d), Math.cos(d));
+      r.face += d * k;
+      const vy = (r.pos.y - y0) / Math.max(dt, 1e-3), grounded = !!(fl & 1);
+      const landed = grounded && !r.grounded ? Math.max(0, -r.vy) : 0;
+      r.grounded = grounded;
+      r.vy = vy;
+      r.model.group.position.set(r.pos.x, r.pos.y, r.pos.z);
+      r.model.group.rotation.y = r.face;
+      r.model.animate(dt, { moving: fl & 4 ? 1 : 0, grounded, vy, swimming: !!(fl & 2), landed });
+    }
+  }
+
+  // at the fair (2D): a small "on the beach" sign over the waiting slime of everyone who's through the mirror
+  drawAway(ctx, slimeOf) {
+    for (const id of this.away) {
+      const s = slimeOf(id);
+      if (!s) continue;
+      const w = 92, x = s.x - w / 2, y = s.y - s.h - 96; // (above the E prompt at the mirror)
+      ctx.fillStyle = 'rgba(255,244,230,0.92)';
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, 20, 10);
+      ctx.fill();
+      text(ctx, 'on the beach', s.x, y + 10, 10, '#5b4a6b');
+    }
   }
 
   jump() {
@@ -488,3 +589,26 @@ export class Pocket {
 // what you can't walk through: the palms' trunks, the rocks
 const OBSTACLES = [...PALMS.map((p) => ({ x: p.x, z: p.z, r: 0.55 })), ...ROCKS.map((r) => ({ x: r.x, z: r.z, r: r.s * 0.95 })),
   ...[-0.55, 0, 0.55].map((dx) => ({ x: MIRROR_AT.x + dx * MIRROR_W / 1.5, z: MIRROR_AT.z, r: 0.42 }))]; // (the mirror: solid, E takes you through)
+
+// a name over a slime on the beach: a little pill, always facing you
+function nameTag(name) {
+  const c = document.createElement('canvas');
+  c.width = 256;
+  c.height = 64;
+  const g = c.getContext('2d');
+  g.font = "700 30px Fredoka, 'Trebuchet MS', sans-serif";
+  const w = Math.min(248, g.measureText(name).width + 36);
+  g.fillStyle = 'rgba(91,74,107,0.8)';
+  g.beginPath();
+  g.roundRect(128 - w / 2, 8, w, 46, 23);
+  g.fill();
+  g.fillStyle = '#ffffff';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText(name, 128, 32);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, fog: false }));
+  sprite.scale.set(1.6, 0.4, 1);
+  return sprite;
+}

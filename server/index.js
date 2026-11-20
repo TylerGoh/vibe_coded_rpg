@@ -226,6 +226,8 @@
 //   of food from your bag, at a pet in the house you're in ← {t:'pet-fed', room, id, by, item}  to the room
 //   → {t:'invite', to}  (from a town or your own house, to a player in a town: TOWNS in sim.js)
 //       ← {t:'invite', from, name, ms}  to them · → {t:'visit', host, no?}  yes takes them into the host's house
+// The pocket world (server/pocket.js, docs/places/pocket.md): → {t:'pk', a:'in' | 'at' | 'out'} ← {t:'pk', a:'in' | 'out' | 'who' | 'all'};
+//   the full list is at the top of server/pocket.js.
 // The Gathering Fair (server/fair.js, docs/places/fair.md; every town's tent is a door, room FAIR): → {t:'fair', a:'hello'}
 //   ← {t:'fair', a:'bests', bests: {game: {name, score}}} (today's best at each booth; again whenever one's beaten) ·
 //   → {a:'start', g} at a booth  ← {a:'go', g, seed} to you, {a:'play', id, g} to the fair · → {a:'end', score}
@@ -261,6 +263,8 @@ import { createVote } from './vote.js';
 import { WINGS } from '../src/history.js';
 import { createNpc, npcConfigured } from './npc.js';
 import { createRpg } from './rpg.js';
+import { createPocket } from './pocket.js';
+import { FAIR } from '../src/shared/fair.js';
 import { createHouses } from './house.js';
 import { createChat } from './chat.js';
 import { createAccuse } from './accuse.js';
@@ -394,6 +398,7 @@ function broadcast(msg, except) {
 }
 const hooks = {}; // (the sandbox's, filled in by createSandbox; empty on the live server)
 const rpg = createRpg({ dbPath: accounts.path, players, send, toRoom, broadcast, hooks });
+const pocket = createPocket({ players, send, broadcast }); // the 3D beach's positions (server/pocket.js)
 const sandbox = SANDBOX ? createSandbox({ rpg, hooks, players, send, dbPath: accounts.path, livePath: process.env.LIVE_DB }) : null;
 const chat = createChat({ dbPath: accounts.path, players, send, users: () => accounts.list().map((a) => a.user) });
 const accuse = createAccuse({ players, send });
@@ -520,6 +525,8 @@ wss.on('connection', (ws) => {
       rpg.skills(id, p, m);
     } else if ((m.t === 'buy' || m.t === 'sell' || m.t === 'buycos') && p.joined) {
       rpg.shop(id, p, m);
+    } else if (m.t === 'pk' && p.joined && typeof m.a === 'string') {
+      pocket.receive(id, p, m); // the pocket world: who's on the 3D beach and where (server/pocket.js)
     } else if (m.t === 'fair' && p.joined && typeof m.a === 'string') {
       rpg.fair(id, p, m); // the Gathering Fair's booths and prize counter (server/fair.js)
     } else if (m.t === 'playtime' && p.joined) {
@@ -589,6 +596,7 @@ wss.on('connection', (ws) => {
     }
   });
   ws.on('close', () => {
+    pocket.leave(id);
     if (p.joined) rpg.wake(id, p, true); // knocked out: closing the game wakes you up in town (EXP lost as usual)
     players.delete(id);
     if (p.joined) rpg.save(p);
@@ -867,6 +875,8 @@ function update() {
       if (p.room === TUTOR) send(p.ws, tutor.state());
       rpg.entered(p);
       houses.entered(p);
+      pocket.moved(id, p); // (out of the fair: off the beach too)
+      if (p.room === FAIR) send(p.ws, pocket.who()); // (who's away on the beach: the 2D fair marks them)
     }
   }
   rpg.tick(tick);

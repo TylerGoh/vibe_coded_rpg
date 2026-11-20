@@ -337,6 +337,10 @@ const net = new Net(wsUrl, {
   onFair(m) {
     fair.receive(m, net.id);
   },
+  // the pocket world's multiplayer: who's on the 3D beach and where (src/pocket.js, server/pocket.js)
+  onPocket(m) {
+    pocket.receive(m, net.id);
+  },
   // the Esc menu's Play time page (src/playtime.js)
   onPlaytime(m) {
     if (!document.getElementById('playtime').hidden) playTime.show(m);
@@ -415,6 +419,9 @@ const scope = new Telescope(); // the telescope on the east cliffs (src/cliffs.j
 const fair = new Fair({ send: (m) => net.sendNpc(m), toast: (t) => rpg.toast(t), audio, onOpenChange: () => held.clear() }); // the Gathering Fair's booths (src/fair.js)
 const pocket = new Pocket({
   touch: TOUCH, audio, onOpenChange: () => held.clear(),
+  send: (m) => net.sendNpc(m),
+  who: (id) => net.roster.get(id), // (a slime's name and hue)
+  clock: () => net.renderTick(), // the server's tick, so everyone's sea rolls the same
   // the mirror on the beach is a window back into the 2D game: a fresh frame of it, and where your slime stands in it
   paint2d: () => {
     if (!online()) return null;
@@ -1839,6 +1846,7 @@ function render() {
   if (room === SPOKE) drawSpokeFront(ctx, camX, W, time, online() ? net.me : null); // the dark, the rim's teeth closing behind, the Escapement's line
   if (room === SHELLROAD) drawShellRoadFront(ctx, camX, W, time, online() ? net.me : null); // the dusk at the edges, Old Carapace's line
   if (room === FAIR) fair.drawPlaying(ctx, (id) => (slimes.get(id)?.visible ? slimes.get(id) : null)); // who's at a booth
+  if (room === FAIR) pocket.drawAway(ctx, (id) => (slimes.get(id)?.visible ? slimes.get(id) : id === net.id ? mine : null)); // and who's off on the beach
   for (const s of all) nameTag(s, false);
   if (meShown) nameTag(mine, true);
   if (roomDef(room)?.crossing) drawCrossingFront(ctx, room, camX, W, time, online() ? net.me : null); // the near water, over the hull's foot

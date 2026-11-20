@@ -1,9 +1,8 @@
 # The pocket world (the beach through the fair's upside-down mirror)
 
 Owner (2026-11-20): "experiment… a pocket dimension world". Built step by step on the `dev` branch (the sandbox at
-/rpg_dev, `docs/sandbox.md`), then shipped live the same day ("this is good, add it to the main world"). Solo for now:
-see "Not multiplayer yet" below. Files: `src/pocket.js` (the scene, the loop, moving, the camera, the
-menu, controls), `src/pocket-mirror.js` (the mirror home), `src/pocket-beach.js` (the beach: its shapes as maths, and building it), `src/pocket-slime.js` (your
+/rpg_dev, `docs/sandbox.md`), then shipped live the same day ("this is good, add it to the main world"). Multiplayer since the same day (below). Files: `src/pocket.js` (the scene, the loop, moving, the camera, the
+menu, controls, the others on the beach), `server/pocket.js` (who's on the beach and where), `src/pocket-mirror.js` (the mirror home), `src/pocket-beach.js` (the beach: its shapes as maths, and building it), `src/pocket-slime.js` (your
 slime in 3D), `POCKET_X` in `src/shared/fair.js` (the way in), the hooks in `src/main.js` and `src/fair.js`, the sandbox
 panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`: it puts you by the Hall of Mirrors).
 
@@ -36,8 +35,8 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
   landing, stretches in the air and wobbles as it walks. The palms and rocks are in the way; the world ends at `WORLD_R`.
 - **The shapes are maths** (`groundH`, `waterH`, `shore`), and the water's shader has the same formulas in GLSL
   (`WATER_GLSL`): what you see is what you stand and float on. Change one, change the other.
-- Solo and client-only: no server messages, nobody else in it. Your slime stands still at the mirror meanwhile
-  (`inputBits` sends nothing) and the fair keeps running under it.
+- Shared with everyone on the beach (below). Your 2D slime stands still at the mirror meanwhile (`inputBits` sends
+  nothing) and the fair keeps running under it.
 
 ## Controls and leaving
 - Desktop: click into the world to capture the mouse (a small "Click to look around" pill until you do); the mouse swings
@@ -73,13 +72,21 @@ slow (about 6 frames a second here, so anything that moves crawls in a test), bu
 Chromium alone can't draw Three.js on this box. Not checked by people yet: how it feels to move and swim, the camera,
 phones' frame rate.
 
-## Not multiplayer yet
-Everything in it is on your own screen: the server doesn't know you're on the beach (your slime just stands at the
-mirror in the fair), and nobody else is drawn there. To share it: the server would need your 3D position, facing and
-jelly state (a small message a few times a second, or a room of its own with its own state), sent to everyone else
-on the beach; their slimes drawn from it (`makeSlime` with their hue) with name tags, smoothed between updates; and
-voice and chat bubbles placed in 3D. The beach's waves are a formula of time, so everyone would
-see the same sea if they shared a time base (the server's clock).
+## Multiplayer (owner, 2026-11-20: "make this 3d multiplayer")
+- Everyone on the beach sees everyone else there: their own slime in 3D, in their colour, with their name over it
+  (`nameTag`), walking, jumping, wading, swimming, its jelly wobbling as theirs does. `server/pocket.js` only passes
+  positions round (the beach is still walked on each client, like the client-decided parts of combat): you say you're in
+  at the mirror (`{t:'pk', a:'in'}`, refused unless you're at `POCKET_X` in the fair), where you are every `SEND_EVERY`
+  (x, y, z, facing, and flags: grounded, swimming, moving; kept inside the beach), and out when you go home (or leave the
+  fair or the game). While two or more are there it sends everyone the lot `PK_HZ` times a second. Each client eases the
+  others toward their last place (`moveRemotes`) and drops anyone it hasn't heard of for `LOST_S`.
+- **One sea for everyone**: the waves run on the server's clock (`clock()`, `net.renderTick()`, an hour round), so friends
+  float on the same swell.
+- At the fair, the waiting 2D slime of everyone on the beach gets an "on the beach" sign (`drawAway`; `{a:'in' | 'out' |
+  'who'}` keep the list, `who` sent when you come into the fair). The mirror's window shows it too.
+- Voice works as before: everyone on the beach has their 2D slime standing at the same mirror, so they're in earshot.
+- Not done: chat bubbles in 3D (and typing in chat while on the beach: the pocket world takes every key), slapping,
+  anything shared to do.
 
 ## Next steps (owner decides, one at a time)
 - Sound (waves, gulls), things to do on the beach, friends in it.
