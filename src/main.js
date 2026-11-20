@@ -413,7 +413,7 @@ const charsHere = () => [...characters.values()].filter((c) => npcIn(c.cfg, room
 const museum = new Museum({ onOpenChange: () => held.clear() });
 const scope = new Telescope(); // the telescope on the east cliffs (src/cliffs.js)
 const fair = new Fair({ send: (m) => net.sendNpc(m), toast: (t) => rpg.toast(t), audio, onOpenChange: () => held.clear() }); // the Gathering Fair's booths (src/fair.js)
-const pocket = new Pocket({ touch: TOUCH, onOpenChange: () => held.clear() }); // the pocket world through the fair's upside-down mirror (src/pocket.js)
+const pocket = new Pocket({ touch: TOUCH, audio, onOpenChange: () => held.clear() }); // the pocket world through the fair's upside-down mirror (src/pocket.js)
 fair.onPocket = () => pocket.show();
 // Clio can be asked from anywhere in the museum (Q, the Ask button, or a fact sheet's "Ask Clio")
 const askClio = (prefill = '') => {
