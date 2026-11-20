@@ -34,6 +34,12 @@ Each phase shows the next one's rides closed for an in-world reason, and lifts t
   narrow lore); fireworks over the pier on a server clock; more prizes (plush furniture for houses, a goldfish-in-a-bag
   pet on the Pet Shop's feeding rules, a carousel horse for the garden).
 
+- [ ] **Town tents, given a real place** (owner, 2026-11-20): the six tents (`FAIR_TENT_X`) were squeezed into gaps
+  in towns that weren't drawn for them, and sit awkwardly (Slimeville's against the waystone and the bakery's sign,
+  Icefang Hamlet's over a turf hut, Wickmere's in front of a stilt house, Caravanserai's on a stall). Redesign each
+  town's layout to make room for its tent: a proper plot (a little square, a cleared patch, a pier spot), its scenery and
+  lamps moved round it, every NPC's talk range, waystone and door still clear. Not started.
+
 ## Rules kept
 - Tickets buy prizes only; prizes are looks only. No game, ride or prize gives or costs gold, EXP or power, so the
   economy sheet never moves for the fair (a gold cost per game was considered and dropped: free is friendlier).
