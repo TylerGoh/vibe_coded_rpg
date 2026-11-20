@@ -2,7 +2,7 @@
 
 Owner (2026-11-20): "experiment… a pocket dimension world". It lives on the `dev` branch only (the sandbox at /rpg_dev,
 `docs/sandbox.md`) until the owner says it ships. Files: `src/pocket.js` (the scene, the loop, moving, the camera, the
-menu, controls), `src/pocket-beach.js` (the beach: its shapes as maths, and building it), `src/pocket-slime.js` (your
+menu, controls), `src/pocket-mirror.js` (the mirror home), `src/pocket-beach.js` (the beach: its shapes as maths, and building it), `src/pocket-slime.js` (your
 slime in 3D), `POCKET_X` in `src/shared/fair.js` (the way in), the hooks in `src/main.js` and `src/fair.js`, the sandbox
 panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`: it puts you by the Hall of Mirrors).
 
@@ -17,6 +17,12 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
 - A beach at sunset: sand rising to low dunes inland, three palm trees (`PALMS`: curved ringed trunks, drooping fronds
   that sway, coconuts) with soft shadows, rocks (`ROCKS`), starfish, a sea of rolling swells with foam on the breakers and
   a lacy foam line that runs up the sand and back (the swash), a pastel sky dome with a low sun, clouds, haze.
+- **The mirror home** (step 5, owner 2026-11-20): the other side of the fair's upside-down mirror stands on the sand at
+  `MIRROR_AT`, facing the sea: a gold arched frame like the fair's, sparkles drifting round it, and glass that really
+  reflects (Three's `Reflector`, an extra render of the scene a frame) turned upside down about its middle, like the
+  mirror you came through. You arrive stepping out of it (the camera out front, looking back at you and it). Walk into it
+  and you're home at the fair (`atMirror`; not in your first `ARRIVE_S`, so arriving doesn't send you straight back).
+  Within `MIRROR_NEAR` a pill says so.
 - You're your own slime (`makeSlime`: your hue, so it matches your 2D one; shine, eyes, cheeks, smile, leaf) in third
   person. Walk (relative to the camera), jump, wade into the shallows (slower, a little spray), swim out where it's deeper
   than `SWIM_DEPTH` (you float on the swell, bobbing; slower still), jump out of the water, splash. The jelly squashes on
@@ -33,9 +39,10 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
   saved on the character with the rest, and shown on the Controls page's **Pocket world** tab and on the pocket's own
   controls card (`docs/ui/keybinds.md`). Phones: the left thumb is a stick from wherever it lands, the right thumb drags
   the camera, a Jump button, Leave.
-- Leaving (owner, step 3: the old dark pause card was jarring): Leave is always top right. Esc (the browser takes it to
-  let the mouse go) opens a small light menu over the world: Back to the world, Controls (the pocket tab, its own Reset),
-  Leave the pocket world. Esc again closes it, back in the world with the "Click to look around" pill (a browser won't
+- Leaving: walk into the mirror (owner, step 5: the mirror is the way out, instead of the menu). The Leave button top
+  right stays as a fallback. Esc (the browser takes it to let the mouse go) opens a small light menu over the world (owner,
+  step 3: the old dark card was jarring): Back to the world and Controls (the pocket tab, its own Reset); its Leave went in
+  step 5. Esc again closes it, back in the world with the "Click to look around" pill (a browser won't
   capture the mouse again from a key straight after an Esc, so a click does that; Back to the world, a click, tries at
   once). Past mistake: the first Esc both let the mouse go (opening the menu) and arrived as a key press a moment later
   (closing it again): an Esc within `ESC_GAP` of the menu opening is ignored.
@@ -60,6 +67,4 @@ Chromium alone can't draw Three.js on this box. Not checked by people yet: how i
 phones' frame rate.
 
 ## Next steps (owner decides, one at a time)
-- **A mirror in the 3D world as the way out** (owner, 2026-11-20, future work): walk through it to step back into the
-  fair, instead of the menu's Leave.
 - Sound (waves, gulls), things to do on the beach, friends in it.

@@ -7,7 +7,8 @@
 // Three.js draws it on its own full-window canvas (docs/performance.md), loaded only the first time someone steps in.
 // While it's open the game's own canvas stops drawing (main.js skips render()) and your slime stands still at the mirror.
 import { keys, KeyEditor } from './keys.js';
-import { buildBeach, groundH, waterH, WORLD_R, PALMS, ROCKS, FOG, SUN_DIR } from './pocket-beach.js';
+import { buildBeach, groundH, waterH, WORLD_R, PALMS, ROCKS, FOG, SUN_DIR, MIRROR_AT } from './pocket-beach.js';
+import { MIRROR_W } from './pocket-mirror.js';
 
 const SPEED = 6.5, WADE = 4.2, SWIM = 3.4, GRAVITY = 24, JUMP_V = 8.4, SWIM_JUMP_V = 5.5;
 const SWIM_DEPTH = 0.75; // water deeper than this over the sand and you float instead of standing
@@ -15,6 +16,8 @@ const FLOAT = 0.28; // how far under the surface a floating slime's feet sit
 const CAM_DIST = 6.5, CAM_MIN = 2.5, CAM_MAX = 13, LOOK = 0.0024, TOUCH_LOOK = 0.006;
 const SPLASHES = 90;
 const ESC_GAP = 300; // ms: an Esc this soon after the menu opened is the same press (key)
+const MIRROR_NEAR = 4; // within this of the mirror, a pill says how to go home
+const ARRIVE_S = 1; // s after stepping out of the mirror before walking back into it takes you home
 
 let THREE = null; // the module, once loaded
 let shared = null; // { renderer, scene, camera, beach, sun, splash, slime, hue }: built once, kept for the next visit
@@ -42,6 +45,7 @@ export class Pocket {
     this.lookTouch = null;
     this.ui = null;
     this.menuAt = -1e9; // when the Esc menu last opened
+    this.arrivedAt = 0; // when you stepped out of the mirror (this.t)
   }
 
   get isOpen() {
@@ -57,8 +61,8 @@ export class Pocket {
     show(this.ui.loading, true);
     try {
       THREE ??= await import('three');
-      const { makeSlime } = await import('./pocket-slime.js');
-      shared ??= this.buildScene();
+      const [{ makeSlime }, { Reflector }, { makeMirror }] = await Promise.all([import('./pocket-slime.js'), import('three/examples/jsm/objects/Reflector.js'), import('./pocket-mirror.js')]);
+      shared ??= this.buildScene(Reflector, makeMirror);
       if (shared.hue !== hue) {
         // your slime, in your colour (made again if you come back a different colour)
         if (shared.slime) shared.scene.remove(shared.slime.group);
@@ -98,18 +102,23 @@ export class Pocket {
     this.onOpenChange?.();
   }
 
-  // on the sand between the palms, facing the sea
+  // just stepped out of the mirror, facing the sea, the camera out in front looking back at you and the mirror
   respawn() {
-    Object.assign(this.pos, { x: 0, z: -4 });
+    Object.assign(this.pos, { x: MIRROR_AT.x, z: MIRROR_AT.z + 1.8 });
     this.pos.y = groundH(this.pos.x, this.pos.z);
     this.vy = 0;
     this.face = 0;
-    this.camYaw = Math.PI;
-    this.camPitch = 0.32;
+    this.camYaw = 0.35;
+    this.camPitch = 0.28;
+    this.arrivedAt = this.t;
+  }
+  // walked into the mirror: home to the fair
+  atMirror() {
+    return this.t - this.arrivedAt > ARRIVE_S && Math.abs(this.pos.x - MIRROR_AT.x) < MIRROR_W / 2 - 0.1 && Math.abs(this.pos.z - MIRROR_AT.z) < 0.3 && this.pos.y < groundH(MIRROR_AT.x, MIRROR_AT.z) + 1.2;
   }
 
   // ——— the scene ———
-  buildScene() {
+  buildScene(Reflector, makeMirror) {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.shadowMap.enabled = true;
@@ -127,12 +136,14 @@ export class Pocket {
     sun.shadow.radius = 3;
     scene.add(sun, sun.target);
     const beach = buildBeach(THREE, scene);
+    const mirror = makeMirror(THREE, Reflector, { x: MIRROR_AT.x, y: groundH(MIRROR_AT.x, MIRROR_AT.z), z: MIRROR_AT.z });
+    scene.add(mirror.group);
     // splashes: little white drops, one instanced mesh
     const splash = new THREE.InstancedMesh(new THREE.SphereGeometry(0.07, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffffff }), SPLASHES);
     splash.frustumCulled = false;
     scene.add(splash);
     this.drops = Array.from({ length: SPLASHES }, () => ({ life: 0, x: 0, y: -99, z: 0, vx: 0, vy: 0, vz: 0 }));
-    return { renderer, scene, camera, beach, sun, splash, slime: null, hue: null };
+    return { renderer, scene, camera, beach, mirror, sun, splash, slime: null, hue: null };
   }
 
   // a ring of drops thrown up at (x, y, z), n of them, this hard
@@ -155,7 +166,13 @@ export class Pocket {
     this.last = now;
     this.t += dt;
     const step = this.move(dt);
-    const { renderer, scene, camera, beach, sun, slime, splash } = shared;
+    if (this.atMirror()) {
+      this.audio?.sfx('door');
+      return this.close(); // (through the mirror: back at the fair)
+    }
+    const { renderer, scene, camera, beach, mirror, sun, slime, splash } = shared;
+    mirror.update(this.t);
+    if (this.ui) show(this.ui.home, Math.hypot(this.pos.x - MIRROR_AT.x, this.pos.z - MIRROR_AT.z) < MIRROR_NEAR && !this.menuOpen(), 'block');
     // your slime
     slime.group.position.set(this.pos.x, this.pos.y, this.pos.z);
     slime.group.rotation.y = this.face;
@@ -341,6 +358,9 @@ export class Pocket {
     // desktop: a small pill until you click into the world (the mouse has to be captured to look around)
     const look = el('div', 'position: absolute; left: 50%; top: 18px; transform: translateX(-50%); padding: 8px 16px; border-radius: 16px; background: rgba(255,255,255,0.8); color: #5b4a6b; font-size: 14px; pointer-events: none;', 'Click to look around');
     show(look, false);
+    // near the mirror: how to go home
+    const home = el('div', 'position: absolute; left: 50%; top: 58px; transform: translateX(-50%); padding: 8px 16px; border-radius: 16px; background: rgba(255,244,230,0.9); color: #5b4a6b; font-size: 14px; pointer-events: none; white-space: nowrap;', 'Walk into the mirror to go back to the fair');
+    show(home, false);
     // the Esc menu: a small card, the world still in view behind it
     const menu = el('div', 'position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); flex-direction: column; gap: 8px; padding: 16px; border-radius: 22px; background: rgba(255,244,230,0.95); color: #5b4a6b; box-shadow: 0 8px 30px rgba(60,40,90,0.25); min-width: 240px;');
     const mbtn = (text, fn) => {
@@ -352,7 +372,7 @@ export class Pocket {
       return b;
     };
     const menuBtns = el('div', 'display: flex; flex-direction: column; gap: 8px;');
-    menuBtns.append(el('div', 'text-align: center; font-size: 18px; padding: 2px 0 4px;', 'The pocket world'), mbtn('Back to the world', () => this.resume()), mbtn('Controls', () => this.showControls(true)), mbtn('Leave the pocket world', () => this.close()));
+    menuBtns.append(el('div', 'text-align: center; font-size: 18px; padding: 2px 0 4px;', 'The pocket world'), mbtn('Back to the world', () => this.resume()), mbtn('Controls', () => this.showControls(true))); // (the way home is the mirror on the sand, or Leave up top)
     // its controls: the pocket world's own tab of the key editor (the same bindings as the Esc menu's Controls page)
     const ctl = el('div', 'width: min(420px, 88vw); max-height: 76vh; overflow: auto;');
     const grid = el('div', 'display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; align-items: flex-start;'), note = el('div', 'margin: 8px 0; font-size: 13px; text-align: center;');
@@ -374,9 +394,9 @@ export class Pocket {
     menu.append(menuBtns, ctl);
     menu.className = 'pocket-menu';
     show(menu, false);
-    root.append(loading, hint, look, menu, leave);
+    root.append(loading, hint, look, home, menu, leave);
     const editor = new KeyEditor(grid, note, { tabs: ['pocket'] });
-    this.ui = { root, loading, look, menu, menuBtns, ctl, editor, hint };
+    this.ui = { root, loading, look, home, menu, menuBtns, ctl, editor, hint };
     this.labelHint();
     show(ctl, false);
     if (this.touch) {

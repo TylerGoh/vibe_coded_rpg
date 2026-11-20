@@ -59,6 +59,8 @@ export const PALMS = [
   { x: 9, z: -13, lean: 0.25, h: 6.4, turn: -0.6 },
   { x: -17, z: -16, lean: 0.3, h: 8.2, turn: 1.4 },
 ];
+// the mirror home (src/pocket-mirror.js): where it stands; it faces the sea
+export const MIRROR_AT = { x: 1.5, z: -8.5 };
 export const ROCKS = [
   { x: 14, z: 2, s: 1.3 }, { x: 15.6, z: 3.2, s: 0.7 }, { x: -24, z: 4, s: 1.8 }, { x: 4, z: -22, s: 0.9 }, { x: -9, z: 8, s: 0.6 },
 ];
