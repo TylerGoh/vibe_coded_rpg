@@ -21,6 +21,24 @@ const KNOWN_PROMPT = 60; // the most of a student's known questions put in the p
 const WRITE_TRIES = 3; // question writes before giving up on a fresh one (a write matching a known question is thrown away)
 // two questions are the same text if they match with case, punctuation and spacing ignored
 const sameText = (q) => String(q).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+// The built-in questions, for when the AI is down or every write was a repeat: each template on this question's topic,
+// then on the course's other topics, the first the student hasn't answered correctly (nor been asked this session) wins
+const FALLBACKS = [
+  (t, c) => `In your own words: what is "${t}" in ${c}, and why does it matter?`,
+  (t, c) => `Give one example of "${t}" from ${c} and explain what it shows.`,
+  (t, c) => `What is one common mistake or misconception about "${t}" in ${c}?`,
+  (t, c) => `How does "${t}" connect to another idea you know from ${c}?`,
+];
+const fallback = (c, topic, taken) => {
+  const topics = [topic, ...c.syllabus.filter((t) => t !== topic)];
+  for (const t of topics) {
+    for (const f of FALLBACKS) {
+      const q = f(t.toLowerCase(), c.name);
+      if (!taken.has(sameText(q))) return q;
+    }
+  }
+  return FALLBACKS[0](topic.toLowerCase(), c.name); // they've had them all
+};
 
 const PERSONA = `You are Tutor Byte, a friendly, encouraging slime tutor in Slimeville's tutoring room, running a
 quiz for slime students on university courses and trivia. You are accurate and fair.`;
@@ -115,7 +133,7 @@ ${mastered.length ? `${who} has already answered these correctly in earlier sess
       if (myGen !== gen) return;
     }
     if (myGen !== gen) return;
-    text ||= `In your own words: what is "${topic.toLowerCase()}" in ${c.name}, and why does it matter?`;
+    text ||= fallback(c, topic, taken);
     asked.push(text);
     if (asked.length > RECENT_QUESTIONS) asked.shift();
     question = { text, topic };
