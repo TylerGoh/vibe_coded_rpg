@@ -1,13 +1,19 @@
 // Docs: docs/places/fair.md
 // The Gathering Fair on the client: what E does there (a booth's game, a prize on the counter, a closed ride's note),
 // booth mode (the camera zooms into the booth, its game runs on a card over the world while your slime stands still,
-// then zooms back out), who else is at a booth, today's bests, and riding the carousel's horses (rideOf).
+// then zooms back out), who else is at a booth, today's bests, and riding the carousel's horses (rideOf). F3's rides
+// (docs/places/rides.md): catching a gondola of the Ferris wheel, the High Striker (a slap or E on its pad), the dunk tank's
+// throwing line, and the Big Top's door saying when the show's on.
 // Booth mode, step by step: E at an open booth → {t:'fair', a:'start', g} → the server's {a:'go', g, seed} opens the
 // round ('in': the zoom) → 'play' for ROUND_S seconds (Esc / Stop ends it early, for fewer tickets) → 'done': the score
 // goes to the server ({a:'end', score}) and its {a:'won'} shows the tickets → 'out': the zoom back.
 import { W, H, clamp } from './util.js';
 import { text } from './village.js';
-import { FAIR, FAIR_GROUND, ROUND_S, FAIR_GAMES, GALLERY_W, GALLERY_H, BOOTHS, HORSES, POCKET_X, boothAt, prizeAt, lookAt } from './shared/fair.js';
+import { FAIR, FAIR_GROUND, ROUND_S, FAIR_GAMES, GALLERY_W, GALLERY_H, BOOTHS, HORSES, POCKET_X, WHEEL_X, STRIKER_X, STRIKER_RANGE, STRIKE_CD_MS, THROW_X, THROW_RANGE, THROW_CD_MS, BIGTOP_X, boothAt, prizeAt, lookAt } from './shared/fair.js';
+import { WHEEL, BOARD_R, gondolaDown } from './shared/wheel.js';
+import { nextShow } from './shared/bigtop.js';
+import { ROOMS } from './shared/sim.js';
+import { rideEvent } from './fair-rides.js';
 import { COSMETICS } from './shared/rpg.js';
 import { keys } from './keys.js';
 import { GAMES } from './fair-games.js';
@@ -56,9 +62,13 @@ export class Fair {
   // what E would do where you stand: { b } a booth, { prize } a prize on the counter, { look } a closed ride
   near(me) {
     if (!me || me.room !== FAIR || this.round) return null;
+    if (me.rd === WHEEL) return { riding: 'wheel' }; // (in a gondola: E or Jump hops out, in step())
     if (me.rd) return { riding: true }; // (on the Gathering Line: E goes to step(), which drops you off)
     if ((this.cartAt?.(me) ?? -1) >= 0) return { cart: true }; // (a car going by in reach: src/coaster.js)
     if (!me.grounded || me.onPlat) return null;
+    if (Math.abs(me.x - WHEEL_X) < BOARD_R) return { wheel: true, ready: !!this.wheelReady?.() };
+    if (Math.abs(me.x - STRIKER_X) < STRIKER_RANGE) return { striker: true };
+    if (Math.abs(me.x - THROW_X) < THROW_RANGE) return { toss: true };
     const b = boothAt(me.x);
     if (b) return { b };
     const prize = prizeAt(me.x);
@@ -72,7 +82,11 @@ export class Fair {
     if (!n) return null;
     if (n.b) return n.b.shut ? `look at ${n.b.name}` : `play ${n.b.name} (free)`;
     if (n.pocket) return 'step through the upside-down mirror';
+    if (n.riding === 'wheel') return 'hop out of the gondola (E or Jump)';
     if (n.riding) return 'hop off (E or Jump)';
+    if (n.wheel) return n.ready ? 'climb into the gondola' : 'wait for the next gondola';
+    if (n.striker) return 'slap the High Striker (or E)';
+    if (n.toss) return 'throw a ball at the dunk tank';
     if (n.cart) return 'catch the Gathering Line';
     if (n.prize) {
       const c = COSMETICS[n.prize];
@@ -84,7 +98,16 @@ export class Fair {
   use(me, rpgMe) {
     const n = this.near(me);
     if (!n || n.riding) return false; // (riding: the E press itself drops you off, in step())
-    if (n.pocket) this.onPocket?.();
+    if (n.wheel) {
+      if (n.ready) this.onCatch?.(); // (USE with CATCH: step() puts you in the gondola at the bottom)
+      else this.toast('The next gondola is nearly round. Climb in when it reaches the bottom.');
+    } else if (n.striker) this.strike();
+    else if (n.toss) {
+      if (performance.now() - (this.threwAt ?? 0) < THROW_CD_MS) return true;
+      this.threwAt = performance.now();
+      this.onSwing?.();
+      this.send({ t: 'fair', a: 'throw' });
+    } else if (n.pocket) this.onPocket?.();
     else if (n.cart) this.onCatch?.();
     else if (n.b?.shut) this.toast(n.b.shut);
     else if (n.b) {
@@ -102,7 +125,29 @@ export class Fair {
     return true;
   }
 
+  // the High Striker: E on its pad, or a slap there (main.js slapToward calls slapped)
+  strike() {
+    if (performance.now() - (this.struckAt ?? 0) < STRIKE_CD_MS) return;
+    this.struckAt = performance.now();
+    this.onSwing?.();
+    this.send({ t: 'fair', a: 'strike' });
+  }
+  slapped(me) {
+    if (me?.room === FAIR && !me.rd && Math.abs(me.x - STRIKER_X) < STRIKER_RANGE) this.strike();
+  }
+
   receive(m, myId) {
+    if (m.a === 'strike' || m.a === 'throw') {
+      rideEvent(m, this.now?.() ?? 0, this.slimeAt?.(m.id)); // (now, slimeAt: main.js)
+      if (m.a === 'strike') this.audio.sfx(m.h >= 1 ? 'bell' : 'thunk');
+      else this.audio.sfx(m.hit ? 'thunk' : 'whiff');
+      if (m.a === 'throw' && m.hit) setTimeout(() => this.audio.sfx(m.who?.length ? 'splash' : 'fairEnd'), 450);
+      if (m.a === 'strike' && m.id === myId && m.tickets) {
+        this.audio.sfx('tickets');
+        this.toast(`Rang the bell! +${m.tickets} tickets`);
+      }
+      return;
+    }
     if (m.a === 'go' && GAMES[m.g]) {
       this.askedAt = 0;
       this.round = { g: m.g, game: new GAMES[m.g](m.seed), t: 0, score: 0, phase: 'in', k: 0, booth: BOOTHS.find((b) => b.game === m.g), result: null };
@@ -124,7 +169,13 @@ export class Fair {
     }
   }
 
-  update(dt) {
+  update(dt, tick) {
+    // the Big Top's door says when the show's on (src/shared/bigtop.js)
+    const door = ROOMS[FAIR].doors.find((d) => d.x === BIGTOP_X);
+    if (door && tick != null) {
+      const n = nextShow(tick);
+      door.label = n === 0 ? "go into the Big Top (the show's on!)" : `go into the Big Top (next show in ${Math.floor(n / 60)}:${String(Math.floor(n % 60)).padStart(2, '0')})`;
+    }
     const r = this.round;
     if (!r) {
       this.zoom = Math.max(0, this.zoom - dt / ZOOM_OUT);

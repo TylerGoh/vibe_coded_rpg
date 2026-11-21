@@ -3,7 +3,8 @@
 Owner's ask (2026-11-20): "the world lacks flair: add a carnival, different entrances per region, all into one carnival
 world", with a rollercoaster and minigames you zoom into. Owner's picks: **the Keepers' fair** (story), **town tents
 only** (no entrances out in the wilds), **cosmetic only** (tickets never become gold, EXP or power). The plan and the
-phases still to come: `story/fair-plan.md`. F1 shipped 2026-11-20.
+phases still to come: `story/fair-plan.md`. F1 shipped 2026-11-20; F2 (the coaster, `docs/places/coaster.md`) and F3 (the
+rides, the Green and the Big Top, `docs/places/rides.md`) on 2026-11-21.
 
 Files: `src/shared/fair.js` (layout, tents, booths, prizes, the seeded rounds, tickets), `src/fair.js` (the client:
 E at the fair, booth mode, the carousel ride), `src/fair-games.js` (Pop Gallery, Bonk-a-Knotmole), `src/fair-art.js`
@@ -43,12 +44,16 @@ created by `server/rpg.js`), Fizz's persona in `server/characters.js`, the `fair
 
 ## The room, west to east
 The Gate Plaza (the tent flap, the ticket kiosk, Ringmaster Fizz at `FIZZ_X`, the prize counter from `PRIZE_X`, the
-coaster's Gate Plaza station), the Big Top (scenery, laced shut), the coaster's Midway station, the Midway (`BOOTHS`),
-Ride Row (the Ferris wheel turning empty behind, the carousel at `CAROUSEL_X`, the coaster's Ride Row station at
-`STATION_X`), the Hall of Mirrors (`MIRRORS_X0`–`MIRRORS_X1`), the Pier's End (from `PIER_X`, the coaster's last station
-on it). The coaster, the Gathering Line, runs over all of it: `docs/places/coaster.md`. F2 widened the room (`FAIR_W`) to
-fit its Gate Plaza and Midway stations and lengthen the pier, shifting everything east of the prize counter. Platforms (`FAIR_PLATFORMS`): the kiosk's roof, each
-booth's canopy, the carousel's horses and canopy rim, the mirrors' roof, crates and the pier's posts.
+coaster's Gate Plaza station), the Big Top (its door at `BIGTOP_X`, into its own room since F3), the coaster's Midway
+station, the Midway (`BOOTHS`: Pop Gallery, then **the Green** from `GREEN_X` with the High Striker, the dunk tank and the
+teacups, then the other booths), Ride Row (the Ferris wheel at `WHEEL_X`, the carousel at `CAROUSEL_X`, the coaster's Ride
+Row station at `STATION_X`), the Hall of Mirrors (`MIRRORS_X0`–`MIRRORS_X1`), the Pier's End (from `PIER_X`, the coaster's
+last station on it). The coaster, the Gathering Line, runs over all of it: `docs/places/coaster.md`; the rides, the Green
+and the Big Top: `docs/places/rides.md`. F2 widened the room (`FAIR_W`) to fit its Gate Plaza and Midway stations and
+lengthen the pier, shifting everything east of the prize counter; F3 put the Green in, shifting everything east of it
+by `GREEN_W` (the coaster's nodes, stations and pylons with it). A new thing east of the Green: give its x in the new
+numbering. Positions saved over that deploy landed a slime `GREEN_W` west of where it stood (harmless in a safe room). Platforms (`FAIR_PLATFORMS`): the dunk tank's plank (first: its `pf` bit,
+`docs/places/rides.md`) and its step, the three teacups, the kiosk's roof, each booth's canopy, the carousel's horses and canopy rim, the mirrors' roof, crates and the pier's posts.
 - **The carousel:** its four front horses (`HORSES`) are platforms. A slime standing on one is drawn bobbing with it
   (`rideOf`, `horseBob`; drawing only, like the house swing: the physics never moves). The far horses circling round the
   back are just drawing.
@@ -56,9 +61,10 @@ booth's canopy, the carousel's horses and canopy rim, the mirrors' roof, crates 
   front of it, bent its way, by calling the slime's own `draw()` under a transform. `drawFair` is passed the visible
   slimes for this.
 - **Closed, by the owner's rule (the next phase shows, never a "coming soon"):** the Ring Toss (shutters down, "out for
-  rings") and Hook-a-Duck ("gone swimming") are `BOOTHS` with `shut`; the Big Top (laced shut, the ring being raked) is
-  a `FAIR_LOOKS`. (The coaster's station was one, roped off while its chain lift was greased, until F2 opened it.) E on any of them shows its line.
-  The phase that opens each one changes the line into the real thing. The Ferris wheel turns with nobody on it (F3).
+  rings") and Hook-a-Duck ("gone swimming") are `BOOTHS` with `shut` (F4 opens them). E on either shows its line. The
+  phase that opens each one changes the line into the real thing. `FAIR_LOOKS` (a closed ride's line on E) is empty now:
+  the coaster's station was one until F2 opened it, and the Big Top (laced shut, the ring being raked) until F3 made it
+  a door.
 
 ## Booth mode (the minigame mechanic)
 - E at an open booth asks the server (`{a:'start', g}`); its `{a:'go', g, seed}` opens the round. The camera zooms into
@@ -100,11 +106,11 @@ The fourth mirror (`POCKET_X`) is a way into the pocket world, a 3D beach where 
 
 ## Ringmaster Fizz
 `fizz` in `NPCS` and `server/characters.js`: a showman in a red top hat, tailcoat and painted moustache
-(`drawRingmaster`, accessory `ringmaster`). He runs the prize counter and knows every game, prize and closed ride (and
-the in-world reason each is shut). He doesn't know or won't say how old the fair is. `lore: 3`: with a slime who has
+(`drawRingmaster`, accessory `ringmaster`). He runs the prize counter and knows every game, ride, prize and closed booth (and
+the in-world reason each is shut), and puts on the Big Top's show (the ringmaster in the ring is the show's drawing: the
+NPC stays at his counter). He doesn't know or won't say how old the fair is. `lore: 3`: with a slime who has
 learned Tier 3, he can talk over the Keepers' fair. Pim, who runs the Ring Toss, is his offstage friend.
 
-## Not done yet (F3–F4, `story/fair-plan.md`)
-The Ferris wheel's gondolas, the teacups, the High Striker, the dunk tank, the
-Big Top's trampoline and show, the other booths, Madame Wobble, fireworks, plush furniture and goldfish prizes.
+## Not done yet (F4, `story/fair-plan.md`)
+The other booths (Ring Toss, Hook-a-Duck, Jelly Stack, Slime-Ball), Madame Wobble, fireworks, plush furniture and goldfish prizes.
 Untested by people: how hard the games feel, the ticket pace and the music (`docs/ideas.md`).

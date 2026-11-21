@@ -27,7 +27,9 @@ Each phase shows the next one's rides closed for an in-world reason, and lifts t
   ride together and everyone on the ground sees you go by; the car tilts with the track and your slime turns with it
   (the house swing's drawing trick). Stations at the Gate Plaza, the Midway, Ride Row and the Pier's End; a loop over the
   Hall of Mirrors and a dive through the Big Top's roof.
-- [ ] **F3: rides and the Big Top.** The Ferris wheel's gondolas (sit in one, it turns you to the top, where every island
+- [x] **F3: rides and the Big Top** (shipped 2026-11-21, `docs/places/rides.md`). Built as planned, with the Big Top as its
+  own room (113) through its door, and a new strip of the fair, the Green, for the High Striker, the dunk tank and the
+  teacups. The plan as written: The Ferris wheel's gondolas (sit in one, it turns you to the top, where every island
   shows); the teacups (your controls swap while you spin: the boss challenges' `cs`); the Big Top opens (a trampoline
   ring: a bouncy platform kind in `step()`, and Fizz's show on a server clock); the High Striker (slap the pad, the
   server decides how high the puck goes); the dunk tank (a friend on the plank, you throw at the target).

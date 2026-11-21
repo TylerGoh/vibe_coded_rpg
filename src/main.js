@@ -79,6 +79,10 @@ import { drawFair, drawFairTent, drawFairPlot } from './fair-art.js';
 import { drawRider, riderHidden, cartNear, setCoaster } from './coaster.js';
 import { CATCH } from './shared/coaster.js';
 import { FAIR, BOOTHS } from './shared/fair.js';
+import { BIGTOP } from './shared/bigtop.js';
+import { WHEEL, gondolaDown, topOf } from './shared/wheel.js';
+import { BigTop } from './bigtop.js';
+import { setRides, drawWheelRider, drawGreenFront, spinOf } from './fair-rides.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
 import { GATES, gateAt } from './shared/branches.js';
 import { drawGates, drawEntries } from './branch-gates.js';
@@ -438,6 +442,13 @@ fair.onCatch = () => {
   moveBits |= USE | CATCH;
   moveSteps = 1;
 };
+// F3's rides (docs/places/rides.md): the Ferris wheel's gondola at the bottom (E sends CATCH then, like a coaster car), the
+// High Striker and the dunk tank's balls (a swing of your mitten), and the Big Top's show
+fair.wheelReady = () => gondolaDown(net.renderTick() ?? 0);
+fair.now = () => time;
+fair.slimeAt = (id) => (id === net.id ? mine : slimes.get(id)?.visible ? slimes.get(id) : null);
+fair.onSwing = () => mine?.slap(mine.facing);
+const bigtop = new BigTop({ audio });
 // Clio can be asked from anywhere in the museum (Q, the Ask button, or a fact sheet's "Ask Clio")
 const askClio = (prefill = '') => {
   museum.close();
@@ -1082,6 +1093,7 @@ function slapToward(dir, aimed = false) {
   const retreat = bow && retreatOpen(net.me, dir); // (the server makes the same call from its own state)
   mine.slap(dir); // swing straight away
   audio.sfx(weaponSound(mine), { vol: 0.7 });
+  if (room === FAIR) fair.slapped(net.me); // (a slap on the High Striker's pad: src/fair.js)
   // Charge (Warrior): a hit while dashing or just after is stronger and gives Dash back (sim.js applyCharge)
   const charge = isCombat(room) && chargeOpen(net.me); // (the server makes the same call from its own state)
   const hits = rpg.slapHits(mine, dir, charge ? SKILLS.charge.mult(chaseRank(net.me.mw, 0)) : retreat ? SKILLS.retreat_shot.mult(chaseRank(net.me.mw, 3)) : 1, retreat);
@@ -1538,7 +1550,8 @@ function update(realDt) {
   if (sail.door && !(online() && doorAt(net.me) === sail.door)) sail.close(); // walked off the gangway
   if (room === MUSEUM) museum.update(dt, online() ? net.me : null);
   if (scope.isOpen) scope.update(dt);
-  if (room === FAIR || fair.isOpen) fair.update(dt);
+  if (room === FAIR || fair.isOpen) fair.update(dt, net.renderTick());
+  if (room === BIGTOP) bigtop.update(dt, net.renderTick(), online() ? net.me : null); // (the show's clock and sounds: src/bigtop.js)
   tutor.update(dt, online() && room === TUTOR);
   players.showCard();
   trade.showCard();
@@ -1803,7 +1816,8 @@ function render() {
   else if (room === ROADSEND) drawRoadsEnd(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (roomDef(room)?.crossing) drawCrossing(ctx, room, camX, W, time, online() ? net.me : null);
   else if (room === ARENA) drawArena(ctx, camX, W, time); // (the dev sandbox's Training Yard: docs/sandbox.md)
-  else if (room === FAIR) setCoaster(net.renderTick(), [...[...slimes.values()].filter((s) => s.visible && s.rd).map((s) => s.rc | 0), ...(online() && net.me.rd ? [net.me.rc | 0] : [])]), drawFair(ctx, camX, W, time, [...slimes.values()].filter((s) => s.visible && !splatted(s)).concat(mine && net.id !== null && !splatted(mine) ? [mine] : []), fair.bests); // (the mirrors show the slimes in front of them)
+  else if (room === BIGTOP) bigtop.draw(ctx, camX, W, time, [...slimes.values()].filter((s) => s.visible).concat(mine && net.id !== null ? [mine] : [])), bigtop.drawShow(ctx); // (F3: the trampoline ring and Fizz's show)
+  else if (room === FAIR) setCoaster(net.renderTick(), [...[...slimes.values()].filter((s) => s.visible && s.rd === 1).map((s) => s.rc | 0), ...(online() && net.me.rd === 1 ? [net.me.rc | 0] : [])]), setRides(net.renderTick(), [...[...slimes.values()].filter((s) => s.visible && s.rd === WHEEL).map((s) => s.rc | 0), ...(online() && net.me.rd === WHEEL ? [net.me.rc | 0] : [])], online() && net.me.rd === WHEEL ? topOf(net.me.rc | 0) : 0), drawFair(ctx, camX, W, time, [...slimes.values()].filter((s) => s.visible && !splatted(s)).concat(mine && net.id !== null && !splatted(mine) ? [mine] : []), fair.bests); // (the mirrors show the slimes in front of them)
   else drawVillage(ctx, camX, W, time);
   if (room === VILLAGE && Math.abs(SHOP_X - camX - W / 2) < W / 2 + 80) {
     merchant.draw(ctx);
@@ -1828,7 +1842,18 @@ function render() {
   const rideOf = (s) => (s === mine ? (online() ? [net.me.rd | 0, net.me.rc | 0] : [0, 0]) : [s.rd | 0, s.rc | 0]);
   const drawSlime = (s) => {
     const [rd, rc] = room === FAIR ? rideOf(s) : [0, 0];
+    if (rd === WHEEL) return void drawWheelRider(ctx, s, rc, () => s.draw(ctx)); // in a gondola of the Ferris wheel (src/fair-rides.js)
     if (rd) return void drawRider(ctx, s, rc, () => s.draw(ctx)); // on the Gathering Line, in its car (src/coaster.js)
+    const spin = room === FAIR ? spinOf(s, time) : null; // in a teacup: spun round (drawing only)
+    if (spin !== null) {
+      ctx.save();
+      ctx.translate(s.x, 0);
+      ctx.scale(spin, 1);
+      ctx.translate(-s.x, 0);
+      s.draw(ctx);
+      ctx.restore();
+      return;
+    }
     const sw = isHouse(room) && houses.swingFor(room, s, time), bob = fair.rideOf(s, room, time);
     if (bob) {
       ctx.save();
@@ -1860,9 +1885,10 @@ function render() {
   if (room === UNDERCROFT) drawUndercroftFront(ctx, camX, W, time); // the dark closing in, heavier going east
   if (room === SPOKE) drawSpokeFront(ctx, camX, W, time, online() ? net.me : null); // the dark, the rim's teeth closing behind, the Escapement's line
   if (room === SHELLROAD) drawShellRoadFront(ctx, camX, W, time, online() ? net.me : null); // the dusk at the edges, Old Carapace's line
+  if (room === FAIR) drawGreenFront(ctx, camX, W, time); // the dunk tank's water and glass, the teacups' fronts, over whoever's in them
   if (room === FAIR) fair.drawPlaying(ctx, (id) => (slimes.get(id)?.visible ? slimes.get(id) : null)); // who's at a booth
   if (room === FAIR) pocket.drawAway(ctx, (id) => (slimes.get(id)?.visible ? slimes.get(id) : id === net.id ? mine : null)); // and who's off on the beach
-  const inTent = (s) => room === FAIR && !!rideOf(s)[0] && riderHidden(rideOf(s)[1]); // (inside the Big Top on the coaster)
+  const inTent = (s) => room === FAIR && rideOf(s)[0] === 1 && riderHidden(rideOf(s)[1]); // (inside the Big Top on the coaster)
   const tagDy = (s) => (room === FAIR && rideOf(s)[0] ? 24 : 0);
   for (const s of all) if (!inTent(s)) nameTag(s, false, tagDy(s));
   if (meShown && !inTent(mine)) nameTag(mine, true, tagDy(mine));
@@ -1937,6 +1963,7 @@ function render() {
     else if (status === 'online' && room === WICKMERE) drawPill(16, 14, 300, `Wickmere · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CARAVAN) drawPill(16, 14, 300, `Caravanserai · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === CLIFFS) drawPill(16, 14, 300, `The East Cliffs · ${here} slime${here === 1 ? '' : 's'}`);
+    else if (status === 'online' && room === BIGTOP) drawPill(16, 14, 300, `The Big Top · ${rpg.me?.tickets ?? 0} tickets · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === FAIR) drawPill(16, 14, 330, `The Gathering Fair · ${rpg.me?.tickets ?? 0} tickets · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === ROADSEND) drawPill(16, 14, 300, `The Road's End · ${here} slime${here === 1 ? '' : 's'}`);
     else if (status === 'online' && room === LONGFLUE) drawPill(16, 14, 300, `The Long Flue · ${here} slime${here === 1 ? '' : 's'}`);
@@ -2009,7 +2036,7 @@ function render() {
 }
 
 // For tests and troubleshooting: open the game with #debug to reach its internals from the console.
-if (location.hash === '#debug') window.slimeville = { pool, news, REBIRTH_X, chat, net, voice, characters, museum, scope, fair, pocket, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, pets, chest, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
+if (location.hash === '#debug') window.slimeville = { pool, news, REBIRTH_X, chat, net, voice, characters, museum, scope, fair, bigtop, pocket, hall, piano, tutor, courseMenu, rpg, skillTree, shop, houses, store, alchemy, pets, chest, players, accuse, audio, slimes, get mine() { return mine; }, get camX() { return camX; } };
 
 // #debug also keeps frame timings (window.slimeville.perf: JS time in update() and render(), and the gap
 // between frames, which includes the browser's own drawing) and shows the frame rate in the corner.

@@ -286,5 +286,8 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
 - Today's bests live in the server's memory only (a restart clears them); an all-time board would need a table.
 - F2, the coaster (2026-11-21): untested with people: whether catching a car is easy enough (on a phone too), how hopping
   off from up high feels, phones' frame rate on it; no sounds of its own yet (`docs/places/coaster.md`).
-- The phases still to come: `story/fair-plan.md` (F3 the rides and the Big Top, F4 more games, Madame
+- F3, the rides and the Big Top (2026-11-21): untested with people: catching a gondola (on a phone too), the trampolines'
+  feel, the dunk tank's odds, the High Striker's ticket pace, the show's length and how often it runs; the Green and the
+  wheel never seen on a screen by an agent (`docs/places/rides.md`).
+- The phases still to come: `story/fair-plan.md` (F4 more games, Madame
   Wobble, fireworks, more prizes).

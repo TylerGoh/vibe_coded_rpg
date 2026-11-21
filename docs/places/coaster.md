@@ -18,6 +18,8 @@ in `server/characters.js`.
   Ferris wheel and the carousel, the **Ride Row** station, the loop between the Hall of Mirrors' sign and the high line,
   the **Pier's End** station; then up a turnaround at the east end, back west along the top of the sky, and down a
   turnaround into the Gate Plaza again. Only the Ferris wheel is tall enough to cross it.
+- F3 put the Green in after the Midway (`GREEN_X`, `docs/places/rides.md`): every node, station and pylon east of it moved
+  `GREEN_W` along, with three new nodes over the Green and two on the way back, so the loop got longer (`LOOP_T`).
 - The first version ran low through the fair, dived in through the Big Top's roof (riders hidden inside: the `'T'` flag
   and `hidden` still work for a stretch like that) and stood on lattice legs every few samples. Raising it brought the
   Big Top's peak down a little so both lines clear it, and the legs became a few slim `PYLONS` in the gaps between

@@ -49,8 +49,9 @@ the magma slug's, wisp's, golem's and cinder bat's voices, the Eldest the Coloss
   stage (`setIntensity`).
 - Effects for slaps, swings, hits, every skill, boss attacks, coming out of the Rebirth Pool (`reborn`: a splash, bubbles, a rising shimmer, a warm chord; quieter and panned for someone else), per-mob hurt/death voices
   (`sfx('mobHurt', {kind})`), the shop, scrolls, level up, doors, splats, and the Gathering Fair's booths (`fairStart`,
-  `fairEnd`, `pop`, `plink`, `bonk`, `whiff`, `tickets`, `prize`).
-- The Gathering Fair (`fair`, slot 112): a calliope waltz in G, oom-pah-pah, a glockenspiel answering on the second
+  `fairEnd`, `pop`, `plink`, `bonk`, `whiff`, `tickets`, `prize`) and its rides (`thunk`, `bell`, `splash`, `boing`, and the Big
+  Top's show: `drumroll`, `cymbal`, `boom`, `cheer`; `docs/places/rides.md`).
+- The Gathering Fair (`fair`, slots 112 and 113, the Big Top inside it): a calliope waltz in G, oom-pah-pah, a glockenspiel answering on the second
   pass, the crowd's murmur and a cheer now and then down the midway (`docs/places/fair.md`).
 - Esc menu → "Music: on/off" (localStorage `slimeville-music`). `audio.unlock()` runs on every gesture.
 - The overall music level is `MUSIC` at the top of the file, kept low on purpose. Nobody has listened to

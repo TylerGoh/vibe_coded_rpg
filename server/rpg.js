@@ -451,7 +451,7 @@ export function createRpg({ dbPath, players, send, toRoom, broadcast, hooks = {}
   // What everyone else sees of you: gear, level and friendly fire (also part of join / welcome)
   const look = (p) => ({ cls: p.rpg.cls, gear: p.rpg.gear, lvl: p.rpg.lvl, pvp: p.rpg.pvp, wear: p.rpg.wear, showHelmet: p.rpg.showHelmet, plus: p.rpg.gearE?.weapon?.s ?? 0 });
   const showLook = (id, p, extra = {}) => broadcast({ t: 'gear', id, ...look(p), ...extra });
-  const fair = createFair({ send, toRoom: (r) => toRoom(r), sendMe: (p) => sendMe(p), showLook: (id, p) => showLook(id, p), toast: (p, t) => toast(p, t) }); // the Gathering Fair's booths and prizes
+  const fair = createFair({ send, players, toRoom: (r) => toRoom(r), sendMe: (p) => sendMe(p), showLook: (id, p) => showLook(id, p), toast: (p, t) => toast(p, t) }); // the Gathering Fair's booths and prizes
   const toast = (p, text) => send(p.ws, { t: 'toast', text });
 
   // e: a piece of gear's scroll enhancement (it travels with the item)

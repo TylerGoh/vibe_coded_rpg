@@ -10,6 +10,7 @@
 // chip of Brenna's tooth is a server-owned object (picked up with the loot key, thrown with an attack: pick, throw), and
 // Rewind snaps everyone back to where they stood ({t:'rw'}, a predicted edit checked against where the server had them)
 // while the boss's attacks of those seconds come again (recorded by bossEvent in server/rpg.js: m.rec).
+import { FAIR, DUNK_BIT } from '../src/shared/fair.js';
 import {
   CHALLENGES, TRAP_HOLD, SNARE_TICKS, SNARE_WARN, SNARE_LIVE, SNARE_R, SNARE_PUNISH, PUNISH_KEEP_S, snareLen, SWAP_TICKS, SWAP_SPEED, SWAP_R, CLAIM_SLACK_MS,
   seedFor, comboFor, sameCombo, RHYTHM_TICKS, RHYTHM_BEAT, RHYTHM_SLACK_MS, rhythmLen, CAGE_WARN, CAGE_R, CAGE_S, RESCUE_R, GAPS_WARN, GAPS_LIVE, GAP_W, GAP_SLIDE,
@@ -333,7 +334,7 @@ export function createChallenges({ now, MOBS, bossEvent, send, toRoom, inRoom, m
 
   // ——— A15: {t:'pf', s, pf}: the platforms sunk for p as its client's clock passed the boss's schedule ———
   let masks = new Map(), tilts = new Map(); // room → what's sunk there now; room → the floor's lean there now (rebuilt every tick)
-  const arenaMask = (room) => masks.get(room) ?? 0;
+  const arenaMask = (room) => (masks.get(room) ?? 0) | (room === FAIR ? DUNK_BIT : 0); // (the fair's dunk tank drops its plank this way: server/fair.js)
   function platforms(id, p, m) {
     if (m.tl !== undefined) { // (the tilting floor: only the lean a boss there has going, or level)
       const tl = m.tl | 0;

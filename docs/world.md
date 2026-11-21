@@ -73,7 +73,8 @@ constants) and, for the combat stages, `src/shared/rpg.js`. Room ids are indices
 | The Long Flue | 64 `LONGFLUE` | back up to the Under-Flues (west end) · Typhon's den, the Hearth (room 65, `TYPHON_DEN`, `docs/places/typhon.md`), through the furnace door at `TYPHON_DEN_X`; no mobs, not a combat room (`docs/places/underflues.md`) |
 | The Queen's Bridge | 42 `QBRIDGE` | back down the ice stair to Frostpine Ridge (west end) · Sigrun's den, the Seam (room 43), at the east end (`docs/places/queensbridge.md`) |
 | Pet Shop | 27 `PETSHOP` | exit (`docs/places/pets.md`) |
-| The Gathering Fair | 112 `FAIR` | the tent flap at the west end, back out at your town's tent (a `TOWN` door with `fair`); every town's striped tent leads in (`docs/places/fair.md`) |
+| The Gathering Fair | 112 `FAIR` | the tent flap at the west end, back out at your town's tent (a `TOWN` door with `fair`); every town's striped tent leads in (`docs/places/fair.md`); the Big Top's door |
+| The Big Top | 113 `BIGTOP` | its flap, back out at the Big Top's door in the fair (`docs/places/rides.md`) |
 | Furniture store | 18 `STORE` | exit · section doors in the lobby (`storePortalX`) · an Entrance door at each later section (`docs/places/houses.md`) |
 | Boss dens | 6, 7, 8, 10, 11, 14, 15, 16, 17, 26, 30, 35 | exit, back to the stage it's in (`DENS[].from`) |
 | The Training Yard | 53 `ARENA` | no doors: only the dev sandbox's server puts anyone there, and its panel is the way out (`docs/sandbox.md`); a combat room |

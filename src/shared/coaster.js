@@ -17,8 +17,8 @@ export const SEAT = 16; // a rider's feet sit this far above the rail
 export const STATIONS = [
   { id: 'gate', name: 'the Gate Plaza', x: 1400 },
   { id: 'midway', name: 'the Midway', x: 2310 },
-  { id: 'ride', name: 'Ride Row', x: 4240 },
-  { id: 'pier', name: "the Pier's End", x: 5260 },
+  { id: 'ride', name: 'Ride Row', x: 5240 },
+  { id: 'pier', name: "the Pier's End", x: 6260 },
 ];
 // E catches a car whose seat is within CATCH_R of your feet (from the ground at a station, or jumping up to one going by);
 // the client only sends CATCH when it can see one there
@@ -58,34 +58,40 @@ at(2370, RAIL, 'L');
 at(2420, 330, 'L');
 at(2480, 200, 'L');
 at(2560, 146);
+// over the Green (F3: the High Striker, the dunk tank, the teacups)
+at(2900, 152);
+at(3250, 134);
+at(3550, 150);
 // over the booths, the wheel and the carousel
-at(2800, 160);
-at(3050, 138);
-at(3300, 162);
-at(3550, 136);
-at(3860, 140);
-at(4050, 156);
+at(3800, 160);
+at(4050, 138);
+at(4300, 162);
+at(4550, 136);
+at(4860, 140);
+at(5050, 156);
 // Ride Row
-at(4190, RAIL, 'R');
-at(4300, RAIL, 'L');
-at(4360, 330, 'L');
-at(4430, 210, 'L');
-at(4530, 208);
+at(5190, RAIL, 'R');
+at(5300, RAIL, 'L');
+at(5360, 330, 'L');
+at(5430, 210, 'L');
+at(5530, 208);
 // the loop over the Hall of Mirrors (under the high line, over the hall's sign)
-arc(4620, 160, 48, 0, Math.PI * 2, 1, 1, 36, 'O', 24);
-at(4780, 196);
-at(4960, 186);
-at(5110, 250);
+arc(5620, 160, 48, 0, Math.PI * 2, 1, 1, 36, 'O', 24);
+at(5780, 196);
+at(5960, 186);
+at(6110, 250);
 // the Pier's End, and the turnaround up at the east end
-at(5210, RAIL, 'R');
-at(5340, RAIL, 'R');
-arc(5340, 256, RAIL - 256, 0, Math.PI, 1, 1, 30, 'U');
+at(6210, RAIL, 'R');
+at(6340, RAIL, 'R');
+arc(6340, 256, RAIL - 256, 0, Math.PI, 1, 1, 30, 'U');
 // back west, along the top of the sky
-at(5100, 80);
-at(4600, 86);
-at(4100, 76);
-at(3600, 88);
-at(3100, 78);
+at(6100, 80);
+at(5600, 86);
+at(5100, 76);
+at(4600, 88);
+at(4100, 78);
+at(3600, 84);
+at(3100, 80);
 at(2600, 86);
 at(2100, 76);
 at(1700, 84);

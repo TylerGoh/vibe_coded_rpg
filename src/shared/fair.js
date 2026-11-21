@@ -6,7 +6,9 @@
 // EXP or power, and the games are free.
 
 export const FAIR = 112; // room id
-export const FAIR_W = 5540; // (4900 in F1: F2 made room for the coaster's Gate and Midway stations and lengthened the pier)
+export const FAIR_W = 6540; // (4900 in F1: F2 made room for the coaster's Gate and Midway stations and lengthened the pier; F3 put
+// the Green in after Pop Gallery, GREEN_W wide, moving everything east of it along)
+export const GREEN_X = 2730, GREEN_W = 1000; // the Green (F3): the High Striker, the dunk tank, the teacups
 export const FAIR_GROUND = 450;
 export const FAIR_EXIT_X = 150; // the tent flap: where you arrive, and the way back out to the town you came from
 
@@ -21,57 +23,80 @@ export const TENT_W = 70;
 export const FAIR_PLOT_HALF = 118; // the plot's poles stand this far either side of the tent
 
 // ——— the layout, west to east ———
-// the Gate Plaza (the tent flap, the ticket booth, Ringmaster Fizz, the prize counter), the Big Top (scenery: laced shut,
-// the ring being raked, F3), the Midway (the booths), Ride Row (the carousel, the Ferris wheel turning empty behind, the
-// coaster's station roped off while its chain lift is greased, F2), the Hall of Mirrors, the Pier's End
+// the Gate Plaza (the tent flap, the ticket booth, Ringmaster Fizz, the prize counter), the Big Top (a door into its own
+// room since F3: the trampoline ring and Fizz's show, src/shared/bigtop.js), the Midway (Pop Gallery, the Green, the other
+// booths), Ride Row (the Ferris wheel, src/shared/wheel.js, the carousel, the coaster's station), the Hall of Mirrors, the
+// Pier's End
 export const FIZZ_X = 560; // Ringmaster Fizz, by the prize counter
 export const PRIZE_X = 790; // the first prize on the counter
 export const PRIZE_STEP = 95;
 export const PRIZE_RANGE = 40;
-export const BIGTOP_X = 1880; // the Big Top's middle (background)
-export const CAROUSEL_X = 3860; // the carousel's middle
+export const BIGTOP_X = 1880; // the Big Top's middle, and its door (into the Big Top's own room since F3)
+export const CAROUSEL_X = 4860; // the carousel's middle
 export const CAROUSEL_R = 190; // its deck's half-width
-export const WHEEL_X = 3460; // the Ferris wheel's hub (background)
-export const STATION_X = 4240; // the coaster's Ride Row station (src/shared/coaster.js has all four)
-export const MIRRORS_X0 = 4420, MIRRORS_X1 = 4820; // the Hall of Mirrors' open front
+export const WHEEL_X = 4410; // the Ferris wheel's hub, and its foot where you catch a gondola (src/shared/wheel.js)
+export const STATION_X = 5240; // the coaster's Ride Row station (src/shared/coaster.js has all four)
+export const MIRRORS_X0 = 5420, MIRRORS_X1 = 5820; // the Hall of Mirrors' open front
 export const MIRRORS = [ // each mirror: its middle, and how it bends you (src/fair.js)
-  { x: 4470, bend: 'tall' },
-  { x: 4570, bend: 'wide' },
-  { x: 4670, bend: 'wobble' },
-  { x: 4770, bend: 'flip' },
+  { x: 5470, bend: 'tall' },
+  { x: 5570, bend: 'wide' },
+  { x: 5670, bend: 'wobble' },
+  { x: 5770, bend: 'flip' },
 ];
-export const PIER_X = 4920;
-export const POCKET_X = 4770; // the upside-down mirror: E steps through it into the pocket world, a 3D beach (src/pocket.js) // where the boardwalk goes out over the water
+export const PIER_X = 5920;
+export const POCKET_X = 5770; // the upside-down mirror: E steps through it into the pocket world, a 3D beach (src/pocket.js) // where the boardwalk goes out over the water
 
 export const BOOTH_RANGE = 70;
 // The booths. game: what E starts (FAIR_GAMES below); shut: a stall the next phase opens, with its in-world reason (owner's
 // rule: the next phase shows but doesn't open, never a "coming soon")
 export const BOOTHS = [
   { id: 'gallery', x: 2560, name: 'Pop Gallery', game: 'gallery', canopy: ['#ff8fa6', '#fff4e6'] },
-  { id: 'bonk', x: 2900, name: 'Bonk-a-Knotmole', game: 'bonk', canopy: ['#8fc8ff', '#fff4e6'] },
-  { id: 'rings', x: 3230, name: 'Ring Toss', shut: 'Shutters down. A card on the counter: "Gone to fetch more rings. Back soon. - P."', canopy: ['#b9e58c', '#fff4e6'] },
-  { id: 'ducks', x: 3580, name: 'Hook-a-Duck', shut: 'The pond is empty. A chalk line on the board: "Ducks out for a swim."', canopy: ['#ffd36e', '#fff4e6'] },
+  { id: 'bonk', x: 3800, name: 'Bonk-a-Knotmole', game: 'bonk', canopy: ['#8fc8ff', '#fff4e6'] },
+  { id: 'rings', x: 4230, name: 'Ring Toss', shut: 'Shutters down. A card on the counter: "Gone to fetch more rings. Back soon. - P."', canopy: ['#b9e58c', '#fff4e6'] },
+  { id: 'ducks', x: 4580, name: 'Hook-a-Duck', shut: 'The pond is empty. A chalk line on the board: "Ducks out for a swim."', canopy: ['#ffd36e', '#fff4e6'] },
 ];
 // other things E reads aloud (a toast): the closed rides
-export const FAIR_LOOKS = [
-  { x: BIGTOP_X, w: 120, look: 'look at the Big Top', says: 'The flaps are laced shut. Inside, someone is raking the ring and humming.' },
-];
+export const FAIR_LOOKS = [];
+
+// ——— the Green (F3, docs/places/rides.md): the High Striker, the dunk tank, the teacups ———
+export const STRIKER_X = 2830; // the High Striker's pad: slap it (or E), and the server decides how high the puck goes
+export const STRIKER_RANGE = 44;
+export const STRIKE_CD_MS = 2500; // one swing per this long
+export const STRIKE_TICKETS = 4; // for ringing the bell
+// how high the puck goes (1 = the bell): rolled on the server. A Charge (dash, then slap) hits harder
+export const strikeHeight = (r, charge) => Math.min(1, (charge ? 0.5 : 0.35) + 0.75 * Math.pow(r, 1.4));
+export const DUNK_X = 3040; // the dunk tank's middle (its glass DUNK_HALF either side)
+export const DUNK_HALF = 70;
+export const PLANK = { x: 2990, y: 300, w: 100, kind: 'plank' }; // the seat over the water: FAIR_PLATFORMS[0], so pf bit 0 drops it
+export const DUNK_BIT = 1; // (pf: the plank dropped from under you, set by the server when the target's hit)
+export const DUNK_MS = 900; // how long the plank stays down under its sitters
+export const TARGET_X = 3138, TARGET_Y = 318; // the bullseye on its arm, east of the tank
+export const THROW_X = 3250, THROW_RANGE = 40; // where you throw from
+export const THROW_CD_MS = 1400;
+export const DUNK_HIT = 0.4; // a throw's chance of hitting the bull (the server rolls it)
+export const TEACUPS_X = 3480; // the teacups' turntable (TEACUP_DECK either side); in a cup, your left and right swap (step())
+export const TEACUP_DECK = 150;
+export const CUPS = [-88, 0, 88].map((dx, i) => ({ x: TEACUPS_X + dx - 30, y: 404, w: 60, kind: 'cup', i }));
+export const CUP_SPIN_TICKS = 40; // (cs: the swap lasts this long after you hop out, still dizzy)
 
 // Platforms (one-way): the ticket booth's roof, the booths' canopies, the carousel's horses and its canopy rim, the mirrors'
 // roof, crates and the pier's posts. The horses are `horse` (a slime on one bobs with it: src/fair.js rideOf)
 const booths = BOOTHS.map((b) => ({ x: b.x - 100, y: 300, w: 200, kind: 'canopy' }));
 export const HORSES = [-135, -45, 45, 135].map((dx, i) => ({ x: CAROUSEL_X + dx - 24, y: 380, w: 48, kind: 'horse', i }));
 export const FAIR_PLATFORMS = [
+  PLANK, // (first: pf bit 0)
+  { x: 2925, y: 374, w: 46, kind: 'ladder' }, // the dunk tank's step up to the plank
+  ...CUPS,
   { x: 340, y: 330, w: 150, kind: 'kiosk' },
   { x: 1180, y: 402, w: 70, kind: 'crates' },
   { x: 1230, y: 356, w: 50, kind: 'crates' },
   ...booths,
   ...HORSES,
   { x: CAROUSEL_X - 170, y: 250, w: 340, kind: 'carousel' },
-  { x: 4080, y: 402, w: 70, kind: 'crates' },
+  { x: 5080, y: 402, w: 70, kind: 'crates' },
   { x: MIRRORS_X0 + 10, y: 262, w: MIRRORS_X1 - MIRRORS_X0 - 20, kind: 'mirrors' },
-  { x: 5000, y: 392, w: 60, kind: 'post' },
-  { x: 5140, y: 360, w: 60, kind: 'post' },
+  { x: 6000, y: 392, w: 60, kind: 'post' },
+  { x: 6140, y: 360, w: 60, kind: 'post' },
 ];
 
 // ——— tickets and the prize counter ———

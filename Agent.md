@@ -2,7 +2,7 @@
 
 A small multiplayer 2D village (MapleStory-style side view) for a group of friends. Slimes walk and jump
 around, talk by proximity voice, text chat (public and private messages), trade coins and items, chat with AI characters, sit in on AI lectures and quizzes, slap each
-other, play a giant floor piano, tour a huge history museum, play carnival games at the Gathering Fair (a tent in every town) and step through its mirror onto a 3D beach, sail the ferry to Frostpeak, invite friends over to their own houses
+other, play a giant floor piano, tour a huge history museum, play carnival games, ride the coaster and the Ferris wheel and watch the Big Top's show at the Gathering Fair (a tent in every town) and step through its mirror onto a 3D beach, sail the ferry to Frostpeak, invite friends over to their own houses
 with gardens (furnished from a store, bought bigger with gold; farm herbs there and brew potions at an
 alchemy lab; keep pets from the Pet Shop fed or they die), and fight mobs and bosses across four
 stages (levels, skills, stats, loot, gear, scrolls, a shop). Canvas + Vite client, a Node server with WebSockets,
@@ -214,6 +214,7 @@ start story work from `story/roadmap.md`. Owner rules for story work:
 | [docs/places/buried.md](docs/places/buried.md) | the Buried Caravanserai (room 106, Lv 234–242, A3: the hard pocket down the stair under the Observatory's dial ring): husk lizards, buried lamplighters, stiff tents, its elites, the Drovers' Yard and the cut well-rope, the Last Drover (field boss: the swap, his rope, the phantom string) |
 | [docs/places/fair.md](docs/places/fair.md) | the Gathering Fair (room 112, the Keepers' fair through the striped tent in every town): its layout, the tents (`FAIR_TENT_X`), Ringmaster Fizz, tickets and the prize counter (cosmetics with `tickets`), **booth mode** (the zoom-in minigames: Pop Gallery, Bonk-a-Knotmole, the seeded plans and the server's score cap), the carousel, the Hall of Mirrors, the closed rides and the next phases (`story/fair-plan.md`) |
 | [docs/places/coaster.md](docs/places/coaster.md) | the Gathering Line (the fair's coaster, F2): its track, stations, the cars going round, catching one with E and hopping off (`rd`, `rc`, `CATCH` in `step()`), wire version 12, riders drawn in their cars |
+| [docs/places/rides.md](docs/places/rides.md) | the fair's rides (F3): the Ferris wheel (`rd` 2, gondolas, the islands from the top), the Green (the High Striker, the dunk tank and its plank's `pf` bit, the teacups' `cs`), the Big Top (room 113: trampolines, `bounceOf`, Fizz's show on the server's clock) |
 | [docs/places/pocket.md](docs/places/pocket.md) | the pocket world (live since 2026-11-20): the 3D beach through the fair's upside-down mirror (your slime in third person, the sea and its maths, the palms), Three.js on its own canvas, its controls and menu, testing it with `gl: true` |
 | [docs/places/waystones.md](docs/places/waystones.md) | waystones (fast travel, within one island), attuning, the travel card |
 | [docs/places/pets.md](docs/places/pets.md) | pets' hunger, moods and dying, feeding, the Pet Shop, Auntie Clover, pet food |

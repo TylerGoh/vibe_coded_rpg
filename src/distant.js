@@ -50,6 +50,19 @@ export function drawDistantIslands(ctx, o) {
   }
 }
 
+// Where each island in a view sits on screen (the same sums as drawDistantIslands): [{ key, name, x }]. The fair's Ferris
+// wheel names them from the top (src/fair-rides.js)
+const ISLAND_NAMES = { green: 'Greenhollow', frost: 'Frostpeak', ember: 'Emberdeep', citadel: 'the Citadel', fen: 'Lantern Fen', dune: 'Amberdune' };
+export function islandsAt(o) {
+  const view = VIEWS[o.from];
+  if (!view) return [];
+  const pan = -((o.scroll + W / 2) / o.roomW - 0.5) * PAN;
+  return Object.entries(view.sees).map(([key, [bearing, near]]) => {
+    const rel = (((bearing - view.face) % 360) + 540) % 360 - 180;
+    return { key, name: ISLAND_NAMES[key], x: W / 2 + rel * PX_PER_DEG + pan, s: (o.scale ?? 1) * near };
+  });
+}
+
 // One island's landmark on its own, at (x, y = its sea line), for close-ups (the telescope on the east
 // cliffs, src/cliffs.js). o: { time, haze, fade, night, sky } as above.
 export function drawLandmark(ctx, key, x, y, s, o) {

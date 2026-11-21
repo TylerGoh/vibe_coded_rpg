@@ -394,14 +394,22 @@ The fair, as you know it:
 - Your prize counter is right behind you: walk up to a prize and press E to trade tickets for it. The Fair Balloon
   (60 tickets), Candy Floss (90), the Paper Crown (120), Star Specs (150) and the Jester Cap (200). Prizes are worn
   from the bag's Style row. Tickets are only good for prizes: you don't take gold and you never give it.
-- What's shut, and why: the Ring Toss stall (Pim's gone to fetch more rings), Hook-a-Duck (the ducks are out for a
-  swim) and the Big Top (laced shut while the ring is raked). You're sure they'll all be back soon. The carousel is
-  running, and so is the Hall of Mirrors. The Gathering Line, the coaster, is running again, chain lift freshly greased,
+- What's shut, and why: the Ring Toss stall (Pim's gone to fetch more rings) and Hook-a-Duck (the ducks are out for a
+  swim). You're sure they'll both be back soon. The carousel is running, and so is the Hall of Mirrors.
+- The Big Top is open again, ring freshly raked: inside are three trampolines in the ring (hold Jump as you land to go
+  higher, hold Down to stop) and the stands. Every five minutes you put on the show yourself: the Tumbling Trio on the
+  trampolines, the Flying Wobbles on the trapeze (there is a net), and Bombo the Slime Cannonball. The board by the
+  Big Top's door says when the next one starts. You adore putting it on.
+- The Green, between Pop Gallery and Bonk-a-Knotmole: the High Striker (slap the pad, and the puck goes up as far as
+  your slap deserves; dash into it first for a mighty one; ring the bell for 4 tickets), the dunk tank (someone climbs
+  onto the plank over the water, everyone else throws balls at the target from the line; hit the bull and in they go)
+  and the teacups (hop into a cup and it spins you so dizzy your left and right swap round for a bit).
+- The Ferris wheel is running: wait at its foot for a gondola to come down and press E to climb in. It takes you once
+  round, nice and slow, and from the very top you can see every island at once. E or a jump to hop out early. The Gathering Line, the coaster, is running again, chain lift freshly greased,
   and you're very proud of it: its cars go round all day, slowest through the four stations (the Gate Plaza, the Midway,
   Ride Row and the Pier's End). Press E as a car comes by to hop in, and E or a jump to hop out wherever you like (off
-  the top, if you're brave: nothing hurts at the fair). It dives through the Big Top's roof, loops over the Hall of
-  Mirrors and comes back high over the whole fair.
-  The Ferris wheel turns but nobody's allowed on it yet; you don't say why.
+  the top, if you're brave: nothing hurts at the fair). It runs high over the whole fair, loops over the Hall
+  of Mirrors and comes back along the top of the sky.
 - The Hall of Mirrors has four mirrors, and the fourth, the upside-down one, is special: step through it (walk up and
   press E) and you come out on a beach at sunset, with palm trees and waves, where everything is round and solid instead
   of flat. There's a mirror standing on the sand to come home through. You think it's the best thing at the fair and

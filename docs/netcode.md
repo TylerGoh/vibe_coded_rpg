@@ -105,6 +105,11 @@ protocol is documented in the comment at the top of that file: keep it updated**
   (where on the loop), `pack` / `unpack` entries 30 and 31. `step()` carries a rider round the track, puts you in a car on
   an E press with `CATCH` (bit 10 of the input, so `KEY_MASK` grew) and drops you off on E or Jump. Older tabs get version 11's
   records. `docs/places/coaster.md`.
+- 2026-11-21 (F3, the fair's rides, `docs/places/rides.md`): no wire change. `rd` 2 is the Ferris wheel (`rc` its ticks
+  into the turn; E with `CATCH` at the wheel's foot boards it), a platform with `kind: 'tramp'` bounces you instead of
+  landing you (the Big Top), one with `kind: 'cup'` sets `cs` (the teacups swap your controls), all inside `step()`. The
+  dunk tank's plank is the one server-caused move: the server sets `pf` bit 0 on whoever sits on it (the arenas' way),
+  which the snapshot carries to their prediction.
 - 2026-10-24 (the Archer, S4): no wire version change. Two more mob flags in the same byte (2048 marked by
   Hunter's Mark, 4096 netted; the 7 bits there hold up to 16384), Retreat Shot's rank in `mw` bits 6–7 (it was
   6 bits used of the byte), the slap echo's `retreat`, the skill's `mob` / echo's `mark`, and

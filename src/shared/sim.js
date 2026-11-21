@@ -19,9 +19,12 @@ import { FIELD, FIELD_W, FIELD_GROUND, FIELD_PLATFORMS, FIELD_EXIT_X, FIELD_GATE
 import { ARENA, ARENA_W, ARENA_PLATFORMS } from './sandbox.js';
 import { GX, walkOf, AIR_UP_V, AIR_DOWN_V, AIRDASH_CD, KEEP_DASH, GLIDE_JUMP, GLIDE_FALL, PHASE_IFR } from './gearfx.js';
 import { TRAP_HOLD, tiltV } from './challenge.js';
-import { FAIR, FAIR_W, FAIR_GROUND, FAIR_EXIT_X, FAIR_PLATFORMS, FAIR_TENT_X, TENT_W, FIZZ_X } from './fair.js';
+import { FAIR, FAIR_W, FAIR_GROUND, FAIR_EXIT_X, FAIR_PLATFORMS, FAIR_TENT_X, TENT_W, FIZZ_X, BIGTOP_X, WHEEL_X, CUP_SPIN_TICKS } from './fair.js';
+import { WHEEL, WHEEL_T, WHEEL_R, BOARD_R, wheelAt } from './wheel.js';
+import { BIGTOP, BIGTOP_W, BIGTOP_GROUND, BIGTOP_EXIT_X, BIGTOP_PLATFORMS, bounceOf } from './bigtop.js';
 import { CATCH, CATCH_R, SEAT, LOOP_T, trackAt, nearestOnTrack } from './coaster.js';
 export { FAIR } from './fair.js';
+export { BIGTOP } from './bigtop.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
 export const HARBOUR = 19; // Greenhollow Harbour, west of the village (docs/places/harbour.md)
@@ -822,7 +825,16 @@ const townAt = (s) => TOWNS[s.town | 0] ?? TOWNS[0];
 // the tent of the town you came from (your town: the fair isn't one, so it stays the last town you were in)
 ROOMS[FAIR] = {
   name: 'The Gathering Fair', width: FAIR_W, ground: FAIR_GROUND, platforms: FAIR_PLATFORMS,
-  doors: [{ x: FAIR_EXIT_X, w: 80, to: TOWN, fair: true, label: 'step back out through the tent flap' }],
+  doors: [
+    { x: FAIR_EXIT_X, w: 80, to: TOWN, fair: true, label: 'step back out through the tent flap' },
+    { x: BIGTOP_X, w: 100, to: BIGTOP, toX: BIGTOP_EXIT_X, label: 'go into the Big Top' }, // (F3: its flaps tied back)
+  ],
+};
+// room 113 (F3, docs/places/rides.md): the Big Top, through the big striped tent in the fair: the trampoline ring, the
+// bleachers and Fizz's show (src/shared/bigtop.js). A safe room; its flap lets you back out at the Big Top's door
+ROOMS[BIGTOP] = {
+  name: 'The Big Top', width: BIGTOP_W, ground: BIGTOP_GROUND, platforms: BIGTOP_PLATFORMS,
+  doors: [{ x: BIGTOP_EXIT_X, w: 80, to: FAIR, toX: BIGTOP_X, label: 'go back out to the fair' }],
 };
 
 // ——— level bands on doors (docs/world.md) ———
@@ -1012,6 +1024,32 @@ export function step(s, keys) {
   // riding the Gathering Line (src/shared/coaster.js): the car carries you round until E or Jump drops you off, flying on
   // with its speed (not inside the Big Top)
   if (s.rd && s.room !== FAIR) s.rd = s.rc = 0;
+  // in a gondola of the Ferris wheel (src/shared/wheel.js): once round, out at the bottom; E or Jump hops out sooner
+  if (s.rd === WHEEL) {
+    const off = (keys & USE && !s.use) || (keys & JUMP && !s.jh), jumped = keys & JUMP && !s.jh;
+    s.use = !!(held & USE);
+    s.jh = !!(held & JUMP);
+    s.dh = !!(held & DASH);
+    s.bh = !!(held & BLINK);
+    s.ah = !!(held & ATTACK);
+    s.rc = (s.rc | 0) + 1;
+    const p = wheelAt(s.rc);
+    s.drop = s.dt = s.hk = 0;
+    s.sl = s.onPlat = false;
+    s.x = q(p.x);
+    s.y = q(p.y);
+    if (off || s.rc >= WHEEL_T) {
+      const w = (Math.PI * 2 * WHEEL_R) / WHEEL_T * TICK_RATE; // (the rim's speed, px/s)
+      s.rd = s.rc = 0;
+      s.vx = q(-Math.sin(p.a) * w);
+      s.vy = q(Math.cos(p.a) * w - (jumped ? JUMP_V : 0));
+      s.grounded = false;
+    } else {
+      s.vx = s.vy = 0;
+      s.grounded = true;
+    }
+    return s;
+  }
   if (s.rd) {
     const off = (keys & USE && !s.use) || (keys & JUMP && !s.jh), jumped = keys & JUMP && !s.jh;
     s.use = !!(held & USE);
@@ -1055,6 +1093,17 @@ export function step(s, keys) {
   const room = roomDef(s.room);
   // catching a car of the Gathering Line: E with CATCH (the client saw one in reach), the track close by and not inside
   // the Big Top: you're put in the car at the nearest point of the track
+  if (pressedUse && keys & CATCH && s.room === FAIR && s.grounded && !s.onPlat && Math.abs(s.x - WHEEL_X) < BOARD_R) {
+    s.rd = WHEEL; // (the Ferris wheel's gondola at the bottom: the client saw one there)
+    s.rc = 0;
+    const p = wheelAt(0);
+    s.x = q(p.x);
+    s.y = q(p.y);
+    s.vx = s.vy = s.dt = 0;
+    s.grounded = true;
+    s.onPlat = false;
+    return s;
+  }
   if (pressedUse && keys & CATCH && s.room === FAIR) {
     const n = nearestOnTrack(s.x, s.y);
     if (n.d < CATCH_R && !n.hidden) {
@@ -1192,9 +1241,16 @@ export function step(s, keys) {
         if (s.x + HALF_W < p.x || s.x - HALF_W > p.x + p.w) continue;
         if (prevY <= p.y && s.y >= p.y) {
           s.y = p.y;
+          if (p.kind === 'tramp' && !(keys & DOWN)) {
+            s.vy = -bounceOf(s.vy, keys & JUMP); // (the Big Top's trampolines: off again, higher if you push off with Jump)
+            s.aj &= 8;
+            s.fj = false;
+            break;
+          }
           s.vy = 0;
           s.grounded = true;
           s.onPlat = true;
+          if (p.kind === 'cup') s.cs = Math.max(s.cs | 0, CUP_SPIN_TICKS); // (a teacup: left and right swap while it spins you)
           break;
         }
       }

@@ -14,7 +14,10 @@ Files: `src/hints.js` (drawing, `keyName`), `drawHints()` in `src/main.js` (what
   the washed-out footbridge") and a beacon.
 - The Gathering Fair (`docs/places/fair.md`): `fair.prompt` gives E's line at an open booth ("play Pop Gallery (free)"), a
   shut one, a prize on the counter (its ticket price, or "you have it"), a coaster car in reach ("catch the Gathering
-  Line", `docs/places/coaster.md`; in the air too) or, riding, "hop off (E or Jump)", and the closed rides; the open booths
+  Line", `docs/places/coaster.md`; in the air too) or, riding, "hop off (E or Jump)", F3's rides (`docs/places/rides.md`:
+  "climb into the gondola" / "wait for the next gondola" at the wheel's foot, "hop out of the gondola (E or Jump)",
+  "slap the High Striker (or E)", "throw a ball at the dunk tank"), and the closed booths; the Big Top's door says when
+  the next show is (`fair.update` rewrites its label); the open booths
   get beacons.
 - Waystones (`wayPrompt`) and every room's Keeper stones (`ruinStoneAt` is room-aware now) have prompts
   and beacons.

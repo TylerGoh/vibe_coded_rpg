@@ -31,7 +31,7 @@ export function setCoaster(t, rcs) {
   riding = rcs;
 }
 // where the pylons stand: by the stations' sheds and the turnarounds, and in the gaps between the booths
-const PYLONS = [1180, 1500, 2200, 2730, 3065, 3405, 4130, 4870, 5160, 5500];
+const PYLONS = [1180, 1500, 2200, 2700, 3300, 3680, 4065, 4340, 5130, 5870, 6160, 6500]; // (F3 added the Green's two)
 const near = (a, b) => Math.min(Math.abs(a - b), LOOP_T - Math.abs(a - b)) < 40;
 export function drawCoaster(ctx, L, R, time) {
   // slim pylons, only in the gaps between the fair's things (owner: the coaster keeps out of their way), each holding up

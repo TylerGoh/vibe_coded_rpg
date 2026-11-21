@@ -7,7 +7,9 @@ import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
 import { text } from './village.js';
 import { drawDistantIslands } from './distant.js';
 import { drawCoaster } from './coaster.js';
-import { FAIR_PLOT_HALF, FAIR_W, FAIR_GROUND, FAIR_EXIT_X, FAIR_PLATFORMS, BOOTHS, HORSES, CAROUSEL_X, CAROUSEL_R, WHEEL_X, BIGTOP_X, MIRRORS_X0, MIRRORS_X1, MIRRORS, PIER_X, PRIZES, prizeX } from './shared/fair.js';
+import { drawWheel, drawGreen, drawIslandNames, rideTick } from './fair-rides.js';
+import { nextShow } from './shared/bigtop.js';
+import { FAIR_PLOT_HALF, FAIR_W, FAIR_GROUND, FAIR_EXIT_X, FAIR_PLATFORMS, BOOTHS, HORSES, CAROUSEL_X, CAROUSEL_R, BIGTOP_X, MIRRORS_X0, MIRRORS_X1, MIRRORS, PIER_X, PRIZES, prizeX } from './shared/fair.js';
 import { COSMETICS } from './shared/rpg.js';
 
 const G = FAIR_GROUND;
@@ -277,7 +279,7 @@ function drawSky(ctx, camX, time) {
 const farTents = (() => {
   const r = mulberry32(11221);
   const out = [];
-  for (let x = -100; x < 2200; x += 90 + r() * 80) out.push({ x, w: 70 + r() * 60, h: 50 + r() * 50, c: r() < 0.5 ? '#c86f9a' : '#7f8fd0' });
+  for (let x = -100; x < (PIER_X - 520) / 2; x += 90 + r() * 80) out.push({ x, w: 70 + r() * 60, h: 50 + r() * 50, c: r() < 0.5 ? '#c86f9a' : '#7f8fd0' });
   return out;
 })();
 function drawFarTents(ctx, camX) {
@@ -471,7 +473,7 @@ function drawPrize(ctx, id, x, y, time) {
   ctx.restore();
 }
 
-// ——— the Big Top (laced shut until F3) ———
+// ——— the Big Top (laced shut in F1 and F2; its own room since F3, and this is its door) ———
 function drawBigTop(ctx, time) {
   const x = BIGTOP_X, w = 560, peak = G - 270, eave = G - 150; // (its peak brought down in F2 so the coaster clears it)
   for (let i = 0; i < 14; i++) {
@@ -513,24 +515,38 @@ function drawBigTop(ctx, time) {
     ctx.lineTo(px, py - h + 12);
     ctx.fill();
   }
-  // the entrance, laced shut
-  ctx.fillStyle = '#c23f57';
+  // the entrance: its flaps tied back on the warm light inside
+  ctx.fillStyle = '#ffd98a';
   ctx.beginPath();
   ctx.moveTo(x - 50, G);
   ctx.lineTo(x - 50, G - 110);
   ctx.quadraticCurveTo(x, G - 140, x + 50, G - 110);
   ctx.lineTo(x + 50, G);
   ctx.fill();
-  ctx.strokeStyle = GOLD;
-  ctx.lineWidth = 1.6;
-  for (let y = G - 110; y < G - 6; y += 14) {
+  ctx.fillStyle = 'rgba(255,240,200,0.9)';
+  ellipse(ctx, x, G - 6, 40, 8);
+  for (const side of [-1, 1]) {
+    ctx.fillStyle = '#c23f57';
     ctx.beginPath();
-    ctx.moveTo(x - 6, y);
-    ctx.lineTo(x + 6, y + 7);
-    ctx.moveTo(x + 6, y);
-    ctx.lineTo(x - 6, y + 7);
-    ctx.stroke();
+    ctx.moveTo(x + side * 50, G);
+    ctx.lineTo(x + side * 50, G - 110);
+    ctx.quadraticCurveTo(x + side * 30, G - 130, x + side * 10, G - 122);
+    ctx.quadraticCurveTo(x + side * 34, G - 70, x + side * 34, G - 50);
+    ctx.quadraticCurveTo(x + side * 40, G - 20, x + side * 50, G);
+    ctx.fill();
+    ctx.fillStyle = GOLD;
+    circle(ctx, x + side * 36, G - 52, 3);
   }
+  // the board by the door: when the show's on
+  const t = rideTick(), next = t === null ? null : nextShow(t);
+  ctx.fillStyle = '#8a6a4a';
+  ctx.fillRect(x + 92, G - 60, 4, 60);
+  ctx.fillStyle = '#3f3a78';
+  ctx.beginPath();
+  ctx.roundRect(x + 58, G - 96, 72, 40, 8);
+  ctx.fill();
+  text(ctx, next === 0 ? 'SHOW ON' : 'NEXT SHOW', x + 94, G - 85, 9, GOLD);
+  text(ctx, next === null ? '...' : next === 0 ? 'NOW!' : `${Math.floor(next / 60)}:${String(Math.floor(next % 60)).padStart(2, '0')}`, x + 94, G - 68, 13, next === 0 ? '#ff9fb8' : '#fff4e6');
   ctx.fillStyle = '#3f3a78';
   ctx.beginPath();
   ctx.roundRect(x - 110, eave - 64, 220, 36, 18);
@@ -634,50 +650,7 @@ function drawBooth(ctx, b, time, best) {
 }
 const clip = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
 
-// ——— Ride Row: the Ferris wheel and the coaster's track behind, the carousel in front ———
-function drawWheel(ctx, time) {
-  const x = WHEEL_X, y = G - 240, R = 190, a = time * 0.12;
-  ctx.strokeStyle = '#8a7fb0';
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.moveTo(x - 90, G);
-  ctx.lineTo(x, y);
-  ctx.lineTo(x + 90, G);
-  ctx.stroke();
-  ctx.strokeStyle = '#d6c8f0';
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.arc(x, y, R, 0, TAU);
-  ctx.stroke();
-  ctx.lineWidth = 1.5;
-  for (let i = 0; i < 12; i++) {
-    const t = a + (i / 12) * TAU;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + Math.cos(t) * R, y + Math.sin(t) * R);
-    ctx.stroke();
-  }
-  for (let i = 0; i < 24; i++) {
-    const t = a + (i / 24) * TAU;
-    ctx.fillStyle = BULBS[(i + Math.floor(time * 2)) % BULBS.length];
-    circle(ctx, x + Math.cos(t) * R, y + Math.sin(t) * R, 2.6);
-  }
-  for (let i = 0; i < 12; i++) {
-    const t = a + (i / 12) * TAU, gx = x + Math.cos(t) * R, gy = y + Math.sin(t) * R;
-    ctx.strokeStyle = '#8a7fb0';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(gx, gy);
-    ctx.lineTo(gx, gy + 10);
-    ctx.stroke();
-    ctx.fillStyle = BULBS[i % BULBS.length];
-    ctx.beginPath();
-    ctx.roundRect(gx - 14, gy + 10, 28, 20, [4, 4, 10, 10]);
-    ctx.fill();
-  }
-  ctx.fillStyle = GOLD;
-  circle(ctx, x, y, 12);
-}
+// ——— Ride Row: the Ferris wheel (src/fair-rides.js) and the coaster's track behind, the carousel in front ———
 export const horseBob = (i, time) => Math.sin(time * 2.2 + i * 1.6) * 7;
 function drawCarousel(ctx, time, back) {
   const x = CAROUSEL_X, R = CAROUSEL_R, top = 250;
@@ -908,16 +881,18 @@ export function drawFair(ctx, camX, viewW, time, slimes, bests) {
   ctx.translate(camX, 0);
   drawSky(ctx, camX, time);
   drawFarTents(ctx, camX);
+  drawIslandNames(ctx, camX, HORIZON); // (from the top of the Ferris wheel)
   ctx.restore();
   const L = camX - 120, R = camX + viewW + 120;
   drawGround(ctx, L, R);
-  if (visible(WHEEL_X - 220, WHEEL_X + 220, L, R)) drawWheel(ctx, time);
+  drawWheel(ctx, L, R, time); // (its gondolas on the server's clock: src/fair-rides.js)
   if (visible(BIGTOP_X - 320, BIGTOP_X + 320, L, R)) drawBigTop(ctx, time);
   drawCoaster(ctx, L, R, time); // the Gathering Line (src/coaster.js), its stations included
   drawLights(ctx, L, R, time);
   if (visible(0, 520, L, R)) drawEntrance(ctx, time);
   if (visible(prizeX(0) - 80, prizeX(PRIZES.length - 1) + 80, L, R)) drawPrizeCounter(ctx, time);
   for (const b of BOOTHS) if (visible(b.x - 110, b.x + 180, L, R)) drawBooth(ctx, b, time, b.game ? bests?.[b.game] : null);
+  drawGreen(ctx, L, R, time); // the High Striker, the dunk tank, the teacups (F3: src/fair-rides.js)
   if (visible(CAROUSEL_X - CAROUSEL_R - 20, CAROUSEL_X + CAROUSEL_R + 20, L, R)) {
     drawCarousel(ctx, time, true);
     drawCarousel(ctx, time, false);
