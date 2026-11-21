@@ -54,7 +54,7 @@ const glints = (() => {
 const backHuts = [{ x: 1990, s: 0.62 }, { x: 2290, s: 0.55 }, { x: 2470, s: 0.66 }, { x: 1700, s: 0.5 }];
 const pines = (() => {
   const r = mulberry32(311);
-  return Array.from({ length: 9 }, (_, i) => ({ x: 2740 + i * 34 + r() * 20, s: 0.55 + r() * 0.5 + i * 0.03 }));
+  return Array.from({ length: 9 }, (_, i) => ({ x: 3060 + i * 34 + r() * 20, s: 0.55 + r() * 0.5 + i * 0.03 }));
 })();
 
 // Everything in the hamlet behind the slimes
@@ -86,7 +86,7 @@ export function drawFjord(ctx, camX, viewW, time) {
   if (visible(2440, 2560, L, R)) drawBucket(ctx, 2520, time);
   if (visible(2540, 2760, L, R)) drawSmokehouse(ctx, time);
   for (const x of LAMPS) if (visible(x - 40, x + 40, L, R)) drawLamp(ctx, x, time);
-  if (visible(2700, FJORD_W, L, R)) drawPathUp(ctx, time);
+  if (visible(3020, FJORD_W, L, R)) drawPathUp(ctx, time);
   ctx.save();
   ctx.translate(camX, 0);
   drawSnow(ctx, camX, time);
@@ -826,13 +826,13 @@ function drawPathUp(ctx, time) {
   const base = GROUND, rk = roof('rock');
   ctx.fillStyle = '#e4eaf6';
   ctx.beginPath();
-  ctx.moveTo(2700, base);
-  ctx.quadraticCurveTo(2850, base - 40, FJORD_W + 20, base - 150);
+  ctx.moveTo(3020, base);
+  ctx.quadraticCurveTo(3170, base - 40, FJORD_W + 20, base - 150);
   ctx.lineTo(FJORD_W + 20, base);
   ctx.closePath();
   ctx.fill();
   for (const p of pines) {
-    const by = base - Math.max(0, (p.x - 2700) * 0.45) + 6;
+    const by = base - Math.max(0, (p.x - 3020) * 0.45) + 6;
     ctx.fillStyle = '#4f7a8a';
     for (const [dy, hw] of [[0, 26], [18, 20], [34, 14]]) {
       ctx.beginPath();

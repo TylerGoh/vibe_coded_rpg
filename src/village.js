@@ -24,8 +24,8 @@ const HOUSES = [
   { x: 2935, w: 170, h: 140, wall: '#fff1f4', roof: '#ffb3c7', roofDark: '#e88fa8', style: 'gable', door: '#9c7bd1', sign: 'Pets', petshop: true }, // the Pet Shop (PETSHOP_DOOR_X, src/petshop.js)
 ];
 const TREE = { x: 1960 };
-const LAMPS = [300, 1130, 1700, 2505, 2915];
-const BUNTING = [[1130, 1700], [2505, 2915]]; // (the east lamp moved west of the Pet Shop; the one by the Inn nudged west for the Rebirth Pool)
+const LAMPS = [300, 2505, 2915]; // (the two round Home went for the fair's green and the waystone, 2026-11-21)
+const BUNTING = [[2505, 2915]]; // (the east lamp moved west of the Pet Shop; the one by the Inn nudged west for the Rebirth Pool)
 const WELL = { x: 1790 };
 const SIGNPOST = { x: 175 }; // (moved east to make room for the harbour gate)
 

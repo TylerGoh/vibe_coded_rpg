@@ -38,7 +38,6 @@ export { FIELD, FJORD, FORGEHOLD, WILLOWMERE, COVES, MYCELIUM, GLOWROOT, CANOPY,
 export const PLATFORMS = [
   { x: 360, y: 335, w: 190, kind: 'island' },
   { x: 190, y: 225, w: 150, kind: 'island' }, // (moved off the furniture store's roof)
-  { x: 1180, y: 320, w: 170, kind: 'island' },
   { x: 1860, y: 335, w: 200, kind: 'deck' }, // the big tree's lower deck
   { x: 1900, y: 220, w: 140, kind: 'deck' }, // ...and its lookout
   { x: 2620, y: 335, w: 200, kind: 'island' },

@@ -11,10 +11,14 @@ export const FAIR_GROUND = 450;
 export const FAIR_EXIT_X = 150; // the tent flap: where you arrive, and the way back out to the town you came from
 
 // The tent in each town, in TOWNS order (src/shared/sim.js adds the door to each town's room, and the way back out lands
-// you here): Slimeville, Icefang Hamlet, Forgehold, the Skydocks Camp, Wickmere, Caravanserai
-// (each clear of its town's waystone, NPCs' talk ranges and doors: E does one thing at a time)
-export const FAIR_TENT_X = [1172, 2700, 1530, 2300, 2440, 2640];
+// you here): Slimeville, Icefang Hamlet, Forgehold, the Skydocks Camp, Wickmere, Caravanserai. Each stands in its own fair
+// plot (FAIR_PLOT_HALF either side: striped poles, pennants, sawdust; src/fair-art.js), which the town keeps clear of its
+// scenery, waystone, NPCs' talk ranges and doors (E does one thing at a time). Slimeville's is the green between the
+// bakery and Home; the other five towns were widened by the road out of town to make room (owner, 2026-11-21: the tents
+// had been squeezed into gaps)
+export const FAIR_TENT_X = [1235, 2900, 3250, 2620, 2665, 2860];
 export const TENT_W = 70;
+export const FAIR_PLOT_HALF = 118; // the plot's poles stand this far either side of the tent
 
 // ——— the layout, west to east ———
 // the Gate Plaza (the tent flap, the ticket booth, Ringmaster Fizz, the prize counter), the Big Top (scenery: laced shut,

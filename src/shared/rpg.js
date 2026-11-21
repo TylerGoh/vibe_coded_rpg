@@ -33,7 +33,7 @@ export const HIGHLANDS_EXIT_X = 70; // the path down to Icefang Hamlet
 // Icefang Fjord and Icefang Hamlet (room 23): west to east, the ferry's dock, the laid-up ship south, Runa's
 // net shed, the hamlet's huts round the lamp-fire, the path up to the ridge. No mobs.
 export const FJORD = 23; // room id
-export const FJORD_W = 3000;
+export const FJORD_W = 3320; // (3000 until 2026-11-21: widened at the east end for the fair's plot)
 export const FJORD_DOCK_X = 470; // the ferry's gangway
 export const FJORD_HOME_X = 1840; // the turf hut whose door is everyone's own front door
 export const FJORD_SPAWN_X = 2040; // where you wake up, by the lamp-fire
@@ -52,7 +52,7 @@ export const FJORD_PLATFORMS = [
   { x: 690, y: 378, w: 100, kind: 'crates' },
   { x: 1765, y: 330, w: 150, kind: 'turf' },
   { x: 2560, y: 322, w: 170, kind: 'turf' },
-  { x: 2790, y: 362, w: 120, kind: 'rock' },
+  { x: 3110, y: 362, w: 120, kind: 'rock' },
 ];
 export const HIGHLAND_ZONES = [
   { name: 'Frostpine Ridge', x0: 0, x1: 2000, lvl: '40–46' },
@@ -85,7 +85,7 @@ export const BALLOON_X = 3745; // the balloon in its cradle, deflated
 // caldera's outer wall: your front door, the waystone, the great forge (you wake by it) with Forgewarden
 // Ash, the memorial wall, Slag's stack of gear-teeth, and the road up into Cinder Flats at the east end.
 export const FORGEHOLD = 44; // room id
-export const FORGE_W = 3400;
+export const FORGE_W = 3700; // (3400 until 2026-11-21: widened at the east end for the fair's plot)
 export const SANDS_GATE_X = 150; // the beach path to the Black Sands
 export const FORGE_DOCK_X = 640; // the Lodestar's gangway (boards STEAM_S, sim.js)
 export const SOOT_X = 1290; // Auntie Soot, at her springs (she trades: SHOPS)
@@ -162,7 +162,7 @@ export const CITADEL_PLATFORMS = [
 // front door, the waystone, the brazier (you wake by it), Pilgrim Ione's lantern pole, Tamp's pile of salvaged gears,
 // and the pier's end, where the plank across to the Skydocks lies laid (Phase 6 (c); a door into SKYDOCKS).
 export const SKYCAMP = 68; // room id
-export const CAMP_W = 2700;
+export const CAMP_W = 2950; // (2700 until 2026-11-21: widened at the pier's end for the fair's plot)
 export const KESTREL_X = 250; // Pilot Kestrel, at her stall
 export const CAMP_DOCK_X = 640; // the Kite's gangway at the mooring mast
 export const CAMP_HOME_X = 1010; // the tent flap that is everyone's own front door
@@ -171,7 +171,7 @@ export const CAMP_SPAWN_X = 1330; // where you wake up, by the brazier
 export const CAMP_FIRE_X = 1420; // the brazier
 export const IONE_X = 1700; // Pilgrim Ione, by her lantern pole
 export const TAMP_X = 2060; // Tamp, by his pile of salvaged gears
-export const CAMP_END_X = 2560; // the pier's end: the plank across to the Skydocks (a door, since Phase 6 (c))
+export const CAMP_END_X = 2810; // the pier's end: the plank across to the Skydocks (a door, since Phase 6 (c))
 // crates hauled up by Kestrel's stall, the mast's mooring ring, the tent ridges, the gear pile, a hanging gantry
 export const CAMP_PLATFORMS = [
   { x: 360, y: 384, w: 108, kind: 'crates' },
@@ -228,7 +228,7 @@ export const GUSTS = [{ x: 1180, w: 200 }, { x: 3560, w: 220 }, { x: 4720, w: 20
 // everyone's own front door, Ferryman Hob by his punt (drawn up on the boards: the Still Mere's gate, branches.js),
 // Sedge's reed-weaving shed (she trades), and the boardwalk's east end, off into the Shallows. Lanterns everywhere.
 export const WICKMERE = 70; // room id
-export const WICK_W = 2800;
+export const WICK_W = 3100; // (2800 until 2026-11-21: widened at the east end for the fair's plot)
 export const NETTA_X = 190; // Skipper Netta, by her eel boxes on the jetty
 export const WICK_DOCK_X = 420; // the Hush's gangway
 export const WICK_WAY_X = 760; // the waystone, on the landing
@@ -763,7 +763,7 @@ export const SANDS_SALTWIND_X = 4330; // (between the Turning Stone and the way 
 // Star Court, a ring of half-buried Keeper star-dials where Mother Dune sits (she trades); the east end, out onto the Glass
 // Dunes. Every tent is half struck. Its platforms are CARAVAN_PLATFORMS.
 export const CARAVAN = 97; // room id
-export const CARAVAN_W = 2900;
+export const CARAVAN_W = 3200; // (2900 until 2026-11-21: widened at the east end for the fair's plot)
 export const KESH_X = 200; // Skipper Kesh, by her water casks on the jetty
 export const DUNE_DOCK_X = 400; // the Saltwind's gangway
 export const SALTFLATS_GATE_X = 760; // the way down onto the old seabed to the Salt Flats (A2): soft wet salt

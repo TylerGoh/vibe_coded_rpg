@@ -25,10 +25,20 @@ created by `server/rpg.js`), Fizz's persona in `server/characters.js`, the `fair
 - The fair's tent flap is a door with `to: TOWN` and `fair: true`: `step()` lands you at your town's `fairX` (a house's
   front door, the other `TOWN` door, lands at `homeX`). The fair isn't a town, so your town stays the one you came in
   from: in at Wickmere, out at Wickmere.
-- **Placing a tent:** keep it clear of the town's waystone (`WAY_RANGE`), every NPC's talk range and the other doors,
-  because E does one thing at a time (talk first, then waystones, then doors). Slimeville's first spot sat on the
-  waystone and Icefang Hamlet's in Tove's range; both moved. The tent is drawn over the town's own scenery
-  (`drawFairTent`, from `render()` for any room with a town).
+- **Each tent has its own plot** (owner, 2026-11-21: F1's tents had been squeezed into gaps, over a turf hut, a stilt
+  house, a stall, against the bakery and the waystone). `FAIR_PLOT_HALF` either side of the tent is the fair's patch:
+  sawdust, a candy-striped pole each side with pennants strung up to the tent's peak, balloons on the east pole, an
+  "ALL WELCOME" board by the west one (`drawFairPlot`, drawn just before `drawFairTent` from `render()` for any room with
+  a town). The same fair colours in every town, as if a corner of the fair came through with the tent.
+  - Slimeville's is the green between the bakery and Home: the waystone moved east of Home (where a lamp stood), and the
+    floating island over the old spot, the green's lamp and its bunting went.
+  - The other five towns were **widened by the road out of town** and the plot sits just before it (Icefang Hamlet by
+    the path up to Frostpine Ridge, Forgehold by the road up to Cinder Flats, the Skydocks Camp by the plank, Wickmere by
+    the way into the Shallows, Caravanserai by the way onto the Glass Dunes). Only what stood east of the plot moved
+    (the exits, the path up's pines and rock, a brazier and a flue, a lantern; one of the Star Court's bronze rings went).
+- **Placing a tent:** keep the doorway clear of the town's waystone (`WAY_RANGE`), every NPC's talk range and the other
+  doors, because E does one thing at a time (talk first, then waystones, then doors), and keep the plot clear of
+  platforms and scenery. Slimeville's first spot sat on the waystone and Icefang Hamlet's in Tove's range.
 - A safe room: no mobs, no combat.
 
 ## The room, west to east

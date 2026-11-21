@@ -1,12 +1,12 @@
 // Docs: docs/places/fair.md
-// The Gathering Fair's art: the striped tent in every town (drawFairTent), the fairground itself behind the slimes
+// The Gathering Fair's art: the striped tent in every town (drawFairTent) and its plot (drawFairPlot), the fairground itself behind the slimes
 // (drawFair: an evening that never quite gets dark, string lights, the Big Top, the booths, the carousel, the Ferris wheel
 // and the coaster's track, the Hall of Mirrors, the pier and every island close on the horizon), the prizes as slimes wear
 // them (drawFairWear, called from Slime.draw) and Ringmaster Fizz's hat, coat and moustache (drawRingmaster).
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
 import { text } from './village.js';
 import { drawDistantIslands } from './distant.js';
-import { FAIR_W, FAIR_GROUND, FAIR_EXIT_X, FAIR_PLATFORMS, BOOTHS, HORSES, CAROUSEL_X, CAROUSEL_R, WHEEL_X, BIGTOP_X, STATION_X, MIRRORS_X0, MIRRORS_X1, MIRRORS, PIER_X, PRIZES, prizeX } from './shared/fair.js';
+import { FAIR_PLOT_HALF, FAIR_W, FAIR_GROUND, FAIR_EXIT_X, FAIR_PLATFORMS, BOOTHS, HORSES, CAROUSEL_X, CAROUSEL_R, WHEEL_X, BIGTOP_X, STATION_X, MIRRORS_X0, MIRRORS_X1, MIRRORS, PIER_X, PRIZES, prizeX } from './shared/fair.js';
 import { COSMETICS } from './shared/rpg.js';
 
 const G = FAIR_GROUND;
@@ -14,6 +14,122 @@ const HORIZON = 300;
 const visible = (x0, x1, L, R) => x1 > L && x0 < R;
 const BULBS = ['#ffe28a', '#ff9fb8', '#9fe3ff', '#c4f59a', '#d6b4ff'];
 const RED = '#e8546a', CREAM = '#fff4e6', GOLD = '#f2c14e';
+
+// ——— the tent's plot in every town ———
+// The fair's own patch of ground round the tent (owner, 2026-11-21: the tents had been squeezed into gaps): a spread of
+// sawdust, a red-and-cream pole either side (FAIR_PLOT_HALF out) with pennants strung up to the tent's peak, a bunch of
+// balloons tied to the east pole and a little board by the west one. The same fair colours in every town, as if a
+// corner of the fair had come through with the tent. Drawn before the tent (drawFairTent), behind the slimes.
+export function drawFairPlot(ctx, x, ground, time) {
+  const half = FAIR_PLOT_HALF, poleH = 150, peakY = ground - 194;
+  ctx.save();
+  // sawdust underfoot
+  ctx.fillStyle = 'rgba(236,196,120,0.55)';
+  ellipse(ctx, x, ground + 3, half + 26, 9);
+  ctx.fillStyle = 'rgba(255,226,160,0.5)';
+  ellipse(ctx, x, ground + 2, half - 10, 6);
+  const r = mulberry32(Math.round(x));
+  ctx.fillStyle = 'rgba(190,140,80,0.5)';
+  for (let i = 0; i < 26; i++) ellipse(ctx, x + (r() * 2 - 1) * (half + 10), ground + 1 + r() * 5, 2 + r() * 2, 1);
+  // pennant lines, pole top to the tent's peak, drawn first so the poles sit over their ends
+  for (const side of [-1, 1]) {
+    const px = x + side * half, py = ground - poleH;
+    const sag = 18 + Math.sin(time * 1.2 + side) * 2;
+    const at = (t) => [px + (x - px) * t, py + (peakY - py) * t + Math.sin(t * Math.PI) * sag];
+    ctx.strokeStyle = '#e8d2a8';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let t = 0; t <= 1.0001; t += 0.05) {
+      const [lx, ly] = at(t);
+      t === 0 ? ctx.moveTo(lx, ly) : ctx.lineTo(lx, ly);
+    }
+    ctx.stroke();
+    for (let i = 1; i < 9; i++) {
+      const t = i / 9, [fx, fy] = at(t);
+      const sway = Math.sin(time * 2.2 + i + side) * 2;
+      ctx.fillStyle = i % 2 ? RED : [GOLD, '#7fc8ff', CREAM, '#b9e58c'][(i >> 1) % 4];
+      ctx.beginPath();
+      ctx.moveTo(fx - 6, fy);
+      ctx.lineTo(fx + 6, fy);
+      ctx.lineTo(fx + sway, fy + 13);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+  // the poles: candy stripes, a gold knob, a small pennant
+  for (const side of [-1, 1]) {
+    const px = x + side * half, top = ground - poleH;
+    ctx.fillStyle = 'rgba(40,30,50,0.16)';
+    ellipse(ctx, px, ground + 1, 9, 3);
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(px - 4, top, 8, poleH, 3);
+    ctx.clip();
+    ctx.fillStyle = CREAM;
+    ctx.fillRect(px - 4, top, 8, poleH);
+    ctx.fillStyle = RED;
+    for (let y = top - 8; y < ground; y += 16) {
+      ctx.beginPath();
+      ctx.moveTo(px - 4, y);
+      ctx.lineTo(px + 4, y - 6);
+      ctx.lineTo(px + 4, y + 2);
+      ctx.lineTo(px - 4, y + 8);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+    ctx.fillStyle = GOLD;
+    circle(ctx, px, top - 3, 5);
+    const flap = Math.sin(time * 3.6 + side * 2) * 2.5;
+    ctx.fillStyle = side < 0 ? '#ff9fb8' : '#7fc8ff';
+    ctx.beginPath();
+    ctx.moveTo(px, top - 8);
+    ctx.quadraticCurveTo(px - side * 9, top - 18 + flap, px - side * 18, top - 15 + flap);
+    ctx.quadraticCurveTo(px - side * 9, top - 10 + flap * 0.5, px, top - 4);
+    ctx.fill();
+  }
+  // balloons tied to the east pole
+  const bx = x + half, by = ground - 60;
+  [[-16, -78, '#ff9fb8'], [2, -92, '#ffe28a'], [18, -74, '#9fe3ff']].forEach(([dx, dy, c], i) => {
+    const sx = bx + dx + Math.sin(time * 1.4 + i * 2) * 3, sy = by + dy + Math.sin(time * 1.9 + i) * 2;
+    ctx.strokeStyle = 'rgba(120,100,120,0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(bx, by);
+    ctx.quadraticCurveTo(bx + dx * 0.4, by + dy * 0.5, sx, sy + 12);
+    ctx.stroke();
+    ctx.fillStyle = c;
+    ellipse(ctx, sx, sy, 10, 12);
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ellipse(ctx, sx - 3, sy - 4, 3, 4);
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    ctx.moveTo(sx - 2, sy + 13);
+    ctx.lineTo(sx + 2, sy + 13);
+    ctx.lineTo(sx, sy + 10);
+    ctx.fill();
+  });
+  // a little board on legs by the west pole
+  const sx = x - half + 34, sy = ground - 56;
+  ctx.strokeStyle = '#8a6a4a';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(sx - 14, ground);
+  ctx.lineTo(sx - 6, sy + 30);
+  ctx.moveTo(sx + 14, ground);
+  ctx.lineTo(sx + 6, sy + 30);
+  ctx.stroke();
+  ctx.fillStyle = CREAM;
+  ctx.strokeStyle = RED;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(sx - 26, sy, 52, 32, 6);
+  ctx.fill();
+  ctx.stroke();
+  text(ctx, 'ALL', sx, sy + 10, 9, RED);
+  text(ctx, 'WELCOME', sx, sy + 22, 9, RED);
+  ctx.restore();
+}
 
 // ——— the tent in every town ———
 // A small circus tent: red and cream stripes, a scalloped valance, a pennant, the flap tied back on warm light and a

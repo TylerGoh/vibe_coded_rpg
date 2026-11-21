@@ -75,7 +75,7 @@ import { drawCrossing, drawCrossingFront, crossingAt, crossingLabel, shipName } 
 import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
 import { Fair } from './fair.js';
 import { Pocket } from './pocket.js';
-import { drawFair, drawFairTent } from './fair-art.js';
+import { drawFair, drawFairTent, drawFairPlot } from './fair-art.js';
 import { FAIR, BOOTHS } from './shared/fair.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
 import { GATES, gateAt } from './shared/branches.js';
@@ -1801,7 +1801,10 @@ function render() {
     nameTag(merchant, false);
   }
   const tentX = TOWNS[townOf(room)]?.fairX; // every town's striped tent into the Gathering Fair (src/fair-art.js)
-  if (tentX && Math.abs(tentX - camX - W / 2) < W / 2 + 140) drawFairTent(ctx, tentX, roomDef(room).ground, time);
+  if (tentX && Math.abs(tentX - camX - W / 2) < W / 2 + 200) {
+    drawFairPlot(ctx, tentX, roomDef(room).ground, time); // (its own patch of the town: poles, pennants, sawdust)
+    drawFairTent(ctx, tentX, roomDef(room).ground, time);
+  }
   drawRuins(ctx, room, camX - 80, camX + W + 80, time, online() ? ruinStoneAt(net.me) : null); // Keeper stones (Bramble Woods, the branches)
   drawWaystones(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time, online() ? wayAt(net.me) : null, rpg.me?.ways);
   drawGates(ctx, room, roomDef(room)?.ground ?? 450, camX - 80, camX + W + 80, time, online() ? gateAt(net.me, room) : null, online() ? net.me : null); // blocked ways into branches

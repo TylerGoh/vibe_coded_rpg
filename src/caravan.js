@@ -12,6 +12,7 @@
 // The platforms are CARAVAN_PLATFORMS. This room paints its own sky; Amberdune's other rooms borrow it (drawDuneSky,
 // drawDuneAir), and so does a house looking out on it (drawCaravanView).
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
+import { FAIR_TENT_X } from './shared/fair.js';
 import { CARAVAN_W, FIELD_GROUND, DUNE_DOCK_X, DUNE_HOME_X, DUNE_SPAWN_X, CARAVAN_EXIT_X, CARAVAN_PLATFORMS, TALLY_X, WELL_X, MOTHER_X, KESH_X, SALTFLATS_GATE_X, DUNE_WAY_X } from './shared/rpg.js';
 import { drawDistantIslands, isWalkerStill } from './distant.js';
 
@@ -45,12 +46,12 @@ const TENTS = (() => {
   const r = mulberry32(911);
   const out = [];
   for (let x = 1420; x < CARAVAN_W - 200; x += 120 + r() * 80) {
-    if ([[WELL_X, 120], [DUNE_HOME_X, 110], [MOTHER_X, 180]].some(([c, rr]) => Math.abs(x - c) < rr)) continue;
+    if ([[WELL_X, 120], [DUNE_HOME_X, 110], [MOTHER_X, 180], [FAIR_TENT_X[5], 200]].some(([c, rr]) => Math.abs(x - c) < rr)) continue;
     out.push({ x, w: 90 + r() * 50, c: STRIPES[Math.floor(r() * STRIPES.length)], struck: r() < 0.7 ? 0.3 + r() * 0.6 : 0, far: r() < 0.5 });
   }
   return out;
 })();
-const LANTERNS = [1240, 1590, 2000, 2290, 2620, 2760];
+const LANTERNS = [1240, 1590, 2000, 2290, 2620, 3010];
 const LIZARDS = [{ x: 1330, f: 1 }, { x: 2510, f: -1 }];
 
 // Everything in Caravanserai behind the slimes
@@ -807,7 +808,7 @@ function drawStarCourt(ctx, p, time, freed = false) {
   ctx.beginPath();
   ctx.ellipse(MOTHER_X, GROUND + 6, 66, 6, 0, 0, TAU);
   ctx.stroke();
-  for (const [dx, r, a, th] of [[-150, 70, 0.2, 5], [110, 90, -0.35, 6], [260, 60, 0.5, 4]]) { // bronze rings, half sunk
+  for (const [dx, r, a, th] of [[-150, 70, 0.2, 5], [110, 90, -0.35, 6]]) { // bronze rings, half sunk (a third, further east, went for the fair's plot)
     ctx.strokeStyle = '#8a7a4a';
     ctx.lineWidth = th + 2;
     ctx.beginPath();

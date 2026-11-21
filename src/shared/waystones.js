@@ -11,7 +11,7 @@ import { CALDERA, SKYCAMP, CAMP_WAY_X, SKYDOCKS, DOCKS_WAY_X, WICKMERE, WICK_WAY
 // x: the stone, on its room's ground (where you arrive is a little beside it, ARRIVE_DX) · isle: its island
 // (Greenhollow when left out)
 export const WAYSTONES = [
-  { id: 'slimeville', name: 'Slimeville', room: VILLAGE, x: 1265 },
+  { id: 'slimeville', name: 'Slimeville', room: VILLAGE, x: 1700 }, // (by Home and the well; moved off the fair's green 2026-11-21)
   { id: 'willowmere', name: 'Willowmere', room: WILLOWMERE, x: 320 },
   { id: 'coves', name: 'Saltspray Coves', room: COVES, x: 4140 },
   { id: 'deep', name: 'Mycelium Deep', room: MYCELIUM, x: 300 },

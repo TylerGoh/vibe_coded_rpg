@@ -96,7 +96,7 @@ with the character). You wake up there after fainting, start there when your spo
 wasn't kept, your house's front door (`to: TOWN`) lets you out there, and invites work from any town. A
 toast says so when your town changes. A new town = a `TOWNS` entry (room, wake-up x, house door x) and a
 `HOME` door in its room. Towns are safe rooms (no mobs). Every town also has a striped tent into the Gathering Fair
-(`FAIR_TENT_X`, given to each `TOWNS` entry as `fairX`; `docs/places/fair.md`): a new town needs a spot for it too.
+(`FAIR_TENT_X`, given to each `TOWNS` entry as `fairX`; `docs/places/fair.md`): a new town needs a clear plot for it too (`FAIR_PLOT_HALF` either side; widen the town if it hasn't room).
 
 ## The village
 - Spawn at `SPAWN_X`. West to east: the harbour gate (`HARBOUR_GATE_X`), the furniture store (`STORE_DOOR_X`; a floating island was moved off

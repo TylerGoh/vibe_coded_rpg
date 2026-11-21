@@ -86,8 +86,8 @@ No quests, no hard level gates.
 - **The Gathering Fair, F2–F4** (plan: `fair-plan.md`; F1 shipped 2026-11-20): F2 the coaster (a ride clock in
   `step()`), F3 the Ferris wheel, teacups, Big Top, High Striker and dunk tank, F4 the other booths, Madame Wobble,
   fireworks and more prizes. Cosmetic only (owner).
-- **Redesign the towns round their fair tents** (owner, 2026-11-20; `fair-plan.md`): the tents sit awkwardly in gaps;
-  give each town's tent a proper plot and rearrange the town round it.
+- [x] **Redesign the towns round their fair tents** (owner, 2026-11-20; done 2026-11-21, `fair-plan.md`): each tent in its
+  own plot, Slimeville's on a green between the bakery and Home, the other towns widened by their road out.
 - [x] **Atlas Phase 6: the climb**: the thermal column vista, the balloon crossing (Slag's forge-burner lifts the
       block), the Skydocks zone, the Skydocks camp as the Citadel's town, the Dockwarden. **The skylift goes** once the
       balloon works, which ends the old back-door chain (`world/geography.md`).

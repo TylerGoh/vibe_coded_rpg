@@ -9,6 +9,7 @@
 // Cinder Flats. Behind: an ash-hazed dusk, warm green sea, the other islands far off to the north and the
 // island's own smoke column. This room paints its own sky.
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
+import { FAIR_TENT_X } from './shared/fair.js';
 import { FORGE_W, FIELD_GROUND, FORGE_DOCK_X, FORGE_HOME_X, FORGE_FIRE_X, FORGE_WALL_X, FORGE_EXIT_X, FORGE_PLATFORMS, SOOT_X } from './shared/rpg.js';
 import { drawDistantIslands } from './distant.js';
 import { drawLodestar, drawLodestarGangway } from './fjord.js';
@@ -20,7 +21,7 @@ const QUAY_X0 = 300, QUAY_X1 = 920; // the rusted iron quay
 const WALL_X = 1480; // the caldera's outer wall starts here; the town is cut into it
 const SHIP_X = FORGE_DOCK_X - 150; // the Lodestar's stern (her gangway is 150 px along, as at the hamlet)
 const BATH_X0 = 1150, BATH_X1 = 1380; // Auntie Soot's bathhouse
-const BRAZIERS = [1580, 2470, 3130];
+const BRAZIERS = [1580, 2470, 3430];
 const visible = (x0, x1, L, R) => x1 > L && x0 < R;
 const plat = (kind, i = 0) => FORGE_PLATFORMS.filter((p) => p.kind === kind)[i];
 
@@ -50,7 +51,7 @@ const windows = (() => {
   const r = mulberry32(407);
   const out = [];
   for (let x = WALL_X + 80; x < FORGE_W - 120; x += 70 + r() * 60) {
-    if (Math.abs(x - FORGE_WALL_X) < 150 || Math.abs(x - FORGE_FIRE_X) < 110) continue;
+    if (Math.abs(x - FORGE_WALL_X) < 150 || Math.abs(x - FORGE_FIRE_X) < 110 || Math.abs(x - FAIR_TENT_X[2]) < 150) continue;
     out.push({ x, y: 230 + r() * 150, w: 14 + r() * 8, p: r() * TAU });
   }
   return out;
@@ -267,7 +268,7 @@ function drawWall(ctx, L, R, time) {
     ctx.fill();
   }
   // flues breathing smoke out of the rock
-  for (const fx of [1700, 2520, 2900, 3220]) {
+  for (const fx of [1700, 2520, 2900, 3520]) {
     if (fx < L - 60 || fx > R + 60) continue;
     ctx.fillStyle = '#2a2028';
     ctx.fillRect(fx - 6, 40, 12, 26);
