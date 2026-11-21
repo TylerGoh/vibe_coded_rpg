@@ -12,19 +12,23 @@ the client and the server), the ride inside `step()` in `src/shared/sim.js` (`rd
 in `server/characters.js`.
 
 ## What it is
-- One closed loop round the whole fair. Out east, low: the **Gate Plaza** station, a chain lift beside the Big Top, a dive
-  in through the Big Top's roof and out of its far side, the **Midway** station, hills over the booths, the Ferris wheel
-  and the carousel, the **Ride Row** station, a lift up to the loop over the Hall of Mirrors, down to the **Pier's End**
-  station; then up a turnaround at the east end, back west high over everything, and down a turnaround into the Gate
-  Plaza again.
+- One closed loop round the whole fair, **up in the sky, clear of everything below** (owner, 2026-11-21: "make the carts
+  go higher so they don't need to be with all the other stuff"), dropping to the ground only at the four stations. Out
+  east: the **Gate Plaza** station, a chain lift, high over the Big Top, the **Midway** station, over the booths, the
+  Ferris wheel and the carousel, the **Ride Row** station, the loop between the Hall of Mirrors' sign and the high line,
+  the **Pier's End** station; then up a turnaround at the east end, back west along the top of the sky, and down a
+  turnaround into the Gate Plaza again. Only the Ferris wheel is tall enough to cross it.
+- The first version ran low through the fair, dived in through the Big Top's roof (riders hidden inside: the `'T'` flag
+  and `hidden` still work for a stretch like that) and stood on lattice legs every few samples. Raising it brought the
+  Big Top's peak down a little so both lines clear it, and the legs became a few slim `PYLONS` in the gaps between
+  things.
 - `CARTS` empty cars go round all the time, evenly spaced, on the server's clock (`cartTimes`), so everyone sees the same
   cars in the same places. They slow right down through the stations.
 - **Catch one:** press E when a car's seat is within `CATCH_R` of you ("catch the Gathering Line" shows then). Easiest
-  from a station's platform as one crawls through; you can also jump up to one going by, or catch it from a platform under
-  the track. Not inside the Big Top.
+  from a station's platform as one crawls through, or jump up to one on its way down into a station.
 - **Ride** as long as you like, round and round; keys do nothing else. Everyone sees you go by in your car, your name tag
-  hanging under it; inside the Big Top you're out of sight (tag too).
-- **Hop off:** E or Jump ("hop off (E or Jump)"), anywhere but inside the Big Top. You fly on with the car's speed (sideways
+  hanging under it.
+- **Hop off:** E or Jump ("hop off (E or Jump)"), anywhere. You fly on with the car's speed (sideways
   capped at `RIDE_FLING`), plus a jump if you jumped, and land wherever that takes you: a booth's canopy, the pier, the sand.
   Off the high line that's a long way down; the fair's a safe room, so nothing hurts.
 - Cosmetic only (the fair's rule): no gold, EXP or power, so the economy sheet doesn't move.
@@ -49,8 +53,8 @@ in `server/characters.js`.
   is once round. The client and the server build the same table from the same code.
 
 ## Drawing
-- `drawCoaster` (called by `drawFair` after the Big Top, so the high line runs in front of its roof): lattice legs, the
-  rail (not drawn where it runs inside the Big Top, with a dark hole in the canvas where it goes in and out), the four
+- `drawCoaster` (called by `drawFair` after the Big Top): the `PYLONS`, the rail (left out along any `'T'` stretch, with
+  a dark hole where it goes in and out: none now), the four
   station sheds (a striped roof, a board with the stop's name, bulbs) and the empty cars. `setCoaster` gives it the tick
   and the riders' loop times each frame.
 - `drawRider` (from the slime pass in `main.js`): the car's back, the slime rotated with the rail about the rail point

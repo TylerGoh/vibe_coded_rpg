@@ -31,9 +31,10 @@ export const CARTS = 6; // cars round the loop, evenly spaced in time
 // the Big Top (riders aren't drawn), 'R' a raw run of dense points (straight between them), 'O' the loop and 'U' the two
 // turnarounds (raw too). A car is drawn upright on the way back west and turns round the U as if on a spiral ramp
 // (trackAt's d and sx); only in the loop does it go upside down.
-// Out east low: the Gate Plaza, the lift, the dive through the Big Top's roof, the Midway, over the booths, the Ferris
-// wheel and the carousel, Ride Row, up and round the loop over the Hall of Mirrors, down to the Pier's End; then up a
-// half circle at the east end and back west high over everything, and down a half circle into the Gate Plaza again.
+// Up high, clear of the fair below (owner, 2026-11-21), dropping to the ground only at the four stations: the Gate Plaza,
+// a lift, over the Big Top, the Midway, over the booths, the Ferris wheel and the carousel, Ride Row, the loop over the
+// Hall of Mirrors, the Pier's End; then up a turnaround at the east end, back west along the top of the sky, and down a
+// turnaround into the Gate Plaza again. (No 'T' stretch any more: the hidden-inside-the-Big-Top code stays for one.)
 const N = [];
 const at = (x, y, f = '') => N.push({ x, y, f });
 const arc = (cx, cy, r, a0, a1, sx, sy, n, f = 'R', drift = 0) => {
@@ -45,52 +46,51 @@ const arc = (cx, cy, r, a0, a1, sx, sy, n, f = 'R', drift = 0) => {
 // the Gate Plaza, and the lift up beside the Big Top
 at(1330, RAIL, 'R');
 at(1470, RAIL, 'L');
-at(1560, 300, 'L');
-at(1690, 132);
-// the dive into the Big Top's roof and out of its far side
-at(1770, 196, 'T');
-at(1880, 340, 'T');
-at(1990, 246, 'T');
-at(2060, 200);
-at(2130, 196);
+at(1530, 330, 'L');
+at(1600, 190, 'L');
+at(1680, 132);
+// high over the Big Top (owner, 2026-11-21: up out of the way of everything; it used to dive through the roof)
+at(1880, 124);
+at(2080, 134);
 // the Midway
 at(2250, RAIL, 'R');
 at(2370, RAIL, 'L');
-at(2470, 236);
+at(2420, 330, 'L');
+at(2480, 200, 'L');
+at(2560, 146);
 // over the booths, the wheel and the carousel
-at(2650, 200);
-at(2860, 250);
-at(3060, 180);
-at(3280, 244);
-at(3480, 176);
-at(3660, 150);
-at(3860, 110);
-at(4040, 160);
+at(2800, 160);
+at(3050, 138);
+at(3300, 162);
+at(3550, 136);
+at(3860, 140);
+at(4050, 156);
 // Ride Row
 at(4190, RAIL, 'R');
 at(4300, RAIL, 'L');
-at(4430, 300, 'L');
-at(4560, 222);
-// the loop over the Hall of Mirrors
-arc(4620, 152, 70, 0, Math.PI * 2, 1, 1, 40, 'O', 24);
-at(4800, 236);
-at(4980, 300);
-at(5120, 380);
-// the Pier's End, and the half circle up at the east end
+at(4360, 330, 'L');
+at(4430, 210, 'L');
+at(4530, 208);
+// the loop over the Hall of Mirrors (under the high line, over the hall's sign)
+arc(4620, 160, 48, 0, Math.PI * 2, 1, 1, 36, 'O', 24);
+at(4780, 196);
+at(4960, 186);
+at(5110, 250);
+// the Pier's End, and the turnaround up at the east end
 at(5210, RAIL, 'R');
 at(5340, RAIL, 'R');
-arc(5340, 266, RAIL - 266, 0, Math.PI, 1, 1, 30, 'U');
-// back west, high
-at(5100, 108);
-at(4600, 124);
-at(4100, 100);
-at(3600, 128);
-at(3100, 104);
-at(2600, 126);
-at(2100, 100);
-at(1700, 116);
-// the half circle down into the Gate Plaza
-arc(1330, 266, RAIL - 266, 0, Math.PI, -1, -1, 30, 'U');
+arc(5340, 256, RAIL - 256, 0, Math.PI, 1, 1, 30, 'U');
+// back west, along the top of the sky
+at(5100, 80);
+at(4600, 86);
+at(4100, 76);
+at(3600, 88);
+at(3100, 78);
+at(2600, 86);
+at(2100, 76);
+at(1700, 84);
+// the turnaround down into the Gate Plaza
+arc(1330, 256, RAIL - 256, 0, Math.PI, -1, -1, 30, 'U');
 
 const SMOOTH = 400, PIN_R = 12; // smoothing passes over the dense loop (about 35 px of rounding)
 const crx = (p0, p1, p2, p3, t) => 0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (3 * p1 - p0 - 3 * p2 + p3) * t * t * t);
@@ -123,7 +123,7 @@ for (let pass = 0; pass < SMOOTH; pass++) {
 export const LIFT_V = 3; // px a tick up a chain lift
 export const STATION_V = 2.2; // px a tick through a station
 export const STATION_RUN = 140; // px of track either side of a station to brake over
-const TOP_V = 3.4, GRAV = 0.11, Y_TOP = 60; // the height rule: v = sqrt(TOP_V² + 2·GRAV·(y − Y_TOP))
+const TOP_V = 3.4, GRAV = 0.11, Y_TOP = 50; // the height rule: v = sqrt(TOP_V² + 2·GRAV·(y − Y_TOP))
 const DS = 4; // px between samples
 
 // Resampled every DS px along the loop: x, y, the rail's angle, the flag, and the ticks it takes to get there (T)

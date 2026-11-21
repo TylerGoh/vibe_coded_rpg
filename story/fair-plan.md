@@ -21,7 +21,7 @@ Each phase shows the next one's rides closed for an in-world reason, and lifts t
   Shown closed: the Ring Toss, Hook-a-Duck, the Big Top, the coaster's station; the Ferris wheel turns empty.
 - [x] **F2: the Gathering Line** (the coaster; shipped 2026-11-21, `docs/places/coaster.md`). Built first as planned (a card to
   pick your stop), then changed the same day (owner): cars go round all the time, E catches one as it passes, E or Jump
-  hops off with its speed. The way back west runs high over everything. The station's rope comes down (the chain lift is greased). Board at a
+  hops off with its speed. Then raised into the sky, clear of the fair below (owner), down only at the stations. The station's rope comes down (the chain lift is greased). Board at a
   station, pick where to get off on a card (like the Set sail card). Your place on the track comes from a ride clock in
   `step()` (like the voyage clock `vt`: predicted, in snapshots, a wire version bump), so friends who board together
   ride together and everyone on the ground sees you go by; the car tilts with the track and your slime turns with it

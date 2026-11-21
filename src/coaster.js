@@ -30,27 +30,25 @@ export function setCoaster(t, rcs) {
   tick = t;
   riding = rcs;
 }
+// where the pylons stand: by the stations' sheds and the turnarounds, and in the gaps between the booths
+const PYLONS = [1180, 1500, 2200, 2730, 3065, 3405, 4130, 4870, 5160, 5500];
 const near = (a, b) => Math.min(Math.abs(a - b), LOOP_T - Math.abs(a - b)) < 40;
 export function drawCoaster(ctx, L, R, time) {
-  // lattice legs down to the ground, every few samples, skipping the stretch inside the Big Top and the loop
+  // slim pylons, only in the gaps between the fair's things (owner: the coaster keeps out of their way), each holding up
+  // every line of track above it
   ctx.strokeStyle = LEG;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 3;
   ctx.beginPath();
-  for (let i = 0; i < TRACK.length; i += 38) {
-    const [x, y, f] = TRACK[i];
-    if (f === 'T' || x < L - 30 || x > R + 30 || y > G - 30) continue;
-    if (Math.abs(x - 4630) < 80 && y < 230) continue; // (the loop stands on its own pair)
-    if (Math.abs(x - BIGTOP_X) < 300 && y < 300) continue; // (the Big Top's roof is under it)
-    ctx.moveTo(x, y + 4);
-    ctx.lineTo(x, G);
-    ctx.moveTo(x - 16, G);
-    ctx.lineTo(x, Math.min(G - 10, y + 36));
-    ctx.lineTo(x + 16, G);
+  for (const px of PYLONS) {
+    if (px < L - 30 || px > R + 30) continue;
+    const ys = TRACK.filter(([x]) => Math.abs(x - px) < 2).map(([, y]) => y);
+    if (!ys.length) continue;
+    ctx.moveTo(px, Math.min(...ys) + 4);
+    ctx.lineTo(px, G);
+    ctx.moveTo(px - 14, G);
+    ctx.lineTo(px, G - 40);
+    ctx.lineTo(px + 14, G);
   }
-  ctx.moveTo(4580, 220);
-  ctx.lineTo(4560, G - 190);
-  ctx.moveTo(4680, 220);
-  ctx.lineTo(4700, G - 190);
   ctx.stroke();
   // the rail: a pink band with a pale top edge, broken where it runs inside the Big Top
   for (const [w, c, dy] of [[6, PINK, 0], [2, PALE, -3]]) {

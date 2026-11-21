@@ -473,7 +473,7 @@ function drawPrize(ctx, id, x, y, time) {
 
 // ——— the Big Top (laced shut until F3) ———
 function drawBigTop(ctx, time) {
-  const x = BIGTOP_X, w = 560, peak = G - 360, eave = G - 150;
+  const x = BIGTOP_X, w = 560, peak = G - 270, eave = G - 150; // (its peak brought down in F2 so the coaster clears it)
   for (let i = 0; i < 14; i++) {
     ctx.fillStyle = i % 2 ? CREAM : RED;
     ctx.fillRect(x - w / 2 + (i * w) / 14, eave, w / 14 + 0.5, 150);
