@@ -53,6 +53,9 @@ the magma slug's, wisp's, golem's and cinder bat's voices, the Eldest the Coloss
   Top's show: `drumroll`, `cymbal`, `boom`, `cheer`; `docs/places/rides.md`).
 - The Gathering Fair (`fair`, slots 112 and 113, the Big Top inside it): a calliope waltz in G, oom-pah-pah, a glockenspiel answering on the second
   pass, the crowd's murmur and a cheer now and then down the midway (`docs/places/fair.md`).
+- The pocket world's beach (`docs/places/pocket.md`): no track (`sceneKey('pocket')` is null) but `Beach`, a live layer
+  `src/pocket.js` drives every frame (`audio.setBeach`, `audio.beachEvent`): the sea's roar, the swash and breakers in
+  time with the waves on screen, and gulls calling from where they fly. On the music bus, so Music: off silences it.
 - Esc menu → "Music: on/off" (localStorage `slimeville-music`). `audio.unlock()` runs on every gesture.
 - The overall music level is `MUSIC` at the top of the file, kept low on purpose. Nobody has listened to
   the audio yet: levels were measured offline (`createEngine(ctx)` renders into an OfflineAudioContext),

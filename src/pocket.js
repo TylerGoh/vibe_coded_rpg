@@ -8,7 +8,7 @@
 // While it's open the game's own canvas stops drawing (main.js skips render()) and your slime stands still at the mirror.
 import { keys, KeyEditor } from './keys.js';
 import { text } from './village.js';
-import { buildBeach, groundH, waterH, edgeOf, keepIn, PALMS, ROCKS, FOG, SUN_DIR, MIRROR_AT, FOLK_SOLID } from './pocket-beach.js';
+import { buildBeach, groundH, waterH, shore, edgeOf, keepIn, PALMS, ROCKS, FOG, SUN_DIR, MIRROR_AT, FOLK_SOLID } from './pocket-beach.js';
 import { MIRROR_W } from './pocket-mirror.js';
 
 const SPEED = 6.5, WADE = 4.2, SWIM = 3.4, GRAVITY = 24, JUMP_V = 8.4, SWIM_JUMP_V = 5.5;
@@ -23,6 +23,9 @@ const MIRROR_USE = 2.2; // within this of the mirror's front, E (pk_use) takes y
 // the cove's edges (src/pocket-beach.js edgeOf): within EDGE_SOFT of the ridge or the rocks you slow to a stop and get
 // a little push back; past the buoys' CURRENT_SOFT the current carries you back, up to CURRENT m/s at the line
 const EDGE_SOFT = 3, EDGE_PUSH = 1.2, CURRENT_SOFT = 9, CURRENT = 2.6, EDGE_SAY = 1.2;
+// the beach's sound (Beach in src/audio.js): a gull calls every GULL_GAP s or so; a breaker comes down where the
+// shader's foam crests break, BREAK_U out from the waterline
+const GULL_GAP = [3, 10], BREAK_U = 2.5;
 const EDGE_WORDS = { sea: "The current's too strong past the buoys", ridge: 'Too steep to climb', rocks: 'The rocks are too sheer to climb' };
 
 let THREE = null; // the module, once loaded
@@ -112,6 +115,7 @@ export class Pocket {
     window.removeEventListener('resize', this.onResize);
     if (this.onLock) document.removeEventListener('pointerlockchange', this.onLock);
     this.send?.({ t: 'pk', a: 'out' });
+    this.audio?.setBeach?.(null);
     for (const id of [...this.remotes.keys()]) this.dropRemote(id);
     this.ui?.editor.destroy();
     this.ui?.root.remove();
@@ -224,6 +228,7 @@ export class Pocket {
     beach.update(this.t, camera.position);
     shared.folk.update(this.t, dt);
     shared.cove.update(this.t);
+    this.sound(dt);
     // the drops
     const m = new THREE.Matrix4();
     this.drops.forEach((d, i) => {
@@ -240,6 +245,31 @@ export class Pocket {
     });
     splash.instanceMatrix.needsUpdate = true;
     renderer.render(scene, camera);
+  }
+
+  // the beach's sound, from the sea you see: the swash (waterH's) running up and draining back, louder the nearer the
+  // waterline you are and panned toward it; a breaker as each foam crest comes down; gulls calling from where they fly
+  sound(dt) {
+    const a = this.audio;
+    if (!a?.setBeach) return;
+    const t = this.t, x = this.pos.x, z = this.pos.z, u = z - shore(x);
+    const yaw = this.camYaw, rx = Math.cos(yaw), rz = -Math.sin(yaw); // (the camera's right, on the ground)
+    const near = 1 / (1 + Math.max(0, Math.abs(u) - 2) / 8);
+    const ds = (0.153 * Math.cos(0.9 * t) + 0.126 * Math.cos(2.1 * t + 1)) / 0.28; // (the swash's rate, as in waterH)
+    const toSea = Math.sign(-u || 1) * Math.min(1, Math.abs(u) / 4), pan = rz * toSea; // (the waterline is along x: it's ahead or behind in z)
+    a.setBeach({ near, run: Math.max(0, ds), drain: Math.max(0, -ds), pan, swim: this.swimming });
+    // the breakers (the shader's crests: sin(u * 0.55 + t * 1.3) peaking near BREAK_U)
+    const wave = Math.floor((BREAK_U * 0.55 + t * 1.3 - Math.PI / 2) / (Math.PI * 2));
+    if (this.lastWave != null && wave !== this.lastWave) a.beachEvent('crash', near * (0.6 + Math.random() * 0.4), pan + (Math.random() - 0.5) * 0.3);
+    this.lastWave = wave;
+    // the gulls
+    this.gullIn = (this.gullIn ?? 2) - dt;
+    const gulls = shared?.folk.gulls;
+    if (this.gullIn <= 0 && gulls?.length) {
+      this.gullIn = GULL_GAP[0] + Math.random() * (GULL_GAP[1] - GULL_GAP[0]);
+      const g = gulls[Math.floor(Math.random() * gulls.length)], gx = g.x - x, gz = g.z - z, d = Math.hypot(gx, g.y - this.pos.y, gz);
+      a.beachEvent('gull', Math.min(1, 18 / (d + 6)), (gx * rx + gz * rz) / (Math.hypot(gx, gz) || 1));
+    }
   }
 
   // one frame of moving about: → what your slime's jelly needs to know (pocket-slime.js animate)

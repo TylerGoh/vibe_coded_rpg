@@ -128,5 +128,19 @@ phones' frame rate (more so with the vacationers: about 700 meshes in the scene)
 - Not done: chat bubbles in 3D (and typing in chat while on the beach: the pocket world takes every key), slapping,
   anything shared to do.
 
+## Sound (owner, 2026-11-21: "add sound to the beach, waves and gulls")
+- No music on the beach: while it's open `src/main.js` sets the audio scene to `'pocket'` (no track), so the fair's
+  calliope fades out, and `sound()` in `src/pocket.js` drives `Beach` in `src/audio.js` every frame (`audio.setBeach`,
+  `audio.beachEvent`). It's ambience, so it's on the music bus: Music: off in the Esc menu silences it too.
+- **It follows the sea you see.** The wash swells and brightens as the swash (the same formula as `waterH`'s) runs up the
+  sand and fizzes as it drains back; a breaker crashes each time the shader's foam crest comes down at `BREAK_U`; all of
+  it louder the nearer the waterline you are, panned toward it from where the camera faces, and softer and lower out
+  swimming. The open sea's low roar is always under it, a little louder inland so it's never silent.
+- **Gulls you can see** (`src/pocket-folk.js`: five, wheeling over the bay on the sea's clock, gliding with a burst of
+  flaps now and then). Every `GULL_GAP` s or so one of them calls, a "kee-ow" or a laugh, panned and as loud as it is
+  near. The cries are random on each client (only the gulls' flight is shared).
+- Levels measured offline (an OfflineAudioContext in headless Chromium): at the waterline as the wash runs up it's about
+  the harbour's loudness, draining back half that, inland and swimming quieter. Nobody has listened to it yet.
+
 ## Next steps (owner decides, one at a time)
-- Sound (waves, gulls), things to do on the beach (riding a sailboat? playing catch with the kids?).
+- Things to do on the beach (riding a sailboat? playing catch with the kids?).

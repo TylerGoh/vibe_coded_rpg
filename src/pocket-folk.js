@@ -7,7 +7,9 @@
 // horizon. Everything moves as a function of the sea's clock (the server's, src/pocket.js), so everyone on the beach sees
 // the same vacationers in the same places. Only looks: no names, nothing to talk to, not solid (but the umbrellas, the
 // cool boxes and the sandcastle are: FOLK_SOLID).
-// buildFolk(THREE, scene, makeSlime, { splash }) → { update(t, dt) }. splash(x, y, z, n, power): src/pocket.js's drops.
+// Gulls circle over the bay too (their cries come from where they are: src/pocket.js, Beach in src/audio.js).
+// buildFolk(THREE, scene, makeSlime, { splash }) → { update(t, dt), gulls: [Vector3] }. splash(x, y, z, n, power):
+// src/pocket.js's drops.
 
 import { groundH, waterH, shore, CAMPS, CASTLE_AT, COOLER_AT } from './pocket-beach.js';
 
@@ -213,7 +215,56 @@ export function buildFolk(THREE, scene, makeSlime, { splash } = {}) {
     });
   }
 
+  // ——— gulls: wheeling over the bay, gliding with a few flaps now and then ———
+  const gullAt = [];
+  {
+    const white = new THREE.MeshStandardMaterial({ color: 0xfffaf4, roughness: 0.8, side: THREE.DoubleSide });
+    const grey = new THREE.MeshStandardMaterial({ color: 0xb9b8c8, roughness: 0.8, side: THREE.DoubleSide });
+    const wingGeo = new THREE.BufferGeometry();
+    // (one wing: a slim swept triangle-ish shape out along +x, its tip grey)
+    wingGeo.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0.18, 0, 0, -0.22, 0.75, 0, -0.18, 0.75, 0, -0.18, 1.3, 0, -0.42, 0, 0, 0.18], 3));
+    wingGeo.computeVertexNormals();
+    const tipGeo = new THREE.BufferGeometry();
+    tipGeo.setAttribute('position', new THREE.Float32BufferAttribute([0.75, 0.002, -0.18, 1.3, 0.002, -0.42, 1.05, 0.002, -0.1], 3));
+    tipGeo.computeVertexNormals();
+    const bodyGeo = new THREE.SphereGeometry(0.2, 10, 6);
+    // [centre x, centre u (out from the waterline), height, radius, speed (rad/s, sign = way round), phase]
+    for (const [cx, u, h, r, w, ph] of [[-20, 6, 14, 18, 0.16, 0], [25, 12, 18, 24, -0.12, 2], [-55, -4, 16, 14, 0.2, 4], [60, 4, 20, 20, -0.15, 1], [0, 25, 24, 30, 0.1, 3]]) {
+      const g = new THREE.Group(), body = new THREE.Mesh(bodyGeo, white);
+      body.scale.set(0.8, 0.7, 1.7);
+      const head = new THREE.Mesh(bodyGeo, white);
+      head.scale.setScalar(0.55);
+      head.position.set(0, 0.06, 0.32);
+      const beak = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.14, 5), new THREE.MeshStandardMaterial({ color: 0xffc35a }));
+      beak.rotation.x = Math.PI / 2;
+      beak.position.set(0, 0.05, 0.47);
+      const wings = [1, -1].map((side) => {
+        const pivot = new THREE.Group();
+        pivot.add(new THREE.Mesh(wingGeo, white), new THREE.Mesh(tipGeo, grey));
+        pivot.scale.x = side;
+        g.add(pivot);
+        return pivot;
+      });
+      g.add(body, head, beak);
+      g.rotation.order = 'YXZ';
+      scene.add(g);
+      gullAt.push(g.position);
+      const cz = seaZ(cx, u);
+      movers.push((t) => {
+        const a = w * t + ph, x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r * 0.7;
+        const y = h + Math.sin(t * 0.3 + ph) * 2;
+        g.position.set(x, y, z);
+        g.rotation.set(0, Math.atan2(-Math.sin(a) * w, Math.cos(a) * w * 0.7), -Math.sign(w) * 0.35); // (heading round, banked into the turn)
+        // mostly gliding, a burst of flaps now and then
+        const flap = frac(t / 7 + ph * 0.13) < 0.25 ? Math.sin(t * 11) * 0.6 : 0.12 + Math.sin(t * 1.3) * 0.05;
+        wings[0].rotation.z = flap;
+        wings[1].rotation.z = -flap;
+      });
+    }
+  }
+
   return {
+    gulls: gullAt,
     update(t, dt) {
       for (const m of movers) m(t, dt);
     },

@@ -6,6 +6,7 @@
 //   audio.sfx(name, {pan, vol}) one-shot effects (unknown names are ignored)
 //   audio.setMusic(on) / audio.musicOn   music + ambience on/off (sfx stay on), remembered in localStorage
 //   audio.setMuted(on)        everything off (e.g. while logged out)
+//   audio.setBeach(st) / audio.beachEvent(kind, vol, pan)   the pocket world's sea and gulls (Beach), driven by src/pocket.js
 //   audio.setDepth(v)         0..1 how deep into the Road's End (its heartbeats), down the Long Stair (its hum and chain) or down the Long Flue (its bellows and hammer) you are; 0 everywhere else
 //
 // Each scene is a small "song": a step sequencer (song.play is called once per step) plus optional noise
@@ -4502,6 +4503,87 @@ const MOB_DEATH = {
 };
 EFFECTS.victory = EFFECTS.bossDie;
 
+// ——— the pocket world's beach (docs/places/pocket.md): no tune, just the sea and gulls, driven every frame by
+// src/pocket.js from the sea you see (its swash and breakers, how near the waterline you are, which way it is) ———
+// update({ near, run, drain, pan, swim }): near 0..1 how close the waterline is; run / drain 0..1 how fast the swash is
+// running up the sand / draining back; pan -1..1 where the waterline is; swim: out floating on the swell.
+// crash(vol, pan): a breaker comes down. gull(vol, pan): a gull calls.
+export class Beach {
+  constructor(eng) {
+    const ac = eng.ac;
+    this.eng = eng;
+    this.out = eng.gain(0, eng.music); // (on the music bus: Music: off silences the beach too)
+    this.out.connect(eng.gain(0.2, eng.reverb)); // (a little air round it)
+    const loop = (type, f, q, dest) => {
+      const src = ac.createBufferSource();
+      src.buffer = eng.noise;
+      src.loop = true;
+      const flt = ac.createBiquadFilter();
+      flt.type = type;
+      flt.frequency.value = f;
+      flt.Q.value = q;
+      const g = eng.gain(0, dest);
+      src.connect(flt).connect(g);
+      src.start(ac.currentTime, Math.random() * 1.9);
+      this.srcs.push(src);
+      return { flt, g };
+    };
+    this.srcs = [];
+    this.pan = eng.pan(0, this.out);
+    this.far = loop('lowpass', 240, 0.5, this.out); // the open sea's low roar, always there
+    this.wash = loop('lowpass', 500, 0.8, this.pan); // the swash running up the sand
+    this.fizz = loop('highpass', 3200, 0.5, this.pan); // foam fizzing as it drains back
+  }
+  level(v) {
+    const t = this.eng.ac.currentTime;
+    this.out.gain.setTargetAtTime(v, t, 0.4);
+  }
+  update({ near = 0, run = 0, drain = 0, pan = 0, swim = false }) {
+    const t = this.eng.ac.currentTime, k = 0.12;
+    this.far.g.gain.setTargetAtTime(0.08 + 0.05 * (1 - near), t, 0.5);
+    this.wash.g.gain.setTargetAtTime((swim ? 0.09 : 0.03 + 0.16 * run) * near, t, k);
+    this.wash.flt.frequency.setTargetAtTime(swim ? 380 : 420 + 1500 * run, t, k);
+    this.fizz.g.gain.setTargetAtTime(swim ? 0.004 : (0.004 + 0.03 * drain) * near, t, k);
+    this.pan.pan.setTargetAtTime(Math.max(-0.8, Math.min(0.8, pan)), t, 0.2);
+  }
+  crash(vol, pan) {
+    const e = this.eng, t = e.ac.currentTime + 0.02, o = e.pan(pan, this.out);
+    e.noiseHit(o, t, { type: 'lowpass', f: 1800, sweep: 300, sweepT: 1.4, vol: 0.13 * vol, a: 0.06, hold: 0.15, tau: 0.5 });
+    e.noiseHit(o, t + 0.02, { type: 'lowpass', f: 160, vol: 0.12 * vol, a: 0.02, tau: 0.25 }); // its thump
+  }
+  gull(vol, pan) {
+    const e = this.eng, ac = e.ac, o = e.pan(pan, this.out), t0 = ac.currentTime + 0.02;
+    const laugh = Math.random() < 0.3, n = laugh ? 4 + Math.floor(Math.random() * 3) : 1 + Math.floor(Math.random() * 3);
+    const base = 1250 + Math.random() * 300;
+    for (let i = 0; i < n; i++) {
+      // each cry a squeaky "kee-ow": up quickly, then sliding down, through a nasal band
+      const t = t0 + i * (laugh ? 0.17 : 0.42 + Math.random() * 0.1), len = laugh ? 0.12 : 0.3 + Math.random() * 0.12;
+      const osc = ac.createOscillator(), flt = ac.createBiquadFilter(), g = ac.createGain();
+      osc.type = 'sawtooth';
+      const f = base * (laugh ? 1.05 - i * 0.03 : 1 + (Math.random() - 0.5) * 0.08);
+      osc.frequency.setValueAtTime(f * 0.85, t);
+      osc.frequency.linearRampToValueAtTime(f * 1.3, t + len * 0.2);
+      osc.frequency.exponentialRampToValueAtTime(f * 0.8, t + len);
+      flt.type = 'bandpass';
+      flt.frequency.value = 1900;
+      flt.Q.value = 2.5;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.13 * vol, t + 0.02);
+      g.gain.setValueAtTime(0.13 * vol, t + len * 0.5);
+      g.gain.linearRampToValueAtTime(0, t + len);
+      osc.connect(flt).connect(g).connect(o);
+      osc.start(t);
+      osc.stop(t + len + 0.05);
+    }
+  }
+  stop() {
+    const t = this.eng.ac.currentTime;
+    this.out.gain.setTargetAtTime(0, t, 0.3);
+    for (const s of this.srcs) s.stop(t + 1.5);
+    setTimeout(() => this.out.disconnect(), 1700);
+  }
+}
+
 // ——— the live controller ———
 const ZONE_KEYS = {
   'Sprout Meadow': 'meadow', 'Mushroom Grove': 'grove', 'Bramble Woods': 'bramble',
@@ -4512,6 +4594,7 @@ const ZONE_KEYS = {
 const ROOM_KEYS = ['village', 'hall', 'piano', 'museum', 'tutor', null, 'king', 'mother', 'behemoth', null, 'glacia', 'wyrm',
   null, null, 'ignis', 'pyra', 'colossus', 'chronos', 'tutor', 'harbour', 'cliffs', 'crossing', 'crossing', 'fjord', 'willowmere', 'coves', 'tidemother', null, 'deep', 'glowroot', 'knotmole', 'canopy', 'wreck', 'thornheart', 'spine', 'warden', 'glacier', 'skerries', 'narwhal', 'grotto', 'heights', 'bluehalls', 'qbridge', 'sigrun', 'forgehold', 'straits', 'straits', 'sunkenroad', 'roadsend', 'ladon', 'oldice', 'longstair', 'fenrir', 'meadow', 'blacksands', 'ashwood', 'coast', 'narwhal', 'tubes', 'brimstone', 'foundry', 'rim', 'brenna', 'underflues', 'longflue', 'typhon', 'sky', 'sky', 'skycamp', 'skydocks', 'wickmere', 'fenroute', 'fenroute', 'shallows', 'firefly', 'drownedgrove', 'longneck', 'stillmere', 'gullet', 'barrows', 'causeway', 'mire', 'peatbarrows', 'lamproad', 'wickmother', 'gardens', 'orrery', 'meridian', 'archive', 'indexer', 'engine', 'bells', 'helm', 'keel', 'undercroft', 'spoke', 'escapement', 'caravan', 'duneroute', 'duneroute', 'glassdunes', 'observatory', 'sunroller', 'oasis', 'saltflats', 'netwife', 'buried', 'stormroad', 'redwall', 'drywells', 'shellroad', 'carapace', 'fair', 'fair']; // (112: the Gathering Fair, 113: the Big Top inside it) // (109: the Dry Wells, 110: the Shell Road, 111: Old Carapace's den, the Long Road, its own track, A5; 107: the Storm Road, 108: the Red Wall's den, the Storm's Eye, A4; 104: the Salt Flats, 105: the Netwife's den, the Dry Harbour, A2; 106: the Buried Caravanserai, A3; 97: Caravanserai, 98-99: the Saltwind's deck, out and home, 100: the Glass Dunes, atlas Phase 9 A0; 101: the Buried Observatory, 102: the Sunroller's den, the Dial Floor, 103: the Mirage Oasis, A1; 96: the Escapement's den, the Catch, its own track, the Citadel's C6 (c); 94: the Undercroft, 95: the Spoke, the Citadel's C6 (b); 90: the Engine Halls, the Citadel's C3; 88: the Archive, 89: the Indexer's den, the Last Drawer, the Citadel's C2; 86: the Orrery, 87: Meridian's den, the Armillary, the Citadel's C1; 85: the Keepers' Gardens, the Citadel's depth pass C0; 84: the Wickmother's den, the Hall of Lamps, her own track, L5 (c); 82-83: the Peat Barrows and the Lamp Road, L5 (b); 80: the Lantern Causeway, 81: Grandfather Mire's den, Grandfather's Pool, L4; 79: the Sunk Barrows, L3; 70: Wickmere, 71-72: the Hush's deck, out and home, 73: the Shallows, atlas Phase 8; 74: Firefly Hollow, 75: the Drowned Grove, 76: Long-Neck's den, the Stone Nest, L1; 77: the Still Mere, 78: Old Gullet's den, the Eel Pit, L2) // (66-67: the Kite's gondola, up and down, 68: the Skydocks camp, atlas Phase 6, and 69: the Skydocks, Phase 6 (c); 63-64: the Under-Flues and the Long Flue, E5 (b); 65: Typhon's den, the Hearth, its own track (E5 (c2)); 62: Brenna's den, the Bearer's Hoist, E4b; 61: the Caldera Rim, E4a; 60: the Old Foundry, E3b; 59: the Brimstone Fields, E3a; 58: the Drained Tubes, E2; 57: the Hatchkeeper's den, E2: the Old Narwhal's track, a mother holding on; 56: the Smoking Coast, E2; 55: the Ashwood, E1; 54: the Black Sands, E1; 53: the dev sandbox's Training Yard, the Sprout Meadow's tune; 49: Ladon's den, its own track; 50-51: the Old Ice and the Long Stair, FB2 (b); 52: Fenrir's den, its own track (FB2 (c2)); 18: the furniture store, the cozy music box too; 19: the harbour; 20: the east cliffs; 21-22: the ferry's deck; 23: Icefang Hamlet; 24: Willowmere; 25: Saltspray Coves; 26: the Tidemother's den; 27: the Pet Shop; 28: the Mycelium Deep; 29: Glowroot Hollow; 30: the Knotmole's burrow; 31: the Old Oak Canopy; 32: Wreck Cave; 33: the Thornheart; 34: Keeper's Spine; 35: the Root Warden's court; 36: the Rimeglass Glacier; 37: the Whale Skerries; 38: the Old Narwhal's breathing hole; 39: the Narwhal Grotto; 40: the Aurora Heights; 41: the Blue Halls; 42: the Queen's Bridge; 43: Sigrun's seam; 44: Forgehold; 45-46: the Lodestar's deck; 47: the Sunken Road; 48: the Road's End)
 const sceneKey = (room, zone) => {
+  if (room === 'pocket') return null; // the pocket world's beach: no music, its own sea and gulls (Beach)
   if (room === 5) return ZONE_KEYS[zone] ?? 'meadow'; // the Wildwood
   if (room === 9) return ZONE_KEYS[zone] ?? 'ridge'; // Frostpeak (the stage)
   if (room === 12) return ZONE_KEYS[zone] ?? 'cinder'; // Emberdeep (the legacy stage)
@@ -4522,6 +4605,8 @@ const sceneKey = (room, zone) => {
 
 let ac = null, eng = null, current = null, timer = 0;
 let scene = null, sceneArgs = null, muted = false, musicOn = true, intensity = 0, depth = 0;
+let beach = null; // the pocket world's beach while it's open (Beach)
+const beachLevel = () => (!muted && musicOn && !hidden() ? 1 : 0);
 try {
   musicOn = localStorage.getItem('slimeville-music') !== 'off';
 } catch {}
@@ -4537,6 +4622,7 @@ function tick() {
 
 function refresh() {
   if (!eng) return;
+  beach?.level(beachLevel());
   const want = !muted && musicOn && !hidden() ? scene : null;
   if ((current?.key ?? null) === want) return;
   const now = ac.currentTime;
@@ -4582,6 +4668,27 @@ export const audio = {
   sfx(name, opts = {}) {
     if (!eng || muted || ac.state !== 'running') return;
     eng.sfx(name, opts);
+  },
+
+  // the pocket world's beach (src/pocket.js, every frame while it's open): null stops it; else Beach.update's state
+  setBeach(st) {
+    if (!st) {
+      beach?.stop();
+      beach = null;
+      return;
+    }
+    if (!eng || ac.state !== 'running') return;
+    if (!beach) {
+      beach = new Beach(eng);
+      beach.level(beachLevel());
+    }
+    beach.update(st);
+  },
+  // a breaker coming down ('crash') or a gull calling ('gull'), vol 0..1, pan -1..1
+  beachEvent(kind, vol, pan) {
+    if (!beach || vol < 0.02) return;
+    if (kind === 'crash') beach.crash(vol, pan);
+    else if (kind === 'gull') beach.gull(vol, pan);
   },
 
   setMusic(on) {

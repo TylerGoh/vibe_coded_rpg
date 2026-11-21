@@ -1518,7 +1518,7 @@ function update(realDt) {
     houses.stopEditing();
     if (online()) audio.sfx('door');
   }
-  if (online()) audio.setScene(room, STAGES[room] ? zoneAt(net.me.x, room).name : null);
+  if (online()) audio.setScene(pocket.isOpen ? 'pocket' : room, STAGES[room] ? zoneAt(net.me.x, room).name : null); // (on the beach: its own sea and gulls instead of the fair's tune, src/pocket.js)
   audio.setDepth(online() && room === ROADSEND ? roadsDepth(net.me.x) : online() && room === LONGSTAIR ? stairDepth(net.me.x) : online() && room === LONGFLUE ? flueDepth(net.me.x) : online() && room === LAMPROAD ? roadDepth(net.me.x) : online() && room === SPOKE ? spokeDepth(net.me.x) : online() && room === SHELLROAD ? shellDepth(net.me.x) : 0); // (the Road's End's heartbeats, the Long Stair's hum and chain, the Long Flue's bellows and hammer, the Lamp Road's music box, the Spoke's tick)
   rpg.update(dt, online() ? net.me : null, room);
   skillTree.tick(); // (the K panel's cooldown sweeps while it's open, SP1)
