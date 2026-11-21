@@ -3,7 +3,7 @@
 Owner (2026-11-20): "experiment… a pocket dimension world". Built step by step on the `dev` branch (the sandbox at
 /rpg_dev, `docs/sandbox.md`), then shipped live the same day ("this is good, add it to the main world"). Multiplayer since the same day (below). Files: `src/pocket.js` (the scene, the loop, moving, the camera, the
 menu, controls, the others on the beach), `server/pocket.js` (who's on the beach and where), `src/pocket-mirror.js` (the mirror home), `src/pocket-beach.js` (the beach: its shapes as maths, and building it), `src/pocket-slime.js` (your
-slime in 3D), `POCKET_X` in `src/shared/fair.js` (the way in), the hooks in `src/main.js` and `src/fair.js`, the sandbox
+slime in 3D), `src/pocket-folk.js` (the slimes on vacation and the sailboats), `POCKET_X` in `src/shared/fair.js` (the way in), the hooks in `src/main.js` and `src/fair.js`, the sandbox
 panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`: it puts you by the Hall of Mirrors).
 
 ## How it got here
@@ -17,6 +17,20 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
 - A beach at sunset: sand rising to low dunes inland, three palm trees (`PALMS`: curved ringed trunks, drooping fronds
   that sway, coconuts) with soft shadows, rocks (`ROCKS`), starfish, a sea of rolling swells with foam on the breakers and
   a lacy foam line that runs up the sand and back (the swash), a pastel sky dome with a low sun, clouds, haze.
+- **Wider since 2026-11-21** (owner: "expand the world"): `WORLD_R` and the sand grew, with more palms and rocks along it
+  (eleven palms: each trunk is merged into two meshes, `merge` in `src/pocket-beach.js`, to keep draw calls down on phones;
+  that file mustn't import three, the server and the game's bundle import it).
+- **Slimes on vacation** (owner, 2026-11-21: "a bunch of slimes on vacation. kid slimes family slimes and sails";
+  `src/pocket-folk.js`, loaded with the rest of the 3D): four family camps (`CAMPS`: a striped umbrella, towels, a cool
+  box), each with a parent sunbathing in shades, one sitting in a sunhat, and the kids (smaller slimes in their parents'
+  colours) playing: catch with a beach ball, a sandcastle with a kid running a bucket to the sea and back, chasing round
+  the umbrella, a toddler in a swim ring paddling while its parent watches from the edge. A family strolls along the
+  waterline (a parent, two kids and a toddler hopping to keep up), swimmers float in rings past the breakers, and
+  sailboats loop out on the sea with a slime or two aboard, rocking on the swell, with far sails on the horizon.
+  **Everything is a function of the sea's clock** (the server's), so everyone sees the same vacationers in the same
+  places, and nothing is sent. They're looks only: no names, nothing to talk to, not solid; the umbrellas' poles, the
+  cool boxes and the sandcastle are (`FOLK_SOLID`, plain data in `src/pocket-beach.js` so `src/pocket.js` can use it).
+  Their splashes use your drops (kept small, so they don't plink).
 - **The mirror home** (step 5, owner 2026-11-20): the other side of the fair's upside-down mirror stands on the sand at
   `MIRROR_AT`, facing the sea: a gold arched frame like the fair's, sparkles drifting round it. **Its glass is a window
   back into the 2D game** (owner, 2026-11-20: "display a 2d world on the other side"): the fair as the game draws it,
@@ -71,7 +85,7 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
 `launch({ gl: true })` in `scripts/cdp.mjs` (`docs/testing.md`) draws it through Mesa's software GL on a virtual display:
 slow (about 6 frames a second here, so anything that moves crawls in a test), but the screenshots are real. Headless
 Chromium alone can't draw Three.js on this box. Not checked by people yet: how it feels to move and swim, the camera,
-phones' frame rate.
+phones' frame rate (more so with the vacationers: about 700 meshes in the scene).
 
 ## Multiplayer (owner, 2026-11-20: "make this 3d multiplayer")
 - Everyone on the beach sees everyone else there: their own slime in 3D, in their colour, with their name over it
@@ -90,4 +104,4 @@ phones' frame rate.
   anything shared to do.
 
 ## Next steps (owner decides, one at a time)
-- Sound (waves, gulls), things to do on the beach, friends in it.
+- Sound (waves, gulls), things to do on the beach (riding a sailboat? playing catch with the kids?).

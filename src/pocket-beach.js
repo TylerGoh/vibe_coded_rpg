@@ -4,10 +4,11 @@
 //    swim. The water's shader (WATER_GLSL) has the very same formulas, so you float on the waves you see. Change one,
 //    change the other.
 //  - buildBeach(THREE, scene): the sky, the sand, the sea, palm trees, rocks, starfish and clouds; → { update(t, eye) }.
+//  - where the vacationers' camps stand (CAMPS, FOLK_SOLID); they're built and moved in src/pocket-folk.js.
 // No Three.js import here (it's passed in), so the maths runs in Node too. Units are metres-ish: a slime is about 1 tall.
 // The shore runs along x (wavy, `shore`); the land is toward -z, the sea toward +z, where the sun hangs low.
 
-export const WORLD_R = 62; // how far from the middle you can go
+export const WORLD_R = 105; // how far from the middle you can go
 export const SEA = 0; // the still sea level
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 const smooth = (a, b, v) => {
@@ -58,12 +59,34 @@ export const PALMS = [
   { x: -6, z: -9, lean: 0.35, h: 7.5, turn: 0.4 },
   { x: 9, z: -13, lean: 0.25, h: 6.4, turn: -0.6 },
   { x: -17, z: -16, lean: 0.3, h: 8.2, turn: 1.4 },
+  // (the wider beach, owner 2026-11-21: "expand the world")
+  { x: -40, z: -19, lean: 0.3, h: 7.8, turn: -0.3 }, { x: -50, z: -24, lean: 0.2, h: 8.8, turn: 0.9 },
+  { x: 33, z: -15, lean: 0.32, h: 7.2, turn: 0.2 }, { x: 40, z: -21, lean: 0.22, h: 8.4, turn: -1.1 },
+  { x: 64, z: -13, lean: 0.35, h: 7, turn: 0.5 }, { x: -72, z: -14, lean: 0.3, h: 7.6, turn: -0.5 },
+  { x: 82, z: -22, lean: 0.25, h: 8.6, turn: 1.2 }, { x: -90, z: -20, lean: 0.28, h: 8, turn: 0.1 },
 ];
 // the mirror home (src/pocket-mirror.js): where it stands; it faces the sea
 export const MIRROR_AT = { x: 1.5, z: -8.5 };
 export const ROCKS = [
   { x: 14, z: 2, s: 1.3 }, { x: 15.6, z: 3.2, s: 0.7 }, { x: -24, z: 4, s: 1.8 }, { x: 4, z: -22, s: 0.9 }, { x: -9, z: 8, s: 0.6 },
+  { x: 72, z: 6, s: 2.2 }, { x: 74.5, z: 7.5, s: 1.1 }, { x: -78, z: 3, s: 1.6 }, { x: 56, z: -26, s: 1.2 }, { x: -45, z: 9, s: 0.8 },
 ];
+
+// the vacationers' camps (src/pocket-folk.js; owner 2026-11-21: "a bunch of slimes on vacation. kid slimes family slimes
+// and sails"): an umbrella at (x, z), `back` in from the waterline, towels toward the sea, a cool box, and what the kids
+// play there (catch, castle, chase, paddle). Kept here, plain data, so src/pocket.js can make the solid bits solid.
+export const CAMPS = [
+  { x: -30, back: 7, play: 'catch', canopy: [0xff8fa6, 0xfff6f0], towels: [0x7fc8f8, 0xffd36e], hue: 200 },
+  { x: 22, back: 8, play: 'castle', canopy: [0x7fc8f8, 0xfff6f0], towels: [0xff9fb0, 0xa7e08a], hue: 330 },
+  { x: 48, back: 6.5, play: 'chase', canopy: [0xffd36e, 0xff9a7a], towels: [0xc7a4ff, 0x7fc8f8], hue: 40 },
+  { x: -58, back: 7.5, play: 'paddle', canopy: [0xa7e08a, 0xfff6f0], towels: [0xffb27a, 0xff8fa6], hue: 120 },
+].map((c) => ({ ...c, z: shore(c.x) - c.back }));
+export const CASTLE_AT = [2.6, 3.4], COOLER_AT = [-2, -0.4]; // from a camp's umbrella
+export const FOLK_SOLID = CAMPS.flatMap((c) => [
+  { x: c.x, z: c.z, r: 0.25 },
+  { x: c.x + COOLER_AT[0], z: c.z + COOLER_AT[1], r: 0.4 },
+  ...(c.play === 'castle' ? [{ x: c.x + CASTLE_AT[0], z: c.z + CASTLE_AT[1], r: 0.8 }] : []),
+]);
 
 const SKY_TOP = 0x7fb3ec, SKY_MID = 0xf5c5d9, SKY_LOW = 0xffe0b3;
 export const FOG = 0xf8d9c6; // the haze at the horizon (the sky's lowest colour, a touch pinker)
@@ -95,7 +118,7 @@ export function buildBeach(THREE, scene) {
   scene.add(sky);
 
   // ——— the sand: a heightfield, dry on top, darker where the water reaches, tinted under it ———
-  const sandGeo = new THREE.PlaneGeometry(150, 150, 150, 150);
+  const sandGeo = new THREE.PlaneGeometry(240, 240, 200, 200);
   sandGeo.rotateX(-Math.PI / 2);
   const p = sandGeo.attributes.position, cols = [];
   const dry = new THREE.Color(0xf4e0b2), wet = new THREE.Color(0xd8bb8c), deep = new THREE.Color(0xb9b49a), c = new THREE.Color();
@@ -228,13 +251,18 @@ function palm(THREE, scene, pl) {
   const lean = new THREE.Vector3(Math.sin(pl.turn), 0, Math.cos(pl.turn)).multiplyScalar(pl.lean * pl.h);
   const curve = new THREE.QuadraticBezierCurve3(base, base.clone().add(new THREE.Vector3(0, pl.h * 0.55, 0)).addScaledVector(lean, 0.15), base.clone().add(new THREE.Vector3(0, pl.h, 0)).add(lean));
   const SEG = 16, bark = [new THREE.MeshStandardMaterial({ color: 0xc19468, roughness: 0.9 }), new THREE.MeshStandardMaterial({ color: 0xad8158, roughness: 0.9 })];
-  const up = new THREE.Vector3(0, 1, 0);
+  const up = new THREE.Vector3(0, 1, 0), rings = [[], []], q = new THREE.Quaternion(), mat = new THREE.Matrix4(), one = new THREE.Vector3(1, 1, 1);
   for (let i = 0; i < SEG; i++) {
     const a = curve.getPoint(i / SEG), b = curve.getPoint((i + 1) / SEG), len = a.distanceTo(b);
     const r0 = 0.34 - (i / SEG) * 0.16, r1 = 0.34 - ((i + 1) / SEG) * 0.16;
-    const m = new THREE.Mesh(new THREE.CylinderGeometry(r1 * 0.92, r0, len * 1.04, 10), bark[i % 2]);
-    m.position.copy(a).add(b).multiplyScalar(0.5);
-    m.quaternion.setFromUnitVectors(up, b.clone().sub(a).normalize());
+    const geo = new THREE.CylinderGeometry(r1 * 0.92, r0, len * 1.04, 10);
+    q.setFromUnitVectors(up, b.clone().sub(a).normalize());
+    geo.applyMatrix4(mat.compose(a.clone().add(b).multiplyScalar(0.5), q, one));
+    rings[i % 2].push(geo);
+  }
+  // (the rings merged into one mesh per colour: two draws a trunk, not sixteen; the wider beach has eleven palms)
+  for (const k of [0, 1]) {
+    const m = new THREE.Mesh(merge(THREE, rings[k]), bark[k]);
     m.castShadow = true;
     scene.add(m);
   }
@@ -293,4 +321,22 @@ function palm(THREE, scene, pl) {
       crown.rotation.z = Math.sin(t * 0.6 + pl.x) * 0.02;
     },
   };
+}
+
+// indexed geometries with the same attributes (position, normal, uv) as one (three's mergeGeometries lives in its addons,
+// which would import three into this file, and the server and the game's bundle import this file)
+function merge(THREE, geos) {
+  const out = new THREE.BufferGeometry(), idx = [];
+  let base = 0;
+  for (const name of ['position', 'normal', 'uv']) {
+    const n = geos[0].attributes[name].itemSize, arr = [];
+    for (const g of geos) arr.push(...g.attributes[name].array);
+    out.setAttribute(name, new THREE.Float32BufferAttribute(arr, n));
+  }
+  for (const g of geos) {
+    for (const i of g.index.array) idx.push(i + base);
+    base += g.attributes.position.count;
+  }
+  out.setIndex(idx);
+  return out;
 }

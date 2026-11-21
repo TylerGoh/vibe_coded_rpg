@@ -2,7 +2,8 @@
 // Your slime in 3D, for the pocket world (src/pocket.js): the same jelly as the 2D one (src/slime.js paletteFor: the
 // colours from your hue), a soft dome shaded from its light top to its deeper bottom, lit so it shines, eyes with glints, a little
 // smile, rosy cheeks and the leaf sprout. It squashes and stretches on a spring: landing flattens it, a jump stretches
-// it, walking makes it wobble, swimming bobs it. makeSlime(THREE, hue) → { group, animate(dt, state) }. Faces +z.
+// it, walking makes it wobble, swimming bobs it. makeSlime(THREE, hue) → { group, body, animate(dt, state) }. Faces +z.
+// (body: what squashes, for things worn on it: the vacationers' hats and shades, src/pocket-folk.js)
 
 const PROFILE = [[0, 0], [0.42, 0], [0.55, 0.07], [0.6, 0.2], [0.59, 0.36], [0.53, 0.55], [0.42, 0.7], [0.26, 0.82], [0.12, 0.88], [0, 0.9]];
 
@@ -57,6 +58,7 @@ export function makeSlime(THREE, hue) {
   let sq = 0, sv = 0, phase = 0;
   return {
     group,
+    body,
     // state: { moving (0..1), grounded, vy, swimming, landed (a hard landing just now: its speed) }
     animate(dt, s) {
       if (s.landed) sv += Math.min(6, s.landed * 0.5); // landing: a squash (flatter)

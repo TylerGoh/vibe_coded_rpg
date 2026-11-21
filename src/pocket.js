@@ -8,7 +8,7 @@
 // While it's open the game's own canvas stops drawing (main.js skips render()) and your slime stands still at the mirror.
 import { keys, KeyEditor } from './keys.js';
 import { text } from './village.js';
-import { buildBeach, groundH, waterH, WORLD_R, PALMS, ROCKS, FOG, SUN_DIR, MIRROR_AT } from './pocket-beach.js';
+import { buildBeach, groundH, waterH, WORLD_R, PALMS, ROCKS, FOG, SUN_DIR, MIRROR_AT, FOLK_SOLID } from './pocket-beach.js';
 import { MIRROR_W } from './pocket-mirror.js';
 
 const SPEED = 6.5, WADE = 4.2, SWIM = 3.4, GRAVITY = 24, JUMP_V = 8.4, SWIM_JUMP_V = 5.5;
@@ -71,8 +71,8 @@ export class Pocket {
     show(this.ui.loading, true);
     try {
       THREE ??= await import('three');
-      const [{ makeSlime }, { makeMirror }] = (this.mods = await Promise.all([import('./pocket-slime.js'), import('./pocket-mirror.js')]));
-      shared ??= this.buildScene(makeMirror);
+      const [{ makeSlime }, { makeMirror }, { buildFolk }] = (this.mods = await Promise.all([import('./pocket-slime.js'), import('./pocket-mirror.js'), import('./pocket-folk.js')]));
+      shared ??= this.buildScene(makeMirror, buildFolk, makeSlime);
       if (shared.hue !== hue) {
         // your slime, in your colour (made again if you come back a different colour)
         if (shared.slime) shared.scene.remove(shared.slime.group);
@@ -135,7 +135,7 @@ export class Pocket {
   }
 
   // ——— the scene ———
-  buildScene(makeMirror) {
+  buildScene(makeMirror, buildFolk, makeSlime) {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.shadowMap.enabled = true;
@@ -160,7 +160,9 @@ export class Pocket {
     splash.frustumCulled = false;
     scene.add(splash);
     this.drops = Array.from({ length: SPLASHES }, () => ({ life: 0, x: 0, y: -99, z: 0, vx: 0, vy: 0, vz: 0 }));
-    return { renderer, scene, camera, beach, mirror, sun, splash, slime: null, hue: null };
+    // the slimes on vacation and the sailboats (src/pocket-folk.js), moved on the sea's clock so everyone sees the same
+    const folk = buildFolk(THREE, scene, makeSlime, { splash: (x, y, z, n, power) => this.splashAt(x, y, z, n, power) });
+    return { renderer, scene, camera, beach, mirror, sun, splash, folk, slime: null, hue: null };
   }
 
   // a ring of drops thrown up at (x, y, z), n of them, this hard
@@ -212,6 +214,7 @@ export class Pocket {
     sun.position.set(tx + SUN_DIR[0] * 50, ty + SUN_DIR[1] * 50 + 20, tz + SUN_DIR[2] * 50);
     sun.target.position.set(tx, ty, tz);
     beach.update(this.t, camera.position);
+    shared.folk.update(this.t, dt);
     // the drops
     const m = new THREE.Matrix4();
     this.drops.forEach((d, i) => {
@@ -586,8 +589,8 @@ export class Pocket {
   }
 }
 
-// what you can't walk through: the palms' trunks, the rocks
-const OBSTACLES = [...PALMS.map((p) => ({ x: p.x, z: p.z, r: 0.55 })), ...ROCKS.map((r) => ({ x: r.x, z: r.z, r: r.s * 0.95 })),
+// what you can't walk through: the palms' trunks, the rocks, the camps' umbrellas, cool boxes and sandcastle
+const OBSTACLES = [...PALMS.map((p) => ({ x: p.x, z: p.z, r: 0.55 })), ...ROCKS.map((r) => ({ x: r.x, z: r.z, r: r.s * 0.95 })), ...FOLK_SOLID,
   ...[-0.55, 0, 0.55].map((dx) => ({ x: MIRROR_AT.x + dx * MIRROR_W / 1.5, z: MIRROR_AT.z, r: 0.42 }))]; // (the mirror: solid, E takes you through)
 
 // a name over a slime on the beach: a little pill, always facing you
