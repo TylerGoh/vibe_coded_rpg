@@ -10,7 +10,7 @@
 //   (only while two or more are there)
 // Joining the fair: ← {t:'pk', a:'who', ids} (who's away on the beach, for the 2D marks).
 import { FAIR, POCKET_X } from '../src/shared/fair.js';
-import { WORLD_R } from '../src/pocket-beach.js';
+import { keepIn } from '../src/pocket-beach.js';
 
 export const PK_HZ = 10;
 const MIRROR_REACH = 140; // px from the mirror in the fair that counts as at it (it's E range plus a margin)
@@ -44,10 +44,9 @@ export function createPocket({ players, send, broadcast }) {
       } else if (m.a === 'out') leave(id);
       else if (m.a === 'at' && inside.has(id) && Array.isArray(m.p)) {
         const [x, y, z, f, fl] = m.p;
-        // (kept on the beach: inside its ring, between the sea floor and a jump's height)
-        const r = Math.hypot(Number(x) || 0, Number(z) || 0), k = r > WORLD_R + 1 ? (WORLD_R + 1) / r : 1;
-        const R = WORLD_R + 1;
-        inside.set(id, [r2(num(x * k, -R, R)), r2(num(y, -10, 20)), r2(num(z * k, -R, R)), r2(num(f, -1e3, 1e3)), num(fl | 0, 0, 7)]);
+        // (kept on the beach: inside the cove's edge, between the sea floor and a jump's height)
+        const [kx, kz] = keepIn(num(x, -200, 200), num(z, -200, 200));
+        inside.set(id, [r2(kx), r2(num(y, -10, 20)), r2(kz), r2(num(f, -1e3, 1e3)), num(fl | 0, 0, 7)]);
       }
     },
     // walked out of the fair (a waystone, a warp, the tent flap) or out of the game: off the beach too

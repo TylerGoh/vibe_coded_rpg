@@ -3,7 +3,7 @@
 Owner (2026-11-20): "experiment… a pocket dimension world". Built step by step on the `dev` branch (the sandbox at
 /rpg_dev, `docs/sandbox.md`), then shipped live the same day ("this is good, add it to the main world"). Multiplayer since the same day (below). Files: `src/pocket.js` (the scene, the loop, moving, the camera, the
 menu, controls, the others on the beach), `server/pocket.js` (who's on the beach and where), `src/pocket-mirror.js` (the mirror home), `src/pocket-beach.js` (the beach: its shapes as maths, and building it), `src/pocket-slime.js` (your
-slime in 3D), `src/pocket-folk.js` (the slimes on vacation and the sailboats), `POCKET_X` in `src/shared/fair.js` (the way in), the hooks in `src/main.js` and `src/fair.js`, the sandbox
+slime in 3D), `src/pocket-folk.js` (the slimes on vacation and the sailboats), `src/pocket-cove.js` (what's round the cove's edges and past them), `POCKET_X` in `src/shared/fair.js` (the way in), the hooks in `src/main.js` and `src/fair.js`, the sandbox
 panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`: it puts you by the Hall of Mirrors).
 
 ## How it got here
@@ -17,7 +17,7 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
 - A beach at sunset: sand rising to low dunes inland, three palm trees (`PALMS`: curved ringed trunks, drooping fronds
   that sway, coconuts) with soft shadows, rocks (`ROCKS`), starfish, a sea of rolling swells with foam on the breakers and
   a lacy foam line that runs up the sand and back (the swash), a pastel sky dome with a low sun, clouds, haze.
-- **Wider since 2026-11-21** (owner: "expand the world"): `WORLD_R` and the sand grew, with more palms and rocks along it
+- **Wider since 2026-11-21** (owner: "expand the world"): the beach and the sand grew, with more palms and rocks along it
   (eleven palms: each trunk is merged into two meshes, `merge` in `src/pocket-beach.js`, to keep draw calls down on phones;
   that file mustn't import three, the server and the game's bundle import it).
 - **Slimes on vacation** (owner, 2026-11-21: "a bunch of slimes on vacation. kid slimes family slimes and sails";
@@ -43,11 +43,30 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
   In front of it (within `MIRROR_USE`, `nearMirror`) a pill says "E  step back through the mirror", and E (`pk_use`, a
   pocket key, rebindable) takes you home (`goHome`); on phones an E button shows there. Walking into it used to take you
   home; the owner preferred an E (2026-11-20).
+- **The cove** (owner, 2026-11-21: "a more seamless blockage… still look spacious"; the owner picked the whole package): the
+  beach is a bay instead of a disc with an invisible wall. Rocky headlands at both ends (`HEAD_X`, closing in a little
+  toward the bay's mouth, `HEAD_PINCH`) run out into the sea and sink at their tips, with sea stacks beyond; behind the
+  dunes a jungle ridge rises (`RIDGE_U`, `RIDGE_H`: grass on the sand's colours, instanced bushes and trees, a few palms
+  on its foot); a line of red and white buoys bobs across the mouth (`BUOY_U`) on a rope. Past them, for the eye: hazy
+  mountains inland and, small and hazed on the sea's horizon, the other islands as the 2D skies draw them
+  (`docs/places/harbour.md`): Frostpeak with a faint aurora, Greenhollow's hump and apple tree, the Citadel floating,
+  Lantern Fen in mist with lights, Emberdeep smoking, Amberdune's dunes. The far islands and mountains are flat,
+  unlit, fog-free meshes in the haze's colour: cheap, and they read as far.
+  - **The ground's shape is the edge you see** (`coveH` in `groundH`, and its copy in `WATER_GLSL`: change one, change the
+    other); `edgeOf` is the one you walk into: how far inside you are and which way is out (the rocks, the ridge or the
+    sea). **No hard stop**: within `EDGE_SOFT` of the ridge or the rocks your outward step fades to nothing and a small
+    push (`EDGE_PUSH`) eases you back; past the buoys the current (`CURRENT`, over `CURRENT_SOFT`) carries you in. Right at
+    the edge a pill says why ("Too steep to climb", "The rocks are too sheer to climb", "The current's too strong past
+    the buoys"), and `keepIn` makes sure you're never past it. The server keeps everyone's position inside with the
+    same `keepIn`.
+  - Past mistakes: the far Citadel as a plain upside-down cone read as a grey arrow in the sky; the aurora as a plain
+    sheet read as a grey slab (it's a glowing ribbon faded at its edges now). The sailboat nearest the east end was
+    moved in so it doesn't sail through the headland.
 - You're your own slime (`makeSlime`: your hue, so it matches your 2D one; eyes, cheeks, smile, leaf) in third
   person. No painted shine: a flat white blob there looked like a white dot stuck on (owner, 2026-11-21); the jelly's
   lit material gives the highlight. Walk (relative to the camera), jump, wade into the shallows (slower, a little spray), swim out where it's deeper
   than `SWIM_DEPTH` (you float on the swell, bobbing; slower still), jump out of the water, splash. The jelly squashes on
-  landing, stretches in the air and wobbles as it walks. The palms and rocks are in the way; the world ends at `WORLD_R`.
+  landing, stretches in the air and wobbles as it walks. The palms and rocks are in the way; the cove's edges (below) hold you in.
 - **The shapes are maths** (`groundH`, `waterH`, `shore`), and the water's shader has the same formulas in GLSL
   (`WATER_GLSL`): what you see is what you stand and float on. Change one, change the other.
 - Shared with everyone on the beach (below). Your 2D slime stands still at the mirror meanwhile (`inputBits` sends
@@ -99,8 +118,8 @@ phones' frame rate (more so with the vacationers: about 700 meshes in the scene)
   on every client would drift (frame-rate-dependent physics, the swell under swimmers, collisions), so it would need
   position corrections anyway; for a beach with nothing at stake, positions ~10 a second, eased, are simpler and can't
   desync. Revisit only if something shared and competitive happens there.
-- Past mistake: the server's clamp was a fixed ±99 box, left behind when `WORLD_R` grew past it, so anyone near the
-  edge looked stuck to the others. It's tied to `WORLD_R` now.
+- Past mistake: the server's clamp was a fixed ±99 box, left behind when the beach grew past it, so anyone near the
+  edge looked stuck to the others. It uses the cove's own edge now (`keepIn`), so it can't fall behind again.
 - **One sea for everyone**: the waves run on the server's clock (`clock()`, `net.renderTick()`, an hour round), so friends
   float on the same swell.
 - At the fair, the waiting 2D slime of everyone on the beach gets an "on the beach" sign (`drawAway`; `{a:'in' | 'out' |

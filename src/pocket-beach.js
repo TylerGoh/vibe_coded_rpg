@@ -8,7 +8,6 @@
 // No Three.js import here (it's passed in), so the maths runs in Node too. Units are metres-ish: a slime is about 1 tall.
 // The shore runs along x (wavy, `shore`); the land is toward -z, the sea toward +z, where the sun hangs low.
 
-export const WORLD_R = 105; // how far from the middle you can go
 export const SEA = 0; // the still sea level
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 const smooth = (a, b, v) => {
@@ -16,11 +15,51 @@ const smooth = (a, b, v) => {
   return t * t * (3 - 2 * t);
 };
 export const shore = (x) => 3 * Math.sin(x * 0.045) + 1.5 * Math.sin(x * 0.11 + 1.3);
-// the sand's height at (x, z): rising gently inland to low dunes, sloping down under the sea
+
+// ——— the cove (owner 2026-11-21: "a more seamless blockage… still look spacious"): the beach is a bay, with rocky
+// headlands at both ends running out into the sea, a jungle ridge rising behind the dunes, and a line of buoys across
+// the bay's mouth where a current carries swimmers back. The ground's own shape is the edge you see; edgeOf is the one
+// you walk into (the server keeps everyone inside it too, keepIn) ———
+export const HEAD_X = 97, HEAD_PINCH = 6, HEAD_H = 13; // the headlands' inner foot (|x|), how far they close in by the bay's mouth, how high
+export const RIDGE_U = -37, RIDGE_H = 15; // where the ridge starts rising (u: from the waterline, inland negative), how high it climbs
+export const BUOY_U = 44; // the buoy line across the bay's mouth (u)
+const WALK_RIDGE = RIDGE_U - 3, WALK_HEAD = 1.5; // how far up the ridge you get, how near the headlands' foot
+export const headX = (u) => HEAD_X - HEAD_PINCH * smooth(0, BUOY_U + 10, u);
+const rough = (x, z) => Math.sin(x * 0.31 + z * 0.19) * Math.sin(z * 0.37 - x * 0.13);
+// how much of the ridge (grass) and the headlands (rock) is at (x, z), 0..1 each (src/pocket-beach.js colours the sand by them)
+export function coveK(x, z) {
+  const u = z - shore(x);
+  return { ridge: smooth(RIDGE_U + 2, RIDGE_U - 4, u), rock: smooth(-1, 3, Math.abs(x) - headX(u)) * (1 - smooth(52, 68, u)) };
+}
+function coveH(x, z, u) {
+  const d = Math.abs(x) - headX(u), r = rough(x, z);
+  const ridge = smooth(RIDGE_U, RIDGE_U - 18, u) * (RIDGE_H * (0.85 + 0.15 * Math.sin(x * 0.05)) + r * 1.5) + 6 * smooth(RIDGE_U - 15, RIDGE_U - 70, u);
+  const head = smooth(-1, 7, d) * (1 - smooth(46, 68, u)) * (HEAD_H + r * 2.2 + 2 * Math.sin(u * 0.13 + x * 0.02));
+  return ridge + head;
+}
+// the sand's height at (x, z): rising gently inland to low dunes, sloping down under the sea, and the cove round it
 export function groundH(x, z) {
   const u = z - shore(x); // > 0: the sea side
-  if (u >= 0) return Math.max(-7, -u * 0.11);
-  return -u * 0.07 + 1.4 * smooth(-18, -40, u) * (0.6 + 0.4 * Math.sin(x * 0.09));
+  if (u >= 0) return Math.max(-7, -u * 0.11) + coveH(x, z, u);
+  return -u * 0.07 + 1.4 * smooth(-18, -40, u) * (0.6 + 0.4 * Math.sin(x * 0.09)) + coveH(x, z, u);
+}
+// how near the edge (x, z) is: e > 0 past it, e < 0 that far inside; (nx, nz) points out; kind: 'rocks' | 'ridge' | 'sea'
+export function edgeOf(x, z) {
+  const u = z - shore(x);
+  const eH = Math.abs(x) - (headX(u) - WALK_HEAD), eR = WALK_RIDGE - u, eS = u - BUOY_U;
+  if (eH >= eR && eH >= eS) return { e: eH, nx: Math.sign(x) || 1, nz: 0, kind: 'rocks' };
+  if (eR >= eS) return { e: eR, nx: 0, nz: -1, kind: 'ridge' };
+  return { e: eS, nx: 0, nz: 1, kind: 'sea' };
+}
+// (x, z) moved back inside the cove if it's past the edge → [x, z]
+export function keepIn(x, z) {
+  for (let i = 0; i < 3; i++) {
+    const E = edgeOf(x, z);
+    if (E.e <= 0) break;
+    x -= E.nx * E.e;
+    z -= E.nz * E.e;
+  }
+  return [x, z];
 }
 // the sea's surface at (x, z) at time t: swells rolling in (fading near the beach) and the swash, the whole edge of the
 // water running up the sand and back
@@ -31,7 +70,8 @@ export function waterH(x, z, t) {
   return SEA + swell * smooth(-1, 12, u) + swash * (1 - smooth(4, 14, u));
 }
 
-// the same three functions in GLSL, for the water's shader
+// the same functions in GLSL, for the water's shader (the cove's numbers written out: HEAD_X, HEAD_PINCH, BUOY_U + 10,
+// RIDGE_U, RIDGE_H, HEAD_H. Change one, change the other)
 const WATER_GLSL = `
 float hash2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float vnoise(vec2 p) {
@@ -41,10 +81,16 @@ float vnoise(vec2 p) {
 }
 float sm(float a, float b, float v) { float t = clamp((v - a) / (b - a), 0.0, 1.0); return t * t * (3.0 - 2.0 * t); }
 float shoreZ(float x) { return 3.0 * sin(x * 0.045) + 1.5 * sin(x * 0.11 + 1.3); }
+float coveH(float x, float z, float u) {
+  float d = abs(x) - (97.0 - 6.0 * sm(0.0, 54.0, u)), r = sin(x * 0.31 + z * 0.19) * sin(z * 0.37 - x * 0.13);
+  float ridge = sm(-37.0, -55.0, u) * (15.0 * (0.85 + 0.15 * sin(x * 0.05)) + r * 1.5) + 6.0 * sm(-52.0, -107.0, u);
+  float head = sm(-1.0, 7.0, d) * (1.0 - sm(46.0, 68.0, u)) * (13.0 + r * 2.2 + 2.0 * sin(u * 0.13 + x * 0.02));
+  return ridge + head;
+}
 float groundH(float x, float z) {
   float u = z - shoreZ(x);
-  if (u >= 0.0) return max(-7.0, -u * 0.11);
-  return -u * 0.07 + 1.4 * sm(-18.0, -40.0, u) * (0.6 + 0.4 * sin(x * 0.09));
+  if (u >= 0.0) return max(-7.0, -u * 0.11) + coveH(x, z, u);
+  return -u * 0.07 + 1.4 * sm(-18.0, -40.0, u) * (0.6 + 0.4 * sin(x * 0.09)) + coveH(x, z, u);
 }
 float waterH(float x, float z, float t) {
   float u = z - shoreZ(x);
@@ -118,10 +164,11 @@ export function buildBeach(THREE, scene) {
   scene.add(sky);
 
   // ——— the sand: a heightfield, dry on top, darker where the water reaches, tinted under it ———
-  const sandGeo = new THREE.PlaneGeometry(240, 240, 200, 200);
+  const sandGeo = new THREE.PlaneGeometry(300, 300, 230, 230); // (wide enough that the ridge and headlands run off past the fog)
   sandGeo.rotateX(-Math.PI / 2);
   const p = sandGeo.attributes.position, cols = [];
   const dry = new THREE.Color(0xf4e0b2), wet = new THREE.Color(0xd8bb8c), deep = new THREE.Color(0xb9b49a), c = new THREE.Color();
+  const grass = new THREE.Color(0x7fbf6a), grass2 = new THREE.Color(0x5e9f5c), rock = new THREE.Color(0xb3a6c2), rock2 = new THREE.Color(0x8f84a6);
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i), z = p.getZ(i) - 8;
     const ripple = 0.035 * Math.sin(x * 1.7 + z * 0.9) * Math.sin(z * 2.3 - x * 0.4);
@@ -129,6 +176,9 @@ export function buildBeach(THREE, scene) {
     p.setY(i, h + ripple);
     p.setZ(i, z);
     c.copy(dry).lerp(wet, smooth(0.6, 0.05, h)).lerp(deep, smooth(-0.3, -3, h));
+    const k = coveK(x, z), n = 0.5 + 0.5 * Math.sin(x * 0.7 + z * 0.4) * Math.sin(z * 0.9 - x * 0.3);
+    if (k.ridge > 0) c.lerp(grass.clone().lerp(grass2, n), k.ridge * (1 - k.rock));
+    if (k.rock > 0) c.lerp(rock.clone().lerp(rock2, n * 0.8 + smooth(2, 10, h) * 0.2), k.rock);
     const j = 1 + (Math.sin(x * 12.9898 + z * 78.233) * 43758.5453 % 1) * 0.03; // a grain of noise
     cols.push(c.r * j, c.g * j, c.b * j);
   }
@@ -245,8 +295,8 @@ export function buildBeach(THREE, scene) {
   };
 }
 
-// One palm tree at pl = { x, z, lean, h, turn }: → { sway(t) }
-function palm(THREE, scene, pl) {
+// One palm tree at pl = { x, z, lean, h, turn }: → { sway(t) } (src/pocket-cove.js plants some on the ridge too)
+export function palm(THREE, scene, pl) {
   const base = new THREE.Vector3(pl.x, groundH(pl.x, pl.z) - 0.2, pl.z);
   const lean = new THREE.Vector3(Math.sin(pl.turn), 0, Math.cos(pl.turn)).multiplyScalar(pl.lean * pl.h);
   const curve = new THREE.QuadraticBezierCurve3(base, base.clone().add(new THREE.Vector3(0, pl.h * 0.55, 0)).addScaledVector(lean, 0.15), base.clone().add(new THREE.Vector3(0, pl.h, 0)).add(lean));

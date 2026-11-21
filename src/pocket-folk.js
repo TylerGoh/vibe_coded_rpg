@@ -181,7 +181,7 @@ export function buildFolk(THREE, scene, makeSlime, { splash } = {}) {
     { cx: -10, u: 34, A: 42, B: 7, w: 0.05, ph: 0, size: 1.2, hull: 0xfff6f0, sail: [0xffffff, 0xff8fa6], crew: [210, 30] },
     { cx: 30, u: 50, A: 50, B: 9, w: -0.04, ph: 2, size: 1.5, hull: 0x7fc8f8, sail: [0xffffff, 0xffd36e], crew: [140] },
     { cx: -45, u: 62, A: 38, B: 8, w: 0.035, ph: 4, size: 1.35, hull: 0xffd8a8, sail: [0xfff6f0, 0x7fc8f8], crew: [330, 300] },
-    { cx: 60, u: 30, A: 30, B: 6, w: -0.06, ph: 1, size: 1, hull: 0xffffff, sail: [0xa7e08a, 0xffffff], crew: [60] },
+    { cx: 54, u: 30, A: 28, B: 6, w: -0.06, ph: 1, size: 1, hull: 0xffffff, sail: [0xa7e08a, 0xffffff], crew: [60] },
     { cx: 5, u: 78, A: 60, B: 10, w: 0.03, ph: 5, size: 1.6, hull: 0xc7a4ff, sail: [0xffffff, 0xff9a7a], crew: [250, 280] },
     // far off, near the horizon (no crew to see)
     { cx: -120, u: 170, A: 70, B: 12, w: 0.015, ph: 0.5, size: 2.8, hull: 0xfff6f0, sail: [0xffffff, 0xffffff], crew: [] },

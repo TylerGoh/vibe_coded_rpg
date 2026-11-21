@@ -8,7 +8,7 @@
 // While it's open the game's own canvas stops drawing (main.js skips render()) and your slime stands still at the mirror.
 import { keys, KeyEditor } from './keys.js';
 import { text } from './village.js';
-import { buildBeach, groundH, waterH, WORLD_R, PALMS, ROCKS, FOG, SUN_DIR, MIRROR_AT, FOLK_SOLID } from './pocket-beach.js';
+import { buildBeach, groundH, waterH, edgeOf, keepIn, PALMS, ROCKS, FOG, SUN_DIR, MIRROR_AT, FOLK_SOLID } from './pocket-beach.js';
 import { MIRROR_W } from './pocket-mirror.js';
 
 const SPEED = 6.5, WADE = 4.2, SWIM = 3.4, GRAVITY = 24, JUMP_V = 8.4, SWIM_JUMP_V = 5.5;
@@ -20,6 +20,10 @@ const SEND_EVERY = 0.1; // s between telling the server where you are (server/po
 const LOST_S = 2; // s without news of someone on the beach before their slime goes
 const ESC_GAP = 300; // ms: an Esc this soon after the menu opened is the same press (key)
 const MIRROR_USE = 2.2; // within this of the mirror's front, E (pk_use) takes you home
+// the cove's edges (src/pocket-beach.js edgeOf): within EDGE_SOFT of the ridge or the rocks you slow to a stop and get
+// a little push back; past the buoys' CURRENT_SOFT the current carries you back, up to CURRENT m/s at the line
+const EDGE_SOFT = 3, EDGE_PUSH = 1.2, CURRENT_SOFT = 9, CURRENT = 2.6, EDGE_SAY = 1.2;
+const EDGE_WORDS = { sea: "The current's too strong past the buoys", ridge: 'Too steep to climb', rocks: 'The rocks are too sheer to climb' };
 
 let THREE = null; // the module, once loaded
 let shared = null; // { renderer, scene, camera, beach, sun, splash, slime, hue }: built once, kept for the next visit
@@ -71,8 +75,8 @@ export class Pocket {
     show(this.ui.loading, true);
     try {
       THREE ??= await import('three');
-      const [{ makeSlime }, { makeMirror }, { buildFolk }] = (this.mods = await Promise.all([import('./pocket-slime.js'), import('./pocket-mirror.js'), import('./pocket-folk.js')]));
-      shared ??= this.buildScene(makeMirror, buildFolk, makeSlime);
+      const [{ makeSlime }, { makeMirror }, { buildFolk }, { buildCove }] = (this.mods = await Promise.all([import('./pocket-slime.js'), import('./pocket-mirror.js'), import('./pocket-folk.js'), import('./pocket-cove.js')]));
+      shared ??= this.buildScene(makeMirror, buildFolk, makeSlime, buildCove);
       if (shared.hue !== hue) {
         // your slime, in your colour (made again if you come back a different colour)
         if (shared.slime) shared.scene.remove(shared.slime.group);
@@ -135,7 +139,7 @@ export class Pocket {
   }
 
   // ——— the scene ———
-  buildScene(makeMirror, buildFolk, makeSlime) {
+  buildScene(makeMirror, buildFolk, makeSlime, buildCove) {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.shadowMap.enabled = true;
@@ -162,7 +166,8 @@ export class Pocket {
     this.drops = Array.from({ length: SPLASHES }, () => ({ life: 0, x: 0, y: -99, z: 0, vx: 0, vy: 0, vz: 0 }));
     // the slimes on vacation and the sailboats (src/pocket-folk.js), moved on the sea's clock so everyone sees the same
     const folk = buildFolk(THREE, scene, makeSlime, { splash: (x, y, z, n, power) => this.splashAt(x, y, z, n, power) });
-    return { renderer, scene, camera, beach, mirror, sun, splash, folk, slime: null, hue: null };
+    const cove = buildCove(THREE, scene); // the jungle, the buoys and the far islands round the bay (src/pocket-cove.js)
+    return { renderer, scene, camera, beach, mirror, sun, splash, folk, cove, slime: null, hue: null };
   }
 
   // a ring of drops thrown up at (x, y, z), n of them, this hard
@@ -198,6 +203,9 @@ export class Pocket {
     const near = this.nearMirror() && !this.menuOpen();
     if (this.ui) {
       show(this.ui.home, near, 'block');
+      const edge = !near && !this.menuOpen() && this.edge && this.edge.e > -EDGE_SAY ? EDGE_WORDS[this.edge.kind] : '';
+      if (this.ui.edge.textContent !== edge) this.ui.edge.textContent = edge;
+      show(this.ui.edge, !!edge, 'block');
       if (this.ui.useBtn) show(this.ui.useBtn, near, 'block');
     }
     // your slime
@@ -215,6 +223,7 @@ export class Pocket {
     sun.target.position.set(tx, ty, tz);
     beach.update(this.t, camera.position);
     shared.folk.update(this.t, dt);
+    shared.cove.update(this.t);
     // the drops
     const m = new THREE.Matrix4();
     this.drops.forEach((d, i) => {
@@ -250,14 +259,23 @@ export class Pocket {
     const depth = waterH(this.pos.x, this.pos.z, this.t) - groundH(this.pos.x, this.pos.z);
     this.swimming = depth > SWIM_DEPTH;
     const speed = this.swimming ? SWIM : depth > 0.15 ? WADE : SPEED;
-    let nx = this.pos.x + mx * speed * dt, nz = this.pos.z + mz * speed * dt;
-    // the palms' trunks and the rocks are in the way; the world ends in a ring
-    for (const o of OBSTACLES) {
-      const dx = nx - o.x, dz = nz - o.z, d = Math.hypot(dx, dz);
-      if (d < o.r) [nx, nz] = [o.x + (dx / (d || 1)) * o.r, o.z + (dz / (d || 1)) * o.r];
+    let dx = mx * speed * dt, dz = mz * speed * dt;
+    // the cove's edges: nearing the ridge or the rocks you slow to a stop (only going outward) and are eased back; past
+    // the buoys' current it carries you in. No invisible wall to bump into
+    const E = (this.edge = edgeOf(this.pos.x, this.pos.z)), soft = E.kind === 'sea' ? CURRENT_SOFT : EDGE_SOFT;
+    if (E.e > -soft) {
+      const k = Math.max(0, Math.min(1, -E.e / soft)), out = dx * E.nx + dz * E.nz;
+      if (out > 0) [dx, dz] = [dx - E.nx * out * (1 - k), dz - E.nz * out * (1 - k)];
+      const push = (E.kind === 'sea' ? CURRENT : EDGE_PUSH) * (1 - k) * dt;
+      [dx, dz] = [dx - E.nx * push, dz - E.nz * push];
     }
-    const r = Math.hypot(nx, nz);
-    if (r > WORLD_R) [nx, nz] = [(nx / r) * WORLD_R, (nz / r) * WORLD_R];
+    let nx = this.pos.x + dx, nz = this.pos.z + dz;
+    // the palms' trunks and the rocks are in the way
+    for (const o of OBSTACLES) {
+      const ox = nx - o.x, oz = nz - o.z, d = Math.hypot(ox, oz);
+      if (d < o.r) [nx, nz] = [o.x + (ox / (d || 1)) * o.r, o.z + (oz / (d || 1)) * o.r];
+    }
+    [nx, nz] = keepIn(nx, nz); // (and never past the edge)
     this.pos.x = nx;
     this.pos.z = nz;
     if (len > 0.05) {
@@ -503,9 +521,12 @@ export class Pocket {
     menu.append(menuBtns, ctl);
     menu.className = 'pocket-menu';
     show(menu, false);
-    root.append(loading, hint, look, home, menu, leave);
+    // near the cove's edge: why you can't go on (the current, the ridge, the rocks)
+    const edge = el('div', 'position: absolute; left: 50%; top: 58px; transform: translateX(-50%); padding: 8px 16px; border-radius: 16px; background: rgba(255,255,255,0.75); color: #5b4a6b; font-size: 14px; pointer-events: none; white-space: nowrap;', '');
+    show(edge, false);
+    root.append(loading, hint, look, home, edge, menu, leave);
     const editor = new KeyEditor(grid, note, { tabs: ['pocket'] });
-    this.ui = { root, loading, look, home, menu, menuBtns, ctl, editor, hint };
+    this.ui = { root, loading, look, home, edge, menu, menuBtns, ctl, editor, hint };
     this.labelHint();
     show(ctl, false);
     if (this.touch) {
