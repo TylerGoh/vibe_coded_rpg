@@ -95,6 +95,12 @@ phones' frame rate (more so with the vacationers: about 700 meshes in the scene)
   (x, y, z, facing, and flags: grounded, swimming, moving; kept inside the beach), and out when you go home (or leave the
   fair or the game). While two or more are there it sends everyone the lot `PK_HZ` times a second. Each client eases the
   others toward their last place (`moveRemotes`) and drops anyone it hasn't heard of for `LOST_S`.
+- **Why positions, not inputs** (owner asked, 2026-11-21): sending only moves and a jump signal and simulating everyone
+  on every client would drift (frame-rate-dependent physics, the swell under swimmers, collisions), so it would need
+  position corrections anyway; for a beach with nothing at stake, positions ~10 a second, eased, are simpler and can't
+  desync. Revisit only if something shared and competitive happens there.
+- Past mistake: the server's clamp was a fixed ±99 box, left behind when `WORLD_R` grew past it, so anyone near the
+  edge looked stuck to the others. It's tied to `WORLD_R` now.
 - **One sea for everyone**: the waves run on the server's clock (`clock()`, `net.renderTick()`, an hour round), so friends
   float on the same swell.
 - At the fair, the waiting 2D slime of everyone on the beach gets an "on the beach" sign (`drawAway`; `{a:'in' | 'out' |

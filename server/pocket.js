@@ -46,7 +46,8 @@ export function createPocket({ players, send, broadcast }) {
         const [x, y, z, f, fl] = m.p;
         // (kept on the beach: inside its ring, between the sea floor and a jump's height)
         const r = Math.hypot(Number(x) || 0, Number(z) || 0), k = r > WORLD_R + 1 ? (WORLD_R + 1) / r : 1;
-        inside.set(id, [r2(num(x * k, -99, 99)), r2(num(y, -10, 20)), r2(num(z * k, -99, 99)), r2(num(f, -1e3, 1e3)), num(fl | 0, 0, 7)]);
+        const R = WORLD_R + 1;
+        inside.set(id, [r2(num(x * k, -R, R)), r2(num(y, -10, 20)), r2(num(z * k, -R, R)), r2(num(f, -1e3, 1e3)), num(fl | 0, 0, 7)]);
       }
     },
     // walked out of the fair (a waystone, a warp, the tent flap) or out of the game: off the beach too
