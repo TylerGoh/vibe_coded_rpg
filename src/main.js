@@ -76,8 +76,8 @@ import { drawCliffs, drawCliffsPath, Telescope, scopeNear } from './cliffs.js';
 import { Fair } from './fair.js';
 import { Pocket } from './pocket.js';
 import { drawFair, drawFairTent, drawFairPlot } from './fair-art.js';
-import { RideCard, drawRider, riderHidden } from './coaster.js';
-import { stationAt } from './shared/coaster.js';
+import { drawRider, riderHidden, cartNear, setCoaster } from './coaster.js';
+import { CATCH } from './shared/coaster.js';
 import { FAIR, BOOTHS } from './shared/fair.js';
 import { drawRuins, ruinStoneAt, RUIN_STONES } from './ruins.js';
 import { GATES, gateAt } from './shared/branches.js';
@@ -432,15 +432,11 @@ const pocket = new Pocket({
   },
 }); // the pocket world through the fair's upside-down mirror (src/pocket.js)
 fair.onPocket = () => pocket.show(mine?.hue); // (your slime, in 3D, in your colour)
-// the Gathering Line (F2, docs/places/coaster.md): E at a station asks where to; the pick goes out with the E press
-const ride = new RideCard((bits) => {
-  if (!online() || stationAt(net.me) < 0) return;
-  moveBits |= USE | bits;
+// the Gathering Line (F2, docs/places/coaster.md): E with a car in reach sends CATCH with the press; step() puts you in it
+fair.cartAt = (me) => cartNear(me, net.renderTick());
+fair.onCatch = () => {
+  moveBits |= USE | CATCH;
   moveSteps = 1;
-});
-fair.onRide = (st) => {
-  held.clear();
-  ride.open(st);
 };
 // Clio can be asked from anywhere in the museum (Q, the Ask button, or a fact sheet's "Ask Clio")
 const askClio = (prefill = '') => {
@@ -1182,13 +1178,6 @@ addEventListener('keydown', (e) => {
     else if (keys.is(e, 'use') && !e.repeat) pool.close();
     return;
   }
-  // the Gathering Line's card: Esc or E closes it, number keys pick a stop
-  if (ride.isOpen) {
-    e.preventDefault();
-    if (e.code === 'Escape' || (keys.is(e, 'use') && !e.repeat)) ride.close();
-    else if (/^Digit[1-3]$/.test(e.code)) ride.pickNth(Number(e.code.slice(5)) - 1);
-    return;
-  }
   // boarding a ship: E or Enter sets sail, Esc thinks better of it
   if (sail.door) {
     e.preventDefault();
@@ -1547,7 +1536,6 @@ function update(realDt) {
 
   for (const c of characters.values()) c.update(dt, online() && npcIn(c.cfg, room) ? mine : null, npcIn(c.cfg, room) ? room : undefined);
   if (sail.door && !(online() && doorAt(net.me) === sail.door)) sail.close(); // walked off the gangway
-  if (ride.isOpen && !(online() && room === FAIR && stationAt(net.me) === ride.from)) ride.close(); // walked off the platform
   if (room === MUSEUM) museum.update(dt, online() ? net.me : null);
   if (scope.isOpen) scope.update(dt);
   if (room === FAIR || fair.isOpen) fair.update(dt);
@@ -1664,7 +1652,7 @@ function drawPill(x, y, w, label, color = '#5b4a6b') {
 const BEACON_RANGE = 420;
 const DOOR_BAND_Y = 160; // how high over the ground a door's level chip sits (under the beacon)
 function drawHints() {
-  if (!online() || splatted(mine) || !menu.hidden || sail.door || ride.isOpen || ways.isOpen || pool.isOpen || sandbox.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || fair.isOpen || pocket.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || houses.editing) return;
+  if (!online() || splatted(mine) || !menu.hidden || sail.door || ways.isOpen || pool.isOpen || sandbox.isOpen || dialogOpen() || hall.askOpen || museum.isOpen || scope.isOpen || fair.isOpen || pocket.isOpen || courseMenu.isOpen || rpg.isOpen || skillTree.isOpen || shop.isOpen || players.isOpen || trade.isOpen || alchemy.isOpen || pets.isOpen || chest.isOpen || houses.editing) return;
   const me = net.me, acts = [];
   const talk = charsHere().find((c) => c.near);
   const door = doorAt(me);
@@ -1815,7 +1803,7 @@ function render() {
   else if (room === ROADSEND) drawRoadsEnd(ctx, camX, W, time, online() ? net.me : null, [...slimes.values()].filter((s) => s.visible).length + (net.id !== null ? 1 : 0));
   else if (roomDef(room)?.crossing) drawCrossing(ctx, room, camX, W, time, online() ? net.me : null);
   else if (room === ARENA) drawArena(ctx, camX, W, time); // (the dev sandbox's Training Yard: docs/sandbox.md)
-  else if (room === FAIR) drawFair(ctx, camX, W, time, [...slimes.values()].filter((s) => s.visible && !splatted(s)).concat(mine && net.id !== null && !splatted(mine) ? [mine] : []), fair.bests); // (the mirrors show the slimes in front of them)
+  else if (room === FAIR) setCoaster(net.renderTick(), [...[...slimes.values()].filter((s) => s.visible && s.rd).map((s) => s.rc | 0), ...(online() && net.me.rd ? [net.me.rc | 0] : [])]), drawFair(ctx, camX, W, time, [...slimes.values()].filter((s) => s.visible && !splatted(s)).concat(mine && net.id !== null && !splatted(mine) ? [mine] : []), fair.bests); // (the mirrors show the slimes in front of them)
   else drawVillage(ctx, camX, W, time);
   if (room === VILLAGE && Math.abs(SHOP_X - camX - W / 2) < W / 2 + 80) {
     merchant.draw(ctx);
@@ -1840,7 +1828,7 @@ function render() {
   const rideOf = (s) => (s === mine ? (online() ? [net.me.rd | 0, net.me.rc | 0] : [0, 0]) : [s.rd | 0, s.rc | 0]);
   const drawSlime = (s) => {
     const [rd, rc] = room === FAIR ? rideOf(s) : [0, 0];
-    if (rd) return void drawRider(ctx, s, rd, rc, () => s.draw(ctx)); // on the Gathering Line, in its car (src/coaster.js)
+    if (rd) return void drawRider(ctx, s, rc, () => s.draw(ctx)); // on the Gathering Line, in its car (src/coaster.js)
     const sw = isHouse(room) && houses.swingFor(room, s, time), bob = fair.rideOf(s, room, time);
     if (bob) {
       ctx.save();
@@ -1874,7 +1862,7 @@ function render() {
   if (room === SHELLROAD) drawShellRoadFront(ctx, camX, W, time, online() ? net.me : null); // the dusk at the edges, Old Carapace's line
   if (room === FAIR) fair.drawPlaying(ctx, (id) => (slimes.get(id)?.visible ? slimes.get(id) : null)); // who's at a booth
   if (room === FAIR) pocket.drawAway(ctx, (id) => (slimes.get(id)?.visible ? slimes.get(id) : id === net.id ? mine : null)); // and who's off on the beach
-  const inTent = (s) => room === FAIR && riderHidden(...rideOf(s)); // (inside the Big Top on the coaster)
+  const inTent = (s) => room === FAIR && !!rideOf(s)[0] && riderHidden(rideOf(s)[1]); // (inside the Big Top on the coaster)
   const tagDy = (s) => (room === FAIR && rideOf(s)[0] ? 24 : 0);
   for (const s of all) if (!inTent(s)) nameTag(s, false, tagDy(s));
   if (meShown && !inTent(mine)) nameTag(mine, true, tagDy(mine));

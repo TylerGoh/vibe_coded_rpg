@@ -20,7 +20,7 @@ import { ARENA, ARENA_W, ARENA_PLATFORMS } from './sandbox.js';
 import { GX, walkOf, AIR_UP_V, AIR_DOWN_V, AIRDASH_CD, KEEP_DASH, GLIDE_JUMP, GLIDE_FALL, PHASE_IFR } from './gearfx.js';
 import { TRAP_HOLD, tiltV } from './challenge.js';
 import { FAIR, FAIR_W, FAIR_GROUND, FAIR_EXIT_X, FAIR_PLATFORMS, FAIR_TENT_X, TENT_W, FIZZ_X } from './fair.js';
-import { STATIONS, PICK_SHIFT, PICK_MASK, SEAT, rideAt, rideCode, stationAt } from './coaster.js';
+import { CATCH, CATCH_R, SEAT, LOOP_T, trackAt, nearestOnTrack } from './coaster.js';
 export { FAIR } from './fair.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
@@ -871,10 +871,11 @@ export const ATTACK = 128; // set on the step an attack goes off (X, click, Hit)
 // The second input byte (2026-11-06): BOOST, a boss helmet's Rush running (the client times it from its own kills:
 // gearfx.js); FLIP, the Skirmisher's Backflip Volley (acts on the press, like Dash)
 export const BOOST = 256, FLIP = 512;
-// PICK (F2, the coaster: 3 bits from PICK_SHIFT in src/shared/coaster.js): sent with the E press from the Gathering Line's
-// card, 1 + the station to get off at; E at a station with a pick boards the car (step(), below)
-export const PICK = PICK_MASK;
-export const KEY_MASK = 1023 | PICK_MASK;
+// CATCH (F2, the coaster, src/shared/coaster.js): sent with the E press when a car of the Gathering Line is in reach; E
+// with it puts you in the car (step(), below)
+export { CATCH };
+export const KEY_MASK = 1023 | CATCH;
+const RIDE_FLING = 700; // the most sideways speed hopping off the coaster gives you (px/s)
 
 // ——— Mobility (skills.js 'wind' tree). state.mv packs the ranks (skills.js mobilityOf), set by the
 // server from the character's skills and sent in every snapshot, so prediction knows them too.
@@ -965,9 +966,8 @@ const HALF_W = 16; // half the slime's footprint, for platform edges and world b
 // home: the room id of your own house (set by the server at login; 0 = none yet, so that door stays shut)
 // vt: voyage ticks, how long you've been aboard a crossing (0 everywhere else)
 // town: your town (an index into TOWNS), the last one you were in
-// rd, rc: riding the Gathering Line (F2, src/shared/coaster.js): rd the ride (1 + from * 4 + to, 0 when not riding), rc
-// ticks since the car left. While riding, step() puts you on the track and nothing else moves you; at the end it sets you
-// down at the station
+// rd, rc: riding the Gathering Line (F2, src/shared/coaster.js): rd 1 while riding, rc where on the loop (its loop time).
+// While riding, step() carries you round and nothing else moves you, until E or Jump drops you off with the car's speed
 // fw: 1 once you've freed the Wickmother (set by the server from your story record; snapshots leave it out, like home):
 // the Hall of Lamps' front door on the Causeway opens for you (a door with `freed`, L5 (c))
 export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0, hk: 0, hc: 0, gx: 0, aj: 0, tr: 0, cs: 0, pf: 0, tl: 0, fw: 0, rd: 0, rc: 0 });
@@ -1009,29 +1009,32 @@ export function step(s, keys) {
     s.vx = s.dt = s.hk = 0;
     s.sl = false;
   }
-  // riding the Gathering Line (src/shared/coaster.js): the track carries you, keys do nothing, and the ride's end sets you
-  // down at your station
+  // riding the Gathering Line (src/shared/coaster.js): the car carries you round until E or Jump drops you off, flying on
+  // with its speed (not inside the Big Top)
   if (s.rd && s.room !== FAIR) s.rd = s.rc = 0;
   if (s.rd) {
+    const off = (keys & USE && !s.use) || (keys & JUMP && !s.jh), jumped = keys & JUMP && !s.jh;
     s.use = !!(held & USE);
     s.jh = !!(held & JUMP);
     s.dh = !!(held & DASH);
     s.bh = !!(held & BLINK);
     s.ah = !!(held & ATTACK);
-    s.rc = (s.rc | 0) + 1;
-    const p = rideAt(s.rd, s.rc);
-    s.vx = s.vy = s.drop = s.dt = s.hk = 0;
+    s.rc = ((s.rc | 0) + 1) % LOOP_T;
+    const p = trackAt(s.rc);
+    s.drop = s.dt = s.hk = 0;
     s.sl = s.onPlat = false;
-    s.grounded = true;
-    if (p.done) {
-      s.x = p.x;
-      s.y = roomDef(s.room).ground;
+    s.x = q(p.x);
+    s.y = q(p.y - SEAT);
+    const c = Math.cos(p.a);
+    if (Math.abs(c) > 0.3) s.facing = c > 0 ? 1 : -1;
+    if (off && !p.hidden) {
       s.rd = s.rc = 0;
+      s.vx = q(Math.max(-RIDE_FLING, Math.min(RIDE_FLING, c * p.v * TICK_RATE)));
+      s.vy = q(Math.sin(p.a) * p.v * TICK_RATE - (jumped ? JUMP_V : 0));
+      s.grounded = false;
     } else {
-      s.x = q(p.x);
-      s.y = q(p.y - SEAT);
-      const c = Math.cos(p.a);
-      if (Math.abs(c) > 0.3) s.facing = c > 0 ? 1 : -1;
+      s.vx = s.vy = 0;
+      s.grounded = true;
     }
     return s;
   }
@@ -1050,16 +1053,19 @@ export function step(s, keys) {
     return s;
   }
   const room = roomDef(s.room);
-  // boarding the Gathering Line: E with the card's pick, standing at a station (and not picking that same one)
-  const pick = (keys & PICK_MASK) >> PICK_SHIFT;
-  if (pressedUse && pick && pick <= STATIONS.length && s.room === FAIR) {
-    const from = stationAt(s);
-    if (from >= 0 && from !== pick - 1) {
-      s.rd = rideCode(from, pick - 1);
-      s.rc = 0;
-      s.x = STATIONS[from].x;
+  // catching a car of the Gathering Line: E with CATCH (the client saw one in reach), the track close by and not inside
+  // the Big Top: you're put in the car at the nearest point of the track
+  if (pressedUse && keys & CATCH && s.room === FAIR) {
+    const n = nearestOnTrack(s.x, s.y);
+    if (n.d < CATCH_R && !n.hidden) {
+      s.rd = 1;
+      s.rc = n.t;
+      const p = trackAt(n.t);
+      s.x = q(p.x);
+      s.y = q(p.y - SEAT);
       s.vx = s.vy = s.dt = 0;
-      s.facing = 1;
+      s.grounded = true;
+      s.onPlat = false;
       return s;
     }
   }

@@ -1,9 +1,10 @@
 // Docs: docs/places/coaster.md
 // The Gathering Line (F2, story/fair-plan.md): the coaster round the Gathering Fair. Shared by the client and the server:
-// the track (one closed loop, sampled once at load), how fast a car goes along it, its four stations, and where a rider
-// is on any tick of their ride. A ride is two numbers on the slime's state, set and advanced inside step()
-// (src/shared/sim.js): rd (which ride: 1 + from * 4 + to, 0 when not riding) and rc (ticks since it left), so it's
-// predicted like walking, in snapshots (wire version 12), and friends who board together ride together.
+// the track (one closed loop, sampled once at load), how fast a car goes along it, its four stations, and where a car is
+// at any point of the loop. CARTS cars go round all the time on the server's clock (drawing only: src/coaster.js); you
+// catch one with E as it passes (owner, 2026-11-21: "catch a cart by pressing E as it passes, dismount by pressing E or
+// jumping off"). Riding is two numbers on the slime's state, set and advanced inside step() (src/shared/sim.js): rd (1
+// while riding) and rc (where on the loop, in ticks from the start), so it's predicted like walking and in snapshots.
 // Cosmetic only: no gold, EXP or power.
 import { FAIR_GROUND } from './fair.js';
 
@@ -11,20 +12,25 @@ const G = FAIR_GROUND;
 export const RAIL = G - 14; // the rail's height at a station (a car sits on the ground there)
 export const SEAT = 16; // a rider's feet sit this far above the rail
 
-// The four stations, west to east along the out line. x: where you stand to board (and where you're set down)
+// The four stations, west to east along the out line: the cars slow right down through them, so they're the easy places
+// to catch one from the ground
 export const STATIONS = [
   { id: 'gate', name: 'the Gate Plaza', x: 1400 },
   { id: 'midway', name: 'the Midway', x: 2310 },
   { id: 'ride', name: 'Ride Row', x: 4240 },
   { id: 'pier', name: "the Pier's End", x: 5260 },
 ];
-export const STATION_R = 40; // stand within this of a station's x to board
-// The card's pick, sent with the E press as input bits (sim.js PICK): 1 + the station you want to get off at
-export const PICK_SHIFT = 10, PICK_MASK = 7 << PICK_SHIFT;
+// E catches a car whose seat is within CATCH_R of your feet (from the ground at a station, or jumping up to one going by);
+// the client only sends CATCH when it can see one there
+export const CATCH = 1 << 10;
+export const CATCH_R = 60;
+export const CARTS = 6; // cars round the loop, evenly spaced in time
 
 // ——— the track ———
 // Nodes round the loop, smoothed with Catmull-Rom between them. f: 'L' a chain lift (a steady LIFT_V up it), 'T' inside
-// the Big Top (riders aren't drawn), 'R' a raw run of dense points (the turnarounds and the loop: straight between them).
+// the Big Top (riders aren't drawn), 'R' a raw run of dense points (straight between them), 'O' the loop and 'U' the two
+// turnarounds (raw too). A car is drawn upright on the way back west and turns round the U as if on a spiral ramp
+// (trackAt's d and sx); only in the loop does it go upside down.
 // Out east low: the Gate Plaza, the lift, the dive through the Big Top's roof, the Midway, over the booths, the Ferris
 // wheel and the carousel, Ride Row, up and round the loop over the Hall of Mirrors, down to the Pier's End; then up a
 // half circle at the east end and back west high over everything, and down a half circle into the Gate Plaza again.
@@ -66,14 +72,14 @@ at(4300, RAIL, 'L');
 at(4430, 300, 'L');
 at(4560, 222);
 // the loop over the Hall of Mirrors
-arc(4620, 152, 70, 0, Math.PI * 2, 1, 1, 40, 'R', 24);
+arc(4620, 152, 70, 0, Math.PI * 2, 1, 1, 40, 'O', 24);
 at(4800, 236);
 at(4980, 300);
 at(5120, 380);
 // the Pier's End, and the half circle up at the east end
 at(5210, RAIL, 'R');
 at(5340, RAIL, 'R');
-arc(5340, 266, RAIL - 266, 0, Math.PI, 1, 1, 30);
+arc(5340, 266, RAIL - 266, 0, Math.PI, 1, 1, 30, 'U');
 // back west, high
 at(5100, 108);
 at(4600, 124);
@@ -84,7 +90,7 @@ at(2600, 126);
 at(2100, 100);
 at(1700, 116);
 // the half circle down into the Gate Plaza
-arc(1330, 266, RAIL - 266, 0, Math.PI, -1, -1, 30);
+arc(1330, 266, RAIL - 266, 0, Math.PI, -1, -1, 30, 'U');
 
 const SMOOTH = 400, PIN_R = 12; // smoothing passes over the dense loop (about 35 px of rounding)
 const crx = (p0, p1, p2, p3, t) => 0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (3 * p1 - p0 - 3 * p2 + p3) * t * t * t);
@@ -93,7 +99,7 @@ const dense = [];
 for (let i = 0; i < N.length; i++) {
   const a = N[i], b = N[(i + 1) % N.length];
   if (Math.hypot(b.x - a.x, b.y - a.y) < 0.5) continue;
-  const raw = a.f === 'R' || b.f === 'R';
+  const raw = 'ROU'.includes(a.f || '-') || 'ROU'.includes(b.f || '-');
   const p0 = N[(i - 1 + N.length) % N.length], p3 = N[(i + 2) % N.length];
   const steps = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 3));
   for (let k = 0; k < steps; k++) {
@@ -162,32 +168,36 @@ export const LOOP_TICKS = T[TRACK_N]; // once round the whole loop
 // the track for drawing: [x, y, flag] every DS px
 export const TRACK = X.map((x, i) => [x, Y[i], F[i]]);
 
-// ——— a ride ———
-export const rideCode = (from, to) => 1 + from * 4 + to;
-export const rideFrom = (rd) => ((rd - 1) >> 2) & 3;
-export const rideTo = (rd) => (rd - 1) & 3;
-// How long a ride takes, in ticks
-export const rideTicks = (rd) => {
-  const a = T[STATIONS[rideFrom(rd)].i], b = T[STATIONS[rideTo(rd)].i];
-  return b > a ? b - a : b + LOOP_TICKS - a;
-};
-// Where a rider is rc ticks into ride rd: {x, y (the rail), a (its angle), hidden (inside the Big Top), done}
-export function rideAt(rd, rc) {
-  const len = rideTicks(rd);
-  if (rc >= len) return { done: true, x: STATIONS[rideTo(rd)].x, y: RAIL, a: 0, hidden: false };
-  let t = T[STATIONS[rideFrom(rd)].i] + rc;
-  if (t >= LOOP_TICKS) t -= LOOP_TICKS;
+// ——— riding ———
+export const LOOP_T = Math.round(LOOP_TICKS); // a car's clock goes round in whole ticks
+// Where on the loop loop time t is (0 <= t < LOOP_T): {x, y (the rail), a (its angle), v (px a tick), hidden (inside the
+// Big Top)}
+export function trackAt(t) {
+  t = ((t % LOOP_T) + LOOP_T) % LOOP_T;
+  t *= LOOP_TICKS / LOOP_T;
   let lo = 0, hi = TRACK_N; // T[lo] <= t < T[lo + 1]
   while (hi - lo > 1) {
     const m = (lo + hi) >> 1;
     if (T[m] <= t) lo = m;
     else hi = m;
   }
-  const n = (lo + 1) % TRACK_N, f = (t - T[lo]) / (T[lo + 1] - T[lo]);
+  const n = (lo + 1) % TRACK_N, f = Math.min(1, (t - T[lo]) / (T[lo + 1] - T[lo]));
   let da = A[n] - A[lo];
   if (da > Math.PI) da -= Math.PI * 2;
   if (da < -Math.PI) da += Math.PI * 2;
-  return { done: false, x: X[lo] + (X[n] - X[lo]) * f, y: Y[lo] + (Y[n] - Y[lo]) * f, a: A[lo] + da * f, hidden: F[lo] === 'T' };
+  const a = A[lo] + da * f, c = Math.cos(a);
+  // how to draw the car: d its tilt, sx its x scale (-1 heading west, squashing through 0 round a turnaround)
+  const [d, sx] = F[lo] === 'O' ? [a, 1] : F[lo] === 'U' ? [0, Math.sign(c || 1) * Math.max(0.12, Math.abs(c))] : c >= 0 ? [a, 1] : [a - Math.PI, -1];
+  return { x: X[lo] + (X[n] - X[lo]) * f, y: Y[lo] + (Y[n] - Y[lo]) * f, a, d, sx, v: DS / (T[lo + 1] - T[lo]), hidden: F[lo] === 'T' };
 }
-// The station a slime standing at s could board at (-1: none). (The room check is the caller's: sim.js)
-export const stationAt = (s) => (s.grounded && !s.onPlat ? STATIONS.findIndex((st) => Math.abs(s.x - st.x) < STATION_R) : -1);
+// The loop time of the point on the track nearest a rider's feet at (x, y), and how far off it is
+export function nearestOnTrack(x, y) {
+  let best = 0, bd = Infinity;
+  for (let i = 0; i < TRACK_N; i++) {
+    const d = (X[i] - x) ** 2 + (Y[i] - SEAT - y) ** 2;
+    if (d < bd) [best, bd] = [i, d];
+  }
+  return { t: Math.round((T[best] * LOOP_T) / LOOP_TICKS) % LOOP_T, d: Math.sqrt(bd), hidden: F[best] === 'T' };
+}
+// The cars' loop times at server tick `tick`
+export const cartTimes = (tick) => Array.from({ length: CARTS }, (_, i) => Math.floor(tick + (i * LOOP_T) / CARTS) % LOOP_T);

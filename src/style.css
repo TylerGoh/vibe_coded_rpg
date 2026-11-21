@@ -2174,7 +2174,6 @@ body.touch #shop {
 #invite[hidden],
 #sail[hidden],
 #ways[hidden],
-#ride[hidden],
 #furni[hidden],
 #deco[hidden] {
   display: none;
@@ -2293,7 +2292,6 @@ body.touch #shop {
 }
 #invite,
 #sail,
-#ride,
 #ways {
   position: absolute;
   left: 50%;
@@ -2311,7 +2309,6 @@ body.touch #shop {
 }
 #invite p,
 #sail p,
-#ride p,
 #ways p {
   margin: 0 0 calc(8px * var(--s));
 }
@@ -2334,20 +2331,8 @@ body.touch #shop {
 #ways-list button {
   background: #6fb6dc;
 }
-#ride {
-  border-color: #ffb3c7;
-  max-width: calc(560px * var(--s));
-}
-#ride-list {
-  flex-wrap: wrap;
-  margin-bottom: calc(8px * var(--s));
-}
-#ride-list button {
-  background: #ff6f91;
-}
 #invite-no,
 #sail-no,
-#ride-no,
 #ways-no {
   background: #e9e3f2 !important;
   color: #7a6a8b !important;

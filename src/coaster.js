@@ -1,16 +1,16 @@
 // Docs: docs/places/coaster.md
-// The Gathering Line's client side (F2): its track, lattice legs and the four station sheds (drawCoaster, from drawFair
-// in src/fair-art.js), a rider in their car tilting with the rail (drawRider, from the slime pass in src/main.js: the
-// house swing's trick, the slime drawn under a rotation), and the "where to?" card (RideCard) whose buttons send the E
-// press with the pick (sim.js PICK), so boarding still happens inside step().
+// The Gathering Line's client side (F2): its track, lattice legs, the four station sheds and the empty cars going round
+// (drawCoaster, from drawFair in src/fair-art.js), a rider in their car tilting with the rail (drawRider, from the slime
+// pass in src/main.js: the house swing's trick, the slime drawn under a rotation), and which car is in reach (cartNear:
+// E then sends CATCH with the press, so catching still happens inside step()).
 import { circle, ellipse } from './util.js';
 import { text } from './village.js';
-import { TRACK, STATIONS, SEAT, RAIL, rideAt, rideTicks, rideCode, PICK_SHIFT } from './shared/coaster.js';
+import { TRACK, STATIONS, SEAT, LOOP_T, CATCH_R, trackAt, cartTimes } from './shared/coaster.js';
 import { FAIR_GROUND, BIGTOP_X } from './shared/fair.js';
 
 const G = FAIR_GROUND;
 const PINK = '#ff6f91', PALE = '#ffd1dc', LEG = 'rgba(120,100,150,0.32)', GOLD = '#f2c14e', CREAM = '#fff4e6';
-const CAR = ['#b8a8d6', '#9fe3ff', '#ffd36e', '#b9e58c', '#ff9fb8'];
+const CAR = ['#b8a8d6', '#9fe3ff', '#ffd36e', '#b9e58c', '#ff9fb8', '#ffb38a']; // (one each for the CARTS)
 const visible = (x0, x1, L, R) => x1 > L && x0 < R;
 // where the rail goes into and out of the Big Top's roof (a dark hole in the canvas at each)
 const HOLES = (() => {
@@ -23,6 +23,14 @@ const HOLES = (() => {
 })();
 
 // ——— the track, behind the slimes (after the Big Top, so the high return line runs in front of its roof) ———
+// what the cars are doing this frame (set by main.js before the room is drawn): the server tick, and the loop times of
+// everyone riding (an empty car isn't drawn where someone's riding it: their own car stands in)
+let tick = null, riding = [];
+export function setCoaster(t, rcs) {
+  tick = t;
+  riding = rcs;
+}
+const near = (a, b) => Math.min(Math.abs(a - b), LOOP_T - Math.abs(a - b)) < 40;
 export function drawCoaster(ctx, L, R, time) {
   // lattice legs down to the ground, every few samples, skipping the stretch inside the Big Top and the loop
   ctx.strokeStyle = LEG;
@@ -66,6 +74,23 @@ export function drawCoaster(ctx, L, R, time) {
   ctx.fillStyle = 'rgba(60,30,60,0.75)';
   for (const [x, y] of HOLES) if (visible(x - 30, x + 30, L, R)) ellipse(ctx, x, y, 15, 19);
   for (let k = 0; k < STATIONS.length; k++) if (visible(STATIONS[k].x - 110, STATIONS[k].x + 110, L, R)) drawShed(ctx, STATIONS[k], k, time);
+  // the empty cars going round
+  if (tick === null) return;
+  cartTimes(tick).forEach((t, i) => {
+    if (riding.some((r) => near(r, t))) return;
+    const p = trackAt(t);
+    if (p.hidden || !visible(p.x - 40, p.x + 40, L, R)) return;
+    drawCar(ctx, p.x, p.y, p.d, CAR[i % CAR.length], true, p.sx);
+  });
+}
+// A car in reach of a slime standing (or jumping) at s, at server tick t: its loop time, or -1
+export function cartNear(s, t) {
+  if (t === null) return -1;
+  for (const ct of cartTimes(t)) {
+    const p = trackAt(ct);
+    if (!p.hidden && Math.hypot(p.x - s.x, p.y - SEAT - s.y) < CATCH_R) return ct;
+  }
+  return -1;
 }
 
 // A station: a striped shed over the platform, its name on the board, a parked car waiting
@@ -113,15 +138,14 @@ function drawShed(ctx, st, k, time) {
     ctx.fillStyle = CAR[(i + Math.floor(time * 2) + k) % CAR.length];
     circle(ctx, x - 66 + i * 22, top + 30, 2.4);
   }
-  // a car waiting at the platform
-  drawCar(ctx, x + 40, RAIL, 0, CAR[k % CAR.length], true);
 }
 
 // A car on the rail at (x, y), tipped by a. back: the back half only (a rider is drawn between the halves)
-function drawCar(ctx, x, y, a, color, empty = false) {
+function drawCar(ctx, x, y, a, color, empty = false, sx = 1) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(a);
+  ctx.scale(sx, 1);
   ctx.fillStyle = '#6a5a7a';
   for (const dx of [-14, 14]) circle(ctx, dx, 1, 4);
   ctx.fillStyle = color;
@@ -141,10 +165,11 @@ function drawCar(ctx, x, y, a, color, empty = false) {
   ctx.restore();
 }
 // the car's front: its side panel over the rider's lower half, and the lap bar
-function drawCarFront(ctx, x, y, a, color) {
+function drawCarFront(ctx, x, y, a, color, sx = 1) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(a);
+  ctx.scale(sx, 1);
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.roundRect(-26, -16, 52, 15, [4, 4, 7, 7]);
@@ -162,63 +187,31 @@ function drawCarFront(ctx, x, y, a, color) {
   ctx.restore();
 }
 
-// A slime riding: rd / rc from its state (yours predicted, others' from snapshots). draw: the slime's own draw. Returns
-// false when it's out of sight inside the Big Top (its name tag stays off too)
-export function drawRider(ctx, s, rd, rc, draw) {
-  const p = rideAt(rd, rc);
+// A slime riding: rc its loop time (yours predicted, others' from snapshots). draw: the slime's own draw. Returns false
+// when it's out of sight inside the Big Top (its name tag stays off too)
+export function drawRider(ctx, s, rc, draw) {
+  const p = trackAt(rc);
   if (p.hidden) return false;
-  const rx = s.x, ry = s.y + SEAT, color = CAR[(rd * 7) % CAR.length];
-  drawCar(ctx, rx, ry, p.a, color);
+  const rx = s.x, ry = s.y + SEAT, color = CAR[carOf(rc) % CAR.length];
+  drawCar(ctx, rx, ry, p.d, color, false, p.sx);
   ctx.save();
   ctx.translate(rx, ry);
-  ctx.rotate(p.a);
+  ctx.rotate(p.d);
+  ctx.scale(Math.abs(p.sx), 1); // (the slime faces its own way: squashed round a turnaround, not mirrored)
   ctx.translate(-rx, -ry);
   draw();
   ctx.restore();
-  drawCarFront(ctx, rx, ry, p.a, color);
+  drawCarFront(ctx, rx, ry, p.d, color, p.sx);
   return true;
 }
-export const riderHidden = (rd, rc) => !!rd && rideAt(rd, rc).hidden;
-
-// ——— the card: where to? ———
-// onPick(bits): the caller ORs these into the next input (USE plus the pick), like the Set sail card
-export class RideCard {
-  constructor(onPick) {
-    this.el = document.getElementById('ride');
-    this.list = document.getElementById('ride-list');
-    this.from = -1;
-    this.onPick = onPick;
-    document.getElementById('ride-no').onclick = () => this.close();
-  }
-  get isOpen() {
-    return this.from >= 0;
-  }
-  open(from) {
-    this.from = from;
-    document.getElementById('ride-text').textContent = `The Gathering Line, from ${STATIONS[from].name}. Where to?`;
-    this.list.replaceChildren();
-    STATIONS.forEach((st, to) => {
-      if (to === from) return;
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.textContent = `${st.name[0].toUpperCase()}${st.name.slice(1)} · ${Math.round(rideTicks(rideCode(from, to)) / 60)} s`;
-      b.onclick = () => this.pick(to);
-      this.list.append(b);
-    });
-    this.el.hidden = false;
-  }
-  // the n-th button (keys 1-3)
-  pickNth(n) {
-    const to = STATIONS.map((_, i) => i).filter((i) => i !== this.from)[n];
-    if (to !== undefined) this.pick(to);
-  }
-  pick(to) {
-    if (this.from < 0) return;
-    this.onPick((to + 1) << PICK_SHIFT);
-    this.close();
-  }
-  close() {
-    this.from = -1;
-    this.el.hidden = true;
-  }
+// which of the cars going round a rider is in (the nearest in loop time): its colour
+function carOf(rc) {
+  if (tick === null) return 0;
+  let best = 0, bd = Infinity;
+  cartTimes(tick).forEach((t, i) => {
+    const d = Math.min(Math.abs(t - rc), LOOP_T - Math.abs(t - rc));
+    if (d < bd) [best, bd] = [i, d];
+  });
+  return best;
 }
+export const riderHidden = (rc) => trackAt(rc).hidden;

@@ -397,9 +397,10 @@ The fair, as you know it:
 - What's shut, and why: the Ring Toss stall (Pim's gone to fetch more rings), Hook-a-Duck (the ducks are out for a
   swim) and the Big Top (laced shut while the ring is raked). You're sure they'll all be back soon. The carousel is
   running, and so is the Hall of Mirrors. The Gathering Line, the coaster, is running again, chain lift freshly greased,
-  and you're very proud of it: four stations (the Gate Plaza, the Midway, Ride Row and the Pier's End), press E on a
-  platform and pick where to get off. It dives through the Big Top's roof, loops over the Hall of Mirrors and comes back
-  high over the whole fair. Friends who board together ride together.
+  and you're very proud of it: its cars go round all day, slowest through the four stations (the Gate Plaza, the Midway,
+  Ride Row and the Pier's End). Press E as a car comes by to hop in, and E or a jump to hop out wherever you like (off
+  the top, if you're brave: nothing hurts at the fair). It dives through the Big Top's roof, loops over the Hall of
+  Mirrors and comes back high over the whole fair.
   The Ferris wheel turns but nobody's allowed on it yet; you don't say why.
 - The Hall of Mirrors has four mirrors, and the fourth, the upside-down one, is special: step through it (walk up and
   press E) and you come out on a beach at sunset, with palm trees and waves, where everything is round and solid instead
