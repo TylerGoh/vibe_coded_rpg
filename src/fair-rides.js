@@ -7,7 +7,7 @@
 import { TAU, circle, ellipse, clamp } from './util.js';
 import { text } from './village.js';
 import { islandsAt } from './distant.js';
-import { FAIR_GROUND, FAIR_W, WHEEL_X, STRIKER_X, DUNK_X, DUNK_HALF, PLANK, TARGET_X, TARGET_Y, THROW_X, TEACUPS_X, TEACUP_DECK, CUPS } from './shared/fair.js';
+import { FAIR_GROUND, FAIR_W, WHEEL_X, BELL_AT, meterAt, STRIKER_X, DUNK_X, DUNK_HALF, PLANK, TARGET_X, TARGET_Y, THROW_X, TEACUPS_X, TEACUP_DECK, CUPS } from './shared/fair.js';
 import { HUB_Y, WHEEL_R, GONDOLAS, HANG, gondolaAngles, wheelAt } from './shared/wheel.js';
 
 const G = FAIR_GROUND;
@@ -186,7 +186,7 @@ export function drawIslandNames(ctx, camX, horizon) {
 }
 
 // ——— the Green: the High Striker ———
-const MARKS = [[0.25, 'WOBBLY'], [0.5, 'SQUISHY'], [0.75, 'STURDY'], [0.92, 'MIGHTY']];
+const MARKS = [[0.25, 'WOBBLY'], [0.5, 'SQUISHY'], [0.75, 'STURDY'], [0.85, 'MIGHTY']];
 const TOWER_H = 230; // the bell's height over the pad
 function puckAt(time) {
   if (!strike) return { k: 0, ringing: 0 };
@@ -209,8 +209,21 @@ function drawStriker(ctx, time) {
     ctx.fillStyle = i % 2 ? RED : CREAM;
     ctx.fillRect(x - 10, top + 20 + i * ((TOWER_H - 50) / 10), 20, (TOWER_H - 50) / 10);
   }
+  // the bell zone at the top of the scale, and the light running up and down it: slap as it's in the zone (meterAt, on
+  // the server's clock: everyone sees the same light)
+  const lvl = (k) => G - 26 - k * (TOWER_H - 32);
+  ctx.fillStyle = 'rgba(242,193,78,0.85)';
+  ctx.fillRect(x - 12, lvl(1) - 4, 24, lvl(BELL_AT) - lvl(1) + 4);
+  if (tick !== null) {
+    const ly = lvl(meterAt(tick)), hot = meterAt(tick) >= BELL_AT;
+    ctx.fillStyle = hot ? 'rgba(255,236,150,0.55)' : 'rgba(255,255,255,0.3)';
+    circle(ctx, x - 24, ly, hot ? 12 : 9);
+    ctx.fillStyle = hot ? '#fff1b8' : '#ffffff';
+    circle(ctx, x - 24, ly, 5);
+    ctx.fillRect(x - 12, ly - 1.5, 24, 3);
+  }
   for (const [k, word] of MARKS) {
-    const y = G - 26 - k * (TOWER_H - 40);
+    const y = lvl(k);
     ctx.fillStyle = GOLD;
     ctx.fillRect(x + 12, y - 1, 10, 2);
     text(ctx, word, x + 26, y, 9, '#fff4e6', 'left');

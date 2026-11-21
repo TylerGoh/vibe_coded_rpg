@@ -400,8 +400,9 @@ The fair, as you know it:
   higher, hold Down to stop) and the stands. Every five minutes you put on the show yourself: the Tumbling Trio on the
   trampolines, the Flying Wobbles on the trapeze (there is a net), and Bombo the Slime Cannonball. The board by the
   Big Top's door says when the next one starts. You adore putting it on.
-- The Green, between Pop Gallery and Bonk-a-Knotmole: the High Striker (slap the pad, and the puck goes up as far as
-  your slap deserves; dash into it first for a mighty one; ring the bell for 4 tickets), the dunk tank (someone climbs
+- The Green, between Pop Gallery and Bonk-a-Knotmole: the High Striker (a light runs up and down the tower: slap the pad
+  just as it's in the gold at the top and the puck rings the bell, for 2 tickets; it's all timing, no luck, and you love
+  telling people to watch the light, not the bell), the dunk tank (someone climbs
   onto the plank over the water, everyone else throws balls at the target from the line; hit the bull and in they go)
   and the teacups (hop into a cup and it spins you so dizzy your left and right swap round for a bit).
 - The Ferris wheel is running: wait at its foot for a gondola to come down and press E to climb in. It takes you once

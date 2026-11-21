@@ -46,13 +46,18 @@ strikes and throws in `server/fair.js`, Fizz's lines in `server/characters.js`, 
   carousel's bob). The cups' fronts are drawn over the slimes (`drawGreenFront`), so you sit in the cup.
 
 ## The High Striker
-- Slap its pad (a slap anywhere in reach, `STRIKER_RANGE`: `slapToward` in `src/main.js` calls `fair.slapped`) or press E
-  there. The client sends `{t:'fair', a:'strike'}`; the server, at most once per `STRIKE_CD_MS`, rolls how high the puck
-  goes (`strikeHeight`) and tells everyone in the fair (`{a:'strike', id, h, tickets}`). A **Charge** (dashing, or just
-  after: the server's own `dt` / `cw`) hits harder: the bell goes about one swing in ten, one in four with a Charge.
-- Ringing the bell gives `STRIKE_TICKETS`. Kept near the booths' pace (a good booth round is about 12 tickets for 35 s
-  or so; dash-slapping the bell all day comes to a little more than that a minute). The marks up the tower name how
-  high it went (WOBBLY to MIGHTY, then the bell).
+- **Skill, not luck** (owner, 2026-11-21, the day it shipped: "the high striker shouldn't have rng, it should be skill
+  based"; the first version rolled the height, better with a Charge). A light runs up and down the tower at a steady
+  speed on the server's clock (`meterAt`, once up and back every `METER_T` ticks), the same for everyone. Slap the pad
+  (a slap in reach, `STRIKER_RANGE`: `slapToward` in `src/main.js` calls `fair.slapped`) or press E as it's in the gold
+  zone at the top (`BELL_AT` and up) and the bell rings; lower, the puck goes as high as the light was.
+- The client sends `{t:'fair', a:'strike', vt}`, the render tick it saw the light at. The server, at most once per
+  `STRIKE_CD_MS`, takes `vt` if it's no more than `STRIKE_LAG` ticks behind its own clock (else judges it at that oldest
+  tick), works out the height (`strikeHeight`) and tells everyone in the fair (`{a:'strike', id, h, tickets}`). A modified
+  client could pick its moment inside the lag allowance; that only wins tickets (the booths' scores are capped the same
+  way, never proven).
+- Ringing the bell gives `STRIKE_TICKETS`; a perfect swing every `STRIKE_CD_MS` comes to about the booths' best pace. The
+  marks up the tower name how high it went (WOBBLY to MIGHTY, then the bell).
 
 ## The dunk tank
 - Climb the step (`ladder` platform) onto the plank over the water (`PLANK`, which must stay `FAIR_PLATFORMS[0]`). From the

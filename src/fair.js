@@ -85,7 +85,7 @@ export class Fair {
     if (n.riding === 'wheel') return 'hop out of the gondola (E or Jump)';
     if (n.riding) return 'hop off (E or Jump)';
     if (n.wheel) return n.ready ? 'climb into the gondola' : 'wait for the next gondola';
-    if (n.striker) return 'slap the High Striker (or E)';
+    if (n.striker) return 'slap as the light hits the top (or E)';
     if (n.toss) return 'throw a ball at the dunk tank';
     if (n.cart) return 'catch the Gathering Line';
     if (n.prize) {
@@ -130,7 +130,7 @@ export class Fair {
     if (performance.now() - (this.struckAt ?? 0) < STRIKE_CD_MS) return;
     this.struckAt = performance.now();
     this.onSwing?.();
-    this.send({ t: 'fair', a: 'strike' });
+    this.send({ t: 'fair', a: 'strike', vt: Math.round(this.tickNow?.() ?? 0) }); // (the tick you saw the light at: the server judges your timing from it)
   }
   slapped(me) {
     if (me?.room === FAIR && !me.rd && Math.abs(me.x - STRIKER_X) < STRIKER_RANGE) this.strike();

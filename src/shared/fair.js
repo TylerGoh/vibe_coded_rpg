@@ -59,12 +59,23 @@ export const BOOTHS = [
 export const FAIR_LOOKS = [];
 
 // ——— the Green (F3, docs/places/rides.md): the High Striker, the dunk tank, the teacups ———
-export const STRIKER_X = 2830; // the High Striker's pad: slap it (or E), and the server decides how high the puck goes
+export const STRIKER_X = 2830; // the High Striker's pad: slap it (or E) as its light reaches the top
 export const STRIKER_RANGE = 44;
-export const STRIKE_CD_MS = 2500; // one swing per this long
-export const STRIKE_TICKETS = 4; // for ringing the bell
-// how high the puck goes (1 = the bell): rolled on the server. A Charge (dash, then slap) hits harder
-export const strikeHeight = (r, charge) => Math.min(1, (charge ? 0.5 : 0.35) + 0.75 * Math.pow(r, 1.4));
+export const STRIKE_CD_MS = 3000; // one swing per this long
+export const STRIKE_TICKETS = 2; // for ringing the bell (a perfect swing every time comes to about the booths' best pace)
+// Skill, not luck (owner, 2026-11-21: "the high striker shouldn't have rng, it should be skill based"): a light runs up and
+// down the tower at a steady speed on the server's clock, once up and back every METER_T ticks, and the puck goes as high
+// as the light was when you slapped (meterAt). At BELL_AT or above it rings the bell. The client sends the tick it saw the
+// light at (its render tick); the server takes it if it's within STRIKE_LAG ticks behind its own clock (a lag allowance:
+// a modified client could pick its moment inside that, which only wins tickets, like the booths' capped scores)
+export const METER_T = 100;
+export const BELL_AT = 0.94;
+export const STRIKE_LAG = 45;
+export function meterAt(tick) {
+  const u = (((tick % METER_T) + METER_T) % METER_T) / METER_T;
+  return u < 0.5 ? u * 2 : 2 - u * 2;
+}
+export const strikeHeight = (tick) => (meterAt(tick) >= BELL_AT ? 1 : meterAt(tick));
 export const DUNK_X = 3040; // the dunk tank's middle (its glass DUNK_HALF either side)
 export const DUNK_HALF = 70;
 export const PLANK = { x: 2990, y: 300, w: 100, kind: 'plank' }; // the seat over the water: FAIR_PLATFORMS[0], so pf bit 0 drops it

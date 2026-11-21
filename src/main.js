@@ -446,6 +446,7 @@ fair.onCatch = () => {
 // High Striker and the dunk tank's balls (a swing of your mitten), and the Big Top's show
 fair.wheelReady = () => gondolaDown(net.renderTick() ?? 0);
 fair.now = () => time;
+fair.tickNow = () => net.renderTick();
 fair.slimeAt = (id) => (id === net.id ? mine : slimes.get(id)?.visible ? slimes.get(id) : null);
 fair.onSwing = () => mine?.slap(mine.facing);
 const bigtop = new BigTop({ audio });
