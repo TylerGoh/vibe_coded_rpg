@@ -1,6 +1,6 @@
 // Docs: docs/places/pocket.md
 // Your slime in 3D, for the pocket world (src/pocket.js): the same jelly as the 2D one (src/slime.js paletteFor: the
-// colours from your hue), a soft dome shaded from its light top to its deeper bottom, a shine, eyes with glints, a little
+// colours from your hue), a soft dome shaded from its light top to its deeper bottom, lit so it shines, eyes with glints, a little
 // smile, rosy cheeks and the leaf sprout. It squashes and stretches on a spring: landing flattens it, a jump stretches
 // it, walking makes it wobble, swimming bobs it. makeSlime(THREE, hue) → { group, animate(dt, state) }. Faces +z.
 
@@ -32,8 +32,7 @@ export function makeSlime(THREE, hue) {
     body.add(m);
     return m;
   };
-  // the shine, up on its left
-  blob(flat(0xffffff, 0.75), -0.22, 0.66, 0.36, 0.07, 0.1, 0.04).rotation.z = 0.5;
+  // no painted shine: the jelly's own lit highlight is the shine (a flat white blob looked stuck on, owner)
   // eyes, with a glint each
   const ink = flat(0x2d2a3e), white = flat(0xffffff);
   for (const side of [-1, 1]) {

@@ -250,8 +250,8 @@ No quests, no hard level gates.
       uncharted islands (`world/regions/uncharted.md`, `expansion.md`).
 
 ## Small asks
-- [ ] **Pocket world: a white thing stuck to the 3D slime** (owner, 2026-11-21): check what the white piece attached to the
-      slime model on the beach is (`makeSlime` in `src/pocket-slime.js`: the shine, eyes or a stray mesh?) and fix it. Not looked at yet.
+- [x] **Pocket world: a white thing stuck to the 3D slime** (owner, 2026-11-21), fixed 2026-11-21: it was the painted
+      shine in `makeSlime` (a flat unlit white blob not lying on the body); removed, the jelly's lit highlight is the shine.
 - [x] **Bug (owner, 2026-10-30), fixed 2026-11-06** (owner: skip it for the safe spot; the flat 60% is gone, and a freeze
       now interrupts an ultimate only 1 time in 5, `INTERRUPT_CHANCE`). Was: seen in the `/rpg_dev` sandbox: every one-shot boss skill (ultimates and the
       like) still kills you while you stand in its safe zone. Check whether it's sandbox-only (the Bosses tab's

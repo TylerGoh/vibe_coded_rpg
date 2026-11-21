@@ -29,8 +29,9 @@ panel's **To the Gathering Fair** button (`src/sandbox.js`, `server/sandbox.js`:
   In front of it (within `MIRROR_USE`, `nearMirror`) a pill says "E  step back through the mirror", and E (`pk_use`, a
   pocket key, rebindable) takes you home (`goHome`); on phones an E button shows there. Walking into it used to take you
   home; the owner preferred an E (2026-11-20).
-- You're your own slime (`makeSlime`: your hue, so it matches your 2D one; shine, eyes, cheeks, smile, leaf) in third
-  person. Walk (relative to the camera), jump, wade into the shallows (slower, a little spray), swim out where it's deeper
+- You're your own slime (`makeSlime`: your hue, so it matches your 2D one; eyes, cheeks, smile, leaf) in third
+  person. No painted shine: a flat white blob there looked like a white dot stuck on (owner, 2026-11-21); the jelly's
+  lit material gives the highlight. Walk (relative to the camera), jump, wade into the shallows (slower, a little spray), swim out where it's deeper
   than `SWIM_DEPTH` (you float on the swell, bobbing; slower still), jump out of the water, splash. The jelly squashes on
   landing, stretches in the air and wobbles as it walks. The palms and rocks are in the way; the world ends at `WORLD_R`.
 - **The shapes are maths** (`groundH`, `waterH`, `shore`), and the water's shader has the same formulas in GLSL
