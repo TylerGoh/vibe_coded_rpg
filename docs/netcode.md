@@ -101,6 +101,10 @@ protocol is documented in the comment at the top of that file: keep it updated**
   tabs still get 23-byte records and the wrong mobs until they take the update. Nothing checked it because every check
   read the JSON shape or the server's state, never a decoded binary message: **an index sent in a byte needs a check
   that the list it indexes fits.**
+- 2026-11-21: wire version 12 (F2, the Gathering Fair's coaster): 58 bytes per slime: `rd` u8 (the ride) and `rc` u16
+  (its clock), `pack` / `unpack` entries 30 and 31. `step()` carries a rider along the track and boards one on an E press
+  that carries the card's pick (`PICK`, bits 10–12 of the input, so `KEY_MASK` grew). Older tabs get version 11's
+  records. `docs/places/coaster.md`.
 - 2026-10-24 (the Archer, S4): no wire version change. Two more mob flags in the same byte (2048 marked by
   Hunter's Mark, 4096 netted; the 7 bits there hold up to 16384), Retreat Shot's rank in `mw` bits 6–7 (it was
   6 bits used of the byte), the slap echo's `retreat`, the skill's `mob` / echo's `mark`, and

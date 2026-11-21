@@ -18,9 +18,9 @@ export const SNAP = 1, INPUT = 2, MOBS = 3;
 // carry a second keys byte (BOOST, FLIP: sim.js). Version 8 (boss challenges: challenge.js) adds · tr u8 (trapped) · cs u8
 // (controls swapped). Version 9 (T1a's moving arena) adds · pf u8 (platforms sunk for you). Version 10 (T1b's tilting
 // floor) adds · tl u8 (the floor leaning under you). Version 11 changed only the mobs (a kind's high byte, below): its
-// slime records are version 10's.
-export const BIN_VERSION = 11;
-const SLIME_BYTES = 55, BYTES_OF = { 1: 32, 2: 34, 3: 35, 4: 44, 5: 44, 6: 48, 7: 51, 8: 53, 9: 54, 10: 55, 11: 55 };
+// slime records are version 10's. Version 12 (F2, the coaster: src/shared/coaster.js) adds · rd u8 (the ride) · rc u16 (its clock).
+export const BIN_VERSION = 12;
+const SLIME_BYTES = 58, BYTES_OF = { 1: 32, 2: 34, 3: 35, 4: 44, 5: 44, 6: 48, 7: 51, 8: 53, 9: 54, 10: 55, 11: 55, 12: 58 };
 const c = (v) => Math.round(v * 100);
 
 // The per-slime part of a snapshot, shared by every recipient: packed = [sim.js pack() arrays]
@@ -68,6 +68,10 @@ export function encodeSlimes(packed, version = BIN_VERSION) {
     }
     if (size > 53) v.setUint8(o + 53, (a[28] | 0) & 255);
     if (size > 54) v.setUint8(o + 54, (a[29] | 0) & 255);
+    if (size > 55) {
+      v.setUint8(o + 55, (a[30] | 0) & 255);
+      v.setUint16(o + 56, Math.min(65535, a[31] | 0), true);
+    }
   });
   return new Uint8Array(buf);
 }
@@ -139,7 +143,7 @@ export function decode(data) {
       p.push([v.getUint32(o, true), v.getInt32(o + 4, true) / 100, v.getInt32(o + 8, true) / 100, v.getInt32(o + 12, true) / 100, v.getInt32(o + 16, true) / 100,
         v.getUint8(o + 20), v.getUint16(o + 21, true) / 100, v.getUint16(o + 23, true), v.getUint8(o + 25), v.getUint8(o + 26), v.getUint16(o + 27, true), v.getUint16(o + 29, true), v.getUint8(o + 31), v.getUint16(o + 32, true), v.getUint8(o + 34),
         v.getUint8(o + 35) | (v.getUint8(o + 44) << 8), v.getUint8(o + 36), v.getUint16(o + 37, true), v.getUint16(o + 39, true), v.getUint8(o + 41), v.getUint8(o + 42), v.getUint8(o + 43),
-        v.getUint8(o + 45), v.getUint16(o + 46, true), v.getUint16(o + 48, true), v.getUint8(o + 50), v.getUint8(o + 51), v.getUint8(o + 52), v.getUint8(o + 53), v.getUint8(o + 54)]);
+        v.getUint8(o + 45), v.getUint16(o + 46, true), v.getUint16(o + 48, true), v.getUint8(o + 50), v.getUint8(o + 51), v.getUint8(o + 52), v.getUint8(o + 53), v.getUint8(o + 54), v.getUint8(o + 55), v.getUint16(o + 56, true)]);
     }
     return { t: 's', k: v.getUint32(1, true), a: v.getUint32(5, true), p };
   }

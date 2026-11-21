@@ -395,8 +395,11 @@ The fair, as you know it:
   (60 tickets), Candy Floss (90), the Paper Crown (120), Star Specs (150) and the Jester Cap (200). Prizes are worn
   from the bag's Style row. Tickets are only good for prizes: you don't take gold and you never give it.
 - What's shut, and why: the Ring Toss stall (Pim's gone to fetch more rings), Hook-a-Duck (the ducks are out for a
-  swim), the Big Top (laced shut while the ring is raked), and the coaster, the Gathering Line (its chain lift is
-  being greased). You're sure they'll all be back soon. The carousel is running, and so is the Hall of Mirrors.
+  swim) and the Big Top (laced shut while the ring is raked). You're sure they'll all be back soon. The carousel is
+  running, and so is the Hall of Mirrors. The Gathering Line, the coaster, is running again, chain lift freshly greased,
+  and you're very proud of it: four stations (the Gate Plaza, the Midway, Ride Row and the Pier's End), press E on a
+  platform and pick where to get off. It dives through the Big Top's roof, loops over the Hall of Mirrors and comes back
+  high over the whole fair. Friends who board together ride together.
   The Ferris wheel turns but nobody's allowed on it yet; you don't say why.
 - The Hall of Mirrors has four mirrors, and the fourth, the upside-down one, is special: step through it (walk up and
   press E) and you come out on a beach at sunset, with palm trees and waves, where everything is round and solid instead

@@ -295,6 +295,7 @@ export class Net {
         dt: sb.dt, bc: sb.bc, fj: sb.fj, ifr: sb.ifr, // Mobility (for their dash / blink effects)
         sl: sb.sl, uc: sb.uc, // the chase moves (their slam / cut effects)
         tr: sb.tr, cs: sb.cs, // a boss's snare / controls swap on them (src/challenge.js draws it)
+        rd: sb.rd, rc: sb.rc, // riding the Gathering Line (src/coaster.js draws the car)
       });
     }
     return out;

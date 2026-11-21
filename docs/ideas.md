@@ -284,5 +284,7 @@ bosses) and by screenshots, never by people at the content's own level. Most wor
   `TICKETS_ROUND` and the prize prices (60–200 tickets) feel right, and the calliope waltz. A bot playing perfectly got
   the full `TICKETS_ROUND`; a person should land near half.
 - Today's bests live in the server's memory only (a restart clears them); an all-time board would need a table.
-- The phases still to come: `story/fair-plan.md` (F2 the coaster, F3 the rides and the Big Top, F4 more games, Madame
+- F2, the coaster (2026-11-21): untested with people: the ride times, being carried with no control, phones' frame rate on
+  it; no sounds of its own yet (`docs/places/coaster.md`).
+- The phases still to come: `story/fair-plan.md` (F3 the rides and the Big Top, F4 more games, Madame
   Wobble, fireworks, more prizes).

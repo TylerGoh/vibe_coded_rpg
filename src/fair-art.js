@@ -1,12 +1,13 @@
 // Docs: docs/places/fair.md
 // The Gathering Fair's art: the striped tent in every town (drawFairTent) and its plot (drawFairPlot), the fairground itself behind the slimes
 // (drawFair: an evening that never quite gets dark, string lights, the Big Top, the booths, the carousel, the Ferris wheel
-// and the coaster's track, the Hall of Mirrors, the pier and every island close on the horizon), the prizes as slimes wear
+// and the coaster (drawn by src/coaster.js), the Hall of Mirrors, the pier and every island close on the horizon), the prizes as slimes wear
 // them (drawFairWear, called from Slime.draw) and Ringmaster Fizz's hat, coat and moustache (drawRingmaster).
 import { W, H, TAU, mulberry32, circle, ellipse } from './util.js';
 import { text } from './village.js';
 import { drawDistantIslands } from './distant.js';
-import { FAIR_PLOT_HALF, FAIR_W, FAIR_GROUND, FAIR_EXIT_X, FAIR_PLATFORMS, BOOTHS, HORSES, CAROUSEL_X, CAROUSEL_R, WHEEL_X, BIGTOP_X, STATION_X, MIRRORS_X0, MIRRORS_X1, MIRRORS, PIER_X, PRIZES, prizeX } from './shared/fair.js';
+import { drawCoaster } from './coaster.js';
+import { FAIR_PLOT_HALF, FAIR_W, FAIR_GROUND, FAIR_EXIT_X, FAIR_PLATFORMS, BOOTHS, HORSES, CAROUSEL_X, CAROUSEL_R, WHEEL_X, BIGTOP_X, MIRRORS_X0, MIRRORS_X1, MIRRORS, PIER_X, PRIZES, prizeX } from './shared/fair.js';
 import { COSMETICS } from './shared/rpg.js';
 
 const G = FAIR_GROUND;
@@ -677,73 +678,6 @@ function drawWheel(ctx, time) {
   ctx.fillStyle = GOLD;
   circle(ctx, x, y, 12);
 }
-// the Gathering Line's track: hills and a loop behind Ride Row and the mirrors, on lattice legs
-const trackY = (x) => G - 150 - 90 * Math.max(0, Math.sin((x - 2500) / 260)) - 40 * Math.sin((x - 2500) / 90) * 0.4;
-const TRACK_X0 = 2560, TRACK_X1 = 4440, LOOP_X = 4180;
-function drawTrack(ctx, L, R) {
-  const x0 = Math.max(TRACK_X0, L - 40), x1 = Math.min(TRACK_X1, R + 40);
-  if (x1 <= x0) return;
-  ctx.strokeStyle = 'rgba(120,100,150,0.55)';
-  ctx.lineWidth = 2;
-  for (let x = Math.ceil(x0 / 60) * 60; x < x1; x += 60) {
-    if (Math.abs(x - LOOP_X) < 70) continue;
-    const y = trackY(x);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x, G);
-    ctx.moveTo(x - 20, G);
-    ctx.lineTo(x, y + 30);
-    ctx.lineTo(x + 20, G);
-    ctx.stroke();
-  }
-  ctx.strokeStyle = '#ff6f91';
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  for (let x = x0; x <= x1; x += 8) (x === x0 ? ctx.moveTo(x, trackY(x)) : ctx.lineTo(x, trackY(x)));
-  ctx.stroke();
-  if (visible(LOOP_X - 90, LOOP_X + 90, L, R)) {
-    ctx.beginPath();
-    ctx.arc(LOOP_X, trackY(LOOP_X) - 70, 70, 0, TAU);
-    ctx.stroke();
-  }
-  ctx.strokeStyle = '#ffd1dc';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  for (let x = x0; x <= x1; x += 8) (x === x0 ? ctx.moveTo(x, trackY(x) - 3) : ctx.lineTo(x, trackY(x) - 3));
-  ctx.stroke();
-}
-function drawStation(ctx, time) {
-  const x = STATION_X;
-  ctx.fillStyle = '#ffe9f0';
-  ctx.fillRect(x - 70, G - 120, 140, 120);
-  ctx.fillStyle = '#ff6f91';
-  ctx.beginPath();
-  ctx.moveTo(x - 86, G - 118);
-  ctx.lineTo(x, G - 160);
-  ctx.lineTo(x + 86, G - 118);
-  ctx.fill();
-  text(ctx, 'THE GATHERING LINE', x, G - 132, 10, '#fff4e6');
-  // the car under a tarp
-  ctx.fillStyle = '#b8a8d6';
-  ctx.beginPath();
-  ctx.roundRect(x - 50, G - 70, 100, 40, 12);
-  ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.fillRect(x - 44, G - 64, 88, 6);
-  // the rope across the gate, and an oil can
-  ctx.fillStyle = GOLD;
-  circle(ctx, x - 64, G - 40, 4);
-  circle(ctx, x + 64, G - 40, 4);
-  ctx.strokeStyle = '#c23f57';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(x - 64, G - 40);
-  ctx.quadraticCurveTo(x, G - 22 + Math.sin(time * 2) * 1.5, x + 64, G - 40);
-  ctx.stroke();
-  ctx.fillStyle = '#8a8aa0';
-  ctx.fillRect(x + 30, G - 16, 14, 16);
-  ctx.fillRect(x + 42, G - 20, 10, 3);
-}
 export const horseBob = (i, time) => Math.sin(time * 2.2 + i * 1.6) * 7;
 function drawCarousel(ctx, time, back) {
   const x = CAROUSEL_X, R = CAROUSEL_R, top = 250;
@@ -978,8 +912,8 @@ export function drawFair(ctx, camX, viewW, time, slimes, bests) {
   const L = camX - 120, R = camX + viewW + 120;
   drawGround(ctx, L, R);
   if (visible(WHEEL_X - 220, WHEEL_X + 220, L, R)) drawWheel(ctx, time);
-  drawTrack(ctx, L, R);
   if (visible(BIGTOP_X - 320, BIGTOP_X + 320, L, R)) drawBigTop(ctx, time);
+  drawCoaster(ctx, L, R, time); // the Gathering Line (src/coaster.js), its stations included
   drawLights(ctx, L, R, time);
   if (visible(0, 520, L, R)) drawEntrance(ctx, time);
   if (visible(prizeX(0) - 80, prizeX(PRIZES.length - 1) + 80, L, R)) drawPrizeCounter(ctx, time);
@@ -988,7 +922,6 @@ export function drawFair(ctx, camX, viewW, time, slimes, bests) {
     drawCarousel(ctx, time, true);
     drawCarousel(ctx, time, false);
   }
-  if (visible(STATION_X - 90, STATION_X + 90, L, R)) drawStation(ctx, time);
   if (visible(MIRRORS_X0 - 20, MIRRORS_X1 + 20, L, R)) drawMirrorHall(ctx, time, slimes);
   drawPier(ctx, L, R);
   for (const p of FAIR_PLATFORMS) if (visible(p.x - 20, p.x + p.w + 20, L, R)) drawPlatform(ctx, p, time);

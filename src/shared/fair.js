@@ -6,7 +6,7 @@
 // EXP or power, and the games are free.
 
 export const FAIR = 112; // room id
-export const FAIR_W = 4900;
+export const FAIR_W = 5540; // (4900 in F1: F2 made room for the coaster's Gate and Midway stations and lengthened the pier)
 export const FAIR_GROUND = 450;
 export const FAIR_EXIT_X = 150; // the tent flap: where you arrive, and the way back out to the town you came from
 
@@ -28,34 +28,33 @@ export const FIZZ_X = 560; // Ringmaster Fizz, by the prize counter
 export const PRIZE_X = 790; // the first prize on the counter
 export const PRIZE_STEP = 95;
 export const PRIZE_RANGE = 40;
-export const BIGTOP_X = 1640; // the Big Top's middle (background)
-export const CAROUSEL_X = 3420; // the carousel's middle
+export const BIGTOP_X = 1880; // the Big Top's middle (background)
+export const CAROUSEL_X = 3860; // the carousel's middle
 export const CAROUSEL_R = 190; // its deck's half-width
-export const WHEEL_X = 3020; // the Ferris wheel's hub (background)
-export const STATION_X = 3800; // the coaster's station (roped off until F2)
-export const MIRRORS_X0 = 3980, MIRRORS_X1 = 4380; // the Hall of Mirrors' open front
+export const WHEEL_X = 3460; // the Ferris wheel's hub (background)
+export const STATION_X = 4240; // the coaster's Ride Row station (src/shared/coaster.js has all four)
+export const MIRRORS_X0 = 4420, MIRRORS_X1 = 4820; // the Hall of Mirrors' open front
 export const MIRRORS = [ // each mirror: its middle, and how it bends you (src/fair.js)
-  { x: 4030, bend: 'tall' },
-  { x: 4130, bend: 'wide' },
-  { x: 4230, bend: 'wobble' },
-  { x: 4330, bend: 'flip' },
+  { x: 4470, bend: 'tall' },
+  { x: 4570, bend: 'wide' },
+  { x: 4670, bend: 'wobble' },
+  { x: 4770, bend: 'flip' },
 ];
-export const PIER_X = 4480;
-export const POCKET_X = 4330; // the upside-down mirror: E steps through it into the pocket world, a 3D beach (src/pocket.js) // where the boardwalk goes out over the water
+export const PIER_X = 4920;
+export const POCKET_X = 4770; // the upside-down mirror: E steps through it into the pocket world, a 3D beach (src/pocket.js) // where the boardwalk goes out over the water
 
 export const BOOTH_RANGE = 70;
 // The booths. game: what E starts (FAIR_GAMES below); shut: a stall the next phase opens, with its in-world reason (owner's
 // rule: the next phase shows but doesn't open, never a "coming soon")
 export const BOOTHS = [
-  { id: 'gallery', x: 2120, name: 'Pop Gallery', game: 'gallery', canopy: ['#ff8fa6', '#fff4e6'] },
-  { id: 'bonk', x: 2460, name: 'Bonk-a-Knotmole', game: 'bonk', canopy: ['#8fc8ff', '#fff4e6'] },
-  { id: 'rings', x: 2790, name: 'Ring Toss', shut: 'Shutters down. A card on the counter: "Gone to fetch more rings. Back soon. - P."', canopy: ['#b9e58c', '#fff4e6'] },
-  { id: 'ducks', x: 3140, name: 'Hook-a-Duck', shut: 'The pond is empty. A chalk line on the board: "Ducks out for a swim."', canopy: ['#ffd36e', '#fff4e6'] },
+  { id: 'gallery', x: 2560, name: 'Pop Gallery', game: 'gallery', canopy: ['#ff8fa6', '#fff4e6'] },
+  { id: 'bonk', x: 2900, name: 'Bonk-a-Knotmole', game: 'bonk', canopy: ['#8fc8ff', '#fff4e6'] },
+  { id: 'rings', x: 3230, name: 'Ring Toss', shut: 'Shutters down. A card on the counter: "Gone to fetch more rings. Back soon. - P."', canopy: ['#b9e58c', '#fff4e6'] },
+  { id: 'ducks', x: 3580, name: 'Hook-a-Duck', shut: 'The pond is empty. A chalk line on the board: "Ducks out for a swim."', canopy: ['#ffd36e', '#fff4e6'] },
 ];
 // other things E reads aloud (a toast): the closed rides
 export const FAIR_LOOKS = [
   { x: BIGTOP_X, w: 120, look: 'look at the Big Top', says: 'The flaps are laced shut. Inside, someone is raking the ring and humming.' },
-  { x: STATION_X, w: 110, look: 'look at the coaster station', says: 'A rope across the gate, and a sign: "Chain lift being greased. Mind the drips."' },
 ];
 
 // Platforms (one-way): the ticket booth's roof, the booths' canopies, the carousel's horses and its canopy rim, the mirrors'
@@ -69,10 +68,10 @@ export const FAIR_PLATFORMS = [
   ...booths,
   ...HORSES,
   { x: CAROUSEL_X - 170, y: 250, w: 340, kind: 'carousel' },
-  { x: 3640, y: 402, w: 70, kind: 'crates' },
+  { x: 4080, y: 402, w: 70, kind: 'crates' },
   { x: MIRRORS_X0 + 10, y: 262, w: MIRRORS_X1 - MIRRORS_X0 - 20, kind: 'mirrors' },
-  { x: 4560, y: 392, w: 60, kind: 'post' },
-  { x: 4700, y: 360, w: 60, kind: 'post' },
+  { x: 5000, y: 392, w: 60, kind: 'post' },
+  { x: 5140, y: 360, w: 60, kind: 'post' },
 ];
 
 // ——— tickets and the prize counter ———

@@ -12,6 +12,7 @@ import { COSMETICS } from './shared/rpg.js';
 import { keys } from './keys.js';
 import { GAMES } from './fair-games.js';
 import { horseBob } from './fair-art.js';
+import { STATIONS, stationAt } from './shared/coaster.js';
 
 const CARD_X = (W - GALLERY_W) / 2, CARD_Y = 116; // the game card, on screen
 const ZOOM_IN = 0.5, ZOOM_OUT = 0.4; // s
@@ -55,7 +56,9 @@ export class Fair {
 
   // what E would do where you stand: { b } a booth, { prize } a prize on the counter, { look } a closed ride
   near(me) {
-    if (!me || me.room !== FAIR || !me.grounded || me.onPlat || this.round) return null;
+    if (!me || me.room !== FAIR || !me.grounded || me.onPlat || this.round || me.rd) return null;
+    const st = stationAt(me);
+    if (st >= 0) return { station: st }; // (the Gathering Line: src/coaster.js)
     const b = boothAt(me.x);
     if (b) return { b };
     const prize = prizeAt(me.x);
@@ -69,6 +72,7 @@ export class Fair {
     if (!n) return null;
     if (n.b) return n.b.shut ? `look at ${n.b.name}` : `play ${n.b.name} (free)`;
     if (n.pocket) return 'step through the upside-down mirror';
+    if (n.station !== undefined) return `ride the Gathering Line (${STATIONS[n.station].name})`;
     if (n.prize) {
       const c = COSMETICS[n.prize];
       return rpgMe?.cosmetics?.includes(n.prize) ? `the ${c.name} (you have it)` : `trade ${c.tickets} tickets for the ${c.name}`;
@@ -80,6 +84,7 @@ export class Fair {
     const n = this.near(me);
     if (!n) return false;
     if (n.pocket) this.onPocket?.();
+    else if (n.station !== undefined) this.onRide?.(n.station);
     else if (n.b?.shut) this.toast(n.b.shut);
     else if (n.b) {
       if (performance.now() - this.askedAt < ASK_MS) return true;

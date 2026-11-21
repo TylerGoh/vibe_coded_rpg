@@ -20,6 +20,7 @@ import { ARENA, ARENA_W, ARENA_PLATFORMS } from './sandbox.js';
 import { GX, walkOf, AIR_UP_V, AIR_DOWN_V, AIRDASH_CD, KEEP_DASH, GLIDE_JUMP, GLIDE_FALL, PHASE_IFR } from './gearfx.js';
 import { TRAP_HOLD, tiltV } from './challenge.js';
 import { FAIR, FAIR_W, FAIR_GROUND, FAIR_EXIT_X, FAIR_PLATFORMS, FAIR_TENT_X, TENT_W, FIZZ_X } from './fair.js';
+import { STATIONS, PICK_SHIFT, PICK_MASK, SEAT, rideAt, rideCode, stationAt } from './coaster.js';
 export { FAIR } from './fair.js';
 export const VILLAGE = 0, HALL = 1, PIANO = 2, MUSEUM = 3, TUTOR = 4;
 export const STORE = 18; // the furniture store (after the stages and dens, rpg.js)
@@ -870,7 +871,10 @@ export const ATTACK = 128; // set on the step an attack goes off (X, click, Hit)
 // The second input byte (2026-11-06): BOOST, a boss helmet's Rush running (the client times it from its own kills:
 // gearfx.js); FLIP, the Skirmisher's Backflip Volley (acts on the press, like Dash)
 export const BOOST = 256, FLIP = 512;
-export const KEY_MASK = 1023;
+// PICK (F2, the coaster: 3 bits from PICK_SHIFT in src/shared/coaster.js): sent with the E press from the Gathering Line's
+// card, 1 + the station to get off at; E at a station with a pick boards the car (step(), below)
+export const PICK = PICK_MASK;
+export const KEY_MASK = 1023 | PICK_MASK;
 
 // ——— Mobility (skills.js 'wind' tree). state.mv packs the ranks (skills.js mobilityOf), set by the
 // server from the character's skills and sent in every snapshot, so prediction knows them too.
@@ -961,9 +965,12 @@ const HALF_W = 16; // half the slime's footprint, for platform edges and world b
 // home: the room id of your own house (set by the server at login; 0 = none yet, so that door stays shut)
 // vt: voyage ticks, how long you've been aboard a crossing (0 everywhere else)
 // town: your town (an index into TOWNS), the last one you were in
+// rd, rc: riding the Gathering Line (F2, src/shared/coaster.js): rd the ride (1 + from * 4 + to, 0 when not riding), rc
+// ticks since the car left. While riding, step() puts you on the track and nothing else moves you; at the end it sets you
+// down at the station
 // fw: 1 once you've freed the Wickmother (set by the server from your story record; snapshots leave it out, like home):
 // the Hall of Lamps' front door on the Causeway opens for you (a door with `freed`, L5 (c))
-export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0, hk: 0, hc: 0, gx: 0, aj: 0, tr: 0, cs: 0, pf: 0, tl: 0, fw: 0 });
+export const newState = (x = SPAWN_X) => ({ x, y: GROUND_Y, vx: 0, vy: 0, grounded: true, drop: 0, facing: 1, onPlat: false, room: VILLAGE, use: false, jh: false, dh: false, bh: false, mv: 0, dt: 0, dc: 0, bc: 0, ifr: 0, fj: false, home: 0, vt: 0, town: 0, mw: 0, ah: false, sl: false, sc: 0, uc: 0, cw: 0, uw: 0, lw: 0, hk: 0, hc: 0, gx: 0, aj: 0, tr: 0, cs: 0, pf: 0, tl: 0, fw: 0, rd: 0, rc: 0 });
 // Move a slime to (room, x), standing, keeping who it is (house, mobility, town). For the server's
 // teleports (waking up, invites, tests); doors do this inside step().
 export const placeAt = (s, room, x) => Object.assign(s, newState(x), { room, y: roomDef(room).ground, home: s.home, fw: s.fw | 0, mv: s.mv, mw: s.mw, gx: s.gx, facing: s.facing, town: townOf(room) >= 0 ? townOf(room) : s.town | 0 });
@@ -1002,6 +1009,32 @@ export function step(s, keys) {
     s.vx = s.dt = s.hk = 0;
     s.sl = false;
   }
+  // riding the Gathering Line (src/shared/coaster.js): the track carries you, keys do nothing, and the ride's end sets you
+  // down at your station
+  if (s.rd && s.room !== FAIR) s.rd = s.rc = 0;
+  if (s.rd) {
+    s.use = !!(held & USE);
+    s.jh = !!(held & JUMP);
+    s.dh = !!(held & DASH);
+    s.bh = !!(held & BLINK);
+    s.ah = !!(held & ATTACK);
+    s.rc = (s.rc | 0) + 1;
+    const p = rideAt(s.rd, s.rc);
+    s.vx = s.vy = s.drop = s.dt = s.hk = 0;
+    s.sl = s.onPlat = false;
+    s.grounded = true;
+    if (p.done) {
+      s.x = p.x;
+      s.y = roomDef(s.room).ground;
+      s.rd = s.rc = 0;
+    } else {
+      s.x = q(p.x);
+      s.y = q(p.y - SEAT);
+      const c = Math.cos(p.a);
+      if (Math.abs(c) > 0.3) s.facing = c > 0 ? 1 : -1;
+    }
+    return s;
+  }
   const pressedUse = keys & USE && !s.use;
   s.use = !!(held & USE);
   const door = pressedUse && doorAt(s);
@@ -1017,6 +1050,19 @@ export function step(s, keys) {
     return s;
   }
   const room = roomDef(s.room);
+  // boarding the Gathering Line: E with the card's pick, standing at a station (and not picking that same one)
+  const pick = (keys & PICK_MASK) >> PICK_SHIFT;
+  if (pressedUse && pick && pick <= STATIONS.length && s.room === FAIR) {
+    const from = stationAt(s);
+    if (from >= 0 && from !== pick - 1) {
+      s.rd = rideCode(from, pick - 1);
+      s.rc = 0;
+      s.x = STATIONS[from].x;
+      s.vx = s.vy = s.dt = 0;
+      s.facing = 1;
+      return s;
+    }
+  }
   s.vt = room.crossing ? Math.min(VOYAGE_MAX, (s.vt | 0) + 1) : 0;
   if (room.town !== undefined) s.town = room.town;
   const pressedJump = keys & JUMP && !s.jh, pressedDash = keys & DASH && !s.dh, pressedBlink = keys & BLINK && !s.bh, pressedAttack = keys & ATTACK && !s.ah;
@@ -1167,11 +1213,11 @@ export function step(s, keys) {
   return s;
 }
 
-// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town, mw, flags2, sc, uc, cw, uw, lw, hk, hc, gx, aj, tr, cs, pf, tl]
+// Wire format for one slime: [id, x, y, vx, vy, flags, drop, room, mv, dt, dc, bc, ifr, vt, town, mw, flags2, sc, uc, cw, uw, lw, hk, hc, gx, aj, tr, cs, pf, tl, rd, rc]
 // (`home` never changes, so it isn't in snapshots: welcome / join info carry it, and src/net.js keeps ours)
 // flags: 1 grounded · 2 on a platform · 4 facing left · 8 E held · 16 Jump held · 32 Dash held · 64 Blink held · 128 Flash Jump used
 // flags2: 1 Attack held · 2 slamming
-export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0, s.mw | 0, (s.ah ? 1 : 0) | (s.sl ? 2 : 0), s.sc | 0, s.uc | 0, s.cw | 0, s.uw | 0, s.lw | 0, s.hk | 0, s.hc | 0, s.gx | 0, s.aj | 0, s.tr | 0, s.cs | 0, s.pf | 0, s.tl | 0];
+export const pack = (id, s) => [id, s.x, s.y, s.vx, s.vy, (s.grounded ? 1 : 0) | (s.onPlat ? 2 : 0) | (s.facing < 0 ? 4 : 0) | (s.use ? 8 : 0) | (s.jh ? 16 : 0) | (s.dh ? 32 : 0) | (s.bh ? 64 : 0) | (s.fj ? 128 : 0), s.drop, s.room, s.mv | 0, s.dt | 0, s.dc | 0, s.bc | 0, s.ifr | 0, s.vt | 0, s.town | 0, s.mw | 0, (s.ah ? 1 : 0) | (s.sl ? 2 : 0), s.sc | 0, s.uc | 0, s.cw | 0, s.uw | 0, s.lw | 0, s.hk | 0, s.hc | 0, s.gx | 0, s.aj | 0, s.tr | 0, s.cs | 0, s.pf | 0, s.tl | 0, s.rd | 0, s.rc | 0];
 export function unpack(a, s = {}) {
   s.x = a[1];
   s.y = a[2];
@@ -1210,6 +1256,8 @@ export function unpack(a, s = {}) {
   s.cs = a[27] ?? 0;
   s.pf = a[28] ?? 0;
   s.tl = a[29] ?? 0;
+  s.rd = a[30] ?? 0;
+  s.rc = a[31] ?? 0;
   return s;
 }
 

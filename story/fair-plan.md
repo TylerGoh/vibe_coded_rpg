@@ -19,7 +19,8 @@ Each phase shows the next one's rides closed for an in-world reason, and lifts t
   counter (five cosmetics), **booth mode** (the zoom-in minigame mechanic) with Pop Gallery and Bonk-a-Knotmole, today's
   best at each booth, the carousel (ride a bobbing horse), the Hall of Mirrors, the Pier's End, the calliope waltz.
   Shown closed: the Ring Toss, Hook-a-Duck, the Big Top, the coaster's station; the Ferris wheel turns empty.
-- [ ] **F2: the Gathering Line** (the coaster). The station's rope comes down (the chain lift is greased). Board at a
+- [x] **F2: the Gathering Line** (the coaster; shipped 2026-11-21, `docs/places/coaster.md`: as planned, with the stations' rides
+  shown in seconds on the card and the way back west high over everything). The station's rope comes down (the chain lift is greased). Board at a
   station, pick where to get off on a card (like the Set sail card). Your place on the track comes from a ride clock in
   `step()` (like the voyage clock `vt`: predicted, in snapshots, a wire version bump), so friends who board together
   ride together and everyone on the ground sees you go by; the car tilts with the track and your slime turns with it
